@@ -4,7 +4,7 @@ stage({
 });
 
 sprite("body-a", {
-  costume: "https://cdn.jsdelivr.net/gh/fttawa/NekoC@main/samples/assets/three_body_body_a.png",
+  costume: "https://creation.bcmcdn.com/922/user-files/d2ViXzIwMDJfMTc5ODgyNTlfMzIwOTgxODA1XzE3ODI2MjI4MDAwMDBfRnR3U0xVSjFuU2lkN29neWstTmlzR1hPeHlNYw==.png",
   x: 70,
   y: 0,
   scale: 110,
@@ -24,7 +24,7 @@ sprite("body-a", {
 });
 
 sprite("body-b", {
-  costume: "https://cdn.jsdelivr.net/gh/fttawa/NekoC@main/samples/assets/three_body_body_b.png",
+  costume: "https://creation.bcmcdn.com/922/user-files/d2ViXzIwMDJfMTc5ODgyNTlfMzIwOTgxODA1XzE3ODI2MjI4MDAwMDBfRnR6MnpPdWh0N2FjU3hJOGxydjlKTXpHdUFNbw==.png",
   x: -45,
   y: 45,
   scale: 100,
@@ -44,7 +44,7 @@ sprite("body-b", {
 });
 
 sprite("body-c", {
-  costume: "https://cdn.jsdelivr.net/gh/fttawa/NekoC@main/samples/assets/three_body_body_c.png",
+  costume: "https://creation.bcmcdn.com/922/user-files/d2ViXzIwMDJfMTc5ODgyNTlfMzIwOTgxODA1XzE3ODI2MjI4MDAwMDBfRnB4RnNuUERMVm85LTktZFZqMG5BMTY5R2hKUQ==.png",
   x: -35,
   y: -55,
   scale: 95,
