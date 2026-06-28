@@ -14,6 +14,7 @@ struct CompiledProcedure {
 
 struct CompiledSprite {
     name: String,
+    screen_id: Option<String>,
     costume: Option<String>,
     x: f64,
     y: f64,
@@ -22,6 +23,12 @@ struct CompiledSprite {
     center_x: f64,
     center_y: f64,
     blocks: Vec<Value>,
+}
+
+struct CompiledScreen {
+    id: String,
+    name: String,
+    backdrop: Option<String>,
 }
 
 pub fn compile_ts_bcmkn(
@@ -42,7 +49,8 @@ pub fn compile_ts_bcmkn(
     let mut scripts = workspace_data_to_neko_blocks(workspace_data)?;
     let mut procedures = compiled_procedures_from_report(&workspace_report)?;
     let mut sprites = compiled_sprites_from_report(&workspace_report)?;
-    let has_registered_sprites = !sprites.is_empty();
+    let screens = compiled_screens_from_report(&workspace_report, &mut sprites)?;
+    let has_registered_resources = !sprites.is_empty() || !screens.is_empty();
 
     if let Some(first) = scripts.first_mut().and_then(Value::as_object_mut) {
         first.insert("location".to_owned(), json!([80, 120]));
@@ -50,7 +58,7 @@ pub fn compile_ts_bcmkn(
 
     let mut project = project::load_project(template)?.value;
     clear_all_scripts(&mut project);
-    if has_registered_sprites {
+    if has_registered_resources {
         reset_template_for_registered_resources(&mut project)?;
     }
     ensure_variables(&mut project, &mut scripts);
@@ -66,7 +74,18 @@ pub fn compile_ts_bcmkn(
         ensure_lists(&mut project, &mut sprite.blocks);
         ensure_broadcasts(&mut project, &sprite.blocks);
     }
-    apply_stage_resource(&mut project, workspace_report.pointer("/resources/stage"))?;
+    if screens.is_empty() {
+        apply_stage_resource(&mut project, workspace_report.pointer("/resources/stage"))?;
+    } else {
+        inject_screen_resources(&mut project, &screens)?;
+        rewrite_screen_references(&mut scripts, &screens);
+        for procedure in &mut procedures {
+            rewrite_screen_references(&mut procedure.blocks, &screens);
+        }
+        for sprite in &mut sprites {
+            rewrite_screen_references(&mut sprite.blocks, &screens);
+        }
+    }
     if !scripts.is_empty() {
         inject_scripts_into_first_actor(&mut project, scripts)?;
     }
@@ -154,6 +173,7 @@ fn compiled_sprites_from_report(report: &Value) -> Result<Vec<CompiledSprite>> {
 
             Ok(CompiledSprite {
                 name,
+                screen_id: None,
                 costume,
                 x: sprite.get("x").and_then(Value::as_f64).unwrap_or(0.0),
                 y: sprite.get("y").and_then(Value::as_f64).unwrap_or(0.0),
@@ -168,6 +188,74 @@ fn compiled_sprites_from_report(report: &Value) -> Result<Vec<CompiledSprite>> {
             })
         })
         .collect()
+}
+
+fn compiled_screens_from_report(
+    report: &Value,
+    sprites: &mut Vec<CompiledSprite>,
+) -> Result<Vec<CompiledScreen>> {
+    let Some(screens) = report
+        .pointer("/resources/screens")
+        .and_then(Value::as_array)
+    else {
+        return Ok(Vec::new());
+    };
+
+    let mut compiled = Vec::new();
+    for screen in screens {
+        let id = screen
+            .get("id")
+            .and_then(Value::as_str)
+            .context("compiled screen resource is missing id")?
+            .to_owned();
+        let name = screen
+            .get("name")
+            .and_then(Value::as_str)
+            .context("compiled screen resource is missing name")?
+            .to_owned();
+        let backdrop = screen
+            .get("backdrop")
+            .and_then(Value::as_str)
+            .map(ToOwned::to_owned);
+
+        if let Some(screen_sprites) = screen.get("sprites").and_then(Value::as_array) {
+            for sprite in screen_sprites {
+                let name = sprite
+                    .get("name")
+                    .and_then(Value::as_str)
+                    .context("compiled screen sprite resource is missing name")?
+                    .to_owned();
+                let costume = sprite
+                    .get("costume")
+                    .and_then(Value::as_str)
+                    .map(ToOwned::to_owned);
+                let workspace_data = sprite
+                    .get("workspaceData")
+                    .context("compiled screen sprite resource is missing workspaceData")?;
+                let blocks = workspace_data_to_neko_blocks(workspace_data)?;
+
+                sprites.push(CompiledSprite {
+                    name,
+                    screen_id: Some(id.clone()),
+                    costume,
+                    x: sprite.get("x").and_then(Value::as_f64).unwrap_or(0.0),
+                    y: sprite.get("y").and_then(Value::as_f64).unwrap_or(0.0),
+                    scale: sprite.get("scale").and_then(Value::as_f64).unwrap_or(100.0),
+                    visible: sprite
+                        .get("visible")
+                        .and_then(Value::as_bool)
+                        .unwrap_or(true),
+                    center_x: sprite.get("centerX").and_then(Value::as_f64).unwrap_or(0.0),
+                    center_y: sprite.get("centerY").and_then(Value::as_f64).unwrap_or(0.0),
+                    blocks,
+                });
+            }
+        }
+
+        compiled.push(CompiledScreen { id, name, backdrop });
+    }
+
+    Ok(compiled)
 }
 
 pub fn workspace_data_to_neko_blocks(workspace_data: &Value) -> Result<Vec<Value>> {
@@ -415,15 +503,67 @@ fn apply_stage_resource(project: &mut Value, stage: Option<&Value>) -> Result<()
     Ok(())
 }
 
+fn inject_screen_resources(project: &mut Value, screens: &[CompiledScreen]) -> Result<()> {
+    if screens.is_empty() {
+        return Ok(());
+    }
+    ensure_styles_dict(project);
+    if project.get("scenes").is_none() {
+        project["scenes"] = json!({"scenesDict": {}, "sortList": []});
+    }
+    if project["scenes"].get("scenesDict").is_none() {
+        project["scenes"]["scenesDict"] = Value::Object(Map::new());
+    }
+
+    let mut scenes_dict = Map::new();
+    let mut sort_list = Vec::new();
+    for screen in screens {
+        let style_id = format!("{}-style", screen.id);
+        scenes_dict.insert(
+            screen.id.clone(),
+            json!({
+                "id": screen.id,
+                "name": screen.name,
+                "screenName": screen.name,
+                "styles": [style_id],
+                "currentStyleId": style_id,
+                "actorIds": [],
+                "visible": true,
+                "nekoBlockJsonList": [],
+                "workspaceScrollXy": {"x": 0, "y": 30},
+                "editable": true,
+                "comments": {},
+            }),
+        );
+        project["styles"]["stylesDict"][&style_id] = json!({
+            "id": style_id,
+            "name": screen.name,
+            "url": screen.backdrop.clone().unwrap_or_else(|| "https://static.codemao.cn/neko/img_stage_defult_portrait.png".to_owned()),
+        });
+        sort_list.push(Value::String(screen.id.clone()));
+    }
+
+    project["scenes"]["scenesDict"] = Value::Object(scenes_dict);
+    project["scenes"]["sortList"] = Value::Array(sort_list);
+    project["scenes"]["currentSceneId"] = Value::String(screens[0].id.clone());
+
+    Ok(())
+}
+
 fn inject_sprite_resources(project: &mut Value, sprites: Vec<CompiledSprite>) -> Result<()> {
     if sprites.is_empty() {
         return Ok(());
     }
-    let scene_id = current_scene_id(project).context("template project must contain a scene")?;
+    let default_scene_id =
+        current_scene_id(project).context("template project must contain a scene")?;
     ensure_actors_dict(project);
     ensure_styles_dict(project);
 
     for sprite in sprites {
+        let scene_id = sprite
+            .screen_id
+            .clone()
+            .unwrap_or_else(|| default_scene_id.clone());
         let id_part = sanitize_id_part(&sprite.name);
         let actor_id = format!("nekoc-actor-{id_part}");
         let style_id = format!("nekoc-style-{id_part}");
@@ -452,7 +592,7 @@ fn inject_sprite_resources(project: &mut Value, sprites: Vec<CompiledSprite>) ->
         });
 
         let scene = get_path_mut(project, &["scenes", "scenesDict", &scene_id])
-            .context("current scene is missing")?;
+            .with_context(|| format!("target scene {scene_id} is missing"))?;
         if !scene.get("actorIds").is_some_and(Value::is_array) {
             scene["actorIds"] = Value::Array(Vec::new());
         }
@@ -464,6 +604,38 @@ fn inject_sprite_resources(project: &mut Value, sprites: Vec<CompiledSprite>) ->
     }
 
     Ok(())
+}
+
+fn rewrite_screen_references(blocks: &mut [Value], screens: &[CompiledScreen]) {
+    let mapping = screens
+        .iter()
+        .map(|screen| (screen.name.as_str(), screen.id.as_str()))
+        .collect::<BTreeMap<_, _>>();
+    for block in blocks {
+        rewrite_screen_references_in_value(block, &mapping);
+    }
+}
+
+fn rewrite_screen_references_in_value(value: &mut Value, mapping: &BTreeMap<&str, &str>) {
+    match value {
+        Value::Object(object) => {
+            if let Some(fields) = object.get_mut("fields").and_then(Value::as_object_mut)
+                && let Some(screen_id) = fields.get_mut("screen_id")
+                && let Some(replacement) = screen_id.as_str().and_then(|id| mapping.get(id))
+            {
+                *screen_id = Value::String((*replacement).to_owned());
+            }
+            for child in object.values_mut() {
+                rewrite_screen_references_in_value(child, mapping);
+            }
+        }
+        Value::Array(items) => {
+            for item in items {
+                rewrite_screen_references_in_value(item, mapping);
+            }
+        }
+        _ => {}
+    }
 }
 
 fn inject_procedures(project: &mut Value, procedures: Vec<CompiledProcedure>) {

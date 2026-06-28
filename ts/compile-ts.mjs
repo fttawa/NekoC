@@ -30,7 +30,9 @@ class WorkspaceCompiler {
     this.resources = {
       stage: null,
       sprites: [],
+      screens: [],
     };
+    this.currentScreen = null;
   }
 
   compile(sourceFile) {
@@ -285,6 +287,8 @@ class WorkspaceCompiler {
         return this.compileProcedureDefinition(call, true);
       case "stage":
         return this.compileStageResource(call);
+      case "screen":
+        return this.compileScreenResource(call);
       case "sprite":
         return this.compileSpriteResource(call);
       case "onStart":
@@ -315,19 +319,56 @@ class WorkspaceCompiler {
     };
   }
 
+  compileScreenResource(call) {
+    if (call.arguments.length !== 3) {
+      this.unsupported(call, "screen expects name, options, and callback");
+    }
+    const name = stringLiteralValue(call.arguments[0], this);
+    if (this.resources.screens.some((screen) => screen.name === name)) {
+      this.unsupported(call.arguments[0], `Duplicate screen resource: ${name}`);
+    }
+    const options = objectLiteralOptions(call.arguments[1], this);
+    const body = callbackBody(call.arguments[2], this);
+    const screen = {
+      id: `nekoc-screen-${sanitizeIdPart(name)}`,
+      name,
+      backdrop: optionalStringOption(options, "backdrop", null, this, call.arguments[1]),
+      sprites: [],
+    };
+    this.resources.screens.push(screen);
+
+    const savedScreen = this.currentScreen;
+    this.currentScreen = screen;
+    try {
+      body.forEach((statement) => {
+        if (ts.isExpressionStatement(statement) && ts.isCallExpression(statement.expression)) {
+          const callName = calleeName(statement.expression.expression);
+          if (callName === "sprite") {
+            this.compileSpriteResource(statement.expression);
+            return;
+          }
+        }
+        this.unsupported(statement, "screen callbacks support only sprite calls");
+      });
+    } finally {
+      this.currentScreen = savedScreen;
+    }
+  }
+
   compileSpriteResource(call) {
     if (call.arguments.length !== 3) {
       this.unsupported(call, "sprite expects name, options, and callback");
     }
     const name = stringLiteralValue(call.arguments[0], this);
-    if (this.resources.sprites.some((sprite) => sprite.name === name)) {
+    const targetSprites = this.currentScreen ? this.currentScreen.sprites : this.resources.sprites;
+    if (targetSprites.some((sprite) => sprite.name === name)) {
       this.unsupported(call.arguments[0], `Duplicate sprite resource: ${name}`);
     }
     const options = objectLiteralOptions(call.arguments[1], this);
     const body = callbackBody(call.arguments[2], this);
     const workspace = this.compileIsolatedTopLevelStatements(body, call.arguments[2]);
 
-    this.resources.sprites.push({
+    targetSprites.push({
       name,
       costume: optionalStringOption(options, "costume", null, this, call.arguments[1]),
       x: optionalNumberOption(options, "x", 0, this, call.arguments[1]),

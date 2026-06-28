@@ -123,6 +123,28 @@ sprite("player", {
 });
 ```
 
+Multiple Kitten N screens can be declared with `screen`. Sprites inside the
+callback are attached to that screen, and `switchScreen` can target another
+declared screen by name:
+
+```ts
+screen("menu", { backdrop: "https://example.com/menu.png" }, () => {
+  sprite("start", { costume: "https://example.com/start.png" }, () => {
+    onStart(() => {
+      switchScreen("game");
+    });
+  });
+});
+
+screen("game", { backdrop: "https://example.com/game.png" }, () => {
+  sprite("player", { costume: "https://example.com/player.png" }, () => {
+    onStart(() => {
+      console.log("go");
+    });
+  });
+});
+```
+
 ## Repository Notes
 
 The included `.bcmkn` fixture is a small native template used for compiler

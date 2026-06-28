@@ -3817,6 +3817,59 @@ sprite("player", {
 }
 
 #[test]
+fn cli_compile_ts_reports_screen_resources() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("screens.ts");
+    let output = dir.path().join("screens.json");
+    fs::write(
+        &input,
+        r#"
+screen("menu", {
+  backdrop: "https://example.com/menu.png",
+}, () => {
+  sprite("start", {
+    costume: "https://example.com/start.png",
+  }, () => {
+    onStart(() => {
+      switchScreen("game");
+    });
+  });
+});
+"#,
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts",
+            input.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let report: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    let screen = &report["resources"]["screens"][0];
+    let sprite = &screen["sprites"][0];
+
+    assert_eq!(screen["id"], "nekoc-screen-menu");
+    assert_eq!(screen["name"], "menu");
+    assert_eq!(screen["backdrop"], "https://example.com/menu.png");
+    assert_eq!(sprite["name"], "start");
+    assert_eq!(sprite["costume"], "https://example.com/start.png");
+    assert!(
+        sprite["workspaceData"]["blocks"]
+            .as_object()
+            .unwrap()
+            .values()
+            .any(|block| block["type"] == "switch_to_screen")
+    );
+}
+
+#[test]
 fn cli_compile_ts_bcmkn_registers_stage_and_sprite_resources() {
     let dir = tempdir().unwrap();
     let input = dir.path().join("resources.ts");
@@ -3967,4 +4020,107 @@ fn cli_compile_ts_bcmkn_three_body_sample_validates() {
             .unwrap_or_else(|| panic!("missing {name}"));
         assert_eq!(actor["nekoBlockJsonList"].as_array().unwrap().len(), 1);
     }
+}
+
+#[test]
+fn cli_compile_ts_bcmkn_registers_multiple_screens() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("screens.ts");
+    let output = dir.path().join("screens.bcmkn");
+    fs::write(
+        &input,
+        r#"
+screen("menu", {
+  backdrop: "https://example.com/menu.png",
+}, () => {
+  sprite("start", {
+    costume: "https://example.com/start.png",
+  }, () => {
+    onStart(() => {
+      switchScreen("game");
+    });
+  });
+});
+
+screen("game", {
+  backdrop: "https://example.com/game.png",
+}, () => {
+  sprite("player", {
+    costume: "https://example.com/player.png",
+    x: 10,
+  }, () => {
+    onStart(() => {
+      console.log("go");
+    });
+  });
+});
+"#,
+    )
+    .unwrap();
+    let template = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts-bcmkn",
+            input.to_str().unwrap(),
+            "--template",
+            template.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args(["validate", output.to_str().unwrap()])
+        .assert()
+        .success();
+
+    let project: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    let scenes = project["scenes"]["scenesDict"].as_object().unwrap();
+    let sort_list = project["scenes"]["sortList"].as_array().unwrap();
+    let actors = project["actors"]["actorsDict"].as_object().unwrap();
+    let styles = project["styles"]["stylesDict"].as_object().unwrap();
+
+    assert_eq!(scenes.len(), 2);
+    assert_eq!(sort_list.len(), 2);
+    assert_eq!(project["scenes"]["currentSceneId"], "nekoc-screen-menu");
+    assert_eq!(scenes["nekoc-screen-menu"]["name"], "menu");
+    assert_eq!(scenes["nekoc-screen-game"]["screenName"], "game");
+    assert_eq!(
+        styles[scenes["nekoc-screen-menu"]["currentStyleId"]
+            .as_str()
+            .unwrap()]["url"],
+        "https://example.com/menu.png"
+    );
+    assert_eq!(
+        styles[scenes["nekoc-screen-game"]["currentStyleId"]
+            .as_str()
+            .unwrap()]["url"],
+        "https://example.com/game.png"
+    );
+    assert_eq!(
+        scenes["nekoc-screen-menu"]["actorIds"],
+        json!(["nekoc-actor-start"])
+    );
+    assert_eq!(
+        scenes["nekoc-screen-game"]["actorIds"],
+        json!(["nekoc-actor-player"])
+    );
+    assert_eq!(actors["nekoc-actor-start"]["name"], "start");
+    assert_eq!(actors["nekoc-actor-player"]["position"]["x"], 10.0);
+
+    let start_blocks = actors["nekoc-actor-start"]["nekoBlockJsonList"]
+        .as_array()
+        .unwrap();
+    let start_script = &start_blocks[0];
+    assert_eq!(
+        start_script["next"]["inputs"]["screen_id"]["fields"]["screen_id"],
+        "nekoc-screen-game"
+    );
 }
