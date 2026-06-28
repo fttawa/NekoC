@@ -18,6 +18,8 @@ This project is early and conservative.
 - Plain TypeScript helper functions are inlined at compile time.
 - Natural TypeScript variable syntax has started: `let score = 0`,
   `score = score + 1`, and `console.log(score)` compile to Kitten N blocks.
+- Stage and sprite resource registration can update the background and create
+  actors with their own event scripts.
 - The compiler preserves unknown project fields and avoids destructive
   rewriting of IDs/resources.
 
@@ -86,6 +88,28 @@ onStart(() => {
 });
 ```
 
+Stage and sprite resources can be declared at the top level. Event blocks inside
+a sprite callback are attached to that generated actor:
+
+```ts
+stage({
+  name: "main",
+  backdrop: "https://example.com/bg.png",
+});
+
+sprite("player", {
+  costume: "https://example.com/player.png",
+  x: 0,
+  y: 0,
+  scale: 100,
+  visible: true,
+}, () => {
+  onStart(() => {
+    console.log("ready");
+  });
+});
+```
+
 ## Repository Notes
 
 The included `.bcmkn` fixture is a small native template used for compiler
@@ -99,5 +123,6 @@ reports, and temporary research output should stay outside Git.
   and expressions.
 - Introduce a typed intermediate representation between TypeScript AST and
   Kitten N block JSON.
-- Expand resource handling for scenes, actors, costumes, and media.
+- Expand resource handling for local files, base64 assets, sounds, and multiple
+  scenes.
 - Add optimization passes after roundtrip correctness is stable.

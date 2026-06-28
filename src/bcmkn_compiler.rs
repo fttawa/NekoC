@@ -12,6 +12,16 @@ struct CompiledProcedure {
     blocks: Vec<Value>,
 }
 
+struct CompiledSprite {
+    name: String,
+    costume: Option<String>,
+    x: f64,
+    y: f64,
+    scale: f64,
+    visible: bool,
+    blocks: Vec<Value>,
+}
+
 pub fn compile_ts_bcmkn(
     input: impl AsRef<Path>,
     template: impl AsRef<Path>,
@@ -29,6 +39,7 @@ pub fn compile_ts_bcmkn(
         .context("compiled TypeScript report is missing workspaceData")?;
     let mut scripts = workspace_data_to_neko_blocks(workspace_data)?;
     let mut procedures = compiled_procedures_from_report(&workspace_report)?;
+    let mut sprites = compiled_sprites_from_report(&workspace_report)?;
 
     if let Some(first) = scripts.first_mut().and_then(Value::as_object_mut) {
         first.insert("location".to_owned(), json!([80, 120]));
@@ -44,7 +55,14 @@ pub fn compile_ts_bcmkn(
         ensure_lists(&mut project, &mut procedure.blocks);
         ensure_broadcasts(&mut project, &procedure.blocks);
     }
+    for sprite in &mut sprites {
+        ensure_variables(&mut project, &mut sprite.blocks);
+        ensure_lists(&mut project, &mut sprite.blocks);
+        ensure_broadcasts(&mut project, &sprite.blocks);
+    }
+    apply_stage_resource(&mut project, workspace_report.pointer("/resources/stage"))?;
     inject_scripts_into_first_actor(&mut project, scripts)?;
+    inject_sprite_resources(&mut project, sprites)?;
     inject_procedures(&mut project, procedures);
     project["projectName"] = Value::String(project_name(input));
 
@@ -95,6 +113,47 @@ fn compiled_procedures_from_report(report: &Value) -> Result<Vec<CompiledProcedu
                 name,
                 proc_type,
                 params,
+                blocks,
+            })
+        })
+        .collect()
+}
+
+fn compiled_sprites_from_report(report: &Value) -> Result<Vec<CompiledSprite>> {
+    let Some(sprites) = report
+        .pointer("/resources/sprites")
+        .and_then(Value::as_array)
+    else {
+        return Ok(Vec::new());
+    };
+
+    sprites
+        .iter()
+        .map(|sprite| {
+            let name = sprite
+                .get("name")
+                .and_then(Value::as_str)
+                .context("compiled sprite resource is missing name")?
+                .to_owned();
+            let costume = sprite
+                .get("costume")
+                .and_then(Value::as_str)
+                .map(ToOwned::to_owned);
+            let workspace_data = sprite
+                .get("workspaceData")
+                .context("compiled sprite resource is missing workspaceData")?;
+            let blocks = workspace_data_to_neko_blocks(workspace_data)?;
+
+            Ok(CompiledSprite {
+                name,
+                costume,
+                x: sprite.get("x").and_then(Value::as_f64).unwrap_or(0.0),
+                y: sprite.get("y").and_then(Value::as_f64).unwrap_or(0.0),
+                scale: sprite.get("scale").and_then(Value::as_f64).unwrap_or(100.0),
+                visible: sprite
+                    .get("visible")
+                    .and_then(Value::as_bool)
+                    .unwrap_or(true),
                 blocks,
             })
         })
@@ -247,6 +306,116 @@ fn inject_scripts_into_first_actor(project: &mut Value, scripts: Vec<Value>) -> 
         bail!("template project must contain at least one actor");
     };
     actor["nekoBlockJsonList"] = Value::Array(scripts);
+    Ok(())
+}
+
+fn apply_stage_resource(project: &mut Value, stage: Option<&Value>) -> Result<()> {
+    let Some(stage) = stage.and_then(Value::as_object) else {
+        return Ok(());
+    };
+    let name = stage.get("name").and_then(Value::as_str);
+    let backdrop = stage.get("backdrop").and_then(Value::as_str);
+    if name.is_none() && backdrop.is_none() {
+        return Ok(());
+    }
+
+    let scene_id = current_scene_id(project).context("template project must contain a scene")?;
+    let style_id = {
+        let scenes = get_path_mut(project, &["scenes", "scenesDict"])
+            .and_then(Value::as_object_mut)
+            .context("template project must contain scenes.scenesDict")?;
+        let scene = scenes
+            .get_mut(&scene_id)
+            .with_context(|| format!("current scene {scene_id} is missing"))?;
+        if let Some(name) = name {
+            scene["name"] = Value::String(name.to_owned());
+            scene["screenName"] = Value::String(name.to_owned());
+        }
+        let style_id = scene
+            .get("currentStyleId")
+            .and_then(Value::as_str)
+            .map(ToOwned::to_owned)
+            .or_else(|| {
+                scene
+                    .get("styles")
+                    .and_then(Value::as_array)
+                    .and_then(|styles| styles.first())
+                    .and_then(Value::as_str)
+                    .map(ToOwned::to_owned)
+            })
+            .unwrap_or_else(|| "nekoc-stage-style-main".to_owned());
+        scene["currentStyleId"] = Value::String(style_id.clone());
+        if !scene.get("styles").is_some_and(Value::is_array) {
+            scene["styles"] = Value::Array(Vec::new());
+        }
+        if let Some(styles) = scene["styles"].as_array_mut()
+            && !styles.iter().any(|id| id.as_str() == Some(&style_id))
+        {
+            styles.push(Value::String(style_id.clone()));
+        }
+        style_id
+    };
+
+    if let Some(backdrop) = backdrop {
+        ensure_styles_dict(project);
+        project["styles"]["stylesDict"][&style_id] = json!({
+            "id": style_id,
+            "name": name.unwrap_or("main"),
+            "url": backdrop,
+        });
+    }
+
+    Ok(())
+}
+
+fn inject_sprite_resources(project: &mut Value, sprites: Vec<CompiledSprite>) -> Result<()> {
+    if sprites.is_empty() {
+        return Ok(());
+    }
+    let scene_id = current_scene_id(project).context("template project must contain a scene")?;
+    ensure_actors_dict(project);
+    ensure_styles_dict(project);
+
+    for sprite in sprites {
+        let id_part = sanitize_id_part(&sprite.name);
+        let actor_id = format!("nekoc-actor-{id_part}");
+        let style_id = format!("nekoc-style-{id_part}");
+
+        project["styles"]["stylesDict"][&style_id] = json!({
+            "id": style_id,
+            "url": sprite.costume.unwrap_or_default(),
+            "name": sprite.name,
+            "centerPoint": {"x": 0, "y": 0},
+        });
+        project["actors"]["actorsDict"][&actor_id] = json!({
+            "id": actor_id,
+            "position": {"x": sprite.x, "y": sprite.y},
+            "scale": sprite.scale,
+            "locked": false,
+            "rotation": 0,
+            "nekoBlockJsonList": sprite.blocks,
+            "visible": sprite.visible,
+            "workspaceScrollXy": {"x": 0, "y": 30},
+            "deletable": true,
+            "editable": true,
+            "name": sprite.name,
+            "styles": [style_id],
+            "currentStyleId": style_id,
+            "comments": {},
+        });
+
+        let scene = get_path_mut(project, &["scenes", "scenesDict", &scene_id])
+            .context("current scene is missing")?;
+        if !scene.get("actorIds").is_some_and(Value::is_array) {
+            scene["actorIds"] = Value::Array(Vec::new());
+        }
+        if let Some(actor_ids) = scene["actorIds"].as_array_mut()
+            && !actor_ids.iter().any(|id| id.as_str() == Some(&actor_id))
+        {
+            actor_ids.push(Value::String(actor_id));
+        }
+    }
+
     Ok(())
 }
 
@@ -517,6 +686,40 @@ fn insert_list(project: &mut Value, id: &str, name: &str) {
         "isGlobal": true,
         "createTime": 0,
     });
+}
+
+fn ensure_actors_dict(project: &mut Value) {
+    if project.get("actors").is_none() {
+        project["actors"] = json!({"actorsDict": {}});
+    }
+    if project["actors"].get("actorsDict").is_none() {
+        project["actors"]["actorsDict"] = Value::Object(Map::new());
+    }
+}
+
+fn ensure_styles_dict(project: &mut Value) {
+    if project.get("styles").is_none() {
+        project["styles"] = json!({"stylesDict": {}});
+    }
+    if project["styles"].get("stylesDict").is_none() {
+        project["styles"]["stylesDict"] = Value::Object(Map::new());
+    }
+}
+
+fn current_scene_id(project: &Value) -> Option<String> {
+    project
+        .get("scenes")
+        .and_then(|scenes| scenes.get("currentSceneId"))
+        .and_then(Value::as_str)
+        .map(ToOwned::to_owned)
+        .or_else(|| {
+            project
+                .get("scenes")
+                .and_then(|scenes| scenes.get("scenesDict"))
+                .and_then(Value::as_object)
+                .and_then(|scenes| scenes.keys().next())
+                .map(ToOwned::to_owned)
+        })
 }
 
 fn rewrite_variable_fields(blocks: &mut [Value], mapping: &BTreeMap<String, String>) {

@@ -3626,3 +3626,164 @@ fn cli_compile_ts_bcmkn_multi_file_project_sample_validates() {
             .is_empty()
     );
 }
+
+#[test]
+fn cli_compile_ts_reports_stage_and_sprite_resources() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("resources.ts");
+    let output = dir.path().join("resources.json");
+    fs::write(
+        &input,
+        r#"
+stage({
+  name: "main",
+  backdrop: "https://example.com/bg.png",
+});
+
+sprite("player", {
+  costume: "https://example.com/player.png",
+  x: 12,
+  y: -34,
+  scale: 80,
+  visible: false,
+}, () => {
+  onStart(() => {
+    console.log("ready");
+  });
+});
+"#,
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts",
+            input.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let report: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    let sprite = &report["resources"]["sprites"][0];
+    let sprite_blocks = sprite["workspaceData"]["blocks"].as_object().unwrap();
+
+    assert_eq!(report["resources"]["stage"]["name"], "main");
+    assert_eq!(
+        report["resources"]["stage"]["backdrop"],
+        "https://example.com/bg.png"
+    );
+    assert_eq!(sprite["name"], "player");
+    assert_eq!(sprite["costume"], "https://example.com/player.png");
+    assert_eq!(sprite["x"], 12);
+    assert_eq!(sprite["y"], -34);
+    assert_eq!(sprite["scale"], 80);
+    assert_eq!(sprite["visible"], false);
+    assert!(
+        sprite_blocks
+            .values()
+            .any(|block| block["type"] == "on_running_group_activated")
+    );
+    assert!(
+        sprite_blocks
+            .values()
+            .any(|block| block["type"] == "console_log")
+    );
+}
+
+#[test]
+fn cli_compile_ts_bcmkn_registers_stage_and_sprite_resources() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("resources.ts");
+    let output = dir.path().join("resources.bcmkn");
+    fs::write(
+        &input,
+        r#"
+stage({
+  name: "main",
+  backdrop: "https://example.com/bg.png",
+});
+
+sprite("player", {
+  costume: "https://example.com/player.png",
+  x: 12,
+  y: -34,
+  scale: 80,
+  visible: false,
+}, () => {
+  onStart(() => {
+    console.log("ready");
+  });
+});
+"#,
+    )
+    .unwrap();
+    let template = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts-bcmkn",
+            input.to_str().unwrap(),
+            "--template",
+            template.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args(["validate", output.to_str().unwrap()])
+        .assert()
+        .success();
+
+    let project: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    let current_scene_id = project["scenes"]["currentSceneId"].as_str().unwrap();
+    let current_scene = &project["scenes"]["scenesDict"][current_scene_id];
+    let actors = project["actors"]["actorsDict"].as_object().unwrap();
+    let styles = project["styles"]["stylesDict"].as_object().unwrap();
+    let player = actors
+        .values()
+        .find(|actor| actor["name"] == "player")
+        .unwrap();
+    let player_id = player["id"].as_str().unwrap();
+
+    assert_eq!(current_scene["name"], "main");
+    assert_eq!(current_scene["screenName"], "main");
+    assert!(
+        current_scene["actorIds"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|id| id.as_str() == Some(player_id))
+    );
+    assert!(
+        styles
+            .values()
+            .any(|style| style["url"] == "https://example.com/bg.png")
+    );
+    assert!(
+        styles
+            .values()
+            .any(|style| style["url"] == "https://example.com/player.png")
+    );
+    assert_eq!(player["position"]["x"].as_f64().unwrap(), 12.0);
+    assert_eq!(player["position"]["y"].as_f64().unwrap(), -34.0);
+    assert_eq!(player["scale"].as_f64().unwrap(), 80.0);
+    assert_eq!(player["visible"], false);
+    assert!(
+        player["nekoBlockJsonList"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|block| block["type"] == "on_running_group_activated")
+    );
+}

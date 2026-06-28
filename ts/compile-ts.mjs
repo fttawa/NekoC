@@ -27,6 +27,10 @@ class WorkspaceCompiler {
     this.globalVariables = new Set();
     this.loopDepth = 0;
     this.rangeBindings = [];
+    this.resources = {
+      stage: null,
+      sprites: [],
+    };
   }
 
   compile(sourceFile) {
@@ -79,6 +83,7 @@ class WorkspaceCompiler {
         connections: this.connections,
         comments: {},
       },
+      resources: this.resources,
       procedures: this.procedures,
     };
   }
@@ -278,6 +283,10 @@ class WorkspaceCompiler {
         return this.compileProcedureDefinition(call, false);
       case "defineReporter":
         return this.compileProcedureDefinition(call, true);
+      case "stage":
+        return this.compileStageResource(call);
+      case "sprite":
+        return this.compileSpriteResource(call);
       case "onStart":
         return this.compileNextHat(call, "on_running_group_activated", 0);
       case "onClick":
@@ -292,6 +301,81 @@ class WorkspaceCompiler {
         return this.compileBumpActorHat(call);
       default:
         this.unsupported(call, `Unsupported top-level call: ${name || "<unknown>"}`);
+    }
+  }
+
+  compileStageResource(call) {
+    if (call.arguments.length !== 1) {
+      this.unsupported(call, "stage expects one options object");
+    }
+    const options = objectLiteralOptions(call.arguments[0], this);
+    this.resources.stage = {
+      name: optionalStringOption(options, "name", "main", this, call.arguments[0]),
+      backdrop: optionalStringOption(options, "backdrop", null, this, call.arguments[0]),
+    };
+  }
+
+  compileSpriteResource(call) {
+    if (call.arguments.length !== 3) {
+      this.unsupported(call, "sprite expects name, options, and callback");
+    }
+    const name = stringLiteralValue(call.arguments[0], this);
+    if (this.resources.sprites.some((sprite) => sprite.name === name)) {
+      this.unsupported(call.arguments[0], `Duplicate sprite resource: ${name}`);
+    }
+    const options = objectLiteralOptions(call.arguments[1], this);
+    const body = callbackBody(call.arguments[2], this);
+    const workspace = this.compileIsolatedTopLevelStatements(body, call.arguments[2]);
+
+    this.resources.sprites.push({
+      name,
+      costume: optionalStringOption(options, "costume", null, this, call.arguments[1]),
+      x: optionalNumberOption(options, "x", 0, this, call.arguments[1]),
+      y: optionalNumberOption(options, "y", 0, this, call.arguments[1]),
+      scale: optionalNumberOption(options, "scale", 100, this, call.arguments[1]),
+      visible: optionalBooleanOption(options, "visible", true, this, call.arguments[1]),
+      workspaceData: workspace.workspaceData,
+      summary: workspace.summary,
+    });
+  }
+
+  compileIsolatedTopLevelStatements(statements, node) {
+    const savedBlocks = this.blocks;
+    const savedConnections = this.connections;
+    const savedNextId = this.nextId;
+    const savedScriptCount = this.scriptCount;
+
+    this.blocks = {};
+    this.connections = {};
+    this.nextId = 1;
+    this.scriptCount = 0;
+
+    try {
+      statements.forEach((statement) => {
+        if (ts.isExpressionStatement(statement) && ts.isCallExpression(statement.expression)) {
+          this.compileTopLevelCall(statement.expression);
+          return;
+        }
+        this.unsupported(statement, "sprite callbacks support only top-level event calls");
+      });
+      const isolatedScriptCount = this.scriptCount;
+      const workspaceData = {
+        blocks: this.blocks,
+        connections: this.connections,
+        comments: {},
+      };
+      const summary = {
+        scripts: isolatedScriptCount,
+        blocks: Object.keys(this.blocks).length,
+        connections: this.countConnections(),
+      };
+      return { workspaceData, summary };
+    } finally {
+      const isolatedScriptCount = this.scriptCount;
+      this.blocks = savedBlocks;
+      this.connections = savedConnections;
+      this.nextId = savedNextId;
+      this.scriptCount = savedScriptCount + isolatedScriptCount;
     }
   }
 
@@ -2623,6 +2707,55 @@ function arrayStringLiteralValues(node, compiler) {
     compiler.unsupported(node, "Expected an array of string literals");
   }
   return node.elements.map((element) => stringLiteralValue(element, compiler));
+}
+
+function objectLiteralOptions(node, compiler) {
+  if (!node || !ts.isObjectLiteralExpression(node)) {
+    compiler.unsupported(node, "Expected an object literal");
+  }
+  const options = new Map();
+  node.properties.forEach((property) => {
+    if (!ts.isPropertyAssignment(property)) {
+      compiler.unsupported(property, "Only object property assignments are supported");
+    }
+    const name = propertyNameText(property.name, compiler);
+    if (options.has(name)) {
+      compiler.unsupported(property.name, `Duplicate option: ${name}`);
+    }
+    options.set(name, property.initializer);
+  });
+  return options;
+}
+
+function propertyNameText(name, compiler) {
+  if (ts.isIdentifier(name) || ts.isStringLiteral(name) || ts.isNumericLiteral(name)) {
+    return name.text;
+  }
+  compiler.unsupported(name, "Only identifier, string, or number option names are supported");
+}
+
+function optionalStringOption(options, name, defaultValue, compiler, node) {
+  const value = options.get(name);
+  if (!value) {
+    return defaultValue;
+  }
+  return stringLiteralValue(value, compiler);
+}
+
+function optionalNumberOption(options, name, defaultValue, compiler, node) {
+  const value = options.get(name);
+  if (!value) {
+    return defaultValue;
+  }
+  return numericLiteralValue(value, compiler);
+}
+
+function optionalBooleanOption(options, name, defaultValue, compiler, node) {
+  const value = options.get(name);
+  if (!value) {
+    return defaultValue;
+  }
+  return booleanLiteralValue(value, compiler);
 }
 
 function sanitizeIdPart(value) {
