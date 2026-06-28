@@ -3787,3 +3787,42 @@ sprite("player", {
             .any(|block| block["type"] == "on_running_group_activated")
     );
 }
+
+#[test]
+fn cli_compile_ts_bcmkn_three_body_sample_validates() {
+    let dir = tempdir().unwrap();
+    let output = dir.path().join("three_body.bcmkn");
+    let samples_dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("samples");
+    let input = samples_dir.join("three_body.ts");
+    let template = samples_dir.join("我的作品-原生.bcmkn");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts-bcmkn",
+            input.to_str().unwrap(),
+            "--template",
+            template.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args(["validate", output.to_str().unwrap()])
+        .assert()
+        .success();
+
+    let project: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    let actors = project["actors"]["actorsDict"].as_object().unwrap();
+    for name in ["body-a", "body-b", "body-c"] {
+        let actor = actors
+            .values()
+            .find(|actor| actor["name"] == name)
+            .unwrap_or_else(|| panic!("missing {name}"));
+        assert_eq!(actor["nekoBlockJsonList"].as_array().unwrap().len(), 1);
+    }
+}
