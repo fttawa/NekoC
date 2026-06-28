@@ -2644,6 +2644,109 @@ onStart(() => {
 }
 
 #[test]
+fn cli_compile_ts_inlines_expression_functions_with_local_bindings() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("inline_function_locals.ts");
+    let output = dir.path().join("inline_function_locals.json");
+    fs::write(
+        &input,
+        r#"
+function scoreBonus(score) {
+  const doubled = score * 2;
+  let shifted = doubled + 1;
+  return shifted;
+}
+
+onStart(() => {
+  let result = scoreBonus(10);
+  console.log(result);
+});
+"#,
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts",
+            input.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let report: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    let blocks = report["workspaceData"]["blocks"].as_object().unwrap();
+
+    assert_eq!(report["summary"]["procedures"], 0);
+    assert!(blocks.values().any(|block| {
+        block["type"] == "math_arithmetic" && block["fields"]["type"] == "multiply"
+    }));
+    assert!(
+        blocks.values().any(|block| {
+            block["type"] == "math_arithmetic" && block["fields"]["type"] == "add"
+        })
+    );
+    assert!(
+        !blocks
+            .values()
+            .any(|block| block["fields"]["variable"] == "doubled")
+    );
+    assert!(
+        !blocks
+            .values()
+            .any(|block| block["fields"]["variable"] == "shifted")
+    );
+}
+
+#[test]
+fn cli_compile_ts_bcmkn_inline_function_locals_validate() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("inline_function_locals.ts");
+    let output = dir.path().join("inline_function_locals.bcmkn");
+    fs::write(
+        &input,
+        r#"
+function scoreBonus(score) {
+  const doubled = score * 2;
+  let shifted = doubled + 1;
+  return shifted;
+}
+
+onStart(() => {
+  let result = scoreBonus(10);
+  console.log(result);
+});
+"#,
+    )
+    .unwrap();
+    let template = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts-bcmkn",
+            input.to_str().unwrap(),
+            "--template",
+            template.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args(["validate", output.to_str().unwrap()])
+        .assert()
+        .success();
+}
+
+#[test]
 fn cli_compile_ts_compiles_basic_variable_syntax() {
     let dir = tempdir().unwrap();
     let input = dir.path().join("natural_ts.ts");

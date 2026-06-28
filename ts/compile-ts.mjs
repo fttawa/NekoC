@@ -2118,15 +2118,40 @@ class WorkspaceCompiler {
         return this.compileExpression(fn.body, parentId);
       }
       const statements = Array.from(fn.body.statements);
-      if (
-        statements.length !== 1 ||
-        !ts.isReturnStatement(statements[0]) ||
-        !statements[0].expression
-      ) {
-        this.unsupported(call, `Expression function ${name} must contain one return expression`);
-      }
-      return this.compileExpression(statements[0].expression, parentId);
+      return this.compileInlineExpressionFunctionBlock(call, parentId, name, statements);
     });
+  }
+
+  compileInlineExpressionFunctionBlock(call, parentId, name, statements) {
+    const returnStatement = statements.at(-1);
+    if (!returnStatement || !ts.isReturnStatement(returnStatement) || !returnStatement.expression) {
+      this.unsupported(call, `Expression function ${name} must end with a return expression`);
+    }
+    const localBindings = new Map();
+    this.expressionBindings.push(localBindings);
+    try {
+      statements.slice(0, -1).forEach((statement) => {
+        if (!ts.isVariableStatement(statement)) {
+          this.unsupported(statement, `Expression function ${name} supports only local declarations before return`);
+        }
+        statement.declarationList.declarations.forEach((declaration) => {
+          if (!ts.isIdentifier(declaration.name) || !declaration.initializer) {
+            this.unsupported(declaration, "Inline function locals must be initialized simple names");
+          }
+          const localName = declaration.name.text;
+          if (this.lookupExpressionBinding(localName)) {
+            this.unsupported(declaration.name, `Inline function local shadowing is not supported: ${localName}`);
+          }
+          if (expressionContainsIdentifier(declaration.initializer, localName)) {
+            this.unsupported(declaration.initializer, `Inline function local cannot reference itself: ${localName}`);
+          }
+          localBindings.set(localName, declaration.initializer);
+        });
+      });
+      return this.compileExpression(returnStatement.expression, parentId);
+    } finally {
+      this.expressionBindings.pop();
+    }
   }
 
   withInlineFunctionCall(call, name, compile) {
@@ -2537,6 +2562,22 @@ function assignmentOperatorSpec(operator) {
     default:
       return null;
   }
+}
+
+function expressionContainsIdentifier(expression, name) {
+  let found = false;
+  function visit(node) {
+    if (found) {
+      return;
+    }
+    if (ts.isIdentifier(node) && node.text === name) {
+      found = true;
+      return;
+    }
+    ts.forEachChild(node, visit);
+  }
+  visit(expression);
+  return found;
 }
 
 function hasExportModifier(statement) {
