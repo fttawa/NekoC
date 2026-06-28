@@ -1,0 +1,2834 @@
+use assert_cmd::Command;
+use predicates::prelude::*;
+use serde_json::json;
+use std::fs;
+use tempfile::tempdir;
+
+const FIXTURE: &str = r#"{
+  "projectName": "fixture",
+  "version": "0.27.1",
+  "toolType": "KN",
+  "stageSize": { "width": 562, "height": 900 },
+  "scenes": {
+    "scenesDict": {
+      "scene-1": {
+        "id": "scene-1",
+        "name": "背景",
+        "nekoBlockJsonList": [
+          { "id": "block-1", "type": "on_running_group_activated" }
+        ]
+      }
+    }
+  },
+  "actors": {
+    "actorsDict": {
+      "actor-1": {
+        "id": "actor-1",
+        "name": "角色",
+        "nekoBlockJsonList": [
+          { "id": "block-2", "type": "variables_set" },
+          { "id": "block-3", "type": "math_number" }
+        ]
+      }
+    }
+  },
+  "styles": { "stylesDict": { "style-1": { "id": "style-1" } } },
+  "variables": { "variablesDict": { "var-1": { "id": "var-1" } } },
+  "broadcasts": { "broadcastsDict": { "scene-1": ["Hi"] } },
+  "audios": { "audiosDict": { "audio-1": { "id": "audio-1" } } },
+  "procedures": { "proceduresDict": { "proc-1": { "id": "proc-1" } } }
+}"#;
+
+#[test]
+fn project_loader_rejects_invalid_json() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("invalid.bcmkn");
+    fs::write(&input, "{not json").unwrap();
+
+    let err = nekoc::project::load_project(&input).unwrap_err();
+
+    assert!(err.to_string().contains("invalid JSON"));
+}
+
+#[test]
+fn inspect_report_summarizes_fixture() {
+    let value: serde_json::Value = serde_json::from_str(FIXTURE).unwrap();
+
+    let report = nekoc::inspect::build_report(&value, 123).unwrap();
+
+    assert_eq!(report["project_name"], "fixture");
+    assert_eq!(report["version"], "0.27.1");
+    assert_eq!(report["tool_type"], "KN");
+    assert_eq!(report["counts"]["scenes"], 1);
+    assert_eq!(report["counts"]["actors"], 1);
+    assert_eq!(report["counts"]["styles"], 1);
+    assert_eq!(report["counts"]["variables"], 1);
+    assert_eq!(report["counts"]["broadcasts"], 1);
+    assert_eq!(report["counts"]["audios"], 1);
+    assert_eq!(report["counts"]["procedures"], 1);
+    assert_eq!(report["blocks"]["owners"], 2);
+    assert_eq!(report["blocks"]["total_top_level_items"], 3);
+    assert_eq!(
+        report["blocks"]["top_type_frequencies"][0],
+        json!({"type": "math_number", "count": 1})
+    );
+}
+
+#[test]
+fn roundtrip_preserves_structural_json() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("input.bcmkn");
+    let output = dir.path().join("output.bcmkn");
+    fs::write(&input, FIXTURE).unwrap();
+
+    nekoc::project::roundtrip_project(&input, &output).unwrap();
+
+    let left = nekoc::project::load_project(&input).unwrap();
+    let right = nekoc::project::load_project(&output).unwrap();
+    assert_eq!(left.value, right.value);
+}
+
+#[test]
+fn diff_reports_equal_and_changed_paths() {
+    let equal_left: serde_json::Value = json!({"a": 1, "b": [true]});
+    let equal_right: serde_json::Value = json!({"a": 1, "b": [true]});
+    assert!(nekoc::diff::diff_values(&equal_left, &equal_right, 200).is_empty());
+
+    let changed_right: serde_json::Value = json!({"a": 2, "b": []});
+    let diffs = nekoc::diff::diff_values(&equal_left, &changed_right, 200);
+
+    assert!(diffs.iter().any(|diff| diff.path == "$.a"));
+    assert!(diffs.iter().any(|diff| diff.path == "$.b[0]"));
+}
+
+#[test]
+fn diff_treats_roundtrip_float_rendering_as_equal() {
+    let left: serde_json::Value = json!({"x": 5.684341886080803e-14});
+    let right: serde_json::Value = json!({"x": 5.684341886080804e-14});
+
+    let diffs = nekoc::diff::diff_values(&left, &right, 200);
+
+    assert!(diffs.is_empty());
+}
+
+#[test]
+fn cli_inspect_native_sample_reports_expected_counts() {
+    let sample = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+    let dir = tempdir().unwrap();
+    let report = dir.path().join("native-report.json");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "inspect",
+            sample.to_str().unwrap(),
+            "--out",
+            report.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let report: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(report).unwrap()).unwrap();
+    assert_eq!(report["project_name"], "我的作品");
+    assert_eq!(report["version"], "0.27.1");
+    assert_eq!(report["tool_type"], "KN");
+    assert_eq!(report["counts"]["scenes"], 1);
+    assert_eq!(report["counts"]["actors"], 6);
+    assert_eq!(report["counts"]["styles"], 7);
+    assert_eq!(report["counts"]["variables"], 11);
+    assert_eq!(report["counts"]["broadcasts"], 2);
+    assert_eq!(report["counts"]["audios"], 0);
+    assert_eq!(report["counts"]["procedures"], 0);
+    assert_eq!(report["blocks"]["owners"], 7);
+    assert_eq!(report["blocks"]["total_top_level_items"], 15);
+}
+
+#[test]
+fn cli_roundtrip_and_diff_native_sample() {
+    let sample = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+    let dir = tempdir().unwrap();
+    let output = dir.path().join("native-roundtrip.bcmkn");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "roundtrip",
+            sample.to_str().unwrap(),
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args(["diff", sample.to_str().unwrap(), output.to_str().unwrap()])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("No structural differences"));
+}
+
+#[test]
+fn decompile_report_extracts_owner_scripts_and_nested_blocks() {
+    let value: serde_json::Value = json!({
+        "projectName": "decompile fixture",
+        "scenes": {"scenesDict": {}},
+        "actors": {
+            "actorsDict": {
+                "actor-1": {
+                    "id": "actor-1",
+                    "name": "角色",
+                    "nekoBlockJsonList": [
+                        {
+                            "type": "on_running_group_activated",
+                            "id": "event-1",
+                            "location": [10, 20],
+                            "next": {
+                                "type": "variables_set",
+                                "id": "set-1",
+                                "fields": {"variable": "var-1"},
+                                "inputs": {
+                                    "VALUE": {
+                                        "type": "math_number",
+                                        "id": "num-1",
+                                        "fields": {"NUM": "42"},
+                                        "is_output": true
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    });
+
+    let report = nekoc::decompile::build_report(&value).unwrap();
+
+    assert_eq!(report["project_name"], "decompile fixture");
+    assert_eq!(report["summary"]["owners"], 1);
+    assert_eq!(report["summary"]["scripts"], 1);
+    assert_eq!(report["summary"]["blocks"], 3);
+    assert_eq!(report["owners"][0]["kind"], "actor");
+    assert_eq!(report["owners"][0]["name"], "角色");
+    assert_eq!(
+        report["owners"][0]["scripts"][0]["entry_type"],
+        "on_running_group_activated"
+    );
+    assert_eq!(
+        report["owners"][0]["scripts"][0]["sequence_types"],
+        json!(["on_running_group_activated", "variables_set"])
+    );
+    assert_eq!(
+        report["owners"][0]["scripts"][0]["blocks"][2]["path"],
+        "$.next.inputs.VALUE"
+    );
+}
+
+#[test]
+fn workspace_export_flattens_nested_blocks_into_connections() {
+    let value: serde_json::Value = json!({
+        "projectName": "workspace fixture",
+        "scenes": {"scenesDict": {}},
+        "actors": {
+            "actorsDict": {
+                "actor-1": {
+                    "id": "actor-1",
+                    "name": "角色",
+                    "nekoBlockJsonList": [
+                        {
+                            "type": "on_running_group_activated",
+                            "id": "event-1",
+                            "next": {
+                                "type": "variables_set",
+                                "id": "set-1",
+                                "inputs": {
+                                    "VALUE": {
+                                        "type": "math_number",
+                                        "id": "num-1",
+                                        "fields": {"NUM": "42"}
+                                    }
+                                },
+                                "statements": {
+                                    "DO": {
+                                        "type": "wait",
+                                        "id": "wait-1"
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    });
+
+    let report = nekoc::workspace::build_report(&value).unwrap();
+    let data = &report["owners"][0]["workspaceData"];
+
+    assert_eq!(report["project_name"], "workspace fixture");
+    assert_eq!(report["summary"]["owners"], 1);
+    assert_eq!(report["summary"]["blocks"], 4);
+    assert_eq!(report["summary"]["connections"], 3);
+    assert_eq!(
+        data["blocks"]["event-1"]["parent_id"],
+        serde_json::Value::Null
+    );
+    assert_eq!(data["blocks"]["set-1"]["parent_id"], "event-1");
+    assert!(data["blocks"]["event-1"].get("next").is_none());
+    assert!(data["blocks"]["set-1"].get("inputs").is_none());
+    assert_eq!(data["connections"]["event-1"]["set-1"]["type"], "next");
+    assert_eq!(data["connections"]["set-1"]["num-1"]["input_type"], "value");
+    assert_eq!(data["connections"]["set-1"]["num-1"]["input_name"], "VALUE");
+    assert_eq!(
+        data["connections"]["set-1"]["wait-1"]["input_type"],
+        "statement"
+    );
+    assert_eq!(data["connections"]["set-1"]["wait-1"]["input_name"], "DO");
+}
+
+#[test]
+fn cli_decompile_native_sample_reports_graph_summary() {
+    let sample = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+    let dir = tempdir().unwrap();
+    let report = dir.path().join("native-decompile.json");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "decompile",
+            sample.to_str().unwrap(),
+            "--out",
+            report.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let report: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(report).unwrap()).unwrap();
+    assert_eq!(report["project_name"], "我的作品");
+    assert_eq!(report["summary"]["owners"], 4);
+    assert_eq!(report["summary"]["scripts"], 15);
+    assert_eq!(report["summary"]["blocks"], 125);
+    assert_eq!(report["owners"][0]["kind"], "actor");
+    assert!(report["owners"][0]["scripts"][0]["entry_type"].is_string());
+}
+
+#[test]
+fn cli_workspace_native_sample_exports_workspace_data() {
+    let sample = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+    let dir = tempdir().unwrap();
+    let report = dir.path().join("native-workspace.json");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "workspace",
+            sample.to_str().unwrap(),
+            "--out",
+            report.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let report: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(report).unwrap()).unwrap();
+    assert_eq!(report["project_name"], "我的作品");
+    assert_eq!(report["summary"]["owners"], 4);
+    assert_eq!(report["summary"]["scripts"], 15);
+    assert_eq!(report["summary"]["blocks"], 125);
+    assert!(report["summary"]["connections"].as_u64().unwrap() > 0);
+    assert!(report["owners"][0]["workspaceData"]["blocks"].is_object());
+    assert!(report["owners"][0]["workspaceData"]["connections"].is_object());
+}
+
+#[test]
+fn cli_compile_ts_emits_workspace_graph_for_basic_dsl() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("main.ts");
+    let output = dir.path().join("workspace.json");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  setVar("score", 0);
+  wait(0.5);
+  forever(() => {
+    changeVar("score", 1);
+  });
+});
+"#,
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts",
+            input.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let report: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    let blocks = &report["workspaceData"]["blocks"];
+    let connections = &report["workspaceData"]["connections"];
+
+    assert_eq!(report["source"], input.to_string_lossy().as_ref());
+    assert_eq!(report["summary"]["scripts"], 1);
+    assert_eq!(report["summary"]["blocks"], 8);
+    assert_eq!(blocks["b1"]["type"], "on_running_group_activated");
+    assert_eq!(blocks["b2"]["type"], "variables_set");
+    assert_eq!(blocks["b3"]["type"], "math_number");
+    assert_eq!(blocks["b4"]["type"], "wait");
+    assert_eq!(blocks["b5"]["type"], "math_number");
+    assert_eq!(blocks["b6"]["type"], "repeat_forever");
+    assert_eq!(blocks["b7"]["type"], "change_variables");
+    assert_eq!(blocks["b8"]["type"], "math_number");
+    assert_eq!(connections["b1"]["b2"]["type"], "next");
+    assert_eq!(connections["b2"]["b3"]["input_name"], "value");
+    assert_eq!(connections["b4"]["b5"]["input_name"], "time");
+    assert_eq!(connections["b6"]["b7"]["input_type"], "statement");
+    assert_eq!(blocks["b7"]["fields"]["method"], "increase");
+    assert_eq!(connections["b7"]["b8"]["input_name"], "value");
+}
+
+#[test]
+fn cli_compile_ts_bcmkn_injects_nested_blocks_into_template() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("main.ts");
+    let output = dir.path().join("compiled.bcmkn");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  setVar("score", 0);
+  wait(0.5);
+  forever(() => {
+    changeVar("score", 1);
+  });
+});
+"#,
+    )
+    .unwrap();
+
+    let template = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts-bcmkn",
+            input.to_str().unwrap(),
+            "--template",
+            template.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let compiled = nekoc::project::load_project(&output).unwrap();
+    let report = nekoc::decompile::build_report(&compiled.value).unwrap();
+    let actor = compiled.value["actors"]["actorsDict"]
+        .as_object()
+        .unwrap()
+        .values()
+        .find(|actor| {
+            actor["nekoBlockJsonList"]
+                .as_array()
+                .map(|blocks| !blocks.is_empty())
+                .unwrap_or(false)
+        })
+        .unwrap();
+
+    assert_eq!(compiled.value["projectName"], "main");
+    assert!(actor["comments"].as_object().unwrap().is_empty());
+    let variables = compiled.value["variables"]["variablesDict"]
+        .as_object()
+        .unwrap();
+    assert!(
+        variables
+            .values()
+            .any(|variable| variable["name"] == "score")
+    );
+    assert_eq!(report["summary"]["scripts"], 1);
+    assert_eq!(report["summary"]["blocks"], 8);
+    assert_eq!(
+        report["owners"][0]["scripts"][0]["sequence_types"],
+        json!([
+            "on_running_group_activated",
+            "variables_set",
+            "wait",
+            "repeat_forever"
+        ])
+    );
+    let blocks = report["owners"][0]["scripts"][0]["blocks"]
+        .as_array()
+        .unwrap();
+    assert!(
+        blocks
+            .iter()
+            .any(|block| block["path"] == "$.next.inputs.value")
+    );
+    assert!(
+        blocks
+            .iter()
+            .any(|block| block["path"] == "$.next.next.next.statements.DO.inputs.value")
+    );
+}
+
+#[test]
+fn validate_report_catches_dangling_comment_parent() {
+    let value: serde_json::Value = json!({
+        "actors": {
+            "actorsDict": {
+                "actor-1": {
+                    "id": "actor-1",
+                    "name": "角色",
+                    "comments": {
+                        "comment-1": {
+                            "id": "comment-1",
+                            "parent_id": "missing-block"
+                        }
+                    },
+                    "nekoBlockJsonList": [
+                        {
+                            "type": "on_running_group_activated",
+                            "id": "event-1",
+                            "parent_id": ""
+                        }
+                    ]
+                }
+            }
+        },
+        "scenes": {"scenesDict": {}}
+    });
+
+    let report = nekoc::validate::build_report(&value).unwrap();
+
+    assert_eq!(report["ok"], false);
+    assert_eq!(report["issues"][0]["kind"], "dangling_comment_parent");
+    assert_eq!(report["issues"][0]["owner_id"], "actor-1");
+    assert_eq!(report["issues"][0]["comment_id"], "comment-1");
+}
+
+#[test]
+fn cli_validate_compiled_basic_project_passes() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("main.ts");
+    let output = dir.path().join("compiled.bcmkn");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  setVar("score", 0);
+  wait(0.5);
+  forever(() => {
+    changeVar("score", 1);
+  });
+});
+"#,
+    )
+    .unwrap();
+    let template = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts-bcmkn",
+            input.to_str().unwrap(),
+            "--template",
+            template.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args(["validate", output.to_str().unwrap()])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("No validation issues"));
+}
+
+#[test]
+fn cli_compile_ts_supports_binary_converter_blocks() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("binary.ts");
+    let output = dir.path().join("binary-workspace.json");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  setVar("decimal", 13);
+  setVar("binary", "");
+  repeatUntil(eq(getVar("decimal"), 0), () => {
+    setVar("remainder", mod(getVar("decimal"), 2));
+    setVar("binary", join(toString(getVar("remainder")), getVar("binary")));
+    setVar("decimal", floor(div(getVar("decimal"), 2)));
+  });
+});
+"#,
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts",
+            input.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let report: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    let blocks = report["workspaceData"]["blocks"].as_object().unwrap();
+    let block_types = blocks
+        .values()
+        .map(|block| block["type"].as_str().unwrap())
+        .collect::<Vec<_>>();
+
+    assert!(block_types.contains(&"repeat_forever_until"));
+    assert!(block_types.contains(&"logic_compare"));
+    assert!(block_types.contains(&"variables_get"));
+    assert!(block_types.contains(&"math_modulo"));
+    assert!(block_types.contains(&"text_join"));
+    assert!(block_types.contains(&"convert_type"));
+    assert!(block_types.contains(&"math_round"));
+    assert!(block_types.contains(&"math_arithmetic"));
+    assert_eq!(report["summary"]["scripts"], 1);
+}
+
+#[test]
+fn cli_compile_ts_bcmkn_binary_converter_validates() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("binary.ts");
+    let output = dir.path().join("binary.bcmkn");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  setVar("decimal", 13);
+  setVar("binary", "");
+  repeatUntil(eq(getVar("decimal"), 0), () => {
+    setVar("remainder", mod(getVar("decimal"), 2));
+    setVar("binary", join(toString(getVar("remainder")), getVar("binary")));
+    setVar("decimal", floor(div(getVar("decimal"), 2)));
+  });
+});
+"#,
+    )
+    .unwrap();
+    let template = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts-bcmkn",
+            input.to_str().unwrap(),
+            "--template",
+            template.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args(["validate", output.to_str().unwrap()])
+        .assert()
+        .success();
+}
+
+#[test]
+fn cli_compile_ts_supports_condition_math_logic_and_text_blocks() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("conditions.ts");
+    let output = dir.path().join("conditions-workspace.json");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  setVar("x", add(2, mul(3, 4)));
+  ifElse(and(gte(getVar("x"), 10), not(contains("hello", "z"))), () => {
+    setVar("result", join("len=", toString(length("hello"))));
+  }, () => {
+    setVar("result", "small");
+  });
+  ifThen(or(lt(getVar("x"), 20), neq(getVar("x"), 14)), () => {
+    setVar("rounded", ceil(sub(getVar("x"), 0.2)));
+  });
+});
+"#,
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts",
+            input.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let report: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    let blocks = report["workspaceData"]["blocks"].as_object().unwrap();
+    let block_types = blocks
+        .values()
+        .map(|block| block["type"].as_str().unwrap())
+        .collect::<Vec<_>>();
+
+    assert!(block_types.contains(&"controls_if"));
+    assert!(block_types.contains(&"logic_operation"));
+    assert!(block_types.contains(&"logic_negate"));
+    assert!(block_types.contains(&"text_length"));
+    assert!(block_types.contains(&"text_contain"));
+    assert_eq!(
+        block_types
+            .iter()
+            .filter(|&&ty| ty == "controls_if")
+            .count(),
+        2
+    );
+    assert!(
+        blocks
+            .values()
+            .any(|block| { block["type"] == "logic_compare" && block["fields"]["OP"] == "GTE" })
+    );
+    assert!(
+        blocks
+            .values()
+            .any(|block| { block["type"] == "logic_compare" && block["fields"]["OP"] == "LT" })
+    );
+    assert!(
+        blocks
+            .values()
+            .any(|block| { block["type"] == "logic_compare" && block["fields"]["OP"] == "NEQ" })
+    );
+    assert!(blocks.values().any(|block| {
+        block["type"] == "math_arithmetic" && block["fields"]["type"] == "multiply"
+    }));
+    assert!(
+        blocks.values().any(|block| {
+            block["type"] == "math_arithmetic" && block["fields"]["type"] == "minus"
+        })
+    );
+    assert!(
+        blocks.values().any(|block| {
+            block["type"] == "math_round" && block["fields"]["type"] == "round_up"
+        })
+    );
+}
+
+#[test]
+fn cli_compile_ts_bcmkn_condition_sample_validates() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("conditions.ts");
+    let output = dir.path().join("conditions.bcmkn");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  setVar("x", add(2, mul(3, 4)));
+  ifElse(and(gte(getVar("x"), 10), not(contains("hello", "z"))), () => {
+    setVar("result", join("len=", toString(length("hello"))));
+  }, () => {
+    setVar("result", "small");
+  });
+  ifThen(or(lt(getVar("x"), 20), neq(getVar("x"), 14)), () => {
+    setVar("rounded", ceil(sub(getVar("x"), 0.2)));
+  });
+});
+"#,
+    )
+    .unwrap();
+    let template = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts-bcmkn",
+            input.to_str().unwrap(),
+            "--template",
+            template.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args(["validate", output.to_str().unwrap()])
+        .assert()
+        .success();
+}
+
+#[test]
+fn cli_compile_ts_supports_events_and_broadcast_blocks() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("events.ts");
+    let output = dir.path().join("events-workspace.json");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  broadcast("ready");
+});
+
+onClick(() => {
+  broadcastAndWait("clicked");
+});
+
+onKey("81", "up", () => {
+  setVar("key", "q");
+});
+
+onMessage("ready", () => {
+  setVar("heard", 1);
+});
+
+when(eq(getVar("heard"), 1), () => {
+  setVar("condition", "met");
+});
+"#,
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts",
+            input.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let report: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    let blocks = report["workspaceData"]["blocks"].as_object().unwrap();
+    let block_types = blocks
+        .values()
+        .map(|block| block["type"].as_str().unwrap())
+        .collect::<Vec<_>>();
+
+    assert_eq!(report["summary"]["scripts"], 5);
+    assert!(block_types.contains(&"on_running_group_activated"));
+    assert!(block_types.contains(&"start_on_click"));
+    assert!(block_types.contains(&"on_keydown"));
+    assert!(block_types.contains(&"self_listen"));
+    assert!(block_types.contains(&"when"));
+    assert!(block_types.contains(&"self_broadcast"));
+    assert!(block_types.contains(&"self_broadcast_and_wait"));
+    assert!(block_types.contains(&"broadcast_input"));
+    assert!(blocks.values().any(|block| {
+        block["type"] == "on_keydown"
+            && block["fields"]["key"] == "81"
+            && block["fields"]["type"] == "up"
+    }));
+    assert!(blocks.values().any(|block| {
+        block["type"] == "broadcast_input" && block["fields"]["message"] == "ready"
+    }));
+}
+
+#[test]
+fn cli_compile_ts_bcmkn_events_and_broadcast_sample_validates() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("events.ts");
+    let output = dir.path().join("events.bcmkn");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  broadcast("ready");
+});
+
+onClick(() => {
+  broadcastAndWait("clicked");
+});
+
+onKey("81", "up", () => {
+  setVar("key", "q");
+});
+
+onMessage("ready", () => {
+  setVar("heard", 1);
+});
+"#,
+    )
+    .unwrap();
+    let template = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts-bcmkn",
+            input.to_str().unwrap(),
+            "--template",
+            template.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args(["validate", output.to_str().unwrap()])
+        .assert()
+        .success();
+
+    let project: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    let broadcast_values = project["broadcasts"]["broadcastsDict"]
+        .as_object()
+        .unwrap()
+        .values()
+        .flat_map(|value| value.as_array().unwrap().iter())
+        .filter_map(|value| value.as_str())
+        .collect::<Vec<_>>();
+    assert!(broadcast_values.contains(&"ready"));
+    assert!(broadcast_values.contains(&"clicked"));
+}
+
+#[test]
+fn cli_compile_ts_supports_parameterized_broadcast_blocks() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("broadcast_param.ts");
+    let output = dir.path().join("broadcast-param-workspace.json");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  broadcast("score:update", getVar("score"));
+});
+
+onMessage("score:update", "payload", () => {
+  setVar("lastScore", messageValue("payload"));
+});
+"#,
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts",
+            input.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let report: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    let blocks = report["workspaceData"]["blocks"].as_object().unwrap();
+    let block_types = blocks
+        .values()
+        .map(|block| block["type"].as_str().unwrap())
+        .collect::<Vec<_>>();
+
+    assert!(block_types.contains(&"self_broadcast_with_param"));
+    assert!(block_types.contains(&"self_listen_with_param"));
+    assert!(block_types.contains(&"self_listen_param"));
+    assert!(block_types.contains(&"self_listen_value"));
+    assert!(blocks.values().any(|block| {
+        block["type"] == "self_listen_with_param"
+            && block["mutation"]
+                == r#"<mutation xmlns="http://www.w3.org/1999/xhtml" items="1"></mutation>"#
+    }));
+    assert!(blocks.values().any(|block| {
+        block["type"] == "self_listen_param" && block["fields"]["TEXT"] == "payload"
+    }));
+    assert!(blocks.values().any(|block| {
+        block["type"] == "self_listen_value" && block["fields"]["TEXT"] == "payload"
+    }));
+}
+
+#[test]
+fn cli_compile_ts_bcmkn_parameterized_broadcast_sample_validates() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("broadcast_param.ts");
+    let output = dir.path().join("broadcast_param.bcmkn");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  setVar("score", 42);
+  broadcast("score:update", getVar("score"));
+});
+
+onMessage("score:update", "payload", () => {
+  setVar("lastScore", messageValue("payload"));
+});
+"#,
+    )
+    .unwrap();
+    let template = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts-bcmkn",
+            input.to_str().unwrap(),
+            "--template",
+            template.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args(["validate", output.to_str().unwrap()])
+        .assert()
+        .success();
+
+    let project: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    let broadcast_values = project["broadcasts"]["broadcastsDict"]
+        .as_object()
+        .unwrap()
+        .values()
+        .flat_map(|value| value.as_array().unwrap().iter())
+        .filter_map(|value| value.as_str())
+        .collect::<Vec<_>>();
+    assert!(broadcast_values.contains(&"score:update"));
+}
+
+#[test]
+fn cli_compile_ts_supports_received_broadcast_and_bump_actor() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("event_extra.ts");
+    let output = dir.path().join("event-extra-workspace.json");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  broadcast("ready");
+  ifThen(receivedBroadcast("ready"), () => {
+    setVar("received", 1);
+  });
+});
+
+onBumpActor("start", "--self", "actor", () => {
+  setVar("bumped", bumpActorValue("actor", "x"));
+});
+"#,
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts",
+            input.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let report: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    let blocks = report["workspaceData"]["blocks"].as_object().unwrap();
+    let block_types = blocks
+        .values()
+        .map(|block| block["type"].as_str().unwrap())
+        .collect::<Vec<_>>();
+
+    assert!(block_types.contains(&"received_broadcast"));
+    assert!(block_types.contains(&"on_bump_actor"));
+    assert!(block_types.contains(&"on_bump_actor_param"));
+    assert!(block_types.contains(&"on_bump_actor_value"));
+    assert!(blocks.values().any(|block| {
+        block["type"] == "on_bump_actor"
+            && block["fields"]["type"] == "start"
+            && block["fields"]["sprite"] == "--self"
+            && block["mutation"]
+                == r#"<mutation xmlns="http://www.w3.org/1999/xhtml" items="1"></mutation>"#
+    }));
+    assert!(blocks.values().any(|block| {
+        block["type"] == "on_bump_actor_param" && block["fields"]["TEXT"] == "actor"
+    }));
+    assert!(blocks.values().any(|block| {
+        block["type"] == "on_bump_actor_value"
+            && block["fields"]["TEXT"] == "actor"
+            && block["fields"]["attribute"] == "x"
+    }));
+}
+
+#[test]
+fn cli_compile_ts_bcmkn_received_broadcast_and_bump_actor_validates() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("event_extra.ts");
+    let output = dir.path().join("event_extra.bcmkn");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  broadcast("ready");
+  ifThen(receivedBroadcast("ready"), () => {
+    setVar("received", 1);
+  });
+});
+
+onBumpActor("start", "--self", "actor", () => {
+  setVar("bumped", bumpActorValue("actor", "x"));
+});
+"#,
+    )
+    .unwrap();
+    let template = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts-bcmkn",
+            input.to_str().unwrap(),
+            "--template",
+            template.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args(["validate", output.to_str().unwrap()])
+        .assert()
+        .success();
+}
+
+#[test]
+fn cli_compile_ts_supports_control_blocks() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("control.ts");
+    let output = dir.path().join("control-workspace.json");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  setVar("i", 0);
+  repeatTimes(3, () => {
+    changeVar("i", 1);
+    consoleLog(join("loop=", toString(getVar("i"))));
+    ifThen(gt(getVar("i"), 1), () => {
+      breakLoop();
+    });
+  });
+  waitUntil(receivedBroadcast("ready"));
+  warp(() => {
+    setVar("fast", 1);
+  });
+  tell("--self", () => {
+    setVar("told", 1);
+  });
+  tellAndWait("--self", () => {
+    setVar("syncTold", 1);
+  });
+  stop("1");
+  restart();
+});
+"#,
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts",
+            input.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let report: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    let blocks = report["workspaceData"]["blocks"].as_object().unwrap();
+    let block_types = blocks
+        .values()
+        .map(|block| block["type"].as_str().unwrap())
+        .collect::<Vec<_>>();
+
+    assert!(block_types.contains(&"repeat_n_times"));
+    assert!(block_types.contains(&"console_log"));
+    assert!(block_types.contains(&"break"));
+    assert!(block_types.contains(&"wait_until"));
+    assert!(block_types.contains(&"warp"));
+    assert!(block_types.contains(&"tell"));
+    assert!(block_types.contains(&"sync_tell"));
+    assert!(block_types.contains(&"stop"));
+    assert!(block_types.contains(&"restart"));
+    assert!(
+        blocks
+            .values()
+            .any(|block| { block["type"] == "stop" && block["fields"]["scope"] == "1" })
+    );
+    assert!(
+        blocks
+            .values()
+            .any(|block| { block["type"] == "tell" && block["fields"]["sprite"] == "--self" })
+    );
+    assert!(
+        blocks
+            .values()
+            .any(|block| { block["type"] == "sync_tell" && block["fields"]["sprite"] == "--self" })
+    );
+}
+
+#[test]
+fn cli_compile_ts_supports_for_range_control_blocks() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("range.ts");
+    let output = dir.path().join("range-workspace.json");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  forRange("n", 1, 5, 1, () => {
+    setVar("last", rangeValue("n"));
+  });
+});
+"#,
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts",
+            input.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let report: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    let blocks = report["workspaceData"]["blocks"].as_object().unwrap();
+
+    assert!(blocks.values().any(|block| {
+        block["type"] == "traverse_number"
+            && block["mutation"]
+                == r#"<mutation xmlns="http://www.w3.org/1999/xhtml" items="2"></mutation>"#
+    }));
+    assert!(blocks.values().any(|block| {
+        block["type"] == "traverse_number_param" && block["fields"]["TEXT"] == "n"
+    }));
+    assert!(blocks.values().any(|block| {
+        block["type"] == "traverse_number_value" && block["fields"]["TEXT"] == "n"
+    }));
+}
+
+#[test]
+fn cli_compile_ts_bcmkn_control_sample_validates() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("control.ts");
+    let output = dir.path().join("control.bcmkn");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  setVar("i", 0);
+  repeatTimes(3, () => {
+    changeVar("i", 1);
+    ifThen(gt(getVar("i"), 1), () => {
+      breakLoop();
+    });
+  });
+  waitUntil(receivedBroadcast("ready"));
+  warp(() => {
+    setVar("fast", 1);
+  });
+  tell("--self", () => {
+    setVar("told", 1);
+  });
+  tellAndWait("--self", () => {
+    setVar("syncTold", 1);
+  });
+  stop("1");
+  restart();
+});
+"#,
+    )
+    .unwrap();
+    let template = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts-bcmkn",
+            input.to_str().unwrap(),
+            "--template",
+            template.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args(["validate", output.to_str().unwrap()])
+        .assert()
+        .success();
+}
+
+#[test]
+fn cli_compile_ts_supports_motion_actor_statement_blocks() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("motion.ts");
+    let output = dir.path().join("motion-workspace.json");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  moveSteps(10);
+  moveTo(100, -50);
+  glideTo(0.5, 0, 0);
+  setX(12);
+  setY(34);
+  changeX(5);
+  changeY(-6);
+  glideChangeX(0.2, 7);
+  glideChangeY(0.3, -8);
+  turn(15);
+  pointTowards(90);
+  rotateAround("--self", 45);
+  faceTo("--mouse");
+  setFaceTo("--random");
+  moveToTarget("--mouse");
+  moveToTargetSprite("--random");
+  bounceOffEdge();
+  setRotationType("1");
+});
+"#,
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts",
+            input.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let report: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    let blocks = report["workspaceData"]["blocks"].as_object().unwrap();
+    let block_types = blocks
+        .values()
+        .map(|block| block["type"].as_str().unwrap())
+        .collect::<Vec<_>>();
+
+    assert!(block_types.contains(&"self_go_forward"));
+    assert!(block_types.contains(&"self_move_to"));
+    assert!(block_types.contains(&"self_glide_to"));
+    assert!(block_types.contains(&"self_set_position_x"));
+    assert!(block_types.contains(&"self_set_position_y"));
+    assert!(block_types.contains(&"self_change_coordinate_x"));
+    assert!(block_types.contains(&"self_change_coordinate_y"));
+    assert!(block_types.contains(&"self_glide_coordinate_x"));
+    assert!(block_types.contains(&"self_glide_coordinate_y"));
+    assert!(block_types.contains(&"self_rotate"));
+    assert!(block_types.contains(&"self_point_towards"));
+    assert!(block_types.contains(&"self_rotate_around"));
+    assert!(block_types.contains(&"self_face_to"));
+    assert!(block_types.contains(&"self_face_to_sprite"));
+    assert!(block_types.contains(&"self_move_specify"));
+    assert!(block_types.contains(&"self_move_specify_sprite"));
+    assert!(block_types.contains(&"self_bounce_off_edge"));
+    assert!(block_types.contains(&"self_set_rotation_type"));
+    assert!(blocks.values().any(|block| {
+        block["type"] == "self_change_coordinate_x" && block["fields"]["increase"] == "increase"
+    }));
+    assert!(blocks.values().any(|block| {
+        block["type"] == "self_change_coordinate_y" && block["fields"]["increase"] == "decrease"
+    }));
+    assert!(blocks.values().any(|block| {
+        block["type"] == "self_glide_coordinate_y" && block["fields"]["increase"] == "decrease"
+    }));
+    assert!(blocks.values().any(|block| {
+        block["type"] == "self_set_rotation_type" && block["fields"]["rotation_type"] == "1"
+    }));
+    assert!(blocks.values().any(|block| {
+        block["type"] == "self_rotate_around" && block["fields"]["sprite"] == "--self"
+    }));
+}
+
+#[test]
+fn cli_compile_ts_supports_motion_actor_expression_blocks() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("motion_expr.ts");
+    let output = dir.path().join("motion-expr-workspace.json");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  setVar("x", xOf("--self"));
+  setVar("y", yOf("--self"));
+  setVar("distance", distanceTo("--mouse"));
+  setVar("tilt", orientation("x"));
+});
+"#,
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts",
+            input.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let report: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    let blocks = report["workspaceData"]["blocks"].as_object().unwrap();
+
+    assert!(blocks.values().any(|block| {
+        block["type"] == "coordinate_of_sprite"
+            && block["fields"]["sprite"] == "--self"
+            && block["fields"]["coordinate"] == "x"
+    }));
+    assert!(blocks.values().any(|block| {
+        block["type"] == "coordinate_of_sprite"
+            && block["fields"]["sprite"] == "--self"
+            && block["fields"]["coordinate"] == "y"
+    }));
+    assert!(
+        blocks.values().any(|block| {
+            block["type"] == "distance_to" && block["fields"]["sprite"] == "--mouse"
+        })
+    );
+    assert!(
+        blocks.values().any(|block| {
+            block["type"] == "get_orientation" && block["fields"]["target"] == "x"
+        })
+    );
+}
+
+#[test]
+fn cli_compile_ts_bcmkn_motion_actor_sample_validates() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("motion.ts");
+    let output = dir.path().join("motion.bcmkn");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  moveSteps(10);
+  moveTo(100, -50);
+  glideTo(0.5, 0, 0);
+  changeX(5);
+  changeY(-6);
+  turn(15);
+  pointTowards(90);
+  faceTo("--mouse");
+  moveToTarget("--mouse");
+  bounceOffEdge();
+  setRotationType("1");
+  setVar("distance", distanceTo("--mouse"));
+});
+"#,
+    )
+    .unwrap();
+    let template = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts-bcmkn",
+            input.to_str().unwrap(),
+            "--template",
+            template.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args(["validate", output.to_str().unwrap()])
+        .assert()
+        .success();
+}
+
+#[test]
+fn cli_compile_ts_supports_appearance_display_statement_blocks() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("appearance.ts");
+    let output = dir.path().join("appearance-workspace.json");
+    fs::write(
+        &input,
+        r##"
+onStart(() => {
+  show();
+  hide();
+  appearWith("appear", "up", "slideIn");
+  fadeVisibility(0.5, "hide");
+  say("hello", 2);
+  think("hmm");
+  closeDialog();
+  stageDialog("--self", "system");
+  ask("name?");
+  setScale(120);
+  changeScale(-10);
+  setSize("width", 80);
+  changeSize("height", 5);
+  setEffect("2", 80);
+  changeEffect("2", -20);
+  clearEffects();
+  setText("Score");
+  setTextSize(24);
+  setTextColor("#ff0000");
+  setLayer("peak", "bottom");
+  setDraggable("1");
+  setCamp("camp_red");
+  stressAnimation("shake");
+  globalAnimation("animation_firework");
+  showTimer();
+  hideTimer();
+  showVariable("score");
+  hideVariable("score");
+});
+"##,
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts",
+            input.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let report: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    let blocks = report["workspaceData"]["blocks"].as_object().unwrap();
+    let block_types = blocks
+        .values()
+        .map(|block| block["type"].as_str().unwrap())
+        .collect::<Vec<_>>();
+
+    assert!(block_types.contains(&"self_appear"));
+    assert!(block_types.contains(&"self_appear_animation"));
+    assert!(block_types.contains(&"self_gradually_show_hide"));
+    assert!(block_types.contains(&"self_dialog"));
+    assert!(block_types.contains(&"self_dialog_wait"));
+    assert!(block_types.contains(&"close_self_dialog"));
+    assert!(block_types.contains(&"create_stage_dialog"));
+    assert!(block_types.contains(&"self_ask"));
+    assert!(block_types.contains(&"set_scale"));
+    assert!(block_types.contains(&"self_change_scale"));
+    assert!(block_types.contains(&"set_width_height_scale"));
+    assert!(block_types.contains(&"add_width_height_scale"));
+    assert!(block_types.contains(&"self_set_effect"));
+    assert!(block_types.contains(&"self_change_effect"));
+    assert!(block_types.contains(&"clear_all_effects"));
+    assert!(block_types.contains(&"self_text_effect_text"));
+    assert!(block_types.contains(&"self_text_effect_size"));
+    assert!(block_types.contains(&"self_text_effect_color"));
+    assert!(block_types.contains(&"set_top_bottom_layer"));
+    assert!(block_types.contains(&"self_set_draggable"));
+    assert!(block_types.contains(&"self_set_role_camp"));
+    assert!(block_types.contains(&"self_stress_animation"));
+    assert!(block_types.contains(&"global_animation"));
+    assert!(block_types.contains(&"show_hide_timer"));
+    assert!(block_types.contains(&"show_hide_variables"));
+    assert!(
+        blocks.values().any(|block| {
+            block["type"] == "self_appear" && block["fields"]["value"] == "appear"
+        })
+    );
+    assert!(blocks.values().any(|block| {
+        block["type"] == "self_appear" && block["fields"]["value"] == "disappear"
+    }));
+    assert!(blocks.values().any(|block| {
+        block["type"] == "self_change_scale" && block["fields"]["increase"] == "decrease"
+    }));
+    assert!(blocks.values().any(|block| {
+        block["type"] == "self_change_effect" && block["fields"]["increase"] == "decrease"
+    }));
+    assert!(blocks.values().any(|block| {
+        block["type"] == "show_hide_timer" && block["fields"]["showHide"] == "show"
+    }));
+    assert!(blocks.values().any(|block| {
+        block["type"] == "show_hide_variables"
+            && block["fields"]["show_hide"] == "hide"
+            && block["fields"]["variable"] == "score"
+    }));
+}
+
+#[test]
+fn cli_compile_ts_supports_style_screen_and_appearance_expression_blocks() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("style_screen.ts");
+    let output = dir.path().join("style-screen-workspace.json");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  nextStyle();
+  prevStyle();
+  setStyle("style-1");
+  setScreenTransition("left", "slide");
+  switchScreen("scene-1");
+  setVar("style", styleOf("--self"));
+  setVar("scale", appearanceOf("--self", "scale"));
+  setVar("ghost", effectOf("--self", "2"));
+});
+"#,
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts",
+            input.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let report: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    let blocks = report["workspaceData"]["blocks"].as_object().unwrap();
+
+    assert!(blocks.values().any(|block| {
+        block["type"] == "self_prev_next_style" && block["fields"]["prev_next"] == "next"
+    }));
+    assert!(blocks.values().any(|block| {
+        block["type"] == "self_prev_next_style" && block["fields"]["prev_next"] == "prev"
+    }));
+    assert!(
+        blocks
+            .values()
+            .any(|block| { block["type"] == "set_sprite_style" })
+    );
+    assert!(blocks.values().any(|block| {
+        block["type"] == "get_styles" && block["fields"]["style_id"] == "style-1"
+    }));
+    assert!(blocks.values().any(|block| {
+        block["type"] == "set_screen_transition"
+            && block["fields"]["direction"] == "left"
+            && block["fields"]["type"] == "slide"
+    }));
+    assert!(
+        blocks
+            .values()
+            .any(|block| { block["type"] == "switch_to_screen" })
+    );
+    assert!(blocks.values().any(|block| {
+        block["type"] == "get_screens" && block["fields"]["screen_id"] == "scene-1"
+    }));
+    assert!(blocks.values().any(|block| {
+        block["type"] == "style_of_sprite" && block["fields"]["sprite"] == "--self"
+    }));
+    assert!(blocks.values().any(|block| {
+        block["type"] == "appearance_of_sprite"
+            && block["fields"]["sprite"] == "--self"
+            && block["fields"]["appearance"] == "scale"
+    }));
+    assert!(blocks.values().any(|block| {
+        block["type"] == "effect_of_sprite"
+            && block["fields"]["sprite"] == "--self"
+            && block["fields"]["effect"] == "2"
+    }));
+}
+
+#[test]
+fn cli_compile_ts_bcmkn_appearance_display_sample_validates() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("appearance.ts");
+    let output = dir.path().join("appearance.bcmkn");
+    fs::write(
+        &input,
+        r##"
+onStart(() => {
+  show();
+  say("hello", 2);
+  think("hmm");
+  setScale(120);
+  changeScale(-10);
+  setEffect("2", 80);
+  clearEffects();
+  setText("Score");
+  setTextColor("#ff0000");
+  nextStyle();
+  setScreenTransition("left", "slide");
+  setVar("scale", appearanceOf("--self", "scale"));
+});
+"##,
+    )
+    .unwrap();
+    let template = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts-bcmkn",
+            input.to_str().unwrap(),
+            "--template",
+            template.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args(["validate", output.to_str().unwrap()])
+        .assert()
+        .success();
+}
+
+#[test]
+fn cli_compile_ts_supports_pen_and_stamp_blocks() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("pen.ts");
+    let output = dir.path().join("pen-workspace.json");
+    fs::write(
+        &input,
+        r##"
+onStart(() => {
+  clearDrawing();
+  penDown();
+  setPenColor("#00ff88");
+  setPenSize(6);
+  changePenSize(-2);
+  setPenEffect("hue", 50);
+  changePenEffect("alpha", -10);
+  stampText("hello", 20, "center");
+  imageStamp();
+  setPenLayer("peak", "bottom");
+  penUp();
+});
+"##,
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts",
+            input.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let report: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    let blocks = report["workspaceData"]["blocks"].as_object().unwrap();
+    let block_types = blocks
+        .values()
+        .map(|block| block["type"].as_str().unwrap())
+        .collect::<Vec<_>>();
+
+    assert!(block_types.contains(&"clear_drawing"));
+    assert!(block_types.contains(&"self_pen_down"));
+    assert!(block_types.contains(&"self_pen_up"));
+    assert!(block_types.contains(&"self_set_pen_color"));
+    assert!(block_types.contains(&"self_set_pen_size"));
+    assert!(block_types.contains(&"self_change_pen_size"));
+    assert!(block_types.contains(&"self_set_pen_color_property"));
+    assert!(block_types.contains(&"self_change_pen_color_property"));
+    assert!(block_types.contains(&"stamp"));
+    assert!(block_types.contains(&"image_stamp"));
+    assert!(block_types.contains(&"set_pen_layer"));
+    assert!(blocks.values().any(|block| {
+        block["type"] == "self_set_pen_color" && block["fields"]["color"] == "#00ff88"
+    }));
+    assert!(blocks.values().any(|block| {
+        block["type"] == "self_change_pen_size" && block["fields"]["increase"] == "decrease"
+    }));
+    assert!(blocks.values().any(|block| {
+        block["type"] == "self_change_pen_color_property"
+            && block["fields"]["scope"] == "alpha"
+            && block["fields"]["increase"] == "decrease"
+    }));
+    assert!(
+        blocks
+            .values()
+            .any(|block| { block["type"] == "stamp" && block["fields"]["align"] == "center" })
+    );
+    assert!(blocks.values().any(|block| {
+        block["type"] == "set_pen_layer"
+            && block["fields"]["layer"] == "peak"
+            && block["fields"]["target_layer"] == "bottom"
+    }));
+}
+
+#[test]
+fn cli_compile_ts_bcmkn_pen_and_stamp_sample_validates() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("pen.ts");
+    let output = dir.path().join("pen.bcmkn");
+    fs::write(
+        &input,
+        r##"
+onStart(() => {
+  clearDrawing();
+  penDown();
+  setPenColor("#00ff88");
+  setPenSize(6);
+  changePenSize(-2);
+  setPenEffect("hue", 50);
+  changePenEffect("alpha", -10);
+  stampText("hello", 20, "center");
+  imageStamp();
+  setPenLayer("peak", "bottom");
+  penUp();
+});
+"##,
+    )
+    .unwrap();
+    let template = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts-bcmkn",
+            input.to_str().unwrap(),
+            "--template",
+            template.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args(["validate", output.to_str().unwrap()])
+        .assert()
+        .success();
+}
+
+#[test]
+fn cli_compile_ts_supports_sensing_input_time_statement_blocks() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("sensing.ts");
+    let output = dir.path().join("sensing-workspace.json");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  askChoice("1+1=?", "1", "2");
+  clone("--self");
+  deleteClone();
+  timerStart();
+  timerStop();
+  timerReset();
+  faceToBodyPart("face");
+});
+"#,
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts",
+            input.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let report: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    let blocks = report["workspaceData"]["blocks"].as_object().unwrap();
+    let block_types = blocks
+        .values()
+        .map(|block| block["type"].as_str().unwrap())
+        .collect::<Vec<_>>();
+
+    assert!(block_types.contains(&"ask_and_choose"));
+    assert!(block_types.contains(&"mirror"));
+    assert!(block_types.contains(&"dispose_clone"));
+    assert!(block_types.contains(&"set_timer_state"));
+    assert!(block_types.contains(&"face_to_body_part"));
+    assert!(blocks.values().any(|block| {
+        block["type"] == "ask_and_choose"
+            && block["mutation"]
+                == r#"<mutation xmlns="http://www.w3.org/1999/xhtml" items="2"></mutation>"#
+    }));
+    assert!(
+        blocks
+            .values()
+            .any(|block| { block["type"] == "mirror" && block["fields"]["sprite"] == "--self" })
+    );
+    assert!(
+        blocks.values().any(|block| {
+            block["type"] == "set_timer_state" && block["fields"]["type"] == "reset"
+        })
+    );
+    assert!(blocks.values().any(|block| {
+        block["type"] == "face_to_body_part" && block["fields"]["body_part"] == "face"
+    }));
+}
+
+#[test]
+fn cli_compile_ts_supports_sensing_input_time_expression_blocks() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("sensing_expr.ts");
+    let output = dir.path().join("sensing-expr-workspace.json");
+    fs::write(
+        &input,
+        r##"
+onStart(() => {
+  setVar("key", keyPressed("65", "down"));
+  setVar("mouse", mouseTrigger("down"));
+  setVar("mouseX", mouseX());
+  setVar("mouseY", mouseY());
+  setVar("answer", answer());
+  setVar("choiceText", choiceValue("content"));
+  setVar("choiceIndex", choiceValue("index"));
+  setVar("timer", timerValue());
+  setVar("year", timeNow("year"));
+  setVar("stageWidth", stageInfo("width"));
+  setVar("touching", touching("--self", "--edge"));
+  setVar("touchingColor", touchingColor("--self", "#ff0000"));
+  setVar("outside", outOfBoundary("0"));
+  setVar("cloneCount", cloneCount("--self"));
+  setVar("cloneIndex", currentCloneIndex());
+  setVar("cloneX", cloneProperty("--self", 1, "x"));
+  setVar("bodyTouch", touchingBodyPart("--self", "face"));
+  setVar("bodySize", bodyPartAppearance("face", "scale"));
+  setVar("faceTilt", faceTiltAngle());
+});
+"##,
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts",
+            input.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let report: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    let blocks = report["workspaceData"]["blocks"].as_object().unwrap();
+    let block_types = blocks
+        .values()
+        .map(|block| block["type"].as_str().unwrap())
+        .collect::<Vec<_>>();
+
+    assert!(block_types.contains(&"check_key"));
+    assert!(block_types.contains(&"mouse_down"));
+    assert!(block_types.contains(&"get_mouse_info"));
+    assert!(block_types.contains(&"get_answer"));
+    assert!(block_types.contains(&"get_choice_and_index"));
+    assert!(block_types.contains(&"timer"));
+    assert!(block_types.contains(&"get_time"));
+    assert!(block_types.contains(&"get_stage_info"));
+    assert!(block_types.contains(&"bump_into"));
+    assert!(block_types.contains(&"bump_into_color"));
+    assert!(block_types.contains(&"out_of_boundary"));
+    assert!(block_types.contains(&"get_clone_num"));
+    assert!(block_types.contains(&"get_current_clone_index"));
+    assert!(block_types.contains(&"get_clone_index_property"));
+    assert!(block_types.contains(&"bump_into_body_part"));
+    assert!(block_types.contains(&"get_appearance_of_part"));
+    assert!(block_types.contains(&"get_tilt_angle_of_face"));
+    assert!(blocks.values().any(|block| {
+        block["type"] == "check_key"
+            && block["fields"]["key"] == "65"
+            && block["fields"]["type"] == "down"
+    }));
+    assert!(
+        blocks
+            .values()
+            .any(|block| { block["type"] == "get_mouse_info" && block["fields"]["type"] == "x" })
+    );
+    assert!(blocks.values().any(|block| {
+        block["type"] == "get_clone_index_property"
+            && block["fields"]["sprite"] == "--self"
+            && block["fields"]["attribute"] == "x"
+    }));
+}
+
+#[test]
+fn cli_compile_ts_bcmkn_sensing_input_time_sample_validates() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("sensing.ts");
+    let output = dir.path().join("sensing.bcmkn");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  askChoice("1+1=?", "1", "2");
+  timerReset();
+  setVar("key", keyPressed("65", "down"));
+  setVar("mouseX", mouseX());
+  setVar("answer", answer());
+  setVar("timer", timerValue());
+  setVar("year", timeNow("year"));
+  setVar("touching", touching("--self", "--edge"));
+  setVar("cloneCount", cloneCount("--self"));
+});
+"#,
+    )
+    .unwrap();
+    let template = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts-bcmkn",
+            input.to_str().unwrap(),
+            "--template",
+            template.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args(["validate", output.to_str().unwrap()])
+        .assert()
+        .success();
+}
+
+#[test]
+fn cli_compile_ts_supports_variable_blocks() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("variables.ts");
+    let output = dir.path().join("variables-workspace.json");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  scriptVars("localScore", "localName");
+  setVar("score", 1);
+  changeVar("score", -2);
+  setVar("copy", getVar("score"));
+  setVar("localCopy", scriptVar("localScore"));
+  showVariable("score");
+  hideVariable("score");
+});
+"#,
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts",
+            input.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let report: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    let blocks = report["workspaceData"]["blocks"].as_object().unwrap();
+    let block_types = blocks
+        .values()
+        .map(|block| block["type"].as_str().unwrap())
+        .collect::<Vec<_>>();
+
+    assert!(block_types.contains(&"script_variables"));
+    assert!(block_types.contains(&"script_variables_param"));
+    assert!(block_types.contains(&"script_variables_value"));
+    assert!(block_types.contains(&"variables_set"));
+    assert!(block_types.contains(&"change_variables"));
+    assert!(block_types.contains(&"variables_get"));
+    assert!(block_types.contains(&"show_hide_variables"));
+    assert!(blocks.values().any(|block| {
+        block["type"] == "script_variables"
+            && block["mutation"]
+                == r#"<mutation xmlns="http://www.w3.org/1999/xhtml" items="2"></mutation>"#
+    }));
+    assert!(blocks.values().any(|block| {
+        block["type"] == "script_variables_param" && block["fields"]["TEXT"] == "localScore"
+    }));
+    assert!(blocks.values().any(|block| {
+        block["type"] == "script_variables_value" && block["fields"]["TEXT"] == "localScore"
+    }));
+    assert!(blocks.values().any(|block| {
+        block["type"] == "change_variables" && block["fields"]["method"] == "decrease"
+    }));
+}
+
+#[test]
+fn cli_compile_ts_bcmkn_variable_sample_validates() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("variables.ts");
+    let output = dir.path().join("variables.bcmkn");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  scriptVars("localScore");
+  setVar("score", 1);
+  changeVar("score", -2);
+  setVar("copy", getVar("score"));
+  setVar("localCopy", scriptVar("localScore"));
+  showVariable("score");
+});
+"#,
+    )
+    .unwrap();
+    let template = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts-bcmkn",
+            input.to_str().unwrap(),
+            "--template",
+            template.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args(["validate", output.to_str().unwrap()])
+        .assert()
+        .success();
+}
+
+#[test]
+fn cli_compile_ts_supports_list_blocks() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("lists.ts");
+    let output = dir.path().join("lists-workspace.json");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  appendList("items", 1);
+  insertList("items", 1, "hello");
+  replaceListItem("items", "any", 1, 2);
+  deleteListItem("items", "last", 1);
+  copyList("items", "backup");
+  showList("items");
+  hideList("items");
+  setVar("all", getList("items"));
+  setVar("first", listItem("items", "any", 1));
+  setVar("length", listLength("items"));
+  setVar("index", listIndexOf("items", "hello"));
+  setVar("has", listContains("items", "hello"));
+  setVar("tmp", tempList(1, 2, 3));
+});
+"#,
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts",
+            input.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let report: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    let blocks = report["workspaceData"]["blocks"].as_object().unwrap();
+    let block_types = blocks
+        .values()
+        .map(|block| block["type"].as_str().unwrap())
+        .collect::<Vec<_>>();
+
+    assert!(block_types.contains(&"list_append"));
+    assert!(block_types.contains(&"list_insert_value"));
+    assert!(block_types.contains(&"replace_list_item"));
+    assert!(block_types.contains(&"delete_list_item"));
+    assert!(block_types.contains(&"list_copy"));
+    assert!(block_types.contains(&"show_hide_list"));
+    assert!(block_types.contains(&"list_get"));
+    assert!(block_types.contains(&"list_item"));
+    assert!(block_types.contains(&"list_length"));
+    assert!(block_types.contains(&"list_index_of"));
+    assert!(block_types.contains(&"list_is_exist"));
+    assert!(block_types.contains(&"temporary_list"));
+    assert!(block_types.contains(&"pure_list_get"));
+    assert!(
+        blocks.values().any(|block| {
+            block["type"] == "replace_list_item" && block["fields"]["item"] == "any"
+        })
+    );
+    assert!(blocks.values().any(|block| {
+        block["type"] == "show_hide_list"
+            && block["fields"]["show_hide"] == "show"
+            && block["fields"]["list"] == "items"
+    }));
+    assert!(blocks.values().any(|block| {
+        block["type"] == "temporary_list"
+            && block["mutation"]
+                == r#"<mutation xmlns="http://www.w3.org/1999/xhtml" items="3"></mutation>"#
+    }));
+}
+
+#[test]
+fn cli_compile_ts_bcmkn_list_sample_validates_and_registers_lists() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("lists.ts");
+    let output = dir.path().join("lists.bcmkn");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  appendList("items", 1);
+  insertList("items", 1, "hello");
+  replaceListItem("items", "any", 1, 2);
+  deleteListItem("items", "last", 1);
+  copyList("items", "backup");
+  showList("items");
+  setVar("first", listItem("items", "any", 1));
+  setVar("length", listLength("items"));
+});
+"#,
+    )
+    .unwrap();
+    let template = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts-bcmkn",
+            input.to_str().unwrap(),
+            "--template",
+            template.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args(["validate", output.to_str().unwrap()])
+        .assert()
+        .success();
+
+    let project: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    let variables = project["variables"]["variablesDict"].as_object().unwrap();
+    assert!(
+        variables
+            .values()
+            .any(|variable| { variable["type"] == "list" && variable["name"] == "items" })
+    );
+    assert!(
+        variables
+            .values()
+            .any(|variable| { variable["type"] == "list" && variable["name"] == "backup" })
+    );
+    let decompiled = nekoc::decompile::build_report(&project).unwrap();
+    let blocks = decompiled["owners"][0]["scripts"][0]["blocks"]
+        .as_array()
+        .unwrap();
+    assert!(blocks.iter().any(|block| {
+        block["type"] == "pure_list_get"
+            && block["fields"]["list"]
+                .as_str()
+                .is_some_and(|value| value.starts_with("kn-list-"))
+    }));
+}
+
+#[test]
+fn cli_compile_ts_supports_extended_math_logic_and_value_blocks() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("math_value.ts");
+    let output = dir.path().join("math-value-workspace.json");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  setVar("bool", bool(true));
+  setVar("pow", pow(2, 8));
+  setVar("random", randInt(1, 10));
+  setVar("divisible", divisibleBy(10, 2));
+  setVar("even", numberProperty(4, "EVEN"));
+  setVar("sqrt", mathFunc("0", 16));
+  setVar("sin", trig("sin", 90));
+  setVar("num", toNumber("42"));
+  setVar("truth", toBoolean("true"));
+  setVar("joined", join("a", "b", "c"));
+  setVar("slice", selectText("abcdef", 2, 4));
+  setVar("tail", selectText("abcdef", 2));
+  setVar("split", splitText("a,b,c", ","));
+});
+"#,
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts",
+            input.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let report: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    let blocks = report["workspaceData"]["blocks"].as_object().unwrap();
+    let block_types = blocks
+        .values()
+        .map(|block| block["type"].as_str().unwrap())
+        .collect::<Vec<_>>();
+
+    assert!(block_types.contains(&"logic_boolean"));
+    assert!(block_types.contains(&"random_num"));
+    assert!(block_types.contains(&"divisible_by"));
+    assert!(block_types.contains(&"math_number_property"));
+    assert!(block_types.contains(&"math_function"));
+    assert!(block_types.contains(&"math_trig"));
+    assert!(block_types.contains(&"text_select"));
+    assert!(block_types.contains(&"text_split"));
+    assert!(
+        blocks.values().any(|block| {
+            block["type"] == "math_arithmetic" && block["fields"]["type"] == "power"
+        })
+    );
+    assert!(
+        blocks.values().any(|block| {
+            block["type"] == "convert_type" && block["fields"]["type"] == "number"
+        })
+    );
+    assert!(
+        blocks.values().any(|block| {
+            block["type"] == "convert_type" && block["fields"]["type"] == "boolean"
+        })
+    );
+    assert!(blocks.values().any(|block| {
+        block["type"] == "text_join"
+            && block["mutation"]
+                == r#"<mutation xmlns="http://www.w3.org/1999/xhtml" items="3"></mutation>"#
+    }));
+    assert!(blocks.values().any(|block| {
+        block["type"] == "text_select"
+            && block["mutation"]
+                == r#"<mutation xmlns="http://www.w3.org/1999/xhtml" items="1"></mutation>"#
+    }));
+    assert!(blocks.values().any(|block| {
+        block["type"] == "text_select"
+            && block["mutation"]
+                == r#"<mutation xmlns="http://www.w3.org/1999/xhtml" items="0"></mutation>"#
+    }));
+}
+
+#[test]
+fn cli_compile_ts_bcmkn_math_value_sample_validates() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("math_value.ts");
+    let output = dir.path().join("math_value.bcmkn");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  setVar("bool", bool(true));
+  setVar("pow", pow(2, 8));
+  setVar("random", randInt(1, 10));
+  setVar("divisible", divisibleBy(10, 2));
+  setVar("even", numberProperty(4, "EVEN"));
+  setVar("sqrt", mathFunc("0", 16));
+  setVar("sin", trig("sin", 90));
+  setVar("joined", join("a", "b", "c"));
+  setVar("slice", selectText("abcdef", 2, 4));
+  setVar("split", splitText("a,b,c", ","));
+});
+"#,
+    )
+    .unwrap();
+    let template = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts-bcmkn",
+            input.to_str().unwrap(),
+            "--template",
+            template.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args(["validate", output.to_str().unwrap()])
+        .assert()
+        .success();
+}
+
+#[test]
+fn cli_compile_ts_inlines_plain_ts_functions() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("inline_functions.ts");
+    let output = dir.path().join("inline_functions.json");
+    fs::write(
+        &input,
+        r#"
+function greet(name) {
+  consoleLog(join("hi ", name));
+}
+
+function double(x) {
+  return mul(x, 2);
+}
+
+onStart(() => {
+  greet("Kitten");
+  setVar("doubled", double(21));
+});
+"#,
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts",
+            input.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let report: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    assert_eq!(report["summary"]["procedures"], 0);
+    assert!(report["procedures"].as_array().unwrap().is_empty());
+
+    let main_blocks = report["workspaceData"]["blocks"].as_object().unwrap();
+    assert!(main_blocks.values().all(|block| {
+        !block["type"]
+            .as_str()
+            .unwrap_or("")
+            .starts_with("procedures_2_")
+    }));
+    assert!(
+        main_blocks
+            .values()
+            .any(|block| block["type"] == "console_log")
+    );
+    let set_var = main_blocks
+        .values()
+        .find(|block| block["type"] == "variables_set")
+        .unwrap();
+    let (value_block_id, value_connection) = report["workspaceData"]["connections"]
+        [set_var["id"].as_str().unwrap()]
+    .as_object()
+    .unwrap()
+    .iter()
+    .find(|(_, connection)| connection["input_name"] == "value")
+    .unwrap();
+    assert_eq!(value_connection["input_type"], "value");
+    let value_block = &main_blocks[value_block_id];
+    assert_eq!(value_block["type"], "math_arithmetic");
+    assert_eq!(value_block["fields"]["type"], "multiply");
+}
+
+#[test]
+fn cli_compile_ts_inlines_arrow_function_constants() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("inline_arrow_functions.ts");
+    let output = dir.path().join("inline_arrow_functions.json");
+    fs::write(
+        &input,
+        r#"
+const greet = (name) => {
+  consoleLog(join("hi ", name));
+};
+
+const double = (x) => mul(x, 2);
+
+onStart(() => {
+  greet("Kitten");
+  setVar("doubled", double(add(20, 1)));
+});
+"#,
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts",
+            input.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let report: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    assert_eq!(report["summary"]["procedures"], 0);
+    assert!(report["procedures"].as_array().unwrap().is_empty());
+
+    let main_blocks = report["workspaceData"]["blocks"].as_object().unwrap();
+    assert!(main_blocks.values().all(|block| {
+        !block["type"]
+            .as_str()
+            .unwrap_or("")
+            .starts_with("procedures_2_")
+    }));
+    let arithmetic_count = main_blocks
+        .values()
+        .filter(|block| block["type"] == "math_arithmetic")
+        .count();
+    assert_eq!(arithmetic_count, 2);
+}
+
+#[test]
+fn cli_compile_ts_inlines_imported_functions_from_relative_modules() {
+    let dir = tempdir().unwrap();
+    let src_dir = dir.path().join("src");
+    let lib_dir = src_dir.join("lib");
+    fs::create_dir_all(&lib_dir).unwrap();
+    let input = src_dir.join("main.ts");
+    let output = dir.path().join("multi_file.json");
+    fs::write(
+        lib_dir.join("math.ts"),
+        r#"
+export const double = (x) => mul(x, 2);
+
+export function greet(name) {
+  consoleLog(join("hi ", name));
+}
+"#,
+    )
+    .unwrap();
+    fs::write(
+        &input,
+        r#"
+import { double, greet } from "./lib/math";
+
+onStart(() => {
+  greet("Kitten");
+  setVar("doubled", double(21));
+});
+"#,
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts",
+            input.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let report: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    assert_eq!(report["summary"]["scripts"], 1);
+    assert_eq!(report["summary"]["procedures"], 0);
+    assert!(report["procedures"].as_array().unwrap().is_empty());
+    let main_blocks = report["workspaceData"]["blocks"].as_object().unwrap();
+    assert!(
+        main_blocks
+            .values()
+            .any(|block| block["type"] == "console_log")
+    );
+    assert!(
+        main_blocks
+            .values()
+            .any(|block| block["type"] == "math_arithmetic")
+    );
+    assert!(main_blocks.values().all(|block| {
+        !block["type"]
+            .as_str()
+            .unwrap_or("")
+            .starts_with("procedures_2_")
+    }));
+}
+
+#[test]
+fn cli_compile_ts_compiles_basic_variable_syntax() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("natural_ts.ts");
+    let output = dir.path().join("natural_ts.json");
+    fs::write(
+        &input,
+        r#"
+let score = 0;
+
+onStart(() => {
+  score = score + 1;
+  console.log(score);
+});
+"#,
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts",
+            input.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let report: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    let main_blocks = report["workspaceData"]["blocks"].as_object().unwrap();
+
+    assert!(main_blocks
+        .values()
+        .any(|block| block["type"] == "variables_set" && block["fields"]["variable"] == "score"));
+    assert!(main_blocks
+        .values()
+        .any(|block| block["type"] == "variables_get" && block["fields"]["variable"] == "score"));
+    assert!(
+        main_blocks.values().any(|block| {
+            block["type"] == "math_arithmetic" && block["fields"]["type"] == "add"
+        })
+    );
+    assert!(
+        main_blocks
+            .values()
+            .any(|block| block["type"] == "console_log")
+    );
+}
+
+#[test]
+fn cli_compile_ts_bcmkn_basic_variable_syntax_validates() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("natural_ts.ts");
+    let output = dir.path().join("natural_ts.bcmkn");
+    fs::write(
+        &input,
+        r#"
+let score = 0;
+
+onStart(() => {
+  score = score + 1;
+  console.log(score);
+});
+"#,
+    )
+    .unwrap();
+    let template = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts-bcmkn",
+            input.to_str().unwrap(),
+            "--template",
+            template.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args(["validate", output.to_str().unwrap()])
+        .assert()
+        .success();
+
+    let project: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    let variables = project["variables"]["variablesDict"].as_object().unwrap();
+    assert!(
+        variables
+            .values()
+            .any(|variable| variable["name"] == "score")
+    );
+}
+
+#[test]
+fn cli_compile_ts_bcmkn_inline_function_sample_validates() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("inline_functions.ts");
+    let output = dir.path().join("inline_functions.bcmkn");
+    fs::write(
+        &input,
+        r#"
+function greet(name) {
+  consoleLog(join("hi ", name));
+}
+
+function double(x) {
+  return mul(x, 2);
+}
+
+onStart(() => {
+  greet("Kitten");
+  setVar("doubled", double(21));
+});
+"#,
+    )
+    .unwrap();
+    let template = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts-bcmkn",
+            input.to_str().unwrap(),
+            "--template",
+            template.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args(["validate", output.to_str().unwrap()])
+        .assert()
+        .success();
+
+    let project: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    let procedures = project["procedures"]["proceduresDict"].as_object().unwrap();
+    assert!(procedures.is_empty());
+}
+
+#[test]
+fn cli_compile_ts_bcmkn_multi_file_project_sample_validates() {
+    let dir = tempdir().unwrap();
+    let output = dir.path().join("project.bcmkn");
+    let samples_dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("samples");
+    let input = samples_dir.join("project").join("main.ts");
+    let template = samples_dir.join("我的作品-原生.bcmkn");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts-bcmkn",
+            input.to_str().unwrap(),
+            "--template",
+            template.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args(["validate", output.to_str().unwrap()])
+        .assert()
+        .success();
+
+    let project: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    assert!(
+        project["procedures"]["proceduresDict"]
+            .as_object()
+            .unwrap()
+            .is_empty()
+    );
+}

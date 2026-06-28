@@ -1,0 +1,12 @@
+/target
+/node_modules
+*.workspace.json
+*.compiled.bcmkn
+*.compiled.decompile.json
+*.compiled.inspect.json
+*.compiled.report.json
+*.compiled.validate.json
+*.roundtrip.bcmkn
+*.report.json
+*.decompile.json
+*.validate.json

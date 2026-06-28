@@ -1,0 +1,24 @@
+onStart(() => {
+  moveSteps(10);
+  moveTo(100, -50);
+  glideTo(0.5, 0, 0);
+  setX(12);
+  setY(34);
+  changeX(5);
+  changeY(-6);
+  glideChangeX(0.2, 7);
+  glideChangeY(0.3, -8);
+  turn(15);
+  pointTowards(90);
+  rotateAround("--self", 45);
+  faceTo("--mouse");
+  setFaceTo("--random");
+  moveToTarget("--mouse");
+  moveToTargetSprite("--random");
+  bounceOffEdge();
+  setRotationType("1");
+  setVar("selfX", xOf("--self"));
+  setVar("selfY", yOf("--self"));
+  setVar("distance", distanceTo("--mouse"));
+  setVar("tiltX", orientation("x"));
+});

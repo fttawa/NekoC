@@ -1,0 +1,28 @@
+onStart(() => {
+  askChoice("1+1=?", "1", "2");
+  clone("--self");
+  deleteClone();
+  timerStart();
+  timerStop();
+  timerReset();
+  faceToBodyPart("face");
+  setVar("key", keyPressed("65", "down"));
+  setVar("mouse", mouseTrigger("down"));
+  setVar("mouseX", mouseX());
+  setVar("mouseY", mouseY());
+  setVar("answer", answer());
+  setVar("choiceText", choiceValue("content"));
+  setVar("choiceIndex", choiceValue("index"));
+  setVar("timer", timerValue());
+  setVar("year", timeNow("year"));
+  setVar("stageWidth", stageInfo("width"));
+  setVar("touching", touching("--self", "--edge"));
+  setVar("touchingColor", touchingColor("--self", "#ff0000"));
+  setVar("outside", outOfBoundary("0"));
+  setVar("cloneCount", cloneCount("--self"));
+  setVar("cloneIndex", currentCloneIndex());
+  setVar("cloneX", cloneProperty("--self", 1, "x"));
+  setVar("bodyTouch", touchingBodyPart("--self", "face"));
+  setVar("bodySize", bodyPartAppearance("face", "scale"));
+  setVar("faceTilt", faceTiltAngle());
+});
