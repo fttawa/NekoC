@@ -456,10 +456,7 @@ class WorkspaceCompiler {
     let previousId = null;
 
     statements.forEach((statement) => {
-      if (!ts.isExpressionStatement(statement)) {
-        this.unsupported(statement, "Only expression statements are supported");
-      }
-      const blockId = this.compileStatementExpression(statement.expression, parentIdForChildren);
+      const blockId = this.compileStatement(statement, parentIdForChildren);
       if (!firstId) {
         firstId = blockId;
       }
@@ -472,6 +469,16 @@ class WorkspaceCompiler {
     return firstId;
   }
 
+  compileStatement(statement, parentId) {
+    if (ts.isExpressionStatement(statement)) {
+      return this.compileStatementExpression(statement.expression, parentId);
+    }
+    if (ts.isIfStatement(statement)) {
+      return this.compileNativeIfStatement(statement, parentId);
+    }
+    this.unsupported(statement, "Only expression and if statements are supported");
+  }
+
   compileStatementExpression(expression, parentId) {
     if (ts.isCallExpression(expression)) {
       return this.compileStatementCall(expression, parentId);
@@ -480,6 +487,13 @@ class WorkspaceCompiler {
       return this.compileAssignmentExpression(expression, parentId);
     }
     this.unsupported(expression, "Only calls and assignments are supported as statements");
+  }
+
+  statementBodyStatements(statement) {
+    if (ts.isBlock(statement)) {
+      return Array.from(statement.statements);
+    }
+    return [statement];
   }
 
   compileStatementCall(call, parentId) {
@@ -911,6 +925,36 @@ class WorkspaceCompiler {
     if (hasElse) {
       const elseBody = callbackBody(call.arguments[2], this);
       const firstElseChild = this.compileStatementList(elseBody, id);
+      if (firstElseChild) {
+        this.connectInput(id, firstElseChild, "ELSE", "statement");
+      }
+    }
+
+    return id;
+  }
+
+  compileNativeIfStatement(statement, parentId) {
+    const hasElse = Boolean(statement.elseStatement);
+    const id = this.addBlock({
+      type: "controls_if",
+      parent_id: parentId,
+      ...(hasElse
+        ? { mutation: '<mutation xmlns="http://www.w3.org/1999/xhtml" else="1"></mutation>' }
+        : {}),
+    });
+    const conditionId = this.compileExpression(statement.expression, id);
+    this.connectInput(id, conditionId, "IF0", "value");
+
+    const thenBody = this.statementBodyStatements(statement.thenStatement);
+    const firstThenChild = this.compileStatementList(thenBody, id);
+    if (firstThenChild) {
+      this.connectInput(id, firstThenChild, "DO0", "statement");
+    }
+
+    if (statement.elseStatement) {
+      const firstElseChild = ts.isIfStatement(statement.elseStatement)
+        ? this.compileNativeIfStatement(statement.elseStatement, id)
+        : this.compileStatementList(this.statementBodyStatements(statement.elseStatement), id);
       if (firstElseChild) {
         this.connectInput(id, firstElseChild, "ELSE", "statement");
       }

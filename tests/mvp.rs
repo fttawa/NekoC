@@ -2745,6 +2745,113 @@ onStart(() => {
 }
 
 #[test]
+fn cli_compile_ts_compiles_native_if_else() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("native_if.ts");
+    let output = dir.path().join("native_if.json");
+    fs::write(
+        &input,
+        r#"
+let score = 0;
+
+onStart(() => {
+  if (score > 10) {
+    console.log("win");
+  } else {
+    console.log("keep going");
+  }
+});
+"#,
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts",
+            input.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let report: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    let blocks = report["workspaceData"]["blocks"].as_object().unwrap();
+    let connections = report["workspaceData"]["connections"].as_object().unwrap();
+    let if_block = blocks
+        .values()
+        .find(|block| block["type"] == "controls_if")
+        .unwrap();
+    let if_id = if_block["id"].as_str().unwrap();
+
+    assert_eq!(
+        if_block["mutation"],
+        r#"<mutation xmlns="http://www.w3.org/1999/xhtml" else="1"></mutation>"#
+    );
+    assert!(
+        blocks
+            .values()
+            .any(|block| { block["type"] == "logic_compare" && block["fields"]["OP"] == "GT" })
+    );
+    assert_eq!(
+        connections[if_id]
+            .as_object()
+            .unwrap()
+            .values()
+            .filter(|connection| connection["input_name"] == "DO0"
+                || connection["input_name"] == "ELSE")
+            .count(),
+        2
+    );
+}
+
+#[test]
+fn cli_compile_ts_bcmkn_native_if_else_validates() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("native_if.ts");
+    let output = dir.path().join("native_if.bcmkn");
+    fs::write(
+        &input,
+        r#"
+let score = 0;
+
+onStart(() => {
+  if (score > 10) {
+    console.log("win");
+  } else {
+    console.log("keep going");
+  }
+});
+"#,
+    )
+    .unwrap();
+    let template = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts-bcmkn",
+            input.to_str().unwrap(),
+            "--template",
+            template.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args(["validate", output.to_str().unwrap()])
+        .assert()
+        .success();
+}
+
+#[test]
 fn cli_compile_ts_bcmkn_inline_function_sample_validates() {
     let dir = tempdir().unwrap();
     let input = dir.path().join("inline_functions.ts");
