@@ -2,6 +2,9 @@
   "name": "nekoc-ts-frontend",
   "private": true,
   "type": "module",
+  "scripts": {
+    "e2e:three-body": "node tools/e2e-sample.mjs three_body"
+  },
   "dependencies": {
     "typescript": "^5.9.3"
   }

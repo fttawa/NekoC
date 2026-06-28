@@ -44,6 +44,18 @@ cargo test
 npm audit --audit-level=moderate
 ```
 
+Run the local editor end-to-end smoke test after the local editor harness has
+its npm dependencies installed:
+
+```bash
+npm run e2e:three-body
+```
+
+This compiles `samples/three_body.ts`, validates the generated `.bcmkn`, then
+opens it through the local Kitten N editor harness under
+`../research/kn-editor-local`. If Playwright has not installed Chromium yet, run
+`npx playwright install chromium` in the harness directory first.
+
 ## CLI
 
 ```bash

@@ -5,6 +5,7 @@
 *.compiled.decompile.json
 *.compiled.inspect.json
 *.compiled.report.json
+*.compiled.smoke.json
 *.compiled.validate.json
 *.roundtrip.bcmkn
 *.report.json
