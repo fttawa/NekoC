@@ -548,8 +548,11 @@ class WorkspaceCompiler {
     if (ts.isCallExpression(expression)) {
       return this.compileStatementCall(expression, parentId);
     }
-    if (ts.isBinaryExpression(expression) && expression.operatorToken.kind === ts.SyntaxKind.EqualsToken) {
+    if (ts.isBinaryExpression(expression) && assignmentOperatorSpec(expression.operatorToken.kind)) {
       return this.compileAssignmentExpression(expression, parentId);
+    }
+    if (this.isUpdateExpression(expression)) {
+      return this.compileUpdateExpression(expression, parentId);
     }
     this.unsupported(expression, "Only calls and assignments are supported as statements");
   }
@@ -869,14 +872,96 @@ class WorkspaceCompiler {
       this.unsupported(expression.left, "Only simple variable assignments are supported");
     }
     const variableName = expression.left.text;
+    if (this.lookupRangeBinding(variableName)) {
+      this.unsupported(expression.left, `Cannot assign to for loop parameter: ${variableName}`);
+    }
     this.globalVariables.add(variableName);
     const id = this.addBlock({
       type: "variables_set",
       parent_id: parentId,
       fields: { variable: variableName },
     });
-    const valueId = this.compileExpression(expression.right, id);
+    const spec = assignmentOperatorSpec(expression.operatorToken.kind);
+    if (!spec) {
+      this.unsupported(expression.operatorToken, "Unsupported assignment operator");
+    }
+    const valueId = spec.kind === "assign"
+      ? this.compileExpression(expression.right, id)
+      : this.compileVariableArithmeticExpression(variableName, expression.right, id, spec.operator);
     this.connectInput(id, valueId, "value", "value");
+    return id;
+  }
+
+  isUpdateExpression(expression) {
+    return (
+      (ts.isPostfixUnaryExpression(expression) || ts.isPrefixUnaryExpression(expression)) &&
+      (expression.operator === ts.SyntaxKind.PlusPlusToken ||
+        expression.operator === ts.SyntaxKind.MinusMinusToken)
+    );
+  }
+
+  compileUpdateExpression(expression, parentId) {
+    if (!ts.isIdentifier(expression.operand)) {
+      this.unsupported(expression.operand, "Only simple variable updates are supported");
+    }
+    const variableName = expression.operand.text;
+    if (this.lookupRangeBinding(variableName)) {
+      this.unsupported(expression.operand, `Cannot update for loop parameter: ${variableName}`);
+    }
+    this.globalVariables.add(variableName);
+    const id = this.addBlock({
+      type: "variables_set",
+      parent_id: parentId,
+      fields: { variable: variableName },
+    });
+    const operator = expression.operator === ts.SyntaxKind.PlusPlusToken ? "add" : "minus";
+    const valueId = this.compileVariableArithmeticNumber(variableName, "1", id, operator);
+    this.connectInput(id, valueId, "value", "value");
+    return id;
+  }
+
+  compileVariableArithmeticExpression(variableName, rightExpressionOrBlockId, parentId, operator) {
+    const id = this.addBlock({
+      type: "math_arithmetic",
+      parent_id: parentId,
+      fields: { type: operator },
+      is_output: true,
+    });
+    const leftId = this.addBlock({
+      type: "variables_get",
+      parent_id: id,
+      fields: { variable: variableName },
+      is_output: true,
+    });
+    const rightId = typeof rightExpressionOrBlockId === "string"
+      ? rightExpressionOrBlockId
+      : this.compileExpression(rightExpressionOrBlockId, id);
+    this.connectInput(id, leftId, "A", "value");
+    this.connectInput(id, rightId, "B", "value");
+    return id;
+  }
+
+  compileVariableArithmeticNumber(variableName, numberText, parentId, operator) {
+    const id = this.addBlock({
+      type: "math_arithmetic",
+      parent_id: parentId,
+      fields: { type: operator },
+      is_output: true,
+    });
+    const leftId = this.addBlock({
+      type: "variables_get",
+      parent_id: id,
+      fields: { variable: variableName },
+      is_output: true,
+    });
+    const rightId = this.addBlock({
+      type: "math_number",
+      parent_id: id,
+      fields: { NUM: numberText },
+      is_output: true,
+    });
+    this.connectInput(id, leftId, "A", "value");
+    this.connectInput(id, rightId, "B", "value");
     return id;
   }
 
@@ -1139,6 +1224,28 @@ class WorkspaceCompiler {
   }
 
   nativeForLoopStep(incrementor, variable) {
+    if (
+      incrementor &&
+      (ts.isPostfixUnaryExpression(incrementor) || ts.isPrefixUnaryExpression(incrementor)) &&
+      incrementor.operator === ts.SyntaxKind.PlusPlusToken &&
+      ts.isIdentifier(incrementor.operand) &&
+      incrementor.operand.text === variable
+    ) {
+      return 1;
+    }
+    if (
+      incrementor &&
+      ts.isBinaryExpression(incrementor) &&
+      incrementor.operatorToken.kind === ts.SyntaxKind.PlusEqualsToken &&
+      ts.isIdentifier(incrementor.left) &&
+      incrementor.left.text === variable
+    ) {
+      const step = numericLiteralValue(incrementor.right, this);
+      if (step <= 0) {
+        this.unsupported(incrementor.right, "For loop increment must be positive");
+      }
+      return step;
+    }
     if (
       !incrementor ||
       !ts.isBinaryExpression(incrementor) ||
@@ -2410,6 +2517,23 @@ function nativeBinaryExpressionSpec(operator) {
       return { type: "logic_operation", fields: { type: "and" }, leftInput: "A", rightInput: "B" };
     case ts.SyntaxKind.BarBarToken:
       return { type: "logic_operation", fields: { type: "or" }, leftInput: "A", rightInput: "B" };
+    default:
+      return null;
+  }
+}
+
+function assignmentOperatorSpec(operator) {
+  switch (operator) {
+    case ts.SyntaxKind.EqualsToken:
+      return { kind: "assign" };
+    case ts.SyntaxKind.PlusEqualsToken:
+      return { kind: "compound", operator: "add" };
+    case ts.SyntaxKind.MinusEqualsToken:
+      return { kind: "compound", operator: "minus" };
+    case ts.SyntaxKind.AsteriskEqualsToken:
+      return { kind: "compound", operator: "multiply" };
+    case ts.SyntaxKind.SlashEqualsToken:
+      return { kind: "compound", operator: "divide" };
     default:
       return null;
   }

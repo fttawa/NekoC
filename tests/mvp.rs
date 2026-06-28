@@ -3301,6 +3301,141 @@ onStart(() => {
 }
 
 #[test]
+fn cli_compile_ts_compiles_compound_assignments_and_updates() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("assignment_sugar.ts");
+    let output = dir.path().join("assignment_sugar.json");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  let total = 0;
+  total += 2;
+  total++;
+  total--;
+  console.log(total);
+});
+"#,
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts",
+            input.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let report: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    let blocks = report["workspaceData"]["blocks"].as_object().unwrap();
+    let arithmetic_count = blocks
+        .values()
+        .filter(|block| block["type"] == "math_arithmetic")
+        .count();
+    let set_count = blocks
+        .values()
+        .filter(|block| block["type"] == "variables_set" && block["fields"]["variable"] == "total")
+        .count();
+
+    assert_eq!(set_count, 4);
+    assert!(arithmetic_count >= 3);
+    assert!(
+        blocks.values().any(|block| {
+            block["type"] == "math_arithmetic" && block["fields"]["type"] == "minus"
+        })
+    );
+}
+
+#[test]
+fn cli_compile_ts_compiles_native_for_update_expression() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("native_for_update.ts");
+    let output = dir.path().join("native_for_update.json");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  for (let i = 0; i < 3; i++) {
+    console.log(i);
+  }
+});
+"#,
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts",
+            input.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let report: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    let blocks = report["workspaceData"]["blocks"].as_object().unwrap();
+
+    assert!(
+        blocks
+            .values()
+            .any(|block| block["type"] == "traverse_number" && block["parent_id"].is_string())
+    );
+    assert!(blocks
+        .values()
+        .any(|block| block["type"] == "traverse_number_value" && block["fields"]["TEXT"] == "i"));
+}
+
+#[test]
+fn cli_compile_ts_bcmkn_assignment_sugar_validates() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("assignment_sugar.ts");
+    let output = dir.path().join("assignment_sugar.bcmkn");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  let total = 0;
+  total += 2;
+  total++;
+  total--;
+  console.log(total);
+});
+"#,
+    )
+    .unwrap();
+    let template = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts-bcmkn",
+            input.to_str().unwrap(),
+            "--template",
+            template.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args(["validate", output.to_str().unwrap()])
+        .assert()
+        .success();
+}
+
+#[test]
 fn cli_compile_ts_bcmkn_inline_function_sample_validates() {
     let dir = tempdir().unwrap();
     let input = dir.path().join("inline_functions.ts");
