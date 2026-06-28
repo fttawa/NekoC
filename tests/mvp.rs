@@ -3078,6 +3078,95 @@ onStart(() => {
 }
 
 #[test]
+fn cli_compile_ts_compiles_native_for_loop() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("native_for.ts");
+    let output = dir.path().join("native_for.json");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  for (let i = 0; i < 3; i = i + 1) {
+    console.log(i);
+  }
+});
+"#,
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts",
+            input.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let report: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    let blocks = report["workspaceData"]["blocks"].as_object().unwrap();
+    let for_block = blocks
+        .values()
+        .find(|block| block["type"] == "traverse_number")
+        .unwrap();
+
+    assert_eq!(
+        for_block["mutation"],
+        r#"<mutation xmlns="http://www.w3.org/1999/xhtml" items="2"></mutation>"#
+    );
+    assert!(blocks
+        .values()
+        .any(|block| block["type"] == "traverse_number_param" && block["fields"]["TEXT"] == "i"));
+    assert!(blocks
+        .values()
+        .any(|block| block["type"] == "traverse_number_value" && block["fields"]["TEXT"] == "i"));
+    assert!(blocks.values().any(|block| block["type"] == "console_log"));
+}
+
+#[test]
+fn cli_compile_ts_bcmkn_native_for_loop_validates() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("native_for.ts");
+    let output = dir.path().join("native_for.bcmkn");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  for (let i = 0; i < 3; i = i + 1) {
+    console.log(i);
+  }
+});
+"#,
+    )
+    .unwrap();
+    let template = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts-bcmkn",
+            input.to_str().unwrap(),
+            "--template",
+            template.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args(["validate", output.to_str().unwrap()])
+        .assert()
+        .success();
+}
+
+#[test]
 fn cli_compile_ts_bcmkn_inline_function_sample_validates() {
     let dir = tempdir().unwrap();
     let input = dir.path().join("inline_functions.ts");

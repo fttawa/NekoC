@@ -26,6 +26,7 @@ class WorkspaceCompiler {
     this.loadedModules = new Set();
     this.globalVariables = new Set();
     this.loopDepth = 0;
+    this.rangeBindings = [];
   }
 
   compile(sourceFile) {
@@ -480,10 +481,13 @@ class WorkspaceCompiler {
     if (ts.isWhileStatement(statement)) {
       return this.compileNativeWhileStatement(statement, parentId);
     }
+    if (ts.isForStatement(statement)) {
+      return this.compileNativeForStatement(statement, parentId);
+    }
     if (ts.isBreakStatement(statement)) {
       return this.compileNativeBreakStatement(statement, parentId);
     }
-    this.unsupported(statement, "Only expression, if, while, and break statements are supported");
+    this.unsupported(statement, "Only expression, if, while, for, and break statements are supported");
   }
 
   compileStatementExpression(expression, parentId) {
@@ -1004,6 +1008,133 @@ class WorkspaceCompiler {
     return this.addBlock({ type: "break", parent_id: parentId });
   }
 
+  compileNativeForStatement(statement, parentId) {
+    const spec = this.nativeForLoopSpec(statement);
+    const id = this.addBlock({
+      type: "traverse_number",
+      parent_id: parentId,
+      mutation: '<mutation xmlns="http://www.w3.org/1999/xhtml" items="2"></mutation>',
+    });
+    const paramId = this.addBlock({
+      type: "traverse_number_param",
+      parent_id: id,
+      fields: { TEXT: spec.variable },
+      is_output: true,
+    });
+    this.connectInput(id, paramId, "value", "value");
+
+    const fromId = this.compileExpression(spec.from, id);
+    const toId = this.compileForLoopLimit(spec.to, id, spec.exclusiveEnd);
+    const byId = this.addBlock({
+      type: "math_number",
+      parent_id: id,
+      fields: { NUM: String(spec.step) },
+      is_output: true,
+    });
+    this.connectInput(id, fromId, "from", "value");
+    this.connectInput(id, toId, "to", "value");
+    this.connectInput(id, byId, "by", "value");
+
+    this.loopDepth += 1;
+    this.rangeBindings.push(spec.variable);
+    try {
+      const firstChild = this.compileStatementList(this.statementBodyStatements(statement.statement), id);
+      if (firstChild) {
+        this.connectInput(id, firstChild, "DO", "statement");
+      }
+    } finally {
+      this.rangeBindings.pop();
+      this.loopDepth -= 1;
+    }
+
+    return id;
+  }
+
+  nativeForLoopSpec(statement) {
+    if (!statement.initializer || !ts.isVariableDeclarationList(statement.initializer)) {
+      this.unsupported(statement, "Only for loops with a let initializer are supported");
+    }
+    if (statement.initializer.declarations.length !== 1) {
+      this.unsupported(statement.initializer, "Only one for loop variable is supported");
+    }
+    const declaration = statement.initializer.declarations[0];
+    if (!ts.isIdentifier(declaration.name) || !declaration.initializer) {
+      this.unsupported(declaration, "For loop variable must be initialized");
+    }
+    const variable = declaration.name.text;
+    const condition = statement.condition;
+    if (
+      !condition ||
+      !ts.isBinaryExpression(condition) ||
+      !ts.isIdentifier(condition.left) ||
+      condition.left.text !== variable
+    ) {
+      this.unsupported(statement, "For loop condition must compare the loop variable");
+    }
+    const exclusiveEnd = condition.operatorToken.kind === ts.SyntaxKind.LessThanToken;
+    if (!exclusiveEnd && condition.operatorToken.kind !== ts.SyntaxKind.LessThanEqualsToken) {
+      this.unsupported(condition.operatorToken, "For loops support only < and <= conditions");
+    }
+    return {
+      variable,
+      from: declaration.initializer,
+      to: condition.right,
+      exclusiveEnd,
+      step: this.nativeForLoopStep(statement.incrementor, variable),
+    };
+  }
+
+  nativeForLoopStep(incrementor, variable) {
+    if (
+      !incrementor ||
+      !ts.isBinaryExpression(incrementor) ||
+      incrementor.operatorToken.kind !== ts.SyntaxKind.EqualsToken ||
+      !ts.isIdentifier(incrementor.left) ||
+      incrementor.left.text !== variable ||
+      !ts.isBinaryExpression(incrementor.right) ||
+      incrementor.right.operatorToken.kind !== ts.SyntaxKind.PlusToken ||
+      !ts.isIdentifier(incrementor.right.left) ||
+      incrementor.right.left.text !== variable
+    ) {
+      this.unsupported(incrementor, "For loop increment must be i = i + <positive number>");
+    }
+    const step = numericLiteralValue(incrementor.right.right, this);
+    if (step <= 0) {
+      this.unsupported(incrementor.right.right, "For loop increment must be positive");
+    }
+    return step;
+  }
+
+  compileForLoopLimit(expression, parentId, exclusiveEnd) {
+    if (!exclusiveEnd) {
+      return this.compileExpression(expression, parentId);
+    }
+    if (ts.isNumericLiteral(expression)) {
+      return this.addBlock({
+        type: "math_number",
+        parent_id: parentId,
+        fields: { NUM: String(Number(expression.text) - 1) },
+        is_output: true,
+      });
+    }
+    const id = this.addBlock({
+      type: "math_arithmetic",
+      parent_id: parentId,
+      fields: { type: "minus" },
+      is_output: true,
+    });
+    const leftId = this.compileExpression(expression, id);
+    const rightId = this.addBlock({
+      type: "math_number",
+      parent_id: id,
+      fields: { NUM: "1" },
+      is_output: true,
+    });
+    this.connectInput(id, leftId, "A", "value");
+    this.connectInput(id, rightId, "B", "value");
+    return id;
+  }
+
   compileForRange(call, parentId) {
     const id = this.addBlock({
       type: "traverse_number",
@@ -1391,6 +1522,14 @@ class WorkspaceCompiler {
       const boundExpression = this.lookupExpressionBinding(expression.text);
       if (boundExpression) {
         return this.compileExpression(boundExpression, parentId);
+      }
+      if (this.lookupRangeBinding(expression.text)) {
+        return this.addBlock({
+          type: "traverse_number_value",
+          parent_id: parentId,
+          fields: { TEXT: expression.text },
+          is_output: true,
+        });
       }
       if (this.globalVariables.has(expression.text)) {
         return this.addBlock({
@@ -1862,6 +2001,15 @@ class WorkspaceCompiler {
       }
     }
     return null;
+  }
+
+  lookupRangeBinding(name) {
+    for (let index = this.rangeBindings.length - 1; index >= 0; index -= 1) {
+      if (this.rangeBindings[index] === name) {
+        return true;
+      }
+    }
+    return false;
   }
 
   compileCompare(call, parentId, operator) {
