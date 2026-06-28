@@ -183,6 +183,9 @@ class WorkspaceCompiler {
       if (!ts.isIdentifier(declaration.name)) {
         this.unsupported(declaration.name, "Only simple variable names are supported");
       }
+      if (this.globalVariables.has(declaration.name.text)) {
+        this.unsupported(declaration.name, `Duplicate variable declaration: ${declaration.name.text}`);
+      }
       this.globalVariables.add(declaration.name.text);
     });
   }
@@ -475,6 +478,9 @@ class WorkspaceCompiler {
     if (ts.isExpressionStatement(statement)) {
       return this.compileStatementExpression(statement.expression, parentId);
     }
+    if (ts.isVariableStatement(statement)) {
+      return this.compileVariableStatement(statement, parentId);
+    }
     if (ts.isIfStatement(statement)) {
       return this.compileNativeIfStatement(statement, parentId);
     }
@@ -487,7 +493,55 @@ class WorkspaceCompiler {
     if (ts.isBreakStatement(statement)) {
       return this.compileNativeBreakStatement(statement, parentId);
     }
-    this.unsupported(statement, "Only expression, if, while, for, and break statements are supported");
+    this.unsupported(statement, "Only expression, variable, if, while, for, and break statements are supported");
+  }
+
+  compileVariableStatement(statement, parentId) {
+    let firstId = null;
+    let previousId = null;
+
+    statement.declarationList.declarations.forEach((declaration) => {
+      const blockId = this.compileVariableDeclaration(declaration, parentId);
+      if (!firstId) {
+        firstId = blockId;
+      }
+      if (previousId) {
+        this.connectNext(previousId, blockId);
+      }
+      previousId = blockId;
+    });
+
+    return firstId;
+  }
+
+  compileVariableDeclaration(declaration, parentId) {
+    if (!ts.isIdentifier(declaration.name)) {
+      this.unsupported(declaration.name, "Only simple variable names are supported");
+    }
+    const variableName = declaration.name.text;
+    this.registerBlockVariable(declaration.name, variableName);
+    const id = this.addBlock({
+      type: "variables_set",
+      parent_id: parentId,
+      fields: { variable: variableName },
+    });
+    const valueId = declaration.initializer
+      ? this.compileExpression(declaration.initializer, id)
+      : this.addBlock({
+        type: "math_number",
+        parent_id: id,
+        fields: { NUM: "0" },
+        is_output: true,
+      });
+    this.connectInput(id, valueId, "value", "value");
+    return id;
+  }
+
+  registerBlockVariable(node, variableName) {
+    if (this.lookupRangeBinding(variableName) || this.globalVariables.has(variableName)) {
+      this.unsupported(node, `Variable shadowing is not supported: ${variableName}`);
+    }
+    this.globalVariables.add(variableName);
   }
 
   compileStatementExpression(expression, parentId) {

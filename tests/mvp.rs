@@ -3167,6 +3167,140 @@ onStart(() => {
 }
 
 #[test]
+fn cli_compile_ts_compiles_block_let_variables() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("block_let.ts");
+    let output = dir.path().join("block_let.json");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  let total = 0;
+  for (let i = 0; i < 3; i = i + 1) {
+    total = total + i;
+  }
+  console.log(total);
+});
+"#,
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts",
+            input.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let report: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    let blocks = report["workspaceData"]["blocks"].as_object().unwrap();
+
+    assert!(blocks
+        .values()
+        .any(|block| block["type"] == "variables_set" && block["fields"]["variable"] == "total"));
+    assert!(blocks
+        .values()
+        .any(|block| block["type"] == "variables_get" && block["fields"]["variable"] == "total"));
+    assert!(blocks
+        .values()
+        .any(|block| block["type"] == "traverse_number_value" && block["fields"]["TEXT"] == "i"));
+    assert!(
+        blocks.values().any(|block| {
+            block["type"] == "math_arithmetic" && block["fields"]["type"] == "add"
+        })
+    );
+}
+
+#[test]
+fn cli_compile_ts_rejects_block_let_shadowing() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("block_let_shadow.ts");
+    let output = dir.path().join("block_let_shadow.json");
+    fs::write(
+        &input,
+        r#"
+let total = 0;
+
+onStart(() => {
+  let total = 1;
+  console.log(total);
+});
+"#,
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts",
+            input.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains(
+            "Variable shadowing is not supported",
+        ));
+}
+
+#[test]
+fn cli_compile_ts_bcmkn_block_let_variables_validate() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("block_let.ts");
+    let output = dir.path().join("block_let.bcmkn");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  let total = 0;
+  for (let i = 0; i < 3; i = i + 1) {
+    total = total + i;
+  }
+  console.log(total);
+});
+"#,
+    )
+    .unwrap();
+    let template = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts-bcmkn",
+            input.to_str().unwrap(),
+            "--template",
+            template.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args(["validate", output.to_str().unwrap()])
+        .assert()
+        .success();
+
+    let project: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    let variables = project["variables"]["variablesDict"].as_object().unwrap();
+    assert!(
+        variables
+            .values()
+            .any(|variable| variable["name"] == "total")
+    );
+}
+
+#[test]
 fn cli_compile_ts_bcmkn_inline_function_sample_validates() {
     let dir = tempdir().unwrap();
     let input = dir.path().join("inline_functions.ts");
