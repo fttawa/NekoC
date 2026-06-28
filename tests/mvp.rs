@@ -644,6 +644,75 @@ fn validate_report_catches_dangling_comment_parent() {
 }
 
 #[test]
+fn validate_report_catches_screen_structure_issues() {
+    let value: serde_json::Value = json!({
+        "actors": {
+            "actorsDict": {
+                "actor-1": {
+                    "id": "actor-1",
+                    "name": "start",
+                    "comments": {},
+                    "nekoBlockJsonList": [
+                        {
+                            "type": "on_running_group_activated",
+                            "id": "event-1",
+                            "parent_id": "",
+                            "next": {
+                                "type": "switch_to_screen",
+                                "id": "switch-1",
+                                "parent_id": "event-1",
+                                "inputs": {
+                                    "screen_id": {
+                                        "type": "get_screens",
+                                        "id": "screen-input-1",
+                                        "parent_id": "switch-1",
+                                        "fields": {"screen_id": "missing-screen"}
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        "scenes": {
+            "currentSceneId": "scene-1",
+            "sortList": ["scene-1"],
+            "scenesDict": {
+                "scene-1": {
+                    "id": "scene-1",
+                    "name": "menu",
+                    "actorIds": ["actor-1", "missing-actor"],
+                    "comments": {},
+                    "nekoBlockJsonList": []
+                },
+                "scene-2": {
+                    "id": "scene-2",
+                    "name": "game",
+                    "actorIds": ["actor-1"],
+                    "comments": {},
+                    "nekoBlockJsonList": []
+                }
+            }
+        }
+    });
+
+    let report = nekoc::validate::build_report(&value).unwrap();
+    let kinds = report["issues"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|issue| issue["kind"].as_str().unwrap())
+        .collect::<Vec<_>>();
+
+    assert_eq!(report["ok"], false);
+    assert!(kinds.contains(&"scene_missing_from_sort_list"));
+    assert!(kinds.contains(&"dangling_scene_actor"));
+    assert!(kinds.contains(&"actor_in_multiple_scenes"));
+    assert!(kinds.contains(&"dangling_screen_reference"));
+}
+
+#[test]
 fn cli_validate_compiled_basic_project_passes() {
     let dir = tempdir().unwrap();
     let input = dir.path().join("main.ts");

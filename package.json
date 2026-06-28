@@ -3,7 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "e2e:three-body": "node tools/e2e-sample.mjs three_body"
+    "e2e:three-body": "node tools/e2e-sample.mjs three_body",
+    "e2e:multi-screen": "node tools/e2e-sample.mjs multi_screen",
+    "e2e:all": "npm run e2e:three-body && npm run e2e:multi-screen"
   },
   "dependencies": {
     "typescript": "^5.9.3"

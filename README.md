@@ -49,10 +49,12 @@ its npm dependencies installed:
 
 ```bash
 npm run e2e:three-body
+npm run e2e:multi-screen
+npm run e2e:all
 ```
 
-This compiles `samples/three_body.ts`, validates the generated `.bcmkn`, then
-opens it through the local Kitten N editor harness under
+These scripts compile sample TypeScript projects, validate the generated
+`.bcmkn`, then open them through the local Kitten N editor harness under
 `../research/kn-editor-local`. If Playwright has not installed Chromium yet, run
 `npx playwright install chromium` in the harness directory first.
 
