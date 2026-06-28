@@ -25,6 +25,7 @@ class WorkspaceCompiler {
     this.inlineCallStack = [];
     this.loadedModules = new Set();
     this.globalVariables = new Set();
+    this.loopDepth = 0;
   }
 
   compile(sourceFile) {
@@ -479,7 +480,10 @@ class WorkspaceCompiler {
     if (ts.isWhileStatement(statement)) {
       return this.compileNativeWhileStatement(statement, parentId);
     }
-    this.unsupported(statement, "Only expression, if, and while statements are supported");
+    if (ts.isBreakStatement(statement)) {
+      return this.compileNativeBreakStatement(statement, parentId);
+    }
+    this.unsupported(statement, "Only expression, if, while, and break statements are supported");
   }
 
   compileStatementExpression(expression, parentId) {
@@ -980,12 +984,24 @@ class WorkspaceCompiler {
     this.connectInput(negateId, conditionId, "logic", "value");
     this.connectInput(id, negateId, "condition", "value");
 
-    const firstChild = this.compileStatementList(this.statementBodyStatements(statement.statement), id);
-    if (firstChild) {
-      this.connectInput(id, firstChild, "DO", "statement");
+    this.loopDepth += 1;
+    try {
+      const firstChild = this.compileStatementList(this.statementBodyStatements(statement.statement), id);
+      if (firstChild) {
+        this.connectInput(id, firstChild, "DO", "statement");
+      }
+    } finally {
+      this.loopDepth -= 1;
     }
 
     return id;
+  }
+
+  compileNativeBreakStatement(statement, parentId) {
+    if (this.loopDepth <= 0) {
+      this.unsupported(statement, "break can only be used inside loops");
+    }
+    return this.addBlock({ type: "break", parent_id: parentId });
   }
 
   compileForRange(call, parentId) {

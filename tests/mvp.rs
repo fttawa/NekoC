@@ -2958,6 +2958,126 @@ onStart(() => {
 }
 
 #[test]
+fn cli_compile_ts_compiles_native_break() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("native_break.ts");
+    let output = dir.path().join("native_break.json");
+    fs::write(
+        &input,
+        r#"
+let count = 0;
+
+onStart(() => {
+  while (true) {
+    count = count + 1;
+    if (count > 3) {
+      break;
+    }
+    console.log(count);
+  }
+});
+"#,
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts",
+            input.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let report: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    let blocks = report["workspaceData"]["blocks"].as_object().unwrap();
+
+    assert!(blocks.values().any(|block| block["type"] == "break"));
+    assert!(blocks.values().any(|block| {
+        block["type"] == "controls_if" && block["parent_id"].as_str().unwrap_or("").starts_with('b')
+    }));
+}
+
+#[test]
+fn cli_compile_ts_rejects_native_break_outside_loop() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("native_break_outside_loop.ts");
+    let output = dir.path().join("native_break_outside_loop.json");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  break;
+});
+"#,
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts",
+            input.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains(
+            "break can only be used inside loops",
+        ));
+}
+
+#[test]
+fn cli_compile_ts_bcmkn_native_break_validates() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("native_break.ts");
+    let output = dir.path().join("native_break.bcmkn");
+    fs::write(
+        &input,
+        r#"
+let count = 0;
+
+onStart(() => {
+  while (true) {
+    count = count + 1;
+    if (count > 3) {
+      break;
+    }
+    console.log(count);
+  }
+});
+"#,
+    )
+    .unwrap();
+    let template = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts-bcmkn",
+            input.to_str().unwrap(),
+            "--template",
+            template.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args(["validate", output.to_str().unwrap()])
+        .assert()
+        .success();
+}
+
+#[test]
 fn cli_compile_ts_bcmkn_inline_function_sample_validates() {
     let dir = tempdir().unwrap();
     let input = dir.path().join("inline_functions.ts");
