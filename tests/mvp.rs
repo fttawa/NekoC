@@ -3830,12 +3830,16 @@ fn cli_compile_ts_bcmkn_three_body_sample_validates() {
     let scene_id = project["scenes"]["currentSceneId"].as_str().unwrap();
     let scene = &project["scenes"]["scenesDict"][scene_id];
     let stage_style_id = scene["currentStyleId"].as_str().unwrap();
-    let stage_url = project["styles"]["stylesDict"][stage_style_id]["url"]
-        .as_str()
-        .unwrap();
+    let styles = project["styles"]["stylesDict"].as_object().unwrap();
+    let stage_url = styles[stage_style_id]["url"].as_str().unwrap();
     let actors = project["actors"]["actorsDict"].as_object().unwrap();
     let variables = project["variables"]["variablesDict"].as_object().unwrap();
     assert!(!stage_url.starts_with("data:image"));
+    assert!(
+        styles
+            .values()
+            .all(|style| !style["url"].as_str().unwrap_or("").starts_with("data:"))
+    );
     assert_eq!(actors.len(), 3);
     assert_eq!(variables.len(), 3);
     for name in ["body-a", "body-b", "body-c"] {
