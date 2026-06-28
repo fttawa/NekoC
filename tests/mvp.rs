@@ -471,6 +471,58 @@ sprite("player", {
 }
 
 #[test]
+fn cli_compile_ts_ir_lifts_basic_statements() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("main.ts");
+    let output = dir.path().join("workspace.json");
+    let ir_output = dir.path().join("program.ir.json");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  setVar("score", 0);
+  wait(0.5);
+  forever(() => {
+    changeVar("score", 1);
+  });
+});
+"#,
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts",
+            input.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+            "--emit-ir",
+            ir_output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let ir: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(ir_output).unwrap()).unwrap();
+    let body = ir["actors"][0]["scripts"][0]["body"].as_array().unwrap();
+
+    assert_eq!(body[0]["kind"], "set_var");
+    assert_eq!(body[0]["variable"], "score");
+    assert_eq!(body[0]["value"], json!({"kind": "number", "value": 0.0}));
+    assert_eq!(body[1]["kind"], "wait");
+    assert_eq!(body[1]["seconds"], json!({"kind": "number", "value": 0.5}));
+    assert_eq!(body[2]["kind"], "forever");
+    assert_eq!(body[2]["body"][0]["kind"], "change_var");
+    assert_eq!(body[2]["body"][0]["variable"], "score");
+    assert_eq!(body[2]["body"][0]["method"], "increase");
+    assert_eq!(
+        body[2]["body"][0]["value"],
+        json!({"kind": "number", "value": 1.0})
+    );
+}
+
+#[test]
 fn cli_compile_ts_bcmkn_injects_nested_blocks_into_template() {
     let dir = tempdir().unwrap();
     let input = dir.path().join("main.ts");

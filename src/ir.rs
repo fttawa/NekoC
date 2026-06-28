@@ -86,11 +86,15 @@ fn scripts_from_workspace(workspace_data: Option<&Value>) -> Vec<Value> {
         .into_iter()
         .map(|(id, block)| {
             let entry_type = block_type(&block).unwrap_or("unknown");
+            let body = next_block_id(&id, &connections)
+                .map(|next_id| statements_from_chain(next_id, &blocks, &connections))
+                .unwrap_or_default();
             json!({
                 "id": id,
                 "event": event_name(entry_type),
                 "entry_block_type": entry_type,
                 "block_types": sequence_types(&block, &blocks, &connections),
+                "body": body,
             })
         })
         .collect()
@@ -149,5 +153,138 @@ fn next_block_id<'a>(id: &str, connections: &'a Map<String, Value>) -> Option<&'
         .find_map(|(child_id, connection)| {
             (connection.get("type").and_then(Value::as_str) == Some("next"))
                 .then_some(child_id.as_str())
+        })
+}
+
+fn statements_from_chain(
+    start_id: &str,
+    blocks: &Map<String, Value>,
+    connections: &Map<String, Value>,
+) -> Vec<Value> {
+    let mut statements = Vec::new();
+    let mut current_id = Some(start_id);
+
+    while let Some(id) = current_id {
+        let Some(block) = blocks.get(id) else {
+            break;
+        };
+        statements.push(statement_from_block(id, block, blocks, connections));
+        current_id = next_block_id(id, connections);
+    }
+
+    statements
+}
+
+fn statement_from_block(
+    id: &str,
+    block: &Value,
+    blocks: &Map<String, Value>,
+    connections: &Map<String, Value>,
+) -> Value {
+    match block_type(block).unwrap_or("unknown") {
+        "variables_set" => json!({
+            "kind": "set_var",
+            "block_id": id,
+            "variable": block.pointer("/fields/variable").cloned().unwrap_or(Value::Null),
+            "value": input_expression(id, "value", blocks, connections),
+        }),
+        "change_variables" => json!({
+            "kind": "change_var",
+            "block_id": id,
+            "variable": block.pointer("/fields/variable").cloned().unwrap_or(Value::Null),
+            "method": block.pointer("/fields/method").cloned().unwrap_or(Value::Null),
+            "value": input_expression(id, "value", blocks, connections),
+        }),
+        "wait" => json!({
+            "kind": "wait",
+            "block_id": id,
+            "seconds": input_expression(id, "time", blocks, connections),
+        }),
+        "repeat_forever" => {
+            let body = statement_input_id(id, "DO", connections)
+                .map(|child_id| statements_from_chain(child_id, blocks, connections))
+                .unwrap_or_default();
+            json!({
+                "kind": "forever",
+                "block_id": id,
+                "body": body,
+            })
+        }
+        other => json!({
+            "kind": "block",
+            "block_id": id,
+            "block_type": other,
+        }),
+    }
+}
+
+fn input_expression(
+    id: &str,
+    input_name: &str,
+    blocks: &Map<String, Value>,
+    connections: &Map<String, Value>,
+) -> Value {
+    let Some(child_id) = value_input_id(id, input_name, connections) else {
+        return Value::Null;
+    };
+    let Some(block) = blocks.get(child_id) else {
+        return Value::Null;
+    };
+
+    match block_type(block).unwrap_or("unknown") {
+        "math_number" => {
+            let value = block
+                .pointer("/fields/NUM")
+                .and_then(Value::as_str)
+                .and_then(|number| number.parse::<f64>().ok())
+                .unwrap_or(0.0);
+            json!({
+                "kind": "number",
+                "value": value,
+            })
+        }
+        "variables_get" => json!({
+            "kind": "get_var",
+            "variable": block.pointer("/fields/variable").cloned().unwrap_or(Value::Null),
+        }),
+        other => json!({
+            "kind": "expression_block",
+            "block_id": child_id,
+            "block_type": other,
+        }),
+    }
+}
+
+fn value_input_id<'a>(
+    id: &str,
+    input_name: &str,
+    connections: &'a Map<String, Value>,
+) -> Option<&'a str> {
+    input_id(id, input_name, "value", connections)
+}
+
+fn statement_input_id<'a>(
+    id: &str,
+    input_name: &str,
+    connections: &'a Map<String, Value>,
+) -> Option<&'a str> {
+    input_id(id, input_name, "statement", connections)
+}
+
+fn input_id<'a>(
+    id: &str,
+    input_name: &str,
+    input_type: &str,
+    connections: &'a Map<String, Value>,
+) -> Option<&'a str> {
+    connections
+        .get(id)?
+        .as_object()?
+        .iter()
+        .find_map(|(child_id, connection)| {
+            (connection.get("type").and_then(Value::as_str) == Some("input")
+                && connection.get("input_name").and_then(Value::as_str) == Some(input_name)
+                && connection.get("input_type").and_then(Value::as_str) == Some(input_type))
+            .then_some(child_id.as_str())
         })
 }
