@@ -293,6 +293,21 @@ fn statement_from_block(
             "block_id": id,
             "seconds": input_expression(id, "time", blocks, connections),
         }),
+        "self_go_forward" => json!({
+            "kind": "move_steps",
+            "block_id": id,
+            "steps": input_expression(id, "steps", blocks, connections),
+        }),
+        "self_set_position_x" => json!({
+            "kind": "set_x",
+            "block_id": id,
+            "value": input_expression(id, "value", blocks, connections),
+        }),
+        "self_set_position_y" => json!({
+            "kind": "set_y",
+            "block_id": id,
+            "value": input_expression(id, "value", blocks, connections),
+        }),
         "switch_to_screen" => json!({
             "kind": "switch_screen",
             "block_id": id,
@@ -344,6 +359,19 @@ fn input_expression(
         "variables_get" => json!({
             "kind": "get_var",
             "variable": block.pointer("/fields/variable").cloned().unwrap_or(Value::Null),
+        }),
+        "math_arithmetic" => json!({
+            "kind": "binary",
+            "block_id": child_id,
+            "op": block.pointer("/fields/type").cloned().unwrap_or(Value::Null),
+            "left": input_expression(child_id, "A", blocks, connections),
+            "right": input_expression(child_id, "B", blocks, connections),
+        }),
+        "math_trig" => json!({
+            "kind": "trig",
+            "block_id": child_id,
+            "op": block.pointer("/fields/type").cloned().unwrap_or(Value::Null),
+            "value": input_expression(child_id, "num", blocks, connections),
         }),
         "get_screens" => json!({
             "kind": "screen",

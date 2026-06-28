@@ -572,6 +572,85 @@ fn cli_compile_ts_ir_lifts_screen_resources() {
 }
 
 #[test]
+fn cli_compile_ts_ir_lifts_motion_expressions() {
+    let dir = tempdir().unwrap();
+    let input = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("three_body.ts");
+    let output = dir.path().join("workspace.json");
+    let ir_output = dir.path().join("program.ir.json");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts",
+            input.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+            "--emit-ir",
+            ir_output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let ir: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(ir_output).unwrap()).unwrap();
+    let screen = ir["screens"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|screen| screen["name"] == "Three Body Demo")
+        .unwrap();
+    let body_a = screen["actors"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|actor| actor["name"] == "body-a")
+        .unwrap();
+    let script_body = body_a["scripts"][0]["body"].as_array().unwrap();
+    let loop_body = script_body
+        .iter()
+        .find(|statement| statement["kind"] == "forever")
+        .unwrap()["body"]
+        .as_array()
+        .unwrap();
+
+    let set_x = loop_body
+        .iter()
+        .find(|statement| statement["kind"] == "set_x")
+        .unwrap();
+    assert_eq!(set_x["value"]["kind"], "binary");
+    assert_eq!(set_x["value"]["op"], "multiply");
+    assert_eq!(
+        set_x["value"]["left"],
+        json!({"kind": "number", "value": 90.0})
+    );
+    assert_eq!(set_x["value"]["right"]["kind"], "trig");
+    assert_eq!(set_x["value"]["right"]["op"], "cos");
+    assert_eq!(
+        set_x["value"]["right"]["value"],
+        json!({"kind": "get_var", "variable": "phaseA"})
+    );
+
+    let set_y = loop_body
+        .iter()
+        .find(|statement| statement["kind"] == "set_y")
+        .unwrap();
+    assert_eq!(set_y["value"]["kind"], "binary");
+    assert_eq!(set_y["value"]["op"], "multiply");
+    assert_eq!(
+        set_y["value"]["left"],
+        json!({"kind": "number", "value": 55.0})
+    );
+    assert_eq!(set_y["value"]["right"]["kind"], "trig");
+    assert_eq!(set_y["value"]["right"]["op"], "sin");
+    assert_eq!(
+        set_y["value"]["right"]["value"],
+        json!({"kind": "get_var", "variable": "phaseA"})
+    );
+}
+
+#[test]
 fn cli_compile_ts_bcmkn_injects_nested_blocks_into_template() {
     let dir = tempdir().unwrap();
     let input = dir.path().join("main.ts");
