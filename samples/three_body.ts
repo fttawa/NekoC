@@ -1,6 +1,6 @@
 stage({
   name: "Three Body Demo",
-  backdrop: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 562 900'%3E%3Crect width='562' height='900' fill='%23070b1f'/%3E%3Cg fill='%23ffffff'%3E%3Ccircle cx='80' cy='90' r='2'/%3E%3Ccircle cx='230' cy='160' r='1.5'/%3E%3Ccircle cx='490' cy='120' r='2'/%3E%3Ccircle cx='160' cy='330' r='1.5'/%3E%3Ccircle cx='430' cy='390' r='2'/%3E%3Ccircle cx='95' cy='620' r='2'/%3E%3Ccircle cx='330' cy='710' r='1.5'/%3E%3Ccircle cx='505' cy='800' r='2'/%3E%3C/g%3E%3C/svg%3E",
+  backdrop: "https://static.codemao.cn/neko/img_stage_defult_portrait.png",
 });
 
 sprite("body-a", {
