@@ -3758,6 +3758,7 @@ sprite("player", {
 
     assert_eq!(current_scene["name"], "main");
     assert_eq!(current_scene["screenName"], "main");
+    assert_eq!(actors.len(), 1);
     assert!(
         current_scene["actorIds"]
             .as_array()
@@ -3818,6 +3819,9 @@ fn cli_compile_ts_bcmkn_three_body_sample_validates() {
     let project: serde_json::Value =
         serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
     let actors = project["actors"]["actorsDict"].as_object().unwrap();
+    let variables = project["variables"]["variablesDict"].as_object().unwrap();
+    assert_eq!(actors.len(), 3);
+    assert_eq!(variables.len(), 3);
     for name in ["body-a", "body-b", "body-c"] {
         let actor = actors
             .values()

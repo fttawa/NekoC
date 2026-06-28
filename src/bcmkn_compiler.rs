@@ -40,6 +40,7 @@ pub fn compile_ts_bcmkn(
     let mut scripts = workspace_data_to_neko_blocks(workspace_data)?;
     let mut procedures = compiled_procedures_from_report(&workspace_report)?;
     let mut sprites = compiled_sprites_from_report(&workspace_report)?;
+    let has_registered_sprites = !sprites.is_empty();
 
     if let Some(first) = scripts.first_mut().and_then(Value::as_object_mut) {
         first.insert("location".to_owned(), json!([80, 120]));
@@ -47,6 +48,9 @@ pub fn compile_ts_bcmkn(
 
     let mut project = project::load_project(template)?.value;
     clear_all_scripts(&mut project);
+    if has_registered_sprites {
+        reset_template_for_registered_resources(&mut project)?;
+    }
     ensure_variables(&mut project, &mut scripts);
     ensure_lists(&mut project, &mut scripts);
     ensure_broadcasts(&mut project, &scripts);
@@ -61,7 +65,9 @@ pub fn compile_ts_bcmkn(
         ensure_broadcasts(&mut project, &sprite.blocks);
     }
     apply_stage_resource(&mut project, workspace_report.pointer("/resources/stage"))?;
-    inject_scripts_into_first_actor(&mut project, scripts)?;
+    if !scripts.is_empty() {
+        inject_scripts_into_first_actor(&mut project, scripts)?;
+    }
     inject_sprite_resources(&mut project, sprites)?;
     inject_procedures(&mut project, procedures);
     project["projectName"] = Value::String(project_name(input));
@@ -296,6 +302,43 @@ fn clear_owner_scripts(project: &mut Value, path: &[&str]) {
         owner["nekoBlockJsonList"] = Value::Array(Vec::new());
         owner["comments"] = Value::Object(Map::new());
     }
+}
+
+fn reset_template_for_registered_resources(project: &mut Value) -> Result<()> {
+    let scene_id = current_scene_id(project).context("template project must contain a scene")?;
+
+    ensure_actors_dict(project);
+    ensure_styles_dict(project);
+    project["actors"]["actorsDict"] = Value::Object(Map::new());
+    project["styles"]["stylesDict"] = Value::Object(Map::new());
+    project["variables"] = json!({"variablesDict": {}});
+    project["broadcasts"] = json!({"broadcastsDict": {}});
+
+    let scene = get_path_mut(project, &["scenes", "scenesDict", &scene_id])
+        .context("current scene is missing")?;
+    scene["actorIds"] = Value::Array(Vec::new());
+    if scene
+        .get("currentStyleId")
+        .and_then(Value::as_str)
+        .is_none()
+    {
+        scene["currentStyleId"] = Value::String("nekoc-stage-style-main".to_owned());
+    }
+    if !scene.get("styles").is_some_and(Value::is_array)
+        || scene
+            .get("styles")
+            .and_then(Value::as_array)
+            .is_some_and(Vec::is_empty)
+    {
+        let style_id = scene
+            .get("currentStyleId")
+            .and_then(Value::as_str)
+            .unwrap_or("nekoc-stage-style-main")
+            .to_owned();
+        scene["styles"] = json!([style_id]);
+    }
+
+    Ok(())
 }
 
 fn inject_scripts_into_first_actor(project: &mut Value, scripts: Vec<Value>) -> Result<()> {
