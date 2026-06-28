@@ -43,6 +43,8 @@ enum Command {
         input: PathBuf,
         #[arg(long)]
         out: PathBuf,
+        #[arg(long)]
+        emit_ir: Option<PathBuf>,
     },
     CompileTsBcmkn {
         input: PathBuf,
@@ -94,8 +96,12 @@ fn main() -> Result<()> {
             let report = serde_json::to_vec_pretty(&report)?;
             std::fs::write(&out, report)?;
         }
-        Command::CompileTs { input, out } => {
-            nekoc::ts_frontend::compile_ts(input, out)?;
+        Command::CompileTs {
+            input,
+            out,
+            emit_ir,
+        } => {
+            nekoc::ts_frontend::compile_ts_with_ir(input, out, emit_ir)?;
         }
         Command::CompileTsBcmkn {
             input,

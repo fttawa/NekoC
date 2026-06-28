@@ -65,7 +65,7 @@ nekoc diff <left.bcmkn> <right.bcmkn>
 nekoc decompile <input.bcmkn> --out decompile.json
 nekoc workspace <input.bcmkn> --out workspace.json
 nekoc validate <input.bcmkn> --out validate.json
-nekoc compile-ts <input.ts> --out workspace.json
+nekoc compile-ts <input.ts> --out workspace.json [--emit-ir program.ir.json]
 nekoc compile-ts-bcmkn <input.ts> --template template.bcmkn --out output.bcmkn
 ```
 
@@ -73,6 +73,7 @@ During development, use Cargo:
 
 ```bash
 cargo run -- compile-ts samples/natural_ts.ts --out natural_ts.workspace.json
+cargo run -- compile-ts samples/three_body.ts --out three_body.workspace.json --emit-ir three_body.ir.json
 cargo run -- compile-ts-bcmkn samples/natural_ts.ts --template samples/我的作品-原生.bcmkn --out natural_ts.bcmkn
 ```
 

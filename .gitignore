@@ -1,6 +1,7 @@
 /target
 /node_modules
 *.workspace.json
+*.ir.json
 *.compiled.bcmkn
 *.compiled.decompile.json
 *.compiled.inspect.json

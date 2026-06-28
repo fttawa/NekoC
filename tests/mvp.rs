@@ -405,6 +405,72 @@ onStart(() => {
 }
 
 #[test]
+fn cli_compile_ts_can_emit_conservative_ir_sidecar() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("main.ts");
+    let output = dir.path().join("workspace.json");
+    let ir_output = dir.path().join("program.ir.json");
+    fs::write(
+        &input,
+        r#"
+stage({
+  name: "main",
+  backdrop: "https://example.com/bg.png",
+});
+
+sprite("player", {
+  costume: "https://example.com/player.png",
+  x: 12,
+  y: -34,
+}, () => {
+  onStart(() => {
+    setVar("score", 1);
+  });
+});
+"#,
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts",
+            input.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+            "--emit-ir",
+            ir_output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let ir: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(ir_output).unwrap()).unwrap();
+
+    assert_eq!(ir["format"], "nekoc-ir");
+    assert_eq!(ir["version"], 1);
+    assert_eq!(ir["source"], input.to_string_lossy().as_ref());
+    assert_eq!(ir["summary"]["scripts"], 1);
+    assert_eq!(ir["summary"]["sprites"], 1);
+    assert_eq!(ir["resources"]["stage"]["name"], "main");
+    assert_eq!(
+        ir["resources"]["stage"]["backdrop"],
+        "https://example.com/bg.png"
+    );
+    assert_eq!(ir["resources"]["sprites"][0]["name"], "player");
+    assert_eq!(
+        ir["resources"]["sprites"][0]["costume"],
+        "https://example.com/player.png"
+    );
+    assert_eq!(ir["actors"][0]["name"], "player");
+    assert_eq!(ir["actors"][0]["scripts"][0]["event"], "on_start");
+    assert_eq!(
+        ir["actors"][0]["scripts"][0]["entry_block_type"],
+        "on_running_group_activated"
+    );
+}
+
+#[test]
 fn cli_compile_ts_bcmkn_injects_nested_blocks_into_template() {
     let dir = tempdir().unwrap();
     let input = dir.path().join("main.ts");
