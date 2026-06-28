@@ -4,7 +4,7 @@ stage({
 });
 
 sprite("body-a", {
-  costume: "https://raw.githubusercontent.com/fttawa/NekoC/main/samples/assets/three_body_body_a.png",
+  costume: "https://cdn.jsdelivr.net/gh/fttawa/NekoC@main/samples/assets/three_body_body_a.png",
   x: 70,
   y: 0,
   scale: 110,
@@ -24,7 +24,7 @@ sprite("body-a", {
 });
 
 sprite("body-b", {
-  costume: "https://raw.githubusercontent.com/fttawa/NekoC/main/samples/assets/three_body_body_b.png",
+  costume: "https://cdn.jsdelivr.net/gh/fttawa/NekoC@main/samples/assets/three_body_body_b.png",
   x: -45,
   y: 45,
   scale: 100,
@@ -44,7 +44,7 @@ sprite("body-b", {
 });
 
 sprite("body-c", {
-  costume: "https://raw.githubusercontent.com/fttawa/NekoC/main/samples/assets/three_body_body_c.png",
+  costume: "https://cdn.jsdelivr.net/gh/fttawa/NekoC@main/samples/assets/three_body_body_c.png",
   x: -35,
   y: -55,
   scale: 95,
