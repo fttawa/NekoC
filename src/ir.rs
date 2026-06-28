@@ -12,6 +12,17 @@ pub fn build_report(workspace_report: &Value) -> Value {
         .and_then(Value::as_array)
         .cloned()
         .unwrap_or_default();
+    let resource_screens = resources
+        .get("screens")
+        .and_then(Value::as_array)
+        .cloned()
+        .unwrap_or_default();
+
+    let screens = if resource_screens.is_empty() {
+        fallback_screens(&resources, &main_scripts, &resource_sprites)
+    } else {
+        screens_from_resources(&resource_screens)
+    };
 
     let mut actors = Vec::new();
     if !main_scripts.is_empty() {
@@ -34,7 +45,95 @@ pub fn build_report(workspace_report: &Value) -> Value {
         }));
     }
 
-    let script_count = actors
+    let script_count = count_screen_scripts(&screens);
+    let sprite_count = if resource_screens.is_empty() {
+        resource_sprites.len()
+    } else {
+        screens
+            .iter()
+            .map(|screen| {
+                screen
+                    .get("actors")
+                    .and_then(Value::as_array)
+                    .map(Vec::len)
+                    .unwrap_or(0)
+            })
+            .sum::<usize>()
+    };
+
+    json!({
+        "format": "nekoc-ir",
+        "version": 1,
+        "source": workspace_report.get("source").cloned().unwrap_or(Value::Null),
+        "summary": {
+            "scripts": script_count,
+            "screens": screens.len(),
+            "sprites": sprite_count,
+            "procedures": workspace_report.pointer("/summary/procedures").cloned().unwrap_or(Value::Null),
+        },
+        "resources": resources,
+        "screens": screens,
+        "actors": actors,
+        "procedures": workspace_report.get("procedures").cloned().unwrap_or_else(|| Value::Array(Vec::new())),
+    })
+}
+
+fn fallback_screens(resources: &Value, main_scripts: &[Value], sprites: &[Value]) -> Vec<Value> {
+    let stage = resources.get("stage").unwrap_or(&Value::Null);
+    let name = stage.get("name").and_then(Value::as_str).unwrap_or("main");
+    let backdrop = stage.get("backdrop").cloned().unwrap_or(Value::Null);
+    let mut actors = Vec::new();
+    if !main_scripts.is_empty() {
+        actors.push(json!({
+            "name": "main",
+            "kind": "stage",
+            "scripts": main_scripts,
+        }));
+    }
+    actors.extend(sprites.iter().map(actor_from_sprite));
+
+    vec![json!({
+        "id": "nekoc-screen-main",
+        "name": name,
+        "backdrop": backdrop,
+        "actors": actors,
+    })]
+}
+
+fn screens_from_resources(screens: &[Value]) -> Vec<Value> {
+    screens
+        .iter()
+        .map(|screen| {
+            let sprites = screen
+                .get("sprites")
+                .and_then(Value::as_array)
+                .map(|items| items.iter().map(actor_from_sprite).collect::<Vec<_>>())
+                .unwrap_or_default();
+            json!({
+                "id": screen.get("id").cloned().unwrap_or(Value::Null),
+                "name": screen.get("name").cloned().unwrap_or(Value::Null),
+                "backdrop": screen.get("backdrop").cloned().unwrap_or(Value::Null),
+                "actors": sprites,
+            })
+        })
+        .collect()
+}
+
+fn actor_from_sprite(sprite: &Value) -> Value {
+    json!({
+        "name": sprite.get("name").cloned().unwrap_or(Value::Null),
+        "kind": "sprite",
+        "costume": sprite.get("costume").cloned().unwrap_or(Value::Null),
+        "x": sprite.get("x").cloned().unwrap_or(Value::Null),
+        "y": sprite.get("y").cloned().unwrap_or(Value::Null),
+        "scale": sprite.get("scale").cloned().unwrap_or(Value::Null),
+        "visible": sprite.get("visible").cloned().unwrap_or(Value::Null),
+        "scripts": scripts_from_workspace(sprite.get("workspaceData")),
+    })
+}
+
+fn count_scripts(actors: &[Value]) -> usize {
+    actors
         .iter()
         .map(|actor| {
             actor
@@ -43,21 +142,15 @@ pub fn build_report(workspace_report: &Value) -> Value {
                 .map(Vec::len)
                 .unwrap_or(0)
         })
-        .sum::<usize>();
+        .sum::<usize>()
+}
 
-    json!({
-        "format": "nekoc-ir",
-        "version": 1,
-        "source": workspace_report.get("source").cloned().unwrap_or(Value::Null),
-        "summary": {
-            "scripts": script_count,
-            "sprites": resource_sprites.len(),
-            "procedures": workspace_report.pointer("/summary/procedures").cloned().unwrap_or(Value::Null),
-        },
-        "resources": resources,
-        "actors": actors,
-        "procedures": workspace_report.get("procedures").cloned().unwrap_or_else(|| Value::Array(Vec::new())),
-    })
+fn count_screen_scripts(screens: &[Value]) -> usize {
+    screens
+        .iter()
+        .filter_map(|screen| screen.get("actors").and_then(Value::as_array))
+        .map(|actors| count_scripts(actors))
+        .sum()
 }
 
 fn scripts_from_workspace(workspace_data: Option<&Value>) -> Vec<Value> {
@@ -200,6 +293,11 @@ fn statement_from_block(
             "block_id": id,
             "seconds": input_expression(id, "time", blocks, connections),
         }),
+        "switch_to_screen" => json!({
+            "kind": "switch_screen",
+            "block_id": id,
+            "target": input_expression(id, "screen_id", blocks, connections).get("target").cloned().unwrap_or(Value::Null),
+        }),
         "repeat_forever" => {
             let body = statement_input_id(id, "DO", connections)
                 .map(|child_id| statements_from_chain(child_id, blocks, connections))
@@ -246,6 +344,10 @@ fn input_expression(
         "variables_get" => json!({
             "kind": "get_var",
             "variable": block.pointer("/fields/variable").cloned().unwrap_or(Value::Null),
+        }),
+        "get_screens" => json!({
+            "kind": "screen",
+            "target": block.pointer("/fields/screen_id").cloned().unwrap_or(Value::Null),
         }),
         other => json!({
             "kind": "expression_block",

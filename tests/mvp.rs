@@ -523,6 +523,55 @@ onStart(() => {
 }
 
 #[test]
+fn cli_compile_ts_ir_lifts_screen_resources() {
+    let dir = tempdir().unwrap();
+    let input = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("multi_screen.ts");
+    let output = dir.path().join("workspace.json");
+    let ir_output = dir.path().join("program.ir.json");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts",
+            input.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+            "--emit-ir",
+            ir_output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let ir: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(ir_output).unwrap()).unwrap();
+    let screens = ir["screens"].as_array().unwrap();
+    let menu = screens
+        .iter()
+        .find(|screen| screen["name"] == "menu")
+        .unwrap();
+    let game = screens
+        .iter()
+        .find(|screen| screen["name"] == "game")
+        .unwrap();
+
+    assert_eq!(ir["summary"]["screens"], 2);
+    assert_eq!(ir["summary"]["sprites"], 2);
+    assert_eq!(menu["id"], "nekoc-screen-menu");
+    assert_eq!(game["id"], "nekoc-screen-game");
+    assert_eq!(menu["actors"][0]["name"], "start");
+    assert_eq!(game["actors"][0]["name"], "player");
+    assert_eq!(menu["actors"][0]["scripts"][0]["event"], "on_start");
+    let menu_body = menu["actors"][0]["scripts"][0]["body"].as_array().unwrap();
+    let switch_screen = menu_body
+        .iter()
+        .find(|statement| statement["kind"] == "switch_screen")
+        .unwrap();
+    assert_eq!(switch_screen["target"], "game");
+}
+
+#[test]
 fn cli_compile_ts_bcmkn_injects_nested_blocks_into_template() {
     let dir = tempdir().unwrap();
     let input = dir.path().join("main.ts");
