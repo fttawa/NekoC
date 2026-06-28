@@ -334,6 +334,8 @@ class WorkspaceCompiler {
       y: optionalNumberOption(options, "y", 0, this, call.arguments[1]),
       scale: optionalNumberOption(options, "scale", 100, this, call.arguments[1]),
       visible: optionalBooleanOption(options, "visible", true, this, call.arguments[1]),
+      centerX: optionalNumberOption(options, "centerX", 0, this, call.arguments[1]),
+      centerY: optionalNumberOption(options, "centerY", 0, this, call.arguments[1]),
       workspaceData: workspace.workspaceData,
       summary: workspace.summary,
     });

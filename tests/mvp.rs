@@ -3646,6 +3646,8 @@ sprite("player", {
   y: -34,
   scale: 80,
   visible: false,
+  centerX: 60,
+  centerY: 60,
 }, () => {
   onStart(() => {
     console.log("ready");
@@ -3682,6 +3684,8 @@ sprite("player", {
     assert_eq!(sprite["y"], -34);
     assert_eq!(sprite["scale"], 80);
     assert_eq!(sprite["visible"], false);
+    assert_eq!(sprite["centerX"], 60);
+    assert_eq!(sprite["centerY"], 60);
     assert!(
         sprite_blocks
             .values()
@@ -3713,6 +3717,8 @@ sprite("player", {
   y: -34,
   scale: 80,
   visible: false,
+  centerX: 60,
+  centerY: 60,
 }, () => {
   onStart(() => {
     console.log("ready");
@@ -3780,6 +3786,9 @@ sprite("player", {
     assert_eq!(player["position"]["y"].as_f64().unwrap(), -34.0);
     assert_eq!(player["scale"].as_f64().unwrap(), 80.0);
     assert_eq!(player["visible"], false);
+    let style_id = player["currentStyleId"].as_str().unwrap();
+    assert_eq!(styles[style_id]["centerPoint"]["x"].as_f64().unwrap(), 60.0);
+    assert_eq!(styles[style_id]["centerPoint"]["y"].as_f64().unwrap(), 60.0);
     assert!(
         player["nekoBlockJsonList"]
             .as_array()

@@ -19,6 +19,8 @@ struct CompiledSprite {
     y: f64,
     scale: f64,
     visible: bool,
+    center_x: f64,
+    center_y: f64,
     blocks: Vec<Value>,
 }
 
@@ -160,6 +162,8 @@ fn compiled_sprites_from_report(report: &Value) -> Result<Vec<CompiledSprite>> {
                     .get("visible")
                     .and_then(Value::as_bool)
                     .unwrap_or(true),
+                center_x: sprite.get("centerX").and_then(Value::as_f64).unwrap_or(0.0),
+                center_y: sprite.get("centerY").and_then(Value::as_f64).unwrap_or(0.0),
                 blocks,
             })
         })
@@ -428,7 +432,7 @@ fn inject_sprite_resources(project: &mut Value, sprites: Vec<CompiledSprite>) ->
             "id": style_id,
             "url": sprite.costume.unwrap_or_default(),
             "name": sprite.name,
-            "centerPoint": {"x": 0, "y": 0},
+            "centerPoint": {"x": sprite.center_x, "y": sprite.center_y},
         });
         project["actors"]["actorsDict"][&actor_id] = json!({
             "id": actor_id,
