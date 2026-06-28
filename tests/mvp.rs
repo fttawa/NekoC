@@ -2852,6 +2852,112 @@ onStart(() => {
 }
 
 #[test]
+fn cli_compile_ts_compiles_native_while() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("native_while.ts");
+    let output = dir.path().join("native_while.json");
+    fs::write(
+        &input,
+        r#"
+let count = 0;
+
+onStart(() => {
+  while (count < 3) {
+    console.log(count);
+    count = count + 1;
+  }
+});
+"#,
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts",
+            input.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let report: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    let blocks = report["workspaceData"]["blocks"].as_object().unwrap();
+    let connections = report["workspaceData"]["connections"].as_object().unwrap();
+    let while_block = blocks
+        .values()
+        .find(|block| block["type"] == "repeat_forever_until")
+        .unwrap();
+    let while_id = while_block["id"].as_str().unwrap();
+    let while_connections = connections[while_id].as_object().unwrap();
+
+    assert!(blocks.values().any(|block| block["type"] == "logic_negate"));
+    assert!(
+        blocks
+            .values()
+            .any(|block| { block["type"] == "logic_compare" && block["fields"]["OP"] == "LT" })
+    );
+    assert!(
+        while_connections
+            .values()
+            .any(|connection| connection["input_name"] == "condition")
+    );
+    assert!(
+        while_connections
+            .values()
+            .any(|connection| connection["input_name"] == "DO")
+    );
+    assert!(blocks
+        .values()
+        .any(|block| block["type"] == "variables_set" && block["fields"]["variable"] == "count"));
+}
+
+#[test]
+fn cli_compile_ts_bcmkn_native_while_validates() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("native_while.ts");
+    let output = dir.path().join("native_while.bcmkn");
+    fs::write(
+        &input,
+        r#"
+let count = 0;
+
+onStart(() => {
+  while (count < 3) {
+    console.log(count);
+    count = count + 1;
+  }
+});
+"#,
+    )
+    .unwrap();
+    let template = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts-bcmkn",
+            input.to_str().unwrap(),
+            "--template",
+            template.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args(["validate", output.to_str().unwrap()])
+        .assert()
+        .success();
+}
+
+#[test]
 fn cli_compile_ts_bcmkn_inline_function_sample_validates() {
     let dir = tempdir().unwrap();
     let input = dir.path().join("inline_functions.ts");

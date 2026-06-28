@@ -476,7 +476,10 @@ class WorkspaceCompiler {
     if (ts.isIfStatement(statement)) {
       return this.compileNativeIfStatement(statement, parentId);
     }
-    this.unsupported(statement, "Only expression and if statements are supported");
+    if (ts.isWhileStatement(statement)) {
+      return this.compileNativeWhileStatement(statement, parentId);
+    }
+    this.unsupported(statement, "Only expression, if, and while statements are supported");
   }
 
   compileStatementExpression(expression, parentId) {
@@ -958,6 +961,28 @@ class WorkspaceCompiler {
       if (firstElseChild) {
         this.connectInput(id, firstElseChild, "ELSE", "statement");
       }
+    }
+
+    return id;
+  }
+
+  compileNativeWhileStatement(statement, parentId) {
+    const id = this.addBlock({
+      type: "repeat_forever_until",
+      parent_id: parentId,
+    });
+    const negateId = this.addBlock({
+      type: "logic_negate",
+      parent_id: id,
+      is_output: true,
+    });
+    const conditionId = this.compileExpression(statement.expression, negateId);
+    this.connectInput(negateId, conditionId, "logic", "value");
+    this.connectInput(id, negateId, "condition", "value");
+
+    const firstChild = this.compileStatementList(this.statementBodyStatements(statement.statement), id);
+    if (firstChild) {
+      this.connectInput(id, firstChild, "DO", "statement");
     }
 
     return id;
