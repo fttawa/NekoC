@@ -166,15 +166,18 @@ The current runtime subset intentionally starts small:
   `list_item`, `list_length`, `list_index_of`, `list_is_exist`,
   `temporary_list`, `show_hide_list`
 - values: `math_number`, `text`, `math_arithmetic`, `math_modulo`,
-  `math_round`, `math_function`, `math_number_property`, `math_trig`,
-  `convert_type`, `text_join`, `text_length`, `text_contain`, `text_split`,
-  `text_select`
+  `random_num`, `divisible_by`, `math_round`, `math_function`,
+  `math_number_property`, `math_trig`, `convert_type`, `text_join`,
+  `text_length`, `text_contain`, `text_split`, `text_select`
 - actor state: `self_set_position_x`, `self_set_position_y`, `self_appear`,
   `set_scale`, `self_change_scale`
 - motion: `self_go_forward`, `self_move_to`, `self_glide_to`,
   `self_change_coordinate_x`, `self_change_coordinate_y`,
   `self_glide_coordinate_x`, `self_glide_coordinate_y`, `self_rotate`,
-  `self_point_towards`
+  `self_point_towards`, `coordinate_of_sprite`, `distance_to`,
+  `get_orientation`
+- style/appearance values: `style_of_sprite`, `appearance_of_sprite`,
+  `effect_of_sprite`
 - sensing/input/time defaults: `ask_and_choose`, `self_ask`, `check_key`,
   `mouse_down`, `get_mouse_info`, `get_answer`, `get_choice_and_index`,
   `set_timer_state`, `timer`, `show_hide_timer`, `get_time`,

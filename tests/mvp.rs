@@ -1085,6 +1085,112 @@ onStart(() => {
 }
 
 #[test]
+fn runtime_runs_compiled_motion_style_and_math_expressions() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("motion-style-runtime.ts");
+    let output = dir.path().join("motion-style-runtime.bcmkn");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  setVar("selfX", xOf("--self"));
+  setVar("selfY", yOf("--self"));
+  setVar("selfDistance", distanceTo("--self"));
+  setVar("orientationX", orientation("x"));
+  setVar("style", styleOf("--self"));
+  setVar("scale", appearanceOf("--self", "scale"));
+  setVar("ghost", effectOf("--self", "2"));
+  setVar("randomFixed", randInt(4, 4));
+  setVar("divisible", divisibleBy(10, 2));
+});
+"#,
+    )
+    .unwrap();
+    let template = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts-bcmkn",
+            input.to_str().unwrap(),
+            "--template",
+            template.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let project = nekoc::project::load_project(&output).unwrap();
+    let actor = project.value["actors"]["actorsDict"]
+        .as_object()
+        .unwrap()
+        .values()
+        .find(|actor| {
+            actor["nekoBlockJsonList"]
+                .as_array()
+                .is_some_and(|blocks| !blocks.is_empty())
+        })
+        .expect("compiled script actor");
+    let expected_x = actor["position"]["x"].as_f64().unwrap_or(0.0);
+    let expected_y = actor["position"]["y"].as_f64().unwrap_or(0.0);
+    let expected_scale = actor["scale"].as_f64().unwrap_or(100.0);
+    let expected_style = actor["currentStyleId"].as_str().unwrap().to_owned();
+
+    let snapshot = nekoc::runtime::run_project(&project.value, 1).unwrap();
+    let variable_by_name = |name: &str| {
+        let id = snapshot
+            .variable_names
+            .iter()
+            .find_map(|(id, variable_name)| (variable_name == name).then_some(id))
+            .unwrap_or_else(|| panic!("missing variable {name}"));
+        snapshot
+            .variables
+            .get(id)
+            .unwrap_or_else(|| panic!("missing runtime value for {name}"))
+    };
+
+    assert_eq!(
+        variable_by_name("selfX"),
+        &nekoc::runtime::RuntimeValue::Number(expected_x)
+    );
+    assert_eq!(
+        variable_by_name("selfY"),
+        &nekoc::runtime::RuntimeValue::Number(expected_y)
+    );
+    assert_eq!(
+        variable_by_name("selfDistance"),
+        &nekoc::runtime::RuntimeValue::Number(0.0)
+    );
+    assert_eq!(
+        variable_by_name("orientationX"),
+        &nekoc::runtime::RuntimeValue::Number(0.0)
+    );
+    assert_eq!(
+        variable_by_name("style"),
+        &nekoc::runtime::RuntimeValue::String(expected_style)
+    );
+    assert_eq!(
+        variable_by_name("scale"),
+        &nekoc::runtime::RuntimeValue::Number(expected_scale)
+    );
+    assert_eq!(
+        variable_by_name("ghost"),
+        &nekoc::runtime::RuntimeValue::Number(0.0)
+    );
+    assert_eq!(
+        variable_by_name("randomFixed"),
+        &nekoc::runtime::RuntimeValue::Number(4.0)
+    );
+    assert_eq!(
+        variable_by_name("divisible"),
+        &nekoc::runtime::RuntimeValue::Bool(true)
+    );
+}
+
+#[test]
 fn cli_run_writes_runtime_snapshot() {
     let dir = tempdir().unwrap();
     let input = dir.path().join("runtime.bcmkn");

@@ -51,6 +51,8 @@ impl RuntimeValue {
 pub struct ActorState {
     pub id: String,
     pub name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub current_style_id: Option<String>,
     pub x: f64,
     pub y: f64,
     pub rotation: f64,
@@ -263,10 +265,24 @@ impl<'a> Runtime<'a> {
         }
     }
 
+    fn actor_for_sprite(&self, sprite: &str, owner_id: Option<&str>) -> Option<&ActorState> {
+        let actor_id = if sprite == "--self" {
+            owner_id?
+        } else {
+            sprite
+        };
+        self.actors.get(actor_id)
+    }
+
     fn eval(&self, block: Option<&Value>) -> RuntimeValue {
+        self.eval_for_owner(block, None)
+    }
+
+    fn eval_for_owner(&self, block: Option<&Value>, owner_id: Option<&str>) -> RuntimeValue {
         let Some(block) = block else {
             return RuntimeValue::Null;
         };
+        let eval = |block| self.eval_for_owner(block, owner_id);
         match block_type(block).unwrap_or("") {
             "math_number" => number_field(block, "NUM")
                 .map(RuntimeValue::Number)
@@ -318,8 +334,8 @@ impl<'a> Runtime<'a> {
                 .cloned()
                 .unwrap_or(RuntimeValue::List(Vec::new())),
             "list_item" => {
-                let list_id = self.eval(input(block, "list")).as_string();
-                let index = self.eval(input(block, "list_index")).as_number();
+                let list_id = eval(input(block, "list")).as_string();
+                let index = eval(input(block, "list_index")).as_number();
                 let item = block
                     .get("fields")
                     .and_then(|fields| fields.get("item"))
@@ -333,7 +349,7 @@ impl<'a> Runtime<'a> {
                     .unwrap_or(RuntimeValue::Null)
             }
             "list_length" => {
-                let list_id = self.eval(input(block, "list")).as_string();
+                let list_id = eval(input(block, "list")).as_string();
                 let length = self
                     .variables
                     .get(&list_id)
@@ -343,8 +359,8 @@ impl<'a> Runtime<'a> {
                 RuntimeValue::Number(length as f64)
             }
             "list_index_of" => {
-                let list_id = self.eval(input(block, "list")).as_string();
-                let needle = self.eval(input(block, "list_item_value"));
+                let list_id = eval(input(block, "list")).as_string();
+                let needle = eval(input(block, "list_item_value"));
                 let index = self
                     .variables
                     .get(&list_id)
@@ -359,8 +375,8 @@ impl<'a> Runtime<'a> {
                 RuntimeValue::Number(index as f64)
             }
             "list_is_exist" => {
-                let list_id = self.eval(input(block, "list")).as_string();
-                let needle = self.eval(input(block, "list_item_value"));
+                let list_id = eval(input(block, "list")).as_string();
+                let needle = eval(input(block, "list_item_value"));
                 let exists = self
                     .variables
                     .get(&list_id)
@@ -387,7 +403,7 @@ impl<'a> Runtime<'a> {
                 RuntimeValue::List(
                     parts
                         .into_iter()
-                        .map(|(_, value)| self.eval(Some(value)))
+                        .map(|(_, value)| eval(Some(value)))
                         .collect(),
                 )
             }
@@ -419,6 +435,59 @@ impl<'a> Runtime<'a> {
                 "height" => RuntimeValue::Number(self.stage_height),
                 _ => RuntimeValue::Number(self.stage_width),
             },
+            "coordinate_of_sprite" => {
+                let sprite = field_string(block, "sprite").unwrap_or("--self");
+                let coordinate = field_string(block, "coordinate").unwrap_or("x");
+                let value = self
+                    .actor_for_sprite(sprite, owner_id)
+                    .map(|actor| if coordinate == "y" { actor.y } else { actor.x })
+                    .unwrap_or(0.0);
+                RuntimeValue::Number(value)
+            }
+            "distance_to" => {
+                let target = field_string(block, "sprite").unwrap_or("--mouse");
+                let Some(source) = owner_id.and_then(|id| self.actors.get(id)) else {
+                    return RuntimeValue::Number(0.0);
+                };
+                let (target_x, target_y) = self
+                    .actor_for_sprite(target, owner_id)
+                    .map(|actor| (actor.x, actor.y))
+                    .unwrap_or((0.0, 0.0));
+                RuntimeValue::Number(
+                    ((source.x - target_x).powi(2) + (source.y - target_y).powi(2)).sqrt(),
+                )
+            }
+            "get_orientation" => RuntimeValue::Number(0.0),
+            "style_of_sprite" => {
+                let sprite = field_string(block, "sprite").unwrap_or("--self");
+                RuntimeValue::String(
+                    self.actor_for_sprite(sprite, owner_id)
+                        .and_then(|actor| actor.current_style_id.clone())
+                        .unwrap_or_default(),
+                )
+            }
+            "appearance_of_sprite" => {
+                let sprite = field_string(block, "sprite").unwrap_or("--self");
+                let appearance = field_string(block, "appearance").unwrap_or("scale");
+                let value = self
+                    .actor_for_sprite(sprite, owner_id)
+                    .map(|actor| match appearance {
+                        "x" => actor.x,
+                        "y" => actor.y,
+                        "rotation" | "direction" => actor.rotation,
+                        "visible" => {
+                            if actor.visible {
+                                1.0
+                            } else {
+                                0.0
+                            }
+                        }
+                        _ => actor.scale,
+                    })
+                    .unwrap_or(0.0);
+                RuntimeValue::Number(value)
+            }
+            "effect_of_sprite" => RuntimeValue::Number(0.0),
             "bump_into" | "bump_into_color" | "out_of_boundary" | "bump_into_body_part" => {
                 RuntimeValue::Bool(false)
             }
@@ -440,8 +509,8 @@ impl<'a> Runtime<'a> {
                     .and_then(|fields| fields.get("OP"))
                     .and_then(Value::as_str)
                     .unwrap_or("EQ");
-                let a = self.eval(input(block, "A"));
-                let b = self.eval(input(block, "B"));
+                let a = eval(input(block, "A"));
+                let b = eval(input(block, "B"));
                 RuntimeValue::Bool(compare_values(&a, &b, op))
             }
             "logic_operation" => {
@@ -450,18 +519,18 @@ impl<'a> Runtime<'a> {
                     .and_then(|fields| fields.get("type"))
                     .and_then(Value::as_str)
                     .unwrap_or("and");
-                let a = self.eval(input(block, "A")).is_truthy();
-                let b = self.eval(input(block, "B")).is_truthy();
+                let a = eval(input(block, "A")).is_truthy();
+                let b = eval(input(block, "B")).is_truthy();
                 RuntimeValue::Bool(if op == "or" { a || b } else { a && b })
             }
-            "logic_negate" => RuntimeValue::Bool(!self.eval(input(block, "logic")).is_truthy()),
+            "logic_negate" => RuntimeValue::Bool(!eval(input(block, "logic")).is_truthy()),
             "convert_type" => {
                 let target = block
                     .get("fields")
                     .and_then(|fields| fields.get("type"))
                     .and_then(Value::as_str)
                     .unwrap_or("string");
-                let value = self.eval(input(block, "text"));
+                let value = eval(input(block, "text"));
                 match target {
                     "number" => RuntimeValue::Number(value.as_number()),
                     "boolean" => RuntimeValue::Bool(value.is_truthy()),
@@ -485,12 +554,12 @@ impl<'a> Runtime<'a> {
                 RuntimeValue::String(
                     parts
                         .into_iter()
-                        .map(|(_, value)| self.eval(Some(value)).as_string())
+                        .map(|(_, value)| eval(Some(value)).as_string())
                         .collect::<String>(),
                 )
             }
             "text_length" => {
-                let value = self.eval(input(block, "text"));
+                let value = eval(input(block, "text"));
                 let length = match value {
                     RuntimeValue::List(items) => items.len(),
                     _ => value.as_string().chars().count(),
@@ -498,13 +567,13 @@ impl<'a> Runtime<'a> {
                 RuntimeValue::Number(length as f64)
             }
             "text_contain" => {
-                let text = self.eval(input(block, "A")).as_string();
-                let needle = self.eval(input(block, "B")).as_string();
+                let text = eval(input(block, "A")).as_string();
+                let needle = eval(input(block, "B")).as_string();
                 RuntimeValue::Bool(text.contains(&needle))
             }
             "text_split" => {
-                let text = self.eval(input(block, "TEXT_TO_SPLIT")).as_string();
-                let delimiter = self.eval(input(block, "SPLIT_TEXT")).as_string();
+                let text = eval(input(block, "TEXT_TO_SPLIT")).as_string();
+                let delimiter = eval(input(block, "SPLIT_TEXT")).as_string();
                 let items = if delimiter.is_empty() {
                     text.chars()
                         .map(|value| RuntimeValue::String(value.to_string()))
@@ -517,10 +586,10 @@ impl<'a> Runtime<'a> {
                 RuntimeValue::List(items)
             }
             "text_select" => {
-                let source = self.eval(input(block, "text"));
-                let start = self.eval(input(block, "start_index")).as_number() as isize;
+                let source = eval(input(block, "text"));
+                let start = eval(input(block, "start_index")).as_number() as isize;
                 let end = input(block, "end_index")
-                    .map(|value| self.eval(Some(value)).as_number() as isize)
+                    .map(|value| eval(Some(value)).as_number() as isize)
                     .unwrap_or(start);
                 select_text_value(source, start, end)
             }
@@ -530,8 +599,8 @@ impl<'a> Runtime<'a> {
                     .and_then(|fields| fields.get("type"))
                     .and_then(Value::as_str)
                     .unwrap_or("add");
-                let a = self.eval(input(block, "A")).as_number();
-                let b = self.eval(input(block, "B")).as_number();
+                let a = eval(input(block, "A")).as_number();
+                let b = eval(input(block, "B")).as_number();
                 let value = match op {
                     "minus" | "subtract" => a - b,
                     "multiply" => a * b,
@@ -549,9 +618,19 @@ impl<'a> Runtime<'a> {
                 RuntimeValue::Number(value)
             }
             "math_modulo" => {
-                let a = self.eval(input(block, "A")).as_number();
-                let b = self.eval(input(block, "B")).as_number();
+                let a = eval(input(block, "A")).as_number();
+                let b = eval(input(block, "B")).as_number();
                 RuntimeValue::Number(if b == 0.0 { 0.0 } else { a % b })
+            }
+            "random_num" => {
+                let a = eval(input(block, "A")).as_number();
+                let b = eval(input(block, "B")).as_number();
+                RuntimeValue::Number(a.min(b))
+            }
+            "divisible_by" => {
+                let a = eval(input(block, "A")).as_number();
+                let b = eval(input(block, "B")).as_number();
+                RuntimeValue::Bool(b != 0.0 && (a % b).abs() < f64::EPSILON)
             }
             "math_round" => {
                 let op = block
@@ -559,7 +638,7 @@ impl<'a> Runtime<'a> {
                     .and_then(|fields| fields.get("type"))
                     .and_then(Value::as_str)
                     .unwrap_or("round");
-                let value = self.eval(input(block, "num")).as_number();
+                let value = eval(input(block, "num")).as_number();
                 RuntimeValue::Number(match op {
                     "round_down" => value.floor(),
                     "round_up" => value.ceil(),
@@ -572,7 +651,7 @@ impl<'a> Runtime<'a> {
                     .and_then(|fields| fields.get("type"))
                     .and_then(Value::as_str)
                     .unwrap_or("0");
-                let value = self.eval(input(block, "num")).as_number();
+                let value = eval(input(block, "num")).as_number();
                 RuntimeValue::Number(match op {
                     "0" | "abs" => value.abs(),
                     "1" | "floor" => value.floor(),
@@ -591,7 +670,7 @@ impl<'a> Runtime<'a> {
                     .and_then(|fields| fields.get("type"))
                     .and_then(Value::as_str)
                     .unwrap_or("integer");
-                let value = self.eval(input(block, "num")).as_number();
+                let value = eval(input(block, "num")).as_number();
                 RuntimeValue::Bool(match op {
                     "odd" => value.fract() == 0.0 && (value as i64).rem_euclid(2) == 1,
                     "even" => value.fract() == 0.0 && (value as i64).rem_euclid(2) == 0,
@@ -607,7 +686,7 @@ impl<'a> Runtime<'a> {
                     .and_then(|fields| fields.get("type"))
                     .and_then(Value::as_str)
                     .unwrap_or("sin");
-                let value = self.eval(input(block, "num")).as_number().to_radians();
+                let value = eval(input(block, "num")).as_number().to_radians();
                 let result = match op {
                     "cos" => value.cos(),
                     "tan" => value.tan(),
@@ -631,6 +710,10 @@ struct Thread<'a> {
 }
 
 impl<'a> Thread<'a> {
+    fn eval(&self, runtime: &Runtime<'a>, block: Option<&Value>) -> RuntimeValue {
+        runtime.eval_for_owner(block, Some(self.owner_id))
+    }
+
     fn step(&mut self, runtime: &mut Runtime<'a>) -> Result<()> {
         if self.done {
             return Ok(());
@@ -662,7 +745,7 @@ impl<'a> Thread<'a> {
                 self.advance(runtime, block.get("next"));
             }
             "when" => {
-                if runtime.eval(input(block, "condition")).is_truthy() {
+                if self.eval(runtime, input(block, "condition")).is_truthy() {
                     self.enter_branch(runtime, statement(block, "DO"), block.get("next"));
                 } else {
                     self.wait_ticks = 1;
@@ -671,14 +754,14 @@ impl<'a> Thread<'a> {
             }
             "variables_set" => {
                 let variable = variable_field(block).context("variables_set missing variable")?;
-                let value = runtime.eval(input(block, "value"));
+                let value = self.eval(runtime, input(block, "value"));
                 runtime.variables.insert(variable.to_owned(), value);
                 self.advance(runtime, block.get("next"));
             }
             "change_variables" => {
                 let variable =
                     variable_field(block).context("change_variables missing variable")?;
-                let delta = runtime.eval(input(block, "value")).as_number();
+                let delta = self.eval(runtime, input(block, "value")).as_number();
                 let current = runtime
                     .variables
                     .get(variable)
@@ -701,8 +784,8 @@ impl<'a> Thread<'a> {
                 self.advance(runtime, block.get("next"));
             }
             "list_append" => {
-                let list_id = runtime.eval(input(block, "list")).as_string();
-                let value = runtime.eval(input(block, "list_item_value"));
+                let list_id = self.eval(runtime, input(block, "list")).as_string();
+                let value = self.eval(runtime, input(block, "list_item_value"));
                 ensure_runtime_list(
                     runtime
                         .variables
@@ -713,9 +796,9 @@ impl<'a> Thread<'a> {
                 self.advance(runtime, block.get("next"));
             }
             "list_insert_value" => {
-                let list_id = runtime.eval(input(block, "list")).as_string();
-                let index = runtime.eval(input(block, "list_index")).as_number();
-                let value = runtime.eval(input(block, "list_item_value"));
+                let list_id = self.eval(runtime, input(block, "list")).as_string();
+                let index = self.eval(runtime, input(block, "list_index")).as_number();
+                let value = self.eval(runtime, input(block, "list_item_value"));
                 let items = ensure_runtime_list(
                     runtime
                         .variables
@@ -727,9 +810,9 @@ impl<'a> Thread<'a> {
                 self.advance(runtime, block.get("next"));
             }
             "replace_list_item" => {
-                let list_id = runtime.eval(input(block, "list")).as_string();
-                let index = runtime.eval(input(block, "list_index")).as_number();
-                let value = runtime.eval(input(block, "list_item_value"));
+                let list_id = self.eval(runtime, input(block, "list")).as_string();
+                let index = self.eval(runtime, input(block, "list_index")).as_number();
+                let value = self.eval(runtime, input(block, "list_item_value"));
                 let item = block
                     .get("fields")
                     .and_then(|fields| fields.get("item"))
@@ -749,8 +832,8 @@ impl<'a> Thread<'a> {
                 self.advance(runtime, block.get("next"));
             }
             "delete_list_item" => {
-                let list_id = runtime.eval(input(block, "list")).as_string();
-                let index = runtime.eval(input(block, "list_index")).as_number();
+                let list_id = self.eval(runtime, input(block, "list")).as_string();
+                let index = self.eval(runtime, input(block, "list_index")).as_number();
                 let item = block
                     .get("fields")
                     .and_then(|fields| fields.get("item"))
@@ -768,8 +851,8 @@ impl<'a> Thread<'a> {
                 self.advance(runtime, block.get("next"));
             }
             "list_copy" => {
-                let source_id = runtime.eval(input(block, "list")).as_string();
-                let target_id = runtime.eval(input(block, "target_list")).as_string();
+                let source_id = self.eval(runtime, input(block, "list")).as_string();
+                let target_id = self.eval(runtime, input(block, "target_list")).as_string();
                 let value = runtime
                     .variables
                     .get(&source_id)
@@ -813,7 +896,7 @@ impl<'a> Thread<'a> {
             }
             "repeat_forever_until" => {
                 if let Some(body) = statement(block, "DO") {
-                    if runtime.eval(input(block, "condition")).is_truthy() {
+                    if self.eval(runtime, input(block, "condition")).is_truthy() {
                         self.advance(runtime, block.get("next"));
                     } else {
                         self.loops.push(LoopFrame::Until {
@@ -828,7 +911,7 @@ impl<'a> Thread<'a> {
                 }
             }
             "controls_if" => {
-                let branch = if runtime.eval(input(block, "IF0")).is_truthy() {
+                let branch = if self.eval(runtime, input(block, "IF0")).is_truthy() {
                     statement(block, "DO0")
                 } else {
                     statement(block, "ELSE")
@@ -836,13 +919,16 @@ impl<'a> Thread<'a> {
                 self.enter_branch(runtime, branch, block.get("next"));
             }
             "wait" => {
-                let seconds = runtime.eval(input(block, "time")).as_number().max(0.0);
+                let seconds = self
+                    .eval(runtime, input(block, "time"))
+                    .as_number()
+                    .max(0.0);
                 self.wait_ticks = seconds_to_wait_ticks(seconds);
                 self.yielded = true;
                 self.advance(runtime, block.get("next"));
             }
             "wait_until" => {
-                if runtime.eval(input(block, "condition")).is_truthy() {
+                if self.eval(runtime, input(block, "condition")).is_truthy() {
                     self.advance(runtime, block.get("next"));
                 } else {
                     self.wait_ticks = 1;
@@ -861,14 +947,14 @@ impl<'a> Thread<'a> {
             "self_broadcast_with_param" => {
                 let message = broadcast_message(input(block, "message"))
                     .context("broadcast block missing message")?;
-                let payload = runtime.eval(input(block, "param"));
+                let payload = self.eval(runtime, input(block, "param"));
                 runtime.dispatch_broadcast(&message, Some(payload));
                 self.advance(runtime, block.get("next"));
             }
             "ask_and_choose" => {
                 runtime.last_answer = RuntimeValue::String(String::new());
                 runtime.last_choice_content =
-                    RuntimeValue::String(runtime.eval(choice_input(block, 0)).as_string());
+                    RuntimeValue::String(self.eval(runtime, choice_input(block, 0)).as_string());
                 runtime.last_choice_index = 1;
                 self.advance(runtime, block.get("next"));
             }
@@ -900,7 +986,7 @@ impl<'a> Thread<'a> {
                 self.advance(runtime, block.get("next"));
             }
             "switch_to_screen" => {
-                let screen_id = runtime.eval(input(block, "screen_id")).as_string();
+                let screen_id = self.eval(runtime, input(block, "screen_id")).as_string();
                 if screen_id.is_empty() {
                     bail!("switch_to_screen missing target screen");
                 }
@@ -908,7 +994,7 @@ impl<'a> Thread<'a> {
                 self.advance(runtime, block.get("next"));
             }
             "self_go_forward" => {
-                let steps = runtime.eval(input(block, "steps")).as_number();
+                let steps = self.eval(runtime, input(block, "steps")).as_number();
                 if let Some(actor) = runtime.actors.get_mut(self.owner_id) {
                     let radians = actor.rotation.to_radians();
                     actor.x += steps * radians.sin();
@@ -917,8 +1003,8 @@ impl<'a> Thread<'a> {
                 self.advance(runtime, block.get("next"));
             }
             "self_move_to" | "self_glide_to" => {
-                let x = runtime.eval(input(block, "x")).as_number();
-                let y = runtime.eval(input(block, "y")).as_number();
+                let x = self.eval(runtime, input(block, "x")).as_number();
+                let y = self.eval(runtime, input(block, "y")).as_number();
                 if let Some(actor) = runtime.actors.get_mut(self.owner_id) {
                     actor.x = x;
                     actor.y = y;
@@ -926,42 +1012,44 @@ impl<'a> Thread<'a> {
                 self.advance(runtime, block.get("next"));
             }
             "self_set_position_x" => {
-                let value = runtime.eval(input(block, "value")).as_number();
+                let value = self.eval(runtime, input(block, "value")).as_number();
                 if let Some(actor) = runtime.actors.get_mut(self.owner_id) {
                     actor.x = value;
                 }
                 self.advance(runtime, block.get("next"));
             }
             "self_set_position_y" => {
-                let value = runtime.eval(input(block, "value")).as_number();
+                let value = self.eval(runtime, input(block, "value")).as_number();
                 if let Some(actor) = runtime.actors.get_mut(self.owner_id) {
                     actor.y = value;
                 }
                 self.advance(runtime, block.get("next"));
             }
             "self_change_coordinate_x" | "self_glide_coordinate_x" => {
-                let delta = signed_delta(block, runtime.eval(input(block, "value")).as_number());
+                let delta =
+                    signed_delta(block, self.eval(runtime, input(block, "value")).as_number());
                 if let Some(actor) = runtime.actors.get_mut(self.owner_id) {
                     actor.x += delta;
                 }
                 self.advance(runtime, block.get("next"));
             }
             "self_change_coordinate_y" | "self_glide_coordinate_y" => {
-                let delta = signed_delta(block, runtime.eval(input(block, "value")).as_number());
+                let delta =
+                    signed_delta(block, self.eval(runtime, input(block, "value")).as_number());
                 if let Some(actor) = runtime.actors.get_mut(self.owner_id) {
                     actor.y += delta;
                 }
                 self.advance(runtime, block.get("next"));
             }
             "self_rotate" => {
-                let degrees = runtime.eval(input(block, "degrees")).as_number();
+                let degrees = self.eval(runtime, input(block, "degrees")).as_number();
                 if let Some(actor) = runtime.actors.get_mut(self.owner_id) {
                     actor.rotation += degrees;
                 }
                 self.advance(runtime, block.get("next"));
             }
             "self_point_towards" => {
-                let degrees = runtime.eval(input(block, "degrees")).as_number();
+                let degrees = self.eval(runtime, input(block, "degrees")).as_number();
                 if let Some(actor) = runtime.actors.get_mut(self.owner_id) {
                     actor.rotation = degrees;
                 }
@@ -980,14 +1068,15 @@ impl<'a> Thread<'a> {
                 self.advance(runtime, block.get("next"));
             }
             "set_scale" => {
-                let value = runtime.eval(input(block, "scale")).as_number();
+                let value = self.eval(runtime, input(block, "scale")).as_number();
                 if let Some(actor) = runtime.actors.get_mut(self.owner_id) {
                     actor.scale = value;
                 }
                 self.advance(runtime, block.get("next"));
             }
             "self_change_scale" => {
-                let delta = signed_delta(block, runtime.eval(input(block, "scale")).as_number());
+                let delta =
+                    signed_delta(block, self.eval(runtime, input(block, "scale")).as_number());
                 if let Some(actor) = runtime.actors.get_mut(self.owner_id) {
                     actor.scale += delta;
                 }
@@ -1027,7 +1116,7 @@ impl<'a> Thread<'a> {
                 self.advance(runtime, block.get("next"));
             }
             "console_log" => {
-                let value = runtime.eval(input(block, "console_log"));
+                let value = self.eval(runtime, input(block, "console_log"));
                 runtime.logs.push(format_value(&value));
                 self.advance(runtime, block.get("next"));
             }
@@ -1065,6 +1154,7 @@ impl<'a> Thread<'a> {
     }
 
     fn next_loop_iteration(&mut self, runtime: &Runtime<'a>) -> Option<Option<&'a Value>> {
+        let owner_id = self.owner_id;
         let frame = self.loops.last_mut()?;
         match frame {
             LoopFrame::Forever { body } => Some(Some(*body)),
@@ -1093,7 +1183,10 @@ impl<'a> Thread<'a> {
             } => {
                 let after = *after;
                 let body = *body;
-                if runtime.eval(*condition).is_truthy() {
+                if runtime
+                    .eval_for_owner(*condition, Some(owner_id))
+                    .is_truthy()
+                {
                     self.loops.pop();
                     if after.is_some() {
                         Some(after)
@@ -1206,6 +1299,10 @@ fn collect_actors(dict: &Map<String, Value>) -> BTreeMap<String, ActorState> {
                         .and_then(Value::as_str)
                         .unwrap_or("")
                         .to_owned(),
+                    current_style_id: actor
+                        .get("currentStyleId")
+                        .and_then(Value::as_str)
+                        .map(ToOwned::to_owned),
                     x: actor
                         .get("position")
                         .and_then(|position| position.get("x"))
