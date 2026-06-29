@@ -1811,7 +1811,11 @@ fn cli_run_scenario_checks_events_and_expected_snapshot_paths() {
             "expect": {
                 "ticks": 1,
                 "variables.var-clicked": 1.0,
-                "variable_names.var-clicked": "clicked"
+                "variable_names.var-clicked": "clicked",
+                "actors.actor-1.x": {
+                    "approx": 0.0,
+                    "epsilon": 0.001
+                }
             }
         }))
         .unwrap(),
@@ -1823,7 +1827,11 @@ fn cli_run_scenario_checks_events_and_expected_snapshot_paths() {
             "ticks": 1,
             "events": ["click"],
             "expect": {
-                "variables.var-clicked": 2.0
+                "variables.var-clicked": 2.0,
+                "actors.actor-1.x": {
+                    "approx": 10.0,
+                    "epsilon": 0.001
+                }
             }
         }))
         .unwrap(),
@@ -1850,7 +1858,8 @@ fn cli_run_scenario_checks_events_and_expected_snapshot_paths() {
         ])
         .assert()
         .failure()
-        .stdout(predicate::str::contains("variables.var-clicked"));
+        .stdout(predicate::str::contains("variables.var-clicked"))
+        .stdout(predicate::str::contains("actors.actor-1.x"));
 }
 
 #[test]

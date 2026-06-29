@@ -52,7 +52,7 @@ pub fn check_runtime_scenario(
         .filter_map(|(path, expected)| {
             let actual = dotted_path(snapshot, path);
             match actual {
-                Some(actual) if same_json_value(expected, actual) => None,
+                Some(actual) if expected_value_matches(expected, actual) => None,
                 Some(actual) => Some(ScenarioDifference {
                     path: path.clone(),
                     expected: format_json_value(expected),
@@ -109,6 +109,25 @@ fn dotted_path<'a>(value: &'a Value, path: &str) -> Option<&'a Value> {
         current = current.get(part)?;
     }
     Some(current)
+}
+
+fn expected_value_matches(expected: &Value, actual: &Value) -> bool {
+    if let Some((target, epsilon)) = approx_expectation(expected) {
+        return actual
+            .as_f64()
+            .is_some_and(|actual| (actual - target).abs() <= epsilon);
+    }
+    same_json_value(expected, actual)
+}
+
+fn approx_expectation(value: &Value) -> Option<(f64, f64)> {
+    let object = value.as_object()?;
+    let target = object.get("approx")?.as_f64()?;
+    let epsilon = object
+        .get("epsilon")
+        .and_then(Value::as_f64)
+        .unwrap_or(f64::EPSILON);
+    Some((target, epsilon))
 }
 
 fn same_json_value(left: &Value, right: &Value) -> bool {

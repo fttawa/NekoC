@@ -161,7 +161,8 @@ events, and expected snapshot paths together in a small test file:
   "ticks": 1,
   "events": ["click"],
   "expect": {
-    "variables.var-clicked": 1
+    "variables.var-clicked": 1,
+    "actors.actor-1.x": { "approx": 89.876663, "epsilon": 0.001 }
   }
 }
 ```

@@ -5,6 +5,14 @@
     "ticks": 1,
     "current_scene_name": "Three Body Demo",
     "variables.kn-var-phaseA": 3.0,
-    "variable_names.kn-var-phaseA": "phaseA"
+    "variable_names.kn-var-phaseA": "phaseA",
+    "actors.nekoc-actor-body-a.x": {
+      "approx": 89.876663,
+      "epsilon": 0.001
+    },
+    "actors.nekoc-actor-body-a.y": {
+      "approx": 2.878687,
+      "epsilon": 0.001
+    }
   }
 }
