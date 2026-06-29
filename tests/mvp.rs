@@ -3384,6 +3384,64 @@ onStart(() => {
 }
 
 #[test]
+fn cli_compile_ts_supports_sprite_self_api() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("self_api.ts");
+    let output = dir.path().join("self_api.json");
+    fs::write(
+        &input,
+        r#"
+sprite("player", { costume: "https://example.com/player.png" }, self => {
+  self.onStart(() => {
+    self.x = 100;
+    self.y = 50;
+    self.move(10);
+  });
+});
+"#,
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts",
+            input.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let report: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    let sprite = &report["resources"]["sprites"][0];
+    let blocks = sprite["workspaceData"]["blocks"].as_object().unwrap();
+
+    assert_eq!(sprite["name"], "player");
+    assert!(
+        blocks
+            .values()
+            .any(|block| block["type"] == "on_running_group_activated")
+    );
+    assert!(
+        blocks
+            .values()
+            .any(|block| block["type"] == "self_set_position_x")
+    );
+    assert!(
+        blocks
+            .values()
+            .any(|block| block["type"] == "self_set_position_y")
+    );
+    assert!(
+        blocks
+            .values()
+            .any(|block| block["type"] == "self_go_forward")
+    );
+}
+
+#[test]
 fn cli_compile_ts_bcmkn_basic_variable_syntax_validates() {
     let dir = tempdir().unwrap();
     let input = dir.path().join("natural_ts.ts");

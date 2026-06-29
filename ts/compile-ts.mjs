@@ -280,6 +280,9 @@ class WorkspaceCompiler {
 
   compileTopLevelCall(call) {
     const name = calleeName(call.expression);
+    if (isMemberCallName(name, "onStart")) {
+      return this.compileNextHat(call, "on_running_group_activated", 0);
+    }
     switch (name) {
       case "defineProc":
         return this.compileProcedureDefinition(call, false);
@@ -693,6 +696,9 @@ class WorkspaceCompiler {
 
   compileStatementCall(call, parentId) {
     const name = calleeName(call.expression);
+    if (isMemberCallName(name, "move")) {
+      return this.compileValueStatement(call, parentId, "self_go_forward", "steps", 0);
+    }
     switch (name) {
       case "setVar":
         return this.compileSetVar(call, parentId);
@@ -995,6 +1001,16 @@ class WorkspaceCompiler {
   }
 
   compileAssignmentExpression(expression, parentId) {
+    if (ts.isPropertyAccessExpression(expression.left)) {
+      const propertyName = expression.left.name.text;
+      if (propertyName === "x") {
+        return this.compileValueExpressionStatement(parentId, "self_set_position_x", "value", expression.right);
+      }
+      if (propertyName === "y") {
+        return this.compileValueExpressionStatement(parentId, "self_set_position_y", "value", expression.right);
+      }
+      this.unsupported(expression.left.name, `Unsupported self property assignment: ${propertyName}`);
+    }
     if (!ts.isIdentifier(expression.left)) {
       this.unsupported(expression.left, "Only simple variable assignments are supported");
     }
@@ -1580,11 +1596,15 @@ class WorkspaceCompiler {
   }
 
   compileValueStatement(call, parentId, type, inputName, argumentIndex) {
+    return this.compileValueExpressionStatement(parentId, type, inputName, call.arguments[argumentIndex]);
+  }
+
+  compileValueExpressionStatement(parentId, type, inputName, expression) {
     const id = this.addBlock({
       type,
       parent_id: parentId,
     });
-    const valueId = this.compileExpression(call.arguments[argumentIndex], id);
+    const valueId = this.compileExpression(expression, id);
     this.connectInput(id, valueId, inputName, "value");
     return id;
   }
@@ -2637,6 +2657,10 @@ function calleeName(expression) {
     return targetName ? `${targetName}.${expression.name.text}` : expression.name.text;
   }
   return null;
+}
+
+function isMemberCallName(name, memberName) {
+  return typeof name === "string" && name.endsWith(`.${memberName}`);
 }
 
 function nativeBinaryExpressionSpec(operator) {
