@@ -846,6 +846,29 @@ onStart(() => {
         analysis["scripts"][0]["writes"],
         json!(["result", "score", "unused"])
     );
+    assert_eq!(
+        analysis["warnings"],
+        json!([
+            {
+                "kind": "external_read",
+                "severity": "info",
+                "variable": "external",
+                "message": "variable is read but never written in this IR"
+            },
+            {
+                "kind": "unused_write",
+                "severity": "warning",
+                "variable": "result",
+                "message": "variable is written but never read"
+            },
+            {
+                "kind": "unused_write",
+                "severity": "warning",
+                "variable": "unused",
+                "message": "variable is written but never read"
+            }
+        ])
+    );
 }
 
 #[test]

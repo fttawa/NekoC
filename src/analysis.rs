@@ -34,6 +34,7 @@ pub fn build_report(ir: &Value) -> Value {
 
     let written_not_read = difference(&all_writes, &all_reads);
     let read_not_written = difference(&all_reads, &all_writes);
+    let warnings = variable_warnings(&written_not_read, &read_not_written);
 
     json!({
         "format": "nekoc-analysis",
@@ -48,6 +49,7 @@ pub fn build_report(ir: &Value) -> Value {
                 "read_not_written": read_not_written,
             }
         },
+        "warnings": warnings,
         "scripts": scripts,
     })
 }
@@ -101,6 +103,30 @@ fn string_set(value: Option<&Value>) -> BTreeSet<String> {
 
 fn difference(left: &BTreeSet<String>, right: &BTreeSet<String>) -> Vec<String> {
     left.difference(right).cloned().collect()
+}
+
+fn variable_warnings(written_not_read: &[String], read_not_written: &[String]) -> Vec<Value> {
+    let mut warnings = Vec::new();
+
+    for variable in read_not_written {
+        warnings.push(json!({
+            "kind": "external_read",
+            "severity": "info",
+            "variable": variable,
+            "message": "variable is read but never written in this IR",
+        }));
+    }
+
+    for variable in written_not_read {
+        warnings.push(json!({
+            "kind": "unused_write",
+            "severity": "warning",
+            "variable": variable,
+            "message": "variable is written but never read",
+        }));
+    }
+
+    warnings
 }
 
 fn json_string<'a>(value: &'a Value, key: &str) -> &'a str {
