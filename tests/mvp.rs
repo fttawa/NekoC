@@ -376,7 +376,7 @@ fn runtime_runs_start_variable_loop_and_wait() {
     assert_eq!(snapshot.ticks, 3);
     assert_eq!(
         snapshot.variables["var-score"],
-        nekoc::runtime::RuntimeValue::Number(2.0)
+        nekoc::runtime::RuntimeValue::Number(3.0)
     );
     assert_eq!(snapshot.active_threads, 1);
 }

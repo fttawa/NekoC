@@ -72,6 +72,17 @@ button, waits briefly, then writes page state, debug logs, `NekoDebug.snapshot()
 and shallow global-object probes. It is intentionally diagnostic: NekoC's own
 Rust runtime remains the clean implementation under test.
 
+Compare editor-visible variables with a `nekoc run` snapshot:
+
+```bash
+cargo run -- run samples/three_body.compiled.bcmkn --ticks 58 --out samples/three_body.runtime.json
+npm run editor:compare -- --oracle samples/three_body.editor-oracle.json --runtime samples/three_body.runtime.json --out samples/three_body.oracle-compare.json
+```
+
+This comparison currently uses the editor's variable panel text as the oracle.
+It is useful for exposing scheduler and block-semantic mismatches while deeper
+editor VM state hooks are still being reverse-engineered.
+
 ## CLI
 
 ```bash

@@ -156,6 +156,7 @@ impl<'a> Runtime<'a> {
                         loops: Vec::new(),
                         continuations: Vec::new(),
                         wait_ticks: 0,
+                        yielded: false,
                         done: false,
                     });
                 }
@@ -205,6 +206,7 @@ impl<'a> Runtime<'a> {
                     loops: Vec::new(),
                     continuations: Vec::new(),
                     wait_ticks: 0,
+                    yielded: false,
                     done: false,
                 });
             }
@@ -453,6 +455,7 @@ struct Thread<'a> {
     loops: Vec<LoopFrame<'a>>,
     continuations: Vec<Option<&'a Value>>,
     wait_ticks: usize,
+    yielded: bool,
     done: bool,
 }
 
@@ -466,8 +469,9 @@ impl<'a> Thread<'a> {
             return Ok(());
         }
 
+        self.yielded = false;
         let mut budget = 10_000;
-        while budget > 0 && !self.done && self.wait_ticks == 0 {
+        while budget > 0 && !self.done && !self.yielded && self.wait_ticks == 0 {
             budget -= 1;
             let Some(block) = self.current else {
                 self.done = true;
@@ -581,7 +585,8 @@ impl<'a> Thread<'a> {
             }
             "wait" => {
                 let seconds = runtime.eval(input(block, "time")).as_number().max(0.0);
-                self.wait_ticks = (seconds * DEFAULT_FPS).ceil() as usize;
+                self.wait_ticks = seconds_to_wait_ticks(seconds);
+                self.yielded = true;
                 self.advance(runtime, block.get("next"));
             }
             "wait_until" => {
@@ -900,6 +905,10 @@ fn number_field(block: &Value, name: &str) -> Option<f64> {
     value
         .as_f64()
         .or_else(|| value.as_str().and_then(|text| text.parse().ok()))
+}
+
+fn seconds_to_wait_ticks(seconds: f64) -> usize {
+    ((seconds * DEFAULT_FPS).ceil().max(0.0) as usize).saturating_sub(1)
 }
 
 fn text_join_index(name: &str) -> Option<usize> {

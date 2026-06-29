@@ -8,6 +8,8 @@
 *.compiled.report.json
 *.compiled.smoke.json
 *.editor-oracle.json
+*.oracle-compare.json
+*.runtime.json
 *.compiled.validate.json
 *.roundtrip.bcmkn
 *.report.json
