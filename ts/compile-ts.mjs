@@ -66,6 +66,9 @@ class WorkspaceCompiler {
         return;
       }
       if (ts.isExpressionStatement(statement) && ts.isCallExpression(statement.expression)) {
+        if (calleeName(statement.expression.expression) === "test") {
+          return;
+        }
         this.compileTopLevelCall(statement.expression);
         return;
       }

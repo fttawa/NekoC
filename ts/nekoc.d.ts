@@ -6,6 +6,15 @@ interface NekoExpression<T = unknown> {
 }
 
 type NekoStatementBody = () => void;
+type NekoTestBody = () => void | Promise<void>;
+
+interface NekoExpect<T = unknown> {
+  toBe(expected: T): void;
+  toEqual(expected: unknown): void;
+  toBeTruthy(): void;
+  toBeFalsy(): void;
+  toContain(expected: unknown): void;
+}
 
 interface StageOptions {
   name?: string;
@@ -85,6 +94,8 @@ interface NekoSpriteSelf {
 }
 
 declare function stage(options: StageOptions): void;
+declare function test(name: string, body: NekoTestBody): void;
+declare function expect<T = unknown>(actual: T): NekoExpect<T>;
 declare function screen(name: string, options: ScreenOptions, body: NekoStatementBody): void;
 declare function sprite(name: string, options: SpriteOptions, body?: (self: NekoSpriteSelf) => void): void;
 

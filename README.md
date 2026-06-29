@@ -70,6 +70,7 @@ nekoc workspace <input.bcmkn> --out workspace.json
 nekoc validate <input.bcmkn> --out validate.json
 nekoc compile-ts <input.ts> --out workspace.json [--emit-ir program.ir.json]
 nekoc compile-ts-bcmkn <input.ts> --template template.bcmkn --out output.bcmkn
+nekoc test <input.ts>
 ```
 
 During development, use Cargo:
@@ -78,6 +79,7 @@ During development, use Cargo:
 cargo run -- compile-ts samples/natural_ts.ts --out natural_ts.workspace.json
 cargo run -- compile-ts samples/three_body.ts --out three_body.workspace.json --emit-ir three_body.ir.json
 cargo run -- compile-ts-bcmkn samples/natural_ts.ts --template samples/我的作品-原生.bcmkn --out natural_ts.bcmkn
+cargo run -- test samples/unit_tests.ts
 ```
 
 ## TypeScript Example
@@ -89,6 +91,26 @@ onStart(() => {
   score = score + 1;
   console.log(score);
 });
+```
+
+Pure TypeScript helper code can be covered with compile-time unit tests. These
+tests are ignored by `compile-ts`, so they do not become Kitten N blocks:
+
+```ts
+function double(x: number) {
+  return x * 2;
+}
+
+test("double", () => {
+  expect(double(21)).toBe(42);
+});
+```
+
+Run them with:
+
+```bash
+cargo run -- test samples/unit_tests.ts
+npm run test:ts
 ```
 
 Older DSL-style calls are still supported while the real TypeScript lowering

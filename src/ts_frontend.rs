@@ -72,3 +72,27 @@ pub fn compile_ts_with_sidecars(
 
     Ok(())
 }
+
+pub fn test_ts(input: impl AsRef<Path>) -> Result<()> {
+    let input = input.as_ref();
+    let script = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("ts")
+        .join("test-ts.mjs");
+
+    let status = Command::new("node")
+        .arg(&script)
+        .arg(input)
+        .status()
+        .with_context(|| {
+            format!(
+                "failed to run TypeScript test runner at {}",
+                script.display()
+            )
+        })?;
+
+    if !status.success() {
+        bail!("TypeScript tests failed with status {status}");
+    }
+
+    Ok(())
+}

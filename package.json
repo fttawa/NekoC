@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "typecheck": "tsc --noEmit --strict --lib es2020 ts/nekoc.d.ts samples/typed_self_api.ts",
+    "test:ts": "cargo run -- test samples/unit_tests.ts",
     "e2e:three-body": "node tools/e2e-sample.mjs three_body",
     "e2e:multi-screen": "node tools/e2e-sample.mjs multi_screen",
     "e2e:all": "npm run e2e:three-body && npm run e2e:multi-screen"

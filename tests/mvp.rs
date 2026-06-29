@@ -3644,6 +3644,133 @@ sprite("player", { costume: "https://example.com/player.png" }, self => {
 }
 
 #[test]
+fn cli_test_runs_passing_ts_unit_tests() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("unit_test.ts");
+    fs::write(
+        &input,
+        r#"
+function double(x: number) {
+  return x * 2;
+}
+
+test("double", () => {
+  expect(double(21)).toBe(42);
+  expect([1, 2, 3]).toContain(2);
+});
+"#,
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args(["test", input.to_str().unwrap()])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("1 passed"));
+}
+
+#[test]
+fn cli_test_reports_failing_ts_unit_tests() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("unit_test.ts");
+    fs::write(
+        &input,
+        r#"
+function double(x: number) {
+  return x * 2;
+}
+
+test("double", () => {
+  expect(double(20)).toBe(42);
+});
+"#,
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args(["test", input.to_str().unwrap()])
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("Expected 40 to be 42"));
+}
+
+#[test]
+fn cli_test_supports_relative_imports() {
+    let dir = tempdir().unwrap();
+    let lib = dir.path().join("math.ts");
+    let input = dir.path().join("unit_test.ts");
+    fs::write(
+        &lib,
+        r#"
+export function double(x: number) {
+  return x * 2;
+}
+"#,
+    )
+    .unwrap();
+    fs::write(
+        &input,
+        r#"
+import { double } from "./math";
+
+test("imported double", () => {
+  expect(double(21)).toBe(42);
+});
+"#,
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args(["test", input.to_str().unwrap()])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("1 passed"));
+}
+
+#[test]
+fn cli_compile_ts_ignores_top_level_unit_tests() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("compile_with_tests.ts");
+    let output = dir.path().join("compile_with_tests.json");
+    fs::write(
+        &input,
+        r#"
+function double(x: number) {
+  return x * 2;
+}
+
+test("double", () => {
+  expect(double(21)).toBe(42);
+});
+
+onStart(() => {
+  consoleLog("ready");
+});
+"#,
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts",
+            input.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let report: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    let blocks = report["workspaceData"]["blocks"].as_object().unwrap();
+    assert!(blocks.values().any(|block| block["type"] == "console_log"));
+}
+
+#[test]
 fn cli_compile_ts_bcmkn_basic_variable_syntax_validates() {
     let dir = tempdir().unwrap();
     let input = dir.path().join("natural_ts.ts");

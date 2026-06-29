@@ -55,6 +55,9 @@ enum Command {
         #[arg(long)]
         out: PathBuf,
     },
+    Test {
+        input: PathBuf,
+    },
     Validate {
         input: PathBuf,
         #[arg(long)]
@@ -117,6 +120,9 @@ fn main() -> Result<()> {
             out,
         } => {
             nekoc::bcmkn_compiler::compile_ts_bcmkn(input, template, out)?;
+        }
+        Command::Test { input } => {
+            nekoc::ts_frontend::test_ts(input)?;
         }
         Command::Validate { input, out } => {
             let project = nekoc::project::load_project(input)?;
