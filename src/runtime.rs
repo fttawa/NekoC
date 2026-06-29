@@ -203,6 +203,8 @@ impl<'a> Runtime<'a> {
                         continuations: Vec::new(),
                         range_values: BTreeMap::new(),
                         script_values: BTreeMap::new(),
+                        procedure_values: BTreeMap::new(),
+                        procedure_frames: Vec::new(),
                         wait_ticks: 0,
                         yielded: false,
                         done: false,
@@ -264,6 +266,8 @@ impl<'a> Runtime<'a> {
                     continuations: Vec::new(),
                     range_values: BTreeMap::new(),
                     script_values: BTreeMap::new(),
+                    procedure_values: BTreeMap::new(),
+                    procedure_frames: Vec::new(),
                     wait_ticks: 0,
                     yielded: false,
                     done: false,
@@ -800,6 +804,8 @@ struct Thread<'a> {
     continuations: Vec<Option<&'a Value>>,
     range_values: BTreeMap<String, RuntimeValue>,
     script_values: BTreeMap<String, RuntimeValue>,
+    procedure_values: BTreeMap<String, RuntimeValue>,
+    procedure_frames: Vec<ProcedureFrame<'a>>,
     wait_ticks: usize,
     yielded: bool,
     done: bool,
@@ -812,7 +818,7 @@ impl<'a> Thread<'a> {
             Some(self.owner_id),
             &self.range_values,
             &self.script_values,
-            &BTreeMap::new(),
+            &self.procedure_values,
         )
     }
 
@@ -1077,6 +1083,29 @@ impl<'a> Thread<'a> {
             "break" => {
                 self.break_loop(runtime);
             }
+            "procedures_2_callnoreturn" => {
+                let def_id = procedure_def_id(block).context("procedure call missing def_id")?;
+                let procedure = runtime
+                    .procedures
+                    .get(def_id)
+                    .with_context(|| format!("unknown procedure {def_id}"))?;
+                let mut values = BTreeMap::new();
+                for param in &procedure.params {
+                    if let Some(input) = input(block, &param.id) {
+                        values.insert(param.name.clone(), self.eval(runtime, Some(input)));
+                    }
+                }
+                if let Some(body) = procedure.body {
+                    let previous_values = std::mem::replace(&mut self.procedure_values, values);
+                    self.procedure_frames.push(ProcedureFrame {
+                        after: block.get("next"),
+                        procedure_values: previous_values,
+                    });
+                    self.current = Some(body);
+                } else {
+                    self.advance(runtime, block.get("next"));
+                }
+            }
             "self_broadcast" | "self_broadcast_and_wait" => {
                 let message = broadcast_message(input(block, "message"))
                     .context("broadcast block missing message")?;
@@ -1273,6 +1302,13 @@ impl<'a> Thread<'a> {
             self.current = Some(continuation);
         } else if let Some(next_loop) = self.next_loop_iteration(runtime) {
             self.current = next_loop;
+        } else if let Some(frame) = self.procedure_frames.pop() {
+            self.procedure_values = frame.procedure_values;
+            if let Some(after) = frame.after {
+                self.current = Some(after);
+            } else {
+                self.advance(runtime, None);
+            }
         } else {
             self.done = true;
         }
@@ -1328,7 +1364,7 @@ impl<'a> Thread<'a> {
                         Some(owner_id),
                         &self.range_values,
                         &self.script_values,
-                        &BTreeMap::new(),
+                        &self.procedure_values,
                     )
                     .is_truthy()
                 {
@@ -1428,6 +1464,12 @@ struct Procedure<'a> {
 struct ProcedureParam {
     id: String,
     name: String,
+}
+
+#[derive(Debug, Clone)]
+struct ProcedureFrame<'a> {
+    after: Option<&'a Value>,
+    procedure_values: BTreeMap<String, RuntimeValue>,
 }
 
 #[derive(Debug, Clone)]

@@ -1357,6 +1357,67 @@ onStart(() => {
 }
 
 #[test]
+fn runtime_runs_compiled_statement_procedure_calls() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("procedure-runtime.ts");
+    let output = dir.path().join("procedure-runtime.bcmkn");
+    fs::write(
+        &input,
+        r#"
+defineProc("addScore", ["delta"], () => {
+  setVar("score", add(getVar("score"), param("delta")));
+});
+
+onStart(() => {
+  setVar("score", 10);
+  callProc("addScore", 5);
+  setVar("afterCall", add(getVar("score"), 1));
+});
+"#,
+    )
+    .unwrap();
+    let template = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts-bcmkn",
+            input.to_str().unwrap(),
+            "--template",
+            template.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let project = nekoc::project::load_project(&output).unwrap();
+    let snapshot = nekoc::runtime::run_project(&project.value, 1).unwrap();
+    let variable_by_name = |name: &str| {
+        let id = snapshot
+            .variable_names
+            .iter()
+            .find_map(|(id, variable_name)| (variable_name == name).then_some(id))
+            .unwrap_or_else(|| panic!("missing variable {name}"));
+        snapshot
+            .variables
+            .get(id)
+            .unwrap_or_else(|| panic!("missing runtime value for {name}"))
+    };
+
+    assert_eq!(
+        variable_by_name("score"),
+        &nekoc::runtime::RuntimeValue::Number(15.0)
+    );
+    assert_eq!(
+        variable_by_name("afterCall"),
+        &nekoc::runtime::RuntimeValue::Number(16.0)
+    );
+}
+
+#[test]
 fn cli_run_writes_runtime_snapshot() {
     let dir = tempdir().unwrap();
     let input = dir.path().join("runtime.bcmkn");
