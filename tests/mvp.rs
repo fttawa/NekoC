@@ -1863,6 +1863,57 @@ fn cli_run_scenario_checks_events_and_expected_snapshot_paths() {
 }
 
 #[test]
+fn cli_compile_ts_scenario_compiles_and_checks_runtime() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("compiled-scenario.ts");
+    let scenario = dir.path().join("compiled-scenario.json");
+    let output = dir.path().join("compiled-scenario.bcmkn");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  setVar("score", 4);
+  changeVar("score", 5);
+});
+"#,
+    )
+    .unwrap();
+    fs::write(
+        &scenario,
+        serde_json::to_string_pretty(&json!({
+            "ticks": 1,
+            "expect": {
+                "variables.kn-var-score": 9.0,
+                "variable_names.kn-var-score": "score"
+            }
+        }))
+        .unwrap(),
+    )
+    .unwrap();
+    let template = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts-scenario",
+            input.to_str().unwrap(),
+            "--template",
+            template.to_str().unwrap(),
+            "--scenario",
+            scenario.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("Runtime scenario matches"));
+
+    assert!(output.exists());
+}
+
+#[test]
 fn runtime_dispatches_broadcast_listeners() {
     let project = json!({
         "variables": {

@@ -94,6 +94,7 @@ nekoc workspace <input.bcmkn> --out workspace.json
 nekoc validate <input.bcmkn> --out validate.json
 nekoc compile-ts <input.ts> --out workspace.json [--emit-ir program.ir.json]
 nekoc compile-ts-bcmkn <input.ts> --template template.bcmkn --out output.bcmkn
+nekoc compile-ts-scenario <input.ts> --template template.bcmkn --scenario scenario.json --out output.bcmkn
 nekoc test <input.ts>
 nekoc run <input.bcmkn> --ticks 30 [--event click] [--out runtime.json] [--expect expected-runtime.json]
 nekoc run-scenario <input.bcmkn> <scenario.json>
@@ -105,6 +106,7 @@ During development, use Cargo:
 cargo run -- compile-ts samples/natural_ts.ts --out natural_ts.workspace.json
 cargo run -- compile-ts samples/three_body.ts --out three_body.workspace.json --emit-ir three_body.ir.json
 cargo run -- compile-ts-bcmkn samples/natural_ts.ts --template samples/我的作品-原生.bcmkn --out natural_ts.bcmkn
+cargo run -- compile-ts-scenario samples/three_body.ts --template samples/我的作品-原生.bcmkn --scenario samples/three_body.runtime-scenario.json --out three_body.checked.bcmkn
 cargo run -- test samples/unit_tests.ts
 cargo run -- run samples/three_body.bcmkn --ticks 1 --out three_body.runtime.json
 cargo run -- run samples/three_body.bcmkn --ticks 1 --event click --out three_body.click-runtime.json
@@ -166,6 +168,8 @@ events, and expected snapshot paths together in a small test file:
   }
 }
 ```
+Use `nekoc compile-ts-scenario` when you want the compiler to emit a `.bcmkn`
+and immediately verify that exported project with the embedded runtime.
 
 The current runtime subset intentionally starts small:
 

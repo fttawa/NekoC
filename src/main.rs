@@ -55,6 +55,15 @@ enum Command {
         #[arg(long)]
         out: PathBuf,
     },
+    CompileTsScenario {
+        input: PathBuf,
+        #[arg(long)]
+        template: PathBuf,
+        #[arg(long)]
+        scenario: PathBuf,
+        #[arg(long)]
+        out: PathBuf,
+    },
     Test {
         input: PathBuf,
     },
@@ -148,6 +157,20 @@ fn main() -> Result<()> {
             out,
         } => {
             nekoc::bcmkn_compiler::compile_ts_bcmkn(input, template, out)?;
+        }
+        Command::CompileTsScenario {
+            input,
+            template,
+            scenario,
+            out,
+        } => {
+            nekoc::bcmkn_compiler::compile_ts_bcmkn(input, template, &out)?;
+            let project = nekoc::project::load_project(&out)?;
+            let scenario = nekoc::scenario::load_runtime_scenario(scenario)?;
+            let snapshot = nekoc::scenario::run_runtime_scenario(&project.value, &scenario)?;
+            let differences = nekoc::scenario::check_runtime_scenario(&snapshot, &scenario);
+            nekoc::scenario::ensure_scenario_matches(&differences)?;
+            println!("Runtime scenario matches");
         }
         Command::Test { input } => {
             nekoc::ts_frontend::test_ts(input)?;
