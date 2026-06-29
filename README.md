@@ -96,6 +96,7 @@ nekoc compile-ts <input.ts> --out workspace.json [--emit-ir program.ir.json]
 nekoc compile-ts-bcmkn <input.ts> --template template.bcmkn --out output.bcmkn
 nekoc test <input.ts>
 nekoc run <input.bcmkn> --ticks 30 [--event click] [--out runtime.json] [--expect expected-runtime.json]
+nekoc run-scenario <input.bcmkn> <scenario.json>
 ```
 
 During development, use Cargo:
@@ -108,6 +109,7 @@ cargo run -- test samples/unit_tests.ts
 cargo run -- run samples/three_body.bcmkn --ticks 1 --out three_body.runtime.json
 cargo run -- run samples/three_body.bcmkn --ticks 1 --event click --out three_body.click-runtime.json
 cargo run -- run samples/three_body.bcmkn --ticks 1 --expect three_body.expected-runtime.json
+cargo run -- run-scenario samples/three_body.bcmkn samples/three_body.runtime-scenario.json
 ```
 
 ## TypeScript Example
@@ -151,6 +153,18 @@ count.
 Pass `--event click` to inject a click event before ticking the scheduler.
 Pass `--expect expected-runtime.json` to compare that snapshot structurally and
 exit nonzero with changed JSON paths when the runtime behavior diverges.
+Use `nekoc run-scenario <input.bcmkn> <scenario.json>` to keep ticks, injected
+events, and expected snapshot paths together in a small test file:
+
+```json
+{
+  "ticks": 1,
+  "events": ["click"],
+  "expect": {
+    "variables.var-clicked": 1
+  }
+}
+```
 
 The current runtime subset intentionally starts small:
 

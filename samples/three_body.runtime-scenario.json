@@ -1,0 +1,10 @@
+{
+  "ticks": 1,
+  "events": [],
+  "expect": {
+    "ticks": 1,
+    "current_scene_name": "Three Body Demo",
+    "variables.kn-var-phaseA": 3.0,
+    "variable_names.kn-var-phaseA": "phaseA"
+  }
+}

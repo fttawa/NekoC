@@ -6,6 +6,7 @@ pub mod inspect;
 pub mod ir;
 pub mod project;
 pub mod runtime;
+pub mod scenario;
 pub mod ts_frontend;
 pub mod validate;
 pub mod workspace;

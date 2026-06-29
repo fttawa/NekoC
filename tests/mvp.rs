@@ -1756,6 +1756,104 @@ fn cli_run_can_inject_click_events() {
 }
 
 #[test]
+fn cli_run_scenario_checks_events_and_expected_snapshot_paths() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("runtime-click.bcmkn");
+    let scenario = dir.path().join("runtime-click.scenario.json");
+    let wrong_scenario = dir.path().join("runtime-click-wrong.scenario.json");
+    fs::write(
+        &input,
+        serde_json::to_string(&json!({
+            "variables": {
+                "variablesDict": {
+                    "var-clicked": {
+                        "id": "var-clicked",
+                        "name": "clicked",
+                        "value": 0
+                    }
+                }
+            },
+            "actors": {
+                "actorsDict": {
+                    "actor-1": {
+                        "id": "actor-1",
+                        "name": "button",
+                        "nekoBlockJsonList": [{
+                            "id": "click",
+                            "type": "start_on_click",
+                            "next": {
+                                "id": "set",
+                                "type": "variables_set",
+                                "fields": {
+                                    "variable": "var-clicked"
+                                },
+                                "inputs": {
+                                    "value": {
+                                        "id": "one",
+                                        "type": "math_number",
+                                        "fields": { "NUM": "1" }
+                                    }
+                                }
+                            }
+                        }]
+                    }
+                }
+            }
+        }))
+        .unwrap(),
+    )
+    .unwrap();
+    fs::write(
+        &scenario,
+        serde_json::to_string_pretty(&json!({
+            "ticks": 1,
+            "events": ["click"],
+            "expect": {
+                "ticks": 1,
+                "variables.var-clicked": 1.0,
+                "variable_names.var-clicked": "clicked"
+            }
+        }))
+        .unwrap(),
+    )
+    .unwrap();
+    fs::write(
+        &wrong_scenario,
+        serde_json::to_string_pretty(&json!({
+            "ticks": 1,
+            "events": ["click"],
+            "expect": {
+                "variables.var-clicked": 2.0
+            }
+        }))
+        .unwrap(),
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "run-scenario",
+            input.to_str().unwrap(),
+            scenario.to_str().unwrap(),
+        ])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("Runtime scenario matches"));
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "run-scenario",
+            input.to_str().unwrap(),
+            wrong_scenario.to_str().unwrap(),
+        ])
+        .assert()
+        .failure()
+        .stdout(predicate::str::contains("variables.var-clicked"));
+}
+
+#[test]
 fn runtime_dispatches_broadcast_listeners() {
     let project = json!({
         "variables": {

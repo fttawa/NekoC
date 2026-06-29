@@ -69,6 +69,10 @@ enum Command {
         #[arg(long)]
         expect: Option<PathBuf>,
     },
+    RunScenario {
+        input: PathBuf,
+        scenario: PathBuf,
+    },
     Validate {
         input: PathBuf,
         #[arg(long)]
@@ -185,6 +189,14 @@ fn main() -> Result<()> {
             } else {
                 println!("{}", String::from_utf8(report)?);
             }
+        }
+        Command::RunScenario { input, scenario } => {
+            let project = nekoc::project::load_project(input)?;
+            let scenario = nekoc::scenario::load_runtime_scenario(scenario)?;
+            let snapshot = nekoc::scenario::run_runtime_scenario(&project.value, &scenario)?;
+            let differences = nekoc::scenario::check_runtime_scenario(&snapshot, &scenario);
+            nekoc::scenario::ensure_scenario_matches(&differences)?;
+            println!("Runtime scenario matches");
         }
         Command::Validate { input, out } => {
             let project = nekoc::project::load_project(input)?;
