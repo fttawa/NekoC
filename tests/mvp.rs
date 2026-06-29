@@ -3404,6 +3404,16 @@ sprite("player", { costume: "https://example.com/player.png" }, self => {
     self.say("hello", 2);
     self.think("hmm");
     self.ask("name?");
+    self.wait(0.2);
+    self.broadcast("ready");
+    self.broadcast("score:update", 1);
+    self.broadcastAndWait("clicked");
+    self.repeat(3, () => {
+      self.move(1);
+    });
+    self.forever(() => {
+      self.wait(0.03);
+    });
   });
 });
 "#,
@@ -3462,6 +3472,32 @@ sprite("player", { costume: "https://example.com/player.png" }, self => {
     );
     assert!(blocks.values().any(|block| block["type"] == "self_ask"));
     assert!(blocks.values().any(|block| block["type"] == "set_scale"));
+    assert!(blocks.values().any(|block| block["type"] == "wait"));
+    assert!(
+        blocks
+            .values()
+            .any(|block| block["type"] == "self_broadcast")
+    );
+    assert!(
+        blocks
+            .values()
+            .any(|block| block["type"] == "self_broadcast_with_param")
+    );
+    assert!(
+        blocks
+            .values()
+            .any(|block| block["type"] == "self_broadcast_and_wait")
+    );
+    assert!(
+        blocks
+            .values()
+            .any(|block| block["type"] == "repeat_n_times")
+    );
+    assert!(
+        blocks
+            .values()
+            .any(|block| block["type"] == "repeat_forever")
+    );
 }
 
 #[test]

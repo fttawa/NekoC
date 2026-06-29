@@ -697,6 +697,21 @@ class WorkspaceCompiler {
   compileStatementCall(call, parentId) {
     const name = calleeName(call.expression);
     switch (memberCallName(name)) {
+      case "wait":
+        return this.compileWait(call, parentId);
+      case "waitUntil":
+        return this.compileWaitUntil(call, parentId);
+      case "forever":
+        return this.compileForever(call, parentId);
+      case "repeat":
+      case "repeatTimes":
+        return this.compileRepeatTimes(call, parentId);
+      case "repeatUntil":
+        return this.compileRepeatUntil(call, parentId);
+      case "broadcast":
+        return this.compileBroadcast(call, parentId, false);
+      case "broadcastAndWait":
+        return this.compileBroadcast(call, parentId, true);
       case "move":
         return this.compileValueStatement(call, parentId, "self_go_forward", "steps", 0);
       case "turn":
