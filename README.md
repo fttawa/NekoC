@@ -61,6 +61,17 @@ These scripts compile sample TypeScript projects, validate the generated
 `../research/kn-editor-local`. If Playwright has not installed Chromium yet, run
 `npx playwright install chromium` in the harness directory first.
 
+For reverse-engineering runtime behavior, capture a local editor oracle report:
+
+```bash
+npm run editor:oracle -- --input samples/three_body.compiled.bcmkn --out samples/three_body.editor-oracle.json
+```
+
+The oracle script opens the real local editor, optionally clicks the stage start
+button, waits briefly, then writes page state, debug logs, `NekoDebug.snapshot()`,
+and shallow global-object probes. It is intentionally diagnostic: NekoC's own
+Rust runtime remains the clean implementation under test.
+
 ## CLI
 
 ```bash
