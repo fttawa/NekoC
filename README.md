@@ -164,7 +164,8 @@ The current runtime subset intentionally starts small:
   `math_round`, `math_function`, `math_number_property`, `math_trig`,
   `convert_type`, `text_join`, `text_length`, `text_contain`, `text_split`,
   `text_select`
-- actor state: `self_set_position_x`, `self_set_position_y`
+- actor state: `self_set_position_x`, `self_set_position_y`, `self_appear`,
+  `set_scale`, `self_change_scale`
 - logging: `console_log`
 
 Unsupported blocks fail loudly so each newly reverse-engineered block gets an

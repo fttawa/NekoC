@@ -1578,6 +1578,59 @@ fn runtime_evaluates_math_text_and_type_expressions() {
 }
 
 #[test]
+fn runtime_runs_appearance_actor_state_blocks() {
+    let project = json!({
+        "actors": {
+            "actorsDict": {
+                "actor-1": {
+                    "id": "actor-1",
+                    "name": "player",
+                    "scale": 100,
+                    "visible": true,
+                    "nekoBlockJsonList": [{
+                        "id": "start",
+                        "type": "on_running_group_activated",
+                        "next": {
+                            "id": "hide",
+                            "type": "self_appear",
+                            "fields": { "value": "disappear" },
+                            "next": {
+                                "id": "set-scale",
+                                "type": "set_scale",
+                                "inputs": {
+                                    "scale": {
+                                        "id": "scale-120",
+                                        "type": "math_number",
+                                        "fields": { "NUM": "120" }
+                                    }
+                                },
+                                "next": {
+                                    "id": "change-scale",
+                                    "type": "self_change_scale",
+                                    "fields": { "increase": "decrease" },
+                                    "inputs": {
+                                        "scale": {
+                                            "id": "scale-10",
+                                            "type": "math_number",
+                                            "fields": { "NUM": "10" }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }]
+                }
+            }
+        }
+    });
+
+    let snapshot = nekoc::runtime::run_project(&project, 1).unwrap();
+    let actor = snapshot.actors.get("actor-1").unwrap();
+    assert!(!actor.visible);
+    assert_eq!(actor.scale, 110.0);
+}
+
+#[test]
 fn cli_decompile_native_sample_reports_graph_summary() {
     let sample = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("samples")
@@ -3478,6 +3531,15 @@ onStart(() => {
     }));
     assert!(blocks.values().any(|block| {
         block["type"] == "self_change_scale" && block["fields"]["increase"] == "decrease"
+    }));
+    let change_scale_block = blocks
+        .values()
+        .find(|block| block["type"] == "self_change_scale")
+        .expect("missing self_change_scale block");
+    assert!(blocks.values().any(|block| {
+        block["parent_id"] == change_scale_block["id"]
+            && block["type"] == "math_number"
+            && block["fields"]["NUM"] == "10"
     }));
     assert!(blocks.values().any(|block| {
         block["type"] == "self_change_effect" && block["fields"]["increase"] == "decrease"

@@ -1726,10 +1726,22 @@ class WorkspaceCompiler {
 
   compileSignedValueStatement(call, parentId, type, inputName, argumentIndex, extraFields = {}) {
     const change = numericLiteralValue(call.arguments[argumentIndex], this);
-    return this.compileValueStatementWithFields(call, parentId, type, inputName, argumentIndex, {
-      ...extraFields,
-      increase: change < 0 ? "decrease" : "increase",
+    const id = this.addBlock({
+      type,
+      parent_id: parentId,
+      fields: {
+        ...extraFields,
+        increase: change < 0 ? "decrease" : "increase",
+      },
     });
+    const valueId = this.addBlock({
+      type: "math_number",
+      parent_id: id,
+      fields: { NUM: String(Math.abs(change)) },
+      is_output: true,
+    });
+    this.connectInput(id, valueId, inputName, "value");
+    return id;
   }
 
   compileFieldStatement(parentId, type, fields) {

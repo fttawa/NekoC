@@ -627,6 +627,41 @@ impl<'a> Thread<'a> {
                 }
                 self.advance(runtime, block.get("next"));
             }
+            "self_appear" => {
+                let visible = block
+                    .get("fields")
+                    .and_then(|fields| fields.get("value"))
+                    .and_then(Value::as_str)
+                    .unwrap_or("appear")
+                    == "appear";
+                if let Some(actor) = runtime.actors.get_mut(self.owner_id) {
+                    actor.visible = visible;
+                }
+                self.advance(runtime, block.get("next"));
+            }
+            "set_scale" => {
+                let value = runtime.eval(input(block, "scale")).as_number();
+                if let Some(actor) = runtime.actors.get_mut(self.owner_id) {
+                    actor.scale = value;
+                }
+                self.advance(runtime, block.get("next"));
+            }
+            "self_change_scale" => {
+                let delta = runtime.eval(input(block, "scale")).as_number();
+                let method = block
+                    .get("fields")
+                    .and_then(|fields| fields.get("increase"))
+                    .and_then(Value::as_str)
+                    .unwrap_or("increase");
+                if let Some(actor) = runtime.actors.get_mut(self.owner_id) {
+                    if method == "decrease" {
+                        actor.scale -= delta;
+                    } else {
+                        actor.scale += delta;
+                    }
+                }
+                self.advance(runtime, block.get("next"));
+            }
             "console_log" => {
                 let value = runtime.eval(input(block, "console_log"));
                 runtime.logs.push(format_value(&value));
