@@ -61,6 +61,8 @@ pub struct ActorState {
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct RuntimeSnapshot {
     pub ticks: usize,
+    pub current_scene_id: Option<String>,
+    pub current_scene_name: Option<String>,
     pub variables: BTreeMap<String, RuntimeValue>,
     pub variable_names: BTreeMap<String, String>,
     pub actors: BTreeMap<String, ActorState>,
@@ -80,6 +82,8 @@ pub fn run_project(value: &Value, ticks: usize) -> Result<RuntimeSnapshot> {
 struct Runtime<'a> {
     project: &'a Value,
     ticks: usize,
+    current_scene_id: Option<String>,
+    scene_names: BTreeMap<String, String>,
     variables: BTreeMap<String, RuntimeValue>,
     variable_names: BTreeMap<String, String>,
     actors: BTreeMap<String, ActorState>,
@@ -114,11 +118,24 @@ impl<'a> Runtime<'a> {
             .and_then(Value::as_object)
             .map(collect_actors)
             .unwrap_or_default();
+        let current_scene_id = root
+            .get("scenes")
+            .and_then(|value| value.get("currentSceneId"))
+            .and_then(Value::as_str)
+            .map(ToOwned::to_owned);
+        let scene_names = root
+            .get("scenes")
+            .and_then(|value| value.get("scenesDict"))
+            .and_then(Value::as_object)
+            .map(collect_scene_names)
+            .unwrap_or_default();
         let listeners = collect_listeners(project);
 
         Ok(Self {
             project,
             ticks: 0,
+            current_scene_id,
+            scene_names,
             variables,
             variable_names,
             actors,
@@ -181,6 +198,12 @@ impl<'a> Runtime<'a> {
     fn snapshot(&self) -> RuntimeSnapshot {
         RuntimeSnapshot {
             ticks: self.ticks,
+            current_scene_id: self.current_scene_id.clone(),
+            current_scene_name: self
+                .current_scene_id
+                .as_ref()
+                .and_then(|id| self.scene_names.get(id))
+                .cloned(),
             variables: self.variables.clone(),
             variable_names: self.variable_names.clone(),
             actors: self.actors.clone(),
@@ -240,6 +263,14 @@ impl<'a> Runtime<'a> {
                 block
                     .get("fields")
                     .and_then(|fields| fields.get("message"))
+                    .and_then(Value::as_str)
+                    .unwrap_or("")
+                    .to_owned(),
+            ),
+            "get_screens" => RuntimeValue::String(
+                block
+                    .get("fields")
+                    .and_then(|fields| fields.get("screen_id"))
                     .and_then(Value::as_str)
                     .unwrap_or("")
                     .to_owned(),
@@ -613,6 +644,14 @@ impl<'a> Thread<'a> {
                 runtime.dispatch_broadcast(&message, Some(payload));
                 self.advance(runtime, block.get("next"));
             }
+            "switch_to_screen" => {
+                let screen_id = runtime.eval(input(block, "screen_id")).as_string();
+                if screen_id.is_empty() {
+                    bail!("switch_to_screen missing target screen");
+                }
+                runtime.current_scene_id = Some(screen_id);
+                self.advance(runtime, block.get("next"));
+            }
             "self_go_forward" => {
                 let steps = runtime.eval(input(block, "steps")).as_number();
                 if let Some(actor) = runtime.actors.get_mut(self.owner_id) {
@@ -849,6 +888,18 @@ fn collect_variable_names(dict: &Map<String, Value>) -> BTreeMap<String, String>
         .filter_map(|(id, variable)| {
             variable
                 .get("name")
+                .and_then(Value::as_str)
+                .map(|name| (id.clone(), name.to_owned()))
+        })
+        .collect()
+}
+
+fn collect_scene_names(dict: &Map<String, Value>) -> BTreeMap<String, String> {
+    dict.iter()
+        .filter_map(|(id, scene)| {
+            scene
+                .get("screenName")
+                .or_else(|| scene.get("name"))
                 .and_then(Value::as_str)
                 .map(|name| (id.clone(), name.to_owned()))
         })

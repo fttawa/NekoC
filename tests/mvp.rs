@@ -500,6 +500,57 @@ fn runtime_runs_motion_actor_state_blocks() {
 }
 
 #[test]
+fn runtime_runs_screen_switch_state_blocks() {
+    let project = json!({
+        "scenes": {
+            "currentSceneId": "scene-menu",
+            "scenesDict": {
+                "scene-menu": {
+                    "id": "scene-menu",
+                    "name": "menu",
+                    "screenName": "menu",
+                    "nekoBlockJsonList": []
+                },
+                "scene-game": {
+                    "id": "scene-game",
+                    "name": "game",
+                    "screenName": "game",
+                    "nekoBlockJsonList": []
+                }
+            }
+        },
+        "actors": {
+            "actorsDict": {
+                "actor-1": {
+                    "id": "actor-1",
+                    "name": "start",
+                    "nekoBlockJsonList": [{
+                        "id": "start",
+                        "type": "on_running_group_activated",
+                        "next": {
+                            "id": "switch",
+                            "type": "switch_to_screen",
+                            "inputs": {
+                                "screen_id": {
+                                    "id": "screen-input",
+                                    "type": "get_screens",
+                                    "fields": { "screen_id": "scene-game" }
+                                }
+                            }
+                        }
+                    }]
+                }
+            }
+        }
+    });
+
+    let snapshot = nekoc::runtime::run_project(&project, 1).unwrap();
+
+    assert_eq!(snapshot.current_scene_id.as_deref(), Some("scene-game"));
+    assert_eq!(snapshot.current_scene_name.as_deref(), Some("game"));
+}
+
+#[test]
 fn cli_run_writes_runtime_snapshot() {
     let dir = tempdir().unwrap();
     let input = dir.path().join("runtime.bcmkn");
@@ -621,6 +672,8 @@ fn cli_run_can_check_expected_runtime_snapshot() {
         &expected,
         serde_json::to_string_pretty(&json!({
             "ticks": 1,
+            "current_scene_id": null,
+            "current_scene_name": null,
             "variables": { "var-score": 2.0 },
             "variable_names": { "var-score": "score" },
             "actors": {
@@ -646,6 +699,8 @@ fn cli_run_can_check_expected_runtime_snapshot() {
         &wrong_expected,
         serde_json::to_string_pretty(&json!({
             "ticks": 1,
+            "current_scene_id": null,
+            "current_scene_name": null,
             "variables": { "var-score": 1.0 },
             "variable_names": { "var-score": "score" },
             "actors": {

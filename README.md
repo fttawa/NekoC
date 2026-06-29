@@ -145,7 +145,8 @@ npm run test:ts
 `nekoc run` is the first step toward a reverse-engineered Kitten N interpreter.
 It loads a JSON `.bcmkn`, starts `on_running_group_activated` scripts, advances
 the scheduler for a fixed number of ticks, and writes a JSON snapshot containing
-variables, actor state, console logs, and active thread count.
+the current scene, variables, actor state, console logs, and active thread
+count.
 Pass `--expect expected-runtime.json` to compare that snapshot structurally and
 exit nonzero with changed JSON paths when the runtime behavior diverges.
 
@@ -170,6 +171,7 @@ The current runtime subset intentionally starts small:
   `self_change_coordinate_x`, `self_change_coordinate_y`,
   `self_glide_coordinate_x`, `self_glide_coordinate_y`, `self_rotate`,
   `self_point_towards`
+- screens: `switch_to_screen`, `get_screens`
 - logging: `console_log`
 
 Unsupported blocks fail loudly so each newly reverse-engineered block gets an
