@@ -1,3 +1,5 @@
+#![recursion_limit = "512"]
+
 use assert_cmd::Command;
 use predicates::prelude::*;
 use serde_json::json;
@@ -1120,6 +1122,328 @@ fn runtime_wait_until_resumes_after_broadcast() {
         nekoc::runtime::RuntimeValue::Number(1.0)
     );
     assert_eq!(snapshot.received_broadcasts, vec!["ready".to_owned()]);
+}
+
+#[test]
+fn runtime_evaluates_binary_converter_expressions() {
+    let project = json!({
+        "variables": {
+            "variablesDict": {
+                "var-decimal": { "id": "var-decimal", "name": "decimal", "value": 0 },
+                "var-binary": { "id": "var-binary", "name": "binary", "value": "" },
+                "var-remainder": { "id": "var-remainder", "name": "remainder", "value": 0 }
+            }
+        },
+        "actors": {
+            "actorsDict": {
+                "actor-1": {
+                    "id": "actor-1",
+                    "name": "converter",
+                    "nekoBlockJsonList": [{
+                        "id": "start",
+                        "type": "on_running_group_activated",
+                        "next": {
+                            "id": "set-decimal",
+                            "type": "variables_set",
+                            "fields": { "variable": "var-decimal" },
+                            "inputs": {
+                                "value": { "id": "thirteen", "type": "math_number", "fields": { "NUM": "13" } }
+                            },
+                            "next": {
+                                "id": "set-binary",
+                                "type": "variables_set",
+                                "fields": { "variable": "var-binary" },
+                                "inputs": {
+                                    "value": { "id": "empty", "type": "text", "fields": { "TEXT": "" } }
+                                },
+                                "next": {
+                                    "id": "loop",
+                                    "type": "repeat_forever_until",
+                                    "inputs": {
+                                        "condition": {
+                                            "id": "decimal-is-zero",
+                                            "type": "logic_compare",
+                                            "fields": { "OP": "EQ" },
+                                            "inputs": {
+                                                "A": { "id": "get-decimal-condition", "type": "variables_get", "fields": { "variable": "var-decimal" } },
+                                                "B": { "id": "zero", "type": "math_number", "fields": { "NUM": "0" } }
+                                            }
+                                        }
+                                    },
+                                    "statements": {
+                                        "DO": {
+                                            "id": "set-remainder",
+                                            "type": "variables_set",
+                                            "fields": { "variable": "var-remainder" },
+                                            "inputs": {
+                                                "value": {
+                                                    "id": "mod",
+                                                    "type": "math_arithmetic",
+                                                    "fields": { "type": "mod" },
+                                                    "inputs": {
+                                                        "A": { "id": "get-decimal-mod", "type": "variables_get", "fields": { "variable": "var-decimal" } },
+                                                        "B": { "id": "two-mod", "type": "math_number", "fields": { "NUM": "2" } }
+                                                    }
+                                                }
+                                            },
+                                            "next": {
+                                                "id": "prepend-remainder",
+                                                "type": "variables_set",
+                                                "fields": { "variable": "var-binary" },
+                                                "inputs": {
+                                                    "value": {
+                                                        "id": "join",
+                                                        "type": "text_join",
+                                                        "mutation": "<mutation items=\"2\"></mutation>",
+                                                        "inputs": {
+                                                            "ADD0": {
+                                                                "id": "remainder-string",
+                                                                "type": "convert_type",
+                                                                "fields": { "type": "string" },
+                                                                "inputs": {
+                                                                    "text": { "id": "get-remainder", "type": "variables_get", "fields": { "variable": "var-remainder" } }
+                                                                }
+                                                            },
+                                                            "ADD1": { "id": "get-binary", "type": "variables_get", "fields": { "variable": "var-binary" } }
+                                                        }
+                                                    }
+                                                },
+                                                "next": {
+                                                    "id": "halve-decimal",
+                                                    "type": "variables_set",
+                                                    "fields": { "variable": "var-decimal" },
+                                                    "inputs": {
+                                                        "value": {
+                                                            "id": "floor",
+                                                            "type": "math_round",
+                                                            "fields": { "type": "round_down" },
+                                                            "inputs": {
+                                                                "num": {
+                                                                    "id": "divide",
+                                                                    "type": "math_arithmetic",
+                                                                    "fields": { "type": "divide" },
+                                                                    "inputs": {
+                                                                        "A": { "id": "get-decimal-divide", "type": "variables_get", "fields": { "variable": "var-decimal" } },
+                                                                        "B": { "id": "two-divide", "type": "math_number", "fields": { "NUM": "2" } }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }]
+                }
+            }
+        }
+    });
+
+    let snapshot = nekoc::runtime::run_project(&project, 1).unwrap();
+
+    assert_eq!(
+        snapshot.variables["var-binary"],
+        nekoc::runtime::RuntimeValue::String("1101".to_owned())
+    );
+    assert_eq!(
+        snapshot.variables["var-decimal"],
+        nekoc::runtime::RuntimeValue::Number(0.0)
+    );
+}
+
+#[test]
+fn runtime_evaluates_math_text_and_type_expressions() {
+    let project = json!({
+        "variables": {
+            "variablesDict": {
+                "var-x": { "id": "var-x", "name": "x", "value": 0 },
+                "var-result": { "id": "var-result", "name": "result", "value": "" },
+                "var-rounded": { "id": "var-rounded", "name": "rounded", "value": 0 },
+                "var-char": { "id": "var-char", "name": "char", "value": "" },
+                "var-power": { "id": "var-power", "name": "power", "value": 0 }
+            }
+        },
+        "actors": {
+            "actorsDict": {
+                "actor-1": {
+                    "id": "actor-1",
+                    "name": "expressions",
+                    "nekoBlockJsonList": [{
+                        "id": "start",
+                        "type": "on_running_group_activated",
+                        "next": {
+                            "id": "set-x",
+                            "type": "variables_set",
+                            "fields": { "variable": "var-x" },
+                            "inputs": {
+                                "value": {
+                                    "id": "add",
+                                    "type": "math_arithmetic",
+                                    "fields": { "type": "add" },
+                                    "inputs": {
+                                        "A": { "id": "two", "type": "math_number", "fields": { "NUM": "2" } },
+                                        "B": {
+                                            "id": "multiply",
+                                            "type": "math_arithmetic",
+                                            "fields": { "type": "multiply" },
+                                            "inputs": {
+                                                "A": { "id": "three", "type": "math_number", "fields": { "NUM": "3" } },
+                                                "B": { "id": "four", "type": "math_number", "fields": { "NUM": "4" } }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "next": {
+                                "id": "if-result",
+                                "type": "controls_if",
+                                "inputs": {
+                                    "IF0": {
+                                        "id": "and",
+                                        "type": "logic_operation",
+                                        "fields": { "type": "and" },
+                                        "inputs": {
+                                            "A": {
+                                                "id": "gte",
+                                                "type": "logic_compare",
+                                                "fields": { "OP": "GTE" },
+                                                "inputs": {
+                                                    "A": { "id": "get-x-gte", "type": "variables_get", "fields": { "variable": "var-x" } },
+                                                    "B": { "id": "ten", "type": "math_number", "fields": { "NUM": "10" } }
+                                                }
+                                            },
+                                            "B": {
+                                                "id": "not-contains",
+                                                "type": "logic_negate",
+                                                "inputs": {
+                                                    "logic": {
+                                                        "id": "contains",
+                                                        "type": "text_contain",
+                                                        "inputs": {
+                                                            "A": { "id": "hello", "type": "text", "fields": { "TEXT": "hello" } },
+                                                            "B": { "id": "z", "type": "text", "fields": { "TEXT": "z" } }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "statements": {
+                                    "DO0": {
+                                        "id": "set-result",
+                                        "type": "variables_set",
+                                        "fields": { "variable": "var-result" },
+                                        "inputs": {
+                                            "value": {
+                                                "id": "join-result",
+                                                "type": "text_join",
+                                                "mutation": "<mutation items=\"2\"></mutation>",
+                                                "inputs": {
+                                                    "ADD0": { "id": "prefix", "type": "text", "fields": { "TEXT": "len=" } },
+                                                    "ADD1": {
+                                                        "id": "length-string",
+                                                        "type": "convert_type",
+                                                        "fields": { "type": "string" },
+                                                        "inputs": {
+                                                            "text": {
+                                                                "id": "length",
+                                                                "type": "text_length",
+                                                                "inputs": {
+                                                                    "text": { "id": "hello-length", "type": "text", "fields": { "TEXT": "hello" } }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "next": {
+                                    "id": "set-rounded",
+                                    "type": "variables_set",
+                                    "fields": { "variable": "var-rounded" },
+                                    "inputs": {
+                                        "value": {
+                                            "id": "ceil",
+                                            "type": "math_round",
+                                            "fields": { "type": "round_up" },
+                                            "inputs": {
+                                                "num": {
+                                                    "id": "minus",
+                                                    "type": "math_arithmetic",
+                                                    "fields": { "type": "minus" },
+                                                    "inputs": {
+                                                        "A": { "id": "get-x-minus", "type": "variables_get", "fields": { "variable": "var-x" } },
+                                                        "B": { "id": "point-two", "type": "math_number", "fields": { "NUM": "0.2" } }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "next": {
+                                        "id": "set-char",
+                                        "type": "variables_set",
+                                        "fields": { "variable": "var-char" },
+                                        "inputs": {
+                                            "value": {
+                                                "id": "select",
+                                                "type": "text_select",
+                                                "inputs": {
+                                                    "text": { "id": "abc", "type": "text", "fields": { "TEXT": "abc" } },
+                                                    "start_index": { "id": "second", "type": "math_number", "fields": { "NUM": "2" } }
+                                                }
+                                            }
+                                        },
+                                        "next": {
+                                            "id": "set-power",
+                                            "type": "variables_set",
+                                            "fields": { "variable": "var-power" },
+                                            "inputs": {
+                                                "value": {
+                                                    "id": "power",
+                                                    "type": "math_arithmetic",
+                                                    "fields": { "type": "power" },
+                                                    "inputs": {
+                                                        "A": { "id": "power-base", "type": "math_number", "fields": { "NUM": "2" } },
+                                                        "B": { "id": "power-exp", "type": "math_number", "fields": { "NUM": "8" } }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }]
+                }
+            }
+        }
+    });
+
+    let snapshot = nekoc::runtime::run_project(&project, 1).unwrap();
+
+    assert_eq!(
+        snapshot.variables["var-result"],
+        nekoc::runtime::RuntimeValue::String("len=5".to_owned())
+    );
+    assert_eq!(
+        snapshot.variables["var-rounded"],
+        nekoc::runtime::RuntimeValue::Number(14.0)
+    );
+    assert_eq!(
+        snapshot.variables["var-char"],
+        nekoc::runtime::RuntimeValue::String("b".to_owned())
+    );
+    assert_eq!(
+        snapshot.variables["var-power"],
+        nekoc::runtime::RuntimeValue::Number(256.0)
+    );
 }
 
 #[test]

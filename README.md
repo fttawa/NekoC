@@ -135,7 +135,10 @@ The current runtime subset intentionally starts small:
 - conditions: `controls_if`, `when`, `logic_compare`, `logic_operation`,
   `logic_negate`, `logic_boolean`
 - variables: `variables_get`, `variables_set`, `change_variables`
-- values: `math_number`, `text`, `math_arithmetic`, `math_trig`
+- values: `math_number`, `text`, `math_arithmetic`, `math_modulo`,
+  `math_round`, `math_function`, `math_number_property`, `math_trig`,
+  `convert_type`, `text_join`, `text_length`, `text_contain`, `text_split`,
+  `text_select`
 - actor state: `self_set_position_x`, `self_set_position_y`
 - logging: `console_log`
 

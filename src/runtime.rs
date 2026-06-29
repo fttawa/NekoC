@@ -11,6 +11,7 @@ pub enum RuntimeValue {
     Number(f64),
     Bool(bool),
     String(String),
+    List(Vec<RuntimeValue>),
     Null,
 }
 
@@ -26,6 +27,7 @@ impl RuntimeValue {
                 }
             }
             RuntimeValue::String(value) => value.parse().unwrap_or(0.0),
+            RuntimeValue::List(value) => value.len() as f64,
             RuntimeValue::Null => 0.0,
         }
     }
@@ -35,8 +37,13 @@ impl RuntimeValue {
             RuntimeValue::Number(value) => *value != 0.0,
             RuntimeValue::Bool(value) => *value,
             RuntimeValue::String(value) => !value.is_empty() && value != "false" && value != "0",
+            RuntimeValue::List(value) => !value.is_empty(),
             RuntimeValue::Null => false,
         }
+    }
+
+    fn as_string(&self) -> String {
+        format_value(self)
     }
 }
 
@@ -275,6 +282,75 @@ impl<'a> Runtime<'a> {
                 RuntimeValue::Bool(if op == "or" { a || b } else { a && b })
             }
             "logic_negate" => RuntimeValue::Bool(!self.eval(input(block, "logic")).is_truthy()),
+            "convert_type" => {
+                let target = block
+                    .get("fields")
+                    .and_then(|fields| fields.get("type"))
+                    .and_then(Value::as_str)
+                    .unwrap_or("string");
+                let value = self.eval(input(block, "text"));
+                match target {
+                    "number" => RuntimeValue::Number(value.as_number()),
+                    "boolean" => RuntimeValue::Bool(value.is_truthy()),
+                    _ => RuntimeValue::String(value.as_string()),
+                }
+            }
+            "text_join" => {
+                let mut parts = block
+                    .get("inputs")
+                    .and_then(Value::as_object)
+                    .map(|inputs| {
+                        inputs
+                            .iter()
+                            .filter_map(|(name, value)| {
+                                text_join_index(name).map(|index| (index, value))
+                            })
+                            .collect::<Vec<_>>()
+                    })
+                    .unwrap_or_default();
+                parts.sort_by_key(|(index, _)| *index);
+                RuntimeValue::String(
+                    parts
+                        .into_iter()
+                        .map(|(_, value)| self.eval(Some(value)).as_string())
+                        .collect::<String>(),
+                )
+            }
+            "text_length" => {
+                let value = self.eval(input(block, "text"));
+                let length = match value {
+                    RuntimeValue::List(items) => items.len(),
+                    _ => value.as_string().chars().count(),
+                };
+                RuntimeValue::Number(length as f64)
+            }
+            "text_contain" => {
+                let text = self.eval(input(block, "A")).as_string();
+                let needle = self.eval(input(block, "B")).as_string();
+                RuntimeValue::Bool(text.contains(&needle))
+            }
+            "text_split" => {
+                let text = self.eval(input(block, "TEXT_TO_SPLIT")).as_string();
+                let delimiter = self.eval(input(block, "SPLIT_TEXT")).as_string();
+                let items = if delimiter.is_empty() {
+                    text.chars()
+                        .map(|value| RuntimeValue::String(value.to_string()))
+                        .collect()
+                } else {
+                    text.split(&delimiter)
+                        .map(|value| RuntimeValue::String(value.to_owned()))
+                        .collect()
+                };
+                RuntimeValue::List(items)
+            }
+            "text_select" => {
+                let source = self.eval(input(block, "text"));
+                let start = self.eval(input(block, "start_index")).as_number() as isize;
+                let end = input(block, "end_index")
+                    .map(|value| self.eval(Some(value)).as_number() as isize)
+                    .unwrap_or(start);
+                select_text_value(source, start, end)
+            }
             "math_arithmetic" => {
                 let op = block
                     .get("fields")
@@ -294,9 +370,63 @@ impl<'a> Runtime<'a> {
                         }
                     }
                     "mod" => a % b,
+                    "power" => a.powf(b),
                     _ => a + b,
                 };
                 RuntimeValue::Number(value)
+            }
+            "math_modulo" => {
+                let a = self.eval(input(block, "A")).as_number();
+                let b = self.eval(input(block, "B")).as_number();
+                RuntimeValue::Number(if b == 0.0 { 0.0 } else { a % b })
+            }
+            "math_round" => {
+                let op = block
+                    .get("fields")
+                    .and_then(|fields| fields.get("type"))
+                    .and_then(Value::as_str)
+                    .unwrap_or("round");
+                let value = self.eval(input(block, "num")).as_number();
+                RuntimeValue::Number(match op {
+                    "round_down" => value.floor(),
+                    "round_up" => value.ceil(),
+                    _ => value.round(),
+                })
+            }
+            "math_function" => {
+                let op = block
+                    .get("fields")
+                    .and_then(|fields| fields.get("type"))
+                    .and_then(Value::as_str)
+                    .unwrap_or("0");
+                let value = self.eval(input(block, "num")).as_number();
+                RuntimeValue::Number(match op {
+                    "0" | "abs" => value.abs(),
+                    "1" | "floor" => value.floor(),
+                    "2" | "ceil" => value.ceil(),
+                    "3" | "sqrt" => value.sqrt(),
+                    "4" | "ln" => value.ln(),
+                    "5" | "log" => value.log10(),
+                    "6" | "pow2" => 2_f64.powf(value),
+                    "7" | "exp" => value.exp(),
+                    _ => value,
+                })
+            }
+            "math_number_property" => {
+                let op = block
+                    .get("fields")
+                    .and_then(|fields| fields.get("type"))
+                    .and_then(Value::as_str)
+                    .unwrap_or("integer");
+                let value = self.eval(input(block, "num")).as_number();
+                RuntimeValue::Bool(match op {
+                    "odd" => value.fract() == 0.0 && (value as i64).rem_euclid(2) == 1,
+                    "even" => value.fract() == 0.0 && (value as i64).rem_euclid(2) == 0,
+                    "positive" => value > 0.0,
+                    "negative" => value < 0.0,
+                    "prime" => is_prime(value),
+                    _ => value.fract() == 0.0,
+                })
             }
             "math_trig" => {
                 let op = block
@@ -726,6 +856,9 @@ fn json_to_runtime_value(value: &Value) -> RuntimeValue {
         Value::Number(value) => RuntimeValue::Number(value.as_f64().unwrap_or(0.0)),
         Value::Bool(value) => RuntimeValue::Bool(*value),
         Value::String(value) => RuntimeValue::String(value.clone()),
+        Value::Array(value) => {
+            RuntimeValue::List(value.iter().map(json_to_runtime_value).collect())
+        }
         _ => RuntimeValue::Null,
     }
 }
@@ -767,6 +900,33 @@ fn number_field(block: &Value, name: &str) -> Option<f64> {
     value
         .as_f64()
         .or_else(|| value.as_str().and_then(|text| text.parse().ok()))
+}
+
+fn text_join_index(name: &str) -> Option<usize> {
+    name.strip_prefix("ADD")?.parse().ok()
+}
+
+fn select_text_value(value: RuntimeValue, start: isize, end: isize) -> RuntimeValue {
+    let start = start.max(1) as usize;
+    let end = end.max(start as isize) as usize;
+    match value {
+        RuntimeValue::List(items) => {
+            if start == end {
+                return items.get(start - 1).cloned().unwrap_or(RuntimeValue::Null);
+            }
+            RuntimeValue::List(
+                items
+                    .into_iter()
+                    .skip(start - 1)
+                    .take(end - start + 1)
+                    .collect(),
+            )
+        }
+        value => {
+            let text = value.as_string();
+            RuntimeValue::String(text.chars().skip(start - 1).take(end - start + 1).collect())
+        }
+    }
 }
 
 fn broadcast_message(block: Option<&Value>) -> Option<String> {
@@ -829,8 +989,26 @@ fn comparable_number(value: &RuntimeValue) -> Option<f64> {
         RuntimeValue::Number(value) => Some(*value),
         RuntimeValue::Bool(value) => Some(if *value { 1.0 } else { 0.0 }),
         RuntimeValue::String(value) => value.parse().ok(),
+        RuntimeValue::List(value) => Some(value.len() as f64),
         RuntimeValue::Null => None,
     }
+}
+
+fn is_prime(value: f64) -> bool {
+    if value.fract() != 0.0 || value < 2.0 {
+        return false;
+    }
+    let value = value as u64;
+    if value == 2 {
+        return true;
+    }
+    if value.is_multiple_of(2) {
+        return false;
+    }
+    let limit = (value as f64).sqrt() as u64;
+    (3..=limit)
+        .step_by(2)
+        .all(|factor| !value.is_multiple_of(factor))
 }
 
 fn format_value(value: &RuntimeValue) -> String {
@@ -844,6 +1022,7 @@ fn format_value(value: &RuntimeValue) -> String {
         }
         RuntimeValue::Bool(value) => value.to_string(),
         RuntimeValue::String(value) => value.clone(),
+        RuntimeValue::List(value) => value.iter().map(format_value).collect::<Vec<_>>().join(","),
         RuntimeValue::Null => "null".to_owned(),
     }
 }
