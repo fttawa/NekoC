@@ -401,6 +401,105 @@ fn runtime_runs_three_body_sample_positions() {
 }
 
 #[test]
+fn runtime_runs_motion_actor_state_blocks() {
+    let project = json!({
+        "actors": {
+            "actorsDict": {
+                "actor-1": {
+                    "id": "actor-1",
+                    "name": "player",
+                    "position": { "x": 0, "y": 0 },
+                    "rotation": 0,
+                    "nekoBlockJsonList": [{
+                        "id": "start",
+                        "type": "on_running_group_activated",
+                        "next": {
+                            "id": "point",
+                            "type": "self_point_towards",
+                            "inputs": {
+                                "degrees": {
+                                    "id": "ninety",
+                                    "type": "math_number",
+                                    "fields": { "NUM": "90" }
+                                }
+                            },
+                            "next": {
+                                "id": "move",
+                                "type": "self_go_forward",
+                                "inputs": {
+                                    "steps": {
+                                        "id": "steps-10",
+                                        "type": "math_number",
+                                        "fields": { "NUM": "10" }
+                                    }
+                                },
+                                "next": {
+                                    "id": "change-x",
+                                    "type": "self_change_coordinate_x",
+                                    "fields": { "increase": "increase" },
+                                    "inputs": {
+                                        "value": {
+                                            "id": "dx",
+                                            "type": "math_number",
+                                            "fields": { "NUM": "5" }
+                                        }
+                                    },
+                                    "next": {
+                                        "id": "change-y",
+                                        "type": "self_change_coordinate_y",
+                                        "fields": { "increase": "decrease" },
+                                        "inputs": {
+                                            "value": {
+                                                "id": "dy",
+                                                "type": "math_number",
+                                                "fields": { "NUM": "3" }
+                                            }
+                                        },
+                                        "next": {
+                                            "id": "rotate",
+                                            "type": "self_rotate",
+                                            "inputs": {
+                                                "degrees": {
+                                                    "id": "turn-15",
+                                                    "type": "math_number",
+                                                    "fields": { "NUM": "15" }
+                                                }
+                                            },
+                                            "next": {
+                                                "id": "move-to",
+                                                "type": "self_move_to",
+                                                "inputs": {
+                                                    "x": {
+                                                        "id": "x-7",
+                                                        "type": "math_number",
+                                                        "fields": { "NUM": "7" }
+                                                    },
+                                                    "y": {
+                                                        "id": "y-8",
+                                                        "type": "math_number",
+                                                        "fields": { "NUM": "8" }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }]
+                }
+            }
+        }
+    });
+
+    let snapshot = nekoc::runtime::run_project(&project, 1).unwrap();
+    let actor = snapshot.actors.get("actor-1").unwrap();
+    assert_eq!(actor.x, 7.0);
+    assert_eq!(actor.y, 8.0);
+    assert_eq!(actor.rotation, 105.0);
+}
+
+#[test]
 fn cli_run_writes_runtime_snapshot() {
     let dir = tempdir().unwrap();
     let input = dir.path().join("runtime.bcmkn");
@@ -3319,6 +3418,15 @@ onStart(() => {
     }));
     assert!(blocks.values().any(|block| {
         block["type"] == "self_change_coordinate_y" && block["fields"]["increase"] == "decrease"
+    }));
+    let change_y_block = blocks
+        .values()
+        .find(|block| block["type"] == "self_change_coordinate_y")
+        .expect("missing self_change_coordinate_y block");
+    assert!(blocks.values().any(|block| {
+        block["parent_id"] == change_y_block["id"]
+            && block["type"] == "math_number"
+            && block["fields"]["NUM"] == "6"
     }));
     assert!(blocks.values().any(|block| {
         block["type"] == "self_glide_coordinate_y" && block["fields"]["increase"] == "decrease"

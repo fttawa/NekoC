@@ -1940,7 +1940,12 @@ class WorkspaceCompiler {
       this.connectInput(id, timeId, "time", "value");
     }
 
-    const valueId = this.compileExpression(call.arguments[valueArgumentIndex], id);
+    const valueId = this.addBlock({
+      type: "math_number",
+      parent_id: id,
+      fields: { NUM: String(Math.abs(change)) },
+      is_output: true,
+    });
     this.connectInput(id, valueId, "value", "value");
     return id;
   }

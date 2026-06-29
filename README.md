@@ -166,6 +166,10 @@ The current runtime subset intentionally starts small:
   `text_select`
 - actor state: `self_set_position_x`, `self_set_position_y`, `self_appear`,
   `set_scale`, `self_change_scale`
+- motion: `self_go_forward`, `self_move_to`, `self_glide_to`,
+  `self_change_coordinate_x`, `self_change_coordinate_y`,
+  `self_glide_coordinate_x`, `self_glide_coordinate_y`, `self_rotate`,
+  `self_point_towards`
 - logging: `console_log`
 
 Unsupported blocks fail loudly so each newly reverse-engineered block gets an

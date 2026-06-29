@@ -613,6 +613,24 @@ impl<'a> Thread<'a> {
                 runtime.dispatch_broadcast(&message, Some(payload));
                 self.advance(runtime, block.get("next"));
             }
+            "self_go_forward" => {
+                let steps = runtime.eval(input(block, "steps")).as_number();
+                if let Some(actor) = runtime.actors.get_mut(self.owner_id) {
+                    let radians = actor.rotation.to_radians();
+                    actor.x += steps * radians.sin();
+                    actor.y += steps * radians.cos();
+                }
+                self.advance(runtime, block.get("next"));
+            }
+            "self_move_to" | "self_glide_to" => {
+                let x = runtime.eval(input(block, "x")).as_number();
+                let y = runtime.eval(input(block, "y")).as_number();
+                if let Some(actor) = runtime.actors.get_mut(self.owner_id) {
+                    actor.x = x;
+                    actor.y = y;
+                }
+                self.advance(runtime, block.get("next"));
+            }
             "self_set_position_x" => {
                 let value = runtime.eval(input(block, "value")).as_number();
                 if let Some(actor) = runtime.actors.get_mut(self.owner_id) {
@@ -624,6 +642,34 @@ impl<'a> Thread<'a> {
                 let value = runtime.eval(input(block, "value")).as_number();
                 if let Some(actor) = runtime.actors.get_mut(self.owner_id) {
                     actor.y = value;
+                }
+                self.advance(runtime, block.get("next"));
+            }
+            "self_change_coordinate_x" | "self_glide_coordinate_x" => {
+                let delta = signed_delta(block, runtime.eval(input(block, "value")).as_number());
+                if let Some(actor) = runtime.actors.get_mut(self.owner_id) {
+                    actor.x += delta;
+                }
+                self.advance(runtime, block.get("next"));
+            }
+            "self_change_coordinate_y" | "self_glide_coordinate_y" => {
+                let delta = signed_delta(block, runtime.eval(input(block, "value")).as_number());
+                if let Some(actor) = runtime.actors.get_mut(self.owner_id) {
+                    actor.y += delta;
+                }
+                self.advance(runtime, block.get("next"));
+            }
+            "self_rotate" => {
+                let degrees = runtime.eval(input(block, "degrees")).as_number();
+                if let Some(actor) = runtime.actors.get_mut(self.owner_id) {
+                    actor.rotation += degrees;
+                }
+                self.advance(runtime, block.get("next"));
+            }
+            "self_point_towards" => {
+                let degrees = runtime.eval(input(block, "degrees")).as_number();
+                if let Some(actor) = runtime.actors.get_mut(self.owner_id) {
+                    actor.rotation = degrees;
                 }
                 self.advance(runtime, block.get("next"));
             }
@@ -647,18 +693,9 @@ impl<'a> Thread<'a> {
                 self.advance(runtime, block.get("next"));
             }
             "self_change_scale" => {
-                let delta = runtime.eval(input(block, "scale")).as_number();
-                let method = block
-                    .get("fields")
-                    .and_then(|fields| fields.get("increase"))
-                    .and_then(Value::as_str)
-                    .unwrap_or("increase");
+                let delta = signed_delta(block, runtime.eval(input(block, "scale")).as_number());
                 if let Some(actor) = runtime.actors.get_mut(self.owner_id) {
-                    if method == "decrease" {
-                        actor.scale -= delta;
-                    } else {
-                        actor.scale += delta;
-                    }
+                    actor.scale += delta;
                 }
                 self.advance(runtime, block.get("next"));
             }
@@ -850,6 +887,15 @@ fn collect_actors(dict: &Map<String, Value>) -> BTreeMap<String, ActorState> {
             )
         })
         .collect()
+}
+
+fn signed_delta(block: &Value, value: f64) -> f64 {
+    let method = block
+        .get("fields")
+        .and_then(|fields| fields.get("increase"))
+        .and_then(Value::as_str)
+        .unwrap_or("increase");
+    if method == "decrease" { -value } else { value }
 }
 
 fn collect_listeners(project: &Value) -> BTreeMap<String, Vec<Listener<'_>>> {
