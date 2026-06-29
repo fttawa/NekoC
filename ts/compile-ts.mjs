@@ -391,12 +391,10 @@ class WorkspaceCompiler {
   compileIsolatedTopLevelStatements(statements, node) {
     const savedBlocks = this.blocks;
     const savedConnections = this.connections;
-    const savedNextId = this.nextId;
     const savedScriptCount = this.scriptCount;
 
     this.blocks = {};
     this.connections = {};
-    this.nextId = 1;
     this.scriptCount = 0;
 
     try {
@@ -423,7 +421,6 @@ class WorkspaceCompiler {
       const isolatedScriptCount = this.scriptCount;
       this.blocks = savedBlocks;
       this.connections = savedConnections;
-      this.nextId = savedNextId;
       this.scriptCount = savedScriptCount + isolatedScriptCount;
     }
   }
@@ -1200,7 +1197,12 @@ class WorkspaceCompiler {
         method,
       },
     });
-    const valueId = this.compileExpression(valueArg, id);
+    const valueId = this.addBlock({
+      type: "math_number",
+      parent_id: id,
+      fields: { NUM: String(Math.abs(change)) },
+      is_output: true,
+    });
     this.connectInput(id, valueId, "value", "value");
     return id;
   }

@@ -3870,8 +3870,15 @@ onStart(() => {
     assert!(blocks.values().any(|block| {
         block["type"] == "script_variables_value" && block["fields"]["TEXT"] == "localScore"
     }));
+    let change_block = blocks
+        .values()
+        .find(|block| block["type"] == "change_variables")
+        .expect("missing change_variables block");
+    assert_eq!(change_block["fields"]["method"], "decrease");
     assert!(blocks.values().any(|block| {
-        block["type"] == "change_variables" && block["fields"]["method"] == "decrease"
+        block["parent_id"] == change_block["id"]
+            && block["type"] == "math_number"
+            && block["fields"]["NUM"] == "2"
     }));
 }
 
@@ -6019,12 +6026,41 @@ fn cli_compile_ts_bcmkn_three_body_sample_validates() {
     );
     assert_eq!(actors.len(), 3);
     assert_eq!(variables.len(), 3);
+    let mut block_ids = std::collections::BTreeSet::new();
     for name in ["body-a", "body-b", "body-c"] {
         let actor = actors
             .values()
             .find(|actor| actor["name"] == name)
             .unwrap_or_else(|| panic!("missing {name}"));
         assert_eq!(actor["nekoBlockJsonList"].as_array().unwrap().len(), 1);
+        collect_nested_block_ids(actor["nekoBlockJsonList"].as_array().unwrap(), &mut |id| {
+            assert!(block_ids.insert(id.to_owned()), "duplicate block id {id}");
+        });
+    }
+}
+
+fn collect_nested_block_ids<'a>(blocks: &'a [serde_json::Value], visit: &mut impl FnMut(&'a str)) {
+    for block in blocks {
+        collect_nested_block_id(block, visit);
+    }
+}
+
+fn collect_nested_block_id<'a>(block: &'a serde_json::Value, visit: &mut impl FnMut(&'a str)) {
+    if let Some(id) = block.get("id").and_then(serde_json::Value::as_str) {
+        visit(id);
+    }
+    if let Some(next) = block.get("next") {
+        collect_nested_block_id(next, visit);
+    }
+    for container_name in ["inputs", "statements"] {
+        if let Some(container) = block
+            .get(container_name)
+            .and_then(serde_json::Value::as_object)
+        {
+            for child in container.values() {
+                collect_nested_block_id(child, visit);
+            }
+        }
     }
 }
 
