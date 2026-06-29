@@ -64,6 +64,8 @@ enum Command {
         ticks: usize,
         #[arg(long)]
         out: Option<PathBuf>,
+        #[arg(long)]
+        expect: Option<PathBuf>,
     },
     Validate {
         input: PathBuf,
@@ -131,10 +133,29 @@ fn main() -> Result<()> {
         Command::Test { input } => {
             nekoc::ts_frontend::test_ts(input)?;
         }
-        Command::Run { input, ticks, out } => {
+        Command::Run {
+            input,
+            ticks,
+            out,
+            expect,
+        } => {
             let project = nekoc::project::load_project(input)?;
             let snapshot = nekoc::runtime::run_project(&project.value, ticks)?;
-            let report = serde_json::to_vec_pretty(&nekoc::runtime::snapshot_to_json(&snapshot))?;
+            let report = nekoc::runtime::snapshot_to_json(&snapshot);
+            if let Some(expect) = expect {
+                let expected: serde_json::Value = serde_json::from_slice(&std::fs::read(&expect)?)?;
+                let differences = nekoc::diff::diff_values(&expected, &report, 200);
+                if differences.is_empty() {
+                    println!("Runtime snapshot matches expectation");
+                } else {
+                    println!("{}", nekoc::diff::format_differences(&differences));
+                    bail!(
+                        "{} runtime expectation differences found",
+                        differences.len()
+                    );
+                }
+            }
+            let report = serde_json::to_vec_pretty(&report)?;
             if let Some(out) = out {
                 std::fs::write(out, report)?;
             } else {

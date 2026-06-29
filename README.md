@@ -95,7 +95,7 @@ nekoc validate <input.bcmkn> --out validate.json
 nekoc compile-ts <input.ts> --out workspace.json [--emit-ir program.ir.json]
 nekoc compile-ts-bcmkn <input.ts> --template template.bcmkn --out output.bcmkn
 nekoc test <input.ts>
-nekoc run <input.bcmkn> --ticks 30 [--out runtime.json]
+nekoc run <input.bcmkn> --ticks 30 [--out runtime.json] [--expect expected-runtime.json]
 ```
 
 During development, use Cargo:
@@ -106,6 +106,7 @@ cargo run -- compile-ts samples/three_body.ts --out three_body.workspace.json --
 cargo run -- compile-ts-bcmkn samples/natural_ts.ts --template samples/我的作品-原生.bcmkn --out natural_ts.bcmkn
 cargo run -- test samples/unit_tests.ts
 cargo run -- run samples/three_body.bcmkn --ticks 1 --out three_body.runtime.json
+cargo run -- run samples/three_body.bcmkn --ticks 1 --expect three_body.expected-runtime.json
 ```
 
 ## TypeScript Example
@@ -145,6 +146,8 @@ npm run test:ts
 It loads a JSON `.bcmkn`, starts `on_running_group_activated` scripts, advances
 the scheduler for a fixed number of ticks, and writes a JSON snapshot containing
 variables, actor state, console logs, and active thread count.
+Pass `--expect expected-runtime.json` to compare that snapshot structurally and
+exit nonzero with changed JSON paths when the runtime behavior diverges.
 
 The current runtime subset intentionally starts small:
 

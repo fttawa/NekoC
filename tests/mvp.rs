@@ -470,6 +470,137 @@ fn cli_run_writes_runtime_snapshot() {
 }
 
 #[test]
+fn cli_run_can_check_expected_runtime_snapshot() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("runtime.bcmkn");
+    let expected = dir.path().join("expected.json");
+    let wrong_expected = dir.path().join("wrong-expected.json");
+    fs::write(
+        &input,
+        serde_json::to_string(&json!({
+            "variables": {
+                "variablesDict": {
+                    "var-score": {
+                        "id": "var-score",
+                        "name": "score",
+                        "value": 0
+                    }
+                }
+            },
+            "actors": {
+                "actorsDict": {
+                    "actor-1": {
+                        "id": "actor-1",
+                        "name": "player",
+                        "nekoBlockJsonList": [{
+                            "id": "start",
+                            "type": "on_running_group_activated",
+                            "next": {
+                                "id": "change",
+                                "type": "change_variables",
+                                "fields": {
+                                    "variable": "var-score",
+                                    "method": "increase"
+                                },
+                                "inputs": {
+                                    "value": {
+                                        "id": "two",
+                                        "type": "math_number",
+                                        "fields": { "NUM": "2" }
+                                    }
+                                }
+                            }
+                        }]
+                    }
+                }
+            }
+        }))
+        .unwrap(),
+    )
+    .unwrap();
+    fs::write(
+        &expected,
+        serde_json::to_string_pretty(&json!({
+            "ticks": 1,
+            "variables": { "var-score": 2.0 },
+            "variable_names": { "var-score": "score" },
+            "actors": {
+                "actor-1": {
+                    "id": "actor-1",
+                    "name": "player",
+                    "x": 0.0,
+                    "y": 0.0,
+                    "rotation": 0.0,
+                    "scale": 100.0,
+                    "visible": true
+                }
+            },
+            "logs": [],
+            "received_broadcasts": [],
+            "message_values": {},
+            "active_threads": 0
+        }))
+        .unwrap(),
+    )
+    .unwrap();
+    fs::write(
+        &wrong_expected,
+        serde_json::to_string_pretty(&json!({
+            "ticks": 1,
+            "variables": { "var-score": 1.0 },
+            "variable_names": { "var-score": "score" },
+            "actors": {
+                "actor-1": {
+                    "id": "actor-1",
+                    "name": "player",
+                    "x": 0.0,
+                    "y": 0.0,
+                    "rotation": 0.0,
+                    "scale": 100.0,
+                    "visible": true
+                }
+            },
+            "logs": [],
+            "received_broadcasts": [],
+            "message_values": {},
+            "active_threads": 0
+        }))
+        .unwrap(),
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "run",
+            input.to_str().unwrap(),
+            "--ticks",
+            "1",
+            "--expect",
+            expected.to_str().unwrap(),
+        ])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains(
+            "Runtime snapshot matches expectation",
+        ));
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "run",
+            input.to_str().unwrap(),
+            "--ticks",
+            "1",
+            "--expect",
+            wrong_expected.to_str().unwrap(),
+        ])
+        .assert()
+        .failure()
+        .stdout(predicate::str::contains("var-score"));
+}
+
+#[test]
 fn runtime_dispatches_broadcast_listeners() {
     let project = json!({
         "variables": {
