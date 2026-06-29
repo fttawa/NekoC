@@ -45,6 +45,8 @@ enum Command {
         out: PathBuf,
         #[arg(long)]
         emit_ir: Option<PathBuf>,
+        #[arg(long)]
+        emit_analysis: Option<PathBuf>,
     },
     CompileTsBcmkn {
         input: PathBuf,
@@ -105,8 +107,9 @@ fn main() -> Result<()> {
             input,
             out,
             emit_ir,
+            emit_analysis,
         } => {
-            nekoc::ts_frontend::compile_ts_with_ir(input, out, emit_ir)?;
+            nekoc::ts_frontend::compile_ts_with_sidecars(input, out, emit_ir, emit_analysis)?;
         }
         Command::CompileTsBcmkn {
             input,

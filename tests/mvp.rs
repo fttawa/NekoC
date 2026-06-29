@@ -872,6 +872,56 @@ onStart(() => {
 }
 
 #[test]
+fn cli_compile_ts_can_emit_analysis_sidecar() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("main.ts");
+    let workspace_output = dir.path().join("workspace.json");
+    let ir_output = dir.path().join("program.ir.json");
+    let analysis_output = dir.path().join("analysis.json");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  setVar("unused", 1);
+});
+"#,
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts",
+            input.to_str().unwrap(),
+            "--out",
+            workspace_output.to_str().unwrap(),
+            "--emit-ir",
+            ir_output.to_str().unwrap(),
+            "--emit-analysis",
+            analysis_output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let ir: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(ir_output).unwrap()).unwrap();
+    let analysis: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(analysis_output).unwrap()).unwrap();
+
+    assert_eq!(ir["format"], "nekoc-ir");
+    assert_eq!(analysis["format"], "nekoc-analysis");
+    assert_eq!(
+        analysis["warnings"],
+        json!([{
+            "kind": "unused_write",
+            "severity": "warning",
+            "variable": "unused",
+            "message": "variable is written but never read"
+        }])
+    );
+}
+
+#[test]
 fn cli_compile_ts_bcmkn_injects_nested_blocks_into_template() {
     let dir = tempdir().unwrap();
     let input = dir.path().join("main.ts");
