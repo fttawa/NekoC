@@ -127,6 +127,9 @@ variables, actor state, console logs, and active thread count.
 The current runtime subset intentionally starts small:
 
 - events: `on_running_group_activated`
+- broadcasts: `self_broadcast`, `self_broadcast_with_param`,
+  `self_broadcast_and_wait`, `self_listen`, `self_listen_with_param`,
+  `self_listen_param`, `self_listen_value`, `received_broadcast`
 - control: `repeat_forever`, `wait`
 - variables: `variables_get`, `variables_set`, `change_variables`
 - values: `math_number`, `text`, `math_arithmetic`, `math_trig`

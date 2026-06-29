@@ -1,7 +1,7 @@
 use anyhow::{Context, Result, bail};
 use serde::Serialize;
 use serde_json::{Map, Value, json};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 const DEFAULT_FPS: f64 = 30.0;
 
@@ -49,6 +49,8 @@ pub struct RuntimeSnapshot {
     pub variable_names: BTreeMap<String, String>,
     pub actors: BTreeMap<String, ActorState>,
     pub logs: Vec<String>,
+    pub received_broadcasts: Vec<String>,
+    pub message_values: BTreeMap<String, RuntimeValue>,
     pub active_threads: usize,
 }
 
@@ -65,6 +67,9 @@ struct Runtime<'a> {
     variables: BTreeMap<String, RuntimeValue>,
     variable_names: BTreeMap<String, String>,
     actors: BTreeMap<String, ActorState>,
+    listeners: BTreeMap<String, Vec<Listener<'a>>>,
+    received_broadcasts: BTreeSet<String>,
+    message_values: BTreeMap<String, RuntimeValue>,
     logs: Vec<String>,
     threads: Vec<Thread<'a>>,
 }
@@ -93,6 +98,7 @@ impl<'a> Runtime<'a> {
             .and_then(Value::as_object)
             .map(collect_actors)
             .unwrap_or_default();
+        let listeners = collect_listeners(project);
 
         Ok(Self {
             project,
@@ -100,6 +106,9 @@ impl<'a> Runtime<'a> {
             variables,
             variable_names,
             actors,
+            listeners,
+            received_broadcasts: BTreeSet::new(),
+            message_values: BTreeMap::new(),
             logs: Vec::new(),
             threads: Vec::new(),
         })
@@ -141,6 +150,7 @@ impl<'a> Runtime<'a> {
                 thread.step(self)?;
             }
             threads.retain(|thread| !thread.done);
+            threads.append(&mut self.threads);
             self.threads = threads;
         }
         Ok(())
@@ -153,7 +163,29 @@ impl<'a> Runtime<'a> {
             variable_names: self.variable_names.clone(),
             actors: self.actors.clone(),
             logs: self.logs.clone(),
+            received_broadcasts: self.received_broadcasts.iter().cloned().collect(),
+            message_values: self.message_values.clone(),
             active_threads: self.threads.len(),
+        }
+    }
+
+    fn dispatch_broadcast(&mut self, message: &str, payload: Option<RuntimeValue>) {
+        self.received_broadcasts.insert(message.to_owned());
+        let listeners = self.listeners.get(message).cloned().unwrap_or_default();
+        for listener in listeners {
+            if let (Some(param_name), Some(payload)) = (&listener.param_name, &payload) {
+                self.message_values
+                    .insert(param_name.clone(), payload.clone());
+            }
+            if let Some(body) = listener.body {
+                self.threads.push(Thread {
+                    owner_id: listener.owner_id,
+                    current: Some(body),
+                    loop_root: None,
+                    wait_ticks: 0,
+                    done: false,
+                });
+            }
         }
     }
 
@@ -180,6 +212,25 @@ impl<'a> Runtime<'a> {
                 .and_then(|id| self.variables.get(id))
                 .cloned()
                 .unwrap_or(RuntimeValue::Null),
+            "broadcast_input" => RuntimeValue::String(
+                block
+                    .get("fields")
+                    .and_then(|fields| fields.get("message"))
+                    .and_then(Value::as_str)
+                    .unwrap_or("")
+                    .to_owned(),
+            ),
+            "self_listen_value" => block
+                .get("fields")
+                .and_then(|fields| fields.get("TEXT"))
+                .and_then(Value::as_str)
+                .and_then(|name| self.message_values.get(name))
+                .cloned()
+                .unwrap_or(RuntimeValue::Null),
+            "received_broadcast" => {
+                let message = broadcast_message(input(block, "message")).unwrap_or_default();
+                RuntimeValue::Bool(self.received_broadcasts.contains(&message))
+            }
             "math_arithmetic" => {
                 let op = block
                     .get("fields")
@@ -301,6 +352,19 @@ impl<'a> Thread<'a> {
                 self.wait_ticks = (seconds * DEFAULT_FPS).ceil() as usize;
                 self.advance(block.get("next"));
             }
+            "self_broadcast" | "self_broadcast_and_wait" => {
+                let message = broadcast_message(input(block, "message"))
+                    .context("broadcast block missing message")?;
+                runtime.dispatch_broadcast(&message, None);
+                self.advance(block.get("next"));
+            }
+            "self_broadcast_with_param" => {
+                let message = broadcast_message(input(block, "message"))
+                    .context("broadcast block missing message")?;
+                let payload = runtime.eval(input(block, "param"));
+                runtime.dispatch_broadcast(&message, Some(payload));
+                self.advance(block.get("next"));
+            }
             "self_set_position_x" => {
                 let value = runtime.eval(input(block, "value")).as_number();
                 if let Some(actor) = runtime.actors.get_mut(self.owner_id) {
@@ -336,6 +400,13 @@ impl<'a> Thread<'a> {
             self.done = true;
         }
     }
+}
+
+#[derive(Debug, Clone)]
+struct Listener<'a> {
+    owner_id: &'a str,
+    body: Option<&'a Value>,
+    param_name: Option<String>,
 }
 
 fn collect_variables(dict: &Map<String, Value>) -> BTreeMap<String, RuntimeValue> {
@@ -394,6 +465,45 @@ fn collect_actors(dict: &Map<String, Value>) -> BTreeMap<String, ActorState> {
         .collect()
 }
 
+fn collect_listeners(project: &Value) -> BTreeMap<String, Vec<Listener<'_>>> {
+    let mut listeners = BTreeMap::new();
+    collect_listeners_at(project, &["scenes", "scenesDict"], &mut listeners);
+    collect_listeners_at(project, &["actors", "actorsDict"], &mut listeners);
+    listeners
+}
+
+fn collect_listeners_at<'a>(
+    project: &'a Value,
+    path: &[&str],
+    listeners: &mut BTreeMap<String, Vec<Listener<'a>>>,
+) {
+    let Some(owners) = get_path(project, path).and_then(Value::as_object) else {
+        return;
+    };
+
+    for (owner_id, owner) in owners {
+        let Some(blocks) = owner.get("nekoBlockJsonList").and_then(Value::as_array) else {
+            continue;
+        };
+        for block in blocks {
+            let Some(kind) = block_type(block) else {
+                continue;
+            };
+            if kind != "self_listen" && kind != "self_listen_with_param" {
+                continue;
+            }
+            let Some(message) = broadcast_message(input(block, "message")) else {
+                continue;
+            };
+            listeners.entry(message).or_default().push(Listener {
+                owner_id,
+                body: statement(block, "DO"),
+                param_name: listen_param_name(input(block, "param")),
+            });
+        }
+    }
+}
+
 fn json_to_runtime_value(value: &Value) -> RuntimeValue {
     match value {
         Value::Number(value) => RuntimeValue::Number(value.as_f64().unwrap_or(0.0)),
@@ -440,6 +550,35 @@ fn number_field(block: &Value, name: &str) -> Option<f64> {
     value
         .as_f64()
         .or_else(|| value.as_str().and_then(|text| text.parse().ok()))
+}
+
+fn broadcast_message(block: Option<&Value>) -> Option<String> {
+    let block = block?;
+    match block_type(block)? {
+        "broadcast_input" => block
+            .get("fields")
+            .and_then(|fields| fields.get("message"))
+            .and_then(Value::as_str)
+            .map(ToOwned::to_owned),
+        "text" => block
+            .get("fields")
+            .and_then(|fields| fields.get("TEXT"))
+            .and_then(Value::as_str)
+            .map(ToOwned::to_owned),
+        _ => None,
+    }
+}
+
+fn listen_param_name(block: Option<&Value>) -> Option<String> {
+    let block = block?;
+    if block_type(block) != Some("self_listen_param") {
+        return None;
+    }
+    block
+        .get("fields")
+        .and_then(|fields| fields.get("TEXT"))
+        .and_then(Value::as_str)
+        .map(ToOwned::to_owned)
 }
 
 fn format_value(value: &RuntimeValue) -> String {

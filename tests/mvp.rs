@@ -468,6 +468,207 @@ fn cli_run_writes_runtime_snapshot() {
 }
 
 #[test]
+fn runtime_dispatches_broadcast_listeners() {
+    let project = json!({
+        "variables": {
+            "variablesDict": {
+                "var-status": {
+                    "id": "var-status",
+                    "name": "status",
+                    "value": ""
+                },
+                "var-heard": {
+                    "id": "var-heard",
+                    "name": "heard",
+                    "value": 0
+                }
+            }
+        },
+        "actors": {
+            "actorsDict": {
+                "actor-1": {
+                    "id": "actor-1",
+                    "name": "sender",
+                    "nekoBlockJsonList": [{
+                        "id": "start",
+                        "type": "on_running_group_activated",
+                        "next": {
+                            "id": "set",
+                            "type": "variables_set",
+                            "fields": { "variable": "var-status" },
+                            "inputs": {
+                                "value": {
+                                    "id": "start-text",
+                                    "type": "text",
+                                    "fields": { "TEXT": "start" }
+                                }
+                            },
+                            "next": {
+                                "id": "broadcast",
+                                "type": "self_broadcast",
+                                "inputs": {
+                                    "message": {
+                                        "id": "ready-message",
+                                        "type": "broadcast_input",
+                                        "fields": { "message": "ready" }
+                                    }
+                                }
+                            }
+                        }
+                    }]
+                },
+                "actor-2": {
+                    "id": "actor-2",
+                    "name": "receiver",
+                    "nekoBlockJsonList": [{
+                        "id": "listen",
+                        "type": "self_listen",
+                        "inputs": {
+                            "message": {
+                                "id": "listen-message",
+                                "type": "broadcast_input",
+                                "fields": { "message": "ready" }
+                            }
+                        },
+                        "statements": {
+                            "DO": {
+                                "id": "heard",
+                                "type": "variables_set",
+                                "fields": { "variable": "var-heard" },
+                                "inputs": {
+                                    "value": {
+                                        "id": "one",
+                                        "type": "math_number",
+                                        "fields": { "NUM": "1" }
+                                    }
+                                }
+                            }
+                        }
+                    }]
+                }
+            }
+        }
+    });
+
+    let snapshot = nekoc::runtime::run_project(&project, 2).unwrap();
+
+    assert_eq!(
+        snapshot.variables["var-status"],
+        nekoc::runtime::RuntimeValue::String("start".to_owned())
+    );
+    assert_eq!(
+        snapshot.variables["var-heard"],
+        nekoc::runtime::RuntimeValue::Number(1.0)
+    );
+    assert_eq!(snapshot.received_broadcasts, vec!["ready".to_owned()]);
+}
+
+#[test]
+fn runtime_dispatches_parameterized_broadcast_values() {
+    let project = json!({
+        "variables": {
+            "variablesDict": {
+                "var-score": {
+                    "id": "var-score",
+                    "name": "score",
+                    "value": 0
+                },
+                "var-last-score": {
+                    "id": "var-last-score",
+                    "name": "lastScore",
+                    "value": 0
+                }
+            }
+        },
+        "actors": {
+            "actorsDict": {
+                "actor-1": {
+                    "id": "actor-1",
+                    "name": "sender",
+                    "nekoBlockJsonList": [{
+                        "id": "start",
+                        "type": "on_running_group_activated",
+                        "next": {
+                            "id": "set-score",
+                            "type": "variables_set",
+                            "fields": { "variable": "var-score" },
+                            "inputs": {
+                                "value": {
+                                    "id": "score",
+                                    "type": "math_number",
+                                    "fields": { "NUM": "42" }
+                                }
+                            },
+                            "next": {
+                                "id": "broadcast",
+                                "type": "self_broadcast_with_param",
+                                "inputs": {
+                                    "message": {
+                                        "id": "score-message",
+                                        "type": "broadcast_input",
+                                        "fields": { "message": "score:update" }
+                                    },
+                                    "param": {
+                                        "id": "score-value",
+                                        "type": "variables_get",
+                                        "fields": { "variable": "var-score" }
+                                    }
+                                }
+                            }
+                        }
+                    }]
+                },
+                "actor-2": {
+                    "id": "actor-2",
+                    "name": "receiver",
+                    "nekoBlockJsonList": [{
+                        "id": "listen",
+                        "type": "self_listen_with_param",
+                        "inputs": {
+                            "message": {
+                                "id": "listen-message",
+                                "type": "broadcast_input",
+                                "fields": { "message": "score:update" }
+                            },
+                            "param": {
+                                "id": "payload-name",
+                                "type": "self_listen_param",
+                                "fields": { "TEXT": "payload" }
+                            }
+                        },
+                        "statements": {
+                            "DO": {
+                                "id": "last-score",
+                                "type": "variables_set",
+                                "fields": { "variable": "var-last-score" },
+                                "inputs": {
+                                    "value": {
+                                        "id": "payload-value",
+                                        "type": "self_listen_value",
+                                        "fields": { "TEXT": "payload" }
+                                    }
+                                }
+                            }
+                        }
+                    }]
+                }
+            }
+        }
+    });
+
+    let snapshot = nekoc::runtime::run_project(&project, 2).unwrap();
+
+    assert_eq!(
+        snapshot.variables["var-last-score"],
+        nekoc::runtime::RuntimeValue::Number(42.0)
+    );
+    assert_eq!(
+        snapshot.message_values["payload"],
+        nekoc::runtime::RuntimeValue::Number(42.0)
+    );
+}
+
+#[test]
 fn cli_decompile_native_sample_reports_graph_summary() {
     let sample = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("samples")
