@@ -739,6 +739,48 @@ onStart(() => {
 }
 
 #[test]
+fn cli_compile_ts_ir_reports_script_variable_data_flow() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("main.ts");
+    let output = dir.path().join("workspace.json");
+    let ir_output = dir.path().join("program.ir.json");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  setVar("score", 0);
+  setVar("unused", 1);
+  ifThen(gt(getVar("score"), 2), () => {
+    setVar("score", add(getVar("score"), getVar("bonus")));
+    setVar("state", getVar("score"));
+  });
+});
+"#,
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts",
+            input.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+            "--emit-ir",
+            ir_output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let ir: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(ir_output).unwrap()).unwrap();
+    let data_flow = &ir["actors"][0]["scripts"][0]["data_flow"];
+
+    assert_eq!(data_flow["reads"], json!(["bonus", "score"]));
+    assert_eq!(data_flow["writes"], json!(["score", "state", "unused"]));
+}
+
+#[test]
 fn cli_compile_ts_bcmkn_injects_nested_blocks_into_template() {
     let dir = tempdir().unwrap();
     let input = dir.path().join("main.ts");

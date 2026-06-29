@@ -1,3 +1,5 @@
+use std::collections::BTreeSet;
+
 use serde_json::{Map, Value, json};
 
 pub fn build_report(workspace_report: &Value) -> Value {
@@ -182,11 +184,13 @@ fn scripts_from_workspace(workspace_data: Option<&Value>) -> Vec<Value> {
             let body = next_block_id(&id, &connections)
                 .map(|next_id| statements_from_chain(next_id, &blocks, &connections))
                 .unwrap_or_default();
+            let data_flow = data_flow_for_statements(&body);
             json!({
                 "id": id,
                 "event": event_name(entry_type),
                 "entry_block_type": entry_type,
                 "block_types": sequence_types(&block, &blocks, &connections),
+                "data_flow": data_flow,
                 "body": body,
             })
         })
@@ -266,6 +270,95 @@ fn statements_from_chain(
     }
 
     statements
+}
+
+fn data_flow_for_statements(statements: &[Value]) -> Value {
+    let mut reads = BTreeSet::new();
+    let mut writes = BTreeSet::new();
+
+    collect_statements_data_flow(statements, &mut reads, &mut writes);
+
+    json!({
+        "reads": reads.into_iter().collect::<Vec<_>>(),
+        "writes": writes.into_iter().collect::<Vec<_>>(),
+    })
+}
+
+fn collect_statements_data_flow(
+    statements: &[Value],
+    reads: &mut BTreeSet<String>,
+    writes: &mut BTreeSet<String>,
+) {
+    for statement in statements {
+        collect_statement_data_flow(statement, reads, writes);
+    }
+}
+
+fn collect_statement_data_flow(
+    statement: &Value,
+    reads: &mut BTreeSet<String>,
+    writes: &mut BTreeSet<String>,
+) {
+    match statement.get("kind").and_then(Value::as_str) {
+        Some("set_var") => {
+            insert_string_field(statement, "variable", writes);
+            collect_expression_reads(&statement["value"], reads);
+        }
+        Some("change_var") => {
+            insert_string_field(statement, "variable", reads);
+            insert_string_field(statement, "variable", writes);
+            collect_expression_reads(&statement["value"], reads);
+        }
+        Some("wait") => collect_expression_reads(&statement["seconds"], reads),
+        Some("move_steps") => collect_expression_reads(&statement["steps"], reads),
+        Some("set_x") | Some("set_y") => collect_expression_reads(&statement["value"], reads),
+        Some("switch_screen") | Some("break") => {}
+        Some("if") => {
+            collect_expression_reads(&statement["condition"], reads);
+            collect_json_statement_array(&statement["then"], reads, writes);
+            collect_json_statement_array(&statement["else"], reads, writes);
+        }
+        Some("repeat_times") => {
+            collect_expression_reads(&statement["times"], reads);
+            collect_json_statement_array(&statement["body"], reads, writes);
+        }
+        Some("repeat_until") => {
+            collect_expression_reads(&statement["condition"], reads);
+            collect_json_statement_array(&statement["body"], reads, writes);
+        }
+        Some("forever") => collect_json_statement_array(&statement["body"], reads, writes),
+        _ => {}
+    }
+}
+
+fn collect_json_statement_array(
+    value: &Value,
+    reads: &mut BTreeSet<String>,
+    writes: &mut BTreeSet<String>,
+) {
+    if let Some(statements) = value.as_array() {
+        collect_statements_data_flow(statements, reads, writes);
+    }
+}
+
+fn collect_expression_reads(expression: &Value, reads: &mut BTreeSet<String>) {
+    match expression.get("kind").and_then(Value::as_str) {
+        Some("get_var") => {
+            insert_string_field(expression, "variable", reads);
+        }
+        Some("binary") | Some("compare") | Some("logic") => {
+            collect_expression_reads(&expression["left"], reads);
+            collect_expression_reads(&expression["right"], reads);
+        }
+        Some("trig") | Some("not") => collect_expression_reads(&expression["value"], reads),
+        _ => {}
+    }
+}
+
+fn insert_string_field(value: &Value, field: &str, target: &mut BTreeSet<String>) {
+    if let Some(text) = value.get(field).and_then(Value::as_str) {
+        target.insert(text.to_owned());
+    }
 }
 
 fn statement_from_block(
