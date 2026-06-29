@@ -27,9 +27,9 @@ pub fn build_report(ir: &Value) -> Value {
 
     scripts.sort_by(|left, right| {
         json_string(left, "actor")
-            .cmp(&json_string(right, "actor"))
-            .then(json_string(left, "event").cmp(&json_string(right, "event")))
-            .then(json_string(left, "id").cmp(&json_string(right, "id")))
+            .cmp(json_string(right, "actor"))
+            .then(json_string(left, "event").cmp(json_string(right, "event")))
+            .then(json_string(left, "id").cmp(json_string(right, "id")))
     });
 
     let written_not_read = difference(&all_writes, &all_reads);
