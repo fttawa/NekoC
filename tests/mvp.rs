@@ -3414,6 +3414,13 @@ sprite("player", { costume: "https://example.com/player.png" }, self => {
     self.forever(() => {
       self.wait(0.03);
     });
+    self.setVar("score", 1);
+    self.changeVar("score", 2);
+    self.showVariable("score");
+    self.hideVariable("score");
+    self.setVar("copy", self.getVar("score"));
+    self.var("combo").set(self.var("score").get());
+    self.var("combo").change(3);
   });
 });
 "#,
@@ -3497,6 +3504,26 @@ sprite("player", { costume: "https://example.com/player.png" }, self => {
         blocks
             .values()
             .any(|block| block["type"] == "repeat_forever")
+    );
+    assert!(
+        blocks
+            .values()
+            .any(|block| block["type"] == "variables_set")
+    );
+    assert!(
+        blocks
+            .values()
+            .any(|block| block["type"] == "change_variables")
+    );
+    assert!(
+        blocks
+            .values()
+            .any(|block| block["type"] == "variables_get")
+    );
+    assert!(
+        blocks
+            .values()
+            .any(|block| block["type"] == "show_hide_variables")
     );
 }
 

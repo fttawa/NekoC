@@ -697,6 +697,14 @@ class WorkspaceCompiler {
   compileStatementCall(call, parentId) {
     const name = calleeName(call.expression);
     switch (memberCallName(name)) {
+      case "setVar":
+        return this.compileSetVar(call, parentId);
+      case "changeVar":
+        return this.compileChangeVar(call, parentId);
+      case "showVariable":
+        return this.compileShowHideVariable(call, parentId, "show");
+      case "hideVariable":
+        return this.compileShowHideVariable(call, parentId, "hide");
       case "wait":
         return this.compileWait(call, parentId);
       case "waitUntil":
@@ -728,6 +736,19 @@ class WorkspaceCompiler {
         return this.compileDialog(call, parentId, "think", false);
       case "ask":
         return this.compileValueStatement(call, parentId, "self_ask", "text", 0);
+    }
+    const variableHandleCall = selfVariableHandleCall(call);
+    if (variableHandleCall) {
+      switch (variableHandleCall.methodName) {
+        case "set":
+          return this.compileSetVariable(parentId, variableHandleCall.nameArg, call.arguments[0]);
+        case "change":
+          return this.compileChangeVariable(parentId, variableHandleCall.nameArg, call.arguments[0]);
+        case "show":
+          return this.compileShowHideVariableByNameArg(parentId, variableHandleCall.nameArg, "show");
+        case "hide":
+          return this.compileShowHideVariableByNameArg(parentId, variableHandleCall.nameArg, "hide");
+      }
     }
     switch (name) {
       case "setVar":
@@ -895,15 +916,9 @@ class WorkspaceCompiler {
       case "hideTimer":
         return this.compileFieldStatement(parentId, "show_hide_timer", { showHide: "hide" });
       case "showVariable":
-        return this.compileFieldStatement(parentId, "show_hide_variables", {
-          show_hide: "show",
-          variable: stringLiteralValue(call.arguments[0], this),
-        });
+        return this.compileShowHideVariable(call, parentId, "show");
       case "hideVariable":
-        return this.compileFieldStatement(parentId, "show_hide_variables", {
-          show_hide: "hide",
-          variable: stringLiteralValue(call.arguments[0], this),
-        });
+        return this.compileShowHideVariable(call, parentId, "hide");
       case "showList":
         return this.compileFieldStatement(parentId, "show_hide_list", {
           show_hide: "show",
@@ -1020,6 +1035,10 @@ class WorkspaceCompiler {
 
   compileSetVar(call, parentId) {
     const [nameArg, valueArg] = call.arguments;
+    return this.compileSetVariable(parentId, nameArg, valueArg);
+  }
+
+  compileSetVariable(parentId, nameArg, valueArg) {
     const id = this.addBlock({
       type: "variables_set",
       parent_id: parentId,
@@ -1143,6 +1162,10 @@ class WorkspaceCompiler {
 
   compileChangeVar(call, parentId) {
     const [nameArg, valueArg] = call.arguments;
+    return this.compileChangeVariable(parentId, nameArg, valueArg);
+  }
+
+  compileChangeVariable(parentId, nameArg, valueArg) {
     const change = numericLiteralValue(valueArg, this);
     const method = change < 0 ? "decrease" : "increase";
     const id = this.addBlock({
@@ -1156,6 +1179,17 @@ class WorkspaceCompiler {
     const valueId = this.compileExpression(valueArg, id);
     this.connectInput(id, valueId, "value", "value");
     return id;
+  }
+
+  compileShowHideVariable(call, parentId, showHide) {
+    return this.compileShowHideVariableByNameArg(parentId, call.arguments[0], showHide);
+  }
+
+  compileShowHideVariableByNameArg(parentId, nameArg, showHide) {
+    return this.compileFieldStatement(parentId, "show_hide_variables", {
+      show_hide: showHide,
+      variable: stringLiteralValue(nameArg, this),
+    });
   }
 
   compileScriptVars(call, parentId) {
@@ -1929,14 +1963,16 @@ class WorkspaceCompiler {
 
   compileExpressionCall(call, parentId) {
     const name = calleeName(call.expression);
+    if (isMemberCallName(name, "getVar")) {
+      return this.compileVariableGet(parentId, call.arguments[0]);
+    }
+    const variableHandleCall = selfVariableHandleCall(call);
+    if (variableHandleCall?.methodName === "get") {
+      return this.compileVariableGet(parentId, variableHandleCall.nameArg);
+    }
     switch (name) {
       case "getVar":
-        return this.addBlock({
-          type: "variables_get",
-          parent_id: parentId,
-          fields: { variable: stringLiteralValue(call.arguments[0], this) },
-          is_output: true,
-        });
+        return this.compileVariableGet(parentId, call.arguments[0]);
       case "scriptVar":
         return this.addBlock({
           type: "script_variables_value",
@@ -2289,6 +2325,15 @@ class WorkspaceCompiler {
         }
         this.unsupported(call, `Unsupported expression call: ${name || "<unknown>"}`);
     }
+  }
+
+  compileVariableGet(parentId, nameArg) {
+    return this.addBlock({
+      type: "variables_get",
+      parent_id: parentId,
+      fields: { variable: stringLiteralValue(nameArg, this) },
+      is_output: true,
+    });
   }
 
   compileInlineExpressionFunction(call, parentId, name) {
@@ -2702,6 +2747,20 @@ function memberCallName(name) {
   }
   const dotIndex = name.lastIndexOf(".");
   return dotIndex === -1 ? null : name.slice(dotIndex + 1);
+}
+
+function selfVariableHandleCall(call) {
+  if (!ts.isPropertyAccessExpression(call.expression)) {
+    return null;
+  }
+  const receiver = call.expression.expression;
+  if (!ts.isCallExpression(receiver) || calleeName(receiver.expression) !== "self.var") {
+    return null;
+  }
+  return {
+    methodName: call.expression.name.text,
+    nameArg: receiver.arguments[0],
+  };
 }
 
 function nativeBinaryExpressionSpec(operator) {
