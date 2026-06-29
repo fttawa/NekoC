@@ -1688,6 +1688,74 @@ fn cli_run_can_check_expected_runtime_snapshot() {
 }
 
 #[test]
+fn cli_run_can_inject_click_events() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("runtime-click.bcmkn");
+    let output = dir.path().join("runtime-click.json");
+    fs::write(
+        &input,
+        serde_json::to_string(&json!({
+            "variables": {
+                "variablesDict": {
+                    "var-clicked": {
+                        "id": "var-clicked",
+                        "name": "clicked",
+                        "value": 0
+                    }
+                }
+            },
+            "actors": {
+                "actorsDict": {
+                    "actor-1": {
+                        "id": "actor-1",
+                        "name": "button",
+                        "nekoBlockJsonList": [{
+                            "id": "click",
+                            "type": "start_on_click",
+                            "next": {
+                                "id": "set",
+                                "type": "variables_set",
+                                "fields": {
+                                    "variable": "var-clicked"
+                                },
+                                "inputs": {
+                                    "value": {
+                                        "id": "one",
+                                        "type": "math_number",
+                                        "fields": { "NUM": "1" }
+                                    }
+                                }
+                            }
+                        }]
+                    }
+                }
+            }
+        }))
+        .unwrap(),
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "run",
+            input.to_str().unwrap(),
+            "--ticks",
+            "1",
+            "--event",
+            "click",
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let snapshot: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    assert_eq!(snapshot["variables"]["var-clicked"], 1.0);
+}
+
+#[test]
 fn runtime_dispatches_broadcast_listeners() {
     let project = json!({
         "variables": {

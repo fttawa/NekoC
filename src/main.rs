@@ -1,5 +1,5 @@
 use anyhow::{Result, bail};
-use clap::{Parser, Subcommand};
+use clap::{Parser, Subcommand, ValueEnum};
 use std::path::PathBuf;
 
 #[derive(Debug, Parser)]
@@ -62,6 +62,8 @@ enum Command {
         input: PathBuf,
         #[arg(long, default_value_t = 1)]
         ticks: usize,
+        #[arg(long = "event", value_enum)]
+        events: Vec<CliRuntimeEvent>,
         #[arg(long)]
         out: Option<PathBuf>,
         #[arg(long)]
@@ -77,6 +79,19 @@ enum Command {
         #[arg(long)]
         out: PathBuf,
     },
+}
+
+#[derive(Debug, Clone, Copy, ValueEnum)]
+enum CliRuntimeEvent {
+    Click,
+}
+
+impl From<CliRuntimeEvent> for nekoc::runtime::RuntimeEvent {
+    fn from(value: CliRuntimeEvent) -> Self {
+        match value {
+            CliRuntimeEvent::Click => nekoc::runtime::RuntimeEvent::Click,
+        }
+    }
 }
 
 fn main() -> Result<()> {
@@ -136,11 +151,20 @@ fn main() -> Result<()> {
         Command::Run {
             input,
             ticks,
+            events,
             out,
             expect,
         } => {
             let project = nekoc::project::load_project(input)?;
-            let snapshot = nekoc::runtime::run_project(&project.value, ticks)?;
+            let events = events
+                .into_iter()
+                .map(nekoc::runtime::RuntimeEvent::from)
+                .collect::<Vec<_>>();
+            let snapshot = if events.is_empty() {
+                nekoc::runtime::run_project(&project.value, ticks)?
+            } else {
+                nekoc::runtime::run_project_with_events(&project.value, &events, ticks)?
+            };
             let report = nekoc::runtime::snapshot_to_json(&snapshot);
             if let Some(expect) = expect {
                 let expected: serde_json::Value = serde_json::from_slice(&std::fs::read(&expect)?)?;
