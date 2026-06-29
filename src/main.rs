@@ -58,6 +58,13 @@ enum Command {
     Test {
         input: PathBuf,
     },
+    Run {
+        input: PathBuf,
+        #[arg(long, default_value_t = 1)]
+        ticks: usize,
+        #[arg(long)]
+        out: Option<PathBuf>,
+    },
     Validate {
         input: PathBuf,
         #[arg(long)]
@@ -123,6 +130,16 @@ fn main() -> Result<()> {
         }
         Command::Test { input } => {
             nekoc::ts_frontend::test_ts(input)?;
+        }
+        Command::Run { input, ticks, out } => {
+            let project = nekoc::project::load_project(input)?;
+            let snapshot = nekoc::runtime::run_project(&project.value, ticks)?;
+            let report = serde_json::to_vec_pretty(&nekoc::runtime::snapshot_to_json(&snapshot))?;
+            if let Some(out) = out {
+                std::fs::write(out, report)?;
+            } else {
+                println!("{}", String::from_utf8(report)?);
+            }
         }
         Command::Validate { input, out } => {
             let project = nekoc::project::load_project(input)?;

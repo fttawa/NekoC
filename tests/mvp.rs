@@ -296,6 +296,178 @@ fn workspace_export_flattens_nested_blocks_into_connections() {
 }
 
 #[test]
+fn runtime_runs_start_variable_loop_and_wait() {
+    let project = json!({
+        "variables": {
+            "variablesDict": {
+                "var-score": {
+                    "id": "var-score",
+                    "name": "score",
+                    "value": 5
+                }
+            }
+        },
+        "actors": {
+            "actorsDict": {
+                "actor-1": {
+                    "id": "actor-1",
+                    "name": "player",
+                    "position": { "x": 0, "y": 0 },
+                    "rotation": 0,
+                    "scale": 100,
+                    "visible": true,
+                    "nekoBlockJsonList": [{
+                        "id": "start",
+                        "type": "on_running_group_activated",
+                        "next": {
+                            "id": "set",
+                            "type": "variables_set",
+                            "fields": { "variable": "var-score" },
+                            "inputs": {
+                                "value": {
+                                    "id": "zero",
+                                    "type": "math_number",
+                                    "fields": { "NUM": "0" }
+                                }
+                            },
+                            "next": {
+                                "id": "forever",
+                                "type": "repeat_forever",
+                                "statements": {
+                                    "DO": {
+                                        "id": "change",
+                                        "type": "change_variables",
+                                        "fields": {
+                                            "variable": "var-score",
+                                            "method": "increase"
+                                        },
+                                        "inputs": {
+                                            "value": {
+                                                "id": "one",
+                                                "type": "math_number",
+                                                "fields": { "NUM": "1" }
+                                            }
+                                        },
+                                        "next": {
+                                            "id": "wait",
+                                            "type": "wait",
+                                            "inputs": {
+                                                "time": {
+                                                    "id": "delay",
+                                                    "type": "math_number",
+                                                    "fields": { "NUM": "0.03" }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }]
+                }
+            }
+        }
+    });
+
+    let snapshot = nekoc::runtime::run_project(&project, 3).unwrap();
+
+    assert_eq!(snapshot.ticks, 3);
+    assert_eq!(
+        snapshot.variables["var-score"],
+        nekoc::runtime::RuntimeValue::Number(2.0)
+    );
+    assert_eq!(snapshot.active_threads, 1);
+}
+
+#[test]
+fn runtime_runs_three_body_sample_positions() {
+    let input = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("three_body.bcmkn");
+    let project: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(input).unwrap()).unwrap();
+
+    let snapshot = nekoc::runtime::run_project(&project, 1).unwrap();
+
+    assert_eq!(
+        snapshot.variables["kn-var-phaseA"],
+        nekoc::runtime::RuntimeValue::Number(3.0)
+    );
+    let body_a = &snapshot.actors["nekoc-actor-body-a"];
+    assert!((body_a.x - 89.876_663).abs() < 0.001);
+    assert!((body_a.y - 2.878_687).abs() < 0.001);
+}
+
+#[test]
+fn cli_run_writes_runtime_snapshot() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("runtime.bcmkn");
+    let output = dir.path().join("runtime.json");
+    fs::write(
+        &input,
+        serde_json::to_string(&json!({
+            "variables": {
+                "variablesDict": {
+                    "var-score": {
+                        "id": "var-score",
+                        "name": "score",
+                        "value": 0
+                    }
+                }
+            },
+            "actors": {
+                "actorsDict": {
+                    "actor-1": {
+                        "id": "actor-1",
+                        "name": "player",
+                        "nekoBlockJsonList": [{
+                            "id": "start",
+                            "type": "on_running_group_activated",
+                            "next": {
+                                "id": "change",
+                                "type": "change_variables",
+                                "fields": {
+                                    "variable": "var-score",
+                                    "method": "increase"
+                                },
+                                "inputs": {
+                                    "value": {
+                                        "id": "two",
+                                        "type": "math_number",
+                                        "fields": { "NUM": "2" }
+                                    }
+                                }
+                            }
+                        }]
+                    }
+                }
+            }
+        }))
+        .unwrap(),
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "run",
+            input.to_str().unwrap(),
+            "--ticks",
+            "1",
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let snapshot: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    assert_eq!(snapshot["ticks"], 1);
+    assert_eq!(snapshot["variables"]["var-score"], 2.0);
+    assert_eq!(snapshot["variable_names"]["var-score"], "score");
+}
+
+#[test]
 fn cli_decompile_native_sample_reports_graph_summary() {
     let sample = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("samples")

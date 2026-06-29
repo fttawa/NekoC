@@ -20,6 +20,8 @@ This project is early and conservative.
   `score = score + 1`, and `console.log(score)` compile to Kitten N blocks.
 - Stage and sprite resource registration can update the background and create
   actors with their own event scripts.
+- A small reverse-engineered runtime can execute a conservative subset of
+  `.bcmkn` block graphs for automated state checks.
 - The compiler preserves unknown project fields and avoids destructive
   rewriting of IDs/resources.
 
@@ -71,6 +73,7 @@ nekoc validate <input.bcmkn> --out validate.json
 nekoc compile-ts <input.ts> --out workspace.json [--emit-ir program.ir.json]
 nekoc compile-ts-bcmkn <input.ts> --template template.bcmkn --out output.bcmkn
 nekoc test <input.ts>
+nekoc run <input.bcmkn> --ticks 30 [--out runtime.json]
 ```
 
 During development, use Cargo:
@@ -80,6 +83,7 @@ cargo run -- compile-ts samples/natural_ts.ts --out natural_ts.workspace.json
 cargo run -- compile-ts samples/three_body.ts --out three_body.workspace.json --emit-ir three_body.ir.json
 cargo run -- compile-ts-bcmkn samples/natural_ts.ts --template samples/我的作品-原生.bcmkn --out natural_ts.bcmkn
 cargo run -- test samples/unit_tests.ts
+cargo run -- run samples/three_body.bcmkn --ticks 1 --out three_body.runtime.json
 ```
 
 ## TypeScript Example
@@ -112,6 +116,25 @@ Run them with:
 cargo run -- test samples/unit_tests.ts
 npm run test:ts
 ```
+
+## Runtime Checks
+
+`nekoc run` is the first step toward a reverse-engineered Kitten N interpreter.
+It loads a JSON `.bcmkn`, starts `on_running_group_activated` scripts, advances
+the scheduler for a fixed number of ticks, and writes a JSON snapshot containing
+variables, actor state, console logs, and active thread count.
+
+The current runtime subset intentionally starts small:
+
+- events: `on_running_group_activated`
+- control: `repeat_forever`, `wait`
+- variables: `variables_get`, `variables_set`, `change_variables`
+- values: `math_number`, `text`, `math_arithmetic`, `math_trig`
+- actor state: `self_set_position_x`, `self_set_position_y`
+- logging: `console_log`
+
+Unsupported blocks fail loudly so each newly reverse-engineered block gets an
+explicit semantic implementation and test.
 
 Older DSL-style calls are still supported while the real TypeScript lowering
 layer grows:
