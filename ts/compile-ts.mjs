@@ -750,6 +750,33 @@ class WorkspaceCompiler {
           return this.compileShowHideVariableByNameArg(parentId, variableHandleCall.nameArg, "hide");
       }
     }
+    const listHandleCall = selfListHandleCall(call);
+    if (listHandleCall) {
+      switch (listHandleCall.methodName) {
+        case "add":
+        case "append":
+          return this.compileListAppendByArgs(parentId, listHandleCall.nameArg, call.arguments[0]);
+        case "insert":
+          return this.compileListInsertByArgs(parentId, listHandleCall.nameArg, call.arguments[0], call.arguments[1]);
+        case "replace":
+          return this.compileListReplaceByArgs(
+            parentId,
+            listHandleCall.nameArg,
+            call.arguments[0],
+            call.arguments[1],
+            call.arguments[2],
+          );
+        case "delete":
+        case "remove":
+          return this.compileListDeleteByArgs(parentId, listHandleCall.nameArg, call.arguments[0], call.arguments[1]);
+        case "copyTo":
+          return this.compileListCopyByArgs(parentId, listHandleCall.nameArg, call.arguments[0]);
+        case "show":
+          return this.compileShowHideListByNameArg(parentId, listHandleCall.nameArg, "show");
+        case "hide":
+          return this.compileShowHideListByNameArg(parentId, listHandleCall.nameArg, "hide");
+      }
+    }
     switch (name) {
       case "setVar":
         return this.compileSetVar(call, parentId);
@@ -920,15 +947,9 @@ class WorkspaceCompiler {
       case "hideVariable":
         return this.compileShowHideVariable(call, parentId, "hide");
       case "showList":
-        return this.compileFieldStatement(parentId, "show_hide_list", {
-          show_hide: "show",
-          list: stringLiteralValue(call.arguments[0], this),
-        });
+        return this.compileShowHideList(call, parentId, "show");
       case "hideList":
-        return this.compileFieldStatement(parentId, "show_hide_list", {
-          show_hide: "hide",
-          list: stringLiteralValue(call.arguments[0], this),
-        });
+        return this.compileShowHideList(call, parentId, "hide");
       case "showRanking":
         return this.compileFieldStatement(parentId, "show_hide_ranking", {
           show_hide: "show",
@@ -1189,6 +1210,17 @@ class WorkspaceCompiler {
     return this.compileFieldStatement(parentId, "show_hide_variables", {
       show_hide: showHide,
       variable: stringLiteralValue(nameArg, this),
+    });
+  }
+
+  compileShowHideList(call, parentId, showHide) {
+    return this.compileShowHideListByNameArg(parentId, call.arguments[0], showHide);
+  }
+
+  compileShowHideListByNameArg(parentId, nameArg, showHide) {
+    return this.compileFieldStatement(parentId, "show_hide_list", {
+      show_hide: showHide,
+      list: stringLiteralValue(nameArg, this),
     });
   }
 
@@ -1774,53 +1806,79 @@ class WorkspaceCompiler {
   }
 
   compileListAppend(call, parentId) {
+    return this.compileListAppendByArgs(parentId, call.arguments[0], call.arguments[1]);
+  }
+
+  compileListAppendByArgs(parentId, listNameArg, valueArg) {
     const id = this.addBlock({ type: "list_append", parent_id: parentId });
-    const valueId = this.compileExpression(call.arguments[1], id);
+    const valueId = this.compileExpression(valueArg, id);
     this.connectInput(id, valueId, "list_item_value", "value");
-    this.connectListInput(id, "list", stringLiteralValue(call.arguments[0], this));
+    this.connectListInput(id, "list", stringLiteralValue(listNameArg, this));
     return id;
   }
 
   compileListInsert(call, parentId) {
+    return this.compileListInsertByArgs(parentId, call.arguments[0], call.arguments[1], call.arguments[2]);
+  }
+
+  compileListInsertByArgs(parentId, listNameArg, indexArg, valueArg) {
     const id = this.addBlock({ type: "list_insert_value", parent_id: parentId });
-    const valueId = this.compileExpression(call.arguments[2], id);
-    const indexId = this.compileExpression(call.arguments[1], id);
+    const valueId = this.compileExpression(valueArg, id);
+    const indexId = this.compileExpression(indexArg, id);
     this.connectInput(id, valueId, "list_item_value", "value");
-    this.connectListInput(id, "list", stringLiteralValue(call.arguments[0], this));
+    this.connectListInput(id, "list", stringLiteralValue(listNameArg, this));
     this.connectInput(id, indexId, "list_index", "value");
     return id;
   }
 
   compileListReplace(call, parentId) {
+    return this.compileListReplaceByArgs(
+      parentId,
+      call.arguments[0],
+      call.arguments[1],
+      call.arguments[2],
+      call.arguments[3],
+    );
+  }
+
+  compileListReplaceByArgs(parentId, listNameArg, itemArg, indexArg, valueArg) {
     const id = this.addBlock({
       type: "replace_list_item",
       parent_id: parentId,
-      fields: { item: stringLiteralValue(call.arguments[1], this) },
+      fields: { item: stringLiteralValue(itemArg, this) },
     });
-    const indexId = this.compileExpression(call.arguments[2], id);
-    const valueId = this.compileExpression(call.arguments[3], id);
-    this.connectListInput(id, "list", stringLiteralValue(call.arguments[0], this));
+    const indexId = this.compileExpression(indexArg, id);
+    const valueId = this.compileExpression(valueArg, id);
+    this.connectListInput(id, "list", stringLiteralValue(listNameArg, this));
     this.connectInput(id, indexId, "list_index", "value");
     this.connectInput(id, valueId, "list_item_value", "value");
     return id;
   }
 
   compileListDelete(call, parentId) {
+    return this.compileListDeleteByArgs(parentId, call.arguments[0], call.arguments[1], call.arguments[2]);
+  }
+
+  compileListDeleteByArgs(parentId, listNameArg, itemArg, indexArg) {
     const id = this.addBlock({
       type: "delete_list_item",
       parent_id: parentId,
-      fields: { item: stringLiteralValue(call.arguments[1], this) },
+      fields: { item: stringLiteralValue(itemArg, this) },
     });
-    const indexId = this.compileExpression(call.arguments[2], id);
-    this.connectListInput(id, "list", stringLiteralValue(call.arguments[0], this));
+    const indexId = this.compileExpression(indexArg, id);
+    this.connectListInput(id, "list", stringLiteralValue(listNameArg, this));
     this.connectInput(id, indexId, "list_index", "value");
     return id;
   }
 
   compileListCopy(call, parentId) {
+    return this.compileListCopyByArgs(parentId, call.arguments[0], call.arguments[1]);
+  }
+
+  compileListCopyByArgs(parentId, listNameArg, targetNameArg) {
     const id = this.addBlock({ type: "list_copy", parent_id: parentId });
-    this.connectListInput(id, "list", stringLiteralValue(call.arguments[0], this));
-    this.connectListInput(id, "target_list", stringLiteralValue(call.arguments[1], this));
+    this.connectListInput(id, "list", stringLiteralValue(listNameArg, this));
+    this.connectListInput(id, "target_list", stringLiteralValue(targetNameArg, this));
     return id;
   }
 
@@ -1969,6 +2027,21 @@ class WorkspaceCompiler {
     const variableHandleCall = selfVariableHandleCall(call);
     if (variableHandleCall?.methodName === "get") {
       return this.compileVariableGet(parentId, variableHandleCall.nameArg);
+    }
+    const listHandleCall = selfListHandleCall(call);
+    if (listHandleCall) {
+      switch (listHandleCall.methodName) {
+        case "get":
+          return this.compileListGetByNameArg(parentId, listHandleCall.nameArg);
+        case "item":
+          return this.compileListItemByArgs(parentId, listHandleCall.nameArg, call.arguments[0], call.arguments[1]);
+        case "length":
+          return this.compileListUnaryExpressionByNameArg(parentId, "list_length", listHandleCall.nameArg);
+        case "indexOf":
+          return this.compileListValueExpressionByArgs(parentId, "list_index_of", listHandleCall.nameArg, call.arguments[0]);
+        case "contains":
+          return this.compileListValueExpressionByArgs(parentId, "list_is_exist", listHandleCall.nameArg, call.arguments[0]);
+      }
     }
     switch (name) {
       case "getVar":
@@ -2165,12 +2238,7 @@ class WorkspaceCompiler {
           is_output: true,
         });
       case "getList":
-        return this.addBlock({
-          type: "list_get",
-          parent_id: parentId,
-          fields: { list: stringLiteralValue(call.arguments[0], this) },
-          is_output: true,
-        });
+        return this.compileListGetByNameArg(parentId, call.arguments[0]);
       case "listItem":
         return this.compileListItem(call, parentId);
       case "listLength":
@@ -2610,38 +2678,64 @@ class WorkspaceCompiler {
   }
 
   compileListItem(call, parentId) {
+    return this.compileListItemByArgs(parentId, call.arguments[0], call.arguments[1], call.arguments[2]);
+  }
+
+  compileListItemByArgs(parentId, listNameArg, itemArg, indexArg) {
     const id = this.addBlock({
       type: "list_item",
       parent_id: parentId,
-      fields: { item: stringLiteralValue(call.arguments[1], this) },
+      fields: { item: stringLiteralValue(itemArg, this) },
       is_output: true,
     });
-    const indexId = this.compileExpression(call.arguments[2], id);
-    this.connectListInput(id, "list", stringLiteralValue(call.arguments[0], this));
+    const indexId = this.compileExpression(indexArg, id);
+    this.connectListInput(id, "list", stringLiteralValue(listNameArg, this));
     this.connectInput(id, indexId, "list_index", "value");
     return id;
   }
 
   compileListUnaryExpression(call, parentId, type, listArgumentIndex) {
+    return this.compileListUnaryExpressionByNameArg(parentId, type, call.arguments[listArgumentIndex]);
+  }
+
+  compileListUnaryExpressionByNameArg(parentId, type, listNameArg) {
     const id = this.addBlock({
       type,
       parent_id: parentId,
       is_output: true,
     });
-    this.connectListInput(id, "list", stringLiteralValue(call.arguments[listArgumentIndex], this));
+    this.connectListInput(id, "list", stringLiteralValue(listNameArg, this));
     return id;
   }
 
   compileListValueExpression(call, parentId, type, listArgumentIndex, valueArgumentIndex) {
+    return this.compileListValueExpressionByArgs(
+      parentId,
+      type,
+      call.arguments[listArgumentIndex],
+      call.arguments[valueArgumentIndex],
+    );
+  }
+
+  compileListValueExpressionByArgs(parentId, type, listNameArg, valueArg) {
     const id = this.addBlock({
       type,
       parent_id: parentId,
       is_output: true,
     });
-    this.connectListInput(id, "list", stringLiteralValue(call.arguments[listArgumentIndex], this));
-    const valueId = this.compileExpression(call.arguments[valueArgumentIndex], id);
+    this.connectListInput(id, "list", stringLiteralValue(listNameArg, this));
+    const valueId = this.compileExpression(valueArg, id);
     this.connectInput(id, valueId, "list_item_value", "value");
     return id;
+  }
+
+  compileListGetByNameArg(parentId, listNameArg) {
+    return this.addBlock({
+      type: "list_get",
+      parent_id: parentId,
+      fields: { list: stringLiteralValue(listNameArg, this) },
+      is_output: true,
+    });
   }
 
   compileTempList(call, parentId) {
@@ -2755,6 +2849,20 @@ function selfVariableHandleCall(call) {
   }
   const receiver = call.expression.expression;
   if (!ts.isCallExpression(receiver) || calleeName(receiver.expression) !== "self.var") {
+    return null;
+  }
+  return {
+    methodName: call.expression.name.text,
+    nameArg: receiver.arguments[0],
+  };
+}
+
+function selfListHandleCall(call) {
+  if (!ts.isPropertyAccessExpression(call.expression)) {
+    return null;
+  }
+  const receiver = call.expression.expression;
+  if (!ts.isCallExpression(receiver) || calleeName(receiver.expression) !== "self.list") {
     return null;
   }
   return {

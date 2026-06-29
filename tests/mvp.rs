@@ -3421,6 +3421,18 @@ sprite("player", { costume: "https://example.com/player.png" }, self => {
     self.setVar("copy", self.getVar("score"));
     self.var("combo").set(self.var("score").get());
     self.var("combo").change(3);
+    self.list("items").add(1);
+    self.list("items").insert(1, "hello");
+    self.list("items").replace("any", 1, 2);
+    self.list("items").delete("last", 1);
+    self.list("items").copyTo("backup");
+    self.list("items").show();
+    self.list("items").hide();
+    self.setVar("allItems", self.list("items").get());
+    self.setVar("firstItem", self.list("items").item("any", 1));
+    self.setVar("itemCount", self.list("items").length());
+    self.setVar("itemIndex", self.list("items").indexOf("hello"));
+    self.setVar("hasItem", self.list("items").contains("hello"));
   });
 });
 "#,
@@ -3524,6 +3536,41 @@ sprite("player", { costume: "https://example.com/player.png" }, self => {
         blocks
             .values()
             .any(|block| block["type"] == "show_hide_variables")
+    );
+    assert!(blocks.values().any(|block| block["type"] == "list_append"));
+    assert!(
+        blocks
+            .values()
+            .any(|block| block["type"] == "list_insert_value")
+    );
+    assert!(
+        blocks
+            .values()
+            .any(|block| block["type"] == "replace_list_item")
+    );
+    assert!(
+        blocks
+            .values()
+            .any(|block| block["type"] == "delete_list_item")
+    );
+    assert!(blocks.values().any(|block| block["type"] == "list_copy"));
+    assert!(
+        blocks
+            .values()
+            .any(|block| block["type"] == "show_hide_list")
+    );
+    assert!(blocks.values().any(|block| block["type"] == "list_get"));
+    assert!(blocks.values().any(|block| block["type"] == "list_item"));
+    assert!(blocks.values().any(|block| block["type"] == "list_length"));
+    assert!(
+        blocks
+            .values()
+            .any(|block| block["type"] == "list_index_of")
+    );
+    assert!(
+        blocks
+            .values()
+            .any(|block| block["type"] == "list_is_exist")
     );
 }
 
