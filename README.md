@@ -157,7 +157,7 @@ The current runtime subset intentionally starts small:
   `self_broadcast_and_wait`, `self_listen`, `self_listen_with_param`,
   `self_listen_param`, `self_listen_value`, `received_broadcast`
 - control: `repeat_forever`, `repeat_n_times`, `repeat_forever_until`, `break`,
-  `wait`, `wait_until`
+  `wait`, `wait_until`, `warp`, `tell`, `sync_tell`, `stop`, `restart`
 - conditions: `controls_if`, `when`, `logic_compare`, `logic_operation`,
   `logic_negate`, `logic_boolean`
 - variables: `variables_get`, `variables_set`, `change_variables`
@@ -182,6 +182,17 @@ The current runtime subset intentionally starts small:
   `get_clone_num`, `get_current_clone_index`, `get_clone_index_property`,
   `bump_into_body_part`, `get_appearance_of_part`, `get_tilt_angle_of_face`,
   `face_to_body_part`
+- conservative display/pen no-ops: `self_appear_animation`,
+  `self_gradually_show_hide`, `self_dialog`, `self_dialog_wait`,
+  `close_self_dialog`, `create_stage_dialog`, `set_width_height_scale`,
+  `add_width_height_scale`, `self_set_effect`, `self_change_effect`,
+  `clear_all_effects`, `self_text_effect_text`, `self_text_effect_size`,
+  `self_text_effect_color`, `set_top_bottom_layer`, `self_set_draggable`,
+  `self_set_role_camp`, `self_stress_animation`, `global_animation`,
+  `show_hide_variables`, `clear_drawing`, `self_pen_down`, `self_pen_up`,
+  `self_set_pen_color`, `self_set_pen_size`, `self_change_pen_size`,
+  `self_set_pen_color_property`, `self_change_pen_color_property`, `stamp`,
+  `image_stamp`, `set_pen_layer`
 - screens: `switch_to_screen`, `get_screens`
 - logging: `console_log`
 

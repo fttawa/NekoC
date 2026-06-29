@@ -984,6 +984,107 @@ onStart(() => {
 }
 
 #[test]
+fn runtime_runs_compiled_control_pen_and_display_noops() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("control-display-runtime.ts");
+    let output = dir.path().join("control-display-runtime.bcmkn");
+    fs::write(
+        &input,
+        r##"
+onStart(() => {
+  clearDrawing();
+  penDown();
+  setPenColor("#00ff88");
+  setPenSize(6);
+  changePenSize(-2);
+  setPenEffect("hue", 50);
+  changePenEffect("alpha", -10);
+  stampText("hello", 20, "center");
+  imageStamp();
+  setPenLayer("peak", "bottom");
+  penUp();
+  say("hello", 2);
+  think("hmm");
+  closeDialog();
+  stageDialog("--self", "system");
+  setEffect("2", 80);
+  changeEffect("2", -20);
+  clearEffects();
+  setText("Score");
+  setTextSize(24);
+  setTextColor("#ff0000");
+  setLayer("peak", "bottom");
+  setDraggable("1");
+  setCamp("camp_red");
+  stressAnimation("shake");
+  globalAnimation("animation_firework");
+  showVariable("fast");
+  hideVariable("fast");
+  warp(() => {
+    setVar("fast", 1);
+  });
+  tell("--self", () => {
+    setVar("told", 1);
+  });
+  tellAndWait("--self", () => {
+    setVar("syncTold", 1);
+  });
+  stop("1");
+  setVar("afterStop", 1);
+});
+"##,
+    )
+    .unwrap();
+    let template = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts-bcmkn",
+            input.to_str().unwrap(),
+            "--template",
+            template.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let project = nekoc::project::load_project(&output).unwrap();
+    let snapshot = nekoc::runtime::run_project(&project.value, 1).unwrap();
+    let variable_by_name = |name: &str| {
+        let id = snapshot
+            .variable_names
+            .iter()
+            .find_map(|(id, variable_name)| (variable_name == name).then_some(id))
+            .unwrap_or_else(|| panic!("missing variable {name}"));
+        snapshot
+            .variables
+            .get(id)
+            .unwrap_or_else(|| panic!("missing runtime value for {name}"))
+    };
+
+    assert_eq!(
+        variable_by_name("fast"),
+        &nekoc::runtime::RuntimeValue::Number(1.0)
+    );
+    assert_eq!(
+        variable_by_name("told"),
+        &nekoc::runtime::RuntimeValue::Number(1.0)
+    );
+    assert_eq!(
+        variable_by_name("syncTold"),
+        &nekoc::runtime::RuntimeValue::Number(1.0)
+    );
+    assert_eq!(
+        variable_by_name("afterStop"),
+        &nekoc::runtime::RuntimeValue::Number(0.0)
+    );
+}
+
+#[test]
 fn cli_run_writes_runtime_snapshot() {
     let dir = tempdir().unwrap();
     let input = dir.path().join("runtime.bcmkn");

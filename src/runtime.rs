@@ -890,6 +890,15 @@ impl<'a> Thread<'a> {
             "show_hide_timer" | "face_to_body_part" | "mirror" | "dispose_clone" => {
                 self.advance(runtime, block.get("next"));
             }
+            "warp" | "tell" | "sync_tell" => {
+                self.enter_branch(runtime, statement(block, "DO"), block.get("next"));
+            }
+            "stop" => {
+                self.done = true;
+            }
+            "restart" => {
+                self.advance(runtime, block.get("next"));
+            }
             "switch_to_screen" => {
                 let screen_id = runtime.eval(input(block, "screen_id")).as_string();
                 if screen_id.is_empty() {
@@ -982,6 +991,39 @@ impl<'a> Thread<'a> {
                 if let Some(actor) = runtime.actors.get_mut(self.owner_id) {
                     actor.scale += delta;
                 }
+                self.advance(runtime, block.get("next"));
+            }
+            "self_appear_animation"
+            | "self_gradually_show_hide"
+            | "self_dialog"
+            | "self_dialog_wait"
+            | "close_self_dialog"
+            | "create_stage_dialog"
+            | "set_width_height_scale"
+            | "add_width_height_scale"
+            | "self_set_effect"
+            | "self_change_effect"
+            | "clear_all_effects"
+            | "self_text_effect_text"
+            | "self_text_effect_size"
+            | "self_text_effect_color"
+            | "set_top_bottom_layer"
+            | "self_set_draggable"
+            | "self_set_role_camp"
+            | "self_stress_animation"
+            | "global_animation"
+            | "show_hide_variables"
+            | "clear_drawing"
+            | "self_pen_down"
+            | "self_pen_up"
+            | "self_set_pen_color"
+            | "self_set_pen_size"
+            | "self_change_pen_size"
+            | "self_set_pen_color_property"
+            | "self_change_pen_color_property"
+            | "stamp"
+            | "image_stamp"
+            | "set_pen_layer" => {
                 self.advance(runtime, block.get("next"));
             }
             "console_log" => {
