@@ -146,7 +146,7 @@ impl<'a> Runtime<'a> {
                     self.threads.push(Thread {
                         owner_id,
                         current: Some(block),
-                        loop_root: None,
+                        loops: Vec::new(),
                         continuations: Vec::new(),
                         wait_ticks: 0,
                         done: false,
@@ -195,7 +195,7 @@ impl<'a> Runtime<'a> {
                 self.threads.push(Thread {
                     owner_id: listener.owner_id,
                     current: Some(body),
-                    loop_root: None,
+                    loops: Vec::new(),
                     continuations: Vec::new(),
                     wait_ticks: 0,
                     done: false,
@@ -320,7 +320,7 @@ impl<'a> Runtime<'a> {
 struct Thread<'a> {
     owner_id: &'a str,
     current: Option<&'a Value>,
-    loop_root: Option<&'a Value>,
+    loops: Vec<LoopFrame<'a>>,
     continuations: Vec<Option<&'a Value>>,
     wait_ticks: usize,
     done: bool,
@@ -354,11 +354,11 @@ impl<'a> Thread<'a> {
     fn execute_block(&mut self, block: &'a Value, runtime: &mut Runtime<'a>) -> Result<()> {
         match block_type(block).unwrap_or("") {
             "on_running_group_activated" => {
-                self.advance(block.get("next"));
+                self.advance(runtime, block.get("next"));
             }
             "when" => {
                 if runtime.eval(input(block, "condition")).is_truthy() {
-                    self.enter_branch(statement(block, "DO"), block.get("next"));
+                    self.enter_branch(runtime, statement(block, "DO"), block.get("next"));
                 } else {
                     self.wait_ticks = 1;
                     self.current = Some(block);
@@ -368,7 +368,7 @@ impl<'a> Thread<'a> {
                 let variable = variable_field(block).context("variables_set missing variable")?;
                 let value = runtime.eval(input(block, "value"));
                 runtime.variables.insert(variable.to_owned(), value);
-                self.advance(block.get("next"));
+                self.advance(runtime, block.get("next"));
             }
             "change_variables" => {
                 let variable =
@@ -393,12 +393,53 @@ impl<'a> Thread<'a> {
                 runtime
                     .variables
                     .insert(variable.to_owned(), RuntimeValue::Number(value));
-                self.advance(block.get("next"));
+                self.advance(runtime, block.get("next"));
             }
             "repeat_forever" => {
                 let body = statement(block, "DO");
-                self.loop_root = body;
-                self.current = body;
+                if let Some(body) = body {
+                    self.loops.push(LoopFrame::Forever { body });
+                    self.current = Some(body);
+                } else {
+                    self.advance(runtime, block.get("next"));
+                }
+            }
+            "repeat_n_times" => {
+                let times = runtime
+                    .eval(input(block, "times"))
+                    .as_number()
+                    .floor()
+                    .max(0.0);
+                if let Some(body) = statement(block, "DO") {
+                    if times <= 0.0 {
+                        self.advance(runtime, block.get("next"));
+                    } else {
+                        self.loops.push(LoopFrame::Repeat {
+                            body,
+                            remaining: times as usize - 1,
+                            after: block.get("next"),
+                        });
+                        self.current = Some(body);
+                    }
+                } else {
+                    self.advance(runtime, block.get("next"));
+                }
+            }
+            "repeat_forever_until" => {
+                if let Some(body) = statement(block, "DO") {
+                    if runtime.eval(input(block, "condition")).is_truthy() {
+                        self.advance(runtime, block.get("next"));
+                    } else {
+                        self.loops.push(LoopFrame::Until {
+                            body,
+                            condition: input(block, "condition"),
+                            after: block.get("next"),
+                        });
+                        self.current = Some(body);
+                    }
+                } else {
+                    self.advance(runtime, block.get("next"));
+                }
             }
             "controls_if" => {
                 let branch = if runtime.eval(input(block, "IF0")).is_truthy() {
@@ -406,44 +447,55 @@ impl<'a> Thread<'a> {
                 } else {
                     statement(block, "ELSE")
                 };
-                self.enter_branch(branch, block.get("next"));
+                self.enter_branch(runtime, branch, block.get("next"));
             }
             "wait" => {
                 let seconds = runtime.eval(input(block, "time")).as_number().max(0.0);
                 self.wait_ticks = (seconds * DEFAULT_FPS).ceil() as usize;
-                self.advance(block.get("next"));
+                self.advance(runtime, block.get("next"));
+            }
+            "wait_until" => {
+                if runtime.eval(input(block, "condition")).is_truthy() {
+                    self.advance(runtime, block.get("next"));
+                } else {
+                    self.wait_ticks = 1;
+                    self.current = Some(block);
+                }
+            }
+            "break" => {
+                self.break_loop(runtime);
             }
             "self_broadcast" | "self_broadcast_and_wait" => {
                 let message = broadcast_message(input(block, "message"))
                     .context("broadcast block missing message")?;
                 runtime.dispatch_broadcast(&message, None);
-                self.advance(block.get("next"));
+                self.advance(runtime, block.get("next"));
             }
             "self_broadcast_with_param" => {
                 let message = broadcast_message(input(block, "message"))
                     .context("broadcast block missing message")?;
                 let payload = runtime.eval(input(block, "param"));
                 runtime.dispatch_broadcast(&message, Some(payload));
-                self.advance(block.get("next"));
+                self.advance(runtime, block.get("next"));
             }
             "self_set_position_x" => {
                 let value = runtime.eval(input(block, "value")).as_number();
                 if let Some(actor) = runtime.actors.get_mut(self.owner_id) {
                     actor.x = value;
                 }
-                self.advance(block.get("next"));
+                self.advance(runtime, block.get("next"));
             }
             "self_set_position_y" => {
                 let value = runtime.eval(input(block, "value")).as_number();
                 if let Some(actor) = runtime.actors.get_mut(self.owner_id) {
                     actor.y = value;
                 }
-                self.advance(block.get("next"));
+                self.advance(runtime, block.get("next"));
             }
             "console_log" => {
                 let value = runtime.eval(input(block, "console_log"));
                 runtime.logs.push(format_value(&value));
-                self.advance(block.get("next"));
+                self.advance(runtime, block.get("next"));
             }
             unsupported => {
                 bail!("unsupported runtime block type: {unsupported}");
@@ -452,24 +504,100 @@ impl<'a> Thread<'a> {
         Ok(())
     }
 
-    fn advance(&mut self, next: Option<&'a Value>) {
+    fn advance(&mut self, runtime: &Runtime<'a>, next: Option<&'a Value>) {
         if let Some(next) = next {
             self.current = Some(next);
         } else if let Some(Some(continuation)) = self.continuations.pop() {
             self.current = Some(continuation);
-        } else if let Some(loop_root) = self.loop_root {
-            self.current = Some(loop_root);
+        } else if let Some(next_loop) = self.next_loop_iteration(runtime) {
+            self.current = next_loop;
         } else {
             self.done = true;
         }
     }
 
-    fn enter_branch(&mut self, branch: Option<&'a Value>, after: Option<&'a Value>) {
+    fn enter_branch(
+        &mut self,
+        runtime: &Runtime<'a>,
+        branch: Option<&'a Value>,
+        after: Option<&'a Value>,
+    ) {
         if let Some(branch) = branch {
             self.continuations.push(after);
             self.current = Some(branch);
         } else {
-            self.advance(after);
+            self.advance(runtime, after);
+        }
+    }
+
+    fn next_loop_iteration(&mut self, runtime: &Runtime<'a>) -> Option<Option<&'a Value>> {
+        let frame = self.loops.last_mut()?;
+        match frame {
+            LoopFrame::Forever { body } => Some(Some(*body)),
+            LoopFrame::Repeat {
+                body,
+                remaining,
+                after,
+            } => {
+                if *remaining > 0 {
+                    *remaining -= 1;
+                    Some(Some(*body))
+                } else {
+                    let after = *after;
+                    self.loops.pop();
+                    if after.is_some() {
+                        Some(after)
+                    } else {
+                        self.next_loop_iteration(runtime)
+                    }
+                }
+            }
+            LoopFrame::Until {
+                body,
+                condition,
+                after,
+            } => {
+                let after = *after;
+                let body = *body;
+                if runtime.eval(*condition).is_truthy() {
+                    self.loops.pop();
+                    if after.is_some() {
+                        Some(after)
+                    } else {
+                        self.next_loop_iteration(runtime)
+                    }
+                } else {
+                    Some(Some(body))
+                }
+            }
+        }
+    }
+
+    fn break_loop(&mut self, runtime: &Runtime<'a>) {
+        self.continuations.clear();
+        let Some(frame) = self.loops.pop() else {
+            self.done = true;
+            return;
+        };
+        let after = match frame {
+            LoopFrame::Forever { body: _ } => None,
+            LoopFrame::Repeat {
+                body: _,
+                remaining: _,
+                after,
+            }
+            | LoopFrame::Until {
+                body: _,
+                condition: _,
+                after,
+            } => after,
+        };
+        if let Some(after) = after {
+            self.current = Some(after);
+        } else if let Some(next_loop) = self.next_loop_iteration(runtime) {
+            self.current = next_loop;
+        } else {
+            self.done = true;
         }
     }
 }
@@ -479,6 +607,23 @@ struct Listener<'a> {
     owner_id: &'a str,
     body: Option<&'a Value>,
     param_name: Option<String>,
+}
+
+#[derive(Debug, Clone)]
+enum LoopFrame<'a> {
+    Forever {
+        body: &'a Value,
+    },
+    Repeat {
+        body: &'a Value,
+        remaining: usize,
+        after: Option<&'a Value>,
+    },
+    Until {
+        body: &'a Value,
+        condition: Option<&'a Value>,
+        after: Option<&'a Value>,
+    },
 }
 
 fn collect_variables(dict: &Map<String, Value>) -> BTreeMap<String, RuntimeValue> {

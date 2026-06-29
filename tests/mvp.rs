@@ -835,6 +835,294 @@ fn runtime_runs_when_hat_after_condition_becomes_true() {
 }
 
 #[test]
+fn runtime_runs_repeat_times_and_breaks_to_after_loop() {
+    let project = json!({
+        "variables": {
+            "variablesDict": {
+                "var-i": {
+                    "id": "var-i",
+                    "name": "i",
+                    "value": 0
+                },
+                "var-done": {
+                    "id": "var-done",
+                    "name": "done",
+                    "value": 0
+                }
+            }
+        },
+        "actors": {
+            "actorsDict": {
+                "actor-1": {
+                    "id": "actor-1",
+                    "name": "loop",
+                    "nekoBlockJsonList": [{
+                        "id": "start",
+                        "type": "on_running_group_activated",
+                        "next": {
+                            "id": "repeat",
+                            "type": "repeat_n_times",
+                            "inputs": {
+                                "times": {
+                                    "id": "times",
+                                    "type": "math_number",
+                                    "fields": { "NUM": "3" }
+                                }
+                            },
+                            "statements": {
+                                "DO": {
+                                    "id": "change",
+                                    "type": "change_variables",
+                                    "fields": {
+                                        "variable": "var-i",
+                                        "method": "increase"
+                                    },
+                                    "inputs": {
+                                        "value": {
+                                            "id": "one",
+                                            "type": "math_number",
+                                            "fields": { "NUM": "1" }
+                                        }
+                                    },
+                                    "next": {
+                                        "id": "if-break",
+                                        "type": "controls_if",
+                                        "inputs": {
+                                            "IF0": {
+                                                "id": "i-gt-one",
+                                                "type": "logic_compare",
+                                                "fields": { "OP": "GT" },
+                                                "inputs": {
+                                                    "A": {
+                                                        "id": "i-value",
+                                                        "type": "variables_get",
+                                                        "fields": { "variable": "var-i" }
+                                                    },
+                                                    "B": {
+                                                        "id": "one-again",
+                                                        "type": "math_number",
+                                                        "fields": { "NUM": "1" }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "statements": {
+                                            "DO0": {
+                                                "id": "break",
+                                                "type": "break"
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "next": {
+                                "id": "set-done",
+                                "type": "variables_set",
+                                "fields": { "variable": "var-done" },
+                                "inputs": {
+                                    "value": {
+                                        "id": "done-one",
+                                        "type": "math_number",
+                                        "fields": { "NUM": "1" }
+                                    }
+                                }
+                            }
+                        }
+                    }]
+                }
+            }
+        }
+    });
+
+    let snapshot = nekoc::runtime::run_project(&project, 1).unwrap();
+
+    assert_eq!(
+        snapshot.variables["var-i"],
+        nekoc::runtime::RuntimeValue::Number(2.0)
+    );
+    assert_eq!(
+        snapshot.variables["var-done"],
+        nekoc::runtime::RuntimeValue::Number(1.0)
+    );
+}
+
+#[test]
+fn runtime_runs_repeat_until_condition() {
+    let project = json!({
+        "variables": {
+            "variablesDict": {
+                "var-i": {
+                    "id": "var-i",
+                    "name": "i",
+                    "value": 0
+                },
+                "var-done": {
+                    "id": "var-done",
+                    "name": "done",
+                    "value": 0
+                }
+            }
+        },
+        "actors": {
+            "actorsDict": {
+                "actor-1": {
+                    "id": "actor-1",
+                    "name": "until",
+                    "nekoBlockJsonList": [{
+                        "id": "start",
+                        "type": "on_running_group_activated",
+                        "next": {
+                            "id": "repeat-until",
+                            "type": "repeat_forever_until",
+                            "inputs": {
+                                "condition": {
+                                    "id": "i-gte-three",
+                                    "type": "logic_compare",
+                                    "fields": { "OP": "GTE" },
+                                    "inputs": {
+                                        "A": {
+                                            "id": "i-value",
+                                            "type": "variables_get",
+                                            "fields": { "variable": "var-i" }
+                                        },
+                                        "B": {
+                                            "id": "three",
+                                            "type": "math_number",
+                                            "fields": { "NUM": "3" }
+                                        }
+                                    }
+                                }
+                            },
+                            "statements": {
+                                "DO": {
+                                    "id": "change",
+                                    "type": "change_variables",
+                                    "fields": {
+                                        "variable": "var-i",
+                                        "method": "increase"
+                                    },
+                                    "inputs": {
+                                        "value": {
+                                            "id": "one",
+                                            "type": "math_number",
+                                            "fields": { "NUM": "1" }
+                                        }
+                                    }
+                                }
+                            },
+                            "next": {
+                                "id": "set-done",
+                                "type": "variables_set",
+                                "fields": { "variable": "var-done" },
+                                "inputs": {
+                                    "value": {
+                                        "id": "done-one",
+                                        "type": "math_number",
+                                        "fields": { "NUM": "1" }
+                                    }
+                                }
+                            }
+                        }
+                    }]
+                }
+            }
+        }
+    });
+
+    let snapshot = nekoc::runtime::run_project(&project, 1).unwrap();
+
+    assert_eq!(
+        snapshot.variables["var-i"],
+        nekoc::runtime::RuntimeValue::Number(3.0)
+    );
+    assert_eq!(
+        snapshot.variables["var-done"],
+        nekoc::runtime::RuntimeValue::Number(1.0)
+    );
+}
+
+#[test]
+fn runtime_wait_until_resumes_after_broadcast() {
+    let project = json!({
+        "variables": {
+            "variablesDict": {
+                "var-waited": {
+                    "id": "var-waited",
+                    "name": "waited",
+                    "value": 0
+                }
+            }
+        },
+        "actors": {
+            "actorsDict": {
+                "actor-1": {
+                    "id": "actor-1",
+                    "name": "waiter",
+                    "nekoBlockJsonList": [
+                        {
+                            "id": "wait-start",
+                            "type": "on_running_group_activated",
+                            "next": {
+                                "id": "wait-until",
+                                "type": "wait_until",
+                                "inputs": {
+                                    "condition": {
+                                        "id": "received-ready",
+                                        "type": "received_broadcast",
+                                        "inputs": {
+                                            "message": {
+                                                "id": "ready-message",
+                                                "type": "broadcast_input",
+                                                "fields": { "message": "ready" }
+                                            }
+                                        }
+                                    }
+                                },
+                                "next": {
+                                    "id": "set-waited",
+                                    "type": "variables_set",
+                                    "fields": { "variable": "var-waited" },
+                                    "inputs": {
+                                        "value": {
+                                            "id": "one",
+                                            "type": "math_number",
+                                            "fields": { "NUM": "1" }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "id": "broadcast-start",
+                            "type": "on_running_group_activated",
+                            "next": {
+                                "id": "broadcast-ready",
+                                "type": "self_broadcast",
+                                "inputs": {
+                                    "message": {
+                                        "id": "broadcast-message",
+                                        "type": "broadcast_input",
+                                        "fields": { "message": "ready" }
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    });
+
+    let snapshot = nekoc::runtime::run_project(&project, 3).unwrap();
+
+    assert_eq!(
+        snapshot.variables["var-waited"],
+        nekoc::runtime::RuntimeValue::Number(1.0)
+    );
+    assert_eq!(snapshot.received_broadcasts, vec!["ready".to_owned()]);
+}
+
+#[test]
 fn cli_decompile_native_sample_reports_graph_summary() {
     let sample = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("samples")

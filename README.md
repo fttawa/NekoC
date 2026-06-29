@@ -130,7 +130,8 @@ The current runtime subset intentionally starts small:
 - broadcasts: `self_broadcast`, `self_broadcast_with_param`,
   `self_broadcast_and_wait`, `self_listen`, `self_listen_with_param`,
   `self_listen_param`, `self_listen_value`, `received_broadcast`
-- control: `repeat_forever`, `wait`
+- control: `repeat_forever`, `repeat_n_times`, `repeat_forever_until`, `break`,
+  `wait`, `wait_until`
 - conditions: `controls_if`, `when`, `logic_compare`, `logic_operation`,
   `logic_negate`, `logic_boolean`
 - variables: `variables_get`, `variables_set`, `change_variables`
