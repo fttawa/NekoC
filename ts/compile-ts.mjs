@@ -696,8 +696,23 @@ class WorkspaceCompiler {
 
   compileStatementCall(call, parentId) {
     const name = calleeName(call.expression);
-    if (isMemberCallName(name, "move")) {
-      return this.compileValueStatement(call, parentId, "self_go_forward", "steps", 0);
+    switch (memberCallName(name)) {
+      case "move":
+        return this.compileValueStatement(call, parentId, "self_go_forward", "steps", 0);
+      case "turn":
+        return this.compileValueStatement(call, parentId, "self_rotate", "degrees", 0);
+      case "pointTowards":
+        return this.compileValueStatement(call, parentId, "self_point_towards", "degrees", 0);
+      case "show":
+        return this.compileFieldStatement(parentId, "self_appear", { value: "appear" });
+      case "hide":
+        return this.compileFieldStatement(parentId, "self_appear", { value: "disappear" });
+      case "say":
+        return this.compileDialog(call, parentId, "talk", true);
+      case "think":
+        return this.compileDialog(call, parentId, "think", false);
+      case "ask":
+        return this.compileValueStatement(call, parentId, "self_ask", "text", 0);
     }
     switch (name) {
       case "setVar":
@@ -1008,6 +1023,9 @@ class WorkspaceCompiler {
       }
       if (propertyName === "y") {
         return this.compileValueExpressionStatement(parentId, "self_set_position_y", "value", expression.right);
+      }
+      if (propertyName === "scale") {
+        return this.compileValueExpressionStatement(parentId, "set_scale", "scale", expression.right);
       }
       this.unsupported(expression.left.name, `Unsupported self property assignment: ${propertyName}`);
     }
@@ -2661,6 +2679,14 @@ function calleeName(expression) {
 
 function isMemberCallName(name, memberName) {
   return typeof name === "string" && name.endsWith(`.${memberName}`);
+}
+
+function memberCallName(name) {
+  if (typeof name !== "string") {
+    return null;
+  }
+  const dotIndex = name.lastIndexOf(".");
+  return dotIndex === -1 ? null : name.slice(dotIndex + 1);
 }
 
 function nativeBinaryExpressionSpec(operator) {

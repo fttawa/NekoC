@@ -3395,7 +3395,15 @@ sprite("player", { costume: "https://example.com/player.png" }, self => {
   self.onStart(() => {
     self.x = 100;
     self.y = 50;
+    self.scale = 120;
     self.move(10);
+    self.turn(15);
+    self.pointTowards(90);
+    self.show();
+    self.hide();
+    self.say("hello", 2);
+    self.think("hmm");
+    self.ask("name?");
   });
 });
 "#,
@@ -3439,6 +3447,21 @@ sprite("player", { costume: "https://example.com/player.png" }, self => {
             .values()
             .any(|block| block["type"] == "self_go_forward")
     );
+    assert!(blocks.values().any(|block| block["type"] == "self_rotate"));
+    assert!(
+        blocks
+            .values()
+            .any(|block| block["type"] == "self_point_towards")
+    );
+    assert!(blocks.values().any(|block| block["type"] == "self_appear"));
+    assert!(blocks.values().any(|block| block["type"] == "self_dialog"));
+    assert!(
+        blocks
+            .values()
+            .any(|block| block["type"] == "self_dialog_wait")
+    );
+    assert!(blocks.values().any(|block| block["type"] == "self_ask"));
+    assert!(blocks.values().any(|block| block["type"] == "set_scale"));
 }
 
 #[test]
