@@ -41,6 +41,7 @@ Run tests:
 
 ```bash
 cargo test
+npm run typecheck
 npm audit --audit-level=moderate
 ```
 
@@ -121,6 +122,27 @@ sprite("player", {
 }, () => {
   onStart(() => {
     console.log("ready");
+  });
+});
+```
+
+For better editor completion, include `ts/nekoc.d.ts` in your TypeScript
+project or run the checked sample directly:
+
+```bash
+npm run typecheck
+```
+
+The newer sprite callback style exposes a typed `self` API:
+
+```ts
+sprite("player", { costume: "https://example.com/player.png" }, self => {
+  self.onStart(() => {
+    self.x = 100;
+    self.y = 50;
+    self.move(10);
+    self.var("score").set(0);
+    self.list("items").add("hello");
   });
 });
 ```

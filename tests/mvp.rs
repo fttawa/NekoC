@@ -39,6 +39,10 @@ const FIXTURE: &str = r#"{
   "procedures": { "proceduresDict": { "proc-1": { "id": "proc-1" } } }
 }"#;
 
+fn npx_command() -> &'static str {
+    if cfg!(windows) { "npx.cmd" } else { "npx" }
+}
+
 #[test]
 fn project_loader_rejects_invalid_json() {
     let dir = tempdir().unwrap();
@@ -3572,6 +3576,71 @@ sprite("player", { costume: "https://example.com/player.png" }, self => {
             .values()
             .any(|block| block["type"] == "list_is_exist")
     );
+}
+
+#[test]
+fn ts_definitions_cover_sprite_self_api() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("typed_self_api.ts");
+    fs::write(
+        &input,
+        r#"
+sprite("player", { costume: "https://example.com/player.png" }, self => {
+  self.onStart(() => {
+    self.x = 100;
+    self.y = 50;
+    self.scale = 120;
+    self.move(10);
+    self.turn(15);
+    self.pointTowards(90);
+    self.show();
+    self.hide();
+    self.say("hello", 2);
+    self.think("hmm");
+    self.ask("name?");
+    self.wait(0.2);
+    self.broadcast("ready");
+    self.broadcast("score:update", 1);
+    self.broadcastAndWait("clicked");
+    self.repeat(3, () => self.move(1));
+    self.forever(() => self.wait(0.03));
+    self.setVar("score", 1);
+    self.changeVar("score", 2);
+    self.showVariable("score");
+    self.hideVariable("score");
+    self.setVar("copy", self.getVar("score"));
+    self.var("combo").set(self.var("score").get());
+    self.var("combo").change(3);
+    self.list("items").add(1);
+    self.list("items").insert(1, "hello");
+    self.list("items").replace("any", 1, 2);
+    self.list("items").delete("last", 1);
+    self.list("items").copyTo("backup");
+    self.list("items").show();
+    self.list("items").hide();
+    self.setVar("allItems", self.list("items").get());
+    self.setVar("firstItem", self.list("items").item("any", 1));
+    self.setVar("itemCount", self.list("items").length());
+    self.setVar("itemIndex", self.list("items").indexOf("hello"));
+    self.setVar("hasItem", self.list("items").contains("hello"));
+  });
+});
+"#,
+    )
+    .unwrap();
+
+    Command::new(npx_command())
+        .args([
+            "tsc",
+            "--noEmit",
+            "--strict",
+            "--lib",
+            "es2020",
+            "ts/nekoc.d.ts",
+            input.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
 }
 
 #[test]
