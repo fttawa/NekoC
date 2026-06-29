@@ -651,6 +651,94 @@ fn cli_compile_ts_ir_lifts_motion_expressions() {
 }
 
 #[test]
+fn cli_compile_ts_ir_lifts_control_flow_and_logic() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("main.ts");
+    let output = dir.path().join("workspace.json");
+    let ir_output = dir.path().join("program.ir.json");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  setVar("score", 0);
+  ifElse(and(gte(getVar("score"), 10), not(bool(false))), () => {
+    setVar("state", 1);
+  }, () => {
+    setVar("state", 0);
+  });
+  repeatTimes(3, () => {
+    changeVar("score", 1);
+    ifThen(gt(getVar("score"), 2), () => {
+      breakLoop();
+    });
+  });
+  repeatUntil(eq(getVar("score"), 0), () => {
+    changeVar("score", -1);
+  });
+});
+"#,
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts",
+            input.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+            "--emit-ir",
+            ir_output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let ir: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(ir_output).unwrap()).unwrap();
+    let body = ir["actors"][0]["scripts"][0]["body"].as_array().unwrap();
+
+    let branch = body
+        .iter()
+        .find(|statement| statement["kind"] == "if")
+        .unwrap();
+    assert_eq!(branch["condition"]["kind"], "logic");
+    assert_eq!(branch["condition"]["op"], "and");
+    assert_eq!(branch["condition"]["left"]["kind"], "compare");
+    assert_eq!(branch["condition"]["left"]["op"], "GTE");
+    assert_eq!(branch["condition"]["right"]["kind"], "not");
+    assert_eq!(
+        branch["condition"]["right"]["value"],
+        json!({"kind": "boolean", "value": false})
+    );
+    assert_eq!(branch["then"][0]["kind"], "set_var");
+    assert_eq!(branch["else"][0]["kind"], "set_var");
+
+    let repeat = body
+        .iter()
+        .find(|statement| statement["kind"] == "repeat_times")
+        .unwrap();
+    assert_eq!(repeat["times"], json!({"kind": "number", "value": 3.0}));
+    assert_eq!(repeat["body"][0]["kind"], "change_var");
+    let nested_if = repeat["body"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|statement| statement["kind"] == "if")
+        .unwrap();
+    assert_eq!(nested_if["condition"]["kind"], "compare");
+    assert_eq!(nested_if["condition"]["op"], "GT");
+    assert_eq!(nested_if["then"][0]["kind"], "break");
+
+    let repeat_until = body
+        .iter()
+        .find(|statement| statement["kind"] == "repeat_until")
+        .unwrap();
+    assert_eq!(repeat_until["condition"]["kind"], "compare");
+    assert_eq!(repeat_until["condition"]["op"], "EQ");
+    assert_eq!(repeat_until["body"][0]["kind"], "change_var");
+}
+
+#[test]
 fn cli_compile_ts_bcmkn_injects_nested_blocks_into_template() {
     let dir = tempdir().unwrap();
     let input = dir.path().join("main.ts");

@@ -313,6 +313,43 @@ fn statement_from_block(
             "block_id": id,
             "target": input_expression(id, "screen_id", blocks, connections).get("target").cloned().unwrap_or(Value::Null),
         }),
+        "controls_if" => {
+            let then_body = statement_input_id(id, "DO0", connections)
+                .map(|child_id| statements_from_chain(child_id, blocks, connections))
+                .unwrap_or_default();
+            let else_body = statement_input_id(id, "ELSE", connections)
+                .map(|child_id| statements_from_chain(child_id, blocks, connections))
+                .unwrap_or_default();
+            json!({
+                "kind": "if",
+                "block_id": id,
+                "condition": input_expression(id, "IF0", blocks, connections),
+                "then": then_body,
+                "else": else_body,
+            })
+        }
+        "repeat_n_times" => {
+            let body = statement_input_id(id, "DO", connections)
+                .map(|child_id| statements_from_chain(child_id, blocks, connections))
+                .unwrap_or_default();
+            json!({
+                "kind": "repeat_times",
+                "block_id": id,
+                "times": input_expression(id, "times", blocks, connections),
+                "body": body,
+            })
+        }
+        "repeat_forever_until" => {
+            let body = statement_input_id(id, "DO", connections)
+                .map(|child_id| statements_from_chain(child_id, blocks, connections))
+                .unwrap_or_default();
+            json!({
+                "kind": "repeat_until",
+                "block_id": id,
+                "condition": input_expression(id, "condition", blocks, connections),
+                "body": body,
+            })
+        }
         "repeat_forever" => {
             let body = statement_input_id(id, "DO", connections)
                 .map(|child_id| statements_from_chain(child_id, blocks, connections))
@@ -323,6 +360,10 @@ fn statement_from_block(
                 "body": body,
             })
         }
+        "break" => json!({
+            "kind": "break",
+            "block_id": id,
+        }),
         other => json!({
             "kind": "block",
             "block_id": id,
@@ -373,6 +414,35 @@ fn input_expression(
             "op": block.pointer("/fields/type").cloned().unwrap_or(Value::Null),
             "value": input_expression(child_id, "num", blocks, connections),
         }),
+        "logic_compare" => json!({
+            "kind": "compare",
+            "block_id": child_id,
+            "op": block.pointer("/fields/OP").cloned().unwrap_or(Value::Null),
+            "left": input_expression(child_id, "A", blocks, connections),
+            "right": input_expression(child_id, "B", blocks, connections),
+        }),
+        "logic_operation" => json!({
+            "kind": "logic",
+            "block_id": child_id,
+            "op": block.pointer("/fields/type").cloned().unwrap_or(Value::Null),
+            "left": input_expression(child_id, "A", blocks, connections),
+            "right": input_expression(child_id, "B", blocks, connections),
+        }),
+        "logic_negate" => json!({
+            "kind": "not",
+            "block_id": child_id,
+            "value": input_expression(child_id, "logic", blocks, connections),
+        }),
+        "logic_boolean" => {
+            let value = block
+                .pointer("/fields/BOOL")
+                .and_then(Value::as_str)
+                .is_some_and(|value| value == "true");
+            json!({
+                "kind": "boolean",
+                "value": value,
+            })
+        }
         "get_screens" => json!({
             "kind": "screen",
             "target": block.pointer("/fields/screen_id").cloned().unwrap_or(Value::Null),
