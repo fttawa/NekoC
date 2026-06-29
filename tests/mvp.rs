@@ -551,6 +551,302 @@ fn runtime_runs_screen_switch_state_blocks() {
 }
 
 #[test]
+fn runtime_runs_list_state_and_expression_blocks() {
+    let project = json!({
+        "variables": {
+            "variablesDict": {
+                "list-items": {
+                    "id": "list-items",
+                    "name": "items",
+                    "type": "list",
+                    "value": ["seed"]
+                },
+                "list-backup": {
+                    "id": "list-backup",
+                    "name": "backup",
+                    "type": "list",
+                    "value": []
+                },
+                "var-all": {"id": "var-all", "name": "all", "value": ""},
+                "var-first": {"id": "var-first", "name": "first", "value": ""},
+                "var-length": {"id": "var-length", "name": "length", "value": 0},
+                "var-index": {"id": "var-index", "name": "index", "value": 0},
+                "var-has": {"id": "var-has", "name": "has", "value": false},
+                "var-temp": {"id": "var-temp", "name": "temp", "value": []}
+            }
+        },
+        "actors": {
+            "actorsDict": {
+                "actor-1": {
+                    "id": "actor-1",
+                    "name": "player",
+                    "nekoBlockJsonList": [{
+                        "id": "start",
+                        "type": "on_running_group_activated",
+                        "next": {
+                            "id": "append",
+                            "type": "list_append",
+                            "inputs": {
+                                "list": {
+                                    "id": "items-append",
+                                    "type": "pure_list_get",
+                                    "fields": { "list": "list-items" }
+                                },
+                                "list_item_value": {
+                                    "id": "one",
+                                    "type": "math_number",
+                                    "fields": { "NUM": "1" }
+                                }
+                            },
+                            "next": {
+                                "id": "insert",
+                                "type": "list_insert_value",
+                                "inputs": {
+                                    "list": {
+                                        "id": "items-insert",
+                                        "type": "pure_list_get",
+                                        "fields": { "list": "list-items" }
+                                    },
+                                    "list_index": {
+                                        "id": "insert-index",
+                                        "type": "math_number",
+                                        "fields": { "NUM": "1" }
+                                    },
+                                    "list_item_value": {
+                                        "id": "hello",
+                                        "type": "text",
+                                        "fields": { "TEXT": "hello" }
+                                    }
+                                },
+                                "next": {
+                                    "id": "replace",
+                                    "type": "replace_list_item",
+                                    "fields": { "item": "any" },
+                                    "inputs": {
+                                        "list": {
+                                            "id": "items-replace",
+                                            "type": "pure_list_get",
+                                            "fields": { "list": "list-items" }
+                                        },
+                                        "list_index": {
+                                            "id": "replace-index",
+                                            "type": "math_number",
+                                            "fields": { "NUM": "2" }
+                                        },
+                                        "list_item_value": {
+                                            "id": "two",
+                                            "type": "math_number",
+                                            "fields": { "NUM": "2" }
+                                        }
+                                    },
+                                    "next": {
+                                        "id": "delete",
+                                        "type": "delete_list_item",
+                                        "fields": { "item": "last" },
+                                        "inputs": {
+                                            "list": {
+                                                "id": "items-delete",
+                                                "type": "pure_list_get",
+                                                "fields": { "list": "list-items" }
+                                            },
+                                            "list_index": {
+                                                "id": "delete-index",
+                                                "type": "math_number",
+                                                "fields": { "NUM": "99" }
+                                            }
+                                        },
+                                        "next": {
+                                            "id": "copy",
+                                            "type": "list_copy",
+                                            "inputs": {
+                                                "list": {
+                                                    "id": "items-copy",
+                                                    "type": "pure_list_get",
+                                                    "fields": { "list": "list-items" }
+                                                },
+                                                "target_list": {
+                                                    "id": "backup-copy",
+                                                    "type": "pure_list_get",
+                                                    "fields": { "list": "list-backup" }
+                                                }
+                                            },
+                                            "next": {
+                                                "id": "set-all",
+                                                "type": "variables_set",
+                                                "fields": { "variable": "var-all" },
+                                                "inputs": {
+                                                    "value": {
+                                                        "id": "get-list",
+                                                        "type": "list_get",
+                                                        "fields": { "list": "list-items" }
+                                                    }
+                                                },
+                                                "next": {
+                                                    "id": "set-first",
+                                                    "type": "variables_set",
+                                                    "fields": { "variable": "var-first" },
+                                                    "inputs": {
+                                                        "value": {
+                                                            "id": "item",
+                                                            "type": "list_item",
+                                                            "fields": { "item": "any" },
+                                                            "inputs": {
+                                                                "list": {
+                                                                    "id": "items-item",
+                                                                    "type": "pure_list_get",
+                                                                    "fields": { "list": "list-items" }
+                                                                },
+                                                                "list_index": {
+                                                                    "id": "item-index",
+                                                                    "type": "math_number",
+                                                                    "fields": { "NUM": "1" }
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    "next": {
+                                                        "id": "set-length",
+                                                        "type": "variables_set",
+                                                        "fields": { "variable": "var-length" },
+                                                        "inputs": {
+                                                            "value": {
+                                                                "id": "length",
+                                                                "type": "list_length",
+                                                                "inputs": {
+                                                                    "list": {
+                                                                        "id": "items-length",
+                                                                        "type": "pure_list_get",
+                                                                        "fields": { "list": "list-items" }
+                                                                    }
+                                                                }
+                                                            }
+                                                        },
+                                                        "next": {
+                                                            "id": "set-index",
+                                                            "type": "variables_set",
+                                                            "fields": { "variable": "var-index" },
+                                                            "inputs": {
+                                                                "value": {
+                                                                    "id": "index-of",
+                                                                    "type": "list_index_of",
+                                                                    "inputs": {
+                                                                        "list": {
+                                                                            "id": "items-index",
+                                                                            "type": "pure_list_get",
+                                                                            "fields": { "list": "list-items" }
+                                                                        },
+                                                                        "list_item_value": {
+                                                                            "id": "hello-index",
+                                                                            "type": "text",
+                                                                            "fields": { "TEXT": "hello" }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            },
+                                                            "next": {
+                                                                "id": "set-has",
+                                                                "type": "variables_set",
+                                                                "fields": { "variable": "var-has" },
+                                                                "inputs": {
+                                                                    "value": {
+                                                                        "id": "contains",
+                                                                        "type": "list_is_exist",
+                                                                        "inputs": {
+                                                                            "list": {
+                                                                                "id": "items-has",
+                                                                                "type": "pure_list_get",
+                                                                                "fields": { "list": "list-items" }
+                                                                            },
+                                                                            "list_item_value": {
+                                                                                "id": "hello-has",
+                                                                                "type": "text",
+                                                                                "fields": { "TEXT": "hello" }
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                },
+                                                                "next": {
+                                                                    "id": "set-temp",
+                                                                    "type": "variables_set",
+                                                                    "fields": { "variable": "var-temp" },
+                                                                    "inputs": {
+                                                                        "value": {
+                                                                            "id": "temp-list",
+                                                                            "type": "temporary_list",
+                                                                            "inputs": {
+                                                                                "ITEM0": {
+                                                                                    "id": "temp-1",
+                                                                                    "type": "math_number",
+                                                                                    "fields": { "NUM": "1" }
+                                                                                },
+                                                                                "ITEM1": {
+                                                                                    "id": "temp-2",
+                                                                                    "type": "math_number",
+                                                                                    "fields": { "NUM": "2" }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }]
+                }
+            }
+        }
+    });
+
+    let snapshot = nekoc::runtime::run_project(&project, 1).unwrap();
+
+    assert_eq!(
+        snapshot.variables["list-items"],
+        nekoc::runtime::RuntimeValue::List(vec![
+            nekoc::runtime::RuntimeValue::String("hello".to_owned()),
+            nekoc::runtime::RuntimeValue::Number(2.0),
+        ])
+    );
+    assert_eq!(
+        snapshot.variables["list-backup"],
+        snapshot.variables["list-items"]
+    );
+    assert_eq!(
+        snapshot.variables["var-all"],
+        snapshot.variables["list-items"]
+    );
+    assert_eq!(
+        snapshot.variables["var-first"],
+        nekoc::runtime::RuntimeValue::String("hello".to_owned())
+    );
+    assert_eq!(
+        snapshot.variables["var-length"],
+        nekoc::runtime::RuntimeValue::Number(2.0)
+    );
+    assert_eq!(
+        snapshot.variables["var-index"],
+        nekoc::runtime::RuntimeValue::Number(1.0)
+    );
+    assert_eq!(
+        snapshot.variables["var-has"],
+        nekoc::runtime::RuntimeValue::Bool(true)
+    );
+    assert_eq!(
+        snapshot.variables["var-temp"],
+        nekoc::runtime::RuntimeValue::List(vec![
+            nekoc::runtime::RuntimeValue::Number(1.0),
+            nekoc::runtime::RuntimeValue::Number(2.0),
+        ])
+    );
+}
+
+#[test]
 fn cli_run_writes_runtime_snapshot() {
     let dir = tempdir().unwrap();
     let input = dir.path().join("runtime.bcmkn");

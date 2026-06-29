@@ -275,6 +275,95 @@ impl<'a> Runtime<'a> {
                     .unwrap_or("")
                     .to_owned(),
             ),
+            "pure_list_get" => RuntimeValue::String(
+                block
+                    .get("fields")
+                    .and_then(|fields| fields.get("list"))
+                    .and_then(Value::as_str)
+                    .unwrap_or("")
+                    .to_owned(),
+            ),
+            "list_get" => block
+                .get("fields")
+                .and_then(|fields| fields.get("list"))
+                .and_then(Value::as_str)
+                .and_then(|id| self.variables.get(id))
+                .cloned()
+                .unwrap_or(RuntimeValue::List(Vec::new())),
+            "list_item" => {
+                let list_id = self.eval(input(block, "list")).as_string();
+                let index = self.eval(input(block, "list_index")).as_number();
+                let item = block
+                    .get("fields")
+                    .and_then(|fields| fields.get("item"))
+                    .and_then(Value::as_str)
+                    .unwrap_or("any");
+                let Some(RuntimeValue::List(items)) = self.variables.get(&list_id) else {
+                    return RuntimeValue::Null;
+                };
+                list_index(item, index, items.len())
+                    .and_then(|index| items.get(index).cloned())
+                    .unwrap_or(RuntimeValue::Null)
+            }
+            "list_length" => {
+                let list_id = self.eval(input(block, "list")).as_string();
+                let length = self
+                    .variables
+                    .get(&list_id)
+                    .and_then(runtime_list)
+                    .map(Vec::len)
+                    .unwrap_or(0);
+                RuntimeValue::Number(length as f64)
+            }
+            "list_index_of" => {
+                let list_id = self.eval(input(block, "list")).as_string();
+                let needle = self.eval(input(block, "list_item_value"));
+                let index = self
+                    .variables
+                    .get(&list_id)
+                    .and_then(runtime_list)
+                    .and_then(|items| {
+                        items
+                            .iter()
+                            .position(|item| same_runtime_value(item, &needle))
+                    })
+                    .map(|index| index + 1)
+                    .unwrap_or(0);
+                RuntimeValue::Number(index as f64)
+            }
+            "list_is_exist" => {
+                let list_id = self.eval(input(block, "list")).as_string();
+                let needle = self.eval(input(block, "list_item_value"));
+                let exists = self
+                    .variables
+                    .get(&list_id)
+                    .and_then(runtime_list)
+                    .is_some_and(|items| {
+                        items.iter().any(|item| same_runtime_value(item, &needle))
+                    });
+                RuntimeValue::Bool(exists)
+            }
+            "temporary_list" => {
+                let mut parts = block
+                    .get("inputs")
+                    .and_then(Value::as_object)
+                    .map(|inputs| {
+                        inputs
+                            .iter()
+                            .filter_map(|(name, value)| {
+                                list_item_input_index(name).map(|index| (index, value))
+                            })
+                            .collect::<Vec<_>>()
+                    })
+                    .unwrap_or_default();
+                parts.sort_by_key(|(index, _)| *index);
+                RuntimeValue::List(
+                    parts
+                        .into_iter()
+                        .map(|(_, value)| self.eval(Some(value)))
+                        .collect(),
+                )
+            }
             "self_listen_value" => block
                 .get("fields")
                 .and_then(|fields| fields.get("TEXT"))
@@ -558,6 +647,87 @@ impl<'a> Thread<'a> {
                 runtime
                     .variables
                     .insert(variable.to_owned(), RuntimeValue::Number(value));
+                self.advance(runtime, block.get("next"));
+            }
+            "list_append" => {
+                let list_id = runtime.eval(input(block, "list")).as_string();
+                let value = runtime.eval(input(block, "list_item_value"));
+                ensure_runtime_list(
+                    runtime
+                        .variables
+                        .entry(list_id)
+                        .or_insert(RuntimeValue::Null),
+                )
+                .push(value);
+                self.advance(runtime, block.get("next"));
+            }
+            "list_insert_value" => {
+                let list_id = runtime.eval(input(block, "list")).as_string();
+                let index = runtime.eval(input(block, "list_index")).as_number();
+                let value = runtime.eval(input(block, "list_item_value"));
+                let items = ensure_runtime_list(
+                    runtime
+                        .variables
+                        .entry(list_id)
+                        .or_insert(RuntimeValue::Null),
+                );
+                let index = insertion_index(index, items.len());
+                items.insert(index, value);
+                self.advance(runtime, block.get("next"));
+            }
+            "replace_list_item" => {
+                let list_id = runtime.eval(input(block, "list")).as_string();
+                let index = runtime.eval(input(block, "list_index")).as_number();
+                let value = runtime.eval(input(block, "list_item_value"));
+                let item = block
+                    .get("fields")
+                    .and_then(|fields| fields.get("item"))
+                    .and_then(Value::as_str)
+                    .unwrap_or("any");
+                let items = ensure_runtime_list(
+                    runtime
+                        .variables
+                        .entry(list_id)
+                        .or_insert(RuntimeValue::Null),
+                );
+                if let Some(index) = list_index(item, index, items.len())
+                    && let Some(slot) = items.get_mut(index)
+                {
+                    *slot = value;
+                }
+                self.advance(runtime, block.get("next"));
+            }
+            "delete_list_item" => {
+                let list_id = runtime.eval(input(block, "list")).as_string();
+                let index = runtime.eval(input(block, "list_index")).as_number();
+                let item = block
+                    .get("fields")
+                    .and_then(|fields| fields.get("item"))
+                    .and_then(Value::as_str)
+                    .unwrap_or("any");
+                let items = ensure_runtime_list(
+                    runtime
+                        .variables
+                        .entry(list_id)
+                        .or_insert(RuntimeValue::Null),
+                );
+                if let Some(index) = list_index(item, index, items.len()) {
+                    items.remove(index);
+                }
+                self.advance(runtime, block.get("next"));
+            }
+            "list_copy" => {
+                let source_id = runtime.eval(input(block, "list")).as_string();
+                let target_id = runtime.eval(input(block, "target_list")).as_string();
+                let value = runtime
+                    .variables
+                    .get(&source_id)
+                    .cloned()
+                    .unwrap_or(RuntimeValue::List(Vec::new()));
+                runtime.variables.insert(target_id, value);
+                self.advance(runtime, block.get("next"));
+            }
+            "show_hide_list" => {
                 self.advance(runtime, block.get("next"));
             }
             "repeat_forever" => {
@@ -949,6 +1119,50 @@ fn signed_delta(block: &Value, value: f64) -> f64 {
     if method == "decrease" { -value } else { value }
 }
 
+fn runtime_list(value: &RuntimeValue) -> Option<&Vec<RuntimeValue>> {
+    match value {
+        RuntimeValue::List(items) => Some(items),
+        _ => None,
+    }
+}
+
+fn ensure_runtime_list(value: &mut RuntimeValue) -> &mut Vec<RuntimeValue> {
+    if !matches!(value, RuntimeValue::List(_)) {
+        *value = RuntimeValue::List(Vec::new());
+    }
+    let RuntimeValue::List(items) = value else {
+        unreachable!();
+    };
+    items
+}
+
+fn insertion_index(index: f64, len: usize) -> usize {
+    let index = index.floor().max(1.0) as usize;
+    index.saturating_sub(1).min(len)
+}
+
+fn list_index(mode: &str, index: f64, len: usize) -> Option<usize> {
+    if len == 0 {
+        return None;
+    }
+    match mode {
+        "first" => Some(0),
+        "last" => Some(len - 1),
+        _ => {
+            let index = index.floor() as isize;
+            if index < 1 || index as usize > len {
+                None
+            } else {
+                Some(index as usize - 1)
+            }
+        }
+    }
+}
+
+fn same_runtime_value(left: &RuntimeValue, right: &RuntimeValue) -> bool {
+    left == right || left.as_string() == right.as_string()
+}
+
 fn collect_listeners(project: &Value) -> BTreeMap<String, Vec<Listener<'_>>> {
     let mut listeners = BTreeMap::new();
     collect_listeners_at(project, &["scenes", "scenesDict"], &mut listeners);
@@ -1045,6 +1259,10 @@ fn seconds_to_wait_ticks(seconds: f64) -> usize {
 
 fn text_join_index(name: &str) -> Option<usize> {
     name.strip_prefix("ADD")?.parse().ok()
+}
+
+fn list_item_input_index(name: &str) -> Option<usize> {
+    name.strip_prefix("ITEM")?.parse().ok()
 }
 
 fn select_text_value(value: RuntimeValue, start: isize, end: isize) -> RuntimeValue {
