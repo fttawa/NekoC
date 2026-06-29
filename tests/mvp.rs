@@ -669,6 +669,172 @@ fn runtime_dispatches_parameterized_broadcast_values() {
 }
 
 #[test]
+fn runtime_runs_if_with_received_broadcast_condition() {
+    let project = json!({
+        "variables": {
+            "variablesDict": {
+                "var-received": {
+                    "id": "var-received",
+                    "name": "received",
+                    "value": 0
+                }
+            }
+        },
+        "actors": {
+            "actorsDict": {
+                "actor-1": {
+                    "id": "actor-1",
+                    "name": "sender",
+                    "nekoBlockJsonList": [{
+                        "id": "start",
+                        "type": "on_running_group_activated",
+                        "next": {
+                            "id": "broadcast",
+                            "type": "self_broadcast",
+                            "inputs": {
+                                "message": {
+                                    "id": "ready-message",
+                                    "type": "broadcast_input",
+                                    "fields": { "message": "ready" }
+                                }
+                            },
+                            "next": {
+                                "id": "if",
+                                "type": "controls_if",
+                                "inputs": {
+                                    "IF0": {
+                                        "id": "received-ready",
+                                        "type": "received_broadcast",
+                                        "inputs": {
+                                            "message": {
+                                                "id": "received-message",
+                                                "type": "broadcast_input",
+                                                "fields": { "message": "ready" }
+                                            }
+                                        }
+                                    }
+                                },
+                                "statements": {
+                                    "DO0": {
+                                        "id": "set-received",
+                                        "type": "variables_set",
+                                        "fields": { "variable": "var-received" },
+                                        "inputs": {
+                                            "value": {
+                                                "id": "one",
+                                                "type": "math_number",
+                                                "fields": { "NUM": "1" }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }]
+                }
+            }
+        }
+    });
+
+    let snapshot = nekoc::runtime::run_project(&project, 1).unwrap();
+
+    assert_eq!(
+        snapshot.variables["var-received"],
+        nekoc::runtime::RuntimeValue::Number(1.0)
+    );
+}
+
+#[test]
+fn runtime_runs_when_hat_after_condition_becomes_true() {
+    let project = json!({
+        "variables": {
+            "variablesDict": {
+                "var-heard": {
+                    "id": "var-heard",
+                    "name": "heard",
+                    "value": 0
+                },
+                "var-condition": {
+                    "id": "var-condition",
+                    "name": "condition",
+                    "value": ""
+                }
+            }
+        },
+        "actors": {
+            "actorsDict": {
+                "actor-1": {
+                    "id": "actor-1",
+                    "name": "receiver",
+                    "nekoBlockJsonList": [
+                        {
+                            "id": "start",
+                            "type": "on_running_group_activated",
+                            "next": {
+                                "id": "set-heard",
+                                "type": "variables_set",
+                                "fields": { "variable": "var-heard" },
+                                "inputs": {
+                                    "value": {
+                                        "id": "one",
+                                        "type": "math_number",
+                                        "fields": { "NUM": "1" }
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "id": "when-heard",
+                            "type": "when",
+                            "inputs": {
+                                "condition": {
+                                    "id": "heard-eq",
+                                    "type": "logic_compare",
+                                    "fields": { "OP": "EQ" },
+                                    "inputs": {
+                                        "A": {
+                                            "id": "heard-value",
+                                            "type": "variables_get",
+                                            "fields": { "variable": "var-heard" }
+                                        },
+                                        "B": {
+                                            "id": "one-again",
+                                            "type": "math_number",
+                                            "fields": { "NUM": "1" }
+                                        }
+                                    }
+                                }
+                            },
+                            "statements": {
+                                "DO": {
+                                    "id": "set-condition",
+                                    "type": "variables_set",
+                                    "fields": { "variable": "var-condition" },
+                                    "inputs": {
+                                        "value": {
+                                            "id": "met",
+                                            "type": "text",
+                                            "fields": { "TEXT": "met" }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    });
+
+    let snapshot = nekoc::runtime::run_project(&project, 2).unwrap();
+
+    assert_eq!(
+        snapshot.variables["var-condition"],
+        nekoc::runtime::RuntimeValue::String("met".to_owned())
+    );
+}
+
+#[test]
 fn cli_decompile_native_sample_reports_graph_summary() {
     let sample = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("samples")

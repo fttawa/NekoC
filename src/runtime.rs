@@ -29,6 +29,15 @@ impl RuntimeValue {
             RuntimeValue::Null => 0.0,
         }
     }
+
+    fn is_truthy(&self) -> bool {
+        match self {
+            RuntimeValue::Number(value) => *value != 0.0,
+            RuntimeValue::Bool(value) => *value,
+            RuntimeValue::String(value) => !value.is_empty() && value != "false" && value != "0",
+            RuntimeValue::Null => false,
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -129,11 +138,16 @@ impl<'a> Runtime<'a> {
                 continue;
             };
             for block in blocks {
-                if block_type(block) == Some("on_running_group_activated") {
+                let is_start_hat = matches!(
+                    block_type(block),
+                    Some("on_running_group_activated" | "when")
+                );
+                if is_start_hat {
                     self.threads.push(Thread {
                         owner_id,
                         current: Some(block),
                         loop_root: None,
+                        continuations: Vec::new(),
                         wait_ticks: 0,
                         done: false,
                     });
@@ -182,6 +196,7 @@ impl<'a> Runtime<'a> {
                     owner_id: listener.owner_id,
                     current: Some(body),
                     loop_root: None,
+                    continuations: Vec::new(),
                     wait_ticks: 0,
                     done: false,
                 });
@@ -231,6 +246,35 @@ impl<'a> Runtime<'a> {
                 let message = broadcast_message(input(block, "message")).unwrap_or_default();
                 RuntimeValue::Bool(self.received_broadcasts.contains(&message))
             }
+            "logic_boolean" => RuntimeValue::Bool(
+                block
+                    .get("fields")
+                    .and_then(|fields| fields.get("BOOL"))
+                    .and_then(Value::as_str)
+                    .map(|value| value.eq_ignore_ascii_case("true"))
+                    .unwrap_or(false),
+            ),
+            "logic_compare" => {
+                let op = block
+                    .get("fields")
+                    .and_then(|fields| fields.get("OP"))
+                    .and_then(Value::as_str)
+                    .unwrap_or("EQ");
+                let a = self.eval(input(block, "A"));
+                let b = self.eval(input(block, "B"));
+                RuntimeValue::Bool(compare_values(&a, &b, op))
+            }
+            "logic_operation" => {
+                let op = block
+                    .get("fields")
+                    .and_then(|fields| fields.get("type"))
+                    .and_then(Value::as_str)
+                    .unwrap_or("and");
+                let a = self.eval(input(block, "A")).is_truthy();
+                let b = self.eval(input(block, "B")).is_truthy();
+                RuntimeValue::Bool(if op == "or" { a || b } else { a && b })
+            }
+            "logic_negate" => RuntimeValue::Bool(!self.eval(input(block, "logic")).is_truthy()),
             "math_arithmetic" => {
                 let op = block
                     .get("fields")
@@ -277,6 +321,7 @@ struct Thread<'a> {
     owner_id: &'a str,
     current: Option<&'a Value>,
     loop_root: Option<&'a Value>,
+    continuations: Vec<Option<&'a Value>>,
     wait_ticks: usize,
     done: bool,
 }
@@ -310,6 +355,14 @@ impl<'a> Thread<'a> {
         match block_type(block).unwrap_or("") {
             "on_running_group_activated" => {
                 self.advance(block.get("next"));
+            }
+            "when" => {
+                if runtime.eval(input(block, "condition")).is_truthy() {
+                    self.enter_branch(statement(block, "DO"), block.get("next"));
+                } else {
+                    self.wait_ticks = 1;
+                    self.current = Some(block);
+                }
             }
             "variables_set" => {
                 let variable = variable_field(block).context("variables_set missing variable")?;
@@ -346,6 +399,14 @@ impl<'a> Thread<'a> {
                 let body = statement(block, "DO");
                 self.loop_root = body;
                 self.current = body;
+            }
+            "controls_if" => {
+                let branch = if runtime.eval(input(block, "IF0")).is_truthy() {
+                    statement(block, "DO0")
+                } else {
+                    statement(block, "ELSE")
+                };
+                self.enter_branch(branch, block.get("next"));
             }
             "wait" => {
                 let seconds = runtime.eval(input(block, "time")).as_number().max(0.0);
@@ -394,10 +455,21 @@ impl<'a> Thread<'a> {
     fn advance(&mut self, next: Option<&'a Value>) {
         if let Some(next) = next {
             self.current = Some(next);
+        } else if let Some(Some(continuation)) = self.continuations.pop() {
+            self.current = Some(continuation);
         } else if let Some(loop_root) = self.loop_root {
             self.current = Some(loop_root);
         } else {
             self.done = true;
+        }
+    }
+
+    fn enter_branch(&mut self, branch: Option<&'a Value>, after: Option<&'a Value>) {
+        if let Some(branch) = branch {
+            self.continuations.push(after);
+            self.current = Some(branch);
+        } else {
+            self.advance(after);
         }
     }
 }
@@ -579,6 +651,41 @@ fn listen_param_name(block: Option<&Value>) -> Option<String> {
         .and_then(|fields| fields.get("TEXT"))
         .and_then(Value::as_str)
         .map(ToOwned::to_owned)
+}
+
+fn compare_values(left: &RuntimeValue, right: &RuntimeValue, op: &str) -> bool {
+    let left_number = comparable_number(left);
+    let right_number = comparable_number(right);
+    if let (Some(left), Some(right)) = (left_number, right_number) {
+        return match op {
+            "NEQ" => left != right,
+            "GT" => left > right,
+            "GTE" => left >= right,
+            "LT" => left < right,
+            "LTE" => left <= right,
+            _ => left == right,
+        };
+    }
+
+    let left = format_value(left);
+    let right = format_value(right);
+    match op {
+        "NEQ" => left != right,
+        "GT" => left > right,
+        "GTE" => left >= right,
+        "LT" => left < right,
+        "LTE" => left <= right,
+        _ => left == right,
+    }
+}
+
+fn comparable_number(value: &RuntimeValue) -> Option<f64> {
+    match value {
+        RuntimeValue::Number(value) => Some(*value),
+        RuntimeValue::Bool(value) => Some(if *value { 1.0 } else { 0.0 }),
+        RuntimeValue::String(value) => value.parse().ok(),
+        RuntimeValue::Null => None,
+    }
 }
 
 fn format_value(value: &RuntimeValue) -> String {

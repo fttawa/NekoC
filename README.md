@@ -131,6 +131,8 @@ The current runtime subset intentionally starts small:
   `self_broadcast_and_wait`, `self_listen`, `self_listen_with_param`,
   `self_listen_param`, `self_listen_value`, `received_broadcast`
 - control: `repeat_forever`, `wait`
+- conditions: `controls_if`, `when`, `logic_compare`, `logic_operation`,
+  `logic_negate`, `logic_boolean`
 - variables: `variables_get`, `variables_set`, `change_variables`
 - values: `math_number`, `text`, `math_arithmetic`, `math_trig`
 - actor state: `self_set_position_x`, `self_set_position_y`
