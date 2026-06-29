@@ -1,3 +1,4 @@
+pub mod analysis;
 pub mod bcmkn_compiler;
 pub mod decompile;
 pub mod diff;

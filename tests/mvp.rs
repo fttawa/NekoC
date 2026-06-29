@@ -781,6 +781,74 @@ onStart(() => {
 }
 
 #[test]
+fn cli_analyze_ir_reports_variable_usage() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("main.ts");
+    let workspace_output = dir.path().join("workspace.json");
+    let ir_output = dir.path().join("program.ir.json");
+    let analysis_output = dir.path().join("analysis.json");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  setVar("score", 0);
+  setVar("unused", 1);
+  setVar("result", add(getVar("score"), getVar("external")));
+});
+"#,
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts",
+            input.to_str().unwrap(),
+            "--out",
+            workspace_output.to_str().unwrap(),
+            "--emit-ir",
+            ir_output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "analyze-ir",
+            ir_output.to_str().unwrap(),
+            "--out",
+            analysis_output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let analysis: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(analysis_output).unwrap()).unwrap();
+
+    assert_eq!(analysis["format"], "nekoc-analysis");
+    assert_eq!(analysis["summary"]["scripts"], 1);
+    assert_eq!(
+        analysis["summary"]["variables"]["written_not_read"],
+        json!(["result", "unused"])
+    );
+    assert_eq!(
+        analysis["summary"]["variables"]["read_not_written"],
+        json!(["external"])
+    );
+    assert_eq!(analysis["scripts"][0]["actor"], "main");
+    assert_eq!(analysis["scripts"][0]["event"], "on_start");
+    assert_eq!(
+        analysis["scripts"][0]["reads"],
+        json!(["external", "score"])
+    );
+    assert_eq!(
+        analysis["scripts"][0]["writes"],
+        json!(["result", "score", "unused"])
+    );
+}
+
+#[test]
 fn cli_compile_ts_bcmkn_injects_nested_blocks_into_template() {
     let dir = tempdir().unwrap();
     let input = dir.path().join("main.ts");

@@ -58,6 +58,11 @@ enum Command {
         #[arg(long)]
         out: Option<PathBuf>,
     },
+    AnalyzeIr {
+        input: PathBuf,
+        #[arg(long)]
+        out: PathBuf,
+    },
 }
 
 fn main() -> Result<()> {
@@ -123,6 +128,13 @@ fn main() -> Result<()> {
                 println!("{}", serde_json::to_string_pretty(&report)?);
                 bail!("validation issues found");
             }
+        }
+        Command::AnalyzeIr { input, out } => {
+            let bytes = std::fs::read(input)?;
+            let ir: serde_json::Value = serde_json::from_slice(&bytes)?;
+            let report = nekoc::analysis::build_report(&ir);
+            let report = serde_json::to_vec_pretty(&report)?;
+            std::fs::write(out, report)?;
         }
     }
 
