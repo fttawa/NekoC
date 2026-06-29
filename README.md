@@ -164,6 +164,8 @@ The current runtime subset intentionally starts small:
 - variables: `variables_get`, `variables_set`, `change_variables`
 - script variables: `script_variables`, `script_variables_param`,
   `script_variables_value`
+- reporter procedures: `procedures_2_callreturn`, `procedures_2_parameter`,
+  `procedures_2_return_value` for pure return expressions
 - lists: `pure_list_get`, `list_append`, `list_insert_value`,
   `replace_list_item`, `delete_list_item`, `list_copy`, `list_get`,
   `list_item`, `list_length`, `list_index_of`, `list_is_exist`,

@@ -97,6 +97,7 @@ struct Runtime<'a> {
     variable_names: BTreeMap<String, String>,
     actors: BTreeMap<String, ActorState>,
     listeners: BTreeMap<String, Vec<Listener<'a>>>,
+    procedures: BTreeMap<String, Procedure<'a>>,
     received_broadcasts: BTreeSet<String>,
     message_values: BTreeMap<String, RuntimeValue>,
     logs: Vec<String>,
@@ -149,6 +150,7 @@ impl<'a> Runtime<'a> {
             .and_then(Value::as_f64)
             .unwrap_or(0.0);
         let listeners = collect_listeners(project);
+        let procedures = collect_procedures(project);
 
         Ok(Self {
             project,
@@ -166,6 +168,7 @@ impl<'a> Runtime<'a> {
             variable_names,
             actors,
             listeners,
+            procedures,
             received_broadcasts: BTreeSet::new(),
             message_values: BTreeMap::new(),
             logs: Vec::new(),
@@ -279,7 +282,13 @@ impl<'a> Runtime<'a> {
     }
 
     fn eval(&self, block: Option<&Value>) -> RuntimeValue {
-        self.eval_for_context(block, None, &BTreeMap::new(), &BTreeMap::new())
+        self.eval_for_context(
+            block,
+            None,
+            &BTreeMap::new(),
+            &BTreeMap::new(),
+            &BTreeMap::new(),
+        )
     }
 
     fn eval_for_context(
@@ -288,11 +297,20 @@ impl<'a> Runtime<'a> {
         owner_id: Option<&str>,
         range_values: &BTreeMap<String, RuntimeValue>,
         script_values: &BTreeMap<String, RuntimeValue>,
+        procedure_values: &BTreeMap<String, RuntimeValue>,
     ) -> RuntimeValue {
         let Some(block) = block else {
             return RuntimeValue::Null;
         };
-        let eval = |block| self.eval_for_context(block, owner_id, range_values, script_values);
+        let eval = |block| {
+            self.eval_for_context(
+                block,
+                owner_id,
+                range_values,
+                script_values,
+                procedure_values,
+            )
+        };
         match block_type(block).unwrap_or("") {
             "math_number" => number_field(block, "NUM")
                 .map(RuntimeValue::Number)
@@ -438,6 +456,34 @@ impl<'a> Runtime<'a> {
                 .and_then(|name| script_values.get(name))
                 .cloned()
                 .unwrap_or(RuntimeValue::Null),
+            "procedures_2_parameter" => block
+                .get("fields")
+                .and_then(|fields| fields.get("param_name"))
+                .and_then(Value::as_str)
+                .and_then(|name| procedure_values.get(name))
+                .cloned()
+                .unwrap_or(RuntimeValue::Null),
+            "procedures_2_callreturn" => {
+                let Some(def_id) = procedure_def_id(block) else {
+                    return RuntimeValue::Null;
+                };
+                let Some(procedure) = self.procedures.get(def_id) else {
+                    return RuntimeValue::Null;
+                };
+                let mut values = BTreeMap::new();
+                for param in &procedure.params {
+                    if let Some(input) = input(block, &param.id) {
+                        values.insert(param.name.clone(), eval(Some(input)));
+                    }
+                }
+                self.eval_procedure_return(
+                    procedure,
+                    owner_id,
+                    range_values,
+                    script_values,
+                    &values,
+                )
+            }
             "received_broadcast" => {
                 let message = broadcast_message(input(block, "message")).unwrap_or_default();
                 RuntimeValue::Bool(self.received_broadcasts.contains(&message))
@@ -721,6 +767,30 @@ impl<'a> Runtime<'a> {
             _ => RuntimeValue::Null,
         }
     }
+
+    fn eval_procedure_return(
+        &self,
+        procedure: &Procedure<'a>,
+        owner_id: Option<&str>,
+        range_values: &BTreeMap<String, RuntimeValue>,
+        script_values: &BTreeMap<String, RuntimeValue>,
+        procedure_values: &BTreeMap<String, RuntimeValue>,
+    ) -> RuntimeValue {
+        let mut current = procedure.body;
+        while let Some(block) = current {
+            if block_type(block) == Some("procedures_2_return_value") {
+                return self.eval_for_context(
+                    input(block, "VALUE"),
+                    owner_id,
+                    range_values,
+                    script_values,
+                    procedure_values,
+                );
+            }
+            current = block.get("next");
+        }
+        RuntimeValue::Null
+    }
 }
 
 struct Thread<'a> {
@@ -742,6 +812,7 @@ impl<'a> Thread<'a> {
             Some(self.owner_id),
             &self.range_values,
             &self.script_values,
+            &BTreeMap::new(),
         )
     }
 
@@ -1257,6 +1328,7 @@ impl<'a> Thread<'a> {
                         Some(owner_id),
                         &self.range_values,
                         &self.script_values,
+                        &BTreeMap::new(),
                     )
                     .is_truthy()
                 {
@@ -1344,6 +1416,18 @@ struct Listener<'a> {
     owner_id: &'a str,
     body: Option<&'a Value>,
     param_name: Option<String>,
+}
+
+#[derive(Debug, Clone)]
+struct Procedure<'a> {
+    body: Option<&'a Value>,
+    params: Vec<ProcedureParam>,
+}
+
+#[derive(Debug, Clone)]
+struct ProcedureParam {
+    id: String,
+    name: String,
 }
 
 #[derive(Debug, Clone)]
@@ -1439,6 +1523,51 @@ fn collect_actors(dict: &Map<String, Value>) -> BTreeMap<String, ActorState> {
                         .unwrap_or(true),
                 },
             )
+        })
+        .collect()
+}
+
+fn collect_procedures(project: &Value) -> BTreeMap<String, Procedure<'_>> {
+    let Some(procedures) = project
+        .get("procedures")
+        .and_then(|value| value.get("proceduresDict"))
+        .and_then(Value::as_object)
+    else {
+        return BTreeMap::new();
+    };
+
+    procedures
+        .iter()
+        .filter_map(|(id, procedure)| {
+            let definition = procedure
+                .get("nekoBlockJsonList")
+                .and_then(Value::as_array)?
+                .first()?;
+            let params = procedure
+                .get("params")
+                .and_then(Value::as_array)
+                .map(|params| {
+                    params
+                        .iter()
+                        .filter_map(|param| {
+                            if param.get("type").and_then(Value::as_str) != Some("String") {
+                                return None;
+                            }
+                            Some(ProcedureParam {
+                                id: param.get("id").and_then(Value::as_str)?.to_owned(),
+                                name: param.get("name").and_then(Value::as_str)?.to_owned(),
+                            })
+                        })
+                        .collect()
+                })
+                .unwrap_or_default();
+            Some((
+                id.clone(),
+                Procedure {
+                    body: statement(definition, "STACK"),
+                    params,
+                },
+            ))
         })
         .collect()
 }
@@ -1613,6 +1742,18 @@ fn script_variable_names(block: &Value) -> Vec<&str> {
         .collect::<Vec<_>>();
     names.sort_by_key(|(index, _)| *index);
     names.into_iter().map(|(_, name)| name).collect()
+}
+
+fn procedure_def_id(block: &Value) -> Option<&str> {
+    attr_value(block.get("mutation")?.as_str()?, "def_id")
+}
+
+fn attr_value<'a>(text: &'a str, name: &str) -> Option<&'a str> {
+    let needle = format!("{name}=\"");
+    let start = text.find(&needle)? + needle.len();
+    let rest = &text[start..];
+    let end = rest.find('"')?;
+    Some(&rest[..end])
 }
 
 fn number_field(block: &Value, name: &str) -> Option<f64> {

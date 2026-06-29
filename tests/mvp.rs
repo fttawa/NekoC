@@ -1308,6 +1308,55 @@ onStart(() => {
 }
 
 #[test]
+fn runtime_runs_compiled_reporter_procedure_calls() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("reporter-runtime.ts");
+    let output = dir.path().join("reporter-runtime.bcmkn");
+    fs::write(
+        &input,
+        r#"
+defineReporter("double", ["x"], () => {
+  returnValue(mul(param("x"), 2));
+});
+
+onStart(() => {
+  setVar("answer", callReporter("double", 21));
+});
+"#,
+    )
+    .unwrap();
+    let template = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts-bcmkn",
+            input.to_str().unwrap(),
+            "--template",
+            template.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let project = nekoc::project::load_project(&output).unwrap();
+    let snapshot = nekoc::runtime::run_project(&project.value, 1).unwrap();
+    let answer_id = snapshot
+        .variable_names
+        .iter()
+        .find_map(|(id, name)| (name == "answer").then_some(id))
+        .expect("missing answer variable");
+
+    assert_eq!(
+        snapshot.variables.get(answer_id),
+        Some(&nekoc::runtime::RuntimeValue::Number(42.0))
+    );
+}
+
+#[test]
 fn cli_run_writes_runtime_snapshot() {
     let dir = tempdir().unwrap();
     let input = dir.path().join("runtime.bcmkn");
