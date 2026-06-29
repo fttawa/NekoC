@@ -84,6 +84,13 @@ struct Runtime<'a> {
     ticks: usize,
     current_scene_id: Option<String>,
     scene_names: BTreeMap<String, String>,
+    stage_width: f64,
+    stage_height: f64,
+    timer_elapsed_ticks: usize,
+    timer_running: bool,
+    last_answer: RuntimeValue,
+    last_choice_content: RuntimeValue,
+    last_choice_index: usize,
     variables: BTreeMap<String, RuntimeValue>,
     variable_names: BTreeMap<String, String>,
     actors: BTreeMap<String, ActorState>,
@@ -129,6 +136,16 @@ impl<'a> Runtime<'a> {
             .and_then(Value::as_object)
             .map(collect_scene_names)
             .unwrap_or_default();
+        let stage_width = root
+            .get("stageSize")
+            .and_then(|stage_size| stage_size.get("width"))
+            .and_then(Value::as_f64)
+            .unwrap_or(0.0);
+        let stage_height = root
+            .get("stageSize")
+            .and_then(|stage_size| stage_size.get("height"))
+            .and_then(Value::as_f64)
+            .unwrap_or(0.0);
         let listeners = collect_listeners(project);
 
         Ok(Self {
@@ -136,6 +153,13 @@ impl<'a> Runtime<'a> {
             ticks: 0,
             current_scene_id,
             scene_names,
+            stage_width,
+            stage_height,
+            timer_elapsed_ticks: 0,
+            timer_running: true,
+            last_answer: RuntimeValue::String(String::new()),
+            last_choice_content: RuntimeValue::String(String::new()),
+            last_choice_index: 0,
             variables,
             variable_names,
             actors,
@@ -191,6 +215,9 @@ impl<'a> Runtime<'a> {
             threads.retain(|thread| !thread.done);
             threads.append(&mut self.threads);
             self.threads = threads;
+            if self.timer_running {
+                self.timer_elapsed_ticks += 1;
+            }
         }
         Ok(())
     }
@@ -375,6 +402,30 @@ impl<'a> Runtime<'a> {
                 let message = broadcast_message(input(block, "message")).unwrap_or_default();
                 RuntimeValue::Bool(self.received_broadcasts.contains(&message))
             }
+            "check_key" | "mouse_down" => RuntimeValue::Bool(false),
+            "get_mouse_info" => RuntimeValue::Number(0.0),
+            "get_answer" => self.last_answer.clone(),
+            "get_choice_and_index" => {
+                let field_type = field_string(block, "type").unwrap_or("content");
+                if field_type == "index" {
+                    RuntimeValue::Number(self.last_choice_index as f64)
+                } else {
+                    self.last_choice_content.clone()
+                }
+            }
+            "timer" => RuntimeValue::Number(self.timer_elapsed_ticks as f64 / DEFAULT_FPS),
+            "get_time" => RuntimeValue::Number(0.0),
+            "get_stage_info" => match field_string(block, "type").unwrap_or("width") {
+                "height" => RuntimeValue::Number(self.stage_height),
+                _ => RuntimeValue::Number(self.stage_width),
+            },
+            "bump_into" | "bump_into_color" | "out_of_boundary" | "bump_into_body_part" => {
+                RuntimeValue::Bool(false)
+            }
+            "get_clone_num" | "get_current_clone_index" | "get_clone_index_property" => {
+                RuntimeValue::Number(0.0)
+            }
+            "get_appearance_of_part" | "get_tilt_angle_of_face" => RuntimeValue::Number(0.0),
             "logic_boolean" => RuntimeValue::Bool(
                 block
                     .get("fields")
@@ -814,6 +865,31 @@ impl<'a> Thread<'a> {
                 runtime.dispatch_broadcast(&message, Some(payload));
                 self.advance(runtime, block.get("next"));
             }
+            "ask_and_choose" => {
+                runtime.last_answer = RuntimeValue::String(String::new());
+                runtime.last_choice_content =
+                    RuntimeValue::String(runtime.eval(choice_input(block, 0)).as_string());
+                runtime.last_choice_index = 1;
+                self.advance(runtime, block.get("next"));
+            }
+            "self_ask" => {
+                runtime.last_answer = RuntimeValue::String(String::new());
+                self.advance(runtime, block.get("next"));
+            }
+            "set_timer_state" => {
+                match field_string(block, "type").unwrap_or("reset") {
+                    "start" => runtime.timer_running = true,
+                    "stop" => runtime.timer_running = false,
+                    _ => {
+                        runtime.timer_elapsed_ticks = 0;
+                        runtime.timer_running = true;
+                    }
+                }
+                self.advance(runtime, block.get("next"));
+            }
+            "show_hide_timer" | "face_to_body_part" | "mirror" | "dispose_clone" => {
+                self.advance(runtime, block.get("next"));
+            }
             "switch_to_screen" => {
                 let screen_id = runtime.eval(input(block, "screen_id")).as_string();
                 if screen_id.is_empty() {
@@ -1232,6 +1308,10 @@ fn input<'a>(block: &'a Value, name: &str) -> Option<&'a Value> {
         .and_then(|inputs| inputs.get(name))
 }
 
+fn choice_input(block: &Value, index: usize) -> Option<&Value> {
+    input(block, &format!("CHOICE{index}"))
+}
+
 fn statement<'a>(block: &'a Value, name: &str) -> Option<&'a Value> {
     block
         .get("statements")
@@ -1243,6 +1323,13 @@ fn variable_field(block: &Value) -> Option<&str> {
     block
         .get("fields")
         .and_then(|fields| fields.get("variable"))
+        .and_then(Value::as_str)
+}
+
+fn field_string<'a>(block: &'a Value, name: &str) -> Option<&'a str> {
+    block
+        .get("fields")
+        .and_then(|fields| fields.get(name))
         .and_then(Value::as_str)
 }
 

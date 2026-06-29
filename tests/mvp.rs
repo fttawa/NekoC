@@ -847,6 +847,143 @@ fn runtime_runs_list_state_and_expression_blocks() {
 }
 
 #[test]
+fn runtime_runs_compiled_sensing_input_time_defaults() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("sensing-runtime.ts");
+    let output = dir.path().join("sensing-runtime.bcmkn");
+    fs::write(
+        &input,
+        r##"
+onStart(() => {
+  askChoice("1+1=?", "1", "2");
+  ask("name?");
+  timerStart();
+  timerStop();
+  timerReset();
+  showTimer();
+  setVar("key", keyPressed("65", "down"));
+  setVar("mouse", mouseTrigger("down"));
+  setVar("mouseX", mouseX());
+  setVar("mouseY", mouseY());
+  setVar("answer", answer());
+  setVar("choiceText", choiceValue("content"));
+  setVar("choiceIndex", choiceValue("index"));
+  setVar("timer", timerValue());
+  setVar("stageWidth", stageInfo("width"));
+  setVar("stageHeight", stageInfo("height"));
+  setVar("touching", touching("--self", "--edge"));
+  setVar("touchingColor", touchingColor("--self", "#ff0000"));
+  setVar("outside", outOfBoundary("0"));
+  setVar("cloneCount", cloneCount("--self"));
+  setVar("cloneIndex", currentCloneIndex());
+  setVar("cloneX", cloneProperty("--self", 1, "x"));
+  setVar("bodyTouch", touchingBodyPart("--self", "face"));
+});
+"##,
+    )
+    .unwrap();
+    let template = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts-bcmkn",
+            input.to_str().unwrap(),
+            "--template",
+            template.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let project = nekoc::project::load_project(&output).unwrap();
+    let snapshot = nekoc::runtime::run_project(&project.value, 1).unwrap();
+    let variable_by_name = |name: &str| {
+        let id = snapshot
+            .variable_names
+            .iter()
+            .find_map(|(id, variable_name)| (variable_name == name).then_some(id))
+            .unwrap_or_else(|| panic!("missing variable {name}"));
+        snapshot
+            .variables
+            .get(id)
+            .unwrap_or_else(|| panic!("missing runtime value for {name}"))
+    };
+
+    assert_eq!(
+        variable_by_name("key"),
+        &nekoc::runtime::RuntimeValue::Bool(false)
+    );
+    assert_eq!(
+        variable_by_name("mouse"),
+        &nekoc::runtime::RuntimeValue::Bool(false)
+    );
+    assert_eq!(
+        variable_by_name("mouseX"),
+        &nekoc::runtime::RuntimeValue::Number(0.0)
+    );
+    assert_eq!(
+        variable_by_name("mouseY"),
+        &nekoc::runtime::RuntimeValue::Number(0.0)
+    );
+    assert_eq!(
+        variable_by_name("answer"),
+        &nekoc::runtime::RuntimeValue::String(String::new())
+    );
+    assert_eq!(
+        variable_by_name("choiceText"),
+        &nekoc::runtime::RuntimeValue::String("1".to_owned())
+    );
+    assert_eq!(
+        variable_by_name("choiceIndex"),
+        &nekoc::runtime::RuntimeValue::Number(1.0)
+    );
+    assert_eq!(
+        variable_by_name("timer"),
+        &nekoc::runtime::RuntimeValue::Number(0.0)
+    );
+    assert_eq!(
+        variable_by_name("stageWidth"),
+        &nekoc::runtime::RuntimeValue::Number(562.0)
+    );
+    assert_eq!(
+        variable_by_name("stageHeight"),
+        &nekoc::runtime::RuntimeValue::Number(900.0)
+    );
+    assert_eq!(
+        variable_by_name("touching"),
+        &nekoc::runtime::RuntimeValue::Bool(false)
+    );
+    assert_eq!(
+        variable_by_name("touchingColor"),
+        &nekoc::runtime::RuntimeValue::Bool(false)
+    );
+    assert_eq!(
+        variable_by_name("outside"),
+        &nekoc::runtime::RuntimeValue::Bool(false)
+    );
+    assert_eq!(
+        variable_by_name("cloneCount"),
+        &nekoc::runtime::RuntimeValue::Number(0.0)
+    );
+    assert_eq!(
+        variable_by_name("cloneIndex"),
+        &nekoc::runtime::RuntimeValue::Number(0.0)
+    );
+    assert_eq!(
+        variable_by_name("cloneX"),
+        &nekoc::runtime::RuntimeValue::Number(0.0)
+    );
+    assert_eq!(
+        variable_by_name("bodyTouch"),
+        &nekoc::runtime::RuntimeValue::Bool(false)
+    );
+}
+
+#[test]
 fn cli_run_writes_runtime_snapshot() {
     let dir = tempdir().unwrap();
     let input = dir.path().join("runtime.bcmkn");
