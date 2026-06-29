@@ -152,7 +152,7 @@ exit nonzero with changed JSON paths when the runtime behavior diverges.
 
 The current runtime subset intentionally starts small:
 
-- events: `on_running_group_activated`
+- events: `on_running_group_activated`, `start_on_click` via `RuntimeEvent::Click`
 - broadcasts: `self_broadcast`, `self_broadcast_with_param`,
   `self_broadcast_and_wait`, `self_listen`, `self_listen_with_param`,
   `self_listen_param`, `self_listen_value`, `received_broadcast`

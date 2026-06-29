@@ -74,9 +74,28 @@ pub struct RuntimeSnapshot {
     pub active_threads: usize,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum RuntimeEvent {
+    Click,
+}
+
 pub fn run_project(value: &Value, ticks: usize) -> Result<RuntimeSnapshot> {
     let mut runtime = Runtime::from_project(value)?;
     runtime.start();
+    runtime.run_ticks(ticks)?;
+    Ok(runtime.snapshot())
+}
+
+pub fn run_project_with_events(
+    value: &Value,
+    events: &[RuntimeEvent],
+    ticks: usize,
+) -> Result<RuntimeSnapshot> {
+    let mut runtime = Runtime::from_project(value)?;
+    runtime.start();
+    for event in events {
+        runtime.dispatch_event(event);
+    }
     runtime.run_ticks(ticks)?;
     Ok(runtime.snapshot())
 }
@@ -181,7 +200,33 @@ impl<'a> Runtime<'a> {
         self.spawn_start_scripts_at(&["actors", "actorsDict"]);
     }
 
+    fn dispatch_event(&mut self, event: &RuntimeEvent) {
+        match event {
+            RuntimeEvent::Click => {
+                self.spawn_hat_scripts_at(&["scenes", "scenesDict"], "start_on_click");
+                self.spawn_hat_scripts_at(&["actors", "actorsDict"], "start_on_click");
+            }
+        }
+    }
+
     fn spawn_start_scripts_at(&mut self, path: &[&str]) {
+        self.spawn_matching_scripts_at(path, |block| {
+            matches!(
+                block_type(block),
+                Some("on_running_group_activated" | "when")
+            )
+        });
+    }
+
+    fn spawn_hat_scripts_at(&mut self, path: &[&str], hat_type: &str) {
+        self.spawn_matching_scripts_at(path, |block| block_type(block) == Some(hat_type));
+    }
+
+    fn spawn_matching_scripts_at(
+        &mut self,
+        path: &[&str],
+        mut is_match: impl FnMut(&Value) -> bool,
+    ) {
         let Some(owners) = get_path(self.project, path).and_then(Value::as_object) else {
             return;
         };
@@ -191,11 +236,7 @@ impl<'a> Runtime<'a> {
                 continue;
             };
             for block in blocks {
-                let is_start_hat = matches!(
-                    block_type(block),
-                    Some("on_running_group_activated" | "when")
-                );
-                if is_start_hat {
+                if is_match(block) {
                     self.threads.push(Thread {
                         owner_id,
                         current: Some(block),
@@ -849,7 +890,7 @@ impl<'a> Thread<'a> {
 
     fn execute_block(&mut self, block: &'a Value, runtime: &mut Runtime<'a>) -> Result<()> {
         match block_type(block).unwrap_or("") {
-            "on_running_group_activated" => {
+            "on_running_group_activated" | "start_on_click" => {
                 self.advance(runtime, block.get("next"));
             }
             "when" => {

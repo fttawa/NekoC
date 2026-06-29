@@ -1085,6 +1085,72 @@ onStart(() => {
 }
 
 #[test]
+fn runtime_can_trigger_compiled_click_events() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("click-runtime.ts");
+    let output = dir.path().join("click-runtime.bcmkn");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  setVar("clicked", 0);
+});
+
+onClick(() => {
+  setVar("clicked", 1);
+});
+"#,
+    )
+    .unwrap();
+    let template = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts-bcmkn",
+            input.to_str().unwrap(),
+            "--template",
+            template.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let project = nekoc::project::load_project(&output).unwrap();
+    let start_only = nekoc::runtime::run_project(&project.value, 1).unwrap();
+    let with_click = nekoc::runtime::run_project_with_events(
+        &project.value,
+        &[nekoc::runtime::RuntimeEvent::Click],
+        1,
+    )
+    .unwrap();
+    let value_by_name = |snapshot: &nekoc::runtime::RuntimeSnapshot, name: &str| {
+        let id = snapshot
+            .variable_names
+            .iter()
+            .find_map(|(id, variable_name)| (variable_name == name).then_some(id))
+            .unwrap_or_else(|| panic!("missing variable {name}"));
+        snapshot
+            .variables
+            .get(id)
+            .unwrap_or_else(|| panic!("missing runtime value for {name}"))
+            .clone()
+    };
+
+    assert_eq!(
+        value_by_name(&start_only, "clicked"),
+        nekoc::runtime::RuntimeValue::Number(0.0)
+    );
+    assert_eq!(
+        value_by_name(&with_click, "clicked"),
+        nekoc::runtime::RuntimeValue::Number(1.0)
+    );
+}
+
+#[test]
 fn runtime_runs_compiled_motion_style_and_math_expressions() {
     let dir = tempdir().unwrap();
     let input = dir.path().join("motion-style-runtime.ts");
