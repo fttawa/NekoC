@@ -1251,6 +1251,63 @@ onStart(() => {
 }
 
 #[test]
+fn runtime_runs_compiled_script_variable_defaults() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("script-vars-runtime.ts");
+    let output = dir.path().join("script-vars-runtime.bcmkn");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  scriptVars("localScore");
+  setVar("localCopy", scriptVar("localScore"));
+  setVar("sum", add(scriptVar("localScore"), 4));
+});
+"#,
+    )
+    .unwrap();
+    let template = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts-bcmkn",
+            input.to_str().unwrap(),
+            "--template",
+            template.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let project = nekoc::project::load_project(&output).unwrap();
+    let snapshot = nekoc::runtime::run_project(&project.value, 1).unwrap();
+    let variable_by_name = |name: &str| {
+        let id = snapshot
+            .variable_names
+            .iter()
+            .find_map(|(id, variable_name)| (variable_name == name).then_some(id))
+            .unwrap_or_else(|| panic!("missing variable {name}"));
+        snapshot
+            .variables
+            .get(id)
+            .unwrap_or_else(|| panic!("missing runtime value for {name}"))
+    };
+
+    assert_eq!(
+        variable_by_name("localCopy"),
+        &nekoc::runtime::RuntimeValue::Null
+    );
+    assert_eq!(
+        variable_by_name("sum"),
+        &nekoc::runtime::RuntimeValue::Number(4.0)
+    );
+}
+
+#[test]
 fn cli_run_writes_runtime_snapshot() {
     let dir = tempdir().unwrap();
     let input = dir.path().join("runtime.bcmkn");

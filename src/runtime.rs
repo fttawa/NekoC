@@ -199,6 +199,7 @@ impl<'a> Runtime<'a> {
                         loops: Vec::new(),
                         continuations: Vec::new(),
                         range_values: BTreeMap::new(),
+                        script_values: BTreeMap::new(),
                         wait_ticks: 0,
                         yielded: false,
                         done: false,
@@ -259,6 +260,7 @@ impl<'a> Runtime<'a> {
                     loops: Vec::new(),
                     continuations: Vec::new(),
                     range_values: BTreeMap::new(),
+                    script_values: BTreeMap::new(),
                     wait_ticks: 0,
                     yielded: false,
                     done: false,
@@ -277,7 +279,7 @@ impl<'a> Runtime<'a> {
     }
 
     fn eval(&self, block: Option<&Value>) -> RuntimeValue {
-        self.eval_for_context(block, None, &BTreeMap::new())
+        self.eval_for_context(block, None, &BTreeMap::new(), &BTreeMap::new())
     }
 
     fn eval_for_context(
@@ -285,11 +287,12 @@ impl<'a> Runtime<'a> {
         block: Option<&Value>,
         owner_id: Option<&str>,
         range_values: &BTreeMap<String, RuntimeValue>,
+        script_values: &BTreeMap<String, RuntimeValue>,
     ) -> RuntimeValue {
         let Some(block) = block else {
             return RuntimeValue::Null;
         };
-        let eval = |block| self.eval_for_context(block, owner_id, range_values);
+        let eval = |block| self.eval_for_context(block, owner_id, range_values, script_values);
         match block_type(block).unwrap_or("") {
             "math_number" => number_field(block, "NUM")
                 .map(RuntimeValue::Number)
@@ -426,6 +429,13 @@ impl<'a> Runtime<'a> {
                 .and_then(|fields| fields.get("TEXT"))
                 .and_then(Value::as_str)
                 .and_then(|name| range_values.get(name))
+                .cloned()
+                .unwrap_or(RuntimeValue::Null),
+            "script_variables_value" => block
+                .get("fields")
+                .and_then(|fields| fields.get("TEXT"))
+                .and_then(Value::as_str)
+                .and_then(|name| script_values.get(name))
                 .cloned()
                 .unwrap_or(RuntimeValue::Null),
             "received_broadcast" => {
@@ -719,6 +729,7 @@ struct Thread<'a> {
     loops: Vec<LoopFrame<'a>>,
     continuations: Vec<Option<&'a Value>>,
     range_values: BTreeMap<String, RuntimeValue>,
+    script_values: BTreeMap<String, RuntimeValue>,
     wait_ticks: usize,
     yielded: bool,
     done: bool,
@@ -726,7 +737,12 @@ struct Thread<'a> {
 
 impl<'a> Thread<'a> {
     fn eval(&self, runtime: &Runtime<'a>, block: Option<&Value>) -> RuntimeValue {
-        runtime.eval_for_context(block, Some(self.owner_id), &self.range_values)
+        runtime.eval_for_context(
+            block,
+            Some(self.owner_id),
+            &self.range_values,
+            &self.script_values,
+        )
     }
 
     fn step(&mut self, runtime: &mut Runtime<'a>) -> Result<()> {
@@ -877,6 +893,14 @@ impl<'a> Thread<'a> {
                 self.advance(runtime, block.get("next"));
             }
             "show_hide_list" => {
+                self.advance(runtime, block.get("next"));
+            }
+            "script_variables" => {
+                for name in script_variable_names(block) {
+                    self.script_values
+                        .entry(name.to_owned())
+                        .or_insert(RuntimeValue::Null);
+                }
                 self.advance(runtime, block.get("next"));
             }
             "repeat_forever" => {
@@ -1228,7 +1252,12 @@ impl<'a> Thread<'a> {
                 let after = *after;
                 let body = *body;
                 if runtime
-                    .eval_for_context(*condition, Some(owner_id), &self.range_values)
+                    .eval_for_context(
+                        *condition,
+                        Some(owner_id),
+                        &self.range_values,
+                        &self.script_values,
+                    )
                     .is_truthy()
                 {
                     self.loops.pop();
@@ -1566,6 +1595,24 @@ fn traverse_param_name(block: &Value) -> Option<&str> {
         return None;
     }
     field_string(block, "TEXT")
+}
+
+fn script_variable_names(block: &Value) -> Vec<&str> {
+    let Some(inputs) = block.get("inputs").and_then(Value::as_object) else {
+        return Vec::new();
+    };
+    let mut names = inputs
+        .iter()
+        .filter_map(|(key, value)| {
+            let index = key.strip_prefix("PARAMS")?.parse::<usize>().ok()?;
+            if block_type(value) != Some("script_variables_param") {
+                return None;
+            }
+            Some((index, field_string(value, "TEXT")?))
+        })
+        .collect::<Vec<_>>();
+    names.sort_by_key(|(index, _)| *index);
+    names.into_iter().map(|(_, name)| name).collect()
 }
 
 fn number_field(block: &Value, name: &str) -> Option<f64> {

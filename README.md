@@ -162,6 +162,8 @@ The current runtime subset intentionally starts small:
 - conditions: `controls_if`, `when`, `logic_compare`, `logic_operation`,
   `logic_negate`, `logic_boolean`
 - variables: `variables_get`, `variables_set`, `change_variables`
+- script variables: `script_variables`, `script_variables_param`,
+  `script_variables_value`
 - lists: `pure_list_get`, `list_append`, `list_insert_value`,
   `replace_list_item`, `delete_list_item`, `list_copy`, `list_get`,
   `list_item`, `list_length`, `list_index_of`, `list_is_exist`,
