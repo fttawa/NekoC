@@ -156,7 +156,8 @@ The current runtime subset intentionally starts small:
 - broadcasts: `self_broadcast`, `self_broadcast_with_param`,
   `self_broadcast_and_wait`, `self_listen`, `self_listen_with_param`,
   `self_listen_param`, `self_listen_value`, `received_broadcast`
-- control: `repeat_forever`, `repeat_n_times`, `repeat_forever_until`, `break`,
+- control: `repeat_forever`, `repeat_n_times`, `repeat_forever_until`,
+  `traverse_number`, `traverse_number_param`, `traverse_number_value`, `break`,
   `wait`, `wait_until`, `warp`, `tell`, `sync_tell`, `stop`, `restart`
 - conditions: `controls_if`, `when`, `logic_compare`, `logic_operation`,
   `logic_negate`, `logic_boolean`

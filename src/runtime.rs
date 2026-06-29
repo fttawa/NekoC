@@ -198,6 +198,7 @@ impl<'a> Runtime<'a> {
                         current: Some(block),
                         loops: Vec::new(),
                         continuations: Vec::new(),
+                        range_values: BTreeMap::new(),
                         wait_ticks: 0,
                         yielded: false,
                         done: false,
@@ -257,6 +258,7 @@ impl<'a> Runtime<'a> {
                     current: Some(body),
                     loops: Vec::new(),
                     continuations: Vec::new(),
+                    range_values: BTreeMap::new(),
                     wait_ticks: 0,
                     yielded: false,
                     done: false,
@@ -275,14 +277,19 @@ impl<'a> Runtime<'a> {
     }
 
     fn eval(&self, block: Option<&Value>) -> RuntimeValue {
-        self.eval_for_owner(block, None)
+        self.eval_for_context(block, None, &BTreeMap::new())
     }
 
-    fn eval_for_owner(&self, block: Option<&Value>, owner_id: Option<&str>) -> RuntimeValue {
+    fn eval_for_context(
+        &self,
+        block: Option<&Value>,
+        owner_id: Option<&str>,
+        range_values: &BTreeMap<String, RuntimeValue>,
+    ) -> RuntimeValue {
         let Some(block) = block else {
             return RuntimeValue::Null;
         };
-        let eval = |block| self.eval_for_owner(block, owner_id);
+        let eval = |block| self.eval_for_context(block, owner_id, range_values);
         match block_type(block).unwrap_or("") {
             "math_number" => number_field(block, "NUM")
                 .map(RuntimeValue::Number)
@@ -412,6 +419,13 @@ impl<'a> Runtime<'a> {
                 .and_then(|fields| fields.get("TEXT"))
                 .and_then(Value::as_str)
                 .and_then(|name| self.message_values.get(name))
+                .cloned()
+                .unwrap_or(RuntimeValue::Null),
+            "traverse_number_value" => block
+                .get("fields")
+                .and_then(|fields| fields.get("TEXT"))
+                .and_then(Value::as_str)
+                .and_then(|name| range_values.get(name))
                 .cloned()
                 .unwrap_or(RuntimeValue::Null),
             "received_broadcast" => {
@@ -704,6 +718,7 @@ struct Thread<'a> {
     current: Option<&'a Value>,
     loops: Vec<LoopFrame<'a>>,
     continuations: Vec<Option<&'a Value>>,
+    range_values: BTreeMap<String, RuntimeValue>,
     wait_ticks: usize,
     yielded: bool,
     done: bool,
@@ -711,7 +726,7 @@ struct Thread<'a> {
 
 impl<'a> Thread<'a> {
     fn eval(&self, runtime: &Runtime<'a>, block: Option<&Value>) -> RuntimeValue {
-        runtime.eval_for_owner(block, Some(self.owner_id))
+        runtime.eval_for_context(block, Some(self.owner_id), &self.range_values)
     }
 
     fn step(&mut self, runtime: &mut Runtime<'a>) -> Result<()> {
@@ -908,6 +923,35 @@ impl<'a> Thread<'a> {
                     }
                 } else {
                     self.advance(runtime, block.get("next"));
+                }
+            }
+            "traverse_number" => {
+                let variable = input(block, "value")
+                    .and_then(traverse_param_name)
+                    .context("traverse_number missing loop variable")?
+                    .to_owned();
+                let start = self.eval(runtime, input(block, "from")).as_number();
+                let end = self.eval(runtime, input(block, "to")).as_number();
+                let step = self.eval(runtime, input(block, "by")).as_number();
+                let body = statement(block, "DO");
+                let Some(body) = body else {
+                    self.advance(runtime, block.get("next"));
+                    return Ok(());
+                };
+                if step == 0.0 || !range_contains(start, end, step) {
+                    self.advance(runtime, block.get("next"));
+                } else {
+                    self.range_values
+                        .insert(variable.clone(), RuntimeValue::Number(start));
+                    self.loops.push(LoopFrame::Range {
+                        variable,
+                        body,
+                        current: start,
+                        end,
+                        step,
+                        after: block.get("next"),
+                    });
+                    self.current = Some(body);
                 }
             }
             "controls_if" => {
@@ -1184,7 +1228,7 @@ impl<'a> Thread<'a> {
                 let after = *after;
                 let body = *body;
                 if runtime
-                    .eval_for_owner(*condition, Some(owner_id))
+                    .eval_for_context(*condition, Some(owner_id), &self.range_values)
                     .is_truthy()
                 {
                     self.loops.pop();
@@ -1195,6 +1239,32 @@ impl<'a> Thread<'a> {
                     }
                 } else {
                     Some(Some(body))
+                }
+            }
+            LoopFrame::Range {
+                variable,
+                body,
+                current,
+                end,
+                step,
+                after,
+            } => {
+                let next = *current + *step;
+                if range_contains(next, *end, *step) {
+                    *current = next;
+                    self.range_values
+                        .insert(variable.clone(), RuntimeValue::Number(next));
+                    Some(Some(*body))
+                } else {
+                    let variable = variable.clone();
+                    let after = *after;
+                    self.loops.pop();
+                    self.range_values.remove(&variable);
+                    if after.is_some() {
+                        Some(after)
+                    } else {
+                        self.next_loop_iteration(runtime)
+                    }
                 }
             }
         }
@@ -1218,6 +1288,17 @@ impl<'a> Thread<'a> {
                 condition: _,
                 after,
             } => after,
+            LoopFrame::Range {
+                variable,
+                body: _,
+                current: _,
+                end: _,
+                step: _,
+                after,
+            } => {
+                self.range_values.remove(&variable);
+                after
+            }
         };
         if let Some(after) = after {
             self.current = Some(after);
@@ -1249,6 +1330,14 @@ enum LoopFrame<'a> {
     Until {
         body: &'a Value,
         condition: Option<&'a Value>,
+        after: Option<&'a Value>,
+    },
+    Range {
+        variable: String,
+        body: &'a Value,
+        current: f64,
+        end: f64,
+        step: f64,
         after: Option<&'a Value>,
     },
 }
@@ -1472,6 +1561,13 @@ fn field_string<'a>(block: &'a Value, name: &str) -> Option<&'a str> {
         .and_then(Value::as_str)
 }
 
+fn traverse_param_name(block: &Value) -> Option<&str> {
+    if block_type(block) != Some("traverse_number_param") {
+        return None;
+    }
+    field_string(block, "TEXT")
+}
+
 fn number_field(block: &Value, name: &str) -> Option<f64> {
     let value = block.get("fields")?.get(name)?;
     value
@@ -1489,6 +1585,14 @@ fn text_join_index(name: &str) -> Option<usize> {
 
 fn list_item_input_index(name: &str) -> Option<usize> {
     name.strip_prefix("ITEM")?.parse().ok()
+}
+
+fn range_contains(value: f64, end: f64, step: f64) -> bool {
+    if step > 0.0 {
+        value <= end
+    } else {
+        value >= end
+    }
 }
 
 fn select_text_value(value: RuntimeValue, start: isize, end: isize) -> RuntimeValue {
