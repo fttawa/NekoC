@@ -4243,7 +4243,7 @@ fn cli_decompile_native_sample_reports_graph_summary() {
         .join("samples")
         .join("我的作品-原生.bcmkn");
     let dir = tempdir().unwrap();
-    let report = dir.path().join("native-decompile.json");
+    let report = dir.path().join("native-decompile.ts");
 
     Command::cargo_bin("nekoc")
         .unwrap()
@@ -4256,14 +4256,12 @@ fn cli_decompile_native_sample_reports_graph_summary() {
         .assert()
         .success();
 
-    let report: serde_json::Value =
-        serde_json::from_str(&fs::read_to_string(report).unwrap()).unwrap();
-    assert_eq!(report["project_name"], "我的作品");
-    assert_eq!(report["summary"]["owners"], 4);
-    assert_eq!(report["summary"]["scripts"], 15);
-    assert_eq!(report["summary"]["blocks"], 125);
-    assert_eq!(report["owners"][0]["kind"], "actor");
-    assert!(report["owners"][0]["scripts"][0]["entry_type"].is_string());
+    let ts_code = fs::read_to_string(report).unwrap();
+    // Should contain TypeScript event handlers
+    assert!(
+        ts_code.contains("onStart") || ts_code.contains("onClick") || ts_code.contains("// Actor")
+    );
+    assert!(ts_code.contains("function") || ts_code.contains("let"));
 }
 
 #[test]

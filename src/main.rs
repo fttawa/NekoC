@@ -240,10 +240,10 @@ fn main() -> Result<()> {
             }
         }
         Command::Decompile { input, out } => {
-            let project = nekoc::project::load_project(input)?;
-            let report = nekoc::decompile::build_report(&project.value)?;
-            let report = serde_json::to_vec_pretty(&report)?;
-            std::fs::write(&out, report)?;
+            let project = nekoc::project::load_project(&input)?;
+            let ts_code = nekoc::decompile::decompile_to_ts(&project.value)?;
+            std::fs::write(&out, &ts_code)?;
+            eprintln!("Decompiled {} -> {}", input.display(), out.display());
         }
         Command::Workspace { input, out } => {
             let project = nekoc::project::load_project(input)?;
