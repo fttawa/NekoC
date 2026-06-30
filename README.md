@@ -96,7 +96,7 @@ nekoc compile-ts <input.ts> --out workspace.json [--emit-ir program.ir.json]
 nekoc compile-ts-bcmkn <input.ts> --template template.bcmkn --out output.bcmkn
 nekoc compile-ts-scenario <input.ts> --template template.bcmkn --scenario scenario.json --out output.bcmkn
 nekoc test <input.ts>
-nekoc run <input.bcmkn> --ticks 30 [--event click] [--event key-down:81] [--event mouse-down:12,-34] [--out runtime.json] [--expect expected-runtime.json]
+nekoc run <input.bcmkn> --ticks 30 [--event click:15,-20] [--event key-down:81] [--event mouse-down:12,-34] [--out runtime.json] [--expect expected-runtime.json]
 nekoc run-scenario <input.bcmkn> <scenario.json>
 ```
 
@@ -152,9 +152,11 @@ It loads a JSON `.bcmkn`, starts `on_running_group_activated` scripts, advances
 the scheduler for a fixed number of ticks, and writes a JSON snapshot containing
 the current scene, variables, actor state, console logs, and active thread
 count.
-Pass `--event click`, `--event key-down:<key>`, `--event key-up:<key>`,
-`--event mouse-down:<x>,<y>`, `--event mouse-up:<x>,<y>`, or
-`--event mouse-move:<x>,<y>` to inject events before ticking the scheduler.
+Pass `--event click`, `--event click:<x>,<y>`, `--event key-down:<key>`,
+`--event key-up:<key>`, `--event mouse-down:<x>,<y>`,
+`--event mouse-up:<x>,<y>`, or `--event mouse-move:<x>,<y>` to inject events
+before ticking the scheduler. Coordinate clicks update the runtime mouse
+position and trigger `start_on_click` scripts.
 Pass `--expect expected-runtime.json` to compare that snapshot structurally and
 exit nonzero with changed JSON paths when the runtime behavior diverges.
 Use `nekoc run-scenario <input.bcmkn> <scenario.json>` to keep ticks, injected
@@ -164,7 +166,7 @@ events, and expected snapshot paths together in a small test file:
 {
   "ticks": 1,
   "events": [
-    "click",
+    { "kind": "click", "x": 15, "y": -20 },
     { "kind": "key-down", "key": "81" },
     { "kind": "mouse-down", "x": 12, "y": -34 }
   ],

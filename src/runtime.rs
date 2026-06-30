@@ -76,7 +76,10 @@ pub struct RuntimeSnapshot {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum RuntimeEvent {
-    Click,
+    Click {
+        x: Option<f64>,
+        y: Option<f64>,
+    },
     Key {
         key: String,
         state: String,
@@ -219,7 +222,13 @@ impl<'a> Runtime<'a> {
 
     fn dispatch_event(&mut self, event: &RuntimeEvent) {
         match event {
-            RuntimeEvent::Click => {
+            RuntimeEvent::Click { x, y } => {
+                if let Some(x) = x {
+                    self.mouse_x = *x;
+                }
+                if let Some(y) = y {
+                    self.mouse_y = *y;
+                }
                 self.spawn_hat_scripts_at(&["scenes", "scenesDict"], "start_on_click");
                 self.spawn_hat_scripts_at(&["actors", "actorsDict"], "start_on_click");
             }

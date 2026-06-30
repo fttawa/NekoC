@@ -1123,7 +1123,7 @@ onClick(() => {
     let start_only = nekoc::runtime::run_project(&project.value, 1).unwrap();
     let with_click = nekoc::runtime::run_project_with_events(
         &project.value,
-        &[nekoc::runtime::RuntimeEvent::Click],
+        &[nekoc::runtime::RuntimeEvent::Click { x: None, y: None }],
         1,
     )
     .unwrap();
@@ -1756,6 +1756,96 @@ fn cli_run_can_inject_click_events() {
 }
 
 #[test]
+fn cli_run_click_event_can_update_mouse_position() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("runtime-click-position.bcmkn");
+    let output = dir.path().join("runtime-click-position.json");
+    fs::write(
+        &input,
+        serde_json::to_string(&json!({
+            "variables": {
+                "variablesDict": {
+                    "var-clicked": { "id": "var-clicked", "name": "clicked", "value": 0 },
+                    "var-x": { "id": "var-x", "name": "x", "value": 0 },
+                    "var-y": { "id": "var-y", "name": "y", "value": 0 }
+                }
+            },
+            "actors": {
+                "actorsDict": {
+                    "actor-1": {
+                        "id": "actor-1",
+                        "name": "button",
+                        "nekoBlockJsonList": [{
+                            "id": "click",
+                            "type": "start_on_click",
+                            "next": {
+                                "id": "set-clicked",
+                                "type": "variables_set",
+                                "fields": { "variable": "var-clicked" },
+                                "inputs": {
+                                    "value": {
+                                        "id": "one",
+                                        "type": "math_number",
+                                        "fields": { "NUM": "1" }
+                                    }
+                                },
+                                "next": {
+                                    "id": "set-x",
+                                    "type": "variables_set",
+                                    "fields": { "variable": "var-x" },
+                                    "inputs": {
+                                        "value": {
+                                            "id": "mouse-x",
+                                            "type": "get_mouse_info",
+                                            "fields": { "type": "x" }
+                                        }
+                                    },
+                                    "next": {
+                                        "id": "set-y",
+                                        "type": "variables_set",
+                                        "fields": { "variable": "var-y" },
+                                        "inputs": {
+                                            "value": {
+                                                "id": "mouse-y",
+                                                "type": "get_mouse_info",
+                                                "fields": { "type": "y" }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }]
+                    }
+                }
+            }
+        }))
+        .unwrap(),
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "run",
+            input.to_str().unwrap(),
+            "--ticks",
+            "1",
+            "--event",
+            "click:15,-20",
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let snapshot: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    assert_eq!(snapshot["variables"]["var-clicked"], 1.0);
+    assert_eq!(snapshot["variables"]["var-x"], 15.0);
+    assert_eq!(snapshot["variables"]["var-y"], -20.0);
+}
+
+#[test]
 fn cli_run_can_inject_key_events() {
     let dir = tempdir().unwrap();
     let input = dir.path().join("runtime-key.bcmkn");
@@ -2260,6 +2350,64 @@ onStart(() => {
                 "variables.kn-var-mouse": true,
                 "variables.kn-var-mouseX": 12.0,
                 "variables.kn-var-mouseY": -34.0
+            }
+        }))
+        .unwrap(),
+    )
+    .unwrap();
+    let template = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts-scenario",
+            input.to_str().unwrap(),
+            "--template",
+            template.to_str().unwrap(),
+            "--scenario",
+            scenario.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("Runtime scenario matches"));
+}
+
+#[test]
+fn cli_compile_ts_scenario_click_updates_mouse_position() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("compiled-click-position.ts");
+    let scenario = dir.path().join("compiled-click-position.json");
+    let output = dir.path().join("compiled-click-position.bcmkn");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  setVar("clicked", 0);
+});
+
+onClick(() => {
+  setVar("clicked", 1);
+  setVar("mouseX", mouseX());
+  setVar("mouseY", mouseY());
+});
+"#,
+    )
+    .unwrap();
+    fs::write(
+        &scenario,
+        serde_json::to_string_pretty(&json!({
+            "ticks": 1,
+            "events": [
+                { "kind": "click", "x": 15, "y": -20 }
+            ],
+            "expect": {
+                "variables.kn-var-clicked": 1.0,
+                "variables.kn-var-mouseX": 15.0,
+                "variables.kn-var-mouseY": -20.0
             }
         }))
         .unwrap(),

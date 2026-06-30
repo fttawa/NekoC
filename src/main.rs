@@ -97,7 +97,10 @@ enum Command {
 
 #[derive(Debug, Clone)]
 enum CliRuntimeEvent {
-    Click,
+    Click {
+        x: Option<f64>,
+        y: Option<f64>,
+    },
     Key {
         key: String,
         state: String,
@@ -114,7 +117,14 @@ impl FromStr for CliRuntimeEvent {
 
     fn from_str(value: &str) -> std::result::Result<Self, Self::Err> {
         if value == "click" {
-            return Ok(Self::Click);
+            return Ok(Self::Click { x: None, y: None });
+        }
+        if let Some(coordinates) = value.strip_prefix("click:") {
+            let (x, y) = parse_mouse_coordinates(coordinates)?;
+            return Ok(Self::Click {
+                x: Some(x),
+                y: Some(y),
+            });
         }
         if let Some(key) = value.strip_prefix("key-down:") {
             return Ok(Self::Key {
@@ -150,7 +160,7 @@ impl FromStr for CliRuntimeEvent {
             });
         }
         Err(
-            "expected click, key-down:<key>, key-up:<key>, mouse-down:<x>,<y>, mouse-up:<x>,<y>, or mouse-move:<x>,<y>"
+            "expected click, click:<x>,<y>, key-down:<key>, key-up:<key>, mouse-down:<x>,<y>, mouse-up:<x>,<y>, or mouse-move:<x>,<y>"
                 .to_owned(),
         )
     }
@@ -159,7 +169,7 @@ impl FromStr for CliRuntimeEvent {
 impl From<CliRuntimeEvent> for nekoc::runtime::RuntimeEvent {
     fn from(value: CliRuntimeEvent) -> Self {
         match value {
-            CliRuntimeEvent::Click => nekoc::runtime::RuntimeEvent::Click,
+            CliRuntimeEvent::Click { x, y } => nekoc::runtime::RuntimeEvent::Click { x, y },
             CliRuntimeEvent::Key { key, state } => nekoc::runtime::RuntimeEvent::Key { key, state },
             CliRuntimeEvent::Mouse { state, x, y } => {
                 nekoc::runtime::RuntimeEvent::Mouse { state, x, y }

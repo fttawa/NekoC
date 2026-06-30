@@ -17,6 +17,11 @@ pub struct RuntimeScenario {
 #[serde(untagged)]
 pub enum ScenarioEvent {
     Named(ScenarioNamedEvent),
+    Click {
+        kind: ScenarioClickEvent,
+        x: Option<f64>,
+        y: Option<f64>,
+    },
     Key {
         kind: ScenarioKeyEvent,
         key: String,
@@ -31,6 +36,12 @@ pub enum ScenarioEvent {
 #[derive(Debug, Clone, Copy, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum ScenarioNamedEvent {
+    Click,
+}
+
+#[derive(Debug, Clone, Copy, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum ScenarioClickEvent {
     Click,
 }
 
@@ -61,7 +72,14 @@ pub fn run_runtime_scenario(project: &Value, scenario: &RuntimeScenario) -> Resu
         .events
         .iter()
         .map(|event| match event {
-            ScenarioEvent::Named(ScenarioNamedEvent::Click) => RuntimeEvent::Click,
+            ScenarioEvent::Named(ScenarioNamedEvent::Click) => {
+                RuntimeEvent::Click { x: None, y: None }
+            }
+            ScenarioEvent::Click {
+                kind: ScenarioClickEvent::Click,
+                x,
+                y,
+            } => RuntimeEvent::Click { x: *x, y: *y },
             ScenarioEvent::Key { kind, key } => RuntimeEvent::Key {
                 key: key.clone(),
                 state: match kind {
