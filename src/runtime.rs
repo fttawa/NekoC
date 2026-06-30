@@ -1116,7 +1116,15 @@ impl<'a> Runtime<'a> {
                     .unwrap_or(0.0);
                 RuntimeValue::Number(value)
             }
-            "effect_of_sprite" => RuntimeValue::Number(0.0),
+            "effect_of_sprite" => {
+                let sprite = field_string(block, "sprite").unwrap_or("--self");
+                let scope = field_string(block, "effect").unwrap_or("color");
+                let value = self
+                    .actor_for_sprite(sprite, owner_id)
+                    .and_then(|a| a.effects.get(scope).copied())
+                    .unwrap_or(0.0);
+                RuntimeValue::Number(value)
+            }
             "bump_into" => {
                 let sprite = field_string(block, "sprite").unwrap_or("--self");
                 let target = field_string(block, "target")
@@ -1279,7 +1287,15 @@ impl<'a> Runtime<'a> {
             "random_num" => {
                 let a = eval(input(block, "A")).as_number();
                 let b = eval(input(block, "B")).as_number();
-                RuntimeValue::Number(a.min(b))
+                let lo = a.min(b);
+                let hi = a.max(b);
+                if lo >= hi {
+                    RuntimeValue::Number(lo)
+                } else {
+                    let seed = self.ticks as f64 * 9301.0 + 49297.0;
+                    let frac = (seed % 233280.0) / 233280.0;
+                    RuntimeValue::Number(lo + frac * (hi - lo))
+                }
             }
             "divisible_by" => {
                 let a = eval(input(block, "A")).as_number();
@@ -2095,6 +2111,10 @@ impl<'a> Thread<'a> {
                     self.advance(runtime, block.get("next"));
                     return Ok(());
                 };
+                if styles.is_empty() {
+                    self.advance(runtime, block.get("next"));
+                    return Ok(());
+                }
                 let current_id = actor.current_style_id.as_deref().unwrap_or("");
                 let idx = styles
                     .iter()
