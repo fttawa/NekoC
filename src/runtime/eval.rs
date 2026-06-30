@@ -339,7 +339,19 @@ impl<'a> Runtime<'a> {
                 let sprite = field_string(block, "sprite").unwrap_or("--self");
                 RuntimeValue::Bool(self.touching_edge(sprite, owner_id))
             }
-            "bump_into_color" | "bump_into_body_part" => RuntimeValue::Bool(false),
+            "bump_into_color" => {
+                let sprite = field_string(block, "sprite").unwrap_or("--self");
+                let color = field_string(block, "color").unwrap_or("#000000");
+                let has_color = self
+                    .actor_for_sprite(sprite, owner_id)
+                    .is_some_and(|actor| actor.pen.strokes.iter().any(|s| s.color == color));
+                RuntimeValue::Bool(has_color)
+            }
+            "bump_into_body_part" => {
+                let sprite = field_string(block, "sprite").unwrap_or("--self");
+                let target = field_string(block, "body_part").unwrap_or("--self");
+                RuntimeValue::Bool(self.touching_actor(sprite, target, owner_id))
+            }
             "get_clone_num" => {
                 let sprite = field_string(block, "sprite").unwrap_or("--self");
                 RuntimeValue::Number(self.clone_count_for_sprite(sprite, owner_id) as f64)
@@ -355,7 +367,35 @@ impl<'a> Runtime<'a> {
                 let index = eval(input(block, "index")).as_number().floor().max(0.0) as usize;
                 RuntimeValue::Number(self.clone_property(sprite, owner_id, index, attribute))
             }
-            "get_appearance_of_part" | "get_tilt_angle_of_face" => RuntimeValue::Number(0.0),
+            "get_appearance_of_part" => {
+                let body_part = field_string(block, "body_part").unwrap_or("center");
+                let appearance = field_string(block, "appearance").unwrap_or("x");
+                let value = owner_id
+                    .and_then(|id| self.actors.get(id))
+                    .map(|actor| match appearance {
+                        "x" => actor.x,
+                        "y" => actor.y,
+                        "rotation" | "direction" => actor.rotation,
+                        "visible" => {
+                            if actor.visible {
+                                1.0
+                            } else {
+                                0.0
+                            }
+                        }
+                        _ => actor.scale,
+                    })
+                    .unwrap_or(0.0);
+                let _ = body_part;
+                RuntimeValue::Number(value)
+            }
+            "get_tilt_angle_of_face" => {
+                let value = owner_id
+                    .and_then(|id| self.actors.get(id))
+                    .map(|actor| actor.rotation)
+                    .unwrap_or(0.0);
+                RuntimeValue::Number(value)
+            }
             "logic_boolean" => RuntimeValue::Bool(
                 block
                     .get("fields")
