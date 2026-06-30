@@ -237,6 +237,10 @@ The current runtime subset intentionally starts small:
   `text_length`, `text_contain`, `text_split`, `text_select`
 - actor state: `self_set_position_x`, `self_set_position_y`, `self_appear`,
   `set_scale`, `self_change_scale`
+- style switching: `self_prev_next_style` (next/prev cycles through actor styles),
+  `set_sprite_style` sets the current style by ID
+- dialog: `self_dialog` (say/think with optional timeout), `self_dialog_wait`
+  (say/think blocking), `close_self_dialog` clears dialog state
 - motion: `self_go_forward`, `self_move_to`, `self_glide_to`,
   `self_change_coordinate_x`, `self_change_coordinate_y`,
   `self_glide_coordinate_x`, `self_glide_coordinate_y`, `self_rotate`,
@@ -259,8 +263,7 @@ The current runtime subset intentionally starts small:
   `dispose_clone` deletes the current clone, and clone count/index/property
   reporters read runtime clone state
 - conservative display/pen no-ops: `self_appear_animation`,
-  `self_gradually_show_hide`, `self_dialog`, `self_dialog_wait`,
-  `close_self_dialog`, `create_stage_dialog`, `set_width_height_scale`,
+  `self_gradually_show_hide`, `create_stage_dialog`, `set_width_height_scale`,
   `add_width_height_scale`, `self_set_effect`, `self_change_effect`,
   `clear_all_effects`, `self_text_effect_text`, `self_text_effect_size`,
   `self_text_effect_color`, `set_top_bottom_layer`, `self_set_draggable`,

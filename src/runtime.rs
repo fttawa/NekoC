@@ -59,6 +59,16 @@ pub struct ActorState {
     pub rotation: f64,
     pub scale: f64,
     pub visible: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub dialog: Option<DialogState>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct DialogState {
+    pub kind: String,
+    pub text: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub timeout_ticks: Option<usize>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -74,6 +84,8 @@ pub struct RuntimeSnapshot {
     pub message_values: BTreeMap<String, RuntimeValue>,
     pub active_threads: usize,
     pub trace: Vec<RuntimeTraceEntry>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub answer: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -484,6 +496,10 @@ impl<'a> Runtime<'a> {
             message_values: self.message_values.clone(),
             active_threads: self.threads.len(),
             trace: self.trace.clone(),
+            answer: match &self.last_answer {
+                RuntimeValue::String(s) if !s.is_empty() => Some(s.clone()),
+                _ => None,
+            },
         }
     }
 
@@ -1767,9 +1783,6 @@ impl<'a> Thread<'a> {
             }
             "self_appear_animation"
             | "self_gradually_show_hide"
-            | "self_dialog"
-            | "self_dialog_wait"
-            | "close_self_dialog"
             | "create_stage_dialog"
             | "set_width_height_scale"
             | "add_width_height_scale"
@@ -1796,6 +1809,82 @@ impl<'a> Thread<'a> {
             | "stamp"
             | "image_stamp"
             | "set_pen_layer" => {
+                self.advance(runtime, block.get("next"));
+            }
+            "self_prev_next_style" => {
+                let direction = field_string(block, "prev_next").unwrap_or("next");
+                let Some(actor) = runtime.actors.get_mut(&self.owner_id) else {
+                    self.advance(runtime, block.get("next"));
+                    return Ok(());
+                };
+                let Some(project_actor) =
+                    get_path(runtime.project, &["actors", "actorsDict", &self.owner_id])
+                else {
+                    self.advance(runtime, block.get("next"));
+                    return Ok(());
+                };
+                let Some(styles) = project_actor.get("styles").and_then(Value::as_array) else {
+                    self.advance(runtime, block.get("next"));
+                    return Ok(());
+                };
+                let current_id = actor.current_style_id.as_deref().unwrap_or("");
+                let idx = styles
+                    .iter()
+                    .position(|s| s.as_str() == Some(current_id))
+                    .unwrap_or(0);
+                let new_idx = if direction == "prev" {
+                    if idx == 0 { styles.len() - 1 } else { idx - 1 }
+                } else {
+                    (idx + 1) % styles.len()
+                };
+                actor.current_style_id = styles[new_idx].as_str().map(ToOwned::to_owned);
+                self.advance(runtime, block.get("next"));
+            }
+            "set_sprite_style" => {
+                let style_input = self.eval(runtime, input(block, "style_id"));
+                if let (RuntimeValue::String(id), Some(actor)) =
+                    (style_input, runtime.actors.get_mut(&self.owner_id))
+                {
+                    actor.current_style_id = Some(id);
+                }
+                self.advance(runtime, block.get("next"));
+            }
+            "self_dialog" => {
+                let kind = field_string(block, "type").unwrap_or("say").to_owned();
+                let text = self.eval(runtime, input(block, "text"));
+                let time = input(block, "time").and_then(|b| {
+                    let v = self.eval(runtime, Some(b));
+                    if let RuntimeValue::Number(n) = v {
+                        Some(n as usize)
+                    } else {
+                        None
+                    }
+                });
+                if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
+                    actor.dialog = Some(DialogState {
+                        kind,
+                        text: format_value(&text),
+                        timeout_ticks: time,
+                    });
+                }
+                self.advance(runtime, block.get("next"));
+            }
+            "self_dialog_wait" => {
+                let kind = field_string(block, "type").unwrap_or("say").to_owned();
+                let text = self.eval(runtime, input(block, "text"));
+                if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
+                    actor.dialog = Some(DialogState {
+                        kind,
+                        text: format_value(&text),
+                        timeout_ticks: None,
+                    });
+                }
+                self.advance(runtime, block.get("next"));
+            }
+            "close_self_dialog" => {
+                if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
+                    actor.dialog = None;
+                }
                 self.advance(runtime, block.get("next"));
             }
             "console_log" => {
@@ -2078,6 +2167,7 @@ fn collect_actors(dict: &Map<String, Value>) -> BTreeMap<String, ActorState> {
                         .get("visible")
                         .and_then(Value::as_bool)
                         .unwrap_or(true),
+                    dialog: None,
                 },
             )
         })

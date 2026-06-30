@@ -8975,3 +8975,128 @@ screen("game", {
         "nekoc-screen-game"
     );
 }
+
+#[test]
+fn runtime_runs_style_switch_blocks() {
+    let project = json!({
+        "projectName": "style-test",
+        "scenes": {
+            "currentSceneId": "scene-1",
+            "scenesDict": {
+                "scene-1": { "name": "main", "actorIds": ["actor-1"], "screenName": "main" }
+            },
+            "sortList": ["scene-1"]
+        },
+        "actors": {
+            "actorsDict": {
+                "actor-1": {
+                    "id": "actor-1", "name": "cat", "visible": true,
+                    "position": { "x": 0, "y": 0 }, "rotation": 0, "scale": 100,
+                    "currentStyleId": "style-a",
+                    "styles": ["style-a", "style-b", "style-c"],
+                    "nekoBlockJsonList": [{
+                        "id": "b1", "type": "on_running_group_activated", "parent_id": "",
+                        "next": { "id": "b2", "type": "self_prev_next_style", "parent_id": "b1",
+                            "fields": { "prev_next": "next" },
+                            "next": { "id": "b3", "type": "self_prev_next_style", "parent_id": "b2",
+                                "fields": { "prev_next": "next" }
+                            }
+                        }
+                    }]
+                }
+            }
+        },
+        "variables": { "variablesDict": {} }
+    });
+
+    let snapshot =
+        nekoc::runtime::run_project_steps(&project, &[nekoc::runtime::RuntimeStep::Run(1)])
+            .unwrap();
+    let actor = snapshot.actors.get("actor-1").unwrap();
+    assert_eq!(actor.current_style_id.as_deref(), Some("style-c"));
+}
+
+#[test]
+fn runtime_runs_dialog_blocks() {
+    let project = json!({
+        "projectName": "dialog-test",
+        "scenes": {
+            "currentSceneId": "scene-1",
+            "scenesDict": {
+                "scene-1": { "name": "main", "actorIds": ["actor-1"], "screenName": "main" }
+            },
+            "sortList": ["scene-1"]
+        },
+        "actors": {
+            "actorsDict": {
+                "actor-1": {
+                    "id": "actor-1", "name": "cat", "visible": true,
+                    "position": { "x": 0, "y": 0 }, "rotation": 0, "scale": 100,
+                    "currentStyleId": "style-a", "styles": ["style-a"],
+                    "nekoBlockJsonList": [{
+                        "id": "b1", "type": "on_running_group_activated", "parent_id": "",
+                        "next": { "id": "b2", "type": "self_dialog", "parent_id": "b1",
+                            "fields": { "type": "say" },
+                            "inputs": { "text": { "id": "b2t", "type": "text", "parent_id": "b2", "fields": { "TEXT": "hello" } } },
+                            "next": { "id": "b3", "type": "close_self_dialog", "parent_id": "b2" }
+                        }
+                    }]
+                }
+            }
+        },
+        "variables": { "variablesDict": {} }
+    });
+
+    let snapshot =
+        nekoc::runtime::run_project_steps(&project, &[nekoc::runtime::RuntimeStep::Run(1)])
+            .unwrap();
+    let actor = snapshot.actors.get("actor-1").unwrap();
+    assert!(
+        actor.dialog.is_none(),
+        "dialog should be None after close_self_dialog"
+    );
+}
+
+#[test]
+fn runtime_runs_dialog_say_think() {
+    let project = json!({
+        "projectName": "say-think-test",
+        "scenes": {
+            "currentSceneId": "scene-1",
+            "scenesDict": {
+                "scene-1": { "name": "main", "actorIds": ["actor-1"], "screenName": "main" }
+            },
+            "sortList": ["scene-1"]
+        },
+        "actors": {
+            "actorsDict": {
+                "actor-1": {
+                    "id": "actor-1", "name": "cat", "visible": true,
+                    "position": { "x": 0, "y": 0 }, "rotation": 0, "scale": 100,
+                    "currentStyleId": "style-a", "styles": ["style-a"],
+                    "nekoBlockJsonList": [{
+                        "id": "b1", "type": "on_running_group_activated", "parent_id": "",
+                        "next": { "id": "b2", "type": "self_dialog", "parent_id": "b1",
+                            "fields": { "type": "say" },
+                            "inputs": { "text": { "id": "b2t", "type": "text", "parent_id": "b2", "fields": { "TEXT": "hello" } },
+                                        "time": { "id": "b2s", "type": "math_number", "parent_id": "b2", "fields": { "NUM": "2" } } },
+                            "next": { "id": "b3", "type": "self_dialog", "parent_id": "b2",
+                                "fields": { "type": "think" },
+                                "inputs": { "text": { "id": "b3t", "type": "text", "parent_id": "b3", "fields": { "TEXT": "hmm" } } }
+                            }
+                        }
+                    }]
+                }
+            }
+        },
+        "variables": { "variablesDict": {} }
+    });
+
+    let snapshot =
+        nekoc::runtime::run_project_steps(&project, &[nekoc::runtime::RuntimeStep::Run(1)])
+            .unwrap();
+    let actor = snapshot.actors.get("actor-1").unwrap();
+    let dialog = actor.dialog.as_ref().unwrap();
+    assert_eq!(dialog.kind, "think");
+    assert_eq!(dialog.text, "hmm");
+}
