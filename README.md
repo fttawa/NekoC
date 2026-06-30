@@ -207,13 +207,13 @@ The current runtime subset intentionally starts small:
   `get_orientation`
 - style/appearance values: `style_of_sprite`, `appearance_of_sprite`,
   `effect_of_sprite`
-- sensing/input/time defaults: `ask_and_choose`, `self_ask`, `check_key`,
-  `mouse_down`, `get_mouse_info`, `get_answer`, `get_choice_and_index`,
-  `set_timer_state`, `timer`, `show_hide_timer`, `get_time`,
-  `get_stage_info`, `bump_into`, `bump_into_color`, `out_of_boundary`,
-  `get_clone_num`, `get_current_clone_index`, `get_clone_index_property`,
-  `bump_into_body_part`, `get_appearance_of_part`, `get_tilt_angle_of_face`,
-  `face_to_body_part`
+- sensing/input/time: `check_key` reads injected key events; defaults/no-ops for
+  `ask_and_choose`, `self_ask`, `mouse_down`, `get_mouse_info`, `get_answer`,
+  `get_choice_and_index`, `set_timer_state`, `timer`, `show_hide_timer`,
+  `get_time`, `get_stage_info`, `bump_into`, `bump_into_color`,
+  `out_of_boundary`, `get_clone_num`, `get_current_clone_index`,
+  `get_clone_index_property`, `bump_into_body_part`, `get_appearance_of_part`,
+  `get_tilt_angle_of_face`, `face_to_body_part`
 - conservative display/pen no-ops: `self_appear_animation`,
   `self_gradually_show_hide`, `self_dialog`, `self_dialog_wait`,
   `close_self_dialog`, `create_stage_dialog`, `set_width_height_scale`,

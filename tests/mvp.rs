@@ -2040,6 +2040,109 @@ onKey("81", "down", () => {
 }
 
 #[test]
+fn cli_compile_ts_scenario_exposes_pressed_key_state() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("compiled-key-state.ts");
+    let scenario = dir.path().join("compiled-key-state.json");
+    let output = dir.path().join("compiled-key-state.bcmkn");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  setVar("isDown", keyPressed("81", "down"));
+  setVar("isUp", keyPressed("81", "up"));
+});
+"#,
+    )
+    .unwrap();
+    fs::write(
+        &scenario,
+        serde_json::to_string_pretty(&json!({
+            "ticks": 1,
+            "events": [
+                { "kind": "key-down", "key": "81" }
+            ],
+            "expect": {
+                "variables.kn-var-isDown": true,
+                "variables.kn-var-isUp": false
+            }
+        }))
+        .unwrap(),
+    )
+    .unwrap();
+    let template = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts-scenario",
+            input.to_str().unwrap(),
+            "--template",
+            template.to_str().unwrap(),
+            "--scenario",
+            scenario.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("Runtime scenario matches"));
+}
+
+#[test]
+fn cli_compile_ts_scenario_clears_key_state_on_key_up() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("compiled-key-up-state.ts");
+    let scenario = dir.path().join("compiled-key-up-state.json");
+    let output = dir.path().join("compiled-key-up-state.bcmkn");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  setVar("isDown", keyPressed("81", "down"));
+});
+"#,
+    )
+    .unwrap();
+    fs::write(
+        &scenario,
+        serde_json::to_string_pretty(&json!({
+            "ticks": 1,
+            "events": [
+                { "kind": "key-down", "key": "81" },
+                { "kind": "key-up", "key": "81" }
+            ],
+            "expect": {
+                "variables.kn-var-isDown": false
+            }
+        }))
+        .unwrap(),
+    )
+    .unwrap();
+    let template = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts-scenario",
+            input.to_str().unwrap(),
+            "--template",
+            template.to_str().unwrap(),
+            "--scenario",
+            scenario.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("Runtime scenario matches"));
+}
+
+#[test]
 fn runtime_dispatches_broadcast_listeners() {
     let project = json!({
         "variables": {

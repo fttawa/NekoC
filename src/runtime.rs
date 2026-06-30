@@ -1,7 +1,7 @@
 use anyhow::{Context, Result, bail};
 use serde::Serialize;
 use serde_json::{Map, Value, json};
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::{BTreeMap, BTreeSet, HashSet};
 
 const DEFAULT_FPS: f64 = 30.0;
 
@@ -120,6 +120,7 @@ struct Runtime<'a> {
     procedures: BTreeMap<String, Procedure<'a>>,
     received_broadcasts: BTreeSet<String>,
     message_values: BTreeMap<String, RuntimeValue>,
+    pressed_keys: HashSet<String>,
     logs: Vec<String>,
     threads: Vec<Thread<'a>>,
 }
@@ -191,6 +192,7 @@ impl<'a> Runtime<'a> {
             procedures,
             received_broadcasts: BTreeSet::new(),
             message_values: BTreeMap::new(),
+            pressed_keys: HashSet::new(),
             logs: Vec::new(),
             threads: Vec::new(),
         })
@@ -208,6 +210,15 @@ impl<'a> Runtime<'a> {
                 self.spawn_hat_scripts_at(&["actors", "actorsDict"], "start_on_click");
             }
             RuntimeEvent::Key { key, state } => {
+                match state.as_str() {
+                    "down" => {
+                        self.pressed_keys.insert(key.clone());
+                    }
+                    "up" => {
+                        self.pressed_keys.remove(key);
+                    }
+                    _ => {}
+                }
                 self.spawn_key_scripts_at(&["scenes", "scenesDict"], key, state);
                 self.spawn_key_scripts_at(&["actors", "actorsDict"], key, state);
             }
@@ -546,7 +557,13 @@ impl<'a> Runtime<'a> {
                 let message = broadcast_message(input(block, "message")).unwrap_or_default();
                 RuntimeValue::Bool(self.received_broadcasts.contains(&message))
             }
-            "check_key" | "mouse_down" => RuntimeValue::Bool(false),
+            "check_key" => {
+                let key = field_string(block, "key").unwrap_or_default();
+                let state = field_string(block, "type").unwrap_or("down");
+                let is_down = self.pressed_keys.contains(key);
+                RuntimeValue::Bool(if state == "up" { !is_down } else { is_down })
+            }
+            "mouse_down" => RuntimeValue::Bool(false),
             "get_mouse_info" => RuntimeValue::Number(0.0),
             "get_answer" => self.last_answer.clone(),
             "get_choice_and_index" => {
