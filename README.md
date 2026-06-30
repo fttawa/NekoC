@@ -253,6 +253,8 @@ The current runtime subset intentionally starts small:
   `get_appearance_of_part`, `get_tilt_angle_of_face`, `face_to_body_part`
 - boundary sensing: `out_of_boundary` and `bump_into` with `--edge` use actor
   center coordinates against `stageSize`
+- actor bump sensing: `bump_into` between actors uses a conservative center-point
+  radius until costume bounds are reverse-engineered
 - clones: `mirror` creates a clone, `start_as_clone` starts clone scripts,
   `dispose_clone` deletes the current clone, and clone count/index/property
   reporters read runtime clone state

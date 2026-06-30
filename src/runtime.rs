@@ -4,6 +4,7 @@ use serde_json::{Map, Value, json};
 use std::collections::{BTreeMap, BTreeSet, HashSet};
 
 const DEFAULT_FPS: f64 = 30.0;
+const DEFAULT_BUMP_RADIUS: f64 = 24.0;
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
 #[serde(untagged)]
@@ -692,6 +693,20 @@ impl<'a> Runtime<'a> {
             && (actor.x.abs() > half_width || actor.y.abs() > half_height)
     }
 
+    fn touching_actor(&self, sprite: &str, target: &str, owner_id: Option<&str>) -> bool {
+        let Some(source) = self.actor_for_sprite(sprite, owner_id) else {
+            return false;
+        };
+        let Some(target) = self.actor_for_sprite(target, owner_id) else {
+            return false;
+        };
+        if source.id == target.id {
+            return false;
+        }
+        let distance = ((source.x - target.x).powi(2) + (source.y - target.y).powi(2)).sqrt();
+        distance <= DEFAULT_BUMP_RADIUS
+    }
+
     fn eval(&self, block: Option<&Value>) -> RuntimeValue {
         self.eval_for_context(
             block,
@@ -993,7 +1008,7 @@ impl<'a> Runtime<'a> {
                 RuntimeValue::Bool(if target == "--edge" {
                     self.touching_edge(sprite, owner_id)
                 } else {
-                    false
+                    self.touching_actor(sprite, target, owner_id)
                 })
             }
             "out_of_boundary" => {

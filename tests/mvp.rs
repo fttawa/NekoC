@@ -3220,6 +3220,90 @@ fn runtime_detects_actor_out_of_stage_boundary() {
 }
 
 #[test]
+fn runtime_detects_actor_to_actor_bump() {
+    let project = json!({
+        "variables": {
+            "variablesDict": {
+                "var-near": {
+                    "id": "var-near",
+                    "name": "near",
+                    "value": false
+                },
+                "var-far": {
+                    "id": "var-far",
+                    "name": "far",
+                    "value": true
+                }
+            }
+        },
+        "actors": {
+            "actorsDict": {
+                "actor-player": {
+                    "id": "actor-player",
+                    "name": "player",
+                    "position": { "x": 10, "y": 10 },
+                    "nekoBlockJsonList": [{
+                        "id": "start",
+                        "type": "on_running_group_activated",
+                        "next": {
+                            "id": "set-near",
+                            "type": "variables_set",
+                            "fields": { "variable": "var-near" },
+                            "inputs": {
+                                "value": {
+                                    "id": "near-check",
+                                    "type": "bump_into",
+                                    "fields": {
+                                        "sprite": "--self",
+                                        "target": "actor-coin"
+                                    }
+                                }
+                            },
+                            "next": {
+                                "id": "set-far",
+                                "type": "variables_set",
+                                "fields": { "variable": "var-far" },
+                                "inputs": {
+                                    "value": {
+                                        "id": "far-check",
+                                        "type": "bump_into",
+                                        "fields": {
+                                            "sprite": "--self",
+                                            "target": "actor-enemy"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }]
+                },
+                "actor-coin": {
+                    "id": "actor-coin",
+                    "name": "coin",
+                    "position": { "x": 22, "y": 16 }
+                },
+                "actor-enemy": {
+                    "id": "actor-enemy",
+                    "name": "enemy",
+                    "position": { "x": 180, "y": 160 }
+                }
+            }
+        }
+    });
+
+    let snapshot = nekoc::runtime::run_project(&project, 1).unwrap();
+
+    assert_eq!(
+        snapshot.variables["var-near"],
+        nekoc::runtime::RuntimeValue::Bool(true)
+    );
+    assert_eq!(
+        snapshot.variables["var-far"],
+        nekoc::runtime::RuntimeValue::Bool(false)
+    );
+}
+
+#[test]
 fn runtime_dispatches_parameterized_broadcast_values() {
     let project = json!({
         "variables": {
