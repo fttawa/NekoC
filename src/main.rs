@@ -1,6 +1,7 @@
 use anyhow::{Result, bail};
-use clap::{Parser, Subcommand, ValueEnum};
+use clap::{Parser, Subcommand};
 use std::path::PathBuf;
+use std::str::FromStr;
 
 #[derive(Debug, Parser)]
 #[command(
@@ -71,7 +72,7 @@ enum Command {
         input: PathBuf,
         #[arg(long, default_value_t = 1)]
         ticks: usize,
-        #[arg(long = "event", value_enum)]
+        #[arg(long = "event")]
         events: Vec<CliRuntimeEvent>,
         #[arg(long)]
         out: Option<PathBuf>,
@@ -94,15 +95,40 @@ enum Command {
     },
 }
 
-#[derive(Debug, Clone, Copy, ValueEnum)]
+#[derive(Debug, Clone)]
 enum CliRuntimeEvent {
     Click,
+    Key { key: String, state: String },
+}
+
+impl FromStr for CliRuntimeEvent {
+    type Err = String;
+
+    fn from_str(value: &str) -> std::result::Result<Self, Self::Err> {
+        if value == "click" {
+            return Ok(Self::Click);
+        }
+        if let Some(key) = value.strip_prefix("key-down:") {
+            return Ok(Self::Key {
+                key: key.to_owned(),
+                state: "down".to_owned(),
+            });
+        }
+        if let Some(key) = value.strip_prefix("key-up:") {
+            return Ok(Self::Key {
+                key: key.to_owned(),
+                state: "up".to_owned(),
+            });
+        }
+        Err("expected click, key-down:<key>, or key-up:<key>".to_owned())
+    }
 }
 
 impl From<CliRuntimeEvent> for nekoc::runtime::RuntimeEvent {
     fn from(value: CliRuntimeEvent) -> Self {
         match value {
             CliRuntimeEvent::Click => nekoc::runtime::RuntimeEvent::Click,
+            CliRuntimeEvent::Key { key, state } => nekoc::runtime::RuntimeEvent::Key { key, state },
         }
     }
 }

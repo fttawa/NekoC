@@ -1756,6 +1756,78 @@ fn cli_run_can_inject_click_events() {
 }
 
 #[test]
+fn cli_run_can_inject_key_events() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("runtime-key.bcmkn");
+    let output = dir.path().join("runtime-key.json");
+    fs::write(
+        &input,
+        serde_json::to_string(&json!({
+            "variables": {
+                "variablesDict": {
+                    "var-key": {
+                        "id": "var-key",
+                        "name": "key",
+                        "value": ""
+                    }
+                }
+            },
+            "actors": {
+                "actorsDict": {
+                    "actor-1": {
+                        "id": "actor-1",
+                        "name": "keyboard",
+                        "nekoBlockJsonList": [{
+                            "id": "key",
+                            "type": "on_keydown",
+                            "fields": {
+                                "key": "81",
+                                "type": "down"
+                            },
+                            "next": {
+                                "id": "set",
+                                "type": "variables_set",
+                                "fields": {
+                                    "variable": "var-key"
+                                },
+                                "inputs": {
+                                    "value": {
+                                        "id": "q",
+                                        "type": "text",
+                                        "fields": { "TEXT": "q" }
+                                    }
+                                }
+                            }
+                        }]
+                    }
+                }
+            }
+        }))
+        .unwrap(),
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "run",
+            input.to_str().unwrap(),
+            "--ticks",
+            "1",
+            "--event",
+            "key-down:81",
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let snapshot: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    assert_eq!(snapshot["variables"]["var-key"], "q");
+}
+
+#[test]
 fn cli_run_scenario_checks_events_and_expected_snapshot_paths() {
     let dir = tempdir().unwrap();
     let input = dir.path().join("runtime-click.bcmkn");
@@ -1911,6 +1983,60 @@ onStart(() => {
         .stdout(predicate::str::contains("Runtime scenario matches"));
 
     assert!(output.exists());
+}
+
+#[test]
+fn cli_compile_ts_scenario_can_inject_key_events() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("compiled-key-scenario.ts");
+    let scenario = dir.path().join("compiled-key-scenario.json");
+    let output = dir.path().join("compiled-key-scenario.bcmkn");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  setVar("key", "");
+});
+
+onKey("81", "down", () => {
+  setVar("key", "q");
+});
+"#,
+    )
+    .unwrap();
+    fs::write(
+        &scenario,
+        serde_json::to_string_pretty(&json!({
+            "ticks": 1,
+            "events": [
+                { "kind": "key-down", "key": "81" }
+            ],
+            "expect": {
+                "variables.kn-var-key": "q"
+            }
+        }))
+        .unwrap(),
+    )
+    .unwrap();
+    let template = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts-scenario",
+            input.to_str().unwrap(),
+            "--template",
+            template.to_str().unwrap(),
+            "--scenario",
+            scenario.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("Runtime scenario matches"));
 }
 
 #[test]

@@ -13,10 +13,24 @@ pub struct RuntimeScenario {
     pub expect: serde_json::Map<String, Value>,
 }
 
+#[derive(Debug, Clone, Deserialize)]
+#[serde(untagged)]
+pub enum ScenarioEvent {
+    Named(ScenarioNamedEvent),
+    Key { kind: ScenarioKeyEvent, key: String },
+}
+
 #[derive(Debug, Clone, Copy, Deserialize)]
 #[serde(rename_all = "kebab-case")]
-pub enum ScenarioEvent {
+pub enum ScenarioNamedEvent {
     Click,
+}
+
+#[derive(Debug, Clone, Copy, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum ScenarioKeyEvent {
+    KeyDown,
+    KeyUp,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -31,7 +45,15 @@ pub fn run_runtime_scenario(project: &Value, scenario: &RuntimeScenario) -> Resu
         .events
         .iter()
         .map(|event| match event {
-            ScenarioEvent::Click => RuntimeEvent::Click,
+            ScenarioEvent::Named(ScenarioNamedEvent::Click) => RuntimeEvent::Click,
+            ScenarioEvent::Key { kind, key } => RuntimeEvent::Key {
+                key: key.clone(),
+                state: match kind {
+                    ScenarioKeyEvent::KeyDown => "down",
+                    ScenarioKeyEvent::KeyUp => "up",
+                }
+                .to_owned(),
+            },
         })
         .collect::<Vec<_>>();
     let snapshot = if events.is_empty() {

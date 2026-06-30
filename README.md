@@ -96,7 +96,7 @@ nekoc compile-ts <input.ts> --out workspace.json [--emit-ir program.ir.json]
 nekoc compile-ts-bcmkn <input.ts> --template template.bcmkn --out output.bcmkn
 nekoc compile-ts-scenario <input.ts> --template template.bcmkn --scenario scenario.json --out output.bcmkn
 nekoc test <input.ts>
-nekoc run <input.bcmkn> --ticks 30 [--event click] [--out runtime.json] [--expect expected-runtime.json]
+nekoc run <input.bcmkn> --ticks 30 [--event click] [--event key-down:81] [--out runtime.json] [--expect expected-runtime.json]
 nekoc run-scenario <input.bcmkn> <scenario.json>
 ```
 
@@ -152,7 +152,8 @@ It loads a JSON `.bcmkn`, starts `on_running_group_activated` scripts, advances
 the scheduler for a fixed number of ticks, and writes a JSON snapshot containing
 the current scene, variables, actor state, console logs, and active thread
 count.
-Pass `--event click` to inject a click event before ticking the scheduler.
+Pass `--event click`, `--event key-down:<key>`, or `--event key-up:<key>` to
+inject events before ticking the scheduler.
 Pass `--expect expected-runtime.json` to compare that snapshot structurally and
 exit nonzero with changed JSON paths when the runtime behavior diverges.
 Use `nekoc run-scenario <input.bcmkn> <scenario.json>` to keep ticks, injected
@@ -161,7 +162,7 @@ events, and expected snapshot paths together in a small test file:
 ```json
 {
   "ticks": 1,
-  "events": ["click"],
+  "events": ["click", { "kind": "key-down", "key": "81" }],
   "expect": {
     "variables.var-clicked": 1,
     "actors.actor-1.x": { "approx": 89.876663, "epsilon": 0.001 }
@@ -173,7 +174,8 @@ and immediately verify that exported project with the embedded runtime.
 
 The current runtime subset intentionally starts small:
 
-- events: `on_running_group_activated`, `start_on_click` via `RuntimeEvent::Click`
+- events: `on_running_group_activated`, `start_on_click`,
+  `on_keydown`
 - broadcasts: `self_broadcast`, `self_broadcast_with_param`,
   `self_broadcast_and_wait`, `self_listen`, `self_listen_with_param`,
   `self_listen_param`, `self_listen_value`, `received_broadcast`

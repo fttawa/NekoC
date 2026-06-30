@@ -77,6 +77,7 @@ pub struct RuntimeSnapshot {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum RuntimeEvent {
     Click,
+    Key { key: String, state: String },
 }
 
 pub fn run_project(value: &Value, ticks: usize) -> Result<RuntimeSnapshot> {
@@ -206,6 +207,10 @@ impl<'a> Runtime<'a> {
                 self.spawn_hat_scripts_at(&["scenes", "scenesDict"], "start_on_click");
                 self.spawn_hat_scripts_at(&["actors", "actorsDict"], "start_on_click");
             }
+            RuntimeEvent::Key { key, state } => {
+                self.spawn_key_scripts_at(&["scenes", "scenesDict"], key, state);
+                self.spawn_key_scripts_at(&["actors", "actorsDict"], key, state);
+            }
         }
     }
 
@@ -220,6 +225,14 @@ impl<'a> Runtime<'a> {
 
     fn spawn_hat_scripts_at(&mut self, path: &[&str], hat_type: &str) {
         self.spawn_matching_scripts_at(path, |block| block_type(block) == Some(hat_type));
+    }
+
+    fn spawn_key_scripts_at(&mut self, path: &[&str], key: &str, state: &str) {
+        self.spawn_matching_scripts_at(path, |block| {
+            block_type(block) == Some("on_keydown")
+                && field_string(block, "key") == Some(key)
+                && field_string(block, "type") == Some(state)
+        });
     }
 
     fn spawn_matching_scripts_at(
@@ -890,7 +903,7 @@ impl<'a> Thread<'a> {
 
     fn execute_block(&mut self, block: &'a Value, runtime: &mut Runtime<'a>) -> Result<()> {
         match block_type(block).unwrap_or("") {
-            "on_running_group_activated" | "start_on_click" => {
+            "on_running_group_activated" | "start_on_click" | "on_keydown" => {
                 self.advance(runtime, block.get("next"));
             }
             "when" => {
