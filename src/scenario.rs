@@ -38,6 +38,12 @@ pub enum ScenarioEvent {
         x: Option<f64>,
         y: Option<f64>,
     },
+    Drag {
+        kind: ScenarioDragEvent,
+        actor: String,
+        x: f64,
+        y: f64,
+    },
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -72,6 +78,12 @@ pub enum ScenarioMouseEvent {
     MouseDown,
     MouseUp,
     MouseMove,
+}
+
+#[derive(Debug, Clone, Copy, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum ScenarioDragEvent {
+    Drag,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -129,6 +141,11 @@ fn runtime_event(event: &ScenarioEvent) -> RuntimeEvent {
                 ScenarioMouseEvent::MouseUp => Some("up".to_owned()),
                 ScenarioMouseEvent::MouseMove => None,
             },
+            x: *x,
+            y: *y,
+        },
+        ScenarioEvent::Drag { actor, x, y, .. } => RuntimeEvent::Drag {
+            actor: actor.clone(),
             x: *x,
             y: *y,
         },

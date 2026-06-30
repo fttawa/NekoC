@@ -110,6 +110,11 @@ enum CliRuntimeEvent {
         x: Option<f64>,
         y: Option<f64>,
     },
+    Drag {
+        actor: String,
+        x: f64,
+        y: f64,
+    },
 }
 
 impl FromStr for CliRuntimeEvent {
@@ -159,8 +164,24 @@ impl FromStr for CliRuntimeEvent {
                 y: Some(y),
             });
         }
+        if let Some(args) = value.strip_prefix("drag:") {
+            let parts: Vec<&str> = args.split(',').collect();
+            if parts.len() == 3 {
+                let x = parts[1]
+                    .parse::<f64>()
+                    .map_err(|e| format!("invalid drag x: {e}"))?;
+                let y = parts[2]
+                    .parse::<f64>()
+                    .map_err(|e| format!("invalid drag y: {e}"))?;
+                return Ok(Self::Drag {
+                    actor: parts[0].to_owned(),
+                    x,
+                    y,
+                });
+            }
+        }
         Err(
-            "expected click, click:<x>,<y>, key-down:<key>, key-up:<key>, mouse-down:<x>,<y>, mouse-up:<x>,<y>, or mouse-move:<x>,<y>"
+            "expected click, click:<x>,<y>, key-down:<key>, key-up:<key>, mouse-down:<x>,<y>, mouse-up:<x>,<y>, mouse-move:<x>,<y>, or drag:<actor>,<x>,<y>"
                 .to_owned(),
         )
     }
@@ -173,6 +194,9 @@ impl From<CliRuntimeEvent> for nekoc::runtime::RuntimeEvent {
             CliRuntimeEvent::Key { key, state } => nekoc::runtime::RuntimeEvent::Key { key, state },
             CliRuntimeEvent::Mouse { state, x, y } => {
                 nekoc::runtime::RuntimeEvent::Mouse { state, x, y }
+            }
+            CliRuntimeEvent::Drag { actor, x, y } => {
+                nekoc::runtime::RuntimeEvent::Drag { actor, x, y }
             }
         }
     }

@@ -61,6 +61,12 @@ pub struct ActorState {
     pub visible: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dialog: Option<DialogState>,
+    #[serde(skip_serializing_if = "is_false")]
+    pub draggable: bool,
+}
+
+fn is_false(b: &bool) -> bool {
+    !*b
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -187,6 +193,11 @@ pub enum RuntimeEvent {
         state: Option<String>,
         x: Option<f64>,
         y: Option<f64>,
+    },
+    Drag {
+        actor: String,
+        x: f64,
+        y: f64,
     },
 }
 
@@ -403,6 +414,29 @@ impl<'a> Runtime<'a> {
                     *x,
                     *y,
                 ));
+            }
+            RuntimeEvent::Drag { actor, x, y } => {
+                self.mouse_x = *x;
+                self.mouse_y = *y;
+                self.mouse_down = true;
+                let is_draggable = self.actors.get(actor).map(|a| a.draggable).unwrap_or(false);
+                if is_draggable && let Some(actor_state) = self.actors.get_mut(actor) {
+                    actor_state.x = *x;
+                    actor_state.y = *y;
+                }
+                self.trace.push(RuntimeTraceEntry {
+                    tick: self.ticks,
+                    kind: "drag".to_owned(),
+                    owner_id: Some(actor.clone()),
+                    block_id: None,
+                    message: None,
+                    key: None,
+                    state: None,
+                    x: Some(*x),
+                    y: Some(*y),
+                    screen_id: None,
+                    clone_id: None,
+                });
             }
         }
     }
@@ -1793,7 +1827,6 @@ impl<'a> Thread<'a> {
             | "self_text_effect_size"
             | "self_text_effect_color"
             | "set_top_bottom_layer"
-            | "self_set_draggable"
             | "self_set_role_camp"
             | "self_stress_animation"
             | "global_animation"
@@ -1846,6 +1879,13 @@ impl<'a> Thread<'a> {
                     (style_input, runtime.actors.get_mut(&self.owner_id))
                 {
                     actor.current_style_id = Some(id);
+                }
+                self.advance(runtime, block.get("next"));
+            }
+            "self_set_draggable" => {
+                let value = field_string(block, "draggable").unwrap_or("false");
+                if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
+                    actor.draggable = value == "true";
                 }
                 self.advance(runtime, block.get("next"));
             }
@@ -2168,6 +2208,10 @@ fn collect_actors(dict: &Map<String, Value>) -> BTreeMap<String, ActorState> {
                         .and_then(Value::as_bool)
                         .unwrap_or(true),
                     dialog: None,
+                    draggable: actor
+                        .get("draggable")
+                        .and_then(Value::as_bool)
+                        .unwrap_or(false),
                 },
             )
         })

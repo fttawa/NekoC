@@ -9100,3 +9100,124 @@ fn runtime_runs_dialog_say_think() {
     assert_eq!(dialog.kind, "think");
     assert_eq!(dialog.text, "hmm");
 }
+
+#[test]
+fn runtime_sets_draggable_flag() {
+    let project = json!({
+        "projectName": "draggable-test",
+        "scenes": {
+            "currentSceneId": "scene-1",
+            "scenesDict": {
+                "scene-1": { "name": "main", "actorIds": ["actor-1"], "screenName": "main" }
+            },
+            "sortList": ["scene-1"]
+        },
+        "actors": {
+            "actorsDict": {
+                "actor-1": {
+                    "id": "actor-1", "name": "box", "visible": true,
+                    "position": { "x": 0, "y": 0 }, "rotation": 0, "scale": 100,
+                    "currentStyleId": "style-a", "styles": ["style-a"],
+                    "nekoBlockJsonList": [{
+                        "id": "b1", "type": "on_running_group_activated", "parent_id": "",
+                        "next": { "id": "b2", "type": "self_set_draggable", "parent_id": "b1",
+                            "fields": { "draggable": "true" }
+                        }
+                    }]
+                }
+            }
+        },
+        "variables": { "variablesDict": {} }
+    });
+
+    let snapshot =
+        nekoc::runtime::run_project_steps(&project, &[nekoc::runtime::RuntimeStep::Run(1)])
+            .unwrap();
+    let actor = snapshot.actors.get("actor-1").unwrap();
+    assert!(actor.draggable);
+}
+
+#[test]
+fn runtime_drag_moves_draggable_actor() {
+    let project = json!({
+        "projectName": "drag-move-test",
+        "scenes": {
+            "currentSceneId": "scene-1",
+            "scenesDict": {
+                "scene-1": { "name": "main", "actorIds": ["actor-1"], "screenName": "main" }
+            },
+            "sortList": ["scene-1"]
+        },
+        "actors": {
+            "actorsDict": {
+                "actor-1": {
+                    "id": "actor-1", "name": "box", "visible": true, "draggable": true,
+                    "position": { "x": 10, "y": 20 }, "rotation": 0, "scale": 100,
+                    "currentStyleId": "style-a", "styles": ["style-a"],
+                    "nekoBlockJsonList": []
+                }
+            }
+        },
+        "variables": { "variablesDict": {} }
+    });
+
+    let snapshot = nekoc::runtime::run_project_steps(
+        &project,
+        &[
+            nekoc::runtime::RuntimeStep::Run(1),
+            nekoc::runtime::RuntimeStep::Event(nekoc::runtime::RuntimeEvent::Drag {
+                actor: "actor-1".to_owned(),
+                x: 100.0,
+                y: -50.0,
+            }),
+            nekoc::runtime::RuntimeStep::Run(1),
+        ],
+    )
+    .unwrap();
+    let actor = snapshot.actors.get("actor-1").unwrap();
+    assert_eq!(actor.x, 100.0);
+    assert_eq!(actor.y, -50.0);
+    assert!(snapshot.trace.iter().any(|e| e.kind == "drag"));
+}
+
+#[test]
+fn runtime_drag_ignores_non_draggable_actor() {
+    let project = json!({
+        "projectName": "drag-ignore-test",
+        "scenes": {
+            "currentSceneId": "scene-1",
+            "scenesDict": {
+                "scene-1": { "name": "main", "actorIds": ["actor-1"], "screenName": "main" }
+            },
+            "sortList": ["scene-1"]
+        },
+        "actors": {
+            "actorsDict": {
+                "actor-1": {
+                    "id": "actor-1", "name": "box", "visible": true, "draggable": false,
+                    "position": { "x": 10, "y": 20 }, "rotation": 0, "scale": 100,
+                    "currentStyleId": "style-a", "styles": ["style-a"],
+                    "nekoBlockJsonList": []
+                }
+            }
+        },
+        "variables": { "variablesDict": {} }
+    });
+
+    let snapshot = nekoc::runtime::run_project_steps(
+        &project,
+        &[
+            nekoc::runtime::RuntimeStep::Run(1),
+            nekoc::runtime::RuntimeStep::Event(nekoc::runtime::RuntimeEvent::Drag {
+                actor: "actor-1".to_owned(),
+                x: 100.0,
+                y: -50.0,
+            }),
+            nekoc::runtime::RuntimeStep::Run(1),
+        ],
+    )
+    .unwrap();
+    let actor = snapshot.actors.get("actor-1").unwrap();
+    assert_eq!(actor.x, 10.0);
+    assert_eq!(actor.y, 20.0);
+}

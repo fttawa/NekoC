@@ -266,12 +266,15 @@ The current runtime subset intentionally starts small:
   `self_gradually_show_hide`, `create_stage_dialog`, `set_width_height_scale`,
   `add_width_height_scale`, `self_set_effect`, `self_change_effect`,
   `clear_all_effects`, `self_text_effect_text`, `self_text_effect_size`,
-  `self_text_effect_color`, `set_top_bottom_layer`, `self_set_draggable`,
+  `self_text_effect_color`, `set_top_bottom_layer`,
   `self_set_role_camp`, `self_stress_animation`, `global_animation`,
   `show_hide_variables`, `clear_drawing`, `self_pen_down`, `self_pen_up`,
   `self_set_pen_color`, `self_set_pen_size`, `self_change_pen_size`,
   `self_set_pen_color_property`, `self_change_pen_color_property`, `stamp`,
   `image_stamp`, `set_pen_layer`
+- drag: `self_set_draggable` sets the actor's draggable flag; `Drag` events
+  (CLI `--event drag:<actor>,<x>,<y>`, scenario `{ "kind": "drag", "actor": ..., "x": ..., "y": ... }`)
+  move draggable actors to the specified coordinates
 - screens: `switch_to_screen`, `get_screens`
 - logging: `console_log`
 
