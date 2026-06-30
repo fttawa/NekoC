@@ -95,6 +95,8 @@ pub struct RuntimeTraceEntry {
     pub y: Option<f64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub screen_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub clone_id: Option<String>,
 }
 
 impl RuntimeTraceEntry {
@@ -118,6 +120,7 @@ impl RuntimeTraceEntry {
             x,
             y,
             screen_id,
+            clone_id: None,
         }
     }
 
@@ -136,6 +139,7 @@ impl RuntimeTraceEntry {
             x: None,
             y: None,
             screen_id: None,
+            clone_id: None,
         }
     }
 
@@ -151,6 +155,7 @@ impl RuntimeTraceEntry {
             x: None,
             y: None,
             screen_id: None,
+            clone_id: None,
         }
     }
 }
@@ -226,6 +231,9 @@ struct Runtime<'a> {
     variables: BTreeMap<String, RuntimeValue>,
     variable_names: BTreeMap<String, String>,
     actors: BTreeMap<String, ActorState>,
+    clone_sources: BTreeMap<String, String>,
+    clone_indices: BTreeMap<String, usize>,
+    next_clone_index: BTreeMap<String, usize>,
     listeners: BTreeMap<String, Vec<Listener<'a>>>,
     procedures: BTreeMap<String, Procedure<'a>>,
     received_broadcasts: BTreeSet<String>,
@@ -303,6 +311,9 @@ impl<'a> Runtime<'a> {
             variables,
             variable_names,
             actors,
+            clone_sources: BTreeMap::new(),
+            clone_indices: BTreeMap::new(),
+            next_clone_index: BTreeMap::new(),
             listeners,
             procedures,
             received_broadcasts: BTreeSet::new(),
@@ -499,12 +510,12 @@ impl<'a> Runtime<'a> {
         listener_thread_ids
     }
 
-    fn spawn_thread(&mut self, owner_id: &'a str, current: Option<&'a Value>) -> usize {
+    fn spawn_thread(&mut self, owner_id: &str, current: Option<&'a Value>) -> usize {
         let id = self.next_thread_id;
         self.next_thread_id += 1;
         self.threads.push(Thread {
             id,
-            owner_id,
+            owner_id: owner_id.to_owned(),
             current,
             loops: Vec::new(),
             continuations: Vec::new(),
@@ -521,12 +532,151 @@ impl<'a> Runtime<'a> {
     }
 
     fn actor_for_sprite(&self, sprite: &str, owner_id: Option<&str>) -> Option<&ActorState> {
-        let actor_id = if sprite == "--self" {
-            owner_id?
+        let actor_id = self.actor_id_for_sprite(sprite, owner_id)?;
+        self.actors.get(actor_id.as_str())
+    }
+
+    fn actor_id_for_sprite(&self, sprite: &str, owner_id: Option<&str>) -> Option<String> {
+        if sprite == "--self" {
+            owner_id.map(ToOwned::to_owned)
         } else {
-            sprite
+            Some(sprite.to_owned())
+        }
+    }
+
+    fn clone_source_id(&self, actor_id: &str) -> String {
+        self.clone_sources
+            .get(actor_id)
+            .cloned()
+            .unwrap_or_else(|| actor_id.to_owned())
+    }
+
+    fn clone_count_for_sprite(&self, sprite: &str, owner_id: Option<&str>) -> usize {
+        let Some(actor_id) = self.actor_id_for_sprite(sprite, owner_id) else {
+            return 0;
         };
-        self.actors.get(actor_id)
+        let source_id = self.clone_source_id(&actor_id);
+        self.clone_sources
+            .values()
+            .filter(|source| *source == &source_id)
+            .count()
+    }
+
+    fn clone_actor_by_index(
+        &self,
+        sprite: &str,
+        owner_id: Option<&str>,
+        index: usize,
+    ) -> Option<&ActorState> {
+        let actor_id = self.actor_id_for_sprite(sprite, owner_id)?;
+        let source_id = self.clone_source_id(&actor_id);
+        let clone_id = self
+            .clone_sources
+            .iter()
+            .filter(|(_, source)| *source == &source_id)
+            .find_map(|(clone_id, _)| {
+                (self.clone_indices.get(clone_id).copied() == Some(index))
+                    .then_some(clone_id.as_str())
+            })?;
+        self.actors.get(clone_id)
+    }
+
+    fn clone_property(
+        &self,
+        sprite: &str,
+        owner_id: Option<&str>,
+        index: usize,
+        attribute: &str,
+    ) -> f64 {
+        self.clone_actor_by_index(sprite, owner_id, index)
+            .map(|actor| match attribute {
+                "y" => actor.y,
+                "rotation" | "direction" => actor.rotation,
+                "scale" => actor.scale,
+                "visible" => {
+                    if actor.visible {
+                        1.0
+                    } else {
+                        0.0
+                    }
+                }
+                _ => actor.x,
+            })
+            .unwrap_or(0.0)
+    }
+
+    fn create_clone(&mut self, source_actor_id: &str) -> Option<String> {
+        let source = self.actors.get(source_actor_id)?.clone();
+        let source_id = self.clone_source_id(source_actor_id);
+        let index = self.next_clone_index.entry(source_id.clone()).or_insert(1);
+        let clone_index = *index;
+        *index += 1;
+        let clone_id = format!("{source_id}#clone-{clone_index}");
+        let mut clone_actor = source;
+        clone_actor.id = clone_id.clone();
+        clone_actor.name = format!("{} clone {clone_index}", clone_actor.name);
+        self.actors.insert(clone_id.clone(), clone_actor);
+        self.clone_sources
+            .insert(clone_id.clone(), source_id.clone());
+        self.clone_indices.insert(clone_id.clone(), clone_index);
+        self.trace.push(RuntimeTraceEntry {
+            tick: self.ticks,
+            kind: "clone_create".to_owned(),
+            owner_id: Some(source_id.clone()),
+            block_id: None,
+            message: None,
+            key: None,
+            state: None,
+            x: None,
+            y: None,
+            screen_id: None,
+            clone_id: Some(clone_id.clone()),
+        });
+        self.spawn_clone_scripts(source_actor_id, &clone_id);
+        Some(clone_id)
+    }
+
+    fn spawn_clone_scripts(&mut self, source_actor_id: &str, clone_actor_id: &str) {
+        let Some(owner) = get_path(self.project, &["actors", "actorsDict", source_actor_id]) else {
+            return;
+        };
+        let Some(blocks) = owner.get("nekoBlockJsonList").and_then(Value::as_array) else {
+            return;
+        };
+        for block in blocks {
+            if block_type(block) == Some("start_as_clone") {
+                self.trace.push(RuntimeTraceEntry::script(
+                    self.ticks,
+                    "start_as_clone",
+                    clone_actor_id,
+                    block,
+                ));
+                self.spawn_thread(clone_actor_id, Some(block));
+            }
+        }
+    }
+
+    fn delete_clone(&mut self, clone_actor_id: &str) -> bool {
+        if !self.clone_sources.contains_key(clone_actor_id) {
+            return false;
+        }
+        self.actors.remove(clone_actor_id);
+        self.clone_sources.remove(clone_actor_id);
+        self.clone_indices.remove(clone_actor_id);
+        self.trace.push(RuntimeTraceEntry {
+            tick: self.ticks,
+            kind: "clone_delete".to_owned(),
+            owner_id: Some(clone_actor_id.to_owned()),
+            block_id: None,
+            message: None,
+            key: None,
+            state: None,
+            x: None,
+            y: None,
+            screen_id: None,
+            clone_id: Some(clone_actor_id.to_owned()),
+        });
+        true
     }
 
     fn eval(&self, block: Option<&Value>) -> RuntimeValue {
@@ -825,8 +975,20 @@ impl<'a> Runtime<'a> {
             "bump_into" | "bump_into_color" | "out_of_boundary" | "bump_into_body_part" => {
                 RuntimeValue::Bool(false)
             }
-            "get_clone_num" | "get_current_clone_index" | "get_clone_index_property" => {
-                RuntimeValue::Number(0.0)
+            "get_clone_num" => {
+                let sprite = field_string(block, "sprite").unwrap_or("--self");
+                RuntimeValue::Number(self.clone_count_for_sprite(sprite, owner_id) as f64)
+            }
+            "get_current_clone_index" => RuntimeValue::Number(
+                owner_id
+                    .and_then(|id| self.clone_indices.get(id).copied())
+                    .unwrap_or(0) as f64,
+            ),
+            "get_clone_index_property" => {
+                let sprite = field_string(block, "sprite").unwrap_or("--self");
+                let attribute = field_string(block, "attribute").unwrap_or("x");
+                let index = eval(input(block, "index")).as_number().floor().max(0.0) as usize;
+                RuntimeValue::Number(self.clone_property(sprite, owner_id, index, attribute))
             }
             "get_appearance_of_part" | "get_tilt_angle_of_face" => RuntimeValue::Number(0.0),
             "logic_boolean" => RuntimeValue::Bool(
@@ -1059,7 +1221,7 @@ impl<'a> Runtime<'a> {
 
 struct Thread<'a> {
     id: usize,
-    owner_id: &'a str,
+    owner_id: String,
     current: Option<&'a Value>,
     loops: Vec<LoopFrame<'a>>,
     continuations: Vec<Option<&'a Value>>,
@@ -1077,7 +1239,7 @@ impl<'a> Thread<'a> {
     fn eval(&self, runtime: &Runtime<'a>, block: Option<&Value>) -> RuntimeValue {
         runtime.eval_for_context(
             block,
-            Some(self.owner_id),
+            Some(self.owner_id.as_str()),
             &self.range_values,
             &self.script_values,
             &self.procedure_values,
@@ -1121,7 +1283,7 @@ impl<'a> Thread<'a> {
 
     fn execute_block(&mut self, block: &'a Value, runtime: &mut Runtime<'a>) -> Result<()> {
         match block_type(block).unwrap_or("") {
-            "on_running_group_activated" | "start_on_click" | "on_keydown" => {
+            "on_running_group_activated" | "start_on_click" | "on_keydown" | "start_as_clone" => {
                 self.advance(runtime, block.get("next"));
             }
             "when" => {
@@ -1430,8 +1592,22 @@ impl<'a> Thread<'a> {
                 }
                 self.advance(runtime, block.get("next"));
             }
-            "show_hide_timer" | "face_to_body_part" | "mirror" | "dispose_clone" => {
+            "show_hide_timer" | "face_to_body_part" => {
                 self.advance(runtime, block.get("next"));
+            }
+            "mirror" => {
+                let sprite = field_string(block, "sprite").unwrap_or("--self");
+                if let Some(actor_id) = runtime.actor_id_for_sprite(sprite, Some(&self.owner_id)) {
+                    runtime.create_clone(&actor_id);
+                }
+                self.advance(runtime, block.get("next"));
+            }
+            "dispose_clone" => {
+                if runtime.delete_clone(&self.owner_id) {
+                    self.done = true;
+                } else {
+                    self.advance(runtime, block.get("next"));
+                }
             }
             "warp" | "tell" | "sync_tell" => {
                 self.enter_branch(runtime, statement(block, "DO"), block.get("next"));
@@ -1461,7 +1637,7 @@ impl<'a> Thread<'a> {
             }
             "self_go_forward" => {
                 let steps = self.eval(runtime, input(block, "steps")).as_number();
-                if let Some(actor) = runtime.actors.get_mut(self.owner_id) {
+                if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
                     let radians = actor.rotation.to_radians();
                     actor.x += steps * radians.sin();
                     actor.y += steps * radians.cos();
@@ -1471,7 +1647,7 @@ impl<'a> Thread<'a> {
             "self_move_to" | "self_glide_to" => {
                 let x = self.eval(runtime, input(block, "x")).as_number();
                 let y = self.eval(runtime, input(block, "y")).as_number();
-                if let Some(actor) = runtime.actors.get_mut(self.owner_id) {
+                if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
                     actor.x = x;
                     actor.y = y;
                 }
@@ -1479,14 +1655,14 @@ impl<'a> Thread<'a> {
             }
             "self_set_position_x" => {
                 let value = self.eval(runtime, input(block, "value")).as_number();
-                if let Some(actor) = runtime.actors.get_mut(self.owner_id) {
+                if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
                     actor.x = value;
                 }
                 self.advance(runtime, block.get("next"));
             }
             "self_set_position_y" => {
                 let value = self.eval(runtime, input(block, "value")).as_number();
-                if let Some(actor) = runtime.actors.get_mut(self.owner_id) {
+                if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
                     actor.y = value;
                 }
                 self.advance(runtime, block.get("next"));
@@ -1494,7 +1670,7 @@ impl<'a> Thread<'a> {
             "self_change_coordinate_x" | "self_glide_coordinate_x" => {
                 let delta =
                     signed_delta(block, self.eval(runtime, input(block, "value")).as_number());
-                if let Some(actor) = runtime.actors.get_mut(self.owner_id) {
+                if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
                     actor.x += delta;
                 }
                 self.advance(runtime, block.get("next"));
@@ -1502,21 +1678,21 @@ impl<'a> Thread<'a> {
             "self_change_coordinate_y" | "self_glide_coordinate_y" => {
                 let delta =
                     signed_delta(block, self.eval(runtime, input(block, "value")).as_number());
-                if let Some(actor) = runtime.actors.get_mut(self.owner_id) {
+                if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
                     actor.y += delta;
                 }
                 self.advance(runtime, block.get("next"));
             }
             "self_rotate" => {
                 let degrees = self.eval(runtime, input(block, "degrees")).as_number();
-                if let Some(actor) = runtime.actors.get_mut(self.owner_id) {
+                if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
                     actor.rotation += degrees;
                 }
                 self.advance(runtime, block.get("next"));
             }
             "self_point_towards" => {
                 let degrees = self.eval(runtime, input(block, "degrees")).as_number();
-                if let Some(actor) = runtime.actors.get_mut(self.owner_id) {
+                if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
                     actor.rotation = degrees;
                 }
                 self.advance(runtime, block.get("next"));
@@ -1528,14 +1704,14 @@ impl<'a> Thread<'a> {
                     .and_then(Value::as_str)
                     .unwrap_or("appear")
                     == "appear";
-                if let Some(actor) = runtime.actors.get_mut(self.owner_id) {
+                if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
                     actor.visible = visible;
                 }
                 self.advance(runtime, block.get("next"));
             }
             "set_scale" => {
                 let value = self.eval(runtime, input(block, "scale")).as_number();
-                if let Some(actor) = runtime.actors.get_mut(self.owner_id) {
+                if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
                     actor.scale = value;
                 }
                 self.advance(runtime, block.get("next"));
@@ -1543,7 +1719,7 @@ impl<'a> Thread<'a> {
             "self_change_scale" => {
                 let delta =
                     signed_delta(block, self.eval(runtime, input(block, "scale")).as_number());
-                if let Some(actor) = runtime.actors.get_mut(self.owner_id) {
+                if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
                     actor.scale += delta;
                 }
                 self.advance(runtime, block.get("next"));
@@ -1627,7 +1803,7 @@ impl<'a> Thread<'a> {
     }
 
     fn next_loop_iteration(&mut self, runtime: &Runtime<'a>) -> Option<Option<&'a Value>> {
-        let owner_id = self.owner_id;
+        let owner_id = self.owner_id.as_str();
         let frame = self.loops.last_mut()?;
         match frame {
             LoopFrame::Forever { body } => Some(Some(*body)),

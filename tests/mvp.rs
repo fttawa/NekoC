@@ -2805,6 +2805,207 @@ fn runtime_snapshot_traces_start_click_and_broadcast_events() {
 }
 
 #[test]
+fn runtime_runs_clone_lifecycle_and_clone_queries() {
+    let project = json!({
+        "variables": {
+            "variablesDict": {
+                "var-count": {
+                    "id": "var-count",
+                    "name": "count",
+                    "value": 0
+                },
+                "var-index": {
+                    "id": "var-index",
+                    "name": "index",
+                    "value": 0
+                },
+                "var-clone-x": {
+                    "id": "var-clone-x",
+                    "name": "cloneX",
+                    "value": 0
+                },
+                "var-after-delete": {
+                    "id": "var-after-delete",
+                    "name": "afterDelete",
+                    "value": -1
+                }
+            }
+        },
+        "actors": {
+            "actorsDict": {
+                "actor-1": {
+                    "id": "actor-1",
+                    "name": "source",
+                    "position": { "x": 10, "y": -5 },
+                    "rotation": 30,
+                    "scale": 80,
+                    "visible": true,
+                    "nekoBlockJsonList": [
+                        {
+                            "id": "start",
+                            "type": "on_running_group_activated",
+                            "next": {
+                                "id": "make-clone",
+                                "type": "mirror",
+                                "fields": { "sprite": "--self" },
+                                "next": {
+                                    "id": "set-count",
+                                    "type": "variables_set",
+                                    "fields": { "variable": "var-count" },
+                                    "inputs": {
+                                        "value": {
+                                            "id": "clone-count",
+                                            "type": "get_clone_num",
+                                            "fields": { "sprite": "--self" }
+                                        }
+                                    },
+                                    "next": {
+                                        "id": "wait-for-clone-start",
+                                        "type": "wait",
+                                        "inputs": {
+                                            "time": {
+                                                "id": "start-wait-time",
+                                                "type": "math_number",
+                                                "fields": { "NUM": "0.04" }
+                                            }
+                                        },
+                                        "next": {
+                                            "id": "set-clone-x",
+                                            "type": "variables_set",
+                                            "fields": { "variable": "var-clone-x" },
+                                            "inputs": {
+                                                "value": {
+                                                    "id": "clone-x",
+                                                    "type": "get_clone_index_property",
+                                                    "fields": {
+                                                        "sprite": "--self",
+                                                        "attribute": "x"
+                                                    },
+                                                    "inputs": {
+                                                        "index": {
+                                                            "id": "first-clone",
+                                                            "type": "math_number",
+                                                            "fields": { "NUM": "1" }
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            "next": {
+                                                "id": "wait-for-clone-delete",
+                                                "type": "wait",
+                                                "inputs": {
+                                                    "time": {
+                                                        "id": "delete-wait-time",
+                                                        "type": "math_number",
+                                                        "fields": { "NUM": "0.1" }
+                                                    }
+                                                },
+                                                "next": {
+                                                    "id": "set-after-delete",
+                                                    "type": "variables_set",
+                                                    "fields": { "variable": "var-after-delete" },
+                                                    "inputs": {
+                                                        "value": {
+                                                            "id": "count-after-delete",
+                                                            "type": "get_clone_num",
+                                                            "fields": { "sprite": "--self" }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "id": "clone-start",
+                            "type": "start_as_clone",
+                            "next": {
+                                "id": "set-index",
+                                "type": "variables_set",
+                                "fields": { "variable": "var-index" },
+                                "inputs": {
+                                    "value": {
+                                        "id": "clone-index",
+                                        "type": "get_current_clone_index"
+                                    }
+                                },
+                                "next": {
+                                    "id": "set-x",
+                                    "type": "self_move_to",
+                                    "inputs": {
+                                        "x": {
+                                            "id": "x-value",
+                                            "type": "math_number",
+                                            "fields": { "NUM": "25" }
+                                        },
+                                        "y": {
+                                            "id": "y-value",
+                                            "type": "math_number",
+                                            "fields": { "NUM": "-5" }
+                                        }
+                                    },
+                                    "next": {
+                                        "id": "wait-before-delete",
+                                        "type": "wait",
+                                        "inputs": {
+                                            "time": {
+                                                "id": "clone-delete-wait-time",
+                                                "type": "math_number",
+                                                "fields": { "NUM": "0.07" }
+                                            }
+                                        },
+                                        "next": {
+                                            "id": "delete-clone",
+                                            "type": "dispose_clone"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    });
+
+    let snapshot = nekoc::runtime::run_project(&project, 12).unwrap();
+
+    assert_eq!(
+        snapshot.variables["var-count"],
+        nekoc::runtime::RuntimeValue::Number(1.0)
+    );
+    assert_eq!(
+        snapshot.variables["var-index"],
+        nekoc::runtime::RuntimeValue::Number(1.0)
+    );
+    assert_eq!(
+        snapshot.variables["var-clone-x"],
+        nekoc::runtime::RuntimeValue::Number(25.0)
+    );
+    assert_eq!(
+        snapshot.variables["var-after-delete"],
+        nekoc::runtime::RuntimeValue::Number(0.0)
+    );
+    let trace = serde_json::to_value(&snapshot.trace).unwrap();
+    assert!(
+        trace
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|entry| entry["kind"] == "clone_create" && entry["clone_id"] == "actor-1#clone-1")
+    );
+    assert!(
+        trace
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|entry| entry["kind"] == "clone_delete" && entry["clone_id"] == "actor-1#clone-1")
+    );
+}
+
+#[test]
 fn runtime_dispatches_parameterized_broadcast_values() {
     let project = json!({
         "variables": {

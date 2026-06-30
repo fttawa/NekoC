@@ -243,6 +243,9 @@ The current runtime subset intentionally starts small:
   `bump_into_color`, `out_of_boundary`, `get_clone_num`,
   `get_current_clone_index`, `get_clone_index_property`, `bump_into_body_part`,
   `get_appearance_of_part`, `get_tilt_angle_of_face`, `face_to_body_part`
+- clones: `mirror` creates a clone, `start_as_clone` starts clone scripts,
+  `dispose_clone` deletes the current clone, and clone count/index/property
+  reporters read runtime clone state
 - conservative display/pen no-ops: `self_appear_animation`,
   `self_gradually_show_hide`, `self_dialog`, `self_dialog_wait`,
   `close_self_dialog`, `create_stage_dialog`, `set_width_height_scale`,
