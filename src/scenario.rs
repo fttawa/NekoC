@@ -1,4 +1,7 @@
-use crate::runtime::{RuntimeEvent, run_project, run_project_with_events, snapshot_to_json};
+use crate::runtime::{
+    RuntimeEvent, RuntimeStep, run_project, run_project_steps, run_project_with_events,
+    snapshot_to_json,
+};
 use anyhow::{Context, Result, bail};
 use serde::Deserialize;
 use serde_json::Value;
@@ -9,6 +12,8 @@ pub struct RuntimeScenario {
     pub ticks: usize,
     #[serde(default)]
     pub events: Vec<ScenarioEvent>,
+    #[serde(default)]
+    pub steps: Vec<ScenarioStep>,
     #[serde(default)]
     pub expect: serde_json::Map<String, Value>,
 }
@@ -31,6 +36,13 @@ pub enum ScenarioEvent {
         x: Option<f64>,
         y: Option<f64>,
     },
+}
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(untagged)]
+pub enum ScenarioStep {
+    Run { run: usize },
+    Event { event: ScenarioEvent },
 }
 
 #[derive(Debug, Clone, Copy, Deserialize)]
@@ -68,36 +80,22 @@ pub struct ScenarioDifference {
 }
 
 pub fn run_runtime_scenario(project: &Value, scenario: &RuntimeScenario) -> Result<Value> {
+    if !scenario.steps.is_empty() {
+        let steps = scenario
+            .steps
+            .iter()
+            .map(|step| match step {
+                ScenarioStep::Run { run } => RuntimeStep::Run(*run),
+                ScenarioStep::Event { event } => RuntimeStep::Event(runtime_event(event)),
+            })
+            .collect::<Vec<_>>();
+        return Ok(snapshot_to_json(&run_project_steps(project, &steps)?));
+    }
+
     let events = scenario
         .events
         .iter()
-        .map(|event| match event {
-            ScenarioEvent::Named(ScenarioNamedEvent::Click) => {
-                RuntimeEvent::Click { x: None, y: None }
-            }
-            ScenarioEvent::Click {
-                kind: ScenarioClickEvent::Click,
-                x,
-                y,
-            } => RuntimeEvent::Click { x: *x, y: *y },
-            ScenarioEvent::Key { kind, key } => RuntimeEvent::Key {
-                key: key.clone(),
-                state: match kind {
-                    ScenarioKeyEvent::KeyDown => "down",
-                    ScenarioKeyEvent::KeyUp => "up",
-                }
-                .to_owned(),
-            },
-            ScenarioEvent::Mouse { kind, x, y } => RuntimeEvent::Mouse {
-                state: match kind {
-                    ScenarioMouseEvent::MouseDown => Some("down".to_owned()),
-                    ScenarioMouseEvent::MouseUp => Some("up".to_owned()),
-                    ScenarioMouseEvent::MouseMove => None,
-                },
-                x: *x,
-                y: *y,
-            },
-        })
+        .map(runtime_event)
         .collect::<Vec<_>>();
     let snapshot = if events.is_empty() {
         run_project(project, scenario.ticks)?
@@ -105,6 +103,34 @@ pub fn run_runtime_scenario(project: &Value, scenario: &RuntimeScenario) -> Resu
         run_project_with_events(project, &events, scenario.ticks)?
     };
     Ok(snapshot_to_json(&snapshot))
+}
+
+fn runtime_event(event: &ScenarioEvent) -> RuntimeEvent {
+    match event {
+        ScenarioEvent::Named(ScenarioNamedEvent::Click) => RuntimeEvent::Click { x: None, y: None },
+        ScenarioEvent::Click {
+            kind: ScenarioClickEvent::Click,
+            x,
+            y,
+        } => RuntimeEvent::Click { x: *x, y: *y },
+        ScenarioEvent::Key { kind, key } => RuntimeEvent::Key {
+            key: key.clone(),
+            state: match kind {
+                ScenarioKeyEvent::KeyDown => "down",
+                ScenarioKeyEvent::KeyUp => "up",
+            }
+            .to_owned(),
+        },
+        ScenarioEvent::Mouse { kind, x, y } => RuntimeEvent::Mouse {
+            state: match kind {
+                ScenarioMouseEvent::MouseDown => Some("down".to_owned()),
+                ScenarioMouseEvent::MouseUp => Some("up".to_owned()),
+                ScenarioMouseEvent::MouseMove => None,
+            },
+            x: *x,
+            y: *y,
+        },
+    }
 }
 
 pub fn check_runtime_scenario(

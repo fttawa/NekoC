@@ -91,6 +91,12 @@ pub enum RuntimeEvent {
     },
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub enum RuntimeStep {
+    Run(usize),
+    Event(RuntimeEvent),
+}
+
 pub fn run_project(value: &Value, ticks: usize) -> Result<RuntimeSnapshot> {
     let mut runtime = Runtime::from_project(value)?;
     runtime.start();
@@ -109,6 +115,18 @@ pub fn run_project_with_events(
         runtime.dispatch_event(event);
     }
     runtime.run_ticks(ticks)?;
+    Ok(runtime.snapshot())
+}
+
+pub fn run_project_steps(value: &Value, steps: &[RuntimeStep]) -> Result<RuntimeSnapshot> {
+    let mut runtime = Runtime::from_project(value)?;
+    runtime.start();
+    for step in steps {
+        match step {
+            RuntimeStep::Run(ticks) => runtime.run_ticks(*ticks)?,
+            RuntimeStep::Event(event) => runtime.dispatch_event(event),
+        }
+    }
     Ok(runtime.snapshot())
 }
 

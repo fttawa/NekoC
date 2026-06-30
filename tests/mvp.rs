@@ -2435,6 +2435,62 @@ onClick(() => {
 }
 
 #[test]
+fn cli_compile_ts_scenario_runs_steps_in_order() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("compiled-step-scenario.ts");
+    let scenario = dir.path().join("compiled-step-scenario.json");
+    let output = dir.path().join("compiled-step-scenario.bcmkn");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  setVar("clicked", 0);
+});
+
+onClick(() => {
+  setVar("clicked", mouseX());
+});
+"#,
+    )
+    .unwrap();
+    fs::write(
+        &scenario,
+        serde_json::to_string_pretty(&json!({
+            "steps": [
+                { "run": 1 },
+                { "event": { "kind": "click", "x": 15, "y": -20 } },
+                { "run": 1 }
+            ],
+            "expect": {
+                "ticks": 2,
+                "variables.kn-var-clicked": 15.0
+            }
+        }))
+        .unwrap(),
+    )
+    .unwrap();
+    let template = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts-scenario",
+            input.to_str().unwrap(),
+            "--template",
+            template.to_str().unwrap(),
+            "--scenario",
+            scenario.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("Runtime scenario matches"));
+}
+
+#[test]
 fn runtime_dispatches_broadcast_listeners() {
     let project = json!({
         "variables": {

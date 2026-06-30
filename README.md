@@ -178,6 +178,23 @@ events, and expected snapshot paths together in a small test file:
 ```
 Use `nekoc compile-ts-scenario` when you want the compiler to emit a `.bcmkn`
 and immediately verify that exported project with the embedded runtime.
+For order-sensitive behavior, prefer `steps`; it starts the project once, then
+runs ticks and injects events exactly in the order listed. The older
+`ticks`/`events`/`expect` shape still works for simple checks.
+
+```json
+{
+  "steps": [
+    { "run": 1 },
+    { "event": { "kind": "click", "x": 15, "y": -20 } },
+    { "run": 1 }
+  ],
+  "expect": {
+    "ticks": 2,
+    "variables.var-clicked": 15
+  }
+}
+```
 
 The current runtime subset intentionally starts small:
 
