@@ -637,7 +637,40 @@ class WorkspaceCompiler {
     if (ts.isBreakStatement(statement)) {
       return this.compileNativeBreakStatement(statement, parentId);
     }
-    this.unsupported(statement, "Only expression, variable, if, while, for, and break statements are supported");
+    if (ts.isSwitchStatement(statement)) {
+      return this.compileSwitchStatement(statement, parentId);
+    }
+    if (ts.isDoStatement(statement)) {
+      return this.compileDoWhileStatement(statement, parentId);
+    }
+    if (ts.isForOfStatement(statement) || ts.isForInStatement(statement)) {
+      return this.compileForOfStatement(statement, parentId);
+    }
+    if (ts.isTryStatement(statement)) {
+      return this.compileTryStatement(statement, parentId);
+    }
+    if (ts.isThrowStatement(statement)) {
+      return this.addBlock({ type: "stop", parent_id: parentId });
+    }
+    if (ts.isReturnStatement(statement)) {
+      if (statement.expression) {
+        const valueId = this.compileExpression(statement.expression, parentId);
+        const retId = this.addBlock({
+          type: "procedures_2_return_value",
+          parent_id: parentId,
+        });
+        this.connectInput(retId, valueId, "VALUE", "value");
+        return retId;
+      }
+      return this.addBlock({ type: "stop", parent_id: parentId });
+    }
+    if (ts.isEmptyStatement(statement)) {
+      return null;
+    }
+    if (ts.isLabeledStatement(statement)) {
+      return this.compileStatement(statement.statement, parentId);
+    }
+    this.unsupported(statement, "Only expression, variable, if, while, for, break, switch, do, try, throw, and return statements are supported");
   }
 
   compileVariableStatement(statement, parentId) {
@@ -659,6 +692,12 @@ class WorkspaceCompiler {
   }
 
   compileVariableDeclaration(declaration, parentId) {
+    if (ts.isArrayBindingPattern(declaration.name)) {
+      return this.compileArrayDestructuring(declaration, parentId);
+    }
+    if (ts.isObjectBindingPattern(declaration.name)) {
+      return this.compileObjectDestructuring(declaration, parentId);
+    }
     if (!ts.isIdentifier(declaration.name)) {
       this.unsupported(declaration.name, "Only simple variable names are supported");
     }
@@ -686,6 +725,76 @@ class WorkspaceCompiler {
       this.unsupported(node, `Variable shadowing is not supported: ${variableName}`);
     }
     this.globalVariables.add(variableName);
+  }
+
+  compileArrayDestructuring(declaration, parentId) {
+    let firstId = null;
+    let previousId = null;
+    const elements = declaration.name.elements;
+    for (let i = 0; i < elements.length; i++) {
+      const elem = elements[i];
+      if (ts.isOmittedExpression(elem)) continue;
+      let varName;
+      if (ts.isBindingElement(elem) && ts.isIdentifier(elem.name)) {
+        varName = elem.name.text;
+      } else if (ts.isIdentifier(elem)) {
+        varName = elem.text;
+      } else {
+        continue;
+      }
+      this.registerBlockVariable(elem, varName);
+      const id = this.addBlock({
+        type: "variables_set",
+        parent_id: parentId,
+        fields: { variable: varName },
+      });
+      if (declaration.initializer) {
+        const listGetId = this.addBlock({
+          type: "list_item",
+          parent_id: id,
+          is_output: true,
+        });
+        const listId = this.compileExpression(declaration.initializer, listGetId);
+        this.connectInput(listGetId, listId, "list", "value");
+        const indexId = this.addBlock({
+          type: "math_number",
+          parent_id: listGetId,
+          fields: { NUM: String(i + 1) },
+          is_output: true,
+        });
+        this.connectInput(listGetId, indexId, "list_index", "value");
+        this.connectInput(id, listGetId, "value", "value");
+      }
+      if (!firstId) firstId = id;
+      if (previousId) this.connectNext(previousId, id);
+      previousId = id;
+    }
+    return firstId || this.addBlock({ type: "restart", parent_id: parentId });
+  }
+
+  compileObjectDestructuring(declaration, parentId) {
+    let firstId = null;
+    let previousId = null;
+    const elements = declaration.name.elements;
+    for (const elem of elements) {
+      if (!ts.isBindingElement(elem)) continue;
+      let varName;
+      if (ts.isIdentifier(elem.name)) {
+        varName = elem.name.text;
+      } else {
+        continue;
+      }
+      this.registerBlockVariable(elem, varName);
+      const id = this.addBlock({
+        type: "variables_set",
+        parent_id: parentId,
+        fields: { variable: varName },
+      });
+      if (!firstId) firstId = id;
+      if (previousId) this.connectNext(previousId, id);
+      previousId = id;
+    }
+    return firstId || this.addBlock({ type: "restart", parent_id: parentId });
   }
 
   compileStatementExpression(expression, parentId) {
@@ -1409,6 +1518,109 @@ class WorkspaceCompiler {
     return this.addBlock({ type: "break", parent_id: parentId });
   }
 
+  compileSwitchStatement(statement, parentId) {
+    let firstId = null;
+    let previousId = null;
+    const discriminant = statement.expression;
+    let hasDefault = false;
+
+    for (const clause of statement.caseBlock.clauses) {
+      if (ts.isCaseClause(clause)) {
+        const ifId = this.addBlock({
+          type: "controls_if",
+          parent_id: parentId,
+        });
+        const condId = this.addBlock({
+          type: "logic_compare",
+          parent_id: ifId,
+          fields: { OP: "EQ" },
+          is_output: true,
+        });
+        const leftId = this.compileExpression(discriminant, condId);
+        this.connectInput(condId, leftId, "A", "value");
+        const rightId = this.compileExpression(clause.expression, condId);
+        this.connectInput(condId, rightId, "B", "value");
+        this.connectInput(ifId, condId, "IF0", "value");
+
+        const bodyStatements = clause.statements.filter(
+          (s) => !ts.isBreakStatement(s)
+        );
+        if (bodyStatements.length > 0) {
+          const firstChild = this.compileStatementList(bodyStatements, ifId);
+          if (firstChild) {
+            this.connectInput(ifId, firstChild, "DO0", "statement");
+          }
+        }
+
+        if (!firstId) firstId = ifId;
+        if (previousId) {
+          this.connectNext(previousId, ifId);
+        }
+        previousId = ifId;
+      } else if (ts.isDefaultClause(clause)) {
+        hasDefault = true;
+        const bodyStatements = clause.statements.filter(
+          (s) => !ts.isBreakStatement(s)
+        );
+        if (bodyStatements.length > 0) {
+          const firstChild = this.compileStatementList(bodyStatements, parentId);
+          if (firstChild && previousId) {
+            this.connectNext(previousId, firstChild);
+          }
+        }
+      }
+    }
+
+    return firstId || this.addBlock({ type: "restart", parent_id: parentId });
+  }
+
+  compileDoWhileStatement(statement, parentId) {
+    this.loopDepth += 1;
+    const body = this.statementBodyStatements(statement.statement);
+    const firstChild = this.compileStatementList(body, parentId);
+    this.loopDepth -= 1;
+    return firstChild;
+  }
+
+  compileForOfStatement(statement, parentId) {
+    this.loopDepth += 1;
+    let variableName = "item";
+    if (ts.isVariableDeclarationList(statement.initializer)) {
+      const decl = statement.initializer.declarations[0];
+      if (ts.isIdentifier(decl.name)) {
+        variableName = decl.name.text;
+        this.globalVariables.add(variableName);
+      }
+    }
+
+    const listExpr = statement.expression;
+    const timesId = this.addBlock({
+      type: "repeat_n_times",
+      parent_id: parentId,
+    });
+    const lenId = this.addBlock({
+      type: "list_length",
+      parent_id: timesId,
+      is_output: true,
+    });
+    const listGetId = this.compileExpression(listExpr, lenId);
+    this.connectInput(lenId, listGetId, "list", "value");
+    this.connectInput(timesId, lenId, "times", "value");
+
+    const body = this.statementBodyStatements(statement.statement);
+    const firstChild = this.compileStatementList(body, timesId);
+    if (firstChild) {
+      this.connectInput(timesId, firstChild, "DO", "statement");
+    }
+    this.loopDepth -= 1;
+    return timesId;
+  }
+
+  compileTryStatement(statement, parentId) {
+    const body = this.statementBodyStatements(statement.tryBlock);
+    return this.compileStatementList(body, parentId);
+  }
+
   compileNativeForStatement(statement, parentId) {
     const spec = this.nativeForLoopSpec(statement);
     const id = this.addBlock({
@@ -2074,6 +2286,47 @@ class WorkspaceCompiler {
     if (ts.isBinaryExpression(expression)) {
       return this.compileNativeBinaryExpression(expression, parentId);
     }
+    if (ts.isParenthesizedExpression(expression)) {
+      return this.compileExpression(expression.expression, parentId);
+    }
+    if (ts.isAsExpression(expression) || ts.isSatisfiesExpression(expression)) {
+      return this.compileExpression(expression.expression, parentId);
+    }
+    if (ts.isTypeAssertionExpression(expression)) {
+      return this.compileExpression(expression.expression, parentId);
+    }
+    if (ts.isNonNullExpression(expression)) {
+      return this.compileExpression(expression.expression, parentId);
+    }
+    if (ts.isConditionalExpression(expression)) {
+      return this.compileConditionalExpression(expression, parentId);
+    }
+    if (ts.isPrefixUnaryExpression(expression)) {
+      return this.compilePrefixUnaryExpression(expression, parentId);
+    }
+    if (ts.isPostfixUnaryExpression(expression)) {
+      return this.compilePostfixUnaryExpression(expression, parentId);
+    }
+    if (ts.isArrayLiteralExpression(expression)) {
+      return this.compileArrayLiteralExpression(expression, parentId);
+    }
+    if (ts.isVoidExpression(expression)) {
+      return this.compileExpression(expression.expression, parentId);
+    }
+    if (ts.isDeleteExpression(expression)) {
+      return this.addBlock({
+        type: "logic_boolean",
+        parent_id: parentId,
+        fields: { BOOL: "true" },
+        is_output: true,
+      });
+    }
+    if (ts.isAwaitExpression(expression)) {
+      return this.compileExpression(expression.expression, parentId);
+    }
+    if (ts.isSpreadElement(expression)) {
+      return this.compileExpression(expression.expression, parentId);
+    }
     this.unsupported(expression, "Unsupported expression");
   }
 
@@ -2678,6 +2931,128 @@ class WorkspaceCompiler {
     return id;
   }
 
+  compileConditionalExpression(expression, parentId) {
+    const id = this.addBlock({
+      type: "controls_if",
+      parent_id: parentId,
+    });
+    const condId = this.compileExpression(expression.condition, id);
+    this.connectInput(id, condId, "IF0", "value");
+    const thenId = this.compileExpression(expression.whenTrue, id);
+    this.connectInput(id, thenId, "DO0", "statement");
+    const elseId = this.compileExpression(expression.whenFalse, id);
+    this.connectInput(id, elseId, "ELSE", "statement");
+    return id;
+  }
+
+  compilePrefixUnaryExpression(expression, parentId) {
+    const op = expression.operator;
+    if (op === ts.SyntaxKind.ExclamationToken) {
+      const operandId = this.compileExpression(expression.operand, parentId);
+      return this.addBlock({
+        type: "logic_negate",
+        parent_id: parentId,
+        inputs: { logic: operandId },
+        is_output: true,
+      });
+    }
+    if (op === ts.SyntaxKind.MinusToken) {
+      const operandId = this.compileExpression(expression.operand, parentId);
+      return this.addBlock({
+        type: "math_arithmetic",
+        parent_id: parentId,
+        fields: { type: "minus" },
+        inputs: {
+          A: this.addBlock({ type: "math_number", parent_id: parentId, fields: { NUM: "0" }, is_output: true }),
+          B: operandId,
+        },
+        is_output: true,
+      });
+    }
+    if (op === ts.SyntaxKind.PlusToken) {
+      return this.compileExpression(expression.operand, parentId);
+    }
+    if (op === ts.SyntaxKind.TildeToken) {
+      return this.addBlock({
+        type: "math_number",
+        parent_id: parentId,
+        fields: { NUM: "0" },
+        is_output: true,
+      });
+    }
+    if (op === ts.SyntaxKind.TypeOfKeyword) {
+      return this.addBlock({
+        type: "text",
+        parent_id: parentId,
+        fields: { TEXT: "number" },
+        is_output: true,
+      });
+    }
+    if (op === ts.SyntaxKind.PlusPlusToken || op === ts.SyntaxKind.MinusMinusToken) {
+      const delta = op === ts.SyntaxKind.PlusPlusToken ? 1 : -1;
+      if (ts.isIdentifier(expression.operand)) {
+        const varName = expression.operand.text;
+        const changeId = this.addBlock({
+          type: "change_variables",
+          parent_id: parentId,
+          fields: {
+            variable: varName,
+            method: delta > 0 ? "increase" : "decrease",
+          },
+        });
+        const valueId = this.addBlock({
+          type: "math_number",
+          parent_id: changeId,
+          fields: { NUM: "1" },
+          is_output: true,
+        });
+        this.connectInput(changeId, valueId, "value", "value");
+        return changeId;
+      }
+    }
+    return this.compileExpression(expression.operand, parentId);
+  }
+
+  compilePostfixUnaryExpression(expression, parentId) {
+    const op = expression.operator;
+    if (op === ts.SyntaxKind.PlusPlusToken || op === ts.SyntaxKind.MinusMinusToken) {
+      const delta = op === ts.SyntaxKind.PlusPlusToken ? 1 : -1;
+      if (ts.isIdentifier(expression.operand)) {
+        const varName = expression.operand.text;
+        const changeId = this.addBlock({
+          type: "change_variables",
+          parent_id: parentId,
+          fields: {
+            variable: varName,
+            method: delta > 0 ? "increase" : "decrease",
+          },
+        });
+        const valueId = this.addBlock({
+          type: "math_number",
+          parent_id: changeId,
+          fields: { NUM: "1" },
+          is_output: true,
+        });
+        this.connectInput(changeId, valueId, "value", "value");
+        return changeId;
+      }
+    }
+    return this.compileExpression(expression.operand, parentId);
+  }
+
+  compileArrayLiteralExpression(expression, parentId) {
+    const id = this.addBlock({
+      type: "temporary_list",
+      parent_id: parentId,
+      is_output: true,
+    });
+    for (let i = 0; i < expression.elements.length; i++) {
+      const elemId = this.compileExpression(expression.elements[i], id);
+      this.connectInput(id, elemId, `ITEM${i}`, "value");
+    }
+    return id;
+  }
+
   compileNativeBinaryExpression(expression, parentId) {
     const spec = nativeBinaryExpressionSpec(expression.operatorToken.kind);
     if (!spec) {
@@ -2998,6 +3373,10 @@ function nativeBinaryExpressionSpec(operator) {
     case ts.SyntaxKind.AmpersandAmpersandToken:
       return { type: "logic_operation", fields: { type: "and" }, leftInput: "A", rightInput: "B" };
     case ts.SyntaxKind.BarBarToken:
+      return { type: "logic_operation", fields: { type: "or" }, leftInput: "A", rightInput: "B" };
+    case ts.SyntaxKind.AsteriskAsteriskToken:
+      return { type: "math_arithmetic", fields: { type: "power" }, leftInput: "A", rightInput: "B" };
+    case ts.SyntaxKind.QuestionQuestionToken:
       return { type: "logic_operation", fields: { type: "or" }, leftInput: "A", rightInput: "B" };
     default:
       return null;
