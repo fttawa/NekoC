@@ -2041,6 +2041,44 @@ impl<'a> Thread<'a> {
             "set_pen_layer" => {
                 self.advance(runtime, block.get("next"));
             }
+            "play_audio" | "play_audio_and_wait" => {
+                runtime.trace.push(RuntimeTraceEntry {
+                    tick: runtime.ticks,
+                    kind: "play_audio".to_owned(),
+                    owner_id: Some(self.owner_id.clone()),
+                    block_id: block
+                        .get("id")
+                        .and_then(Value::as_str)
+                        .map(ToOwned::to_owned),
+                    message: None,
+                    key: None,
+                    state: None,
+                    x: None,
+                    y: None,
+                    screen_id: None,
+                    clone_id: None,
+                });
+                self.advance(runtime, block.get("next"));
+            }
+            "stop_audio" => {
+                runtime.trace.push(RuntimeTraceEntry {
+                    tick: runtime.ticks,
+                    kind: "stop_audio".to_owned(),
+                    owner_id: Some(self.owner_id.clone()),
+                    block_id: block
+                        .get("id")
+                        .and_then(Value::as_str)
+                        .map(ToOwned::to_owned),
+                    message: None,
+                    key: None,
+                    state: None,
+                    x: None,
+                    y: None,
+                    screen_id: None,
+                    clone_id: None,
+                });
+                self.advance(runtime, block.get("next"));
+            }
             "self_prev_next_style" => {
                 let direction = field_string(block, "prev_next").unwrap_or("next");
                 let Some(actor) = runtime.actors.get_mut(&self.owner_id) else {

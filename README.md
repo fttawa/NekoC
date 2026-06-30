@@ -279,6 +279,8 @@ The current runtime subset intentionally starts small:
 - effects: `self_set_effect` sets an effect value, `self_change_effect` changes
   an effect by delta, `clear_all_effects` resets all effects; effect state stored
   per actor as `{ scope: value }` map (color, brightness, ghost, etc.)
+- sound: `play_audio`, `play_audio_and_wait`, `stop_audio` record trace events
+  but do not actually play audio; `sound_color` is a no-op
 - screens: `switch_to_screen`, `get_screens`
 - logging: `console_log`
 

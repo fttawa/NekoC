@@ -9447,3 +9447,39 @@ fn runtime_clear_drawing_resets() {
         "stamps should be empty after clear_drawing"
     );
 }
+
+#[test]
+fn runtime_sound_blocks_record_trace() {
+    let project = json!({
+        "projectName": "sound-test",
+        "scenes": {
+            "currentSceneId": "scene-1",
+            "scenesDict": {
+                "scene-1": { "name": "main", "actorIds": ["actor-1"], "screenName": "main" }
+            },
+            "sortList": ["scene-1"]
+        },
+        "actors": {
+            "actorsDict": {
+                "actor-1": {
+                    "id": "actor-1", "name": "cat", "visible": true,
+                    "position": { "x": 0, "y": 0 }, "rotation": 0, "scale": 100,
+                    "currentStyleId": "style-a", "styles": ["style-a"],
+                    "nekoBlockJsonList": [{
+                        "id": "b1", "type": "on_running_group_activated", "parent_id": "",
+                        "next": { "id": "b2", "type": "play_audio", "parent_id": "b1",
+                            "next": { "id": "b3", "type": "stop_audio", "parent_id": "b2" }
+                        }
+                    }]
+                }
+            }
+        },
+        "variables": { "variablesDict": {} }
+    });
+
+    let snapshot =
+        nekoc::runtime::run_project_steps(&project, &[nekoc::runtime::RuntimeStep::Run(1)])
+            .unwrap();
+    assert!(snapshot.trace.iter().any(|e| e.kind == "play_audio"));
+    assert!(snapshot.trace.iter().any(|e| e.kind == "stop_audio"));
+}
