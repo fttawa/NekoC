@@ -494,14 +494,24 @@ class WorkspaceCompiler {
 
   compileKeyHat(call) {
     const key = stringLiteralValue(call.arguments[0], this);
-    const keyType = stringLiteralValue(call.arguments[1], this);
+    let keyType;
+    let bodyArg;
+    if (call.arguments.length >= 3 && isCallbackBody(call.arguments[1])) {
+      // onKey(key, body) - state omitted, default to "down"
+      keyType = "down";
+      bodyArg = call.arguments[1];
+    } else {
+      // onKey(key, state, body)
+      keyType = stringLiteralValue(call.arguments[1], this);
+      bodyArg = call.arguments[2];
+    }
     const entryId = this.addBlock({
       type: "on_keydown",
       parent_id: null,
       fields: { key, type: keyType },
     });
     this.scriptCount += 1;
-    const body = callbackBody(call.arguments[2], this);
+    const body = callbackBody(bodyArg, this);
     const first = this.compileStatementList(body, entryId);
     if (first) {
       this.connectNext(entryId, first);
@@ -1017,8 +1027,9 @@ class WorkspaceCompiler {
       case "askChoice":
         return this.compileAskChoice(call, parentId);
       case "clone":
+      case "createClone":
         return this.compileFieldStatement(parentId, "mirror", {
-          sprite: stringLiteralValue(call.arguments[0], this),
+          sprite: call.arguments.length > 0 ? stringLiteralValue(call.arguments[0], this) : "--self",
         });
       case "deleteClone":
         return this.addBlock({ type: "dispose_clone", parent_id: parentId });
@@ -1761,8 +1772,18 @@ class WorkspaceCompiler {
     const textId = this.compileExpression(call.arguments[0], id);
     this.connectInput(id, textId, "text", "value");
     if (timed) {
-      const timeId = this.compileExpression(call.arguments[1], id);
-      this.connectInput(id, timeId, "time", "value");
+      if (call.arguments.length > 1) {
+        const timeId = this.compileExpression(call.arguments[1], id);
+        this.connectInput(id, timeId, "time", "value");
+      } else {
+        const timeId = this.addBlock({
+          type: "math_number",
+          parent_id: id,
+          fields: { NUM: "2" },
+          is_output: true,
+        });
+        this.connectInput(id, timeId, "time", "value");
+      }
     }
     return id;
   }
@@ -2990,6 +3011,10 @@ function callbackBody(argument, compiler) {
     compiler.unsupported(argument, "Expected a block arrow callback");
   }
   return Array.from(argument.body.statements);
+}
+
+function isCallbackBody(argument) {
+  return argument && ts.isArrowFunction(argument) && ts.isBlock(argument.body);
 }
 
 function stringLiteralValue(node, compiler) {
