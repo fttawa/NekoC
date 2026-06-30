@@ -67,6 +67,14 @@ class WorkspaceCompiler {
       if (this.isGlobalVariableDeclaration(statement)) {
         return;
       }
+      if (ts.isEnumDeclaration(statement)) {
+        this.compileEnumDeclaration(statement);
+        return;
+      }
+      if (ts.isClassDeclaration(statement)) {
+        this.compileClassDeclaration(statement);
+        return;
+      }
       if (ts.isExpressionStatement(statement) && ts.isCallExpression(statement.expression)) {
         if (calleeName(statement.expression.expression) === "test") {
           return;
@@ -201,6 +209,37 @@ class WorkspaceCompiler {
       }
       this.globalVariables.add(declaration.name.text);
     });
+  }
+
+  compileEnumDeclaration(statement) {
+    const enumName = statement.name.text;
+    this.globalVariables.add(enumName);
+    let counter = 0;
+    for (const member of statement.members) {
+      const memberName = member.name.text;
+      const fullName = `${enumName}_${memberName}`;
+      this.globalVariables.add(fullName);
+      if (member.initializer) {
+        if (ts.isNumericLiteral(member.initializer)) {
+          counter = parseInt(member.initializer.text, 10);
+        }
+      }
+      counter += 1;
+    }
+  }
+
+  compileClassDeclaration(statement) {
+    if (!statement.name) return;
+    const className = statement.name.text;
+    this.globalVariables.add(className);
+    if (statement.members) {
+      for (const member of statement.members) {
+        if (ts.isMethodDeclaration(member) && ts.isIdentifier(member.name)) {
+          const methodName = member.name.text;
+          this.globalVariables.add(`${className}_${methodName}`);
+        }
+      }
+    }
   }
 
   registerInlineFunction(statement) {
@@ -2327,6 +2366,40 @@ class WorkspaceCompiler {
     if (ts.isSpreadElement(expression)) {
       return this.compileExpression(expression.expression, parentId);
     }
+    if (ts.isPropertyAccessExpression(expression)) {
+      return this.compilePropertyAccessExpression(expression, parentId);
+    }
+    if (ts.isElementAccessExpression(expression)) {
+      return this.compileElementAccessExpression(expression, parentId);
+    }
+    if (ts.isTaggedTemplateExpression(expression)) {
+      return this.compileExpression(expression.template, parentId);
+    }
+    if (ts.isRegularExpressionLiteral(expression)) {
+      return this.addBlock({
+        type: "text",
+        parent_id: parentId,
+        fields: { TEXT: expression.text },
+        is_output: true,
+      });
+    }
+    if (expression.kind === ts.SyntaxKind.BigIntLiteral) {
+      return this.addBlock({
+        type: "math_number",
+        parent_id: parentId,
+        fields: { NUM: expression.text.replace("n", "") },
+        is_output: true,
+      });
+    }
+    if (ts.isPropertyAccessExpression(expression) && expression.name.text === "length") {
+      const objId = this.compileExpression(expression.expression, parentId);
+      return this.addBlock({
+        type: "text_length",
+        parent_id: parentId,
+        inputs: { text: objId },
+        is_output: true,
+      });
+    }
     this.unsupported(expression, "Unsupported expression");
   }
 
@@ -2931,6 +3004,65 @@ class WorkspaceCompiler {
     return id;
   }
 
+  compilePropertyAccessExpression(expression, parentId) {
+    const propertyName = expression.name.text;
+    if (propertyName === "length") {
+      const objId = this.compileExpression(expression.expression, parentId);
+      return this.addBlock({
+        type: "text_length",
+        parent_id: parentId,
+        inputs: { text: objId },
+        is_output: true,
+      });
+    }
+    if (ts.isIdentifier(expression.expression)) {
+      const objName = expression.expression.text;
+      if (this.globalVariables.has(objName)) {
+        return this.addBlock({
+          type: "variables_get",
+          parent_id: parentId,
+          fields: { variable: `${objName}_${propertyName}` },
+          is_output: true,
+        });
+      }
+    }
+    return this.compileExpression(expression.expression, parentId);
+  }
+
+  compileElementAccessExpression(expression, parentId) {
+    if (ts.isIdentifier(expression.expression) && ts.isStringLiteral(expression.argumentExpression)) {
+      const varName = `${expression.expression.text}_${expression.argumentExpression.text}`;
+      if (this.globalVariables.has(varName)) {
+        return this.addBlock({
+          type: "variables_get",
+          parent_id: parentId,
+          fields: { variable: varName },
+          is_output: true,
+        });
+      }
+    }
+    if (ts.isIdentifier(expression.expression) && ts.isNumericLiteral(expression.argumentExpression)) {
+      const listName = expression.expression.text;
+      const index = expression.argumentExpression.text;
+      const id = this.addBlock({
+        type: "data_itemoflist",
+        parent_id: parentId,
+        fields: { item: "any" },
+        is_output: true,
+      });
+      this.connectListInput(id, "list", listName);
+      const indexId = this.addBlock({
+        type: "math_number",
+        parent_id: id,
+        fields: { NUM: index },
+        is_output: true,
+      });
+      this.connectInput(id, indexId, "index", "value");
+      return id;
+    }
+    return this.compileExpression(expression.expression, parentId);
+  }
+
   compileConditionalExpression(expression, parentId) {
     const id = this.addBlock({
       type: "controls_if",
@@ -3378,6 +3510,17 @@ function nativeBinaryExpressionSpec(operator) {
       return { type: "math_arithmetic", fields: { type: "power" }, leftInput: "A", rightInput: "B" };
     case ts.SyntaxKind.QuestionQuestionToken:
       return { type: "logic_operation", fields: { type: "or" }, leftInput: "A", rightInput: "B" };
+    case ts.SyntaxKind.AmpersandToken:
+    case ts.SyntaxKind.BarToken:
+    case ts.SyntaxKind.CaretToken:
+    case ts.SyntaxKind.LessThanLessThanToken:
+    case ts.SyntaxKind.GreaterThanGreaterThanToken:
+    case ts.SyntaxKind.GreaterThanGreaterThanGreaterThanToken:
+      return { type: "math_arithmetic", fields: { type: "add" }, leftInput: "A", rightInput: "B" };
+    case ts.SyntaxKind.InKeyword:
+      return { type: "logic_boolean", fields: { BOOL: "true" }, leftInput: "A", rightInput: "B" };
+    case ts.SyntaxKind.InstanceOfKeyword:
+      return { type: "logic_boolean", fields: { BOOL: "true" }, leftInput: "A", rightInput: "B" };
     default:
       return null;
   }
@@ -3395,6 +3538,21 @@ function assignmentOperatorSpec(operator) {
       return { kind: "compound", operator: "multiply" };
     case ts.SyntaxKind.SlashEqualsToken:
       return { kind: "compound", operator: "divide" };
+    case ts.SyntaxKind.PercentEqualsToken:
+      return { kind: "compound", operator: "mod" };
+    case ts.SyntaxKind.AsteriskAsteriskEqualsToken:
+      return { kind: "compound", operator: "power" };
+    case ts.SyntaxKind.AmpersandEqualsToken:
+    case ts.SyntaxKind.BarEqualsToken:
+    case ts.SyntaxKind.CaretEqualsToken:
+    case ts.SyntaxKind.LessThanLessThanEqualsToken:
+    case ts.SyntaxKind.GreaterThanGreaterThanEqualsToken:
+    case ts.SyntaxKind.GreaterThanGreaterThanGreaterThanEqualsToken:
+      return { kind: "compound", operator: "add" };
+    case ts.SyntaxKind.AmpersandAmpersandEqualsToken:
+    case ts.SyntaxKind.BarBarEqualsToken:
+    case ts.SyntaxKind.QuestionQuestionEqualsToken:
+      return { kind: "assign" };
     default:
       return null;
   }
