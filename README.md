@@ -151,7 +151,9 @@ npm run test:ts
 It loads a JSON `.bcmkn`, starts `on_running_group_activated` scripts, advances
 the scheduler for a fixed number of ticks, and writes a JSON snapshot containing
 the current scene, variables, actor state, console logs, and active thread
-count.
+count. Snapshots also include a structured `trace` array for reverse-engineering
+execution order; it records runtime events such as start-script activation,
+click/key/mouse input, broadcasts, broadcast listeners, and screen switches.
 Pass `--event click`, `--event click:<x>,<y>`, `--event key-down:<key>`,
 `--event key-up:<key>`, `--event mouse-down:<x>,<y>`,
 `--event mouse-up:<x>,<y>`, or `--event mouse-move:<x>,<y>` to inject events

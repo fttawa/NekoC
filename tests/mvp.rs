@@ -1623,7 +1623,13 @@ fn cli_run_can_check_expected_runtime_snapshot() {
             "logs": [],
             "received_broadcasts": [],
             "message_values": {},
-            "active_threads": 0
+            "active_threads": 0,
+            "trace": [{
+                "tick": 0,
+                "kind": "start",
+                "owner_id": "actor-1",
+                "block_id": "start"
+            }]
         }))
         .unwrap(),
     )
@@ -1650,7 +1656,13 @@ fn cli_run_can_check_expected_runtime_snapshot() {
             "logs": [],
             "received_broadcasts": [],
             "message_values": {},
-            "active_threads": 0
+            "active_threads": 0,
+            "trace": [{
+                "tick": 0,
+                "kind": "start",
+                "owner_id": "actor-1",
+                "block_id": "start"
+            }]
         }))
         .unwrap(),
     )
@@ -2584,6 +2596,98 @@ fn runtime_dispatches_broadcast_listeners() {
         nekoc::runtime::RuntimeValue::Number(1.0)
     );
     assert_eq!(snapshot.received_broadcasts, vec!["ready".to_owned()]);
+}
+
+#[test]
+fn runtime_snapshot_traces_start_click_and_broadcast_events() {
+    let project = json!({
+        "variables": {
+            "variablesDict": {
+                "var-clicked": {
+                    "id": "var-clicked",
+                    "name": "clicked",
+                    "value": 0
+                }
+            }
+        },
+        "actors": {
+            "actorsDict": {
+                "actor-1": {
+                    "id": "actor-1",
+                    "name": "sender",
+                    "nekoBlockJsonList": [
+                        {
+                            "id": "start",
+                            "type": "on_running_group_activated",
+                            "next": {
+                                "id": "broadcast",
+                                "type": "self_broadcast",
+                                "inputs": {
+                                    "message": {
+                                        "id": "ready-message",
+                                        "type": "broadcast_input",
+                                        "fields": { "message": "ready" }
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "id": "click",
+                            "type": "start_on_click",
+                            "next": {
+                                "id": "set-clicked",
+                                "type": "variables_set",
+                                "fields": { "variable": "var-clicked" },
+                                "inputs": {
+                                    "value": {
+                                        "id": "one",
+                                        "type": "math_number",
+                                        "fields": { "NUM": "1" }
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    });
+
+    let snapshot = nekoc::runtime::run_project_steps(
+        &project,
+        &[
+            nekoc::runtime::RuntimeStep::Run(1),
+            nekoc::runtime::RuntimeStep::Event(nekoc::runtime::RuntimeEvent::Click {
+                x: Some(12.0),
+                y: Some(-8.0),
+            }),
+            nekoc::runtime::RuntimeStep::Run(1),
+        ],
+    )
+    .unwrap();
+    let trace = serde_json::to_value(&snapshot.trace).unwrap();
+
+    assert!(
+        trace
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|entry| entry["kind"] == "start")
+    );
+    assert!(
+        trace
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|entry| entry["kind"] == "broadcast" && entry["message"] == "ready")
+    );
+    assert!(
+        trace
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|entry| entry["kind"] == "click" && entry["x"] == 12.0 && entry["y"] == -8.0)
+    );
 }
 
 #[test]

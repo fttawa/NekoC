@@ -72,6 +72,87 @@ pub struct RuntimeSnapshot {
     pub received_broadcasts: Vec<String>,
     pub message_values: BTreeMap<String, RuntimeValue>,
     pub active_threads: usize,
+    pub trace: Vec<RuntimeTraceEntry>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct RuntimeTraceEntry {
+    pub tick: usize,
+    pub kind: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub owner_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub block_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub message: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub key: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub state: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub x: Option<f64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub y: Option<f64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub screen_id: Option<String>,
+}
+
+impl RuntimeTraceEntry {
+    fn event(
+        tick: usize,
+        kind: &str,
+        key: Option<String>,
+        state: Option<String>,
+        screen_id: Option<String>,
+        x: Option<f64>,
+        y: Option<f64>,
+    ) -> Self {
+        Self {
+            tick,
+            kind: kind.to_owned(),
+            owner_id: None,
+            block_id: None,
+            message: None,
+            key,
+            state,
+            x,
+            y,
+            screen_id,
+        }
+    }
+
+    fn script(tick: usize, kind: &str, owner_id: &str, block: &Value) -> Self {
+        Self {
+            tick,
+            kind: kind.to_owned(),
+            owner_id: Some(owner_id.to_owned()),
+            block_id: block
+                .get("id")
+                .and_then(Value::as_str)
+                .map(ToOwned::to_owned),
+            message: None,
+            key: None,
+            state: None,
+            x: None,
+            y: None,
+            screen_id: None,
+        }
+    }
+
+    fn message(tick: usize, kind: &str, message: &str) -> Self {
+        Self {
+            tick,
+            kind: kind.to_owned(),
+            owner_id: None,
+            block_id: None,
+            message: Some(message.to_owned()),
+            key: None,
+            state: None,
+            x: None,
+            y: None,
+            screen_id: None,
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -154,6 +235,7 @@ struct Runtime<'a> {
     mouse_x: f64,
     mouse_y: f64,
     logs: Vec<String>,
+    trace: Vec<RuntimeTraceEntry>,
     threads: Vec<Thread<'a>>,
 }
 
@@ -229,6 +311,7 @@ impl<'a> Runtime<'a> {
             mouse_x: 0.0,
             mouse_y: 0.0,
             logs: Vec::new(),
+            trace: Vec::new(),
             threads: Vec::new(),
         })
     }
@@ -247,6 +330,9 @@ impl<'a> Runtime<'a> {
                 if let Some(y) = y {
                     self.mouse_y = *y;
                 }
+                self.trace.push(RuntimeTraceEntry::event(
+                    self.ticks, "click", None, None, None, *x, *y,
+                ));
                 self.spawn_hat_scripts_at(&["scenes", "scenesDict"], "start_on_click");
                 self.spawn_hat_scripts_at(&["actors", "actorsDict"], "start_on_click");
             }
@@ -260,6 +346,15 @@ impl<'a> Runtime<'a> {
                     }
                     _ => {}
                 }
+                self.trace.push(RuntimeTraceEntry::event(
+                    self.ticks,
+                    "key",
+                    Some(key.clone()),
+                    Some(state.clone()),
+                    None,
+                    None,
+                    None,
+                ));
                 self.spawn_key_scripts_at(&["scenes", "scenesDict"], key, state);
                 self.spawn_key_scripts_at(&["actors", "actorsDict"], key, state);
             }
@@ -273,12 +368,21 @@ impl<'a> Runtime<'a> {
                 if let Some(y) = y {
                     self.mouse_y = *y;
                 }
+                self.trace.push(RuntimeTraceEntry::event(
+                    self.ticks,
+                    "mouse",
+                    None,
+                    state.clone(),
+                    None,
+                    *x,
+                    *y,
+                ));
             }
         }
     }
 
     fn spawn_start_scripts_at(&mut self, path: &[&str]) {
-        self.spawn_matching_scripts_at(path, |block| {
+        self.spawn_matching_scripts_at(path, Some("start"), |block| {
             matches!(
                 block_type(block),
                 Some("on_running_group_activated" | "when")
@@ -287,11 +391,13 @@ impl<'a> Runtime<'a> {
     }
 
     fn spawn_hat_scripts_at(&mut self, path: &[&str], hat_type: &str) {
-        self.spawn_matching_scripts_at(path, |block| block_type(block) == Some(hat_type));
+        self.spawn_matching_scripts_at(path, Some(hat_type), |block| {
+            block_type(block) == Some(hat_type)
+        });
     }
 
     fn spawn_key_scripts_at(&mut self, path: &[&str], key: &str, state: &str) {
-        self.spawn_matching_scripts_at(path, |block| {
+        self.spawn_matching_scripts_at(path, Some("on_keydown"), |block| {
             block_type(block) == Some("on_keydown")
                 && field_string(block, "key") == Some(key)
                 && field_string(block, "type") == Some(state)
@@ -301,6 +407,7 @@ impl<'a> Runtime<'a> {
     fn spawn_matching_scripts_at(
         &mut self,
         path: &[&str],
+        trace_kind: Option<&str>,
         mut is_match: impl FnMut(&Value) -> bool,
     ) {
         let Some(owners) = get_path(self.project, path).and_then(Value::as_object) else {
@@ -313,6 +420,10 @@ impl<'a> Runtime<'a> {
             };
             for block in blocks {
                 if is_match(block) {
+                    if let Some(kind) = trace_kind {
+                        self.trace
+                            .push(RuntimeTraceEntry::script(self.ticks, kind, owner_id, block));
+                    }
                     self.threads.push(Thread {
                         owner_id,
                         current: Some(block),
@@ -364,11 +475,14 @@ impl<'a> Runtime<'a> {
             received_broadcasts: self.received_broadcasts.iter().cloned().collect(),
             message_values: self.message_values.clone(),
             active_threads: self.threads.len(),
+            trace: self.trace.clone(),
         }
     }
 
     fn dispatch_broadcast(&mut self, message: &str, payload: Option<RuntimeValue>) {
         self.received_broadcasts.insert(message.to_owned());
+        self.trace
+            .push(RuntimeTraceEntry::message(self.ticks, "broadcast", message));
         let listeners = self.listeners.get(message).cloned().unwrap_or_default();
         for listener in listeners {
             if let (Some(param_name), Some(payload)) = (&listener.param_name, &payload) {
@@ -376,6 +490,12 @@ impl<'a> Runtime<'a> {
                     .insert(param_name.clone(), payload.clone());
             }
             if let Some(body) = listener.body {
+                self.trace.push(RuntimeTraceEntry::script(
+                    self.ticks,
+                    "broadcast_listener",
+                    listener.owner_id,
+                    body,
+                ));
                 self.threads.push(Thread {
                     owner_id: listener.owner_id,
                     current: Some(body),
@@ -1292,6 +1412,15 @@ impl<'a> Thread<'a> {
                     bail!("switch_to_screen missing target screen");
                 }
                 runtime.current_scene_id = Some(screen_id);
+                runtime.trace.push(RuntimeTraceEntry::event(
+                    runtime.ticks,
+                    "switch_screen",
+                    None,
+                    None,
+                    runtime.current_scene_id.clone(),
+                    None,
+                    None,
+                ));
                 self.advance(runtime, block.get("next"));
             }
             "self_go_forward" => {
