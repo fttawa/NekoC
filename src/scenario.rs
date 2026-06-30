@@ -17,7 +17,15 @@ pub struct RuntimeScenario {
 #[serde(untagged)]
 pub enum ScenarioEvent {
     Named(ScenarioNamedEvent),
-    Key { kind: ScenarioKeyEvent, key: String },
+    Key {
+        kind: ScenarioKeyEvent,
+        key: String,
+    },
+    Mouse {
+        kind: ScenarioMouseEvent,
+        x: Option<f64>,
+        y: Option<f64>,
+    },
 }
 
 #[derive(Debug, Clone, Copy, Deserialize)]
@@ -31,6 +39,14 @@ pub enum ScenarioNamedEvent {
 pub enum ScenarioKeyEvent {
     KeyDown,
     KeyUp,
+}
+
+#[derive(Debug, Clone, Copy, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum ScenarioMouseEvent {
+    MouseDown,
+    MouseUp,
+    MouseMove,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -53,6 +69,15 @@ pub fn run_runtime_scenario(project: &Value, scenario: &RuntimeScenario) -> Resu
                     ScenarioKeyEvent::KeyUp => "up",
                 }
                 .to_owned(),
+            },
+            ScenarioEvent::Mouse { kind, x, y } => RuntimeEvent::Mouse {
+                state: match kind {
+                    ScenarioMouseEvent::MouseDown => Some("down".to_owned()),
+                    ScenarioMouseEvent::MouseUp => Some("up".to_owned()),
+                    ScenarioMouseEvent::MouseMove => None,
+                },
+                x: *x,
+                y: *y,
             },
         })
         .collect::<Vec<_>>();

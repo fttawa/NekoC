@@ -96,7 +96,7 @@ nekoc compile-ts <input.ts> --out workspace.json [--emit-ir program.ir.json]
 nekoc compile-ts-bcmkn <input.ts> --template template.bcmkn --out output.bcmkn
 nekoc compile-ts-scenario <input.ts> --template template.bcmkn --scenario scenario.json --out output.bcmkn
 nekoc test <input.ts>
-nekoc run <input.bcmkn> --ticks 30 [--event click] [--event key-down:81] [--out runtime.json] [--expect expected-runtime.json]
+nekoc run <input.bcmkn> --ticks 30 [--event click] [--event key-down:81] [--event mouse-down:12,-34] [--out runtime.json] [--expect expected-runtime.json]
 nekoc run-scenario <input.bcmkn> <scenario.json>
 ```
 
@@ -152,8 +152,9 @@ It loads a JSON `.bcmkn`, starts `on_running_group_activated` scripts, advances
 the scheduler for a fixed number of ticks, and writes a JSON snapshot containing
 the current scene, variables, actor state, console logs, and active thread
 count.
-Pass `--event click`, `--event key-down:<key>`, or `--event key-up:<key>` to
-inject events before ticking the scheduler.
+Pass `--event click`, `--event key-down:<key>`, `--event key-up:<key>`,
+`--event mouse-down:<x>,<y>`, `--event mouse-up:<x>,<y>`, or
+`--event mouse-move:<x>,<y>` to inject events before ticking the scheduler.
 Pass `--expect expected-runtime.json` to compare that snapshot structurally and
 exit nonzero with changed JSON paths when the runtime behavior diverges.
 Use `nekoc run-scenario <input.bcmkn> <scenario.json>` to keep ticks, injected
@@ -162,7 +163,11 @@ events, and expected snapshot paths together in a small test file:
 ```json
 {
   "ticks": 1,
-  "events": ["click", { "kind": "key-down", "key": "81" }],
+  "events": [
+    "click",
+    { "kind": "key-down", "key": "81" },
+    { "kind": "mouse-down", "x": 12, "y": -34 }
+  ],
   "expect": {
     "variables.var-clicked": 1,
     "actors.actor-1.x": { "approx": 89.876663, "epsilon": 0.001 }
@@ -207,13 +212,13 @@ The current runtime subset intentionally starts small:
   `get_orientation`
 - style/appearance values: `style_of_sprite`, `appearance_of_sprite`,
   `effect_of_sprite`
-- sensing/input/time: `check_key` reads injected key events; defaults/no-ops for
-  `ask_and_choose`, `self_ask`, `mouse_down`, `get_mouse_info`, `get_answer`,
-  `get_choice_and_index`, `set_timer_state`, `timer`, `show_hide_timer`,
-  `get_time`, `get_stage_info`, `bump_into`, `bump_into_color`,
-  `out_of_boundary`, `get_clone_num`, `get_current_clone_index`,
-  `get_clone_index_property`, `bump_into_body_part`, `get_appearance_of_part`,
-  `get_tilt_angle_of_face`, `face_to_body_part`
+- sensing/input/time: `check_key`, `mouse_down`, and `get_mouse_info` read
+  injected input events; defaults/no-ops for `ask_and_choose`, `self_ask`,
+  `get_answer`, `get_choice_and_index`, `set_timer_state`, `timer`,
+  `show_hide_timer`, `get_time`, `get_stage_info`, `bump_into`,
+  `bump_into_color`, `out_of_boundary`, `get_clone_num`,
+  `get_current_clone_index`, `get_clone_index_property`, `bump_into_body_part`,
+  `get_appearance_of_part`, `get_tilt_angle_of_face`, `face_to_body_part`
 - conservative display/pen no-ops: `self_appear_animation`,
   `self_gradually_show_hide`, `self_dialog`, `self_dialog_wait`,
   `close_self_dialog`, `create_stage_dialog`, `set_width_height_scale`,

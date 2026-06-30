@@ -1828,6 +1828,96 @@ fn cli_run_can_inject_key_events() {
 }
 
 #[test]
+fn cli_run_can_inject_mouse_events() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("runtime-mouse.bcmkn");
+    let output = dir.path().join("runtime-mouse.json");
+    fs::write(
+        &input,
+        serde_json::to_string(&json!({
+            "variables": {
+                "variablesDict": {
+                    "var-mouse": { "id": "var-mouse", "name": "mouse", "value": false },
+                    "var-x": { "id": "var-x", "name": "x", "value": 0 },
+                    "var-y": { "id": "var-y", "name": "y", "value": 0 }
+                }
+            },
+            "actors": {
+                "actorsDict": {
+                    "actor-1": {
+                        "id": "actor-1",
+                        "name": "mouse",
+                        "nekoBlockJsonList": [{
+                            "id": "start",
+                            "type": "on_running_group_activated",
+                            "next": {
+                                "id": "set-mouse",
+                                "type": "variables_set",
+                                "fields": { "variable": "var-mouse" },
+                                "inputs": {
+                                    "value": {
+                                        "id": "mouse-down",
+                                        "type": "mouse_down",
+                                        "fields": { "type": "down" }
+                                    }
+                                },
+                                "next": {
+                                    "id": "set-x",
+                                    "type": "variables_set",
+                                    "fields": { "variable": "var-x" },
+                                    "inputs": {
+                                        "value": {
+                                            "id": "mouse-x",
+                                            "type": "get_mouse_info",
+                                            "fields": { "type": "x" }
+                                        }
+                                    },
+                                    "next": {
+                                        "id": "set-y",
+                                        "type": "variables_set",
+                                        "fields": { "variable": "var-y" },
+                                        "inputs": {
+                                            "value": {
+                                                "id": "mouse-y",
+                                                "type": "get_mouse_info",
+                                                "fields": { "type": "y" }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }]
+                    }
+                }
+            }
+        }))
+        .unwrap(),
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "run",
+            input.to_str().unwrap(),
+            "--ticks",
+            "1",
+            "--event",
+            "mouse-down:12,-34",
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let snapshot: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    assert_eq!(snapshot["variables"]["var-mouse"], true);
+    assert_eq!(snapshot["variables"]["var-x"], 12.0);
+    assert_eq!(snapshot["variables"]["var-y"], -34.0);
+}
+
+#[test]
 fn cli_run_scenario_checks_events_and_expected_snapshot_paths() {
     let dir = tempdir().unwrap();
     let input = dir.path().join("runtime-click.bcmkn");
@@ -2116,6 +2206,60 @@ onStart(() => {
             ],
             "expect": {
                 "variables.kn-var-isDown": false
+            }
+        }))
+        .unwrap(),
+    )
+    .unwrap();
+    let template = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts-scenario",
+            input.to_str().unwrap(),
+            "--template",
+            template.to_str().unwrap(),
+            "--scenario",
+            scenario.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("Runtime scenario matches"));
+}
+
+#[test]
+fn cli_compile_ts_scenario_exposes_mouse_state() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("compiled-mouse-state.ts");
+    let scenario = dir.path().join("compiled-mouse-state.json");
+    let output = dir.path().join("compiled-mouse-state.bcmkn");
+    fs::write(
+        &input,
+        r#"
+onStart(() => {
+  setVar("mouse", mouseTrigger("down"));
+  setVar("mouseX", mouseX());
+  setVar("mouseY", mouseY());
+});
+"#,
+    )
+    .unwrap();
+    fs::write(
+        &scenario,
+        serde_json::to_string_pretty(&json!({
+            "ticks": 1,
+            "events": [
+                { "kind": "mouse-down", "x": 12, "y": -34 }
+            ],
+            "expect": {
+                "variables.kn-var-mouse": true,
+                "variables.kn-var-mouseX": 12.0,
+                "variables.kn-var-mouseY": -34.0
             }
         }))
         .unwrap(),

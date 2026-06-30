@@ -98,7 +98,15 @@ enum Command {
 #[derive(Debug, Clone)]
 enum CliRuntimeEvent {
     Click,
-    Key { key: String, state: String },
+    Key {
+        key: String,
+        state: String,
+    },
+    Mouse {
+        state: Option<String>,
+        x: Option<f64>,
+        y: Option<f64>,
+    },
 }
 
 impl FromStr for CliRuntimeEvent {
@@ -120,7 +128,31 @@ impl FromStr for CliRuntimeEvent {
                 state: "up".to_owned(),
             });
         }
-        Err("expected click, key-down:<key>, or key-up:<key>".to_owned())
+        if let Some((state, coordinates)) = value
+            .strip_prefix("mouse-down:")
+            .map(|coordinates| (Some("down"), coordinates))
+            .or_else(|| {
+                value
+                    .strip_prefix("mouse-up:")
+                    .map(|coordinates| (Some("up"), coordinates))
+            })
+            .or_else(|| {
+                value
+                    .strip_prefix("mouse-move:")
+                    .map(|coordinates| (None, coordinates))
+            })
+        {
+            let (x, y) = parse_mouse_coordinates(coordinates)?;
+            return Ok(Self::Mouse {
+                state: state.map(ToOwned::to_owned),
+                x: Some(x),
+                y: Some(y),
+            });
+        }
+        Err(
+            "expected click, key-down:<key>, key-up:<key>, mouse-down:<x>,<y>, mouse-up:<x>,<y>, or mouse-move:<x>,<y>"
+                .to_owned(),
+        )
     }
 }
 
@@ -129,8 +161,24 @@ impl From<CliRuntimeEvent> for nekoc::runtime::RuntimeEvent {
         match value {
             CliRuntimeEvent::Click => nekoc::runtime::RuntimeEvent::Click,
             CliRuntimeEvent::Key { key, state } => nekoc::runtime::RuntimeEvent::Key { key, state },
+            CliRuntimeEvent::Mouse { state, x, y } => {
+                nekoc::runtime::RuntimeEvent::Mouse { state, x, y }
+            }
         }
     }
+}
+
+fn parse_mouse_coordinates(value: &str) -> std::result::Result<(f64, f64), String> {
+    let (x, y) = value
+        .split_once(',')
+        .ok_or_else(|| "expected mouse coordinates as <x>,<y>".to_owned())?;
+    let x = x
+        .parse::<f64>()
+        .map_err(|_| format!("invalid mouse x coordinate: {x}"))?;
+    let y = y
+        .parse::<f64>()
+        .map_err(|_| format!("invalid mouse y coordinate: {y}"))?;
+    Ok((x, y))
 }
 
 fn main() -> Result<()> {

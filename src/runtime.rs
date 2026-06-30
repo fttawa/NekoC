@@ -74,10 +74,18 @@ pub struct RuntimeSnapshot {
     pub active_threads: usize,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum RuntimeEvent {
     Click,
-    Key { key: String, state: String },
+    Key {
+        key: String,
+        state: String,
+    },
+    Mouse {
+        state: Option<String>,
+        x: Option<f64>,
+        y: Option<f64>,
+    },
 }
 
 pub fn run_project(value: &Value, ticks: usize) -> Result<RuntimeSnapshot> {
@@ -121,6 +129,9 @@ struct Runtime<'a> {
     received_broadcasts: BTreeSet<String>,
     message_values: BTreeMap<String, RuntimeValue>,
     pressed_keys: HashSet<String>,
+    mouse_down: bool,
+    mouse_x: f64,
+    mouse_y: f64,
     logs: Vec<String>,
     threads: Vec<Thread<'a>>,
 }
@@ -193,6 +204,9 @@ impl<'a> Runtime<'a> {
             received_broadcasts: BTreeSet::new(),
             message_values: BTreeMap::new(),
             pressed_keys: HashSet::new(),
+            mouse_down: false,
+            mouse_x: 0.0,
+            mouse_y: 0.0,
             logs: Vec::new(),
             threads: Vec::new(),
         })
@@ -221,6 +235,17 @@ impl<'a> Runtime<'a> {
                 }
                 self.spawn_key_scripts_at(&["scenes", "scenesDict"], key, state);
                 self.spawn_key_scripts_at(&["actors", "actorsDict"], key, state);
+            }
+            RuntimeEvent::Mouse { state, x, y } => {
+                if let Some(state) = state {
+                    self.mouse_down = state == "down";
+                }
+                if let Some(x) = x {
+                    self.mouse_x = *x;
+                }
+                if let Some(y) = y {
+                    self.mouse_y = *y;
+                }
             }
         }
     }
@@ -563,8 +588,18 @@ impl<'a> Runtime<'a> {
                 let is_down = self.pressed_keys.contains(key);
                 RuntimeValue::Bool(if state == "up" { !is_down } else { is_down })
             }
-            "mouse_down" => RuntimeValue::Bool(false),
-            "get_mouse_info" => RuntimeValue::Number(0.0),
+            "mouse_down" => {
+                let state = field_string(block, "type").unwrap_or("down");
+                RuntimeValue::Bool(if state == "up" {
+                    !self.mouse_down
+                } else {
+                    self.mouse_down
+                })
+            }
+            "get_mouse_info" => match field_string(block, "type").unwrap_or("x") {
+                "y" => RuntimeValue::Number(self.mouse_y),
+                _ => RuntimeValue::Number(self.mouse_x),
+            },
             "get_answer" => self.last_answer.clone(),
             "get_choice_and_index" => {
                 let field_type = field_string(block, "type").unwrap_or("content");
