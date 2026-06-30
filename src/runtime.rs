@@ -63,6 +63,8 @@ pub struct ActorState {
     pub dialog: Option<DialogState>,
     #[serde(skip_serializing_if = "is_false")]
     pub draggable: bool,
+    #[serde(skip_serializing_if = "BTreeMap::is_empty")]
+    pub effects: BTreeMap<String, f64>,
 }
 
 fn is_false(b: &bool) -> bool {
@@ -1820,9 +1822,6 @@ impl<'a> Thread<'a> {
             | "create_stage_dialog"
             | "set_width_height_scale"
             | "add_width_height_scale"
-            | "self_set_effect"
-            | "self_change_effect"
-            | "clear_all_effects"
             | "self_text_effect_text"
             | "self_text_effect_size"
             | "self_text_effect_color"
@@ -1842,6 +1841,30 @@ impl<'a> Thread<'a> {
             | "stamp"
             | "image_stamp"
             | "set_pen_layer" => {
+                self.advance(runtime, block.get("next"));
+            }
+            "self_set_effect" => {
+                let scope = field_string(block, "scope").unwrap_or("color").to_owned();
+                let value = self.eval(runtime, input(block, "value")).as_number();
+                if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
+                    actor.effects.insert(scope, value);
+                }
+                self.advance(runtime, block.get("next"));
+            }
+            "self_change_effect" => {
+                let scope = field_string(block, "scope").unwrap_or("color").to_owned();
+                let delta =
+                    signed_delta(block, self.eval(runtime, input(block, "value")).as_number());
+                if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
+                    let current = actor.effects.get(&scope).copied().unwrap_or(0.0);
+                    actor.effects.insert(scope, current + delta);
+                }
+                self.advance(runtime, block.get("next"));
+            }
+            "clear_all_effects" => {
+                if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
+                    actor.effects.clear();
+                }
                 self.advance(runtime, block.get("next"));
             }
             "self_prev_next_style" => {
@@ -2212,6 +2235,7 @@ fn collect_actors(dict: &Map<String, Value>) -> BTreeMap<String, ActorState> {
                         .get("draggable")
                         .and_then(Value::as_bool)
                         .unwrap_or(false),
+                    effects: BTreeMap::new(),
                 },
             )
         })

@@ -9221,3 +9221,89 @@ fn runtime_drag_ignores_non_draggable_actor() {
     assert_eq!(actor.x, 10.0);
     assert_eq!(actor.y, 20.0);
 }
+
+#[test]
+fn runtime_runs_effect_blocks() {
+    let project = json!({
+        "projectName": "effect-test",
+        "scenes": {
+            "currentSceneId": "scene-1",
+            "scenesDict": {
+                "scene-1": { "name": "main", "actorIds": ["actor-1"], "screenName": "main" }
+            },
+            "sortList": ["scene-1"]
+        },
+        "actors": {
+            "actorsDict": {
+                "actor-1": {
+                    "id": "actor-1", "name": "cat", "visible": true,
+                    "position": { "x": 0, "y": 0 }, "rotation": 0, "scale": 100,
+                    "currentStyleId": "style-a", "styles": ["style-a"],
+                    "nekoBlockJsonList": [{
+                        "id": "b1", "type": "on_running_group_activated", "parent_id": "",
+                        "next": { "id": "b2", "type": "self_set_effect", "parent_id": "b1",
+                            "fields": { "scope": "color" },
+                            "inputs": { "value": { "id": "b2v", "type": "math_number", "parent_id": "b2", "fields": { "NUM": "50" } } },
+                            "next": { "id": "b3", "type": "self_change_effect", "parent_id": "b2",
+                                "fields": { "scope": "brightness", "method": "increase" },
+                                "inputs": { "value": { "id": "b3v", "type": "math_number", "parent_id": "b3", "fields": { "NUM": "20" } } },
+                                "next": { "id": "b4", "type": "clear_all_effects", "parent_id": "b3" }
+                            }
+                        }
+                    }]
+                }
+            }
+        },
+        "variables": { "variablesDict": {} }
+    });
+
+    let snapshot =
+        nekoc::runtime::run_project_steps(&project, &[nekoc::runtime::RuntimeStep::Run(1)])
+            .unwrap();
+    let actor = snapshot.actors.get("actor-1").unwrap();
+    assert!(
+        actor.effects.is_empty(),
+        "effects should be empty after clear_all_effects"
+    );
+}
+
+#[test]
+fn runtime_effects_set_and_change() {
+    let project = json!({
+        "projectName": "effect-change-test",
+        "scenes": {
+            "currentSceneId": "scene-1",
+            "scenesDict": {
+                "scene-1": { "name": "main", "actorIds": ["actor-1"], "screenName": "main" }
+            },
+            "sortList": ["scene-1"]
+        },
+        "actors": {
+            "actorsDict": {
+                "actor-1": {
+                    "id": "actor-1", "name": "cat", "visible": true,
+                    "position": { "x": 0, "y": 0 }, "rotation": 0, "scale": 100,
+                    "currentStyleId": "style-a", "styles": ["style-a"],
+                    "nekoBlockJsonList": [{
+                        "id": "b1", "type": "on_running_group_activated", "parent_id": "",
+                        "next": { "id": "b2", "type": "self_set_effect", "parent_id": "b1",
+                            "fields": { "scope": "color" },
+                            "inputs": { "value": { "id": "b2v", "type": "math_number", "parent_id": "b2", "fields": { "NUM": "50" } } },
+                            "next": { "id": "b3", "type": "self_change_effect", "parent_id": "b2",
+                                "fields": { "scope": "color", "method": "increase" },
+                                "inputs": { "value": { "id": "b3v", "type": "math_number", "parent_id": "b3", "fields": { "NUM": "10" } } }
+                            }
+                        }
+                    }]
+                }
+            }
+        },
+        "variables": { "variablesDict": {} }
+    });
+
+    let snapshot =
+        nekoc::runtime::run_project_steps(&project, &[nekoc::runtime::RuntimeStep::Run(1)])
+            .unwrap();
+    let actor = snapshot.actors.get("actor-1").unwrap();
+    assert_eq!(actor.effects.get("color"), Some(&60.0));
+}
