@@ -1,0 +1,9 @@
+{
+  "ticks": 1,
+  "expect": {
+    "variables.kn-var-sum": 55.0,
+    "variables.kn-var-whileResult": 5.0,
+    "variables.kn-var-ifResult": 1.0,
+    "variables.kn-var-breakResult": 3.0
+  }
+}

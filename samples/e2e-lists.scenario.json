@@ -1,0 +1,9 @@
+{
+  "ticks": 1,
+  "expect": {
+    "variables.kn-var-len": 3.0,
+    "variables.kn-var-first": 25.0,
+    "variables.kn-var-found": true,
+    "variables.kn-var-idx": 3.0
+  }
+}

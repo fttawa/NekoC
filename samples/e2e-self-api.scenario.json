@@ -1,0 +1,13 @@
+{
+  "ticks": 1,
+  "expect": {
+    "variables.kn-var-x": 100.0,
+    "variables.kn-var-y": 200.0,
+    "variables.kn-var-scale": 100.0,
+    "variables.kn-var-effectSet": 1.0,
+    "variables.kn-var-penDown": 1.0,
+    "variables.kn-var-styleIdx": 1.0,
+    "variables.kn-var-visible": 0.0,
+    "variables.kn-var-draggable": 1.0
+  }
+}
