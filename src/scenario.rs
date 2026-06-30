@@ -16,6 +16,8 @@ pub struct RuntimeScenario {
     pub steps: Vec<ScenarioStep>,
     #[serde(default)]
     pub expect: serde_json::Map<String, Value>,
+    #[serde(default)]
+    pub expect_trace: Vec<serde_json::Map<String, Value>>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -137,7 +139,7 @@ pub fn check_runtime_scenario(
     snapshot: &Value,
     scenario: &RuntimeScenario,
 ) -> Vec<ScenarioDifference> {
-    scenario
+    let mut differences = scenario
         .expect
         .iter()
         .filter_map(|(path, expected)| {
@@ -156,7 +158,53 @@ pub fn check_runtime_scenario(
                 }),
             }
         })
-        .collect()
+        .collect::<Vec<_>>();
+    differences.extend(check_trace_expectations(snapshot, scenario));
+    differences
+}
+
+fn check_trace_expectations(
+    snapshot: &Value,
+    scenario: &RuntimeScenario,
+) -> Vec<ScenarioDifference> {
+    let trace = snapshot
+        .get("trace")
+        .and_then(Value::as_array)
+        .map(Vec::as_slice)
+        .unwrap_or(&[]);
+    let mut differences = Vec::new();
+    let mut cursor = 0;
+    for (index, expected) in scenario.expect_trace.iter().enumerate() {
+        let Some(found_at) =
+            trace
+                .iter()
+                .enumerate()
+                .skip(cursor)
+                .find_map(|(trace_index, entry)| {
+                    trace_entry_matches(expected, entry).then_some(trace_index)
+                })
+        else {
+            differences.push(ScenarioDifference {
+                path: format!("expect_trace[{index}]"),
+                expected: format_json_value(&Value::Object(expected.clone())),
+                actual: "<missing matching trace entry>".to_owned(),
+            });
+            break;
+        };
+        cursor = found_at + 1;
+    }
+    differences
+}
+
+fn trace_entry_matches(expected: &serde_json::Map<String, Value>, entry: &Value) -> bool {
+    let Some(entry) = entry.as_object() else {
+        return false;
+    };
+    expected.iter().all(|(key, expected)| {
+        entry
+            .get(key)
+            .is_some_and(|actual| expected_value_matches(expected, actual))
+    })
 }
 
 pub fn load_runtime_scenario(path: impl AsRef<std::path::Path>) -> Result<RuntimeScenario> {

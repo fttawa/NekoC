@@ -195,9 +195,17 @@ runs ticks and injects events exactly in the order listed. The older
   "expect": {
     "ticks": 2,
     "variables.var-clicked": 15
-  }
+  },
+  "expect_trace": [
+    { "kind": "start" },
+    { "kind": "click", "x": 15, "y": -20 },
+    { "kind": "start_on_click" }
+  ]
 }
 ```
+`expect_trace` is an ordered subsequence match against the runtime trace. Each
+object only needs to list the fields that matter for that assertion, so tests can
+pin key editor semantics without mirroring every internal trace entry.
 
 The current runtime subset intentionally starts small:
 

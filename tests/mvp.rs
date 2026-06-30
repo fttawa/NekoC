@@ -2127,6 +2127,118 @@ fn cli_run_scenario_checks_events_and_expected_snapshot_paths() {
 }
 
 #[test]
+fn cli_run_scenario_checks_ordered_trace_expectations() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("runtime-trace.bcmkn");
+    let scenario = dir.path().join("runtime-trace.scenario.json");
+    let wrong_scenario = dir.path().join("runtime-trace-wrong.scenario.json");
+    fs::write(
+        &input,
+        serde_json::to_string(&json!({
+            "variables": {
+                "variablesDict": {
+                    "var-clicked": {
+                        "id": "var-clicked",
+                        "name": "clicked",
+                        "value": 0
+                    }
+                }
+            },
+            "actors": {
+                "actorsDict": {
+                    "actor-1": {
+                        "id": "actor-1",
+                        "name": "button",
+                        "nekoBlockJsonList": [
+                            {
+                                "id": "start",
+                                "type": "on_running_group_activated"
+                            },
+                            {
+                                "id": "click",
+                                "type": "start_on_click",
+                                "next": {
+                                    "id": "set-clicked",
+                                    "type": "variables_set",
+                                    "fields": { "variable": "var-clicked" },
+                                    "inputs": {
+                                        "value": {
+                                            "id": "one",
+                                            "type": "math_number",
+                                            "fields": { "NUM": "1" }
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+        }))
+        .unwrap(),
+    )
+    .unwrap();
+    fs::write(
+        &scenario,
+        serde_json::to_string_pretty(&json!({
+            "steps": [
+                { "run": 1 },
+                { "event": { "kind": "click", "x": 15, "y": -20 } },
+                { "run": 1 }
+            ],
+            "expect": {
+                "variables.var-clicked": 1.0
+            },
+            "expect_trace": [
+                { "kind": "start", "owner_id": "actor-1", "block_id": "start" },
+                { "kind": "click", "x": 15.0, "y": -20.0 },
+                { "kind": "start_on_click", "owner_id": "actor-1", "block_id": "click" }
+            ]
+        }))
+        .unwrap(),
+    )
+    .unwrap();
+    fs::write(
+        &wrong_scenario,
+        serde_json::to_string_pretty(&json!({
+            "steps": [
+                { "run": 1 },
+                { "event": { "kind": "click", "x": 15, "y": -20 } },
+                { "run": 1 }
+            ],
+            "expect_trace": [
+                { "kind": "start" },
+                { "kind": "key", "key": "65" }
+            ]
+        }))
+        .unwrap(),
+    )
+    .unwrap();
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "run-scenario",
+            input.to_str().unwrap(),
+            scenario.to_str().unwrap(),
+        ])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("Runtime scenario matches"));
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "run-scenario",
+            input.to_str().unwrap(),
+            wrong_scenario.to_str().unwrap(),
+        ])
+        .assert()
+        .failure()
+        .stdout(predicate::str::contains("expect_trace[1]"));
+}
+
+#[test]
 fn cli_compile_ts_scenario_compiles_and_checks_runtime() {
     let dir = tempdir().unwrap();
     let input = dir.path().join("compiled-scenario.ts");
