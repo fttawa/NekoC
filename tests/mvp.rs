@@ -2599,6 +2599,120 @@ fn runtime_dispatches_broadcast_listeners() {
 }
 
 #[test]
+fn runtime_broadcast_and_wait_resumes_after_listeners_finish() {
+    let project = json!({
+        "variables": {
+            "variablesDict": {
+                "var-source": {
+                    "id": "var-source",
+                    "name": "source",
+                    "value": 0
+                },
+                "var-result": {
+                    "id": "var-result",
+                    "name": "result",
+                    "value": 0
+                }
+            }
+        },
+        "actors": {
+            "actorsDict": {
+                "actor-sender": {
+                    "id": "actor-sender",
+                    "name": "sender",
+                    "nekoBlockJsonList": [{
+                        "id": "start",
+                        "type": "on_running_group_activated",
+                        "next": {
+                            "id": "broadcast-wait",
+                            "type": "self_broadcast_and_wait",
+                            "inputs": {
+                                "message": {
+                                    "id": "ready-message",
+                                    "type": "broadcast_input",
+                                    "fields": { "message": "ready" }
+                                }
+                            },
+                            "next": {
+                                "id": "copy-result",
+                                "type": "variables_set",
+                                "fields": { "variable": "var-result" },
+                                "inputs": {
+                                    "value": {
+                                        "id": "source-value",
+                                        "type": "variables_get",
+                                        "fields": { "variable": "var-source" }
+                                    }
+                                }
+                            }
+                        }
+                    }]
+                },
+                "actor-listener": {
+                    "id": "actor-listener",
+                    "name": "listener",
+                    "nekoBlockJsonList": [{
+                        "id": "listen",
+                        "type": "self_listen",
+                        "inputs": {
+                            "message": {
+                                "id": "listen-message",
+                                "type": "broadcast_input",
+                                "fields": { "message": "ready" }
+                            }
+                        },
+                        "statements": {
+                            "DO": {
+                                "id": "listener-wait",
+                                "type": "wait",
+                                "inputs": {
+                                    "time": {
+                                        "id": "wait-time",
+                                        "type": "math_number",
+                                        "fields": { "NUM": "0.03" }
+                                    }
+                                },
+                                "next": {
+                                    "id": "set-source",
+                                    "type": "variables_set",
+                                    "fields": { "variable": "var-source" },
+                                    "inputs": {
+                                        "value": {
+                                            "id": "forty-two",
+                                            "type": "math_number",
+                                            "fields": { "NUM": "42" }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }]
+                }
+            }
+        }
+    });
+
+    let snapshot = nekoc::runtime::run_project(&project, 4).unwrap();
+
+    assert_eq!(
+        snapshot.variables["var-source"],
+        nekoc::runtime::RuntimeValue::Number(42.0)
+    );
+    assert_eq!(
+        snapshot.variables["var-result"],
+        nekoc::runtime::RuntimeValue::Number(42.0)
+    );
+    let trace = serde_json::to_value(&snapshot.trace).unwrap();
+    assert!(
+        trace
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|entry| entry["kind"] == "broadcast_wait" && entry["message"] == "ready")
+    );
+}
+
+#[test]
 fn runtime_snapshot_traces_start_click_and_broadcast_events() {
     let project = json!({
         "variables": {

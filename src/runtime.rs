@@ -236,6 +236,7 @@ struct Runtime<'a> {
     mouse_y: f64,
     logs: Vec<String>,
     trace: Vec<RuntimeTraceEntry>,
+    next_thread_id: usize,
     threads: Vec<Thread<'a>>,
 }
 
@@ -312,6 +313,7 @@ impl<'a> Runtime<'a> {
             mouse_y: 0.0,
             logs: Vec::new(),
             trace: Vec::new(),
+            next_thread_id: 1,
             threads: Vec::new(),
         })
     }
@@ -424,19 +426,7 @@ impl<'a> Runtime<'a> {
                         self.trace
                             .push(RuntimeTraceEntry::script(self.ticks, kind, owner_id, block));
                     }
-                    self.threads.push(Thread {
-                        owner_id,
-                        current: Some(block),
-                        loops: Vec::new(),
-                        continuations: Vec::new(),
-                        range_values: BTreeMap::new(),
-                        script_values: BTreeMap::new(),
-                        procedure_values: BTreeMap::new(),
-                        procedure_frames: Vec::new(),
-                        wait_ticks: 0,
-                        yielded: false,
-                        done: false,
-                    });
+                    self.spawn_thread(owner_id, Some(block));
                 }
             }
         }
@@ -446,8 +436,14 @@ impl<'a> Runtime<'a> {
         for _ in 0..ticks {
             self.ticks += 1;
             let mut threads = std::mem::take(&mut self.threads);
+            let active_thread_ids = threads
+                .iter()
+                .chain(self.threads.iter())
+                .filter(|thread| !thread.done)
+                .map(|thread| thread.id)
+                .collect::<BTreeSet<_>>();
             for thread in &mut threads {
-                thread.step(self)?;
+                thread.step(self, &active_thread_ids)?;
             }
             threads.retain(|thread| !thread.done);
             threads.append(&mut self.threads);
@@ -479,11 +475,12 @@ impl<'a> Runtime<'a> {
         }
     }
 
-    fn dispatch_broadcast(&mut self, message: &str, payload: Option<RuntimeValue>) {
+    fn dispatch_broadcast(&mut self, message: &str, payload: Option<RuntimeValue>) -> Vec<usize> {
         self.received_broadcasts.insert(message.to_owned());
         self.trace
             .push(RuntimeTraceEntry::message(self.ticks, "broadcast", message));
         let listeners = self.listeners.get(message).cloned().unwrap_or_default();
+        let mut listener_thread_ids = Vec::new();
         for listener in listeners {
             if let (Some(param_name), Some(payload)) = (&listener.param_name, &payload) {
                 self.message_values
@@ -496,21 +493,31 @@ impl<'a> Runtime<'a> {
                     listener.owner_id,
                     body,
                 ));
-                self.threads.push(Thread {
-                    owner_id: listener.owner_id,
-                    current: Some(body),
-                    loops: Vec::new(),
-                    continuations: Vec::new(),
-                    range_values: BTreeMap::new(),
-                    script_values: BTreeMap::new(),
-                    procedure_values: BTreeMap::new(),
-                    procedure_frames: Vec::new(),
-                    wait_ticks: 0,
-                    yielded: false,
-                    done: false,
-                });
+                listener_thread_ids.push(self.spawn_thread(listener.owner_id, Some(body)));
             }
         }
+        listener_thread_ids
+    }
+
+    fn spawn_thread(&mut self, owner_id: &'a str, current: Option<&'a Value>) -> usize {
+        let id = self.next_thread_id;
+        self.next_thread_id += 1;
+        self.threads.push(Thread {
+            id,
+            owner_id,
+            current,
+            loops: Vec::new(),
+            continuations: Vec::new(),
+            range_values: BTreeMap::new(),
+            script_values: BTreeMap::new(),
+            procedure_values: BTreeMap::new(),
+            procedure_frames: Vec::new(),
+            wait_ticks: 0,
+            waiting_for: BTreeSet::new(),
+            yielded: false,
+            done: false,
+        });
+        id
     }
 
     fn actor_for_sprite(&self, sprite: &str, owner_id: Option<&str>) -> Option<&ActorState> {
@@ -1051,6 +1058,7 @@ impl<'a> Runtime<'a> {
 }
 
 struct Thread<'a> {
+    id: usize,
     owner_id: &'a str,
     current: Option<&'a Value>,
     loops: Vec<LoopFrame<'a>>,
@@ -1060,6 +1068,7 @@ struct Thread<'a> {
     procedure_values: BTreeMap<String, RuntimeValue>,
     procedure_frames: Vec<ProcedureFrame<'a>>,
     wait_ticks: usize,
+    waiting_for: BTreeSet<usize>,
     yielded: bool,
     done: bool,
 }
@@ -1075,9 +1084,19 @@ impl<'a> Thread<'a> {
         )
     }
 
-    fn step(&mut self, runtime: &mut Runtime<'a>) -> Result<()> {
+    fn step(
+        &mut self,
+        runtime: &mut Runtime<'a>,
+        active_thread_ids: &BTreeSet<usize>,
+    ) -> Result<()> {
         if self.done {
             return Ok(());
+        }
+        if !self.waiting_for.is_empty() {
+            self.waiting_for.retain(|id| active_thread_ids.contains(id));
+            if !self.waiting_for.is_empty() {
+                return Ok(());
+            }
         }
         if self.wait_ticks > 0 {
             self.wait_ticks -= 1;
@@ -1359,11 +1378,28 @@ impl<'a> Thread<'a> {
                     self.advance(runtime, block.get("next"));
                 }
             }
-            "self_broadcast" | "self_broadcast_and_wait" => {
+            "self_broadcast" => {
                 let message = broadcast_message(input(block, "message"))
                     .context("broadcast block missing message")?;
                 runtime.dispatch_broadcast(&message, None);
                 self.advance(runtime, block.get("next"));
+            }
+            "self_broadcast_and_wait" => {
+                let message = broadcast_message(input(block, "message"))
+                    .context("broadcast block missing message")?;
+                let listener_thread_ids = runtime.dispatch_broadcast(&message, None);
+                if listener_thread_ids.is_empty() {
+                    self.advance(runtime, block.get("next"));
+                } else {
+                    runtime.trace.push(RuntimeTraceEntry::message(
+                        runtime.ticks,
+                        "broadcast_wait",
+                        &message,
+                    ));
+                    self.waiting_for = listener_thread_ids.into_iter().collect();
+                    self.yielded = true;
+                    self.advance(runtime, block.get("next"));
+                }
             }
             "self_broadcast_with_param" => {
                 let message = broadcast_message(input(block, "message"))

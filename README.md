@@ -153,7 +153,8 @@ the scheduler for a fixed number of ticks, and writes a JSON snapshot containing
 the current scene, variables, actor state, console logs, and active thread
 count. Snapshots also include a structured `trace` array for reverse-engineering
 execution order; it records runtime events such as start-script activation,
-click/key/mouse input, broadcasts, broadcast listeners, and screen switches.
+click/key/mouse input, broadcasts, `broadcastAndWait` waits, broadcast
+listeners, and screen switches.
 Pass `--event click`, `--event click:<x>,<y>`, `--event key-down:<key>`,
 `--event key-up:<key>`, `--event mouse-down:<x>,<y>`,
 `--event mouse-up:<x>,<y>`, or `--event mouse-move:<x>,<y>` to inject events
@@ -205,6 +206,8 @@ The current runtime subset intentionally starts small:
 - broadcasts: `self_broadcast`, `self_broadcast_with_param`,
   `self_broadcast_and_wait`, `self_listen`, `self_listen_with_param`,
   `self_listen_param`, `self_listen_value`, `received_broadcast`
+  (`self_broadcast_and_wait` resumes the sender after listeners spawned by that
+  broadcast finish)
 - control: `repeat_forever`, `repeat_n_times`, `repeat_forever_until`,
   `traverse_number`, `traverse_number_param`, `traverse_number_value`, `break`,
   `wait`, `wait_until`, `warp`, `tell`, `sync_tell`, `stop`, `restart`
