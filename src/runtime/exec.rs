@@ -369,7 +369,24 @@ impl<'a> super::Thread<'a> {
                 }
                 self.advance(runtime, block.get("next"));
             }
-            "show_hide_timer" | "face_to_body_part" => {
+            "show_hide_timer" => {
+                self.advance(runtime, block.get("next"));
+            }
+            "face_to_body_part" => {
+                let sprite = field_string(block, "sprite").unwrap_or("--self");
+                let body_part = field_string(block, "body_part").unwrap_or("center");
+                if let Some(actor) = runtime.actor_for_sprite(sprite, Some(&self.owner_id)) {
+                    let target_x = actor.x;
+                    let target_y = actor.y;
+                    if let Some(self_actor) = runtime.actors.get_mut(&self.owner_id) {
+                        let dx = target_x - self_actor.x;
+                        let dy = target_y - self_actor.y;
+                        if dx != 0.0 || dy != 0.0 {
+                            self_actor.rotation = dy.atan2(dx).to_degrees();
+                        }
+                    }
+                }
+                let _ = body_part;
                 self.advance(runtime, block.get("next"));
             }
             "mirror" => {
@@ -540,8 +557,6 @@ impl<'a> super::Thread<'a> {
             "self_appear_animation"
             | "self_gradually_show_hide"
             | "create_stage_dialog"
-            | "set_width_height_scale"
-            | "add_width_height_scale"
             | "self_text_effect_text"
             | "self_text_effect_size"
             | "self_text_effect_color"
@@ -550,6 +565,37 @@ impl<'a> super::Thread<'a> {
             | "self_stress_animation"
             | "global_animation"
             | "show_hide_variables" => {
+                self.advance(runtime, block.get("next"));
+            }
+            "set_width_height_scale" => {
+                let scope = field_string(block, "type").unwrap_or("width");
+                let value = self.eval(runtime, input(block, "value")).as_number();
+                if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
+                    match scope {
+                        "width" | "height" => {
+                            actor.scale = value;
+                        }
+                        _ => {
+                            actor.scale = value;
+                        }
+                    }
+                }
+                self.advance(runtime, block.get("next"));
+            }
+            "add_width_height_scale" => {
+                let scope = field_string(block, "type").unwrap_or("width");
+                let delta =
+                    signed_delta(block, self.eval(runtime, input(block, "value")).as_number());
+                if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
+                    match scope {
+                        "width" | "height" => {
+                            actor.scale += delta;
+                        }
+                        _ => {
+                            actor.scale += delta;
+                        }
+                    }
+                }
                 self.advance(runtime, block.get("next"));
             }
             "self_set_effect" => {
@@ -618,9 +664,14 @@ impl<'a> super::Thread<'a> {
                 self.advance(runtime, block.get("next"));
             }
             "self_set_pen_color_property" => {
+                let _scope = field_string(block, "scope").unwrap_or("hue");
+                let _value = self.eval(runtime, input(block, "val")).as_number();
                 self.advance(runtime, block.get("next"));
             }
             "self_change_pen_color_property" => {
+                let _scope = field_string(block, "scope").unwrap_or("hue");
+                let _delta =
+                    signed_delta(block, self.eval(runtime, input(block, "steps")).as_number());
                 self.advance(runtime, block.get("next"));
             }
             "stamp" => {

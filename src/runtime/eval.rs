@@ -267,7 +267,14 @@ impl<'a> Runtime<'a> {
                     ((source.x - target_x).powi(2) + (source.y - target_y).powi(2)).sqrt(),
                 )
             }
-            "get_orientation" => RuntimeValue::Number(0.0),
+            "get_orientation" => {
+                let target = field_string(block, "target").unwrap_or("--self");
+                let value = self
+                    .actor_for_sprite(target, owner_id)
+                    .map(|actor| actor.rotation)
+                    .unwrap_or(0.0);
+                RuntimeValue::Number(value)
+            }
             "style_of_sprite" => {
                 let sprite = field_string(block, "sprite").unwrap_or("--self");
                 RuntimeValue::String(

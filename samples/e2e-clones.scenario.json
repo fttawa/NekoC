@@ -1,0 +1,7 @@
+{
+  "ticks": 1,
+  "expect": {
+    "variables.kn-var-cloneCount": 2.0,
+    "variables.kn-var-cloneIdx": 0.0
+  }
+}

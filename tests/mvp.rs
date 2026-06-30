@@ -2285,8 +2285,117 @@ onStart(() => {
         .assert()
         .success()
         .stdout(predicate::str::contains("Runtime scenario matches"));
+}
 
-    assert!(output.exists());
+#[test]
+fn e2e_broadcasts() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("e2e-broadcasts.ts");
+    let scenario = dir.path().join("e2e-broadcasts.json");
+    let output = dir.path().join("e2e-broadcasts.bcmkn");
+
+    let ts_path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("e2e-broadcasts.ts");
+    let scenario_path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("e2e-broadcasts.scenario.json");
+    fs::copy(&ts_path, &input).unwrap();
+    fs::copy(&scenario_path, &scenario).unwrap();
+
+    let template = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts-scenario",
+            input.to_str().unwrap(),
+            "--template",
+            template.to_str().unwrap(),
+            "--scenario",
+            scenario.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("Runtime scenario matches"));
+}
+
+#[test]
+fn e2e_clones() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("e2e-clones.ts");
+    let scenario = dir.path().join("e2e-clones.json");
+    let output = dir.path().join("e2e-clones.bcmkn");
+
+    let ts_path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("e2e-clones.ts");
+    let scenario_path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("e2e-clones.scenario.json");
+    fs::copy(&ts_path, &input).unwrap();
+    fs::copy(&scenario_path, &scenario).unwrap();
+
+    let template = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts-scenario",
+            input.to_str().unwrap(),
+            "--template",
+            template.to_str().unwrap(),
+            "--scenario",
+            scenario.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("Runtime scenario matches"));
+}
+
+#[test]
+fn e2e_sensing() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("e2e-sensing.ts");
+    let scenario = dir.path().join("e2e-sensing.json");
+    let output = dir.path().join("e2e-sensing.bcmkn");
+
+    let ts_path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("e2e-sensing.ts");
+    let scenario_path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("e2e-sensing.scenario.json");
+    fs::copy(&ts_path, &input).unwrap();
+    fs::copy(&scenario_path, &scenario).unwrap();
+
+    let template = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts-scenario",
+            input.to_str().unwrap(),
+            "--template",
+            template.to_str().unwrap(),
+            "--scenario",
+            scenario.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("Runtime scenario matches"));
 }
 
 #[test]

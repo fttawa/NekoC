@@ -1,0 +1,10 @@
+{
+  "ticks": 1,
+  "expect": {
+    "variables.kn-var-isKeyDown": false,
+    "variables.kn-var-isMouseDown": false,
+    "variables.kn-var-timerVal": 0.0,
+    "variables.kn-var-stageW": 562.0,
+    "variables.kn-var-stageH": 900.0
+  }
+}

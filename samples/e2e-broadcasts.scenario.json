@@ -1,0 +1,6 @@
+{
+  "ticks": 2,
+  "expect": {
+    "variables.kn-var-received": 1.0
+  }
+}
