@@ -267,10 +267,12 @@ The current runtime subset intentionally starts small:
   `add_width_height_scale`, `self_text_effect_text`, `self_text_effect_size`,
   `self_text_effect_color`, `set_top_bottom_layer`,
   `self_set_role_camp`, `self_stress_animation`, `global_animation`,
-  `show_hide_variables`, `clear_drawing`, `self_pen_down`, `self_pen_up`,
-  `self_set_pen_color`, `self_set_pen_size`, `self_change_pen_size`,
-  `self_set_pen_color_property`, `self_change_pen_color_property`, `stamp`,
-  `image_stamp`, `set_pen_layer`
+  `show_hide_variables`
+- pen: `self_pen_down`/`self_pen_up` toggle pen drawing; `self_set_pen_color`,
+  `self_set_pen_size`/`self_change_pen_size` set pen properties; `clear_drawing`
+  clears strokes and stamps; `stamp`/`image_stamp` record stamp events at the
+  actor's position; pen strokes are automatically recorded when an actor moves
+  while pen is down; `set_pen_layer` is a no-op
 - drag: `self_set_draggable` sets the actor's draggable flag; `Drag` events
   (CLI `--event drag:<actor>,<x>,<y>`, scenario `{ "kind": "drag", "actor": ..., "x": ..., "y": ... }`)
   move draggable actors to the specified coordinates

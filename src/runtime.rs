@@ -65,6 +65,33 @@ pub struct ActorState {
     pub draggable: bool,
     #[serde(skip_serializing_if = "BTreeMap::is_empty")]
     pub effects: BTreeMap<String, f64>,
+    #[serde(skip_serializing_if = "is_default_pen")]
+    pub pen: PenState,
+}
+
+fn is_default_pen(pen: &PenState) -> bool {
+    !pen.down && pen.strokes.is_empty() && pen.stamps.is_empty()
+}
+
+fn record_pen_stroke(
+    actors: &mut BTreeMap<String, ActorState>,
+    owner_id: &str,
+    old_x: f64,
+    old_y: f64,
+) {
+    if let Some(actor) = actors.get(owner_id)
+        && actor.pen.down
+    {
+        let stroke = PenStroke {
+            x1: old_x,
+            y1: old_y,
+            x2: actor.x,
+            y2: actor.y,
+            color: actor.pen.color.clone(),
+            size: actor.pen.size,
+        };
+        actors.get_mut(owner_id).unwrap().pen.strokes.push(stroke);
+    }
 }
 
 fn is_false(b: &bool) -> bool {
@@ -77,6 +104,44 @@ pub struct DialogState {
     pub text: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub timeout_ticks: Option<usize>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct PenState {
+    pub down: bool,
+    pub color: String,
+    pub size: f64,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub strokes: Vec<PenStroke>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub stamps: Vec<PenStamp>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct PenStroke {
+    pub x1: f64,
+    pub y1: f64,
+    pub x2: f64,
+    pub y2: f64,
+    pub color: String,
+    pub size: f64,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct PenStamp {
+    pub x: f64,
+    pub y: f64,
+    pub kind: String,
+}
+
+fn default_pen() -> PenState {
+    PenState {
+        down: false,
+        color: "#000000".to_owned(),
+        size: 1.0,
+        strokes: Vec::new(),
+        stamps: Vec::new(),
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -1730,50 +1795,86 @@ impl<'a> Thread<'a> {
             }
             "self_go_forward" => {
                 let steps = self.eval(runtime, input(block, "steps")).as_number();
+                let old = runtime
+                    .actors
+                    .get(&self.owner_id)
+                    .map(|a| (a.x, a.y))
+                    .unwrap_or((0.0, 0.0));
                 if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
                     let radians = actor.rotation.to_radians();
                     actor.x += steps * radians.sin();
                     actor.y += steps * radians.cos();
                 }
+                record_pen_stroke(&mut runtime.actors, &self.owner_id, old.0, old.1);
                 self.advance(runtime, block.get("next"));
             }
             "self_move_to" | "self_glide_to" => {
                 let x = self.eval(runtime, input(block, "x")).as_number();
                 let y = self.eval(runtime, input(block, "y")).as_number();
+                let old = runtime
+                    .actors
+                    .get(&self.owner_id)
+                    .map(|a| (a.x, a.y))
+                    .unwrap_or((0.0, 0.0));
                 if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
                     actor.x = x;
                     actor.y = y;
                 }
+                record_pen_stroke(&mut runtime.actors, &self.owner_id, old.0, old.1);
                 self.advance(runtime, block.get("next"));
             }
             "self_set_position_x" => {
                 let value = self.eval(runtime, input(block, "value")).as_number();
+                let old = runtime
+                    .actors
+                    .get(&self.owner_id)
+                    .map(|a| (a.x, a.y))
+                    .unwrap_or((0.0, 0.0));
                 if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
                     actor.x = value;
                 }
+                record_pen_stroke(&mut runtime.actors, &self.owner_id, old.0, old.1);
                 self.advance(runtime, block.get("next"));
             }
             "self_set_position_y" => {
                 let value = self.eval(runtime, input(block, "value")).as_number();
+                let old = runtime
+                    .actors
+                    .get(&self.owner_id)
+                    .map(|a| (a.x, a.y))
+                    .unwrap_or((0.0, 0.0));
                 if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
                     actor.y = value;
                 }
+                record_pen_stroke(&mut runtime.actors, &self.owner_id, old.0, old.1);
                 self.advance(runtime, block.get("next"));
             }
             "self_change_coordinate_x" | "self_glide_coordinate_x" => {
                 let delta =
                     signed_delta(block, self.eval(runtime, input(block, "value")).as_number());
+                let old = runtime
+                    .actors
+                    .get(&self.owner_id)
+                    .map(|a| (a.x, a.y))
+                    .unwrap_or((0.0, 0.0));
                 if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
                     actor.x += delta;
                 }
+                record_pen_stroke(&mut runtime.actors, &self.owner_id, old.0, old.1);
                 self.advance(runtime, block.get("next"));
             }
             "self_change_coordinate_y" | "self_glide_coordinate_y" => {
                 let delta =
                     signed_delta(block, self.eval(runtime, input(block, "value")).as_number());
+                let old = runtime
+                    .actors
+                    .get(&self.owner_id)
+                    .map(|a| (a.x, a.y))
+                    .unwrap_or((0.0, 0.0));
                 if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
                     actor.y += delta;
                 }
+                record_pen_stroke(&mut runtime.actors, &self.owner_id, old.0, old.1);
                 self.advance(runtime, block.get("next"));
             }
             "self_rotate" => {
@@ -1829,18 +1930,7 @@ impl<'a> Thread<'a> {
             | "self_set_role_camp"
             | "self_stress_animation"
             | "global_animation"
-            | "show_hide_variables"
-            | "clear_drawing"
-            | "self_pen_down"
-            | "self_pen_up"
-            | "self_set_pen_color"
-            | "self_set_pen_size"
-            | "self_change_pen_size"
-            | "self_set_pen_color_property"
-            | "self_change_pen_color_property"
-            | "stamp"
-            | "image_stamp"
-            | "set_pen_layer" => {
+            | "show_hide_variables" => {
                 self.advance(runtime, block.get("next"));
             }
             "self_set_effect" => {
@@ -1865,6 +1955,90 @@ impl<'a> Thread<'a> {
                 if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
                     actor.effects.clear();
                 }
+                self.advance(runtime, block.get("next"));
+            }
+            "clear_drawing" => {
+                if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
+                    actor.pen.strokes.clear();
+                    actor.pen.stamps.clear();
+                }
+                self.advance(runtime, block.get("next"));
+            }
+            "self_pen_down" => {
+                if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
+                    actor.pen.down = true;
+                }
+                self.advance(runtime, block.get("next"));
+            }
+            "self_pen_up" => {
+                if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
+                    actor.pen.down = false;
+                }
+                self.advance(runtime, block.get("next"));
+            }
+            "self_set_pen_color" => {
+                let color = field_string(block, "color").unwrap_or("#000000").to_owned();
+                if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
+                    actor.pen.color = color;
+                }
+                self.advance(runtime, block.get("next"));
+            }
+            "self_set_pen_size" => {
+                let size = self.eval(runtime, input(block, "size")).as_number();
+                if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
+                    actor.pen.size = size.max(0.0);
+                }
+                self.advance(runtime, block.get("next"));
+            }
+            "self_change_pen_size" => {
+                let delta =
+                    signed_delta(block, self.eval(runtime, input(block, "steps")).as_number());
+                if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
+                    actor.pen.size = (actor.pen.size + delta).max(0.0);
+                }
+                self.advance(runtime, block.get("next"));
+            }
+            "self_set_pen_color_property" => {
+                self.advance(runtime, block.get("next"));
+            }
+            "self_change_pen_color_property" => {
+                self.advance(runtime, block.get("next"));
+            }
+            "stamp" => {
+                if let Some(actor) = runtime.actors.get(&self.owner_id) {
+                    let stamp = PenStamp {
+                        x: actor.x,
+                        y: actor.y,
+                        kind: "costume".to_owned(),
+                    };
+                    runtime
+                        .actors
+                        .get_mut(&self.owner_id)
+                        .unwrap()
+                        .pen
+                        .stamps
+                        .push(stamp);
+                }
+                self.advance(runtime, block.get("next"));
+            }
+            "image_stamp" => {
+                if let Some(actor) = runtime.actors.get(&self.owner_id) {
+                    let stamp = PenStamp {
+                        x: actor.x,
+                        y: actor.y,
+                        kind: "image".to_owned(),
+                    };
+                    runtime
+                        .actors
+                        .get_mut(&self.owner_id)
+                        .unwrap()
+                        .pen
+                        .stamps
+                        .push(stamp);
+                }
+                self.advance(runtime, block.get("next"));
+            }
+            "set_pen_layer" => {
                 self.advance(runtime, block.get("next"));
             }
             "self_prev_next_style" => {
@@ -2236,6 +2410,7 @@ fn collect_actors(dict: &Map<String, Value>) -> BTreeMap<String, ActorState> {
                         .and_then(Value::as_bool)
                         .unwrap_or(false),
                     effects: BTreeMap::new(),
+                    pen: default_pen(),
                 },
             )
         })

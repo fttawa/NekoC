@@ -9307,3 +9307,143 @@ fn runtime_effects_set_and_change() {
     let actor = snapshot.actors.get("actor-1").unwrap();
     assert_eq!(actor.effects.get("color"), Some(&60.0));
 }
+
+#[test]
+fn runtime_pen_records_strokes() {
+    let project = json!({
+        "projectName": "pen-test",
+        "scenes": {
+            "currentSceneId": "scene-1",
+            "scenesDict": {
+                "scene-1": { "name": "main", "actorIds": ["actor-1"], "screenName": "main" }
+            },
+            "sortList": ["scene-1"]
+        },
+        "actors": {
+            "actorsDict": {
+                "actor-1": {
+                    "id": "actor-1", "name": "pen", "visible": true,
+                    "position": { "x": 0, "y": 0 }, "rotation": 0, "scale": 100,
+                    "currentStyleId": "style-a", "styles": ["style-a"],
+                    "nekoBlockJsonList": [{
+                        "id": "b1", "type": "on_running_group_activated", "parent_id": "",
+                        "next": { "id": "b2", "type": "self_pen_down", "parent_id": "b1",
+                            "next": { "id": "b3", "type": "self_set_position_x", "parent_id": "b2",
+                                "inputs": { "value": { "id": "b3v", "type": "math_number", "parent_id": "b3", "fields": { "NUM": "100" } } },
+                                "next": { "id": "b4", "type": "self_set_position_y", "parent_id": "b3",
+                                    "inputs": { "value": { "id": "b4v", "type": "math_number", "parent_id": "b4", "fields": { "NUM": "50" } } },
+                                    "next": { "id": "b5", "type": "self_pen_up", "parent_id": "b4",
+                                        "next": { "id": "b6", "type": "self_set_position_x", "parent_id": "b5",
+                                            "inputs": { "value": { "id": "b6v", "type": "math_number", "parent_id": "b6", "fields": { "NUM": "200" } } }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }]
+                }
+            }
+        },
+        "variables": { "variablesDict": {} }
+    });
+
+    let snapshot =
+        nekoc::runtime::run_project_steps(&project, &[nekoc::runtime::RuntimeStep::Run(1)])
+            .unwrap();
+    let actor = snapshot.actors.get("actor-1").unwrap();
+    assert_eq!(
+        actor.pen.strokes.len(),
+        2,
+        "should have 2 strokes (x then y moves while pen down)"
+    );
+    assert_eq!(actor.pen.strokes[0].x1, 0.0);
+    assert_eq!(actor.pen.strokes[0].x2, 100.0);
+    assert_eq!(actor.pen.strokes[1].y1, 0.0);
+    assert_eq!(actor.pen.strokes[1].y2, 50.0);
+    assert!(!actor.pen.down, "pen should be up after penUp");
+}
+
+#[test]
+fn runtime_pen_stamp_records() {
+    let project = json!({
+        "projectName": "stamp-test",
+        "scenes": {
+            "currentSceneId": "scene-1",
+            "scenesDict": {
+                "scene-1": { "name": "main", "actorIds": ["actor-1"], "screenName": "main" }
+            },
+            "sortList": ["scene-1"]
+        },
+        "actors": {
+            "actorsDict": {
+                "actor-1": {
+                    "id": "actor-1", "name": "stamper", "visible": true,
+                    "position": { "x": 10, "y": 20 }, "rotation": 0, "scale": 100,
+                    "currentStyleId": "style-a", "styles": ["style-a"],
+                    "nekoBlockJsonList": [{
+                        "id": "b1", "type": "on_running_group_activated", "parent_id": "",
+                        "next": { "id": "b2", "type": "stamp", "parent_id": "b1" }
+                    }]
+                }
+            }
+        },
+        "variables": { "variablesDict": {} }
+    });
+
+    let snapshot =
+        nekoc::runtime::run_project_steps(&project, &[nekoc::runtime::RuntimeStep::Run(1)])
+            .unwrap();
+    let actor = snapshot.actors.get("actor-1").unwrap();
+    assert_eq!(actor.pen.stamps.len(), 1);
+    assert_eq!(actor.pen.stamps[0].x, 10.0);
+    assert_eq!(actor.pen.stamps[0].y, 20.0);
+    assert_eq!(actor.pen.stamps[0].kind, "costume");
+}
+
+#[test]
+fn runtime_clear_drawing_resets() {
+    let project = json!({
+        "projectName": "clear-pen-test",
+        "scenes": {
+            "currentSceneId": "scene-1",
+            "scenesDict": {
+                "scene-1": { "name": "main", "actorIds": ["actor-1"], "screenName": "main" }
+            },
+            "sortList": ["scene-1"]
+        },
+        "actors": {
+            "actorsDict": {
+                "actor-1": {
+                    "id": "actor-1", "name": "pen", "visible": true,
+                    "position": { "x": 0, "y": 0 }, "rotation": 0, "scale": 100,
+                    "currentStyleId": "style-a", "styles": ["style-a"],
+                    "nekoBlockJsonList": [{
+                        "id": "b1", "type": "on_running_group_activated", "parent_id": "",
+                        "next": { "id": "b2", "type": "self_pen_down", "parent_id": "b1",
+                            "next": { "id": "b3", "type": "self_set_position_x", "parent_id": "b2",
+                                "inputs": { "value": { "id": "b3v", "type": "math_number", "parent_id": "b3", "fields": { "NUM": "50" } } },
+                                "next": { "id": "b4", "type": "stamp", "parent_id": "b3",
+                                    "next": { "id": "b5", "type": "clear_drawing", "parent_id": "b4" }
+                                }
+                            }
+                        }
+                    }]
+                }
+            }
+        },
+        "variables": { "variablesDict": {} }
+    });
+
+    let snapshot =
+        nekoc::runtime::run_project_steps(&project, &[nekoc::runtime::RuntimeStep::Run(1)])
+            .unwrap();
+    let actor = snapshot.actors.get("actor-1").unwrap();
+    assert!(
+        actor.pen.strokes.is_empty(),
+        "strokes should be empty after clear_drawing"
+    );
+    assert!(
+        actor.pen.stamps.is_empty(),
+        "stamps should be empty after clear_drawing"
+    );
+}
