@@ -1,0 +1,9 @@
+{
+  "ticks": 2,
+  "expect": {
+    "variables.kn-var-score": 100.0,
+    "variables.kn-var-combo": 0.0,
+    "variables.kn-var-maxCombo": 0.0,
+    "variables.kn-var-gameOver": 0.0
+  }
+}

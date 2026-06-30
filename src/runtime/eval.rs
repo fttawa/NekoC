@@ -240,7 +240,18 @@ impl<'a> Runtime<'a> {
                 }
             }
             "timer" => RuntimeValue::Number(self.timer_elapsed_ticks as f64 / super::DEFAULT_FPS),
-            "get_time" => RuntimeValue::Number(0.0),
+            "get_time" => {
+                let unit = field_string(block, "time").unwrap_or("year");
+                let value = match unit {
+                    "second" => (self.ticks as f64 / super::DEFAULT_FPS) % 60.0,
+                    "minute" => ((self.ticks as f64 / super::DEFAULT_FPS) / 60.0) % 60.0,
+                    "hour" => ((self.ticks as f64 / super::DEFAULT_FPS) / 3600.0) % 24.0,
+                    "day" => self.ticks as f64 % 365.0,
+                    "month" => ((self.ticks as f64 / 30.0) % 12.0) + 1.0,
+                    _ => 2025.0,
+                };
+                RuntimeValue::Number(value)
+            }
             "get_stage_info" => match field_string(block, "type").unwrap_or("width") {
                 "height" => RuntimeValue::Number(self.stage_height),
                 _ => RuntimeValue::Number(self.stage_width),

@@ -93,6 +93,13 @@ enum Command {
         #[arg(long)]
         out: PathBuf,
     },
+    Watch {
+        input: PathBuf,
+        #[arg(long)]
+        template: PathBuf,
+        #[arg(long)]
+        out: PathBuf,
+    },
 }
 
 #[derive(Debug, Clone)]
@@ -349,6 +356,56 @@ fn main() -> Result<()> {
             let report = nekoc::analysis::build_report(&ir);
             let report = serde_json::to_vec_pretty(&report)?;
             std::fs::write(out, report)?;
+        }
+        Command::Watch {
+            input,
+            template,
+            out,
+        } => {
+            use notify_debouncer_mini::new_debouncer;
+            use std::sync::mpsc;
+            use std::time::Duration;
+
+            fn do_compile(
+                input: &std::path::Path,
+                template: &std::path::Path,
+                out: &std::path::Path,
+            ) {
+                match nekoc::bcmkn_compiler::compile_ts_bcmkn(input, template, out) {
+                    Ok(()) => eprintln!("[watch] Compiled {}", out.display()),
+                    Err(err) => eprintln!("[watch] Error: {err}"),
+                }
+            }
+
+            eprintln!("[watch] Watching {} for changes...", input.display());
+            do_compile(&input, &template, &out);
+
+            let (tx, rx) = mpsc::channel();
+            let mut debouncer = new_debouncer(Duration::from_millis(300), tx)
+                .map_err(|e| anyhow::anyhow!("Failed to create file watcher: {e}"))?;
+
+            let watch_path = input.parent().unwrap_or(&input);
+            debouncer
+                .watcher()
+                .watch(watch_path, notify::RecursiveMode::NonRecursive)
+                .map_err(|e| anyhow::anyhow!("Failed to watch directory: {e}"))?;
+
+            for result in rx {
+                match result {
+                    Ok(events) => {
+                        let ts_changed = events.iter().any(|e| {
+                            e.path.extension().is_some_and(|ext| ext == "ts")
+                                || e.path.extension().is_some_and(|ext| ext == "tsx")
+                        });
+                        if ts_changed {
+                            do_compile(&input, &template, &out);
+                        }
+                    }
+                    Err(errors) => {
+                        eprintln!("[watch] Watch error: {errors:?}");
+                    }
+                }
+            }
         }
     }
 

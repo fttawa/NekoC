@@ -179,6 +179,43 @@ fn cli_roundtrip_and_diff_native_sample() {
 }
 
 #[test]
+fn e2e_complex_demo() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("e2e-complex-demo.ts");
+    let scenario = dir.path().join("e2e-complex-demo.json");
+    let output = dir.path().join("e2e-complex-demo.bcmkn");
+
+    let ts_path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("e2e-complex-demo.ts");
+    let scenario_path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("e2e-complex-demo.scenario.json");
+    fs::copy(&ts_path, &input).unwrap();
+    fs::copy(&scenario_path, &scenario).unwrap();
+
+    let template = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("samples")
+        .join("我的作品-原生.bcmkn");
+
+    Command::cargo_bin("nekoc")
+        .unwrap()
+        .args([
+            "compile-ts-scenario",
+            input.to_str().unwrap(),
+            "--template",
+            template.to_str().unwrap(),
+            "--scenario",
+            scenario.to_str().unwrap(),
+            "--out",
+            output.to_str().unwrap(),
+        ])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("Runtime scenario matches"));
+}
+
+#[test]
 fn decompile_report_extracts_owner_scripts_and_nested_blocks() {
     let value: serde_json::Value = json!({
         "projectName": "decompile fixture",
