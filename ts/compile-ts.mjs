@@ -17,6 +17,8 @@ class WorkspaceCompiler {
     this.nextId = 1;
     this.blocks = {};
     this.connections = {};
+    this.sourceMap = {};
+    this.currentStatementNode = null;
     this.scriptCount = 0;
     this.procedureSpecs = new Map();
     this.procedures = [];
@@ -88,6 +90,7 @@ class WorkspaceCompiler {
         connections: this.connections,
         comments: {},
       },
+      sourceMap: this.sourceMap,
       resources: this.resources,
       procedures: this.procedures,
     };
@@ -615,6 +618,7 @@ class WorkspaceCompiler {
   }
 
   compileStatement(statement, parentId) {
+    this.currentStatementNode = statement;
     if (ts.isExpressionStatement(statement)) {
       return this.compileStatementExpression(statement.expression, parentId);
     }
@@ -2045,6 +2049,17 @@ class WorkspaceCompiler {
         is_output: true,
       });
     }
+    if (ts.isTemplateExpression(expression)) {
+      return this.compileTemplateExpression(expression, parentId);
+    }
+    if (ts.isNoSubstitutionTemplateLiteral(expression)) {
+      return this.addBlock({
+        type: "text",
+        parent_id: parentId,
+        fields: { TEXT: expression.text },
+        is_output: true,
+      });
+    }
     if (expression.kind === ts.SyntaxKind.TrueKeyword || expression.kind === ts.SyntaxKind.FalseKeyword) {
       return this.addBlock({
         type: "logic_boolean",
@@ -2629,6 +2644,40 @@ class WorkspaceCompiler {
     return id;
   }
 
+  compileTemplateExpression(expression, parentId) {
+    const parts = [];
+    if (expression.head.text) {
+      parts.push(expression.head.text);
+    }
+    for (const span of expression.templateSpans) {
+      const exprId = this.compileExpression(span.expression, parentId);
+      parts.push(exprId);
+      if (span.literal.text) {
+        parts.push(span.literal.text);
+      }
+    }
+    const id = this.addBlock({
+      type: "text_join",
+      parent_id: parentId,
+      is_output: true,
+    });
+    for (let i = 0; i < parts.length; i++) {
+      const part = parts[i];
+      if (typeof part === "string") {
+        const textId = this.addBlock({
+          type: "text",
+          parent_id: id,
+          fields: { TEXT: part },
+          is_output: true,
+        });
+        this.connectInput(id, textId, `ADD${i}`, "value");
+      } else {
+        this.connectInput(id, part, `ADD${i}`, "value");
+      }
+    }
+    return id;
+  }
+
   compileNativeBinaryExpression(expression, parentId) {
     const spec = nativeBinaryExpressionSpec(expression.operatorToken.kind);
     if (!spec) {
@@ -2819,10 +2868,16 @@ class WorkspaceCompiler {
     });
   }
 
-  addBlock(block) {
+  addBlock(block, sourceNode) {
     const id = `b${this.nextId}`;
     this.nextId += 1;
     this.blocks[id] = { id, ...block };
+    const node = sourceNode || this.currentStatementNode;
+    if (node && this.sourceFile) {
+      const start = node.getStart(this.sourceFile);
+      const { line, character } = this.sourceFile.getLineAndCharacterOfPosition(start);
+      this.sourceMap[id] = { line: line + 1, column: character };
+    }
     return id;
   }
 
