@@ -679,6 +679,19 @@ impl<'a> Runtime<'a> {
         true
     }
 
+    fn touching_edge(&self, sprite: &str, owner_id: Option<&str>) -> bool {
+        self.actor_for_sprite(sprite, owner_id)
+            .is_some_and(|actor| self.actor_out_of_boundary(actor))
+    }
+
+    fn actor_out_of_boundary(&self, actor: &ActorState) -> bool {
+        let half_width = self.stage_width / 2.0;
+        let half_height = self.stage_height / 2.0;
+        half_width > 0.0
+            && half_height > 0.0
+            && (actor.x.abs() > half_width || actor.y.abs() > half_height)
+    }
+
     fn eval(&self, block: Option<&Value>) -> RuntimeValue {
         self.eval_for_context(
             block,
@@ -972,9 +985,22 @@ impl<'a> Runtime<'a> {
                 RuntimeValue::Number(value)
             }
             "effect_of_sprite" => RuntimeValue::Number(0.0),
-            "bump_into" | "bump_into_color" | "out_of_boundary" | "bump_into_body_part" => {
-                RuntimeValue::Bool(false)
+            "bump_into" => {
+                let sprite = field_string(block, "sprite").unwrap_or("--self");
+                let target = field_string(block, "target")
+                    .or_else(|| field_string(block, "body"))
+                    .unwrap_or("--edge");
+                RuntimeValue::Bool(if target == "--edge" {
+                    self.touching_edge(sprite, owner_id)
+                } else {
+                    false
+                })
             }
+            "out_of_boundary" => {
+                let sprite = field_string(block, "sprite").unwrap_or("--self");
+                RuntimeValue::Bool(self.touching_edge(sprite, owner_id))
+            }
+            "bump_into_color" | "bump_into_body_part" => RuntimeValue::Bool(false),
             "get_clone_num" => {
                 let sprite = field_string(block, "sprite").unwrap_or("--self");
                 RuntimeValue::Number(self.clone_count_for_sprite(sprite, owner_id) as f64)

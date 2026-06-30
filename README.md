@@ -248,9 +248,11 @@ The current runtime subset intentionally starts small:
   injected input events; defaults/no-ops for `ask_and_choose`, `self_ask`,
   `get_answer`, `get_choice_and_index`, `set_timer_state`, `timer`,
   `show_hide_timer`, `get_time`, `get_stage_info`, `bump_into`,
-  `bump_into_color`, `out_of_boundary`, `get_clone_num`,
+  `bump_into_color`, `get_clone_num`,
   `get_current_clone_index`, `get_clone_index_property`, `bump_into_body_part`,
   `get_appearance_of_part`, `get_tilt_angle_of_face`, `face_to_body_part`
+- boundary sensing: `out_of_boundary` and `bump_into` with `--edge` use actor
+  center coordinates against `stageSize`
 - clones: `mirror` creates a clone, `start_as_clone` starts clone scripts,
   `dispose_clone` deletes the current clone, and clone count/index/property
   reporters read runtime clone state

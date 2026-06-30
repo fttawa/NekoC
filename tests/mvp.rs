@@ -3118,6 +3118,108 @@ fn runtime_runs_clone_lifecycle_and_clone_queries() {
 }
 
 #[test]
+fn runtime_detects_actor_out_of_stage_boundary() {
+    let project = json!({
+        "stageSize": { "width": 480, "height": 360 },
+        "variables": {
+            "variablesDict": {
+                "var-edge": {
+                    "id": "var-edge",
+                    "name": "edge",
+                    "value": false
+                },
+                "var-outside": {
+                    "id": "var-outside",
+                    "name": "outside",
+                    "value": false
+                },
+                "var-safe": {
+                    "id": "var-safe",
+                    "name": "safe",
+                    "value": true
+                }
+            }
+        },
+        "actors": {
+            "actorsDict": {
+                "actor-outside": {
+                    "id": "actor-outside",
+                    "name": "outside",
+                    "position": { "x": 301, "y": 0 },
+                    "nekoBlockJsonList": [{
+                        "id": "start-outside",
+                        "type": "on_running_group_activated",
+                        "next": {
+                            "id": "set-edge",
+                            "type": "variables_set",
+                            "fields": { "variable": "var-edge" },
+                            "inputs": {
+                                "value": {
+                                    "id": "edge-check",
+                                    "type": "bump_into",
+                                    "fields": {
+                                        "sprite": "--self",
+                                        "target": "--edge"
+                                    }
+                                }
+                            },
+                            "next": {
+                                "id": "set-outside",
+                                "type": "variables_set",
+                                "fields": { "variable": "var-outside" },
+                                "inputs": {
+                                    "value": {
+                                        "id": "outside-check",
+                                        "type": "out_of_boundary",
+                                        "fields": { "sprite": "--self" }
+                                    }
+                                }
+                            }
+                        }
+                    }]
+                },
+                "actor-safe": {
+                    "id": "actor-safe",
+                    "name": "safe",
+                    "position": { "x": 0, "y": 0 },
+                    "nekoBlockJsonList": [{
+                        "id": "start-safe",
+                        "type": "on_running_group_activated",
+                        "next": {
+                            "id": "set-safe",
+                            "type": "variables_set",
+                            "fields": { "variable": "var-safe" },
+                            "inputs": {
+                                "value": {
+                                    "id": "safe-check",
+                                    "type": "out_of_boundary",
+                                    "fields": { "sprite": "--self" }
+                                }
+                            }
+                        }
+                    }]
+                }
+            }
+        }
+    });
+
+    let snapshot = nekoc::runtime::run_project(&project, 1).unwrap();
+
+    assert_eq!(
+        snapshot.variables["var-edge"],
+        nekoc::runtime::RuntimeValue::Bool(true)
+    );
+    assert_eq!(
+        snapshot.variables["var-outside"],
+        nekoc::runtime::RuntimeValue::Bool(true)
+    );
+    assert_eq!(
+        snapshot.variables["var-safe"],
+        nekoc::runtime::RuntimeValue::Bool(false)
+    );
+}
+
+#[test]
 fn runtime_dispatches_parameterized_broadcast_values() {
     let project = json!({
         "variables": {
