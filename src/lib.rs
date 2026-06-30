@@ -4,6 +4,7 @@ pub mod decompile;
 pub mod diff;
 pub mod inspect;
 pub mod ir;
+pub mod optimizer;
 pub mod project;
 pub mod runtime;
 pub mod scenario;

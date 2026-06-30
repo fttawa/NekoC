@@ -48,6 +48,8 @@ enum Command {
         emit_ir: Option<PathBuf>,
         #[arg(long)]
         emit_analysis: Option<PathBuf>,
+        #[arg(long)]
+        optimize: bool,
     },
     CompileTsBcmkn {
         input: PathBuf,
@@ -55,6 +57,8 @@ enum Command {
         template: PathBuf,
         #[arg(long)]
         out: PathBuf,
+        #[arg(long)]
+        optimize: bool,
     },
     CompileTsScenario {
         input: PathBuf,
@@ -263,14 +267,52 @@ fn main() -> Result<()> {
             out,
             emit_ir,
             emit_analysis,
+            optimize,
         } => {
-            nekoc::ts_frontend::compile_ts_with_sidecars(input, out, emit_ir, emit_analysis)?;
+            if optimize {
+                let report_path = out.with_extension("workspace.json");
+                nekoc::ts_frontend::compile_ts_with_sidecars(
+                    &input,
+                    &report_path,
+                    emit_ir,
+                    emit_analysis,
+                )?;
+                let report = std::fs::read_to_string(&report_path)?;
+                let report: serde_json::Value = serde_json::from_str(&report)?;
+                let optimized = nekoc::optimizer::optimize_report(&report);
+                let bytes = serde_json::to_vec_pretty(&optimized)?;
+                std::fs::write(&out, bytes)?;
+                if let Some(stats) = optimized.get("optimization") {
+                    eprintln!(
+                        "Optimized: folded={}, removed={}, simplified={}",
+                        stats["constantFolded"], stats["deadRemoved"], stats["simplified"]
+                    );
+                }
+            } else {
+                nekoc::ts_frontend::compile_ts_with_sidecars(input, out, emit_ir, emit_analysis)?;
+            }
         }
         Command::CompileTsBcmkn {
             input,
             template,
             out,
+            optimize,
         } => {
+            if optimize {
+                let workspace_path = out.with_extension("workspace.json");
+                nekoc::ts_frontend::compile_ts(&input, &workspace_path)?;
+                let report = std::fs::read_to_string(&workspace_path)?;
+                let report: serde_json::Value = serde_json::from_str(&report)?;
+                let optimized = nekoc::optimizer::optimize_report(&report);
+                let bytes = serde_json::to_vec_pretty(&optimized)?;
+                std::fs::write(&workspace_path, bytes)?;
+                if let Some(stats) = optimized.get("optimization") {
+                    eprintln!(
+                        "Optimized: folded={}, removed={}, simplified={}",
+                        stats["constantFolded"], stats["deadRemoved"], stats["simplified"]
+                    );
+                }
+            }
             nekoc::bcmkn_compiler::compile_ts_bcmkn(input, template, out)?;
         }
         Command::CompileTsScenario {
