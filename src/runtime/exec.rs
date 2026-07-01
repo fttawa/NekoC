@@ -712,7 +712,7 @@ impl<'a> super::Thread<'a> {
                 self.advance(runtime, block.get("next"));
             }
             "play_audio" | "play_audio_and_wait" => {
-                runtime.trace.push(RuntimeTraceEntry {
+                let entry = RuntimeTraceEntry {
                     tick: runtime.ticks,
                     kind: "play_audio".to_owned(),
                     owner_id: Some(self.owner_id.clone()),
@@ -727,11 +727,14 @@ impl<'a> super::Thread<'a> {
                     y: None,
                     screen_id: None,
                     clone_id: None,
-                });
+                    source_line: None,
+                    source_column: None,
+                };
+                runtime.trace.push(runtime.trace_entry_with_source(entry));
                 self.advance(runtime, block.get("next"));
             }
             "stop_audio" => {
-                runtime.trace.push(RuntimeTraceEntry {
+                let entry = RuntimeTraceEntry {
                     tick: runtime.ticks,
                     kind: "stop_audio".to_owned(),
                     owner_id: Some(self.owner_id.clone()),
@@ -746,7 +749,10 @@ impl<'a> super::Thread<'a> {
                     y: None,
                     screen_id: None,
                     clone_id: None,
-                });
+                    source_line: None,
+                    source_column: None,
+                };
+                runtime.trace.push(runtime.trace_entry_with_source(entry));
                 self.advance(runtime, block.get("next"));
             }
             "self_prev_next_style" => {

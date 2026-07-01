@@ -189,6 +189,10 @@ pub struct RuntimeTraceEntry {
     pub screen_id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub clone_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub source_line: Option<usize>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub source_column: Option<usize>,
 }
 
 impl RuntimeTraceEntry {
@@ -213,6 +217,8 @@ impl RuntimeTraceEntry {
             y,
             screen_id,
             clone_id: None,
+            source_line: None,
+            source_column: None,
         }
     }
 
@@ -232,6 +238,8 @@ impl RuntimeTraceEntry {
             y: None,
             screen_id: None,
             clone_id: None,
+            source_line: None,
+            source_column: None,
         }
     }
 
@@ -248,7 +256,23 @@ impl RuntimeTraceEntry {
             y: None,
             screen_id: None,
             clone_id: None,
+            source_line: None,
+            source_column: None,
         }
+    }
+
+    fn with_source(
+        mut self,
+        source_map: &BTreeMap<String, (usize, usize)>,
+        block_id: Option<&str>,
+    ) -> Self {
+        if let Some(bid) = block_id
+            && let Some(&(line, col)) = source_map.get(bid)
+        {
+            self.source_line = Some(line);
+            self.source_column = Some(col);
+        }
+        self
     }
 }
 
@@ -347,6 +371,7 @@ struct Runtime<'a> {
     trace: Vec<RuntimeTraceEntry>,
     next_thread_id: usize,
     threads: Vec<Thread<'a>>,
+    source_map: BTreeMap<String, (usize, usize)>,
 }
 
 struct Thread<'a> {
@@ -466,6 +491,7 @@ impl<'a> Runtime<'a> {
             .unwrap_or(0.0);
         let listeners = collect_listeners(project);
         let procedures = collect_procedures(project);
+        let source_map = collect_source_map(project);
 
         Ok(Self {
             project,
@@ -497,12 +523,18 @@ impl<'a> Runtime<'a> {
             trace: Vec::new(),
             next_thread_id: 1,
             threads: Vec::new(),
+            source_map,
         })
     }
 
     fn start(&mut self) {
         self.spawn_start_scripts_at(&["scenes", "scenesDict"]);
         self.spawn_start_scripts_at(&["actors", "actorsDict"]);
+    }
+
+    fn trace_entry_with_source(&self, entry: RuntimeTraceEntry) -> RuntimeTraceEntry {
+        let block_id = entry.block_id.clone();
+        entry.with_source(&self.source_map, block_id.as_deref())
     }
 
     fn dispatch_event(&mut self, event: &RuntimeEvent) {
@@ -583,6 +615,8 @@ impl<'a> Runtime<'a> {
                     y: Some(*y),
                     screen_id: None,
                     clone_id: None,
+                    source_line: None,
+                    source_column: None,
                 });
             }
         }
@@ -628,8 +662,8 @@ impl<'a> Runtime<'a> {
             for block in blocks {
                 if is_match(block) {
                     if let Some(kind) = trace_kind {
-                        self.trace
-                            .push(RuntimeTraceEntry::script(self.ticks, kind, owner_id, block));
+                        let entry = RuntimeTraceEntry::script(self.ticks, kind, owner_id, block);
+                        self.trace.push(self.trace_entry_with_source(entry));
                     }
                     self.spawn_thread(owner_id, Some(block));
                 }
@@ -695,12 +729,13 @@ impl<'a> Runtime<'a> {
                     .insert(param_name.clone(), payload.clone());
             }
             if let Some(body) = listener.body {
-                self.trace.push(RuntimeTraceEntry::script(
+                let entry = RuntimeTraceEntry::script(
                     self.ticks,
                     "broadcast_listener",
                     listener.owner_id,
                     body,
-                ));
+                );
+                self.trace.push(self.trace_entry_with_source(entry));
                 listener_thread_ids.push(self.spawn_thread(listener.owner_id, Some(body)));
             }
         }
@@ -828,6 +863,8 @@ impl<'a> Runtime<'a> {
             y: None,
             screen_id: None,
             clone_id: Some(clone_id.clone()),
+            source_line: None,
+            source_column: None,
         });
         self.spawn_clone_scripts(source_actor_id, &clone_id);
         Some(clone_id)
@@ -842,12 +879,9 @@ impl<'a> Runtime<'a> {
         };
         for block in blocks {
             if block_type(block) == Some("start_as_clone") {
-                self.trace.push(RuntimeTraceEntry::script(
-                    self.ticks,
-                    "start_as_clone",
-                    clone_actor_id,
-                    block,
-                ));
+                let entry =
+                    RuntimeTraceEntry::script(self.ticks, "start_as_clone", clone_actor_id, block);
+                self.trace.push(self.trace_entry_with_source(entry));
                 self.spawn_thread(clone_actor_id, Some(block));
             }
         }
@@ -872,6 +906,8 @@ impl<'a> Runtime<'a> {
             y: None,
             screen_id: None,
             clone_id: Some(clone_actor_id.to_owned()),
+            source_line: None,
+            source_column: None,
         });
         true
     }
@@ -1071,4 +1107,18 @@ fn collect_listeners_at<'a>(
             });
         }
     }
+}
+
+fn collect_source_map(project: &Value) -> BTreeMap<String, (usize, usize)> {
+    let mut map = BTreeMap::new();
+    if let Some(sm) = project.get("sourceMap").and_then(Value::as_object) {
+        for (block_id, entry) in sm {
+            if let Some(obj) = entry.as_object() {
+                let line = obj.get("line").and_then(Value::as_u64).unwrap_or(0) as usize;
+                let col = obj.get("column").and_then(Value::as_u64).unwrap_or(0) as usize;
+                map.insert(block_id.clone(), (line, col));
+            }
+        }
+    }
+    map
 }
