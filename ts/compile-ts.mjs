@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import ts from "typescript";
+import { keyboardCode, effectCode, mathFunctionCode } from "./kitten-n.mjs";
 
 const [inputPath, outputPath] = process.argv.slice(2);
 
@@ -26,6 +27,8 @@ class WorkspaceCompiler {
     this.expressionBindings = [];
     this.inlineCallStack = [];
     this.loadedModules = new Set();
+    this.moduleExports = new Map();
+    this.registeredImports = new Set();
     this.globalVariables = new Set();
     this.loopDepth = 0;
     this.rangeBindings = [];
@@ -120,27 +123,35 @@ class WorkspaceCompiler {
 
   loadModule(modulePath, importNode) {
     const resolvedPath = path.resolve(modulePath);
-    if (this.loadedModules.has(resolvedPath)) {
-      return;
+    let exports = this.moduleExports.get(resolvedPath);
+    if (!exports) {
+      if (this.loadedModules.has(resolvedPath)) {
+        this.unsupported(importNode, `Circular imports are not supported: ${resolvedPath}`);
+      }
+      this.loadedModules.add(resolvedPath);
+      const sourceText = fs.readFileSync(resolvedPath, "utf8");
+      const moduleSourceFile = ts.createSourceFile(
+        resolvedPath,
+        sourceText,
+        ts.ScriptTarget.Latest,
+        true,
+        ts.ScriptKind.TS,
+      );
+      this.loadImports(moduleSourceFile, resolvedPath);
+      exports = this.collectModuleExports(moduleSourceFile);
+      this.moduleExports.set(resolvedPath, exports);
     }
-    this.loadedModules.add(resolvedPath);
-    const sourceText = fs.readFileSync(resolvedPath, "utf8");
-    const moduleSourceFile = ts.createSourceFile(
-      resolvedPath,
-      sourceText,
-      ts.ScriptTarget.Latest,
-      true,
-      ts.ScriptKind.TS,
-    );
-    this.loadImports(moduleSourceFile, resolvedPath);
-    const exports = this.collectModuleExports(moduleSourceFile);
     const requested = this.importedNames(importNode);
     requested.forEach((name) => {
       const statement = exports.get(name);
       if (!statement) {
         this.unsupported(importNode, `Module ${resolvedPath} does not export ${name}`);
       }
-      this.registerInlineFunction(statement);
+      const importKey = `${resolvedPath}:${name}`;
+      if (!this.registeredImports.has(importKey)) {
+        this.registerInlineFunction(statement);
+        this.registeredImports.add(importKey);
+      }
     });
   }
 
@@ -328,6 +339,9 @@ class WorkspaceCompiler {
     if (isMemberCallName(name, "onStart")) {
       return this.compileNextHat(call, "on_running_group_activated", 0);
     }
+    if (isMemberCallName(name, "onClick")) {
+      return this.compileNextHat(call, "sprite_on_tap", 0, { type: "mouse_click", sprite: "--self" });
+    }
     switch (name) {
       case "defineProc":
         return this.compileProcedureDefinition(call, false);
@@ -342,7 +356,7 @@ class WorkspaceCompiler {
       case "onStart":
         return this.compileNextHat(call, "on_running_group_activated", 0);
       case "onClick":
-        return this.compileNextHat(call, "start_on_click", 0);
+        return this.compileNextHat(call, "sprite_on_tap", 0, { type: "mouse_click", sprite: "--self" });
       case "onKey":
         return this.compileKeyHat(call);
       case "onMessage":
@@ -521,11 +535,12 @@ class WorkspaceCompiler {
     this.connections = savedConnections;
   }
 
-  compileNextHat(call, type, callbackIndex) {
+  compileNextHat(call, type, callbackIndex, fields = undefined) {
     const body = callbackBody(call.arguments[callbackIndex], this);
     const entryId = this.addBlock({
       type,
       parent_id: null,
+      ...(fields ? { fields } : {}),
     });
     this.scriptCount += 1;
     const first = this.compileStatementList(body, entryId);
@@ -535,10 +550,10 @@ class WorkspaceCompiler {
   }
 
   compileKeyHat(call) {
-    const key = stringLiteralValue(call.arguments[0], this);
+    const key = keyboardCode(stringLiteralValue(call.arguments[0], this));
     let keyType;
     let bodyArg;
-    if (call.arguments.length >= 3 && isCallbackBody(call.arguments[1])) {
+    if (call.arguments.length === 2 && isCallbackBody(call.arguments[1])) {
       // onKey(key, body) - state omitted, default to "down"
       keyType = "down";
       bodyArg = call.arguments[1];
@@ -644,6 +659,7 @@ class WorkspaceCompiler {
 
     statements.forEach((statement) => {
       const blockId = this.compileStatement(statement, parentIdForChildren);
+      if (!blockId) return;
       if (!firstId) {
         firstId = blockId;
       }
@@ -651,6 +667,13 @@ class WorkspaceCompiler {
         this.connectNext(previousId, blockId);
       }
       previousId = blockId;
+      // Inline statement functions may emit a chain, not just one block.
+      for (;;) {
+        const next = Object.entries(this.connections[previousId] ?? {})
+          .find(([, connection]) => connection.type === "next");
+        if (!next) break;
+        previousId = next[0];
+      }
     });
 
     return firstId;
@@ -1063,11 +1086,11 @@ class WorkspaceCompiler {
         });
       case "setEffect":
         return this.compileValueStatementWithFields(call, parentId, "self_set_effect", "value", 1, {
-          scope: stringLiteralValue(call.arguments[0], this),
+          scope: effectCode(stringLiteralValue(call.arguments[0], this)),
         });
       case "changeEffect":
         return this.compileSignedValueStatement(call, parentId, "self_change_effect", "value", 1, {
-          scope: stringLiteralValue(call.arguments[0], this),
+          scope: effectCode(stringLiteralValue(call.arguments[0], this)),
         });
       case "clearEffects":
         return this.addBlock({ type: "clear_all_effects", parent_id: parentId });
@@ -1138,6 +1161,12 @@ class WorkspaceCompiler {
         return this.compileFieldStatement(parentId, "self_prev_next_style", { prev_next: "prev" });
       case "setStyle":
         return this.compileResourceInputStatement(call, parentId, "set_sprite_style", "style_id", "get_styles", "style_id", 0);
+      case "playAudio":
+        return this.compileResourceInputStatement(call, parentId, "play_audio", "audio_id", "get_play_audio", "audio_id", 0);
+      case "playAudioAndWait":
+        return this.compileResourceInputStatement(call, parentId, "play_audio_and_wait", "audio_id", "get_play_audio", "audio_id", 0);
+      case "stopAudio":
+        return this.compileResourceInputStatement(call, parentId, "stop_audio", "audio_id", "get_stop_audio", "audio_id", 0);
       case "setScreenTransition":
         return this.compileFieldStatement(parentId, "set_screen_transition", {
           direction: stringLiteralValue(call.arguments[0], this),
@@ -1151,10 +1180,28 @@ class WorkspaceCompiler {
         return this.addBlock({ type: "self_pen_down", parent_id: parentId });
       case "penUp":
         return this.addBlock({ type: "self_pen_up", parent_id: parentId });
-      case "setPenColor":
+      case "setPenColor": {
+        const colorId = this.compileExpression(call.arguments[0], parentId);
+        const colorBlock = this.blocks[colorId];
+        let color;
+        if (colorBlock.type === "math_number") {
+          const packed = Number(colorBlock.fields.NUM);
+          if (!Number.isInteger(packed) || packed < 0 || packed > 0xffffff) {
+            this.unsupported(call, "Constant RGB color must be an integer in 0..0xffffff");
+          }
+          color = `#${packed.toString(16).padStart(6, "0")}`;
+        } else if (colorBlock.type === "text") {
+          color = colorBlock.fields.TEXT;
+        } else {
+          this.unsupported(call, "Pen color is a field: expected a constant string or RGB number");
+        }
+        delete this.blocks[colorId];
+        delete this.connections[colorId];
+        delete this.sourceMap[colorId];
         return this.compileFieldStatement(parentId, "self_set_pen_color", {
-          color: stringLiteralValue(call.arguments[0], this),
+          color,
         });
+      }
       case "setPenSize":
         return this.compileValueStatement(call, parentId, "self_set_pen_size", "size", 0);
       case "changePenSize":
@@ -1893,7 +1940,7 @@ class WorkspaceCompiler {
     const id = this.addBlock({
       type: returnsValue ? "procedures_2_callreturn" : "procedures_2_callnoreturn",
       parent_id: parentId,
-      fields: { NAME: spec.name },
+      fields: { NAME: spec.id },
       mutation: procedureCallMutation(spec),
       shadows: {
         NAME: "",
@@ -2088,12 +2135,13 @@ class WorkspaceCompiler {
       type,
       parent_id: parentId,
     });
-    const valueId = this.compileResourceShadow(
+    const argument = call.arguments[argumentIndex];
+    const valueId = ts.isStringLiteral(argument) ? this.compileResourceShadow(
       resourceType,
       fieldName,
-      stringLiteralValue(call.arguments[argumentIndex], this),
+      argument.text,
       id,
-    );
+    ) : this.compileExpression(argument, id);
     this.connectInput(id, valueId, inputName, "value");
     return id;
   }
@@ -2153,14 +2201,17 @@ class WorkspaceCompiler {
   }
 
   compileListDeleteByArgs(parentId, listNameArg, itemArg, indexArg) {
+    const mode = stringLiteralValue(itemArg, this);
     const id = this.addBlock({
       type: "delete_list_item",
       parent_id: parentId,
-      fields: { item: stringLiteralValue(itemArg, this) },
+      fields: { item: mode },
     });
-    const indexId = this.compileExpression(indexArg, id);
     this.connectListInput(id, "list", stringLiteralValue(listNameArg, this));
-    this.connectInput(id, indexId, "list_index", "value");
+    if (mode !== "all") {
+      const indexId = this.compileExpression(indexArg, id);
+      this.connectInput(id, indexId, "list_index", "value");
+    }
     return id;
   }
 
@@ -2246,6 +2297,59 @@ class WorkspaceCompiler {
   }
 
   compileExpression(expression, parentId) {
+    const id = this.compileExpressionUnfolded(expression, parentId);
+    this.foldPureNumber(id);
+    return id;
+  }
+
+  // Fold after inline expansion, so imported wrappers and local bindings work
+  // exactly like direct builtins. Only an explicit pure numeric whitelist is used.
+  foldPureNumber(id) {
+    const block = this.blocks[id];
+    const children = Object.entries(this.connections[id] ?? {});
+    const args = {};
+    for (const [childId, connection] of children) {
+      if (connection.type !== "input") return;
+      const child = this.blocks[childId];
+      if (child?.type !== "math_number") return;
+      const value = Number(child.fields.NUM);
+      if (!Number.isFinite(value)) return;
+      args[connection.input_name] = value;
+    }
+    let value;
+    const op = block.fields?.type;
+    if (block.type === "math_arithmetic" && args.A !== undefined && args.B !== undefined) {
+      switch (op) {
+        case "add": value = args.A + args.B; break;
+        case "minus": case "subtract": value = args.A - args.B; break;
+        case "multiply": value = args.A * args.B; break;
+        case "divide": if (args.B !== 0) value = args.A / args.B; break;
+        case "power": value = args.A ** args.B; break;
+      }
+    } else if (block.type === "math_modulo" && args.A >= 0 && args.B > 0) {
+      // Negative remainder semantics differ across runtimes; retain those blocks.
+      value = args.A % args.B;
+    } else if (block.type === "math_round" && args.num !== undefined) {
+      if (op === "round_down") value = Math.floor(args.num);
+      if (op === "round_up") value = Math.ceil(args.num);
+    } else if (block.type === "math_function" && args.num !== undefined) {
+      if (op === "1") value = Math.abs(args.num);
+      if (op === "2") value = -args.num;
+    }
+    if (!Number.isFinite(value) || Object.is(value, -0)) return;
+    block.type = "math_number";
+    block.fields = { NUM: String(value) };
+    delete block.inputs;
+    delete block.mutation;
+    delete this.connections[id];
+    for (const [childId] of children) {
+      delete this.blocks[childId];
+      delete this.connections[childId];
+      delete this.sourceMap[childId];
+    }
+  }
+
+  compileExpressionUnfolded(expression, parentId) {
     if (!expression) {
       this.unsupported(expression, "Missing expression");
     }
@@ -2523,7 +2627,7 @@ class WorkspaceCompiler {
           parent_id: parentId,
           fields: {
             sprite: stringLiteralValue(call.arguments[0], this),
-            effect: stringLiteralValue(call.arguments[1], this),
+            effect: effectCode(stringLiteralValue(call.arguments[1], this)),
           },
           is_output: true,
         });
@@ -2532,7 +2636,7 @@ class WorkspaceCompiler {
           type: "check_key",
           parent_id: parentId,
           fields: {
-            key: stringLiteralValue(call.arguments[0], this),
+            key: keyboardCode(stringLiteralValue(call.arguments[0], this)),
             type: stringLiteralValue(call.arguments[1], this),
           },
           is_output: true,
@@ -2721,7 +2825,7 @@ class WorkspaceCompiler {
       case "mathFunc":
         return this.compileUnaryExpressionCall(call, parentId, {
           type: "math_function",
-          fields: { type: stringLiteralValue(call.arguments[0], this) },
+          fields: { type: mathFunctionCode(stringLiteralValue(call.arguments[0], this)) },
           input: "num",
           argumentIndex: 1,
         });
@@ -3610,6 +3714,13 @@ function isCallbackBody(argument) {
 }
 
 function stringLiteralValue(node, compiler) {
+  const visited = new Set();
+  while (node && ts.isIdentifier(node) && !visited.has(node)) {
+    visited.add(node);
+    const bound = compiler.lookupExpressionBinding(node.text);
+    if (!bound) break;
+    node = bound;
+  }
   if (!node || !ts.isStringLiteral(node)) {
     compiler.unsupported(node, "Expected a string literal");
   }
@@ -3722,7 +3833,7 @@ function procedureCallMutation(spec) {
       `<arg id="${escapeXmlAttribute(param.id)}" content="${escapeXmlAttribute(param.name)}" type="${escapeXmlAttribute(param.type)}"></arg>`
     ))
     .join("");
-  return `<mutation xmlns="http://www.w3.org/1999/xhtml" def_id="${escapeXmlAttribute(spec.id)}" name="${escapeXmlAttribute(spec.name)}" type="${escapeXmlAttribute(spec.type)}">${args}</mutation>`;
+  return `<mutation xmlns="http://www.w3.org/1999/xhtml" def_id="${escapeXmlAttribute(spec.id)}" name="${escapeXmlAttribute(spec.id)}" type="${escapeXmlAttribute(spec.type)}">${args}</mutation>`;
 }
 
 function numericLiteralValue(node, compiler) {

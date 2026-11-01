@@ -156,7 +156,8 @@ fn decompile_root_block(
         }
         "on_keydown" => {
             let key = field_str(block, "key").unwrap_or("space");
-            output.push_str(&format!("onKey({:?}, () => {{\n", key));
+            let state = field_str(block, "type").unwrap_or("down");
+            output.push_str(&format!("onKey({key:?}, {state:?}, () => {{\n"));
             decompile_chain(next, 1, all_vars, all_lists, declared_vars, output);
             output.push_str("});\n\n");
         }

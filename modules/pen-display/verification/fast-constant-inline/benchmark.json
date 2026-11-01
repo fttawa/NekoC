@@ -1,0 +1,57 @@
+{
+  "checkedAt": "2026-11-01T11:38:01.798Z",
+  "workload": "Single actor, 32x20, 896x560 stage area. Static background once; moving-square edge strips and pixel updates. Constant-color direct path with a shared native procedure; not full framebuffer scan.",
+  "results": [
+    {
+      "width": 32,
+      "height": 20,
+      "scale": 28,
+      "renderer": "fast",
+      "targetHz": 15,
+      "frames": 100,
+      "elapsedSeconds": 8.02869999998808,
+      "completedFps": 12.455316551888659,
+      "warnings": false,
+      "lastFrameTiming": {
+        "updateSeconds": 0,
+        "totalSeconds": 0,
+        "note": "Last observed timer sample, not an average; native timer precision is limited."
+      }
+    },
+    {
+      "width": 32,
+      "height": 20,
+      "scale": 28,
+      "renderer": "fast",
+      "targetHz": 30,
+      "frames": 205,
+      "elapsedSeconds": 8.02490000000596,
+      "completedFps": 25.545489663403625,
+      "warnings": false,
+      "lastFrameTiming": {
+        "updateSeconds": 0,
+        "totalSeconds": 0,
+        "note": "Last observed timer sample, not an average; native timer precision is limited."
+      }
+    },
+    {
+      "width": 32,
+      "height": 20,
+      "scale": 28,
+      "renderer": "fast",
+      "targetHz": 60,
+      "frames": 394,
+      "elapsedSeconds": 8.03390000000596,
+      "completedFps": 49.04218374633835,
+      "warnings": false,
+      "lastFrameTiming": {
+        "updateSeconds": 0,
+        "totalSeconds": 0,
+        "note": "Last observed timer sample, not an average; native timer precision is limited."
+      },
+      "pageErrors": [],
+      "resourceErrors": [],
+      "rejections": []
+    }
+  ]
+}

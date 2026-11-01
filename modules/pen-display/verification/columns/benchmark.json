@@ -1,0 +1,78 @@
+{
+  "checkedAt": "2026-11-01T10:17:52.898Z",
+  "workload": "Same 32x20 animation and 896x560 stage area; single actor vs 32 column actors",
+  "results": [
+    {
+      "width": 32,
+      "height": 20,
+      "scale": 28,
+      "renderer": "single",
+      "targetHz": 15,
+      "frames": 14,
+      "elapsedSeconds": 8.016299999982119,
+      "completedFps": 1.7464416251925738,
+      "warnings": false
+    },
+    {
+      "width": 32,
+      "height": 20,
+      "scale": 28,
+      "renderer": "single",
+      "targetHz": 30,
+      "frames": 16,
+      "elapsedSeconds": 8.020799999982119,
+      "completedFps": 1.9948134849436054,
+      "warnings": false
+    },
+    {
+      "width": 32,
+      "height": 20,
+      "scale": 28,
+      "renderer": "single",
+      "targetHz": 60,
+      "frames": 17,
+      "elapsedSeconds": 8.02309999999404,
+      "completedFps": 2.118881729009065,
+      "warnings": false,
+      "pageErrors": [],
+      "resourceErrors": [],
+      "rejections": []
+    },
+    {
+      "width": 32,
+      "height": 20,
+      "scale": 28,
+      "renderer": "columns",
+      "targetHz": 15,
+      "frames": 7,
+      "elapsedSeconds": 8.02680000001192,
+      "completedFps": 0.8720785369000852,
+      "warnings": false
+    },
+    {
+      "width": 32,
+      "height": 20,
+      "scale": 28,
+      "renderer": "columns",
+      "targetHz": 30,
+      "frames": 7,
+      "elapsedSeconds": 8.036,
+      "completedFps": 0.8710801393728224,
+      "warnings": false
+    },
+    {
+      "width": 32,
+      "height": 20,
+      "scale": 28,
+      "renderer": "columns",
+      "targetHz": 60,
+      "frames": 7,
+      "elapsedSeconds": 8.04690000000596,
+      "completedFps": 0.8699002100181207,
+      "warnings": false,
+      "pageErrors": [],
+      "resourceErrors": [],
+      "rejections": []
+    }
+  ]
+}

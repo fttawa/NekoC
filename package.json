@@ -8,6 +8,7 @@
     "test:tools": "node --test tests/*.test.mjs",
     "editor:oracle": "node tools/editor-oracle.mjs",
     "editor:compare": "node tools/oracle-compare.mjs",
+    "editor:compat": "node tools/editor-compat.mjs",
     "e2e:three-body": "node tools/e2e-sample.mjs three_body",
     "e2e:multi-screen": "node tools/e2e-sample.mjs multi_screen",
     "e2e:all": "npm run e2e:three-body && npm run e2e:multi-screen"

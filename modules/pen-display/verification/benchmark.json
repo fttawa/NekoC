@@ -1,0 +1,111 @@
+{
+  "checkedAt": "2026-11-01T10:00:49.485Z",
+  "workload": "Demo: clear buffer, eight bands, moving 6x6 square and one pixel; 384x216 stage area",
+  "results": [
+    {
+      "width": 32,
+      "height": 18,
+      "scale": 12,
+      "targetHz": 15,
+      "frames": 16,
+      "elapsedSeconds": 8.026200000017882,
+      "completedFps": 1.993471381222042,
+      "warnings": false
+    },
+    {
+      "width": 32,
+      "height": 18,
+      "scale": 12,
+      "targetHz": 30,
+      "frames": 19,
+      "elapsedSeconds": 8.03380000001192,
+      "completedFps": 2.365007841864598,
+      "warnings": false
+    },
+    {
+      "width": 32,
+      "height": 18,
+      "scale": 12,
+      "targetHz": 60,
+      "frames": 19,
+      "elapsedSeconds": 8.0205,
+      "completedFps": 2.3689296178542483,
+      "warnings": false,
+      "pageErrors": [
+        "Uncaught (in promise) #<Event>"
+      ],
+      "resourceErrors": [],
+      "rejections": []
+    },
+    {
+      "width": 64,
+      "height": 36,
+      "scale": 6,
+      "targetHz": 15,
+      "frames": 6,
+      "elapsedSeconds": 8.022199999988079,
+      "completedFps": 0.7479245094872873,
+      "warnings": false
+    },
+    {
+      "width": 64,
+      "height": 36,
+      "scale": 6,
+      "targetHz": 30,
+      "frames": 6,
+      "elapsedSeconds": 8.025,
+      "completedFps": 0.7476635514018691,
+      "warnings": false
+    },
+    {
+      "width": 64,
+      "height": 36,
+      "scale": 6,
+      "targetHz": 60,
+      "frames": 6,
+      "elapsedSeconds": 8.03540000000596,
+      "completedFps": 0.7466958707712807,
+      "warnings": false,
+      "pageErrors": [
+        "Uncaught (in promise) #<Event>"
+      ],
+      "resourceErrors": [],
+      "rejections": []
+    },
+    {
+      "width": 128,
+      "height": 72,
+      "scale": 3,
+      "targetHz": 15,
+      "frames": 1,
+      "elapsedSeconds": 8.035700000017881,
+      "completedFps": 0.12444466567912874,
+      "warnings": false
+    },
+    {
+      "width": 128,
+      "height": 72,
+      "scale": 3,
+      "targetHz": 30,
+      "frames": 1,
+      "elapsedSeconds": 8.015199999988079,
+      "completedFps": 0.12476295039443648,
+      "warnings": false
+    },
+    {
+      "width": 128,
+      "height": 72,
+      "scale": 3,
+      "targetHz": 60,
+      "frames": 2,
+      "elapsedSeconds": 8.02190000000596,
+      "completedFps": 0.2493174933617365,
+      "warnings": false,
+      "pageErrors": [
+        "Uncaught (in promise) #<Event>"
+      ],
+      "resourceErrors": [],
+      "rejections": []
+    }
+  ]
+}

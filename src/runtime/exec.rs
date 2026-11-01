@@ -49,7 +49,14 @@ impl<'a> super::Thread<'a> {
             self.execute_block(block, runtime)?;
         }
         if budget == 0 {
-            bail!("runtime step budget exhausted in owner {}", self.owner_id);
+            bail!(
+                "runtime step budget exhausted in owner {} at block {}",
+                self.owner_id,
+                self.current
+                    .and_then(|block| block.get("id"))
+                    .and_then(Value::as_str)
+                    .unwrap_or("unknown")
+            );
         }
         Ok(())
     }
@@ -60,7 +67,11 @@ impl<'a> super::Thread<'a> {
         runtime: &mut Runtime<'a>,
     ) -> Result<()> {
         match block_type(block).unwrap_or("") {
-            "on_running_group_activated" | "start_on_click" | "on_keydown" | "start_as_clone" => {
+            "on_running_group_activated"
+            | "start_on_click"
+            | "sprite_on_tap"
+            | "on_keydown"
+            | "start_as_clone" => {
                 self.advance(runtime, block.get("next"));
             }
             "when" => {
@@ -164,7 +175,9 @@ impl<'a> super::Thread<'a> {
                         .entry(list_id)
                         .or_insert(RuntimeValue::Null),
                 );
-                if let Some(index) = list_index(item, index, items.len()) {
+                if item == "all" {
+                    items.clear();
+                } else if let Some(index) = list_index(item, index, items.len()) {
                     items.remove(index);
                 }
                 self.advance(runtime, block.get("next"));
@@ -644,6 +657,7 @@ impl<'a> super::Thread<'a> {
             "self_set_pen_color" => {
                 let color = field_string(block, "color").unwrap_or("#000000").to_owned();
                 if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
+                    actor.pen.hsv = pen_rgb_to_hsv(&color);
                     actor.pen.color = color;
                 }
                 self.advance(runtime, block.get("next"));
@@ -664,14 +678,20 @@ impl<'a> super::Thread<'a> {
                 self.advance(runtime, block.get("next"));
             }
             "self_set_pen_color_property" => {
-                let _scope = field_string(block, "scope").unwrap_or("hue");
-                let _value = self.eval(runtime, input(block, "val")).as_number();
+                let scope = field_string(block, "scope").unwrap_or("hue");
+                let value = self.eval(runtime, input(block, "val")).as_number();
+                if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
+                    set_pen_property(&mut actor.pen, scope, value, false);
+                }
                 self.advance(runtime, block.get("next"));
             }
             "self_change_pen_color_property" => {
-                let _scope = field_string(block, "scope").unwrap_or("hue");
-                let _delta =
+                let scope = field_string(block, "scope").unwrap_or("hue");
+                let delta =
                     signed_delta(block, self.eval(runtime, input(block, "steps")).as_number());
+                if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
+                    set_pen_property(&mut actor.pen, scope, delta, true);
+                }
                 self.advance(runtime, block.get("next"));
             }
             "stamp" => {
@@ -857,10 +877,15 @@ impl<'a> super::Thread<'a> {
     pub(super) fn advance(&mut self, runtime: &Runtime<'a>, next: Option<&'a Value>) {
         if let Some(next) = next {
             self.current = Some(next);
-        } else if let Some(Some(continuation)) = self.continuations.pop() {
-            self.current = Some(continuation);
+        } else if self
+            .continuations
+            .last()
+            .is_some_and(|(depth, _)| *depth == self.loops.len())
+        {
+            let (_, continuation) = self.continuations.pop().unwrap();
+            self.advance(runtime, continuation);
         } else if let Some(next_loop) = self.next_loop_iteration(runtime) {
-            self.current = next_loop;
+            self.advance(runtime, next_loop);
         } else if let Some(frame) = self.procedure_frames.pop() {
             self.procedure_values = frame.procedure_values;
             if let Some(after) = frame.after {
@@ -880,7 +905,7 @@ impl<'a> super::Thread<'a> {
         after: Option<&'a Value>,
     ) {
         if let Some(branch) = branch {
-            self.continuations.push(after);
+            self.continuations.push((self.loops.len(), after));
             self.current = Some(branch);
         } else {
             self.advance(runtime, after);
@@ -906,11 +931,7 @@ impl<'a> super::Thread<'a> {
                 } else {
                     let after = *after;
                     self.loops.pop();
-                    if after.is_some() {
-                        Some(after)
-                    } else {
-                        self.next_loop_iteration(runtime)
-                    }
+                    Some(after)
                 }
             }
             LoopFrame::Until {
@@ -931,11 +952,7 @@ impl<'a> super::Thread<'a> {
                     .is_truthy()
                 {
                     self.loops.pop();
-                    if after.is_some() {
-                        Some(after)
-                    } else {
-                        self.next_loop_iteration(runtime)
-                    }
+                    Some(after)
                 } else {
                     Some(Some(body))
                 }
@@ -959,11 +976,7 @@ impl<'a> super::Thread<'a> {
                     let after = *after;
                     self.loops.pop();
                     self.range_values.remove(&variable);
-                    if after.is_some() {
-                        Some(after)
-                    } else {
-                        self.next_loop_iteration(runtime)
-                    }
+                    Some(after)
                 }
             }
         }

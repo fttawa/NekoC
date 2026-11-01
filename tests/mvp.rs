@@ -5408,9 +5408,11 @@ onStart(() => {
             .values()
             .any(|block| { block["type"] == "logic_compare" && block["fields"]["OP"] == "NEQ" })
     );
-    assert!(blocks.values().any(|block| {
-        block["type"] == "math_arithmetic" && block["fields"]["type"] == "multiply"
-    }));
+    assert!(
+        blocks
+            .values()
+            .any(|block| { block["type"] == "math_number" && block["fields"]["NUM"] == "14" })
+    );
     assert!(
         blocks.values().any(|block| {
             block["type"] == "math_arithmetic" && block["fields"]["type"] == "minus"
@@ -5521,7 +5523,7 @@ when(eq(getVar("heard"), 1), () => {
 
     assert_eq!(report["summary"]["scripts"], 5);
     assert!(block_types.contains(&"on_running_group_activated"));
-    assert!(block_types.contains(&"start_on_click"));
+    assert!(block_types.contains(&"sprite_on_tap"));
     assert!(block_types.contains(&"on_keydown"));
     assert!(block_types.contains(&"self_listen"));
     assert!(block_types.contains(&"when"));
@@ -7078,9 +7080,9 @@ onStart(() => {
     assert!(block_types.contains(&"text_select"));
     assert!(block_types.contains(&"text_split"));
     assert!(
-        blocks.values().any(|block| {
-            block["type"] == "math_arithmetic" && block["fields"]["type"] == "power"
-        })
+        blocks
+            .values()
+            .any(|block| { block["type"] == "math_number" && block["fields"]["NUM"] == "256" })
     );
     assert!(
         blocks.values().any(|block| {
@@ -7221,8 +7223,8 @@ onStart(() => {
     .unwrap();
     assert_eq!(value_connection["input_type"], "value");
     let value_block = &main_blocks[value_block_id];
-    assert_eq!(value_block["type"], "math_arithmetic");
-    assert_eq!(value_block["fields"]["type"], "multiply");
+    assert_eq!(value_block["type"], "math_number");
+    assert_eq!(value_block["fields"]["NUM"], "42");
 }
 
 #[test]
@@ -7274,7 +7276,12 @@ onStart(() => {
         .values()
         .filter(|block| block["type"] == "math_arithmetic")
         .count();
-    assert_eq!(arithmetic_count, 2);
+    assert_eq!(arithmetic_count, 0);
+    assert!(
+        main_blocks
+            .values()
+            .any(|b| b["type"] == "math_number" && b["fields"]["NUM"] == "42")
+    );
 }
 
 #[test]
@@ -7334,7 +7341,7 @@ onStart(() => {
     assert!(
         main_blocks
             .values()
-            .any(|block| block["type"] == "math_arithmetic")
+            .any(|block| block["type"] == "math_number" && block["fields"]["NUM"] == "42")
     );
     assert!(main_blocks.values().all(|block| {
         !block["type"]
@@ -7382,13 +7389,15 @@ onStart(() => {
     let blocks = report["workspaceData"]["blocks"].as_object().unwrap();
 
     assert_eq!(report["summary"]["procedures"], 0);
-    assert!(blocks.values().any(|block| {
-        block["type"] == "math_arithmetic" && block["fields"]["type"] == "multiply"
-    }));
     assert!(
-        blocks.values().any(|block| {
-            block["type"] == "math_arithmetic" && block["fields"]["type"] == "add"
-        })
+        blocks
+            .values()
+            .any(|block| block["type"] == "math_number" && block["fields"]["NUM"] == "21")
+    );
+    assert!(
+        !blocks
+            .values()
+            .any(|block| block["type"] == "math_arithmetic")
     );
     assert!(
         !blocks

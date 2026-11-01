@@ -21,7 +21,7 @@ onStart(() => {
 ```
 
 ```bash
-nekoc compile-ts-bcmkn hello.ts --template samples/我的作品-原生.bcmkn --out hello.bcmkn
+nekoc compile-ts-bcmkn hello.ts --template samples/kitten-n-0.27.4.bcmkn --out hello.bcmkn
 ```
 
 ## CLI Commands
@@ -52,6 +52,10 @@ nekoc compile-ts-bcmkn hello.ts --template samples/我的作品-原生.bcmkn --o
 
 ## Documentation
 
+- **[RGB Pen Display](modules/pen-display/README.md)** — RGB888 framebuffer, configurable resolution and target refresh rate; [runnable demo](samples/pen_display.bcmkn)
+- **[Full-stage fast single-actor renderer](samples/pen_display_fast.bcmkn)** — Incremental RGB pen drawing at 896×560 stage units; [source](samples/pen_display_fast.ts), [runtime source findings](docs/kitten-n-runtime-findings.md)
+- **[Column renderer experiment](samples/pen_display_columns.bcmkn)** — One actor per column; [source](samples/pen_display_columns.ts)
+- **[Kitten N Compatibility](docs/kitten-n-compatibility.md)** — Current editor support, template and live-editor checks
 - **[API Reference](docs/api.md)** — All functions, events, variables, lists, motion, appearance, effects, pen, clones, sensing
 - **[Self API](docs/self-api.md)** — Sprite callback API (`self.move()`, `self.say()`, etc.)
 - **[Supported Syntax](docs/syntax.md)** — All supported TypeScript syntax constructs

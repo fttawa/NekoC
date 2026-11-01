@@ -85,6 +85,7 @@ interface NekoSpriteSelf {
 
   // --- Events ---
   onStart(body: NekoStatementBody): void;
+  onClick(body: NekoStatementBody): void;
 
   // --- Motion ---
   move(steps: NekoValue): void;
@@ -128,7 +129,7 @@ interface NekoSpriteSelf {
   clearEffects(): void;
   setText(text: NekoValue): void;
   setTextSize(size: NekoValue): void;
-  setPenColor(color: string): void;
+  setPenColor(color: string | number): void;
   setLayer(layer: string, target: string): void;
 
   // --- Drag ---
@@ -137,18 +138,21 @@ interface NekoSpriteSelf {
   // --- Style ---
   nextStyle(): void;
   prevStyle(): void;
-  setStyle(name: string): void;
+  setStyle(name: NekoValue): void;
+  playAudio(audio: NekoValue): void;
+  playAudioAndWait(audio: NekoValue): void;
+  stopAudio(audio: NekoValue): void;
 
   // --- Pen ---
   clearDrawing(): void;
   penDown(): void;
   penUp(): void;
-  setPenColor(color: string): void;
+  setPenColor(color: string | number): void;
   setPenSize(size: NekoValue): void;
   changePenSize(delta: NekoValue): void;
   setPenEffect(scope: string, value: NekoValue): void;
   changePenEffect(scope: string, delta: NekoValue): void;
-  stampText(text: NekoValue): void;
+  stampText(text: NekoValue, size: NekoValue, align: "left" | "center" | "right"): void;
   imageStamp(): void;
   setPenLayer(layer: string, target: string): void;
 
@@ -162,6 +166,8 @@ interface NekoSpriteSelf {
 
   // --- Timer ---
   timerStart(): void;
+  showTimer(): void;
+  hideTimer(): void;
   timerStop(): void;
   timerReset(): void;
   showTimer(): void;
@@ -230,7 +236,8 @@ declare function sprite(name: string, options: SpriteOptions, body?: (self: Neko
 
 declare function onStart(body: NekoStatementBody): void;
 declare function onClick(body: NekoStatementBody): void;
-declare function onKey(key: string, state?: string, body?: NekoStatementBody): void;
+declare function onKey(key: string, body: NekoStatementBody): void;
+declare function onKey(key: string, state: string, body: NekoStatementBody): void;
 declare function onMessage(message: string, body: NekoStatementBody): void;
 declare function when(condition: NekoValue, body: NekoStatementBody): void;
 declare function onBumpActor(target: string, body: NekoStatementBody): void;
@@ -278,17 +285,30 @@ declare function clearEffects(): void;
 declare function setDraggable(value: string): void;
 declare function nextStyle(): void;
 declare function prevStyle(): void;
-declare function setStyle(name: string): void;
+declare function setStyle(name: NekoValue): void;
+declare function playAudio(audio: NekoValue): void;
+declare function playAudioAndWait(audio: NekoValue): void;
+declare function stopAudio(audio: NekoValue): void;
 declare function clearDrawing(): void;
 declare function penDown(): void;
 declare function penUp(): void;
-declare function setPenColor(color: string): void;
+/** Compile-time string or packed RGB constant; the native block has a color field. */
+declare function setPenColor(color: string | number): void;
 declare function setPenSize(size: NekoValue): void;
+declare function stampText(text: NekoValue, size: NekoValue, align: "left" | "center" | "right"): void;
 declare function changePenSize(delta: NekoValue): void;
+declare function setPenEffect(scope: string, value: NekoValue): void;
+declare function changePenEffect(scope: string, value: NekoValue): void;
+declare function floor(value: NekoValue): number;
+declare function join(...values: NekoValue[]): NekoExpression<string>;
+declare function mathFunc(type: string, value: NekoValue): number;
+declare function trig(type: "sin" | "cos" | "tan", degrees: NekoValue): number;
 declare function askChoice(question: NekoValue, ...choices: NekoValue[]): void;
 declare function clone(sprite?: string): void;
 declare function deleteClone(): void;
 declare function timerStart(): void;
+declare function showTimer(): void;
+declare function hideTimer(): void;
 declare function timerStop(): void;
 declare function timerReset(): void;
 declare function switchScreen(name: string): void;

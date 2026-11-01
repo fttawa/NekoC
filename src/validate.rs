@@ -10,6 +10,13 @@ pub fn build_report(value: &Value) -> Result<Value> {
     let mut issues = Vec::new();
     collect_owner_issues(value, &["scenes", "scenesDict"], "scene", &mut issues);
     collect_owner_issues(value, &["actors", "actorsDict"], "actor", &mut issues);
+    collect_owner_issues(
+        value,
+        &["procedures", "proceduresDict"],
+        "procedure",
+        &mut issues,
+    );
+    validate_style_references(value, &mut issues);
     validate_scenes(value, &mut issues);
     validate_screen_references(value, &mut issues);
 
@@ -17,6 +24,38 @@ pub fn build_report(value: &Value) -> Result<Value> {
         "ok": issues.is_empty(),
         "issues": issues,
     }))
+}
+
+fn validate_style_references(value: &Value, issues: &mut Vec<Value>) {
+    let styles = value
+        .pointer("/styles/stylesDict")
+        .and_then(Value::as_object);
+    for (path, kind) in [
+        ("/scenes/scenesDict", "scene"),
+        ("/actors/actorsDict", "actor"),
+    ] {
+        let Some(owners) = value.pointer(path).and_then(Value::as_object) else {
+            continue;
+        };
+        for (owner_id, owner) in owners {
+            let referenced: BTreeSet<&str> = owner
+                .get("styles")
+                .and_then(Value::as_array)
+                .into_iter()
+                .flatten()
+                .filter_map(Value::as_str)
+                .chain(owner.get("currentStyleId").and_then(Value::as_str))
+                .collect();
+            for style_id in referenced {
+                if !styles.is_some_and(|styles| styles.contains_key(style_id)) {
+                    issues.push(
+                        json!({"kind": "dangling_style_reference", "owner_kind": kind,
+                        "owner_id": owner_id, "style_id": style_id}),
+                    );
+                }
+            }
+        }
+    }
 }
 
 fn validate_scenes(value: &Value, issues: &mut Vec<Value>) {

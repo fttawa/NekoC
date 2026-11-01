@@ -1,0 +1,12 @@
+{
+  "delta": {
+    "warpChecks": 5300,
+    "warpYields": 233,
+    "ordinaryYields": 219,
+    "raf": 452,
+    "frames": 219,
+    "time": 8025.800000011921
+  },
+  "fps": 27.286999426807885,
+  "rafHz": 56.3183732461971
+}

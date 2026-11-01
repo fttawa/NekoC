@@ -1,0 +1,13 @@
+{
+  "source": "E:\\test\\eisei_pv\\out\\eisei_ascii_pv_1080p30.mp4",
+  "sourceSha256": "6663fc50a12d5079ff43bb6ced0b1c11e610c0b806215141e86ea769a0012bdb",
+  "output": "E:\\nekoc\\samples\\eisei_pv.bcmkn",
+  "duration": 143.5,
+  "fps": 10,
+  "width": 480,
+  "height": 270,
+  "frames": 1435,
+  "decodedRgbaMiB": 709.442138671875,
+  "bytes": 28574285,
+  "audioLeadIn": 3
+}

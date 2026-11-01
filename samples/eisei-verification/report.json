@@ -1,0 +1,736 @@
+{
+  "input": "E:\\nekoc\\samples\\eisei_pv.bcmkn",
+  "checkedAt": "2026-11-01T13:39:20.049Z",
+  "pageErrors": [],
+  "consoleErrors": [
+    "Failed to load resource: the server responded with a status of 403 ()",
+    "j",
+    "Failed to load resource: the server responded with a status of 403 ()",
+    "j",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()"
+  ],
+  "states": [
+    {
+      "vars": {
+        "pv_duration": 143.5,
+        "pv_fps": 10,
+        "pv_frame": 0,
+        "pv_frames": 1435,
+        "pv_message": "准备完成 · 按 Enter 开始",
+        "pv_origin": 0,
+        "pv_progress": 100,
+        "pv_state": 1,
+        "pv_target": 0,
+        "pv_time": 0
+      },
+      "at": 11603.59999999404,
+      "audio": [
+        {
+          "event": "media-play",
+          "at": 9614.700000017881,
+          "src": ""
+        },
+        {
+          "event": "media-play",
+          "at": 9685.40000000596,
+          "src": "data:audio/mpeg;base64,SUQzBAAAAAABCVRYWFgAAAASAAADbWFqb3JfYnJhbmQAaXNvbQBUWFhYA"
+        },
+        {
+          "event": "playing",
+          "at": 9685.700000017881,
+          "duration": 146.5,
+          "currentTime": 0
+        }
+      ],
+      "media": [
+        {
+          "time": 0,
+          "duration": null,
+          "paused": false,
+          "ended": false,
+          "readyState": 0
+        },
+        {
+          "time": 0,
+          "duration": 0.000023,
+          "paused": true,
+          "ended": false,
+          "readyState": 4
+        }
+      ],
+      "warnings": false
+    },
+    {
+      "vars": {
+        "pv_duration": 143.5,
+        "pv_fps": 10,
+        "pv_frame": 1,
+        "pv_frames": 1435,
+        "pv_message": "即将开始…",
+        "pv_origin": 0,
+        "pv_progress": 100,
+        "pv_state": 2,
+        "pv_target": 1,
+        "pv_time": 0
+      },
+      "at": 15202.800000011921,
+      "audio": [
+        {
+          "event": "media-play",
+          "at": 9614.700000017881,
+          "src": ""
+        },
+        {
+          "event": "media-play",
+          "at": 9685.40000000596,
+          "src": "data:audio/mpeg;base64,SUQzBAAAAAABCVRYWFgAAAASAAADbWFqb3JfYnJhbmQAaXNvbQBUWFhYA"
+        },
+        {
+          "event": "playing",
+          "at": 9685.700000017881,
+          "duration": 146.5,
+          "currentTime": 0
+        },
+        {
+          "event": "start",
+          "at": 11663.90000000596,
+          "contextTime": 2.050666666666667,
+          "duration": 0.000045351473922902495,
+          "args": [
+            0
+          ]
+        },
+        {
+          "event": "media-play",
+          "at": 12261.90000000596,
+          "src": "data:audio/mpeg;base64,SUQzBAAAAAABCVRYWFgAAAASAAADbWFqb3JfYnJhbmQAaXNvbQBUWFhYA"
+        },
+        {
+          "event": "playing",
+          "at": 12264.90000000596,
+          "duration": 146.5,
+          "currentTime": 0
+        }
+      ],
+      "media": [
+        {
+          "time": 0,
+          "duration": null,
+          "paused": false,
+          "ended": false,
+          "readyState": 0
+        },
+        {
+          "time": 0,
+          "duration": 0.000023,
+          "paused": true,
+          "ended": false,
+          "readyState": 4
+        },
+        {
+          "time": 2.882515,
+          "duration": 146.5,
+          "paused": false,
+          "ended": false,
+          "readyState": 4
+        }
+      ],
+      "warnings": false
+    },
+    {
+      "vars": {
+        "pv_duration": 143.5,
+        "pv_fps": 10,
+        "pv_frame": 36,
+        "pv_frames": 1435,
+        "pv_message": "即将开始…",
+        "pv_origin": 0,
+        "pv_progress": 100,
+        "pv_state": 2,
+        "pv_target": 36,
+        "pv_time": 3.5
+      },
+      "at": 18714.80000001192,
+      "audio": [
+        {
+          "event": "media-play",
+          "at": 9614.700000017881,
+          "src": ""
+        },
+        {
+          "event": "media-play",
+          "at": 9685.40000000596,
+          "src": "data:audio/mpeg;base64,SUQzBAAAAAABCVRYWFgAAAASAAADbWFqb3JfYnJhbmQAaXNvbQBUWFhYA"
+        },
+        {
+          "event": "playing",
+          "at": 9685.700000017881,
+          "duration": 146.5,
+          "currentTime": 0
+        },
+        {
+          "event": "start",
+          "at": 11663.90000000596,
+          "contextTime": 2.050666666666667,
+          "duration": 0.000045351473922902495,
+          "args": [
+            0
+          ]
+        },
+        {
+          "event": "media-play",
+          "at": 12261.90000000596,
+          "src": "data:audio/mpeg;base64,SUQzBAAAAAABCVRYWFgAAAASAAADbWFqb3JfYnJhbmQAaXNvbQBUWFhYA"
+        },
+        {
+          "event": "playing",
+          "at": 12264.90000000596,
+          "duration": 146.5,
+          "currentTime": 0
+        }
+      ],
+      "media": [
+        {
+          "time": 0,
+          "duration": null,
+          "paused": false,
+          "ended": false,
+          "readyState": 0
+        },
+        {
+          "time": 0,
+          "duration": 0.000023,
+          "paused": true,
+          "ended": false,
+          "readyState": 4
+        },
+        {
+          "time": 6.392313,
+          "duration": 146.5,
+          "paused": false,
+          "ended": false,
+          "readyState": 4
+        }
+      ],
+      "warnings": false
+    },
+    {
+      "vars": {
+        "pv_duration": 143.5,
+        "pv_fps": 10,
+        "pv_frame": 301,
+        "pv_frames": 1435,
+        "pv_message": "即将开始…",
+        "pv_origin": 0,
+        "pv_progress": 100,
+        "pv_state": 2,
+        "pv_target": 301,
+        "pv_time": 30
+      },
+      "at": 45197.5,
+      "audio": [
+        {
+          "event": "media-play",
+          "at": 9614.700000017881,
+          "src": ""
+        },
+        {
+          "event": "media-play",
+          "at": 9685.40000000596,
+          "src": "data:audio/mpeg;base64,SUQzBAAAAAABCVRYWFgAAAASAAADbWFqb3JfYnJhbmQAaXNvbQBUWFhYA"
+        },
+        {
+          "event": "playing",
+          "at": 9685.700000017881,
+          "duration": 146.5,
+          "currentTime": 0
+        },
+        {
+          "event": "start",
+          "at": 11663.90000000596,
+          "contextTime": 2.050666666666667,
+          "duration": 0.000045351473922902495,
+          "args": [
+            0
+          ]
+        },
+        {
+          "event": "media-play",
+          "at": 12261.90000000596,
+          "src": "data:audio/mpeg;base64,SUQzBAAAAAABCVRYWFgAAAASAAADbWFqb3JfYnJhbmQAaXNvbQBUWFhYA"
+        },
+        {
+          "event": "playing",
+          "at": 12264.90000000596,
+          "duration": 146.5,
+          "currentTime": 0
+        }
+      ],
+      "media": [
+        {
+          "time": 0,
+          "duration": null,
+          "paused": false,
+          "ended": false,
+          "readyState": 0
+        },
+        {
+          "time": 0,
+          "duration": 0.000023,
+          "paused": true,
+          "ended": false,
+          "readyState": 4
+        },
+        {
+          "time": 32.877388,
+          "duration": 146.5,
+          "paused": false,
+          "ended": false,
+          "readyState": 4
+        }
+      ],
+      "warnings": false
+    },
+    {
+      "vars": {
+        "pv_duration": 143.5,
+        "pv_fps": 10,
+        "pv_frame": 601,
+        "pv_frames": 1435,
+        "pv_message": "即将开始…",
+        "pv_origin": 0,
+        "pv_progress": 100,
+        "pv_state": 2,
+        "pv_target": 601,
+        "pv_time": 60
+      },
+      "at": 75200.59999999404,
+      "audio": [
+        {
+          "event": "media-play",
+          "at": 9614.700000017881,
+          "src": ""
+        },
+        {
+          "event": "media-play",
+          "at": 9685.40000000596,
+          "src": "data:audio/mpeg;base64,SUQzBAAAAAABCVRYWFgAAAASAAADbWFqb3JfYnJhbmQAaXNvbQBUWFhYA"
+        },
+        {
+          "event": "playing",
+          "at": 9685.700000017881,
+          "duration": 146.5,
+          "currentTime": 0
+        },
+        {
+          "event": "start",
+          "at": 11663.90000000596,
+          "contextTime": 2.050666666666667,
+          "duration": 0.000045351473922902495,
+          "args": [
+            0
+          ]
+        },
+        {
+          "event": "media-play",
+          "at": 12261.90000000596,
+          "src": "data:audio/mpeg;base64,SUQzBAAAAAABCVRYWFgAAAASAAADbWFqb3JfYnJhbmQAaXNvbQBUWFhYA"
+        },
+        {
+          "event": "playing",
+          "at": 12264.90000000596,
+          "duration": 146.5,
+          "currentTime": 0
+        }
+      ],
+      "media": [
+        {
+          "time": 0,
+          "duration": null,
+          "paused": false,
+          "ended": false,
+          "readyState": 0
+        },
+        {
+          "time": 0,
+          "duration": 0.000023,
+          "paused": true,
+          "ended": false,
+          "readyState": 4
+        },
+        {
+          "time": 62.880563,
+          "duration": 146.5,
+          "paused": false,
+          "ended": false,
+          "readyState": 4
+        }
+      ],
+      "warnings": false
+    },
+    {
+      "vars": {
+        "pv_duration": 143.5,
+        "pv_fps": 10,
+        "pv_frame": 901,
+        "pv_frames": 1435,
+        "pv_message": "即将开始…",
+        "pv_origin": 0,
+        "pv_progress": 100,
+        "pv_state": 2,
+        "pv_target": 901,
+        "pv_time": 90
+      },
+      "at": 105200.40000000596,
+      "audio": [
+        {
+          "event": "media-play",
+          "at": 9614.700000017881,
+          "src": ""
+        },
+        {
+          "event": "media-play",
+          "at": 9685.40000000596,
+          "src": "data:audio/mpeg;base64,SUQzBAAAAAABCVRYWFgAAAASAAADbWFqb3JfYnJhbmQAaXNvbQBUWFhYA"
+        },
+        {
+          "event": "playing",
+          "at": 9685.700000017881,
+          "duration": 146.5,
+          "currentTime": 0
+        },
+        {
+          "event": "start",
+          "at": 11663.90000000596,
+          "contextTime": 2.050666666666667,
+          "duration": 0.000045351473922902495,
+          "args": [
+            0
+          ]
+        },
+        {
+          "event": "media-play",
+          "at": 12261.90000000596,
+          "src": "data:audio/mpeg;base64,SUQzBAAAAAABCVRYWFgAAAASAAADbWFqb3JfYnJhbmQAaXNvbQBUWFhYA"
+        },
+        {
+          "event": "playing",
+          "at": 12264.90000000596,
+          "duration": 146.5,
+          "currentTime": 0
+        }
+      ],
+      "media": [
+        {
+          "time": 0,
+          "duration": null,
+          "paused": false,
+          "ended": false,
+          "readyState": 0
+        },
+        {
+          "time": 0,
+          "duration": 0.000023,
+          "paused": true,
+          "ended": false,
+          "readyState": 4
+        },
+        {
+          "time": 92.880616,
+          "duration": 146.5,
+          "paused": false,
+          "ended": false,
+          "readyState": 4
+        }
+      ],
+      "warnings": false
+    },
+    {
+      "vars": {
+        "pv_duration": 143.5,
+        "pv_fps": 10,
+        "pv_frame": 1201,
+        "pv_frames": 1435,
+        "pv_message": "即将开始…",
+        "pv_origin": 0,
+        "pv_progress": 100,
+        "pv_state": 2,
+        "pv_target": 1201,
+        "pv_time": 120
+      },
+      "at": 135199.30000001192,
+      "audio": [
+        {
+          "event": "media-play",
+          "at": 9614.700000017881,
+          "src": ""
+        },
+        {
+          "event": "media-play",
+          "at": 9685.40000000596,
+          "src": "data:audio/mpeg;base64,SUQzBAAAAAABCVRYWFgAAAASAAADbWFqb3JfYnJhbmQAaXNvbQBUWFhYA"
+        },
+        {
+          "event": "playing",
+          "at": 9685.700000017881,
+          "duration": 146.5,
+          "currentTime": 0
+        },
+        {
+          "event": "start",
+          "at": 11663.90000000596,
+          "contextTime": 2.050666666666667,
+          "duration": 0.000045351473922902495,
+          "args": [
+            0
+          ]
+        },
+        {
+          "event": "media-play",
+          "at": 12261.90000000596,
+          "src": "data:audio/mpeg;base64,SUQzBAAAAAABCVRYWFgAAAASAAADbWFqb3JfYnJhbmQAaXNvbQBUWFhYA"
+        },
+        {
+          "event": "playing",
+          "at": 12264.90000000596,
+          "duration": 146.5,
+          "currentTime": 0
+        }
+      ],
+      "media": [
+        {
+          "time": 0,
+          "duration": null,
+          "paused": false,
+          "ended": false,
+          "readyState": 0
+        },
+        {
+          "time": 0,
+          "duration": 0.000023,
+          "paused": true,
+          "ended": false,
+          "readyState": 4
+        },
+        {
+          "time": 122.879692,
+          "duration": 146.5,
+          "paused": false,
+          "ended": false,
+          "readyState": 4
+        }
+      ],
+      "warnings": false
+    },
+    {
+      "vars": {
+        "pv_duration": 143.5,
+        "pv_fps": 10,
+        "pv_frame": 1435,
+        "pv_frames": 1435,
+        "pv_message": "播放结束 · 按 Enter 重播",
+        "pv_origin": 0,
+        "pv_progress": 100,
+        "pv_state": 3,
+        "pv_target": 1436,
+        "pv_time": 143.5
+      },
+      "at": 158700.80000001192,
+      "audio": [
+        {
+          "event": "media-play",
+          "at": 9614.700000017881,
+          "src": ""
+        },
+        {
+          "event": "media-play",
+          "at": 9685.40000000596,
+          "src": "data:audio/mpeg;base64,SUQzBAAAAAABCVRYWFgAAAASAAADbWFqb3JfYnJhbmQAaXNvbQBUWFhYA"
+        },
+        {
+          "event": "playing",
+          "at": 9685.700000017881,
+          "duration": 146.5,
+          "currentTime": 0
+        },
+        {
+          "event": "start",
+          "at": 11663.90000000596,
+          "contextTime": 2.050666666666667,
+          "duration": 0.000045351473922902495,
+          "args": [
+            0
+          ]
+        },
+        {
+          "event": "media-play",
+          "at": 12261.90000000596,
+          "src": "data:audio/mpeg;base64,SUQzBAAAAAABCVRYWFgAAAASAAADbWFqb3JfYnJhbmQAaXNvbQBUWFhYA"
+        },
+        {
+          "event": "playing",
+          "at": 12264.90000000596,
+          "duration": 146.5,
+          "currentTime": 0
+        }
+      ],
+      "media": [
+        {
+          "time": 0,
+          "duration": null,
+          "paused": false,
+          "ended": false,
+          "readyState": 0
+        },
+        {
+          "time": 0,
+          "duration": 0.000023,
+          "paused": true,
+          "ended": false,
+          "readyState": 4
+        },
+        {
+          "time": 0,
+          "duration": 0.000023,
+          "paused": true,
+          "ended": false,
+          "readyState": 4
+        }
+      ],
+      "warnings": false
+    },
+    {
+      "vars": {
+        "pv_duration": 143.5,
+        "pv_fps": 10,
+        "pv_frame": 12,
+        "pv_frames": 1435,
+        "pv_message": "已停止 · 按 Enter 从头播放",
+        "pv_origin": 146.55,
+        "pv_progress": 100,
+        "pv_state": 1,
+        "pv_target": 12,
+        "pv_time": 1.1
+      },
+      "at": 163025.40000000596,
+      "audio": [
+        {
+          "event": "media-play",
+          "at": 9614.700000017881,
+          "src": ""
+        },
+        {
+          "event": "media-play",
+          "at": 9685.40000000596,
+          "src": "data:audio/mpeg;base64,SUQzBAAAAAABCVRYWFgAAAASAAADbWFqb3JfYnJhbmQAaXNvbQBUWFhYA"
+        },
+        {
+          "event": "playing",
+          "at": 9685.700000017881,
+          "duration": 146.5,
+          "currentTime": 0
+        },
+        {
+          "event": "start",
+          "at": 11663.90000000596,
+          "contextTime": 2.050666666666667,
+          "duration": 0.000045351473922902495,
+          "args": [
+            0
+          ]
+        },
+        {
+          "event": "media-play",
+          "at": 12261.90000000596,
+          "src": "data:audio/mpeg;base64,SUQzBAAAAAABCVRYWFgAAAASAAADbWFqb3JfYnJhbmQAaXNvbQBUWFhYA"
+        },
+        {
+          "event": "playing",
+          "at": 12264.90000000596,
+          "duration": 146.5,
+          "currentTime": 0
+        },
+        {
+          "event": "media-play",
+          "at": 158829.5,
+          "src": "data:audio/mpeg;base64,SUQzBAAAAAABCVRYWFgAAAASAAADbWFqb3JfYnJhbmQAaXNvbQBUWFhYA"
+        },
+        {
+          "event": "playing",
+          "at": 158829.59999999404,
+          "duration": 146.5,
+          "currentTime": 0
+        }
+      ],
+      "media": [
+        {
+          "time": 0,
+          "duration": null,
+          "paused": false,
+          "ended": false,
+          "readyState": 0
+        },
+        {
+          "time": 0,
+          "duration": 0.000023,
+          "paused": true,
+          "ended": false,
+          "readyState": 4
+        },
+        {
+          "time": 0,
+          "duration": 0.000023,
+          "paused": true,
+          "ended": false,
+          "readyState": 4
+        }
+      ],
+      "warnings": false
+    }
+  ],
+  "loadMs": 3289,
+  "stage": {
+    "size": {
+      "width": 960,
+      "height": 540
+    },
+    "actor": [
+      {
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": 200
+      }
+    ],
+    "core": [
+      "constructor",
+      "load_actor",
+      "destroy_actor",
+      "destroy_all_actors",
+      "get_actor_ids",
+      "get_actor"
+    ]
+  },
+  "beforeKey": {
+    "running": true,
+    "scene": true,
+    "runtimeKeys": [
+      "heart",
+      "stage",
+      "runtimeEvent",
+      "tryBlockIds",
+      "runtimeId",
+      "isDebugMode",
+      "cancelToken"
+    ],
+    "heartKeys": [
+      "core",
+      "runtimeManager",
+      "rAF_id"
+    ]
+  },
+  "ok": true
+}

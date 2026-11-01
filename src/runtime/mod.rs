@@ -117,6 +117,8 @@ pub struct PenState {
     pub down: bool,
     pub color: String,
     pub size: f64,
+    #[serde(skip)]
+    pub hsv: [f64; 3],
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub strokes: Vec<PenStroke>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
@@ -145,6 +147,7 @@ fn default_pen() -> PenState {
         down: false,
         color: "#000000".to_owned(),
         size: 1.0,
+        hsv: [0.0, 0.0, 0.0],
         strokes: Vec::new(),
         stamps: Vec::new(),
     }
@@ -379,7 +382,7 @@ struct Thread<'a> {
     owner_id: String,
     current: Option<&'a Value>,
     loops: Vec<LoopFrame<'a>>,
-    continuations: Vec<Option<&'a Value>>,
+    continuations: Vec<(usize, Option<&'a Value>)>,
     range_values: BTreeMap<String, RuntimeValue>,
     script_values: BTreeMap<String, RuntimeValue>,
     procedure_values: BTreeMap<String, RuntimeValue>,
@@ -551,14 +554,20 @@ impl<'a> Runtime<'a> {
                 ));
                 self.spawn_hat_scripts_at(&["scenes", "scenesDict"], "start_on_click");
                 self.spawn_hat_scripts_at(&["actors", "actorsDict"], "start_on_click");
+                for path in [["scenes", "scenesDict"], ["actors", "actorsDict"]] {
+                    self.spawn_matching_scripts_at(&path, Some("sprite_on_tap"), |block| {
+                        block_type(block) == Some("sprite_on_tap")
+                            && field_string(block, "type") == Some("mouse_click")
+                    });
+                }
             }
             RuntimeEvent::Key { key, state } => {
                 match state.as_str() {
                     "down" => {
-                        self.pressed_keys.insert(key.clone());
+                        self.pressed_keys.insert(keyboard_code(key));
                     }
                     "up" => {
-                        self.pressed_keys.remove(key);
+                        self.pressed_keys.remove(&keyboard_code(key));
                     }
                     _ => {}
                 }
@@ -640,7 +649,8 @@ impl<'a> Runtime<'a> {
     fn spawn_key_scripts_at(&mut self, path: &[&str], key: &str, state: &str) {
         self.spawn_matching_scripts_at(path, Some("on_keydown"), |block| {
             block_type(block) == Some("on_keydown")
-                && field_string(block, "key") == Some(key)
+                && field_string(block, "key")
+                    .is_some_and(|value| keyboard_code(value) == keyboard_code(key))
                 && field_string(block, "type") == Some(state)
         });
     }

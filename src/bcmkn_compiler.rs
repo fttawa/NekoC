@@ -1,5 +1,5 @@
 use crate::{project, ts_frontend};
-use anyhow::{Context, Result, bail};
+use anyhow::{Context, Result};
 use serde_json::{Map, Value, json};
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Path, PathBuf};
@@ -63,16 +63,13 @@ pub fn compile_ts_bcmkn(
     }
     ensure_variables(&mut project, &mut scripts);
     ensure_lists(&mut project, &mut scripts);
-    ensure_broadcasts(&mut project, &scripts);
     for procedure in &mut procedures {
         ensure_variables(&mut project, &mut procedure.blocks);
         ensure_lists(&mut project, &mut procedure.blocks);
-        ensure_broadcasts(&mut project, &procedure.blocks);
     }
     for sprite in &mut sprites {
         ensure_variables(&mut project, &mut sprite.blocks);
         ensure_lists(&mut project, &mut sprite.blocks);
-        ensure_broadcasts(&mut project, &sprite.blocks);
     }
     if screens.is_empty() {
         apply_stage_resource(&mut project, workspace_report.pointer("/resources/stage"))?;
@@ -86,8 +83,15 @@ pub fn compile_ts_bcmkn(
             rewrite_screen_references(&mut sprite.blocks, &screens);
         }
     }
+    ensure_broadcasts(&mut project, &scripts);
+    for procedure in &procedures {
+        ensure_broadcasts(&mut project, &procedure.blocks);
+    }
+    for sprite in &sprites {
+        ensure_broadcasts(&mut project, &sprite.blocks);
+    }
     if !scripts.is_empty() {
-        inject_scripts_into_first_actor(&mut project, scripts)?;
+        inject_scripts_into_first_owner(&mut project, scripts)?;
     }
     inject_sprite_resources(&mut project, sprites)?;
     inject_procedures(&mut project, procedures);
@@ -402,10 +406,38 @@ fn reset_template_for_registered_resources(project: &mut Value) -> Result<()> {
     ensure_actors_dict(project);
     ensure_styles_dict(project);
     project["actors"]["actorsDict"] = Value::Object(Map::new());
-    project["styles"]["stylesDict"] = Value::Object(Map::new());
+    // Backgrounds are still referenced by the retained template scenes.
+    // Keep their metadata (including fields introduced by newer editors).
+    let scene_styles: BTreeSet<String> = project
+        .pointer("/scenes/scenesDict")
+        .and_then(Value::as_object)
+        .into_iter()
+        .flat_map(|scenes| scenes.values())
+        .flat_map(|scene| {
+            scene
+                .get("styles")
+                .and_then(Value::as_array)
+                .into_iter()
+                .flatten()
+                .filter_map(Value::as_str)
+                .chain(scene.get("currentStyleId").and_then(Value::as_str))
+        })
+        .map(ToOwned::to_owned)
+        .collect();
+    if let Some(styles) = project["styles"]["stylesDict"].as_object_mut() {
+        styles.retain(|id, _| scene_styles.contains(id));
+    }
     project["variables"] = json!({"variablesDict": {}});
     project["broadcasts"] = json!({"broadcastsDict": {}});
 
+    if let Some(scenes) = project
+        .pointer_mut("/scenes/scenesDict")
+        .and_then(Value::as_object_mut)
+    {
+        for scene in scenes.values_mut() {
+            scene["actorIds"] = json!([]);
+        }
+    }
     let scene = get_path_mut(project, &["scenes", "scenesDict", &scene_id])
         .context("current scene is missing")?;
     scene["actorIds"] = Value::Array(Vec::new());
@@ -433,14 +465,19 @@ fn reset_template_for_registered_resources(project: &mut Value) -> Result<()> {
     Ok(())
 }
 
-fn inject_scripts_into_first_actor(project: &mut Value, scripts: Vec<Value>) -> Result<()> {
-    let actors = get_path_mut(project, &["actors", "actorsDict"])
+fn inject_scripts_into_first_owner(project: &mut Value, scripts: Vec<Value>) -> Result<()> {
+    if let Some(actor) = project
+        .pointer_mut("/actors/actorsDict")
         .and_then(Value::as_object_mut)
-        .context("template project must contain actors.actorsDict")?;
-    let Some((_, actor)) = actors.iter_mut().next() else {
-        bail!("template project must contain at least one actor");
-    };
-    actor["nekoBlockJsonList"] = Value::Array(scripts);
+        .and_then(|actors| actors.values_mut().next())
+    {
+        actor["nekoBlockJsonList"] = Value::Array(scripts);
+        return Ok(());
+    }
+    let scene_id = current_scene_id(project).context("template project must contain a scene")?;
+    let scene = get_path_mut(project, &["scenes", "scenesDict", &scene_id])
+        .context("current scene is missing")?;
+    scene["nekoBlockJsonList"] = Value::Array(scripts);
     Ok(())
 }
 
@@ -700,9 +737,11 @@ fn ensure_lists(project: &mut Value, scripts: &mut [Value]) {
 
 fn ensure_broadcasts(project: &mut Value, scripts: &[Value]) {
     let messages = collect_broadcast_messages(scripts);
-    if messages.is_empty() {
-        return;
-    }
+    let scene_ids: Vec<String> = project
+        .pointer("/scenes/scenesDict")
+        .and_then(Value::as_object)
+        .map(|scenes| scenes.keys().cloned().collect())
+        .unwrap_or_default();
 
     if project.get("broadcasts").is_none() {
         project["broadcasts"] = json!({"broadcastsDict": {}});
@@ -715,8 +754,8 @@ fn ensure_broadcasts(project: &mut Value, scripts: &[Value]) {
         return;
     };
 
-    if dict.is_empty() {
-        dict.insert("toJSON".to_owned(), Value::Array(Vec::new()));
+    for scene_id in scene_ids {
+        dict.entry(scene_id).or_insert_with(|| json!([]));
     }
 
     for values in dict.values_mut() {

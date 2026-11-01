@@ -1,0 +1,17 @@
+{
+  "editorUrl": "https://kn.codemao.cn/editor",
+  "checkedAt": "2026-11-01T11:43:32.950Z",
+  "projects": [
+    {
+      "input": "E:\\nekoc\\samples\\pen_display_fast.bcmkn",
+      "editorVersion": "0.27.4",
+      "projectVersion": "0.27.4",
+      "blockCount": 989,
+      "issues": [],
+      "pageErrors": [],
+      "ok": true
+    }
+  ],
+  "bundleUrl": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+  "ok": true
+}

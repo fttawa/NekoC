@@ -6,6 +6,86 @@ pub fn snapshot_to_json(snapshot: &RuntimeSnapshot) -> Value {
     json!(snapshot)
 }
 
+pub fn keyboard_code(key: &str) -> String {
+    let lower = key.to_ascii_lowercase();
+    let code = match lower.as_str() {
+        "space" | " " => "32",
+        "enter" => "13",
+        "escape" | "esc" => "27",
+        "arrowleft" | "left" => "37",
+        "arrowup" | "up" => "38",
+        "arrowright" | "right" => "39",
+        "arrowdown" | "down" => "40",
+        _ => {
+            if key.len() == 1 && key.as_bytes()[0].is_ascii_alphabetic() {
+                return key.as_bytes()[0].to_ascii_uppercase().to_string();
+            }
+            return key.to_owned();
+        }
+    };
+    code.to_owned()
+}
+
+pub fn pen_rgb_to_hsv(color: &str) -> [f64; 3] {
+    let rgb = u32::from_str_radix(color.trim_start_matches('#'), 16).unwrap_or(0);
+    let r = ((rgb >> 16) & 255) as f64 / 255.0;
+    let g = ((rgb >> 8) & 255) as f64 / 255.0;
+    let b = (rgb & 255) as f64 / 255.0;
+    let max = r.max(g).max(b);
+    let delta = max - r.min(g).min(b);
+    let hue = if delta == 0.0 {
+        0.0
+    } else if max == r {
+        (60.0 * (g - b) / delta).rem_euclid(360.0)
+    } else if max == g {
+        120.0 + 60.0 * (b - r) / delta
+    } else {
+        240.0 + 60.0 * (r - g) / delta
+    };
+    [
+        hue,
+        if max == 0.0 { 0.0 } else { delta / max * 100.0 },
+        max * 100.0,
+    ]
+}
+
+pub fn set_pen_property(pen: &mut crate::runtime::PenState, scope: &str, value: f64, change: bool) {
+    let index = match scope {
+        "hue" => 0,
+        "saturation" => 1,
+        "brightness" => 2,
+        _ => return,
+    };
+    let value = if change {
+        pen.hsv[index] + value
+    } else {
+        value
+    };
+    pen.hsv[index] = if index == 0 {
+        value.rem_euclid(360.0)
+    } else {
+        value.clamp(0.0, 100.0)
+    };
+    let [h, s, v] = pen.hsv;
+    let c = v / 100.0 * s / 100.0;
+    let x = c * (1.0 - ((h / 60.0) % 2.0 - 1.0).abs());
+    let m = v / 100.0 - c;
+    let (r, g, b) = match (h / 60.0) as u32 {
+        0 => (c, x, 0.0),
+        1 => (x, c, 0.0),
+        2 => (0.0, c, x),
+        3 => (0.0, x, c),
+        4 => (x, 0.0, c),
+        _ => (c, 0.0, x),
+    };
+    pen.color = format!(
+        "#{:02x}{:02x}{:02x}",
+        ((r + m) * 255.0).round() as u8,
+        ((g + m) * 255.0).round() as u8,
+        ((b + m) * 255.0).round() as u8
+    );
+}
+
 pub fn get_path<'a>(mut value: &'a Value, path: &[&str]) -> Option<&'a Value> {
     for segment in path {
         value = value.get(*segment)?;

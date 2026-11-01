@@ -159,6 +159,7 @@ fn optimize_workspace(data: &Value) -> (Value, OptStats) {
     let script_types = [
         "on_running_group_activated",
         "start_on_click",
+        "sprite_on_tap",
         "on_keydown",
         "self_listen",
         "self_listen_with_param",

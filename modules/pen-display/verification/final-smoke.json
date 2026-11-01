@@ -1,0 +1,12 @@
+{
+  "editorProjectVersion": "0.27.4",
+  "project": "samples/pen_display.bcmkn",
+  "probe": "10-second official editor run after template SVG color URL fix",
+  "width": 32,
+  "height": 18,
+  "targetHz": 30,
+  "completedFramesIncludingStartup": 18,
+  "pageErrors": [],
+  "imageErrors": [],
+  "note": "Startup-inclusive smoke check, not a replacement for the nine-window benchmark."
+}

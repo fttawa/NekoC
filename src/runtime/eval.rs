@@ -215,7 +215,7 @@ impl<'a> Runtime<'a> {
             "check_key" => {
                 let key = field_string(block, "key").unwrap_or_default();
                 let state = field_string(block, "type").unwrap_or("down");
-                let is_down = self.pressed_keys.contains(key);
+                let is_down = self.pressed_keys.contains(&keyboard_code(key));
                 RuntimeValue::Bool(if state == "up" { !is_down } else { is_down })
             }
             "mouse_down" => {
@@ -562,14 +562,16 @@ impl<'a> Runtime<'a> {
                     .unwrap_or("0");
                 let value = eval(input(block, "num")).as_number();
                 RuntimeValue::Number(match op {
-                    "0" | "abs" => value.abs(),
-                    "1" | "floor" => value.floor(),
-                    "2" | "ceil" => value.ceil(),
-                    "3" | "sqrt" => value.sqrt(),
-                    "4" | "ln" => value.ln(),
-                    "5" | "log" => value.log10(),
-                    "6" | "pow2" => 2_f64.powf(value),
-                    "7" | "exp" => value.exp(),
+                    "0" | "sqrt" => value.sqrt(),
+                    "1" | "abs" => value.abs(),
+                    "2" | "neg" => -value,
+                    "3" | "ln" => value.ln(),
+                    "4" | "log" => value.log10(),
+                    "5" | "exp" => value.exp(),
+                    "6" | "pow10" => 10_f64.powf(value),
+                    "floor" => value.floor(),
+                    "ceil" => value.ceil(),
+                    "pow2" => 2_f64.powf(value),
                     _ => value,
                 })
             }
