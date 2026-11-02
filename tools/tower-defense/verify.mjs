@@ -132,7 +132,7 @@ try{
           // Missing editor overlay cannot receive focus. Body events still go
           // through the official document.body keyboard listeners unchanged.
           const code={Enter:13,Space:32,Escape:27,ArrowLeft:37,ArrowUp:38,ArrowRight:39,ArrowDown:40}[step.key]||step.key.toUpperCase().charCodeAt(0);
-          const dispatch=type=>page.evaluate(({type,key,code})=>document.body.dispatchEvent(new KeyboardEvent(type,{key:key==='Space'?' ':key,code:key==='Space'?'Space':key.length===1?'Key'+key.toUpperCase():key,keyCode:code,which:code,bubbles:true,cancelable:true})),{type,key:step.key,code});
+           const dispatch=type=>page.evaluate(({type,key,code})=>document.body.dispatchEvent(new KeyboardEvent(type,{key:key==='Space'?' ':key,code:key==='Space'?'Space':/^[0-9]$/.test(key)?'Digit'+key:key.length===1?'Key'+key.toUpperCase():key,keyCode:code,which:code,bubbles:true,cancelable:true})),{type,key:step.key,code});
           await dispatch('keydown');await page.waitForTimeout(step.holdMs||120);await dispatch('keyup');
         }else{await page.keyboard.down(step.key);await page.waitForTimeout(step.holdMs||120);await page.keyboard.up(step.key);}
       }

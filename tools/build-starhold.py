@@ -63,7 +63,7 @@ sprite("Controller",{{visible:false}},()=>{{
  onKey("s","up",()=>{{if((getVar("mode") as number)===6){{setVar("shakeEnabled",1-(getVar("shakeEnabled") as number));}}}});
 '''
     for i in range(1,7):
-        source += f'''onKey("{i}","up",()=>{{if((getVar("mode") as number)===1){{setVar("level",{i});setVar("chooseRequest",1);}}
+        source += f'''onKey("{48+i}","up",()=>{{if((getVar("mode") as number)===1){{setVar("level",{i});setVar("chooseRequest",1);}}
           else if((getVar("mode") as number)===2 && {i}<=4 && ((getVar("milestone") as number)>=2 || {i}===1)){{setVar("selectedTower",{i});}} }});\n'''
     source += '});\n'
     source += '''sprite("Backdrop",{visible:true},()=>{
@@ -115,7 +115,7 @@ sprite("Enemy {i:02d}",{{visible:false}},()=>{{
  });});});
 });
 '''
-    return source
+    return '\n'.join(line.rstrip() for line in source.splitlines())+'\n'
 
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('--milestone',type=int,default=1,choices=range(1,6));args=ap.parse_args()

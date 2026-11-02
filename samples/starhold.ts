@@ -435,7 +435,7 @@ defineProc("td click",[],()=>{warp(()=>{
 
 sprite("Controller",{visible:false},()=>{
  onStart(()=>{
-  hide();setPenLayer("peak","");setVar("milestone",1);setVar("ready",0);setVar("frames",0);
+  hide();setPenLayer("peak","");setVar("milestone",2);setVar("ready",0);setVar("frames",0);
   setVar("mode",0);setVar("level",1);setVar("paused",0);setVar("quality",1);
   setVar("shakeEnabled",1);setVar("shake",0);setVar("selectedTower",1);setVar("selectedPad",0);
   setVar("chooseRequest",0);setVar("clickRequest",0);setVar("fps",0);
@@ -472,17 +472,17 @@ sprite("Controller",{visible:false},()=>{
  onKey("l","up",()=>{setVar("mode",7);});onKey("c","up",()=>{setVar("mode",8);});
  onKey("q","up",()=>{setVar("quality",1-(getVar("quality") as number));});
  onKey("s","up",()=>{if((getVar("mode") as number)===6){setVar("shakeEnabled",1-(getVar("shakeEnabled") as number));}});
-onKey("1","up",()=>{if((getVar("mode") as number)===1){setVar("level",1);setVar("chooseRequest",1);}
+onKey("49","up",()=>{if((getVar("mode") as number)===1){setVar("level",1);setVar("chooseRequest",1);}
           else if((getVar("mode") as number)===2 && 1<=4 && ((getVar("milestone") as number)>=2 || 1===1)){setVar("selectedTower",1);} });
-onKey("2","up",()=>{if((getVar("mode") as number)===1){setVar("level",2);setVar("chooseRequest",1);}
+onKey("50","up",()=>{if((getVar("mode") as number)===1){setVar("level",2);setVar("chooseRequest",1);}
           else if((getVar("mode") as number)===2 && 2<=4 && ((getVar("milestone") as number)>=2 || 2===1)){setVar("selectedTower",2);} });
-onKey("3","up",()=>{if((getVar("mode") as number)===1){setVar("level",3);setVar("chooseRequest",1);}
+onKey("51","up",()=>{if((getVar("mode") as number)===1){setVar("level",3);setVar("chooseRequest",1);}
           else if((getVar("mode") as number)===2 && 3<=4 && ((getVar("milestone") as number)>=2 || 3===1)){setVar("selectedTower",3);} });
-onKey("4","up",()=>{if((getVar("mode") as number)===1){setVar("level",4);setVar("chooseRequest",1);}
+onKey("52","up",()=>{if((getVar("mode") as number)===1){setVar("level",4);setVar("chooseRequest",1);}
           else if((getVar("mode") as number)===2 && 4<=4 && ((getVar("milestone") as number)>=2 || 4===1)){setVar("selectedTower",4);} });
-onKey("5","up",()=>{if((getVar("mode") as number)===1){setVar("level",5);setVar("chooseRequest",1);}
+onKey("53","up",()=>{if((getVar("mode") as number)===1){setVar("level",5);setVar("chooseRequest",1);}
           else if((getVar("mode") as number)===2 && 5<=4 && ((getVar("milestone") as number)>=2 || 5===1)){setVar("selectedTower",5);} });
-onKey("6","up",()=>{if((getVar("mode") as number)===1){setVar("level",6);setVar("chooseRequest",1);}
+onKey("54","up",()=>{if((getVar("mode") as number)===1){setVar("level",6);setVar("chooseRequest",1);}
           else if((getVar("mode") as number)===2 && 6<=4 && ((getVar("milestone") as number)>=2 || 6===1)){setVar("selectedTower",6);} });
 });
 sprite("Backdrop",{visible:true},()=>{
@@ -498,7 +498,7 @@ sprite("Backdrop",{visible:true},()=>{
         else {show();moveTo(0,0);setStyle(listItem("menuStyles","any",(getVar("mode") as number)+1));}
       });});});
     });
-    
+
 sprite("Tower 01",{visible:false},()=>{
  onClick(()=>{if((getVar("mode") as number)===2 && (getVar("paused") as number)===0){setVar("selectedPad",1);if((listItem("tType","any",1) as number)===0){setVar("buildRequest",1);}}});
  onStart(()=>{scriptVars("lastStyle","styleIndex");setVar("lastStyle",-1);forever(()=>{warp(()=>{

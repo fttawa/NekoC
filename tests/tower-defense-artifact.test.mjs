@@ -32,3 +32,7 @@ test('native expression sockets never contain statement conditionals',()=>{
   for(const block of blocks(project))for(const child of Object.values(block.inputs||{}))
     assert.notEqual(child?.type,'controls_if',`invalid expression in ${block.id}`);
 });
+test('digit keyboard controls use native keycodes rather than numeric character literals',()=>{
+  const keys=[...blocks(project)].filter(b=>b.type==='on_keydown').map(b=>b.fields.key);
+  for(let digit=1;digit<=6;digit++){assert.ok(keys.includes(String(48+digit)));assert.ok(!keys.includes(String(digit)));}
+});
