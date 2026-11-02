@@ -1,0 +1,416 @@
+{
+  "before": [
+    {
+      "key": "h",
+      "domKey": true,
+      "waitMs": 300,
+      "name": "help",
+      "assert": {
+        "mode": 5
+      }
+    },
+    {
+      "key": "b",
+      "domKey": true,
+      "waitMs": 300
+    },
+    {
+      "key": "o",
+      "domKey": true,
+      "waitMs": 300,
+      "name": "settings"
+    },
+    {
+      "key": "q",
+      "domKey": true,
+      "waitMs": 300,
+      "name": "quality-low",
+      "assert": {
+        "quality": 0
+      }
+    },
+    {
+      "key": "s",
+      "domKey": true,
+      "waitMs": 300,
+      "name": "shake-off",
+      "assert": {
+        "shakeEnabled": 0
+      }
+    },
+    {
+      "key": "b",
+      "domKey": true,
+      "waitMs": 300
+    },
+    {
+      "key": "Enter",
+      "domKey": true,
+      "waitMs": 300,
+      "name": "six-sectors",
+      "assert": {
+        "mode": 1
+      }
+    },
+    {
+      "click": {
+        "x": -240,
+        "y": 55
+      },
+      "waitMs": 350,
+      "name": "card-1",
+      "assert": {
+        "mode": 2,
+        "level": 1,
+        "waves": 4
+      }
+    },
+    {
+      "key": "b",
+      "domKey": true,
+      "waitMs": 300
+    },
+    {
+      "key": "Enter",
+      "domKey": true,
+      "waitMs": 300
+    },
+    {
+      "click": {
+        "x": 0,
+        "y": 55
+      },
+      "waitMs": 350,
+      "name": "card-2",
+      "assert": {
+        "mode": 2,
+        "level": 2,
+        "waves": 5
+      }
+    },
+    {
+      "key": "b",
+      "domKey": true,
+      "waitMs": 300
+    },
+    {
+      "key": "Enter",
+      "domKey": true,
+      "waitMs": 300
+    },
+    {
+      "click": {
+        "x": 240,
+        "y": 55
+      },
+      "waitMs": 350,
+      "name": "card-3",
+      "assert": {
+        "mode": 2,
+        "level": 3,
+        "waves": 6
+      }
+    },
+    {
+      "key": "b",
+      "domKey": true,
+      "waitMs": 300
+    },
+    {
+      "key": "Enter",
+      "domKey": true,
+      "waitMs": 300
+    },
+    {
+      "click": {
+        "x": -240,
+        "y": -110
+      },
+      "waitMs": 350,
+      "name": "card-4",
+      "assert": {
+        "mode": 2,
+        "level": 4,
+        "waves": 7
+      }
+    },
+    {
+      "key": "b",
+      "domKey": true,
+      "waitMs": 300
+    },
+    {
+      "key": "Enter",
+      "domKey": true,
+      "waitMs": 300
+    },
+    {
+      "click": {
+        "x": 0,
+        "y": -110
+      },
+      "waitMs": 350,
+      "name": "card-5",
+      "assert": {
+        "mode": 2,
+        "level": 5,
+        "waves": 8
+      }
+    },
+    {
+      "key": "b",
+      "domKey": true,
+      "waitMs": 300
+    },
+    {
+      "key": "Enter",
+      "domKey": true,
+      "waitMs": 300
+    },
+    {
+      "click": {
+        "x": 240,
+        "y": -110
+      },
+      "waitMs": 350,
+      "name": "card-6",
+      "assert": {
+        "mode": 2,
+        "level": 6,
+        "waves": 10
+      }
+    },
+    {
+      "key": "b",
+      "domKey": true,
+      "waitMs": 300
+    },
+    {
+      "key": "Enter",
+      "domKey": true,
+      "waitMs": 300
+    },
+    {
+      "key": "1",
+      "domKey": true,
+      "waitMs": 300,
+      "name": "normal-campaign"
+    },
+    {
+      "click": {
+        "x": -160,
+        "y": -35
+      },
+      "waitMs": 350,
+      "name": "build-pulse"
+    },
+    {
+      "key": "u",
+      "domKey": true,
+      "waitMs": 300
+    },
+    {
+      "key": "u",
+      "domKey": true,
+      "waitMs": 300,
+      "name": "pulse-max",
+      "assertLists": {
+        "tLevel": {
+          "3": 3
+        }
+      },
+      "assert": {
+        "gold": 10
+      }
+    },
+    {
+      "key": "Space",
+      "domKey": true,
+      "waitMs": 300,
+      "name": "wave-1"
+    },
+    {
+      "key": "p",
+      "domKey": true,
+      "waitMs": 300,
+      "name": "paused",
+      "assert": {
+        "paused": 1
+      }
+    },
+    {
+      "name": "pause-stable",
+      "waitMs": 1000,
+      "assert": {
+        "paused": 1,
+        "wave": 1,
+        "lives": 20
+      }
+    },
+    {
+      "key": "p",
+      "domKey": true,
+      "waitMs": 300,
+      "name": "resume",
+      "assert": {
+        "paused": 0
+      }
+    }
+  ],
+  "benchmark": {
+    "label": "M3 ordinary-gold level 1 battle after six card/menu checks",
+    "windows": 3,
+    "windowMs": 2000,
+    "assert": {
+      "mode": 2,
+      "paused": 0
+    },
+    "activeEnemies": true,
+    "validateActorLayers": true
+  },
+  "after": [
+    {
+      "name": "wave-1-cleared",
+      "until": {
+        "name": "waveActive",
+        "value": 0
+      },
+      "timeout": 90000
+    },
+    {
+      "key": "3",
+      "domKey": true,
+      "waitMs": 300
+    },
+    {
+      "click": {
+        "x": -320,
+        "y": 25
+      },
+      "waitMs": 350,
+      "name": "nova-earned-gold"
+    },
+    {
+      "key": "Space",
+      "domKey": true,
+      "waitMs": 300,
+      "name": "wave-2"
+    },
+    {
+      "until": {
+        "name": "waveActive",
+        "value": 0
+      },
+      "timeout": 90000
+    },
+    {
+      "click": {
+        "x": -320,
+        "y": 25
+      },
+      "waitMs": 350
+    },
+    {
+      "key": "u",
+      "domKey": true,
+      "waitMs": 300
+    },
+    {
+      "key": "u",
+      "domKey": true,
+      "waitMs": 300
+    },
+    {
+      "key": "Space",
+      "domKey": true,
+      "waitMs": 300,
+      "name": "wave-3"
+    },
+    {
+      "until": {
+        "name": "waveActive",
+        "value": 0
+      },
+      "timeout": 90000
+    },
+    {
+      "key": "Space",
+      "domKey": true,
+      "waitMs": 300,
+      "name": "wave-4"
+    },
+    {
+      "name": "normal-victory",
+      "until": {
+        "name": "mode",
+        "value": 3
+      },
+      "timeout": 90000,
+      "assert": {
+        "stars": 3,
+        "lives": 20
+      }
+    },
+    {
+      "key": "Enter",
+      "domKey": true,
+      "waitMs": 300,
+      "name": "stored-stars",
+      "assertLists": {
+        "bestStars": {
+          "0": 3
+        }
+      }
+    },
+    {
+      "key": "1",
+      "domKey": true,
+      "waitMs": 300,
+      "name": "undefended-reset"
+    },
+    {
+      "key": "Space",
+      "domKey": true,
+      "waitMs": 300,
+      "name": "undefended-wave-1"
+    },
+    {
+      "until": {
+        "name": "waveActive",
+        "value": 0
+      },
+      "timeout": 90000
+    },
+    {
+      "key": "Space",
+      "domKey": true,
+      "waitMs": 300,
+      "name": "undefended-wave-2"
+    },
+    {
+      "until": {
+        "name": "waveActive",
+        "value": 0
+      },
+      "timeout": 90000
+    },
+    {
+      "key": "Space",
+      "domKey": true,
+      "waitMs": 300,
+      "name": "undefended-wave-3"
+    },
+    {
+      "name": "normal-defeat",
+      "until": {
+        "name": "mode",
+        "value": 4
+      },
+      "timeout": 90000,
+      "assert": {
+        "stars": 0,
+        "lives": 0
+      }
+    }
+  ]
+}

@@ -396,8 +396,7 @@ def level_select():
               text(x+17,y+61,name,19,"#deecf3",weight=600),
               text(x+17,y+82,en,8,"#91adbd",mono=True,tracking=.7),
               f'<path d="M{x+17} {y+97}H{x+195}" stroke="#365063"/>']
-        for j in range(3):
-            p.append(polygon(star(x+24+j*20,y+115,6,2.8), "#162838", "#688394", .7))
+        # Bottom-left is reserved for the native best-score/star stamp.
         for j in range(i+1):
             p.append(f'<rect x="{x+137+j*10}" y="{y+110}" width="5" height="9" rx="1" fill="{color}" opacity="{.35+j*.1}"/>')
     p.append(text(450,493,"六个战区 · 自由选择 · 每一次防守都值得",11,"#7898ab","middle",tracking=1))
@@ -450,7 +449,7 @@ def settings_panel():
        text(34,211,"战场震动",16,"#d4e7ed",weight=600),
        text(34,235,"控制重击和核心受损时的镜头震动。",11,"#789cac"),
        text(34,303,"快捷指挥",16,"#d4e7ed",weight=600),
-       text(34,327,"空格：下一波　 P：暂停　 Esc：主菜单",12,"#95b8c7")]
+       text(34,327,"空格：下一波　 P：暂停　 B：主菜单",12,"#95b8c7")]
     return svg(640,420,"".join(p),title="Settings panel")
 
 
@@ -465,7 +464,7 @@ def help_panel():
        text(67,254,"选中已有防御塔可升级或出售；出售返还投入的 60%。",12,"#93b4c3"),
        '<path d="M32 279H608" stroke="#304d61"/>',
        text(33,305,"1–4 选塔     U 升级     X 出售",12,"#c4d8e2",mono=True),
-       text(33,331,"Space 下一波     P 暂停     Esc 主菜单",12,"#c4d8e2",mono=True)]
+       text(33,331,"Space 下一波     P 暂停     B 主菜单",12,"#c4d8e2",mono=True)]
     return svg(640,420,"".join(p),title="Field manual panel")
 
 

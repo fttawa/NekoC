@@ -53,7 +53,8 @@ sprite("Controller",{{visible:false}},()=>{{
  }});
  onKey("Space","up",()=>{{setVar("startWave",1);}});
  onKey("p","up",()=>{{if((getVar("mode") as number)===2){{setVar("paused",1-(getVar("paused") as number));}}}});
- onKey("Escape","up",()=>{{setVar("mode",0);setVar("paused",0);}});
+  onKey("Escape","up",()=>{{setVar("mode",0);setVar("paused",0);}});
+  onKey("b","up",()=>{{setVar("mode",0);setVar("paused",0);}});
  onKey("u","up",()=>{{setVar("upgradeRequest",1);}});
  onKey("x","up",()=>{{setVar("sellRequest",1);}});
  onKey("r","up",()=>{{if((getVar("mode") as number)===3 || (getVar("mode") as number)===4){{setVar("chooseRequest",1);}}}});
