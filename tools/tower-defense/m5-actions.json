@@ -1,0 +1,332 @@
+{
+  "before": [
+    {
+      "name": "local-messages",
+      "key": "c",
+      "domKey": true,
+      "waitMs": 400,
+      "assert": {
+        "mode": 8,
+        "cloudEnabled": 0
+      }
+    },
+    {
+      "name": "first-safe-message",
+      "key": "1",
+      "domKey": true,
+      "waitMs": 400,
+      "assert": {
+        "chatSequence": 1
+      },
+      "assertLists": {
+        "chatTextBank": {
+          "0": "加油"
+        }
+      }
+    },
+    {
+      "name": "rate-limit",
+      "key": "2",
+      "domKey": true,
+      "waitMs": 400,
+      "assert": {
+        "chatSequence": 1,
+        "socialRejected": 1
+      }
+    },
+    {
+      "name": "cooldown-expired",
+      "until": {
+        "name": "socialCooldown",
+        "value": 0
+      },
+      "timeout": 40000
+    },
+    {
+      "name": "second-safe-message",
+      "key": "3",
+      "domKey": true,
+      "waitMs": 400,
+      "assert": {
+        "chatSequence": 2
+      },
+      "assertLists": {
+        "chatTextBank": {
+          "1": "守住核心"
+        }
+      }
+    },
+    {
+      "key": "b",
+      "domKey": true,
+      "waitMs": 300
+    },
+    {
+      "key": "Enter",
+      "domKey": true,
+      "waitMs": 300
+    },
+    {
+      "key": "1",
+      "domKey": true,
+      "waitMs": 300,
+      "name": "normal-campaign"
+    },
+    {
+      "click": {
+        "x": -160,
+        "y": -35
+      },
+      "waitMs": 350,
+      "name": "build-pulse"
+    },
+    {
+      "key": "u",
+      "domKey": true,
+      "waitMs": 300
+    },
+    {
+      "key": "u",
+      "domKey": true,
+      "waitMs": 300,
+      "name": "pulse-max",
+      "assertLists": {
+        "tLevel": {
+          "3": 3
+        }
+      },
+      "assert": {
+        "gold": 10
+      }
+    },
+    {
+      "key": "Space",
+      "domKey": true,
+      "waitMs": 300,
+      "name": "wave-1"
+    },
+    {
+      "key": "p",
+      "domKey": true,
+      "waitMs": 300,
+      "name": "paused",
+      "assert": {
+        "paused": 1
+      }
+    },
+    {
+      "name": "pause-stable",
+      "waitMs": 1000,
+      "assert": {
+        "paused": 1,
+        "wave": 1,
+        "lives": 20
+      }
+    },
+    {
+      "key": "p",
+      "domKey": true,
+      "waitMs": 300,
+      "name": "resume",
+      "assert": {
+        "paused": 0
+      }
+    }
+  ],
+  "benchmark": {
+    "label": "M5 normal-gold battle after local social validation",
+    "windows": 3,
+    "windowMs": 2000,
+    "assert": {
+      "mode": 2,
+      "paused": 0
+    },
+    "activeEnemies": true,
+    "validateActorLayers": true
+  },
+  "after": [
+    {
+      "name": "wave-1-cleared",
+      "until": {
+        "name": "waveActive",
+        "value": 0
+      },
+      "timeout": 90000
+    },
+    {
+      "key": "3",
+      "domKey": true,
+      "waitMs": 300
+    },
+    {
+      "click": {
+        "x": -320,
+        "y": 25
+      },
+      "waitMs": 350,
+      "name": "nova-earned-gold"
+    },
+    {
+      "key": "Space",
+      "domKey": true,
+      "waitMs": 300,
+      "name": "wave-2"
+    },
+    {
+      "until": {
+        "name": "waveActive",
+        "value": 0
+      },
+      "timeout": 90000
+    },
+    {
+      "click": {
+        "x": -320,
+        "y": 25
+      },
+      "waitMs": 350
+    },
+    {
+      "key": "u",
+      "domKey": true,
+      "waitMs": 300
+    },
+    {
+      "key": "u",
+      "domKey": true,
+      "waitMs": 300
+    },
+    {
+      "key": "Space",
+      "domKey": true,
+      "waitMs": 300,
+      "name": "wave-3"
+    },
+    {
+      "until": {
+        "name": "waveActive",
+        "value": 0
+      },
+      "timeout": 90000
+    },
+    {
+      "key": "Space",
+      "domKey": true,
+      "waitMs": 300,
+      "name": "wave-4"
+    },
+    {
+      "name": "normal-victory",
+      "until": {
+        "name": "mode",
+        "value": 3
+      },
+      "timeout": 90000,
+      "assert": {
+        "stars": 3,
+        "lives": 20
+      }
+    },
+    {
+      "key": "Enter",
+      "domKey": true,
+      "waitMs": 300,
+      "name": "stored-stars",
+      "assertLists": {
+        "bestStars": {
+          "0": 3
+        }
+      }
+    },
+    {
+      "name": "local-leaderboard",
+      "key": "l",
+      "domKey": true,
+      "waitMs": 400,
+      "assert": {
+        "mode": 7,
+        "socialRecordCount": 1
+      },
+      "assertLists": {
+        "scoreBank": {
+          "0": 7480
+        }
+      }
+    },
+    {
+      "name": "board-1",
+      "key": "1",
+      "domKey": true,
+      "waitMs": 250,
+      "assert": {
+        "mode": 7,
+        "level": 1
+      }
+    },
+    {
+      "name": "board-2",
+      "key": "2",
+      "domKey": true,
+      "waitMs": 250,
+      "assert": {
+        "mode": 7,
+        "level": 2
+      }
+    },
+    {
+      "name": "board-3",
+      "key": "3",
+      "domKey": true,
+      "waitMs": 250,
+      "assert": {
+        "mode": 7,
+        "level": 3
+      }
+    },
+    {
+      "name": "board-4",
+      "key": "4",
+      "domKey": true,
+      "waitMs": 250,
+      "assert": {
+        "mode": 7,
+        "level": 4
+      }
+    },
+    {
+      "name": "board-5",
+      "key": "5",
+      "domKey": true,
+      "waitMs": 250,
+      "assert": {
+        "mode": 7,
+        "level": 5
+      }
+    },
+    {
+      "name": "board-6",
+      "key": "6",
+      "domKey": true,
+      "waitMs": 250,
+      "assert": {
+        "mode": 7,
+        "level": 6
+      }
+    },
+    {
+      "name": "messages-retained",
+      "key": "c",
+      "domKey": true,
+      "waitMs": 400,
+      "assert": {
+        "chatSequence": 2
+      },
+      "assertLists": {
+        "chatTextBank": {
+          "0": "加油",
+          "1": "守住核心"
+        }
+      }
+    }
+  ]
+}

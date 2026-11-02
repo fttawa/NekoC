@@ -1,0 +1,469 @@
+{
+  "before": [
+    {
+      "key": "Enter",
+      "domKey": true,
+      "waitMs": 250
+    },
+    {
+      "key": "6",
+      "domKey": true,
+      "waitMs": 250,
+      "name": "ordinary-sector6",
+      "assert": {
+        "mode": 2,
+        "gold": 280,
+        "waves": 10
+      }
+    },
+    {
+      "key": "1",
+      "domKey": true,
+      "waitMs": 250
+    },
+    {
+      "click": {
+        "x": -160,
+        "y": -35
+      },
+      "waitMs": 300
+    },
+    {
+      "key": "u",
+      "domKey": true,
+      "waitMs": 250
+    },
+    {
+      "key": "u",
+      "domKey": true,
+      "waitMs": 250
+    },
+    {
+      "key": "3",
+      "domKey": true,
+      "waitMs": 250
+    },
+    {
+      "click": {
+        "x": -320,
+        "y": 25
+      },
+      "waitMs": 300
+    },
+    {
+      "key": "Space",
+      "domKey": true,
+      "waitMs": 250,
+      "name": "first-wave",
+      "assert": {
+        "gold": 10,
+        "wave": 1
+      }
+    },
+    {
+      "waitMs": 1500
+    }
+  ],
+  "benchmark": {
+    "label": "Final sector6 normal starting gold, no injected state",
+    "windows": 3,
+    "windowMs": 2000,
+    "assert": {
+      "mode": 2,
+      "paused": 0
+    },
+    "activeEnemies": true,
+    "validateActorLayers": true
+  },
+  "after": [
+    {
+      "name": "wave-1-clear",
+      "until": {
+        "name": "waveActive",
+        "value": 0
+      },
+      "timeout": 180000
+    },
+    {
+      "click": {
+        "x": -320,
+        "y": 25
+      },
+      "waitMs": 300
+    },
+    {
+      "key": "u",
+      "domKey": true,
+      "waitMs": 250
+    },
+    {
+      "key": "u",
+      "domKey": true,
+      "waitMs": 250
+    },
+    {
+      "key": "Space",
+      "domKey": true,
+      "waitMs": 250,
+      "name": "wave-2",
+      "assert": {
+        "wave": 2
+      }
+    },
+    {
+      "name": "wave-2-clear",
+      "until": {
+        "name": "waveActive",
+        "value": 0
+      },
+      "timeout": 180000
+    },
+    {
+      "key": "4",
+      "domKey": true,
+      "waitMs": 250
+    },
+    {
+      "click": {
+        "x": 15,
+        "y": 55
+      },
+      "waitMs": 300
+    },
+    {
+      "key": "u",
+      "domKey": true,
+      "waitMs": 250
+    },
+    {
+      "key": "Space",
+      "domKey": true,
+      "waitMs": 250,
+      "name": "wave-3",
+      "assert": {
+        "wave": 3
+      }
+    },
+    {
+      "name": "wave-3-clear",
+      "until": {
+        "name": "waveActive",
+        "value": 0
+      },
+      "timeout": 180000
+    },
+    {
+      "click": {
+        "x": 15,
+        "y": 55
+      },
+      "waitMs": 300
+    },
+    {
+      "key": "u",
+      "domKey": true,
+      "waitMs": 250
+    },
+    {
+      "key": "2",
+      "domKey": true,
+      "waitMs": 250
+    },
+    {
+      "click": {
+        "x": -160,
+        "y": 175
+      },
+      "waitMs": 300
+    },
+    {
+      "key": "u",
+      "domKey": true,
+      "waitMs": 250
+    },
+    {
+      "key": "u",
+      "domKey": true,
+      "waitMs": 250
+    },
+    {
+      "key": "Space",
+      "domKey": true,
+      "waitMs": 250,
+      "name": "wave-4",
+      "assert": {
+        "wave": 4
+      }
+    },
+    {
+      "name": "wave-4-clear",
+      "until": {
+        "name": "waveActive",
+        "value": 0
+      },
+      "timeout": 180000
+    },
+    {
+      "key": "4",
+      "domKey": true,
+      "waitMs": 250
+    },
+    {
+      "click": {
+        "x": 180,
+        "y": 55
+      },
+      "waitMs": 300
+    },
+    {
+      "key": "u",
+      "domKey": true,
+      "waitMs": 250
+    },
+    {
+      "key": "u",
+      "domKey": true,
+      "waitMs": 250
+    },
+    {
+      "key": "Space",
+      "domKey": true,
+      "waitMs": 250,
+      "name": "wave-5",
+      "assert": {
+        "wave": 5
+      }
+    },
+    {
+      "name": "wave-5-clear",
+      "until": {
+        "name": "waveActive",
+        "value": 0
+      },
+      "timeout": 180000
+    },
+    {
+      "key": "3",
+      "domKey": true,
+      "waitMs": 250
+    },
+    {
+      "click": {
+        "x": 15,
+        "y": -175
+      },
+      "waitMs": 300
+    },
+    {
+      "key": "u",
+      "domKey": true,
+      "waitMs": 250
+    },
+    {
+      "key": "u",
+      "domKey": true,
+      "waitMs": 250
+    },
+    {
+      "key": "1",
+      "domKey": true,
+      "waitMs": 250
+    },
+    {
+      "click": {
+        "x": -330,
+        "y": 165
+      },
+      "waitMs": 300
+    },
+    {
+      "key": "u",
+      "domKey": true,
+      "waitMs": 250
+    },
+    {
+      "key": "u",
+      "domKey": true,
+      "waitMs": 250
+    },
+    {
+      "key": "Space",
+      "domKey": true,
+      "waitMs": 250,
+      "name": "wave-6",
+      "assert": {
+        "wave": 6
+      }
+    },
+    {
+      "name": "wave-6-clear",
+      "until": {
+        "name": "waveActive",
+        "value": 0
+      },
+      "timeout": 180000
+    },
+    {
+      "key": "4",
+      "domKey": true,
+      "waitMs": 250
+    },
+    {
+      "click": {
+        "x": 180,
+        "y": -175
+      },
+      "waitMs": 300
+    },
+    {
+      "key": "u",
+      "domKey": true,
+      "waitMs": 250
+    },
+    {
+      "key": "u",
+      "domKey": true,
+      "waitMs": 250
+    },
+    {
+      "key": "3",
+      "domKey": true,
+      "waitMs": 250
+    },
+    {
+      "click": {
+        "x": -310,
+        "y": -175
+      },
+      "waitMs": 300
+    },
+    {
+      "key": "Space",
+      "domKey": true,
+      "waitMs": 250,
+      "name": "wave-7",
+      "assert": {
+        "wave": 7
+      }
+    },
+    {
+      "name": "wave-7-clear",
+      "until": {
+        "name": "waveActive",
+        "value": 0
+      },
+      "timeout": 180000
+    },
+    {
+      "click": {
+        "x": -310,
+        "y": -175
+      },
+      "waitMs": 300
+    },
+    {
+      "key": "u",
+      "domKey": true,
+      "waitMs": 250
+    },
+    {
+      "key": "u",
+      "domKey": true,
+      "waitMs": 250
+    },
+    {
+      "key": "4",
+      "domKey": true,
+      "waitMs": 250
+    },
+    {
+      "click": {
+        "x": 245,
+        "y": 165
+      },
+      "waitMs": 300
+    },
+    {
+      "key": "u",
+      "domKey": true,
+      "waitMs": 250
+    },
+    {
+      "key": "Space",
+      "domKey": true,
+      "waitMs": 250,
+      "name": "wave-8",
+      "assert": {
+        "wave": 8
+      }
+    },
+    {
+      "name": "wave-8-clear",
+      "until": {
+        "name": "waveActive",
+        "value": 0
+      },
+      "timeout": 180000
+    },
+    {
+      "click": {
+        "x": 245,
+        "y": 165
+      },
+      "waitMs": 300
+    },
+    {
+      "key": "u",
+      "domKey": true,
+      "waitMs": 250
+    },
+    {
+      "key": "Space",
+      "domKey": true,
+      "waitMs": 250,
+      "name": "wave-9",
+      "assert": {
+        "wave": 9
+      }
+    },
+    {
+      "name": "wave-9-clear",
+      "until": {
+        "name": "waveActive",
+        "value": 0
+      },
+      "timeout": 180000
+    },
+    {
+      "key": "Space",
+      "domKey": true,
+      "waitMs": 250,
+      "name": "wave-10",
+      "assert": {
+        "wave": 10
+      }
+    },
+    {
+      "name": "sector6-natural-victory",
+      "until": {
+        "name": "mode",
+        "value": 3
+      },
+      "timeout": 240000,
+      "assert": {
+        "stars": 3,
+        "lives": 20
+      }
+    },
+    {
+      "key": "l",
+      "domKey": true,
+      "waitMs": 250,
+      "name": "sector6-local-record",
+      "assert": {
+        "mode": 7,
+        "socialRecordCount": 1
+      }
+    }
+  ]
+}

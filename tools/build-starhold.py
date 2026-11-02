@@ -19,11 +19,17 @@ def expression(name, index):
 def source_for(milestone):
     core = (ROOT/'modules/tower-defense/core.ts').read_text(encoding='utf8')
     ui = (ROOT/'modules/tower-defense/ui.ts').read_text(encoding='utf8')
+    cloud=''
+    if milestone>=5:
+        cloud=(ROOT/'modules/tower-defense/cloud.ts').read_text(encoding='utf8')
+        ui=ui.replace('if(uiV("mode")===7 || uiV("mode")===8) {','if(false) {')
+        ui=ui.replace('clearDrawing();pointTowards(0);','clearDrawing();pointTowards(0);callProc("td social hud");')
+        ui=ui.replace('callProc("td reset");','changeVar("runId",1);callProc("td reset");')
     if milestone>=4:
         core=core.replace('r("eFlash",v("tdVictim"),0.14);','r("eFlash",v("tdVictim"),0.14);callProc("td effects hit");')
         ui=ui.replace('clearDrawing();pointTowards(0);','clearDrawing();pointTowards(0);callProc("td effects hud");')
         ui=ui.replace('if(uiV("bossAlert")>0 && uiV("milestone")>=4)', 'if(false)')
-    source = core+'\n'+ui+'\n'
+    source = core+'\n'+ui+'\n'+cloud+'\n'
     source = re.sub(r'^import .*?;\s*','',source,flags=re.M).replace('export function','function')
     source += f'''
 sprite("Controller",{{visible:false}},()=>{{
@@ -34,6 +40,7 @@ sprite("Controller",{{visible:false}},()=>{{
   setVar("chooseRequest",0);setVar("clickRequest",0);setVar("fps",0);
   timerReset();timerStart();setVar("lastTime",0);setVar("fpsTime",0);setVar("fpsFrame",0);
   setVar("hudTime",-1);setVar("ready",1);
+  {'setVar("now",0);setVar("runId",0);setVar("socialTime",-1);callProc("td social init");' if milestone>=5 else ''}
   {'callProc("td effects init");' if milestone>=4 else ''}
   forever(()=>{{warp(()=>{{
     setVar("now",timerValue());setVar("dt",getVar("now") as number-getVar("lastTime") as number);
@@ -44,6 +51,7 @@ sprite("Controller",{{visible:false}},()=>{{
     if((getVar("clickRequest") as number)===1){{setVar("clickRequest",0);callProc("td click");}}
     if((getVar("mode") as number)===2 && (getVar("paused") as number)===0){{callProc("td tick");}}
     {'callProc("td effects tick");' if milestone>=4 else ''}
+    {'if(v("now")-v("socialTime")>=0.2){callProc("td social tick");setVar("socialTime",v("now"));}' if milestone>=5 else ''}
     if((getVar("now") as number)-(getVar("hudTime") as number)>=0.2){{callProc("td hud");setVar("hudTime",getVar("now"));}}
     changeVar("frames",1);
     if((getVar("now") as number)-(getVar("fpsTime") as number)>=1){{
@@ -71,7 +79,9 @@ sprite("Controller",{{visible:false}},()=>{{
 '''
     for i in range(1,7):
         source += f'''onKey("{48+i}","up",()=>{{if((getVar("mode") as number)===1){{setVar("level",{i});setVar("chooseRequest",1);}}
-          else if((getVar("mode") as number)===2 && {i}<=4 && ((getVar("milestone") as number)>=2 || {i}===1)){{setVar("selectedTower",{i});}} }});\n'''
+          else if((getVar("mode") as number)===2 && {i}<=4 && ((getVar("milestone") as number)>=2 || {i}===1)){{setVar("selectedTower",{i});}}
+          {'else if(v("mode")===7){setVar("level",'+str(i)+');}else if(v("mode")===8){setVar("messageChoice",'+str(i)+');}' if milestone>=5 else ''}
+        }});\n'''
     source += '});\n'
     source += '''sprite("Backdrop",{visible:true},()=>{
       onClick(()=>{setVar("clickX",mouseX());setVar("clickY",mouseY());setVar("clickRequest",1);});

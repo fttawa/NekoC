@@ -1,0 +1,336 @@
+{
+  "artifact": "samples/starhold.bcmkn",
+  "sha256": "23e2171f88dc60f1cd6a49f1deecbce9ffb9a72caeb7b3bf2a82c217e088d674",
+  "standalonePublishedPlayerVerified": false,
+  "onlineCloudImplemented": false,
+  "evidence": [
+    {
+      "name": "m1",
+      "path": "samples/starhold-verification/m1/report.json",
+      "projectSha256": "710f32c3a74701bb78103fc3ec6edf0ae86a4ca0e367aed7ecc76964b5fbeba9",
+      "ok": true,
+      "runtimeKind": "Official published KN editor native playback runtime in a local test shell; not a standalone published-work player",
+      "browserShellDegraded": true,
+      "provenanceVerified": true,
+      "metrics": {
+        "durationSeconds": 12.0635,
+        "gameFrames": 952,
+        "gameFps": 78.91573755543583,
+        "rafHz": 88.44862602064077,
+        "nativeUpdates": 1067,
+        "positiveDtStepsPerSecond": 19.977618435777345
+      },
+      "fixtureSteps": [],
+      "nativeErrors": [],
+      "nativeWarnings": [],
+      "network": {
+        "localRouted": 28,
+        "externalHttpAborted": 0,
+        "webSocketsAborted": 0,
+        "externalResponses": [],
+        "externalCompleted": [],
+        "cspBlocked": 35,
+        "observedExternalEscapes": 0,
+        "barrierVerified": true
+      },
+      "terminalCheckpoints": []
+    },
+    {
+      "name": "m2",
+      "path": "samples/starhold-verification/m2/report.json",
+      "projectSha256": "f066212417ec82d314c29b9fa8b2740bd4759d30bdf3f90b95436de7ffab3455",
+      "ok": true,
+      "runtimeKind": "Official published KN editor native playback runtime in a local test shell; not a standalone published-work player",
+      "browserShellDegraded": true,
+      "provenanceVerified": true,
+      "metrics": {
+        "durationSeconds": 6.046400000035763,
+        "gameFrames": 398,
+        "gameFps": 65.82429214038865,
+        "rafHz": 89.30934109499968,
+        "nativeUpdates": 540,
+        "positiveDtStepsPerSecond": 20.011907912027706
+      },
+      "fixtureSteps": [
+        "showcase-fixture-only"
+      ],
+      "nativeErrors": [],
+      "nativeWarnings": [],
+      "network": {
+        "localRouted": 28,
+        "externalHttpAborted": 0,
+        "webSocketsAborted": 0,
+        "externalResponses": [],
+        "externalCompleted": [],
+        "cspBlocked": 34,
+        "observedExternalEscapes": 0,
+        "barrierVerified": true
+      },
+      "terminalCheckpoints": []
+    },
+    {
+      "name": "m3",
+      "path": "samples/starhold-verification/m3/report.json",
+      "projectSha256": "061d5f7431dfd94d6b790d5f239928bf808e1e10cd493e59ea7ecee947301d39",
+      "ok": true,
+      "runtimeKind": "Official published KN editor native playback runtime in a local test shell; not a standalone published-work player",
+      "browserShellDegraded": true,
+      "provenanceVerified": true,
+      "metrics": {
+        "durationSeconds": 6.0545,
+        "gameFrames": 485,
+        "gameFps": 80.10570649929804,
+        "rafHz": 81.75737055082996,
+        "nativeUpdates": 495,
+        "positiveDtStepsPerSecond": 19.985135023536213
+      },
+      "fixtureSteps": [],
+      "nativeErrors": [],
+      "nativeWarnings": [],
+      "network": {
+        "localRouted": 28,
+        "externalHttpAborted": 0,
+        "webSocketsAborted": 0,
+        "externalResponses": [],
+        "externalCompleted": [],
+        "cspBlocked": 34,
+        "observedExternalEscapes": 0,
+        "barrierVerified": true
+      },
+      "terminalCheckpoints": [
+        {
+          "name": "normal-victory",
+          "mode": 3,
+          "level": 1,
+          "score": 7480,
+          "stars": 3,
+          "lives": 20
+        },
+        {
+          "name": "normal-defeat",
+          "mode": 4,
+          "level": 1,
+          "score": 400,
+          "stars": 0,
+          "lives": 0
+        }
+      ]
+    },
+    {
+      "name": "m3-ui",
+      "path": "samples/starhold-verification/m3-ui/report.json",
+      "projectSha256": "29983b2cb297a498cd05afd8b3d37ec155d8f9ad635e6e90d762157bbff228ef",
+      "ok": true,
+      "runtimeKind": "Official published KN editor native playback runtime in a local test shell; not a standalone published-work player",
+      "browserShellDegraded": true,
+      "provenanceVerified": true,
+      "metrics": {
+        "durationSeconds": 6.0643000000119205,
+        "gameFrames": 471,
+        "gameFps": 77.66766156012633,
+        "rafHz": 80.47095295401625,
+        "nativeUpdates": 488,
+        "positiveDtStepsPerSecond": 19.952838744745833
+      },
+      "fixtureSteps": [],
+      "nativeErrors": [],
+      "nativeWarnings": [],
+      "network": {
+        "localRouted": 28,
+        "externalHttpAborted": 0,
+        "webSocketsAborted": 0,
+        "externalResponses": [],
+        "externalCompleted": [],
+        "cspBlocked": 35,
+        "observedExternalEscapes": 0,
+        "barrierVerified": true
+      },
+      "terminalCheckpoints": []
+    },
+    {
+      "name": "m4-normal",
+      "path": "samples/starhold-verification/m4-normal/report.json",
+      "projectSha256": "f00821a833a2c7bb036a06cb16d59b979fd81d376e400b3066d2096b95b60809",
+      "ok": true,
+      "runtimeKind": "Official published KN editor native playback runtime in a local test shell; not a standalone published-work player",
+      "browserShellDegraded": true,
+      "provenanceVerified": true,
+      "metrics": {
+        "durationSeconds": 12.073,
+        "gameFrames": 768,
+        "gameFps": 63.61302079019299,
+        "rafHz": 77.44553963389382,
+        "nativeUpdates": 935,
+        "positiveDtStepsPerSecond": 19.96189845108921
+      },
+      "fixtureSteps": [],
+      "nativeErrors": [],
+      "nativeWarnings": [],
+      "network": {
+        "localRouted": 28,
+        "externalHttpAborted": 0,
+        "webSocketsAborted": 0,
+        "externalResponses": [],
+        "externalCompleted": [],
+        "cspBlocked": 35,
+        "observedExternalEscapes": 0,
+        "barrierVerified": true
+      },
+      "terminalCheckpoints": []
+    },
+    {
+      "name": "m4-final-high",
+      "path": "samples/starhold-verification/m4-final-high/report.json",
+      "projectSha256": "f00821a833a2c7bb036a06cb16d59b979fd81d376e400b3066d2096b95b60809",
+      "ok": true,
+      "runtimeKind": "Official published KN editor native playback runtime in a local test shell; not a standalone published-work player",
+      "browserShellDegraded": true,
+      "provenanceVerified": true,
+      "metrics": {
+        "durationSeconds": 12.066399999976158,
+        "gameFrames": 233,
+        "gameFps": 19.30981900156305,
+        "rafHz": 75.83040509197507,
+        "nativeUpdates": 915,
+        "positiveDtStepsPerSecond": 17.320824769642392
+      },
+      "fixtureSteps": [
+        "showcase-fixture-only"
+      ],
+      "nativeErrors": [],
+      "nativeWarnings": [],
+      "network": {
+        "localRouted": 28,
+        "externalHttpAborted": 0,
+        "webSocketsAborted": 0,
+        "externalResponses": [],
+        "externalCompleted": [],
+        "cspBlocked": 34,
+        "observedExternalEscapes": 0,
+        "barrierVerified": true
+      },
+      "terminalCheckpoints": []
+    },
+    {
+      "name": "m4-final-low",
+      "path": "samples/starhold-verification/m4-final-low/report.json",
+      "projectSha256": "f00821a833a2c7bb036a06cb16d59b979fd81d376e400b3066d2096b95b60809",
+      "ok": true,
+      "runtimeKind": "Official published KN editor native playback runtime in a local test shell; not a standalone published-work player",
+      "browserShellDegraded": true,
+      "provenanceVerified": true,
+      "metrics": {
+        "durationSeconds": 12.098600000023842,
+        "gameFrames": 219,
+        "gameFps": 18.101267915260316,
+        "rafHz": 72.57038004382902,
+        "nativeUpdates": 878,
+        "positiveDtStepsPerSecond": 16.69614666156431
+      },
+      "fixtureSteps": [
+        "showcase-fixture-only"
+      ],
+      "nativeErrors": [],
+      "nativeWarnings": [],
+      "network": {
+        "localRouted": 28,
+        "externalHttpAborted": 0,
+        "webSocketsAborted": 0,
+        "externalResponses": [],
+        "externalCompleted": [],
+        "cspBlocked": 34,
+        "observedExternalEscapes": 0,
+        "barrierVerified": true
+      },
+      "terminalCheckpoints": []
+    },
+    {
+      "name": "m5",
+      "path": "samples/starhold-verification/m5/report.json",
+      "projectSha256": "23e2171f88dc60f1cd6a49f1deecbce9ffb9a72caeb7b3bf2a82c217e088d674",
+      "ok": true,
+      "runtimeKind": "Official published KN editor native playback runtime in a local test shell; not a standalone published-work player",
+      "browserShellDegraded": true,
+      "provenanceVerified": true,
+      "metrics": {
+        "durationSeconds": 6.084700000047683,
+        "gameFrames": 430,
+        "gameFps": 70.66905517061322,
+        "rafHz": 77.24292076787957,
+        "nativeUpdates": 470,
+        "positiveDtStepsPerSecond": 20.050290071662356
+      },
+      "fixtureSteps": [],
+      "nativeErrors": [],
+      "nativeWarnings": [],
+      "network": {
+        "localRouted": 28,
+        "externalHttpAborted": 0,
+        "webSocketsAborted": 0,
+        "externalResponses": [],
+        "externalCompleted": [],
+        "cspBlocked": 34,
+        "observedExternalEscapes": 0,
+        "barrierVerified": true
+      },
+      "terminalCheckpoints": [
+        {
+          "name": "normal-victory",
+          "mode": 3,
+          "level": 1,
+          "score": 7480,
+          "stars": 3,
+          "lives": 20
+        }
+      ]
+    },
+    {
+      "name": "final-campaign",
+      "path": "samples/starhold-verification/final-campaign/report.json",
+      "projectSha256": "23e2171f88dc60f1cd6a49f1deecbce9ffb9a72caeb7b3bf2a82c217e088d674",
+      "ok": true,
+      "runtimeKind": "Official published KN editor native playback runtime in a local test shell; not a standalone published-work player",
+      "browserShellDegraded": true,
+      "provenanceVerified": true,
+      "metrics": {
+        "durationSeconds": 6.066399999976158,
+        "gameFrames": 363,
+        "gameFps": 59.83779506815024,
+        "rafHz": 77.4759330083488,
+        "nativeUpdates": 470,
+        "positiveDtStepsPerSecond": 19.945931689383414
+      },
+      "fixtureSteps": [],
+      "nativeErrors": [],
+      "nativeWarnings": [],
+      "network": {
+        "localRouted": 28,
+        "externalHttpAborted": 0,
+        "webSocketsAborted": 0,
+        "externalResponses": [],
+        "externalCompleted": [],
+        "cspBlocked": 35,
+        "observedExternalEscapes": 0,
+        "barrierVerified": true
+      },
+      "terminalCheckpoints": [
+        {
+          "name": "sector6-natural-victory",
+          "mode": 3,
+          "level": 6,
+          "score": 48890,
+          "stars": 3,
+          "lives": 20
+        },
+        {
+          "name": "sector6-local-record",
+          "mode": 7,
+          "level": 6,
+          "score": 48890,
+          "stars": 3,
+          "lives": 20
+        }
+      ]
+    }
+  ]
+}

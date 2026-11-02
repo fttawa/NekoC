@@ -36,3 +36,8 @@ test('digit keyboard controls use native keycodes rather than numeric character 
   const keys=[...blocks(project)].filter(b=>b.type==='on_keydown').map(b=>b.fields.key);
   for(let digit=1;digit<=6;digit++){assert.ok(keys.includes(String(48+digit)));assert.ok(!keys.includes(String(digit)));}
 });
+test('message length validation retains its text reporter input in native output',()=>{
+  const lengths=[...blocks(project)].filter(b=>b.type==='text_length');
+  if(project.variables.variablesDict['kn-var-cloudEnabled'])assert.ok(lengths.length>=2);
+  for(const block of lengths)assert.ok(block.inputs?.text,`missing text socket in ${block.id}`);
+});
