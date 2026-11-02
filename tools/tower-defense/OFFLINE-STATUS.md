@@ -117,3 +117,34 @@ SHA-256 hashes and normalized project equality; `playbackOriginalProjectSha256`
 and `styleUrlsPreserved` attest that actual playback uses the original embedded
 resources. No project file, game block, cloud service, texture implementation or
 runtime factory is modified.
+
+## Accepted M1 evidence (2026-11-03)
+
+Project SHA-256:
+`710f32c3a74701bb78103fc3ec6edf0ae86a4ca0e367aed7ecc76964b5fbeba9`.
+
+- `samples/starhold-verification/m1/`: parent-prescribed three Pulse purchases,
+  wave-1 combat, visible actor layer assertions, 51/51 loaded embedded SVG styles.
+  Final retained parent run: 952 controller frames / 12.0635s = **78.9157 update
+  FPS**, **88.4486 rAF Hz**, 1,067 native updates. Per-window update FPS:
+  79.4817 / 76.9727 / 80.2963. An earlier agent rerun reported higher rates;
+  use the retained `report.json` and `frame-metrics.json` above.
+- `samples/starhold-verification/m1-gameplay/`: ordinary-gold central Pulse P3,
+  then entry and middle Pulse upgrades between waves. All four waves won with
+  44 kills, 20 lives, three stars, score 7,660, gold 196. `R` resets normally.
+  The subsequent undefended run loses on wave 3 (0 lives, 0 kills, 0 stars,
+  score 400), and another `R` resets to 180 gold / 20 lives / wave 0.
+- Campaign opening timing: **94.8886 game FPS**, **96.8723 rAF Hz** over 3.0246s.
+  The longer three-window M1 combat measurement above is the primary FPS result.
+- All 27 campaign action steps have `fixture:null`; no stats, enemy state,
+  wave-completion state, score or timing was injected.
+- Both runs: zero native errors/warnings, all release/factory hash checks pass,
+  35 CSP blocks, 0 external HTTP/WebSocket route attempts (CSP blocks first),
+  **0 external responses/completed requests**, zero style upload attempts.
+- Actual screenshots confirm the title, battlefield actors and readable HUD.
+  Victory/defeat result panels have minor duplicate artwork/text overlap; their
+  state and counters are readable, and the parent can polish layout later.
+
+Reproduce the campaign with `KN_SCENARIO=tools/tower-defense/m1-gameplay-actions.json`
+and output `samples/starhold-verification/m1-gameplay`. No commits were made by
+the verification agent.

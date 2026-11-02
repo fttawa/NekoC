@@ -1,0 +1,53 @@
+{
+  "benchmark": {
+    "label": "M1 ordinary-gold campaign opening, max-level Pulse on pad 4",
+    "windows": 2,
+    "windowMs": 1500
+  },
+  "frameVariable": "frames",
+  "summary": {
+    "durationSeconds": 3.024599999964237,
+    "gameFrames": 287,
+    "gameFps": 94.88858030926188,
+    "rafHz": 96.87231369551823,
+    "nativeUpdates": 293
+  },
+  "windows": [
+    {
+      "seconds": 1.514699999988079,
+      "gameFrames": 146,
+      "gameFps": 96.38872384046283,
+      "rafHz": 96.38872384046283,
+      "nativeUpdates": 146,
+      "mode": 2,
+      "wave": 1,
+      "activeEnemies": 4,
+      "score": 0,
+      "lives": 20
+    },
+    {
+      "seconds": 1.5098999999761582,
+      "gameFrames": 141,
+      "gameFps": 93.3836677940436,
+      "rafHz": 97.35744089166248,
+      "nativeUpdates": 147,
+      "mode": 2,
+      "wave": 1,
+      "activeEnemies": 5,
+      "score": 0,
+      "lives": 20
+    }
+  ],
+  "network": {
+    "localRouted": 28,
+    "externalHttpAborted": 0,
+    "webSocketsAborted": 0,
+    "externalResponses": [],
+    "externalCompleted": [],
+    "cspBlocked": 35,
+    "observedExternalEscapes": 0,
+    "barrierVerified": true
+  },
+  "runtimeKind": "Official published KN editor native playback runtime in a local test shell; not a standalone published-work player",
+  "browserShellDegraded": true
+}

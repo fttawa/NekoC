@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[2]
-names=['m1','m2','m3','m3-ui','m4-normal','m4-final-high','m4-final-low','m5','final-campaign']
+names=['m1','m1-gameplay','m2','m3','m3-ui','m4-normal','m4-final-high','m4-final-low','m5','final-campaign']
 result={'artifact':'samples/starhold.bcmkn','sha256':hashlib.sha256((ROOT/'samples/starhold.bcmkn').read_bytes()).hexdigest(),
         'standalonePublishedPlayerVerified':False,'onlineCloudImplemented':False,'evidence':[]}
 for name in names:

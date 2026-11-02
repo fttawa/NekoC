@@ -31,6 +31,7 @@
 - 本地检查27项通过，含36次正常经济六关模拟；模拟证明通关规则，不冒充官方完整战役。
 - 证据：`samples/starhold-verification/m1/`，被测SHA256 `710f32c3a74701bb78103fc3ec6edf0ae86a4ca0e367aed7ecc76964b5fbeba9`。
 - 仍缺独立发布作品播放器外壳；现有缓存缺官方HTML/CSS/部分界面chunk，报告保留`browserShellDegraded=true`及界面Event错误。不得将本验收写成独立发布播放器通过。
+- 补存代理先前完成的`m1-gameplay/`：同M1 SHA，27步真实输入、0夹具；普通脉冲阵四波胜利44击杀20生命3星7660分，随后自然失败与R重试通过。开局94.89更新FPS仅3.02秒，不替换上表12秒主要基准。
 
 ## M2 验收
 

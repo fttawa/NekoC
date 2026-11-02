@@ -1,0 +1,38 @@
+{
+  "before": [
+    {"name":"enter","key":"Enter","domKey":true,"waitMs":300,"until":{"name":"mode","value":2},"assert":{"gold":180}},
+    {"name":"build-central-pulse","click":{"x":-160,"y":-35},"waitMs":300,"until":{"name":"gold","value":125},"assertLists":{"tType":{"3":1},"tLevel":{"3":1}}},
+    {"name":"upgrade-central-2","key":"u","domKey":true,"waitMs":300,"until":{"name":"gold","value":80},"assertLists":{"tLevel":{"3":2}}},
+    {"name":"upgrade-central-3","key":"u","domKey":true,"waitMs":300,"until":{"name":"gold","value":10},"assertLists":{"tLevel":{"3":3}}},
+    {"name":"defended-wave-1","key":"Space","domKey":true,"waitMs":700,"until":{"name":"alive","op":"gt","value":0},"assert":{"wave":1,"mode":2}}
+  ],
+  "benchmark": {
+    "label":"M1 ordinary-gold campaign opening, max-level Pulse on pad 4",
+    "windows":2,"windowMs":1500,
+    "assert":{"mode":2,"paused":0,"wave":1},
+    "activeEnemies":true,"validateActorLayers":true
+  },
+  "after": [
+    {"name":"wave-1-cleared","until":{"name":"waveActive","value":0},"timeout":90000,"assert":{"mode":2,"wave":1,"lives":20}},
+    {"name":"build-entry-pulse","click":{"x":-320,"y":25},"waitMs":300,"until":{"name":"tLevel","index":1,"value":1}},
+    {"name":"upgrade-entry-2","key":"u","domKey":true,"waitMs":300,"until":{"name":"tLevel","index":1,"value":2}},
+    {"name":"defended-wave-2","key":"Space","domKey":true,"waitMs":700,"until":{"name":"wave","value":2}},
+    {"name":"wave-2-cleared","until":{"name":"waveActive","value":0},"timeout":90000,"assert":{"mode":2,"wave":2,"lives":20}},
+    {"name":"upgrade-entry-3","key":"u","domKey":true,"waitMs":300,"until":{"name":"tLevel","index":1,"value":3}},
+    {"name":"build-middle-pulse","click":{"x":15,"y":55},"waitMs":300,"until":{"name":"tLevel","index":5,"value":1}},
+    {"name":"defended-wave-3","key":"Space","domKey":true,"waitMs":700,"until":{"name":"wave","value":3}},
+    {"name":"wave-3-cleared","until":{"name":"waveActive","value":0},"timeout":90000,"assert":{"mode":2,"wave":3,"lives":20}},
+    {"name":"upgrade-middle-2","key":"u","domKey":true,"waitMs":300,"until":{"name":"tLevel","index":5,"value":2}},
+    {"name":"upgrade-middle-3","key":"u","domKey":true,"waitMs":300,"until":{"name":"tLevel","index":5,"value":3}},
+    {"name":"defended-wave-4","key":"Space","domKey":true,"waitMs":700,"until":{"name":"wave","value":4}},
+    {"name":"victory","until":{"name":"mode","value":3},"timeout":90000,"assert":{"lives":20,"stars":3,"kills":44,"sold":0}},
+    {"name":"retry-clean","key":"r","domKey":true,"waitMs":500,"until":{"name":"mode","value":2},"assert":{"wave":0,"gold":180,"lives":20,"kills":0},"assertLists":{"tType":{"1":0,"3":0,"5":0}}},
+    {"name":"undefended-wave-1","key":"Space","domKey":true,"waitMs":700,"until":{"name":"wave","value":1}},
+    {"name":"undefended-wave-1-cleared","until":{"name":"waveActive","value":0},"timeout":90000,"assert":{"mode":2,"lives":12,"kills":0}},
+    {"name":"undefended-wave-2","key":"Space","domKey":true,"waitMs":700,"until":{"name":"wave","value":2}},
+    {"name":"undefended-wave-2-cleared","until":{"name":"waveActive","value":0},"timeout":90000,"assert":{"mode":2,"lives":2,"kills":0}},
+    {"name":"undefended-wave-3","key":"Space","domKey":true,"waitMs":700,"until":{"name":"wave","value":3}},
+    {"name":"defeat","until":{"name":"mode","value":4},"timeout":90000,"assert":{"lives":0,"stars":0,"kills":0,"sold":0}},
+    {"name":"retry-after-defeat","key":"r","domKey":true,"waitMs":500,"until":{"name":"mode","value":2},"assert":{"wave":0,"gold":180,"lives":20,"kills":0}}
+  ]
+}

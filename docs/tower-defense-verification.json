@@ -36,6 +36,62 @@
       "terminalCheckpoints": []
     },
     {
+      "name": "m1-gameplay",
+      "path": "samples/starhold-verification/m1-gameplay/report.json",
+      "projectSha256": "710f32c3a74701bb78103fc3ec6edf0ae86a4ca0e367aed7ecc76964b5fbeba9",
+      "ok": true,
+      "runtimeKind": "Official published KN editor native playback runtime in a local test shell; not a standalone published-work player",
+      "browserShellDegraded": true,
+      "provenanceVerified": true,
+      "metrics": {
+        "durationSeconds": 3.024599999964237,
+        "gameFrames": 287,
+        "gameFps": 94.88858030926188,
+        "rafHz": 96.87231369551823,
+        "nativeUpdates": 293,
+        "positiveDtStepsPerSecond": 20.167956093606186
+      },
+      "fixtureSteps": [],
+      "nativeErrors": [],
+      "nativeWarnings": [],
+      "network": {
+        "localRouted": 28,
+        "externalHttpAborted": 0,
+        "webSocketsAborted": 0,
+        "externalResponses": [],
+        "externalCompleted": [],
+        "cspBlocked": 35,
+        "observedExternalEscapes": 0,
+        "barrierVerified": true
+      },
+      "terminalCheckpoints": [
+        {
+          "name": "victory",
+          "mode": 3,
+          "level": 1,
+          "score": 7660,
+          "stars": 3,
+          "lives": 20
+        },
+        {
+          "name": "defeat",
+          "mode": 4,
+          "level": 1,
+          "score": 400,
+          "stars": 0,
+          "lives": 0
+        },
+        {
+          "name": "retry-after-defeat",
+          "mode": 2,
+          "level": 1,
+          "score": 0,
+          "stars": 0,
+          "lives": 20
+        }
+      ]
+    },
+    {
       "name": "m2",
       "path": "samples/starhold-verification/m2/report.json",
       "projectSha256": "f066212417ec82d314c29b9fa8b2740bd4759d30bdf3f90b95436de7ffab3455",
