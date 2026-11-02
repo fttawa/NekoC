@@ -1,10 +1,10 @@
 {
-  "milestone": 3,
-  "bytes": 968176,
-  "sha256": "29983b2cb297a498cd05afd8b3d37ec155d8f9ad635e6e90d762157bbff228ef",
-  "actors": 40,
+  "milestone": 4,
+  "bytes": 1448956,
+  "sha256": "f00821a833a2c7bb036a06cb16d59b979fd81d376e400b3066d2096b95b60809",
+  "actors": 65,
   "styles": 51,
-  "blocks": 4847,
+  "blocks": 8512,
   "renderer": "native SVG actor pool + text-only stamps",
   "networkResources": 0
 }

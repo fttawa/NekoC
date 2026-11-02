@@ -19,6 +19,10 @@ def expression(name, index):
 def source_for(milestone):
     core = (ROOT/'modules/tower-defense/core.ts').read_text(encoding='utf8')
     ui = (ROOT/'modules/tower-defense/ui.ts').read_text(encoding='utf8')
+    if milestone>=4:
+        core=core.replace('r("eFlash",v("tdVictim"),0.14);','r("eFlash",v("tdVictim"),0.14);callProc("td effects hit");')
+        ui=ui.replace('clearDrawing();pointTowards(0);','clearDrawing();pointTowards(0);callProc("td effects hud");')
+        ui=ui.replace('if(uiV("bossAlert")>0 && uiV("milestone")>=4)', 'if(false)')
     source = core+'\n'+ui+'\n'
     source = re.sub(r'^import .*?;\s*','',source,flags=re.M).replace('export function','function')
     source += f'''
@@ -30,6 +34,7 @@ sprite("Controller",{{visible:false}},()=>{{
   setVar("chooseRequest",0);setVar("clickRequest",0);setVar("fps",0);
   timerReset();timerStart();setVar("lastTime",0);setVar("fpsTime",0);setVar("fpsFrame",0);
   setVar("hudTime",-1);setVar("ready",1);
+  {'callProc("td effects init");' if milestone>=4 else ''}
   forever(()=>{{warp(()=>{{
     setVar("now",timerValue());setVar("dt",getVar("now") as number-getVar("lastTime") as number);
     setVar("lastTime",getVar("now"));
@@ -38,6 +43,7 @@ sprite("Controller",{{visible:false}},()=>{{
     if((getVar("chooseRequest") as number)===1){{setVar("chooseRequest",0);callProc("td choose level");}}
     if((getVar("clickRequest") as number)===1){{setVar("clickRequest",0);callProc("td click");}}
     if((getVar("mode") as number)===2 && (getVar("paused") as number)===0){{callProc("td tick");}}
+    {'callProc("td effects tick");' if milestone>=4 else ''}
     if((getVar("now") as number)-(getVar("hudTime") as number)>=0.2){{callProc("td hud");setVar("hudTime",getVar("now"));}}
     changeVar("frames",1);
     if((getVar("now") as number)-(getVar("fpsTime") as number)>=1){{
@@ -94,7 +100,7 @@ sprite("Tower {i:02d}",{{visible:false}},()=>{{
      setStyle(listItem("towerStyles","any",(scriptVar("styleIndex") as number)+1));setVar("lastStyle",scriptVar("styleIndex"));
    }}
   }}else{{hide();}}
- }});}});}});
+ }});wait(0.06);}});}});
 }});
 '''
     for i in range(1,25):
@@ -106,7 +112,7 @@ sprite("Enemy {i:02d}",{{visible:false}},()=>{{
    show();moveTo({expression('eX',i)},{expression('eY',i)});
    if((scriptVar("lastStyle") as number)!=={typ}){{setStyle(listItem("enemyStyles","any",{typ}));setVar("lastStyle",{typ});}}
   }}else{{hide();}}
- }});}});}});
+ }});wait(0.025);}});}});
 }});
 '''
     source += '''sprite("Selection",{visible:false},()=>{
@@ -116,6 +122,15 @@ sprite("Enemy {i:02d}",{{visible:false}},()=>{{
  });});});
 });
 '''
+    if milestone>=4:
+        source=source.replace('moveTo(0,0);forever(()=>{','moveTo(0,0);forever(()=>{moveTo(v("fxX"),v("fxY"));',1)
+        for i in range(1,13):
+            source=source.replace(f'moveTo({PAD_X[i-1]},{PAD_Y[i-1]});setVar("styleIndex"',f'moveTo({PAD_X[i-1]}+v("fxX"),{PAD_Y[i-1]}+v("fxY"));setVar("styleIndex"')
+        for i in range(1,25):
+            source=source.replace(f'moveTo({expression("eX",i)},{expression("eY",i)});',f'moveTo({expression("eX",i)}+v("fxX"),{expression("eY",i)}+v("fxY"));setScale(100+{expression("eFlash",i)}*65);')
+        spec=importlib.util.spec_from_file_location('starhold_effects',ROOT/'tools/tower-defense/effects.py')
+        fx=importlib.util.module_from_spec(spec);spec.loader.exec_module(fx)
+        source+=fx.emit(PAD_X,PAD_Y)
     return '\n'.join(line.rstrip() for line in source.splitlines())+'\n'
 
 def main():
@@ -147,6 +162,7 @@ def main():
     enemies=[sid(f'enemy-{i}') for i in range(1,7)]
     menus=[sid('title'),sid('level-select'),sid('pause'),sid('victory'),sid('defeat'),sid('help'),sid('settings'),sid('leaderboard'),sid('messages')]
     maps=[sid(f'map-{i}') for i in range(1,7)]
+    bullets=[sid(f'bullet-{i}') for i in range(1,5)]
     for a in p['actors']['actorsDict'].values():
         name=a['name'];a['rotation']=0;a['scale']=100
         if name=='Backdrop':bank=maps
@@ -154,13 +170,17 @@ def main():
         elif name.startswith('Tower '):bank=towers
         elif name.startswith('Enemy '):bank=enemies
         elif name=='Selection':bank=[sid('selection')]
+        elif name.startswith('Projectile '):bank=bullets
+        elif name.startswith('Impact '):bank=[sid('effect-ring')]
+        elif name=='Boss Warning':bank=[sid('boss-banner')]
         else:bank=[sid('pad')];a['visible']=False
         a['styles']=list(dict.fromkeys(bank));a['currentStyleId']=bank[0]
     scene=next(iter(p['scenes']['scenesDict'].values()));scene['styles']=[sid('map-1')];scene['currentStyleId']=sid('map-1')
     # Official loader instantiates this list in reverse: foreground comes first.
-    actors=p['actors']['actorsDict'];priority=lambda k:0 if actors[k]['name']=='Backdrop' else 3 if actors[k]['name']=='Controller' else 2 if actors[k]['name']=='Menu' else 1
+    actors=p['actors']['actorsDict'];priority=lambda k:0 if actors[k]['name']=='Backdrop' else 4 if actors[k]['name']=='Controller' else 3 if actors[k]['name']=='Menu' else 2 if actors[k]['name']=='Boss Warning' else 1
     scene['actorIds'].sort(key=priority,reverse=True)
     banks={'padX':PAD_X,'padY':PAD_Y,'towerStyles':towers,'enemyStyles':enemies,'menuStyles':menus,'mapStyles':maps,'bestScore':[0]*6,'bestStars':[0]*6}
+    banks['bulletStyles']=bullets
     for name in ['eAlive','eType','eHP','eMax','eX','eY','eProgress','eSlow','eFlash']:banks[name]=[0]*24
     for name in ['tType','tLevel','tCooldown','tShot','tTargetX','tTargetY','tSpent']:banks[name]=[0]*12
     for v in p['variables']['variablesDict'].values():
@@ -168,7 +188,7 @@ def main():
         if v.get('type')=='list' and v['name'] in banks:v['value']=banks[v['name']]
     # Script-variable writes use the official descriptor; setVar otherwise
     # targets a shared global even when a declaration with that name exists.
-    locals_by_id={k:v['name'] for k,v in p['variables']['variablesDict'].items() if v['name'] in ['lastStyle','styleIndex','renderStyle']}
+    locals_by_id={k:v['name'] for k,v in p['variables']['variablesDict'].items() if v['name'] in ['lastStyle','styleIndex','renderStyle','fxAngle','fxLevel','fxUpgrade']}
     def localize(x):
         if isinstance(x,dict):
             fields=x.get('fields',{});key=fields.get('variable')

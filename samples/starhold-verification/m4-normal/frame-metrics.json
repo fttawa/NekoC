@@ -1,0 +1,65 @@
+{
+  "benchmark": {
+    "label": "M4 normal battle, high effects, three Pulse1 towers",
+    "windows": 3,
+    "windowMs": 4000
+  },
+  "frameVariable": "frames",
+  "summary": {
+    "durationSeconds": 12.073,
+    "gameFrames": 768,
+    "gameFps": 63.61302079019299,
+    "rafHz": 77.44553963389382,
+    "nativeUpdates": 935
+  },
+  "windows": [
+    {
+      "seconds": 4.024199999988079,
+      "gameFrames": 240,
+      "gameFps": 59.63918294337034,
+      "rafHz": 77.53093782638145,
+      "nativeUpdates": 312,
+      "mode": 2,
+      "wave": 1,
+      "activeEnemies": 5,
+      "score": 270,
+      "lives": 20
+    },
+    {
+      "seconds": 4.029199999988079,
+      "gameFrames": 274,
+      "gameFps": 68.00357391065488,
+      "rafHz": 77.4347264968041,
+      "nativeUpdates": 312,
+      "mode": 2,
+      "wave": 1,
+      "activeEnemies": 2,
+      "score": 540,
+      "lives": 20
+    },
+    {
+      "seconds": 4.019600000023842,
+      "gameFrames": 254,
+      "gameFps": 63.19036720034168,
+      "rafHz": 77.3708826744341,
+      "nativeUpdates": 311,
+      "mode": 2,
+      "wave": 1,
+      "activeEnemies": 2,
+      "score": 540,
+      "lives": 20
+    }
+  ],
+  "network": {
+    "localRouted": 28,
+    "externalHttpAborted": 0,
+    "webSocketsAborted": 0,
+    "externalResponses": [],
+    "externalCompleted": [],
+    "cspBlocked": 35,
+    "observedExternalEscapes": 0,
+    "barrierVerified": true
+  },
+  "runtimeKind": "Official published KN editor native playback runtime in a local test shell; not a standalone published-work player",
+  "browserShellDegraded": true
+}

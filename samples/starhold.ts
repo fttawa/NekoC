@@ -220,7 +220,7 @@ defineProc("td damage",[],()=>{warp(()=>{
   if(l("eAlive",v("tdVictim"))===1) {
     setVar("tdHitDamage",v("tdDamage"));
     if(l("eType",v("tdVictim"))===3 && v("tdType")!==4) setVar("tdHitDamage",v("tdHitDamage")*0.65);
-    r("eHP",v("tdVictim"),l("eHP",v("tdVictim"))-v("tdHitDamage"));r("eFlash",v("tdVictim"),0.14);
+    r("eHP",v("tdVictim"),l("eHP",v("tdVictim"))-v("tdHitDamage"));r("eFlash",v("tdVictim"),0.14);callProc("td effects hit");
     if(v("tdType")===2) r("eSlow",v("tdVictim"),1.2);
     if(l("eHP",v("tdVictim"))<=0) {
       setVar("tdReward",9);
@@ -328,7 +328,7 @@ function uiText(x: number,y: number,value: NekoValue,size: number): void {
 }
 
 defineProc("td hud",[],()=>{warp(()=>{
-  clearDrawing();pointTowards(0);setPenColor("#d9eeff");
+  clearDrawing();pointTowards(0);callProc("td effects hud");setPenColor("#d9eeff");
   if(uiV("mode")===2) {
     uiText(-420,250,join("STARHOLD  /  ",uiV("level"),"     WAVE ",uiV("wave"),"/",uiV("waves")),17);
     setPenColor("#ffd082");uiText(-50,250,join("G ",floor(uiV("gold"))),17);
@@ -344,7 +344,7 @@ defineProc("td hud",[],()=>{warp(()=>{
     setPenColor("#91aabe");uiText(-420,-242,"CLICK PAD: BUILD / SELECT    SPACE: NEXT WAVE    P: PAUSE",13);
     uiText(-420,-260,join("TYPE ",uiV("selectedTower"),"  SCORE ",floor(uiV("score")),"  ",uiV("fps")," FPS"),11);
     if(uiV("waveActive")===0) {setPenColor("#ffd082");uiText(-125,205,"SPACE · DEPLOY WAVE",18);}
-    if(uiV("bossAlert")>0 && uiV("milestone")>=4) {setPenColor("#ff6984");uiText(-185,188,"WARNING / RIFT LORD",21);}
+    if(false) {setPenColor("#ff6984");uiText(-185,188,"WARNING / RIFT LORD",21);}
     if(uiV("paused")===1) {setPenColor("#ffffff");uiText(-130,-22,"P / CLICK TO RESUME",15);uiText(-130,-65,"B · RETURN TO TITLE",13);}
   }
   if(uiV("mode")===0) {
@@ -435,12 +435,13 @@ defineProc("td click",[],()=>{warp(()=>{
 
 sprite("Controller",{visible:false},()=>{
  onStart(()=>{
-  hide();setPenLayer("peak","");setVar("milestone",3);setVar("ready",0);setVar("frames",0);
+  hide();setPenLayer("peak","");setVar("milestone",4);setVar("ready",0);setVar("frames",0);
   setVar("mode",0);setVar("level",1);setVar("paused",0);setVar("quality",1);
   setVar("shakeEnabled",1);setVar("shake",0);setVar("selectedTower",1);setVar("selectedPad",0);
   setVar("chooseRequest",0);setVar("clickRequest",0);setVar("fps",0);
   timerReset();timerStart();setVar("lastTime",0);setVar("fpsTime",0);setVar("fpsFrame",0);
   setVar("hudTime",-1);setVar("ready",1);
+  callProc("td effects init");
   forever(()=>{warp(()=>{
     setVar("now",timerValue());setVar("dt",getVar("now") as number-getVar("lastTime") as number);
     setVar("lastTime",getVar("now"));
@@ -449,6 +450,7 @@ sprite("Controller",{visible:false},()=>{
     if((getVar("chooseRequest") as number)===1){setVar("chooseRequest",0);callProc("td choose level");}
     if((getVar("clickRequest") as number)===1){setVar("clickRequest",0);callProc("td click");}
     if((getVar("mode") as number)===2 && (getVar("paused") as number)===0){callProc("td tick");}
+    callProc("td effects tick");
     if((getVar("now") as number)-(getVar("hudTime") as number)>=0.2){callProc("td hud");setVar("hudTime",getVar("now"));}
     changeVar("frames",1);
     if((getVar("now") as number)-(getVar("fpsTime") as number)>=1){
@@ -488,7 +490,7 @@ onKey("54","up",()=>{if((getVar("mode") as number)===1){setVar("level",6);setVar
 });
 sprite("Backdrop",{visible:true},()=>{
       onClick(()=>{setVar("clickX",mouseX());setVar("clickY",mouseY());setVar("clickRequest",1);});
-      onStart(()=>{scriptVars("lastStyle");setVar("lastStyle",0);show();moveTo(0,0);forever(()=>{
+      onStart(()=>{scriptVars("lastStyle");setVar("lastStyle",0);show();moveTo(0,0);forever(()=>{moveTo(v("fxX"),v("fxY"));
         if((scriptVar("lastStyle") as number)!==(getVar("level") as number)) {setStyle(listItem("mapStyles","any",getVar("level")));setVar("lastStyle",getVar("level"));}
       });});
     });
@@ -504,376 +506,758 @@ sprite("Tower 01",{visible:false},()=>{
  onClick(()=>{if((getVar("mode") as number)===2 && (getVar("paused") as number)===0){setVar("selectedPad",1);if((listItem("tType","any",1) as number)===0){setVar("buildRequest",1);}}});
  onStart(()=>{scriptVars("lastStyle","styleIndex");setVar("lastStyle",-1);forever(()=>{warp(()=>{
   if((getVar("mode") as number)===2){
-   show();moveTo(-330,165);setVar("styleIndex",0);
+   show();moveTo(-330+v("fxX"),165+v("fxY"));setVar("styleIndex",0);
    if((listItem("tType","any",1) as number)>0){setVar("styleIndex",((listItem("tType","any",1) as number)-1)*3+(listItem("tLevel","any",1) as number));}
    if((scriptVar("lastStyle") as number)!==(scriptVar("styleIndex") as number)){
      setStyle(listItem("towerStyles","any",(scriptVar("styleIndex") as number)+1));setVar("lastStyle",scriptVar("styleIndex"));
    }
   }else{hide();}
- });});});
+ });wait(0.06);});});
 });
 
 sprite("Tower 02",{visible:false},()=>{
  onClick(()=>{if((getVar("mode") as number)===2 && (getVar("paused") as number)===0){setVar("selectedPad",2);if((listItem("tType","any",2) as number)===0){setVar("buildRequest",2);}}});
  onStart(()=>{scriptVars("lastStyle","styleIndex");setVar("lastStyle",-1);forever(()=>{warp(()=>{
   if((getVar("mode") as number)===2){
-   show();moveTo(-320,25);setVar("styleIndex",0);
+   show();moveTo(-320+v("fxX"),25+v("fxY"));setVar("styleIndex",0);
    if((listItem("tType","any",2) as number)>0){setVar("styleIndex",((listItem("tType","any",2) as number)-1)*3+(listItem("tLevel","any",2) as number));}
    if((scriptVar("lastStyle") as number)!==(scriptVar("styleIndex") as number)){
      setStyle(listItem("towerStyles","any",(scriptVar("styleIndex") as number)+1));setVar("lastStyle",scriptVar("styleIndex"));
    }
   }else{hide();}
- });});});
+ });wait(0.06);});});
 });
 
 sprite("Tower 03",{visible:false},()=>{
  onClick(()=>{if((getVar("mode") as number)===2 && (getVar("paused") as number)===0){setVar("selectedPad",3);if((listItem("tType","any",3) as number)===0){setVar("buildRequest",3);}}});
  onStart(()=>{scriptVars("lastStyle","styleIndex");setVar("lastStyle",-1);forever(()=>{warp(()=>{
   if((getVar("mode") as number)===2){
-   show();moveTo(-310,-175);setVar("styleIndex",0);
+   show();moveTo(-310+v("fxX"),-175+v("fxY"));setVar("styleIndex",0);
    if((listItem("tType","any",3) as number)>0){setVar("styleIndex",((listItem("tType","any",3) as number)-1)*3+(listItem("tLevel","any",3) as number));}
    if((scriptVar("lastStyle") as number)!==(scriptVar("styleIndex") as number)){
      setStyle(listItem("towerStyles","any",(scriptVar("styleIndex") as number)+1));setVar("lastStyle",scriptVar("styleIndex"));
    }
   }else{hide();}
- });});});
+ });wait(0.06);});});
 });
 
 sprite("Tower 04",{visible:false},()=>{
  onClick(()=>{if((getVar("mode") as number)===2 && (getVar("paused") as number)===0){setVar("selectedPad",4);if((listItem("tType","any",4) as number)===0){setVar("buildRequest",4);}}});
  onStart(()=>{scriptVars("lastStyle","styleIndex");setVar("lastStyle",-1);forever(()=>{warp(()=>{
   if((getVar("mode") as number)===2){
-   show();moveTo(-160,-35);setVar("styleIndex",0);
+   show();moveTo(-160+v("fxX"),-35+v("fxY"));setVar("styleIndex",0);
    if((listItem("tType","any",4) as number)>0){setVar("styleIndex",((listItem("tType","any",4) as number)-1)*3+(listItem("tLevel","any",4) as number));}
    if((scriptVar("lastStyle") as number)!==(scriptVar("styleIndex") as number)){
      setStyle(listItem("towerStyles","any",(scriptVar("styleIndex") as number)+1));setVar("lastStyle",scriptVar("styleIndex"));
    }
   }else{hide();}
- });});});
+ });wait(0.06);});});
 });
 
 sprite("Tower 05",{visible:false},()=>{
  onClick(()=>{if((getVar("mode") as number)===2 && (getVar("paused") as number)===0){setVar("selectedPad",5);if((listItem("tType","any",5) as number)===0){setVar("buildRequest",5);}}});
  onStart(()=>{scriptVars("lastStyle","styleIndex");setVar("lastStyle",-1);forever(()=>{warp(()=>{
   if((getVar("mode") as number)===2){
-   show();moveTo(-160,175);setVar("styleIndex",0);
+   show();moveTo(-160+v("fxX"),175+v("fxY"));setVar("styleIndex",0);
    if((listItem("tType","any",5) as number)>0){setVar("styleIndex",((listItem("tType","any",5) as number)-1)*3+(listItem("tLevel","any",5) as number));}
    if((scriptVar("lastStyle") as number)!==(scriptVar("styleIndex") as number)){
      setStyle(listItem("towerStyles","any",(scriptVar("styleIndex") as number)+1));setVar("lastStyle",scriptVar("styleIndex"));
    }
   }else{hide();}
- });});});
+ });wait(0.06);});});
 });
 
 sprite("Tower 06",{visible:false},()=>{
  onClick(()=>{if((getVar("mode") as number)===2 && (getVar("paused") as number)===0){setVar("selectedPad",6);if((listItem("tType","any",6) as number)===0){setVar("buildRequest",6);}}});
  onStart(()=>{scriptVars("lastStyle","styleIndex");setVar("lastStyle",-1);forever(()=>{warp(()=>{
   if((getVar("mode") as number)===2){
-   show();moveTo(15,55);setVar("styleIndex",0);
+   show();moveTo(15+v("fxX"),55+v("fxY"));setVar("styleIndex",0);
    if((listItem("tType","any",6) as number)>0){setVar("styleIndex",((listItem("tType","any",6) as number)-1)*3+(listItem("tLevel","any",6) as number));}
    if((scriptVar("lastStyle") as number)!==(scriptVar("styleIndex") as number)){
      setStyle(listItem("towerStyles","any",(scriptVar("styleIndex") as number)+1));setVar("lastStyle",scriptVar("styleIndex"));
    }
   }else{hide();}
- });});});
+ });wait(0.06);});});
 });
 
 sprite("Tower 07",{visible:false},()=>{
  onClick(()=>{if((getVar("mode") as number)===2 && (getVar("paused") as number)===0){setVar("selectedPad",7);if((listItem("tType","any",7) as number)===0){setVar("buildRequest",7);}}});
  onStart(()=>{scriptVars("lastStyle","styleIndex");setVar("lastStyle",-1);forever(()=>{warp(()=>{
   if((getVar("mode") as number)===2){
-   show();moveTo(15,-175);setVar("styleIndex",0);
+   show();moveTo(15+v("fxX"),-175+v("fxY"));setVar("styleIndex",0);
    if((listItem("tType","any",7) as number)>0){setVar("styleIndex",((listItem("tType","any",7) as number)-1)*3+(listItem("tLevel","any",7) as number));}
    if((scriptVar("lastStyle") as number)!==(scriptVar("styleIndex") as number)){
      setStyle(listItem("towerStyles","any",(scriptVar("styleIndex") as number)+1));setVar("lastStyle",scriptVar("styleIndex"));
    }
   }else{hide();}
- });});});
+ });wait(0.06);});});
 });
 
 sprite("Tower 08",{visible:false},()=>{
  onClick(()=>{if((getVar("mode") as number)===2 && (getVar("paused") as number)===0){setVar("selectedPad",8);if((listItem("tType","any",8) as number)===0){setVar("buildRequest",8);}}});
  onStart(()=>{scriptVars("lastStyle","styleIndex");setVar("lastStyle",-1);forever(()=>{warp(()=>{
   if((getVar("mode") as number)===2){
-   show();moveTo(180,55);setVar("styleIndex",0);
+   show();moveTo(180+v("fxX"),55+v("fxY"));setVar("styleIndex",0);
    if((listItem("tType","any",8) as number)>0){setVar("styleIndex",((listItem("tType","any",8) as number)-1)*3+(listItem("tLevel","any",8) as number));}
    if((scriptVar("lastStyle") as number)!==(scriptVar("styleIndex") as number)){
      setStyle(listItem("towerStyles","any",(scriptVar("styleIndex") as number)+1));setVar("lastStyle",scriptVar("styleIndex"));
    }
   }else{hide();}
- });});});
+ });wait(0.06);});});
 });
 
 sprite("Tower 09",{visible:false},()=>{
  onClick(()=>{if((getVar("mode") as number)===2 && (getVar("paused") as number)===0){setVar("selectedPad",9);if((listItem("tType","any",9) as number)===0){setVar("buildRequest",9);}}});
  onStart(()=>{scriptVars("lastStyle","styleIndex");setVar("lastStyle",-1);forever(()=>{warp(()=>{
   if((getVar("mode") as number)===2){
-   show();moveTo(180,-175);setVar("styleIndex",0);
+   show();moveTo(180+v("fxX"),-175+v("fxY"));setVar("styleIndex",0);
    if((listItem("tType","any",9) as number)>0){setVar("styleIndex",((listItem("tType","any",9) as number)-1)*3+(listItem("tLevel","any",9) as number));}
    if((scriptVar("lastStyle") as number)!==(scriptVar("styleIndex") as number)){
      setStyle(listItem("towerStyles","any",(scriptVar("styleIndex") as number)+1));setVar("lastStyle",scriptVar("styleIndex"));
    }
   }else{hide();}
- });});});
+ });wait(0.06);});});
 });
 
 sprite("Tower 10",{visible:false},()=>{
  onClick(()=>{if((getVar("mode") as number)===2 && (getVar("paused") as number)===0){setVar("selectedPad",10);if((listItem("tType","any",10) as number)===0){setVar("buildRequest",10);}}});
  onStart(()=>{scriptVars("lastStyle","styleIndex");setVar("lastStyle",-1);forever(()=>{warp(()=>{
   if((getVar("mode") as number)===2){
-   show();moveTo(245,165);setVar("styleIndex",0);
+   show();moveTo(245+v("fxX"),165+v("fxY"));setVar("styleIndex",0);
    if((listItem("tType","any",10) as number)>0){setVar("styleIndex",((listItem("tType","any",10) as number)-1)*3+(listItem("tLevel","any",10) as number));}
    if((scriptVar("lastStyle") as number)!==(scriptVar("styleIndex") as number)){
      setStyle(listItem("towerStyles","any",(scriptVar("styleIndex") as number)+1));setVar("lastStyle",scriptVar("styleIndex"));
    }
   }else{hide();}
- });});});
+ });wait(0.06);});});
 });
 
 sprite("Tower 11",{visible:false},()=>{
  onClick(()=>{if((getVar("mode") as number)===2 && (getVar("paused") as number)===0){setVar("selectedPad",11);if((listItem("tType","any",11) as number)===0){setVar("buildRequest",11);}}});
  onStart(()=>{scriptVars("lastStyle","styleIndex");setVar("lastStyle",-1);forever(()=>{warp(()=>{
   if((getVar("mode") as number)===2){
-   show();moveTo(-405,-50);setVar("styleIndex",0);
+   show();moveTo(-405+v("fxX"),-50+v("fxY"));setVar("styleIndex",0);
    if((listItem("tType","any",11) as number)>0){setVar("styleIndex",((listItem("tType","any",11) as number)-1)*3+(listItem("tLevel","any",11) as number));}
    if((scriptVar("lastStyle") as number)!==(scriptVar("styleIndex") as number)){
      setStyle(listItem("towerStyles","any",(scriptVar("styleIndex") as number)+1));setVar("lastStyle",scriptVar("styleIndex"));
    }
   }else{hide();}
- });});});
+ });wait(0.06);});});
 });
 
 sprite("Tower 12",{visible:false},()=>{
  onClick(()=>{if((getVar("mode") as number)===2 && (getVar("paused") as number)===0){setVar("selectedPad",12);if((listItem("tType","any",12) as number)===0){setVar("buildRequest",12);}}});
  onStart(()=>{scriptVars("lastStyle","styleIndex");setVar("lastStyle",-1);forever(()=>{warp(()=>{
   if((getVar("mode") as number)===2){
-   show();moveTo(250,-25);setVar("styleIndex",0);
+   show();moveTo(250+v("fxX"),-25+v("fxY"));setVar("styleIndex",0);
    if((listItem("tType","any",12) as number)>0){setVar("styleIndex",((listItem("tType","any",12) as number)-1)*3+(listItem("tLevel","any",12) as number));}
    if((scriptVar("lastStyle") as number)!==(scriptVar("styleIndex") as number)){
      setStyle(listItem("towerStyles","any",(scriptVar("styleIndex") as number)+1));setVar("lastStyle",scriptVar("styleIndex"));
    }
   }else{hide();}
- });});});
+ });wait(0.06);});});
 });
 
 sprite("Enemy 01",{visible:false},()=>{
  onStart(()=>{scriptVars("lastStyle");setVar("lastStyle",-1);forever(()=>{warp(()=>{
   if((getVar("mode") as number)===2 && (listItem("eAlive","any",1) as number)===1){
-   show();moveTo((listItem("eX","any",1) as number),(listItem("eY","any",1) as number));
+   show();moveTo((listItem("eX","any",1) as number)+v("fxX"),(listItem("eY","any",1) as number)+v("fxY"));setScale(100+(listItem("eFlash","any",1) as number)*65);
    if((scriptVar("lastStyle") as number)!==(listItem("eType","any",1) as number)){setStyle(listItem("enemyStyles","any",(listItem("eType","any",1) as number)));setVar("lastStyle",(listItem("eType","any",1) as number));}
   }else{hide();}
- });});});
+ });wait(0.025);});});
 });
 
 sprite("Enemy 02",{visible:false},()=>{
  onStart(()=>{scriptVars("lastStyle");setVar("lastStyle",-1);forever(()=>{warp(()=>{
   if((getVar("mode") as number)===2 && (listItem("eAlive","any",2) as number)===1){
-   show();moveTo((listItem("eX","any",2) as number),(listItem("eY","any",2) as number));
+   show();moveTo((listItem("eX","any",2) as number)+v("fxX"),(listItem("eY","any",2) as number)+v("fxY"));setScale(100+(listItem("eFlash","any",2) as number)*65);
    if((scriptVar("lastStyle") as number)!==(listItem("eType","any",2) as number)){setStyle(listItem("enemyStyles","any",(listItem("eType","any",2) as number)));setVar("lastStyle",(listItem("eType","any",2) as number));}
   }else{hide();}
- });});});
+ });wait(0.025);});});
 });
 
 sprite("Enemy 03",{visible:false},()=>{
  onStart(()=>{scriptVars("lastStyle");setVar("lastStyle",-1);forever(()=>{warp(()=>{
   if((getVar("mode") as number)===2 && (listItem("eAlive","any",3) as number)===1){
-   show();moveTo((listItem("eX","any",3) as number),(listItem("eY","any",3) as number));
+   show();moveTo((listItem("eX","any",3) as number)+v("fxX"),(listItem("eY","any",3) as number)+v("fxY"));setScale(100+(listItem("eFlash","any",3) as number)*65);
    if((scriptVar("lastStyle") as number)!==(listItem("eType","any",3) as number)){setStyle(listItem("enemyStyles","any",(listItem("eType","any",3) as number)));setVar("lastStyle",(listItem("eType","any",3) as number));}
   }else{hide();}
- });});});
+ });wait(0.025);});});
 });
 
 sprite("Enemy 04",{visible:false},()=>{
  onStart(()=>{scriptVars("lastStyle");setVar("lastStyle",-1);forever(()=>{warp(()=>{
   if((getVar("mode") as number)===2 && (listItem("eAlive","any",4) as number)===1){
-   show();moveTo((listItem("eX","any",4) as number),(listItem("eY","any",4) as number));
+   show();moveTo((listItem("eX","any",4) as number)+v("fxX"),(listItem("eY","any",4) as number)+v("fxY"));setScale(100+(listItem("eFlash","any",4) as number)*65);
    if((scriptVar("lastStyle") as number)!==(listItem("eType","any",4) as number)){setStyle(listItem("enemyStyles","any",(listItem("eType","any",4) as number)));setVar("lastStyle",(listItem("eType","any",4) as number));}
   }else{hide();}
- });});});
+ });wait(0.025);});});
 });
 
 sprite("Enemy 05",{visible:false},()=>{
  onStart(()=>{scriptVars("lastStyle");setVar("lastStyle",-1);forever(()=>{warp(()=>{
   if((getVar("mode") as number)===2 && (listItem("eAlive","any",5) as number)===1){
-   show();moveTo((listItem("eX","any",5) as number),(listItem("eY","any",5) as number));
+   show();moveTo((listItem("eX","any",5) as number)+v("fxX"),(listItem("eY","any",5) as number)+v("fxY"));setScale(100+(listItem("eFlash","any",5) as number)*65);
    if((scriptVar("lastStyle") as number)!==(listItem("eType","any",5) as number)){setStyle(listItem("enemyStyles","any",(listItem("eType","any",5) as number)));setVar("lastStyle",(listItem("eType","any",5) as number));}
   }else{hide();}
- });});});
+ });wait(0.025);});});
 });
 
 sprite("Enemy 06",{visible:false},()=>{
  onStart(()=>{scriptVars("lastStyle");setVar("lastStyle",-1);forever(()=>{warp(()=>{
   if((getVar("mode") as number)===2 && (listItem("eAlive","any",6) as number)===1){
-   show();moveTo((listItem("eX","any",6) as number),(listItem("eY","any",6) as number));
+   show();moveTo((listItem("eX","any",6) as number)+v("fxX"),(listItem("eY","any",6) as number)+v("fxY"));setScale(100+(listItem("eFlash","any",6) as number)*65);
    if((scriptVar("lastStyle") as number)!==(listItem("eType","any",6) as number)){setStyle(listItem("enemyStyles","any",(listItem("eType","any",6) as number)));setVar("lastStyle",(listItem("eType","any",6) as number));}
   }else{hide();}
- });});});
+ });wait(0.025);});});
 });
 
 sprite("Enemy 07",{visible:false},()=>{
  onStart(()=>{scriptVars("lastStyle");setVar("lastStyle",-1);forever(()=>{warp(()=>{
   if((getVar("mode") as number)===2 && (listItem("eAlive","any",7) as number)===1){
-   show();moveTo((listItem("eX","any",7) as number),(listItem("eY","any",7) as number));
+   show();moveTo((listItem("eX","any",7) as number)+v("fxX"),(listItem("eY","any",7) as number)+v("fxY"));setScale(100+(listItem("eFlash","any",7) as number)*65);
    if((scriptVar("lastStyle") as number)!==(listItem("eType","any",7) as number)){setStyle(listItem("enemyStyles","any",(listItem("eType","any",7) as number)));setVar("lastStyle",(listItem("eType","any",7) as number));}
   }else{hide();}
- });});});
+ });wait(0.025);});});
 });
 
 sprite("Enemy 08",{visible:false},()=>{
  onStart(()=>{scriptVars("lastStyle");setVar("lastStyle",-1);forever(()=>{warp(()=>{
   if((getVar("mode") as number)===2 && (listItem("eAlive","any",8) as number)===1){
-   show();moveTo((listItem("eX","any",8) as number),(listItem("eY","any",8) as number));
+   show();moveTo((listItem("eX","any",8) as number)+v("fxX"),(listItem("eY","any",8) as number)+v("fxY"));setScale(100+(listItem("eFlash","any",8) as number)*65);
    if((scriptVar("lastStyle") as number)!==(listItem("eType","any",8) as number)){setStyle(listItem("enemyStyles","any",(listItem("eType","any",8) as number)));setVar("lastStyle",(listItem("eType","any",8) as number));}
   }else{hide();}
- });});});
+ });wait(0.025);});});
 });
 
 sprite("Enemy 09",{visible:false},()=>{
  onStart(()=>{scriptVars("lastStyle");setVar("lastStyle",-1);forever(()=>{warp(()=>{
   if((getVar("mode") as number)===2 && (listItem("eAlive","any",9) as number)===1){
-   show();moveTo((listItem("eX","any",9) as number),(listItem("eY","any",9) as number));
+   show();moveTo((listItem("eX","any",9) as number)+v("fxX"),(listItem("eY","any",9) as number)+v("fxY"));setScale(100+(listItem("eFlash","any",9) as number)*65);
    if((scriptVar("lastStyle") as number)!==(listItem("eType","any",9) as number)){setStyle(listItem("enemyStyles","any",(listItem("eType","any",9) as number)));setVar("lastStyle",(listItem("eType","any",9) as number));}
   }else{hide();}
- });});});
+ });wait(0.025);});});
 });
 
 sprite("Enemy 10",{visible:false},()=>{
  onStart(()=>{scriptVars("lastStyle");setVar("lastStyle",-1);forever(()=>{warp(()=>{
   if((getVar("mode") as number)===2 && (listItem("eAlive","any",10) as number)===1){
-   show();moveTo((listItem("eX","any",10) as number),(listItem("eY","any",10) as number));
+   show();moveTo((listItem("eX","any",10) as number)+v("fxX"),(listItem("eY","any",10) as number)+v("fxY"));setScale(100+(listItem("eFlash","any",10) as number)*65);
    if((scriptVar("lastStyle") as number)!==(listItem("eType","any",10) as number)){setStyle(listItem("enemyStyles","any",(listItem("eType","any",10) as number)));setVar("lastStyle",(listItem("eType","any",10) as number));}
   }else{hide();}
- });});});
+ });wait(0.025);});});
 });
 
 sprite("Enemy 11",{visible:false},()=>{
  onStart(()=>{scriptVars("lastStyle");setVar("lastStyle",-1);forever(()=>{warp(()=>{
   if((getVar("mode") as number)===2 && (listItem("eAlive","any",11) as number)===1){
-   show();moveTo((listItem("eX","any",11) as number),(listItem("eY","any",11) as number));
+   show();moveTo((listItem("eX","any",11) as number)+v("fxX"),(listItem("eY","any",11) as number)+v("fxY"));setScale(100+(listItem("eFlash","any",11) as number)*65);
    if((scriptVar("lastStyle") as number)!==(listItem("eType","any",11) as number)){setStyle(listItem("enemyStyles","any",(listItem("eType","any",11) as number)));setVar("lastStyle",(listItem("eType","any",11) as number));}
   }else{hide();}
- });});});
+ });wait(0.025);});});
 });
 
 sprite("Enemy 12",{visible:false},()=>{
  onStart(()=>{scriptVars("lastStyle");setVar("lastStyle",-1);forever(()=>{warp(()=>{
   if((getVar("mode") as number)===2 && (listItem("eAlive","any",12) as number)===1){
-   show();moveTo((listItem("eX","any",12) as number),(listItem("eY","any",12) as number));
+   show();moveTo((listItem("eX","any",12) as number)+v("fxX"),(listItem("eY","any",12) as number)+v("fxY"));setScale(100+(listItem("eFlash","any",12) as number)*65);
    if((scriptVar("lastStyle") as number)!==(listItem("eType","any",12) as number)){setStyle(listItem("enemyStyles","any",(listItem("eType","any",12) as number)));setVar("lastStyle",(listItem("eType","any",12) as number));}
   }else{hide();}
- });});});
+ });wait(0.025);});});
 });
 
 sprite("Enemy 13",{visible:false},()=>{
  onStart(()=>{scriptVars("lastStyle");setVar("lastStyle",-1);forever(()=>{warp(()=>{
   if((getVar("mode") as number)===2 && (listItem("eAlive","any",13) as number)===1){
-   show();moveTo((listItem("eX","any",13) as number),(listItem("eY","any",13) as number));
+   show();moveTo((listItem("eX","any",13) as number)+v("fxX"),(listItem("eY","any",13) as number)+v("fxY"));setScale(100+(listItem("eFlash","any",13) as number)*65);
    if((scriptVar("lastStyle") as number)!==(listItem("eType","any",13) as number)){setStyle(listItem("enemyStyles","any",(listItem("eType","any",13) as number)));setVar("lastStyle",(listItem("eType","any",13) as number));}
   }else{hide();}
- });});});
+ });wait(0.025);});});
 });
 
 sprite("Enemy 14",{visible:false},()=>{
  onStart(()=>{scriptVars("lastStyle");setVar("lastStyle",-1);forever(()=>{warp(()=>{
   if((getVar("mode") as number)===2 && (listItem("eAlive","any",14) as number)===1){
-   show();moveTo((listItem("eX","any",14) as number),(listItem("eY","any",14) as number));
+   show();moveTo((listItem("eX","any",14) as number)+v("fxX"),(listItem("eY","any",14) as number)+v("fxY"));setScale(100+(listItem("eFlash","any",14) as number)*65);
    if((scriptVar("lastStyle") as number)!==(listItem("eType","any",14) as number)){setStyle(listItem("enemyStyles","any",(listItem("eType","any",14) as number)));setVar("lastStyle",(listItem("eType","any",14) as number));}
   }else{hide();}
- });});});
+ });wait(0.025);});});
 });
 
 sprite("Enemy 15",{visible:false},()=>{
  onStart(()=>{scriptVars("lastStyle");setVar("lastStyle",-1);forever(()=>{warp(()=>{
   if((getVar("mode") as number)===2 && (listItem("eAlive","any",15) as number)===1){
-   show();moveTo((listItem("eX","any",15) as number),(listItem("eY","any",15) as number));
+   show();moveTo((listItem("eX","any",15) as number)+v("fxX"),(listItem("eY","any",15) as number)+v("fxY"));setScale(100+(listItem("eFlash","any",15) as number)*65);
    if((scriptVar("lastStyle") as number)!==(listItem("eType","any",15) as number)){setStyle(listItem("enemyStyles","any",(listItem("eType","any",15) as number)));setVar("lastStyle",(listItem("eType","any",15) as number));}
   }else{hide();}
- });});});
+ });wait(0.025);});});
 });
 
 sprite("Enemy 16",{visible:false},()=>{
  onStart(()=>{scriptVars("lastStyle");setVar("lastStyle",-1);forever(()=>{warp(()=>{
   if((getVar("mode") as number)===2 && (listItem("eAlive","any",16) as number)===1){
-   show();moveTo((listItem("eX","any",16) as number),(listItem("eY","any",16) as number));
+   show();moveTo((listItem("eX","any",16) as number)+v("fxX"),(listItem("eY","any",16) as number)+v("fxY"));setScale(100+(listItem("eFlash","any",16) as number)*65);
    if((scriptVar("lastStyle") as number)!==(listItem("eType","any",16) as number)){setStyle(listItem("enemyStyles","any",(listItem("eType","any",16) as number)));setVar("lastStyle",(listItem("eType","any",16) as number));}
   }else{hide();}
- });});});
+ });wait(0.025);});});
 });
 
 sprite("Enemy 17",{visible:false},()=>{
  onStart(()=>{scriptVars("lastStyle");setVar("lastStyle",-1);forever(()=>{warp(()=>{
   if((getVar("mode") as number)===2 && (listItem("eAlive","any",17) as number)===1){
-   show();moveTo((listItem("eX","any",17) as number),(listItem("eY","any",17) as number));
+   show();moveTo((listItem("eX","any",17) as number)+v("fxX"),(listItem("eY","any",17) as number)+v("fxY"));setScale(100+(listItem("eFlash","any",17) as number)*65);
    if((scriptVar("lastStyle") as number)!==(listItem("eType","any",17) as number)){setStyle(listItem("enemyStyles","any",(listItem("eType","any",17) as number)));setVar("lastStyle",(listItem("eType","any",17) as number));}
   }else{hide();}
- });});});
+ });wait(0.025);});});
 });
 
 sprite("Enemy 18",{visible:false},()=>{
  onStart(()=>{scriptVars("lastStyle");setVar("lastStyle",-1);forever(()=>{warp(()=>{
   if((getVar("mode") as number)===2 && (listItem("eAlive","any",18) as number)===1){
-   show();moveTo((listItem("eX","any",18) as number),(listItem("eY","any",18) as number));
+   show();moveTo((listItem("eX","any",18) as number)+v("fxX"),(listItem("eY","any",18) as number)+v("fxY"));setScale(100+(listItem("eFlash","any",18) as number)*65);
    if((scriptVar("lastStyle") as number)!==(listItem("eType","any",18) as number)){setStyle(listItem("enemyStyles","any",(listItem("eType","any",18) as number)));setVar("lastStyle",(listItem("eType","any",18) as number));}
   }else{hide();}
- });});});
+ });wait(0.025);});});
 });
 
 sprite("Enemy 19",{visible:false},()=>{
  onStart(()=>{scriptVars("lastStyle");setVar("lastStyle",-1);forever(()=>{warp(()=>{
   if((getVar("mode") as number)===2 && (listItem("eAlive","any",19) as number)===1){
-   show();moveTo((listItem("eX","any",19) as number),(listItem("eY","any",19) as number));
+   show();moveTo((listItem("eX","any",19) as number)+v("fxX"),(listItem("eY","any",19) as number)+v("fxY"));setScale(100+(listItem("eFlash","any",19) as number)*65);
    if((scriptVar("lastStyle") as number)!==(listItem("eType","any",19) as number)){setStyle(listItem("enemyStyles","any",(listItem("eType","any",19) as number)));setVar("lastStyle",(listItem("eType","any",19) as number));}
   }else{hide();}
- });});});
+ });wait(0.025);});});
 });
 
 sprite("Enemy 20",{visible:false},()=>{
  onStart(()=>{scriptVars("lastStyle");setVar("lastStyle",-1);forever(()=>{warp(()=>{
   if((getVar("mode") as number)===2 && (listItem("eAlive","any",20) as number)===1){
-   show();moveTo((listItem("eX","any",20) as number),(listItem("eY","any",20) as number));
+   show();moveTo((listItem("eX","any",20) as number)+v("fxX"),(listItem("eY","any",20) as number)+v("fxY"));setScale(100+(listItem("eFlash","any",20) as number)*65);
    if((scriptVar("lastStyle") as number)!==(listItem("eType","any",20) as number)){setStyle(listItem("enemyStyles","any",(listItem("eType","any",20) as number)));setVar("lastStyle",(listItem("eType","any",20) as number));}
   }else{hide();}
- });});});
+ });wait(0.025);});});
 });
 
 sprite("Enemy 21",{visible:false},()=>{
  onStart(()=>{scriptVars("lastStyle");setVar("lastStyle",-1);forever(()=>{warp(()=>{
   if((getVar("mode") as number)===2 && (listItem("eAlive","any",21) as number)===1){
-   show();moveTo((listItem("eX","any",21) as number),(listItem("eY","any",21) as number));
+   show();moveTo((listItem("eX","any",21) as number)+v("fxX"),(listItem("eY","any",21) as number)+v("fxY"));setScale(100+(listItem("eFlash","any",21) as number)*65);
    if((scriptVar("lastStyle") as number)!==(listItem("eType","any",21) as number)){setStyle(listItem("enemyStyles","any",(listItem("eType","any",21) as number)));setVar("lastStyle",(listItem("eType","any",21) as number));}
   }else{hide();}
- });});});
+ });wait(0.025);});});
 });
 
 sprite("Enemy 22",{visible:false},()=>{
  onStart(()=>{scriptVars("lastStyle");setVar("lastStyle",-1);forever(()=>{warp(()=>{
   if((getVar("mode") as number)===2 && (listItem("eAlive","any",22) as number)===1){
-   show();moveTo((listItem("eX","any",22) as number),(listItem("eY","any",22) as number));
+   show();moveTo((listItem("eX","any",22) as number)+v("fxX"),(listItem("eY","any",22) as number)+v("fxY"));setScale(100+(listItem("eFlash","any",22) as number)*65);
    if((scriptVar("lastStyle") as number)!==(listItem("eType","any",22) as number)){setStyle(listItem("enemyStyles","any",(listItem("eType","any",22) as number)));setVar("lastStyle",(listItem("eType","any",22) as number));}
   }else{hide();}
- });});});
+ });wait(0.025);});});
 });
 
 sprite("Enemy 23",{visible:false},()=>{
  onStart(()=>{scriptVars("lastStyle");setVar("lastStyle",-1);forever(()=>{warp(()=>{
   if((getVar("mode") as number)===2 && (listItem("eAlive","any",23) as number)===1){
-   show();moveTo((listItem("eX","any",23) as number),(listItem("eY","any",23) as number));
+   show();moveTo((listItem("eX","any",23) as number)+v("fxX"),(listItem("eY","any",23) as number)+v("fxY"));setScale(100+(listItem("eFlash","any",23) as number)*65);
    if((scriptVar("lastStyle") as number)!==(listItem("eType","any",23) as number)){setStyle(listItem("enemyStyles","any",(listItem("eType","any",23) as number)));setVar("lastStyle",(listItem("eType","any",23) as number));}
   }else{hide();}
- });});});
+ });wait(0.025);});});
 });
 
 sprite("Enemy 24",{visible:false},()=>{
  onStart(()=>{scriptVars("lastStyle");setVar("lastStyle",-1);forever(()=>{warp(()=>{
   if((getVar("mode") as number)===2 && (listItem("eAlive","any",24) as number)===1){
-   show();moveTo((listItem("eX","any",24) as number),(listItem("eY","any",24) as number));
+   show();moveTo((listItem("eX","any",24) as number)+v("fxX"),(listItem("eY","any",24) as number)+v("fxY"));setScale(100+(listItem("eFlash","any",24) as number)*65);
    if((scriptVar("lastStyle") as number)!==(listItem("eType","any",24) as number)){setStyle(listItem("enemyStyles","any",(listItem("eType","any",24) as number)));setVar("lastStyle",(listItem("eType","any",24) as number));}
   }else{hide();}
- });});});
+ });wait(0.025);});});
 });
 sprite("Selection",{visible:false},()=>{
  onStart(()=>{forever(()=>{warp(()=>{
   if((getVar("mode") as number)===2 && (getVar("selectedPad") as number)>0){show();moveTo(listItem("padX","any",getVar("selectedPad")),listItem("padY","any",getVar("selectedPad")));}
   else{hide();}
  });});});
+});
+
+defineProc("td effects init",[],()=>{warp(()=>{
+ setVar("fxX",0);setVar("fxY",0);setVar("fxLowTime",0);setVar("fxAutoLow",0);setVar("fxCursor",0);
+ deleteListItem("fxLife","all",0);deleteListItem("fxDamage","all",0);deleteListItem("fxDX","all",0);deleteListItem("fxDY","all",0);
+ for(let fxInit=1;fxInit<=6;fxInit++){appendList("fxLife",0);appendList("fxDamage",0);appendList("fxDX",0);appendList("fxDY",0);}
+});});
+defineProc("td effects hit",[],()=>{warp(()=>{
+ if(v("quality")===1){
+  setVar("fxCursor",v("fxCursor")%6+1);r("fxLife",v("fxCursor"),0.55);r("fxDamage",v("fxCursor"),ceil(v("tdHitDamage")));
+  r("fxDX",v("fxCursor"),l("eX",v("tdVictim")));r("fxDY",v("fxCursor"),l("eY",v("tdVictim")));
+ }
+});});
+defineProc("td effects tick",[],()=>{warp(()=>{
+ setVar("fxX",0);setVar("fxY",0);
+ if(v("mode")===2 && v("paused")===0){
+  if(v("quality")===1 && v("shakeEnabled")===1 && v("shake")>0){setVar("fxX",mathFunc("sin",v("now")*1700)*3);setVar("fxY",mathFunc("cos",v("now")*1300)*2);}
+  for(let fxTick=1;fxTick<=6;fxTick++){if(l("fxLife",fxTick)>0)r("fxLife",fxTick,l("fxLife",fxTick)-v("dt"));}
+  if(v("fps")>0 && v("fps")<30 && v("quality")===1){changeVar("fxLowTime",v("dt"));}else{setVar("fxLowTime",0);}
+  if(v("fxLowTime")>=3){setVar("quality",0);setVar("fxAutoLow",1);setVar("fxLowTime",0);}
+ }
+});});
+defineProc("td effects hud",[],()=>{warp(()=>{
+ if(v("mode")===2 && v("quality")===1){
+  setPenColor("#ffe2a8");
+  for(let fxText=1;fxText<=6;fxText++){if(l("fxLife",fxText)>0){penUp();moveTo(l("fxDX",fxText),l("fxDY",fxText)+22+(0.55-l("fxLife",fxText))*22);stampText(join("-",l("fxDamage",fxText)),12,"center");}}
+ }
+});});
+
+sprite("Projectile 01",{visible:false},()=>{
+ onStart(()=>{scriptVars("lastStyle","fxAngle");setVar("lastStyle",-1);forever(()=>{warp(()=>{
+  if((getVar("mode") as number)===2 && (listItem("tShot","any",1) as number)>0 && (getVar("milestone") as number)>=4){
+   show();moveTo(v("fxX")+-330+((listItem("tTargetX","any",1) as number)-(-330))*(1-(listItem("tShot","any",1) as number)/0.16),
+      v("fxY")+165+((listItem("tTargetY","any",1) as number)-(165))*(1-(listItem("tShot","any",1) as number)/0.16));
+   setVar("fxAngle",90);if((listItem("tTargetY","any",1) as number)<165){setVar("fxAngle",-90);}
+   if((listItem("tTargetX","any",1) as number)!=-330){setVar("fxAngle",mathFunc("atan",((listItem("tTargetY","any",1) as number)-(165))/((listItem("tTargetX","any",1) as number)-(-330))));}
+   if((listItem("tTargetX","any",1) as number)<-330){setVar("fxAngle",(scriptVar("fxAngle") as number)+180);}
+   pointTowards(scriptVar("fxAngle"));
+   if((scriptVar("lastStyle") as number)!==(listItem("tType","any",1) as number)){setStyle(listItem("bulletStyles","any",(listItem("tType","any",1) as number)));setVar("lastStyle",(listItem("tType","any",1) as number));}
+   if((getVar("quality") as number)===0){setScale(45);}else{setScale(75);}
+  }else{hide();}
+ });wait(0.035);});});
+});
+sprite("Impact 01",{visible:false},()=>{
+ onStart(()=>{scriptVars("fxLevel","fxUpgrade");setVar("fxLevel",0);setVar("fxUpgrade",0);forever(()=>{warp(()=>{
+  if((scriptVar("fxLevel") as number)!==(listItem("tLevel","any",1) as number)){
+   if((listItem("tLevel","any",1) as number)>0){setVar("fxUpgrade",v("now")+0.6);}
+   setVar("fxLevel",(listItem("tLevel","any",1) as number));
+  }
+  if(v("mode")===2 && v("quality")===1 && (scriptVar("fxUpgrade") as number)>v("now")){
+   show();moveTo(-330+v("fxX"),165+v("fxY"));setScale(80+(0.6-((scriptVar("fxUpgrade") as number)-v("now")))*80);setEffect("1",(0.6-((scriptVar("fxUpgrade") as number)-v("now")))*130);
+  }else if((getVar("mode") as number)===2 && (listItem("tShot","any",1) as number)>0 && (getVar("quality") as number)===1 && (getVar("milestone") as number)>=4){
+   show();moveTo((listItem("tTargetX","any",1) as number)+v("fxX"),(listItem("tTargetY","any",1) as number)+v("fxY"));setScale(25+(0.16-(listItem("tShot","any",1) as number))*450);
+   setEffect("1",(0.16-(listItem("tShot","any",1) as number))*400);
+  }else{hide();}
+ });if(v("quality")===0){wait(0.2);}else{wait(0.035);}});});
+});
+
+sprite("Projectile 02",{visible:false},()=>{
+ onStart(()=>{scriptVars("lastStyle","fxAngle");setVar("lastStyle",-1);forever(()=>{warp(()=>{
+  if((getVar("mode") as number)===2 && (listItem("tShot","any",2) as number)>0 && (getVar("milestone") as number)>=4){
+   show();moveTo(v("fxX")+-320+((listItem("tTargetX","any",2) as number)-(-320))*(1-(listItem("tShot","any",2) as number)/0.16),
+      v("fxY")+25+((listItem("tTargetY","any",2) as number)-(25))*(1-(listItem("tShot","any",2) as number)/0.16));
+   setVar("fxAngle",90);if((listItem("tTargetY","any",2) as number)<25){setVar("fxAngle",-90);}
+   if((listItem("tTargetX","any",2) as number)!=-320){setVar("fxAngle",mathFunc("atan",((listItem("tTargetY","any",2) as number)-(25))/((listItem("tTargetX","any",2) as number)-(-320))));}
+   if((listItem("tTargetX","any",2) as number)<-320){setVar("fxAngle",(scriptVar("fxAngle") as number)+180);}
+   pointTowards(scriptVar("fxAngle"));
+   if((scriptVar("lastStyle") as number)!==(listItem("tType","any",2) as number)){setStyle(listItem("bulletStyles","any",(listItem("tType","any",2) as number)));setVar("lastStyle",(listItem("tType","any",2) as number));}
+   if((getVar("quality") as number)===0){setScale(45);}else{setScale(75);}
+  }else{hide();}
+ });wait(0.035);});});
+});
+sprite("Impact 02",{visible:false},()=>{
+ onStart(()=>{scriptVars("fxLevel","fxUpgrade");setVar("fxLevel",0);setVar("fxUpgrade",0);forever(()=>{warp(()=>{
+  if((scriptVar("fxLevel") as number)!==(listItem("tLevel","any",2) as number)){
+   if((listItem("tLevel","any",2) as number)>0){setVar("fxUpgrade",v("now")+0.6);}
+   setVar("fxLevel",(listItem("tLevel","any",2) as number));
+  }
+  if(v("mode")===2 && v("quality")===1 && (scriptVar("fxUpgrade") as number)>v("now")){
+   show();moveTo(-320+v("fxX"),25+v("fxY"));setScale(80+(0.6-((scriptVar("fxUpgrade") as number)-v("now")))*80);setEffect("1",(0.6-((scriptVar("fxUpgrade") as number)-v("now")))*130);
+  }else if((getVar("mode") as number)===2 && (listItem("tShot","any",2) as number)>0 && (getVar("quality") as number)===1 && (getVar("milestone") as number)>=4){
+   show();moveTo((listItem("tTargetX","any",2) as number)+v("fxX"),(listItem("tTargetY","any",2) as number)+v("fxY"));setScale(25+(0.16-(listItem("tShot","any",2) as number))*450);
+   setEffect("1",(0.16-(listItem("tShot","any",2) as number))*400);
+  }else{hide();}
+ });if(v("quality")===0){wait(0.2);}else{wait(0.035);}});});
+});
+
+sprite("Projectile 03",{visible:false},()=>{
+ onStart(()=>{scriptVars("lastStyle","fxAngle");setVar("lastStyle",-1);forever(()=>{warp(()=>{
+  if((getVar("mode") as number)===2 && (listItem("tShot","any",3) as number)>0 && (getVar("milestone") as number)>=4){
+   show();moveTo(v("fxX")+-310+((listItem("tTargetX","any",3) as number)-(-310))*(1-(listItem("tShot","any",3) as number)/0.16),
+      v("fxY")+-175+((listItem("tTargetY","any",3) as number)-(-175))*(1-(listItem("tShot","any",3) as number)/0.16));
+   setVar("fxAngle",90);if((listItem("tTargetY","any",3) as number)<-175){setVar("fxAngle",-90);}
+   if((listItem("tTargetX","any",3) as number)!=-310){setVar("fxAngle",mathFunc("atan",((listItem("tTargetY","any",3) as number)-(-175))/((listItem("tTargetX","any",3) as number)-(-310))));}
+   if((listItem("tTargetX","any",3) as number)<-310){setVar("fxAngle",(scriptVar("fxAngle") as number)+180);}
+   pointTowards(scriptVar("fxAngle"));
+   if((scriptVar("lastStyle") as number)!==(listItem("tType","any",3) as number)){setStyle(listItem("bulletStyles","any",(listItem("tType","any",3) as number)));setVar("lastStyle",(listItem("tType","any",3) as number));}
+   if((getVar("quality") as number)===0){setScale(45);}else{setScale(75);}
+  }else{hide();}
+ });wait(0.035);});});
+});
+sprite("Impact 03",{visible:false},()=>{
+ onStart(()=>{scriptVars("fxLevel","fxUpgrade");setVar("fxLevel",0);setVar("fxUpgrade",0);forever(()=>{warp(()=>{
+  if((scriptVar("fxLevel") as number)!==(listItem("tLevel","any",3) as number)){
+   if((listItem("tLevel","any",3) as number)>0){setVar("fxUpgrade",v("now")+0.6);}
+   setVar("fxLevel",(listItem("tLevel","any",3) as number));
+  }
+  if(v("mode")===2 && v("quality")===1 && (scriptVar("fxUpgrade") as number)>v("now")){
+   show();moveTo(-310+v("fxX"),-175+v("fxY"));setScale(80+(0.6-((scriptVar("fxUpgrade") as number)-v("now")))*80);setEffect("1",(0.6-((scriptVar("fxUpgrade") as number)-v("now")))*130);
+  }else if((getVar("mode") as number)===2 && (listItem("tShot","any",3) as number)>0 && (getVar("quality") as number)===1 && (getVar("milestone") as number)>=4){
+   show();moveTo((listItem("tTargetX","any",3) as number)+v("fxX"),(listItem("tTargetY","any",3) as number)+v("fxY"));setScale(25+(0.16-(listItem("tShot","any",3) as number))*450);
+   setEffect("1",(0.16-(listItem("tShot","any",3) as number))*400);
+  }else{hide();}
+ });if(v("quality")===0){wait(0.2);}else{wait(0.035);}});});
+});
+
+sprite("Projectile 04",{visible:false},()=>{
+ onStart(()=>{scriptVars("lastStyle","fxAngle");setVar("lastStyle",-1);forever(()=>{warp(()=>{
+  if((getVar("mode") as number)===2 && (listItem("tShot","any",4) as number)>0 && (getVar("milestone") as number)>=4){
+   show();moveTo(v("fxX")+-160+((listItem("tTargetX","any",4) as number)-(-160))*(1-(listItem("tShot","any",4) as number)/0.16),
+      v("fxY")+-35+((listItem("tTargetY","any",4) as number)-(-35))*(1-(listItem("tShot","any",4) as number)/0.16));
+   setVar("fxAngle",90);if((listItem("tTargetY","any",4) as number)<-35){setVar("fxAngle",-90);}
+   if((listItem("tTargetX","any",4) as number)!=-160){setVar("fxAngle",mathFunc("atan",((listItem("tTargetY","any",4) as number)-(-35))/((listItem("tTargetX","any",4) as number)-(-160))));}
+   if((listItem("tTargetX","any",4) as number)<-160){setVar("fxAngle",(scriptVar("fxAngle") as number)+180);}
+   pointTowards(scriptVar("fxAngle"));
+   if((scriptVar("lastStyle") as number)!==(listItem("tType","any",4) as number)){setStyle(listItem("bulletStyles","any",(listItem("tType","any",4) as number)));setVar("lastStyle",(listItem("tType","any",4) as number));}
+   if((getVar("quality") as number)===0){setScale(45);}else{setScale(75);}
+  }else{hide();}
+ });wait(0.035);});});
+});
+sprite("Impact 04",{visible:false},()=>{
+ onStart(()=>{scriptVars("fxLevel","fxUpgrade");setVar("fxLevel",0);setVar("fxUpgrade",0);forever(()=>{warp(()=>{
+  if((scriptVar("fxLevel") as number)!==(listItem("tLevel","any",4) as number)){
+   if((listItem("tLevel","any",4) as number)>0){setVar("fxUpgrade",v("now")+0.6);}
+   setVar("fxLevel",(listItem("tLevel","any",4) as number));
+  }
+  if(v("mode")===2 && v("quality")===1 && (scriptVar("fxUpgrade") as number)>v("now")){
+   show();moveTo(-160+v("fxX"),-35+v("fxY"));setScale(80+(0.6-((scriptVar("fxUpgrade") as number)-v("now")))*80);setEffect("1",(0.6-((scriptVar("fxUpgrade") as number)-v("now")))*130);
+  }else if((getVar("mode") as number)===2 && (listItem("tShot","any",4) as number)>0 && (getVar("quality") as number)===1 && (getVar("milestone") as number)>=4){
+   show();moveTo((listItem("tTargetX","any",4) as number)+v("fxX"),(listItem("tTargetY","any",4) as number)+v("fxY"));setScale(25+(0.16-(listItem("tShot","any",4) as number))*450);
+   setEffect("1",(0.16-(listItem("tShot","any",4) as number))*400);
+  }else{hide();}
+ });if(v("quality")===0){wait(0.2);}else{wait(0.035);}});});
+});
+
+sprite("Projectile 05",{visible:false},()=>{
+ onStart(()=>{scriptVars("lastStyle","fxAngle");setVar("lastStyle",-1);forever(()=>{warp(()=>{
+  if((getVar("mode") as number)===2 && (listItem("tShot","any",5) as number)>0 && (getVar("milestone") as number)>=4){
+   show();moveTo(v("fxX")+-160+((listItem("tTargetX","any",5) as number)-(-160))*(1-(listItem("tShot","any",5) as number)/0.16),
+      v("fxY")+175+((listItem("tTargetY","any",5) as number)-(175))*(1-(listItem("tShot","any",5) as number)/0.16));
+   setVar("fxAngle",90);if((listItem("tTargetY","any",5) as number)<175){setVar("fxAngle",-90);}
+   if((listItem("tTargetX","any",5) as number)!=-160){setVar("fxAngle",mathFunc("atan",((listItem("tTargetY","any",5) as number)-(175))/((listItem("tTargetX","any",5) as number)-(-160))));}
+   if((listItem("tTargetX","any",5) as number)<-160){setVar("fxAngle",(scriptVar("fxAngle") as number)+180);}
+   pointTowards(scriptVar("fxAngle"));
+   if((scriptVar("lastStyle") as number)!==(listItem("tType","any",5) as number)){setStyle(listItem("bulletStyles","any",(listItem("tType","any",5) as number)));setVar("lastStyle",(listItem("tType","any",5) as number));}
+   if((getVar("quality") as number)===0){setScale(45);}else{setScale(75);}
+  }else{hide();}
+ });wait(0.035);});});
+});
+sprite("Impact 05",{visible:false},()=>{
+ onStart(()=>{scriptVars("fxLevel","fxUpgrade");setVar("fxLevel",0);setVar("fxUpgrade",0);forever(()=>{warp(()=>{
+  if((scriptVar("fxLevel") as number)!==(listItem("tLevel","any",5) as number)){
+   if((listItem("tLevel","any",5) as number)>0){setVar("fxUpgrade",v("now")+0.6);}
+   setVar("fxLevel",(listItem("tLevel","any",5) as number));
+  }
+  if(v("mode")===2 && v("quality")===1 && (scriptVar("fxUpgrade") as number)>v("now")){
+   show();moveTo(-160+v("fxX"),175+v("fxY"));setScale(80+(0.6-((scriptVar("fxUpgrade") as number)-v("now")))*80);setEffect("1",(0.6-((scriptVar("fxUpgrade") as number)-v("now")))*130);
+  }else if((getVar("mode") as number)===2 && (listItem("tShot","any",5) as number)>0 && (getVar("quality") as number)===1 && (getVar("milestone") as number)>=4){
+   show();moveTo((listItem("tTargetX","any",5) as number)+v("fxX"),(listItem("tTargetY","any",5) as number)+v("fxY"));setScale(25+(0.16-(listItem("tShot","any",5) as number))*450);
+   setEffect("1",(0.16-(listItem("tShot","any",5) as number))*400);
+  }else{hide();}
+ });if(v("quality")===0){wait(0.2);}else{wait(0.035);}});});
+});
+
+sprite("Projectile 06",{visible:false},()=>{
+ onStart(()=>{scriptVars("lastStyle","fxAngle");setVar("lastStyle",-1);forever(()=>{warp(()=>{
+  if((getVar("mode") as number)===2 && (listItem("tShot","any",6) as number)>0 && (getVar("milestone") as number)>=4){
+   show();moveTo(v("fxX")+15+((listItem("tTargetX","any",6) as number)-(15))*(1-(listItem("tShot","any",6) as number)/0.16),
+      v("fxY")+55+((listItem("tTargetY","any",6) as number)-(55))*(1-(listItem("tShot","any",6) as number)/0.16));
+   setVar("fxAngle",90);if((listItem("tTargetY","any",6) as number)<55){setVar("fxAngle",-90);}
+   if((listItem("tTargetX","any",6) as number)!=15){setVar("fxAngle",mathFunc("atan",((listItem("tTargetY","any",6) as number)-(55))/((listItem("tTargetX","any",6) as number)-(15))));}
+   if((listItem("tTargetX","any",6) as number)<15){setVar("fxAngle",(scriptVar("fxAngle") as number)+180);}
+   pointTowards(scriptVar("fxAngle"));
+   if((scriptVar("lastStyle") as number)!==(listItem("tType","any",6) as number)){setStyle(listItem("bulletStyles","any",(listItem("tType","any",6) as number)));setVar("lastStyle",(listItem("tType","any",6) as number));}
+   if((getVar("quality") as number)===0){setScale(45);}else{setScale(75);}
+  }else{hide();}
+ });wait(0.035);});});
+});
+sprite("Impact 06",{visible:false},()=>{
+ onStart(()=>{scriptVars("fxLevel","fxUpgrade");setVar("fxLevel",0);setVar("fxUpgrade",0);forever(()=>{warp(()=>{
+  if((scriptVar("fxLevel") as number)!==(listItem("tLevel","any",6) as number)){
+   if((listItem("tLevel","any",6) as number)>0){setVar("fxUpgrade",v("now")+0.6);}
+   setVar("fxLevel",(listItem("tLevel","any",6) as number));
+  }
+  if(v("mode")===2 && v("quality")===1 && (scriptVar("fxUpgrade") as number)>v("now")){
+   show();moveTo(15+v("fxX"),55+v("fxY"));setScale(80+(0.6-((scriptVar("fxUpgrade") as number)-v("now")))*80);setEffect("1",(0.6-((scriptVar("fxUpgrade") as number)-v("now")))*130);
+  }else if((getVar("mode") as number)===2 && (listItem("tShot","any",6) as number)>0 && (getVar("quality") as number)===1 && (getVar("milestone") as number)>=4){
+   show();moveTo((listItem("tTargetX","any",6) as number)+v("fxX"),(listItem("tTargetY","any",6) as number)+v("fxY"));setScale(25+(0.16-(listItem("tShot","any",6) as number))*450);
+   setEffect("1",(0.16-(listItem("tShot","any",6) as number))*400);
+  }else{hide();}
+ });if(v("quality")===0){wait(0.2);}else{wait(0.035);}});});
+});
+
+sprite("Projectile 07",{visible:false},()=>{
+ onStart(()=>{scriptVars("lastStyle","fxAngle");setVar("lastStyle",-1);forever(()=>{warp(()=>{
+  if((getVar("mode") as number)===2 && (listItem("tShot","any",7) as number)>0 && (getVar("milestone") as number)>=4){
+   show();moveTo(v("fxX")+15+((listItem("tTargetX","any",7) as number)-(15))*(1-(listItem("tShot","any",7) as number)/0.16),
+      v("fxY")+-175+((listItem("tTargetY","any",7) as number)-(-175))*(1-(listItem("tShot","any",7) as number)/0.16));
+   setVar("fxAngle",90);if((listItem("tTargetY","any",7) as number)<-175){setVar("fxAngle",-90);}
+   if((listItem("tTargetX","any",7) as number)!=15){setVar("fxAngle",mathFunc("atan",((listItem("tTargetY","any",7) as number)-(-175))/((listItem("tTargetX","any",7) as number)-(15))));}
+   if((listItem("tTargetX","any",7) as number)<15){setVar("fxAngle",(scriptVar("fxAngle") as number)+180);}
+   pointTowards(scriptVar("fxAngle"));
+   if((scriptVar("lastStyle") as number)!==(listItem("tType","any",7) as number)){setStyle(listItem("bulletStyles","any",(listItem("tType","any",7) as number)));setVar("lastStyle",(listItem("tType","any",7) as number));}
+   if((getVar("quality") as number)===0){setScale(45);}else{setScale(75);}
+  }else{hide();}
+ });wait(0.035);});});
+});
+sprite("Impact 07",{visible:false},()=>{
+ onStart(()=>{scriptVars("fxLevel","fxUpgrade");setVar("fxLevel",0);setVar("fxUpgrade",0);forever(()=>{warp(()=>{
+  if((scriptVar("fxLevel") as number)!==(listItem("tLevel","any",7) as number)){
+   if((listItem("tLevel","any",7) as number)>0){setVar("fxUpgrade",v("now")+0.6);}
+   setVar("fxLevel",(listItem("tLevel","any",7) as number));
+  }
+  if(v("mode")===2 && v("quality")===1 && (scriptVar("fxUpgrade") as number)>v("now")){
+   show();moveTo(15+v("fxX"),-175+v("fxY"));setScale(80+(0.6-((scriptVar("fxUpgrade") as number)-v("now")))*80);setEffect("1",(0.6-((scriptVar("fxUpgrade") as number)-v("now")))*130);
+  }else if((getVar("mode") as number)===2 && (listItem("tShot","any",7) as number)>0 && (getVar("quality") as number)===1 && (getVar("milestone") as number)>=4){
+   show();moveTo((listItem("tTargetX","any",7) as number)+v("fxX"),(listItem("tTargetY","any",7) as number)+v("fxY"));setScale(25+(0.16-(listItem("tShot","any",7) as number))*450);
+   setEffect("1",(0.16-(listItem("tShot","any",7) as number))*400);
+  }else{hide();}
+ });if(v("quality")===0){wait(0.2);}else{wait(0.035);}});});
+});
+
+sprite("Projectile 08",{visible:false},()=>{
+ onStart(()=>{scriptVars("lastStyle","fxAngle");setVar("lastStyle",-1);forever(()=>{warp(()=>{
+  if((getVar("mode") as number)===2 && (listItem("tShot","any",8) as number)>0 && (getVar("milestone") as number)>=4){
+   show();moveTo(v("fxX")+180+((listItem("tTargetX","any",8) as number)-(180))*(1-(listItem("tShot","any",8) as number)/0.16),
+      v("fxY")+55+((listItem("tTargetY","any",8) as number)-(55))*(1-(listItem("tShot","any",8) as number)/0.16));
+   setVar("fxAngle",90);if((listItem("tTargetY","any",8) as number)<55){setVar("fxAngle",-90);}
+   if((listItem("tTargetX","any",8) as number)!=180){setVar("fxAngle",mathFunc("atan",((listItem("tTargetY","any",8) as number)-(55))/((listItem("tTargetX","any",8) as number)-(180))));}
+   if((listItem("tTargetX","any",8) as number)<180){setVar("fxAngle",(scriptVar("fxAngle") as number)+180);}
+   pointTowards(scriptVar("fxAngle"));
+   if((scriptVar("lastStyle") as number)!==(listItem("tType","any",8) as number)){setStyle(listItem("bulletStyles","any",(listItem("tType","any",8) as number)));setVar("lastStyle",(listItem("tType","any",8) as number));}
+   if((getVar("quality") as number)===0){setScale(45);}else{setScale(75);}
+  }else{hide();}
+ });wait(0.035);});});
+});
+sprite("Impact 08",{visible:false},()=>{
+ onStart(()=>{scriptVars("fxLevel","fxUpgrade");setVar("fxLevel",0);setVar("fxUpgrade",0);forever(()=>{warp(()=>{
+  if((scriptVar("fxLevel") as number)!==(listItem("tLevel","any",8) as number)){
+   if((listItem("tLevel","any",8) as number)>0){setVar("fxUpgrade",v("now")+0.6);}
+   setVar("fxLevel",(listItem("tLevel","any",8) as number));
+  }
+  if(v("mode")===2 && v("quality")===1 && (scriptVar("fxUpgrade") as number)>v("now")){
+   show();moveTo(180+v("fxX"),55+v("fxY"));setScale(80+(0.6-((scriptVar("fxUpgrade") as number)-v("now")))*80);setEffect("1",(0.6-((scriptVar("fxUpgrade") as number)-v("now")))*130);
+  }else if((getVar("mode") as number)===2 && (listItem("tShot","any",8) as number)>0 && (getVar("quality") as number)===1 && (getVar("milestone") as number)>=4){
+   show();moveTo((listItem("tTargetX","any",8) as number)+v("fxX"),(listItem("tTargetY","any",8) as number)+v("fxY"));setScale(25+(0.16-(listItem("tShot","any",8) as number))*450);
+   setEffect("1",(0.16-(listItem("tShot","any",8) as number))*400);
+  }else{hide();}
+ });if(v("quality")===0){wait(0.2);}else{wait(0.035);}});});
+});
+
+sprite("Projectile 09",{visible:false},()=>{
+ onStart(()=>{scriptVars("lastStyle","fxAngle");setVar("lastStyle",-1);forever(()=>{warp(()=>{
+  if((getVar("mode") as number)===2 && (listItem("tShot","any",9) as number)>0 && (getVar("milestone") as number)>=4){
+   show();moveTo(v("fxX")+180+((listItem("tTargetX","any",9) as number)-(180))*(1-(listItem("tShot","any",9) as number)/0.16),
+      v("fxY")+-175+((listItem("tTargetY","any",9) as number)-(-175))*(1-(listItem("tShot","any",9) as number)/0.16));
+   setVar("fxAngle",90);if((listItem("tTargetY","any",9) as number)<-175){setVar("fxAngle",-90);}
+   if((listItem("tTargetX","any",9) as number)!=180){setVar("fxAngle",mathFunc("atan",((listItem("tTargetY","any",9) as number)-(-175))/((listItem("tTargetX","any",9) as number)-(180))));}
+   if((listItem("tTargetX","any",9) as number)<180){setVar("fxAngle",(scriptVar("fxAngle") as number)+180);}
+   pointTowards(scriptVar("fxAngle"));
+   if((scriptVar("lastStyle") as number)!==(listItem("tType","any",9) as number)){setStyle(listItem("bulletStyles","any",(listItem("tType","any",9) as number)));setVar("lastStyle",(listItem("tType","any",9) as number));}
+   if((getVar("quality") as number)===0){setScale(45);}else{setScale(75);}
+  }else{hide();}
+ });wait(0.035);});});
+});
+sprite("Impact 09",{visible:false},()=>{
+ onStart(()=>{scriptVars("fxLevel","fxUpgrade");setVar("fxLevel",0);setVar("fxUpgrade",0);forever(()=>{warp(()=>{
+  if((scriptVar("fxLevel") as number)!==(listItem("tLevel","any",9) as number)){
+   if((listItem("tLevel","any",9) as number)>0){setVar("fxUpgrade",v("now")+0.6);}
+   setVar("fxLevel",(listItem("tLevel","any",9) as number));
+  }
+  if(v("mode")===2 && v("quality")===1 && (scriptVar("fxUpgrade") as number)>v("now")){
+   show();moveTo(180+v("fxX"),-175+v("fxY"));setScale(80+(0.6-((scriptVar("fxUpgrade") as number)-v("now")))*80);setEffect("1",(0.6-((scriptVar("fxUpgrade") as number)-v("now")))*130);
+  }else if((getVar("mode") as number)===2 && (listItem("tShot","any",9) as number)>0 && (getVar("quality") as number)===1 && (getVar("milestone") as number)>=4){
+   show();moveTo((listItem("tTargetX","any",9) as number)+v("fxX"),(listItem("tTargetY","any",9) as number)+v("fxY"));setScale(25+(0.16-(listItem("tShot","any",9) as number))*450);
+   setEffect("1",(0.16-(listItem("tShot","any",9) as number))*400);
+  }else{hide();}
+ });if(v("quality")===0){wait(0.2);}else{wait(0.035);}});});
+});
+
+sprite("Projectile 10",{visible:false},()=>{
+ onStart(()=>{scriptVars("lastStyle","fxAngle");setVar("lastStyle",-1);forever(()=>{warp(()=>{
+  if((getVar("mode") as number)===2 && (listItem("tShot","any",10) as number)>0 && (getVar("milestone") as number)>=4){
+   show();moveTo(v("fxX")+245+((listItem("tTargetX","any",10) as number)-(245))*(1-(listItem("tShot","any",10) as number)/0.16),
+      v("fxY")+165+((listItem("tTargetY","any",10) as number)-(165))*(1-(listItem("tShot","any",10) as number)/0.16));
+   setVar("fxAngle",90);if((listItem("tTargetY","any",10) as number)<165){setVar("fxAngle",-90);}
+   if((listItem("tTargetX","any",10) as number)!=245){setVar("fxAngle",mathFunc("atan",((listItem("tTargetY","any",10) as number)-(165))/((listItem("tTargetX","any",10) as number)-(245))));}
+   if((listItem("tTargetX","any",10) as number)<245){setVar("fxAngle",(scriptVar("fxAngle") as number)+180);}
+   pointTowards(scriptVar("fxAngle"));
+   if((scriptVar("lastStyle") as number)!==(listItem("tType","any",10) as number)){setStyle(listItem("bulletStyles","any",(listItem("tType","any",10) as number)));setVar("lastStyle",(listItem("tType","any",10) as number));}
+   if((getVar("quality") as number)===0){setScale(45);}else{setScale(75);}
+  }else{hide();}
+ });wait(0.035);});});
+});
+sprite("Impact 10",{visible:false},()=>{
+ onStart(()=>{scriptVars("fxLevel","fxUpgrade");setVar("fxLevel",0);setVar("fxUpgrade",0);forever(()=>{warp(()=>{
+  if((scriptVar("fxLevel") as number)!==(listItem("tLevel","any",10) as number)){
+   if((listItem("tLevel","any",10) as number)>0){setVar("fxUpgrade",v("now")+0.6);}
+   setVar("fxLevel",(listItem("tLevel","any",10) as number));
+  }
+  if(v("mode")===2 && v("quality")===1 && (scriptVar("fxUpgrade") as number)>v("now")){
+   show();moveTo(245+v("fxX"),165+v("fxY"));setScale(80+(0.6-((scriptVar("fxUpgrade") as number)-v("now")))*80);setEffect("1",(0.6-((scriptVar("fxUpgrade") as number)-v("now")))*130);
+  }else if((getVar("mode") as number)===2 && (listItem("tShot","any",10) as number)>0 && (getVar("quality") as number)===1 && (getVar("milestone") as number)>=4){
+   show();moveTo((listItem("tTargetX","any",10) as number)+v("fxX"),(listItem("tTargetY","any",10) as number)+v("fxY"));setScale(25+(0.16-(listItem("tShot","any",10) as number))*450);
+   setEffect("1",(0.16-(listItem("tShot","any",10) as number))*400);
+  }else{hide();}
+ });if(v("quality")===0){wait(0.2);}else{wait(0.035);}});});
+});
+
+sprite("Projectile 11",{visible:false},()=>{
+ onStart(()=>{scriptVars("lastStyle","fxAngle");setVar("lastStyle",-1);forever(()=>{warp(()=>{
+  if((getVar("mode") as number)===2 && (listItem("tShot","any",11) as number)>0 && (getVar("milestone") as number)>=4){
+   show();moveTo(v("fxX")+-405+((listItem("tTargetX","any",11) as number)-(-405))*(1-(listItem("tShot","any",11) as number)/0.16),
+      v("fxY")+-50+((listItem("tTargetY","any",11) as number)-(-50))*(1-(listItem("tShot","any",11) as number)/0.16));
+   setVar("fxAngle",90);if((listItem("tTargetY","any",11) as number)<-50){setVar("fxAngle",-90);}
+   if((listItem("tTargetX","any",11) as number)!=-405){setVar("fxAngle",mathFunc("atan",((listItem("tTargetY","any",11) as number)-(-50))/((listItem("tTargetX","any",11) as number)-(-405))));}
+   if((listItem("tTargetX","any",11) as number)<-405){setVar("fxAngle",(scriptVar("fxAngle") as number)+180);}
+   pointTowards(scriptVar("fxAngle"));
+   if((scriptVar("lastStyle") as number)!==(listItem("tType","any",11) as number)){setStyle(listItem("bulletStyles","any",(listItem("tType","any",11) as number)));setVar("lastStyle",(listItem("tType","any",11) as number));}
+   if((getVar("quality") as number)===0){setScale(45);}else{setScale(75);}
+  }else{hide();}
+ });wait(0.035);});});
+});
+sprite("Impact 11",{visible:false},()=>{
+ onStart(()=>{scriptVars("fxLevel","fxUpgrade");setVar("fxLevel",0);setVar("fxUpgrade",0);forever(()=>{warp(()=>{
+  if((scriptVar("fxLevel") as number)!==(listItem("tLevel","any",11) as number)){
+   if((listItem("tLevel","any",11) as number)>0){setVar("fxUpgrade",v("now")+0.6);}
+   setVar("fxLevel",(listItem("tLevel","any",11) as number));
+  }
+  if(v("mode")===2 && v("quality")===1 && (scriptVar("fxUpgrade") as number)>v("now")){
+   show();moveTo(-405+v("fxX"),-50+v("fxY"));setScale(80+(0.6-((scriptVar("fxUpgrade") as number)-v("now")))*80);setEffect("1",(0.6-((scriptVar("fxUpgrade") as number)-v("now")))*130);
+  }else if((getVar("mode") as number)===2 && (listItem("tShot","any",11) as number)>0 && (getVar("quality") as number)===1 && (getVar("milestone") as number)>=4){
+   show();moveTo((listItem("tTargetX","any",11) as number)+v("fxX"),(listItem("tTargetY","any",11) as number)+v("fxY"));setScale(25+(0.16-(listItem("tShot","any",11) as number))*450);
+   setEffect("1",(0.16-(listItem("tShot","any",11) as number))*400);
+  }else{hide();}
+ });if(v("quality")===0){wait(0.2);}else{wait(0.035);}});});
+});
+
+sprite("Projectile 12",{visible:false},()=>{
+ onStart(()=>{scriptVars("lastStyle","fxAngle");setVar("lastStyle",-1);forever(()=>{warp(()=>{
+  if((getVar("mode") as number)===2 && (listItem("tShot","any",12) as number)>0 && (getVar("milestone") as number)>=4){
+   show();moveTo(v("fxX")+250+((listItem("tTargetX","any",12) as number)-(250))*(1-(listItem("tShot","any",12) as number)/0.16),
+      v("fxY")+-25+((listItem("tTargetY","any",12) as number)-(-25))*(1-(listItem("tShot","any",12) as number)/0.16));
+   setVar("fxAngle",90);if((listItem("tTargetY","any",12) as number)<-25){setVar("fxAngle",-90);}
+   if((listItem("tTargetX","any",12) as number)!=250){setVar("fxAngle",mathFunc("atan",((listItem("tTargetY","any",12) as number)-(-25))/((listItem("tTargetX","any",12) as number)-(250))));}
+   if((listItem("tTargetX","any",12) as number)<250){setVar("fxAngle",(scriptVar("fxAngle") as number)+180);}
+   pointTowards(scriptVar("fxAngle"));
+   if((scriptVar("lastStyle") as number)!==(listItem("tType","any",12) as number)){setStyle(listItem("bulletStyles","any",(listItem("tType","any",12) as number)));setVar("lastStyle",(listItem("tType","any",12) as number));}
+   if((getVar("quality") as number)===0){setScale(45);}else{setScale(75);}
+  }else{hide();}
+ });wait(0.035);});});
+});
+sprite("Impact 12",{visible:false},()=>{
+ onStart(()=>{scriptVars("fxLevel","fxUpgrade");setVar("fxLevel",0);setVar("fxUpgrade",0);forever(()=>{warp(()=>{
+  if((scriptVar("fxLevel") as number)!==(listItem("tLevel","any",12) as number)){
+   if((listItem("tLevel","any",12) as number)>0){setVar("fxUpgrade",v("now")+0.6);}
+   setVar("fxLevel",(listItem("tLevel","any",12) as number));
+  }
+  if(v("mode")===2 && v("quality")===1 && (scriptVar("fxUpgrade") as number)>v("now")){
+   show();moveTo(250+v("fxX"),-25+v("fxY"));setScale(80+(0.6-((scriptVar("fxUpgrade") as number)-v("now")))*80);setEffect("1",(0.6-((scriptVar("fxUpgrade") as number)-v("now")))*130);
+  }else if((getVar("mode") as number)===2 && (listItem("tShot","any",12) as number)>0 && (getVar("quality") as number)===1 && (getVar("milestone") as number)>=4){
+   show();moveTo((listItem("tTargetX","any",12) as number)+v("fxX"),(listItem("tTargetY","any",12) as number)+v("fxY"));setScale(25+(0.16-(listItem("tShot","any",12) as number))*450);
+   setEffect("1",(0.16-(listItem("tShot","any",12) as number))*400);
+  }else{hide();}
+ });if(v("quality")===0){wait(0.2);}else{wait(0.035);}});});
+});
+sprite("Boss Warning",{visible:false},()=>{
+ onStart(()=>{forever(()=>{warp(()=>{
+  if((getVar("mode") as number)===2 && (getVar("bossAlert") as number)>0 && (getVar("milestone") as number)>=4){
+   show();moveTo(-65,185);setScale(100);
+  }else{hide();}
+ });wait(0.1);});});
 });
