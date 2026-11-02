@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none">
+<title>Core portal</title>
+<defs>
+  <linearGradient id="space" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#101e31"/><stop offset=".55" stop-color="#091321"/><stop offset="1" stop-color="#050b15"/></linearGradient>
+  <linearGradient id="metal" x1="0" y1="0" x2=".7" y2="1"><stop stop-color="#536a80"/><stop offset=".44" stop-color="#243a50"/><stop offset="1" stop-color="#142334"/></linearGradient>
+  <linearGradient id="darkmetal" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#263c51"/><stop offset="1" stop-color="#0b1522"/></linearGradient>
+  <linearGradient id="energy" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f0fffd"/><stop offset=".45" stop-color="#6ff8e6"/><stop offset="1" stop-color="#6ff8e6" stop-opacity=".25"/></linearGradient>
+  <linearGradient id="trail"><stop stop-color="#6ff8e6" stop-opacity="0"/><stop offset=".66" stop-color="#6ff8e6" stop-opacity=".45"/><stop offset="1" stop-color="#f0fffd"/></linearGradient>
+  <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#172c42"/><stop offset="1" stop-color="#0b1627"/></linearGradient>
+  <radialGradient id="halo"><stop stop-color="#6ff8e6" stop-opacity=".28"/><stop offset=".5" stop-color="#6ff8e6" stop-opacity=".09"/><stop offset="1" stop-color="#6ff8e6" stop-opacity="0"/></radialGradient>
+  <pattern id="grid" width="36" height="36" patternUnits="userSpaceOnUse"><path d="M36 0H0V36" stroke="#7aa9c0" stroke-opacity=".055" stroke-width="1"/></pattern>
+</defs>
+<circle cx="32" cy="32" r="32.0" fill="url(#halo)"/><circle cx="32" cy="32" r="20" stroke="#6ff8e6" stroke-width="1" opacity=".23"/><circle cx="32" cy="32" r="17.4" stroke="#6ff8e6" stroke-width="2" stroke-dasharray="13.0 3.5999999999999996" transform="rotate(-22 32 32)" opacity=".65"/><polygon points="44.12,39.00 32.00,46.00 19.88,39.00 19.88,25.00 32.00,18.00 44.12,25.00" fill="url(#darkmetal)" stroke="#6ff8e6" stroke-width="1.5" /><polygon points="41.18,37.30 32.00,42.60 22.82,37.30 22.82,26.70 32.00,21.40 41.18,26.70" fill="#0c2232" stroke="#6ff8e6" stroke-width="0.8" /><polygon points="32.00,23.60 37.80,32.00 32.00,40.40 26.20,32.00" fill="url(#energy)" stroke="#c8fff7" stroke-width="1" /><path d="M32 23.6V40.4M26.2 32H37.8" stroke="#e5fffe" stroke-opacity=".65"/>
+</svg>

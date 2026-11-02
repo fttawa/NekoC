@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="420" viewBox="0 0 640 420" fill="none">
+<title>SECTOR RECORDS</title>
+<defs>
+  <linearGradient id="space" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#101e31"/><stop offset=".55" stop-color="#091321"/><stop offset="1" stop-color="#050b15"/></linearGradient>
+  <linearGradient id="metal" x1="0" y1="0" x2=".7" y2="1"><stop stop-color="#536a80"/><stop offset=".44" stop-color="#243a50"/><stop offset="1" stop-color="#142334"/></linearGradient>
+  <linearGradient id="darkmetal" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#263c51"/><stop offset="1" stop-color="#0b1522"/></linearGradient>
+  <linearGradient id="energy" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f0fffd"/><stop offset=".45" stop-color="#6ff8e6"/><stop offset="1" stop-color="#6ff8e6" stop-opacity=".25"/></linearGradient>
+  <linearGradient id="trail"><stop stop-color="#6ff8e6" stop-opacity="0"/><stop offset=".66" stop-color="#6ff8e6" stop-opacity=".45"/><stop offset="1" stop-color="#f0fffd"/></linearGradient>
+  <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#172c42"/><stop offset="1" stop-color="#0b1627"/></linearGradient>
+  <radialGradient id="halo"><stop stop-color="#6ff8e6" stop-opacity=".28"/><stop offset=".5" stop-color="#6ff8e6" stop-opacity=".09"/><stop offset="1" stop-color="#6ff8e6" stop-opacity="0"/></radialGradient>
+  <pattern id="grid" width="36" height="36" patternUnits="userSpaceOnUse"><path d="M36 0H0V36" stroke="#7aa9c0" stroke-opacity=".055" stroke-width="1"/></pattern>
+</defs>
+<rect x="5" y="8" width="630" height="407" rx="15" fill="#020710" fill-opacity=".75"/><path d="M20 3H620L637 20V400L620 417H20L3 400V20Z" fill="url(#panel)" stroke="#536c80" stroke-width="1.1"/><path d="M20 3H620" stroke="#6ff8e6" stroke-width="2"/><path d="M24 76H616" stroke="#304c60"/><path d="M23 402H67M573 402H617" stroke="#6ff8e6" stroke-opacity=".4"/><path d="M10 22V10H22M618 10H630V22M10 398V410H22M618 410H630V398" stroke="#6ff8e6" stroke-width="1.5" opacity="0.4"/><text x="32" y="43" fill="#e0f5f5" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC',sans-serif" font-size="23" text-anchor="start" font-weight="700" letter-spacing="0" opacity="1">战区纪录</text><text x="33" y="63" fill="#86aabb" font-family="'Cascadia Code','Consolas',monospace" font-size="9" text-anchor="start" font-weight="400" letter-spacing="2" opacity="1">SECTOR RECORDS</text>
+</svg>

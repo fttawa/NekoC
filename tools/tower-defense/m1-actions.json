@@ -1,0 +1,18 @@
+{
+  "before": [
+    {"name":"enter-battle","key":"Enter","domKey":true,"waitMs":300,"until":{"name":"mode","value":2},"assert":{"mode":2,"gold":180,"selectedTower":1}},
+    {"name":"purchase-pad-1","click":{"x":-330,"y":165},"waitMs":500,"until":{"name":"gold","value":125},"assert":{"gold":125},"assertLists":{"tType":{"0":1}}},
+    {"name":"purchase-pad-5","click":{"x":-160,"y":175},"waitMs":500,"until":{"name":"gold","value":70},"assert":{"gold":70},"assertLists":{"tType":{"4":1}}},
+    {"name":"purchase-pad-6","click":{"x":15,"y":55},"waitMs":500,"until":{"name":"gold","value":15},"assert":{"gold":15},"assertLists":{"tType":{"5":1}}},
+    {"name":"start-wave-1","key":"Space","domKey":true,"waitMs":1500,"until":{"name":"eAlive","nonzero":true,"op":"gt","value":0},"assert":{"mode":2,"wave":1,"waveActive":1,"paused":0}}
+  ],
+  "benchmark": {
+    "label":"M1 live battle: wave 1, three pulse towers, real native keyboard/mouse input",
+    "windows":3,
+    "windowMs":4000,
+    "assert":{"mode":2,"paused":0,"wave":1},
+    "activeEnemies":true,
+    "validateActorLayers":true
+  },
+  "after": []
+}

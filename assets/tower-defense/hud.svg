@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="562" viewBox="0 0 900 562" fill="none">
+<title>Transparent gameplay HUD frame</title>
+<defs>
+  <linearGradient id="space" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#101e31"/><stop offset=".55" stop-color="#091321"/><stop offset="1" stop-color="#050b15"/></linearGradient>
+  <linearGradient id="metal" x1="0" y1="0" x2=".7" y2="1"><stop stop-color="#536a80"/><stop offset=".44" stop-color="#243a50"/><stop offset="1" stop-color="#142334"/></linearGradient>
+  <linearGradient id="darkmetal" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#263c51"/><stop offset="1" stop-color="#0b1522"/></linearGradient>
+  <linearGradient id="energy" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f0fffd"/><stop offset=".45" stop-color="#6ff8e6"/><stop offset="1" stop-color="#6ff8e6" stop-opacity=".25"/></linearGradient>
+  <linearGradient id="trail"><stop stop-color="#6ff8e6" stop-opacity="0"/><stop offset=".66" stop-color="#6ff8e6" stop-opacity=".45"/><stop offset="1" stop-color="#f0fffd"/></linearGradient>
+  <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#172c42"/><stop offset="1" stop-color="#0b1627"/></linearGradient>
+  <radialGradient id="halo"><stop stop-color="#6ff8e6" stop-opacity=".28"/><stop offset=".5" stop-color="#6ff8e6" stop-opacity=".09"/><stop offset="1" stop-color="#6ff8e6" stop-opacity="0"/></radialGradient>
+  <pattern id="grid" width="36" height="36" patternUnits="userSpaceOnUse"><path d="M36 0H0V36" stroke="#7aa9c0" stroke-opacity=".055" stroke-width="1"/></pattern>
+</defs>
+<path d="M10 9H890V55H10Z" fill="#0b1726" fill-opacity=".96" stroke="#345365"/><path d="M10 9H116L126 19H10Z" fill="#3c8b91" opacity=".36"/><path d="M11 54H889" stroke="#64d6cf" opacity=".3"/><path d="M750 67H890V501H750Z" fill="#0b1726" fill-opacity=".96" stroke="#304b60"/><path d="M750 67H813L824 76H750Z" fill="#b48b48" opacity=".32"/><path d="M750 103H890M760 362H880" stroke="#345064"/><path d="M10 511H890V552H10Z" fill="#0b1726" fill-opacity=".96" stroke="#345365"/><path d="M10 511H145L155 517H10Z" fill="#3c8b91" opacity=".3"/><path d="M10 17V9H18M882 9H890V17M10 47V55H18M882 55H890V47" stroke="#79cfce" stroke-width="1.5" opacity="0.75"/><path d="M750 75V67H758M882 67H890V75M750 493V501H758M882 501H890V493" stroke="#d4b580" stroke-width="1.5" opacity="0.6"/><path d="M10 519V511H18M882 511H890V519M10 544V552H18M882 552H890V544" stroke="#79cfce" stroke-width="1.5" opacity="0.5"/>
+</svg>

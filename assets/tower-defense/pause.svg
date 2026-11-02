@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="240" viewBox="0 0 480 240" fill="none">
+<title>Pause panel</title>
+<defs>
+  <linearGradient id="space" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#101e31"/><stop offset=".55" stop-color="#091321"/><stop offset="1" stop-color="#050b15"/></linearGradient>
+  <linearGradient id="metal" x1="0" y1="0" x2=".7" y2="1"><stop stop-color="#536a80"/><stop offset=".44" stop-color="#243a50"/><stop offset="1" stop-color="#142334"/></linearGradient>
+  <linearGradient id="darkmetal" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#263c51"/><stop offset="1" stop-color="#0b1522"/></linearGradient>
+  <linearGradient id="energy" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f0fffd"/><stop offset=".45" stop-color="#6ff8e6"/><stop offset="1" stop-color="#6ff8e6" stop-opacity=".25"/></linearGradient>
+  <linearGradient id="trail"><stop stop-color="#6ff8e6" stop-opacity="0"/><stop offset=".66" stop-color="#6ff8e6" stop-opacity=".45"/><stop offset="1" stop-color="#f0fffd"/></linearGradient>
+  <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#172c42"/><stop offset="1" stop-color="#0b1627"/></linearGradient>
+  <radialGradient id="halo"><stop stop-color="#6ff8e6" stop-opacity=".28"/><stop offset=".5" stop-color="#6ff8e6" stop-opacity=".09"/><stop offset="1" stop-color="#6ff8e6" stop-opacity="0"/></radialGradient>
+  <pattern id="grid" width="36" height="36" patternUnits="userSpaceOnUse"><path d="M36 0H0V36" stroke="#7aa9c0" stroke-opacity=".055" stroke-width="1"/></pattern>
+</defs>
+<rect x="5" y="8" width="470" height="227" rx="15" fill="#020710" fill-opacity=".75"/><path d="M20 3H460L477 20V220L460 237H20L3 220V20Z" fill="url(#panel)" stroke="#536c80" stroke-width="1.1"/><path d="M20 3H460" stroke="#6ff8e6" stroke-width="2"/><path d="M24 76H456" stroke="#304c60"/><path d="M23 222H67M413 222H457" stroke="#6ff8e6" stroke-opacity=".4"/><path d="M10 22V10H22M458 10H470V22M10 218V230H22M458 230H470V218" stroke="#6ff8e6" stroke-width="1.5" opacity="0.4"/><path d="M35 30H41V51H35ZM47 30H53V51H47Z" fill="#a6e9e3"/><text x="69" y="44" fill="#e1f6f4" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC',sans-serif" font-size="22" text-anchor="start" font-weight="700" letter-spacing="0" opacity="1">战术暂停</text><text x="69" y="63" fill="#7fa7bb" font-family="'Cascadia Code','Consolas',monospace" font-size="9" text-anchor="start" font-weight="400" letter-spacing="2" opacity="1">TACTICAL PAUSE</text><text x="240" y="103" fill="#92aebf" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC',sans-serif" font-size="12" text-anchor="middle" font-weight="400" letter-spacing="0" opacity="1">重新部署思路，然后继续守护核心。</text>
+</svg>

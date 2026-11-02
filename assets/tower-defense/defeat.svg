@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="280" viewBox="0 0 480 280" fill="none">
+<title>Defeat panel</title>
+<defs>
+  <linearGradient id="space" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#101e31"/><stop offset=".55" stop-color="#091321"/><stop offset="1" stop-color="#050b15"/></linearGradient>
+  <linearGradient id="metal" x1="0" y1="0" x2=".7" y2="1"><stop stop-color="#536a80"/><stop offset=".44" stop-color="#243a50"/><stop offset="1" stop-color="#142334"/></linearGradient>
+  <linearGradient id="darkmetal" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#263c51"/><stop offset="1" stop-color="#0b1522"/></linearGradient>
+  <linearGradient id="energy" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f0fffd"/><stop offset=".45" stop-color="#ff8eaa"/><stop offset="1" stop-color="#ff8eaa" stop-opacity=".25"/></linearGradient>
+  <linearGradient id="trail"><stop stop-color="#ff8eaa" stop-opacity="0"/><stop offset=".66" stop-color="#ff8eaa" stop-opacity=".45"/><stop offset="1" stop-color="#f0fffd"/></linearGradient>
+  <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#172c42"/><stop offset="1" stop-color="#0b1627"/></linearGradient>
+  <radialGradient id="halo"><stop stop-color="#ff8eaa" stop-opacity=".28"/><stop offset=".5" stop-color="#ff8eaa" stop-opacity=".09"/><stop offset="1" stop-color="#ff8eaa" stop-opacity="0"/></radialGradient>
+  <pattern id="grid" width="36" height="36" patternUnits="userSpaceOnUse"><path d="M36 0H0V36" stroke="#7aa9c0" stroke-opacity=".055" stroke-width="1"/></pattern>
+</defs>
+<rect x="5" y="8" width="470" height="267" rx="15" fill="#020710" fill-opacity=".75"/><path d="M20 3H460L477 20V260L460 277H20L3 260V20Z" fill="url(#panel)" stroke="#536c80" stroke-width="1.1"/><path d="M20 3H460" stroke="#ff8eaa" stroke-width="2"/><path d="M24 76H456" stroke="#304c60"/><path d="M23 262H67M413 262H457" stroke="#ff8eaa" stroke-opacity=".4"/><path d="M10 22V10H22M458 10H470V22M10 258V270H22M458 270H470V258" stroke="#ff8eaa" stroke-width="1.5" opacity="0.4"/><text x="240" y="44" fill="#f2f3f3" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC',sans-serif" font-size="24" text-anchor="middle" font-weight="700" letter-spacing="0" opacity="1">核心已失守</text><text x="240" y="64" fill="#ff8eaa" font-family="'Cascadia Code','Consolas',monospace" font-size="9" text-anchor="middle" font-weight="400" letter-spacing="3" opacity="1">SIGNAL LOST</text><polygon points="240.00,84.00 260.00,117.00 220.00,117.00" fill="#4e293b" stroke="#ff8eaa" stroke-width="1" /><path d="M240 94V105M240 110V112" stroke="#ffd8e1" stroke-width="2.5"/><text x="240" y="140" fill="#ac91a4" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC',sans-serif" font-size="11" text-anchor="middle" font-weight="400" letter-spacing="0" opacity="1">调整阵型，下一次让裂隙止步。</text>
+</svg>

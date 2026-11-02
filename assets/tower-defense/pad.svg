@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none">
+<title>Empty build socket</title>
+<defs>
+  <linearGradient id="space" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#101e31"/><stop offset=".55" stop-color="#091321"/><stop offset="1" stop-color="#050b15"/></linearGradient>
+  <linearGradient id="metal" x1="0" y1="0" x2=".7" y2="1"><stop stop-color="#536a80"/><stop offset=".44" stop-color="#243a50"/><stop offset="1" stop-color="#142334"/></linearGradient>
+  <linearGradient id="darkmetal" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#263c51"/><stop offset="1" stop-color="#0b1522"/></linearGradient>
+  <linearGradient id="energy" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f0fffd"/><stop offset=".45" stop-color="#e8bd70"/><stop offset="1" stop-color="#e8bd70" stop-opacity=".25"/></linearGradient>
+  <linearGradient id="trail"><stop stop-color="#e8bd70" stop-opacity="0"/><stop offset=".66" stop-color="#e8bd70" stop-opacity=".45"/><stop offset="1" stop-color="#f0fffd"/></linearGradient>
+  <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#172c42"/><stop offset="1" stop-color="#0b1627"/></linearGradient>
+  <radialGradient id="halo"><stop stop-color="#e8bd70" stop-opacity=".28"/><stop offset=".5" stop-color="#e8bd70" stop-opacity=".09"/><stop offset="1" stop-color="#e8bd70" stop-opacity="0"/></radialGradient>
+  <pattern id="grid" width="36" height="36" patternUnits="userSpaceOnUse"><path d="M36 0H0V36" stroke="#7aa9c0" stroke-opacity=".055" stroke-width="1"/></pattern>
+</defs>
+<ellipse cx="24" cy="29" rx="23" ry="17" fill="#020b13" opacity=".65"/><polygon points="43.05,35.00 24.00,46.00 4.95,35.00 4.95,13.00 24.00,2.00 43.05,13.00" fill="#192d3b" stroke="#58655e" stroke-width="1.1" /><polygon points="39.59,31.00 24.00,40.00 8.41,31.00 8.41,13.00 24.00,4.00 39.59,13.00" fill="#203442" stroke="#8b7958" stroke-width="0.8" /><circle cx="24" cy="22" r="13" fill="#10222e" stroke="#c6a363" stroke-opacity=".65" stroke-dasharray="5 4"/><path d="M24 16V28M18 22H30" stroke="#ddbd7b" stroke-width="1.5" opacity=".75"/><path d="M12 10L16 8M32 8L36 10M12 35L16 37M32 37L36 35" stroke="#e8c985" stroke-width="2"/>
+</svg>

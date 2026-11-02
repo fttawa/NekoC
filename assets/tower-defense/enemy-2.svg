@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40" fill="none">
+<title>Enemy 2</title>
+<defs>
+  <linearGradient id="space" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#101e31"/><stop offset=".55" stop-color="#091321"/><stop offset="1" stop-color="#050b15"/></linearGradient>
+  <linearGradient id="metal" x1="0" y1="0" x2=".7" y2="1"><stop stop-color="#536a80"/><stop offset=".44" stop-color="#243a50"/><stop offset="1" stop-color="#142334"/></linearGradient>
+  <linearGradient id="darkmetal" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#263c51"/><stop offset="1" stop-color="#0b1522"/></linearGradient>
+  <linearGradient id="energy" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f0fffd"/><stop offset=".45" stop-color="#ffb67d"/><stop offset="1" stop-color="#ffb67d" stop-opacity=".25"/></linearGradient>
+  <linearGradient id="trail"><stop stop-color="#ffb67d" stop-opacity="0"/><stop offset=".66" stop-color="#ffb67d" stop-opacity=".45"/><stop offset="1" stop-color="#f0fffd"/></linearGradient>
+  <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#172c42"/><stop offset="1" stop-color="#0b1627"/></linearGradient>
+  <radialGradient id="halo"><stop stop-color="#ffb67d" stop-opacity=".28"/><stop offset=".5" stop-color="#ffb67d" stop-opacity=".09"/><stop offset="1" stop-color="#ffb67d" stop-opacity="0"/></radialGradient>
+  <pattern id="grid" width="36" height="36" patternUnits="userSpaceOnUse"><path d="M36 0H0V36" stroke="#7aa9c0" stroke-opacity=".055" stroke-width="1"/></pattern>
+</defs>
+<ellipse cx="19" cy="27" rx="17" ry="10" fill="#020611" opacity=".65"/><circle cx="20" cy="20" r="19" fill="url(#halo)"/><path d="M3 14H10M1 20H7M3 26H10" stroke="#ffad78" stroke-width="1.5" opacity=".65"/><polygon points="8.00,8.00 22.00,13.00 36.00,20.00 22.00,27.00 8.00,32.00 13.00,21.00" fill="#b7624a" stroke="#ffc198" stroke-width="1.2" /><polygon points="12.00,13.00 22.00,16.00 31.00,20.00 20.00,23.00" fill="url(#energy)" stroke="none" stroke-width="1" /><polygon points="13.00,25.00 22.00,23.00 29.00,22.00 19.00,27.00" fill="#ff8b5d" stroke="none" stroke-width="1" /><path d="M19 19L29 20L19 21" stroke="#fff5da" stroke-width="1.2"/>
+</svg>

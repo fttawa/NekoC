@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' file:; style-src 'unsafe-inline'; script-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
+  <title>STARHOLD — Original SVG asset gallery</title>
+  <style>
+    :root { color-scheme: dark; font: 14px/1.6 'Microsoft YaHei', system-ui, sans-serif; background: #091321; color: #cbddeb; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    header, main, footer { max-width: 1440px; margin: auto; padding: 24px 32px; }
+    header { padding-top: 42px; }
+    .eyebrow { margin: 0; color: #70e4d7; font: 11px/1.6 Consolas, monospace; letter-spacing: 3px; }
+    h1 { margin: 6px 0 12px; font-size: clamp(26px, 4vw, 42px); color: #e8f6fa; letter-spacing: 2px; }
+    h2 { margin: 28px 0 16px; color: #d8edf2; font-size: 20px; }
+    p { margin: 8px 0; max-width: 1000px; }
+    a { color: #89e2d8; text-underline-offset: 3px; }
+    code { color: #edcf9e; font-family: Consolas, monospace; }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; margin-top: 24px; padding: 14px 16px; border: 1px solid #355064; border-radius: 8px; background: #122237; }
+    .toolbar label { display: flex; align-items: center; gap: 8px; }
+    input, select { font: inherit; color: #dcecf3; background: #091725; border: 1px solid #466279; padding: 6px 10px; border-radius: 4px; }
+    input[type="checkbox"] { accent-color: #6adace; }
+    #search { width: 190px; }
+    :focus-visible { outline: 2px solid #91eadf; outline-offset: 4px; }
+    #status { font: 12px Consolas, monospace; color: #98b5c7; margin-left: auto; }
+    .contract { border-left: 3px solid #d2ad73; padding: 2px 16px; margin-top: 18px; color: #a9bfcd; }
+    main { padding-top: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 12px; }
+    .large-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 430px), 1fr)); }
+    figure { margin: 0; min-width: 0; background: #101e30; border: 1px solid #2f495f; border-radius: 7px; overflow: hidden; }
+    figure[hidden], section[hidden] { display: none; }
+    .art { position: relative; display: flex; align-items: center; justify-content: center; min-height: 140px; padding: 12px; overflow: auto; background-color: #132539; background-image: linear-gradient(45deg, #ffffff04 25%, transparent 25%), linear-gradient(-45deg, #ffffff04 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ffffff04 75%), linear-gradient(-45deg, transparent 75%, #ffffff04 75%); background-size: 20px 20px; background-position: 0 0, 0 10px, 10px -10px, -10px 0; }
+    .large-grid .art { padding: 0; min-height: 180px; }
+    .light .art { background-color: #c4d0d6; }
+    .art img { display: block; flex-shrink: 0; max-width: 100%; height: auto; }
+    .sprites .art img { max-width: none; width: calc(var(--w) * var(--scale, 1) * 1px); }
+    .large-grid .art img { width: 100%; }
+    .crosshairs .art::after { content: ''; position: absolute; width: 13px; height: 13px; left: calc(50% - 6px); top: calc(50% - 6px); pointer-events: none; background: linear-gradient(#ffcb81, #ffcb81) center / 1px 13px no-repeat, linear-gradient(#ffcb81, #ffcb81) center / 13px 1px no-repeat; opacity: .8; }
+    figcaption { padding: 9px 12px; border-top: 1px solid #2f495f; display: flex; gap: 8px; justify-content: space-between; flex-wrap: wrap; font: 11px/1.6 Consolas, monospace; color: #89a6ba; }
+    .stage { position: relative; width: 100%; aspect-ratio: 900 / 562; overflow: hidden; border: 1px solid #3c5b70; border-radius: 8px; background: #07101c; }
+    .stage img { position: absolute; display: block; height: auto; }
+    .stage-note { color: #8baabd; font-size: 12px; margin: 8px 0 18px; }
+    footer { color: #7897aa; font-size: 12px; border-top: 1px solid #263f53; }
+    @media (max-width: 700px) { header, main, footer { padding-left: 16px; padding-right: 16px; } #status { margin-left: 0; } .toolbar { gap: 10px; } }
+    @media print { .toolbar { display: none; } header { padding-top: 0; } figure { break-inside: avoid; } section { break-inside: auto; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">ORIGINAL OFFLINE VECTOR LIBRARY</p>
+    <h1>星垒 / STARHOLD</h1>
+    <p>51 standalone SVG assets. This gallery opens directly from disk and loads only sibling SVG files. The assembled battlefield is an artwork preview; native gameplay, HUD values, and menu controls are supplied by the project.</p>
+    <p class="contract"><strong>Native KN anchor:</strong> <code>centerPoint: {x: 0, y: 0}</code> is the offset from geometric center. Towers, enemies, and projectiles face right (native direction 90). Manifest filenames are relative to <code>assets/tower-defense/</code>.</p>
+    <div class="toolbar" aria-label="Gallery controls">
+      <label>Find <input id="search" type="search" placeholder="tower-1, map, help…" autocomplete="off"></label>
+      <label>Sprite scale <select id="scale"><option value="1">1× native</option><option value="2">2× detail</option><option value="3">3× detail</option></select></label>
+      <label><input id="light" type="checkbox"> Light backdrop</label>
+      <label><input id="centers" type="checkbox"> Show centers</label>
+      <output id="status" aria-live="polite">Loading local SVGs…</output>
+    </div>
+  </header>
+  <main>
+    <section id="assembled">
+      <h2>Assembled battlefield / 900 × 562</h2>
+      <div id="stage" class="stage" aria-label="Map one with twelve build pads and sample towers and enemies"></div>
+      <p class="stage-note">Static layout preview. Build pads are separate actors; tiny pad numbers and the endpoint portal are baked into the map. Panel text is artwork, so native text should occupy its remaining open areas.</p>
+    </section>
+    <div id="gallery"></div>
+    <noscript><p>Enable JavaScript to build the contact sheet, or open <a href="manifest.json">manifest.json</a> and individual SVG files.</p></noscript>
+  </main>
+  <footer>
+    <p>Generated artwork: <code>tools/tower-defense/assets.py</code> · Asset index: <a href="manifest.json">manifest.json</a> · All previews remain vector images. This page does not modify or regenerate assets.</p>
+  </footer>
+  <script>
+    'use strict';
+    // Explicit inventory avoids fetch/file-origin restrictions when opened from
+    // disk. The build's source of truth remains the adjacent manifest.json.
+    const inventory = [];
+    const add = (name, width, height, group) => inventory.push({name, width, height, group, file: `${name}.svg`});
+    for (let tower = 1; tower <= 4; tower++) for (let level = 1; level <= 3; level++) add(`tower-${tower}-${level}`, 64, 64, 'Towers / three upgrade levels');
+    for (let enemy = 1; enemy <= 6; enemy++) add(`enemy-${enemy}`, enemy === 6 ? 72 : 40, enemy === 6 ? 72 : 40, 'Enemies / distinct silhouettes');
+    for (let bullet = 1; bullet <= 4; bullet++) add(`bullet-${bullet}`, 60, 12, 'Projectiles & effects');
+    for (const [name, size] of [['pad', 48], ['selection', 68], ['effect-ring', 70], ['core', 64], ['star-empty', 28], ['star-full', 28]]) add(name, size, size, 'Projectiles & effects');
+    for (let map = 1; map <= 6; map++) add(`map-${map}`, 900, 562, 'Battlefield palettes');
+    for (const name of ['hud', 'title', 'level-select']) add(name, 900, 562, 'Screens & HUD');
+    add('pause', 480, 240, 'Overlay panels');
+    for (const name of ['victory', 'defeat']) add(name, 480, 280, 'Overlay panels');
+    for (const name of ['settings', 'help', 'leaderboard', 'messages']) add(name, 640, 420, 'Overlay panels');
+    for (const kind of ['primary', 'secondary', 'danger', 'gold']) add(`button-${kind}`, 180, 44, 'Buttons & interface');
+    add('button-small', 120, 34, 'Buttons & interface');
+    add('store-card', 128, 60, 'Buttons & interface');
+    add('boss-banner', 520, 64, 'Buttons & interface');
+
+    const sections = new Map();
+    const byName = new Map(inventory.map(asset => [asset.name, asset]));
+    const images = [];
+    for (const asset of inventory) {
+      if (!sections.has(asset.group)) {
+        const section = document.createElement('section');
+        const heading = document.createElement('h2');
+        heading.textContent = asset.group;
+        const grid = document.createElement('div');
+        const large = asset.width >= 480 || asset.group === 'Buttons & interface';
+        grid.className = large ? 'grid large-grid' : 'grid sprites';
+        section.append(heading, grid);
+        document.querySelector('#gallery').append(section);
+        sections.set(asset.group, {section, grid});
+      }
+      const figure = document.createElement('figure');
+      figure.dataset.name = asset.name;
+      const art = document.createElement('div');
+      art.className = 'art';
+      const img = document.createElement('img');
+      img.alt = asset.name;
+      img.src = asset.file;
+      img.width = asset.width;
+      img.height = asset.height;
+      img.style.setProperty('--w', asset.width);
+      images.push({img, asset});
+      art.append(img);
+      const caption = document.createElement('figcaption');
+      const link = document.createElement('a');
+      link.href = asset.file;
+      link.textContent = asset.name;
+      const size = document.createElement('span');
+      size.textContent = `${asset.width} × ${asset.height}`;
+      caption.append(link, size);
+      figure.append(art, caption);
+      sections.get(asset.group).grid.append(figure);
+    }
+
+    const stage = document.querySelector('#stage');
+    const place = (name, x, y, scale = 1) => {
+      const asset = byName.get(name);
+      const img = document.createElement('img');
+      img.src = asset.file;
+      img.alt = name;
+      const width = asset.width * scale, height = asset.height * scale;
+      img.style.left = `${(450 + x - width / 2) / 9}%`;
+      img.style.top = `${(281 - y - height / 2) / 5.62}%`;
+      img.style.width = `${width / 9}%`;
+      stage.append(img);
+    };
+    place('map-1', 0, 0);
+    const pads = [[-330,165],[-320,25],[-310,-175],[-160,-35],[-160,175],[15,55],[15,-175],[180,55],[180,-175],[245,165],[-405,-50],[250,-25]];
+    pads.forEach(([x, y], index) => {
+      place('pad', x, y);
+      if (index < 8) place(`tower-${index % 4 + 1}-${Math.floor(index / 4) + 1}`, x, y);
+    });
+    [[-370,100],[-280,100],[-240,10],[-240,-80],[-140,-110]].forEach(([x,y], index) => place(`enemy-${index + 1}`, x, y));
+    place('enemy-6', -70, 60);
+    place('hud', 0, 0);
+    for (let tower = 1; tower <= 4; tower++) {
+      place('store-card', 370, 141 - (tower - 1) * 62);
+      place(`tower-${tower}-1`, 335, 143 - (tower - 1) * 62, 58 / 64);
+    }
+
+    document.querySelector('#scale').addEventListener('change', event => document.documentElement.style.setProperty('--scale', event.target.value));
+    document.querySelector('#light').addEventListener('change', event => document.body.classList.toggle('light', event.target.checked));
+    document.querySelector('#centers').addEventListener('change', event => document.body.classList.toggle('crosshairs', event.target.checked));
+    document.querySelector('#search').addEventListener('input', event => {
+      const query = event.target.value.trim().toLowerCase();
+      for (const figure of document.querySelectorAll('figure')) figure.hidden = !figure.dataset.name.includes(query);
+      for (const {section, grid} of sections.values()) section.hidden = ![...grid.children].some(figure => !figure.hidden);
+      document.querySelector('#assembled').hidden = Boolean(query);
+    });
+    const loaded = Promise.all(images.map(async ({img, asset}) => {
+      try {
+        await img.decode();
+        return img.naturalWidth === asset.width && img.naturalHeight === asset.height ? null : `${asset.name}: wrong dimensions`;
+      } catch { return `${asset.name}: failed to decode`; }
+    }));
+    loaded.then(results => {
+      const failures = results.filter(Boolean);
+      document.querySelector('#status').textContent = failures.length ? `${failures.length} asset errors` : `${inventory.length} / ${inventory.length} SVGs decoded`;
+      document.querySelector('#status').title = failures.join('\n');
+      document.body.dataset.ready = failures.length ? 'errors' : 'ok';
+    });
+  </script>
+</body>
+</html>
