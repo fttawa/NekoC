@@ -156,4 +156,6 @@ pub(super) enum ValueExpr {
     Compare(usize, usize, super::Binary),
     Logic(usize, usize, bool),
     Not(usize),
+    /// Local weekday name (get_time week).
+    WeekText,
 }

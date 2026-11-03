@@ -29,6 +29,7 @@ enum Binary {
     Ge,
     And,
     Or,
+    Divisible,
 }
 impl Binary {
     fn apply(self, a: f64, b: f64) -> f64 {
@@ -59,6 +60,7 @@ impl Binary {
             Self::Ge => (a >= b) as u8 as f64,
             Self::And => (truth(a) && truth(b)) as u8 as f64,
             Self::Or => (truth(a) || truth(b)) as u8 as f64,
+            Self::Divisible => (b != 0.0 && a % b == 0.0) as u8 as f64,
         }
     }
 }
@@ -77,6 +79,16 @@ enum Unary {
     Acos,
     Atan,
     Not,
+    Ln,
+    Log,
+    Exp,
+    Pow10,
+    Even,
+    Odd,
+    Prime,
+    Whole,
+    Positive,
+    Negative,
 }
 impl Unary {
     fn apply(self, v: f64) -> f64 {
@@ -94,9 +106,42 @@ impl Unary {
             Self::Acos => v.acos().to_degrees(),
             Self::Atan => v.atan().to_degrees(),
             Self::Not => (!truth(v)) as u8 as f64,
+            Self::Ln => v.ln(),
+            Self::Log => v.log10(),
+            Self::Exp => v.exp(),
+            Self::Pow10 => 10f64.powf(v),
+            Self::Even => (v % 2.0 == 0.0) as u8 as f64,
+            Self::Odd => (v.abs() % 2.0 == 1.0) as u8 as f64,
+            Self::Prime => is_prime(v) as u8 as f64,
+            Self::Whole => (v.is_finite() && v.fract() == 0.0) as u8 as f64,
+            Self::Positive => (v > 0.0) as u8 as f64,
+            Self::Negative => (v < 0.0) as u8 as f64,
         }
     }
 }
+fn is_prime(v: f64) -> bool {
+    if !(v.fract() == 0.0 && (2.0..=9.007_199_254_740_991e15).contains(&v)) {
+        return false;
+    }
+    let n = v as u64;
+    if n < 4 {
+        return true;
+    }
+    if n.is_multiple_of(2) {
+        return false;
+    }
+    let mut d = 3;
+    while d * d <= n {
+        if n.is_multiple_of(d) {
+            return false;
+        }
+        d += 2;
+    }
+    true
+}
+/// Point targets beside actor indices (actor_target uses usize::MAX for self).
+const TARGET_MOUSE: usize = usize::MAX - 1;
+const TARGET_RANDOM: usize = usize::MAX - 2;
 fn truth(v: f64) -> bool {
     v != 0.0 && !v.is_nan()
 }
@@ -123,6 +168,10 @@ enum ExprOp {
     Y,
     Direction,
     Timer,
+    Distance(usize),
+    Time(u8),
+    Effect(usize, u8),
+    MouseDown(u8),
     Binary(Binary),
     Unary(Unary),
 }
@@ -211,6 +260,46 @@ enum Op {
     Call(usize, usize),
     Return,
     Halt,
+    ChangeScale(Expr),
+    SizeAxis(bool, Expr, bool),
+    PenSizeChange(Expr),
+    Effect(u8, Expr, bool),
+    ClearEffects,
+    RotationType(u8),
+    FaceTo(usize),
+    MoveToTarget(usize),
+    RotateAround(usize, Expr),
+    /// Starts a glide described by `glides[i]`; the next op is `AnimStep`.
+    Glide(usize),
+    /// Starts a fade (duration, show); the next op is `AnimStep`.
+    Fade(Expr, bool),
+    AnimStep,
+    /// Run a body (start pc) as another actor; wait for it when true.
+    Tell(usize, usize, bool),
+    Restart,
+}
+#[derive(Clone, Copy, Debug)]
+struct GlideSpec {
+    time: Expr,
+    x: Option<Expr>,
+    y: Option<Expr>,
+    relative: bool,
+}
+#[derive(Clone, Copy, Debug)]
+enum Anim {
+    Glide {
+        start: f64,
+        duration: f64,
+        from: (f64, f64),
+        to: (f64, f64),
+    },
+    Fade {
+        start: f64,
+        duration: f64,
+        from: f64,
+        to: f64,
+        hide: bool,
+    },
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -233,6 +322,14 @@ pub struct Sprite {
     pub scale: f64,
     pub visible: bool,
     pub opacity: f64,
+    /// Effect values by native scope: 0 color, 2 brightness, 3 pixelate,
+    /// 4 ripple, 5 twist, 6 grayscale (1 transparency is `opacity`).
+    pub effects: [f64; 7],
+    /// Width/height percentages applied on top of `scale`.
+    pub size_x: f64,
+    pub size_y: f64,
+    /// 0 free rotation, 1 left-right flip, 2 no rotation.
+    pub rotation_type: u8,
     #[serde(skip)]
     styles: Vec<String>,
     #[serde(skip)]
@@ -272,6 +369,7 @@ pub struct Program {
     strings: Vec<String>,
     texts: Vec<Vec<TextPart>>,
     ranges: Vec<RangeSpec>,
+    glides: Vec<GlideSpec>,
     initial_lists: Vec<Vec<Cell>>,
     initial_values: Vec<Option<Cell>>,
     values: Vec<ValueExpr>,
@@ -330,6 +428,7 @@ impl Program {
                 strings: vec![],
                 texts: vec![],
                 ranges: vec![],
+                glides: vec![],
                 initial_lists: vec![],
                 initial_values: vec![],
                 values: vec![],
@@ -445,6 +544,10 @@ impl Program {
             scale: 100.0,
             visible: false,
             opacity: 1.0,
+            effects: [0.0; 7],
+            size_x: 100.0,
+            size_y: 100.0,
+            rotation_type: 0,
             styles: owner_styles(scene_value),
             pen: false,
             color: [0.0, 0.0, 0.0, 1.0],
@@ -469,6 +572,10 @@ impl Program {
                     scale: actor["scale"].as_f64().unwrap_or(100.0),
                     visible: actor["visible"].as_bool().unwrap_or(true),
                     opacity: 1.0,
+                    effects: [0.0; 7],
+                    size_x: 100.0,
+                    size_y: 100.0,
+                    rotation_type: actor["rotationType"].as_u64().unwrap_or(0).min(2) as u8,
                     styles: owner_styles(actor),
                     pen: false,
                     color: [0.0, 0.0, 0.0, 1.0],
@@ -561,6 +668,20 @@ struct Compiler {
     depth: usize,
     expression_work: Vec<ExprOp>,
     actor_ids: Vec<String>,
+}
+/// Native effect scope: 0 color, 1 transparency, 2 brightness, 3 pixelate,
+/// 4 ripple, 5 twist, 6 grayscale (KN and Kitten 4 dropdown codes).
+fn effect_scope(scope: &str) -> Option<u8> {
+    match scope {
+        "0" | "color" => Some(0),
+        "1" | "ghost" | "transparency" => Some(1),
+        "2" | "brightness" => Some(2),
+        "3" | "pixelate" => Some(3),
+        "4" | "mosaic" | "ripple" => Some(4),
+        "5" | "twist" | "whirl" => Some(5),
+        "6" | "grey" | "gray" | "grayscale" => Some(6),
+        _ => None,
+    }
 }
 fn field<'a>(v: &'a Value, key: &str) -> &'a str {
     v["fields"][key].as_str().unwrap_or("")
@@ -744,6 +865,15 @@ impl Compiler {
                 self.arg(b, "start_index")?,
                 self.arg(b, "end_index")?,
             ),
+            "get_time"
+                if b["fields"]
+                    .get("op")
+                    .or_else(|| b["fields"].get("time"))
+                    .and_then(Value::as_str)
+                    == Some("week") =>
+            {
+                ValueExpr::WeekText
+            }
             "convert_type" => {
                 ensure!(
                     matches!(field(b, "type"), "number" | "string"),
@@ -876,6 +1006,11 @@ impl Compiler {
             end: start as u32 + 1,
         })
     }
+    fn expression_value(&mut self, b: &Value) -> Result<()> {
+        let value = self.value(b)?;
+        self.expression_work.push(ExprOp::Value(value));
+        Ok(())
+    }
     fn expression(&mut self, b: &Value, depth: usize) -> Result<()> {
         ensure!(depth < 128, "expression nesting exceeds 128");
         let kind = b["type"].as_str().unwrap_or("");
@@ -979,6 +1114,79 @@ impl Compiler {
                 }
             }
             "style_of_sprite" => ExprOp::Costume(self.actor_target(field(b, "sprite"))?),
+            "distance_to" => ExprOp::Distance(self.point_target(field(b, "sprite"))?),
+            "get_stage_info" => {
+                let info = b["fields"].get("info").or_else(|| b["fields"].get("type"));
+                match info.and_then(Value::as_str).unwrap_or("width") {
+                    "width" => ExprOp::Constant(self.program.width),
+                    "height" => ExprOp::Constant(self.program.height),
+                    other => bail!("unsupported stage information {other}"),
+                }
+            }
+            "get_time" => {
+                let unit = b["fields"].get("op").or_else(|| b["fields"].get("time"));
+                ExprOp::Time(match unit.and_then(Value::as_str).unwrap_or("") {
+                    "year" => 0,
+                    "month" => 1,
+                    "date" | "day" => 2,
+                    "week" => return self.expression_value(b),
+                    "week_num" => 4,
+                    "hour" => 5,
+                    "minute" => 6,
+                    "second" => 7,
+                    other => bail!("unsupported time unit {other} at {}", b["id"]),
+                })
+            }
+            "effect_of_sprite" => {
+                let scope = effect_scope(field(b, "effect"))
+                    .with_context(|| format!("unsupported effect at {}", b["id"]))?;
+                ExprOp::Effect(self.actor_target(field(b, "sprite"))?, scope)
+            }
+            "mouse_down" => ExprOp::MouseDown(
+                match b["fields"]
+                    .get("mouse_event_type")
+                    .or_else(|| b["fields"].get("type"))
+                    .and_then(Value::as_str)
+                    .unwrap_or("down")
+                {
+                    "down" => 0,
+                    "click" => 1,
+                    "up" => 2,
+                    other => bail!("unsupported mouse state {other}"),
+                },
+            ),
+            "divisible_by" => {
+                let (a, d) = if b["inputs"].get("NUMBER_TO_CHECK").is_some() {
+                    ("NUMBER_TO_CHECK", "DIVISOR")
+                } else {
+                    ("A", "B")
+                };
+                self.expression(input(b, a)?, depth + 1)?;
+                self.expression(input(b, d)?, depth + 1)?;
+                ExprOp::Binary(Binary::Divisible)
+            }
+            "math_number_property" => {
+                let key = if b["inputs"].get("NUMBER_TO_CHECK").is_some() {
+                    "NUMBER_TO_CHECK"
+                } else {
+                    "num"
+                };
+                self.expression(input(b, key)?, depth + 1)?;
+                let property = b["fields"]
+                    .get("PROPERTY")
+                    .or_else(|| b["fields"].get("type"))
+                    .and_then(Value::as_str)
+                    .unwrap_or("");
+                ExprOp::Unary(match property.to_ascii_lowercase().as_str() {
+                    "even" => Unary::Even,
+                    "odd" => Unary::Odd,
+                    "prime" => Unary::Prime,
+                    "whole" => Unary::Whole,
+                    "positive" => Unary::Positive,
+                    "negative" => Unary::Negative,
+                    other => bail!("unsupported number property {other}"),
+                })
+            }
             "math_arithmetic" | "math_modulo" => {
                 self.expression(input(b, "A")?, depth + 1)?;
                 self.expression(input(b, "B")?, depth + 1)?;
@@ -1008,21 +1216,17 @@ impl Compiler {
                 })
             }
             "math_function" | "math_round" | "math_trig" => {
+                // Kitten 4 style math_round uses NUM / OP.
+                let value = b["inputs"].get("num").or_else(|| b["inputs"].get("NUM"));
                 self.expression(
-                    input(
-                        b,
-                        if kind == "logic_negate" {
-                            "logic"
-                        } else {
-                            "num"
-                        },
-                    )?,
+                    value.with_context(|| format!("{kind}: missing input num"))?,
                     depth + 1,
                 )?;
-                let name = if kind == "logic_negate" {
-                    "not"
-                } else {
-                    field(b, "type")
+                let name = match field(b, "OP") {
+                    "ROUND" => "round",
+                    "ROUNDUP" => "round_up",
+                    "ROUNDDOWN" => "round_down",
+                    _ => field(b, "type"),
                 };
                 ExprOp::Unary(match name {
                     "0" | "sqrt" => Unary::Sqrt,
@@ -1038,6 +1242,10 @@ impl Compiler {
                     "acos" => Unary::Acos,
                     "atan" => Unary::Atan,
                     "not" => Unary::Not,
+                    "3" | "ln" => Unary::Ln,
+                    "4" | "log" | "log10" => Unary::Log,
+                    "5" | "exp" => Unary::Exp,
+                    "6" | "pow10" => Unary::Pow10,
                     _ => bail!("unsupported unary operator {name}"),
                 })
             }
@@ -1116,8 +1324,34 @@ impl Compiler {
         }
         Ok(())
     }
+    /// Actor index, or the mouse/random point targets used by face/move blocks.
+    fn point_target(&self, id: &str) -> Result<usize> {
+        match id {
+            "--mouse" | "__mouse" | "--pointer" | "__pointer" => Ok(TARGET_MOUSE),
+            "--random" | "__random" => Ok(TARGET_RANDOM),
+            id => self.actor_target(id),
+        }
+    }
+    /// Value input under any of the native socket names (KN and Kitten 4 differ).
+    fn arg_any(&mut self, block: &Value, keys: &[&str]) -> Result<Expr> {
+        for key in keys {
+            if let Some(v) = block.get("inputs").and_then(|m| m.get(*key)) {
+                return self.expr(v);
+            }
+        }
+        bail!("{}: missing input {}", block["type"], keys.join("/"))
+    }
+    /// Value input negated when the native `increase` field says decrease.
+    fn signed_arg(&mut self, block: &Value, keys: &[&str]) -> Result<Expr> {
+        let mut e = self.arg_any(block, keys)?;
+        if field(block, "increase") == "decrease" || field(block, "method") == "decrease" {
+            self.program.expressions.push(ExprOp::Unary(Unary::Neg));
+            e.end += 1;
+        }
+        Ok(e)
+    }
     fn actor_target(&self, id: &str) -> Result<usize> {
-        if matches!(id, "--self" | "") {
+        if matches!(id, "--self" | "__self" | "") {
             return Ok(usize::MAX);
         }
         if id == self.program.scene {
@@ -1227,14 +1461,157 @@ impl Compiler {
                     );
                     Op::NextStyle(field(b, "prev_next") == "next")
                 }
-                "self_set_effect" => {
-                    ensure!(
-                        field(b, "scope") == "1",
-                        "unsupported sprite effect {} at {}",
-                        field(b, "scope"),
-                        b["id"]
-                    );
-                    Op::Opacity(self.arg(b, "value")?)
+                "self_set_effect" | "self_change_effect" => {
+                    let scope = effect_scope(field(b, "scope")).with_context(|| {
+                        format!(
+                            "unsupported sprite effect {} at {}",
+                            field(b, "scope"),
+                            b["id"]
+                        )
+                    })?;
+                    if kind == "self_set_effect" {
+                        let value = self.arg_any(b, &["value", "val"])?;
+                        if scope == 1 {
+                            Op::Opacity(value)
+                        } else {
+                            Op::Effect(scope, value, false)
+                        }
+                    } else {
+                        Op::Effect(scope, self.signed_arg(b, &["value", "steps"])?, true)
+                    }
+                }
+                "clear_all_effects" => Op::ClearEffects,
+                "self_change_scale" => Op::ChangeScale(self.signed_arg(b, &["scale", "value"])?),
+                "set_width_height_scale" | "add_width_height_scale" => {
+                    let axis = match field(b, "type") {
+                        "width" => false,
+                        "height" => true,
+                        other => bail!("unsupported size axis {other} at {}", b["id"]),
+                    };
+                    let add = kind == "add_width_height_scale";
+                    let value = if add {
+                        self.signed_arg(b, &["value"])?
+                    } else {
+                        self.arg(b, "value")?
+                    };
+                    Op::SizeAxis(axis, value, add)
+                }
+                "self_change_pen_size" => {
+                    Op::PenSizeChange(self.signed_arg(b, &["steps", "size", "value"])?)
+                }
+                "self_set_rotation_type" => Op::RotationType(match field(b, "rotation_type") {
+                    "0" => 0,
+                    "1" => 1,
+                    "2" => 2,
+                    other => bail!("unsupported rotation type {other} at {}", b["id"]),
+                }),
+                "self_face_to" | "self_face_to_sprite" => {
+                    Op::FaceTo(self.point_target(field(b, "sprite"))?)
+                }
+                "self_move_specify" | "self_move_specify_sprite" => {
+                    let target = b["fields"]
+                        .get("target")
+                        .or_else(|| b["fields"].get("sprite"))
+                        .and_then(Value::as_str)
+                        .unwrap_or("");
+                    Op::MoveToTarget(self.point_target(target)?)
+                }
+                "self_rotate_around" => Op::RotateAround(
+                    self.actor_target(field(b, "sprite"))?,
+                    self.arg(b, "degrees")?,
+                ),
+                "self_set_position" => {
+                    let value = self.arg(b, "value")?;
+                    match field(b, "coordinary") {
+                        "x" => Op::X(value),
+                        "y" => Op::Y(value),
+                        other => bail!("unknown coordinate {other} at {}", b["id"]),
+                    }
+                }
+                "self_change_coordinate" => {
+                    let value = self.signed_arg(b, &["value"])?;
+                    match field(b, "coordinary") {
+                        "x" => Op::AddX(value),
+                        "y" => Op::AddY(value),
+                        other => bail!("unknown coordinate {other} at {}", b["id"]),
+                    }
+                }
+                "self_glide_to"
+                | "self_glide_coordinate"
+                | "self_glide_coordinate_x"
+                | "self_glide_coordinate_y" => {
+                    let time = self.arg(b, "time")?;
+                    let spec = if kind == "self_glide_to" {
+                        GlideSpec {
+                            time,
+                            x: Some(self.arg(b, "x")?),
+                            y: Some(self.arg(b, "y")?),
+                            relative: false,
+                        }
+                    } else {
+                        let axis = match kind {
+                            "self_glide_coordinate_x" => "x",
+                            "self_glide_coordinate_y" => "y",
+                            _ => field(b, "coordinary"),
+                        };
+                        let value = self.signed_arg(b, &["value"])?;
+                        match axis {
+                            "x" => GlideSpec {
+                                time,
+                                x: Some(value),
+                                y: None,
+                                relative: true,
+                            },
+                            "y" => GlideSpec {
+                                time,
+                                x: None,
+                                y: Some(value),
+                                relative: true,
+                            },
+                            other => bail!("unknown coordinate {other} at {}", b["id"]),
+                        }
+                    };
+                    self.program.glides.push(spec);
+                    self.emit(Op::Glide(self.program.glides.len() - 1), b);
+                    Op::AnimStep
+                }
+                "self_gradually_show_hide" => {
+                    let state = b["fields"]
+                        .get("is_show")
+                        .or_else(|| b["fields"].get("show_hide"))
+                        .and_then(Value::as_str)
+                        .unwrap_or("");
+                    let show = match state {
+                        "show" | "appear" => true,
+                        "hide" | "disappear" => false,
+                        other => bail!("unknown fade state {other} at {}", b["id"]),
+                    };
+                    let time = self.arg(b, "time")?;
+                    self.emit(Op::Fade(time, show), b);
+                    Op::AnimStep
+                }
+                "restart" => Op::Restart,
+                "when" => {
+                    // Statement form: wait until the condition holds, run DO, continue.
+                    let condition = self.condition(input(b, "condition")?)?;
+                    self.emit(Op::WaitUntil(condition), b);
+                    self.chain(b["statements"].get("DO"), warped)?;
+                    block = b.get("next");
+                    continue;
+                }
+                "tell" | "sync_tell" => {
+                    let target = self.actor_target(field(b, "sprite"))?;
+                    let tell = self.emit(Op::Tell(target, 0, kind == "sync_tell"), b);
+                    let jump = self.emit(Op::Jump(0), b);
+                    // The body is a separate task: loop breaks never cross into it.
+                    let loops = std::mem::take(&mut self.loops);
+                    self.chain(b["statements"].get("DO"), false)?;
+                    self.loops = loops;
+                    self.emit(Op::Halt, b);
+                    self.program.ops[tell] = Op::Tell(target, jump + 1, kind == "sync_tell");
+                    self.program.ops[jump] = Op::Jump(self.program.ops.len());
+                    block = b.get("next");
+                    continue;
                 }
                 "set_pen_layer" => {
                     let layer = field(b, "layer");
@@ -1423,13 +1800,23 @@ impl Compiler {
                     continue;
                 }
                 "controls_if" => {
-                    let condition = self.condition(input(b, "IF0")?)?;
-                    let branch = self.emit(Op::Branch(condition, 0), b);
-                    self.chain(b["statements"].get("DO0"), warped)?;
-                    let jump = self.emit(Op::Jump(0), b);
-                    self.program.ops[branch] = Op::Branch(condition, self.program.ops.len());
+                    // IF0/DO0, optional else-if IFn/DOn, optional ELSE.
+                    let mut jumps = vec![];
+                    let mut n = 0;
+                    while let Some(test) = b["inputs"].get(format!("IF{n}")) {
+                        let condition = self.condition(test)?;
+                        let branch = self.emit(Op::Branch(condition, 0), b);
+                        self.chain(b["statements"].get(format!("DO{n}")), warped)?;
+                        jumps.push(self.emit(Op::Jump(0), b));
+                        self.program.ops[branch] = Op::Branch(condition, self.program.ops.len());
+                        n += 1;
+                    }
+                    ensure!(n > 0, "controls_if: missing input IF0");
                     self.chain(b["statements"].get("ELSE"), warped)?;
-                    self.program.ops[jump] = Op::Jump(self.program.ops.len());
+                    let end = self.program.ops.len();
+                    for jump in jumps {
+                        self.program.ops[jump] = Op::Jump(end);
+                    }
                     block = b.get("next");
                     continue;
                 }
@@ -1529,6 +1916,7 @@ struct Task {
     done: bool,
     locals: Vec<f64>,
     local_values: Vec<Option<Cell>>,
+    anim: Option<Anim>,
 }
 impl Task {
     fn new(id: u64, script: &Script, locals: usize) -> Self {
@@ -1547,6 +1935,7 @@ impl Task {
             done: false,
             locals: vec![0.0; locals],
             local_values: vec![None; locals],
+            anim: None,
         }
     }
 }
@@ -1637,10 +2026,19 @@ pub struct Engine {
     current_task: usize,
     sequence: u64,
     cursor: usize,
+    /// Tasks runnable in the current tick (broadcast receivers and released waiters
+    /// are appended while it runs).
+    ready: VecDeque<usize>,
     dirty: Vec<bool>,
     reset: bool,
     value_error: Option<String>,
     stopped: bool,
+    restart: bool,
+    /// Viewer's UTC offset in minutes (local time reporters).
+    tz_offset_min: f64,
+    pointer_down: bool,
+    pointer_clicked: bool,
+    pointer_released: bool,
 }
 impl Engine {
     pub fn active_tasks(&self) -> usize {
@@ -1711,10 +2109,16 @@ impl Engine {
             current_task: 0,
             sequence: 0,
             cursor: 0,
+            ready: VecDeque::new(),
             dirty,
             reset: true,
             value_error: None,
             stopped: false,
+            restart: false,
+            tz_offset_min: 0.0,
+            pointer_down: false,
+            pointer_clicked: false,
+            pointer_released: false,
         }
     }
     pub fn start(&mut self) {
@@ -1772,8 +2176,23 @@ impl Engine {
             self.mouse = [x, y];
         }
     }
+    /// Viewer's UTC offset in minutes (local = UTC + offset) for time reporters.
+    pub fn set_utc_offset(&mut self, minutes: f64) {
+        if minutes.is_finite() && minutes.abs() <= 24.0 * 60.0 {
+            self.tz_offset_min = minutes;
+        }
+    }
     pub fn pointer_event(&mut self, target: &str, state: &str, x: f64, y: f64) {
         self.set_mouse(x, y);
+        match state {
+            "mouse_down" => self.pointer_down = true,
+            "mouse_up" => {
+                self.pointer_down = false;
+                self.pointer_released = true;
+            }
+            "mouse_click" => self.pointer_clicked = true,
+            _ => {}
+        }
         let visible = self
             .sprites
             .iter()
@@ -1798,13 +2217,7 @@ impl Engine {
             }
         }
     }
-    fn broadcast(
-        &mut self,
-        message: String,
-        payload: Cell,
-        wait: bool,
-        ready: &mut VecDeque<usize>,
-    ) -> Result<()> {
+    fn broadcast(&mut self, message: String, payload: Cell, wait: bool) -> Result<()> {
         if message == "?" {
             return Ok(());
         }
@@ -1830,12 +2243,12 @@ impl Engine {
                 task.waiter = Some(self.tasks[parent].id);
                 self.tasks[parent].pending += 1;
             }
-            ready.push_back(self.tasks.len());
+            self.ready.push_back(self.tasks.len());
             self.tasks.push(task);
         }
         Ok(())
     }
-    fn finish_task(&mut self, index: usize, ready: &mut VecDeque<usize>) {
+    fn finish_task(&mut self, index: usize) {
         if self.tasks[index].done {
             return;
         }
@@ -1847,8 +2260,8 @@ impl Engine {
                 .position(|task| task.id == id && !task.done)
         {
             self.tasks[parent].pending -= 1;
-            if self.tasks[parent].pending == 0 && !ready.contains(&parent) {
-                ready.push_back(parent);
+            if self.tasks[parent].pending == 0 && !self.ready.contains(&parent) {
+                self.ready.push_back(parent);
             }
         }
     }
@@ -1935,6 +2348,25 @@ impl Engine {
             ExprOp::Timer => self.timer,
             ExprOp::Mouse(y) => self.mouse[usize::from(y)],
             ExprOp::TextLength(i) => self.eval_value(i, actor).text().encode_utf16().count() as f64,
+            ExprOp::Distance(target) => {
+                let (x, y) = self.point(target, actor);
+                let a = &self.sprites[actor];
+                (x - a.x).hypot(y - a.y)
+            }
+            ExprOp::Time(unit) => local_time(self.tz_offset_min)[unit as usize],
+            ExprOp::Effect(target, scope) => {
+                let a = &self.sprites[if target == usize::MAX { actor } else { target }];
+                if scope == 1 {
+                    (1.0 - a.opacity) * 100.0
+                } else {
+                    a.effects[scope as usize]
+                }
+            }
+            ExprOp::MouseDown(state) => u8::from(match state {
+                0 => self.pointer_down,
+                1 => self.pointer_clicked,
+                _ => self.pointer_released,
+            }) as f64,
             ExprOp::Random => {
                 let right = pc - 1;
                 let left = self.program.expression_starts[right] as usize - 1;
@@ -1980,6 +2412,25 @@ impl Engine {
                 let a = self.node(pc - 1, actor);
                 op.apply(a)
             }
+        }
+    }
+    fn random_unit(&mut self) -> f64 {
+        self.random_state ^= self.random_state << 13;
+        self.random_state ^= self.random_state >> 7;
+        self.random_state ^= self.random_state << 17;
+        (self.random_state >> 11) as f64 / ((1u64 << 53) as f64)
+    }
+    /// Stage point for an actor index, self (`usize::MAX`), mouse or random target.
+    fn point(&mut self, target: usize, actor: usize) -> (f64, f64) {
+        match target {
+            TARGET_MOUSE => (self.mouse[0], self.mouse[1]),
+            TARGET_RANDOM => {
+                let x = (self.random_unit() - 0.5) * self.program.width;
+                let y = (self.random_unit() - 0.5) * self.program.height;
+                (x.round(), y.round())
+            }
+            usize::MAX => (self.sprites[actor].x, self.sprites[actor].y),
+            t => (self.sprites[t].x, self.sprites[t].y),
         }
     }
     #[inline]
@@ -2119,6 +2570,18 @@ impl Engine {
                         .collect()
                 };
                 Cell::Text(String::from_utf16_lossy(&selected).into())
+            }
+            ValueExpr::WeekText => {
+                const DAYS: [&str; 7] = [
+                    "星期日",
+                    "星期一",
+                    "星期二",
+                    "星期三",
+                    "星期四",
+                    "星期五",
+                    "星期六",
+                ];
+                Cell::Text(DAYS[local_time(self.tz_offset_min)[4] as usize].into())
             }
             ValueExpr::Compare(a, b, op) => {
                 let a = self.eval_value(a, actor);
@@ -2270,6 +2733,648 @@ impl Engine {
             budget_yield: exceeded,
         })
     }
+    /// Executes one instruction of task `index`. Returns false when the task yields
+    /// (or finishes) for this tick.
+    #[inline(always)]
+    fn exec(&mut self, index: usize, pc: usize, op: Op, actor: usize) -> Result<bool> {
+        let moves = matches!(
+            op,
+            Op::Move(_)
+                | Op::Position(_, _)
+                | Op::X(_)
+                | Op::Y(_)
+                | Op::AddX(_)
+                | Op::AddY(_)
+                | Op::Pen(true)
+                | Op::MoveToTarget(_)
+                | Op::RotateAround(_, _)
+        );
+        let old = if moves {
+            (self.sprites[actor].x, self.sprites[actor].y)
+        } else {
+            (0.0, 0.0)
+        };
+        if (moves && !matches!(op, Op::Pen(_)))
+            || matches!(
+                op,
+                Op::Turn(_)
+                    | Op::Direction(_)
+                    | Op::Scale(_)
+                    | Op::Visible(_)
+                    | Op::Style(_)
+                    | Op::NextStyle(_)
+                    | Op::Opacity(_)
+                    | Op::Effect(..)
+                    | Op::ClearEffects
+                    | Op::ChangeScale(_)
+                    | Op::SizeAxis(..)
+                    | Op::RotationType(_)
+                    | Op::FaceTo(_)
+            )
+        {
+            self.dirty[actor] = true;
+        }
+        match op {
+            Op::Set(s, e) => {
+                self.slots[s] = self.eval(e, actor);
+                self.values[s] = None;
+            }
+            Op::Change(s, e, sign) => {
+                self.slots[s] += self.eval(e, actor) * sign;
+                self.values[s] = None;
+            }
+            Op::SetLocal(s, e) => {
+                self.tasks[index].locals[s] = self.eval(e, actor);
+                self.tasks[index].local_values[s] = None;
+            }
+            Op::ChangeLocal(s, e, sign) => {
+                self.tasks[index].locals[s] += self.eval(e, actor) * sign;
+                self.tasks[index].local_values[s] = None;
+            }
+            Op::SetValue(target, v) => {
+                let value = self.eval_value(v, actor);
+                self.assign(target, value);
+            }
+            Op::Move(e) => {
+                let n = self.eval(e, actor);
+                let a = &mut self.sprites[actor];
+                let (sin, cos) = a.direction.to_radians().sin_cos();
+                a.x += n * sin;
+                a.y += n * cos;
+                self.line(actor, old);
+            }
+            Op::Position(x, y) => {
+                let x = self.eval(x, actor);
+                let y = self.eval(y, actor);
+                self.sprites[actor].x = x;
+                self.sprites[actor].y = y;
+                self.line(actor, old);
+            }
+            Op::X(e) => {
+                self.sprites[actor].x = self.eval(e, actor);
+                self.line(actor, old);
+            }
+            Op::Y(e) => {
+                self.sprites[actor].y = self.eval(e, actor);
+                self.line(actor, old);
+            }
+            Op::AddX(e) => {
+                self.sprites[actor].x += self.eval(e, actor);
+                self.line(actor, old);
+            }
+            Op::AddY(e) => {
+                self.sprites[actor].y += self.eval(e, actor);
+                self.line(actor, old);
+            }
+            Op::Turn(e) => self.sprites[actor].direction += self.eval(e, actor),
+            Op::Direction(e) => self.sprites[actor].direction = self.eval(e, actor),
+            Op::Scale(e) => self.sprites[actor].scale = self.eval(e, actor),
+            Op::Visible(v) => self.sprites[actor].visible = v,
+            Op::Style(value) => {
+                let value = self.eval_value(value, actor);
+                let styles = &self.sprites[actor].styles;
+                let selected = match value {
+                    Cell::Text(id) => styles.iter().find(|s| s.as_str() == id.as_ref()),
+                    Cell::Number(n) if n.is_finite() && (n + 0.5).floor() >= 1.0 => {
+                        styles.get(((n + 0.5).floor() - 1.0) as usize)
+                    }
+                    _ => None,
+                }
+                .with_context(|| {
+                    format!(
+                        "invalid costume for {} at block {}",
+                        self.sprites[actor].id, self.program.sources[pc]
+                    )
+                })?
+                .clone();
+                self.sprites[actor].style = Some(selected);
+            }
+            Op::NextStyle(next) => {
+                let sprite = &mut self.sprites[actor];
+                if !sprite.styles.is_empty() {
+                    let current = sprite
+                        .styles
+                        .iter()
+                        .position(|id| Some(id) == sprite.style.as_ref())
+                        .unwrap_or(0);
+                    let offset = if next { 1 } else { sprite.styles.len() - 1 };
+                    sprite.style =
+                        Some(sprite.styles[(current + offset) % sprite.styles.len()].clone());
+                }
+            }
+            Op::Opacity(value) => {
+                let transparency = self.eval(value, actor);
+                if transparency.is_finite() {
+                    self.sprites[actor].opacity = 1.0 - transparency.clamp(0.0, 100.0) / 100.0;
+                }
+            }
+            Op::PenLayer(layer) => {
+                if actor != 0 {
+                    let count = self.sprites.len() - 1;
+                    self.pen_layer = match layer {
+                        PenLayer::Top => count,
+                        PenLayer::Bottom => 0,
+                        PenLayer::Forward => (self.pen_layer + 1).min(count),
+                        PenLayer::Backward => self.pen_layer.saturating_sub(1),
+                        PenLayer::Relative(index, above) => index + usize::from(above),
+                    };
+                }
+            }
+            Op::Pen(down) => {
+                let was = self.sprites[actor].pen;
+                self.sprites[actor].pen = down;
+                if down && !was {
+                    self.line(actor, old);
+                }
+            }
+            Op::Color(mut color) => {
+                color[3] = self.sprites[actor].color[3];
+                self.sprites[actor].color = color;
+                self.sprites[actor].hsv = rgb_to_hsv(color);
+            }
+            Op::PenProperty(property, e, change) => {
+                let value = self.eval(e, actor);
+                if value.is_finite() {
+                    self.sprites[actor].set_pen_property(property, value, change);
+                }
+            }
+            Op::Timer(state) => match state {
+                TimerState::Start => self.timer_running = true,
+                TimerState::Stop => self.timer_running = false,
+                TimerState::Reset => {
+                    self.timer = 0.0;
+                    self.timer_running = true;
+                }
+            },
+            Op::TimerVisible(visible) => self.timer_visible = visible,
+            Op::ClearList(list) => {
+                if let Some(list) = self.resolve_list(list) {
+                    list.borrow_mut().clear();
+                }
+            }
+            Op::AppendList(list, e) => {
+                let value = self.eval_value(e, actor);
+                if let Some(list) = self.resolve_list(list) {
+                    ensure!(
+                        !contains_list(&value, &list),
+                        "cyclic list at {}",
+                        self.program.sources[pc]
+                    );
+                    list.borrow_mut().push(value);
+                }
+            }
+            Op::DeleteList(list, e) => {
+                let at = e.map(|e| self.eval(e, actor));
+                if let Some(list) = self.resolve_list(list) {
+                    let mut list = list.borrow_mut();
+                    let at = at.map_or_else(|| list.len().checked_sub(1), list_index);
+                    if let Some(at) = at.filter(|i| *i < list.len()) {
+                        list.remove(at);
+                    }
+                }
+            }
+            Op::InsertList(list, e, value) => {
+                let at = list_index(self.eval(e, actor));
+                let value = self.eval_value(value, actor);
+                if let (Some(at), Some(list)) = (at, self.resolve_list(list)) {
+                    ensure!(
+                        !contains_list(&value, &list),
+                        "cyclic list at {}",
+                        self.program.sources[pc]
+                    );
+                    let mut list = list.borrow_mut();
+                    let at = at.min(list.len());
+                    list.insert(at, value);
+                }
+            }
+            Op::ReplaceList(list, e, value) => {
+                let at = e.map(|e| self.eval(e, actor));
+                let value = self.eval_value(value, actor);
+                if let Some(list) = self.resolve_list(list) {
+                    ensure!(
+                        !contains_list(&value, &list),
+                        "cyclic list at {}",
+                        self.program.sources[pc]
+                    );
+                    let mut list = list.borrow_mut();
+                    let at = at.map_or_else(|| Some(list.len().saturating_sub(1)), list_index);
+                    if let Some(at) = at {
+                        if at >= list.len() {
+                            list.push(value);
+                        } else {
+                            list[at] = value;
+                        }
+                    }
+                }
+            }
+            Op::CopyList(source, target) => {
+                if let (Some(source), Some(target)) =
+                    (self.resolve_list(source), self.resolve_list(target))
+                {
+                    let copied = source.borrow().iter().map(Cell::deep_clone).collect();
+                    *target.borrow_mut() = copied;
+                }
+            }
+            Op::Stamp(text, size, align) => {
+                let size = self.eval(size, actor);
+                if actor != 0 && size.is_finite() {
+                    let text = self.eval_text(text, actor);
+                    let a = &self.sprites[actor];
+                    self.text_stamps.push(TextStamp {
+                        before_line: self.lines.len() / 9,
+                        text,
+                        x: a.x,
+                        y: a.y,
+                        size: size.clamp(1.0, 1000.0),
+                        direction: a.direction,
+                        align,
+                        color: a.color,
+                    });
+                }
+            }
+            Op::Size(e) => self.sprites[actor].size = self.eval(e, actor).clamp(1.0, 1000.0),
+            Op::Clear => {
+                self.lines.clear();
+                self.text_stamps.clear();
+                self.clear = true;
+            }
+            Op::Branch(e, target) => {
+                if !truth(self.eval(e, actor)) {
+                    self.tasks[index].pc = target;
+                }
+            }
+            Op::Jump(target) => self.tasks[index].pc = target,
+            Op::Yield => return Ok(false),
+            Op::Wait(e) => {
+                self.tasks[index].wake = self.time + self.eval(e, actor).max(0.0);
+                return Ok(false);
+            }
+            Op::Repeat(e, end) => {
+                let n = self.eval(e, actor).floor().clamp(0.0, u32::MAX as f64) as u64;
+                if n == 0 {
+                    self.tasks[index].pc = end;
+                } else {
+                    self.tasks[index].loops.push(n);
+                }
+            }
+            Op::Next(target, yielding) => {
+                let left = self.tasks[index]
+                    .loops
+                    .last_mut()
+                    .context("invalid repeat stack")?;
+                *left -= 1;
+                if *left > 0 {
+                    self.tasks[index].pc = target;
+                    if yielding {
+                        return Ok(false);
+                    }
+                } else {
+                    self.tasks[index].loops.pop();
+                }
+            }
+            Op::Range(spec, end) => {
+                let RangeSpec { from, to, by } = self.program.ranges[spec];
+                let from = self.eval(from, actor);
+                let to = self.eval(to, actor);
+                let by = self.eval(by, actor);
+                ensure!(
+                    from.is_finite()
+                        && to.is_finite()
+                        && by.is_finite()
+                        && (by + 0.5).floor() > 0.0,
+                    "range requires finite endpoints and positive rounded step at {}",
+                    self.program.sources[pc]
+                );
+                let value = if from <= to {
+                    from.ceil()
+                } else {
+                    from.floor()
+                };
+                let step = (by + 0.5).floor() * if from <= to { 1.0 } else { -1.0 };
+                if (step > 0.0 && value > to) || (step < 0.0 && value < to) {
+                    self.tasks[index].pc = end;
+                } else {
+                    self.tasks[index].ranges.push(RangeState {
+                        value,
+                        end: to,
+                        step,
+                    });
+                }
+            }
+            Op::RangeNext(target, yielding) => {
+                let range = self.tasks[index]
+                    .ranges
+                    .last_mut()
+                    .context("invalid range stack")?;
+                let next = range.value + range.step;
+                ensure!(
+                    next != range.value,
+                    "range step makes no progress at {}",
+                    self.program.sources[pc]
+                );
+                range.value = next;
+                if (range.step > 0.0 && next <= range.end)
+                    || (range.step < 0.0 && next >= range.end)
+                {
+                    self.tasks[index].pc = target;
+                    if yielding {
+                        return Ok(false);
+                    }
+                } else {
+                    self.tasks[index].ranges.pop();
+                }
+            }
+            Op::Break(target, pop) => {
+                if pop == 1 {
+                    self.tasks[index].loops.pop();
+                } else if pop == 2 {
+                    self.tasks[index].ranges.pop();
+                }
+                self.tasks[index].pc = target;
+            }
+            Op::Log(i) => {
+                if self.logs.len() < 1024 {
+                    self.logs.push(self.program.strings[i].clone());
+                }
+            }
+            Op::Audio(i, play) => {
+                let audio = self.eval_value(i, actor);
+                self.audio_commands.push(AudioCommand { audio, play });
+            }
+            Op::LogNumber(e) => {
+                let n = self.eval(e, actor);
+                if self.logs.len() < 1024 {
+                    self.logs.push(n.to_string());
+                }
+            }
+            Op::LogText(text) => {
+                if self.logs.len() < 1024 {
+                    let value = self.eval_text(text, actor);
+                    self.logs.push(value);
+                }
+            }
+            Op::WaitUntil(e) => {
+                if !truth(self.eval(e, actor)) {
+                    self.tasks[index].pc = pc;
+                    return Ok(false);
+                }
+            }
+            Op::Broadcast(message, payload, wait) => {
+                let message = self.eval_value(message, actor).text();
+                let payload = payload.map_or(Cell::Number(f64::NAN), |i| self.eval_value(i, actor));
+                self.broadcast(message, payload, wait)?;
+                if self.tasks[index].pending > 0 {
+                    return Ok(false);
+                }
+            }
+            Op::Stop(scope) => {
+                if scope == 0 {
+                    self.stopped = true;
+                }
+                for target in 0..self.tasks.len() {
+                    let stop = match scope {
+                        0 => true,
+                        1 => target == index,
+                        2 => target != index && self.tasks[target].actor == actor,
+                        3 => self.tasks[target].actor != actor,
+                        _ => unreachable!(),
+                    };
+                    if stop {
+                        self.finish_task(target);
+                    }
+                }
+                if self.tasks[index].done {
+                    return Ok(false);
+                }
+            }
+            Op::Call(procedure, args) => {
+                let count = self.program.call_arguments[args].len();
+                let mut parameters = Vec::with_capacity(count);
+                for k in 0..count {
+                    let value = self.program.call_arguments[args][k];
+                    parameters.push(self.eval_value(value, actor));
+                }
+                let task = &mut self.tasks[index];
+                ensure!(
+                    task.calls.len() < 10_000,
+                    "procedure stack limit at {}",
+                    self.program.sources[pc]
+                );
+                task.calls.push(CallFrame {
+                    pc: task.pc,
+                    parameters: std::mem::replace(&mut task.parameters, parameters),
+                });
+                task.pc = self.program.procedure_entries[procedure];
+            }
+            Op::Return => {
+                let call = self.tasks[index]
+                    .calls
+                    .pop()
+                    .context("invalid procedure return")?;
+                self.tasks[index].pc = call.pc;
+                self.tasks[index].parameters = call.parameters;
+            }
+            Op::ChangeScale(e) => self.sprites[actor].scale += self.eval(e, actor),
+            Op::SizeAxis(height, e, add) => {
+                let v = self.eval(e, actor);
+                let a = &mut self.sprites[actor];
+                let target = if height { &mut a.size_y } else { &mut a.size_x };
+                *target = if add { *target + v } else { v };
+            }
+            Op::PenSizeChange(e) => {
+                let v = self.eval(e, actor);
+                let a = &mut self.sprites[actor];
+                a.size = (a.size + v).clamp(1.0, 1000.0);
+            }
+            Op::Effect(scope, e, change) => {
+                let v = self.eval(e, actor);
+                if v.is_finite() {
+                    let a = &mut self.sprites[actor];
+                    if scope == 1 {
+                        let ghost = (1.0 - a.opacity) * 100.0;
+                        let ghost = if change { ghost + v } else { v };
+                        a.opacity = 1.0 - ghost.clamp(0.0, 100.0) / 100.0;
+                    } else {
+                        let slot = &mut a.effects[scope as usize];
+                        let next = if change { *slot + v } else { v };
+                        *slot = match scope {
+                            2 => next.clamp(-100.0, 100.0),
+                            6 => next.clamp(0.0, 100.0),
+                            _ => next,
+                        };
+                    }
+                }
+            }
+            Op::ClearEffects => {
+                let a = &mut self.sprites[actor];
+                a.effects = [0.0; 7];
+                a.opacity = 1.0;
+            }
+            Op::RotationType(kind) => self.sprites[actor].rotation_type = kind,
+            Op::FaceTo(target) => {
+                let (x, y) = self.point(target, actor);
+                let a = &mut self.sprites[actor];
+                let (dx, dy) = (x - a.x, y - a.y);
+                if dx != 0.0 || dy != 0.0 {
+                    a.direction = dx.atan2(dy).to_degrees();
+                }
+            }
+            Op::MoveToTarget(target) => {
+                let (x, y) = self.point(target, actor);
+                self.sprites[actor].x = x;
+                self.sprites[actor].y = y;
+                self.line(actor, old);
+            }
+            Op::RotateAround(target, e) => {
+                let degrees = self.eval(e, actor);
+                let center = self.point(target, actor);
+                let (sin, cos) = degrees.to_radians().sin_cos();
+                let a = &mut self.sprites[actor];
+                let (dx, dy) = (a.x - center.0, a.y - center.1);
+                // Clockwise, like turning right.
+                a.x = center.0 + dx * cos + dy * sin;
+                a.y = center.1 - dx * sin + dy * cos;
+                a.direction += degrees;
+                self.line(actor, old);
+            }
+            Op::Glide(spec) => {
+                let GlideSpec {
+                    time,
+                    x,
+                    y,
+                    relative,
+                } = self.program.glides[spec];
+                let duration = self.eval(time, actor);
+                let from = (self.sprites[actor].x, self.sprites[actor].y);
+                let mut to = from;
+                if let Some(x) = x {
+                    to.0 = self.eval(x, actor) + if relative { from.0 } else { 0.0 };
+                }
+                if let Some(y) = y {
+                    to.1 = self.eval(y, actor) + if relative { from.1 } else { 0.0 };
+                }
+                ensure!(
+                    to.0.is_finite() && to.1.is_finite(),
+                    "non-finite glide target at block {}",
+                    self.program.sources[pc]
+                );
+                self.tasks[index].anim = Some(Anim::Glide {
+                    start: self.time,
+                    duration: if duration.is_finite() {
+                        duration.max(0.0)
+                    } else {
+                        0.0
+                    },
+                    from,
+                    to,
+                });
+            }
+            Op::Fade(time, show) => {
+                let duration = self.eval(time, actor);
+                let a = &mut self.sprites[actor];
+                let from = if show { 0.0 } else { a.opacity };
+                if show {
+                    a.visible = true;
+                    a.opacity = 0.0;
+                }
+                self.dirty[actor] = true;
+                self.tasks[index].anim = Some(Anim::Fade {
+                    start: self.time,
+                    duration: if duration.is_finite() {
+                        duration.max(0.0)
+                    } else {
+                        0.0
+                    },
+                    from,
+                    to: if show { 1.0 } else { 0.0 },
+                    hide: !show,
+                });
+            }
+            Op::AnimStep => {
+                let Some(anim) = self.tasks[index].anim else {
+                    return Ok(true);
+                };
+                let (start, duration) = match anim {
+                    Anim::Glide {
+                        start, duration, ..
+                    }
+                    | Anim::Fade {
+                        start, duration, ..
+                    } => (start, duration),
+                };
+                let t = if duration <= 0.0 {
+                    1.0
+                } else {
+                    ((self.time - start) / duration).clamp(0.0, 1.0)
+                };
+                self.dirty[actor] = true;
+                match anim {
+                    Anim::Glide { from, to, .. } => {
+                        let old = (self.sprites[actor].x, self.sprites[actor].y);
+                        self.sprites[actor].x = from.0 + (to.0 - from.0) * t;
+                        self.sprites[actor].y = from.1 + (to.1 - from.1) * t;
+                        self.line(actor, old);
+                    }
+                    Anim::Fade { from, to, hide, .. } => {
+                        let a = &mut self.sprites[actor];
+                        a.opacity = from + (to - from) * t;
+                        if t >= 1.0 && hide {
+                            a.visible = false;
+                            a.opacity = from;
+                        }
+                    }
+                }
+                if t < 1.0 {
+                    self.tasks[index].pc = pc;
+                    return Ok(false);
+                }
+                self.tasks[index].anim = None;
+            }
+            Op::Tell(target, start, wait) => {
+                let target = if target == usize::MAX { actor } else { target };
+                ensure!(
+                    self.tasks.len() < 4096,
+                    "task limit exceeded at {}",
+                    self.program.sources[pc]
+                );
+                let script = Script {
+                    start,
+                    actor: target,
+                    event: ScriptEvent::Start,
+                };
+                let mut task = Task::new(self.next_task_id, &script, self.program.local_count);
+                self.next_task_id += 1;
+                task.locals.clone_from(&self.tasks[index].locals);
+                task.local_values
+                    .clone_from(&self.tasks[index].local_values);
+                if wait {
+                    task.waiter = Some(self.tasks[index].id);
+                    self.tasks[index].pending += 1;
+                }
+                self.ready.push_back(self.tasks.len());
+                self.tasks.push(task);
+                if wait {
+                    return Ok(false);
+                }
+            }
+            Op::Restart => {
+                self.restart = true;
+                return Ok(false);
+            }
+            Op::Halt => {
+                self.finish_task(index);
+                return Ok(false);
+            }
+        }
+        if self.value_error.is_some() {
+            let error = self.value_error.take().unwrap_or_default();
+            bail!("{error} at block {}", self.program.sources[pc]);
+        }
+        if moves && (!self.sprites[actor].x.is_finite() || !self.sprites[actor].y.is_finite()) {
+            bail!("non-finite position at block {}", self.program.sources[pc]);
+        }
+        Ok(true)
+    }
     /// One scheduler pass. Returns whether the instruction/time/output budget ended it.
     fn tick(
         &mut self,
@@ -2287,10 +3392,13 @@ impl Engine {
         let mut count = *total_count;
         let mut exceeded = false;
         let total = self.tasks.len();
-        let mut ready = (0..total)
-            .map(|i| (self.cursor + i) % total)
-            .collect::<VecDeque<_>>();
-        while let Some(index) = ready.pop_front() {
+        self.ready.clear();
+        self.ready
+            .extend((0..total).map(|i| (self.cursor + i) % total));
+        while let Some(index) = self.ready.pop_front() {
+            if self.restart {
+                break;
+            }
             if self.tasks[index].done
                 || self.tasks[index].pending > 0
                 || self.tasks[index].wake > self.time
@@ -2314,454 +3422,8 @@ impl Engine {
                 let op = self.program.ops[pc];
                 self.tasks[index].pc += 1;
                 count += 1;
-                let moves = matches!(
-                    op,
-                    Op::Move(_)
-                        | Op::Position(_, _)
-                        | Op::X(_)
-                        | Op::Y(_)
-                        | Op::AddX(_)
-                        | Op::AddY(_)
-                        | Op::Pen(true)
-                );
-                let old = if moves {
-                    (self.sprites[actor].x, self.sprites[actor].y)
-                } else {
-                    (0.0, 0.0)
-                };
-                if (moves && !matches!(op, Op::Pen(_)))
-                    || matches!(
-                        op,
-                        Op::Turn(_)
-                            | Op::Direction(_)
-                            | Op::Scale(_)
-                            | Op::Visible(_)
-                            | Op::Style(_)
-                            | Op::NextStyle(_)
-                            | Op::Opacity(_)
-                    )
-                {
-                    self.dirty[actor] = true;
-                }
-                match op {
-                    Op::Set(s, e) => {
-                        self.slots[s] = self.eval(e, actor);
-                        self.values[s] = None;
-                    }
-                    Op::Change(s, e, sign) => {
-                        self.slots[s] += self.eval(e, actor) * sign;
-                        self.values[s] = None;
-                    }
-                    Op::SetLocal(s, e) => {
-                        self.tasks[index].locals[s] = self.eval(e, actor);
-                        self.tasks[index].local_values[s] = None;
-                    }
-                    Op::ChangeLocal(s, e, sign) => {
-                        self.tasks[index].locals[s] += self.eval(e, actor) * sign;
-                        self.tasks[index].local_values[s] = None;
-                    }
-                    Op::SetValue(target, v) => {
-                        let value = self.eval_value(v, actor);
-                        self.assign(target, value);
-                    }
-                    Op::Move(e) => {
-                        let n = self.eval(e, actor);
-                        let a = &mut self.sprites[actor];
-                        let (sin, cos) = a.direction.to_radians().sin_cos();
-                        a.x += n * sin;
-                        a.y += n * cos;
-                        self.line(actor, old);
-                    }
-                    Op::Position(x, y) => {
-                        let x = self.eval(x, actor);
-                        let y = self.eval(y, actor);
-                        self.sprites[actor].x = x;
-                        self.sprites[actor].y = y;
-                        self.line(actor, old);
-                    }
-                    Op::X(e) => {
-                        self.sprites[actor].x = self.eval(e, actor);
-                        self.line(actor, old);
-                    }
-                    Op::Y(e) => {
-                        self.sprites[actor].y = self.eval(e, actor);
-                        self.line(actor, old);
-                    }
-                    Op::AddX(e) => {
-                        self.sprites[actor].x += self.eval(e, actor);
-                        self.line(actor, old);
-                    }
-                    Op::AddY(e) => {
-                        self.sprites[actor].y += self.eval(e, actor);
-                        self.line(actor, old);
-                    }
-                    Op::Turn(e) => self.sprites[actor].direction += self.eval(e, actor),
-                    Op::Direction(e) => self.sprites[actor].direction = self.eval(e, actor),
-                    Op::Scale(e) => self.sprites[actor].scale = self.eval(e, actor),
-                    Op::Visible(v) => self.sprites[actor].visible = v,
-                    Op::Style(value) => {
-                        let value = self.eval_value(value, actor);
-                        let styles = &self.sprites[actor].styles;
-                        let selected = match value {
-                            Cell::Text(id) => styles.iter().find(|s| s.as_str() == id.as_ref()),
-                            Cell::Number(n) if n.is_finite() && (n + 0.5).floor() >= 1.0 => {
-                                styles.get(((n + 0.5).floor() - 1.0) as usize)
-                            }
-                            _ => None,
-                        }
-                        .with_context(|| {
-                            format!(
-                                "invalid costume for {} at block {}",
-                                self.sprites[actor].id, self.program.sources[pc]
-                            )
-                        })?
-                        .clone();
-                        self.sprites[actor].style = Some(selected);
-                    }
-                    Op::NextStyle(next) => {
-                        let sprite = &mut self.sprites[actor];
-                        if !sprite.styles.is_empty() {
-                            let current = sprite
-                                .styles
-                                .iter()
-                                .position(|id| Some(id) == sprite.style.as_ref())
-                                .unwrap_or(0);
-                            let offset = if next { 1 } else { sprite.styles.len() - 1 };
-                            sprite.style = Some(
-                                sprite.styles[(current + offset) % sprite.styles.len()].clone(),
-                            );
-                        }
-                    }
-                    Op::Opacity(value) => {
-                        let transparency = self.eval(value, actor);
-                        if transparency.is_finite() {
-                            self.sprites[actor].opacity =
-                                1.0 - transparency.clamp(0.0, 100.0) / 100.0;
-                        }
-                    }
-                    Op::PenLayer(layer) => {
-                        if actor != 0 {
-                            let count = self.sprites.len() - 1;
-                            self.pen_layer = match layer {
-                                PenLayer::Top => count,
-                                PenLayer::Bottom => 0,
-                                PenLayer::Forward => (self.pen_layer + 1).min(count),
-                                PenLayer::Backward => self.pen_layer.saturating_sub(1),
-                                PenLayer::Relative(index, above) => index + usize::from(above),
-                            };
-                        }
-                    }
-                    Op::Pen(down) => {
-                        let was = self.sprites[actor].pen;
-                        self.sprites[actor].pen = down;
-                        if down && !was {
-                            self.line(actor, old);
-                        }
-                    }
-                    Op::Color(mut color) => {
-                        color[3] = self.sprites[actor].color[3];
-                        self.sprites[actor].color = color;
-                        self.sprites[actor].hsv = rgb_to_hsv(color);
-                    }
-                    Op::PenProperty(property, e, change) => {
-                        let value = self.eval(e, actor);
-                        if value.is_finite() {
-                            self.sprites[actor].set_pen_property(property, value, change);
-                        }
-                    }
-                    Op::Timer(state) => match state {
-                        TimerState::Start => self.timer_running = true,
-                        TimerState::Stop => self.timer_running = false,
-                        TimerState::Reset => {
-                            self.timer = 0.0;
-                            self.timer_running = true;
-                        }
-                    },
-                    Op::TimerVisible(visible) => self.timer_visible = visible,
-                    Op::ClearList(list) => {
-                        if let Some(list) = self.resolve_list(list) {
-                            list.borrow_mut().clear();
-                        }
-                    }
-                    Op::AppendList(list, e) => {
-                        let value = self.eval_value(e, actor);
-                        if let Some(list) = self.resolve_list(list) {
-                            ensure!(
-                                !contains_list(&value, &list),
-                                "cyclic list at {}",
-                                self.program.sources[pc]
-                            );
-                            list.borrow_mut().push(value);
-                        }
-                    }
-                    Op::DeleteList(list, e) => {
-                        let at = e.map(|e| self.eval(e, actor));
-                        if let Some(list) = self.resolve_list(list) {
-                            let mut list = list.borrow_mut();
-                            let at = at.map_or_else(|| list.len().checked_sub(1), list_index);
-                            if let Some(at) = at.filter(|i| *i < list.len()) {
-                                list.remove(at);
-                            }
-                        }
-                    }
-                    Op::InsertList(list, e, value) => {
-                        let at = list_index(self.eval(e, actor));
-                        let value = self.eval_value(value, actor);
-                        if let (Some(at), Some(list)) = (at, self.resolve_list(list)) {
-                            ensure!(
-                                !contains_list(&value, &list),
-                                "cyclic list at {}",
-                                self.program.sources[pc]
-                            );
-                            let mut list = list.borrow_mut();
-                            let at = at.min(list.len());
-                            list.insert(at, value);
-                        }
-                    }
-                    Op::ReplaceList(list, e, value) => {
-                        let at = e.map(|e| self.eval(e, actor));
-                        let value = self.eval_value(value, actor);
-                        if let Some(list) = self.resolve_list(list) {
-                            ensure!(
-                                !contains_list(&value, &list),
-                                "cyclic list at {}",
-                                self.program.sources[pc]
-                            );
-                            let mut list = list.borrow_mut();
-                            let at =
-                                at.map_or_else(|| Some(list.len().saturating_sub(1)), list_index);
-                            if let Some(at) = at {
-                                if at >= list.len() {
-                                    list.push(value);
-                                } else {
-                                    list[at] = value;
-                                }
-                            }
-                        }
-                    }
-                    Op::CopyList(source, target) => {
-                        if let (Some(source), Some(target)) =
-                            (self.resolve_list(source), self.resolve_list(target))
-                        {
-                            let copied = source.borrow().iter().map(Cell::deep_clone).collect();
-                            *target.borrow_mut() = copied;
-                        }
-                    }
-                    Op::Stamp(text, size, align) => {
-                        let size = self.eval(size, actor);
-                        if actor != 0 && size.is_finite() {
-                            let text = self.eval_text(text, actor);
-                            let a = &self.sprites[actor];
-                            self.text_stamps.push(TextStamp {
-                                before_line: self.lines.len() / 9,
-                                text,
-                                x: a.x,
-                                y: a.y,
-                                size: size.clamp(1.0, 1000.0),
-                                direction: a.direction,
-                                align,
-                                color: a.color,
-                            });
-                        }
-                    }
-                    Op::Size(e) => {
-                        self.sprites[actor].size = self.eval(e, actor).clamp(1.0, 1000.0)
-                    }
-                    Op::Clear => {
-                        self.lines.clear();
-                        self.text_stamps.clear();
-                        self.clear = true;
-                    }
-                    Op::Branch(e, target) => {
-                        if !truth(self.eval(e, actor)) {
-                            self.tasks[index].pc = target;
-                        }
-                    }
-                    Op::Jump(target) => self.tasks[index].pc = target,
-                    Op::Yield => break,
-                    Op::Wait(e) => {
-                        self.tasks[index].wake = self.time + self.eval(e, actor).max(0.0);
-                        break;
-                    }
-                    Op::Repeat(e, end) => {
-                        let n = self.eval(e, actor).floor().clamp(0.0, u32::MAX as f64) as u64;
-                        if n == 0 {
-                            self.tasks[index].pc = end;
-                        } else {
-                            self.tasks[index].loops.push(n);
-                        }
-                    }
-                    Op::Next(target, yielding) => {
-                        let left = self.tasks[index]
-                            .loops
-                            .last_mut()
-                            .context("invalid repeat stack")?;
-                        *left -= 1;
-                        if *left > 0 {
-                            self.tasks[index].pc = target;
-                            if yielding {
-                                break;
-                            }
-                        } else {
-                            self.tasks[index].loops.pop();
-                        }
-                    }
-                    Op::Range(spec, end) => {
-                        let RangeSpec { from, to, by } = self.program.ranges[spec];
-                        let from = self.eval(from, actor);
-                        let to = self.eval(to, actor);
-                        let by = self.eval(by, actor);
-                        ensure!(
-                            from.is_finite()
-                                && to.is_finite()
-                                && by.is_finite()
-                                && (by + 0.5).floor() > 0.0,
-                            "range requires finite endpoints and positive rounded step at {}",
-                            self.program.sources[pc]
-                        );
-                        let value = if from <= to {
-                            from.ceil()
-                        } else {
-                            from.floor()
-                        };
-                        let step = (by + 0.5).floor() * if from <= to { 1.0 } else { -1.0 };
-                        if (step > 0.0 && value > to) || (step < 0.0 && value < to) {
-                            self.tasks[index].pc = end;
-                        } else {
-                            self.tasks[index].ranges.push(RangeState {
-                                value,
-                                end: to,
-                                step,
-                            });
-                        }
-                    }
-                    Op::RangeNext(target, yielding) => {
-                        let range = self.tasks[index]
-                            .ranges
-                            .last_mut()
-                            .context("invalid range stack")?;
-                        let next = range.value + range.step;
-                        ensure!(
-                            next != range.value,
-                            "range step makes no progress at {}",
-                            self.program.sources[pc]
-                        );
-                        range.value = next;
-                        if (range.step > 0.0 && next <= range.end)
-                            || (range.step < 0.0 && next >= range.end)
-                        {
-                            self.tasks[index].pc = target;
-                            if yielding {
-                                break;
-                            }
-                        } else {
-                            self.tasks[index].ranges.pop();
-                        }
-                    }
-                    Op::Break(target, pop) => {
-                        if pop == 1 {
-                            self.tasks[index].loops.pop();
-                        } else if pop == 2 {
-                            self.tasks[index].ranges.pop();
-                        }
-                        self.tasks[index].pc = target;
-                    }
-                    Op::Log(i) => {
-                        if self.logs.len() < 1024 {
-                            self.logs.push(self.program.strings[i].clone());
-                        }
-                    }
-                    Op::Audio(i, play) => {
-                        let audio = self.eval_value(i, actor);
-                        self.audio_commands.push(AudioCommand { audio, play });
-                    }
-                    Op::LogNumber(e) => {
-                        let n = self.eval(e, actor);
-                        if self.logs.len() < 1024 {
-                            self.logs.push(n.to_string());
-                        }
-                    }
-                    Op::LogText(text) => {
-                        if self.logs.len() < 1024 {
-                            let value = self.eval_text(text, actor);
-                            self.logs.push(value);
-                        }
-                    }
-                    Op::WaitUntil(e) => {
-                        if !truth(self.eval(e, actor)) {
-                            self.tasks[index].pc = pc;
-                            break;
-                        }
-                    }
-                    Op::Broadcast(message, payload, wait) => {
-                        let message = self.eval_value(message, actor).text();
-                        let payload =
-                            payload.map_or(Cell::Number(f64::NAN), |i| self.eval_value(i, actor));
-                        self.broadcast(message, payload, wait, &mut ready)?;
-                        if self.tasks[index].pending > 0 {
-                            break;
-                        }
-                    }
-                    Op::Stop(scope) => {
-                        if scope == 0 {
-                            self.stopped = true;
-                        }
-                        for target in 0..self.tasks.len() {
-                            let stop = match scope {
-                                0 => true,
-                                1 => target == index,
-                                2 => target != index && self.tasks[target].actor == actor,
-                                3 => self.tasks[target].actor != actor,
-                                _ => unreachable!(),
-                            };
-                            if stop {
-                                self.finish_task(target, &mut ready);
-                            }
-                        }
-                        if self.tasks[index].done {
-                            break;
-                        }
-                    }
-                    Op::Call(procedure, args) => {
-                        let count = self.program.call_arguments[args].len();
-                        let mut parameters = Vec::with_capacity(count);
-                        for k in 0..count {
-                            let value = self.program.call_arguments[args][k];
-                            parameters.push(self.eval_value(value, actor));
-                        }
-                        let task = &mut self.tasks[index];
-                        ensure!(
-                            task.calls.len() < 10_000,
-                            "procedure stack limit at {}",
-                            self.program.sources[pc]
-                        );
-                        task.calls.push(CallFrame {
-                            pc: task.pc,
-                            parameters: std::mem::replace(&mut task.parameters, parameters),
-                        });
-                        task.pc = self.program.procedure_entries[procedure];
-                    }
-                    Op::Return => {
-                        let call = self.tasks[index]
-                            .calls
-                            .pop()
-                            .context("invalid procedure return")?;
-                        self.tasks[index].pc = call.pc;
-                        self.tasks[index].parameters = call.parameters;
-                    }
-                    Op::Halt => {
-                        self.finish_task(index, &mut ready);
-                        break;
-                    }
-                }
-                if self.value_error.is_some() {
-                    let error = self.value_error.take().unwrap_or_default();
-                    bail!("{error} at block {}", self.program.sources[pc]);
-                }
-                if moves
-                    && (!self.sprites[actor].x.is_finite() || !self.sprites[actor].y.is_finite())
-                {
-                    bail!("non-finite position at block {}", self.program.sources[pc]);
+                if !self.exec(index, pc, op, actor)? {
+                    break;
                 }
             }
             if exceeded {
@@ -2781,6 +3443,11 @@ impl Engine {
         };
         self.tasks.retain(|t| !t.done);
         self.released.clear();
+        self.pointer_clicked = false;
+        self.pointer_released = false;
+        if std::mem::take(&mut self.restart) {
+            self.start();
+        }
         *total_count = count;
         Ok(exceeded)
     }
@@ -2801,6 +3468,37 @@ pub fn encode_frame(frame: &Frame) -> Result<Vec<u8>> {
         bytes.extend_from_slice(&f.to_le_bytes());
     }
     Ok(bytes)
+}
+
+/// [year, month, date, -, weekday (Sunday 0), hour, minute, second] in local time.
+fn local_time(offset_min: f64) -> [f64; 8] {
+    let now = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map_or(0.0, |d| d.as_secs_f64());
+    let local = (now + offset_min * 60.0).floor() as i64;
+    let days = local.div_euclid(86_400);
+    let secs = local.rem_euclid(86_400);
+    // Howard Hinnant's civil_from_days.
+    let z = days + 719_468;
+    let era = z.div_euclid(146_097);
+    let doe = z - era * 146_097;
+    let yoe = (doe - doe / 1460 + doe / 36_524 - doe / 146_096) / 365;
+    let doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
+    let mp = (5 * doy + 2) / 153;
+    let day = doy - (153 * mp + 2) / 5 + 1;
+    let month = if mp < 10 { mp + 3 } else { mp - 9 };
+    let year = yoe + era * 400 + i64::from(month <= 2);
+    let weekday = (days + 4).rem_euclid(7);
+    [
+        year as f64,
+        month as f64,
+        day as f64,
+        0.0,
+        weekday as f64,
+        (secs / 3600) as f64,
+        (secs / 60 % 60) as f64,
+        (secs % 60) as f64,
+    ]
 }
 
 fn split_token(text: &str) -> Cell {

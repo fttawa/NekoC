@@ -93,7 +93,7 @@ async function importFile(file){
 async function advance(dt){
   const token=epoch,start=performance.now();
   try{
-    const buffer=await connection.frame({dt,...input.take(),budget_ms:settings.budget,coalesce:settings.coalesce===1});
+    const buffer=await connection.frame({dt,...input.take(),budget_ms:settings.budget,coalesce:settings.coalesce===1,utc_offset:-new Date().getTimezoneOffset()});
     if(token!==epoch)return;
     roundtripMs=performance.now()-start;
     // Draw pen deltas now; the stage is composited once on the next display frame.

@@ -163,7 +163,7 @@ function state(text){$('#runtime-state').replaceChildren(make('i'),document.crea
 async function stop(){await starting;running=false;audio.stop();epoch++;player?.close();player=null;await inFlight;await api('stop');started=false;input.reset();timerLabel.hidden=true;await renderer.load(project);renderEditor();renderPalette();state('就绪');}
 async function nextFrame(dt){
   const token=epoch,start=performance.now();let buffer;
-  try{buffer=await player.frame({dt,...input.take()});}catch(error){if(token!==epoch)return;throw error;}if(token!==epoch)return;
+  try{buffer=await player.frame({dt,...input.take(),utc_offset:-new Date().getTimezoneOffset()});}catch(error){if(token!==epoch)return;throw error;}if(token!==epoch)return;
   pipeline.roundtripMs=performance.now()-start;
   const decodeStart=performance.now(),{frame,lines}=decodeFrame(buffer);pipeline.decodeMs=performance.now()-decodeStart;lastBytes=buffer.byteLength;lastFrame=frame;
    renderer.apply(frame,lines);audio.apply(frame);for(const message of frame.logs)log(message);

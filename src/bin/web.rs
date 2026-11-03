@@ -207,6 +207,9 @@ fn frame_bytes(vm: &mut Engine, payload: &Value) -> Result<Vec<u8>> {
             vm.key(key);
         }
     }
+    if let Some(offset) = payload["utc_offset"].as_f64() {
+        vm.set_utc_offset(offset);
+    }
     if let (Some(x), Some(y)) = (
         payload["mouse"]["x"].as_f64(),
         payload["mouse"]["y"].as_f64(),
