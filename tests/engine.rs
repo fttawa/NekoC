@@ -1362,3 +1362,208 @@ fn coalescing_runs_invisible_ticks_but_never_shortens_waits() {
         1
     );
 }
+
+fn var_project(body: Value, names: &[&str]) -> Value {
+    let mut p = project(body);
+    for name in names {
+        p["variables"]["variablesDict"][*name] = json!({"id":name,"value":0});
+    }
+    p
+}
+fn set(name: &str, value: Value) -> Value {
+    json!({"type":"variables_set","fields":{"variable":name},"inputs":{"value":value}})
+}
+
+#[test]
+fn operator_reporters_follow_native_dropdowns() {
+    let unary = |kind: &str, field: Value, n: f64| json!({"type":kind,"fields":field,"inputs":{"num":num(n)}});
+    let p = var_project(
+        chain(vec![
+            set(
+                "a",
+                json!({"type":"divisible_by","inputs":{"A":num(12.0),"B":num(4.0)}}),
+            ),
+            set(
+                "b",
+                json!({"type":"divisible_by","inputs":{"NUMBER_TO_CHECK":num(7.0),"DIVISOR":num(2.0)}}),
+            ),
+            set(
+                "c",
+                unary("math_number_property", json!({"type":"prime"}), 13.0),
+            ),
+            set(
+                "d",
+                json!({"type":"math_number_property","fields":{"PROPERTY":"EVEN"},"inputs":{"NUMBER_TO_CHECK":num(9.0)}}),
+            ),
+            set("e", unary("math_function", json!({"type":"6"}), 2.0)),
+            set(
+                "f",
+                unary("math_function", json!({"type":"3"}), std::f64::consts::E),
+            ),
+            set(
+                "g",
+                json!({"type":"math_round","fields":{"OP":"ROUNDUP"},"inputs":{"NUM":num(1.2)}}),
+            ),
+            set(
+                "h",
+                json!({"type":"get_stage_info","fields":{"info":"height"}}),
+            ),
+        ]),
+        &["a", "b", "c", "d", "e", "f", "g", "h"],
+    );
+    let mut vm = Engine::new(Program::compile(&p).unwrap());
+    vm.start();
+    frame(&mut vm);
+    let v = vm.numeric_variables();
+    assert_eq!(&v[..5], &[1.0, 0.0, 1.0, 0.0, 100.0]);
+    assert!((v[5] - 1.0).abs() < 1e-12);
+    assert_eq!(v[6], 2.0);
+    assert_eq!(v[7], vm.program.height);
+}
+
+#[test]
+fn else_if_chain_takes_first_true_branch() {
+    let mut p = var_project(
+        json!({"type":"controls_if",
+        "inputs":{"IF0":{"type":"logic_boolean","fields":{"BOOL":"FALSE"}},"IF1":{"type":"logic_boolean","fields":{"BOOL":"TRUE"}},"IF2":{"type":"logic_boolean","fields":{"BOOL":"TRUE"}}},
+        "statements":{"DO0":set("r", num(1.0)),"DO1":set("r", num(2.0)),"DO2":set("r", num(3.0)),"ELSE":set("r", num(4.0))}}),
+        &["r"],
+    );
+    let mut vm = Engine::new(Program::compile(&p).unwrap());
+    vm.start();
+    frame(&mut vm);
+    assert_eq!(vm.numeric_variables()[0], 2.0);
+    // All false falls through to ELSE.
+    p["actors"]["actorsDict"]["nekoc-default-actor"]["nekoBlockJsonList"][0]["next"]["inputs"]["IF1"]
+        ["fields"]["BOOL"] = json!("FALSE");
+    p["actors"]["actorsDict"]["nekoc-default-actor"]["nekoBlockJsonList"][0]["next"]["inputs"]["IF2"]
+        ["fields"]["BOOL"] = json!("FALSE");
+    let mut vm = Engine::new(Program::compile(&p).unwrap());
+    vm.start();
+    frame(&mut vm);
+    assert_eq!(vm.numeric_variables()[0], 4.0);
+}
+
+#[test]
+fn glide_interpolates_over_time_and_draws_pen_segments() {
+    let p = project(chain(vec![
+        json!({"type":"self_pen_down"}),
+        json!({"type":"self_glide_to","inputs":{"time":num(0.5),"x":num(100.0),"y":num(50.0)}}),
+        json!({"type":"self_glide_coordinate","fields":{"coordinary":"x","increase":"decrease"},"inputs":{"time":num(0.0),"value":num(30.0)}}),
+    ]));
+    let mut vm = Engine::new(Program::compile(&p).unwrap());
+    vm.start();
+    let budget = Duration::from_secs(1);
+    let f = vm.advance(0.0, 1000, budget).unwrap();
+    assert_eq!((f.sprites[1].x, f.sprites[1].y), (0.0, 0.0));
+    let f = vm.advance(0.25, 1000, budget).unwrap();
+    assert_eq!((f.sprites[0].x, f.sprites[0].y), (50.0, 25.0));
+    assert!(!f.lines.is_empty());
+    let f = vm.advance(0.25, 1000, budget).unwrap();
+    // Glide ends at its target; the zero-time relative glide applies immediately.
+    assert_eq!((f.sprites[0].x, f.sprites[0].y), (70.0, 50.0));
+    assert_eq!(f.active, 0);
+}
+
+#[test]
+fn face_move_and_rotate_around_targets() {
+    let p = project(chain(vec![
+        json!({"type":"self_move_to","inputs":{"x":num(10.0),"y":num(0.0)}}),
+        json!({"type":"self_face_to","fields":{"sprite":"__mouse"}}),
+    ]));
+    let mut vm = Engine::new(Program::compile(&p).unwrap());
+    vm.start();
+    vm.set_mouse(10.0, 50.0);
+    let f = frame(&mut vm);
+    assert!((f.sprites[1].direction - 0.0).abs() < 1e-9);
+
+    let p = project(chain(vec![
+        json!({"type":"self_move_to","inputs":{"x":num(0.0),"y":num(10.0)}}),
+        json!({"type":"self_rotate_around","fields":{"sprite":"nekoc-default-scene"},"inputs":{"degrees":num(90.0)}}),
+    ]));
+    let mut p = p;
+    if let Some(scene) = p["scenes"]["currentSceneId"].as_str().map(str::to_owned) {
+        p["actors"]["actorsDict"]["nekoc-default-actor"]["nekoBlockJsonList"][0]["next"]["next"]
+            ["fields"]["sprite"] = json!(scene);
+    }
+    let mut vm = Engine::new(Program::compile(&p).unwrap());
+    vm.start();
+    let f = frame(&mut vm);
+    let a = &f.sprites[1];
+    assert!(
+        (a.x - 10.0).abs() < 1e-9 && a.y.abs() < 1e-9,
+        "{} {}",
+        a.x,
+        a.y
+    );
+    assert_eq!(a.direction, 90.0);
+}
+
+#[test]
+fn effects_size_and_fade_update_sprite_state() {
+    let p = project(chain(vec![
+        json!({"type":"self_set_effect","fields":{"scope":"2"},"inputs":{"value":num(150.0)}}),
+        json!({"type":"self_change_effect","fields":{"scope":"1","increase":"increase"},"inputs":{"steps":num(40.0)}}),
+        json!({"type":"set_width_height_scale","fields":{"type":"height"},"inputs":{"value":num(50.0)}}),
+        json!({"type":"self_change_scale","fields":{"increase":"decrease"},"inputs":{"scale":num(20.0)}}),
+        json!({"type":"self_set_rotation_type","fields":{"rotation_type":"1"}}),
+        json!({"type":"self_gradually_show_hide","fields":{"is_show":"hide"},"inputs":{"time":num(0.5)}}),
+    ]));
+    let mut vm = Engine::new(Program::compile(&p).unwrap());
+    vm.start();
+    let f = vm.advance(0.0, 1000, Duration::from_secs(1)).unwrap();
+    let a = &f.sprites[1];
+    assert_eq!(a.effects[2], 100.0);
+    assert!((a.opacity - 0.6).abs() < 1e-9);
+    assert_eq!((a.size_y, a.scale, a.rotation_type), (50.0, 80.0, 1));
+    let f = vm.advance(0.25, 1000, Duration::from_secs(1)).unwrap();
+    assert!((f.sprites[0].opacity - 0.3).abs() < 1e-9);
+    let f = vm.advance(0.25, 1000, Duration::from_secs(1)).unwrap();
+    assert!(!f.sprites[0].visible && (f.sprites[0].opacity - 0.6).abs() < 1e-9);
+}
+
+#[test]
+fn when_statement_waits_and_sync_tell_runs_as_target() {
+    let p = var_project(
+        chain(vec![
+            json!({"type":"when","inputs":{"condition":{"type":"logic_compare","fields":{"OP":"GT"},"inputs":{"A":{"type":"timer"},"B":num(0.05)}}},
+                "statements":{"DO":set("hit", num(1.0))}}),
+            json!({"type":"sync_tell","fields":{"sprite":"__self"},"statements":{"DO":chain(vec![
+                json!({"type":"wait","inputs":{"time":num(0.0)}}),
+                set("told", num(1.0))])}}),
+            set("after", {
+                json!({"type":"variables_get","fields":{"variable":"told"}})
+            }),
+        ]),
+        &["hit", "told", "after"],
+    );
+    let mut vm = Engine::new(Program::compile(&p).unwrap());
+    vm.start();
+    frame(&mut vm);
+    assert_eq!(vm.numeric_variables(), &[0.0, 0.0, 0.0]);
+    for _ in 0..5 {
+        frame(&mut vm);
+    }
+    assert_eq!(vm.numeric_variables(), &[1.0, 1.0, 1.0]);
+}
+
+#[test]
+fn restart_resets_state_and_runs_start_scripts_again() {
+    let p = var_project(
+        chain(vec![
+            json!({"type":"change_variables","fields":{"variable":"n","method":"increase"},"inputs":{"value":num(1.0)}}),
+            json!({"type":"wait","inputs":{"time":num(0.0)}}),
+            json!({"type":"restart"}),
+        ]),
+        &["n"],
+    );
+    let mut vm = Engine::new(Program::compile(&p).unwrap());
+    vm.start();
+    frame(&mut vm);
+    assert_eq!(vm.numeric_variables()[0], 1.0);
+    let f = frame(&mut vm);
+    // Restart reinitialised variables and re-dispatched the start hat.
+    assert!(f.active == 1 && vm.numeric_variables()[0] == 0.0);
+    frame(&mut vm);
+    assert_eq!(vm.numeric_variables()[0], 1.0);
+}
