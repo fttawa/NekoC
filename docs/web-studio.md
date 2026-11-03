@@ -120,7 +120,16 @@ cargo run --release --bin web -- samples/web-pen-stress.bcmkn
 - 过渡：滑动/弹跳按方向平移，fadeInOut/distrot 淡入，开启“减少动态效果”时不播放。
 - 依据说明：除“开始帽对应运行组激活”和“画笔按场景”外，停止旧脚本、保留角色状态、重复进入再次触发等是推断，尚未与官方运行器逐帧对照。
 
-**尚未迁移**：碰到颜色（需要读回像素）、碰撞事件帽 `on_bump_actor`、纯视觉动画（`self_appear_animation`、`self_stress_animation`、`global_animation`、`self_text_effect_*`、`set_screen_transition`）、阵营、文本编程模式积木（`setTimeout`、`parseInt` 等 BCM 翻译器积木）、AI/语音/摄像头/云服务与硬件。遇到未支持类型明确报错，没有自动静默退回慢解释器。返回值过程内的等待和循环让出不会挂起（过程必须立刻产出值）。
+阵营、碰撞事件、动画与文字特效（2026-11-03，依据官方编辑器公开 JS 包 `main.8ccf2442.js` 与按需分包 `stage_animation.871fede4.chunk.js`）：
+
+- 阵营：`self_set_role_camp` 设置红/黄（界面显示为绿）/蓝/无阵营，克隆继承。`bump_into` 的两侧都可选阵营（该阵营所有角色，含克隆）或 `no_camp`（未设阵营的角色）；另一侧还支持 `--edge_top/bottom/left/right` 单条边缘。依据：`getActorIdsFromOption`、`checkTwoActorListsBump`。
+- `on_bump_actor`：每轮检测“自己这个实例”与目标角色（原角色及其克隆）是否接触，与上一轮比较：没碰→碰上触发“开始”，持续接触每轮触发“持续”，碰上→分开触发“结束”。依据：模块 45161 `checkBumpActions`。脚本仍在运行时不会被同一事件重启（推断，官方的重入规则未确认）。
+- `on_bump_actor_value`：读取被碰到角色的 x、y、造型序号、阵营（红1/黄2/蓝3/无0）、克隆序号、缩放、宽、高、方向和 7 种特效。“结束”事件里读取的是刚分开的那个角色（推断；官方此时的取值未确认）。宽/高与现有外观积木一致，返回缩放值。
+- `math_arc_trig`（角度制 asin/acos/atan，与 `math_trig` 同一组函数）、`math_trig_rad`（弧度制）、`math_arithmetic_power`、`shadow_text`。
+- `self_stress_animation`（抖动/缩放/弹跳）与 `self_appear_animation`（滑入/弹入/飞入/滑出/弹出/飞出 × 上下左右）：按官方时间线的每段时长和目标值在 VM 里补间位置、宽高、方向、透明度，脚本等动画播完再继续，碰撞检测跟着动画走。入场只在隐藏时生效、退场和强调只在显示时生效，否则立即继续；入/退场结束后恢复动画前的位置、缩放、方向和透明度，退场最后隐藏。缓动统一用对称三次曲线代替官方逐段贝塞尔曲线，轨迹形状近似、时长一致。
+- `self_text_effect_text/size/color`：角色改为渲染文字（默认 36 号黑色，字号限制 1–2000），缩放临时设为 100%，切换造型时退出文字模式并恢复原缩放；字号/颜色在没有文字时也会记住。每条积木等待一帧（官方等待文字纹理生成）。VM 碰撞按估算的文字矩形计算（中日韩字符 1 个字号宽、其余 0.55），不是逐像素。
+
+**尚未迁移**：碰到颜色 `bump_into_color`（官方做法是把除自身外的舞台渲染到纹理，再按角色不透明采样点比对颜色，R/G 取高 5 位、B 取高 4 位；本项目 VM 在服务端运行、拿不到画面像素，需要另行设计像素回读）、`global_animation`（官方播放 SVGA 动画和音效素材，这些素材不在作品文件里）、文本编程模式积木（`setTimeout`、`parseInt`、`Math.*`、`String.*` 等 BCM 翻译器积木，需要先给 VM 加对象/数组值）、AI/语音/摄像头/云服务与硬件。遇到未支持类型明确报错，没有自动静默退回慢解释器。返回值过程内的等待和循环让出不会挂起（过程必须立刻产出值）。
 新 VM 的调度/浮点/初始旋转转换并未全量对齐官方运行器；目前对照测试只覆盖已声明的数值/控制子集。
 
 2026-11-03兼容性增量、真实绘图验证、语料剩余问题和升级方式见 [web-compatibility.md](web-compatibility.md)。

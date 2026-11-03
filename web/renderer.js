@@ -82,6 +82,7 @@ export class StageRenderer {
     for (const item of this.images.values()) gl.deleteTexture(item.texture);
     this.images.clear();
     for(const item of this.textCache.values())gl.deleteTexture(item.texture);
+    for(const item of this.spriteTexts?.values()||[])gl.deleteTexture(item.texture);this.spriteTexts?.clear();
     this.textCache.clear();this.stats.textTextureBytes=0;
     for (const surface of this.surfaces?.values() || []) { gl.deleteFramebuffer(surface.framebuffer); gl.deleteTexture(surface.texture); }
     this.surfaces = new Map();
@@ -298,6 +299,32 @@ export class StageRenderer {
     return item;
   }
 
+  // A sprite rendered as text (self_text_effect_text): centred lines, cached per look.
+  spriteTextImage(look){
+    const key=`${look.size}|${look.color}|${look.text}`;
+    this.spriteTexts??=new Map();
+    let item=this.spriteTexts.get(key);
+    if(item){this.spriteTexts.delete(key);this.spriteTexts.set(key,item);return item;}
+    const gl=this.gl,lines=String(look.text).split('\n'),size=Math.max(1,look.size),font=`${size}px "PingFang SC","Microsoft YaHei",sans-serif`;
+    const canvas=document.createElement('canvas'),ctx=canvas.getContext('2d',{willReadFrequently:true});
+    ctx.font=font;const lineHeight=Math.ceil(size*1.25);
+    const width=Math.max(1,Math.ceil(Math.max(...lines.map(line=>ctx.measureText(line).width)))),height=Math.max(1,lineHeight*lines.length);
+    const limit=gl.getParameter(gl.MAX_TEXTURE_SIZE);
+    canvas.width=Math.min(width,limit);canvas.height=Math.min(height,limit);
+    ctx.font=font;ctx.textBaseline='middle';ctx.textAlign='center';ctx.fillStyle=look.color||'#000000';
+    lines.forEach((line,i)=>ctx.fillText(line,canvas.width/2,lineHeight*(i+.5)));
+    const texture=this.makeTexture(1,1);gl.bindTexture(gl.TEXTURE_2D,texture);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,true);
+    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,canvas);
+    const rgba=ctx.getImageData(0,0,canvas.width,canvas.height).data,alpha=new Uint8Array(canvas.width*canvas.height);
+    for(let i=0;i<alpha.length;i++)alpha[i]=rgba[i*4+3];
+    item={texture,width:canvas.width,height:canvas.height,alpha};
+    this.spriteTexts.set(key,item);
+    if(this.spriteTexts.size>256){const [oldKey,old]=this.spriteTexts.entries().next().value;gl.deleteTexture(old.texture);this.spriteTexts.delete(oldKey);}
+    return item;
+  }
+  spriteImage(a){return a.text?this.spriteTextImage(a.text):this.images.get(a.style);}
+
   drawImageStamp(stamp){
     const image=this.images.get(stamp.style);if(!image)return;
     const {width,height,angle}=spriteGeometry(stamp,image);
@@ -349,7 +376,7 @@ export class StageRenderer {
       if(i===layer)this.drawTexture(this.penTexture,0,0,this.width,this.height);
       const a=this.sprites[this.spriteIndices.get(this.actorOrder[i])];if(!a)continue;
       if(!a.visible)continue;
-      const image=this.images.get(a.style);
+      const image=this.spriteImage(a);
       if(image){const {width,height,angle}=spriteGeometry(a,image);
         this.drawTexture(image.texture,a.x,a.y,width,height,angle,[1,1,1,a.opacity??1],a.effects,[image.width,image.height]);}
     }
@@ -360,7 +387,7 @@ export class StageRenderer {
     for(let i=this.actorOrder.length-1;i>=0;i--){
       const a=this.sprites[this.spriteIndices.get(this.actorOrder[i])];
       if(!a?.visible||!a.scale||(a.opacity??1)<=0)continue;
-      const image=this.images.get(a.style);if(!image)continue;
+      const image=this.spriteImage(a);if(!image)continue;
       const {width,height,angle}=spriteGeometry(a,image);if(!width||!height)continue;
       const c=Math.cos(angle),s=Math.sin(angle),dx=x-a.x,dy=y-a.y;
       const px=Math.floor((c*dx-s*dy)*image.width/width+image.width/2),py=Math.floor(image.height/2-(s*dx+c*dy)*image.height/height);

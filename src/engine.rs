@@ -78,6 +78,13 @@ enum Unary {
     Asin,
     Acos,
     Atan,
+    /// Radian trig (math_trig_rad).
+    RSin,
+    RCos,
+    RTan,
+    RAsin,
+    RAcos,
+    RAtan,
     Not,
     Ln,
     Log,
@@ -105,6 +112,12 @@ impl Unary {
             Self::Asin => v.asin().to_degrees(),
             Self::Acos => v.acos().to_degrees(),
             Self::Atan => v.atan().to_degrees(),
+            Self::RSin => v.sin(),
+            Self::RCos => v.cos(),
+            Self::RTan => v.tan(),
+            Self::RAsin => v.asin(),
+            Self::RAcos => v.acos(),
+            Self::RAtan => v.atan(),
             Self::Not => (!truth(v)) as u8 as f64,
             Self::Ln => v.ln(),
             Self::Log => v.log10(),
@@ -143,6 +156,32 @@ fn is_prime(v: f64) -> bool {
 const TARGET_MOUSE: usize = usize::MAX - 1;
 const TARGET_RANDOM: usize = usize::MAX - 2;
 const TARGET_EDGE: usize = usize::MAX - 3;
+/// One stage edge: TARGET_EDGE_SIDE - (0 top, 1 bottom, 2 left, 3 right).
+const TARGET_EDGE_SIDE: usize = usize::MAX - 4;
+/// Every actor of a camp: TARGET_CAMP - (0 no camp, 1 red, 2 yellow/green, 3 blue).
+const TARGET_CAMP: usize = usize::MAX - 10;
+fn camp_target(id: &str) -> Option<usize> {
+    camp_code(id).map(|c| TARGET_CAMP - c as usize)
+}
+fn camp_code(id: &str) -> Option<u8> {
+    Some(match id {
+        "no_camp" => 0,
+        "camp_red" => 1,
+        "camp_yellow" | "camp_green" => 2,
+        "camp_blue" => 3,
+        _ => return None,
+    })
+}
+fn edge_target(id: &str) -> Option<usize> {
+    Some(match id {
+        "--edge" | "__edge" | "--boundary" | "__boundary" | "edge" => TARGET_EDGE,
+        "--edge_top" => TARGET_EDGE_SIDE,
+        "--edge_bottom" => TARGET_EDGE_SIDE - 1,
+        "--edge_left" => TARGET_EDGE_SIDE - 2,
+        "--edge_right" => TARGET_EDGE_SIDE - 3,
+        _ => return None,
+    })
+}
 fn truth(v: f64) -> bool {
     v != 0.0 && !v.is_nan()
 }
@@ -302,6 +341,17 @@ enum Op {
     /// Question value and optional choice values (`value_args` span).
     Ask(usize, Option<Span>),
     Layer(LayerMove),
+    /// self_set_role_camp: 0 none, 1 red, 2 yellow (shown green), 3 blue.
+    Camp(u8),
+    /// Emphasis animation (0 shake, 1 scale, 2 bounce); the next op is `TimelineStep`.
+    Emphasis(u8),
+    /// Appear (true) / disappear transition (kind, direction); next op `TimelineStep`.
+    Transition(bool, u8, u8),
+    TimelineStep,
+    /// Render the sprite as text (value), set its text size, set its text colour (RGB).
+    SpriteText(usize),
+    TextSize(Expr),
+    TextColor(u32),
 }
 #[derive(Clone, Copy, Debug)]
 enum LayerMove {
@@ -367,8 +417,20 @@ pub struct Sprite {
     /// Speech or thought bubble.
     pub dialog: Option<Dialog>,
     pub draggable: bool,
+    /// Text the sprite is rendered as (self_text_effect_text), replacing its costume.
+    /// Always serialized so leaving text mode reaches the renderer as `null`.
+    pub text: Option<SpriteText>,
     #[serde(skip)]
     styles: Vec<String>,
+    /// 0 no camp, 1 red, 2 yellow/green, 3 blue.
+    #[serde(skip)]
+    camp: u8,
+    /// Text size and RGB colour kept even while no text is shown.
+    #[serde(skip)]
+    text_style: (f64, u32),
+    /// Scale saved when text replaced the costume; restored on a costume change.
+    #[serde(skip)]
+    text_scale: Option<f64>,
     /// Original actor index (itself for originals); clones share their scripts.
     #[serde(skip)]
     origin: usize,
@@ -390,6 +452,37 @@ pub struct Sprite {
     #[serde(skip)]
     size: f64,
 }
+
+#[derive(Clone, Debug, Serialize, PartialEq)]
+pub struct SpriteText {
+    pub text: String,
+    pub size: f64,
+    /// `#rrggbb`
+    pub color: String,
+}
+impl SpriteText {
+    /// Estimated rendered size: CJK glyphs one em wide, others about half.
+    fn extent(&self) -> (f64, f64) {
+        let lines: Vec<&str> = self.text.split('\n').collect();
+        let width = lines
+            .iter()
+            .map(|line| {
+                line.chars()
+                    .map(|c| if c.is_ascii() { 0.55 } else { 1.0 })
+                    .sum::<f64>()
+            })
+            .fold(0.0, f64::max);
+        (
+            (width * self.size).max(1.0),
+            lines.len() as f64 * self.size * 1.25,
+        )
+    }
+}
+static TEXT_COSTUME: Costume = Costume {
+    width: 1.0,
+    height: 1.0,
+    mask: None,
+};
 
 /// Costume size in pixels and an optional opacity mask (1 bit per cell,
 /// row-major, top row first) used for collision tests.
@@ -454,6 +547,8 @@ enum ScriptEvent {
     Pointer(String, String),
     Swipe(String),
     Broadcast(usize, bool),
+    /// on_bump_actor: (other actor, 0 start / 1 move / 2 end).
+    Bump(usize, u8),
 }
 
 /// A scene ("running group"): its stage entity and actors (front to back).
@@ -728,7 +823,11 @@ impl Program {
                 rotation_type: 0,
                 dialog: None,
                 draggable: false,
+                text: None,
                 styles: owner_styles(scene_value),
+                camp: 0,
+                text_style: (36.0, 0),
+                text_scale: None,
                 origin: stage,
                 clone_index: 0,
                 alive: true,
@@ -767,7 +866,15 @@ impl Program {
                     rotation_type: actor["rotationType"].as_u64().unwrap_or(0).min(2) as u8,
                     dialog: None,
                     draggable: actor["draggable"].as_bool().unwrap_or(false),
+                    text: None,
                     styles: owner_styles(actor),
+                    camp: actor["group"]
+                        .as_str()
+                        .or_else(|| actor["camp"].as_str())
+                        .and_then(camp_code)
+                        .unwrap_or(0),
+                    text_style: (36.0, 0),
+                    text_scale: None,
                     origin: index,
                     clone_index: 0,
                     alive: true,
@@ -908,6 +1015,22 @@ struct Compiler {
 }
 /// Native effect scope: 0 color, 1 transparency, 2 brightness, 3 pixelate,
 /// 4 ripple, 5 twist, 6 grayscale (KN and Kitten 4 dropdown codes).
+/// on_bump_actor_value attribute: 0 x, 1 y, 2 costume no., 3 camp, 4 clone index,
+/// 5 scale, 6 width, 7 height, 8 direction, 10 + n effect n.
+fn bump_attribute(name: &str) -> Option<u8> {
+    Some(match name {
+        "x" => 0,
+        "y" => 1,
+        "style_index" => 2,
+        "camp" => 3,
+        "clone_index" => 4,
+        "scale" => 5,
+        "width" => 6,
+        "height" => 7,
+        "direction" => 8,
+        n => 10 + n.parse::<u8>().ok().filter(|n| *n <= 6)?,
+    })
+}
 fn effect_scope(scope: &str) -> Option<u8> {
     match scope {
         "0" | "color" => Some(0),
@@ -1098,6 +1221,19 @@ impl Compiler {
                 }
             }
             "get_answer" => ValueExpr::Answer,
+            "shadow_text" => match b["inputs"].get("text") {
+                Some(text) => return self.value(text),
+                None => self.constant(Cell::Text(field(b, "TEXT").into())),
+            },
+            "on_bump_actor_value" => ValueExpr::BumpProperty(
+                bump_attribute(field(b, "attribute")).with_context(|| {
+                    format!(
+                        "unsupported collision attribute {} at {}",
+                        field(b, "attribute"),
+                        b["id"]
+                    )
+                })?,
+            ),
             "get_screens" => self.constant(Cell::Text(
                 b["fields"]
                     .get("screen_id")
@@ -1431,11 +1567,18 @@ impl Compiler {
                     .and_then(Value::as_str)
                     .unwrap_or("");
                 let other = match other {
-                    "--edge" | "__edge" | "--boundary" | "__boundary" | "edge" => TARGET_EDGE,
                     "--mouse" | "__mouse" | "--pointer" | "__pointer" => TARGET_MOUSE,
-                    id => self.actor_target(id)?,
+                    id => match edge_target(id).or_else(|| camp_target(id)) {
+                        Some(target) => target,
+                        None => self.actor_target(id)?,
+                    },
                 };
-                ExprOp::Touching(self.actor_target(field(b, "sprite"))?, other)
+                let subject = field(b, "sprite");
+                let subject = match camp_target(subject) {
+                    Some(camp) => camp,
+                    None => self.actor_target(subject)?,
+                };
+                ExprOp::Touching(subject, other)
             }
             "out_of_boundary" => {
                 let subject = b["fields"]
@@ -1455,7 +1598,9 @@ impl Compiler {
                 )
             }
             "get_current_clone_index" => ExprOp::CloneIndex,
-            "get_clone_index_property" => ExprOp::Value(self.value(b)?),
+            "get_clone_index_property" | "shadow_text" | "on_bump_actor_value" => {
+                ExprOp::Value(self.value(b)?)
+            }
             "get_stage_info" => {
                 let info = b["fields"].get("info").or_else(|| b["fields"].get("type"));
                 match info.and_then(Value::as_str).unwrap_or("width") {
@@ -1556,6 +1701,27 @@ impl Compiler {
                     _ => bail!("unsupported numeric operator {name}"),
                 })
             }
+            "math_arithmetic_power" => {
+                self.expression(input(b, "A")?, depth + 1)?;
+                self.expression(input(b, "B")?, depth + 1)?;
+                ExprOp::Binary(Binary::Pow)
+            }
+            "math_arc_trig" | "math_trig_rad" => {
+                self.expression(input(b, "num")?, depth + 1)?;
+                let radians = kind == "math_trig_rad";
+                ExprOp::Unary(match (field(b, "type"), radians) {
+                    ("asin", false) => Unary::Asin,
+                    ("acos", false) => Unary::Acos,
+                    ("atan", false) => Unary::Atan,
+                    ("sin", true) => Unary::RSin,
+                    ("cos", true) => Unary::RCos,
+                    ("tan", true) => Unary::RTan,
+                    ("asin", true) => Unary::RAsin,
+                    ("acos", true) => Unary::RAcos,
+                    ("atan", true) => Unary::RAtan,
+                    (other, _) => bail!("unsupported {kind} {other} at {}", b["id"]),
+                })
+            }
             "math_function" | "math_round" | "math_trig" => {
                 // Kitten 4 style math_round uses NUM / OP.
                 let value = b["inputs"].get("num").or_else(|| b["inputs"].get("NUM"));
@@ -1622,6 +1788,21 @@ impl Compiler {
                     );
                     ScriptEvent::Key(field(root, "key").into(), field(root, "type") == "down")
                 }
+                "on_bump_actor" => {
+                    let kind = match field(root, "type") {
+                        "start" => 0,
+                        "move" => 1,
+                        "end" => 2,
+                        other => bail!("unknown collision phase {other} at {}", root["id"]),
+                    };
+                    let target = field(root, "sprite");
+                    ensure!(
+                        !matches!(target, "--self" | "__self" | ""),
+                        "collision hat needs another actor at {}",
+                        root["id"]
+                    );
+                    ScriptEvent::Bump(self.actor_target(target)?, kind)
+                }
                 "sprite_on_tap" => {
                     let state = field(root, "type");
                     ensure!(
@@ -1661,7 +1842,10 @@ impl Compiler {
             let start = self.program.ops.len();
             let body = if matches!(event, ScriptEvent::Broadcast(_, _)) {
                 root["statements"].get("DO")
-            } else if matches!(event, ScriptEvent::CloneStart | ScriptEvent::Swipe(_)) {
+            } else if matches!(
+                event,
+                ScriptEvent::CloneStart | ScriptEvent::Swipe(_) | ScriptEvent::Bump(..)
+            ) {
                 root["statements"]
                     .get("DO")
                     .filter(|b| b.is_object())
@@ -1997,6 +2181,56 @@ impl Compiler {
                 }
                 "close_self_dialog" => Op::CloseDialog,
                 "self_bounce_off_edge" => Op::Bounce,
+                "self_set_role_camp" => {
+                    Op::Camp(camp_code(field(b, "role_camp")).with_context(|| {
+                        format!("unknown camp {} at {}", field(b, "role_camp"), b["id"])
+                    })?)
+                }
+                "self_stress_animation" => {
+                    self.emit(
+                        Op::Emphasis(match field(b, "animation") {
+                            "shake" => 0,
+                            "scale" => 1,
+                            "bounce" => 2,
+                            other => bail!("unknown emphasis animation {other} at {}", b["id"]),
+                        }),
+                        b,
+                    );
+                    Op::TimelineStep
+                }
+                "self_appear_animation" => {
+                    let appear = match field(b, "appear") {
+                        "appear" => true,
+                        "disappear" => false,
+                        other => bail!("unknown appear mode {other} at {}", b["id"]),
+                    };
+                    let kind = match field(b, "animation") {
+                        "slideIn" => 0,
+                        "bounceIn" => 1,
+                        "flyIn" => 2,
+                        "slideOut" => 3,
+                        "bounceOut" => 4,
+                        "flyOut" => 5,
+                        other => bail!("unknown transition animation {other} at {}", b["id"]),
+                    };
+                    let direction = match field(b, "direction") {
+                        "up" => 0,
+                        "down" => 1,
+                        "left" => 2,
+                        "right" => 3,
+                        other => bail!("unknown animation direction {other} at {}", b["id"]),
+                    };
+                    self.emit(Op::Transition(appear, kind, direction), b);
+                    Op::TimelineStep
+                }
+                "self_text_effect_text" => Op::SpriteText(self.value(input(b, "text")?)?),
+                "self_text_effect_size" => Op::TextSize(self.arg(b, "size")?),
+                "self_text_effect_color" => {
+                    let color = field(b, "color").trim_start_matches('#');
+                    Op::TextColor(u32::from_str_radix(color, 16).with_context(|| {
+                        format!("invalid text colour {} at {}", field(b, "color"), b["id"])
+                    })?)
+                }
                 "self_set_draggable" => {
                     Op::Draggable(matches!(field(b, "draggable"), "1" | "true" | "draggable"))
                 }
@@ -2382,6 +2616,11 @@ struct Task {
     local_values: Vec<Option<Cell>>,
     anim: Option<Anim>,
     returned: Option<Cell>,
+    /// The actor met by a collision script (usize::MAX when none).
+    bumped: usize,
+    timeline: Option<Box<Timeline>>,
+    /// Script index when spawned by an event dispatch (usize::MAX otherwise).
+    script: usize,
 }
 impl Task {
     fn new(id: u64, script: &Script, locals: usize) -> Self {
@@ -2402,8 +2641,99 @@ impl Task {
             local_values: vec![None; locals],
             anim: None,
             returned: None,
+            bumped: usize::MAX,
+            timeline: None,
+            script: usize::MAX,
         }
     }
+}
+
+/// Animated sprite properties: x, y, width %, height %, direction, opacity.
+const TL_X: usize = 0;
+const TL_Y: usize = 1;
+const TL_SX: usize = 2;
+const TL_SY: usize = 3;
+const TL_DIR: usize = 4;
+const TL_ALPHA: usize = 5;
+type Props = [f64; 6];
+const NO_PROPS: Props = [f64::NAN; 6];
+/// One tween of an official stage animation timeline (stage_animation chunk).
+#[derive(Clone, Debug)]
+struct Tween {
+    /// Seconds from the timeline start.
+    at: f64,
+    duration: f64,
+    /// FROM_TO start values applied when the tween begins (NaN: untouched).
+    from: Props,
+    to: Props,
+    /// Values when the tween began; NaN until it has started.
+    begin: Props,
+}
+#[derive(Clone, Debug)]
+struct Timeline {
+    start: f64,
+    tweens: Vec<Tween>,
+    /// Appear/disappear restore the state from before the animation.
+    restore: Option<Props>,
+    hide: bool,
+}
+impl Timeline {
+    /// Builds the sequence; `label` places a tween at the start of an earlier one
+    /// (the official `timeline_pos: "pN"`), otherwise it follows the timeline end.
+    fn new(start: f64, specs: &[(f64, Props, Props, Option<usize>)]) -> Self {
+        let mut tweens: Vec<Tween> = Vec::with_capacity(specs.len());
+        let mut end: f64 = 0.0;
+        for &(duration, from, to, label) in specs {
+            let at = match label {
+                Some(i) if i < tweens.len() => tweens[i].at,
+                _ => end,
+            };
+            end = end.max(at + duration);
+            tweens.push(Tween {
+                at,
+                duration,
+                from,
+                to,
+                begin: NO_PROPS,
+            });
+        }
+        Self {
+            start,
+            tweens,
+            restore: None,
+            hide: false,
+        }
+    }
+    fn total(&self) -> f64 {
+        self.tweens
+            .iter()
+            .map(|t| t.at + t.duration)
+            .fold(0.0, f64::max)
+    }
+}
+fn props_of(a: &Sprite) -> Props {
+    [a.x, a.y, a.size_x, a.size_y, a.direction, a.opacity]
+}
+fn set_prop(a: &mut Sprite, i: usize, v: f64) {
+    match i {
+        TL_X => a.x = v,
+        TL_Y => a.y = v,
+        TL_SX => a.size_x = v,
+        TL_SY => a.size_y = v,
+        TL_DIR => a.direction = v,
+        _ => a.opacity = v.clamp(0.0, 1.0),
+    }
+}
+/// Symmetric cubic ease standing in for the official per-tween bezier curves.
+fn ease(t: f64) -> f64 {
+    t * t * (3.0 - 2.0 * t)
+}
+fn props(pairs: &[(usize, f64)]) -> Props {
+    let mut p = NO_PROPS;
+    for &(i, v) in pairs {
+        p[i] = v;
+    }
+    p
 }
 #[derive(Clone)]
 struct CallFrame {
@@ -2495,6 +2825,9 @@ pub struct Frame {
 }
 pub struct Engine {
     pub program: Program,
+    /// Last on_bump_actor contact per (script, instance).
+    bump_state: std::collections::HashMap<(usize, usize), Option<usize>>,
+    has_bump_scripts: bool,
     slots: Vec<f64>,
     lists: Vec<List>,
     values: Vec<Option<Cell>>,
@@ -2599,7 +2932,13 @@ impl Engine {
         let scene_orders = initial_orders(&program);
         let order = scene_orders[program.initial_scene].clone();
         let current_scene = program.initial_scene;
+        let has_bump_scripts = program
+            .scripts
+            .iter()
+            .any(|s| matches!(s.event, ScriptEvent::Bump(..)));
         Self {
+            bump_state: Default::default(),
+            has_bump_scripts,
             program,
             slots,
             lists,
@@ -2714,6 +3053,7 @@ impl Engine {
         self.dirty.fill(true);
         self.reset = true;
         self.cursor = 0;
+        self.bump_state.clear();
         self.dispatch(|event| matches!(event, ScriptEvent::Start));
     }
     pub fn key(&mut self, key: &str) {
@@ -2871,6 +3211,7 @@ impl Engine {
             self.program.local_count,
         );
         task.actor = actor;
+        task.script = script;
         self.next_task_id += 1;
         self.tasks.push(task);
         Some(self.tasks.len() - 1)
@@ -3061,12 +3402,24 @@ impl Engine {
             }
             ExprOp::CloneIndex => self.sprites[actor].clone_index as f64,
             ExprOp::Touching(subject, other) => {
-                let subject = if subject == usize::MAX {
-                    actor
+                // `--self` as the other side means the running actor, whatever the subject.
+                let other = if other == usize::MAX { actor } else { other };
+                let hit = if subject == usize::MAX {
+                    self.touching(actor, other)
+                } else if (TARGET_CAMP - 3..=TARGET_CAMP).contains(&subject) {
+                    let camp = (TARGET_CAMP - subject) as u8;
+                    let members: Vec<usize> = self.camp_members(camp).collect();
+                    members.into_iter().any(|i| self.touching(i, other))
                 } else {
-                    subject
+                    // An actor subject includes its clones (official getActorIdsFromOption).
+                    let origin = self.sprites[subject].origin;
+                    (0..self.sprites.len()).any(|i| {
+                        self.sprites[i].alive
+                            && self.sprites[i].origin == origin
+                            && self.touching(i, other)
+                    })
                 };
-                u8::from(self.touching(subject, other)) as f64
+                u8::from(hit) as f64
             }
             ExprOp::OutOfBounds(subject, edge) => {
                 let subject = if subject == usize::MAX {
@@ -3232,8 +3585,26 @@ impl Engine {
     /// Drawn half-size and angle (radians, clockwise) like the renderer's geometry.
     fn geometry(&self, i: usize) -> Option<(&Costume, f64, f64, f64)> {
         let a = &self.sprites[i];
-        let costume = self.program.costumes.get(a.style.as_deref()?)?;
-        let scale = a.scale / 100.0;
+        let (costume, scale) = if let Some(text) = &a.text {
+            let (w, h) = text.extent();
+            let angle = if a.rotation_type == 0 {
+                a.direction.to_radians()
+            } else {
+                0.0
+            };
+            let s = a.scale / 100.0;
+            return Some((
+                &TEXT_COSTUME,
+                w * s * a.size_x / 100.0,
+                h * s * a.size_y / 100.0,
+                angle,
+            ));
+        } else {
+            (
+                self.program.costumes.get(a.style.as_deref()?)?,
+                a.scale / 100.0,
+            )
+        };
         let w = costume.width * scale * a.size_x / 100.0;
         let h = costume.height * scale * a.size_y / 100.0;
         let angle = if a.rotation_type == 0 {
@@ -3293,6 +3664,21 @@ impl Engine {
                 let (l, r, b, t) = self.bounds(subject);
                 let (w, h) = (self.program.width / 2.0, self.program.height / 2.0);
                 l <= -w || r >= w || b <= -h || t >= h
+            }
+            side if (TARGET_EDGE_SIDE - 3..=TARGET_EDGE_SIDE).contains(&side) => {
+                let (l, r, b, t) = self.bounds(subject);
+                let (w, h) = (self.program.width / 2.0, self.program.height / 2.0);
+                match TARGET_EDGE_SIDE - side {
+                    0 => t >= h,
+                    1 => b <= -h,
+                    2 => l <= -w,
+                    _ => r >= w,
+                }
+            }
+            camp if (TARGET_CAMP - 3..=TARGET_CAMP).contains(&camp) => {
+                let camp = (TARGET_CAMP - camp) as u8;
+                self.camp_members(camp)
+                    .any(|j| j != subject && self.sprites[j].visible && self.overlap(subject, j))
             }
             other => {
                 let origin = self.sprites[if other == usize::MAX { subject } else { other }].origin;
@@ -3418,6 +3804,353 @@ impl Engine {
             }
         }
         self.dispatch(|event| matches!(event, ScriptEvent::Start));
+    }
+    /// Text effect (official module: textEffects). `Some(text)` sets the text;
+    /// None re-renders after a size/colour change. Empty text keeps the costume.
+    fn set_sprite_text(&mut self, actor: usize, text: Option<String>) {
+        let a = &mut self.sprites[actor];
+        let text = match text {
+            Some(text) => Some(text),
+            None => a.text.as_ref().map(|t| t.text.clone()),
+        };
+        let Some(text) = text.filter(|t| !t.is_empty()) else {
+            return;
+        };
+        if a.text_scale.is_none() {
+            a.text_scale = Some(a.scale);
+        }
+        a.scale = 100.0;
+        a.text = Some(SpriteText {
+            text,
+            size: a.text_style.0,
+            color: format!("#{:06x}", a.text_style.1 & 0xff_ffff),
+        });
+        self.dirty[actor] = true;
+    }
+    /// A costume change leaves text mode and restores the scale from before it.
+    fn leave_text(&mut self, actor: usize) {
+        let a = &mut self.sprites[actor];
+        if a.text.take().is_some()
+            && let Some(scale) = a.text_scale.take()
+        {
+            a.scale = scale;
+        }
+    }
+    /// Official stage_animation timelines. None when the animation does not apply
+    /// (appearing while visible, emphasis/disappear while hidden): no wait then.
+    fn timeline(&mut self, actor: usize, op: Op) -> Option<Timeline> {
+        let a = &self.sprites[actor];
+        let (x, y, sx, sy, dir, alpha) = (a.x, a.y, a.size_x, a.size_y, a.direction, a.opacity);
+        let none = NO_PROPS;
+        let mut specs: Vec<(f64, Props, Props, Option<usize>)> = vec![];
+        let mut tween = |d: f64, to: &[(usize, f64)]| specs.push((d, none, props(to), None));
+        let (appear, kind, direction) = match op {
+            Op::Emphasis(kind) => {
+                if !a.visible {
+                    return None;
+                }
+                match kind {
+                    0 => {
+                        for (d, deg) in [
+                            (0.067, 4.0),
+                            (0.083, -13.0),
+                            (0.1, 6.0),
+                            (0.083, -8.0),
+                            (0.067, 2.0),
+                            (0.05, 0.0),
+                        ] {
+                            tween(d, &[(TL_DIR, dir + deg)]);
+                        }
+                    }
+                    1 => {
+                        for (d, k) in [(0.3, 0.76), (0.2, 1.07), (0.2, 0.97), (0.15, 1.0)] {
+                            tween(d, &[(TL_SX, sx * k), (TL_SY, sy * k)]);
+                        }
+                    }
+                    _ => {
+                        let (_, _, bottom, top) = self.bounds(actor);
+                        let height = top - bottom;
+                        tween(
+                            0.1,
+                            &[
+                                (TL_SX, sx * 1.2),
+                                (TL_SY, sy * 0.8),
+                                (TL_Y, y - 0.1 * height),
+                            ],
+                        );
+                        tween(0.083, &[(TL_SX, sx), (TL_SY, sy), (TL_Y, y)]);
+                        for (d, dy) in [(0.25, 12.0), (0.25, 0.0), (0.15, 5.0), (0.15, 0.0)] {
+                            tween(d, &[(TL_Y, y + dy)]);
+                        }
+                    }
+                }
+                return Some(Timeline::new(self.time, &specs));
+            }
+            Op::Transition(appear, kind, direction) => (appear, kind, direction),
+            _ => return None,
+        };
+        if appear == a.visible {
+            return None;
+        }
+        // Directions: 0 up, 1 down, 2 left, 3 right (stage y points up).
+        let horizontal = direction >= 2;
+        let left_down = if matches!(direction, 1 | 2) {
+            -1.0
+        } else {
+            1.0
+        };
+        let left_up = if matches!(direction, 0 | 2) {
+            -1.0
+        } else {
+            1.0
+        };
+        let along = |d: f64| if horizontal { (x + d, y) } else { (x, y + d) };
+        let restore = [x, y, sx, sy, dir, alpha];
+        let mut start_at: Option<(f64, f64)> = None;
+        match kind {
+            // slideIn
+            0 => {
+                start_at = Some(if horizontal {
+                    (x + 200.0 * left_down, y)
+                } else {
+                    (x, y + 150.0 * left_down)
+                });
+                tween(0.15, &[(TL_X, x), (TL_Y, y), (TL_ALPHA, alpha)]);
+                for (d, kx, ky) in [
+                    (0.05, 1.2, 0.8),
+                    (0.15, 0.9, 1.1),
+                    (0.15, 1.06, 0.94),
+                    (0.1, 1.0, 1.0),
+                ] {
+                    tween(d, &[(TL_SX, sx * kx), (TL_SY, sy * ky)]);
+                }
+            }
+            // bounceIn
+            1 => {
+                start_at = Some(along(22.0 * left_down));
+                let (bx, by) = along(-25.0 * left_down);
+                tween(0.3, &[(TL_X, bx), (TL_Y, by), (TL_ALPHA, alpha)]);
+                tween(0.2, &[(TL_X, x), (TL_Y, y)]);
+                let (fx, fy) = along(-6.0 * left_down);
+                tween(0.15, &[(TL_X, fx), (TL_Y, fy)]);
+                tween(0.15, &[(TL_X, x), (TL_Y, y)]);
+            }
+            // flyIn
+            2 => {
+                start_at = Some(along(150.0 * left_down));
+                specs.push((
+                    0.4,
+                    props(&[(TL_DIR, dir + 16.0 * left_up)]),
+                    props(&[
+                        (TL_X, x),
+                        (TL_Y, y),
+                        (TL_ALPHA, alpha),
+                        (TL_DIR, dir - 6.0 * left_up),
+                    ]),
+                    None,
+                ));
+                for (d, deg) in [(0.2, 2.0), (0.15, -1.2), (0.15, 0.0)] {
+                    specs.push((d, none, props(&[(TL_DIR, dir + deg * left_up)]), None));
+                }
+            }
+            // slideOut
+            3 => {
+                let (from, to, exit) = if horizontal {
+                    (
+                        props(&[(TL_SX, sx * 1.3)]),
+                        props(&[
+                            (TL_SX, sx * 0.95),
+                            (TL_SY, sy * 1.05),
+                            (TL_X, x - 40.0 * left_up),
+                        ]),
+                        (x + 250.0 * left_up, y),
+                    )
+                } else if direction == 0 {
+                    (
+                        props(&[(TL_SX, sx * 0.7), (TL_SY, sy * 1.1)]),
+                        props(&[
+                            (TL_SX, sx * 1.1),
+                            (TL_SY, sy * 0.7),
+                            (TL_Y, y + 50.0 * left_up),
+                        ]),
+                        (x, y - 70.0 * left_up),
+                    )
+                } else {
+                    (
+                        props(&[(TL_SY, sy * 0.7)]),
+                        props(&[
+                            (TL_SX, sx * 0.97),
+                            (TL_SY, sy * 1.03),
+                            (TL_Y, y + 50.0 * left_up),
+                        ]),
+                        (x, y - 70.0 * left_up),
+                    )
+                };
+                specs.push((0.2, from, to, None));
+                specs.push((0.3, none, props(&[(TL_SX, sx), (TL_SY, sy)]), None));
+                specs.push((0.3, none, props(&[(TL_X, exit.0), (TL_Y, exit.1)]), Some(2)));
+                specs.push((0.3, none, props(&[(TL_ALPHA, 0.0)]), Some(2)));
+            }
+            // bounceOut
+            4 => {
+                let (ox, oy) = along(-35.0 * left_down);
+                let (ux, uy) = along(45.0 * left_down);
+                specs.push((0.3, none, props(&[(TL_X, ox), (TL_Y, oy)]), None));
+                specs.push((0.4, none, props(&[(TL_X, ux), (TL_Y, uy)]), Some(1)));
+                specs.push((0.4, none, props(&[(TL_ALPHA, 0.0)]), Some(1)));
+            }
+            // flyOut
+            _ => {
+                let (fx, fy) = along(150.0 * left_down);
+                specs.push((0.15, none, props(&[(TL_DIR, dir + 10.0 * left_down)]), None));
+                specs.push((
+                    0.1,
+                    none,
+                    props(&[(TL_DIR, dir - 7.0 * left_down)]),
+                    Some(1),
+                ));
+                specs.push((0.1, none, props(&[(TL_DIR, dir)]), None));
+                specs.push((
+                    0.3,
+                    none,
+                    props(&[(TL_ALPHA, 0.0), (TL_X, fx), (TL_Y, fy)]),
+                    Some(1),
+                ));
+            }
+        }
+        let a = &mut self.sprites[actor];
+        if appear {
+            a.visible = true;
+        }
+        if let Some((px, py)) = start_at {
+            a.opacity = 0.0;
+            a.x = px;
+            a.y = py;
+        }
+        let mut timeline = Timeline::new(self.time, &specs);
+        timeline.restore = Some(restore);
+        timeline.hide = !appear;
+        Some(timeline)
+    }
+    /// Advances a task's timeline; true when it has finished.
+    fn timeline_step(&mut self, index: usize, actor: usize) -> bool {
+        let Some(mut timeline) = self.tasks[index].timeline.take() else {
+            return true;
+        };
+        let elapsed = self.time - timeline.start;
+        let old = (self.sprites[actor].x, self.sprites[actor].y);
+        for tween in &mut timeline.tweens {
+            if elapsed < tween.at {
+                continue;
+            }
+            let sprite = &mut self.sprites[actor];
+            if tween.begin[TL_ALPHA].is_nan() {
+                for (i, v) in tween.from.iter().enumerate() {
+                    if v.is_finite() {
+                        set_prop(sprite, i, *v);
+                    }
+                }
+                tween.begin = props_of(sprite);
+            }
+            let t = if tween.duration <= 0.0 {
+                1.0
+            } else {
+                ((elapsed - tween.at) / tween.duration).clamp(0.0, 1.0)
+            };
+            let k = ease(t);
+            for i in 0..6 {
+                if tween.to[i].is_finite() {
+                    set_prop(
+                        sprite,
+                        i,
+                        tween.begin[i] + (tween.to[i] - tween.begin[i]) * k,
+                    );
+                }
+            }
+        }
+        self.dirty[actor] = true;
+        let finished = elapsed >= timeline.total();
+        if finished {
+            let sprite = &mut self.sprites[actor];
+            if let Some(restore) = timeline.restore {
+                for (i, v) in restore.iter().enumerate() {
+                    set_prop(sprite, i, *v);
+                }
+            }
+            if timeline.hide {
+                sprite.visible = false;
+            }
+        } else {
+            self.tasks[index].timeline = Some(timeline);
+        }
+        self.line(actor, old);
+        finished
+    }
+    /// Sprites selected by a collision subject/target: one actor with its clones,
+    /// or every live actor of a camp in the active scene.
+    fn camp_members(&self, camp: u8) -> impl Iterator<Item = usize> + '_ {
+        (0..self.sprites.len()).filter(move |&i| {
+            let a = &self.sprites[i];
+            a.alive && !a.stage && a.camp == camp && a.scene == self.current_scene
+        })
+    }
+    /// on_bump_actor: compare each instance's contact with the previous check and
+    /// fire start / move / end (official module 45161, once per runtime frame).
+    fn check_bumps(&mut self) {
+        if self.stopped || !self.has_bump_scripts {
+            return;
+        }
+        let mut fire = vec![];
+        for script in 0..self.program.scripts.len() {
+            let ScriptEvent::Bump(target, kind) = self.program.scripts[script].event else {
+                continue;
+            };
+            let owner = self.program.scripts[script].actor;
+            if !self.in_active_scene(owner) {
+                continue;
+            }
+            let origin = self.sprites[target].origin;
+            for subject in self.instances(owner) {
+                let hit = if self.sprites[subject].alive && self.sprites[subject].visible {
+                    (0..self.sprites.len()).find(|&j| {
+                        j != subject
+                            && self.sprites[j].alive
+                            && self.sprites[j].visible
+                            && self.sprites[j].origin == origin
+                            && self.overlap(subject, j)
+                    })
+                } else {
+                    None
+                };
+                let key = (script, subject);
+                let previous = self.bump_state.get(&key).copied().flatten();
+                let phase = match (previous.is_some(), hit.is_some()) {
+                    (false, true) => Some(0),
+                    (true, true) => Some(1),
+                    (true, false) => Some(2),
+                    (false, false) => None,
+                };
+                if hit.is_some() || previous.is_some() {
+                    self.bump_state.insert(key, hit);
+                }
+                if phase == Some(kind) {
+                    fire.push((script, subject, hit.or(previous).unwrap_or(usize::MAX)));
+                }
+            }
+        }
+        for (script, subject, other) in fire {
+            // An edge-triggered hat does not restart its own running script.
+            let running = self
+                .tasks
+                .iter()
+                .any(|t| !t.done && t.actor == subject && t.script == script);
+            if running {
+                continue;
+            }
+            if let Some(task) = self.spawn(script, subject) {
+                self.tasks[task].bumped = other;
+            }
+        }
     }
     fn clone_sprite(&mut self, source: usize) -> Result<()> {
         ensure!(!self.sprites[source].stage, "the stage cannot be cloned");
@@ -3678,6 +4411,33 @@ impl Engine {
                             }
                         }
                     }
+                }
+            }
+            ValueExpr::BumpProperty(attribute) => {
+                let other = self.tasks[self.current_task].bumped;
+                match self.sprites.get(other).filter(|a| a.alive) {
+                    None => Cell::Number(f64::NAN),
+                    Some(a) => Cell::Number(match attribute {
+                        0 => a.x,
+                        1 => a.y,
+                        2 => a
+                            .styles
+                            .iter()
+                            .position(|id| Some(id) == a.style.as_ref())
+                            .map_or(0.0, |i| (i + 1) as f64),
+                        3 => f64::from(a.camp),
+                        4 => f64::from(a.clone_index),
+                        5..=7 => a.scale,
+                        8 => a.direction,
+                        n => {
+                            let scope = (n - 10) as usize;
+                            if scope == 1 {
+                                (1.0 - a.opacity) * 100.0
+                            } else {
+                                a.effects[scope]
+                            }
+                        }
+                    }),
                 }
             }
             ValueExpr::Answer => self.answer.clone(),
@@ -3983,9 +4743,11 @@ impl Engine {
                     )
                 })?
                 .clone();
+                self.leave_text(actor);
                 self.sprites[actor].style = Some(selected);
             }
             Op::NextStyle(next) => {
+                self.leave_text(actor);
                 let sprite = &mut self.sprites[actor];
                 if !sprite.styles.is_empty() {
                     let current = sprite
@@ -4547,6 +5309,41 @@ impl Engine {
                 self.tasks[index].pending += 1;
                 return Ok(false);
             }
+            Op::Camp(camp) => self.sprites[actor].camp = camp,
+            Op::Emphasis(_) | Op::Transition(..) => {
+                if !self.sprites[actor].stage {
+                    self.tasks[index].timeline = self.timeline(actor, op).map(Box::new);
+                    self.dirty[actor] = true;
+                }
+            }
+            Op::TimelineStep => {
+                if !self.timeline_step(index, actor) {
+                    self.tasks[index].pc = pc;
+                    return Ok(false);
+                }
+            }
+            Op::SpriteText(value) => {
+                if !self.sprites[actor].stage {
+                    let text = self.eval_value(value, actor).text().trim().to_owned();
+                    self.set_sprite_text(actor, Some(text));
+                    return Ok(false);
+                }
+            }
+            Op::TextSize(size) => {
+                let size = self.eval(size, actor);
+                if !self.sprites[actor].stage && size.is_finite() {
+                    self.sprites[actor].text_style.0 = size.clamp(1.0, 2000.0);
+                    self.set_sprite_text(actor, None);
+                    return Ok(false);
+                }
+            }
+            Op::TextColor(rgb) => {
+                if !self.sprites[actor].stage {
+                    self.sprites[actor].text_style.1 = rgb;
+                    self.set_sprite_text(actor, None);
+                    return Ok(false);
+                }
+            }
             Op::Bounce => self.bounce(actor),
             Op::Draggable(on) => {
                 self.sprites[actor].draggable = on;
@@ -4648,6 +5445,7 @@ impl Engine {
             self.timer += dt;
         }
         self.received.clear();
+        self.check_bumps();
         let mut count = *total_count;
         let mut exceeded = false;
         let total = self.tasks.len();

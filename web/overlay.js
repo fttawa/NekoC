@@ -74,7 +74,7 @@ export class StageOverlay {
       if (!bubble) { bubble = document.createElement('div'); this.bubbles.set(a.id, bubble); this.root.append(bubble); }
       bubble.className = `neko-bubble${a.dialog.think ? ' think' : ''}`;
       if (bubble.textContent !== a.dialog.text) bubble.textContent = a.dialog.text;
-      const image = r.images.get(a.style), top = a.y + (image ? image.height * a.scale / 100 * (a.size_y ?? 100) / 100 / 2 : 0);
+      const image = r.spriteImage(a), top = a.y + (image ? image.height * a.scale / 100 * (a.size_y ?? 100) / 100 / 2 : 0);
       bubble.style.left = `${(a.x / r.width + .5) * 100}%`;
       bubble.style.top = `${Math.max(8, (.5 - top / r.height) * 100 - 2)}%`;
     }
