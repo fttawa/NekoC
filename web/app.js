@@ -1,4 +1,4 @@
-import {StageRenderer,decodeFrame} from './renderer.js';
+import {StageRenderer,decodeFrame,sensesColor} from './renderer.js';
 import {PlayerConnection} from './player.js';
 import {ProjectAudio} from './audio.js';
 import {StageInput} from './input.js';
@@ -166,7 +166,7 @@ function state(text){$('#runtime-state').replaceChildren(make('i'),document.crea
 async function stop(){await starting;running=false;audio.stop();epoch++;player?.close();player=null;await inFlight;await api('stop');started=false;input.reset();overlay?.reset();timerLabel.hidden=true;await renderer.load(project);renderEditor();renderPalette();state('就绪');}
 async function nextFrame(dt){
   const token=epoch,start=performance.now();let buffer;
-  try{const costumes=sendCostumes?renderer.costumeInfo():undefined;sendCostumes=false;
+  try{const costumes=sendCostumes?renderer.costumeInfo(sensesColor(project)):undefined;sendCostumes=false;
   buffer=await player.frame({dt,...input.take(),costumes,utc_offset:-new Date().getTimezoneOffset()});}catch(error){if(token!==epoch)return;throw error;}if(token!==epoch)return;
   pipeline.roundtripMs=performance.now()-start;
   const decodeStart=performance.now(),{frame,lines}=decodeFrame(buffer);pipeline.decodeMs=performance.now()-decodeStart;lastBytes=buffer.byteLength;lastFrame=frame;

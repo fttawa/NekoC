@@ -12,6 +12,7 @@ use tungstenite::{
 
 const EXTENSION_ORIGIN: &str = "chrome-extension://aghbhbjmpgklpbgoeopacommcdjmeghj";
 const MAX_PROJECT_BYTES: usize = 64 * 1024 * 1024;
+const MAX_FRAME_REQUEST_BYTES: usize = 32 * 1024 * 1024;
 
 #[derive(Parser)]
 #[command(about = "NekoC Web Studio — Rust bytecode VM + incremental WebGL2 renderer")]
@@ -259,12 +260,18 @@ fn frame_bytes(vm: &mut Engine, payload: &Value) -> Result<Vec<u8>> {
                 (w * h <= 512 * 512 && bits.len() as u64 >= (w * h).div_ceil(8))
                     .then_some((w as usize, h as usize, bits))
             })();
+            // RGB per mask cell, only sent when the project senses colours.
+            let rgb = mask.as_ref().and_then(|(w, h, _)| {
+                let rgb = base64_mask::decode(costume["rgb"].as_str()?)?;
+                (rgb.len() == w * h * 3).then_some(rgb)
+            });
             vm.set_costume(
                 id,
                 nekoc::engine::Costume {
                     width,
                     height,
                     mask,
+                    rgb,
                 },
             );
         }
@@ -377,9 +384,11 @@ fn player_socket(request: Request, project: Option<Value>) -> Result<()> {
                 check_project_shape(&project)?;
                 project
             };
+            // Frame requests are small, except the one-time costume info (opacity
+            // masks, plus per-cell RGB for colour sensing) which can reach megabytes.
             socket.set_config(|config| {
-                config.max_message_size = Some(64 * 1024);
-                config.max_frame_size = Some(64 * 1024);
+                config.max_message_size = Some(MAX_FRAME_REQUEST_BYTES);
+                config.max_frame_size = Some(MAX_FRAME_REQUEST_BYTES);
             });
             let program = Program::compile(&project)?;
             let stats = program.stats();

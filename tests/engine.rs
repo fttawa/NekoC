@@ -1753,6 +1753,7 @@ fn square(vm: &mut Engine, ring: bool) {
             width: 40.0,
             height: 40.0,
             mask: Some((4, 4, bits)),
+            rgb: None,
         },
     );
 }
@@ -2193,4 +2194,103 @@ fn text_effect_replaces_the_costume_until_the_costume_changes() {
     let back = sprite_in(&frames, id).unwrap();
     assert!(back.text.is_none());
     assert_eq!(back.scale, 50.0);
+}
+
+/// Solid costume colour: every cell of a 40x40 grid opaque with one RGB.
+fn solid(width: f64, height: f64, rgb: [u8; 3]) -> Costume {
+    Costume {
+        width,
+        height,
+        mask: Some((40, 40, vec![0xff; 200])),
+        rgb: Some(rgb.repeat(1600)),
+    }
+}
+fn color_test(sprite: &str, color: &str) -> Value {
+    json!({"type":"bump_into_color","fields":{"sprite":sprite,"color":color}})
+}
+
+#[test]
+fn touching_color_sees_backdrop_pen_and_other_actors_but_not_itself() {
+    let mut p = two_actor_project(
+        chain(vec![
+            wait(0.05),
+            set("a", color_test("--self", "#00ff00")),
+            set("b", color_test("--self", "#ff0000")),
+            set("c", color_test("--self", "#0000ff")),
+            set("d", color_test("--self", "#123456")),
+        ]),
+        (300.0, 0.0),
+    );
+    // The other actor draws a red stroke through the main actor's spot.
+    p["actors"]["actorsDict"]["other"]["nekoBlockJsonList"] = json!([{"id":"s2","type":"on_running_group_activated",
+    "next":chain(vec![
+        json!({"type":"self_set_pen_color","fields":{"color":"#ff0000"}}),
+        json!({"type":"self_set_pen_size","inputs":{"size":num(6.0)}}),
+        json!({"type":"self_move_to","inputs":{"x":num(-50.0),"y":num(0.0)}}),
+        json!({"type":"self_pen_down"}),
+        json!({"type":"self_move_to","inputs":{"x":num(50.0),"y":num(0.0)}}),
+        json!({"type":"self_pen_up"}),
+        json!({"type":"self_move_to","inputs":{"x":num(300.0),"y":num(0.0)}}),
+    ])}]);
+    p["actors"]["actorsDict"]["other"]["currentStyleId"] = json!("blue");
+    p["actors"]["actorsDict"]["other"]["styles"] = json!(["blue"]);
+    p["styles"]["stylesDict"]["blue"] = json!({"id":"blue","name":"blue"});
+    for name in ["a", "b", "c", "d"] {
+        p["variables"]["variablesDict"][name] = json!({"id":name,"value":-1});
+    }
+    let mut vm = Engine::new(Program::compile(&p).unwrap());
+    assert!(vm.program.uses_color);
+    vm.set_costume("nekoc-background", solid(900.0, 562.0, [0, 255, 0]));
+    vm.set_costume("nekoc-costume", solid(40.0, 40.0, [0, 0, 0]));
+    vm.set_costume("blue", solid(40.0, 40.0, [0, 0, 255]));
+    vm.start();
+    run_frames(&mut vm, 10);
+    // Green backdrop and red pen under self; the blue actor is far away and
+    // self's own black costume never counts.
+    assert_eq!(vm.numeric_variables(), &[1.0, 1.0, 0.0, 0.0]);
+
+    // Same project with the blue actor overlapping: now blue is seen too, and the
+    // official 5/5/4-bit tolerance accepts a nearby shade.
+    let mut q = p.clone();
+    q["actors"]["actorsDict"]["other"]["nekoBlockJsonList"] = json!([]);
+    q["actors"]["actorsDict"]["other"]["position"] = json!({"x":10,"y":0});
+    q["actors"]["actorsDict"]["nekoc-default-actor"]["nekoBlockJsonList"][0]["next"] = chain(vec![
+        wait(0.05),
+        set("a", color_test("--self", "#00ff00")),
+        set("b", color_test("--self", "#ff0000")),
+        set("c", color_test("--self", "#0306fb")),
+        set("d", color_test("--self", "#0000e0")),
+    ]);
+    let mut vm = Engine::new(Program::compile(&q).unwrap());
+    vm.set_costume("nekoc-background", solid(900.0, 562.0, [0, 255, 0]));
+    vm.set_costume("nekoc-costume", solid(40.0, 40.0, [0, 0, 0]));
+    vm.set_costume("blue", solid(40.0, 40.0, [0, 0, 255]));
+    vm.start();
+    run_frames(&mut vm, 10);
+    assert_eq!(vm.numeric_variables(), &[1.0, 0.0, 1.0, 0.0]);
+}
+
+#[test]
+fn pen_clear_removes_colour_and_other_projects_keep_no_raster() {
+    let p = var_project(
+        chain(vec![
+            json!({"type":"self_set_pen_color","fields":{"color":"#ff0000"}}),
+            json!({"type":"self_pen_down"}),
+            json!({"type":"self_go_forward","inputs":{"steps":num(1.0)}}),
+            json!({"type":"self_pen_up"}),
+            json!({"type":"self_set_position_x","inputs":{"value":num(0.0)}}),
+            json!({"type":"self_set_position_y","inputs":{"value":num(0.0)}}),
+            set("a", color_test("--self", "#ff0000")),
+            json!({"type":"clear_drawing"}),
+            set("b", color_test("--self", "#ff0000")),
+        ]),
+        &["a", "b"],
+    );
+    let mut vm = Engine::new(Program::compile(&p).unwrap());
+    vm.set_costume("nekoc-costume", solid(40.0, 40.0, [0, 0, 0]));
+    vm.start();
+    frame(&mut vm);
+    assert_eq!(vm.numeric_variables(), &[1.0, 0.0]);
+    let plain = project(movement(10.0));
+    assert!(!Program::compile(&plain).unwrap().uses_color);
 }

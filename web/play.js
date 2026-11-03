@@ -1,4 +1,4 @@
-import {StageRenderer,decodeFrame} from './renderer.js';
+import {StageRenderer,decodeFrame,sensesColor} from './renderer.js';
 import {PlayerConnection} from './player.js';
 import {ProjectAudio} from './audio.js';
 import {StageInput} from './input.js';
@@ -95,7 +95,7 @@ async function advance(dt){
   const token=epoch,start=performance.now();
   try{
     // Costume geometry is sent once per connection, after the renderer decoded it.
-    const costumes=sendCostumes?renderer.costumeInfo():undefined;sendCostumes=false;
+    const costumes=sendCostumes?renderer.costumeInfo(sensesColor(project)):undefined;sendCostumes=false;
     const buffer=await connection.frame({dt,...input.take(),costumes,budget_ms:settings.budget,coalesce:settings.coalesce===1,utc_offset:-new Date().getTimezoneOffset()});
     if(token!==epoch)return;
     roundtripMs=performance.now()-start;
