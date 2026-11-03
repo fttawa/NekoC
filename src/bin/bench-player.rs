@@ -24,6 +24,9 @@ struct Args {
     /// Project variable counting completed project frames, reported per second.
     #[arg(long)]
     frame_var: Option<String>,
+    /// Coalesce ticks without visible change (player option).
+    #[arg(long)]
+    coalesce: bool,
     #[arg(long)]
     out: Option<PathBuf>,
 }
@@ -67,7 +70,12 @@ fn main() -> Result<()> {
                 }
             }
             let t = Instant::now();
-            let frame = vm.advance(1.0 / 60.0, 500_000, budget)?;
+            let frame = vm.advance_with(
+                1.0 / 60.0,
+                500_000,
+                budget,
+                if args.coalesce { 16 } else { 1 },
+            )?;
             let after_vm = Instant::now();
             let encoded = nekoc::engine::encode_frame(&frame)?;
             let done = Instant::now();
