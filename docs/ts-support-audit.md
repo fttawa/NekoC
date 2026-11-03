@@ -1,6 +1,6 @@
 # TS 写法支持情况（实测）
 
-每条写法都用 `compile-ts-bcmkn` 编译，再放进 VM 运行，并核对运行结果（共 117 条用例）。目前 111 条结果正确；剩下 6 条是 Kitten N 没有对应积木的写法，编译时会直接报错并给出原因，不会生成错误的作品。
+每条写法都用 `compile-ts-bcmkn` 编译，再放进 VM 运行，并核对运行结果（共 156 条用例）。除了 Kitten N 根本没有对应概念的写法（对象、类实例、`typeof` 等，编译时直接报错并给出原因），其余全部结果正确。
 
 ## 能用，结果正确
 
@@ -20,6 +20,9 @@
   - `return c ? a : b` 会编译成"如果 c 返回 a，否则返回 b"，所以 `n < 2 ? n : fib(n - 1) + fib(n - 2)` 这种写法能正常结束。
   - 有返回值的函数只能用在表达式里，不能单独作为一条语句调用。
 - 箭头函数常量，如 `const f = (x) => x + 1`，规则同上。
+- 默认参数 `function f(x, y = 10)`。
+- 有返回值的函数也可以单独作为一条语句调用，返回值会被丢弃。
+- 不能给参数重新赋值（`n = n - 1`），编译时报错；先复制到局部变量。
 - `defineProc`、`param()`、`callProc`、`defineReporter`、`returnValue`、`callReporter`。
 
 ### 控制流
@@ -34,7 +37,9 @@
 - `switch`：编译成"如果 / 否则如果 / 否则"链。
   - 连续的空 `case` 会合并（`case 1: case 2:`）。
   - 每个 `case` 要以 `break` 或 `return` 结尾，不支持贯穿到下一个 `case`。
-- `try/catch`：只编译 try 里的部分。
+- `try / catch / finally`：try 块里直接写的 `throw` 会跳到 catch，`catch (e)` 拿到抛出的值（`new Error("x")` 拿到 `"x"`）。
+  - `throw` 写在 try 里的嵌套循环中、或写在被调用的函数里时，会停止脚本，不会被 catch 接住。
+  - 带 catch 的 try 块里不能用 `break` / `continue`。
 
 ### 表达式
 
@@ -51,25 +56,41 @@
 - `+` 拼接：只要一边能确定是字符串（字面量、模板字符串、字符串变量、`as string`、`join()` 等），整条 `+` 链都会编译成"连接"积木。两边都是 `getVar(...)` 这种不知道类型的值时按数字相加，需要拼接请写 `join()` 或 `as string`。
 - 模板字符串 `` `n=${x}` ``。
 - `.length`、`s[i]`、`s.charAt(i)`、`s.slice(a, b)`、`s.substring(a, b)`（不支持负数下标）、`s.includes(x)`、`s.split(sep)`。
+- `indexOf`、`lastIndexOf`、`startsWith`、`endsWith`、`replace`、`replaceAll`、`trim`、`trimStart`、`trimEnd`、`repeat`、`padStart`、`padEnd`、`toUpperCase`、`toLowerCase`（只转换英文字母）、`concat`。
+  - 这些方法没有对应积木，编译器会生成用循环实现的辅助自制积木，用到哪个才加哪个。
+  - 比较字符时用的是积木的"等于"，和积木本身的规则一致（例如数字形式的文本 `"1.0"` 和 `"1"` 视为相等）。
 - `join()`、`selectText()`、`length(x)`。
 
 ### 数组（列表值）
 
 - 用数组字面量、`split()`、`tempList()` 初始化的变量是列表。
 - 支持 `a[i]`（读第 i + 1 项）、`a[i] = v`、`a.length`、`a.push(x)`、`a.includes(x)`。
+- `map`、`filter`、`forEach`、`reduce`（需要初始值）、`find`（找不到时返回空字符串）、`findIndex`、`some`、`every`、`sort`（可带比较函数，原地排序）、`indexOf`、`lastIndexOf`、`join`、`concat`、`slice`、`reverse`、`pop`、`shift`、`unshift`、`splice`。可以链式调用，如 `a.map(...).filter(...).join(",")`。
+  - 回调里可以使用外面的变量；但不能使用外层自制积木（递归函数等）的参数，需要先复制到变量。
+  - 作为语句写的 `a.reverse()` 会把结果写回 `a`；写在表达式里的 `reverse()` 返回新数组，不改原数组。
 - 项目列表用 `appendList`、`listItem`、`listLength`、`deleteListItem` 等 API 或 `self.list("名字")`。
 
 ### 其他
 
 - `wait`、`broadcast` / `onMessage`、`sprite()` 块。
 
-## 编译时报错（Kitten N 没有对应积木）
+## 编译时报错（Kitten N 没有对应概念）
 
-- 对象字面量、对象解构、可选链 `?.`。
-- `class` 方法调用、`typeof`。
-- `toUpperCase` 等没有对应积木的字符串方法。
+- 对象字面量、对象解构、可选链 `?.`、`new X()`（包括 `Map`、`Set`、`Date`、`Promise`）、`class` 实例和方法调用。
+- `typeof`、`in`、`instanceof`。
+- 剩余参数 `...args`、给函数参数重新赋值。
 - 变量参与的位运算。
-- `continue` 写在嵌套的 `if` 里面、`switch` 贯穿到下一个 `case`、`case` 中间的 `break`。
+- `continue` 写在嵌套的 `if` 里面、`switch` 贯穿到下一个 `case`、`case` 中间的 `break`、带标签的 `continue`。
+- `JSON`、`setTimeout` 等宿主 API（用 `wait()` 代替定时器）。
+
+## 能编译，但和 JS 不完全一样
+
+- 三元两边都会先算；`Math.max` / `Math.min` 的参数会算两次。
+- `??` 按"或"处理（Kitten N 没有 null / undefined，没赋值的变量是 0）。
+- `for` 循环起点是小数时会被取整。
+- 两边都看不出类型时，`+` 按数字相加。
+- 所有 `let` 都是全局变量：同时运行的两个脚本用同名变量会互相影响，递归函数里的局部变量也是共用的。
+- 生成器 `function*`、`async` / `await`：`await` 会被直接去掉，不支持真正的异步。
 
 ## 写法建议
 

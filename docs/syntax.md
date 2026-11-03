@@ -128,7 +128,7 @@ try {
 }
 ```
 
-> **Note:** Try/catch compiles to the try body only. The catch block is ignored.
+> **Note:** Only throws written directly in the try block reach the catch block; others stop the script.
 
 ### Return Statements
 
@@ -144,7 +144,7 @@ function getValue() {
 throw new Error("Something went wrong");
 ```
 
-> **Note:** Throw compiles to a `stop` block.
+> **Note:** Outside a try block with catch, throw compiles to a `stop` block.
 
 ### Break Statements
 
@@ -302,6 +302,14 @@ Compiles to `logic_ternary`. As in the official runtime both branches are evalua
 
 `+` joins text when either side is statically a string (literal, template, string variable, `as string`, `join()`). Strings support `.length`, `s[i]`, `charAt`, `slice`, `substring`, `includes` and `split`. Variables initialised with an array literal (or `split()` / `tempList()`) hold a list value: `a[i]`, `a[i] = v`, `a.length`, `a.push(x)`, `a.includes(x)`.
 
+### Array and String Methods
+
+Methods without a Kitten N block compile to helper custom blocks built from loops (added only when used): arrays support `map`, `filter`, `forEach`, `reduce`, `find`, `findIndex`, `some`, `every`, `sort`, `indexOf`, `lastIndexOf`, `join`, `concat`, `slice`, `reverse`, `pop`, `shift`, `unshift` and `splice`; strings support `indexOf`, `lastIndexOf`, `startsWith`, `endsWith`, `replace`, `replaceAll`, `trim*`, `repeat`, `padStart`, `padEnd`, `toUpperCase`, `toLowerCase` and `concat`.
+
+### Default Parameters and try/catch
+
+`function f(x, y = 10)` fills omitted arguments. A `throw` written directly in a `try` block jumps to `catch (e)`; `e` receives the thrown value (the message for `new Error(...)`).
+
 ### Spread Operator
 
 ```ts
@@ -336,12 +344,7 @@ Tag is stripped, template is compiled normally.
 
 ### Instanceof / In Operators
 
-```ts
-obj instanceof Class;
-"prop" in obj;
-```
-
-Simplified to `true`.
+Not supported (Kitten N has no objects); they are compile errors.
 
 ## Control Flow Compilation
 
