@@ -218,6 +218,8 @@ enum ExprOp {
     Touching(usize, usize),
     /// (subject, edge: 0 any, 1 top, 2 bottom, 3 left, 4 right)
     OutOfBounds(usize, u8),
+    /// bump_into_color: (subject actor | camp target, 0xRRGGBB)
+    TouchingColor(usize, u32),
     Binary(Binary),
     Unary(Unary),
 }
@@ -482,6 +484,7 @@ static TEXT_COSTUME: Costume = Costume {
     width: 1.0,
     height: 1.0,
     mask: None,
+    rgb: None,
 };
 
 /// Costume size in pixels and an optional opacity mask (1 bit per cell,
@@ -491,6 +494,8 @@ pub struct Costume {
     pub width: f64,
     pub height: f64,
     pub mask: Option<(usize, usize, Vec<u8>)>,
+    /// RGB per mask cell (row-major, 3 bytes each), sent for color sensing.
+    pub rgb: Option<Vec<u8>>,
 }
 #[derive(Clone, Debug, Serialize)]
 pub struct ImageStamp {
@@ -603,6 +608,9 @@ pub struct Program {
     /// All scenes in project order; only `scenes[current]` runs at a time.
     pub scenes: Vec<SceneInfo>,
     pub initial_scene: usize,
+    /// The project uses bump_into_color: the VM keeps a pen raster and needs
+    /// costume colours from the viewer.
+    pub uses_color: bool,
 }
 
 #[derive(Debug, Serialize)]
@@ -669,6 +677,7 @@ impl Program {
                                 width,
                                 height,
                                 mask: None,
+                                rgb: None,
                             },
                         ))
                     })
@@ -698,6 +707,7 @@ impl Program {
                 backdrop: scene_value["currentStyleId"].as_str().map(str::to_owned),
                 scenes: vec![],
                 initial_scene: 0,
+                uses_color: false,
             },
             slots: BTreeMap::new(),
             locals: BTreeMap::new(),
@@ -1579,6 +1589,22 @@ impl Compiler {
                     None => self.actor_target(subject)?,
                 };
                 ExprOp::Touching(subject, other)
+            }
+            "bump_into_color" => {
+                let subject = field(b, "sprite");
+                let subject = match camp_target(subject) {
+                    Some(camp) => camp,
+                    None => self.actor_target(subject)?,
+                };
+                let color = field(b, "color").trim_start_matches('#');
+                let color = u32::from_str_radix(color, 16)
+                    .ok()
+                    .filter(|_| color.len() == 6)
+                    .with_context(|| {
+                        format!("invalid colour {} at {}", field(b, "color"), b["id"])
+                    })?;
+                self.program.uses_color = true;
+                ExprOp::TouchingColor(subject, color)
             }
             "out_of_boundary" => {
                 let subject = b["fields"]
@@ -2828,6 +2854,8 @@ pub struct Engine {
     /// Last on_bump_actor contact per (script, instance).
     bump_state: std::collections::HashMap<(usize, usize), Option<usize>>,
     has_bump_scripts: bool,
+    /// Per-scene RGBA pen raster at stage resolution (only when `uses_color`).
+    pen_rasters: Vec<Option<Vec<u8>>>,
     slots: Vec<f64>,
     lists: Vec<List>,
     values: Vec<Option<Cell>>,
@@ -2937,6 +2965,7 @@ impl Engine {
             .iter()
             .any(|s| matches!(s.event, ScriptEvent::Bump(..)));
         Self {
+            pen_rasters: vec![None; program.scenes.len()],
             bump_state: Default::default(),
             has_bump_scripts,
             program,
@@ -3054,6 +3083,7 @@ impl Engine {
         self.reset = true;
         self.cursor = 0;
         self.bump_state.clear();
+        self.pen_rasters.iter_mut().for_each(|r| *r = None);
         self.dispatch(|event| matches!(event, ScriptEvent::Start));
     }
     pub fn key(&mut self, key: &str) {
@@ -3421,6 +3451,23 @@ impl Engine {
                 };
                 u8::from(hit) as f64
             }
+            ExprOp::TouchingColor(subject, color) => {
+                let hit = if subject == usize::MAX {
+                    self.touching_color(actor, color)
+                } else if (TARGET_CAMP - 3..=TARGET_CAMP).contains(&subject) {
+                    let members: Vec<usize> =
+                        self.camp_members((TARGET_CAMP - subject) as u8).collect();
+                    members.into_iter().any(|i| self.touching_color(i, color))
+                } else {
+                    let origin = self.sprites[subject].origin;
+                    (0..self.sprites.len()).any(|i| {
+                        self.sprites[i].alive
+                            && self.sprites[i].origin == origin
+                            && self.touching_color(i, color)
+                    })
+                };
+                u8::from(hit) as f64
+            }
             ExprOp::OutOfBounds(subject, edge) => {
                 let subject = if subject == usize::MAX {
                     actor
@@ -3708,6 +3755,258 @@ impl Engine {
             for ix in 0..nx {
                 let x = l + (ix as f64 + 0.5) * (r - l) / nx as f64;
                 if self.contains(a, x, y) && self.contains(b, x, y) {
+                    return true;
+                }
+            }
+        }
+        false
+    }
+    /// Colour of sprite `i` at a stage point: (rgb, alpha) when opaque there.
+    /// Needs the viewer's costume colours; effects other than opacity are ignored.
+    fn color_at(&self, i: usize, x: f64, y: f64) -> Option<([f64; 3], f64)> {
+        let a = &self.sprites[i];
+        let (costume, w, h, angle) = self.geometry(i)?;
+        if w == 0.0 || h == 0.0 {
+            return None;
+        }
+        let (s, c) = angle.sin_cos();
+        let (dx, dy) = (x - a.x, y - a.y);
+        let u = (c * dx - s * dy) / w + 0.5;
+        let v = 0.5 - (s * dx + c * dy) / h;
+        self.costume_texel(costume, u, v)
+            .map(|rgb| (rgb, a.opacity.clamp(0.0, 1.0)))
+    }
+    /// Costume colour at normalised (u, v), None where transparent or unknown.
+    fn costume_texel(&self, costume: &Costume, u: f64, v: f64) -> Option<[f64; 3]> {
+        if !(0.0..1.0).contains(&u) || !(0.0..1.0).contains(&v) {
+            return None;
+        }
+        let (mw, mh, bits) = costume.mask.as_ref()?;
+        let (px, py) = ((u * *mw as f64) as usize, (v * *mh as f64) as usize);
+        let cell = py * mw + px;
+        if bits
+            .get(cell / 8)
+            .is_none_or(|byte| byte >> (cell % 8) & 1 == 0)
+        {
+            return None;
+        }
+        let rgb = costume.rgb.as_ref()?.get(cell * 3..cell * 3 + 3)?;
+        Some([f64::from(rgb[0]), f64::from(rgb[1]), f64::from(rgb[2])])
+    }
+    fn raster_size(&self) -> (usize, usize) {
+        (
+            self.program.width.round().clamp(1.0, 4096.0) as usize,
+            self.program.height.round().clamp(1.0, 4096.0) as usize,
+        )
+    }
+    fn raster_mut(&mut self) -> Option<&mut Vec<u8>> {
+        let (w, h) = self.raster_size();
+        let raster = self.pen_rasters.get_mut(self.current_scene)?;
+        Some(raster.get_or_insert_with(|| vec![0; w * h * 4]))
+    }
+    /// Source-over blend of straight RGBA (0..255 rgb, 0..1 alpha) into the raster.
+    fn blend_pixel(raster: &mut [u8], at: usize, rgb: [f64; 3], alpha: f64) {
+        let dst = &mut raster[at..at + 4];
+        let da = f64::from(dst[3]) / 255.0;
+        let out = alpha + da * (1.0 - alpha);
+        if out <= 0.0 {
+            return;
+        }
+        for k in 0..3 {
+            let mixed = (rgb[k] * alpha + f64::from(dst[k]) * da * (1.0 - alpha)) / out;
+            dst[k] = mixed.round().clamp(0.0, 255.0) as u8;
+        }
+        dst[3] = (out * 255.0).round() as u8;
+    }
+    /// Round-capped pen stroke into the scene's colour-sensing raster.
+    fn raster_line(&mut self, from: (f64, f64), to: (f64, f64), size: f64, color: [f32; 4]) {
+        let (w, h) = self.raster_size();
+        let (hw, hh) = (w as f64 / 2.0, h as f64 / 2.0);
+        let r = (size / 2.0).max(0.5);
+        let rgb = [
+            f64::from(color[0]) * 255.0,
+            f64::from(color[1]) * 255.0,
+            f64::from(color[2]) * 255.0,
+        ];
+        let alpha = f64::from(color[3]).clamp(0.0, 1.0);
+        // Stage -> pixel: x right, y down from the top-left corner.
+        let (ax, ay) = (from.0 + hw, hh - from.1);
+        let (bx, by) = (to.0 + hw, hh - to.1);
+        let x0 = (ax.min(bx) - r).floor().max(0.0) as usize;
+        let x1 = ((ax.max(bx) + r).ceil().max(0.0) as usize).min(w);
+        let y0 = (ay.min(by) - r).floor().max(0.0) as usize;
+        let y1 = ((ay.max(by) + r).ceil().max(0.0) as usize).min(h);
+        if x0 >= x1 || y0 >= y1 {
+            return;
+        }
+        let (ex, ey) = (bx - ax, by - ay);
+        let len2 = ex * ex + ey * ey;
+        let Some(raster) = self.raster_mut() else {
+            return;
+        };
+        for py in y0..y1 {
+            for px in x0..x1 {
+                let (cx, cy) = (px as f64 + 0.5 - ax, py as f64 + 0.5 - ay);
+                let t = if len2 > 0.0 {
+                    ((cx * ex + cy * ey) / len2).clamp(0.0, 1.0)
+                } else {
+                    0.0
+                };
+                let (dx, dy) = (cx - t * ex, cy - t * ey);
+                if dx * dx + dy * dy <= r * r {
+                    Self::blend_pixel(raster, (py * w + px) * 4, rgb, alpha);
+                }
+            }
+        }
+    }
+    /// An image stamp of `actor` into the colour-sensing raster.
+    fn raster_stamp(&mut self, actor: usize) {
+        if self.sprites[actor].text.is_some() {
+            return;
+        }
+        let (l, r, b, t) = self.bounds(actor);
+        let (w, h) = self.raster_size();
+        let (hw, hh) = (w as f64 / 2.0, h as f64 / 2.0);
+        let x0 = (l + hw).floor().max(0.0) as usize;
+        let x1 = ((r + hw).ceil().max(0.0) as usize).min(w);
+        let y0 = (hh - t).floor().max(0.0) as usize;
+        let y1 = ((hh - b).ceil().max(0.0) as usize).min(h);
+        let mut texels = vec![];
+        for py in y0..y1 {
+            for px in x0..x1 {
+                let (x, y) = (px as f64 + 0.5 - hw, hh - py as f64 - 0.5);
+                if let Some((rgb, alpha)) = self.color_at(actor, x, y) {
+                    texels.push(((py * w + px) * 4, rgb, alpha));
+                }
+            }
+        }
+        if let Some(raster) = self.raster_mut() {
+            for (at, rgb, alpha) in texels {
+                Self::blend_pixel(raster, at, rgb, alpha);
+            }
+        }
+    }
+    /// The rendered stage colour at a point without `skip` (official
+    /// color_match_texture_points renders the stage with the actor hidden).
+    fn stage_color(&self, x: f64, y: f64, skip: usize, layers: &[usize]) -> [f64; 3] {
+        let mut color = [255.0; 3];
+        let over = |color: &mut [f64; 3], rgb: [f64; 3], alpha: f64| {
+            for k in 0..3 {
+                color[k] = rgb[k] * alpha + color[k] * (1.0 - alpha);
+            }
+        };
+        let scene = &self.program.scenes[self.current_scene];
+        let stage = &self.sprites[scene.stage];
+        if let Some(costume) = stage
+            .style
+            .as_deref()
+            .and_then(|id| self.program.costumes.get(id))
+        {
+            let u = x / self.program.width + 0.5;
+            let v = 0.5 - y / self.program.height;
+            if let Some(rgb) = self.costume_texel(costume, u, v) {
+                over(&mut color, rgb, 1.0);
+            }
+        }
+        let (w, h) = self.raster_size();
+        let pen = self.pen_rasters[self.current_scene]
+            .as_ref()
+            .and_then(|raster| {
+                let px = (x + w as f64 / 2.0).floor();
+                let py = (h as f64 / 2.0 - y).floor();
+                if px < 0.0 || py < 0.0 || px >= w as f64 || py >= h as f64 {
+                    return None;
+                }
+                let at = (py as usize * w + px as usize) * 4;
+                let p = &raster[at..at + 4];
+                (p[3] > 0).then(|| {
+                    (
+                        [f64::from(p[0]), f64::from(p[1]), f64::from(p[2])],
+                        f64::from(p[3]) / 255.0,
+                    )
+                })
+            });
+        let layer = self.pen_layer.min(self.order.len());
+        for (i, &sprite) in self.order.iter().enumerate() {
+            if i == layer
+                && let Some((rgb, alpha)) = pen
+            {
+                over(&mut color, rgb, alpha);
+            }
+            if sprite == skip || !layers.contains(&sprite) {
+                continue;
+            }
+            if let Some((rgb, alpha)) = self.color_at(sprite, x, y) {
+                over(&mut color, rgb, alpha);
+            }
+        }
+        if layer >= self.order.len()
+            && let Some((rgb, alpha)) = pen
+        {
+            over(&mut color, rgb, alpha);
+        }
+        color
+    }
+    /// bump_into_color: sample the actor's opaque costume cells (at most ~2000)
+    /// and compare the stage beneath with the official 5/5/4-bit tolerance.
+    fn touching_color(&self, actor: usize, color: u32) -> bool {
+        let a = &self.sprites[actor];
+        if !a.alive || !a.visible || a.stage {
+            return false;
+        }
+        let Some((costume, w, h, angle)) = self.geometry(actor) else {
+            return false;
+        };
+        if w == 0.0 || h == 0.0 {
+            return false;
+        }
+        let target = [(color >> 16) as u8, (color >> 8) as u8, color as u8];
+        let matches = |c: [f64; 3]| {
+            let c = c.map(|v| v.round().clamp(0.0, 255.0) as u8);
+            c[0] & 248 == target[0] & 248
+                && c[1] & 248 == target[1] & 248
+                && c[2] & 240 == target[2] & 240
+        };
+        // Only actors whose bounds meet ours can cover a sample point.
+        let (l, r, b, t) = self.bounds(actor);
+        let layers: Vec<usize> = self
+            .order
+            .iter()
+            .copied()
+            .filter(|&j| {
+                if j == actor || !self.sprites[j].alive || !self.sprites[j].visible {
+                    return false;
+                }
+                let (jl, jr, jb, jt) = self.bounds(j);
+                jl <= r && jr >= l && jb <= t && jt >= b
+            })
+            .collect();
+        let (mw, mh) = costume
+            .mask
+            .as_ref()
+            .map_or((32, 32), |(mw, mh, _)| (*mw, *mh));
+        let step = ((mw * mh) as f64 / 2000.0).sqrt().ceil().max(1.0) as usize;
+        let (s, c) = angle.sin_cos();
+        let (hw, hh) = (self.program.width / 2.0, self.program.height / 2.0);
+        for cy in (0..mh).step_by(step) {
+            for cx in (0..mw).step_by(step) {
+                let (u, v) = ((cx as f64 + 0.5) / mw as f64, (cy as f64 + 0.5) / mh as f64);
+                if let Some((_, _, bits)) = &costume.mask {
+                    let cell = cy * mw + cx;
+                    if bits
+                        .get(cell / 8)
+                        .is_none_or(|byte| byte >> (cell % 8) & 1 == 0)
+                    {
+                        continue;
+                    }
+                }
+                let (lx, ly) = ((u - 0.5) * w, (0.5 - v) * h);
+                let x = a.x + c * lx + s * ly;
+                let y = a.y - s * lx + c * ly;
+                if x.abs() > hw || y.abs() > hh {
+                    continue;
+                }
+                if matches(self.stage_color(x, y, actor, &layers)) {
                     return true;
                 }
             }
@@ -4527,6 +4826,10 @@ impl Engine {
                 a.color[2],
                 a.color[3],
             ]);
+            if self.program.uses_color {
+                let (to, size, color) = ((a.x, a.y), a.size, a.color);
+                self.raster_line(old, to, size, color);
+            }
         }
     }
     /// Bounded frame work. Round-robin cursor prevents a long warp script starving
@@ -4892,6 +5195,9 @@ impl Engine {
             }
             Op::Size(e) => self.sprites[actor].size = self.eval(e, actor).clamp(1.0, 1000.0),
             Op::Clear => {
+                if let Some(raster) = self.pen_rasters.get_mut(self.current_scene) {
+                    *raster = None;
+                }
                 self.lines.clear();
                 self.text_stamps.clear();
                 self.image_stamps.clear();
@@ -5351,6 +5657,9 @@ impl Engine {
             }
             Op::ImageStamp => {
                 if !self.sprites[actor].stage && self.image_stamps.len() < 1024 {
+                    if self.program.uses_color {
+                        self.raster_stamp(actor);
+                    }
                     let a = &self.sprites[actor];
                     self.image_stamps.push(ImageStamp {
                         before_line: self.lines.len() / 9,

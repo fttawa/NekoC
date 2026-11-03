@@ -125,7 +125,7 @@ export class StageRenderer {
         const ctx=hit.getContext('2d',{willReadFrequently:true});ctx.drawImage(image,0,0);
         const rgba=ctx.getImageData(0,0,hit.width,hit.height).data,alpha=new Uint8Array(hit.width*hit.height);
         for(let i=0;i<alpha.length;i++)alpha[i]=rgba[i*4+3];
-        this.images.set(id,{texture,width:image.naturalWidth,height:image.naturalHeight,alpha});
+        this.images.set(id,{texture,width:image.naturalWidth,height:image.naturalHeight,alpha,rgb:cellColors(rgba,hit.width,hit.height)});
         this.stats.textureBytes += image.naturalWidth * image.naturalHeight * 4;
         this.dirty = true;
       } catch(error) { this.onError?.(`素材 ${style.name || id}: ${error.message}`); }
@@ -331,8 +331,9 @@ export class StageRenderer {
     this.drawTexture(image.texture,stamp.x,stamp.y,width,height,angle,[1,1,1,stamp.opacity??1],stamp.effects,[image.width,image.height]);
   }
 
-  // Costume sizes plus opacity masks (<=128x128, 1 bit per cell) for VM collisions.
-  costumeInfo(){
+  // Costume sizes plus opacity masks (<=128x128, 1 bit per cell) for VM collisions;
+  // with `colors`, also each cell's RGB for bump_into_color.
+  costumeInfo(colors=false){
     const out=[];
     for(const [id,image] of this.images){
       const mw=Math.min(image.width,128),mh=Math.min(image.height,128),bits=new Uint8Array(Math.ceil(mw*mh/8));
@@ -341,7 +342,9 @@ export class StageRenderer {
         if(image.alpha[sy*image.width+sx]>0){const bit=y*mw+x;bits[bit>>3]|=1<<(bit&7);}
       }
       let binary='';for(let i=0;i<bits.length;i+=8192)binary+=String.fromCharCode(...bits.subarray(i,i+8192));
-      out.push({id,width:image.width,height:image.height,mask_width:mw,mask_height:mh,mask:btoa(binary)});
+      const info={id,width:image.width,height:image.height,mask_width:mw,mask_height:mh,mask:btoa(binary)};
+      if(colors&&image.rgb){let text='';for(let i=0;i<image.rgb.length;i+=8190)text+=String.fromCharCode(...image.rgb.subarray(i,i+8190));info.rgb=btoa(text);}
+      out.push(info);
     }
     return out;
   }
@@ -398,6 +401,17 @@ export class StageRenderer {
 }
 
 const NO_EFFECTS=[0,0,0,0,0,0,0];
+// RGB at the centre of each costume-info cell (same <=128x128 grid as the mask).
+function cellColors(rgba,width,height){
+  const mw=Math.min(width,128),mh=Math.min(height,128),out=new Uint8Array(mw*mh*3);
+  for(let y=0;y<mh;y++)for(let x=0;x<mw;x++){
+    const sx=Math.min(width-1,Math.floor((x+.5)*width/mw)),sy=Math.min(height-1,Math.floor((y+.5)*height/mh)),i=(sy*width+sx)*4,o=(y*mw+x)*3;
+    out[o]=rgba[i];out[o+1]=rgba[i+1];out[o+2]=rgba[i+2];
+  }
+  return out;
+}
+/** Whether a project senses colours (bump_into_color), so costume colours are sent. */
+export function sensesColor(project){return JSON.stringify(project?.actors||{}).includes('"bump_into_color"')||JSON.stringify(project?.scenes||{}).includes('"bump_into_color"');}
 // Drawn size and angle: width/height percentages on top of scale, rotation type
 // 0 free, 1 left-right flip (negative width), 2 upright.
 export function spriteGeometry(a,image){
