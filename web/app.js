@@ -30,7 +30,8 @@ Object.assign(labels,{console_log:'输出到控制台',variables_set:'设置变�
 Object.assign(labels,{on_keydown:'当按下按键',timer:'计时器',set_timer_state:'控制计时器',traverse_number:'遍历数值',traverse_number_value:'当前遍历值',traverse_number_param:'遍历变量',self_set_pen_color_property:'设置画笔属性',self_change_pen_color_property:'改变画笔属性',stamp:'文字印章',text_join:'连接文本',delete_list_item:'删除列表项',list_append:'添加列表项',list_length:'列表长度',list_item:'读取列表项',pure_list_get:'列表',procedures_2_callnoreturn:'调用自制积木',repeat_forever_until:'重复直到条件成立'});
 Object.assign(labels,{script_variables:'定义脚本局部变量',script_variables_param:'局部变量名',script_variables_value:'读取局部变量',temporary_list:'临时列表',list_copy:'复制列表',list_insert_value:'插入列表项',replace_list_item:'替换列表项',text_select:'截取文字',convert_type:'转换类型',show_hide_timer:'显示 / 隐藏计时器',check_key:'按键是否按下'});
 const fieldLabels={steps:'步数',degrees:'角度',times:'次数',size:'大小',color:'颜色',console_log:'内容',value:'值',time:'秒',x:'X',y:'Y',scale:'大小',variable:'变量',key:'按键',scope:'属性',val:'值',align:'对齐',text:'文字',from:'从',to:'到',by:'步长',list:'列表',list_index:'序号',list_item_value:'内容'};
-const colors={event:['#ece9d9','#ddd7ba','#8c7d3f'],motion:['#e4edf4','#ccdce7','#4e7898'],control:['#ebe7f0','#d7cce3','#86709b'],pen:['#e6eee2','#cddfc3','#658052']};
+// Flat category colours: [fill, accent bar, ink].
+const colors={event:['#fdf1c7','#e9b824','#6b4e00'],motion:['#dcebfb','#3d8bd9','#1c4a7a'],control:['#ece4fb','#8b62d9','#43277a'],pen:['#d9f2e2','#2f9e5b','#1d5e37']};
 const symbols={event:'⚑',motion:'↗',control:'↻',pen:'⌁'};
 let project,owner='',selected='',dirty=false,undo=[],redo=[],renderer,input;
 let running=false,started=false,inFlight=null,epoch=0,lastTick=0,lastFrame=null,lastBytes=0;
@@ -182,9 +183,9 @@ function monitor(now){
   $('#roundtrip').textContent=`${pipeline.roundtripMs.toFixed(2)} ms`;$('#decode-time').textContent=`${pipeline.decodeMs.toFixed(2)} ms`;
   $('#gpu-time').textContent=renderer.stats.gpuMs==null?'不可用':`${renderer.stats.gpuMs.toFixed(2)} ms`;
   history.push(lastFrame?Number(lastFrame.execute_us)/1000:0);if(history.length>80)history.shift();
-  const canvas=$('#chart'),ctx=canvas.getContext('2d'),w=canvas.width,h=canvas.height;ctx.clearRect(0,0,w,h);ctx.strokeStyle='#edf0e8';ctx.lineWidth=1;
+  const canvas=$('#chart'),ctx=canvas.getContext('2d'),w=canvas.width,h=canvas.height;ctx.clearRect(0,0,w,h);ctx.strokeStyle='#e3e6df';ctx.lineWidth=1;
   for(let y=12;y<h;y+=16){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
-  ctx.beginPath();history.forEach((v,i)=>{const x=i/79*w,y=h-5-Math.min(v,8)/8*(h-10);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});ctx.strokeStyle='#8ba97c';ctx.lineWidth=1.5;ctx.stroke();
+  ctx.beginPath();history.forEach((v,i)=>{const x=i/79*w,y=h-5-Math.min(v,8)/8*(h-10);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});ctx.strokeStyle='#2f7d4e';ctx.lineWidth=2;ctx.stroke();
 }
 function loop(now){
   if(running&&!inFlight){const dt=Math.min((now-lastTick)/1000,.25);lastTick=now;inFlight=nextFrame(dt).catch(handleError).finally(()=>{inFlight=null;});}

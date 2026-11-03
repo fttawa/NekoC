@@ -1,2 +1,23 @@
-.embedded #player-shell{padding:0 12px;min-height:260px}.embedded .toolbar{height:72px;padding-top:23px;gap:8px}.embedded .identity{gap:8px}.embedded .mark{width:28px;height:28px;font-size:23px}.embedded .eyebrow{font-size:8px}.embedded h1{font-size:11px;max-width:24vw;margin-top:4px}.embedded .tools{gap:6px}.embedded button{padding:7px 9px;font-size:11px}.embedded .fps-display{margin:0}.embedded .fps-display strong{font-size:20px}.embedded .keyboard-hint{display:none}.embedded #viewport{margin:8px 0}.embedded .playbar{min-height:42px;padding-bottom:8px;gap:8px}.embedded .settings{padding:12px 0;gap:12px}.embedded .setting small{display:none}.embedded #notice{bottom:56px}.embedded #settings-toggle{font-size:11px}@media(max-width:600px){.embedded .toolbar{height:auto;min-height:110px}.embedded h1{max-width:70vw}.embedded .tools{width:100%}.embedded .identity{width:100%}.embedded .fps-display{margin-left:auto}.embedded .playbar #status{display:none}}
-.embedded #extension-fps{position:absolute;right:10px;bottom:10px;z-index:2;gap:6px;margin:0;padding:7px 10px;border:1px solid #52684b80;border-radius:7px;background:#101b16e8;box-shadow:0 2px 12px #0003;color:#a7bba3;pointer-events:none;user-select:none}.embedded #extension-fps strong{font-size:18px;min-width:22px}.embedded #extension-fps .engine-badge{font-size:8px;letter-spacing:1.5px;color:#b6d7a8;border-right:1px solid #42533e;padding-right:8px;margin-right:2px}.embedded #takeover-hint{position:absolute;left:50%;top:14px;transform:translateX(-50%);z-index:3;max-width:calc(100% - 24px);padding:10px 16px;border:1px solid #69835d;border-radius:8px;background:#18271ef2;box-shadow:0 4px 20px #0003;color:#d7edce;font-size:12px;white-space:nowrap;pointer-events:none}
+.embedded #player-shell{--gap:8px;height:100dvh;min-height:260px;padding:8px;grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr) auto auto;grid-template-areas:"brand" "stage" "controls" "settings"}
+.embedded #viewport{height:auto;aspect-ratio:auto;min-height:0}
+.embedded .tile{border-radius:14px}
+.embedded .timings-tile{display:none}
+.embedded .brand-tile{grid-template-columns:auto 1fr auto auto;padding:8px 10px;gap:10px}
+.embedded .brand-tile .primary{grid-column:auto;width:auto}
+.embedded .mark{width:28px;height:28px;font-size:18px;border-radius:9px}
+.embedded .eyebrow{font-size:9px}.embedded h1{font-size:13px;margin-top:2px}
+.embedded button{padding:7px 10px;font-size:12px}
+.embedded .controls-tile{flex-direction:row;align-items:center;padding:8px 10px;gap:10px}
+.embedded .play-controls{display:flex;gap:6px}
+.embedded .keyboard-hint{display:none}
+.embedded .settings-tile{padding:4px;max-height:45vh}
+.embedded .settings-head{padding:6px 8px}
+.embedded .setting small{display:none}
+.embedded #notice{bottom:52px}
+.embedded #extension-fps{position:absolute;right:10px;bottom:10px;z-index:2;display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:10px;background:#10261ae8;pointer-events:none;user-select:none}
+.embedded #extension-fps .eyebrow{font-size:9px}
+.embedded #extension-fps strong{font-size:18px;letter-spacing:0}
+.embedded #extension-fps .hint{display:none}
+.embedded #extension-fps .engine-badge{font-size:9px;font-weight:700;letter-spacing:1.5px;color:var(--accent)}
+.embedded #takeover-hint{position:absolute;left:50%;top:12px;transform:translateX(-50%);z-index:3;max-width:calc(100% - 24px);padding:9px 14px;border-radius:10px;background:#1f3627f2;color:#d7edce;font-size:12px;white-space:nowrap;pointer-events:none}
+@media(max-width:600px){.embedded #status{display:none}.embedded .eyebrow{display:none}}

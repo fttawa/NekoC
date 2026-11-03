@@ -27,10 +27,12 @@ async function json(url,limit=64*1024*1024){
 export async function loadWork(backend,status){
   document.body.classList.add('embedded');
   const reconnect=document.createElement('button');reconnect.textContent='↻ 重连';reconnect.id='reconnect';reconnect.onclick=()=>location.reload();
-  document.querySelector('.tools').prepend(reconnect);
+  document.querySelector('#import').before(reconnect);
+  // Compact embedded layout: performance settings start collapsed.
+  document.querySelector('#settings').hidden=true;document.querySelector('#settings-toggle').setAttribute('aria-expanded','false');
   const style=document.createElement('link');style.rel='stylesheet';style.href='./embedded.css';document.head.append(style);
   const viewport=document.querySelector('#viewport');
-  const fps=document.querySelector('.fps-display');fps.id='extension-fps';
+  const fps=document.querySelector('.fps-tile');fps.id='extension-fps';
   const badge=document.createElement('span');badge.className='engine-badge';badge.textContent='RUST';fps.prepend(badge);
   viewport.append(fps);
   const hint=document.createElement('div');hint.id='takeover-hint';hint.hidden=true;hint.setAttribute('role','status');viewport.append(hint);
