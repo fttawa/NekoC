@@ -223,6 +223,18 @@ $('#file').onchange=async e=>{try{await openFile(e.target.files[0]);}catch(e){ha
 window.addEventListener('dragover',e=>{if(e.dataTransfer.types.includes('Files')){e.preventDefault();document.body.classList.add('file-drag');}});
 window.addEventListener('dragleave',e=>{if(!e.relatedTarget)document.body.classList.remove('file-drag');});
 window.addEventListener('drop',e=>{e.preventDefault();document.body.classList.remove('file-drag');void openFile(e.dataTransfer.files[0]).catch(handleError);});
+$('#save-packed').onclick=async()=>{const button=$('#save-packed'),value=JSON.parse(JSON.stringify(project));button.disabled=true;
+  try{
+    if(extension(value)!=='bcmkn')throw Error('压缩导出目前只支持 Kitten N（.bcmkn）作品');
+    const {project:packed,report}=await(await api('export-packed',value)).json();
+    if(!report.lists.length){notify('没有可压缩的大文本列表，作品保持原样');log(`压缩导出：没有可压缩的列表${report.skipped.length?`（跳过：${report.skipped.map(([n,r])=>`${n} ${r}`).join('，')}）`:''}`);return;}
+    const url=URL.createObjectURL(new Blob([JSON.stringify(packed)],{type:'application/json'}));const a=make('a');a.href=url;a.download=`${value.projectName||'Untitled'}.bcmkn`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+    const mb=n=>n>=1048576?`${(n/1048576).toFixed(1)} MB`:`${Math.max(1,Math.round(n/1024))} KB`;
+    for(const list of report.lists)log(`压缩 ${list.name}：${list.items} 项，${mb(list.original_bytes)} → ${mb(list.packed_bytes)}`);
+    notify(`已压缩导出：${mb(report.original_bytes)} → ${mb(report.packed_bytes)}`);
+  }catch(error){notify(error.message);log(error.message,true);}
+  finally{button.disabled=false;}
+};
 $('#save').onclick=async()=>{const button=$('#save'),snapshot=JSON.stringify(project),value=JSON.parse(snapshot);button.disabled=true;
   try{const exported=await(await api('export',value)).json();const url=URL.createObjectURL(new Blob([JSON.stringify(exported,null,2)],{type:'application/json'}));const a=make('a');a.href=url;a.download=`${value.projectName||'Untitled'}.${extension(value)}`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);if(JSON.stringify(project)===snapshot){dirty=false;$('#dirty').textContent='已导出';}notify(`项目已导出为 .${extension(value)}`);}
   catch(e){handleError(e);}finally{button.disabled=false;}

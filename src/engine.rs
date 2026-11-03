@@ -633,7 +633,16 @@ impl Program {
             scripts: self.scripts.len(),
         }
     }
+    /// Compiles a project. A self-extracting packed project (see `crate::pack`)
+    /// is unpacked natively first instead of running its block decoder.
     pub fn compile(project: &Value) -> Result<Self> {
+        if crate::pack::is_packed(project) {
+            return Self::compile_exact(&crate::pack::unpack(project)?);
+        }
+        Self::compile_exact(project)
+    }
+    /// Compiles the project exactly as given (packed projects run their decoder).
+    pub fn compile_exact(project: &Value) -> Result<Self> {
         let scene = project
             .pointer("/scenes/currentSceneId")
             .and_then(Value::as_str)
@@ -2929,6 +2938,14 @@ impl Engine {
             .iter()
             .map(|l| l.borrow().iter().map(Cell::number).collect())
             .collect()
+    }
+    /// Current text of a global variable by id.
+    pub fn variable_text(&self, id: &str) -> String {
+        self.program
+            .variable_names
+            .iter()
+            .position(|n| n == id)
+            .map_or_else(String::new, |i| self.global_value(i).text())
     }
     pub fn list_values(&self, index: usize) -> Vec<Cell> {
         self.lists[index].borrow().clone()
