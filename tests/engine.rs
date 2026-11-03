@@ -1861,3 +1861,20 @@ fn monitors_image_stamps_audio_waits_swipes_and_drags() {
     assert_eq!(f.logs, ["swiped"]);
     assert_eq!((f.sprites[0].x, f.sprites[0].y), (12.0, -3.0));
 }
+
+#[test]
+fn number_shadow_variants_and_start_on_click_hat() {
+    let mut p = var_project(
+        set(
+            "v",
+            json!({"type":"math_number_with_slider","fields":{"NUM":42}}),
+        ),
+        &["v"],
+    );
+    p["actors"]["actorsDict"]["nekoc-default-actor"]["nekoBlockJsonList"][0]["type"] =
+        json!("start_on_click");
+    let mut vm = Engine::new(Program::compile(&p).unwrap());
+    vm.start();
+    frame(&mut vm);
+    assert_eq!(vm.numeric_variables()[0], 42.0);
+}

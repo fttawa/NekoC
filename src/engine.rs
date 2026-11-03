@@ -1218,6 +1218,13 @@ impl Compiler {
     fn expression(&mut self, b: &Value, depth: usize) -> Result<()> {
         ensure!(depth < 128, "expression nesting exceeds 128");
         let kind = b["type"].as_str().unwrap_or("");
+        // Slider/dial/servo number shadows carry the same NUM field.
+        let kind = if kind.starts_with("math_number_with_") || kind == "math_number_not_allow_text"
+        {
+            "math_number"
+        } else {
+            kind
+        };
         let op = match kind {
             "math_number" => {
                 let value = b["fields"].get("NUM").or_else(|| b["fields"].get("TEXT"));
@@ -1504,7 +1511,7 @@ impl Compiler {
                     self.value(input(root, "message")?)?,
                     kind == "self_listen_with_param",
                 ),
-                "on_running_group_activated" => ScriptEvent::Start,
+                "on_running_group_activated" | "start_on_click" => ScriptEvent::Start,
                 "start_as_a_mirror" | "start_as_clone" => ScriptEvent::CloneStart,
                 "on_swipe" => {
                     let direction = field(root, "type");
