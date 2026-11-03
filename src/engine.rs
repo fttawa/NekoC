@@ -11,7 +11,7 @@ use std::{
     time::{Duration, Instant},
 };
 pub use value::Cell;
-use value::{List, ListRef, Target, ValueExpr};
+use value::{List, ListRef, Span, Target, ValueExpr};
 
 #[derive(Clone, Copy, Debug)]
 enum Binary {
@@ -128,8 +128,8 @@ enum ExprOp {
 }
 #[derive(Clone, Copy, Debug)]
 struct Expr {
-    start: usize,
-    end: usize,
+    /// One past the postfix root; the subtree start is `expression_starts[end - 1]`.
+    end: u32,
 }
 #[derive(Clone, Copy, Debug)]
 struct RangeSpec {
@@ -264,6 +264,10 @@ enum ScriptEvent {
 pub struct Program {
     ops: Vec<Op>,
     expressions: Vec<ExprOp>,
+    /// For each postfix position, the first position of the subtree rooted there.
+    /// A binary node at `p` has its right operand at `p - 1` and its left operand at
+    /// `expression_starts[p - 1] - 1`, so evaluation needs no runtime value stack.
+    expression_starts: Vec<u32>,
     sources: Vec<String>,
     strings: Vec<String>,
     texts: Vec<Vec<TextPart>>,
@@ -271,6 +275,8 @@ pub struct Program {
     initial_lists: Vec<Vec<Cell>>,
     initial_values: Vec<Option<Cell>>,
     values: Vec<ValueExpr>,
+    constants: Vec<Cell>,
+    value_args: Vec<usize>,
     local_count: usize,
     scripts: Vec<Script>,
     initial: Vec<f64>,
@@ -319,6 +325,7 @@ impl Program {
             program: Self {
                 ops: vec![],
                 expressions: vec![],
+                expression_starts: vec![],
                 sources: vec![],
                 strings: vec![],
                 texts: vec![],
@@ -326,6 +333,8 @@ impl Program {
                 initial_lists: vec![],
                 initial_values: vec![],
                 values: vec![],
+                constants: vec![],
+                value_args: vec![],
                 local_count: 0,
                 scripts: vec![],
                 initial: vec![],
@@ -515,8 +524,28 @@ impl Program {
                 compiler.emit(Op::Return, definition);
             }
         }
+        compiler.program.expression_starts = expression_starts(&compiler.program.expressions)?;
         Ok(compiler.program)
     }
+}
+
+fn expression_starts(expressions: &[ExprOp]) -> Result<Vec<u32>> {
+    let mut pending = Vec::with_capacity(64);
+    let mut starts = Vec::with_capacity(expressions.len());
+    for (pc, op) in expressions.iter().enumerate() {
+        let operands = match op {
+            ExprOp::Binary(_) | ExprOp::Random => 2,
+            ExprOp::Unary(_) | ExprOp::ListItem(_, false) => 1,
+            _ => 0,
+        };
+        let mut start = pc as u32;
+        for _ in 0..operands {
+            start = pending.pop().context("malformed expression program")?;
+        }
+        starts.push(start);
+        pending.push(start);
+    }
+    Ok(starts)
 }
 
 struct Compiler {
@@ -573,12 +602,15 @@ impl Compiler {
                 *self
                     .lists
                     .get(field(b, "list"))
-                    .with_context(|| format!("unknown list {}", field(b, "list")))?,
+                    .with_context(|| format!("unknown list {}", field(b, "list")))?
+                    as u32,
             )),
-            Some("script_variables_value") => Ok(ListRef::Local(self.local(field(b, "TEXT")))),
+            Some("script_variables_value") => {
+                Ok(ListRef::Local(self.local(field(b, "TEXT")) as u32))
+            }
             Some("variables_get") => match self.target(field(b, "variable")) {
-                Target::Local(i) => Ok(ListRef::Local(i)),
-                Target::Global(i) => Ok(ListRef::Variable(i)),
+                Target::Local(i) => Ok(ListRef::Local(i as u32)),
+                Target::Global(i) => Ok(ListRef::Variable(i as u32)),
             },
             Some(
                 "text_split"
@@ -586,7 +618,7 @@ impl Compiler {
                 | "list_item"
                 | "procedures_2_parameter"
                 | "self_listen_value",
-            ) => Ok(ListRef::Expression(self.value(b)?)),
+            ) => Ok(ListRef::Expression(self.value(b)? as u32)),
             _ => bail!("expected list reference at {}", b["id"]),
         }
     }
@@ -611,7 +643,7 @@ impl Compiler {
     }
     fn value(&mut self, b: &Value) -> Result<usize> {
         let value = match b["type"].as_str().unwrap_or("") {
-            "broadcast_input" => ValueExpr::Constant(Cell::Text(field(b, "message").into())),
+            "broadcast_input" => self.constant(Cell::Text(field(b, "message").into())),
             "self_listen_value" => ValueExpr::Payload,
             "procedures_2_parameter" => {
                 ValueExpr::Parameter(*self.parameters.get(field(b, "param_name")).with_context(
@@ -627,17 +659,17 @@ impl Compiler {
                 self.value(input(b, "list_item_value")?)?,
                 b["type"] == "list_is_exist",
             ),
-            "text" => ValueExpr::Constant(Cell::Text(field(b, "TEXT").into())),
-            "get_styles" => ValueExpr::Constant(Cell::from_json(&b["fields"]["style_id"])?),
+            "text" => self.constant(Cell::Text(field(b, "TEXT").into())),
+            "get_styles" => self.constant(Cell::from_json(&b["fields"]["style_id"])?),
             "get_play_audio" | "get_stop_audio" => {
-                ValueExpr::Constant(Cell::from_json(&b["fields"]["audio_id"])?)
+                self.constant(Cell::from_json(&b["fields"]["audio_id"])?)
             }
             "text_split" => ValueExpr::Split(
                 self.value(input(b, "TEXT_TO_SPLIT")?)?,
                 self.value(input(b, "SPLIT_TEXT")?)?,
             ),
             "logic_boolean" => {
-                ValueExpr::Constant(Cell::Bool(field(b, "BOOL").eq_ignore_ascii_case("true")))
+                self.constant(Cell::Bool(field(b, "BOOL").eq_ignore_ascii_case("true")))
             }
             "logic_negate" => ValueExpr::Not(self.value(input(b, "logic")?)?),
             "logic_operation" => ValueExpr::Logic(
@@ -659,7 +691,7 @@ impl Compiler {
             }
             "variables_get" => {
                 if let Some(i) = self.lists.get(field(b, "variable")) {
-                    ValueExpr::List(ListRef::Global(*i))
+                    ValueExpr::List(ListRef::Global(*i as u32))
                 } else {
                     match self.target(field(b, "variable")) {
                         Target::Global(i) => ValueExpr::Global(i),
@@ -696,10 +728,15 @@ impl Compiler {
                     .into_iter()
                     .map(|(_, b)| self.value(b))
                     .collect::<Result<Vec<_>>>()?;
+                let span = Span {
+                    start: self.program.value_args.len() as u32,
+                    len: values.len() as u32,
+                };
+                self.program.value_args.extend(values);
                 if temporary {
-                    ValueExpr::Temporary(values)
+                    ValueExpr::Temporary(span)
                 } else {
-                    ValueExpr::Join(values)
+                    ValueExpr::Join(span)
                 }
             }
             "text_select" => ValueExpr::Select(
@@ -720,6 +757,10 @@ impl Compiler {
         let i = self.program.values.len();
         self.program.values.push(value);
         Ok(i)
+    }
+    fn constant(&mut self, value: Cell) -> ValueExpr {
+        self.program.constants.push(value);
+        ValueExpr::Constant(self.program.constants.len() - 1)
     }
     fn text(&mut self, b: &Value) -> Result<usize> {
         let mut parts = vec![];
@@ -812,9 +853,12 @@ impl Compiler {
                 self.program.expressions.push(ExprOp::Constant(n));
             }
         }
+        ensure!(
+            self.program.expressions.len() < u32::MAX as usize,
+            "too many expression operations"
+        );
         Ok(Expr {
-            start,
-            end: self.program.expressions.len(),
+            end: self.program.expressions.len() as u32,
         })
     }
     fn arg(&mut self, block: &Value, key: &str) -> Result<Expr> {
@@ -824,9 +868,12 @@ impl Compiler {
         let value = self.value(block)?;
         let start = self.program.expressions.len();
         self.program.expressions.push(ExprOp::Truth(value));
+        ensure!(
+            start < u32::MAX as usize - 1,
+            "too many expression operations"
+        );
         Ok(Expr {
-            start,
-            end: start + 1,
+            end: start as u32 + 1,
         })
     }
     fn expression(&mut self, b: &Value, depth: usize) -> Result<()> {
@@ -1576,7 +1623,6 @@ pub struct Engine {
     tasks: Vec<Task>,
     next_task_id: u64,
     received: BTreeSet<String>,
-    stack: Vec<f64>,
     lines: Vec<f32>,
     text_stamps: Vec<TextStamp>,
     logs: Vec<String>,
@@ -1651,7 +1697,6 @@ impl Engine {
             tasks: vec![],
             next_task_id: 0,
             received: BTreeSet::new(),
-            stack: Vec::with_capacity(128),
             lines: Vec::with_capacity(4096),
             text_stamps: vec![],
             logs: vec![],
@@ -1805,143 +1850,159 @@ impl Engine {
             }
         }
     }
+    #[inline]
     fn eval(&mut self, expr: Expr, actor: usize) -> f64 {
-        if expr.end == expr.start + 1 {
-            match self.program.expressions[expr.start] {
-                ExprOp::Constant(n) => return n,
-                ExprOp::Slot(s) => return self.slots[s],
-                ExprOp::Local(s) => return self.tasks[self.current_task].locals[s],
-                _ => {}
+        self.operand(expr.end as usize - 1, actor)
+    }
+    /// Evaluates the postfix subtree rooted at `pc`, left operand first. Kept small:
+    /// numeric leaves and arithmetic stay here, everything else is out of line.
+    fn node(&mut self, pc: usize, actor: usize) -> f64 {
+        match self.program.expressions[pc] {
+            ExprOp::Constant(n) => n,
+            ExprOp::Slot(s) => self.slots[s],
+            ExprOp::Binary(op) => {
+                let right = pc - 1;
+                let left = self.program.expression_starts[right] as usize - 1;
+                let a = self.operand(left, actor);
+                let b = self.operand(right, actor);
+                op.apply(a, b)
             }
+            ExprOp::Unary(op) => {
+                let a = self.operand(pc - 1, actor);
+                op.apply(a)
+            }
+            ExprOp::Local(s) => self.tasks[self.current_task].locals[s],
+            ExprOp::Value(i) => self.eval_value(i, actor).number(),
+            ExprOp::Truth(i) => u8::from(self.eval_value(i, actor).truth()) as f64,
+            _ => self.node_slow(pc, actor),
         }
-        let base = self.stack.len();
-        for pc in expr.start..expr.end {
-            match self.program.expressions[pc] {
-                ExprOp::Constant(n) => self.stack.push(n),
-                ExprOp::Slot(s) => self.stack.push(self.slots[s]),
-                ExprOp::Local(s) => self.stack.push(self.tasks[self.current_task].locals[s]),
-                ExprOp::Value(i) => {
-                    let v = self.eval_value(i, actor).number();
-                    self.stack.push(v);
+    }
+    #[inline(always)]
+    fn operand(&mut self, pc: usize, actor: usize) -> f64 {
+        match self.program.expressions[pc] {
+            ExprOp::Constant(n) => n,
+            ExprOp::Slot(s) => self.slots[s],
+            _ => self.node(pc, actor),
+        }
+    }
+    #[inline(never)]
+    fn node_slow(&mut self, pc: usize, actor: usize) -> f64 {
+        match self.program.expressions[pc] {
+            ExprOp::Constant(n) => n,
+            ExprOp::Slot(s) => self.slots[s],
+            ExprOp::Local(s) => self.tasks[self.current_task].locals[s],
+            ExprOp::Value(i) => self.eval_value(i, actor).number(),
+            ExprOp::Truth(i) => u8::from(self.eval_value(i, actor).truth()) as f64,
+            ExprOp::Key(i, down) => {
+                let keys = if down { &self.pressed } else { &self.released };
+                let key = &self.program.strings[i];
+                u8::from(if key == "any" {
+                    !keys.is_empty()
+                } else {
+                    keys.contains(key)
+                }) as f64
+            }
+            ExprOp::Coordinate(target, y) => {
+                let target = if target == usize::MAX { actor } else { target };
+                if y {
+                    self.sprites[target].y
+                } else {
+                    self.sprites[target].x
                 }
-                ExprOp::Truth(i) => {
-                    let v = self.eval_value(i, actor).truth();
-                    self.stack.push(u8::from(v) as f64);
-                }
-                ExprOp::Key(i, down) => {
-                    let keys = if down { &self.pressed } else { &self.released };
-                    let key = &self.program.strings[i];
-                    self.stack.push(u8::from(if key == "any" {
-                        !keys.is_empty()
-                    } else {
-                        keys.contains(key)
-                    }) as f64);
-                }
-                ExprOp::Coordinate(target, y) => {
-                    let target = if target == usize::MAX { actor } else { target };
-                    self.stack.push(if y {
-                        self.sprites[target].y
-                    } else {
-                        self.sprites[target].x
-                    });
-                }
-                ExprOp::Orientation(target) => {
-                    let target = if target == usize::MAX { actor } else { target };
-                    self.stack.push(self.sprites[target].direction);
-                }
-                ExprOp::Scale(target) => {
-                    let target = if target == usize::MAX { actor } else { target };
-                    self.stack.push(self.sprites[target].scale);
-                }
-                ExprOp::Costume(target) => {
-                    let target = if target == usize::MAX { actor } else { target };
-                    let sprite = &self.sprites[target];
-                    self.stack.push(
-                        sprite
-                            .styles
-                            .iter()
-                            .position(|id| Some(id) == sprite.style.as_ref())
-                            .map_or(0.0, |i| (i + 1) as f64),
-                    );
-                }
-                ExprOp::X => self.stack.push(self.sprites[actor].x),
-                ExprOp::Y => self.stack.push(self.sprites[actor].y),
-                ExprOp::Direction => self.stack.push(self.sprites[actor].direction),
-                ExprOp::Timer => self.stack.push(self.timer),
-                ExprOp::Mouse(y) => self.stack.push(self.mouse[usize::from(y)]),
-                ExprOp::TextLength(i) => {
-                    let length = self.eval_value(i, actor).text().encode_utf16().count();
-                    self.stack.push(length as f64);
-                }
-                ExprOp::Random => {
-                    let b = (self.stack.pop().unwrap() + 0.5).floor();
-                    let a = (self.stack.pop().unwrap() + 0.5).floor();
-                    self.random_state ^= self.random_state << 13;
-                    self.random_state ^= self.random_state >> 7;
-                    self.random_state ^= self.random_state << 17;
-                    let unit = (self.random_state >> 11) as f64 / ((1u64 << 53) as f64);
-                    self.stack.push((unit * (b - a + 1.0)).floor() + a);
-                }
-                ExprOp::Range(depth) => {
-                    let ranges = &self.tasks[self.current_task].ranges;
-                    self.stack.push(ranges[ranges.len() - 1 - depth].value);
-                }
-                ExprOp::ListLength(i) => {
-                    let n = self
-                        .resolve_list(i)
-                        .map_or(f64::NAN, |v| v.borrow().len() as f64);
-                    self.stack.push(n);
-                }
-                ExprOp::ListItem(i, last) => {
-                    let at = if last {
-                        None
-                    } else {
-                        Some(self.stack.pop().unwrap())
+            }
+            ExprOp::Orientation(target) => {
+                let target = if target == usize::MAX { actor } else { target };
+                self.sprites[target].direction
+            }
+            ExprOp::Scale(target) => {
+                let target = if target == usize::MAX { actor } else { target };
+                self.sprites[target].scale
+            }
+            ExprOp::Costume(target) => {
+                let target = if target == usize::MAX { actor } else { target };
+                let sprite = &self.sprites[target];
+                sprite
+                    .styles
+                    .iter()
+                    .position(|id| Some(id) == sprite.style.as_ref())
+                    .map_or(0.0, |i| (i + 1) as f64)
+            }
+            ExprOp::X => self.sprites[actor].x,
+            ExprOp::Y => self.sprites[actor].y,
+            ExprOp::Direction => self.sprites[actor].direction,
+            ExprOp::Timer => self.timer,
+            ExprOp::Mouse(y) => self.mouse[usize::from(y)],
+            ExprOp::TextLength(i) => self.eval_value(i, actor).text().encode_utf16().count() as f64,
+            ExprOp::Random => {
+                let right = pc - 1;
+                let left = self.program.expression_starts[right] as usize - 1;
+                let a = (self.node(left, actor) + 0.5).floor();
+                let b = (self.node(right, actor) + 0.5).floor();
+                self.random_state ^= self.random_state << 13;
+                self.random_state ^= self.random_state >> 7;
+                self.random_state ^= self.random_state << 17;
+                let unit = (self.random_state >> 11) as f64 / ((1u64 << 53) as f64);
+                (unit * (b - a + 1.0)).floor() + a
+            }
+            ExprOp::Range(depth) => {
+                let ranges = &self.tasks[self.current_task].ranges;
+                ranges[ranges.len() - 1 - depth].value
+            }
+            ExprOp::ListLength(i) => self
+                .resolve_list(i)
+                .map_or(f64::NAN, |v| v.borrow().len() as f64),
+            ExprOp::ListItem(i, last) => {
+                let at = if last {
+                    None
+                } else {
+                    Some(self.node(pc - 1, actor))
+                };
+                self.resolve_list(i).map_or(f64::NAN, |v| {
+                    let values = v.borrow();
+                    let at = match at {
+                        None => values.len().checked_sub(1),
+                        Some(at) => list_index(at),
                     };
-                    let n = self.resolve_list(i).map_or(f64::NAN, |v| {
-                        let values = v.borrow();
-                        let at = if last {
-                            values.len().checked_sub(1)
-                        } else {
-                            list_index(at.unwrap())
-                        };
-                        at.and_then(|i| values.get(i))
-                            .map_or(f64::NAN, Cell::number)
-                    });
-                    self.stack.push(n);
-                }
-                ExprOp::Binary(op) => {
-                    let b = self.stack.pop().unwrap();
-                    let a = self.stack.pop().unwrap();
-                    self.stack.push(op.apply(a, b));
-                }
-                ExprOp::Unary(op) => {
-                    let a = self.stack.pop().unwrap();
-                    self.stack.push(op.apply(a));
-                }
+                    at.and_then(|i| values.get(i))
+                        .map_or(f64::NAN, Cell::number)
+                })
+            }
+            ExprOp::Binary(op) => {
+                let right = pc - 1;
+                let left = self.program.expression_starts[right] as usize - 1;
+                let a = self.node(left, actor);
+                let b = self.node(right, actor);
+                op.apply(a, b)
+            }
+            ExprOp::Unary(op) => {
+                let a = self.node(pc - 1, actor);
+                op.apply(a)
             }
         }
-        let result = self.stack.pop().unwrap();
-        self.stack.truncate(base);
-        result
     }
+    #[inline]
     fn global_value(&self, i: usize) -> Cell {
-        self.values[i]
-            .clone()
-            .unwrap_or(Cell::Number(self.slots[i]))
+        match &self.values[i] {
+            Some(value) => value.clone(),
+            None => Cell::Number(self.slots[i]),
+        }
     }
+    #[inline]
     fn local_value(&self, i: usize) -> Cell {
         let t = &self.tasks[self.current_task];
-        t.local_values[i]
-            .clone()
-            .unwrap_or(Cell::Number(t.locals[i]))
+        match &t.local_values[i] {
+            Some(value) => value.clone(),
+            None => Cell::Number(t.locals[i]),
+        }
     }
     fn resolve_list(&mut self, list: ListRef) -> Option<List> {
         let value = match list {
-            ListRef::Global(i) => return Some(self.lists[i].clone()),
-            ListRef::Local(i) => self.local_value(i),
-            ListRef::Variable(i) => self.global_value(i),
-            ListRef::Expression(i) => self.eval_value(i, self.tasks[self.current_task].actor),
+            ListRef::Global(i) => return Some(self.lists[i as usize].clone()),
+            ListRef::Local(i) => self.local_value(i as usize),
+            ListRef::Variable(i) => self.global_value(i as usize),
+            ListRef::Expression(i) => {
+                self.eval_value(i as usize, self.tasks[self.current_task].actor)
+            }
         };
         if let Cell::List(v) = value {
             Some(v)
@@ -1952,9 +2013,9 @@ impl Engine {
     }
     fn eval_value(&mut self, i: usize, actor: usize) -> Cell {
         // Only strings/list references are cloned; numeric expressions stay unboxed.
-        match self.program.values[i].clone() {
+        match self.program.values[i] {
             ValueExpr::Number(e) => Cell::Number(self.eval(e, actor)),
-            ValueExpr::Constant(v) => v,
+            ValueExpr::Constant(v) => self.program.constants[v].clone(),
             ValueExpr::Global(i) => self.global_value(i),
             ValueExpr::Local(i) => self.local_value(i),
             ValueExpr::Parameter(i) => self.tasks[self.current_task]
@@ -1997,12 +2058,14 @@ impl Engine {
                         .unwrap_or(Cell::Number(f64::NAN))
                 })
             }
-            ValueExpr::Temporary(parts) => Cell::List(Rc::new(RefCell::new(
-                parts
-                    .into_iter()
-                    .map(|i| self.eval_value(i, actor))
-                    .collect(),
-            ))),
+            ValueExpr::Temporary(parts) => {
+                let mut items = Vec::with_capacity(parts.len as usize);
+                for k in parts.start..parts.start + parts.len {
+                    let part = self.program.value_args[k as usize];
+                    items.push(self.eval_value(part, actor));
+                }
+                Cell::List(Rc::new(RefCell::new(items)))
+            }
             ValueExpr::Split(text, separator) => {
                 let text = self.eval_value(text, actor).text();
                 let separator = self.eval_value(separator, actor).text();
@@ -2015,13 +2078,14 @@ impl Engine {
                 };
                 Cell::List(Rc::new(RefCell::new(parts)))
             }
-            ValueExpr::Join(parts) => Cell::Text(
-                parts
-                    .into_iter()
-                    .map(|i| self.eval_value(i, actor).text())
-                    .collect::<String>()
-                    .into(),
-            ),
+            ValueExpr::Join(parts) => {
+                let mut text = String::new();
+                for k in parts.start..parts.start + parts.len {
+                    let part = self.program.value_args[k as usize];
+                    self.eval_value(part, actor).append_text(&mut text);
+                }
+                Cell::Text(text.into())
+            }
             ValueExpr::Convert(i, number) => {
                 let v = self.eval_value(i, actor);
                 if number {
@@ -2098,7 +2162,7 @@ impl Engine {
         for i in 0..self.program.texts[text].len() {
             match self.program.texts[text][i] {
                 TextPart::Literal(index) => value.push_str(&self.program.strings[index]),
-                TextPart::Value(i) => value.push_str(&self.eval_value(i, actor).text()),
+                TextPart::Value(i) => self.eval_value(i, actor).append_text(&mut value),
             }
         }
         value
@@ -2165,8 +2229,7 @@ impl Engine {
                 let op = self.program.ops[pc];
                 self.tasks[index].pc += 1;
                 count += 1;
-                let old = (self.sprites[actor].x, self.sprites[actor].y);
-                if matches!(
+                let moves = matches!(
                     op,
                     Op::Move(_)
                         | Op::Position(_, _)
@@ -2174,14 +2237,25 @@ impl Engine {
                         | Op::Y(_)
                         | Op::AddX(_)
                         | Op::AddY(_)
-                        | Op::Turn(_)
-                        | Op::Direction(_)
-                        | Op::Scale(_)
-                        | Op::Visible(_)
-                        | Op::Style(_)
-                        | Op::NextStyle(_)
-                        | Op::Opacity(_)
-                ) {
+                        | Op::Pen(true)
+                );
+                let old = if moves {
+                    (self.sprites[actor].x, self.sprites[actor].y)
+                } else {
+                    (0.0, 0.0)
+                };
+                if (moves && !matches!(op, Op::Pen(_)))
+                    || matches!(
+                        op,
+                        Op::Turn(_)
+                            | Op::Direction(_)
+                            | Op::Scale(_)
+                            | Op::Visible(_)
+                            | Op::Style(_)
+                            | Op::NextStyle(_)
+                            | Op::Opacity(_)
+                    )
+                {
                     self.dirty[actor] = true;
                 }
                 match op {
@@ -2564,11 +2638,12 @@ impl Engine {
                         }
                     }
                     Op::Call(procedure, args) => {
-                        let parameters = self.program.call_arguments[args]
-                            .clone()
-                            .into_iter()
-                            .map(|i| self.eval_value(i, actor))
-                            .collect();
+                        let count = self.program.call_arguments[args].len();
+                        let mut parameters = Vec::with_capacity(count);
+                        for k in 0..count {
+                            let value = self.program.call_arguments[args][k];
+                            parameters.push(self.eval_value(value, actor));
+                        }
                         let task = &mut self.tasks[index];
                         ensure!(
                             task.calls.len() < 10_000,
@@ -2594,10 +2669,13 @@ impl Engine {
                         break;
                     }
                 }
-                if let Some(error) = self.value_error.take() {
+                if self.value_error.is_some() {
+                    let error = self.value_error.take().unwrap_or_default();
                     bail!("{error} at block {}", self.program.sources[pc]);
                 }
-                if !self.sprites[actor].x.is_finite() || !self.sprites[actor].y.is_finite() {
+                if moves
+                    && (!self.sprites[actor].x.is_finite() || !self.sprites[actor].y.is_finite())
+                {
                     bail!("non-finite position at block {}", self.program.sources[pc]);
                 }
             }
@@ -2650,6 +2728,23 @@ impl Engine {
             budget_yield: exceeded,
         })
     }
+}
+
+/// Wire format: u32 LE metadata length (padded to 4 bytes), JSON metadata, f32 LE lines.
+pub fn encode_frame(frame: &Frame) -> Result<Vec<u8>> {
+    let mut bytes = Vec::with_capacity(1024 + frame.lines.len() * 4);
+    bytes.extend_from_slice(&[0; 4]);
+    serde_json::to_writer(&mut bytes, frame)?;
+    while bytes.len() % 4 != 0 {
+        bytes.push(b' ');
+    }
+    let length = (bytes.len() - 4) as u32;
+    bytes[..4].copy_from_slice(&length.to_le_bytes());
+    bytes.reserve(frame.lines.len() * 4);
+    for f in &frame.lines {
+        bytes.extend_from_slice(&f.to_le_bytes());
+    }
+    Ok(bytes)
 }
 
 fn split_token(text: &str) -> Cell {

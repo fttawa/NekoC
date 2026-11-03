@@ -241,17 +241,7 @@ fn frame_bytes(vm: &mut Engine, payload: &Value) -> Result<Vec<u8>> {
         500_000,
         frame_budget(payload),
     )?;
-    let mut bytes = Vec::with_capacity(1024 + frame.lines.len() * 4);
-    bytes.extend_from_slice(&[0; 4]);
-    serde_json::to_writer(&mut bytes, &frame)?;
-    while bytes.len() % 4 != 0 {
-        bytes.push(b' ');
-    }
-    let length = (bytes.len() - 4) as u32;
-    bytes[..4].copy_from_slice(&length.to_le_bytes());
-    for f in &frame.lines {
-        bytes.extend_from_slice(&f.to_le_bytes());
-    }
+    let bytes = nekoc::engine::encode_frame(&frame)?;
     vm.recycle_lines(frame.lines);
     Ok(bytes)
 }
@@ -322,6 +312,22 @@ fn player_socket(request: Request, project: Option<Value>) -> Result<()> {
     });
     Ok(())
 }
+/// Frames are request/response: Nagle would hold each response's trailing partial
+/// segment until the browser's delayed ACK (40-200ms) for multi-segment pen frames.
+/// Accepted sockets inherit TCP_NODELAY from the listener (Linux, Windows).
+fn listener(port: u16) -> Result<std::net::TcpListener> {
+    use socket2::{Domain, Protocol, Socket, Type};
+    let address = std::net::SocketAddr::from(([127, 0, 0, 1], port));
+    let socket = Socket::new(Domain::IPV4, Type::STREAM, Some(Protocol::TCP))?;
+    #[cfg(unix)]
+    socket.set_reuse_address(true)?;
+    socket.set_tcp_nodelay(true)?;
+    socket
+        .bind(&address.into())
+        .with_context(|| format!("cannot listen on {address}"))?;
+    socket.listen(128)?;
+    Ok(socket.into())
+}
 fn main() -> Result<()> {
     let args = Args::parse();
     let initial = if let Some(path) = args.input {
@@ -330,7 +336,8 @@ fn main() -> Result<()> {
         serde_json::from_str(include_str!("../../samples/native-studio.bcmkn"))?
     };
     let (mut project, _) = import_project(initial)?;
-    let server = Server::http(("127.0.0.1", args.port)).map_err(|e| anyhow::anyhow!("{e}"))?;
+    let server =
+        Server::from_listener(listener(args.port)?, None).map_err(|e| anyhow::anyhow!("{e}"))?;
     println!(
         "NekoC Web Studio: http://127.0.0.1:{}\nRust VM / binary frame transport / WebGL2 persistent pen surface",
         args.port
