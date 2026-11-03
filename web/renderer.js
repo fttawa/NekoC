@@ -21,9 +21,23 @@ precision highp float;
 uniform vec2 stageSize;uniform vec2 position;uniform vec2 dimensions;uniform float angle;
 out vec2 uv;${QUAD}
 void main(){uv=corner();vec2 p=(uv-.5)*dimensions;float c=cos(angle),s=sin(angle);p=mat2(c,-s,s,c)*p+position;gl_Position=vec4(p/(stageSize*.5),0,1);}`;
+// Sprite effects by native scope: fxA = (color, brightness, pixelate, ripple),
+// fxB = (twist, grayscale). Textures are premultiplied; colour effects unpremultiply.
 const TEXTURE_FRAGMENT = `#version 300 es
-precision highp float;uniform sampler2D image;uniform vec4 tint;in vec2 uv;out vec4 outColor;
-void main(){outColor=texture(image,uv)*vec4(tint.rgb*tint.a,tint.a);}`;
+precision highp float;uniform sampler2D image;uniform vec4 tint;uniform vec4 fxA;uniform vec2 fxB;uniform vec2 texSize;in vec2 uv;out vec4 outColor;
+vec3 hsv(vec3 c){vec4 K=vec4(0.,-1./3.,2./3.,-1.);vec4 p=mix(vec4(c.bg,K.wz),vec4(c.gb,K.xy),step(c.b,c.g));vec4 q=mix(vec4(p.xyw,c.r),vec4(c.r,p.yzx),step(p.x,c.r));float d=q.x-min(q.w,q.y);return vec3(abs(q.z+(q.w-q.y)/(6.*d+1e-10)),d/(q.x+1e-10),q.x);}
+vec3 rgb(vec3 c){vec3 p=abs(fract(c.xxx+vec3(1.,2./3.,1./3.))*6.-3.);return c.z*mix(vec3(1.),clamp(p-1.,0.,1.),c.y);}
+void main(){vec2 p=uv;
+if(fxB.x!=0.){vec2 d=p-.5;float r=length(d)*2.;float a=radians(fxB.x)*max(0.,1.-r);float s=sin(a),c=cos(a);p=.5+mat2(c,-s,s,c)*d;}
+if(fxA.w!=0.){p+=vec2(sin(p.y*25.),sin(p.x*25.))*fxA.w/2000.;}
+if(abs(fxA.z)>=1.){vec2 cell=max(vec2(1.),vec2(abs(fxA.z)/10.+1.));vec2 n=texSize/cell;p=(floor(p*n)+.5)/n;}
+vec4 c=(p.x<0.||p.y<0.||p.x>1.||p.y>1.)?vec4(0.):texture(image,p);
+if(c.a>0.&&(fxA.x!=0.||fxB.y>0.)){vec3 r=c.rgb/c.a;
+if(fxA.x!=0.){vec3 h=hsv(r);h.x=fract(h.x+fxA.x/200.);r=rgb(h);}
+if(fxB.y>0.){r=mix(r,vec3(dot(r,vec3(.299,.587,.114))),clamp(fxB.y/100.,0.,1.));}
+c.rgb=r*c.a;}
+if(fxA.y!=0.){c.rgb=clamp(c.rgb+fxA.y/100.*c.a,0.,c.a);}
+outColor=c*vec4(tint.rgb*tint.a,tint.a);}`;
 
 function program(gl, vertex, fragment) {
   const shaders = [[gl.VERTEX_SHADER, vertex], [gl.FRAGMENT_SHADER, fragment]].map(([type, source]) => {
@@ -44,7 +58,7 @@ export class StageRenderer {
     if (!gl) throw Error('需要支持 WebGL 2 的浏览器。');
     this.gl = gl; this.pen = program(gl, PEN_VERTEX, PEN_FRAGMENT); this.texture = program(gl, TEXTURE_VERTEX, TEXTURE_FRAGMENT);
     this.penSize = gl.getUniformLocation(this.pen, 'stageSize');
-    this.uniform = Object.fromEntries(['stageSize', 'position', 'dimensions', 'angle', 'image', 'tint'].map(k => [k, gl.getUniformLocation(this.texture, k)]));
+    this.uniform = Object.fromEntries(['stageSize', 'position', 'dimensions', 'angle', 'image', 'tint', 'fxA', 'fxB', 'texSize'].map(k => [k, gl.getUniformLocation(this.texture, k)]));
     this.vao = gl.createVertexArray(); this.buffer = gl.createBuffer(); this.bufferCapacity = 0;
     gl.bindVertexArray(this.vao); gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
     for (const [location, count, offset] of [[0,4,0], [1,1,16], [2,4,20]]) {
@@ -168,7 +182,7 @@ export class StageRenderer {
     this.collectGpuTimes();
     const layerChanged=Number.isInteger(frame.pen_layer)&&frame.pen_layer!==this.penLayer;
     if(layerChanged)this.penLayer=frame.pen_layer;
-    const hasDrawing=frame.clear||frame.reset||lines.length||stamps.length||frame.sprites.length||layerChanged;
+    const hasDrawing=frame.clear||frame.reset||lines.length||stamps.length||frame.sprites.length||layerChanged||frame.order||frame.removed?.length;
     const query=hasDrawing&&this.gpuTimer&&this.gpuQueries.length<4?gl.createQuery():null;
     if(query)gl.beginQuery(this.gpuTimer.TIME_ELAPSED_EXT,query);
     try {
@@ -190,10 +204,13 @@ export class StageRenderer {
     gl.bindFramebuffer(gl.FRAMEBUFFER,null);
     let changed=!!frame.reset||layerChanged;
     if(frame.reset){this.sprites=[];this.spriteIndices.clear();}
+    // Deleted clones and layer changes (the VM sends ids back to front).
+    if(frame.removed?.length){const gone=new Set(frame.removed);this.sprites=this.sprites.filter(a=>!gone.has(a.id));this.spriteIndices=new Map(this.sprites.map((a,i)=>[a.id,i]));changed=true;}
+    if(Array.isArray(frame.order)){this.actorOrder=frame.order;changed=true;}
     for(const a of frame.sprites){
       if(a.id===this.sceneId){changed ||= a.style!==this.backdrop;this.backdrop=a.style;continue;}
       const index=this.spriteIndices.get(a.id),old=index===undefined?null:this.sprites[index];
-      changed ||= !old||['style','x','y','direction','scale','visible','opacity'].some(k=>a[k]!==old[k]);
+      changed ||= !old||['style','x','y','direction','scale','visible','opacity','size_x','size_y','rotation_type'].some(k=>a[k]!==old[k])||String(a.effects)!==String(old.effects);
       if(index===undefined){this.spriteIndices.set(a.id,this.sprites.length);this.sprites.push(a);}else this.sprites[index]=a;
     }
     this.changed = changed || !!frame.clear || lines.length>0 || stamps.length>0;
@@ -259,11 +276,12 @@ export class StageRenderer {
     this.drawTexture(item.texture,stamp.x+dx*c+dy*s,stamp.y-dx*s+dy*c,item.width,item.height,angle,stamp.color);
   }
 
-  drawTexture(texture,x,y,width,height,angle=0,tint=[1,1,1,1]) {
-    const gl=this.gl,u=this.uniform;
+  drawTexture(texture,x,y,width,height,angle=0,tint=[1,1,1,1],effects=null,texSize=null) {
+    const gl=this.gl,u=this.uniform,e=effects||NO_EFFECTS;
     gl.useProgram(this.texture); gl.uniform2f(u.stageSize,this.width,this.height); gl.uniform2f(u.position,x,y);
     gl.uniform2f(u.dimensions,width,height); gl.uniform1f(u.angle,angle); gl.uniform1i(u.image,0);
-    gl.uniform4fv(u.tint,tint);
+    gl.uniform4fv(u.tint,tint);gl.uniform4f(u.fxA,e[0],e[2],e[3],e[4]);gl.uniform2f(u.fxB,e[5],e[6]);
+    gl.uniform2f(u.texSize,texSize?.[0]||Math.abs(width)||1,texSize?.[1]||Math.abs(height)||1);
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,texture); gl.drawArrays(gl.TRIANGLES,0,6); this.stats.drawCalls++;
   }
 
@@ -280,7 +298,8 @@ export class StageRenderer {
       const a=this.sprites[this.spriteIndices.get(this.actorOrder[i])];if(!a)continue;
       if(!a.visible)continue;
       const image=this.images.get(a.style);
-      if(image)this.drawTexture(image.texture,a.x,a.y,image.width*a.scale/100,image.height*a.scale/100,a.direction*Math.PI/180,[1,1,1,a.opacity??1]);
+      if(image){const {width,height,angle}=spriteGeometry(a,image);
+        this.drawTexture(image.texture,a.x,a.y,width,height,angle,[1,1,1,a.opacity??1],a.effects,[image.width,image.height]);}
     }
     this.dirty=false; if(resetStats)this.stats.submitMs=performance.now()-started;
   }
@@ -290,12 +309,23 @@ export class StageRenderer {
       const a=this.sprites[this.spriteIndices.get(this.actorOrder[i])];
       if(!a?.visible||!a.scale||(a.opacity??1)<=0)continue;
       const image=this.images.get(a.style);if(!image)continue;
-      const angle=a.direction*Math.PI/180,c=Math.cos(angle),s=Math.sin(angle),dx=x-a.x,dy=y-a.y;
-      const px=Math.floor((c*dx-s*dy)*100/a.scale+image.width/2),py=Math.floor(image.height/2-(s*dx+c*dy)*100/a.scale);
+      const {width,height,angle}=spriteGeometry(a,image);if(!width||!height)continue;
+      const c=Math.cos(angle),s=Math.sin(angle),dx=x-a.x,dy=y-a.y;
+      const px=Math.floor((c*dx-s*dy)*image.width/width+image.width/2),py=Math.floor(image.height/2-(s*dx+c*dy)*image.height/height);
       if(px>=0&&px<image.width&&py>=0&&py<image.height&&image.alpha[py*image.width+px]>0)return a.id;
     }
     return null;
   }
+}
+
+const NO_EFFECTS=[0,0,0,0,0,0,0];
+// Drawn size and angle: width/height percentages on top of scale, rotation type
+// 0 free, 1 left-right flip (negative width), 2 upright.
+export function spriteGeometry(a,image){
+  const scale=a.scale/100;let width=image.width*scale*(a.size_x??100)/100,height=image.height*scale*(a.size_y??100)/100,angle=a.direction*Math.PI/180;
+  if(a.rotation_type===2)angle=0;
+  else if(a.rotation_type===1){const d=((a.direction%360)+540)%360-180;angle=0;if(d<0)width=-width;}
+  return {width,height,angle};
 }
 
 export function decodeFrame(buffer) {

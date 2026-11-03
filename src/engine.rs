@@ -172,6 +172,8 @@ enum ExprOp {
     Time(u8),
     Effect(usize, u8),
     MouseDown(u8),
+    CloneCount(usize),
+    CloneIndex,
     Binary(Binary),
     Unary(Unary),
 }
@@ -259,6 +261,8 @@ enum Op {
     LogText(usize),
     Call(usize, usize),
     Return,
+    /// procedures_2_return_value: return from the procedure with a value.
+    ReturnValue(usize),
     Halt,
     ChangeScale(Expr),
     SizeAxis(bool, Expr, bool),
@@ -277,6 +281,18 @@ enum Op {
     /// Run a body (start pc) as another actor; wait for it when true.
     Tell(usize, usize, bool),
     Restart,
+    Clone(usize),
+    DisposeClone,
+    Layer(LayerMove),
+}
+#[derive(Clone, Copy, Debug)]
+enum LayerMove {
+    Front,
+    Back,
+    Forward,
+    Backward,
+    /// Directly above (true) or below (false) another actor.
+    Relative(usize, bool),
 }
 #[derive(Clone, Copy, Debug)]
 struct GlideSpec {
@@ -332,6 +348,14 @@ pub struct Sprite {
     pub rotation_type: u8,
     #[serde(skip)]
     styles: Vec<String>,
+    /// Original actor index (itself for originals); clones share their scripts.
+    #[serde(skip)]
+    origin: usize,
+    /// 0 for originals, 1.. for clones in creation order.
+    #[serde(skip)]
+    clone_index: u32,
+    #[serde(skip)]
+    alive: bool,
     #[serde(skip)]
     pen: bool,
     #[serde(skip)]
@@ -352,6 +376,7 @@ struct Script {
 #[derive(Clone, Debug)]
 enum ScriptEvent {
     Start,
+    CloneStart,
     Key(String, bool),
     Pointer(String, String),
     Broadcast(usize, bool),
@@ -381,6 +406,7 @@ pub struct Program {
     procedure_entries: Vec<usize>,
     call_arguments: Vec<Vec<usize>>,
     pub variable_names: Vec<String>,
+    style_names: BTreeMap<String, String>,
     pub list_names: Vec<String>,
     pub sprites: Vec<Sprite>,
     pub width: f64,
@@ -440,6 +466,15 @@ impl Program {
                 procedure_entries: vec![],
                 call_arguments: vec![],
                 variable_names: vec![],
+                style_names: project
+                    .pointer("/styles/stylesDict")
+                    .and_then(Value::as_object)
+                    .into_iter()
+                    .flatten()
+                    .filter_map(|(id, style)| {
+                        Some((id.clone(), style["name"].as_str()?.to_owned()))
+                    })
+                    .collect(),
                 list_names: vec![],
                 sprites: vec![],
                 width: project["stageSize"]["width"].as_f64().unwrap_or(900.0),
@@ -472,9 +507,12 @@ impl Program {
         {
             for (id, procedure) in procedures {
                 let definition = procedure["nekoBlockJsonList"].as_array().and_then(|roots| {
-                    roots
-                        .iter()
-                        .find(|b| b["type"] == "procedures_2_defnoreturn")
+                    roots.iter().find(|b| {
+                        matches!(
+                            b["type"].as_str(),
+                            Some("procedures_2_defnoreturn" | "procedures_2_defreturn")
+                        )
+                    })
                 });
                 if let Some(definition) = definition {
                     let base = compiler.program.procedure_entries.len();
@@ -549,6 +587,9 @@ impl Program {
             size_y: 100.0,
             rotation_type: 0,
             styles: owner_styles(scene_value),
+            origin: 0,
+            clone_index: 0,
+            alive: true,
             pen: false,
             color: [0.0, 0.0, 0.0, 1.0],
             hsv: [0.0; 3],
@@ -577,6 +618,9 @@ impl Program {
                     size_y: 100.0,
                     rotation_type: actor["rotationType"].as_u64().unwrap_or(0).min(2) as u8,
                     styles: owner_styles(actor),
+                    origin: index,
+                    clone_index: 0,
+                    alive: true,
                     pen: false,
                     color: [0.0, 0.0, 0.0, 1.0],
                     hsv: [0.0; 3],
@@ -600,6 +644,13 @@ impl Program {
                         None
                     }
                 })
+                .chain(compiler.program.values.iter().filter_map(|value| {
+                    if let ValueExpr::CallReturn(index, _) = value {
+                        (!compiled[*index]).then_some(*index)
+                    } else {
+                        None
+                    }
+                }))
                 .collect::<std::collections::BTreeSet<_>>();
             if pending.is_empty() {
                 break;
@@ -860,6 +911,26 @@ impl Compiler {
                     ValueExpr::Join(span)
                 }
             }
+            "get_clone_index_property" => {
+                let attribute = match field(b, "attribute") {
+                    "0" | "x" => 0,
+                    "1" | "y" => 1,
+                    "2" => 2,
+                    "4" => 4,
+                    other => bail!("unsupported clone attribute {other} at {}", b["id"]),
+                };
+                ValueExpr::CloneProperty(
+                    self.actor_target(field(b, "sprite"))?,
+                    self.arg(b, "index")?,
+                    attribute,
+                )
+            }
+            "procedures_2_callreturn" => {
+                let (procedure, args) = self.call_arguments(b)?;
+                // Reporter calls run to completion inside one evaluation: use the
+                // warp-compiled body so loops do not yield.
+                ValueExpr::CallReturn(procedure + 1, args)
+            }
             "text_select" => ValueExpr::Select(
                 self.value(input(b, "text")?)?,
                 self.arg(b, "start_index")?,
@@ -891,6 +962,30 @@ impl Compiler {
     fn constant(&mut self, value: Cell) -> ValueExpr {
         self.program.constants.push(value);
         ValueExpr::Constant(self.program.constants.len() - 1)
+    }
+    /// Resolves a procedure call: (definition base index, argument list index).
+    fn call_arguments(&mut self, b: &Value) -> Result<(usize, usize)> {
+        let id = crate::runtime::helpers::procedure_def_id(b)
+            .or_else(|| b["fields"]["NAME"].as_str())
+            .context("procedure call has no definition ID")?;
+        let base = *self
+            .procedures
+            .get(id)
+            .with_context(|| format!("unknown procedure {id}"))?;
+        let params = self.procedure_params[&base].clone();
+        let args = params
+            .iter()
+            .map(|(id, _)| self.value(input(b, id)?))
+            .collect::<Result<Vec<_>>>()?;
+        ensure!(
+            b["inputs"].as_object().is_none_or(|inputs| inputs
+                .keys()
+                .all(|key| params.iter().any(|(id, _)| id == key))),
+            "unknown procedure call input at {}",
+            b["id"]
+        );
+        self.program.call_arguments.push(args);
+        Ok((base, self.program.call_arguments.len() - 1))
     }
     fn text(&mut self, b: &Value) -> Result<usize> {
         let mut parts = vec![];
@@ -1062,7 +1157,9 @@ impl Compiler {
             | "text_contain"
             | "list_index_of"
             | "list_is_exist" => ExprOp::Value(self.value(b)?),
-            "logic_compare" | "logic_operation" | "logic_negate" => ExprOp::Value(self.value(b)?),
+            "logic_compare" | "logic_operation" | "logic_negate" | "procedures_2_callreturn" => {
+                ExprOp::Value(self.value(b)?)
+            }
             "check_key" => {
                 ensure!(
                     matches!(field(b, "type"), "down" | "up"),
@@ -1115,6 +1212,9 @@ impl Compiler {
             }
             "style_of_sprite" => ExprOp::Costume(self.actor_target(field(b, "sprite"))?),
             "distance_to" => ExprOp::Distance(self.point_target(field(b, "sprite"))?),
+            "get_clone_num" => ExprOp::CloneCount(self.actor_target(field(b, "sprite"))?),
+            "get_current_clone_index" => ExprOp::CloneIndex,
+            "get_clone_index_property" => ExprOp::Value(self.value(b)?),
             "get_stage_info" => {
                 let info = b["fields"].get("info").or_else(|| b["fields"].get("type"));
                 match info.and_then(Value::as_str).unwrap_or("width") {
@@ -1263,6 +1363,7 @@ impl Compiler {
                     kind == "self_listen_with_param",
                 ),
                 "on_running_group_activated" => ScriptEvent::Start,
+                "start_as_a_mirror" | "start_as_clone" => ScriptEvent::CloneStart,
                 "on_keydown" => {
                     ensure!(
                         matches!(field(root, "type"), "down" | "up"),
@@ -1310,6 +1411,11 @@ impl Compiler {
             let start = self.program.ops.len();
             let body = if matches!(event, ScriptEvent::Broadcast(_, _)) {
                 root["statements"].get("DO")
+            } else if matches!(event, ScriptEvent::CloneStart) {
+                root["statements"]
+                    .get("DO")
+                    .filter(|b| b.is_object())
+                    .or(root.get("next"))
             } else {
                 root.get("next")
             };
@@ -1591,6 +1697,35 @@ impl Compiler {
                     Op::AnimStep
                 }
                 "restart" => Op::Restart,
+                "mirror" => Op::Clone(self.actor_target(field(b, "sprite"))?),
+                "dispose_clone" => Op::DisposeClone,
+                "set_top_bottom_layer" | "self_change_layer" => {
+                    let layer = field(b, "layer");
+                    let relative = field(b, "target_layer");
+                    Op::Layer(if relative.is_empty() {
+                        match layer {
+                            "peak" | "top" | "front" => LayerMove::Front,
+                            "bottom" | "back" => LayerMove::Back,
+                            "prev_layer" | "forward" | "up" => LayerMove::Forward,
+                            "next_layer" | "backward" | "down" => LayerMove::Backward,
+                            _ => bail!("unknown layer {layer} at {}", b["id"]),
+                        }
+                    } else {
+                        ensure!(
+                            matches!(relative, "prev_layer" | "next_layer"),
+                            "unknown relative layer {relative} at {}",
+                            b["id"]
+                        );
+                        let target = self.actor_target(layer)?;
+                        ensure!(
+                            target != usize::MAX && target != 0,
+                            "relative layer needs another actor at {}",
+                            b["id"]
+                        );
+                        LayerMove::Relative(target, relative == "prev_layer")
+                    })
+                }
+                "procedures_2_return_value" => Op::ReturnValue(self.value(input(b, "VALUE")?)?),
                 "when" => {
                     // Statement form: wait until the condition holds, run DO, continue.
                     let condition = self.condition(input(b, "condition")?)?;
@@ -1750,26 +1885,7 @@ impl Compiler {
                     other => bail!("unknown stop scope {other}"),
                 }),
                 "procedures_2_callnoreturn" => {
-                    let id = crate::runtime::helpers::procedure_def_id(b)
-                        .context("procedure call has no definition ID")?;
-                    let base = *self
-                        .procedures
-                        .get(id)
-                        .with_context(|| format!("unknown statement procedure {id}"))?;
-                    let params = self.procedure_params[&base].clone();
-                    let args = params
-                        .iter()
-                        .map(|(id, _)| self.value(input(b, id)?))
-                        .collect::<Result<Vec<_>>>()?;
-                    ensure!(
-                        b["inputs"].as_object().is_none_or(|inputs| inputs
-                            .keys()
-                            .all(|key| params.iter().any(|(id, _)| id == key))),
-                        "unknown procedure call input at {}",
-                        b["id"]
-                    );
-                    let index = self.program.call_arguments.len();
-                    self.program.call_arguments.push(args);
+                    let (base, index) = self.call_arguments(b)?;
                     Op::Call(base + usize::from(warped), index)
                 }
                 "console_log" => {
@@ -1917,6 +2033,7 @@ struct Task {
     locals: Vec<f64>,
     local_values: Vec<Option<Cell>>,
     anim: Option<Anim>,
+    returned: Option<Cell>,
 }
 impl Task {
     fn new(id: u64, script: &Script, locals: usize) -> Self {
@@ -1936,6 +2053,7 @@ impl Task {
             locals: vec![0.0; locals],
             local_values: vec![None; locals],
             anim: None,
+            returned: None,
         }
     }
 }
@@ -1943,6 +2061,9 @@ impl Task {
 struct CallFrame {
     pc: usize,
     parameters: Vec<Cell>,
+    /// Loop/range stack depths at the call, restored by an early return.
+    loops: usize,
+    ranges: usize,
 }
 #[derive(Clone)]
 struct RangeState {
@@ -1987,6 +2108,12 @@ pub struct Frame {
     pub logs: Vec<String>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub audio_commands: Vec<AudioCommand>,
+    /// Sprite ids back to front, sent when layers change or clones appear.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub order: Option<Vec<String>>,
+    /// Deleted clone ids.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub removed: Vec<String>,
     /// Packed capsule instances: x1,y1,x2,y2,width,r,g,b,a. Only NEW strokes.
     #[serde(skip)]
     pub lines: Vec<f32>,
@@ -2034,6 +2161,14 @@ pub struct Engine {
     value_error: Option<String>,
     stopped: bool,
     restart: bool,
+    reporter_depth: usize,
+    /// Drawable sprites back to front (stage excluded).
+    order: Vec<usize>,
+    order_dirty: bool,
+    removed: Vec<String>,
+    free_slots: Vec<usize>,
+    clone_serial: u64,
+    clones: usize,
     /// Viewer's UTC offset in minutes (local time reporters).
     tz_offset_min: f64,
     pointer_down: bool,
@@ -2080,6 +2215,7 @@ impl Engine {
             .collect();
         let sprites = program.sprites.clone();
         let dirty = vec![true; sprites.len()];
+        let order = (1..sprites.len()).rev().collect();
         Self {
             program,
             slots,
@@ -2115,6 +2251,13 @@ impl Engine {
             value_error: None,
             stopped: false,
             restart: false,
+            reporter_depth: 0,
+            order,
+            order_dirty: true,
+            removed: vec![],
+            free_slots: vec![],
+            clone_serial: 0,
+            clones: 0,
             tz_offset_min: 0.0,
             pointer_down: false,
             pointer_clicked: false,
@@ -2141,6 +2284,13 @@ impl Engine {
         self.pen_layer = 0;
         self.timer_visible = false;
         self.sprites.clone_from(&self.program.sprites);
+        self.dirty.resize(self.sprites.len(), true);
+        self.order = (1..self.sprites.len()).rev().collect();
+        self.order_dirty = true;
+        self.removed.clear();
+        self.free_slots.clear();
+        self.clone_serial = 0;
+        self.clones = 0;
         self.tasks.clear();
         self.next_task_id = 0;
         self.received.clear();
@@ -2193,27 +2343,75 @@ impl Engine {
             "mouse_click" => self.pointer_clicked = true,
             _ => {}
         }
-        let visible = self
+        if self.stopped {
+            return;
+        }
+        let hit = self
             .sprites
             .iter()
-            .any(|sprite| sprite.id == target && sprite.visible);
-        self.dispatch(|event| matches!(event, ScriptEvent::Pointer(id,s) if s == state && (id == "--screen" || (visible && id == target))));
+            .position(|sprite| sprite.id == target && sprite.visible && sprite.alive);
+        for script in 0..self.program.scripts.len() {
+            let ScriptEvent::Pointer(id, s) = &self.program.scripts[script].event else {
+                continue;
+            };
+            if s != state {
+                continue;
+            }
+            let actor = self.program.scripts[script].actor;
+            if id == "--screen" {
+                self.spawn(script, actor);
+                continue;
+            }
+            let Some(hit) = hit else { continue };
+            // The script listens to actor `id`; a click on one of its clones counts.
+            let origin = self.sprites[hit].origin;
+            if self.program.sprites[origin].id != *id {
+                continue;
+            }
+            // A sprite's own click script runs on the clicked instance.
+            self.spawn(script, if origin == actor { hit } else { actor });
+        }
+    }
+    /// Live sprite indices running an actor's scripts: the original and its clones.
+    fn instances(&self, actor: usize) -> Vec<usize> {
+        if self.clones == 0 || actor == 0 {
+            return vec![actor];
+        }
+        (0..self.sprites.len())
+            .filter(|&i| self.sprites[i].alive && self.sprites[i].origin == actor)
+            .collect()
+    }
+    fn spawn(&mut self, script: usize, actor: usize) -> Option<usize> {
+        if self.tasks.len() >= 4096 {
+            return None;
+        }
+        let mut task = Task::new(
+            self.next_task_id,
+            &self.program.scripts[script],
+            self.program.local_count,
+        );
+        task.actor = actor;
+        self.next_task_id += 1;
+        self.tasks.push(task);
+        Some(self.tasks.len() - 1)
     }
     fn dispatch(&mut self, matches: impl Fn(&ScriptEvent) -> bool) {
         if self.stopped {
             return;
         }
-        for script in &self.program.scripts {
-            if self.tasks.len() >= 4096 {
-                break;
+        for script in 0..self.program.scripts.len() {
+            if !matches(&self.program.scripts[script].event) {
+                continue;
             }
-            if matches(&script.event) {
-                self.tasks.push(Task::new(
-                    self.next_task_id,
-                    script,
-                    self.program.local_count,
-                ));
-                self.next_task_id += 1;
+            // The start event runs originals only; other events reach clones too.
+            let actor = self.program.scripts[script].actor;
+            let targets = if matches!(self.program.scripts[script].event, ScriptEvent::Start) {
+                vec![actor]
+            } else {
+                self.instances(actor)
+            };
+            for target in targets {
+                self.spawn(script, target);
             }
         }
     }
@@ -2233,18 +2431,21 @@ impl Engine {
             if self.eval_value(value, script.actor).text() != message {
                 continue;
             }
-            ensure!(self.tasks.len() < 4096, "broadcast task limit exceeded");
-            let mut task = Task::new(self.next_task_id, &script, self.program.local_count);
-            self.next_task_id += 1;
-            if with_param {
-                task.payload = payload.clone();
+            for target in self.instances(script.actor) {
+                ensure!(self.tasks.len() < 4096, "broadcast task limit exceeded");
+                let mut task = Task::new(self.next_task_id, &script, self.program.local_count);
+                task.actor = target;
+                self.next_task_id += 1;
+                if with_param {
+                    task.payload = payload.clone();
+                }
+                if wait {
+                    task.waiter = Some(self.tasks[parent].id);
+                    self.tasks[parent].pending += 1;
+                }
+                self.ready.push_back(self.tasks.len());
+                self.tasks.push(task);
             }
-            if wait {
-                task.waiter = Some(self.tasks[parent].id);
-                self.tasks[parent].pending += 1;
-            }
-            self.ready.push_back(self.tasks.len());
-            self.tasks.push(task);
         }
         Ok(())
     }
@@ -2362,6 +2563,15 @@ impl Engine {
                     a.effects[scope as usize]
                 }
             }
+            ExprOp::CloneCount(target) => {
+                let origin = self.sprites[if target == usize::MAX { actor } else { target }].origin;
+                (0..self.sprites.len())
+                    .filter(|&i| {
+                        self.sprites[i].alive && self.sprites[i].origin == origin && i != origin
+                    })
+                    .count() as f64
+            }
+            ExprOp::CloneIndex => self.sprites[actor].clone_index as f64,
             ExprOp::MouseDown(state) => u8::from(match state {
                 0 => self.pointer_down,
                 1 => self.pointer_clicked,
@@ -2413,6 +2623,141 @@ impl Engine {
                 op.apply(a)
             }
         }
+    }
+    /// Runs a reporter procedure to completion on the current task. Yields and
+    /// waits inside it do not suspend (it must produce a value now); runaway
+    /// bodies and deep recursion become value errors instead of hangs.
+    fn call_reporter(&mut self, procedure: usize, args: usize, actor: usize) -> Cell {
+        if self.value_error.is_some() {
+            return Cell::Null;
+        }
+        if self.reporter_depth >= 200 {
+            self.value_error = Some("reporter procedure recursion exceeds 200".into());
+            return Cell::Null;
+        }
+        let count = self.program.call_arguments[args].len();
+        let mut parameters = Vec::with_capacity(count);
+        for k in 0..count {
+            let value = self.program.call_arguments[args][k];
+            parameters.push(self.eval_value(value, actor));
+        }
+        let index = self.current_task;
+        let task = &mut self.tasks[index];
+        let depth = task.calls.len();
+        task.calls.push(CallFrame {
+            pc: task.pc,
+            parameters: std::mem::replace(&mut task.parameters, parameters),
+            loops: task.loops.len(),
+            ranges: task.ranges.len(),
+        });
+        let saved_returned = task.returned.take();
+        let (wake, anim) = (task.wake, task.anim);
+        task.pc = self.program.procedure_entries[procedure];
+        self.reporter_depth += 1;
+        let mut steps = 0usize;
+        while self.tasks[index].calls.len() > depth && !self.tasks[index].done {
+            steps += 1;
+            if steps > 1_000_000 {
+                self.value_error = Some("reporter procedure did not return".into());
+                break;
+            }
+            let pc = self.tasks[index].pc;
+            let op = self.program.ops[pc];
+            self.tasks[index].pc += 1;
+            if let Err(error) = self.exec(index, pc, op, actor) {
+                self.value_error = Some(format!("{error:#}"));
+                break;
+            }
+            if self.value_error.is_some() {
+                break;
+            }
+        }
+        self.reporter_depth -= 1;
+        let task = &mut self.tasks[index];
+        // Unwind if the body failed before returning.
+        while task.calls.len() > depth {
+            let call = task.calls.pop().unwrap();
+            task.pc = call.pc;
+            task.parameters = call.parameters;
+            task.loops.truncate(call.loops);
+            task.ranges.truncate(call.ranges);
+        }
+        task.wake = wake;
+        task.anim = anim;
+        std::mem::replace(&mut task.returned, saved_returned).unwrap_or(Cell::Null)
+    }
+    fn clone_sprite(&mut self, source: usize) -> Result<()> {
+        ensure!(source != 0, "the stage cannot be cloned");
+        let origin = self.sprites[source].origin;
+        let live = (0..self.sprites.len())
+            .filter(|&i| self.sprites[i].alive && self.sprites[i].origin == origin && i != origin)
+            .count();
+        // Official limit: 300 clones per entity. Further requests are ignored.
+        if live >= 300 {
+            return Ok(());
+        }
+        self.clone_serial += 1;
+        let mut sprite = self.sprites[source].clone();
+        sprite.id = format!("{}#{}", self.sprites[origin].id, self.clone_serial);
+        sprite.clone_index = live as u32 + 1;
+        sprite.pen = false;
+        let index = if let Some(slot) = self.free_slots.pop() {
+            self.sprites[slot] = sprite;
+            slot
+        } else {
+            self.sprites.push(sprite);
+            self.dirty.push(true);
+            self.sprites.len() - 1
+        };
+        self.dirty[index] = true;
+        self.clones += 1;
+        // A clone starts directly behind its source.
+        let at = self.order.iter().position(|&i| i == source).unwrap_or(0);
+        self.order.insert(at, index);
+        self.order_dirty = true;
+        for script in 0..self.program.scripts.len() {
+            if matches!(self.program.scripts[script].event, ScriptEvent::CloneStart)
+                && self.program.scripts[script].actor == origin
+                && let Some(task) = self.spawn(script, index)
+            {
+                self.ready.push_back(task);
+            }
+        }
+        Ok(())
+    }
+    fn delete_clone(&mut self, index: usize) {
+        for task in 0..self.tasks.len() {
+            if self.tasks[task].actor == index {
+                self.finish_task(task);
+            }
+        }
+        let sprite = &mut self.sprites[index];
+        sprite.alive = false;
+        sprite.visible = false;
+        self.removed.push(sprite.id.clone());
+        self.order.retain(|&i| i != index);
+        self.order_dirty = true;
+        self.free_slots.push(index);
+        self.clones -= 1;
+    }
+    fn move_layer(&mut self, actor: usize, movement: LayerMove) {
+        let Some(at) = self.order.iter().position(|&i| i == actor) else {
+            return;
+        };
+        self.order.remove(at);
+        let to = match movement {
+            LayerMove::Front => self.order.len(),
+            LayerMove::Back => 0,
+            LayerMove::Forward => (at + 1).min(self.order.len()),
+            LayerMove::Backward => at.saturating_sub(1),
+            LayerMove::Relative(target, above) => self
+                .order
+                .iter()
+                .position(|&i| i == target)
+                .map_or(at, |t| t + usize::from(above)),
+        };
+        self.order.insert(to, actor);
+        self.order_dirty = true;
     }
     fn random_unit(&mut self) -> f64 {
         self.random_state ^= self.random_state << 13;
@@ -2571,6 +2916,37 @@ impl Engine {
                 };
                 Cell::Text(String::from_utf16_lossy(&selected).into())
             }
+            ValueExpr::CallReturn(procedure, args) => self.call_reporter(procedure, args, actor),
+            ValueExpr::CloneProperty(target, index, attribute) => {
+                let origin = self.sprites[if target == usize::MAX { actor } else { target }].origin;
+                let wanted = self.eval(index, actor);
+                let found = (0..self.sprites.len()).find(|&i| {
+                    let a = &self.sprites[i];
+                    a.alive && a.origin == origin && f64::from(a.clone_index) == wanted
+                });
+                match found {
+                    None => Cell::Number(f64::NAN),
+                    Some(i) => {
+                        let a = &self.sprites[i];
+                        match attribute {
+                            0 => Cell::Number(a.x),
+                            1 => Cell::Number(a.y),
+                            2 => Cell::Number(
+                                a.styles
+                                    .iter()
+                                    .position(|id| Some(id) == a.style.as_ref())
+                                    .map_or(0.0, |i| (i + 1) as f64),
+                            ),
+                            _ => {
+                                let id = a.style.as_deref().unwrap_or("");
+                                let name =
+                                    self.program.style_names.get(id).map_or(id, String::as_str);
+                                Cell::Text(name.into())
+                            }
+                        }
+                    }
+                }
+            }
             ValueExpr::WeekText => {
                 const DAYS: [&str; 7] = [
                     "星期日",
@@ -2686,6 +3062,8 @@ impl Engine {
                 || self.clear
                 || self.reset
                 || self.pen_layer != layer
+                || self.order_dirty
+                || !self.removed.is_empty()
                 || self.dirty.iter().any(|d| *d);
             let runnable = self
                 .tasks
@@ -2706,7 +3084,7 @@ impl Engine {
             .iter()
             .zip(&mut self.dirty)
             .filter_map(|(a, dirty)| {
-                if std::mem::take(dirty) {
+                if std::mem::take(dirty) && a.alive {
                     Some(a.clone())
                 } else {
                     None
@@ -2725,6 +3103,13 @@ impl Engine {
             text_stamps: std::mem::take(&mut self.text_stamps),
             logs: std::mem::take(&mut self.logs),
             audio_commands: std::mem::take(&mut self.audio_commands),
+            order: std::mem::take(&mut self.order_dirty).then(|| {
+                self.order
+                    .iter()
+                    .map(|&i| self.sprites[i].id.clone())
+                    .collect()
+            }),
+            removed: std::mem::take(&mut self.removed),
             clear: std::mem::take(&mut self.clear),
             active: self.tasks.len(),
             instructions: count,
@@ -3163,16 +3548,22 @@ impl Engine {
                 task.calls.push(CallFrame {
                     pc: task.pc,
                     parameters: std::mem::replace(&mut task.parameters, parameters),
+                    loops: task.loops.len(),
+                    ranges: task.ranges.len(),
                 });
                 task.pc = self.program.procedure_entries[procedure];
             }
-            Op::Return => {
-                let call = self.tasks[index]
-                    .calls
-                    .pop()
-                    .context("invalid procedure return")?;
-                self.tasks[index].pc = call.pc;
-                self.tasks[index].parameters = call.parameters;
+            Op::Return | Op::ReturnValue(_) => {
+                if let Op::ReturnValue(value) = op {
+                    let value = self.eval_value(value, actor);
+                    self.tasks[index].returned = Some(value);
+                }
+                let task = &mut self.tasks[index];
+                let call = task.calls.pop().context("invalid procedure return")?;
+                task.pc = call.pc;
+                task.parameters = call.parameters;
+                task.loops.truncate(call.loops);
+                task.ranges.truncate(call.ranges);
             }
             Op::ChangeScale(e) => self.sprites[actor].scale += self.eval(e, actor),
             Op::SizeAxis(height, e, add) => {
@@ -3361,6 +3752,21 @@ impl Engine {
                 self.restart = true;
                 return Ok(false);
             }
+            Op::Clone(target) => {
+                let source = if target == usize::MAX { actor } else { target };
+                self.clone_sprite(source)?;
+            }
+            Op::DisposeClone => {
+                if self.sprites[actor].clone_index > 0 {
+                    self.delete_clone(actor);
+                    return Ok(false);
+                }
+            }
+            Op::Layer(movement) => {
+                if actor != 0 {
+                    self.move_layer(actor, movement);
+                }
+            }
             Op::Halt => {
                 self.finish_task(index);
                 return Ok(false);
@@ -3422,7 +3828,7 @@ impl Engine {
                 let op = self.program.ops[pc];
                 self.tasks[index].pc += 1;
                 count += 1;
-                if !self.exec(index, pc, op, actor)? {
+                if !self.exec(index, pc, op, actor)? || self.tasks[index].done {
                     break;
                 }
             }
