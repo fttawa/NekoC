@@ -1567,3 +1567,113 @@ fn restart_resets_state_and_runs_start_scripts_again() {
     frame(&mut vm);
     assert_eq!(vm.numeric_variables()[0], 1.0);
 }
+
+#[test]
+fn reporter_procedures_return_values_recursively_and_early() {
+    let n = || json!({"type":"procedures_2_parameter","fields":{"param_name":"n"}});
+    let call = |arg: Value| {
+        json!({"type":"procedures_2_callreturn","fields":{"NAME":"fact"},
+        "mutation":"<mutation def_id=\"fact\"/>","inputs":{"n":arg}})
+    };
+    let mut p = var_project(set("r", call(num(6.0))), &["r"]);
+    // fact(n): if n <= 1 return 1 (early, inside a loop); return n * fact(n - 1)
+    p["procedures"]["proceduresDict"]["fact"] = json!({"params":[{"type":"String","id":"n","name":"n"}],
+    "nekoBlockJsonList":[{"type":"procedures_2_defnoreturn","statements":{"STACK":chain(vec![
+        json!({"type":"repeat_forever","statements":{"DO":{"type":"controls_if",
+            "inputs":{"IF0":{"type":"logic_compare","fields":{"OP":"LTE"},"inputs":{"A":n(),"B":num(1.0)}}},
+            "statements":{"DO0":{"type":"procedures_2_return_value","inputs":{"VALUE":num(1.0)}},
+                          "ELSE":{"type":"break"}}}}}),
+        json!({"type":"procedures_2_return_value","inputs":{"VALUE":{"type":"math_arithmetic","fields":{"type":"multiply"},
+            "inputs":{"A":n(),"B":call(json!({"type":"math_arithmetic","fields":{"type":"minus"},"inputs":{"A":n(),"B":num(1.0)}}))}}}}),
+    ])}}]});
+    let mut vm = Engine::new(Program::compile(&p).unwrap());
+    vm.start();
+    let f = frame(&mut vm);
+    assert_eq!(vm.numeric_variables()[0], 720.0);
+    assert_eq!(f.active, 0);
+
+    // A reporter that never returns is a reported error, not a hang.
+    p["procedures"]["proceduresDict"]["fact"]["nekoBlockJsonList"][0]["statements"]["STACK"] =
+        json!({"type":"repeat_forever","statements":{"DO":movement(1.0)}});
+    let mut vm = Engine::new(Program::compile(&p).unwrap());
+    vm.start();
+    let error = vm
+        .advance(1.0 / 60.0, 10_000_000, Duration::from_secs(5))
+        .unwrap_err();
+    assert!(format!("{error:#}").contains("did not return"), "{error:#}");
+}
+
+#[test]
+fn clones_run_clone_hats_share_events_and_are_deleted() {
+    let mut p = var_project(
+        chain(vec![
+            json!({"type":"repeat_n_times","inputs":{"times":num(3.0)},"statements":{"DO":{"type":"mirror","fields":{"sprite":"__self"}}}}),
+            set(
+                "count",
+                json!({"type":"get_clone_num","fields":{"sprite":"__self"}}),
+            ),
+        ]),
+        &["count", "sum", "key"],
+    );
+    let hats = p["actors"]["actorsDict"]["nekoc-default-actor"]["nekoBlockJsonList"]
+        .as_array_mut()
+        .unwrap();
+    // Each clone moves by its own index, then deletes itself after a key press.
+    hats.push(json!({"type":"start_as_a_mirror","statements":{"DO":chain(vec![
+        json!({"type":"self_set_position_x","inputs":{"value":{"type":"get_current_clone_index"}}}),
+        json!({"type":"change_variables","fields":{"variable":"sum","method":"increase"},"inputs":{"value":{"type":"get_current_clone_index"}}}),
+    ])}}));
+    hats.push(json!({"type":"on_keydown","fields":{"key":"32","type":"down"},"next":chain(vec![
+        json!({"type":"change_variables","fields":{"variable":"key","method":"increase"},"inputs":{"value":num(1.0)}}),
+        json!({"type":"dispose_clone"}),
+    ])}));
+    let mut vm = Engine::new(Program::compile(&p).unwrap());
+    vm.start();
+    // Slots are sorted by name: count, key, sum. The loop yields per iteration.
+    let mut order = None;
+    for _ in 0..4 {
+        let f = frame(&mut vm);
+        order = f.order.or(order);
+    }
+    assert_eq!(vm.numeric_variables(), &[3.0, 0.0, 6.0]);
+    let order = order.unwrap();
+    assert_eq!(order.len(), 4);
+    // Clones sit behind their source; the newest is directly behind it.
+    assert_eq!(order[3], "nekoc-default-actor");
+    vm.key("32");
+    let f = frame(&mut vm);
+    // The original and all three clones receive the key; clones delete themselves.
+    assert_eq!(vm.numeric_variables()[1], 4.0);
+    assert_eq!(f.removed.len(), 3);
+    assert_eq!(f.order.unwrap(), ["nekoc-default-actor"]);
+    // Slots are reused: creating clones again does not grow without bound.
+    let mut peak = 0;
+    for _ in 0..50 {
+        vm.start();
+        for _ in 0..4 {
+            peak = peak.max(frame(&mut vm).sprites.len());
+        }
+        vm.key("32");
+        frame(&mut vm);
+    }
+    assert!(peak <= 5, "{peak}");
+}
+
+#[test]
+fn layer_blocks_reorder_drawing() {
+    let mut p = project(
+        json!({"type":"set_top_bottom_layer","fields":{"layer":"bottom","target_layer":""}}),
+    );
+    let actor = p["actors"]["actorsDict"]["nekoc-default-actor"].clone();
+    let mut other = actor.clone();
+    other["id"] = json!("other");
+    other["nekoBlockJsonList"] = json!([]);
+    p["actors"]["actorsDict"]["other"] = other;
+    let scene = p["scenes"]["currentSceneId"].as_str().unwrap().to_owned();
+    p["scenes"]["scenesDict"][&scene]["actorIds"] = json!(["nekoc-default-actor", "other"]);
+    let mut vm = Engine::new(Program::compile(&p).unwrap());
+    vm.start();
+    let first = frame(&mut vm).order.unwrap();
+    // actorIds are front to back, so the default actor starts in front and moves to the back.
+    assert_eq!(first, ["nekoc-default-actor", "other"]);
+}
