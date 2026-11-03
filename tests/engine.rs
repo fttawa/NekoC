@@ -1990,3 +1990,207 @@ fn unknown_scene_is_a_reported_error_and_names_resolve() {
         .unwrap_err();
     assert!(format!("{error:#}").contains("unknown scene nowhere"));
 }
+
+fn wait(seconds: f64) -> Value {
+    json!({"type":"wait","inputs":{"time":num(seconds)}})
+}
+fn bump(subject: &str, other: &str) -> Value {
+    json!({"type":"bump_into","fields":{"sprite":subject,"sprite1":other}})
+}
+fn run_frames(vm: &mut Engine, n: usize) -> Vec<nekoc::engine::Frame> {
+    (0..n).map(|_| frame(vm)).collect()
+}
+fn sprite_in<'a>(
+    frames: &'a [nekoc::engine::Frame],
+    id: &str,
+) -> Option<&'a nekoc::engine::Sprite> {
+    frames
+        .iter()
+        .rev()
+        .flat_map(|f| f.sprites.iter())
+        .find(|s| s.id == id)
+}
+
+#[test]
+fn camps_and_edge_sides_are_collision_targets() {
+    let mut p = two_actor_project(
+        chain(vec![
+            wait(0.0),
+            set("a", bump("__self", "camp_red")),
+            set("b", bump("__self", "camp_blue")),
+            set("c", bump("camp_red", "__self")),
+            set("d", bump("__self", "--edge_left")),
+            set("e", bump("__self", "no_camp")),
+        ]),
+        (30.0, 0.0),
+    );
+    p["actors"]["actorsDict"]["other"]["nekoBlockJsonList"] = json!([{"id":"s2","type":"on_running_group_activated",
+        "next":{"type":"self_set_role_camp","fields":{"role_camp":"camp_red"}}}]);
+    for name in ["a", "b", "c", "d", "e"] {
+        p["variables"]["variablesDict"][name] = json!({"id":name,"value":-1});
+    }
+    let mut vm = Engine::new(Program::compile(&p).unwrap());
+    square(&mut vm, false);
+    vm.start();
+    run_frames(&mut vm, 3);
+    // a, b, c, d, e: red touches, blue does not, the red camp touches self, the
+    // left edge is far, and self is camp-less but self is never its own target.
+    assert_eq!(vm.numeric_variables(), &[1.0, 0.0, 1.0, 0.0, 0.0]);
+}
+
+#[test]
+fn bump_hat_fires_start_move_end_with_the_met_actor() {
+    let mut p = two_actor_project(
+        chain(vec![
+            wait(0.05),
+            json!({"type":"self_set_position_x","inputs":{"value":num(80.0)}}),
+            wait(0.1),
+            json!({"type":"self_set_position_x","inputs":{"value":num(-200.0)}}),
+        ]),
+        (100.0, 0.0),
+    );
+    for name in ["e", "m", "s", "v"] {
+        p["variables"]["variablesDict"][name] = json!({"id":name,"value":0});
+    }
+    let hat = |phase: &str, body: Value| {
+        json!({"id":format!("bump-{phase}"),"type":"on_bump_actor","fields":{"type":phase,"sprite":"other"},
+            "inputs":{"actor":{"type":"on_bump_actor_param","fields":{"TEXT":"角色"}}},"statements":{"DO":body}})
+    };
+    add_hat(
+        &mut p,
+        hat(
+            "start",
+            chain(vec![
+                change("s", 1.0),
+                set(
+                    "v",
+                    json!({"type":"on_bump_actor_value","fields":{"TEXT":"角色","attribute":"x"}}),
+                ),
+            ]),
+        ),
+    );
+    add_hat(&mut p, hat("move", change("m", 1.0)));
+    add_hat(&mut p, hat("end", change("e", 1.0)));
+    let mut vm = Engine::new(Program::compile(&p).unwrap());
+    square(&mut vm, false);
+    vm.start();
+    run_frames(&mut vm, 30);
+    let [e, m, s, v] = vm.numeric_variables() else {
+        panic!()
+    };
+    assert_eq!((*s, *e, *v), (1.0, 1.0, 100.0));
+    assert!((3.0..=8.0).contains(m), "move fired {m} times");
+}
+
+#[test]
+fn arc_and_radian_trig_power_and_shadow_text() {
+    let p = var_project(
+        chain(vec![
+            set(
+                "a",
+                json!({"type":"math_arc_trig","fields":{"type":"asin"},"inputs":{"num":num(1.0)}}),
+            ),
+            set(
+                "b",
+                json!({"type":"math_trig_rad","fields":{"type":"sin"},"inputs":{"num":num(std::f64::consts::FRAC_PI_2)}}),
+            ),
+            set(
+                "c",
+                json!({"type":"math_arithmetic_power","inputs":{"A":num(2.0),"B":num(10.0)}}),
+            ),
+            set(
+                "d",
+                json!({"type":"text_length","inputs":{"text":{"type":"shadow_text","inputs":{"text":text("abc")}}}}),
+            ),
+        ]),
+        &["a", "b", "c", "d"],
+    );
+    let mut vm = Engine::new(Program::compile(&p).unwrap());
+    vm.start();
+    frame(&mut vm);
+    let v = vm.numeric_variables();
+    assert!((v[0] - 90.0).abs() < 1e-9 && (v[1] - 1.0).abs() < 1e-12);
+    assert_eq!(&v[2..], &[1024.0, 3.0]);
+}
+
+#[test]
+fn emphasis_and_transition_animations_block_and_restore_state() {
+    let p = var_project(
+        chain(vec![
+            json!({"type":"self_stress_animation","fields":{"animation":"shake"}}),
+            set("a", num(1.0)),
+            json!({"type":"self_appear","fields":{"value":"disappear"}}),
+            json!({"type":"self_appear_animation","fields":{"appear":"appear","direction":"left","animation":"slideIn"}}),
+            set("b", num(1.0)),
+            json!({"type":"self_appear_animation","fields":{"appear":"appear","direction":"left","animation":"flyIn"}}),
+            set("c", num(1.0)),
+            json!({"type":"self_appear_animation","fields":{"appear":"disappear","direction":"up","animation":"slideOut"}}),
+            set("d", num(1.0)),
+        ]),
+        &["a", "b", "c", "d"],
+    );
+    let mut vm = Engine::new(Program::compile(&p).unwrap());
+    vm.start();
+    let id = "nekoc-default-actor";
+    let start = frame(&mut vm)
+        .sprites
+        .iter()
+        .find(|s| s.id == id)
+        .cloned()
+        .unwrap();
+    // Shake lasts 0.45 s and ends on the original direction.
+    run_frames(&mut vm, 20);
+    assert_eq!(vm.numeric_variables()[0], 0.0);
+    let frames = run_frames(&mut vm, 10);
+    assert_eq!(vm.numeric_variables()[0], 1.0);
+    let after = sprite_in(&frames, id).unwrap();
+    assert_eq!(after.direction, start.direction);
+    // slideIn from the left: the next frames show it fading in left of its spot.
+    let frames = run_frames(&mut vm, 3);
+    let mid = sprite_in(&frames, id).unwrap();
+    assert!(
+        mid.visible && mid.opacity < 1.0 && mid.x < start.x,
+        "{mid:?}"
+    );
+    let frames = run_frames(&mut vm, 40);
+    assert_eq!(vm.numeric_variables()[1], 1.0);
+    // flyIn on an already visible sprite does nothing and does not wait.
+    assert_eq!(vm.numeric_variables()[2], 1.0);
+    let _ = frames;
+    // slideOut (0.8 s) hides it and restores position and opacity.
+    let frames = run_frames(&mut vm, 60);
+    assert_eq!(vm.numeric_variables()[3], 1.0);
+    let end = sprite_in(&frames, id).unwrap();
+    assert!(!end.visible);
+    assert_eq!(
+        (end.x, end.y, end.opacity),
+        (start.x, start.y, start.opacity)
+    );
+}
+
+#[test]
+fn text_effect_replaces_the_costume_until_the_costume_changes() {
+    let p = project(chain(vec![
+        json!({"type":"set_scale","inputs":{"scale":num(50.0)}}),
+        json!({"type":"self_text_effect_size","inputs":{"size":num(50.0)}}),
+        json!({"type":"self_text_effect_color","fields":{"color":"#ff0000"}}),
+        json!({"type":"self_text_effect_text","inputs":{"text":text(" hi ")}}),
+        wait(0.1),
+        json!({"type":"self_prev_next_style","fields":{"prev_next":"next"}}),
+    ]));
+    let mut vm = Engine::new(Program::compile(&p).unwrap());
+    vm.start();
+    let id = "nekoc-default-actor";
+    let frames = run_frames(&mut vm, 3);
+    let shown = sprite_in(&frames, id).unwrap();
+    let look = shown.text.as_ref().expect("text look");
+    assert_eq!(
+        (look.text.as_str(), look.size, look.color.as_str()),
+        ("hi", 50.0, "#ff0000")
+    );
+    assert_eq!(shown.scale, 100.0);
+    let frames = run_frames(&mut vm, 10);
+    let back = sprite_in(&frames, id).unwrap();
+    assert!(back.text.is_none());
+    assert_eq!(back.scale, 50.0);
+}

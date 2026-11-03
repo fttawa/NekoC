@@ -165,4 +165,6 @@ pub(super) enum ValueExpr {
     Answer,
     /// Last chosen option: index (true) or content.
     Choice(bool),
+    /// Attribute (see `bump_attribute`) of the actor this collision script met.
+    BumpProperty(u8),
 }
