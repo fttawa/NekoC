@@ -171,12 +171,16 @@ export class StageRenderer {
     if (this.lost) return;
     if (lines.length % 9 !== 0) throw Error('损坏的画笔实例数据');
     const started = performance.now(), gl = this.gl;
-    const stamps=frame.text_stamps||[];
-    let last=0;
-    for(const stamp of stamps){
-      if(!Number.isInteger(stamp.before_line)||stamp.before_line<last||stamp.before_line>lines.length/9)throw Error('损坏的印章绘制顺序');
-      last=stamp.before_line;
+    // Text and costume stamps interleave with pen lines by `before_line`.
+    const stamps=[...(frame.text_stamps||[]),...(frame.image_stamps||[]).map(s=>({...s,image:true}))];
+    for(const list of [frame.text_stamps||[],frame.image_stamps||[]]){
+      let last=0;
+      for(const stamp of list){
+        if(!Number.isInteger(stamp.before_line)||stamp.before_line<last||stamp.before_line>lines.length/9)throw Error('损坏的印章绘制顺序');
+        last=stamp.before_line;
+      }
     }
+    stamps.sort((a,b)=>a.before_line-b.before_line);
     this.stats.drawCalls = 0; this.stats.penInstances = lines.length / 9;
     this.stats.textUploads=0;this.stats.textStamps=stamps.length;
     this.collectGpuTimes();
@@ -198,7 +202,7 @@ export class StageRenderer {
     let cursor=0;
     for(const stamp of stamps){
       this.drawLines(cursor,stamp.before_line-cursor);cursor=stamp.before_line;
-      this.drawTextStamp(stamp);
+      if(stamp.image)this.drawImageStamp(stamp);else this.drawTextStamp(stamp);
     }
     this.drawLines(cursor,lines.length/9-cursor);
     gl.bindFramebuffer(gl.FRAMEBUFFER,null);
@@ -265,6 +269,27 @@ export class StageRenderer {
     const item={texture,width,height,bytes,advance:metrics.width,dx:left-pad+width/2,dy:-(top-pad+height/2)};
     this.textCache.set(key,item);this.stats.textTextureBytes+=bytes;this.stats.textUploads++;
     return item;
+  }
+
+  drawImageStamp(stamp){
+    const image=this.images.get(stamp.style);if(!image)return;
+    const {width,height,angle}=spriteGeometry(stamp,image);
+    this.drawTexture(image.texture,stamp.x,stamp.y,width,height,angle,[1,1,1,stamp.opacity??1],stamp.effects,[image.width,image.height]);
+  }
+
+  // Costume sizes plus opacity masks (<=128x128, 1 bit per cell) for VM collisions.
+  costumeInfo(){
+    const out=[];
+    for(const [id,image] of this.images){
+      const mw=Math.min(image.width,128),mh=Math.min(image.height,128),bits=new Uint8Array(Math.ceil(mw*mh/8));
+      for(let y=0;y<mh;y++)for(let x=0;x<mw;x++){
+        const sx=Math.min(image.width-1,Math.floor((x+.5)*image.width/mw)),sy=Math.min(image.height-1,Math.floor((y+.5)*image.height/mh));
+        if(image.alpha[sy*image.width+sx]>0){const bit=y*mw+x;bits[bit>>3]|=1<<(bit&7);}
+      }
+      let binary='';for(let i=0;i<bits.length;i+=8192)binary+=String.fromCharCode(...bits.subarray(i,i+8192));
+      out.push({id,width:image.width,height:image.height,mask_width:mw,mask_height:mh,mask:btoa(binary)});
+    }
+    return out;
   }
 
   drawTextStamp(stamp){

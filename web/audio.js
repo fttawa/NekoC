@@ -1,6 +1,6 @@
 // Audio commands are ordered VM deltas. A paused player retains positions, a new VM resets them.
 export class ProjectAudio {
-  constructor(onError=()=>{}){this.onError=onError;this.voices=new Map();this.paused=true;this.context=null;}
+  constructor(onError=()=>{},onDone=()=>{}){this.onError=onError;this.onDone=onDone;this.voices=new Map();this.paused=true;this.context=null;}
   load(project){this.stop();this.resources=project.audios?.audiosDict||{};this.order=project.audios?.audioIds||Object.keys(this.resources);}
   unlock(){
     try{
@@ -22,17 +22,22 @@ export class ProjectAudio {
   apply(frame){
     for(const command of frame.audio_commands||[]){
       const resource=this.resolve(command.audio);
-      if(!resource){this.onError(`找不到音频：${command.audio}`);continue;}
+      if(!resource){this.onError(`找不到音频：${command.audio}`);if(command.wait)this.onDone(command.wait);continue;}
       let voice=this.voices.get(resource.id);
       if(command.play){
         if(!voice){
           const element=new Audio(resource.url);element.preload='auto';
           voice={element,wanted:false};this.voices.set(resource.id,voice);
-          element.onended=()=>{voice.wanted=false;};
+          element.onended=()=>{voice.wanted=false;for(const id of voice.waits.splice(0))this.onDone(id);};
+          element.onerror=()=>{for(const id of voice.waits.splice(0))this.onDone(id);};
+          voice.waits=[];
         }
+        // Restarting a sound ends earlier play-and-wait blocks on it.
+        for(const id of voice.waits.splice(0))this.onDone(id);
+        if(command.wait)voice.waits.push(command.wait);
         voice.element.currentTime=0;voice.wanted=true;
         if(!this.paused)this.play(voice);
-      }else if(voice){voice.wanted=false;voice.element.pause();voice.element.currentTime=0;}
+      }else if(voice){voice.wanted=false;voice.element.pause();voice.element.currentTime=0;for(const id of voice.waits.splice(0))this.onDone(id);}
     }
   }
   pause(){this.paused=true;for(const voice of this.voices.values())voice.element.pause();}

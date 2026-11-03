@@ -1,5 +1,5 @@
 use nekoc::{
-    engine::{Engine, Program},
+    engine::{Costume, Engine, Program},
     runtime::{Runtime, RuntimeValue},
     studio::document::Document,
 };
@@ -1676,4 +1676,188 @@ fn layer_blocks_reorder_drawing() {
     let first = frame(&mut vm).order.unwrap();
     // actorIds are front to back, so the default actor starts in front and moves to the back.
     assert_eq!(first, ["nekoc-default-actor", "other"]);
+}
+
+#[test]
+fn ask_suspends_until_answered_and_dialogs_time_out() {
+    let p = var_project(
+        chain(vec![
+            json!({"type":"self_dialog","fields":{"type":"say"},"inputs":{"text":{"type":"text","fields":{"TEXT":"hi"}},"time":num(0.1)}}),
+            json!({"type":"self_ask","inputs":{"text":{"type":"text","fields":{"TEXT":"name?"}}}}),
+            log_value(json!({"type":"get_answer"})),
+            json!({"type":"ask_and_choose","inputs":{"question":{"type":"text","fields":{"TEXT":"pick"}},
+                "CHOICE0":{"type":"text","fields":{"TEXT":"red"}},"CHOICE1":{"type":"text","fields":{"TEXT":"blue"}}}}),
+            set(
+                "i",
+                json!({"type":"get_choice_and_index","fields":{"type":"index"}}),
+            ),
+            log_value(json!({"type":"get_choice_and_index","fields":{"type":"content"}})),
+        ]),
+        &["i"],
+    );
+    let mut vm = Engine::new(Program::compile(&p).unwrap());
+    vm.start();
+    let f = frame(&mut vm);
+    assert_eq!(f.sprites[1].dialog.as_ref().unwrap().text, "hi");
+    assert!(f.ask.is_none());
+    let mut f = frame(&mut vm);
+    for _ in 0..10 {
+        f = frame(&mut vm);
+    }
+    // The dialog closed after its time and the question is shown, every frame.
+    assert!(f.sprites.is_empty() || f.sprites[0].dialog.is_none());
+    let ask = f.ask.clone().expect("question shown");
+    assert_eq!(ask.question, "name?");
+    vm.answer(ask.id + 99, "ignored", None);
+    vm.answer(ask.id, "Neko", None);
+    let f = frame(&mut vm);
+    assert_eq!(f.logs, ["Neko"]);
+    let ask = f.ask.expect("choice shown");
+    assert_eq!(
+        ask.choices.as_deref(),
+        Some(&["red".to_owned(), "blue".to_owned()][..])
+    );
+    vm.answer(ask.id, "", Some(2));
+    let f = frame(&mut vm);
+    assert_eq!(f.logs, ["blue"]);
+    assert_eq!(vm.numeric_variables()[0], 2.0);
+    assert!(f.ask.is_none() && f.active == 0);
+}
+
+fn two_actor_project(main: Value, other_pos: (f64, f64)) -> Value {
+    let mut p = project(main);
+    let mut other = p["actors"]["actorsDict"]["nekoc-default-actor"].clone();
+    other["id"] = json!("other");
+    other["position"] = json!({"x":other_pos.0,"y":other_pos.1});
+    other["nekoBlockJsonList"] = json!([]);
+    p["actors"]["actorsDict"]["other"] = other;
+    let scene = p["scenes"]["currentSceneId"].as_str().unwrap().to_owned();
+    p["scenes"]["scenesDict"][&scene]["actorIds"] = json!(["nekoc-default-actor", "other"]);
+    p
+}
+fn square(vm: &mut Engine, ring: bool) {
+    // 4x4 costume; a ring mask leaves the centre 2x2 transparent.
+    let mut bits = vec![0u8; 2];
+    for y in 0..4 {
+        for x in 0..4 {
+            let opaque = !ring || !(1..3).contains(&x) || !(1..3).contains(&y);
+            if opaque {
+                bits[(y * 4 + x) / 8] |= 1 << ((y * 4 + x) % 8);
+            }
+        }
+    }
+    let style = vm.program.sprites[1].style.clone().unwrap();
+    vm.set_costume(
+        &style,
+        Costume {
+            width: 40.0,
+            height: 40.0,
+            mask: Some((4, 4, bits)),
+        },
+    );
+}
+
+#[test]
+fn touching_uses_costume_bounds_masks_and_edges() {
+    let touch = |other: &str| {
+        set(
+            "t",
+            json!({"type":"bump_into","fields":{"sprite":"__self","sprite1":other}}),
+        )
+    };
+    for (pos, ring, expected) in [
+        ((30.0, 0.0), false, 1.0),
+        ((45.0, 0.0), false, 0.0),
+        ((0.0, 0.0), true, 1.0),
+    ] {
+        let mut p = two_actor_project(touch("other"), pos);
+        p["variables"]["variablesDict"]["t"] = json!({"id":"t","value":0});
+        let mut vm = Engine::new(Program::compile(&p).unwrap());
+        square(&mut vm, ring);
+        vm.start();
+        frame(&mut vm);
+        assert_eq!(vm.numeric_variables()[0], expected, "{pos:?} ring={ring}");
+    }
+    // Mouse inside the transparent centre of a ring does not touch.
+    let mut p = project(chain(vec![
+        touch("--mouse"),
+        set(
+            "e",
+            json!({"type":"bump_into","fields":{"sprite":"__self","sprite1":"--edge"}}),
+        ),
+    ]));
+    p["variables"]["variablesDict"]["t"] = json!({"id":"t","value":0});
+    p["variables"]["variablesDict"]["e"] = json!({"id":"e","value":0});
+    let mut vm = Engine::new(Program::compile(&p).unwrap());
+    square(&mut vm, true);
+    vm.start();
+    vm.set_mouse(1.0, 1.0);
+    frame(&mut vm);
+    assert_eq!(vm.numeric_variables(), &[0.0, 0.0]);
+}
+
+#[test]
+fn bounce_reflects_off_the_nearest_edge_and_moves_inside() {
+    let p = project(chain(vec![
+        json!({"type":"self_move_to","inputs":{"x":num(445.0),"y":num(0.0)}}),
+        json!({"type":"self_point_towards","inputs":{"degrees":num(45.0)}}),
+        json!({"type":"self_bounce_off_edge"}),
+        set(
+            "o",
+            json!({"type":"out_of_boundary","fields":{"boundary":"right"}}),
+        ),
+    ]));
+    let mut p = p;
+    p["variables"]["variablesDict"]["o"] = json!({"id":"o","value":0});
+    let mut vm = Engine::new(Program::compile(&p).unwrap());
+    square(&mut vm, false);
+    vm.start();
+    let f = frame(&mut vm);
+    let a = &f.sprites[1];
+    assert!((a.direction + 45.0).abs() < 1e-9, "{}", a.direction);
+    // Rotated 45 degrees, the 40x40 bounds are 20*sqrt(2) wide on each side.
+    assert!(
+        (a.x - (vm.program.width / 2.0 - 20.0 * 2f64.sqrt())).abs() < 1e-9,
+        "{}",
+        a.x
+    );
+    assert_eq!(vm.numeric_variables()[0], 0.0);
+}
+
+#[test]
+fn monitors_image_stamps_audio_waits_swipes_and_drags() {
+    let mut p = var_project(
+        chain(vec![
+            json!({"type":"show_hide_variables","fields":{"show_hide":"show","variable":"score"}}),
+            set("score", num(7.0)),
+            json!({"type":"image_stamp"}),
+            json!({"type":"self_set_draggable","fields":{"draggable":"1"}}),
+            json!({"type":"play_audio_and_wait","inputs":{"audio_id":{"type":"text","fields":{"TEXT":"boom"}}}}),
+            set("score", num(8.0)),
+        ]),
+        &["score"],
+    );
+    p["variables"]["variablesDict"]["score"]["name"] = json!("分数");
+    p["actors"]["actorsDict"]["nekoc-default-actor"]["nekoBlockJsonList"]
+        .as_array_mut()
+        .unwrap()
+        .push(json!({"type":"on_swipe","fields":{"type":"left"},"statements":{"DO":log_value(json!({"type":"text","fields":{"TEXT":"swiped"}}))}}));
+    let mut vm = Engine::new(Program::compile(&p).unwrap());
+    vm.start();
+    let f = frame(&mut vm);
+    assert_eq!(
+        (f.monitors[0].name.as_str(), f.monitors[0].value.as_str()),
+        ("分数", "7")
+    );
+    assert_eq!(f.image_stamps.len(), 1);
+    let wait = f.audio_commands[0].wait.unwrap();
+    frame(&mut vm);
+    assert_eq!(vm.numeric_variables()[0], 7.0);
+    vm.audio_finished(wait);
+    vm.swipe("left");
+    vm.drag("nekoc-default-actor", 12.0, -3.0);
+    let f = frame(&mut vm);
+    assert_eq!(vm.numeric_variables()[0], 8.0);
+    assert_eq!(f.logs, ["swiped"]);
+    assert_eq!((f.sprites[0].x, f.sprites[0].y), (12.0, -3.0));
 }
