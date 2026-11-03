@@ -26,6 +26,35 @@ function loadPlaywright() {
   return require("playwright");
 }
 
+// The official runtime resolves a procedures_2_parameter through the param id
+// in its mutation (id="..."), which must name one of the procedure's params
+// and its procedures_2_stable_parameter block. Otherwise it raises
+// procedure_no_such_parameter when the project starts.
+function procedureParameterIssues(project) {
+  const issues = [];
+  for (const [procedureId, procedure] of Object.entries(project.procedures?.proceduresDict ?? {})) {
+    const paramIds = new Set((procedure.params ?? []).map(param => param.id));
+    const blocks = [];
+    const walk = value => {
+      if (Array.isArray(value)) value.forEach(walk);
+      else if (value && typeof value === "object") {
+        if (typeof value.type === "string") blocks.push(value);
+        Object.values(value).forEach(walk);
+      }
+    };
+    walk(procedure.nekoBlockJsonList);
+    const defined = new Set(blocks.filter(block => block.type === "procedures_2_stable_parameter").map(block => block.id));
+    for (const block of blocks) {
+      if (block.type !== "procedures_2_parameter") continue;
+      const id = /id="([^"]+)"/.exec(block.mutation ?? "")?.[1];
+      if (!id || !paramIds.has(id) || !defined.has(id)) {
+        issues.push({ kind: "procedure_no_such_parameter", owner: procedureId, block: block.id, param: block.fields?.param_name, paramId: id ?? null });
+      }
+    }
+  }
+  return issues;
+}
+
 async function main() {
   const { chromium } = loadPlaywright();
   const browser = await chromium.launch({ headless: true, ...(values.channel ? { channel: values.channel } : {}) });
@@ -100,6 +129,7 @@ async function main() {
         }
         return { editorVersion, projectVersion: project.version, blockCount, issues };
       }, project);
+      result.issues.push(...procedureParameterIssues(project));
       report.projects.push({ input: path.resolve(input), ...result, pageErrors, ok: !result.issues.length && !pageErrors.length });
       await page.close();
     }
