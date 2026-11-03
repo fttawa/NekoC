@@ -1117,6 +1117,8 @@ impl Compiler {
                 | "temporary_list"
                 | "list_item"
                 | "procedures_2_parameter"
+                | "procedures_2_callreturn"
+                | "logic_ternary"
                 | "self_listen_value",
             ) => Ok(ListRef::Expression(self.value(b)? as u32)),
             _ => bail!("expected list reference at {}", b["id"]),

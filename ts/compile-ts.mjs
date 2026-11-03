@@ -40,11 +40,15 @@ class WorkspaceCompiler {
     this.enumValues = new Map();
     // Variables initialised with an array (a list value held in a variable).
     this.arrayVariables = new Set();
+    // Call nodes of callback methods (a.map(x => ...)) -> helper function name.
+    this.helperCalls = new Map();
+    this.helperCount = 0;
     // Variables initialised with a string; `+` on them joins text.
     this.stringVariables = new Set();
     STRING_VARIABLES = this.stringVariables;
     this.loopDepth = 0;
     this.loopBodyNext = false;
+    this.tryStack = [];
     this.rangeBindings = [];
     this.resources = {
       stage: null,
@@ -56,6 +60,7 @@ class WorkspaceCompiler {
 
   compile(sourceFile) {
     this.loadImports(sourceFile, this.entryPath);
+    this.synthesizeHelpers(sourceFile);
 
     sourceFile.statements.forEach((statement) => {
       if (ts.isImportDeclaration(statement)) {
@@ -306,8 +311,12 @@ class WorkspaceCompiler {
         if (!ts.isIdentifier(param.name)) {
           this.unsupported(param, "Only identifier function parameters are supported");
         }
+        if (param.dotDotDotToken) {
+          this.unsupported(param, "Rest parameters (...args) are not supported; pass an array instead");
+        }
         return param.name.text;
       }),
+      defaults: params.map((param) => param.initializer ?? null),
       body,
     });
   }
@@ -383,7 +392,8 @@ class WorkspaceCompiler {
   // let/const are ordinary variables shared by every call.
   compileFunctionProcedure({ fn, spec, returnsValue }) {
     const saved = [this.blocks, this.connections, this.expressionBindings, this.inlineCallStack,
-      this.rangeBindings, this.loopDepth, this.functionParams];
+      this.rangeBindings, this.loopDepth, this.functionParams, this.tryStack];
+    this.tryStack = [];
     this.blocks = {};
     this.connections = {};
     this.expressionBindings = [];
@@ -432,22 +442,157 @@ class WorkspaceCompiler {
       });
     } finally {
       [this.blocks, this.connections, this.expressionBindings, this.inlineCallStack,
-        this.rangeBindings, this.loopDepth, this.functionParams] = saved;
+        this.rangeBindings, this.loopDepth, this.functionParams, this.tryStack] = saved;
     }
+  }
+
+  // Array/string methods without a Kitten N block are built from loops in
+  // synthesized TypeScript helpers, compiled like user functions (custom
+  // blocks). Callback methods get one helper per call site, with the
+  // callback as its own function; shared helpers are added only when used.
+  synthesizeHelpers(sourceFile) {
+    const parts = [];
+    const used = new Set();
+    const visit = (node) => {
+      if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression)) {
+        const method = node.expression.name.text;
+        used.add(method);
+        const callback = node.arguments[0];
+        if (CALLBACK_METHODS.has(method) && callback && (ts.isArrowFunction(callback) || ts.isFunctionExpression(callback))) {
+          parts.push(this.synthesizeCallbackHelper(node, method, callback, sourceFile));
+        }
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(sourceFile);
+    const needed = new Set();
+    const need = (name) => {
+      if (needed.has(name)) return;
+      needed.add(name);
+      for (const dependency of SHARED_HELPERS[name].needs ?? []) need(dependency);
+    };
+    for (const method of used) {
+      if (Object.hasOwn(METHOD_HELPERS, method)) {
+        for (const name of METHOD_HELPERS[method]) need(name);
+      }
+    }
+    for (const name of needed) parts.push(SHARED_HELPERS[name].source);
+    if (!parts.length) return;
+    const helperFile = ts.createSourceFile("__nekoc_helpers.ts", parts.join("\n"), ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+    for (const statement of helperFile.statements) {
+      this.registerInlineFunction(statement);
+    }
+  }
+
+  synthesizeCallbackHelper(call, method, callback, sourceFile) {
+    const n = ++this.helperCount;
+    const params = callback.parameters.map((param) => {
+      if (!ts.isIdentifier(param.name)) this.unsupported(param, "Callback parameters must be simple names");
+      return param.name.text;
+    });
+    const statementBody = method === "forEach";
+    const body = ts.isBlock(callback.body)
+      ? callback.body.getText(sourceFile)
+      : statementBody ? `{ ${callback.body.getText(sourceFile)}; }` : `{ return ${callback.body.getText(sourceFile)}; }`;
+    // Callback params cannot reach parameters of an enclosing custom block.
+    for (let outer = call.parent; outer; outer = outer.parent) {
+      if (ts.isFunctionLike(outer) && outer !== callback) {
+        for (const param of outer.parameters ?? []) {
+          if (ts.isIdentifier(param.name) && expressionContainsIdentifier(callback.body, param.name.text)
+            && !params.includes(param.name.text)) {
+            this.unsupported(callback, `Callbacks cannot use the parameter ${param.name.text} of an enclosing function; copy it into a variable first`);
+          }
+        }
+      }
+    }
+    const cb = `__cb${n}`;
+    const name = `__${method}${n}`;
+    const args = (...names) => names.slice(0, params.length).join(", ");
+    const x = `__x${n}`;
+    const i = `__i${n}`;
+    const loop = (inner) => `let ${i} = 0; for (const ${x} of __arrL) { ${inner} ${i}++; }`;
+    let helper;
+    switch (method) {
+      case "map":
+        helper = `function ${name}(__arrL) { const __out${n} = []; ${loop(`__out${n}.push(${cb}(${args(x, i, "__arrL")}));`)} return __out${n}; }`;
+        break;
+      case "filter":
+        helper = `function ${name}(__arrL) { const __out${n} = []; ${loop(`if (${cb}(${args(x, i, "__arrL")})) { __out${n}.push(${x}); }`)} return __out${n}; }`;
+        break;
+      case "forEach":
+        helper = `function ${name}(__arrL) { ${loop(`${cb}(${args(x, i, "__arrL")});`)} }`;
+        break;
+      case "reduce":
+        if (call.arguments.length < 2) this.unsupported(call, "reduce needs an initial value: a.reduce((acc, x) => ..., init)");
+        helper = `function ${name}(__arrL, __init${n}) { let __acc${n} = __init${n}; ${loop(`__acc${n} = ${cb}(${args(`__acc${n}`, x, i, "__arrL")});`)} return __acc${n}; }`;
+        break;
+      case "find":
+        helper = `function ${name}(__arrL) { ${loop(`if (${cb}(${args(x, i, "__arrL")})) { return ${x}; }`)} return ""; }`;
+        break;
+      case "findIndex":
+        helper = `function ${name}(__arrL) { ${loop(`if (${cb}(${args(x, i, "__arrL")})) { return ${i}; }`)} return -1; }`;
+        break;
+      case "some":
+        helper = `function ${name}(__arrL) { ${loop(`if (${cb}(${args(x, i, "__arrL")})) { return true; }`)} return false; }`;
+        break;
+      case "every":
+        helper = `function ${name}(__arrL) { ${loop(`if (!(${cb}(${args(x, i, "__arrL")}))) { return false; }`)} return true; }`;
+        break;
+      case "sort":
+        helper = sortHelper(name, `${cb}(__arrL[__b${n}], __v${n}) > 0`, n);
+        break;
+      default:
+        this.unsupported(call, `Unsupported callback method ${method}`);
+    }
+    this.helperCalls.set(call, { name, extra: method === "reduce" ? [call.arguments[1]] : [] });
+    return `function ${cb}(${params.join(", ")}) ${body}\n${helper}`;
+  }
+
+  // Builds a synthetic call to a helper: helper(target, ...args).
+  helperCall(name, target, args) {
+    const call = ts.factory.createCallExpression(ts.factory.createIdentifier(name), undefined, [target, ...args]);
+    return call;
+  }
+
+  compileHelperCall(name, target, args, parentId, asExpression = true) {
+    const call = this.helperCall(name, target, args);
+    if (this.functionProcedures.has(name)) {
+      return this.compileFunctionProcedureCall(call, parentId, asExpression);
+    }
+    return asExpression
+      ? this.compileInlineExpressionFunction(call, parentId, name)
+      : this.compileInlineStatementFunction(call, parentId, name);
   }
 
   compileFunctionProcedureCall(call, parentId, asExpression) {
     const { fn, spec, returnsValue } = this.functionProcedures.get(calleeName(call.expression));
-    if (call.arguments.length !== fn.params.length) {
-      this.unsupported(call, `Function ${spec.name} expects ${fn.params.length} arguments but got ${call.arguments.length}`);
-    }
+    const args = this.functionArguments(fn, call);
     if (asExpression && !returnsValue) {
       this.unsupported(call, `Function ${spec.name} does not return a value`);
     }
     if (!asExpression && returnsValue) {
-      this.unsupported(call, `Function ${spec.name} returns a value; use it in an expression, e.g. setVar("result", ${spec.name}(...))`);
+      // Value discarded: store it in a scratch variable.
+      const id = this.addBlock({ type: "variables_set", parent_id: parentId, fields: { variable: "__discard" } });
+      this.globalVariables.add("__discard");
+      this.connectInput(id, this.compileProcedureCallArgs(spec, args, id, true), "value", "value");
+      return id;
     }
-    return this.compileProcedureCallArgs(spec, call.arguments, parentId, asExpression);
+    return this.compileProcedureCallArgs(spec, args, parentId, asExpression);
+  }
+
+  // Call arguments with defaults filled in for omitted trailing parameters.
+  functionArguments(fn, call) {
+    const args = Array.from(call.arguments);
+    if (args.length > fn.params.length) {
+      this.unsupported(call, `Function ${fn.name} expects at most ${fn.params.length} arguments but got ${args.length}`);
+    }
+    for (let i = args.length; i < fn.params.length; i++) {
+      if (!fn.defaults?.[i]) {
+        this.unsupported(call, `Function ${fn.name} expects ${fn.params.length} arguments but got ${call.arguments.length}`);
+      }
+      args.push(fn.defaults[i]);
+    }
+    return args;
   }
 
   inlineArrowFunctionDeclaration(statement) {
@@ -930,7 +1075,7 @@ class WorkspaceCompiler {
       return this.compileTryStatement(statement, parentId);
     }
     if (ts.isThrowStatement(statement)) {
-      return this.addBlock({ type: "stop", parent_id: parentId });
+      return this.compileThrow(statement, parentId);
     }
     if (ts.isReturnStatement(statement)) {
       if (statement.expression) {
@@ -1442,7 +1587,10 @@ class WorkspaceCompiler {
         return this.compileFieldStatement(parentId, "face_to_body_part", {
           body_part: stringLiteralValue(call.arguments[0], this),
         });
-      default:
+      default: {
+        const statement = this.compileMethodStatement(call, parentId);
+        if (statement !== undefined) return statement;
+      }
         if (ts.isPropertyAccessExpression(call.expression) && call.expression.name.text === "push"
           && this.isArrayExpression(call.expression.expression)) {
           let firstId = null;
@@ -1524,6 +1672,9 @@ class WorkspaceCompiler {
       this.unsupported(expression.left, "Only variable and array element (a[i] = v) assignments are supported");
     }
     const variableName = expression.left.text;
+    if (this.functionParams?.has(variableName) || this.lookupExpressionBinding(variableName)) {
+      this.unsupported(expression.left, `Cannot assign to function parameter ${variableName}; copy it into a local variable first`);
+    }
     if (this.lookupRangeBinding(variableName)) {
       this.unsupported(expression.left, `Cannot assign to for loop parameter: ${variableName}`);
     }
@@ -2010,9 +2161,90 @@ class WorkspaceCompiler {
     return resetId;
   }
 
+  // try { ... throw x ... } catch (e) { ... } finally { ... }
+  //   flag = 0; repeat 1 { body; throw -> error = x, flag = 1, break }
+  //   if (flag == 1) { e = error; catch body }  finally body
+  // Throws must be directly in the try body (not in nested loops or other
+  // functions); a throw elsewhere stops the script.
   compileTryStatement(statement, parentId) {
     const body = this.statementBodyStatements(statement.tryBlock);
-    return this.compileStatementList(body, parentId);
+    const finallyStatements = statement.finallyBlock ? Array.from(statement.finallyBlock.statements) : [];
+    if (!statement.catchClause) {
+      const first = this.compileStatementList(body, parentId);
+      const rest = this.compileStatementList(finallyStatements, parentId);
+      if (first && rest) this.connectNext(this.chainTail(first), rest);
+      return first ?? rest;
+    }
+    body.forEach((child) => visitOutsideLoops(child, (node) => {
+      if ((ts.isBreakStatement(node) || ts.isContinueStatement(node)) && !ts.isSwitchStatement(node.parent)) {
+        this.unsupported(node, "break / continue inside a try block with catch is not supported");
+      }
+    }));
+    const n = ++this.helperCount;
+    const flag = `__thrown${n}`;
+    const error = `__error${n}`;
+    this.globalVariables.add(flag);
+    this.globalVariables.add(error);
+    const setNumber = (variable, value, parent) => {
+      const id = this.addBlock({ type: "variables_set", parent_id: parent, fields: { variable } });
+      this.connectInput(id, this.addBlock({ type: "math_number", parent_id: id, fields: { NUM: String(value) }, is_output: true }), "value", "value");
+      return id;
+    };
+    const resetId = setNumber(flag, 0, parentId);
+    const wrapper = this.addBlock({ type: "repeat_n_times", parent_id: parentId });
+    this.connectInput(wrapper, this.addBlock({ type: "math_number", parent_id: wrapper, fields: { NUM: "1" }, is_output: true }), "times", "value");
+    this.tryStack.push({ flag, error, depth: this.loopDepth + 1 });
+    let first;
+    try {
+      first = this.inLoop(() => this.compileStatementList(body, wrapper));
+    } finally {
+      this.tryStack.pop();
+    }
+    if (first) this.connectInput(wrapper, first, "DO", "statement");
+    this.connectNext(resetId, wrapper);
+    const ifId = this.addBlock({ type: "controls_if", parent_id: parentId });
+    const cmp = this.addBlock({ type: "logic_compare", parent_id: ifId, fields: { OP: "EQ" }, is_output: true });
+    this.connectInput(cmp, this.addBlock({ type: "variables_get", parent_id: cmp, fields: { variable: flag }, is_output: true }), "A", "value");
+    this.connectInput(cmp, this.addBlock({ type: "math_number", parent_id: cmp, fields: { NUM: "1" }, is_output: true }), "B", "value");
+    this.connectInput(ifId, cmp, "IF0", "value");
+    const handler = [];
+    const binding = statement.catchClause.variableDeclaration;
+    if (binding) {
+      if (!ts.isIdentifier(binding.name)) this.unsupported(binding, "catch needs a simple variable name");
+      this.globalVariables.add(binding.name.text);
+      const setE = this.addBlock({ type: "variables_set", parent_id: ifId, fields: { variable: binding.name.text } });
+      this.connectInput(setE, this.addBlock({ type: "variables_get", parent_id: setE, fields: { variable: error }, is_output: true }), "value", "value");
+      handler.push(setE);
+    }
+    handler.push(this.compileStatementList(Array.from(statement.catchClause.block.statements), ifId));
+    const handlerIds = handler.filter(Boolean);
+    for (let i = 1; i < handlerIds.length; i++) this.connectNext(this.chainTail(handlerIds[i - 1]), handlerIds[i]);
+    if (handlerIds[0]) this.connectInput(ifId, handlerIds[0], "DO0", "statement");
+    this.connectNext(wrapper, ifId);
+    const rest = this.compileStatementList(finallyStatements, parentId);
+    if (rest) this.connectNext(ifId, rest);
+    return resetId;
+  }
+
+  compileThrow(statement, parentId) {
+    const context = this.tryStack.at(-1);
+    if (!context || this.loopDepth !== context.depth) {
+      return this.addBlock({ type: "stop", parent_id: parentId });
+    }
+    // new Error(message) carries its message; anything else is thrown as is.
+    let value = statement.expression;
+    if (value && ts.isNewExpression(value) && ts.isIdentifier(value.expression) && /Error$/.test(value.expression.text)) {
+      value = value.arguments?.[0] ?? ts.factory.createStringLiteral("");
+    }
+    const setError = this.addBlock({ type: "variables_set", parent_id: parentId, fields: { variable: context.error } });
+    this.connectInput(setError, value ? this.compileExpression(value, setError)
+      : this.addBlock({ type: "text", parent_id: setError, fields: { TEXT: "" }, is_output: true }), "value", "value");
+    const setFlag = this.addBlock({ type: "variables_set", parent_id: parentId, fields: { variable: context.flag } });
+    this.connectInput(setFlag, this.addBlock({ type: "math_number", parent_id: setFlag, fields: { NUM: "1" }, is_output: true }), "value", "value");
+    const stop = this.addBlock({ type: "break", parent_id: parentId });
+    this.connectNext(setError, setFlag);
+    this.connectNext(setFlag, stop);
+    return setError;
   }
 
   // C-style for -> traverse_number. That block counts toward `to` in either
@@ -2841,6 +3073,19 @@ class WorkspaceCompiler {
     if (ts.isPropertyAccessExpression(expression) && expression.name.text === "length") {
       return this.compileLength(expression.expression, parentId);
     }
+    if (ts.isTypeOfExpression(expression)) {
+      this.unsupported(expression, "typeof is not supported: Kitten N values have no runtime type tag");
+    }
+    if (ts.isNewExpression(expression)) {
+      const what = expression.expression.getText?.() ?? "object";
+      this.unsupported(expression, `new ${what}() is not supported: Kitten N has no objects (use variables, arrays or lists)`);
+    }
+    if (ts.isObjectLiteralExpression(expression)) {
+      this.unsupported(expression, "Object literals are not supported: Kitten N has no objects (use separate variables)");
+    }
+    if (ts.isBinaryExpression(expression) && [ts.SyntaxKind.InKeyword, ts.SyntaxKind.InstanceOfKeyword].includes(expression.operatorToken.kind)) {
+      this.unsupported(expression.operatorToken, "in / instanceof are not supported: Kitten N has no objects");
+    }
     this.unsupported(expression, "Unsupported expression");
   }
 
@@ -2880,6 +3125,12 @@ class WorkspaceCompiler {
         case "contains":
           return this.compileListValueExpressionByArgs(parentId, "list_is_exist", listHandleCall.nameArg, call.arguments[0]);
       }
+    }
+    // Methods on ordinary values (a.join(), s.trim()) before DSL names, so
+    // `a.slice(1).join("")` is not read as the join() block.
+    if (isValueMethodCall(call)) {
+      const method = this.compileMethodCall(call, parentId);
+      if (method) return method;
     }
     switch (name) {
       case "getVar":
@@ -3375,15 +3626,10 @@ class WorkspaceCompiler {
       this.unsupported(call, `Recursive inline function calls are not supported: ${name}`);
     }
     const fn = this.inlineFunctions.get(name);
-    if (call.arguments.length !== fn.params.length) {
-      this.unsupported(
-        call,
-        `Function ${name} expects ${fn.params.length} arguments but got ${call.arguments.length}`,
-      );
-    }
+    const args = this.functionArguments(fn, call);
     const bindings = new Map();
     fn.params.forEach((param, index) => {
-      bindings.set(param, call.arguments[index]);
+      bindings.set(param, args[index]);
     });
     this.inlineCallStack.push(name);
     this.expressionBindings.push(bindings);
@@ -3619,9 +3865,14 @@ class WorkspaceCompiler {
   isArrayExpression(node) {
     node = stripParens(node);
     if (ts.isArrayLiteralExpression(node)) return true;
-    if (ts.isIdentifier(node)) return this.arrayVariables.has(node.text);
+    if (ts.isIdentifier(node)) return this.arrayVariables.has(node.text) || node.text.startsWith("__arr");
     if (ts.isCallExpression(node)) {
       const name = calleeName(node.expression);
+      if (ts.isPropertyAccessExpression(node.expression)) {
+        const method = node.expression.name.text;
+        if (["map", "filter"].includes(method)) return true;
+        if (["concat", "slice", "reverse", "sort"].includes(method) && this.isArrayExpression(node.expression.expression)) return true;
+      }
       if (ts.isPropertyAccessExpression(node.expression) && node.expression.name.text === "split") return true;
       return name === "splitText" || name === "tempList" || forOfListName(node) !== null && ts.isPropertyAccessExpression(node.expression);
     }
@@ -3639,6 +3890,83 @@ class WorkspaceCompiler {
     return id;
   }
 
+  // Statement-position method calls and internal list primitives used by the
+  // helpers. Returns undefined when the call is not one of these.
+  compileMethodStatement(call, parentId) {
+    const name = calleeName(call.expression);
+    const listBlock = (type, list, fields, inputs) => {
+      const id = this.addBlock({ type, parent_id: parentId, ...(fields ? { fields } : {}) });
+      this.connectInput(id, this.compileExpression(list, id), "list", "value");
+      for (const [input, build] of inputs) this.connectInput(id, build(id), input, "value");
+      return id;
+    };
+    const chainAll = (ids) => {
+      ids = ids.filter(Boolean);
+      for (let i = 1; i < ids.length; i++) this.connectNext(this.chainTail(ids[i - 1]), ids[i]);
+      return ids[0] ?? null;
+    };
+    switch (name) {
+      case "__listDelete":
+        return listBlock("delete_list_item", call.arguments[0], { item: "any" }, [["list_index", (id) => this.compileExpression(call.arguments[1], id)]]);
+      case "__listDeleteLast":
+        return listBlock("delete_list_item", call.arguments[0], { item: "last" }, []);
+    }
+    if (!ts.isPropertyAccessExpression(call.expression)) return undefined;
+    const target = call.expression.expression;
+    const method = call.expression.name.text;
+    const synthesized = this.helperCalls.get(call);
+    if (synthesized) {
+      return this.compileHelperCall(synthesized.name, target, synthesized.extra, parentId, false);
+    }
+    if (!this.isArrayExpression(target)) {
+      if (STRING_METHODS.has(method) || ["indexOf", "lastIndexOf", "startsWith", "endsWith", "includes", "slice", "split"].includes(method)) {
+        this.unsupported(call, `${method}() returns a new value and does not change the string; use its result`);
+      }
+      return undefined;
+    }
+    const insertAt = (index, value) => listBlock("list_insert_value", target, null, [
+      ["list_item_value", (id) => this.compileExpression(value, id)],
+      ["list_index", (id) => index(id)],
+    ]);
+    const number = (value) => (id) => this.addBlock({ type: "math_number", parent_id: id, fields: { NUM: String(value) }, is_output: true });
+    switch (method) {
+      case "unshift":
+        return chainAll(Array.from(call.arguments).reverse().map((value) => insertAt(number(1), value)));
+      case "splice": {
+        const [start, count, ...items] = call.arguments;
+        if (!start) this.unsupported(call, "splice needs a start index");
+        const startValue = constantNumber(start);
+        if (startValue !== null && startValue < 0) this.unsupported(start, "splice with a negative start is not supported");
+        const ids = [];
+        const deletes = this.addBlock({ type: "repeat_n_times", parent_id: parentId });
+        this.connectInput(deletes, count ? this.compileExpression(count, deletes) : this.compileLength(target, deletes), "times", "value");
+        const del = this.addBlock({ type: "delete_list_item", parent_id: deletes, fields: { item: "any" } });
+        this.connectInput(del, this.compileExpression(target, del), "list", "value");
+        this.connectInput(del, this.compilePlusOne(start, del), "list_index", "value");
+        this.connectInput(deletes, del, "DO", "statement");
+        ids.push(deletes);
+        items.slice().reverse().forEach((item) => ids.push(insertAt((id) => this.compilePlusOne(start, id), item)));
+        return chainAll(ids);
+      }
+      case "reverse":
+        if (!ts.isIdentifier(target)) this.unsupported(call, "reverse() as a statement needs an array variable");
+        return this.compileReverseInPlace(target, parentId);
+      case "sort": case "pop": case "shift": {
+        const id = this.addBlock({ type: "variables_set", parent_id: parentId, fields: { variable: "__discard" } });
+        this.globalVariables.add("__discard");
+        this.connectInput(id, this.compileMethodCall(call, id), "value", "value");
+        return id;
+      }
+    }
+    return undefined;
+  }
+
+  compileReverseInPlace(target, parentId) {
+    const id = this.addBlock({ type: "variables_set", parent_id: parentId, fields: { variable: target.text } });
+    this.connectInput(id, this.compileHelperCall("__arr_reverse", target, [], id), "value", "value");
+    return id;
+  }
+
   // String and array methods: s.includes / slice / substring / charAt /
   // split, a.length via compileLength.
   compileMethodCall(call, parentId) {
@@ -3646,7 +3974,38 @@ class WorkspaceCompiler {
     const target = call.expression.expression;
     const method = call.expression.name.text;
     const args = call.arguments;
+    const literal = (value) => (typeof value === "number" ? ts.factory.createNumericLiteral(value) : ts.factory.createStringLiteral(value));
+    const lengthOf = () => ts.factory.createPropertyAccessExpression(target, "length");
+    const helper = (name, ...extra) => this.compileHelperCall(name, target, extra, parentId);
+    const synthesized = this.helperCalls.get(call);
+    if (synthesized) {
+      return this.compileHelperCall(synthesized.name, target, synthesized.extra, parentId);
+    }
     if (this.isArrayExpression(target)) {
+      switch (method) {
+        case "indexOf": {
+          // list_index_of is 1-based with 0 for missing.
+          const id = this.addBlock({ type: "math_arithmetic", parent_id: parentId, fields: { type: "minus" }, is_output: true });
+          const find = this.addBlock({ type: "list_index_of", parent_id: id, is_output: true });
+          this.connectInput(find, this.compileExpression(target, find), "list", "value");
+          this.connectInput(find, this.compileExpression(args[0], find), "list_item_value", "value");
+          this.connectInput(id, find, "A", "value");
+          this.connectInput(id, this.addBlock({ type: "math_number", parent_id: id, fields: { NUM: "1" }, is_output: true }), "B", "value");
+          return id;
+        }
+        case "lastIndexOf": return helper("__arr_lastIndexOf", args[0]);
+        case "join": return helper("__arr_join", args[0] ?? literal(","));
+        case "concat": return helper("__arr_concat", args[0]);
+        case "slice":
+          if (args.some((arg) => { const v = constantNumber(arg); return v !== null && v < 0; })) {
+            this.unsupported(call, "slice with negative indices is not supported");
+          }
+          return helper("__arr_slice", args[0] ?? literal(0), args[1] ?? lengthOf());
+        case "reverse": return helper("__arr_reverse");
+        case "pop": return helper("__arr_pop");
+        case "shift": return helper("__arr_shift");
+        case "sort": return helper("__arr_sort");
+      }
       if (method === "includes") {
         const id = this.addBlock({ type: "list_is_exist", parent_id: parentId, is_output: true });
         this.connectInput(id, this.compileExpression(target, id), "list", "value");
@@ -3683,6 +4042,17 @@ class WorkspaceCompiler {
         this.connectInput(id, endId, "end_index", "value");
         return id;
       }
+      case "indexOf": return helper("__str_indexOf", args[0], args[1] ?? literal(0));
+      case "lastIndexOf": return helper("__str_lastIndexOf", args[0]);
+      case "startsWith": return helper("__str_startsWith", args[0]);
+      case "endsWith": return helper("__str_endsWith", args[0]);
+      case "replace": return helper("__str_replace", args[0], args[1]);
+      case "replaceAll": return helper("__str_replaceAll", args[0], args[1]);
+      case "trim": case "trimStart": case "trimEnd": case "toUpperCase": case "toLowerCase":
+        return helper(`__str_${method}`);
+      case "repeat": return helper("__str_repeat", args[0]);
+      case "padStart": case "padEnd": return helper(`__str_${method}`, args[0], args[1] ?? literal(" "));
+      case "concat": return this.compileTextJoin([{ expression: target }, ...Array.from(args, (arg) => ({ expression: arg }))], parentId);
       case "split": {
         const id = this.addBlock({ type: "text_split", parent_id: parentId, is_output: true });
         this.connectInput(id, this.compileExpression(target, id), "TEXT_TO_SPLIT", "value");
@@ -4046,7 +4416,7 @@ class WorkspaceCompiler {
     this.nextId += 1;
     this.blocks[id] = { id, ...block };
     const node = sourceNode || this.currentStatementNode;
-    if (node && this.sourceFile) {
+    if (node && this.sourceFile && node.pos >= 0 && node.getSourceFile?.() === this.sourceFile) {
       const start = node.getStart(this.sourceFile);
       const { line, character } = this.sourceFile.getLineAndCharacterOfPosition(start);
       this.sourceMap[id] = { line: line + 1, column: character };
@@ -4084,7 +4454,7 @@ class WorkspaceCompiler {
   }
 
   unsupported(node, message) {
-    const suffix = node && typeof node.pos === "number"
+    const suffix = node && typeof node.pos === "number" && node.pos >= 0 && node.getSourceFile?.() === this.sourceFile
       ? ` at offset ${node.getStart(this.sourceFile)}`
       : "";
     fail(`${message}${suffix}`);
@@ -4147,6 +4517,15 @@ function constantInitialValue(node, compiler) {
   return value;
 }
 
+function isValueMethodCall(call) {
+  if (!ts.isPropertyAccessExpression(call.expression)) return false;
+  let root = call.expression.expression;
+  while (ts.isPropertyAccessExpression(root) || ts.isCallExpression(root) || ts.isElementAccessExpression(root)) {
+    root = root.expression;
+  }
+  return !(ts.isIdentifier(root) && ["self", "console", "Math"].includes(root.text)) && root.kind !== ts.SyntaxKind.ThisKeyword;
+}
+
 function forOfListName(node) {
   if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression)
     && node.expression.name.text === "get" && node.arguments.length === 0) {
@@ -4173,6 +4552,48 @@ function selfListHandleCall(call) {
   };
 }
 
+const CALLBACK_METHODS = new Set(["map", "filter", "forEach", "reduce", "find", "findIndex", "some", "every", "sort"]);
+
+// Insertion sort in place; `greater` is the "move right" test.
+function sortHelper(name, greater, n) {
+  return `function ${name}(__arrL) { for (let __a${n} = 1; __a${n} < __arrL.length; __a${n}++) { const __v${n} = __arrL[__a${n}]; let __b${n} = __a${n} - 1; while (__b${n} >= 0 && ${greater}) { __arrL[__b${n} + 1] = __arrL[__b${n}]; __b${n} = __b${n} - 1; } __arrL[__b${n} + 1] = __v${n}; } return __arrL; }`;
+}
+
+const SHARED_HELPERS = {
+  __arr_join: { source: `function __arr_join(__arrL, __sep) { let __jS = ""; let __jK = 0; for (const __jX of __arrL) { if (__jK > 0) { __jS = join(__jS, __sep); } __jS = join(__jS, __jX); __jK++; } return __jS; }` },
+  __arr_concat: { source: `function __arr_concat(__arrL, __arrB) { const __cO = []; for (const __cX of __arrL) { __cO.push(__cX); } for (const __cY of __arrB) { __cO.push(__cY); } return __cO; }` },
+  __arr_slice: { source: `function __arr_slice(__arrL, __sFrom, __sTo) { const __sO = []; for (let __sK = __sFrom; __sK < __sTo; __sK++) { __sO.push(__arrL[__sK]); } return __sO; }` },
+  __arr_reverse: { source: `function __arr_reverse(__arrL) { const __rO = []; for (let __rK = __arrL.length - 1; __rK >= 0; __rK--) { __rO.push(__arrL[__rK]); } return __rO; }` },
+  __arr_lastIndexOf: { source: `function __arr_lastIndexOf(__arrL, __lV) { for (let __lK = __arrL.length - 1; __lK >= 0; __lK--) { if (__arrL[__lK] === __lV) { return __lK; } } return -1; }` },
+  __arr_pop: { source: `function __arr_pop(__arrL) { const __pV = __arrL[__arrL.length - 1]; __listDeleteLast(__arrL); return __pV; }` },
+  __arr_shift: { source: `function __arr_shift(__arrL) { const __hV = __arrL[0]; __listDelete(__arrL, 1); return __hV; }` },
+  __arr_sort: { source: sortHelper("__arr_sort", "__arrL[__bD] > __vD", "D") },
+  __str_indexOf: { source: `function __str_indexOf(__s, __t, __from) { for (let __iK = __from; __iK <= length(__s) - length(__t); __iK++) { if (selectText(__s, __iK + 1, __iK + length(__t)) === __t) { return __iK; } } return -1; }` },
+  __str_lastIndexOf: { source: `function __str_lastIndexOf(__s, __t) { for (let __lK = length(__s) - length(__t); __lK >= 0; __lK--) { if (selectText(__s, __lK + 1, __lK + length(__t)) === __t) { return __lK; } } return -1; }` },
+  __str_startsWith: { source: `function __str_startsWith(__s, __t) { return selectText(__s, 1, length(__t)) === __t; }` },
+  __str_endsWith: { source: `function __str_endsWith(__s, __t) { return selectText(__s, length(__s) - length(__t) + 1, length(__s)) === __t; }` },
+  __str_replace: { needs: ["__str_indexOf"], source: `function __str_replace(__s, __a, __b) { const __rI = __str_indexOf(__s, __a, 0); if (__rI < 0) { return __s; } return join(selectText(__s, 1, __rI), __b, selectText(__s, __rI + length(__a) + 1, length(__s))); }` },
+  __str_replaceAll: { needs: ["__str_indexOf"], source: `function __str_replaceAll(__s, __a, __b) { let __aO = ""; let __aP = 0; let __aI = __str_indexOf(__s, __a, 0); while (__aI >= 0 && length(__a) > 0) { __aO = join(__aO, selectText(__s, __aP + 1, __aI), __b); __aP = __aI + length(__a); __aI = __str_indexOf(__s, __a, __aP); } return join(__aO, selectText(__s, __aP + 1, length(__s))); }` },
+  __str_trimStart: { source: `function __str_trimStart(__s) { let __tA = 1; while (__tA <= length(__s) && contains(" \\t\\n\\r", selectText(__s, __tA, __tA))) { __tA = __tA + 1; } return selectText(__s, __tA, length(__s)); }` },
+  __str_trimEnd: { source: `function __str_trimEnd(__s) { let __tB = length(__s); while (__tB >= 1 && contains(" \\t\\n\\r", selectText(__s, __tB, __tB))) { __tB = __tB - 1; } return selectText(__s, 1, __tB); }` },
+  __str_trim: { needs: ["__str_trimStart", "__str_trimEnd"], source: `function __str_trim(__s) { return __str_trimEnd(__str_trimStart(__s)); }` },
+  __str_repeat: { source: `function __str_repeat(__s, __n) { let __pO = ""; for (let __pK = 0; __pK < __n; __pK++) { __pO = join(__pO, __s); } return __pO; }` },
+  __str_padStart: { source: `function __str_padStart(__s, __n, __f) { let __qO = __s; while (length(__qO) < __n && length(__f) > 0) { __qO = join(__f, __qO); } return __qO; }` },
+  __str_padEnd: { source: `function __str_padEnd(__s, __n, __f) { let __qE = __s; while (length(__qE) < __n && length(__f) > 0) { __qE = join(__qE, __f); } return __qE; }` },
+  __str_toUpperCase: { needs: ["__str_indexOf"], source: `function __str_toUpperCase(__s) { let __uO = ""; for (let __uK = 1; __uK <= length(__s); __uK++) { const __uC = selectText(__s, __uK, __uK); const __uI = __str_indexOf("abcdefghijklmnopqrstuvwxyz", __uC, 0); if (__uI >= 0) { __uO = join(__uO, selectText("ABCDEFGHIJKLMNOPQRSTUVWXYZ", __uI + 1, __uI + 1)); } else { __uO = join(__uO, __uC); } } return __uO; }` },
+  __str_toLowerCase: { needs: ["__str_indexOf"], source: `function __str_toLowerCase(__s) { let __wO = ""; for (let __wK = 1; __wK <= length(__s); __wK++) { const __wC = selectText(__s, __wK, __wK); const __wI = __str_indexOf("ABCDEFGHIJKLMNOPQRSTUVWXYZ", __wC, 0); if (__wI >= 0) { __wO = join(__wO, selectText("abcdefghijklmnopqrstuvwxyz", __wI + 1, __wI + 1)); } else { __wO = join(__wO, __wC); } } return __wO; }` },
+};
+
+// Method name -> shared helpers it may need (array or string form).
+const METHOD_HELPERS = {
+  join: ["__arr_join"], concat: ["__arr_concat"], slice: ["__arr_slice"], reverse: ["__arr_reverse"],
+  lastIndexOf: ["__arr_lastIndexOf", "__str_lastIndexOf"], pop: ["__arr_pop"], shift: ["__arr_shift"],
+  sort: ["__arr_sort"], indexOf: ["__str_indexOf"], startsWith: ["__str_startsWith"], endsWith: ["__str_endsWith"],
+  replace: ["__str_replace"], replaceAll: ["__str_replaceAll"], trim: ["__str_trim"], trimStart: ["__str_trimStart"],
+  trimEnd: ["__str_trimEnd"], repeat: ["__str_repeat"], padStart: ["__str_padStart"], padEnd: ["__str_padEnd"],
+  toUpperCase: ["__str_toUpperCase"], toLowerCase: ["__str_toLowerCase"],
+};
+
 const BITWISE_OPERATORS = new Set([
   ts.SyntaxKind.AmpersandToken,
   ts.SyntaxKind.BarToken,
@@ -4197,6 +4618,8 @@ function isStringType(type) {
 // Statically string-valued: literals, templates, `x as string`, text
 // reporters, or a `+` with a string side.
 let STRING_VARIABLES = new Set();
+const STRING_METHODS = new Set(["replace", "replaceAll", "trim", "trimStart", "trimEnd", "toUpperCase", "toLowerCase",
+  "padStart", "padEnd", "repeat", "charAt", "substring", "join"]);
 
 function isStringExpression(node) {
   node = stripParens(node);
@@ -4206,6 +4629,8 @@ function isStringExpression(node) {
   if (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node) || ts.isTemplateExpression(node)) return true;
   if (ts.isCallExpression(node) && ts.isIdentifier(node.expression)
     && ["join", "selectText", "answer", "String"].includes(node.expression.text)) return true;
+  if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression)
+    && STRING_METHODS.has(node.expression.name.text)) return true;
   if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.PlusToken) {
     return isStringExpression(node.left) || isStringExpression(node.right);
   }
@@ -4291,10 +4716,6 @@ function nativeBinaryExpressionSpec(operator) {
       return { type: "math_arithmetic", fields: { type: "power" }, leftInput: "A", rightInput: "B" };
     case ts.SyntaxKind.QuestionQuestionToken:
       return { type: "logic_operation", fields: { type: "or" }, leftInput: "A", rightInput: "B" };
-    case ts.SyntaxKind.InKeyword:
-      return { type: "logic_boolean", fields: { BOOL: "true" }, leftInput: "A", rightInput: "B" };
-    case ts.SyntaxKind.InstanceOfKeyword:
-      return { type: "logic_boolean", fields: { BOOL: "true" }, leftInput: "A", rightInput: "B" };
     default:
       return null;
   }
