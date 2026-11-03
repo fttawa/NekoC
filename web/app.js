@@ -2,7 +2,9 @@ import {StageRenderer,decodeFrame} from './renderer.js';
 import {PlayerConnection} from './player.js';
 import {ProjectAudio} from './audio.js';
 import {StageInput} from './input.js';
-const audio=new ProjectAudio(message=>log(message,true));
+import {StageOverlay} from './overlay.js';
+const audio=new ProjectAudio(message=>log(message,true),id=>input?.push({kind:'audio_done',id}));
+let overlay=null,sendCostumes=false;
 window.addEventListener('pointerdown',()=>audio.unlock(),{capture:true});
 window.addEventListener('keydown',()=>audio.unlock(),{capture:true});
 window.addEventListener('pagehide',()=>audio.stop());
@@ -155,18 +157,19 @@ async function start(){
 }
 async function startRuntime(){
   if(running)return;await inFlight;
-  if(!started){await api('project',project);audio.load(project);player=new PlayerConnection();const ready=await player.open();compiled(ready.stats);started=true;epoch++;input.reset();lastFrame=null;lastBytes=0;history=[];pipeline.completedFrames=0;renderEditor();renderPalette();}
+  if(!started){await api('project',project);audio.load(project);player=new PlayerConnection();const ready=await player.open();compiled(ready.stats);started=true;sendCostumes=true;overlay?.reset();epoch++;input.reset();lastFrame=null;lastBytes=0;history=[];pipeline.completedFrames=0;renderEditor();renderPalette();}
   frames=0;fpsStart=performance.now();fps=0;
   running=true;audio.resume();lastTick=performance.now();state('运行中');$('#stage').focus();
 }
 function state(text){$('#runtime-state').replaceChildren(make('i'),document.createTextNode(text));$('#run').disabled=running;}
-async function stop(){await starting;running=false;audio.stop();epoch++;player?.close();player=null;await inFlight;await api('stop');started=false;input.reset();timerLabel.hidden=true;await renderer.load(project);renderEditor();renderPalette();state('就绪');}
+async function stop(){await starting;running=false;audio.stop();epoch++;player?.close();player=null;await inFlight;await api('stop');started=false;input.reset();overlay?.reset();timerLabel.hidden=true;await renderer.load(project);renderEditor();renderPalette();state('就绪');}
 async function nextFrame(dt){
   const token=epoch,start=performance.now();let buffer;
-  try{buffer=await player.frame({dt,...input.take(),utc_offset:-new Date().getTimezoneOffset()});}catch(error){if(token!==epoch)return;throw error;}if(token!==epoch)return;
+  try{const costumes=sendCostumes?renderer.costumeInfo():undefined;sendCostumes=false;
+  buffer=await player.frame({dt,...input.take(),costumes,utc_offset:-new Date().getTimezoneOffset()});}catch(error){if(token!==epoch)return;throw error;}if(token!==epoch)return;
   pipeline.roundtripMs=performance.now()-start;
   const decodeStart=performance.now(),{frame,lines}=decodeFrame(buffer);pipeline.decodeMs=performance.now()-decodeStart;lastBytes=buffer.byteLength;lastFrame=frame;
-   renderer.apply(frame,lines);audio.apply(frame);for(const message of frame.logs)log(message);
+   renderer.apply(frame,lines);overlay?.apply(frame);audio.apply(frame);for(const message of frame.logs)log(message);
   timerLabel.hidden=!frame.timer_visible;if(frame.timer_visible)timerLabel.textContent=`计时器 ${frame.timer.toFixed(2)}`;
   pipeline.completedFrames++;frames++;
 }
@@ -185,7 +188,7 @@ function monitor(now){
 }
 function loop(now){
   if(running&&!inFlight){const dt=Math.min((now-lastTick)/1000,.25);lastTick=now;inFlight=nextFrame(dt).catch(handleError).finally(()=>{inFlight=null;});}
-  renderer.render();renderer.collectGpuTimes();monitor(now);requestAnimationFrame(loop);
+  renderer.render();overlay?.update();renderer.collectGpuTimes();monitor(now);requestAnimationFrame(loop);
 }
 async function loadProject(value){
   await starting;
@@ -233,6 +236,6 @@ $('#apply-json').onclick=async()=>{if(started||starting){notify('请先停止运
   catch(e){handleError(e);}finally{button.disabled=false;}
 };
 window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue='';}});
-try{renderer=new StageRenderer($('#stage'));input=new StageInput($('#stage'),renderer,()=>running);renderer.onError=message=>log(message,true);await loadProject(await(await fetch('/api/project')).json());requestAnimationFrame(loop);}catch(e){handleError(e);if(renderer)requestAnimationFrame(loop);}
+try{renderer=new StageRenderer($('#stage'));input=new StageInput($('#stage'),renderer,()=>running);overlay=new StageOverlay($('#stage').parentElement,renderer,event=>input.push(event));renderer.onError=message=>log(message,true);await loadProject(await(await fetch('/api/project')).json());requestAnimationFrame(loop);}catch(e){handleError(e);if(renderer)requestAnimationFrame(loop);}
 // Read-only diagnostics for local performance/renderer verification.
 window.nekoDiagnostics=()=>({renderer:{...renderer?.stats},sprites:renderer?.sprites,frame:lastFrame,bytes:lastBytes,running,started,pipeline:{...pipeline},framebuffer:[renderer?.canvas.width,renderer?.canvas.height]});

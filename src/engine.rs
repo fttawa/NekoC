@@ -142,6 +142,7 @@ fn is_prime(v: f64) -> bool {
 /// Point targets beside actor indices (actor_target uses usize::MAX for self).
 const TARGET_MOUSE: usize = usize::MAX - 1;
 const TARGET_RANDOM: usize = usize::MAX - 2;
+const TARGET_EDGE: usize = usize::MAX - 3;
 fn truth(v: f64) -> bool {
     v != 0.0 && !v.is_nan()
 }
@@ -174,6 +175,10 @@ enum ExprOp {
     MouseDown(u8),
     CloneCount(usize),
     CloneIndex,
+    /// (subject, other actor | TARGET_MOUSE | TARGET_EDGE)
+    Touching(usize, usize),
+    /// (subject, edge: 0 any, 1 top, 2 bottom, 3 left, 4 right)
+    OutOfBounds(usize, u8),
     Binary(Binary),
     Unary(Unary),
 }
@@ -283,6 +288,17 @@ enum Op {
     Restart,
     Clone(usize),
     DisposeClone,
+    Dialog(usize, bool),
+    CloseDialog,
+    Bounce,
+    Draggable(bool),
+    ImageStamp,
+    /// Play an audio value and wait for the viewer to report its end.
+    AudioWait(usize),
+    /// Show (true) or hide a variable/list monitor.
+    Monitor(usize, bool),
+    /// Question value and optional choice values (`value_args` span).
+    Ask(usize, Option<Span>),
     Layer(LayerMove),
 }
 #[derive(Clone, Copy, Debug)]
@@ -346,6 +362,9 @@ pub struct Sprite {
     pub size_y: f64,
     /// 0 free rotation, 1 left-right flip, 2 no rotation.
     pub rotation_type: u8,
+    /// Speech or thought bubble.
+    pub dialog: Option<Dialog>,
+    pub draggable: bool,
     #[serde(skip)]
     styles: Vec<String>,
     /// Original actor index (itself for originals); clones share their scripts.
@@ -366,6 +385,54 @@ pub struct Sprite {
     size: f64,
 }
 
+/// Costume size in pixels and an optional opacity mask (1 bit per cell,
+/// row-major, top row first) used for collision tests.
+#[derive(Clone, Debug, Default)]
+pub struct Costume {
+    pub width: f64,
+    pub height: f64,
+    pub mask: Option<(usize, usize, Vec<u8>)>,
+}
+#[derive(Clone, Debug, Serialize)]
+pub struct ImageStamp {
+    pub before_line: usize,
+    pub style: Option<String>,
+    pub x: f64,
+    pub y: f64,
+    pub direction: f64,
+    pub scale: f64,
+    pub size_x: f64,
+    pub size_y: f64,
+    pub rotation_type: u8,
+    pub opacity: f64,
+    pub effects: [f64; 7],
+}
+#[derive(Clone, Debug, Serialize)]
+pub struct Monitor {
+    pub id: String,
+    pub name: String,
+    pub list: bool,
+    pub value: String,
+}
+#[derive(Clone, Debug, Serialize)]
+pub struct Dialog {
+    pub text: String,
+    pub think: bool,
+}
+/// A question waiting for the viewer. The asking task is suspended until
+/// `Engine::answer` supplies the reply.
+#[derive(Clone, Debug, Serialize)]
+pub struct AskRequest {
+    pub id: u64,
+    /// Asking sprite (empty for the stage), for positioning the prompt.
+    pub sprite: String,
+    pub question: String,
+    /// Present for ask-and-choose.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub choices: Option<Vec<String>>,
+    #[serde(skip)]
+    task: u64,
+}
 #[derive(Clone, Debug)]
 struct Script {
     start: usize,
@@ -379,6 +446,7 @@ enum ScriptEvent {
     CloneStart,
     Key(String, bool),
     Pointer(String, String),
+    Swipe(String),
     Broadcast(usize, bool),
 }
 
@@ -407,6 +475,11 @@ pub struct Program {
     call_arguments: Vec<Vec<usize>>,
     pub variable_names: Vec<String>,
     style_names: BTreeMap<String, String>,
+    /// Costume sizes from the project file, replaced by viewer-measured ones.
+    costumes: BTreeMap<String, Costume>,
+    display_names: BTreeMap<String, String>,
+    /// Monitor targets: variable slot or list index with its id.
+    monitor_targets: Vec<(String, bool, usize)>,
     pub list_names: Vec<String>,
     pub sprites: Vec<Sprite>,
     pub width: f64,
@@ -466,6 +539,31 @@ impl Program {
                 procedure_entries: vec![],
                 call_arguments: vec![],
                 variable_names: vec![],
+                costumes: project
+                    .pointer("/styles/stylesDict")
+                    .and_then(Value::as_object)
+                    .into_iter()
+                    .flatten()
+                    .filter_map(|(id, style)| {
+                        let (width, height) = (style["width"].as_f64()?, style["height"].as_f64()?);
+                        Some((
+                            id.clone(),
+                            Costume {
+                                width,
+                                height,
+                                mask: None,
+                            },
+                        ))
+                    })
+                    .collect(),
+                display_names: project
+                    .pointer("/variables/variablesDict")
+                    .and_then(Value::as_object)
+                    .into_iter()
+                    .flatten()
+                    .map(|(id, v)| (id.clone(), v["name"].as_str().unwrap_or(id).to_owned()))
+                    .collect(),
+                monitor_targets: vec![],
                 style_names: project
                     .pointer("/styles/stylesDict")
                     .and_then(Value::as_object)
@@ -586,6 +684,8 @@ impl Program {
             size_x: 100.0,
             size_y: 100.0,
             rotation_type: 0,
+            dialog: None,
+            draggable: false,
             styles: owner_styles(scene_value),
             origin: 0,
             clone_index: 0,
@@ -617,6 +717,8 @@ impl Program {
                     size_x: 100.0,
                     size_y: 100.0,
                     rotation_type: actor["rotationType"].as_u64().unwrap_or(0).min(2) as u8,
+                    dialog: None,
+                    draggable: actor["draggable"].as_bool().unwrap_or(false),
                     styles: owner_styles(actor),
                     origin: index,
                     clone_index: 0,
@@ -911,6 +1013,8 @@ impl Compiler {
                     ValueExpr::Join(span)
                 }
             }
+            "get_answer" => ValueExpr::Answer,
+            "get_choice_and_index" => ValueExpr::Choice(field(b, "type") == "index"),
             "get_clone_index_property" => {
                 let attribute = match field(b, "attribute") {
                     "0" | "x" => 0,
@@ -958,6 +1062,11 @@ impl Compiler {
         let i = self.program.values.len();
         self.program.values.push(value);
         Ok(i)
+    }
+    fn push_constant(&mut self, value: Cell) -> usize {
+        let constant = self.constant(value);
+        self.program.values.push(constant);
+        self.program.values.len() - 1
     }
     fn constant(&mut self, value: Cell) -> ValueExpr {
         self.program.constants.push(value);
@@ -1157,9 +1266,12 @@ impl Compiler {
             | "text_contain"
             | "list_index_of"
             | "list_is_exist" => ExprOp::Value(self.value(b)?),
-            "logic_compare" | "logic_operation" | "logic_negate" | "procedures_2_callreturn" => {
-                ExprOp::Value(self.value(b)?)
-            }
+            "logic_compare"
+            | "logic_operation"
+            | "logic_negate"
+            | "procedures_2_callreturn"
+            | "get_answer"
+            | "get_choice_and_index" => ExprOp::Value(self.value(b)?),
             "check_key" => {
                 ensure!(
                     matches!(field(b, "type"), "down" | "up"),
@@ -1213,6 +1325,36 @@ impl Compiler {
             "style_of_sprite" => ExprOp::Costume(self.actor_target(field(b, "sprite"))?),
             "distance_to" => ExprOp::Distance(self.point_target(field(b, "sprite"))?),
             "get_clone_num" => ExprOp::CloneCount(self.actor_target(field(b, "sprite"))?),
+            "bump_into" => {
+                let other = b["fields"]
+                    .get("sprite1")
+                    .or_else(|| b["fields"].get("target"))
+                    .and_then(Value::as_str)
+                    .unwrap_or("");
+                let other = match other {
+                    "--edge" | "__edge" | "--boundary" | "__boundary" | "edge" => TARGET_EDGE,
+                    "--mouse" | "__mouse" | "--pointer" | "__pointer" => TARGET_MOUSE,
+                    id => self.actor_target(id)?,
+                };
+                ExprOp::Touching(self.actor_target(field(b, "sprite"))?, other)
+            }
+            "out_of_boundary" => {
+                let subject = b["fields"]
+                    .get("sprite")
+                    .and_then(Value::as_str)
+                    .unwrap_or("--self");
+                ExprOp::OutOfBounds(
+                    self.actor_target(subject)?,
+                    match field(b, "boundary") {
+                        "" | "any" | "all" | "edge" => 0,
+                        "top" | "up" => 1,
+                        "bottom" | "down" => 2,
+                        "left" => 3,
+                        "right" => 4,
+                        other => bail!("unknown boundary {other} at {}", b["id"]),
+                    },
+                )
+            }
             "get_current_clone_index" => ExprOp::CloneIndex,
             "get_clone_index_property" => ExprOp::Value(self.value(b)?),
             "get_stage_info" => {
@@ -1364,6 +1506,15 @@ impl Compiler {
                 ),
                 "on_running_group_activated" => ScriptEvent::Start,
                 "start_as_a_mirror" | "start_as_clone" => ScriptEvent::CloneStart,
+                "on_swipe" => {
+                    let direction = field(root, "type");
+                    ensure!(
+                        matches!(direction, "up" | "down" | "left" | "right"),
+                        "unknown swipe direction {direction} at {}",
+                        root["id"]
+                    );
+                    ScriptEvent::Swipe(direction.into())
+                }
                 "on_keydown" => {
                     ensure!(
                         matches!(field(root, "type"), "down" | "up"),
@@ -1411,7 +1562,7 @@ impl Compiler {
             let start = self.program.ops.len();
             let body = if matches!(event, ScriptEvent::Broadcast(_, _)) {
                 root["statements"].get("DO")
-            } else if matches!(event, ScriptEvent::CloneStart) {
+            } else if matches!(event, ScriptEvent::CloneStart | ScriptEvent::Swipe(_)) {
                 root["statements"]
                     .get("DO")
                     .filter(|b| b.is_object())
@@ -1698,6 +1849,75 @@ impl Compiler {
                 }
                 "restart" => Op::Restart,
                 "mirror" => Op::Clone(self.actor_target(field(b, "sprite"))?),
+                "self_dialog" | "self_dialog_wait" | "create_stage_dialog" => {
+                    let think = match field(b, "type") {
+                        "think" => true,
+                        "" | "say" | "talk" => false,
+                        other => bail!("unknown dialog type {other} at {}", b["id"]),
+                    };
+                    let text = self.value(input(b, "text")?)?;
+                    let timed = kind == "self_dialog" && b["inputs"].get("time").is_some();
+                    if timed {
+                        // Say for N seconds: show, wait, close.
+                        self.emit(Op::Dialog(text, think), b);
+                        let time = self.arg(b, "time")?;
+                        self.emit(Op::Wait(time), b);
+                        Op::CloseDialog
+                    } else {
+                        Op::Dialog(text, think)
+                    }
+                }
+                "close_self_dialog" => Op::CloseDialog,
+                "self_bounce_off_edge" => Op::Bounce,
+                "self_set_draggable" => {
+                    Op::Draggable(matches!(field(b, "draggable"), "1" | "true" | "draggable"))
+                }
+                "image_stamp" => Op::ImageStamp,
+                "play_audio_and_wait" => {
+                    let audio = b["inputs"]
+                        .get("audio_id")
+                        .map(|v| self.value(v))
+                        .unwrap_or_else(|| {
+                            Ok(self.push_constant(Cell::Text(field(b, "audio").into())))
+                        })?;
+                    Op::AudioWait(audio)
+                }
+                "show_hide_variables" | "show_hide_list" => {
+                    let list = kind == "show_hide_list";
+                    let id = field(b, if list { "list" } else { "variable" });
+                    let target = if list {
+                        *self
+                            .lists
+                            .get(id)
+                            .with_context(|| format!("unknown list {id}"))?
+                    } else {
+                        match self.target(id) {
+                            Target::Global(slot) => slot,
+                            Target::Local(_) => {
+                                bail!("script variables have no monitor at {}", b["id"])
+                            }
+                        }
+                    };
+                    let monitor = self.program.monitor_targets.len();
+                    self.program
+                        .monitor_targets
+                        .push((id.to_owned(), list, target));
+                    Op::Monitor(monitor, field(b, "show_hide") != "hide")
+                }
+                "self_ask" => Op::Ask(self.value(input(b, "text")?)?, None),
+                "ask_and_choose" => {
+                    let question = self.value(input(b, "question")?)?;
+                    let mut choices = vec![];
+                    while let Some(choice) = b["inputs"].get(format!("CHOICE{}", choices.len())) {
+                        choices.push(self.value(choice)?);
+                    }
+                    let span = Span {
+                        start: self.program.value_args.len() as u32,
+                        len: choices.len() as u32,
+                    };
+                    self.program.value_args.extend(choices);
+                    Op::Ask(question, Some(span))
+                }
                 "dispose_clone" => Op::DisposeClone,
                 "set_top_bottom_layer" | "self_change_layer" => {
                     let layer = field(b, "layer");
@@ -2094,6 +2314,9 @@ pub struct TextStamp {
 pub struct AudioCommand {
     pub audio: Cell,
     pub play: bool,
+    /// Report `audio_done` with this id when playback ends.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub wait: Option<u64>,
 }
 #[derive(Clone, Debug, Serialize)]
 pub struct Frame {
@@ -2114,6 +2337,14 @@ pub struct Frame {
     /// Deleted clone ids.
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub removed: Vec<String>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub image_stamps: Vec<ImageStamp>,
+    /// Visible variable/list monitors with current values.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub monitors: Vec<Monitor>,
+    /// The question waiting for an answer (repeated every frame until answered).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ask: Option<AskRequest>,
     /// Packed capsule instances: x1,y1,x2,y2,width,r,g,b,a. Only NEW strokes.
     #[serde(skip)]
     pub lines: Vec<f32>,
@@ -2169,6 +2400,15 @@ pub struct Engine {
     free_slots: Vec<usize>,
     clone_serial: u64,
     clones: usize,
+    asks: VecDeque<AskRequest>,
+    next_ask: u64,
+    image_stamps: Vec<ImageStamp>,
+    monitors: Vec<bool>,
+    /// Audio waits: (task id, wait id) resumed by `audio_finished`.
+    audio_waits: Vec<(u64, u64)>,
+    next_audio_wait: u64,
+    answer: Cell,
+    choice: (f64, Cell),
     /// Viewer's UTC offset in minutes (local time reporters).
     tz_offset_min: f64,
     pointer_down: bool,
@@ -2258,6 +2498,14 @@ impl Engine {
             free_slots: vec![],
             clone_serial: 0,
             clones: 0,
+            asks: VecDeque::new(),
+            next_ask: 1,
+            image_stamps: vec![],
+            monitors: vec![],
+            audio_waits: vec![],
+            next_audio_wait: 1,
+            answer: Cell::Text("".into()),
+            choice: (0.0, Cell::Text("".into())),
             tz_offset_min: 0.0,
             pointer_down: false,
             pointer_clicked: false,
@@ -2291,6 +2539,12 @@ impl Engine {
         self.free_slots.clear();
         self.clone_serial = 0;
         self.clones = 0;
+        self.asks.clear();
+        self.image_stamps.clear();
+        self.monitors.clear();
+        self.audio_waits.clear();
+        self.answer = Cell::Text("".into());
+        self.choice = (0.0, Cell::Text("".into()));
         self.tasks.clear();
         self.next_task_id = 0;
         self.received.clear();
@@ -2324,6 +2578,72 @@ impl Engine {
     pub fn set_mouse(&mut self, x: f64, y: f64) {
         if x.is_finite() && y.is_finite() {
             self.mouse = [x, y];
+        }
+    }
+    /// Costume sizes and opacity masks measured by the viewer after decoding.
+    pub fn set_costume(&mut self, id: &str, costume: Costume) {
+        if costume.width.is_finite() && costume.height.is_finite() {
+            self.program.costumes.insert(id.to_owned(), costume);
+        }
+    }
+    /// Resumes a task waiting in play-and-wait.
+    pub fn audio_finished(&mut self, wait: u64) {
+        if let Some(at) = self.audio_waits.iter().position(|(_, w)| *w == wait) {
+            let (task, _) = self.audio_waits.remove(at);
+            if let Some(task) = self.tasks.iter_mut().find(|t| t.id == task && !t.done) {
+                task.pending = task.pending.saturating_sub(1);
+            }
+        }
+    }
+    /// Moves a draggable sprite (player drag gesture).
+    pub fn drag(&mut self, id: &str, x: f64, y: f64) {
+        if !(x.is_finite() && y.is_finite()) || self.stopped {
+            return;
+        }
+        if let Some(i) = self
+            .sprites
+            .iter()
+            .position(|a| a.id == id && a.alive && a.draggable)
+        {
+            self.sprites[i].x = x;
+            self.sprites[i].y = y;
+            self.dirty[i] = true;
+        }
+    }
+    pub fn swipe(&mut self, direction: &str) {
+        self.dispatch(|event| matches!(event, ScriptEvent::Swipe(d) if d == direction));
+    }
+    /// The question currently shown to the viewer, if any.
+    pub fn pending_ask(&self) -> Option<&AskRequest> {
+        self.asks.front()
+    }
+    /// Answers the current question and resumes the task that asked it.
+    /// `choice` is the 1-based option for ask-and-choose.
+    pub fn answer(&mut self, id: u64, text: &str, choice: Option<usize>) {
+        let Some(ask) = self.asks.front() else { return };
+        if ask.id != id {
+            return;
+        }
+        let ask = self.asks.pop_front().unwrap();
+        if let Some(choices) = &ask.choices {
+            let index = choice
+                .filter(|i| (1..=choices.len()).contains(i))
+                .unwrap_or(0);
+            self.choice = (
+                index as f64,
+                Cell::Text(
+                    index
+                        .checked_sub(1)
+                        .map_or("", |i| choices[i].as_str())
+                        .into(),
+                ),
+            );
+            self.answer = self.choice.1.clone();
+        } else {
+            self.answer = Cell::Text(text.chars().take(10_000).collect::<String>().into());
+        }
+        if let Some(task) = self.tasks.iter_mut().find(|t| t.id == ask.task && !t.done) {
+            task.pending = task.pending.saturating_sub(1);
         }
     }
     /// Viewer's UTC offset in minutes (local = UTC + offset) for time reporters.
@@ -2454,6 +2774,9 @@ impl Engine {
             return;
         }
         self.tasks[index].done = true;
+        let id = self.tasks[index].id;
+        self.asks.retain(|ask| ask.task != id);
+        self.audio_waits.retain(|(task, _)| *task != id);
         if let Some(id) = self.tasks[index].waiter.take()
             && let Some(parent) = self
                 .tasks
@@ -2572,6 +2895,30 @@ impl Engine {
                     .count() as f64
             }
             ExprOp::CloneIndex => self.sprites[actor].clone_index as f64,
+            ExprOp::Touching(subject, other) => {
+                let subject = if subject == usize::MAX {
+                    actor
+                } else {
+                    subject
+                };
+                u8::from(self.touching(subject, other)) as f64
+            }
+            ExprOp::OutOfBounds(subject, edge) => {
+                let subject = if subject == usize::MAX {
+                    actor
+                } else {
+                    subject
+                };
+                let (l, r, b, t) = self.bounds(subject);
+                let (w, h) = (self.program.width / 2.0, self.program.height / 2.0);
+                u8::from(match edge {
+                    1 => t > h,
+                    2 => b < -h,
+                    3 => l < -w,
+                    4 => r > w,
+                    _ => t > h || b < -h || l < -w || r > w,
+                }) as f64
+            }
             ExprOp::MouseDown(state) => u8::from(match state {
                 0 => self.pointer_down,
                 1 => self.pointer_clicked,
@@ -2685,6 +3032,175 @@ impl Engine {
         task.wake = wake;
         task.anim = anim;
         std::mem::replace(&mut task.returned, saved_returned).unwrap_or(Cell::Null)
+    }
+    fn monitor_values(&self) -> Vec<Monitor> {
+        let mut out = vec![];
+        for (i, visible) in self.monitors.iter().enumerate() {
+            if !visible {
+                continue;
+            }
+            let (id, list, target) = &self.program.monitor_targets[i];
+            let value = if *list {
+                let items = self.lists[*target].borrow();
+                let mut text = items
+                    .iter()
+                    .take(100)
+                    .map(Cell::text)
+                    .collect::<Vec<_>>()
+                    .join("\n");
+                if items.len() > 100 {
+                    text.push_str("\n…");
+                }
+                text
+            } else {
+                self.global_value(*target).text()
+            };
+            out.push(Monitor {
+                id: id.clone(),
+                name: self.program.display_names.get(id).unwrap_or(id).clone(),
+                list: *list,
+                value,
+            });
+        }
+        out
+    }
+    /// Drawn half-size and angle (radians, clockwise) like the renderer's geometry.
+    fn geometry(&self, i: usize) -> Option<(&Costume, f64, f64, f64)> {
+        let a = &self.sprites[i];
+        let costume = self.program.costumes.get(a.style.as_deref()?)?;
+        let scale = a.scale / 100.0;
+        let w = costume.width * scale * a.size_x / 100.0;
+        let h = costume.height * scale * a.size_y / 100.0;
+        let angle = if a.rotation_type == 0 {
+            a.direction.to_radians()
+        } else {
+            0.0
+        };
+        Some((costume, w, h, angle))
+    }
+    /// Axis-aligned bounds (left, right, bottom, top) of a sprite on the stage.
+    fn bounds(&self, i: usize) -> (f64, f64, f64, f64) {
+        let a = &self.sprites[i];
+        let Some((_, w, h, angle)) = self.geometry(i) else {
+            return (a.x, a.x, a.y, a.y);
+        };
+        let (s, c) = angle.sin_cos();
+        let (hw, hh) = (w.abs() / 2.0, h.abs() / 2.0);
+        let ex = hw * c.abs() + hh * s.abs();
+        let ey = hw * s.abs() + hh * c.abs();
+        (a.x - ex, a.x + ex, a.y - ey, a.y + ey)
+    }
+    /// Whether a stage point lies on an opaque part of sprite `i`.
+    fn contains(&self, i: usize, x: f64, y: f64) -> bool {
+        let a = &self.sprites[i];
+        let Some((costume, w, h, angle)) = self.geometry(i) else {
+            return false;
+        };
+        if w == 0.0 || h == 0.0 {
+            return false;
+        }
+        let (s, c) = angle.sin_cos();
+        let (dx, dy) = (x - a.x, y - a.y);
+        // Inverse of the renderer's clockwise rotation, then normalised costume coords.
+        let u = (c * dx - s * dy) / w + 0.5;
+        let v = 0.5 - (s * dx + c * dy) / h;
+        if !(0.0..1.0).contains(&u) || !(0.0..1.0).contains(&v) {
+            return false;
+        }
+        match &costume.mask {
+            None => true,
+            Some((mw, mh, bits)) => {
+                let (px, py) = ((u * *mw as f64) as usize, (v * *mh as f64) as usize);
+                let bit = py * mw + px;
+                bits.get(bit / 8)
+                    .is_some_and(|byte| byte >> (bit % 8) & 1 == 1)
+            }
+        }
+    }
+    fn touching(&self, subject: usize, other: usize) -> bool {
+        let a = &self.sprites[subject];
+        if !a.alive || !a.visible {
+            return false;
+        }
+        match other {
+            TARGET_MOUSE => self.contains(subject, self.mouse[0], self.mouse[1]),
+            TARGET_EDGE => {
+                let (l, r, b, t) = self.bounds(subject);
+                let (w, h) = (self.program.width / 2.0, self.program.height / 2.0);
+                l <= -w || r >= w || b <= -h || t >= h
+            }
+            other => {
+                let origin = self.sprites[if other == usize::MAX { subject } else { other }].origin;
+                (0..self.sprites.len()).any(|j| {
+                    j != subject
+                        && self.sprites[j].alive
+                        && self.sprites[j].visible
+                        && self.sprites[j].origin == origin
+                        && self.overlap(subject, j)
+                })
+            }
+        }
+    }
+    /// Sampled pixel overlap inside the intersection of both bounds.
+    fn overlap(&self, a: usize, b: usize) -> bool {
+        let (al, ar, ab, at) = self.bounds(a);
+        let (bl, br, bb, bt) = self.bounds(b);
+        let (l, r, bottom, t) = (al.max(bl), ar.min(br), ab.max(bb), at.min(bt));
+        if l > r || bottom > t {
+            return false;
+        }
+        // At most 64x64 samples, at least one per stage unit when smaller.
+        let nx = ((r - l).ceil() as usize).clamp(1, 64);
+        let ny = ((t - bottom).ceil() as usize).clamp(1, 64);
+        for iy in 0..ny {
+            let y = bottom + (iy as f64 + 0.5) * (t - bottom) / ny as f64;
+            for ix in 0..nx {
+                let x = l + (ix as f64 + 0.5) * (r - l) / nx as f64;
+                if self.contains(a, x, y) && self.contains(b, x, y) {
+                    return true;
+                }
+            }
+        }
+        false
+    }
+    /// Scratch-style bounce: reflect away from the nearest touched edge, move inside.
+    fn bounce(&mut self, actor: usize) {
+        let (l, r, b, t) = self.bounds(actor);
+        let (w, h) = (self.program.width / 2.0, self.program.height / 2.0);
+        // Room left before each edge: left, top, right, bottom.
+        let gaps = [l + w, h - t, w - r, b + h];
+        let (edge, gap) = gaps
+            .iter()
+            .enumerate()
+            .min_by(|x, y| x.1.total_cmp(y.1))
+            .map(|(i, g)| (i, *g))
+            .unwrap();
+        if gap > 0.0 {
+            return;
+        }
+        let a = &mut self.sprites[actor];
+        let (mut dx, mut dy) = a.direction.to_radians().sin_cos();
+        match edge {
+            0 => dx = dx.abs(),
+            1 => dy = -dy.abs(),
+            2 => dx = -dx.abs(),
+            _ => dy = dy.abs(),
+        }
+        a.direction = dx.atan2(dy).to_degrees();
+        // Push back inside along every violated axis.
+        if l < -w {
+            a.x += -w - l;
+        }
+        if r > w {
+            a.x -= r - w;
+        }
+        if b < -h {
+            a.y += -h - b;
+        }
+        if t > h {
+            a.y -= t - h;
+        }
+        self.dirty[actor] = true;
     }
     fn clone_sprite(&mut self, source: usize) -> Result<()> {
         ensure!(source != 0, "the stage cannot be cloned");
@@ -2947,6 +3463,14 @@ impl Engine {
                     }
                 }
             }
+            ValueExpr::Answer => self.answer.clone(),
+            ValueExpr::Choice(index) => {
+                if index {
+                    Cell::Number(self.choice.0)
+                } else {
+                    self.choice.1.clone()
+                }
+            }
             ValueExpr::WeekText => {
                 const DAYS: [&str; 7] = [
                     "星期日",
@@ -3063,6 +3587,7 @@ impl Engine {
                 || self.reset
                 || self.pen_layer != layer
                 || self.order_dirty
+                || !self.image_stamps.is_empty()
                 || !self.removed.is_empty()
                 || self.dirty.iter().any(|d| *d);
             let runnable = self
@@ -3110,6 +3635,9 @@ impl Engine {
                     .collect()
             }),
             removed: std::mem::take(&mut self.removed),
+            ask: self.asks.front().cloned(),
+            image_stamps: std::mem::take(&mut self.image_stamps),
+            monitors: self.monitor_values(),
             clear: std::mem::take(&mut self.clear),
             active: self.tasks.len(),
             instructions: count,
@@ -3381,6 +3909,7 @@ impl Engine {
             Op::Clear => {
                 self.lines.clear();
                 self.text_stamps.clear();
+                self.image_stamps.clear();
                 self.clear = true;
             }
             Op::Branch(e, target) => {
@@ -3484,7 +4013,11 @@ impl Engine {
             }
             Op::Audio(i, play) => {
                 let audio = self.eval_value(i, actor);
-                self.audio_commands.push(AudioCommand { audio, play });
+                self.audio_commands.push(AudioCommand {
+                    audio,
+                    play,
+                    wait: None,
+                });
             }
             Op::LogNumber(e) => {
                 let n = self.eval(e, actor);
@@ -3755,6 +4288,83 @@ impl Engine {
             Op::Clone(target) => {
                 let source = if target == usize::MAX { actor } else { target };
                 self.clone_sprite(source)?;
+            }
+            Op::Dialog(text, think) => {
+                let text = self.eval_value(text, actor).text();
+                self.sprites[actor].dialog = (!text.is_empty()).then_some(Dialog { text, think });
+                self.dirty[actor] = true;
+            }
+            Op::CloseDialog => {
+                self.sprites[actor].dialog = None;
+                self.dirty[actor] = true;
+            }
+            Op::Ask(question, choices) => {
+                let question = self.eval_value(question, actor).text();
+                let choices = choices.map(|span| {
+                    (span.start..span.start + span.len)
+                        .map(|k| {
+                            let value = self.program.value_args[k as usize];
+                            self.eval_value(value, actor).text()
+                        })
+                        .collect()
+                });
+                self.asks.push_back(AskRequest {
+                    id: self.next_ask,
+                    sprite: if actor == 0 {
+                        String::new()
+                    } else {
+                        self.sprites[actor].id.clone()
+                    },
+                    question,
+                    choices,
+                    task: self.tasks[index].id,
+                });
+                self.next_ask += 1;
+                // Suspended until the viewer answers (see Engine::answer).
+                self.tasks[index].pending += 1;
+                return Ok(false);
+            }
+            Op::Bounce => self.bounce(actor),
+            Op::Draggable(on) => {
+                self.sprites[actor].draggable = on;
+                self.dirty[actor] = true;
+            }
+            Op::ImageStamp => {
+                if actor != 0 && self.image_stamps.len() < 1024 {
+                    let a = &self.sprites[actor];
+                    self.image_stamps.push(ImageStamp {
+                        before_line: self.lines.len() / 9,
+                        style: a.style.clone(),
+                        x: a.x,
+                        y: a.y,
+                        direction: a.direction,
+                        scale: a.scale,
+                        size_x: a.size_x,
+                        size_y: a.size_y,
+                        rotation_type: a.rotation_type,
+                        opacity: a.opacity,
+                        effects: a.effects,
+                    });
+                }
+            }
+            Op::AudioWait(value) => {
+                let audio = self.eval_value(value, actor);
+                let wait = self.next_audio_wait;
+                self.next_audio_wait += 1;
+                self.audio_commands.push(AudioCommand {
+                    audio,
+                    play: true,
+                    wait: Some(wait),
+                });
+                self.audio_waits.push((self.tasks[index].id, wait));
+                self.tasks[index].pending += 1;
+                return Ok(false);
+            }
+            Op::Monitor(monitor, visible) => {
+                if self.monitors.len() <= monitor {
+                    self.monitors.resize(monitor + 1, false);
+                }
+                self.monitors[monitor] = visible;
             }
             Op::DisposeClone => {
                 if self.sprites[actor].clone_index > 0 {

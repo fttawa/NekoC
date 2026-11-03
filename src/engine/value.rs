@@ -162,4 +162,7 @@ pub(super) enum ValueExpr {
     CallReturn(usize, usize),
     /// (original actor, 1-based clone index, attribute 0 x / 1 y / 2 costume no. / 4 name)
     CloneProperty(usize, super::Expr, u8),
+    Answer,
+    /// Last chosen option: index (true) or content.
+    Choice(bool),
 }

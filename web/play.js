@@ -2,16 +2,17 @@ import {StageRenderer,decodeFrame} from './renderer.js';
 import {PlayerConnection} from './player.js';
 import {ProjectAudio} from './audio.js';
 import {StageInput} from './input.js';
+import {StageOverlay} from './overlay.js';
 
 const extension=location.protocol==='chrome-extension:'?await import('./extension.js'):null;
 const backend=extension?await extension.backendURL():location.origin;
 
 const $=selector=>document.querySelector(selector);
 const canvas=$('#stage'),shell=$('#player-shell');
-let renderer,input,project=null,playable=false,busy=true,running=false,connection=null,inFlight=null,epoch=0;
+let renderer,input,overlay,sendCostumes=false,project=null,playable=false,busy=true,running=false,connection=null,inFlight=null,epoch=0;
 let lastTick=0,nextDue=0,lastFrame=null,roundtripMs=0,updates=0,draws=0,totalUpdates=0,pumpTimer=0;
 let sampleStart=performance.now(),lastMonitor=0,drawFps=0,updateFps=0;
-const audio=new ProjectAudio(notice);
+const audio=new ProjectAudio(notice,id=>input?.push({kind:'audio_done',id}));
 const settings={limit:60,budget:4,resolution:1,coalesce:0};
 const choices={limit:[0,30,60,120],budget:[2,4,8,12],resolution:[.5,1,2],coalesce:[0,1]};
 try{
@@ -39,7 +40,7 @@ function pause(message='已暂停'){
 }
 async function closeRuntime(){
   running=false;epoch++;clearKeys();connection?.close();connection=null;
-  input?.reset();
+  input?.reset();overlay?.reset();
   audio.stop();
   await inFlight;resetMeter();
 }
@@ -68,7 +69,7 @@ async function launch(){
   if(!playable)return;
   if(!connection?.ready){
     input?.reset();
-    const next=new PlayerConnection();connection=next;await next.open(project,backend);
+    const next=new PlayerConnection();connection=next;await next.open(project,backend);sendCostumes=true;overlay.reset();
     epoch++;lastFrame=null;totalUpdates=0;
   }
   clearKeys();resetMeter();running=true;lastTick=performance.now();nextDue=lastTick;queueMicrotask(pump);
@@ -93,11 +94,13 @@ async function importFile(file){
 async function advance(dt){
   const token=epoch,start=performance.now();
   try{
-    const buffer=await connection.frame({dt,...input.take(),budget_ms:settings.budget,coalesce:settings.coalesce===1,utc_offset:-new Date().getTimezoneOffset()});
+    // Costume geometry is sent once per connection, after the renderer decoded it.
+    const costumes=sendCostumes?renderer.costumeInfo():undefined;sendCostumes=false;
+    const buffer=await connection.frame({dt,...input.take(),costumes,budget_ms:settings.budget,coalesce:settings.coalesce===1,utc_offset:-new Date().getTimezoneOffset()});
     if(token!==epoch)return;
     roundtripMs=performance.now()-start;
     // Draw pen deltas now; the stage is composited once on the next display frame.
-    const {frame,lines}=decodeFrame(buffer);renderer.apply(frame,lines,false);lastFrame=frame;
+    const {frame,lines}=decodeFrame(buffer);renderer.apply(frame,lines,false);overlay.apply(frame);lastFrame=frame;
     audio.apply(frame);
     updates++;totalUpdates++;if(renderer.changed)draws++;
   }catch(error){
@@ -139,7 +142,7 @@ function pump(){
 }
 function loop(now){
   if(running&&!busy&&!inFlight&&now>=nextDue-.5)step(now);
-  if(renderer){renderer.render();renderer.collectGpuTimes();monitor(now);}
+  if(renderer){renderer.render();overlay?.update();renderer.collectGpuTimes();monitor(now);}
   requestAnimationFrame(loop);
 }
 
@@ -186,6 +189,7 @@ new ResizeObserver(fitStage).observe($('#viewport'));
 try{
   renderer=new StageRenderer(canvas);renderer.resolutionScale=settings.resolution;
   input=new StageInput(canvas,renderer,()=>running&&!busy);
+  overlay=new StageOverlay($('#stage-box'),renderer,event=>{input.push(event);canvas.focus({preventScroll:true});});
   renderer.onError=message=>{pause('渲染提示');notice(message);};
   const value=extension?await extension.loadWork(backend,status):await(await fetch('/api/project')).json();
   await install(await api('import-player',value));
