@@ -110,7 +110,17 @@ cargo run --release --bin web -- samples/web-pen-stress.bcmkn
 - 过程：有返回值的自制积木（递归、循环内提前返回；求值时同步执行到返回，100 万步与 200 层嵌套上限，超限报错而不是卡死）。
 - 其他：拖拽角色、播放并等待（浏览器播放结束后恢复）、变量/列表监视器。
 
-**尚未迁移**：运行时切换场景（`switch_to_screen`，需要编译全部场景并让渲染器按场景切换资源）、碰到颜色（需要读回像素）、碰撞事件帽 `on_bump_actor`、纯视觉动画（`self_appear_animation`、`self_stress_animation`、`global_animation`、`self_text_effect_*`、`set_screen_transition`）、阵营、文本编程模式积木（`setTimeout`、`parseInt` 等 BCM 翻译器积木）、AI/语音/摄像头/云服务与硬件。遇到未支持类型明确报错，没有自动静默退回慢解释器。返回值过程内的等待和循环让出不会挂起（过程必须立刻产出值）。
+场景切换（`switch_to_screen`、`get_screens`、`set_screen_transition`）：全部场景一起编译，只有当前场景（官方称“运行组”）运行。
+
+- 作品启动只激活当前场景，它的 `on_running_group_activated` / `start_on_click` 脚本运行。
+- 切换时旧场景的脚本全部停止、克隆删除；新场景被激活，开始脚本从下一轮运行；回到之前的场景会再次触发开始脚本。
+- 角色状态、图层顺序和画笔画布按场景保留（画布每个场景一张，依据源码调查“画笔使用所属场景共享 Canvas”）；变量全局共享。
+- 按键、点击、广播、滑动只发给当前场景。场景可用 id、名称或 1 开始的序号指定；找不到时报错。
+- 切换发生的那一帧里，切换前产生的画笔输出会被丢弃（它们属于旧场景的画布）。
+- 过渡：滑动/弹跳按方向平移，fadeInOut/distrot 淡入，开启“减少动态效果”时不播放。
+- 依据说明：除“开始帽对应运行组激活”和“画笔按场景”外，停止旧脚本、保留角色状态、重复进入再次触发等是推断，尚未与官方运行器逐帧对照。
+
+**尚未迁移**：碰到颜色（需要读回像素）、碰撞事件帽 `on_bump_actor`、纯视觉动画（`self_appear_animation`、`self_stress_animation`、`global_animation`、`self_text_effect_*`、`set_screen_transition`）、阵营、文本编程模式积木（`setTimeout`、`parseInt` 等 BCM 翻译器积木）、AI/语音/摄像头/云服务与硬件。遇到未支持类型明确报错，没有自动静默退回慢解释器。返回值过程内的等待和循环让出不会挂起（过程必须立刻产出值）。
 新 VM 的调度/浮点/初始旋转转换并未全量对齐官方运行器；目前对照测试只覆盖已声明的数值/控制子集。
 
 2026-11-03兼容性增量、真实绘图验证、语料剩余问题和升级方式见 [web-compatibility.md](web-compatibility.md)。

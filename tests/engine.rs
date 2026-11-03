@@ -1878,3 +1878,115 @@ fn number_shadow_variants_and_start_on_click_hat() {
     frame(&mut vm);
     assert_eq!(vm.numeric_variables()[0], 42.0);
 }
+
+/// Two scenes: the default one (A) and "B" with actor "b".
+fn two_scene_project(a: Value, b: Value, names: &[&str]) -> Value {
+    let mut p = var_project(a, names);
+    let scene_a = p["scenes"]["currentSceneId"].as_str().unwrap().to_owned();
+    let mut scene_b = p["scenes"]["scenesDict"][&scene_a].clone();
+    scene_b["id"] = json!("scene-b");
+    scene_b["name"] = json!("B");
+    scene_b["screenName"] = json!("B");
+    scene_b["actorIds"] = json!(["b"]);
+    scene_b["nekoBlockJsonList"] = json!([]);
+    p["scenes"]["scenesDict"]["scene-b"] = scene_b;
+    p["scenes"]["sortList"] = json!([scene_a, "scene-b"]);
+    let mut actor = p["actors"]["actorsDict"]["nekoc-default-actor"].clone();
+    actor["id"] = json!("b");
+    actor["position"] = json!({"x":40,"y":0});
+    actor["nekoBlockJsonList"] = json!([{"type":"on_running_group_activated","next":b}]);
+    p["actors"]["actorsDict"]["b"] = actor;
+    p
+}
+fn change(name: &str, n: f64) -> Value {
+    json!({"type":"change_variables","fields":{"variable":name,"method":"increase"},"inputs":{"value":num(n)}})
+}
+fn switch(target: Value) -> Value {
+    json!({"type":"switch_to_screen","inputs":{"screen_id":target}})
+}
+
+#[test]
+fn switching_scenes_stops_old_scripts_and_starts_the_new_scene() {
+    let mut p = two_scene_project(
+        chain(vec![
+            change("a", 1.0),
+            json!({"type":"self_move_to","inputs":{"x":num(-30.0),"y":num(5.0)}}),
+            json!({"type":"set_screen_transition","fields":{"direction":"left","type":"slide"}}),
+            json!({"type":"wait","inputs":{"time":num(0.0)}}),
+            switch(json!({"type":"get_screens","fields":{"screen_id":"scene-b"}})),
+            change("a", 100.0),
+        ]),
+        chain(vec![
+            change("b", 1.0),
+            json!({"type":"wait","inputs":{"time":num(0.0)}}),
+            // Back to the first scene by number.
+            switch(num(1.0)),
+        ]),
+        &["a", "b", "k"],
+    );
+    // A forever loop and a key hat in scene A; only active-scene hats react.
+    let hats = p["actors"]["actorsDict"]["nekoc-default-actor"]["nekoBlockJsonList"]
+        .as_array_mut()
+        .unwrap();
+    hats.push(
+        json!({"type":"on_keydown","fields":{"key":"32","type":"down"},"next":change("k", 1.0)}),
+    );
+    let mut vm = Engine::new(Program::compile(&p).unwrap());
+    vm.start();
+    let f = frame(&mut vm);
+    let scene_a = f.scene.clone();
+    assert_eq!(
+        f.sprites.len(),
+        2,
+        "only scene A's stage and actor are drawn"
+    );
+    let f = frame(&mut vm);
+    // Switched: scene A's remaining blocks never run, scene B is active.
+    assert!(f.scene_changed && f.scene == "scene-b");
+    assert_eq!(
+        f.transition.as_ref().map(|t| t.kind.as_str()),
+        Some("slide")
+    );
+    assert_eq!(f.order.as_deref(), Some(&["b".to_owned()][..]));
+    assert!(f.sprites.iter().all(|s| s.id == "b" || s.id == "scene-b"));
+    vm.key("32");
+    let f = frame(&mut vm);
+    // Slots sorted: a, b, k. Scene A's key hat did not run.
+    assert_eq!(vm.numeric_variables(), &[1.0, 1.0, 0.0]);
+    assert!(!f.scene_changed);
+    frame(&mut vm);
+    let f = frame(&mut vm);
+    // Back in A: its start script runs again; the actor kept its position.
+    assert_eq!(f.scene, scene_a);
+    assert!(
+        f.sprites
+            .iter()
+            .any(|s| s.id == "nekoc-default-actor" && s.x == -30.0)
+    );
+    frame(&mut vm);
+    assert_eq!(vm.numeric_variables()[0], 2.0);
+}
+
+#[test]
+fn unknown_scene_is_a_reported_error_and_names_resolve() {
+    let p = two_scene_project(
+        switch(json!({"type":"text","fields":{"TEXT":"B"}})),
+        json!({"type":"self_appear","fields":{"value":"appear"}}),
+        &[],
+    );
+    let mut vm = Engine::new(Program::compile(&p).unwrap());
+    vm.start();
+    frame(&mut vm);
+    assert_eq!(frame(&mut vm).scene, "scene-b");
+    let p = two_scene_project(
+        switch(json!({"type":"text","fields":{"TEXT":"nowhere"}})),
+        json!({"type":"self_appear","fields":{"value":"appear"}}),
+        &[],
+    );
+    let mut vm = Engine::new(Program::compile(&p).unwrap());
+    vm.start();
+    let error = vm
+        .advance(1.0 / 60.0, 1000, Duration::from_secs(1))
+        .unwrap_err();
+    assert!(format!("{error:#}").contains("unknown scene nowhere"));
+}
