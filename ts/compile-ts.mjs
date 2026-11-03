@@ -392,8 +392,9 @@ class WorkspaceCompiler {
   // let/const are ordinary variables shared by every call.
   compileFunctionProcedure({ fn, spec, returnsValue }) {
     const saved = [this.blocks, this.connections, this.expressionBindings, this.inlineCallStack,
-      this.rangeBindings, this.loopDepth, this.functionParams, this.tryStack];
+      this.rangeBindings, this.loopDepth, this.functionParams, this.tryStack, this.currentProcedureParams];
     this.tryStack = [];
+    this.currentProcedureParams = procedureParamIds(spec);
     this.blocks = {};
     this.connections = {};
     this.expressionBindings = [];
@@ -442,7 +443,7 @@ class WorkspaceCompiler {
       });
     } finally {
       [this.blocks, this.connections, this.expressionBindings, this.inlineCallStack,
-        this.rangeBindings, this.loopDepth, this.functionParams, this.tryStack] = saved;
+        this.rangeBindings, this.loopDepth, this.functionParams, this.tryStack, this.currentProcedureParams] = saved;
     }
   }
 
@@ -803,6 +804,8 @@ class WorkspaceCompiler {
     const body = callbackBody(call.arguments[2], this);
     const savedBlocks = this.blocks;
     const savedConnections = this.connections;
+    const savedParams = this.currentProcedureParams;
+    this.currentProcedureParams = procedureParamIds(spec);
     this.blocks = {};
     this.connections = {};
 
@@ -849,6 +852,7 @@ class WorkspaceCompiler {
 
     this.blocks = savedBlocks;
     this.connections = savedConnections;
+    this.currentProcedureParams = savedParams;
   }
 
   compileNextHat(call, type, callbackIndex, fields = undefined) {
@@ -1027,6 +1031,23 @@ class WorkspaceCompiler {
       if (elseFirst) this.connectInput(id, elseFirst, "ELSE", "statement");
     }
     return id;
+  }
+
+  // The official loader resolves a parameter reporter through the param id in
+  // its mutation (id="..."), not its name; without it the runtime reports
+  // procedure_no_such_parameter and stops.
+  compileParameterGet(name, parentId, node) {
+    const paramId = this.currentProcedureParams?.get(name);
+    if (!paramId) {
+      this.unsupported(node, `Unknown procedure parameter: ${name}`);
+    }
+    return this.addBlock({
+      type: "procedures_2_parameter",
+      parent_id: parentId,
+      fields: { param_name: name },
+      mutation: `<mutation xmlns="http://www.w3.org/1999/xhtml" id="${paramId}"></mutation>`,
+      is_output: true,
+    });
   }
 
   compileLoopBody(statements, parentId) {
@@ -2529,17 +2550,7 @@ class WorkspaceCompiler {
   }
 
   compileReturnValue(call, parentId) {
-    const id = this.addBlock({
-      type: "procedures_2_return_value",
-      parent_id: parentId,
-      mutation: '<mutation xmlns="http://www.w3.org/1999/xhtml" items="1"></mutation>',
-      shadows: {
-        PROCEDURES_2_DEFRETURN_RETURN: "",
-        VALUE:
-          '<shadow xmlns="http://www.w3.org/1999/xhtml" type="math_number" id="shadow-procedure-return-value" visible="visible"><field constraints="-Infinity,Infinity,0," allow_text="true" name="NUM">0</field></shadow>',
-        PROCEDURES_2_DEFRETURN_RETURN_MUTATOR: "",
-      },
-    });
+    const id = this.addReturnValueBlock(parentId);
     const valueId = this.compileExpression(call.arguments[0], id);
     this.connectInput(id, valueId, "VALUE", "value");
     return id;
@@ -2926,12 +2937,7 @@ class WorkspaceCompiler {
         return this.compileExpression(boundExpression, parentId);
       }
       if (this.functionParams?.has(expression.text)) {
-        return this.addBlock({
-          type: "procedures_2_parameter",
-          parent_id: parentId,
-          fields: { param_name: expression.text },
-          is_output: true,
-        });
+        return this.compileParameterGet(expression.text, parentId, expression);
       }
       if (this.lookupRangeBinding(expression.text)) {
         return this.addBlock({
@@ -3150,12 +3156,7 @@ class WorkspaceCompiler {
           is_output: true,
         });
       case "param":
-        return this.addBlock({
-          type: "procedures_2_parameter",
-          parent_id: parentId,
-          fields: { param_name: stringLiteralValue(call.arguments[0], this) },
-          is_output: true,
-        });
+        return this.compileParameterGet(stringLiteralValue(call.arguments[0], this), parentId, call);
       case "actorParam":
         return this.addBlock({
           type: "procedures_2_actor_param",
@@ -4092,10 +4093,25 @@ class WorkspaceCompiler {
       this.connectInput(id, this.compileReturn(inner.whenFalse, id), "ELSE", "statement");
       return id;
     }
-    const valueId = this.compileExpression(expression, parentId);
-    const retId = this.addBlock({ type: "procedures_2_return_value", parent_id: parentId });
-    this.connectInput(retId, valueId, "VALUE", "value");
+    const retId = this.addReturnValueBlock(parentId);
+    this.connectInput(retId, this.compileExpression(expression, retId), "VALUE", "value");
     return retId;
+  }
+
+  // Same shape as the editor's return block (mutation + number shadow);
+  // without them the editor rewires the VALUE input.
+  addReturnValueBlock(parentId) {
+    return this.addBlock({
+      type: "procedures_2_return_value",
+      parent_id: parentId,
+      mutation: '<mutation xmlns="http://www.w3.org/1999/xhtml" items="1"></mutation>',
+      shadows: {
+        PROCEDURES_2_DEFRETURN_RETURN: "",
+        VALUE:
+          '<shadow xmlns="http://www.w3.org/1999/xhtml" type="math_number" id="shadow-procedure-return-value" visible="visible"><field constraints="-Infinity,Infinity,0," allow_text="true" name="NUM">0</field></shadow>',
+        PROCEDURES_2_DEFRETURN_RETURN_MUTATOR: "",
+      },
+    });
   }
 
   compilePrefixUnaryExpression(expression, parentId) {
@@ -4869,6 +4885,10 @@ function optionalBooleanOption(options, name, defaultValue, compiler, node) {
 
 // Visits statements, skipping nested loops, switches and functions (whose
 // break statements belong to them).
+function procedureParamIds(spec) {
+  return new Map(spec.params.filter((param) => param.type === "String").map((param) => [param.name, param.id]));
+}
+
 function visitOutsideLoops(node, visit) {
   visit(node);
   if (ts.isFunctionLike(node) || ts.isIterationStatement(node, false) || ts.isSwitchStatement(node)) return;
