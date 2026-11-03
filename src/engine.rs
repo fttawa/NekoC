@@ -288,6 +288,8 @@ enum Op {
     Restart,
     Clone(usize),
     DisposeClone,
+    SwitchScene(usize),
+    SceneTransition(usize, usize),
     Dialog(usize, bool),
     CloseDialog,
     Bounce,
@@ -376,6 +378,10 @@ pub struct Sprite {
     #[serde(skip)]
     alive: bool,
     #[serde(skip)]
+    scene: usize,
+    #[serde(skip)]
+    stage: bool,
+    #[serde(skip)]
     pen: bool,
     #[serde(skip)]
     color: [f32; 4],
@@ -450,6 +456,19 @@ enum ScriptEvent {
     Broadcast(usize, bool),
 }
 
+/// A scene ("running group"): its stage entity and actors (front to back).
+#[derive(Clone, Debug)]
+pub struct SceneInfo {
+    pub id: String,
+    pub name: String,
+    pub stage: usize,
+    pub actors: Vec<usize>,
+}
+#[derive(Clone, Debug, Serialize)]
+pub struct Transition {
+    pub direction: String,
+    pub kind: String,
+}
 #[derive(Debug)]
 pub struct Program {
     ops: Vec<Op>,
@@ -486,6 +505,9 @@ pub struct Program {
     pub height: f64,
     pub scene: String,
     pub backdrop: Option<String>,
+    /// All scenes in project order; only `scenes[current]` runs at a time.
+    pub scenes: Vec<SceneInfo>,
+    pub initial_scene: usize,
 }
 
 #[derive(Debug, Serialize)]
@@ -577,8 +599,10 @@ impl Program {
                 sprites: vec![],
                 width: project["stageSize"]["width"].as_f64().unwrap_or(900.0),
                 height: project["stageSize"]["height"].as_f64().unwrap_or(562.0),
-                scene,
+                scene: scene.clone(),
                 backdrop: scene_value["currentStyleId"].as_str().map(str::to_owned),
+                scenes: vec![],
+                initial_scene: 0,
             },
             slots: BTreeMap::new(),
             locals: BTreeMap::new(),
@@ -590,13 +614,8 @@ impl Program {
             loops: vec![],
             depth: 0,
             expression_work: vec![],
-            actor_ids: scene_value["actorIds"]
-                .as_array()
-                .into_iter()
-                .flatten()
-                .filter_map(Value::as_str)
-                .map(str::to_owned)
-                .collect(),
+            actor_ids: vec![],
+            owner_scene: 0,
         };
         let mut definitions = vec![];
         if let Some(procedures) = project
@@ -669,35 +688,64 @@ impl Program {
                 }
             }
         }
-        // Stage scripts have no sprite target. A hidden entity gives them scalar state.
-        compiler.program.sprites.push(Sprite {
-            id: compiler.program.scene.clone(),
-            name: "Stage".into(),
-            style: compiler.program.backdrop.clone(),
-            x: 0.0,
-            y: 0.0,
-            direction: 0.0,
-            scale: 100.0,
-            visible: false,
-            opacity: 1.0,
-            effects: [0.0; 7],
-            size_x: 100.0,
-            size_y: 100.0,
-            rotation_type: 0,
-            dialog: None,
-            draggable: false,
-            styles: owner_styles(scene_value),
-            origin: 0,
-            clone_index: 0,
-            alive: true,
-            pen: false,
-            color: [0.0, 0.0, 0.0, 1.0],
-            hsv: [0.0; 3],
-            size: 1.0,
-        });
-        compiler.scripts(scene_value, 0)?;
-        if let Some(ids) = scene_value["actorIds"].as_array() {
-            for id in ids.iter().filter_map(Value::as_str) {
+        // Every scene is compiled; scripts of the active scene run. Pass 1 creates
+        // all entities so scripts can reference actors of any scene.
+        let scenes_dict = project
+            .pointer("/scenes/scenesDict")
+            .and_then(Value::as_object)
+            .context("project requires scenes")?;
+        let mut scene_ids: Vec<String> = project
+            .pointer("/scenes/sortList")
+            .and_then(Value::as_array)
+            .into_iter()
+            .flatten()
+            .filter_map(Value::as_str)
+            .filter(|id| scenes_dict.contains_key(*id))
+            .map(str::to_owned)
+            .collect();
+        for id in scenes_dict.keys() {
+            if !scene_ids.contains(id) {
+                scene_ids.push(id.clone());
+            }
+        }
+        for (scene_index, scene_id) in scene_ids.iter().enumerate() {
+            let scene_value = &scenes_dict[scene_id];
+            let stage = compiler.program.sprites.len();
+            // Stage scripts have no sprite target. A hidden entity gives them scalar state.
+            compiler.program.sprites.push(Sprite {
+                id: scene_id.clone(),
+                name: "Stage".into(),
+                style: scene_value["currentStyleId"].as_str().map(str::to_owned),
+                x: 0.0,
+                y: 0.0,
+                direction: 0.0,
+                scale: 100.0,
+                visible: false,
+                opacity: 1.0,
+                effects: [0.0; 7],
+                size_x: 100.0,
+                size_y: 100.0,
+                rotation_type: 0,
+                dialog: None,
+                draggable: false,
+                styles: owner_styles(scene_value),
+                origin: stage,
+                clone_index: 0,
+                alive: true,
+                scene: scene_index,
+                stage: true,
+                pen: false,
+                color: [0.0, 0.0, 0.0, 1.0],
+                hsv: [0.0; 3],
+                size: 1.0,
+            });
+            let mut actors = vec![];
+            for id in scene_value["actorIds"]
+                .as_array()
+                .into_iter()
+                .flatten()
+                .filter_map(Value::as_str)
+            {
                 let actor = project
                     .pointer("/actors/actorsDict")
                     .and_then(|m| m.get(id))
@@ -723,11 +771,45 @@ impl Program {
                     origin: index,
                     clone_index: 0,
                     alive: true,
+                    scene: scene_index,
+                    stage: false,
                     pen: false,
                     color: [0.0, 0.0, 0.0, 1.0],
                     hsv: [0.0; 3],
                     size: 1.0,
                 });
+                actors.push(index);
+            }
+            compiler.program.scenes.push(SceneInfo {
+                id: scene_id.clone(),
+                name: scene_value["screenName"]
+                    .as_str()
+                    .or_else(|| scene_value["name"].as_str())
+                    .unwrap_or(scene_id)
+                    .to_owned(),
+                stage,
+                actors,
+            });
+        }
+        compiler.program.initial_scene = scene_ids
+            .iter()
+            .position(|id| *id == scene)
+            .context("current scene missing")?;
+        // Pass 2: scripts, resolving actor references within the owner's scene first.
+        for scene_index in 0..compiler.program.scenes.len() {
+            let info = compiler.program.scenes[scene_index].clone();
+            compiler.owner_scene = scene_index;
+            compiler.actor_ids = info
+                .actors
+                .iter()
+                .map(|&i| compiler.program.sprites[i].id.clone())
+                .collect();
+            compiler
+                .scripts(&scenes_dict[&info.id], info.stage)
+                .with_context(|| format!("scene {}", info.name))?;
+            for &index in &info.actors {
+                let id = compiler.program.sprites[index].id.clone();
+                let actor = &project["actors"]["actorsDict"][&id];
                 compiler.scripts(actor, index)?;
             }
         }
@@ -820,7 +902,9 @@ struct Compiler {
     loops: Vec<Vec<usize>>,
     depth: usize,
     expression_work: Vec<ExprOp>,
+    /// Actor ids of the scene whose scripts are being compiled (front to back).
     actor_ids: Vec<String>,
+    owner_scene: usize,
 }
 /// Native effect scope: 0 color, 1 transparency, 2 brightness, 3 pixelate,
 /// 4 ripple, 5 twist, 6 grayscale (KN and Kitten 4 dropdown codes).
@@ -1014,6 +1098,14 @@ impl Compiler {
                 }
             }
             "get_answer" => ValueExpr::Answer,
+            "get_screens" => self.constant(Cell::Text(
+                b["fields"]
+                    .get("screen_id")
+                    .or_else(|| b["fields"].get("screen"))
+                    .and_then(Value::as_str)
+                    .unwrap_or("")
+                    .into(),
+            )),
             "get_choice_and_index" => ValueExpr::Choice(field(b, "type") == "index"),
             "get_clone_index_property" => {
                 let attribute = match field(b, "attribute") {
@@ -1540,7 +1632,7 @@ impl Compiler {
                     let target = match field(root, "sprite") {
                         "--self" => self.program.sprites[actor].id.clone(),
                         "--screen" => "--screen".into(),
-                        id if self.actor_ids.iter().any(|a| a == id) => id.into(),
+                        id if self.actor_target(id).is_ok() => id.into(),
                         id => bail!("unknown pointer target {id} at {}", root["id"]),
                     };
                     ScriptEvent::Pointer(target, state.into())
@@ -1618,13 +1710,16 @@ impl Compiler {
         if matches!(id, "--self" | "__self" | "") {
             return Ok(usize::MAX);
         }
-        if id == self.program.scene {
-            return Ok(0);
+        if let Some(scene) = self.program.scenes.iter().find(|s| s.id == id) {
+            return Ok(scene.stage);
         }
-        self.actor_ids
+        // The owner's scene first, then any scene.
+        let matching = |a: &Sprite| a.id == id && !a.stage;
+        self.program
+            .sprites
             .iter()
-            .position(|a| a == id)
-            .map(|i| i + 1)
+            .position(|a| matching(a) && a.scene == self.owner_scene)
+            .or_else(|| self.program.sprites.iter().position(matching))
             .with_context(|| format!("unknown actor target {id}"))
     }
     fn chain(&mut self, mut block: Option<&Value>, warped: bool) -> Result<()> {
@@ -1856,6 +1951,32 @@ impl Compiler {
                 }
                 "restart" => Op::Restart,
                 "mirror" => Op::Clone(self.actor_target(field(b, "sprite"))?),
+                "switch_to_screen" => {
+                    let target = b["inputs"]
+                        .get("screen_id")
+                        .or_else(|| b["inputs"].get("screen"))
+                        .with_context(|| {
+                            format!("switch_to_screen: missing scene at {}", b["id"])
+                        })?;
+                    Op::SwitchScene(self.value(target)?)
+                }
+                "set_screen_transition" | "set_scene_transition" => {
+                    let direction = field(b, "direction");
+                    let kind = b["fields"]
+                        .get("type")
+                        .or_else(|| b["fields"].get("transition"))
+                        .and_then(Value::as_str)
+                        .unwrap_or("");
+                    ensure!(
+                        matches!(direction, "up" | "down" | "left" | "right" | ""),
+                        "unknown transition direction {direction} at {}",
+                        b["id"]
+                    );
+                    Op::SceneTransition(
+                        self.push_constant(Cell::Text(direction.into())),
+                        self.push_constant(Cell::Text(kind.into())),
+                    )
+                }
                 "self_dialog" | "self_dialog_wait" | "create_stage_dialog" => {
                     let think = match field(b, "type") {
                         "think" => true,
@@ -1945,7 +2066,7 @@ impl Compiler {
                         );
                         let target = self.actor_target(layer)?;
                         ensure!(
-                            target != usize::MAX && target != 0,
+                            target != usize::MAX && !self.program.sprites[target].stage,
                             "relative layer needs another actor at {}",
                             b["id"]
                         );
@@ -2344,6 +2465,13 @@ pub struct Frame {
     /// Deleted clone ids.
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub removed: Vec<String>,
+    /// Active scene id. When it changes the viewer swaps pen surface and sprites.
+    pub scene: String,
+    /// Set on the frame that switched scenes, if a transition was configured.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub transition: Option<Transition>,
+    #[serde(skip_serializing_if = "std::ops::Not::not")]
+    pub scene_changed: bool,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub image_stamps: Vec<ImageStamp>,
     /// Visible variable/list monitors with current values.
@@ -2400,8 +2528,14 @@ pub struct Engine {
     stopped: bool,
     restart: bool,
     reporter_depth: usize,
-    /// Drawable sprites back to front (stage excluded).
+    /// Drawable sprites of the active scene, back to front (stage excluded).
     order: Vec<usize>,
+    current_scene: usize,
+    /// Saved draw order of every scene (the active one lives in `order`).
+    scene_orders: Vec<Vec<usize>>,
+    scene_changed: bool,
+    next_transition: Option<Transition>,
+    transition: Option<Transition>,
     order_dirty: bool,
     removed: Vec<String>,
     free_slots: Vec<usize>,
@@ -2462,7 +2596,9 @@ impl Engine {
             .collect();
         let sprites = program.sprites.clone();
         let dirty = vec![true; sprites.len()];
-        let order = (1..sprites.len()).rev().collect();
+        let scene_orders = initial_orders(&program);
+        let order = scene_orders[program.initial_scene].clone();
+        let current_scene = program.initial_scene;
         Self {
             program,
             slots,
@@ -2500,6 +2636,11 @@ impl Engine {
             restart: false,
             reporter_depth: 0,
             order,
+            current_scene,
+            scene_orders,
+            scene_changed: true,
+            next_transition: None,
+            transition: None,
             order_dirty: true,
             removed: vec![],
             free_slots: vec![],
@@ -2540,7 +2681,12 @@ impl Engine {
         self.timer_visible = false;
         self.sprites.clone_from(&self.program.sprites);
         self.dirty.resize(self.sprites.len(), true);
-        self.order = (1..self.sprites.len()).rev().collect();
+        self.scene_orders = initial_orders(&self.program);
+        self.current_scene = self.program.initial_scene;
+        self.order = self.scene_orders[self.current_scene].clone();
+        self.scene_changed = true;
+        self.next_transition = None;
+        self.transition = None;
         self.order_dirty = true;
         self.removed.clear();
         self.free_slots.clear();
@@ -2681,6 +2827,10 @@ impl Engine {
             let ScriptEvent::Pointer(id, s) = &self.program.scripts[script].event else {
                 continue;
             };
+            if self.program.sprites[self.program.scripts[script].actor].scene != self.current_scene
+            {
+                continue;
+            }
             if s != state {
                 continue;
             }
@@ -2699,9 +2849,12 @@ impl Engine {
             self.spawn(script, if origin == actor { hit } else { actor });
         }
     }
+    fn in_active_scene(&self, actor: usize) -> bool {
+        self.program.sprites[actor].scene == self.current_scene
+    }
     /// Live sprite indices running an actor's scripts: the original and its clones.
     fn instances(&self, actor: usize) -> Vec<usize> {
-        if self.clones == 0 || actor == 0 {
+        if self.clones == 0 || self.sprites[actor].stage {
             return vec![actor];
         }
         (0..self.sprites.len())
@@ -2727,7 +2880,9 @@ impl Engine {
             return;
         }
         for script in 0..self.program.scripts.len() {
-            if !matches(&self.program.scripts[script].event) {
+            if !matches(&self.program.scripts[script].event)
+                || !self.in_active_scene(self.program.scripts[script].actor)
+            {
                 continue;
             }
             // The start event runs originals only; other events reach clones too.
@@ -2755,6 +2910,9 @@ impl Engine {
             let ScriptEvent::Broadcast(value, with_param) = script.event else {
                 continue;
             };
+            if !self.in_active_scene(script.actor) {
+                continue;
+            }
             if self.eval_value(value, script.actor).text() != message {
                 continue;
             }
@@ -3209,8 +3367,60 @@ impl Engine {
         }
         self.dirty[actor] = true;
     }
+    /// Scene by id, display name, or 1-based number in project order.
+    fn find_scene(&self, value: &Cell) -> Option<usize> {
+        let text = value.text();
+        let scenes = &self.program.scenes;
+        scenes
+            .iter()
+            .position(|s| s.id == text)
+            .or_else(|| scenes.iter().position(|s| s.name == text))
+            .or_else(|| match value {
+                Cell::Number(n) if n.fract() == 0.0 && *n >= 1.0 => {
+                    let i = *n as usize - 1;
+                    (i < scenes.len()).then_some(i)
+                }
+                _ => None,
+            })
+    }
+    /// Deactivates the running scene (its scripts stop, its clones are deleted;
+    /// sprite state and pen drawing persist) and activates `target`, whose start
+    /// scripts run from the next tick.
+    fn switch_scene(&mut self, target: usize) {
+        let old = self.current_scene;
+        for task in 0..self.tasks.len() {
+            if self.sprites[self.tasks[task].actor].scene == old {
+                self.finish_task(task);
+            }
+        }
+        for i in 0..self.sprites.len() {
+            if self.sprites[i].alive
+                && self.sprites[i].clone_index > 0
+                && self.sprites[i].scene == old
+            {
+                self.delete_clone(i);
+            }
+        }
+        // Pen output of this frame was for the old scene's surface.
+        self.lines.clear();
+        self.text_stamps.clear();
+        self.image_stamps.clear();
+        self.clear = false;
+        self.scene_orders[old] = std::mem::take(&mut self.order);
+        self.order = self.scene_orders[target].clone();
+        self.current_scene = target;
+        self.order_dirty = true;
+        self.scene_changed = true;
+        self.transition = self.next_transition.clone();
+        for i in 0..self.sprites.len() {
+            if self.sprites[i].scene == target && self.sprites[i].alive {
+                self.dirty[i] = true;
+            }
+        }
+        self.dispatch(|event| matches!(event, ScriptEvent::Start));
+    }
     fn clone_sprite(&mut self, source: usize) -> Result<()> {
-        ensure!(source != 0, "the stage cannot be cloned");
+        ensure!(!self.sprites[source].stage, "the stage cannot be cloned");
         let origin = self.sprites[source].origin;
         let live = (0..self.sprites.len())
             .filter(|&i| self.sprites[i].alive && self.sprites[i].origin == origin && i != origin)
@@ -3594,6 +3804,7 @@ impl Engine {
                 || self.reset
                 || self.pen_layer != layer
                 || self.order_dirty
+                || self.scene_changed
                 || !self.image_stamps.is_empty()
                 || !self.removed.is_empty()
                 || self.dirty.iter().any(|d| *d);
@@ -3611,16 +3822,18 @@ impl Engine {
             }
         }
         let execute_us = started.elapsed().as_micros();
+        let scene = self.current_scene;
+        // Only the active scene is drawn; other scenes keep their dirty marks.
         let sprites = self
             .sprites
             .iter()
             .zip(&mut self.dirty)
             .filter_map(|(a, dirty)| {
-                if std::mem::take(dirty) && a.alive {
-                    Some(a.clone())
-                } else {
-                    None
+                if !*dirty || (a.scene != scene && a.alive) {
+                    return None;
                 }
+                *dirty = false;
+                a.alive.then(|| a.clone())
             })
             .collect();
         Ok(Frame {
@@ -3642,6 +3855,9 @@ impl Engine {
                     .collect()
             }),
             removed: std::mem::take(&mut self.removed),
+            scene: self.program.scenes[scene].id.clone(),
+            transition: self.transition.take(),
+            scene_changed: std::mem::take(&mut self.scene_changed),
             ask: self.asks.front().cloned(),
             image_stamps: std::mem::take(&mut self.image_stamps),
             monitors: self.monitor_values(),
@@ -3789,8 +4005,8 @@ impl Engine {
                 }
             }
             Op::PenLayer(layer) => {
-                if actor != 0 {
-                    let count = self.sprites.len() - 1;
+                if !self.sprites[actor].stage {
+                    let count = self.order.len();
                     self.pen_layer = match layer {
                         PenLayer::Top => count,
                         PenLayer::Bottom => 0,
@@ -3897,7 +4113,7 @@ impl Engine {
             }
             Op::Stamp(text, size, align) => {
                 let size = self.eval(size, actor);
-                if actor != 0 && size.is_finite() {
+                if !self.sprites[actor].stage && size.is_finite() {
                     let text = self.eval_text(text, actor);
                     let a = &self.sprites[actor];
                     self.text_stamps.push(TextStamp {
@@ -4317,7 +4533,7 @@ impl Engine {
                 });
                 self.asks.push_back(AskRequest {
                     id: self.next_ask,
-                    sprite: if actor == 0 {
+                    sprite: if self.sprites[actor].stage {
                         String::new()
                     } else {
                         self.sprites[actor].id.clone()
@@ -4337,7 +4553,7 @@ impl Engine {
                 self.dirty[actor] = true;
             }
             Op::ImageStamp => {
-                if actor != 0 && self.image_stamps.len() < 1024 {
+                if !self.sprites[actor].stage && self.image_stamps.len() < 1024 {
                     let a = &self.sprites[actor];
                     self.image_stamps.push(ImageStamp {
                         before_line: self.lines.len() / 9,
@@ -4373,6 +4589,26 @@ impl Engine {
                 }
                 self.monitors[monitor] = visible;
             }
+            Op::SceneTransition(direction, kind) => {
+                let direction = self.eval_value(direction, actor).text();
+                let kind = self.eval_value(kind, actor).text();
+                self.next_transition = (!matches!(kind.as_str(), "" | "none"))
+                    .then_some(Transition { direction, kind });
+            }
+            Op::SwitchScene(value) => {
+                let value = self.eval_value(value, actor);
+                let target = self.find_scene(&value).with_context(|| {
+                    format!(
+                        "unknown scene {} at block {}",
+                        value.text(),
+                        self.program.sources[pc]
+                    )
+                })?;
+                if target != self.current_scene {
+                    self.switch_scene(target);
+                    return Ok(false);
+                }
+            }
             Op::DisposeClone => {
                 if self.sprites[actor].clone_index > 0 {
                     self.delete_clone(actor);
@@ -4380,7 +4616,7 @@ impl Engine {
                 }
             }
             Op::Layer(movement) => {
-                if actor != 0 {
+                if !self.sprites[actor].stage {
                     self.move_layer(actor, movement);
                 }
             }
@@ -4474,6 +4710,15 @@ impl Engine {
         *total_count = count;
         Ok(exceeded)
     }
+}
+
+/// Back-to-front draw order per scene (actorIds are front to back).
+fn initial_orders(program: &Program) -> Vec<Vec<usize>> {
+    program
+        .scenes
+        .iter()
+        .map(|scene| scene.actors.iter().rev().copied().collect())
+        .collect()
 }
 
 /// Wire format: u32 LE metadata length (padded to 4 bytes), JSON metadata, f32 LE lines.

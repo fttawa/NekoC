@@ -83,21 +83,18 @@ export class StageRenderer {
     this.images.clear();
     for(const item of this.textCache.values())gl.deleteTexture(item.texture);
     this.textCache.clear();this.stats.textTextureBytes=0;
-    if (this.framebuffer) gl.deleteFramebuffer(this.framebuffer);
-    if (this.penTexture) gl.deleteTexture(this.penTexture);
+    for (const surface of this.surfaces?.values() || []) { gl.deleteFramebuffer(surface.framebuffer); gl.deleteTexture(surface.texture); }
+    this.surfaces = new Map();
     this.width = Number(project.stageSize?.width || 900); this.height = Number(project.stageSize?.height || 562);
     if (![this.width,this.height].every(n => Number.isFinite(n) && n >= 1 && n <= 8192)) throw Error('无效舞台尺寸');
     const limit = gl.getParameter(gl.MAX_TEXTURE_SIZE);
     const scale = Math.min(this.resolutionScale ?? (devicePixelRatio || 1), 2, limit / Math.max(this.width, this.height));
     this.canvas.width = Math.ceil(this.width * scale); this.canvas.height = Math.ceil(this.height * scale);
     this.canvas.style.aspectRatio = `${this.width}/${this.height}`;
-    this.penTexture = this.makeTexture(this.canvas.width, this.canvas.height);
-    this.framebuffer = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
-    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.penTexture, 0);
-    if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) throw Error('GPU 画笔纹理创建失败');
-    gl.viewport(0,0,this.canvas.width,this.canvas.height); gl.clearColor(0,0,0,0); gl.clear(gl.COLOR_BUFFER_BIT); gl.bindFramebuffer(gl.FRAMEBUFFER,null);
-    this.stats.framebufferBytes = this.canvas.width * this.canvas.height * 4;
     this.stats.textureBytes = 0;
+    // Every scene owns a persistent pen surface, created when first shown.
+    this.scenes = project.scenes?.scenesDict || {};
+    this.usePenSurface(project.scenes?.currentSceneId);
     const scene = project.scenes?.scenesDict?.[project.scenes.currentSceneId];
     this.backdrop = scene?.currentStyleId;
     this.sceneId=project.scenes?.currentSceneId;this.actorOrder=[...(scene?.actorIds||[])].reverse();this.penLayer=0;
@@ -107,7 +104,9 @@ export class StageRenderer {
     });
     this.spriteIndices=new Map(this.sprites.map((a,i)=>[a.id,i]));
     this.dirty = true;
-    const ids = [...new Set([this.backdrop,...(scene?.styles||[]),...this.sprites.flatMap(a=>[a.style,...(project.actors.actorsDict[a.id].styles||[])])].filter(Boolean))];
+    // Costumes of every scene are decoded up front so scene switches are instant.
+    const actors=project.actors?.actorsDict||{};
+    const ids = [...new Set(Object.values(this.scenes).flatMap(sc=>[sc.currentStyleId,...(sc.styles||[]),...(sc.actorIds||[]).flatMap(id=>[actors[id]?.currentStyleId,...(actors[id]?.styles||[])])]).filter(Boolean))];
     await Promise.all(ids.map(async id => {
       const style = project.styles?.stylesDict?.[id]; if (!style?.url) return;
       try {
@@ -132,6 +131,35 @@ export class StageRenderer {
     }));
   }
 
+  makeSurface(width,height){
+    const gl=this.gl,texture=this.makeTexture(width,height),framebuffer=gl.createFramebuffer();
+    gl.bindFramebuffer(gl.FRAMEBUFFER,framebuffer);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,texture,0);
+    const ok=gl.checkFramebufferStatus(gl.FRAMEBUFFER)===gl.FRAMEBUFFER_COMPLETE;
+    if(ok){gl.viewport(0,0,width,height);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);}
+    gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+    if(!ok){gl.deleteFramebuffer(framebuffer);gl.deleteTexture(texture);throw Error('GPU 画笔纹理创建失败');}
+    return {texture,framebuffer};
+  }
+  usePenSurface(sceneId){
+    let surface=this.surfaces.get(sceneId);
+    if(!surface){surface=this.makeSurface(this.canvas.width,this.canvas.height);this.surfaces.set(sceneId,surface);}
+    this.penTexture=surface.texture;this.framebuffer=surface.framebuffer;
+    this.stats.framebufferBytes=this.surfaces.size*this.canvas.width*this.canvas.height*4;
+  }
+  // The VM switched scenes: its sprites arrive in this frame; the scene's pen
+  // drawing is kept from its last visit.
+  switchScene(sceneId,transition){
+    this.usePenSurface(sceneId);this.sceneId=sceneId;
+    this.sprites=[];this.spriteIndices.clear();this.actorOrder=[];
+    this.backdrop=this.scenes?.[sceneId]?.currentStyleId;this.dirty=true;
+    if(transition&&this.canvas.animate&&!matchMedia('(prefers-reduced-motion: reduce)').matches){
+      const offset={left:'100%',right:'-100%',up:'0 100%',down:'0 -100%'}[transition.direction]||'0 0';
+      const frames=/fade|distort|distrot/i.test(transition.kind)?[{opacity:0},{opacity:1}]:[{translate:offset},{translate:'0 0'}];
+      this.canvas.animate(frames,{duration:/bounce/i.test(transition.kind)?520:360,easing:/bounce/i.test(transition.kind)?'cubic-bezier(.34,1.56,.64,1)':'ease-out'});
+    }
+  }
+
   setResolution(scale) {
     if(!Number.isFinite(scale)||scale<.5||scale>2)throw Error('渲染倍率应在 0.5–2 之间');
     this.resolutionScale=scale;
@@ -140,21 +168,19 @@ export class StageRenderer {
     scale=Math.min(scale,limit/Math.max(this.width,this.height));
     const width=Math.ceil(this.width*scale),height=Math.ceil(this.height*scale);
     if(width===this.canvas.width&&height===this.canvas.height)return;
-    const texture=this.makeTexture(width,height),framebuffer=gl.createFramebuffer();
-    gl.bindFramebuffer(gl.FRAMEBUFFER,framebuffer);
-    gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,texture,0);
-    if(gl.checkFramebufferStatus(gl.FRAMEBUFFER)!==gl.FRAMEBUFFER_COMPLETE){
-      gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl.deleteFramebuffer(framebuffer);gl.deleteTexture(texture);
-      throw Error('无法创建此分辨率的画笔图层');
+    // Resize every scene's pen surface without restarting the game or losing drawings.
+    const resized=new Map();
+    try{for(const id of this.surfaces.keys())resized.set(id,this.makeSurface(width,height));}
+    catch(error){for(const s of resized.values()){gl.deleteFramebuffer(s.framebuffer);gl.deleteTexture(s.texture);}throw Error('无法创建此分辨率的画笔图层');}
+    for(const [id,old] of this.surfaces){
+      const next=resized.get(id);
+      gl.bindFramebuffer(gl.READ_FRAMEBUFFER,old.framebuffer);gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER,next.framebuffer);
+      gl.blitFramebuffer(0,0,this.canvas.width,this.canvas.height,0,0,width,height,gl.COLOR_BUFFER_BIT,gl.LINEAR);
+      gl.deleteFramebuffer(old.framebuffer);gl.deleteTexture(old.texture);
     }
-    // Resize the persistent pen surface without restarting the game or losing its drawing.
-    gl.bindFramebuffer(gl.READ_FRAMEBUFFER,this.framebuffer);gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER,framebuffer);
-    gl.blitFramebuffer(0,0,this.canvas.width,this.canvas.height,0,0,width,height,gl.COLOR_BUFFER_BIT,gl.LINEAR);
     gl.bindFramebuffer(gl.FRAMEBUFFER,null);
-    gl.deleteFramebuffer(this.framebuffer);gl.deleteTexture(this.penTexture);
-    this.framebuffer=framebuffer;this.penTexture=texture;
-    this.canvas.width=width;this.canvas.height=height;
-    this.stats.framebufferBytes=width*height*4;this.stats.gpuMs=null;this.dirty=true;this.render();
+    this.surfaces=resized;
+    this.canvas.width=width;this.canvas.height=height;this.usePenSurface(this.sceneId);this.stats.gpuMs=null;this.dirty=true;this.render();
   }
 
   makeTexture(w,h) {
@@ -181,6 +207,7 @@ export class StageRenderer {
       }
     }
     stamps.sort((a,b)=>a.before_line-b.before_line);
+    if(frame.scene&&frame.scene!==this.sceneId)this.switchScene(frame.scene,frame.transition);
     this.stats.drawCalls = 0; this.stats.penInstances = lines.length / 9;
     this.stats.textUploads=0;this.stats.textStamps=stamps.length;
     this.collectGpuTimes();
