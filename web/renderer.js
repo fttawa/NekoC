@@ -21,9 +21,23 @@ precision highp float;
 uniform vec2 stageSize;uniform vec2 position;uniform vec2 dimensions;uniform float angle;
 out vec2 uv;${QUAD}
 void main(){uv=corner();vec2 p=(uv-.5)*dimensions;float c=cos(angle),s=sin(angle);p=mat2(c,-s,s,c)*p+position;gl_Position=vec4(p/(stageSize*.5),0,1);}`;
+// Sprite effects by native scope: fxA = (color, brightness, pixelate, ripple),
+// fxB = (twist, grayscale). Textures are premultiplied; colour effects unpremultiply.
 const TEXTURE_FRAGMENT = `#version 300 es
-precision highp float;uniform sampler2D image;uniform vec4 tint;in vec2 uv;out vec4 outColor;
-void main(){outColor=texture(image,uv)*vec4(tint.rgb*tint.a,tint.a);}`;
+precision highp float;uniform sampler2D image;uniform vec4 tint;uniform vec4 fxA;uniform vec2 fxB;uniform vec2 texSize;in vec2 uv;out vec4 outColor;
+vec3 hsv(vec3 c){vec4 K=vec4(0.,-1./3.,2./3.,-1.);vec4 p=mix(vec4(c.bg,K.wz),vec4(c.gb,K.xy),step(c.b,c.g));vec4 q=mix(vec4(p.xyw,c.r),vec4(c.r,p.yzx),step(p.x,c.r));float d=q.x-min(q.w,q.y);return vec3(abs(q.z+(q.w-q.y)/(6.*d+1e-10)),d/(q.x+1e-10),q.x);}
+vec3 rgb(vec3 c){vec3 p=abs(fract(c.xxx+vec3(1.,2./3.,1./3.))*6.-3.);return c.z*mix(vec3(1.),clamp(p-1.,0.,1.),c.y);}
+void main(){vec2 p=uv;
+if(fxB.x!=0.){vec2 d=p-.5;float r=length(d)*2.;float a=radians(fxB.x)*max(0.,1.-r);float s=sin(a),c=cos(a);p=.5+mat2(c,-s,s,c)*d;}
+if(fxA.w!=0.){p+=vec2(sin(p.y*25.),sin(p.x*25.))*fxA.w/2000.;}
+if(abs(fxA.z)>=1.){vec2 cell=max(vec2(1.),vec2(abs(fxA.z)/10.+1.));vec2 n=texSize/cell;p=(floor(p*n)+.5)/n;}
+vec4 c=(p.x<0.||p.y<0.||p.x>1.||p.y>1.)?vec4(0.):texture(image,p);
+if(c.a>0.&&(fxA.x!=0.||fxB.y>0.)){vec3 r=c.rgb/c.a;
+if(fxA.x!=0.){vec3 h=hsv(r);h.x=fract(h.x+fxA.x/200.);r=rgb(h);}
+if(fxB.y>0.){r=mix(r,vec3(dot(r,vec3(.299,.587,.114))),clamp(fxB.y/100.,0.,1.));}
+c.rgb=r*c.a;}
+if(fxA.y!=0.){c.rgb=clamp(c.rgb+fxA.y/100.*c.a,0.,c.a);}
+outColor=c*vec4(tint.rgb*tint.a,tint.a);}`;
 
 function program(gl, vertex, fragment) {
   const shaders = [[gl.VERTEX_SHADER, vertex], [gl.FRAGMENT_SHADER, fragment]].map(([type, source]) => {
@@ -44,7 +58,7 @@ export class StageRenderer {
     if (!gl) throw Error('需要支持 WebGL 2 的浏览器。');
     this.gl = gl; this.pen = program(gl, PEN_VERTEX, PEN_FRAGMENT); this.texture = program(gl, TEXTURE_VERTEX, TEXTURE_FRAGMENT);
     this.penSize = gl.getUniformLocation(this.pen, 'stageSize');
-    this.uniform = Object.fromEntries(['stageSize', 'position', 'dimensions', 'angle', 'image', 'tint'].map(k => [k, gl.getUniformLocation(this.texture, k)]));
+    this.uniform = Object.fromEntries(['stageSize', 'position', 'dimensions', 'angle', 'image', 'tint', 'fxA', 'fxB', 'texSize'].map(k => [k, gl.getUniformLocation(this.texture, k)]));
     this.vao = gl.createVertexArray(); this.buffer = gl.createBuffer(); this.bufferCapacity = 0;
     gl.bindVertexArray(this.vao); gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
     for (const [location, count, offset] of [[0,4,0], [1,1,16], [2,4,20]]) {
@@ -68,22 +82,20 @@ export class StageRenderer {
     for (const item of this.images.values()) gl.deleteTexture(item.texture);
     this.images.clear();
     for(const item of this.textCache.values())gl.deleteTexture(item.texture);
+    for(const item of this.spriteTexts?.values()||[])gl.deleteTexture(item.texture);this.spriteTexts?.clear();
     this.textCache.clear();this.stats.textTextureBytes=0;
-    if (this.framebuffer) gl.deleteFramebuffer(this.framebuffer);
-    if (this.penTexture) gl.deleteTexture(this.penTexture);
+    for (const surface of this.surfaces?.values() || []) { gl.deleteFramebuffer(surface.framebuffer); gl.deleteTexture(surface.texture); }
+    this.surfaces = new Map();
     this.width = Number(project.stageSize?.width || 900); this.height = Number(project.stageSize?.height || 562);
     if (![this.width,this.height].every(n => Number.isFinite(n) && n >= 1 && n <= 8192)) throw Error('无效舞台尺寸');
     const limit = gl.getParameter(gl.MAX_TEXTURE_SIZE);
     const scale = Math.min(this.resolutionScale ?? (devicePixelRatio || 1), 2, limit / Math.max(this.width, this.height));
     this.canvas.width = Math.ceil(this.width * scale); this.canvas.height = Math.ceil(this.height * scale);
     this.canvas.style.aspectRatio = `${this.width}/${this.height}`;
-    this.penTexture = this.makeTexture(this.canvas.width, this.canvas.height);
-    this.framebuffer = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
-    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.penTexture, 0);
-    if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) throw Error('GPU 画笔纹理创建失败');
-    gl.viewport(0,0,this.canvas.width,this.canvas.height); gl.clearColor(0,0,0,0); gl.clear(gl.COLOR_BUFFER_BIT); gl.bindFramebuffer(gl.FRAMEBUFFER,null);
-    this.stats.framebufferBytes = this.canvas.width * this.canvas.height * 4;
     this.stats.textureBytes = 0;
+    // Every scene owns a persistent pen surface, created when first shown.
+    this.scenes = project.scenes?.scenesDict || {};
+    this.usePenSurface(project.scenes?.currentSceneId);
     const scene = project.scenes?.scenesDict?.[project.scenes.currentSceneId];
     this.backdrop = scene?.currentStyleId;
     this.sceneId=project.scenes?.currentSceneId;this.actorOrder=[...(scene?.actorIds||[])].reverse();this.penLayer=0;
@@ -93,7 +105,9 @@ export class StageRenderer {
     });
     this.spriteIndices=new Map(this.sprites.map((a,i)=>[a.id,i]));
     this.dirty = true;
-    const ids = [...new Set([this.backdrop,...(scene?.styles||[]),...this.sprites.flatMap(a=>[a.style,...(project.actors.actorsDict[a.id].styles||[])])].filter(Boolean))];
+    // Costumes of every scene are decoded up front so scene switches are instant.
+    const actors=project.actors?.actorsDict||{};
+    const ids = [...new Set(Object.values(this.scenes).flatMap(sc=>[sc.currentStyleId,...(sc.styles||[]),...(sc.actorIds||[]).flatMap(id=>[actors[id]?.currentStyleId,...(actors[id]?.styles||[])])]).filter(Boolean))];
     await Promise.all(ids.map(async id => {
       const style = project.styles?.stylesDict?.[id]; if (!style?.url) return;
       try {
@@ -111,11 +125,40 @@ export class StageRenderer {
         const ctx=hit.getContext('2d',{willReadFrequently:true});ctx.drawImage(image,0,0);
         const rgba=ctx.getImageData(0,0,hit.width,hit.height).data,alpha=new Uint8Array(hit.width*hit.height);
         for(let i=0;i<alpha.length;i++)alpha[i]=rgba[i*4+3];
-        this.images.set(id,{texture,width:image.naturalWidth,height:image.naturalHeight,alpha});
+        this.images.set(id,{texture,width:image.naturalWidth,height:image.naturalHeight,alpha,rgb:cellColors(rgba,hit.width,hit.height)});
         this.stats.textureBytes += image.naturalWidth * image.naturalHeight * 4;
         this.dirty = true;
       } catch(error) { this.onError?.(`素材 ${style.name || id}: ${error.message}`); }
     }));
+  }
+
+  makeSurface(width,height){
+    const gl=this.gl,texture=this.makeTexture(width,height),framebuffer=gl.createFramebuffer();
+    gl.bindFramebuffer(gl.FRAMEBUFFER,framebuffer);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,texture,0);
+    const ok=gl.checkFramebufferStatus(gl.FRAMEBUFFER)===gl.FRAMEBUFFER_COMPLETE;
+    if(ok){gl.viewport(0,0,width,height);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);}
+    gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+    if(!ok){gl.deleteFramebuffer(framebuffer);gl.deleteTexture(texture);throw Error('GPU 画笔纹理创建失败');}
+    return {texture,framebuffer};
+  }
+  usePenSurface(sceneId){
+    let surface=this.surfaces.get(sceneId);
+    if(!surface){surface=this.makeSurface(this.canvas.width,this.canvas.height);this.surfaces.set(sceneId,surface);}
+    this.penTexture=surface.texture;this.framebuffer=surface.framebuffer;
+    this.stats.framebufferBytes=this.surfaces.size*this.canvas.width*this.canvas.height*4;
+  }
+  // The VM switched scenes: its sprites arrive in this frame; the scene's pen
+  // drawing is kept from its last visit.
+  switchScene(sceneId,transition){
+    this.usePenSurface(sceneId);this.sceneId=sceneId;
+    this.sprites=[];this.spriteIndices.clear();this.actorOrder=[];
+    this.backdrop=this.scenes?.[sceneId]?.currentStyleId;this.dirty=true;
+    if(transition&&this.canvas.animate&&!matchMedia('(prefers-reduced-motion: reduce)').matches){
+      const offset={left:'100%',right:'-100%',up:'0 100%',down:'0 -100%'}[transition.direction]||'0 0';
+      const frames=/fade|distort|distrot/i.test(transition.kind)?[{opacity:0},{opacity:1}]:[{translate:offset},{translate:'0 0'}];
+      this.canvas.animate(frames,{duration:/bounce/i.test(transition.kind)?520:360,easing:/bounce/i.test(transition.kind)?'cubic-bezier(.34,1.56,.64,1)':'ease-out'});
+    }
   }
 
   setResolution(scale) {
@@ -126,21 +169,19 @@ export class StageRenderer {
     scale=Math.min(scale,limit/Math.max(this.width,this.height));
     const width=Math.ceil(this.width*scale),height=Math.ceil(this.height*scale);
     if(width===this.canvas.width&&height===this.canvas.height)return;
-    const texture=this.makeTexture(width,height),framebuffer=gl.createFramebuffer();
-    gl.bindFramebuffer(gl.FRAMEBUFFER,framebuffer);
-    gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,texture,0);
-    if(gl.checkFramebufferStatus(gl.FRAMEBUFFER)!==gl.FRAMEBUFFER_COMPLETE){
-      gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl.deleteFramebuffer(framebuffer);gl.deleteTexture(texture);
-      throw Error('无法创建此分辨率的画笔图层');
+    // Resize every scene's pen surface without restarting the game or losing drawings.
+    const resized=new Map();
+    try{for(const id of this.surfaces.keys())resized.set(id,this.makeSurface(width,height));}
+    catch(error){for(const s of resized.values()){gl.deleteFramebuffer(s.framebuffer);gl.deleteTexture(s.texture);}throw Error('无法创建此分辨率的画笔图层');}
+    for(const [id,old] of this.surfaces){
+      const next=resized.get(id);
+      gl.bindFramebuffer(gl.READ_FRAMEBUFFER,old.framebuffer);gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER,next.framebuffer);
+      gl.blitFramebuffer(0,0,this.canvas.width,this.canvas.height,0,0,width,height,gl.COLOR_BUFFER_BIT,gl.LINEAR);
+      gl.deleteFramebuffer(old.framebuffer);gl.deleteTexture(old.texture);
     }
-    // Resize the persistent pen surface without restarting the game or losing its drawing.
-    gl.bindFramebuffer(gl.READ_FRAMEBUFFER,this.framebuffer);gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER,framebuffer);
-    gl.blitFramebuffer(0,0,this.canvas.width,this.canvas.height,0,0,width,height,gl.COLOR_BUFFER_BIT,gl.LINEAR);
     gl.bindFramebuffer(gl.FRAMEBUFFER,null);
-    gl.deleteFramebuffer(this.framebuffer);gl.deleteTexture(this.penTexture);
-    this.framebuffer=framebuffer;this.penTexture=texture;
-    this.canvas.width=width;this.canvas.height=height;
-    this.stats.framebufferBytes=width*height*4;this.stats.gpuMs=null;this.dirty=true;this.render();
+    this.surfaces=resized;
+    this.canvas.width=width;this.canvas.height=height;this.usePenSurface(this.sceneId);this.stats.gpuMs=null;this.dirty=true;this.render();
   }
 
   makeTexture(w,h) {
@@ -150,22 +191,30 @@ export class StageRenderer {
     gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,w,h,0,gl.RGBA,gl.UNSIGNED_BYTE,null); return texture;
   }
 
-  apply(frame, lines) {
+  // present=false only draws pen deltas into the persistent FBO and marks the stage
+  // dirty; the caller composites once per display frame with render().
+  apply(frame, lines, present = true) {
+    this.changed = false;
     if (this.lost) return;
     if (lines.length % 9 !== 0) throw Error('损坏的画笔实例数据');
     const started = performance.now(), gl = this.gl;
-    const stamps=frame.text_stamps||[];
-    let last=0;
-    for(const stamp of stamps){
-      if(!Number.isInteger(stamp.before_line)||stamp.before_line<last||stamp.before_line>lines.length/9)throw Error('损坏的印章绘制顺序');
-      last=stamp.before_line;
+    // Text and costume stamps interleave with pen lines by `before_line`.
+    const stamps=[...(frame.text_stamps||[]),...(frame.image_stamps||[]).map(s=>({...s,image:true}))];
+    for(const list of [frame.text_stamps||[],frame.image_stamps||[]]){
+      let last=0;
+      for(const stamp of list){
+        if(!Number.isInteger(stamp.before_line)||stamp.before_line<last||stamp.before_line>lines.length/9)throw Error('损坏的印章绘制顺序');
+        last=stamp.before_line;
+      }
     }
+    stamps.sort((a,b)=>a.before_line-b.before_line);
+    if(frame.scene&&frame.scene!==this.sceneId)this.switchScene(frame.scene,frame.transition);
     this.stats.drawCalls = 0; this.stats.penInstances = lines.length / 9;
     this.stats.textUploads=0;this.stats.textStamps=stamps.length;
     this.collectGpuTimes();
     const layerChanged=Number.isInteger(frame.pen_layer)&&frame.pen_layer!==this.penLayer;
     if(layerChanged)this.penLayer=frame.pen_layer;
-    const hasDrawing=frame.clear||frame.reset||lines.length||stamps.length||frame.sprites.length||layerChanged;
+    const hasDrawing=frame.clear||frame.reset||lines.length||stamps.length||frame.sprites.length||layerChanged||frame.order||frame.removed?.length;
     const query=hasDrawing&&this.gpuTimer&&this.gpuQueries.length<4?gl.createQuery():null;
     if(query)gl.beginQuery(this.gpuTimer.TIME_ELAPSED_EXT,query);
     try {
@@ -181,20 +230,24 @@ export class StageRenderer {
     let cursor=0;
     for(const stamp of stamps){
       this.drawLines(cursor,stamp.before_line-cursor);cursor=stamp.before_line;
-      this.drawTextStamp(stamp);
+      if(stamp.image)this.drawImageStamp(stamp);else this.drawTextStamp(stamp);
     }
     this.drawLines(cursor,lines.length/9-cursor);
     gl.bindFramebuffer(gl.FRAMEBUFFER,null);
     let changed=!!frame.reset||layerChanged;
     if(frame.reset){this.sprites=[];this.spriteIndices.clear();}
+    // Deleted clones and layer changes (the VM sends ids back to front).
+    if(frame.removed?.length){const gone=new Set(frame.removed);this.sprites=this.sprites.filter(a=>!gone.has(a.id));this.spriteIndices=new Map(this.sprites.map((a,i)=>[a.id,i]));changed=true;}
+    if(Array.isArray(frame.order)){this.actorOrder=frame.order;changed=true;}
     for(const a of frame.sprites){
       if(a.id===this.sceneId){changed ||= a.style!==this.backdrop;this.backdrop=a.style;continue;}
       const index=this.spriteIndices.get(a.id),old=index===undefined?null:this.sprites[index];
-      changed ||= !old||['style','x','y','direction','scale','visible','opacity'].some(k=>a[k]!==old[k]);
+      changed ||= !old||['style','x','y','direction','scale','visible','opacity','size_x','size_y','rotation_type'].some(k=>a[k]!==old[k])||String(a.effects)!==String(old.effects);
       if(index===undefined){this.spriteIndices.set(a.id,this.sprites.length);this.sprites.push(a);}else this.sprites[index]=a;
     }
-    this.dirty ||= changed || frame.clear || lines.length>0 || stamps.length>0;
-    this.render(false);
+    this.changed = changed || !!frame.clear || lines.length>0 || stamps.length>0;
+    this.dirty ||= this.changed;
+    if(present)this.render(false);
     } finally {if(query){gl.endQuery(this.gpuTimer.TIME_ELAPSED_EXT);this.gpuQueries.push(query);}}
     this.stats.submitMs = performance.now() - started;
   }
@@ -246,6 +299,56 @@ export class StageRenderer {
     return item;
   }
 
+  // A sprite rendered as text (self_text_effect_text): centred lines, cached per look.
+  spriteTextImage(look){
+    const key=`${look.size}|${look.color}|${look.text}`;
+    this.spriteTexts??=new Map();
+    let item=this.spriteTexts.get(key);
+    if(item){this.spriteTexts.delete(key);this.spriteTexts.set(key,item);return item;}
+    const gl=this.gl,lines=String(look.text).split('\n'),size=Math.max(1,look.size),font=`${size}px "PingFang SC","Microsoft YaHei",sans-serif`;
+    const canvas=document.createElement('canvas'),ctx=canvas.getContext('2d',{willReadFrequently:true});
+    ctx.font=font;const lineHeight=Math.ceil(size*1.25);
+    const width=Math.max(1,Math.ceil(Math.max(...lines.map(line=>ctx.measureText(line).width)))),height=Math.max(1,lineHeight*lines.length);
+    const limit=gl.getParameter(gl.MAX_TEXTURE_SIZE);
+    canvas.width=Math.min(width,limit);canvas.height=Math.min(height,limit);
+    ctx.font=font;ctx.textBaseline='middle';ctx.textAlign='center';ctx.fillStyle=look.color||'#000000';
+    lines.forEach((line,i)=>ctx.fillText(line,canvas.width/2,lineHeight*(i+.5)));
+    const texture=this.makeTexture(1,1);gl.bindTexture(gl.TEXTURE_2D,texture);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,true);
+    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,canvas);
+    const rgba=ctx.getImageData(0,0,canvas.width,canvas.height).data,alpha=new Uint8Array(canvas.width*canvas.height);
+    for(let i=0;i<alpha.length;i++)alpha[i]=rgba[i*4+3];
+    item={texture,width:canvas.width,height:canvas.height,alpha};
+    this.spriteTexts.set(key,item);
+    if(this.spriteTexts.size>256){const [oldKey,old]=this.spriteTexts.entries().next().value;gl.deleteTexture(old.texture);this.spriteTexts.delete(oldKey);}
+    return item;
+  }
+  spriteImage(a){return a.text?this.spriteTextImage(a.text):this.images.get(a.style);}
+
+  drawImageStamp(stamp){
+    const image=this.images.get(stamp.style);if(!image)return;
+    const {width,height,angle}=spriteGeometry(stamp,image);
+    this.drawTexture(image.texture,stamp.x,stamp.y,width,height,angle,[1,1,1,stamp.opacity??1],stamp.effects,[image.width,image.height]);
+  }
+
+  // Costume sizes plus opacity masks (<=128x128, 1 bit per cell) for VM collisions;
+  // with `colors`, also each cell's RGB for bump_into_color.
+  costumeInfo(colors=false){
+    const out=[];
+    for(const [id,image] of this.images){
+      const mw=Math.min(image.width,128),mh=Math.min(image.height,128),bits=new Uint8Array(Math.ceil(mw*mh/8));
+      for(let y=0;y<mh;y++)for(let x=0;x<mw;x++){
+        const sx=Math.min(image.width-1,Math.floor((x+.5)*image.width/mw)),sy=Math.min(image.height-1,Math.floor((y+.5)*image.height/mh));
+        if(image.alpha[sy*image.width+sx]>0){const bit=y*mw+x;bits[bit>>3]|=1<<(bit&7);}
+      }
+      let binary='';for(let i=0;i<bits.length;i+=8192)binary+=String.fromCharCode(...bits.subarray(i,i+8192));
+      const info={id,width:image.width,height:image.height,mask_width:mw,mask_height:mh,mask:btoa(binary)};
+      if(colors&&image.rgb){let text='';for(let i=0;i<image.rgb.length;i+=8190)text+=String.fromCharCode(...image.rgb.subarray(i,i+8190));info.rgb=btoa(text);}
+      out.push(info);
+    }
+    return out;
+  }
+
   drawTextStamp(stamp){
     if(!stamp.text)return;
     const item=this.textTexture(stamp.text,stamp.size);
@@ -255,11 +358,12 @@ export class StageRenderer {
     this.drawTexture(item.texture,stamp.x+dx*c+dy*s,stamp.y-dx*s+dy*c,item.width,item.height,angle,stamp.color);
   }
 
-  drawTexture(texture,x,y,width,height,angle=0,tint=[1,1,1,1]) {
-    const gl=this.gl,u=this.uniform;
+  drawTexture(texture,x,y,width,height,angle=0,tint=[1,1,1,1],effects=null,texSize=null) {
+    const gl=this.gl,u=this.uniform,e=effects||NO_EFFECTS;
     gl.useProgram(this.texture); gl.uniform2f(u.stageSize,this.width,this.height); gl.uniform2f(u.position,x,y);
     gl.uniform2f(u.dimensions,width,height); gl.uniform1f(u.angle,angle); gl.uniform1i(u.image,0);
-    gl.uniform4fv(u.tint,tint);
+    gl.uniform4fv(u.tint,tint);gl.uniform4f(u.fxA,e[0],e[2],e[3],e[4]);gl.uniform2f(u.fxB,e[5],e[6]);
+    gl.uniform2f(u.texSize,texSize?.[0]||Math.abs(width)||1,texSize?.[1]||Math.abs(height)||1);
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,texture); gl.drawArrays(gl.TRIANGLES,0,6); this.stats.drawCalls++;
   }
 
@@ -275,8 +379,9 @@ export class StageRenderer {
       if(i===layer)this.drawTexture(this.penTexture,0,0,this.width,this.height);
       const a=this.sprites[this.spriteIndices.get(this.actorOrder[i])];if(!a)continue;
       if(!a.visible)continue;
-      const image=this.images.get(a.style);
-      if(image)this.drawTexture(image.texture,a.x,a.y,image.width*a.scale/100,image.height*a.scale/100,a.direction*Math.PI/180,[1,1,1,a.opacity??1]);
+      const image=this.spriteImage(a);
+      if(image){const {width,height,angle}=spriteGeometry(a,image);
+        this.drawTexture(image.texture,a.x,a.y,width,height,angle,[1,1,1,a.opacity??1],a.effects,[image.width,image.height]);}
     }
     this.dirty=false; if(resetStats)this.stats.submitMs=performance.now()-started;
   }
@@ -285,13 +390,35 @@ export class StageRenderer {
     for(let i=this.actorOrder.length-1;i>=0;i--){
       const a=this.sprites[this.spriteIndices.get(this.actorOrder[i])];
       if(!a?.visible||!a.scale||(a.opacity??1)<=0)continue;
-      const image=this.images.get(a.style);if(!image)continue;
-      const angle=a.direction*Math.PI/180,c=Math.cos(angle),s=Math.sin(angle),dx=x-a.x,dy=y-a.y;
-      const px=Math.floor((c*dx-s*dy)*100/a.scale+image.width/2),py=Math.floor(image.height/2-(s*dx+c*dy)*100/a.scale);
+      const image=this.spriteImage(a);if(!image)continue;
+      const {width,height,angle}=spriteGeometry(a,image);if(!width||!height)continue;
+      const c=Math.cos(angle),s=Math.sin(angle),dx=x-a.x,dy=y-a.y;
+      const px=Math.floor((c*dx-s*dy)*image.width/width+image.width/2),py=Math.floor(image.height/2-(s*dx+c*dy)*image.height/height);
       if(px>=0&&px<image.width&&py>=0&&py<image.height&&image.alpha[py*image.width+px]>0)return a.id;
     }
     return null;
   }
+}
+
+const NO_EFFECTS=[0,0,0,0,0,0,0];
+// RGB at the centre of each costume-info cell (same <=128x128 grid as the mask).
+function cellColors(rgba,width,height){
+  const mw=Math.min(width,128),mh=Math.min(height,128),out=new Uint8Array(mw*mh*3);
+  for(let y=0;y<mh;y++)for(let x=0;x<mw;x++){
+    const sx=Math.min(width-1,Math.floor((x+.5)*width/mw)),sy=Math.min(height-1,Math.floor((y+.5)*height/mh)),i=(sy*width+sx)*4,o=(y*mw+x)*3;
+    out[o]=rgba[i];out[o+1]=rgba[i+1];out[o+2]=rgba[i+2];
+  }
+  return out;
+}
+/** Whether a project senses colours (bump_into_color), so costume colours are sent. */
+export function sensesColor(project){return JSON.stringify(project?.actors||{}).includes('"bump_into_color"')||JSON.stringify(project?.scenes||{}).includes('"bump_into_color"');}
+// Drawn size and angle: width/height percentages on top of scale, rotation type
+// 0 free, 1 left-right flip (negative width), 2 upright.
+export function spriteGeometry(a,image){
+  const scale=a.scale/100;let width=image.width*scale*(a.size_x??100)/100,height=image.height*scale*(a.size_y??100)/100,angle=a.direction*Math.PI/180;
+  if(a.rotation_type===2)angle=0;
+  else if(a.rotation_type===1){const d=((a.direction%360)+540)%360-180;angle=0;if(d<0)width=-width;}
+  return {width,height,angle};
 }
 
 export function decodeFrame(buffer) {

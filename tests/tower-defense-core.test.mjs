@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import vm from 'node:vm';
 import {execFileSync} from 'node:child_process';
@@ -165,8 +166,7 @@ test('all procedures compile as zero-argument native definitions with explicit w
     assert.equal(call.arguments[2].body.statements.length,1);
     assert.equal(call.arguments[2].body.statements[0].expression.expression.getText(parsed),'warp');
   }
-  const tempRoot='D:/AppData/Local/Temp/opencode';
-  const temp=fs.mkdtempSync(path.join(fs.existsSync(tempRoot)?tempRoot:root,'td-core-test-'));
+  const temp=fs.mkdtempSync(path.join(os.tmpdir(),'td-core-test-'));
   try {
     const output=path.join(temp,'workspace.json');
     execFileSync(process.execPath,[path.join(root,'ts/compile-ts.mjs'),path.join(root,'modules/tower-defense/core.ts'),output],{cwd:root});

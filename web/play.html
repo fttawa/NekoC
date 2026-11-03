@@ -3,35 +3,48 @@
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="dark"><title>Neko · 纯播放器</title><link rel="stylesheet" href="/play.css"></head>
 <body>
 <main id="player-shell">
-  <header class="toolbar">
-    <div class="identity"><span class="mark" aria-hidden="true">n<span>·</span></span><div><span class="eyebrow">NEKO / PLAYER</span><h1 id="project-name">纯播放器</h1></div></div>
-    <div class="tools">
-      <div class="fps-display" title="每秒实际收到并绘制的画面更新；包含作品分步绘制，不等于完整作品帧数。"><span class="live-dot"></span><strong id="fps">—</strong><span>绘制 FPS</span></div>
-      <button id="settings-toggle" aria-expanded="false" aria-controls="settings"><span aria-hidden="true">☷</span> 性能</button>
-      <button id="import" class="primary"><span aria-hidden="true">＋</span> 导入作品</button>
-      <input id="file" type="file" accept=".bcmkn,.bcm,.json" hidden>
-    </div>
+  <header class="tile brand-tile">
+    <span class="mark" aria-hidden="true">n</span>
+    <div class="identity"><span class="eyebrow">NEKO 播放器</span><h1 id="project-name">纯播放器</h1></div>
+    <button id="import" class="primary"><span aria-hidden="true">＋</span> 导入作品</button>
+    <input id="file" type="file" accept=".bcmkn,.bcm,.json" hidden>
   </header>
 
-  <section id="settings" class="settings" aria-label="性能控制" hidden>
-    <div class="setting"><label for="frame-limit">更新上限</label><select id="frame-limit"><option value="30">30 / 秒 · 省电</option><option value="60" selected>60 / 秒 · 均衡</option><option value="120">120 / 秒 · 高刷新</option><option value="0">不限 · 跟随屏幕</option></select><small>限制运行更新频率，实际速度取决于作品。</small></div>
-    <div class="setting"><label for="budget">执行预算</label><select id="budget"><option value="2">2 ms · 低占用</option><option value="4" selected>4 ms · 均衡</option><option value="8">8 ms · 高性能</option><option value="12">12 ms · 最大吞吐</option></select><small>每次运行更新的 CPU 软预算。</small></div>
-    <div class="setting"><label for="resolution">渲染精度</label><select id="resolution"><option value="0.5">0.5× · 省电</option><option value="1" selected>1× · 原始分辨率</option><option value="2">2× · 精细</option></select><small>实时切换，保留当前游戏进度与画笔图层。</small></div>
-    <div class="timings"><span>VM <b id="vm-time">—</b></span><span>GPU <b id="gpu-time">—</b></span><span>往返 <b id="roundtrip">—</b></span><span>更新 <b id="update-fps">—</b></span><small id="render-size">—</small></div>
-  </section>
-
-  <section id="viewport" aria-label="游玩区域">
+  <section id="viewport" class="tile" aria-label="游玩区域">
     <div id="stage-box"><canvas id="stage" tabindex="0" aria-label="游戏舞台，点击后使用键盘游玩"></canvas><div id="timer" hidden></div></div>
     <div id="welcome" class="welcome"><span class="eyebrow">READY WHEN YOU ARE</span><h2>把作品带到大屏幕。</h2><p>导入 .bcmkn / .bcm，或直接拖到这里</p></div>
     <div id="drop-hint" aria-hidden="true"><span>松开，开始游玩</span><small>.bcmkn / .bcm</small></div>
+    <div id="notice" role="alert" hidden><span id="notice-text"></span><button id="dismiss" aria-label="关闭提示">×</button></div>
   </section>
 
-  <footer class="playbar">
-    <div class="play-controls"><button id="toggle" class="primary" disabled>▶ 开始游玩</button><button id="restart" disabled title="从头开始">↻ 重玩</button></div>
+  <section class="tile fps-tile" title="每秒实际收到并有画面变化的更新；包含作品分步绘制，不等于完整作品帧数。">
+    <span class="eyebrow"><span class="live-dot"></span>绘制 FPS</span>
+    <strong id="fps">—</strong>
+    <span class="hint">更新 <b id="update-fps">—</b></span>
+  </section>
+
+  <section class="tile controls-tile">
+    <div class="play-controls"><button id="toggle" class="primary" disabled>▶ 开始游玩</button><button id="restart" disabled title="从头开始">↻ 重玩</button><button id="fullscreen" title="全屏游玩" aria-label="全屏游玩">⛶ <span>全屏</span></button></div>
     <span id="status" role="status">选择作品，开始游玩</span>
-    <div class="view-controls"><span class="keyboard-hint">点击画面 · 键盘游玩</span><button id="fullscreen" title="全屏游玩" aria-label="全屏游玩">⛶ <span>全屏</span></button></div>
-  </footer>
-  <div id="notice" role="alert" hidden><span id="notice-text"></span><button id="dismiss" aria-label="关闭提示">×</button></div>
+    <span class="keyboard-hint">点击画面后用键盘游玩</span>
+  </section>
+
+  <section class="tile timings-tile" aria-label="性能数据">
+    <div><span>VM</span><b id="vm-time">—</b></div>
+    <div><span>GPU</span><b id="gpu-time">—</b></div>
+    <div><span>往返</span><b id="roundtrip">—</b></div>
+    <div><span>画布</span><b id="render-size">—</b></div>
+  </section>
+
+  <section class="tile settings-tile">
+    <button id="settings-toggle" class="settings-head" aria-expanded="true" aria-controls="settings"><span>性能设置</span><span class="chevron" aria-hidden="true">⌄</span></button>
+    <div id="settings" class="settings" aria-label="性能控制">
+      <div class="setting"><label for="frame-limit">更新上限</label><select id="frame-limit"><option value="30">30 / 秒 · 省电</option><option value="60" selected>60 / 秒 · 均衡</option><option value="120">120 / 秒 · 高刷新</option><option value="0">不限 · 跟随屏幕</option></select><small>限制运行更新频率，实际速度取决于作品。</small></div>
+      <div class="setting"><label for="budget">执行预算</label><select id="budget"><option value="2">2 ms · 低占用</option><option value="4" selected>4 ms · 均衡</option><option value="8">8 ms · 高性能</option><option value="12">12 ms · 最大吞吐</option></select><small>每次运行更新的 CPU 软预算。</small></div>
+      <div class="setting"><label for="resolution">渲染精度</label><select id="resolution"><option value="0.5">0.5× · 省电</option><option value="1" selected>1× · 原始分辨率</option><option value="2">2× · 精细</option></select><small>实时切换，保留当前游戏进度与画笔图层。</small></div>
+      <div class="setting"><label for="coalesce">合并无画面更新</label><select id="coalesce"><option value="0" selected>关闭 · 官方节奏</option><option value="1">开启 · 实验</option></select><small>一次更新内连续执行没有画面变化的轮次（时间不前进）。分步绘制的作品更流畅，但只改变量的循环会跑得更快。</small></div>
+    </div>
+  </section>
 </main>
 <script type="module" src="/play.js"></script>
 </body>

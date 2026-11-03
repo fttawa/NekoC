@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import vm from 'node:vm';
 import {execFileSync} from 'node:child_process';
@@ -69,7 +70,7 @@ test('standalone DSL emits bounded native procedures and no network or cloud opc
     ts.forEachChild(node,visit);
   }
   visit(ast);
-  const temp=fs.mkdtempSync(path.join('D:/AppData/Local/Temp/opencode','td-social-test-'));
+  const temp=fs.mkdtempSync(path.join(os.tmpdir(),'td-social-test-'));
   try {
     const output=path.join(temp,'workspace.json');
     execFileSync(process.execPath,[path.join(root,'ts/compile-ts.mjs'),modulePath,output],{cwd:root});

@@ -1,11 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 
 test('computed negative coordinates retain connected operands', () => {
-  const dir=fs.mkdtempSync('D:/AppData/Local/Temp/opencode/nekoc-negative-');
+  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'nekoc-negative-'));
   try {
     fs.writeFileSync(path.join(dir,'main.ts'),'onStart(()=>{moveTo(-(getVar("width") as number)/2-12,0);});');
     execFileSync(process.execPath,[path.resolve('ts/compile-ts.mjs'),path.join(dir,'main.ts'),path.join(dir,'out.json')]);
@@ -21,7 +22,7 @@ test('computed negative coordinates retain connected operands', () => {
 });
 
 test('prefix negation retains its operand and parent links through nested boolean expressions', () => {
-  const dir=fs.mkdtempSync('D:/AppData/Local/Temp/opencode/nekoc-negate-');
+  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'nekoc-negate-'));
   try {
     fs.writeFileSync(path.join(dir,'main.ts'),'onStart(()=>{if (!keyPressed("32")) setVar("x",1);setVar("double",!!keyPressed("65"));});');
     execFileSync(process.execPath,[path.resolve('ts/compile-ts.mjs'),path.join(dir,'main.ts'),path.join(dir,'out.json')]);
@@ -39,7 +40,7 @@ test('prefix negation retains its operand and parent links through nested boolea
 });
 
 test('dynamic changeVar and default held-key state compile to native inputs', () => {
-  const dir=fs.mkdtempSync('D:/AppData/Local/Temp/opencode/nekoc-change-');
+  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'nekoc-change-'));
   try {
     fs.writeFileSync(path.join(dir,'main.ts'),'onStart(()=>{changeVar("x",(getVar("speed") as number)*-2);setVar("held",keyPressed("87"));});');
     execFileSync(process.execPath,[path.resolve('ts/compile-ts.mjs'),path.join(dir,'main.ts'),path.join(dir,'out.json')]);
@@ -53,7 +54,7 @@ test('dynamic changeVar and default held-key state compile to native inputs', ()
 });
 
 test('script-variable declarations retain each native mutator socket', () => {
-  const dir=fs.mkdtempSync('D:/AppData/Local/Temp/opencode/nekoc-locals-test-');
+  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'nekoc-locals-test-'));
   try {
     fs.writeFileSync(path.join(dir,'main.ts'),'onStart(()=>{scriptVars("x","y");setVar("result",scriptVar("x"));});');
     execFileSync(process.execPath,[path.resolve('ts/compile-ts.mjs'),path.join(dir,'main.ts'),path.join(dir,'out.json')]);

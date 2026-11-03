@@ -61,6 +61,20 @@ impl Cell {
                 .join(","),
         }
     }
+    /// Appends `text()` without an intermediate allocation for scalar values.
+    pub fn append_text(&self, out: &mut String) {
+        use std::fmt::Write;
+        match self {
+            Self::Number(n) if *n == 0.0 => out.push('0'),
+            Self::Number(n) => {
+                let _ = write!(out, "{n}");
+            }
+            Self::Bool(v) => out.push_str(if *v { "true" } else { "false" }),
+            Self::Text(s) => out.push_str(s),
+            Self::Null => {}
+            Self::List(_) => out.push_str(&self.text()),
+        }
+    }
     pub fn truth(&self) -> bool {
         match self {
             Self::Number(n) => super::truth(*n),
@@ -103,20 +117,28 @@ impl Serialize for Cell {
 
 #[derive(Clone, Copy, Debug)]
 pub(super) enum ListRef {
-    Global(usize),
-    Local(usize),
-    Variable(usize),
-    Expression(usize),
+    Global(u32),
+    Local(u32),
+    Variable(u32),
+    Expression(u32),
 }
 #[derive(Clone, Copy, Debug)]
 pub(super) enum Target {
     Global(usize),
     Local(usize),
 }
-#[derive(Clone, Debug)]
+/// Range into `Program::value_args`; keeps `ValueExpr` `Copy` so evaluation never
+/// clones or drops heap data just to dispatch on an expression node.
+#[derive(Clone, Copy, Debug)]
+pub(super) struct Span {
+    pub start: u32,
+    pub len: u32,
+}
+#[derive(Clone, Copy, Debug)]
 pub(super) enum ValueExpr {
     Number(super::Expr),
-    Constant(Cell),
+    /// Index into `Program::constants`.
+    Constant(usize),
     Global(usize),
     Local(usize),
     List(ListRef),
@@ -126,12 +148,23 @@ pub(super) enum ValueExpr {
     Contains(usize, usize),
     Find(ListRef, usize, bool),
     Item(ListRef, Option<super::Expr>),
-    Join(Vec<usize>),
-    Temporary(Vec<usize>),
+    Join(Span),
+    Temporary(Span),
     Split(usize, usize),
     Select(usize, super::Expr, super::Expr),
     Convert(usize, bool),
     Compare(usize, usize, super::Binary),
     Logic(usize, usize, bool),
     Not(usize),
+    /// Local weekday name (get_time week).
+    WeekText,
+    /// Reporter procedure call: (procedure entry index, call argument list).
+    CallReturn(usize, usize),
+    /// (original actor, 1-based clone index, attribute 0 x / 1 y / 2 costume no. / 4 name)
+    CloneProperty(usize, super::Expr, u8),
+    Answer,
+    /// Last chosen option: index (true) or content.
+    Choice(bool),
+    /// Attribute (see `bump_attribute`) of the actor this collision script met.
+    BumpProperty(u8),
 }

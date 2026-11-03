@@ -1,8 +1,10 @@
-import {StageRenderer,decodeFrame} from './renderer.js';
+import {StageRenderer,decodeFrame,sensesColor} from './renderer.js';
 import {PlayerConnection} from './player.js';
 import {ProjectAudio} from './audio.js';
 import {StageInput} from './input.js';
-const audio=new ProjectAudio(message=>log(message,true));
+import {StageOverlay} from './overlay.js';
+const audio=new ProjectAudio(message=>log(message,true),id=>input?.push({kind:'audio_done',id}));
+let overlay=null,sendCostumes=false;
 window.addEventListener('pointerdown',()=>audio.unlock(),{capture:true});
 window.addEventListener('keydown',()=>audio.unlock(),{capture:true});
 window.addEventListener('pagehide',()=>audio.stop());
@@ -28,7 +30,8 @@ Object.assign(labels,{console_log:'输出到控制台',variables_set:'设置变�
 Object.assign(labels,{on_keydown:'当按下按键',timer:'计时器',set_timer_state:'控制计时器',traverse_number:'遍历数值',traverse_number_value:'当前遍历值',traverse_number_param:'遍历变量',self_set_pen_color_property:'设置画笔属性',self_change_pen_color_property:'改变画笔属性',stamp:'文字印章',text_join:'连接文本',delete_list_item:'删除列表项',list_append:'添加列表项',list_length:'列表长度',list_item:'读取列表项',pure_list_get:'列表',procedures_2_callnoreturn:'调用自制积木',repeat_forever_until:'重复直到条件成立'});
 Object.assign(labels,{script_variables:'定义脚本局部变量',script_variables_param:'局部变量名',script_variables_value:'读取局部变量',temporary_list:'临时列表',list_copy:'复制列表',list_insert_value:'插入列表项',replace_list_item:'替换列表项',text_select:'截取文字',convert_type:'转换类型',show_hide_timer:'显示 / 隐藏计时器',check_key:'按键是否按下'});
 const fieldLabels={steps:'步数',degrees:'角度',times:'次数',size:'大小',color:'颜色',console_log:'内容',value:'值',time:'秒',x:'X',y:'Y',scale:'大小',variable:'变量',key:'按键',scope:'属性',val:'值',align:'对齐',text:'文字',from:'从',to:'到',by:'步长',list:'列表',list_index:'序号',list_item_value:'内容'};
-const colors={event:['#ece9d9','#ddd7ba','#8c7d3f'],motion:['#e4edf4','#ccdce7','#4e7898'],control:['#ebe7f0','#d7cce3','#86709b'],pen:['#e6eee2','#cddfc3','#658052']};
+// Flat category colours: [fill, accent bar, ink].
+const colors={event:['#fdf1c7','#e9b824','#6b4e00'],motion:['#dcebfb','#3d8bd9','#1c4a7a'],control:['#ece4fb','#8b62d9','#43277a'],pen:['#d9f2e2','#2f9e5b','#1d5e37']};
 const symbols={event:'⚑',motion:'↗',control:'↻',pen:'⌁'};
 let project,owner='',selected='',dirty=false,undo=[],redo=[],renderer,input;
 let running=false,started=false,inFlight=null,epoch=0,lastTick=0,lastFrame=null,lastBytes=0;
@@ -155,18 +158,19 @@ async function start(){
 }
 async function startRuntime(){
   if(running)return;await inFlight;
-  if(!started){await api('project',project);audio.load(project);player=new PlayerConnection();const ready=await player.open();compiled(ready.stats);started=true;epoch++;input.reset();lastFrame=null;lastBytes=0;history=[];pipeline.completedFrames=0;renderEditor();renderPalette();}
+  if(!started){await api('project',project);audio.load(project);player=new PlayerConnection();const ready=await player.open();compiled(ready.stats);started=true;sendCostumes=true;overlay?.reset();epoch++;input.reset();lastFrame=null;lastBytes=0;history=[];pipeline.completedFrames=0;renderEditor();renderPalette();}
   frames=0;fpsStart=performance.now();fps=0;
   running=true;audio.resume();lastTick=performance.now();state('运行中');$('#stage').focus();
 }
 function state(text){$('#runtime-state').replaceChildren(make('i'),document.createTextNode(text));$('#run').disabled=running;}
-async function stop(){await starting;running=false;audio.stop();epoch++;player?.close();player=null;await inFlight;await api('stop');started=false;input.reset();timerLabel.hidden=true;await renderer.load(project);renderEditor();renderPalette();state('就绪');}
+async function stop(){await starting;running=false;audio.stop();epoch++;player?.close();player=null;await inFlight;await api('stop');started=false;input.reset();overlay?.reset();timerLabel.hidden=true;await renderer.load(project);renderEditor();renderPalette();state('就绪');}
 async function nextFrame(dt){
   const token=epoch,start=performance.now();let buffer;
-  try{buffer=await player.frame({dt,...input.take()});}catch(error){if(token!==epoch)return;throw error;}if(token!==epoch)return;
+  try{const costumes=sendCostumes?renderer.costumeInfo(sensesColor(project)):undefined;sendCostumes=false;
+  buffer=await player.frame({dt,...input.take(),costumes,utc_offset:-new Date().getTimezoneOffset()});}catch(error){if(token!==epoch)return;throw error;}if(token!==epoch)return;
   pipeline.roundtripMs=performance.now()-start;
   const decodeStart=performance.now(),{frame,lines}=decodeFrame(buffer);pipeline.decodeMs=performance.now()-decodeStart;lastBytes=buffer.byteLength;lastFrame=frame;
-   renderer.apply(frame,lines);audio.apply(frame);for(const message of frame.logs)log(message);
+   renderer.apply(frame,lines);overlay?.apply(frame);audio.apply(frame);for(const message of frame.logs)log(message);
   timerLabel.hidden=!frame.timer_visible;if(frame.timer_visible)timerLabel.textContent=`计时器 ${frame.timer.toFixed(2)}`;
   pipeline.completedFrames++;frames++;
 }
@@ -179,13 +183,13 @@ function monitor(now){
   $('#roundtrip').textContent=`${pipeline.roundtripMs.toFixed(2)} ms`;$('#decode-time').textContent=`${pipeline.decodeMs.toFixed(2)} ms`;
   $('#gpu-time').textContent=renderer.stats.gpuMs==null?'不可用':`${renderer.stats.gpuMs.toFixed(2)} ms`;
   history.push(lastFrame?Number(lastFrame.execute_us)/1000:0);if(history.length>80)history.shift();
-  const canvas=$('#chart'),ctx=canvas.getContext('2d'),w=canvas.width,h=canvas.height;ctx.clearRect(0,0,w,h);ctx.strokeStyle='#edf0e8';ctx.lineWidth=1;
+  const canvas=$('#chart'),ctx=canvas.getContext('2d'),w=canvas.width,h=canvas.height;ctx.clearRect(0,0,w,h);ctx.strokeStyle='#e3e6df';ctx.lineWidth=1;
   for(let y=12;y<h;y+=16){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
-  ctx.beginPath();history.forEach((v,i)=>{const x=i/79*w,y=h-5-Math.min(v,8)/8*(h-10);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});ctx.strokeStyle='#8ba97c';ctx.lineWidth=1.5;ctx.stroke();
+  ctx.beginPath();history.forEach((v,i)=>{const x=i/79*w,y=h-5-Math.min(v,8)/8*(h-10);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});ctx.strokeStyle='#2f7d4e';ctx.lineWidth=2;ctx.stroke();
 }
 function loop(now){
   if(running&&!inFlight){const dt=Math.min((now-lastTick)/1000,.25);lastTick=now;inFlight=nextFrame(dt).catch(handleError).finally(()=>{inFlight=null;});}
-  renderer.render();renderer.collectGpuTimes();monitor(now);requestAnimationFrame(loop);
+  renderer.render();overlay?.update();renderer.collectGpuTimes();monitor(now);requestAnimationFrame(loop);
 }
 async function loadProject(value){
   await starting;
@@ -233,6 +237,6 @@ $('#apply-json').onclick=async()=>{if(started||starting){notify('请先停止运
   catch(e){handleError(e);}finally{button.disabled=false;}
 };
 window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue='';}});
-try{renderer=new StageRenderer($('#stage'));input=new StageInput($('#stage'),renderer,()=>running);renderer.onError=message=>log(message,true);await loadProject(await(await fetch('/api/project')).json());requestAnimationFrame(loop);}catch(e){handleError(e);if(renderer)requestAnimationFrame(loop);}
+try{renderer=new StageRenderer($('#stage'));input=new StageInput($('#stage'),renderer,()=>running);overlay=new StageOverlay($('#stage').parentElement,renderer,event=>input.push(event));renderer.onError=message=>log(message,true);await loadProject(await(await fetch('/api/project')).json());requestAnimationFrame(loop);}catch(e){handleError(e);if(renderer)requestAnimationFrame(loop);}
 // Read-only diagnostics for local performance/renderer verification.
 window.nekoDiagnostics=()=>({renderer:{...renderer?.stats},sprites:renderer?.sprites,frame:lastFrame,bytes:lastBytes,running,started,pipeline:{...pipeline},framebuffer:[renderer?.canvas.width,renderer?.canvas.height]});

@@ -12,6 +12,7 @@ use tungstenite::{
 
 const EXTENSION_ORIGIN: &str = "chrome-extension://aghbhbjmpgklpbgoeopacommcdjmeghj";
 const MAX_PROJECT_BYTES: usize = 64 * 1024 * 1024;
+const MAX_FRAME_REQUEST_BYTES: usize = 32 * 1024 * 1024;
 
 #[derive(Parser)]
 #[command(about = "NekoC Web Studio — Rust bytecode VM + incremental WebGL2 renderer")]
@@ -52,6 +53,38 @@ fn body(request: &mut Request) -> Result<Value> {
     Ok(serde_json::from_slice(&bytes)?)
 }
 const KITTEN4_METADATA: &str = "_nekocKitten4";
+
+mod base64_mask {
+    /// Standard base64 (no line breaks); None on any invalid character.
+    pub fn decode(text: &str) -> Option<Vec<u8>> {
+        let value = |c: u8| -> Option<u32> {
+            Some(match c {
+                b'A'..=b'Z' => c - b'A',
+                b'a'..=b'z' => c - b'a' + 26,
+                b'0'..=b'9' => c - b'0' + 52,
+                b'+' => 62,
+                b'/' => 63,
+                _ => return None,
+            } as u32)
+        };
+        let bytes = text.trim_end_matches('=').as_bytes();
+        let mut out = Vec::with_capacity(bytes.len() * 3 / 4);
+        for chunk in bytes.chunks(4) {
+            let mut n = 0;
+            for (i, &c) in chunk.iter().enumerate() {
+                n |= value(c)? << (18 - 6 * i);
+            }
+            out.push((n >> 16) as u8);
+            if chunk.len() > 2 {
+                out.push((n >> 8) as u8);
+            }
+            if chunk.len() > 3 {
+                out.push(n as u8);
+            }
+        }
+        Some(out)
+    }
+}
 
 fn is_kitten4_project(project: &Value) -> bool {
     project.get(KITTEN4_METADATA).is_some()
@@ -207,6 +240,45 @@ fn frame_bytes(vm: &mut Engine, payload: &Value) -> Result<Vec<u8>> {
             vm.key(key);
         }
     }
+    // Costume sizes and opacity masks, measured once by the viewer after decoding.
+    if let Some(costumes) = payload["costumes"].as_array() {
+        for costume in costumes.iter().take(4096) {
+            let (Some(id), Some(width), Some(height)) = (
+                costume["id"].as_str(),
+                costume["width"].as_f64(),
+                costume["height"].as_f64(),
+            ) else {
+                continue;
+            };
+            let mask = (|| {
+                use base64_mask::decode;
+                let (w, h) = (
+                    costume["mask_width"].as_u64()?,
+                    costume["mask_height"].as_u64()?,
+                );
+                let bits = decode(costume["mask"].as_str()?)?;
+                (w * h <= 512 * 512 && bits.len() as u64 >= (w * h).div_ceil(8))
+                    .then_some((w as usize, h as usize, bits))
+            })();
+            // RGB per mask cell, only sent when the project senses colours.
+            let rgb = mask.as_ref().and_then(|(w, h, _)| {
+                let rgb = base64_mask::decode(costume["rgb"].as_str()?)?;
+                (rgb.len() == w * h * 3).then_some(rgb)
+            });
+            vm.set_costume(
+                id,
+                nekoc::engine::Costume {
+                    width,
+                    height,
+                    mask,
+                    rgb,
+                },
+            );
+        }
+    }
+    if let Some(offset) = payload["utc_offset"].as_f64() {
+        vm.set_utc_offset(offset);
+    }
     if let (Some(x), Some(y)) = (
         payload["mouse"]["x"].as_f64(),
         payload["mouse"]["y"].as_f64(),
@@ -223,6 +295,34 @@ fn frame_bytes(vm: &mut Engine, payload: &Value) -> Result<Vec<u8>> {
                         vm.key_event(key, down);
                     }
                 }
+                Some("audio_done") => {
+                    if let Some(id) = event["id"].as_u64() {
+                        vm.audio_finished(id);
+                    }
+                }
+                Some("drag") => {
+                    if let (Some(target), Some(x), Some(y)) = (
+                        event["target"].as_str(),
+                        event["x"].as_f64(),
+                        event["y"].as_f64(),
+                    ) {
+                        vm.drag(target, x, y);
+                    }
+                }
+                Some("swipe") => {
+                    if let Some(direction) = event["direction"].as_str() {
+                        vm.swipe(direction);
+                    }
+                }
+                Some("answer") => {
+                    if let Some(id) = event["id"].as_u64() {
+                        vm.answer(
+                            id,
+                            event["text"].as_str().unwrap_or(""),
+                            event["choice"].as_u64().map(|c| c as usize),
+                        );
+                    }
+                }
                 Some("pointer") => {
                     if let (Some(state), Some(x), Some(y)) = (
                         event["state"].as_str(),
@@ -236,22 +336,19 @@ fn frame_bytes(vm: &mut Engine, payload: &Value) -> Result<Vec<u8>> {
             }
         }
     }
-    let frame = vm.advance(
+    // Opt-in: keep running ticks that produced no visible change (max 16 per frame).
+    let ticks = if payload["coalesce"].as_bool() == Some(true) {
+        16
+    } else {
+        1
+    };
+    let frame = vm.advance_with(
         payload["dt"].as_f64().unwrap_or(1.0 / 60.0),
         500_000,
         frame_budget(payload),
+        ticks,
     )?;
-    let mut bytes = Vec::with_capacity(1024 + frame.lines.len() * 4);
-    bytes.extend_from_slice(&[0; 4]);
-    serde_json::to_writer(&mut bytes, &frame)?;
-    while bytes.len() % 4 != 0 {
-        bytes.push(b' ');
-    }
-    let length = (bytes.len() - 4) as u32;
-    bytes[..4].copy_from_slice(&length.to_le_bytes());
-    for f in &frame.lines {
-        bytes.extend_from_slice(&f.to_le_bytes());
-    }
+    let bytes = nekoc::engine::encode_frame(&frame)?;
     vm.recycle_lines(frame.lines);
     Ok(bytes)
 }
@@ -287,9 +384,11 @@ fn player_socket(request: Request, project: Option<Value>) -> Result<()> {
                 check_project_shape(&project)?;
                 project
             };
+            // Frame requests are small, except the one-time costume info (opacity
+            // masks, plus per-cell RGB for colour sensing) which can reach megabytes.
             socket.set_config(|config| {
-                config.max_message_size = Some(64 * 1024);
-                config.max_frame_size = Some(64 * 1024);
+                config.max_message_size = Some(MAX_FRAME_REQUEST_BYTES);
+                config.max_frame_size = Some(MAX_FRAME_REQUEST_BYTES);
             });
             let program = Program::compile(&project)?;
             let stats = program.stats();
@@ -322,6 +421,22 @@ fn player_socket(request: Request, project: Option<Value>) -> Result<()> {
     });
     Ok(())
 }
+/// Frames are request/response: Nagle would hold each response's trailing partial
+/// segment until the browser's delayed ACK (40-200ms) for multi-segment pen frames.
+/// Accepted sockets inherit TCP_NODELAY from the listener (Linux, Windows).
+fn listener(port: u16) -> Result<std::net::TcpListener> {
+    use socket2::{Domain, Protocol, Socket, Type};
+    let address = std::net::SocketAddr::from(([127, 0, 0, 1], port));
+    let socket = Socket::new(Domain::IPV4, Type::STREAM, Some(Protocol::TCP))?;
+    #[cfg(unix)]
+    socket.set_reuse_address(true)?;
+    socket.set_tcp_nodelay(true)?;
+    socket
+        .bind(&address.into())
+        .with_context(|| format!("cannot listen on {address}"))?;
+    socket.listen(128)?;
+    Ok(socket.into())
+}
 fn main() -> Result<()> {
     let args = Args::parse();
     let initial = if let Some(path) = args.input {
@@ -330,7 +445,8 @@ fn main() -> Result<()> {
         serde_json::from_str(include_str!("../../samples/native-studio.bcmkn"))?
     };
     let (mut project, _) = import_project(initial)?;
-    let server = Server::http(("127.0.0.1", args.port)).map_err(|e| anyhow::anyhow!("{e}"))?;
+    let server =
+        Server::from_listener(listener(args.port)?, None).map_err(|e| anyhow::anyhow!("{e}"))?;
     println!(
         "NekoC Web Studio: http://127.0.0.1:{}\nRust VM / binary frame transport / WebGL2 persistent pen surface",
         args.port
@@ -430,6 +546,10 @@ fn main() -> Result<()> {
                 "/audio.js" => Some((
                     "text/javascript",
                     include_bytes!("../../web/audio.js").as_slice(),
+                )),
+                "/overlay.js" => Some((
+                    "text/javascript",
+                    include_bytes!("../../web/overlay.js").as_slice(),
                 )),
                 "/input.js" => Some((
                     "text/javascript",
