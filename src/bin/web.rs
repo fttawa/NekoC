@@ -236,10 +236,17 @@ fn frame_bytes(vm: &mut Engine, payload: &Value) -> Result<Vec<u8>> {
             }
         }
     }
-    let frame = vm.advance(
+    // Opt-in: keep running ticks that produced no visible change (max 16 per frame).
+    let ticks = if payload["coalesce"].as_bool() == Some(true) {
+        16
+    } else {
+        1
+    };
+    let frame = vm.advance_with(
         payload["dt"].as_f64().unwrap_or(1.0 / 60.0),
         500_000,
         frame_budget(payload),
+        ticks,
     )?;
     let bytes = nekoc::engine::encode_frame(&frame)?;
     vm.recycle_lines(frame.lines);

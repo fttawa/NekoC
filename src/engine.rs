@@ -1606,6 +1606,8 @@ pub struct Frame {
     pub clear: bool,
     pub active: usize,
     pub instructions: usize,
+    /// Scheduler ticks run for this frame (more than 1 only when coalescing).
+    pub ticks: usize,
     pub execute_us: u128,
     pub budget_yield: bool,
 }
@@ -2190,16 +2192,99 @@ impl Engine {
     /// Bounded frame work. Round-robin cursor prevents a long warp script starving
     /// later actors. Clock sampled every 256 instructions, not on every block.
     pub fn advance(&mut self, dt: f64, max_instructions: usize, budget: Duration) -> Result<Frame> {
+        self.advance_with(dt, max_instructions, budget, 1)
+    }
+    /// Like `advance`, but when a tick ends with no visible change (no pen output,
+    /// clear, stamp, sprite or layer change) and nothing hit the budget, immediately
+    /// runs up to `max_ticks - 1` more ticks in the same frame with dt = 0. Waits on
+    /// time never complete early; loops that only update variables run more often.
+    /// This is an opt-in player setting, not the official one-tick-per-frame rule.
+    pub fn advance_with(
+        &mut self,
+        dt: f64,
+        max_instructions: usize,
+        budget: Duration,
+        max_ticks: usize,
+    ) -> Result<Frame> {
         ensure!(dt.is_finite(), "frame delta must be finite");
-        let dt = dt.clamp(0.0, 0.25);
+        self.sequence += 1;
+        let started = Instant::now();
+        let mut count = 0;
+        let mut ticks = 0;
+        let mut exceeded;
+        let mut dt = dt.clamp(0.0, 0.25);
+        loop {
+            let layer = self.pen_layer;
+            exceeded = self.tick(dt, max_instructions, budget, started, &mut count)?;
+            ticks += 1;
+            dt = 0.0;
+            let visible = !self.lines.is_empty()
+                || !self.text_stamps.is_empty()
+                || self.clear
+                || self.reset
+                || self.pen_layer != layer
+                || self.dirty.iter().any(|d| *d);
+            let runnable = self
+                .tasks
+                .iter()
+                .any(|t| !t.done && t.pending == 0 && t.wake <= self.time);
+            if exceeded
+                || visible
+                || !runnable
+                || ticks >= max_ticks.max(1)
+                || started.elapsed() >= budget
+            {
+                break;
+            }
+        }
+        let execute_us = started.elapsed().as_micros();
+        let sprites = self
+            .sprites
+            .iter()
+            .zip(&mut self.dirty)
+            .filter_map(|(a, dirty)| {
+                if std::mem::take(dirty) {
+                    Some(a.clone())
+                } else {
+                    None
+                }
+            })
+            .collect();
+        Ok(Frame {
+            sequence: self.sequence,
+            reset: std::mem::take(&mut self.reset),
+            sprites,
+            variables: self.slots.clone(),
+            timer: self.timer,
+            timer_visible: self.timer_visible,
+            pen_layer: self.pen_layer,
+            lines: std::mem::take(&mut self.lines),
+            text_stamps: std::mem::take(&mut self.text_stamps),
+            logs: std::mem::take(&mut self.logs),
+            audio_commands: std::mem::take(&mut self.audio_commands),
+            clear: std::mem::take(&mut self.clear),
+            active: self.tasks.len(),
+            instructions: count,
+            ticks,
+            execute_us,
+            budget_yield: exceeded,
+        })
+    }
+    /// One scheduler pass. Returns whether the instruction/time/output budget ended it.
+    fn tick(
+        &mut self,
+        dt: f64,
+        max_instructions: usize,
+        budget: Duration,
+        started: Instant,
+        total_count: &mut usize,
+    ) -> Result<bool> {
         self.time += dt;
         if self.timer_running {
             self.timer += dt;
         }
-        self.sequence += 1;
         self.received.clear();
-        let started = Instant::now();
-        let mut count = 0;
+        let mut count = *total_count;
         let mut exceeded = false;
         let total = self.tasks.len();
         let mut ready = (0..total)
@@ -2696,37 +2781,8 @@ impl Engine {
         };
         self.tasks.retain(|t| !t.done);
         self.released.clear();
-        let execute_us = started.elapsed().as_micros();
-        let sprites = self
-            .sprites
-            .iter()
-            .zip(&mut self.dirty)
-            .filter_map(|(a, dirty)| {
-                if std::mem::take(dirty) {
-                    Some(a.clone())
-                } else {
-                    None
-                }
-            })
-            .collect();
-        Ok(Frame {
-            sequence: self.sequence,
-            reset: std::mem::take(&mut self.reset),
-            sprites,
-            variables: self.slots.clone(),
-            timer: self.timer,
-            timer_visible: self.timer_visible,
-            pen_layer: self.pen_layer,
-            lines: std::mem::take(&mut self.lines),
-            text_stamps: std::mem::take(&mut self.text_stamps),
-            logs: std::mem::take(&mut self.logs),
-            audio_commands: std::mem::take(&mut self.audio_commands),
-            clear: std::mem::take(&mut self.clear),
-            active: self.tasks.len(),
-            instructions: count,
-            execute_us,
-            budget_yield: exceeded,
-        })
+        *total_count = count;
+        Ok(exceeded)
     }
 }
 

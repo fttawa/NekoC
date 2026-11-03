@@ -217,3 +217,4 @@ UI 已转为 Web，后续以执行语义与端到端性能为主，不把视觉�
 - **TCP_NODELAY**（`src/bin/web.rs`）：监听套接字开启 NODELAY，接入连接继承，消除多段帧尾段被 Nagle/延迟 ACK 卡住。350KB 画笔压力帧 WebSocket 往返 mean 4.3→2.4ms、p95 9.6→4.0ms、max 60→8ms（Linux 回环）。
 - **VM**（`src/engine.rs`）：`ValueExpr` 变为 `Copy`（常量/拼接参数移入程序表），求值不再逐次克隆/释放；文本拼接直接追加；表达式改为在后缀数组上递归求值（预计算子树起点），去掉运行时值栈；`Op` 48→32 字节、`ExprOp` 24→16 字节；位置读取/有限性检查只在移动类指令执行。callgrind 指令数（60帧）：Pencraft 442M→370M，画笔压力 670M→594M，多面体 442M→383M。
 - 原生端到端基准：`cargo run --release --bin bench-player -- samples/pencraft.bcmkn --frames 600 --hold 87,39 --frame-var kn-var-frames`，测量与 WebSocket 播放器相同的 VM + 帧编码工作。
+- **合并无画面更新（可选，默认关闭）**：播放器设置「合并无画面更新」。开启后请求携带 `coalesce:true`，服务端 `Engine::advance_with(.., 16)` 在一轮没有任何画面变化（画笔、清屏、印章、角色、图层）且未触及预算时，以 dt=0 继续执行，最多16轮；计时等待不会提前完成，帧元数据 `ticks` 报告实际轮数。Pencraft 在 60/s 下作品帧率 30→约55（SwiftShader 环境）。代价：只改变量的循环每帧会多跑，按轮计数的作品会变快，因此不是默认行为。

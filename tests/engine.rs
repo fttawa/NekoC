@@ -1318,3 +1318,47 @@ fn pencraft_imported_mixed_lists_locals_and_procedures_execute() {
         frames.map(|i| vm.numeric_variables()[i])
     );
 }
+
+#[test]
+fn coalescing_runs_invisible_ticks_but_never_shortens_waits() {
+    // forever { score += 1; wait 0 } has no visible output: coalescing runs it
+    // repeatedly in one frame; the default keeps one tick per frame.
+    let mut p = project(json!({"type":"repeat_forever","statements":{"DO":{
+        "type":"change_variables","fields":{"variable":"score","method":"increase"},"inputs":{"value":num(1.0)},
+        "next":{"type":"wait","inputs":{"time":num(0.0)}}}}}));
+    p["variables"]["variablesDict"]["score"] = json!({"id":"score","value":0});
+    let mut vm = Engine::new(Program::compile(&p).unwrap());
+    vm.start();
+    let budget = Duration::from_secs(2);
+    let f = vm.advance_with(1.0 / 60.0, 1_000_000, budget, 1).unwrap();
+    assert_eq!((f.ticks, vm.numeric_variables()[0]), (1, 1.0));
+    let f = vm.advance_with(1.0 / 60.0, 1_000_000, budget, 16).unwrap();
+    // Each iteration yields twice (wait 0, loop end): 16 ticks = 8 more iterations.
+    assert_eq!((f.ticks, vm.numeric_variables()[0]), (16, 9.0));
+
+    // A timed wait is not completed by extra zero-dt ticks.
+    let p = project(json!({"type":"wait","inputs":{"time":num(0.1)},"next":movement(10.0)}));
+    let mut vm = Engine::new(Program::compile(&p).unwrap());
+    vm.start();
+    vm.advance_with(0.01, 1_000, budget, 16).unwrap();
+    let f = vm.advance_with(0.05, 1_000, budget, 16).unwrap();
+    assert!(f.sprites.is_empty() && f.active == 1, "wait finished early");
+    let f = vm.advance_with(0.06, 1_000, budget, 16).unwrap();
+    assert_eq!(f.sprites[0].y, 10.0);
+
+    // A visible change ends the frame: one stroke per tick, one tick per frame.
+    let mut vm = Engine::new(
+        Program::compile(&project(
+            json!({"type":"repeat_forever","statements":{"DO":movement(1.0)}}),
+        ))
+        .unwrap(),
+    );
+    vm.start();
+    vm.advance_with(1.0 / 60.0, 1_000, budget, 16).unwrap();
+    assert_eq!(
+        vm.advance_with(1.0 / 60.0, 1_000, budget, 16)
+            .unwrap()
+            .ticks,
+        1
+    );
+}

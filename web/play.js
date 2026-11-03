@@ -12,8 +12,8 @@ let renderer,input,project=null,playable=false,busy=true,running=false,connectio
 let lastTick=0,nextDue=0,lastFrame=null,roundtripMs=0,updates=0,draws=0,totalUpdates=0,pumpTimer=0;
 let sampleStart=performance.now(),lastMonitor=0,drawFps=0,updateFps=0;
 const audio=new ProjectAudio(notice);
-const settings={limit:60,budget:4,resolution:1};
-const choices={limit:[0,30,60,120],budget:[2,4,8,12],resolution:[.5,1,2]};
+const settings={limit:60,budget:4,resolution:1,coalesce:0};
+const choices={limit:[0,30,60,120],budget:[2,4,8,12],resolution:[.5,1,2],coalesce:[0,1]};
 try{
   const saved=JSON.parse(localStorage.getItem('neko-play-settings')||'{}');
   for(const key of Object.keys(settings))if(choices[key].includes(saved[key]))settings[key]=saved[key];
@@ -29,7 +29,7 @@ function syncControls(){
   $('#import').disabled=busy;$('#import').textContent=busy?'载入中…':'＋ 导入作品';
   $('#toggle').disabled=busy||!playable;$('#restart').disabled=busy||!playable;
   $('#toggle').textContent=running?'Ⅱ 暂停':connection?.ready?'▶ 继续游玩':'▶ 开始游玩';
-  for(const id of ['frame-limit','budget','resolution'])$(`#${id}`).disabled=busy;
+  for(const id of ['frame-limit','budget','resolution','coalesce'])$(`#${id}`).disabled=busy;
   shell.classList.toggle('running',running);
 }
 function clearKeys(){input?.release();}
@@ -93,7 +93,7 @@ async function importFile(file){
 async function advance(dt){
   const token=epoch,start=performance.now();
   try{
-    const buffer=await connection.frame({dt,...input.take(),budget_ms:settings.budget});
+    const buffer=await connection.frame({dt,...input.take(),budget_ms:settings.budget,coalesce:settings.coalesce===1});
     if(token!==epoch)return;
     roundtripMs=performance.now()-start;
     // Draw pen deltas now; the stage is composited once on the next display frame.
@@ -153,7 +153,7 @@ $('#settings-toggle').onclick=()=>{
   const open=$('#settings').hidden;$('#settings').hidden=!open;$('#settings-toggle').setAttribute('aria-expanded',String(open));
 };
 $('#dismiss').onclick=()=>{$('#notice').hidden=true;};
-for(const [id,key]of [['frame-limit','limit'],['budget','budget'],['resolution','resolution']]){
+for(const [id,key]of [['frame-limit','limit'],['budget','budget'],['resolution','resolution'],['coalesce','coalesce']]){
   const select=$(`#${id}`);select.value=String(settings[key]);
   select.onchange=()=>{
     const value=Number(select.value);if(!choices[key].includes(value))return;
