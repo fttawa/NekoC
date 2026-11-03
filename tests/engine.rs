@@ -913,10 +913,10 @@ fn actual_32_column_display_has_a_complete_frame_barrier_across_budget_yields() 
     for _ in 0..10000 {
         let f = vm.advance(1.0 / 60.0, 500, Duration::from_secs(1)).unwrap();
         lines += f.lines.len() / 9;
-        green_band |= f
-            .lines
-            .chunks_exact(9)
-            .any(|line| line[5] < 0.05 && line[6] > 0.95 && (line[7] - 128.0 / 255.0).abs() < 0.01);
+        green_band |=
+            f.lines.as_chunks::<9>().0.iter().any(|line| {
+                line[5] < 0.05 && line[6] > 0.95 && (line[7] - 128.0 / 255.0).abs() < 0.01
+            });
         if f.variables[frames] > completed {
             assert_eq!(vm.numeric_lists()[front], vm.numeric_lists()[back]);
             completed = f.variables[frames];
@@ -1237,7 +1237,7 @@ fn actual_pen_display_runs_with_bands_fps_stamps_and_refresh_keys() {
         let f = frame(&mut vm);
         assert_eq!(f.active, 1);
         strokes += f.lines.len() / 9;
-        for line in f.lines.chunks_exact(9) {
+        for line in f.lines.as_chunks::<9>().0 {
             assert_eq!(line[8], 1.0);
             colors.insert(
                 line[5..8]

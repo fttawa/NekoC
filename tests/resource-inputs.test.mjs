@@ -1,11 +1,12 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 
 test("resource inputs keep literal dropdowns and accept computed numeric indices", () => {
-  const dir=fs.mkdtempSync("D:/AppData/Local/Temp/opencode/nekoc-resources-");
+  const dir=fs.mkdtempSync(path.join(os.tmpdir(),"nekoc-resources-"));
   try {
     fs.writeFileSync(path.join(dir,"main.ts"), `onStart(()=>{
       setStyle("first"); setStyle((getVar("frame") as number)+1);
@@ -28,7 +29,7 @@ test("resource inputs keep literal dropdowns and accept computed numeric indices
 });
 
 test("list copy accepts split reporters while retaining named-list inputs", () => {
-  const dir=fs.mkdtempSync("D:/AppData/Local/Temp/opencode/nekoc-list-copy-");
+  const dir=fs.mkdtempSync(path.join(os.tmpdir(),"nekoc-list-copy-"));
   try {
     fs.writeFileSync(path.join(dir,"main.ts"), `onStart(()=>{
       copyList("source", "backup");
