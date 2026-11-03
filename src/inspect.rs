@@ -6,6 +6,9 @@ pub fn build_report(value: &Value, byte_len: usize) -> Result<Value> {
     let Some(root) = value.as_object() else {
         bail!("project root must be a JSON object");
     };
+    if crate::kitten4::is_kitten4(value) {
+        return kitten4_report(value, byte_len);
+    }
 
     let top_level_keys = root.keys().cloned().collect::<Vec<_>>();
     let block_summary = summarize_blocks(value);
@@ -31,6 +34,62 @@ pub fn build_report(value: &Value, byte_len: usize) -> Result<Value> {
             "top_type_frequencies": block_summary.top_type_frequencies,
         },
         "top_level_keys": top_level_keys,
+    }))
+}
+
+fn kitten4_report(value: &Value, byte_len: usize) -> Result<Value> {
+    let mut frequencies = BTreeMap::<String, usize>::new();
+    let mut owners = 0;
+    let mut total = 0;
+    let mut roots = 0;
+    let mut procedures = 0;
+    for path in ["/theatre/scenes", "/theatre/actors"] {
+        if let Some(entities) = value.pointer(path).and_then(Value::as_object) {
+            for entity in entities.values() {
+                let Some(blocks) = entity
+                    .pointer("/block_data_json/blocks")
+                    .and_then(Value::as_object)
+                else {
+                    continue;
+                };
+                owners += 1;
+                let children: std::collections::BTreeSet<&str> = entity
+                    .pointer("/block_data_json/connections")
+                    .and_then(Value::as_object)
+                    .into_iter()
+                    .flat_map(|m| m.values())
+                    .filter_map(Value::as_object)
+                    .flat_map(|m| m.keys().map(String::as_str))
+                    .collect();
+                roots += blocks
+                    .keys()
+                    .filter(|id| !children.contains(id.as_str()))
+                    .count();
+                for block in blocks.values() {
+                    total += 1;
+                    if let Some(kind) = block["type"].as_str() {
+                        *frequencies.entry(kind.to_owned()).or_default() += 1;
+                        if kind == "procedures_2_defnoreturn" {
+                            procedures += 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    Ok(json!({
+        "format":"kitten4-bcm-json", "project_name":value["project_name"],
+        "version":value["version"], "application_version":value["application_version"],
+        "tool_type":value["work_type"], "byte_len":byte_len, "stage_size":value["size"],
+        "counts":{
+            "scenes":dict_count(value,&["theatre","scenes"]),
+            "actors":dict_count(value,&["theatre","actors"]),
+            "styles":dict_count(value,&["theatre","styles"]),
+            "variables":dict_count(value,&["variables"]),
+            "audios":dict_count(value,&["audio"]), "procedures":procedures
+        },
+        "blocks":{"owners":owners,"total_top_level_items":roots,"total_blocks":total,"type_frequencies":frequencies},
+        "top_level_keys":value.as_object().unwrap().keys().collect::<Vec<_>>()
     }))
 }
 
@@ -95,8 +154,10 @@ where
             if let Some(Value::Array(blocks)) = map.get("nekoBlockJsonList") {
                 on_blocks(blocks);
             }
-            for child in map.values() {
-                walk_block_lists(child, on_blocks);
+            for (key, child) in map {
+                if key != "_nekocKitten4" {
+                    walk_block_lists(child, on_blocks);
+                }
             }
         }
         Value::Array(items) => {

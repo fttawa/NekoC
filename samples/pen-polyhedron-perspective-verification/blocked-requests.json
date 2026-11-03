@@ -1,0 +1,172 @@
+[
+  {
+    "transport": "csp",
+    "url": "https://backend-dev.codemao.cn/tiger/v3/web/accounts/profile",
+    "directive": "connect-src"
+  },
+  {
+    "transport": "csp",
+    "url": "https://creation-sentry-forward.codemao.cn/data-center/sentry/api/193/envelope/?sentry_key=968d9523c4f744f4a35c10cd80679988&sentry_version=7",
+    "directive": "connect-src"
+  },
+  {
+    "transport": "csp",
+    "url": "https://shence-data.codemao.cn/sa.gif?project=default",
+    "directive": "connect-src"
+  },
+  {
+    "transport": "csp",
+    "url": "https://shence-data.codemao.cn/sa.gif?project=default",
+    "directive": "connect-src"
+  },
+  {
+    "transport": "csp",
+    "url": "https://kn-cdn.codemao.cn/kitten/editor-1577087990235.json",
+    "directive": "connect-src"
+  },
+  {
+    "transport": "csp",
+    "url": "https://shence-data.codemao.cn/sa.gif?project=default",
+    "directive": "connect-src"
+  },
+  {
+    "transport": "csp",
+    "url": "https://shence-data.codemao.cn/sa.gif?project=default",
+    "directive": "connect-src"
+  },
+  {
+    "transport": "csp",
+    "url": "https://creation.bcmcdn.com/neko/blink/media/click.mp3",
+    "directive": "media-src"
+  },
+  {
+    "transport": "csp",
+    "url": "https://creation.bcmcdn.com/neko/blink/media/disconnect.mp3",
+    "directive": "media-src"
+  },
+  {
+    "transport": "csp",
+    "url": "https://creation.bcmcdn.com/neko/blink/media/delete.mp3",
+    "directive": "media-src"
+  },
+  {
+    "transport": "csp",
+    "url": "https://creation-sentry-forward.codemao.cn/data-center/sentry/api/193/envelope/?sentry_key=968d9523c4f744f4a35c10cd80679988&sentry_version=7",
+    "directive": "connect-src"
+  },
+  {
+    "transport": "csp",
+    "url": "https://creation-sentry-forward.codemao.cn/data-center/sentry/api/193/store/?sentry_key=968d9523c4f744f4a35c10cd80679988&sentry_version=7",
+    "directive": "connect-src"
+  },
+  {
+    "transport": "csp",
+    "url": "https://shence-data.codemao.cn/sa.gif?project=default",
+    "directive": "connect-src"
+  },
+  {
+    "transport": "csp",
+    "url": "https://shence-data.codemao.cn/sa.gif?project=default",
+    "directive": "connect-src"
+  },
+  {
+    "transport": "csp",
+    "url": "https://shence-data.codemao.cn/sa.gif?project=default",
+    "directive": "connect-src"
+  },
+  {
+    "transport": "csp",
+    "url": "https://shence-data.codemao.cn/sa.gif?project=default",
+    "directive": "connect-src"
+  },
+  {
+    "transport": "csp",
+    "url": "https://shence-data.codemao.cn/sa.gif?project=default",
+    "directive": "connect-src"
+  },
+  {
+    "transport": "csp",
+    "url": "https://shence-data.codemao.cn/sa.gif?project=default",
+    "directive": "connect-src"
+  },
+  {
+    "transport": "csp",
+    "url": "https://shence-data.codemao.cn/sa.gif?project=default",
+    "directive": "connect-src"
+  },
+  {
+    "transport": "csp",
+    "url": "https://shence-data.codemao.cn/sa.gif?project=default",
+    "directive": "connect-src"
+  },
+  {
+    "transport": "csp",
+    "url": "https://shence-data.codemao.cn/sa.gif?project=default",
+    "directive": "connect-src"
+  },
+  {
+    "transport": "csp",
+    "url": "https://shence-data.codemao.cn/sa.gif?project=default",
+    "directive": "connect-src"
+  },
+  {
+    "transport": "csp",
+    "url": "https://shence-data.codemao.cn/sa.gif?project=default",
+    "directive": "connect-src"
+  },
+  {
+    "transport": "csp",
+    "url": "https://shence-data.codemao.cn/sa.gif?project=default",
+    "directive": "connect-src"
+  },
+  {
+    "transport": "csp",
+    "url": "https://shence-data.codemao.cn/sa.gif?project=default",
+    "directive": "connect-src"
+  },
+  {
+    "transport": "csp",
+    "url": "https://shence-data.codemao.cn/sa.gif?project=default",
+    "directive": "connect-src"
+  },
+  {
+    "transport": "csp",
+    "url": "https://shence-data.codemao.cn/sa.gif?project=default",
+    "directive": "connect-src"
+  },
+  {
+    "transport": "csp",
+    "url": "https://shence-data.codemao.cn/sa.gif?project=default",
+    "directive": "connect-src"
+  },
+  {
+    "transport": "csp",
+    "url": "https://shence-data.codemao.cn/sa.gif?project=default",
+    "directive": "connect-src"
+  },
+  {
+    "transport": "csp",
+    "url": "https://shence-data.codemao.cn/sa.gif?project=default",
+    "directive": "connect-src"
+  },
+  {
+    "transport": "csp",
+    "url": "https://shence-data.codemao.cn/sa.gif?project=default",
+    "directive": "connect-src"
+  },
+  {
+    "transport": "csp",
+    "url": "https://creation.bcmcdn.com/neko/assets/font/DSEG7ModernMini-Regular.ttf",
+    "directive": "font-src"
+  },
+  {
+    "transport": "csp",
+    "url": "https://shence-data.codemao.cn/sa.gif?project=default",
+    "directive": "connect-src"
+  },
+  {
+    "transport": "csp",
+    "url": "https://creation-sentry-forward.codemao.cn/data-center/sentry/api/193/envelope/?sentry_key=968d9523c4f744f4a35c10cd80679988&sentry_version=7",
+    "directive": "connect-src"
+  }
+]

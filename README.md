@@ -1,10 +1,28 @@
 # NekoC
 
-**NekoC** (Neko Compiler) is an experimental compiler and runtime for Kitten N `.bcmkn` projects.
+**NekoC** (Neko Compiler) is an experimental compiler and runtime for Kitten N `.bcmkn` and Kitten 4 `.bcm` projects.
 
 Write TypeScript → Compile to Kitten N blocks → Export `.bcmkn` that the official editor can open.
 
+The Kitten 4 target shares the TypeScript frontend and adds a native `.bcm` format adapter. See **[Kitten 4 support and compatibility](docs/kitten4.md)** for the supported scope and verification.
+
 ## Quick Start
+
+### Web Studio
+
+```powershell
+cargo run --release --bin web -- samples/native-studio.bcmkn
+```
+
+Open **http://127.0.0.1:4173**. Open or drop a Kitten N `.bcmkn` or Kitten 4 `.bcm` project, edit blocks, run the Rust bytecode VM, and export the project in its native format. The WebGL2 stage uses binary incremental pen updates and a persistent GPU surface. Try `samples/web-pen-stress.bcmkn` for 10,000-segment drawing.
+
+See **[Web Studio, format support & performance](docs/web-studio.md)** for supported execution features, benchmarks and limitations. Import/export preserves unsupported blocks; the fast VM reports unsupported execution features.
+
+### PICKCAT browser extension
+
+Run `start-rust-backend.cmd`, then load `dist/pickcat-rust` as an unpacked Chrome/Edge extension. It replaces the Kitten N player on PICKCAT with the local Rust player, with FPS, performance controls and an original-player toggle. Build the extension with `node tools/build-extension.mjs`. See **[installation and verification](docs/pickcat-extension.md)**.
+
+### TypeScript compiler
 
 ```bash
 npm install
@@ -24,21 +42,29 @@ onStart(() => {
 nekoc compile-ts-bcmkn hello.ts --template samples/kitten-n-0.27.4.bcmkn --out hello.bcmkn
 ```
 
+Compile and open the Kitten 4 pen demo:
+
+```powershell
+cargo run --bin nekoc -- compile-ts-kitten4 samples/kitten4-demo.ts --out samples/kitten4-demo.bcm
+cargo run --release --bin web -- samples/kitten4-demo.bcm
+```
+
 ## CLI Commands
 
 | Command | Description |
 |---------|-------------|
 | `compile-ts <input.ts> --out <output.json>` | Compile TS to workspace JSON |
 | `compile-ts-bcmkn <input.ts> --template <template.bcmkn> --out <out.bcmkn>` | Compile TS to `.bcmkn` |
+| `compile-ts-kitten4 <input.ts> --out <out.bcm> [--template <template.bcm>]` | Compile TS to native Kitten 4 `.bcm` |
 | `compile-ts-scenario <input.ts> --template <t> --scenario <s> --out <out>` | Compile and verify |
 | `decompile <input.bcmkn> --out <output.ts>` | Decompile `.bcmkn` to TypeScript |
-| `inspect <input.bcmkn> --out <report.json>` | Inspect `.bcmkn` structure |
-| `validate <input.bcmkn>` | Validate `.bcmkn` |
+| `inspect <input> --out <report.json>` | Inspect Kitten N / Kitten 4 structure |
+| `validate <input>` | Validate Kitten N / Kitten 4 structure |
 | `run <input.bcmkn> --ticks 30 [--event click]` | Run and snapshot |
 | `run-scenario <input.bcmkn> <scenario.json>` | Run scenario test |
 | `watch <input.ts> --template <t> --out <out>` | Watch and auto-recompile |
 | `diff <left.bcmkn> <right.bcmkn>` | Structural diff |
-| `roundtrip <input.bcmkn> <output.bcmkn>` | Roundtrip test |
+| `roundtrip <input> <output>` | Lossless JSON roundtrip for either format |
 | `test <input.ts>` | Run compile-time unit tests |
 | `analyze-ir <ir.json> --out <report.json>` | Analyze IR |
 
@@ -52,10 +78,14 @@ nekoc compile-ts-bcmkn hello.ts --template samples/kitten-n-0.27.4.bcmkn --out h
 
 ## Documentation
 
+- **[Web Studio & optimized engine](docs/web-studio.md)** — Current UI, Kitten N / Kitten 4 import/export, Rust bytecode VM, incremental WebGL2 renderer and measured results.
+- **[Source analysis & initial native prototype](docs/kitten-n-rust-rewrite.md)** — Source inventory and first-stage rewrite record; the main UI has since moved to Web Studio.
+
 - **[RGB Pen Display](modules/pen-display/README.md)** — RGB888 framebuffer, configurable resolution and target refresh rate; [runnable demo](samples/pen_display.bcmkn)
 - **[Full-stage fast single-actor renderer](samples/pen_display_fast.bcmkn)** — Incremental RGB pen drawing at 896×560 stage units; [source](samples/pen_display_fast.ts), [runtime source findings](docs/kitten-n-runtime-findings.md)
 - **[Column renderer experiment](samples/pen_display_columns.bcmkn)** — One actor per column; [source](samples/pen_display_columns.ts)
 - **[Kitten N Compatibility](docs/kitten-n-compatibility.md)** — Current editor support, template and live-editor checks
+- **[Kitten 4 Compatibility](docs/kitten4.md)** — Native `.bcm` target, Web Studio import/export and validation
 - **[API Reference](docs/api.md)** — All functions, events, variables, lists, motion, appearance, effects, pen, clones, sensing
 - **[Self API](docs/self-api.md)** — Sprite callback API (`self.move()`, `self.say()`, etc.)
 - **[Supported Syntax](docs/syntax.md)** — All supported TypeScript syntax constructs

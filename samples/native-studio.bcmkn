@@ -1,0 +1,73 @@
+{
+  "projectName": "Rust Studio · Polygon",
+  "version": "0.27.4",
+  "toolType": "KN",
+  "stageSize": { "width": 900, "height": 562 },
+  "scenes": {
+    "currentSceneId": "scene",
+    "sortList": ["scene"],
+    "scenesDict": {
+      "scene": {
+        "id": "scene", "name": "Background", "screenName": "Main",
+        "actorIds": ["sprite"], "styles": ["background"], "currentStyleId": "background",
+        "nekoBlockJsonList": [], "comments": {}
+      }
+    }
+  },
+  "actors": {
+    "actorsDict": {
+      "sprite": {
+        "id": "sprite", "name": "画笔 / Pen", "styles": ["costume"], "currentStyleId": "costume",
+        "position": { "x": -80, "y": -80 }, "scale": 100, "rotation": 0, "visible": true,
+        "comments": {},
+        "nekoBlockJsonList": [{
+          "id": "start", "type": "on_running_group_activated", "parent_id": null,
+          "next": {
+            "id": "color", "type": "self_set_pen_color", "parent_id": "start", "fields": {"color": "#608fee"},
+            "next": {
+              "id": "size", "type": "self_set_pen_size", "parent_id": "color",
+              "inputs": { "size": { "id": "size-n", "type": "math_number", "parent_id": "size", "fields": {"NUM": 4} } },
+              "next": {
+                "id": "down", "type": "self_pen_down", "parent_id": "size",
+                "next": {
+                  "id": "repeat", "type": "repeat_n_times", "parent_id": "down",
+                  "inputs": { "times": { "id": "times-n", "type": "math_number", "parent_id": "repeat", "fields": {"NUM": 15} } },
+                  "statements": {
+                    "DO": {
+                      "id": "move", "type": "self_go_forward", "parent_id": "repeat",
+                      "inputs": { "steps": { "id": "steps-n", "type": "math_number", "parent_id": "move", "fields": {"NUM": 40} } },
+                      "next": {
+                        "id": "turn", "type": "self_rotate", "parent_id": "move",
+                        "inputs": { "degrees": { "id": "degrees-n", "type": "math_number", "parent_id": "turn", "fields": {"NUM": 24} } }
+                      }
+                    }
+                  },
+                  "next": {
+                    "id": "up", "type": "self_pen_up", "parent_id": "repeat",
+                    "next": {
+                      "id": "log", "type": "console_log", "parent_id": "up",
+                      "inputs": { "console_log": { "id": "log-text", "type": "text", "parent_id": "log", "fields": {"TEXT": "Drawn entirely by the Rust runtime."} } }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }]
+      }
+    }
+  },
+  "styles": {
+    "stylesDict": {
+      "background": { "id": "background", "name": "White", "url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='562'%3E%3Crect width='900' height='562' fill='white'/%3E%3C/svg%3E" },
+      "costume": { "id": "costume", "name": "Blue dot", "centerPoint": {"x": 0, "y": 0}, "url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Ccircle cx='20' cy='20' r='18' fill='rgb(96,143,238)'/%3E%3C/svg%3E" }
+    }
+  },
+  "variables": {"variablesDict": {}},
+  "broadcasts": {"broadcastsDict": {"scene": []}},
+  "procedures": {"proceduresDict": {}},
+  "audios": {"audiosDict": {}, "sortList": [], "currentAudioId": ""},
+  "hidden_toolbox": {"toolbox": [], "blocks": [], "forcibleShowBlocks": [], "isCombine": false},
+  "courseMaterials": {"courseMaterialsDict": {}, "sortList": []},
+  "previewUrl": ""
+}

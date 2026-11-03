@@ -1,0 +1,25 @@
+{
+  "browser": "156.0.4314.58",
+  "tests": [
+    "32-column broadcast-and-wait renderer: private import, moving color bands, stable task count, actual WebGL pixels, measured complete frames at 2ms budget",
+    "Key events change project refresh rate to 15/60; restart resets VM, broadcasts and refresh rate to 30",
+    "Regenerated current polyhedron: prefix ! operands survive export, hidden-edge/list membership executes, Space/key-release controls, grid switch, E/Q solids and H x-ray toggle"
+  ],
+  "errors": [],
+  "performance": {
+    "seconds": 6.004199999988079,
+    "updatesPerSecond": 59.95802937955344,
+    "completeFramesPerSecond": 23.983211751821376,
+    "drawingFPS": 23.904382470119522,
+    "meanVmMs": 0.18585833333333324,
+    "budgetYields": 0,
+    "peakActiveTasks": 1,
+    "samples": 360
+  },
+  "pixels": {
+    "colorful": 331015,
+    "colors": 96,
+    "width": 1288,
+    "height": 804
+  }
+}

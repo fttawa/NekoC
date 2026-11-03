@@ -344,7 +344,9 @@ pub fn run_project_steps(value: &Value, steps: &[RuntimeStep]) -> Result<Runtime
 // Internal structs
 // ---------------------------------------------------------------------------
 
-struct Runtime<'a> {
+/// Incremental interpreter. The project must outlive the execution session.
+pub struct Runtime<'a> {
+    cooperative: bool,
     project: &'a Value,
     ticks: usize,
     current_scene_id: Option<String>,
@@ -382,7 +384,8 @@ struct Thread<'a> {
     owner_id: String,
     current: Option<&'a Value>,
     loops: Vec<LoopFrame<'a>>,
-    continuations: Vec<(usize, Option<&'a Value>)>,
+    continuations: Vec<(usize, Option<&'a Value>, bool)>,
+    warped: bool,
     range_values: BTreeMap<String, RuntimeValue>,
     script_values: BTreeMap<String, RuntimeValue>,
     procedure_values: BTreeMap<String, RuntimeValue>,
@@ -416,6 +419,7 @@ struct ProcedureParam {
 struct ProcedureFrame<'a> {
     after: Option<&'a Value>,
     procedure_values: BTreeMap<String, RuntimeValue>,
+    warped: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -448,7 +452,7 @@ enum LoopFrame<'a> {
 // ---------------------------------------------------------------------------
 
 impl<'a> Runtime<'a> {
-    fn from_project(project: &'a Value) -> Result<Self> {
+    pub fn from_project(project: &'a Value) -> Result<Self> {
         let Some(root) = project.as_object() else {
             bail!("project root must be a JSON object");
         };
@@ -497,6 +501,7 @@ impl<'a> Runtime<'a> {
         let source_map = collect_source_map(project);
 
         Ok(Self {
+            cooperative: false,
             project,
             ticks: 0,
             current_scene_id,
@@ -530,7 +535,13 @@ impl<'a> Runtime<'a> {
         })
     }
 
-    fn start(&mut self) {
+    /// Enable iteration yielding for interactive hosts. Legacy scenario execution
+    /// retains its historical scheduling until its timing fixtures are migrated.
+    pub fn set_cooperative(&mut self, enabled: bool) {
+        self.cooperative = enabled;
+    }
+
+    pub fn start(&mut self) {
         self.spawn_start_scripts_at(&["scenes", "scenesDict"]);
         self.spawn_start_scripts_at(&["actors", "actorsDict"]);
     }
@@ -540,7 +551,7 @@ impl<'a> Runtime<'a> {
         entry.with_source(&self.source_map, block_id.as_deref())
     }
 
-    fn dispatch_event(&mut self, event: &RuntimeEvent) {
+    pub fn dispatch_event(&mut self, event: &RuntimeEvent) {
         match event {
             RuntimeEvent::Click { x, y } => {
                 if let Some(x) = x {
@@ -681,7 +692,7 @@ impl<'a> Runtime<'a> {
         }
     }
 
-    fn run_ticks(&mut self, ticks: usize) -> Result<()> {
+    pub fn run_ticks(&mut self, ticks: usize) -> Result<()> {
         for _ in 0..ticks {
             self.ticks += 1;
             let mut threads = std::mem::take(&mut self.threads);
@@ -703,7 +714,7 @@ impl<'a> Runtime<'a> {
         Ok(())
     }
 
-    fn snapshot(&self) -> RuntimeSnapshot {
+    pub fn snapshot(&self) -> RuntimeSnapshot {
         RuntimeSnapshot {
             ticks: self.ticks,
             current_scene_id: self.current_scene_id.clone(),
@@ -725,6 +736,10 @@ impl<'a> Runtime<'a> {
                 _ => None,
             },
         }
+    }
+
+    pub fn active_threads(&self) -> usize {
+        self.threads.iter().filter(|thread| !thread.done).count()
     }
 
     fn dispatch_broadcast(&mut self, message: &str, payload: Option<RuntimeValue>) -> Vec<usize> {
@@ -761,6 +776,7 @@ impl<'a> Runtime<'a> {
             current,
             loops: Vec::new(),
             continuations: Vec::new(),
+            warped: false,
             range_values: BTreeMap::new(),
             script_values: BTreeMap::new(),
             procedure_values: BTreeMap::new(),
@@ -1014,7 +1030,11 @@ fn collect_actors(dict: &Map<String, Value>) -> BTreeMap<String, ActorState> {
                         .and_then(|position| position.get("y"))
                         .and_then(Value::as_f64)
                         .unwrap_or(0.0),
-                    rotation: actor.get("rotation").and_then(Value::as_f64).unwrap_or(0.0),
+                    rotation: actor
+                        .get("rotation")
+                        .and_then(Value::as_f64)
+                        .unwrap_or(0.0)
+                        .to_degrees(),
                     scale: actor.get("scale").and_then(Value::as_f64).unwrap_or(100.0),
                     visible: actor
                         .get("visible")

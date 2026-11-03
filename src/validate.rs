@@ -6,6 +6,17 @@ pub fn build_report(value: &Value) -> Result<Value> {
     if !value.is_object() {
         bail!("project root must be a JSON object");
     }
+    if value["work_type"] == "KITTEN" {
+        return match crate::kitten4::to_neko(value) {
+            Ok(project) => {
+                let mut report = build_report(&project)?;
+                report["format"] = json!("kitten4-bcm-json");
+                Ok(report)
+            }
+            Err(error) => Ok(json!({"format":"kitten4-bcm-json","ok":false,
+                "issues":[{"kind":"invalid_kitten4_structure","message":format!("{error:#}")}]})),
+        };
+    }
 
     let mut issues = Vec::new();
     collect_owner_issues(value, &["scenes", "scenesDict"], "scene", &mut issues);
@@ -152,7 +163,14 @@ fn collect_screen_reference_issues(
                 }));
             }
             for (key, child) in object {
-                collect_screen_reference_issues(child, &format!("{path}.{key}"), scene_ids, issues);
+                if key != "_nekocKitten4" {
+                    collect_screen_reference_issues(
+                        child,
+                        &format!("{path}.{key}"),
+                        scene_ids,
+                        issues,
+                    );
+                }
             }
         }
         Value::Array(items) => {

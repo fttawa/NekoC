@@ -1,0 +1,43 @@
+{
+  "tests": [
+    "Pencraft chooser import/autoplay, held keyboard, live FPS, 30/s limiter, transmitted CPU budget, pause, non-destructive resolution changes",
+    "fullscreen enter/exit, resume and clean restart",
+    "responsive fit, invalid import preserves current game, native Kitten4 drag/drop playback",
+    "persistent pen framebuffer pixel readback survives 0.5x/2x/1x",
+    "performance preferences survive reload"
+  ],
+  "errors": [],
+  "resize": [
+    {
+      "scale": 0.5,
+      "pixel": [
+        255,
+        0,
+        0,
+        255
+      ],
+      "error": 0
+    },
+    {
+      "scale": 2,
+      "pixel": [
+        255,
+        0,
+        0,
+        255
+      ],
+      "error": 0
+    },
+    {
+      "scale": 1,
+      "pixel": [
+        255,
+        0,
+        0,
+        255
+      ],
+      "error": 0
+    }
+  ],
+  "limitedUpdatesPerSecond": 29.98251020267962
+}

@@ -1,0 +1,3574 @@
+{
+  "blocks": [
+    {
+      "category": "Array",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Array.concat"
+    },
+    {
+      "category": "Array",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Array.filter"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Array.filter_item"
+    },
+    {
+      "category": "Array",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Array.forEach"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Array.forEach_index"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Array.forEach_item"
+    },
+    {
+      "category": "Array",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Array.from"
+    },
+    {
+      "category": "Array",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Array.includes"
+    },
+    {
+      "category": "Array",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Array.indexOf"
+    },
+    {
+      "category": "Array",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Array.isArray"
+    },
+    {
+      "category": "Array",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Array.join"
+    },
+    {
+      "category": "Array",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Array.lastIndexOf"
+    },
+    {
+      "category": "Array",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Array.map"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Array.map_item"
+    },
+    {
+      "category": "Array",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Array.pop"
+    },
+    {
+      "category": "Array",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Array.push"
+    },
+    {
+      "category": "Array",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Array.reverse"
+    },
+    {
+      "category": "Array",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Array.shift"
+    },
+    {
+      "category": "Array",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Array.slice"
+    },
+    {
+      "category": "Array",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Array.splice"
+    },
+    {
+      "category": "Array",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Array.unshift"
+    },
+    {
+      "category": "Date",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Date.UTC"
+    },
+    {
+      "category": "Date",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Date.constructor"
+    },
+    {
+      "category": "Date",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Date.getDate"
+    },
+    {
+      "category": "Date",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Date.getDay"
+    },
+    {
+      "category": "Date",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Date.getFullYear"
+    },
+    {
+      "category": "Date",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Date.getHours"
+    },
+    {
+      "category": "Date",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Date.getMilliseconds"
+    },
+    {
+      "category": "Date",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Date.getMinutes"
+    },
+    {
+      "category": "Date",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Date.getMonth"
+    },
+    {
+      "category": "Date",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Date.getSeconds"
+    },
+    {
+      "category": "Date",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Date.getTime"
+    },
+    {
+      "category": "Date",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Date.now"
+    },
+    {
+      "category": "Date",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Date.parse"
+    },
+    {
+      "category": "Date",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Date.setDate"
+    },
+    {
+      "category": "Date",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Date.setFullYear"
+    },
+    {
+      "category": "Date",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Date.setHours"
+    },
+    {
+      "category": "Date",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Date.setMilliseconds"
+    },
+    {
+      "category": "Date",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Date.setMinutes"
+    },
+    {
+      "category": "Date",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Date.setMonth"
+    },
+    {
+      "category": "Date",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Date.setSeconds"
+    },
+    {
+      "category": "Date",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Date.setTime"
+    },
+    {
+      "category": "Date",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Date.toDateString"
+    },
+    {
+      "category": "Date",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Date.toISOString"
+    },
+    {
+      "category": "Date",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Date.toJSON"
+    },
+    {
+      "category": "Date",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Date.toLocaleDateString"
+    },
+    {
+      "category": "Date",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Date.toLocaleString"
+    },
+    {
+      "category": "Date",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Date.toLocaleTimeString"
+    },
+    {
+      "category": "Date",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Date.toTimeString"
+    },
+    {
+      "category": "JSON",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "JSON.constructor"
+    },
+    {
+      "category": "JSON",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "JSON.parse"
+    },
+    {
+      "category": "JSON",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "JSON.stringify"
+    },
+    {
+      "category": "Math",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Math.abs"
+    },
+    {
+      "category": "Math",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Math.acos"
+    },
+    {
+      "category": "Math",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Math.acosh"
+    },
+    {
+      "category": "Math",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Math.asin"
+    },
+    {
+      "category": "Math",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Math.asinh"
+    },
+    {
+      "category": "Math",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Math.atan"
+    },
+    {
+      "category": "Math",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Math.atan2"
+    },
+    {
+      "category": "Math",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Math.atanh"
+    },
+    {
+      "category": "Math",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Math.cbrt"
+    },
+    {
+      "category": "Math",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Math.ceil"
+    },
+    {
+      "category": "Math",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Math.clz32"
+    },
+    {
+      "category": "Math",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Math.constructor"
+    },
+    {
+      "category": "Math",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Math.cos"
+    },
+    {
+      "category": "Math",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Math.cosh"
+    },
+    {
+      "category": "Math",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Math.exp"
+    },
+    {
+      "category": "Math",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Math.expm1"
+    },
+    {
+      "category": "Math",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Math.floor"
+    },
+    {
+      "category": "Math",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Math.fround"
+    },
+    {
+      "category": "Math",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Math.hypot"
+    },
+    {
+      "category": "Math",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Math.imul"
+    },
+    {
+      "category": "Math",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Math.log"
+    },
+    {
+      "category": "Math",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Math.log10"
+    },
+    {
+      "category": "Math",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Math.log1p"
+    },
+    {
+      "category": "Math",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Math.log2"
+    },
+    {
+      "category": "Math",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Math.max"
+    },
+    {
+      "category": "Math",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Math.min"
+    },
+    {
+      "category": "Math",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Math.pow"
+    },
+    {
+      "category": "Math",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Math.random"
+    },
+    {
+      "category": "Math",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Math.round"
+    },
+    {
+      "category": "Math",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Math.sign"
+    },
+    {
+      "category": "Math",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Math.sin"
+    },
+    {
+      "category": "Math",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Math.sinh"
+    },
+    {
+      "category": "Math",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Math.sqrt"
+    },
+    {
+      "category": "Math",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Math.tan"
+    },
+    {
+      "category": "Math",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Math.tanh"
+    },
+    {
+      "category": "Math",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Math.trunc"
+    },
+    {
+      "category": "Number",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Number.isFinite"
+    },
+    {
+      "category": "Number",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Number.isInteger"
+    },
+    {
+      "category": "Number",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Number.isNaN"
+    },
+    {
+      "category": "Number",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Number.toFixed"
+    },
+    {
+      "category": "Number",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Number.toPrecision"
+    },
+    {
+      "category": "Number",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Number.toString"
+    },
+    {
+      "category": "Object",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Object.assign"
+    },
+    {
+      "category": "Object",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Object.entries"
+    },
+    {
+      "category": "Object",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Object.hasOwnProperty"
+    },
+    {
+      "category": "Object",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Object.keys"
+    },
+    {
+      "category": "Object",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Object.toString"
+    },
+    {
+      "category": "Object",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "Object.values"
+    },
+    {
+      "category": "RegExp",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "RegExp.constructor"
+    },
+    {
+      "category": "RegExp",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "RegExp.exec"
+    },
+    {
+      "category": "RegExp",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "RegExp.static"
+    },
+    {
+      "category": "RegExp",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "RegExp.test"
+    },
+    {
+      "category": "String",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "String.charAt"
+    },
+    {
+      "category": "String",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "String.charCodeAt"
+    },
+    {
+      "category": "String",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "String.codePointAt"
+    },
+    {
+      "category": "String",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "String.concat"
+    },
+    {
+      "category": "String",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "String.endsWith"
+    },
+    {
+      "category": "String",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "String.includes"
+    },
+    {
+      "category": "String",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "String.indexOf"
+    },
+    {
+      "category": "String",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "String.lastIndexOf"
+    },
+    {
+      "category": "String",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "String.match"
+    },
+    {
+      "category": "String",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "String.matchAll"
+    },
+    {
+      "category": "String",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "String.padEnd"
+    },
+    {
+      "category": "String",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "String.padStart"
+    },
+    {
+      "category": "String",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "String.repeat"
+    },
+    {
+      "category": "String",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "String.replace"
+    },
+    {
+      "category": "String",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "String.replaceAll"
+    },
+    {
+      "category": "String",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "String.search"
+    },
+    {
+      "category": "String",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "String.slice"
+    },
+    {
+      "category": "String",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "String.split"
+    },
+    {
+      "category": "String",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "String.startsWith"
+    },
+    {
+      "category": "String",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "String.substr"
+    },
+    {
+      "category": "String",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "String.substring"
+    },
+    {
+      "category": "String",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "String.toLowerCase"
+    },
+    {
+      "category": "String",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "String.toUpperCase"
+    },
+    {
+      "category": "String",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "String.trim"
+    },
+    {
+      "category": "String",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "String.trimEnd"
+    },
+    {
+      "category": "String",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "String.trimStart"
+    },
+    {
+      "category": "Array",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "_array_literal"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "_break_statement"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "_continue_statement"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "_execute"
+    },
+    {
+      "category": "Object",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "_object_get"
+    },
+    {
+      "category": "Object",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "_object_literal"
+    },
+    {
+      "category": "Object",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "_object_set"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "_return_statement"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "_variable_get"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "_variable_set"
+    },
+    {
+      "category": "Appearance",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "add_width_height_scale"
+    },
+    {
+      "category": "AiChat",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "ai_chat_answer"
+    },
+    {
+      "category": "AiChat",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "ai_chat_ask"
+    },
+    {
+      "category": "aiText",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "ai_text_actor"
+    },
+    {
+      "category": "aiText",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "ai_text_photo"
+    },
+    {
+      "category": "aiText",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "ai_text_result"
+    },
+    {
+      "category": "aiText",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "ai_text_result_check"
+    },
+    {
+      "category": "Sensing",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "appearance_of_sprite"
+    },
+    {
+      "category": "Interaction",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "ask_and_choose"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "atob"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "bcm_translator_text_event_block"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "bcm_translator_text_execution_block"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "bcm_translator_text_return_boolean_block"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "bcm_translator_text_return_value_block"
+    },
+    {
+      "category": "Control",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "break"
+    },
+    {
+      "category": "Events",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "broadcast_input"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "btoa"
+    },
+    {
+      "category": "Sensing",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "bump_into"
+    },
+    {
+      "category": "Camera",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "bump_into_body_part"
+    },
+    {
+      "category": "Sensing",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "bump_into_color"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "calculate"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "camera_alpha_slider"
+    },
+    {
+      "category": "Variables",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "change_variables"
+    },
+    {
+      "category": "Cognitive",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "check_emotion"
+    },
+    {
+      "category": "Cognitive",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "check_face_shape"
+    },
+    {
+      "category": "Cognitive",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "check_gender"
+    },
+    {
+      "category": "Sensing",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "check_key"
+    },
+    {
+      "category": "Camera",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "check_tilt_direction_of_face"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "clearInterval"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "clearTimeout"
+    },
+    {
+      "category": "Appearance",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "clear_all_effects"
+    },
+    {
+      "category": "Pen",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "clear_drawing"
+    },
+    {
+      "category": "Interaction",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "close_self_dialog"
+    },
+    {
+      "category": "Sensing",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "color_picker"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "color_size_slider"
+    },
+    {
+      "category": "console",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "console.constructor"
+    },
+    {
+      "category": "console",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "console.error"
+    },
+    {
+      "category": "console",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "console.info"
+    },
+    {
+      "category": "console",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "console.log"
+    },
+    {
+      "category": "console",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "console.warn"
+    },
+    {
+      "category": "Control",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "console_log"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "controls_if"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "controls_while"
+    },
+    {
+      "category": "Operator",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "convert_type"
+    },
+    {
+      "category": "Sensing",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "coordinate_of_sprite"
+    },
+    {
+      "category": "Interaction",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "create_stage_dialog"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "default_value"
+    },
+    {
+      "category": "List",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "delete_list_item"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "destruct"
+    },
+    {
+      "category": "Events",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "dispose_clone"
+    },
+    {
+      "category": "Sensing",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "distance_to"
+    },
+    {
+      "category": "Operator",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "divisible_by"
+    },
+    {
+      "category": "Sensing",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "effect_of_sprite"
+    },
+    {
+      "category": "Cognitive",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "enable_face_detect_by_actor"
+    },
+    {
+      "category": "Cognitive",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "enable_face_detect_by_photo"
+    },
+    {
+      "category": "Cognitive",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "enable_object_detect_by_actor"
+    },
+    {
+      "category": "Cognitive",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "enable_object_detect_by_photo"
+    },
+    {
+      "category": "AiClassify",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "evaluate_actor_style"
+    },
+    {
+      "category": "AiClassify",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "evaluate_camera"
+    },
+    {
+      "category": "AiClassify",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "evaluate_photo"
+    },
+    {
+      "category": "Camera",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "face_to_body_part"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "function_call_callback_parameter"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "function_call_noreturn"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "function_call_return"
+    },
+    {
+      "category": "Interaction",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "get_answer"
+    },
+    {
+      "category": "Camera",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "get_appearance_of_part"
+    },
+    {
+      "category": "Interaction",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "get_choice_and_index"
+    },
+    {
+      "category": "Events",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "get_clone_index_property"
+    },
+    {
+      "category": "Events",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "get_clone_num"
+    },
+    {
+      "category": "Events",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "get_current_clone_index"
+    },
+    {
+      "category": "AiClassify",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "get_evaluate_class_accuracy"
+    },
+    {
+      "category": "AiClassify",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "get_evaluate_class_name"
+    },
+    {
+      "category": "Cognitive",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "get_face_detection_result"
+    },
+    {
+      "category": "Sensing",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "get_mouse_info"
+    },
+    {
+      "category": "Cognitive",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "get_object_detection_result"
+    },
+    {
+      "category": "Sensing",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "get_orientation"
+    },
+    {
+      "category": "Interaction",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "get_play_audio"
+    },
+    {
+      "category": "Camera",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "get_position_of_body_part"
+    },
+    {
+      "category": "Events",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "get_screens"
+    },
+    {
+      "category": "Sensing",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "get_stage_info"
+    },
+    {
+      "category": "Interaction",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "get_stop_audio"
+    },
+    {
+      "category": "Appearance",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "get_styles"
+    },
+    {
+      "category": "Camera",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "get_tilt_angle_of_face"
+    },
+    {
+      "category": "Sensing",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "get_time"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "get_timer"
+    },
+    {
+      "category": "Interaction",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "get_voice_answer"
+    },
+    {
+      "category": "Sensing",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "get_voice_volume"
+    },
+    {
+      "category": "Effects",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "global_animation"
+    },
+    {
+      "category": "Pen",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "image_stamp"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "isFinite"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "isNaN"
+    },
+    {
+      "category": "AiChat",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "limit_length_text"
+    },
+    {
+      "category": "List",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "list_append"
+    },
+    {
+      "category": "List",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "list_copy"
+    },
+    {
+      "category": "List",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "list_get"
+    },
+    {
+      "category": "List",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "list_index_of"
+    },
+    {
+      "category": "List",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "list_insert_value"
+    },
+    {
+      "category": "List",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "list_is_exist"
+    },
+    {
+      "category": "List",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "list_item"
+    },
+    {
+      "category": "List",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "list_length"
+    },
+    {
+      "category": "Operator",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "logic_boolean"
+    },
+    {
+      "category": "Operator",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "logic_compare"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "logic_empty"
+    },
+    {
+      "category": "Operator",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "logic_negate"
+    },
+    {
+      "category": "Operator",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "logic_operation"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "logic_ternary"
+    },
+    {
+      "category": "Operator",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "logic_to_boolean"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "math_add_assign"
+    },
+    {
+      "category": "Operator",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "math_arc_trig"
+    },
+    {
+      "category": "Operator",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "math_arithmetic"
+    },
+    {
+      "category": "Operator",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "math_arithmetic_power"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "math_decrement"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "math_div_assign"
+    },
+    {
+      "category": "Operator",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "math_function"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "math_increment"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "math_mod_assign"
+    },
+    {
+      "category": "Operator",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "math_modulo"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "math_mul_assign"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "math_number"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "math_number_not_allow_text"
+    },
+    {
+      "category": "Operator",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "math_number_property"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "math_number_with_angle"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "math_number_with_brightness_4"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "math_number_with_dial"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "math_number_with_power_13"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "math_number_with_power_5"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "math_number_with_servo"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "math_number_with_slider"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "math_number_with_tudao3_slider"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "math_number_with_volume_5"
+    },
+    {
+      "category": "Operator",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "math_round"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "math_single"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "math_sub_assign"
+    },
+    {
+      "category": "Operator",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "math_trig"
+    },
+    {
+      "category": "Operator",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "math_trig_rad"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "microbit_beats_shadow"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "microbit_led_plot_number_shadow"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "microbit_note_shadow"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "microbit_pin_digital_number_shadow"
+    },
+    {
+      "category": "Events",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "mirror"
+    },
+    {
+      "category": "Sensing",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "mouse_down"
+    },
+    {
+      "category": "Camera",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "move_to_body_part"
+    },
+    {
+      "category": "AiChat",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "multiline_text"
+    },
+    {
+      "category": "AiChat",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "new_conversation"
+    },
+    {
+      "category": "Events",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "on_bump_actor"
+    },
+    {
+      "category": "Events",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "on_bump_actor_value"
+    },
+    {
+      "category": "Events",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "on_keydown"
+    },
+    {
+      "category": "Events",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "on_running_group_activated"
+    },
+    {
+      "category": "Events",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "on_swipe"
+    },
+    {
+      "category": "AiClassify",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "open_close_webcam"
+    },
+    {
+      "category": "Camera",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "open_hide_camera"
+    },
+    {
+      "category": "Sensing",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "out_of_boundary"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "parseFloat"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "parseInt"
+    },
+    {
+      "category": "Interaction",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "play_audio"
+    },
+    {
+      "category": "Interaction",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "play_audio_and_wait"
+    },
+    {
+      "category": "Interaction",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "play_word_audio_wait"
+    },
+    {
+      "category": "Interaction",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "play_words_audio"
+    },
+    {
+      "category": "Operator",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "procedure_boolean"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "procedures_2_actor_param"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "procedures_2_parameter"
+    },
+    {
+      "category": "List",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "pure_list_get"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "random"
+    },
+    {
+      "category": "Operator",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "random_num"
+    },
+    {
+      "category": "Events",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "received_broadcast"
+    },
+    {
+      "category": "Camera",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "recognize_body_part"
+    },
+    {
+      "category": "Camera",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "recognize_gesture"
+    },
+    {
+      "category": "Control",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "repeat_forever"
+    },
+    {
+      "category": "Control",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "repeat_forever_until"
+    },
+    {
+      "category": "Control",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "repeat_n_times"
+    },
+    {
+      "category": "List",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "replace_list_item"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "reset_timer"
+    },
+    {
+      "category": "Events",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "restart"
+    },
+    {
+      "category": "Variables",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "script_variables"
+    },
+    {
+      "category": "Variables",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "script_variables_value"
+    },
+    {
+      "category": "Appearance",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "self_appear"
+    },
+    {
+      "category": "Effects",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "self_appear_animation"
+    },
+    {
+      "category": "Interaction",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "self_ask"
+    },
+    {
+      "category": "Actions",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "self_bounce_off_edge"
+    },
+    {
+      "category": "Events",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "self_broadcast"
+    },
+    {
+      "category": "Events",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "self_broadcast_and_wait"
+    },
+    {
+      "category": "Events",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "self_broadcast_with_param"
+    },
+    {
+      "category": "Actions",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "self_change_coordinate"
+    },
+    {
+      "category": "Actions",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "self_change_coordinate_x"
+    },
+    {
+      "category": "Actions",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "self_change_coordinate_y"
+    },
+    {
+      "category": "Appearance",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "self_change_effect"
+    },
+    {
+      "category": "Pen",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "self_change_pen_color_property"
+    },
+    {
+      "category": "Pen",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "self_change_pen_size"
+    },
+    {
+      "category": "Appearance",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "self_change_scale"
+    },
+    {
+      "category": "Interaction",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "self_dialog"
+    },
+    {
+      "category": "Interaction",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "self_dialog_wait"
+    },
+    {
+      "category": "Actions",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "self_face_to"
+    },
+    {
+      "category": "Actions",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "self_face_to_sprite"
+    },
+    {
+      "category": "Actions",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "self_glide_coordinate"
+    },
+    {
+      "category": "Actions",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "self_glide_coordinate_x"
+    },
+    {
+      "category": "Actions",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "self_glide_coordinate_y"
+    },
+    {
+      "category": "Actions",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "self_glide_to"
+    },
+    {
+      "category": "Actions",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "self_go_forward"
+    },
+    {
+      "category": "Appearance",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "self_gradually_show_hide"
+    },
+    {
+      "category": "Events",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "self_listen"
+    },
+    {
+      "category": "Events",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "self_listen_value"
+    },
+    {
+      "category": "Events",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "self_listen_with_param"
+    },
+    {
+      "category": "Actions",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "self_move_specify"
+    },
+    {
+      "category": "Actions",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "self_move_specify_sprite"
+    },
+    {
+      "category": "Actions",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "self_move_to"
+    },
+    {
+      "category": "Pen",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "self_pen_down"
+    },
+    {
+      "category": "Pen",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "self_pen_up"
+    },
+    {
+      "category": "Actions",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "self_point_towards"
+    },
+    {
+      "category": "Appearance",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "self_prev_next_style"
+    },
+    {
+      "category": "Actions",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "self_rotate"
+    },
+    {
+      "category": "Actions",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "self_rotate_around"
+    },
+    {
+      "category": "Actions",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "self_set_draggable"
+    },
+    {
+      "category": "Appearance",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "self_set_effect"
+    },
+    {
+      "category": "Pen",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "self_set_pen_color"
+    },
+    {
+      "category": "Pen",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "self_set_pen_color_property"
+    },
+    {
+      "category": "Pen",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "self_set_pen_size"
+    },
+    {
+      "category": "Actions",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "self_set_position"
+    },
+    {
+      "category": "Actions",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "self_set_position_x"
+    },
+    {
+      "category": "Actions",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "self_set_position_y"
+    },
+    {
+      "category": "Actions",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "self_set_role_camp"
+    },
+    {
+      "category": "Actions",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "self_set_rotation_type"
+    },
+    {
+      "category": "Effects",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "self_stress_animation"
+    },
+    {
+      "category": "Effects",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "self_text_effect_color"
+    },
+    {
+      "category": "Effects",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "self_text_effect_size"
+    },
+    {
+      "category": "Effects",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "self_text_effect_text"
+    },
+    {
+      "category": "Judge",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "send_judge_result"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "setInterval"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "setTimeout"
+    },
+    {
+      "category": "Camera",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "set_camera_alpha"
+    },
+    {
+      "category": "Pen",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "set_pen_layer"
+    },
+    {
+      "category": "Appearance",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "set_scale"
+    },
+    {
+      "category": "Events",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "set_screen_transition"
+    },
+    {
+      "category": "Appearance",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "set_sprite_style"
+    },
+    {
+      "category": "AiChat",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "set_system_preset"
+    },
+    {
+      "category": "Sensing",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "set_timer_state"
+    },
+    {
+      "category": "Appearance",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "set_top_bottom_layer"
+    },
+    {
+      "category": "AiClassify",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "set_webcam_alpha"
+    },
+    {
+      "category": "Appearance",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "set_width_height_scale"
+    },
+    {
+      "category": "Operator",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "shadow_text"
+    },
+    {
+      "category": "List",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "show_hide_list"
+    },
+    {
+      "category": "Online",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "show_hide_ranking"
+    },
+    {
+      "category": "Sensing",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "show_hide_timer"
+    },
+    {
+      "category": "Variables",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "show_hide_variables"
+    },
+    {
+      "category": "Interaction",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "sound_color"
+    },
+    {
+      "category": "Events",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "sprite_on_tap"
+    },
+    {
+      "category": "Pen",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "stamp"
+    },
+    {
+      "category": "Events",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "start_as_a_mirror"
+    },
+    {
+      "category": "Events",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "start_on_click"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "start_on_click_2"
+    },
+    {
+      "category": "Events",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "stop"
+    },
+    {
+      "category": "Interaction",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "stop_audio"
+    },
+    {
+      "category": "Sensing",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "style_of_sprite"
+    },
+    {
+      "category": "Events",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "switch_to_screen"
+    },
+    {
+      "category": "Control",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "sync_tell"
+    },
+    {
+      "category": "Control",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "tell"
+    },
+    {
+      "category": "List",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "temporary_list"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "terminate"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "text"
+    },
+    {
+      "category": "Operator",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "text_contain"
+    },
+    {
+      "category": "Operator",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "text_join"
+    },
+    {
+      "category": "Operator",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "text_length"
+    },
+    {
+      "category": "Operator",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "text_select"
+    },
+    {
+      "category": "Operator",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "text_split"
+    },
+    {
+      "category": "Sensing",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "timer"
+    },
+    {
+      "category": "Interaction",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "translate"
+    },
+    {
+      "category": "Interaction",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "translate_result"
+    },
+    {
+      "category": "Control",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "traverse_number"
+    },
+    {
+      "category": "Control",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "traverse_number_value"
+    },
+    {
+      "category": "Online",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "update_ranking"
+    },
+    {
+      "category": "Online",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "user_id_get"
+    },
+    {
+      "category": "Online",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "user_info_of_th"
+    },
+    {
+      "category": "Online",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "user_ranking_info"
+    },
+    {
+      "category": "Online",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "username_get"
+    },
+    {
+      "category": "Variables",
+      "rust_eval_literal_reference": true,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "variables_get"
+    },
+    {
+      "category": "Variables",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "variables_set"
+    },
+    {
+      "category": "Interaction",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": false,
+      "semantics_verified": false,
+      "type": "voice_recognition"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "wait"
+    },
+    {
+      "category": "uncategorized",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "wait_until"
+    },
+    {
+      "category": "Control",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "warp"
+    },
+    {
+      "category": "Events",
+      "rust_eval_literal_reference": false,
+      "rust_exec_literal_reference": true,
+      "semantics_verified": false,
+      "type": "when"
+    }
+  ],
+  "bundles": [
+    {
+      "bytes": 1297643,
+      "manifest_size_matches": true,
+      "name": "crc_libs.8196dbd1.js",
+      "sha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js"
+    },
+    {
+      "bytes": 949823,
+      "manifest_size_matches": true,
+      "name": "base.f158ddbf.js",
+      "sha256": "724251e202e9dac074241e6296f3bbf3773c420141516764c8434dd17eb113e7",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/base.f158ddbf.js"
+    },
+    {
+      "bytes": 6460489,
+      "manifest_size_matches": true,
+      "name": "main-vendors.07f7dd7e.js",
+      "sha256": "38183ab8a9620f33fef75f1bd1f90ee26b492e7b6ded8b6b065fc052e7948f68",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main-vendors.07f7dd7e.js"
+    },
+    {
+      "bytes": 5594360,
+      "manifest_size_matches": true,
+      "name": "main.8ccf2442.js",
+      "sha256": "456109c27830e35bd3c005512804b8bdc9ca158995a9702446b020321609236b",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js"
+    },
+    {
+      "bytes": 5199,
+      "manifest_size_matches": true,
+      "name": "6062.1ef86232.chunk.js",
+      "sha256": "362c82cbd0f2c6a05349ab05e2e6517cf40783429421424ef21b0b1e34978704",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/6062.1ef86232.chunk.js"
+    },
+    {
+      "bytes": 181408,
+      "manifest_size_matches": true,
+      "name": "5851.a37eb285.chunk.js",
+      "sha256": "79f96472792b16fb60cb13ee65fe2a64f16b224a8848c591308cad0d02baced5",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/5851.a37eb285.chunk.js"
+    },
+    {
+      "bytes": 36077,
+      "manifest_size_matches": true,
+      "name": "catui2.c678ccd3.chunk.js",
+      "sha256": "731eec8687c6bf701cae14a35a72f3bd08e35a6f36d7ef15bfb3a7330fcd3efb",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/catui2.c678ccd3.chunk.js"
+    },
+    {
+      "bytes": 18773,
+      "manifest_size_matches": true,
+      "name": "4023.4ec8fceb.chunk.js",
+      "sha256": "e0b2892d66f6aa6e798b42d5573313fd41a0e1682d4d3a1c00a595bfb8ac40fb",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/4023.4ec8fceb.chunk.js"
+    },
+    {
+      "bytes": 34835,
+      "manifest_size_matches": true,
+      "name": "2704.ec059467.chunk.js",
+      "sha256": "99a86c599cbda9180918819dc5b25b20cb83e1e2c1205ab47eb61f0b05b806b3",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/2704.ec059467.chunk.js"
+    },
+    {
+      "bytes": 109,
+      "manifest_size_matches": true,
+      "name": "6729.cc22670b.chunk.js",
+      "sha256": "76619f79ea51dfcd0c0ea4572f14d224829ee6ebe6f05d7443474a04f5dcd721",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/6729.cc22670b.chunk.js"
+    },
+    {
+      "bytes": 13538,
+      "manifest_size_matches": true,
+      "name": "4984.26063c69.chunk.js",
+      "sha256": "afda963988a73b83d4be21b2584d22ceb4a774502016fdce1c9c5d92569920c2",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/4984.26063c69.chunk.js"
+    },
+    {
+      "bytes": 64310,
+      "manifest_size_matches": true,
+      "name": "2455.fff7df4c.chunk.js",
+      "sha256": "ef75b9497e0c59df11906a787139390ff5f7cb1092fa71eccb0de343adc08c9f",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/2455.fff7df4c.chunk.js"
+    },
+    {
+      "bytes": 95951,
+      "manifest_size_matches": true,
+      "name": "2121.88168974.chunk.js",
+      "sha256": "ba8237837aab054dcdc620b0878dfa53c6c41887ddb92765a9df8b86dead4dc3",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/2121.88168974.chunk.js"
+    },
+    {
+      "bytes": 10683,
+      "manifest_size_matches": true,
+      "name": "8178.8c1ca691.chunk.js",
+      "sha256": "fbc439dc045b654365926c3b49b8622f270cba0fc86ed4e102e0e550d659eab5",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/8178.8c1ca691.chunk.js"
+    },
+    {
+      "bytes": 202201,
+      "manifest_size_matches": true,
+      "name": "stage_animation.871fede4.chunk.js",
+      "sha256": "ab9d29b8b3dbcda99ec3be20754901fc80b4266325a57ab2eb14f8d2ae741656",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/stage_animation.871fede4.chunk.js"
+    }
+  ],
+  "categories": {
+    "Actions": 23,
+    "AiChat": 6,
+    "AiClassify": 7,
+    "Appearance": 13,
+    "Array": 18,
+    "Camera": 11,
+    "Cognitive": 9,
+    "Control": 10,
+    "Date": 28,
+    "Effects": 6,
+    "Events": 27,
+    "Interaction": 20,
+    "JSON": 3,
+    "Judge": 1,
+    "List": 13,
+    "Math": 36,
+    "Number": 6,
+    "Object": 9,
+    "Online": 6,
+    "Operator": 24,
+    "Pen": 11,
+    "RegExp": 4,
+    "Sensing": 19,
+    "String": 26,
+    "Variables": 6,
+    "aiText": 4,
+    "console": 5,
+    "uncategorized": 69
+  },
+  "coverage_note": "Literal references are not implemented/verified coverage. Includes no-op handlers and may omit generic handlers.",
+  "domain_functions": [
+    "getActionDomainFunctions",
+    "getAiChatDomainFunctions",
+    "getAiClassifyDomainFunctions",
+    "getAnimationDomainFunctions",
+    "getAppearanceDomainFunctions",
+    "getAudioDomainFunctions",
+    "getCameraDomainFunctions",
+    "getCognitiveDomainFunctions",
+    "getControlDomainFunctions",
+    "getEventDomainFunctions",
+    "getInteractionDomainFunctions",
+    "getJudgeDomainFunctions",
+    "getListDomainFunctions",
+    "getOnlineDomainFunctions",
+    "getOperatorDomainFunctions",
+    "getPenDomainFunctions",
+    "getProcedureDomainFunctions",
+    "getSensingDomainFunctions",
+    "getShadowDomainFunctions",
+    "getVariablesDomainFunctions"
+  ],
+  "evidence": [
+    {
+      "file": "assets-17028.js",
+      "line": 93,
+      "subsystem": "project_model",
+      "symbol": "BcmInstance"
+    },
+    {
+      "file": "assets-17028.js",
+      "line": 93,
+      "subsystem": "block_editor",
+      "symbol": "BlinkInstance"
+    },
+    {
+      "file": "assets-17028.js",
+      "line": 3731,
+      "subsystem": "audio",
+      "symbol": "AudioContext"
+    },
+    {
+      "file": "assets-17028.js",
+      "line": 1681,
+      "subsystem": "cloud_variables",
+      "symbol": "cloudVariable"
+    },
+    {
+      "file": "assets-17028.js",
+      "line": 3163,
+      "subsystem": "hardware",
+      "symbol": "microbit"
+    },
+    {
+      "file": "assets-26912.js",
+      "line": 4,
+      "subsystem": "hardware",
+      "symbol": "microbit"
+    },
+    {
+      "file": "assets-40742.js",
+      "line": 158,
+      "subsystem": "project_model",
+      "symbol": "BcmInstance"
+    },
+    {
+      "file": "assets-40742.js",
+      "line": 3,
+      "subsystem": "block_editor",
+      "symbol": "BlinkInstance"
+    },
+    {
+      "file": "assets-40742.js",
+      "line": 147,
+      "subsystem": "audio",
+      "symbol": "AudioContext"
+    },
+    {
+      "file": "assets-40742.js",
+      "line": 429,
+      "subsystem": "hardware",
+      "symbol": "microbit"
+    },
+    {
+      "file": "assets-46501.js",
+      "line": 109,
+      "subsystem": "project_model",
+      "symbol": "BcmInstance"
+    },
+    {
+      "file": "assets-46501.js",
+      "line": 35,
+      "subsystem": "block_editor",
+      "symbol": "BlinkInstance"
+    },
+    {
+      "file": "assets-46501.js",
+      "line": 595,
+      "subsystem": "stage",
+      "symbol": "get_brush"
+    },
+    {
+      "file": "assets-46501.js",
+      "line": 994,
+      "subsystem": "cloud_variables",
+      "symbol": "cloudVariable"
+    },
+    {
+      "file": "assets-46501.js",
+      "line": 5,
+      "subsystem": "hardware",
+      "symbol": "microbit"
+    },
+    {
+      "file": "assets-46501.js",
+      "line": 1292,
+      "subsystem": "camera",
+      "symbol": "getCameraDomainFunctions"
+    },
+    {
+      "file": "assets-46501.js",
+      "line": 1487,
+      "subsystem": "ai",
+      "symbol": "getAiChatDomainFunctions"
+    },
+    {
+      "file": "assets-53671.js",
+      "line": 249,
+      "subsystem": "project_model",
+      "symbol": "BcmInstance"
+    },
+    {
+      "file": "assets-53671.js",
+      "line": 322,
+      "subsystem": "block_editor",
+      "symbol": "BlinkInstance"
+    },
+    {
+      "file": "assets-91107.js",
+      "line": 3,
+      "subsystem": "project_model",
+      "symbol": "BcmInstance"
+    },
+    {
+      "file": "assets-99262.js",
+      "line": 12,
+      "subsystem": "project_model",
+      "symbol": "BcmInstance"
+    },
+    {
+      "file": "audio-17028.js",
+      "line": 93,
+      "subsystem": "project_model",
+      "symbol": "BcmInstance"
+    },
+    {
+      "file": "audio-17028.js",
+      "line": 93,
+      "subsystem": "block_editor",
+      "symbol": "BlinkInstance"
+    },
+    {
+      "file": "audio-17028.js",
+      "line": 3731,
+      "subsystem": "audio",
+      "symbol": "AudioContext"
+    },
+    {
+      "file": "audio-17028.js",
+      "line": 1681,
+      "subsystem": "cloud_variables",
+      "symbol": "cloudVariable"
+    },
+    {
+      "file": "audio-17028.js",
+      "line": 3163,
+      "subsystem": "hardware",
+      "symbol": "microbit"
+    },
+    {
+      "file": "audio-40742.js",
+      "line": 158,
+      "subsystem": "project_model",
+      "symbol": "BcmInstance"
+    },
+    {
+      "file": "audio-40742.js",
+      "line": 3,
+      "subsystem": "block_editor",
+      "symbol": "BlinkInstance"
+    },
+    {
+      "file": "audio-40742.js",
+      "line": 147,
+      "subsystem": "audio",
+      "symbol": "AudioContext"
+    },
+    {
+      "file": "audio-40742.js",
+      "line": 429,
+      "subsystem": "hardware",
+      "symbol": "microbit"
+    },
+    {
+      "file": "audio-46501.js",
+      "line": 109,
+      "subsystem": "project_model",
+      "symbol": "BcmInstance"
+    },
+    {
+      "file": "audio-46501.js",
+      "line": 35,
+      "subsystem": "block_editor",
+      "symbol": "BlinkInstance"
+    },
+    {
+      "file": "audio-46501.js",
+      "line": 595,
+      "subsystem": "stage",
+      "symbol": "get_brush"
+    },
+    {
+      "file": "audio-46501.js",
+      "line": 994,
+      "subsystem": "cloud_variables",
+      "symbol": "cloudVariable"
+    },
+    {
+      "file": "audio-46501.js",
+      "line": 5,
+      "subsystem": "hardware",
+      "symbol": "microbit"
+    },
+    {
+      "file": "audio-46501.js",
+      "line": 1292,
+      "subsystem": "camera",
+      "symbol": "getCameraDomainFunctions"
+    },
+    {
+      "file": "audio-46501.js",
+      "line": 1487,
+      "subsystem": "ai",
+      "symbol": "getAiChatDomainFunctions"
+    },
+    {
+      "file": "audio-58890.js",
+      "line": 829,
+      "subsystem": "hardware",
+      "symbol": "microbit"
+    },
+    {
+      "file": "audio-62732.js",
+      "line": 152,
+      "subsystem": "project_model",
+      "symbol": "BcmInstance"
+    },
+    {
+      "file": "audio-62732.js",
+      "line": 1148,
+      "subsystem": "block_editor",
+      "symbol": "BlinkInstance"
+    },
+    {
+      "file": "audio-70615.js",
+      "line": 4,
+      "subsystem": "hardware",
+      "symbol": "microbit"
+    },
+    {
+      "file": "audio-8919.js",
+      "line": 43,
+      "subsystem": "project_model",
+      "symbol": "BcmInstance"
+    },
+    {
+      "file": "core-61248.js",
+      "line": 572,
+      "subsystem": "stage",
+      "symbol": "get_brush"
+    },
+    {
+      "file": "core-83084.js",
+      "line": 5,
+      "subsystem": "optimized_interpreter",
+      "symbol": "step_iteration_yield"
+    },
+    {
+      "file": "core-8541.js",
+      "line": 111,
+      "subsystem": "scheduler",
+      "symbol": "step_code"
+    },
+    {
+      "file": "load-17028.js",
+      "line": 93,
+      "subsystem": "project_model",
+      "symbol": "BcmInstance"
+    },
+    {
+      "file": "load-17028.js",
+      "line": 93,
+      "subsystem": "block_editor",
+      "symbol": "BlinkInstance"
+    },
+    {
+      "file": "load-17028.js",
+      "line": 3731,
+      "subsystem": "audio",
+      "symbol": "AudioContext"
+    },
+    {
+      "file": "load-17028.js",
+      "line": 1681,
+      "subsystem": "cloud_variables",
+      "symbol": "cloudVariable"
+    },
+    {
+      "file": "load-17028.js",
+      "line": 3163,
+      "subsystem": "hardware",
+      "symbol": "microbit"
+    },
+    {
+      "file": "load-25789.js",
+      "line": 7,
+      "subsystem": "project_model",
+      "symbol": "BcmInstance"
+    },
+    {
+      "file": "load-25789.js",
+      "line": 24,
+      "subsystem": "block_editor",
+      "symbol": "BlinkInstance"
+    },
+    {
+      "file": "load-25789.js",
+      "line": 194,
+      "subsystem": "hardware",
+      "symbol": "microbit"
+    },
+    {
+      "file": "load-62732.js",
+      "line": 152,
+      "subsystem": "project_model",
+      "symbol": "BcmInstance"
+    },
+    {
+      "file": "load-62732.js",
+      "line": 1148,
+      "subsystem": "block_editor",
+      "symbol": "BlinkInstance"
+    },
+    {
+      "file": "load-76629.js",
+      "line": 8,
+      "subsystem": "project_model",
+      "symbol": "BcmInstance"
+    },
+    {
+      "file": "pretty-17028.js",
+      "line": 93,
+      "subsystem": "project_model",
+      "symbol": "BcmInstance"
+    },
+    {
+      "file": "pretty-17028.js",
+      "line": 93,
+      "subsystem": "block_editor",
+      "symbol": "BlinkInstance"
+    },
+    {
+      "file": "pretty-17028.js",
+      "line": 3731,
+      "subsystem": "audio",
+      "symbol": "AudioContext"
+    },
+    {
+      "file": "pretty-17028.js",
+      "line": 1681,
+      "subsystem": "cloud_variables",
+      "symbol": "cloudVariable"
+    },
+    {
+      "file": "pretty-17028.js",
+      "line": 3163,
+      "subsystem": "hardware",
+      "symbol": "microbit"
+    },
+    {
+      "file": "pretty-26921.js",
+      "line": 5,
+      "subsystem": "project_model",
+      "symbol": "BcmInstance"
+    },
+    {
+      "file": "pretty-26921.js",
+      "line": 134,
+      "subsystem": "block_editor",
+      "symbol": "BlinkInstance"
+    },
+    {
+      "file": "pretty-46501.js",
+      "line": 109,
+      "subsystem": "project_model",
+      "symbol": "BcmInstance"
+    },
+    {
+      "file": "pretty-46501.js",
+      "line": 35,
+      "subsystem": "block_editor",
+      "symbol": "BlinkInstance"
+    },
+    {
+      "file": "pretty-46501.js",
+      "line": 595,
+      "subsystem": "stage",
+      "symbol": "get_brush"
+    },
+    {
+      "file": "pretty-46501.js",
+      "line": 994,
+      "subsystem": "cloud_variables",
+      "symbol": "cloudVariable"
+    },
+    {
+      "file": "pretty-46501.js",
+      "line": 5,
+      "subsystem": "hardware",
+      "symbol": "microbit"
+    },
+    {
+      "file": "pretty-46501.js",
+      "line": 1292,
+      "subsystem": "camera",
+      "symbol": "getCameraDomainFunctions"
+    },
+    {
+      "file": "pretty-46501.js",
+      "line": 1487,
+      "subsystem": "ai",
+      "symbol": "getAiChatDomainFunctions"
+    },
+    {
+      "file": "pretty-58890.js",
+      "line": 829,
+      "subsystem": "hardware",
+      "symbol": "microbit"
+    },
+    {
+      "file": "pretty-61248.js",
+      "line": 572,
+      "subsystem": "stage",
+      "symbol": "get_brush"
+    },
+    {
+      "file": "pretty-65191.js",
+      "line": 101,
+      "subsystem": "project_model",
+      "symbol": "BcmInstance"
+    },
+    {
+      "file": "pretty-68602.js",
+      "line": 20,
+      "subsystem": "project_model",
+      "symbol": "BcmInstance"
+    },
+    {
+      "file": "pretty-68602.js",
+      "line": 60,
+      "subsystem": "block_editor",
+      "symbol": "BlinkInstance"
+    },
+    {
+      "file": "pretty-68602.js",
+      "line": 133,
+      "subsystem": "hardware",
+      "symbol": "microbit"
+    },
+    {
+      "file": "pretty-9961.js",
+      "line": 36,
+      "subsystem": "project_model",
+      "symbol": "BcmInstance"
+    }
+  ],
+  "format": "nekoc.source-audit.v1",
+  "schema": {
+    "sha256": "b44bd231af51d36852b3bd7b2f1364935c2b03430f073aafcd271b0261280c5f",
+    "version": "0.27.4"
+  },
+  "schema_block_count": 420
+}

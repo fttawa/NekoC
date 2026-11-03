@@ -1,0 +1,43 @@
+{
+  "benchmark": {
+    "label": "Paused reference cube at 128x80; not a high-resolution rotating-frame benchmark",
+    "windows": 2,
+    "windowMs": 2000
+  },
+  "frameVariable": "__pd_frames",
+  "summary": {
+    "durationSeconds": 4.062,
+    "gameFrames": 5,
+    "gameFps": 1.2309207287050714,
+    "rafHz": 63.51550960118168,
+    "nativeUpdates": 258
+  },
+  "windows": [
+    {
+      "seconds": 2.033900000035763,
+      "gameFrames": 2,
+      "gameFps": 0.9833325138722814,
+      "rafHz": 66.374944686379,
+      "nativeUpdates": 135
+    },
+    {
+      "seconds": 2.0280999999642373,
+      "gameFrames": 3,
+      "gameFps": 1.4792170011601502,
+      "rafHz": 60.64789704756616,
+      "nativeUpdates": 123
+    }
+  ],
+  "network": {
+    "localRouted": 27,
+    "externalHttpAborted": 0,
+    "webSocketsAborted": 0,
+    "externalResponses": [],
+    "externalCompleted": [],
+    "cspBlocked": 34,
+    "observedExternalEscapes": 0,
+    "barrierVerified": true
+  },
+  "runtimeKind": "Official published KN editor native playback runtime in a local test shell; not a standalone published-work player",
+  "browserShellDegraded": true
+}

@@ -2,7 +2,7 @@
 import argparse
 import base64
 import colorsys
-import hashlib
+from functools import lru_cache
 import json
 import math
 import os
@@ -16,6 +16,50 @@ import zlib
 
 ROOT = Path(__file__).resolve().parent.parent
 TOKENS = re.compile(r"\x1b\[([0-9;]*)([A-Za-z])|([^\x1b])", re.S)
+
+
+def row_commands(row, metrics):
+    """Overlay same-color glyphs with measured, error-corrected Unicode spacing.
+
+    Every glyph is placed against its absolute grid coordinate: rounding errors
+    never accumulate across a row. Spaces break kerning between adjacent glyphs.
+    """
+    size = 14
+    scale = size / 16
+    spaces = [(ch, metrics[ch]*scale) for ch in ("\u2002", "\u2009", "\u200a")]
+
+    @lru_cache(maxsize=8192)
+    def padding(distance):
+        best = None
+        for a in range(max(0, int(distance/spaces[0][1])-2), int(distance/spaces[0][1])+1):
+            for b in range(5):
+                rest = distance-a*spaces[0][1]-b*spaces[1][1]
+                c = max(0, round(rest/spaces[2][1]))
+                advance = a*spaces[0][1]+b*spaces[1][1]+c*spaces[2][1]
+                candidate = (abs(advance-distance), a+b+c, a,b,c,advance)
+                if best is None or candidate < best: best = candidate
+        _,_,a,b,c,advance = best
+        return spaces[0][0]*a+spaces[1][0]*b+spaces[2][0]*c, advance
+
+    groups = {}
+    for col,(ch,rgb) in enumerate(row):
+        if not ch.strip() or rgb == 0: continue
+        wide = unicodedata.east_asian_width(ch) in ("W","F")
+        width = metrics.get(ch,16 if wide else 10)*scale
+        x = col*10+(20 if wide else 10)/2-width/2
+        groups.setdefault(rgb,[]).append((x,ch,width))
+    for rgb,glyphs in sorted(groups.items()):
+        start, text, advance = glyphs[0]
+        cursor = start+advance
+        for x,ch,width in glyphs[1:]:
+            if x-cursor < spaces[-1][1]/2:
+                yield start,text,rgb,size
+                start,text,cursor = x,ch,x+width
+            else:
+                gap,advance = padding(round(x-cursor,5))
+                text += gap+ch
+                cursor += advance+width
+        yield start,text,rgb,size
 
 
 def decode_frames(path):
@@ -77,24 +121,41 @@ def main():
                 row_ids[row] = len(row_ids)+1
                 tables["ep_first"].append(len(tables["ep_x"])+1)
                 count = 0
-                for col,(ch,rgb) in enumerate(row):
-                    if not ch.strip() or rgb == 0: continue
+                for x,text,rgb,size in row_commands(row,metrics):
                     if rgb not in palette:
                         palette[rgb] = len(palette)+1
                         h,s,v = colorsys.rgb_to_hsv((rgb>>16)/255,((rgb>>8)&255)/255,(rgb&255)/255)
                         tables["ep_h"].append(round(h*360,3));tables["ep_s"].append(round(s*100,3));tables["ep_v"].append(round(v*100,3))
-                    wide = unicodedata.east_asian_width(ch) in ("W","F")
-                    width = 20 if wide else 10
-                    glyph_width = metrics.get(ch, 16 if wide else 10)
-                    size = round(min(16, (width-0.8)*16/max(glyph_width,0.1)),2)
-                    tables["ep_x"].append(col*10+width/2-args.cols*5)
-                    tables["ep_text"].append(ch)
+                    tables["ep_x"].append(round(x-args.cols*5,4))
+                    tables["ep_text"].append(text)
                     tables["ep_color"].append(palette[rgb])
                     tables["ep_size"].append(size)
                     count += 1
                 tables["ep_count"].append(count)
             tables["ep_rows"].append(row_ids[row])
     frame_count = len(tables["ep_rows"])//rows
+    # Native observer copies array entries on every variable update. Archive
+    # frame columns as strings; only the current frame is expanded into lists.
+    banks = {"ep_bank_"+n:[] for n in ("rows","first","count","x","text","color")}
+    for frame in range(frame_count):
+        ids = tables["ep_rows"][frame*rows:(frame+1)*rows]
+        columns = {n:[] for n in ("first","count","x","text","color")}
+        for rid in ids:
+            first,count = tables["ep_first"][rid-1]-1,tables["ep_count"][rid-1]
+            columns["first"].append(len(columns["x"])+1)
+            columns["count"].append(count)
+            assert all(size == 14 for size in tables["ep_size"][first:first+count])
+            for n in ("x","text","color"):
+                columns[n].extend(tables["ep_"+n][first:first+count])
+        columns["rows"] = ids
+        for n,values in columns.items():
+            separator = "§" if n == "text" else "|"
+            encoded = list(map(str,values))
+            if any(separator in value for value in encoded):
+                raise ValueError(f"Archive delimiter collision in {n}, frame {frame}")
+            banks["ep_bank_"+n].append(separator.join(encoded))
+    command_count = len(tables["ep_x"])
+    tables = {**{n:v for n,v in tables.items() if n in ("ep_h","ep_s","ep_v")},**banks}
     with tempfile.TemporaryDirectory(prefix="eisei-pen-",dir="D:/AppData/Local/Temp/opencode") as temp:
         temp=Path(temp)
         source=(ROOT/"samples/eisei_pen.ts").read_text(encoding="utf-8")
@@ -104,7 +165,8 @@ def main():
         subprocess.run([str(ROOT/"target/debug"/("nekoc.exe" if os.name=="nt" else "nekoc")),"compile-ts-bcmkn",str(temp/"player.ts"),"--template",str(ROOT/"samples/kitten-n-0.27.4.bcmkn"),"--out",str(temp/"player.bcmkn")],check=True)
         project=json.loads((temp/"player.bcmkn").read_text(encoding="utf-8"))
         for variable in project["variables"]["variablesDict"].values():
-            if variable["name"] in tables: variable["value"]=tables[variable["name"]]
+            if variable["type"] == "list" and variable["name"] in tables:
+                variable["value"]=tables[variable["name"]]
         project["projectName"]="衛星 · 原生画笔字符版"
         project["stageSize"]={"width":args.cols*10,"height":rows*20}
         actor=next(iter(project["actors"]["actorsDict"].values()))
@@ -112,11 +174,11 @@ def main():
         scene=next(iter(project["scenes"]["scenesDict"].values()))
         svg=f'<svg xmlns="http://www.w3.org/2000/svg" width="{args.cols*10}" height="{rows*20}"><path fill="#060616" d="M0 0h{args.cols*10}v{rows*20}H0z"/></svg>'
         project["styles"]["stylesDict"][scene["currentStyleId"]]["url"]="data:image/svg+xml;base64,"+base64.b64encode(svg.encode()).decode()
-        subprocess.run(["ffmpeg","-v","error","-ss",str(args.start),"-i",str(args.source/"out/terminal/song.wav"),"-af",f"atrim=duration={args.duration},asetpts=PTS-STARTPTS,adelay=3000:all=1","-c:a","libmp3lame","-b:a","192k",str(temp/"song.mp3")],check=True)
+        subprocess.run(["ffmpeg","-v","error","-ss",str(args.start),"-i",str(args.source/"out/terminal/song.wav"),"-af",f"atrim=duration={args.duration},asetpts=PTS-STARTPTS,apad=whole_dur={args.duration},adelay=3000:all=1","-c:a","libmp3lame","-b:a","192k",str(temp/"song.mp3")],check=True)
         project["audios"]={"audiosDict":{"eisei-song":{"id":"eisei-song","name":"衛星 / 柿崎ユウタ","url":"data:audio/mpeg;base64,"+base64.b64encode((temp/"song.mp3").read_bytes()).decode()}},"sortList":["eisei-song"],"currentAudioId":"eisei-song"}
         args.out.parent.mkdir(parents=True,exist_ok=True)
         args.out.write_text(json.dumps(project,ensure_ascii=False,separators=(",",":")),encoding="utf-8")
-        report={"frames":frame_count,"cols":args.cols,"rows":rows,"fps":args.fps,"start":args.start,"duration":args.duration,"uniqueRows":len(row_ids),"glyphCommands":len(tables["ep_x"]),"palette":len(palette),"bytes":args.out.stat().st_size}
+        report={"frames":frame_count,"cols":args.cols,"rows":rows,"fps":args.fps,"start":args.start,"duration":args.duration,"uniqueRows":len(row_ids),"stampCommandsInRowDictionary":command_count,"palette":len(palette),"bytes":args.out.stat().st_size}
         args.out.with_suffix(".build.json").write_text(json.dumps(report,indent=2),encoding="utf-8")
         print(json.dumps(report))
 

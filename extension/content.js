@@ -1,0 +1,90 @@
+(() => {
+  const playerURL=chrome.runtime.getURL('play.html'),origin=new URL(playerURL).origin;
+  const records=new Map();let enabled=false,scheduled=false;
+  let notifiedPage='',injectionHint=null,hintTimer=null;
+  function dismissInjectionHint(){clearTimeout(hintTimer);injectionHint?.remove();injectionHint=null;}
+  function showInjectionHint(){
+    dismissInjectionHint();
+    const host=document.createElement('div');host.dataset.nekoInjection='';
+    const shadow=host.attachShadow({mode:'open'}),style=document.createElement('style');
+    style.textContent=':host{position:fixed;left:20px;bottom:20px;z-index:2147483647;pointer-events:none;font:12px system-ui}div{padding:12px 16px;border:1px solid #53694f;border-radius:10px;background:#142019f2;color:#d8ecd0;box-shadow:0 6px 24px #0003}strong{display:block;font-size:13px;margin-bottom:5px}span{color:#a2b39e}';
+    const box=document.createElement('div'),title=document.createElement('strong'),detail=document.createElement('span');
+    title.textContent='✓ Neko 扩展已植入';detail.textContent='等待网页播放器 · 出现后自动接管';
+    box.setAttribute('role','status');box.append(title,detail);shadow.append(style,box);document.documentElement.append(host);
+    injectionHint=host;hintTimer=setTimeout(dismissInjectionHint,4000);
+  }
+  function workID(src){try{const u=new URL(src);return u.origin==='https://kn.codemao.cn'&&u.pathname==='/player'&&/^\d+$/.test(u.searchParams.get('workId'))?u.searchParams.get('workId'):null;}catch{return null;}}
+  function requestResource(record){
+    if(record.rust||!record.frame.isConnected||record.frame.src!==record.original)return;
+    // src can point at the official player while its window still has the parent's origin.
+    // This payload-free probe is safe during navigation; replies still require the exact
+    // official origin, iframe window, work ID and CDN URL below.
+    record.frame.contentWindow?.postMessage({type:'neko-request-resource',id:record.id},'*');
+  }
+  function restore(record){
+    record.rust=false;record.frame.src=record.original;
+    record.button.textContent='切换 Rust';record.label.textContent='原播放器';
+  }
+  function activate(record){
+    if(!record.resource){record.label.textContent='等待原播放器资源…';return;}
+    record.rust=true;record.frame.src=`${playerURL}?workId=${record.id}&bcm=${encodeURIComponent(record.resource)}`;
+    dismissInjectionHint();
+    record.button.textContent='切回原版';record.label.textContent='Rust 连接中…';
+  }
+  function cleanup(record,restoreFrame){
+    record.frame.removeEventListener('load',record.onLoad);
+    if(restoreFrame&&record.rust&&record.frame.src.startsWith(playerURL))record.frame.src=record.original;
+    record.toolbar.remove();records.delete(record.frame);
+  }
+  function scan(){
+    scheduled=false;
+    if(!document.documentElement)return;
+    const onWork=/^\/(?:works|forum\/post)\/[^/]+\/?$/.test(location.pathname);
+    if(!enabled||!onWork){notifiedPage='';dismissInjectionHint();}
+    else if(notifiedPage!==location.pathname){notifiedPage=location.pathname;showInjectionHint();}
+    for(const record of records.values()){
+      if(!record.frame.isConnected||!onWork||!enabled||record.page!==location.pathname){cleanup(record,true);continue;}
+      const expected=record.rust?`${playerURL}?workId=${record.id}&bcm=${encodeURIComponent(record.resource)}`:record.original;
+      if(record.frame.src!==expected)cleanup(record,false);
+    }
+    if(!enabled||!onWork)return;
+    for(const frame of document.querySelectorAll('iframe[src]')){
+      const id=workID(frame.src);if(!id||records.has(frame))continue;
+      // Only an existing, website-authorized official player can be replaced.
+      const toolbar=document.createElement('div');toolbar.dataset.nekoRust='';
+      const shadow=toolbar.attachShadow({mode:'open'});
+      const style=document.createElement('style');style.textContent=':host{position:absolute;right:8px;top:5px;z-index:40;display:block;font:11px system-ui}div{display:flex;align-items:center;gap:8px;background:#17221eee;color:#c9e0c1;border:1px solid #425442;border-radius:6px;padding:4px 6px}button{border:0;border-radius:4px;background:#b6d7a8;color:#192c1a;font:11px system-ui;cursor:pointer;padding:4px 8px}';
+      const row=document.createElement('div'),label=document.createElement('span'),button=document.createElement('button');
+      row.append(label,button);shadow.append(style,row);frame.parentElement.append(toolbar);
+      const record={frame,id,original:frame.src,toolbar,label,button,page:location.pathname,rust:false,resource:null,auto:true};records.set(frame,record);
+      record.onLoad=()=>requestResource(record);frame.addEventListener('load',record.onLoad);
+      button.onclick=()=>{
+        if(record.rust){record.auto=false;restore(record);}
+        else{record.auto=true;activate(record);if(!record.resource)requestResource(record);}
+      };
+      button.textContent='切换 Rust';activate(record);
+      requestResource(record); // Also recover cached details when enabling on an already loaded player.
+    }
+  }
+  function schedule(){if(!scheduled){scheduled=true;queueMicrotask(scan);}}
+  new MutationObserver(schedule).observe(document,{childList:true,subtree:true,attributes:true,attributeFilter:['src']});
+  window.addEventListener('popstate',schedule);
+  window.addEventListener('message',event=>{
+    if(event.origin==='https://kn.codemao.cn'&&['neko-project-resource','neko-resource-unavailable'].includes(event.data?.type)){
+      scan();
+      for(const record of records.values())if(!record.rust&&event.source===record.frame.contentWindow&&event.data.id===record.id){
+        if(event.data.type==='neko-resource-unavailable'){record.label.textContent='未找到可用作品资源';continue;}
+        try{const url=new URL(event.data.url);if(url.origin!=='https://creation.bcmcdn.com')return;record.resource=url.href;if(record.auto)activate(record);}catch{}
+      }
+      return;
+    }
+    if(event.origin!==origin||event.data?.type!=='neko-rust-status')return;
+    for(const record of records.values())if(record.rust&&event.source===record.frame.contentWindow)record.label.textContent=String(event.data.status).slice(0,60);
+  });
+  chrome.storage.local.get({enabled:true}).then(settings=>{enabled=settings.enabled;schedule();});
+  chrome.storage.onChanged.addListener((changes,area)=>{
+    if(area!=='local')return;
+    if(changes.enabled){enabled=changes.enabled.newValue;schedule();}
+    if(changes.port)for(const record of records.values())if(record.rust)activate(record);
+  });
+})();

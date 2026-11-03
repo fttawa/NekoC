@@ -56,9 +56,11 @@ export function displayRenderColumn(column: number, cy: string, ce: string, cc: 
             }
             if (pdState(ch) < 0) changeVar(ch, 360);
           }
+          // The native brush stores HSL: setting HSV saturation while still
+          // black loses it. Establish nonblack brightness before H/S.
+          setPenEffect("brightness", pdState(cmax) * 100 / 255);
           setPenEffect("hue", pdState(ch));
           setPenEffect("saturation", pdState(cs));
-          setPenEffect("brightness", pdState(cmax) * 100 / 255);
           // Vertical runs: one actor never writes another column's cache entries.
           for (let pcSubX = 0; pcSubX < pdState("__pd_scale"); pcSubX++) {
             penUp();

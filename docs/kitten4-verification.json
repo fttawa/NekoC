@@ -1,0 +1,681 @@
+{
+  "officialUrl": "https://kitten4.codemao.cn/",
+  "browserChannel": "msedge",
+  "method": "Official URL-loaded bcm -> native Blockly workspace roundtrip -> Start UI click -> DOM keyboard events -> read-only Heart variables, stage actors and actual brush canvas pixels.",
+  "vendorScripts": [
+    "https://creation.codemao.cn/kitten/build/72.d0c8e590841d585ca222.js",
+    "https://creation.codemao.cn/kitten/build/80.d10abbe101f61f1643c5.js",
+    "https://creation.codemao.cn/kitten/build/77.79dad0a4712bd232538c.js",
+    "https://creation.codemao.cn/kitten/build/73.04a112a110855e63b496.js",
+    "https://creation.codemao.cn/kitten/build/36.588b10f9f832eb8cf934.js",
+    "https://creation.codemao.cn/kitten/build/libs/lottie_svg_cmao.min.js",
+    "https://creation.codemao.cn/kitten/build/runtime.43302e3ecf1fd4923b40.js",
+    "https://creation.codemao.cn/kitten/build/vendors.5035cd22e77914a9f363.js",
+    "https://creation.codemao.cn/kitten/build/kitten.99f88a64d495cf0e79d0.js"
+  ],
+  "runtimeBehaviorModified": false,
+  "keyboardNote": "Native K4 on_keydown is a State responder and repeats while held. The demo automation subscribes to native variable_update.immediate and dispatches DOM keyup at the first keyCount update. This makes single-trigger checks deterministic; held-key scheduler parity with the Rust VM is not asserted.",
+  "nativeUnitsProbe": {
+    "serialized": 1,
+    "actualRadians": 1,
+    "position": {
+      "x": 5.403023058681398,
+      "y": 8.414709848078965
+    },
+    "get2Attribute3": 57.3
+  },
+  "demo": {
+    "input": "samples/kitten4-demo.bcm",
+    "sha256": "4bbcdf941f8703deb8fd1c9d9a26026674dc6d60ea1b17ca03b1559468701422",
+    "applicationVersion": "4.11.20",
+    "bcmVersion": 25,
+    "browserVersion": "156.0.4314.58",
+    "verifiedAt": "2026-11-02T15:18:04.714Z",
+    "phase": "completed",
+    "imported": true,
+    "started": true,
+    "runtimeVerified": true,
+    "ok": true,
+    "issues": [],
+    "dimensions": {
+      "input": {
+        "type": 1,
+        "size": {
+          "height": 720,
+          "width": 1280
+        }
+      },
+      "nativeExport": {
+        "type": 1,
+        "size": {
+          "width": 1280,
+          "height": 720
+        }
+      },
+      "runtimeCanvas": {
+        "width": 1280,
+        "height": 720
+      }
+    },
+    "workspaces": {
+      "nekoc-scene-main": {
+        "blocks": 0,
+        "connections": 0
+      },
+      "nekoc-default-actor": {
+        "blocks": 73,
+        "connections": 66
+      }
+    },
+    "checkpoints": [
+      {
+        "label": "startup",
+        "state": {
+          "actors": {
+            "nekoc-default-actor": {
+              "name": "Sprite",
+              "x": -39.999999999999986,
+              "y": -39.999999999999986,
+              "rotation": 0,
+              "visible": true,
+              "scale": {
+                "x": 1,
+                "y": 1
+              },
+              "brush": {
+                "size": 4,
+                "color": "#16a34a",
+                "alpha": 1,
+                "down": false
+              }
+            }
+          },
+          "variables": {
+            "kn-var-edge": {
+              "name": "edge",
+              "value": 80
+            },
+            "kn-var-keyCount": {
+              "name": "keyCount",
+              "value": 0
+            },
+            "kn-var-ready": {
+              "name": "ready",
+              "value": 1
+            },
+            "kn-var-sides": {
+              "name": "sides",
+              "value": 4
+            },
+            "kn-var-step": {
+              "name": "step",
+              "value": 10
+            }
+          },
+          "brush": {
+            "width": 1280,
+            "height": 720,
+            "nontransparentPixels": 1280,
+            "bounds": {
+              "minX": 598,
+              "minY": 398,
+              "maxX": 681,
+              "maxY": 481
+            },
+            "colors": {
+              "#2563eb": 1270,
+              "#2563ec": 6
+            },
+            "samples": [
+              {
+                "x": 0,
+                "y": -40,
+                "rgba": [
+                  37,
+                  99,
+                  235,
+                  255
+                ]
+              },
+              {
+                "x": 40,
+                "y": -80,
+                "rgba": [
+                  37,
+                  99,
+                  235,
+                  255
+                ]
+              },
+              {
+                "x": 0,
+                "y": -120,
+                "rgba": [
+                  37,
+                  99,
+                  235,
+                  255
+                ]
+              },
+              {
+                "x": -40,
+                "y": -80,
+                "rgba": [
+                  37,
+                  99,
+                  235,
+                  255
+                ]
+              }
+            ]
+          },
+          "running": true,
+          "statistics": {
+            "n_entities": 2,
+            "n_interpreters": 0
+          },
+          "error": {
+            "error_string": "",
+            "show_error": false,
+            "bottom": 0,
+            "left": 0,
+            "show_more_info": false
+          }
+        },
+        "screenshots": {
+          "stage": "samples/kitten4-verification/00-startup-stage.png",
+          "brush": "samples/kitten4-verification/00-startup-brush.png"
+        }
+      },
+      {
+        "label": "keyboard movement and green pen",
+        "keys": [
+          "ArrowRight",
+          "ArrowUp",
+          "Space"
+        ],
+        "releaseOnVariable": "keyCount",
+        "state": {
+          "actors": {
+            "nekoc-default-actor": {
+              "name": "Sprite",
+              "x": -19.999999999999986,
+              "y": -29.999999999999986,
+              "rotation": 0,
+              "visible": true,
+              "scale": {
+                "x": 1,
+                "y": 1
+              },
+              "brush": {
+                "size": 4,
+                "color": "#16a34a",
+                "alpha": 1,
+                "down": false
+              }
+            }
+          },
+          "variables": {
+            "kn-var-edge": {
+              "name": "edge",
+              "value": 80
+            },
+            "kn-var-keyCount": {
+              "name": "keyCount",
+              "value": 3
+            },
+            "kn-var-ready": {
+              "name": "ready",
+              "value": 1
+            },
+            "kn-var-sides": {
+              "name": "sides",
+              "value": 4
+            },
+            "kn-var-step": {
+              "name": "step",
+              "value": 10
+            }
+          },
+          "brush": {
+            "width": 1280,
+            "height": 720,
+            "nontransparentPixels": 1336,
+            "bounds": {
+              "minX": 598,
+              "minY": 388,
+              "maxX": 681,
+              "maxY": 481
+            },
+            "colors": {
+              "#2563eb": 1270,
+              "#16a34a": 44,
+              "#2563ec": 6,
+              "#15a348": 2,
+              "#15a349": 1,
+              "#14a349": 1
+            },
+            "samples": [
+              {
+                "x": -25,
+                "y": -30,
+                "rgba": [
+                  22,
+                  163,
+                  74,
+                  255
+                ]
+              }
+            ]
+          },
+          "running": true,
+          "statistics": {
+            "n_entities": 2,
+            "n_interpreters": 0
+          },
+          "error": {
+            "error_string": "",
+            "show_error": false,
+            "bottom": 0,
+            "left": 0,
+            "show_more_info": false
+          }
+        },
+        "screenshots": {
+          "stage": "samples/kitten4-verification/01-step-stage.png",
+          "brush": "samples/kitten4-verification/01-step-brush.png"
+        }
+      },
+      {
+        "label": "C clears the actual brush canvas",
+        "keys": [
+          "c"
+        ],
+        "releaseOnVariable": "keyCount",
+        "state": {
+          "actors": {
+            "nekoc-default-actor": {
+              "name": "Sprite",
+              "x": -19.999999999999986,
+              "y": -29.999999999999986,
+              "rotation": 0,
+              "visible": true,
+              "scale": {
+                "x": 1,
+                "y": 1
+              },
+              "brush": {
+                "size": 4,
+                "color": "#16a34a",
+                "alpha": 1,
+                "down": false
+              }
+            }
+          },
+          "variables": {
+            "kn-var-edge": {
+              "name": "edge",
+              "value": 80
+            },
+            "kn-var-keyCount": {
+              "name": "keyCount",
+              "value": 4
+            },
+            "kn-var-ready": {
+              "name": "ready",
+              "value": 1
+            },
+            "kn-var-sides": {
+              "name": "sides",
+              "value": 4
+            },
+            "kn-var-step": {
+              "name": "step",
+              "value": 10
+            }
+          },
+          "brush": {
+            "width": 1280,
+            "height": 720,
+            "nontransparentPixels": 0,
+            "bounds": null,
+            "colors": {},
+            "samples": []
+          },
+          "running": true,
+          "statistics": {
+            "n_entities": 2,
+            "n_interpreters": 0
+          },
+          "error": {
+            "error_string": "",
+            "show_error": false,
+            "bottom": 0,
+            "left": 0,
+            "show_more_info": false
+          }
+        },
+        "screenshots": {
+          "stage": "samples/kitten4-verification/02-step-stage.png",
+          "brush": "samples/kitten4-verification/02-step-brush.png"
+        }
+      }
+    ],
+    "pageErrors": [],
+    "consoleErrors": [
+      "Failed to load resource: the server responded with a status of 401 ()"
+    ]
+  },
+  "dynamicHeading": {
+    "input": "samples/kitten4-dynamic-heading.bcm",
+    "sha256": "61a5d14fe5126e71aa10297b278248ae2189ded4eabe140e16dce365318e4ccb",
+    "applicationVersion": "4.11.20",
+    "bcmVersion": 25,
+    "browserVersion": "156.0.4314.58",
+    "verifiedAt": "2026-11-02T15:18:22.504Z",
+    "phase": "completed",
+    "imported": true,
+    "started": true,
+    "runtimeVerified": true,
+    "ok": true,
+    "issues": [],
+    "dimensions": {
+      "input": {
+        "type": 1,
+        "size": {
+          "height": 720,
+          "width": 1280
+        }
+      },
+      "nativeExport": {
+        "type": 1,
+        "size": {
+          "width": 1280,
+          "height": 720
+        }
+      },
+      "runtimeCanvas": {
+        "width": 1280,
+        "height": 720
+      }
+    },
+    "workspaces": {
+      "nekoc-scene-main": {
+        "blocks": 0,
+        "connections": 0
+      },
+      "nekoc-default-actor": {
+        "blocks": 31,
+        "connections": 30
+      }
+    },
+    "checkpoints": [
+      {
+        "label": "startup",
+        "state": {
+          "actors": {
+            "nekoc-default-actor": {
+              "name": "Sprite",
+              "x": 40,
+              "y": -30,
+              "rotation": -90,
+              "visible": true,
+              "scale": {
+                "x": 1,
+                "y": 1
+              },
+              "brush": {
+                "size": 4,
+                "color": "#2563eb",
+                "alpha": 1,
+                "down": false
+              }
+            }
+          },
+          "variables": {
+            "kn-var-heading": {
+              "name": "heading",
+              "value": 60
+            },
+            "kn-var-turnBy": {
+              "name": "turnBy",
+              "value": 45
+            }
+          },
+          "brush": {
+            "width": 1280,
+            "height": 720,
+            "nontransparentPixels": 296,
+            "bounds": {
+              "minX": 638,
+              "minY": 358,
+              "maxX": 681,
+              "maxY": 391
+            },
+            "colors": {
+              "#2563eb": 283,
+              "#2563ec": 4
+            },
+            "samples": [
+              {
+                "x": 20,
+                "y": 0,
+                "rgba": [
+                  37,
+                  99,
+                  235,
+                  255
+                ]
+              },
+              {
+                "x": 40,
+                "y": -15,
+                "rgba": [
+                  37,
+                  99,
+                  235,
+                  255
+                ]
+              }
+            ]
+          },
+          "running": true,
+          "statistics": {
+            "n_entities": 2,
+            "n_interpreters": 0
+          },
+          "error": {
+            "error_string": "",
+            "show_error": false,
+            "bottom": 0,
+            "left": 0,
+            "show_more_info": false
+          }
+        },
+        "screenshots": {
+          "stage": "samples/kitten4-verification/dynamic-heading/00-startup-stage.png",
+          "brush": "samples/kitten4-verification/dynamic-heading/00-startup-brush.png"
+        }
+      }
+    ],
+    "pageErrors": [],
+    "consoleErrors": [
+      "Failed to load resource: the server responded with a status of 401 ()"
+    ]
+  },
+  "publicPen": {
+    "input": "samples/kitten4-public-pen.bcm",
+    "sha256": "903fa06bfd9b16ef882d3468fb6964a306748444f27bc4887cc37a6d25fa31d5",
+    "applicationVersion": "4.11.20",
+    "bcmVersion": 25,
+    "browserVersion": "156.0.4314.58",
+    "verifiedAt": "2026-11-02T15:01:48.809Z",
+    "phase": "completed",
+    "imported": true,
+    "started": true,
+    "runtimeVerified": true,
+    "ok": true,
+    "issues": [],
+    "dimensions": {
+      "input": {
+        "type": 1,
+        "size": {
+          "width": 620,
+          "height": 900
+        }
+      },
+      "nativeExport": {
+        "type": 1,
+        "size": {
+          "width": 620,
+          "height": 900
+        }
+      },
+      "runtimeCanvas": {
+        "width": 620,
+        "height": 900
+      }
+    },
+    "workspaces": {
+      "b5e60282-a2d1-478b-802d-a30e77d67e6b": {
+        "blocks": 0,
+        "connections": 0
+      },
+      "nekoc-pen-actor": {
+        "blocks": 13,
+        "connections": 12
+      }
+    },
+    "checkpoints": [
+      {
+        "label": "startup",
+        "state": {
+          "actors": {
+            "nekoc-pen-actor": {
+              "name": "Native pen probe",
+              "x": 80,
+              "y": 40,
+              "rotation": 0,
+              "visible": false,
+              "scale": {
+                "x": 1,
+                "y": 1
+              },
+              "brush": {
+                "size": 8,
+                "color": "#e84a5f",
+                "alpha": 1,
+                "down": false
+              }
+            }
+          },
+          "variables": {},
+          "brush": {
+            "width": 620,
+            "height": 900,
+            "nontransparentPixels": 859,
+            "bounds": {
+              "minX": 306,
+              "minY": 406,
+              "maxX": 393,
+              "maxY": 453
+            },
+            "colors": {
+              "#e84a5f": 681,
+              "#e84a5e": 2,
+              "#e74b5e": 1
+            },
+            "samples": [
+              {
+                "x": 40,
+                "y": 20,
+                "rgba": [
+                  232,
+                  74,
+                  95,
+                  255
+                ]
+              }
+            ]
+          },
+          "running": true,
+          "statistics": {
+            "n_entities": 2,
+            "n_interpreters": 0
+          },
+          "error": {
+            "error_string": "",
+            "show_error": false,
+            "bottom": 0,
+            "left": 0,
+            "show_more_info": false
+          }
+        },
+        "screenshots": {
+          "stage": "samples/kitten4-verification/public-pen/00-startup-stage.png",
+          "brush": "samples/kitten4-verification/public-pen/00-startup-brush.png"
+        }
+      }
+    ],
+    "pageErrors": [],
+    "consoleErrors": [
+      "Failed to load resource: the server responded with a status of 401 ()"
+    ]
+  },
+  "webStudioExportImportOnly": {
+    "input": "D:/AppData/Local/Temp/opencode/nekoc-kitten4-corrected-final-verification/edited.bcm",
+    "sha256": "d39a81b71f3b3d91f4ccce3008dde5c590409979ebd5964cbc8f3ab560969c40",
+    "applicationVersion": "4.11.20",
+    "bcmVersion": 25,
+    "browserVersion": "156.0.4314.58",
+    "verifiedAt": "2026-11-02T15:24:54.061Z",
+    "phase": "completed",
+    "imported": true,
+    "started": false,
+    "runtimeVerified": false,
+    "ok": true,
+    "issues": [],
+    "dimensions": {
+      "input": {
+        "type": 1,
+        "size": {
+          "height": 720,
+          "width": 1280
+        }
+      },
+      "nativeExport": {
+        "type": 1,
+        "size": {
+          "width": 1280,
+          "height": 720
+        }
+      },
+      "runtimeCanvas": {
+        "width": 1280,
+        "height": 720
+      }
+    },
+    "workspaces": {
+      "nekoc-scene-main": {
+        "blocks": 0,
+        "connections": 0
+      },
+      "nekoc-default-actor": {
+        "blocks": 73,
+        "connections": 66
+      }
+    },
+    "checkpoints": [],
+    "pageErrors": [],
+    "consoleErrors": [
+      "Failed to load resource: the server responded with a status of 401 ()"
+    ]
+  },
+  "negativeControl": {
+    "purpose": "Wrong value socket input_name=invalid_size must fail native deserialization comparison",
+    "rejected": true,
+    "issues": [
+      "nekoc-pen-actor/fixture-4->fixture-11: native connection missing or changed ({\"type\":\"input\",\"input_type\":\"value\",\"input_name\":\"invalid_size\"})"
+    ]
+  }
+}

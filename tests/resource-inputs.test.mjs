@@ -26,3 +26,20 @@ test("resource inputs keep literal dropdowns and accept computed numeric indices
     assert.equal(input(all.find(b=>b.type==="stop_audio"),"audio_id").type,"variables_get");
   } finally { fs.rmSync(dir,{recursive:true,force:true}); }
 });
+
+test("list copy accepts split reporters while retaining named-list inputs", () => {
+  const dir=fs.mkdtempSync("D:/AppData/Local/Temp/opencode/nekoc-list-copy-");
+  try {
+    fs.writeFileSync(path.join(dir,"main.ts"), `onStart(()=>{
+      copyList("source", "backup");
+      copyList(splitText("1|衛|3", "|"), "decoded");
+    });`);
+    execFileSync(process.execPath,[path.resolve("ts/compile-ts.mjs"),path.join(dir,"main.ts"),path.join(dir,"out.json")]);
+    const {workspaceData:{blocks,connections}}=JSON.parse(fs.readFileSync(path.join(dir,"out.json"),"utf8"));
+    const copies=Object.values(blocks).filter(b=>b.type==='list_copy');
+    const input=(b,name)=>blocks[Object.entries(connections[b.id]).find(([,c])=>c.input_name===name)[0]];
+    assert.equal(input(copies[0],'list').type,'pure_list_get');
+    assert.equal(input(copies[1],'list').type,'text_split');
+    assert.equal(input(copies[1],'target_list').fields.list,'decoded');
+  } finally { fs.rmSync(dir,{recursive:true,force:true}); }
+});

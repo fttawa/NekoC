@@ -1,0 +1,56 @@
+{
+  "tests": [
+    "Exact STARHOLD imports; keydown does not fire key-up hat, Enter release selects levels",
+    "Real menu and level-card clicks read stage coordinates; tower pad click builds tower",
+    "U upgrades, Space starts wave, P pause/resume uses release events",
+    "Natural combat damages and kills an enemy",
+    "GPU readback: front-to-back actor order, pen below/between/above sprites, inactive costume loaded, opacity blend, alpha-aware hit testing"
+  ],
+  "errors": [],
+  "performance": {
+    "controllerFPS": 60.1566871856566,
+    "drawFPS": 21.938571998404463,
+    "vmMs": 0.051,
+    "renderer": {
+      "drawCalls": 0,
+      "penInstances": 0,
+      "submitMs": 0.10000002384185791,
+      "framebufferBytes": 2023200,
+      "textureBytes": 22463696,
+      "gpuMs": 6.6549,
+      "textTextureBytes": 412432,
+      "textUploads": 0,
+      "textStamps": 0
+    }
+  },
+  "renderer": {
+    "bottom": [
+      255,
+      0,
+      0,
+      255
+    ],
+    "middle": [
+      255,
+      0,
+      0,
+      255
+    ],
+    "top": [
+      255,
+      255,
+      0,
+      255
+    ],
+    "hitOpaque": "front",
+    "hitHole": "back",
+    "costume": [
+      0,
+      128,
+      128,
+      255
+    ],
+    "loadedStyles": 3,
+    "error": 0
+  }
+}

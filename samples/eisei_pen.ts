@@ -1,4 +1,4 @@
-// Native text stamps, random-access row dictionary, dirty-row redraw.
+// Native color-layer text stamps, random-access row dictionary, dirty-row redraw.
 defineProc("pen PV status", [], () => {
   clearDrawing(); penUp(); setPenColor("#c6ecff");
   moveTo(0,70); stampText("衛星 / PEN ASCII",32,"center");
@@ -11,18 +11,23 @@ defineProc("pen PV reset rows", [], () => {
   setVar("ep_last_color",-1);
 });
 defineProc("pen PV frame", [], () => { warp(() => {
-  setVar("ep_row_base",((getVar("pv_target") as number)-1)*(getVar("ep_row_count") as number));
+  copyList(splitText(listItem("ep_bank_rows","any",getVar("pv_target")),"|"),"ep_rows");
+  copyList(splitText(listItem("ep_bank_first","any",getVar("pv_target")),"|"),"ep_first");
+  copyList(splitText(listItem("ep_bank_count","any",getVar("pv_target")),"|"),"ep_count");
+  copyList(splitText(listItem("ep_bank_x","any",getVar("pv_target")),"|"),"ep_x");
+  copyList(splitText(listItem("ep_bank_text","any",getVar("pv_target")),"§"),"ep_text");
+  copyList(splitText(listItem("ep_bank_color","any",getVar("pv_target")),"|"),"ep_color");
   for(let row=1;row<=(getVar("ep_row_count") as number);row++) {
-    setVar("ep_row_id",listItem("ep_rows","any",(getVar("ep_row_base") as number)+row));
-    if ((getVar("ep_row_id") as number)!==(listItem("ep_previous","any",row) as number)) {
+    setVar("ep_row_id",listItem("ep_rows","any",row));
+    if ((getVar("pv_state") as number)===2 && (getVar("ep_row_id") as number)!==(listItem("ep_previous","any",row) as number)) {
       setVar("ep_y",(getVar("ep_height") as number)/2-row*20+10);
       // One horizontal capsule: round ends lie outside the visible stage.
       setPenColor("#060616"); setPenSize(20);
       moveTo(-(getVar("ep_width") as number)/2-12,getVar("ep_y"));penDown();
       moveTo((getVar("ep_width") as number)/2+12,getVar("ep_y"));penUp();
       setVar("ep_last_color",-1);
-      setVar("ep_first",listItem("ep_first","any",getVar("ep_row_id")));
-      setVar("ep_count",listItem("ep_count","any",getVar("ep_row_id")));
+      setVar("ep_first",listItem("ep_first","any",row));
+      setVar("ep_count",listItem("ep_count","any",row));
       if ((getVar("ep_count") as number)>0) {
         for(let cmd=(getVar("ep_first") as number);cmd<(getVar("ep_first") as number)+(getVar("ep_count") as number);cmd++) {
           setVar("ep_color",listItem("ep_color","any",cmd));
@@ -33,15 +38,17 @@ defineProc("pen PV frame", [], () => { warp(() => {
             setVar("ep_last_color",getVar("ep_color"));
           }
           moveTo(listItem("ep_x","any",cmd),getVar("ep_y"));
-          stampText(listItem("ep_text","any",cmd),listItem("ep_size","any",cmd),"center");
+          stampText(listItem("ep_text","any",cmd),14,"left");
           changeVar("ep_stamps",1);
         }
       }
       replaceListItem("ep_previous","any",row,getVar("ep_row_id"));
     }
   }
-  setVar("pv_frame",getVar("pv_target"));
-  changeVar("ep_drawn",1);
+  if ((getVar("pv_state") as number)===2) {
+    setVar("pv_frame",getVar("pv_target"));
+    changeVar("ep_drawn",1);
+  }
 }); });
 onStart(()=>{
   hide();hideTimer();penUp(); stopAudio("eisei-song");
@@ -59,6 +66,10 @@ onStart(()=>{
   setVar("pv_progress",100);setVar("pv_state",1);setVar("pv_frame",0);
   setVar("ep_message","初始化 100% · 按 Enter 开始");callProc("pen PV status");
   forever(()=>{
+    if ((getVar("pv_state") as number)===4) {
+      setVar("ep_message","已停止 · Enter 从头播放");callProc("pen PV status");
+      setVar("pv_state",1);
+    }
     if ((getVar("pv_state") as number)===2) {
       setVar("pv_time",(timerValue() as number)-(getVar("pv_origin") as number)-3);
       if ((getVar("pv_time") as number)>=0) {
@@ -86,7 +97,6 @@ onKey("13",()=>{warp(()=>{
 });});
 onKey("81",()=>{warp(()=>{
   if ((getVar("pv_state") as number)===2) {
-    stopAudio("eisei-song");setVar("pv_state",1);
-    setVar("ep_message","已停止 · Enter 从头播放");callProc("pen PV status");
+    stopAudio("eisei-song");setVar("pv_state",4);
   }
 });});

@@ -1,0 +1,46 @@
+{
+  "browser": "156.0.4314.58",
+  "gpu": "SwiftShader (correctness / software-rendering measurements)",
+  "projects": [
+    {
+      "file": "samples/pen_display_fast.bcmkn",
+      "importMs": 35.46580000000017,
+      "ui": {
+        "elapsedMs": 4005,
+        "frames": 887,
+        "framesPerSecond": 221.47315855181023,
+        "vmMs": 0.011363021420518562,
+        "submitMs": 0.0633596391527333,
+        "bytes": 2322.944757609921,
+        "domNodes": 5147
+      },
+      "api": {
+        "meanMs": 1.3479999995231629,
+        "p50Ms": 1.300000011920929,
+        "p95Ms": 1.7000000178813934,
+        "vmMs": 0.007950000000000006,
+        "meanBytes": 2382.64
+      }
+    },
+    {
+      "file": "samples/web-pen-stress.bcmkn",
+      "importMs": 35.94549999999981,
+      "ui": {
+        "elapsedMs": 4022.699999988079,
+        "frames": 46,
+        "framesPerSecond": 11.434821517317214,
+        "vmMs": 0.8797826086956522,
+        "submitMs": 0.09782608501289201,
+        "bytes": 360359.5652173913,
+        "domNodes": 306
+      },
+      "api": {
+        "meanMs": 4.156999999582768,
+        "p50Ms": 4.300000011920929,
+        "p95Ms": 5.4000000059604645,
+        "vmMs": 0.8437199999999996,
+        "meanBytes": 360358.24
+      }
+    }
+  ]
+}

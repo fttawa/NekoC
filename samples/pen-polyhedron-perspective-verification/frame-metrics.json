@@ -1,0 +1,43 @@
+{
+  "benchmark": {
+    "label": "Static cube at reported yaw332/pitch20; exact-pose fixture, official native playback",
+    "windows": 2,
+    "windowMs": 2000
+  },
+  "frameVariable": "__pd_frames",
+  "summary": {
+    "durationSeconds": 4.069699999988079,
+    "gameFrames": 4,
+    "gameFps": 0.9828734304768698,
+    "rafHz": 59.46384254385062,
+    "nativeUpdates": 242
+  },
+  "windows": [
+    {
+      "seconds": 2.030899999976158,
+      "gameFrames": 3,
+      "gameFps": 1.4771776060048347,
+      "rafHz": 65.48820719954767,
+      "nativeUpdates": 133
+    },
+    {
+      "seconds": 2.038800000011921,
+      "gameFrames": 1,
+      "gameFps": 0.4904845987807303,
+      "rafHz": 53.462821267099606,
+      "nativeUpdates": 109
+    }
+  ],
+  "network": {
+    "localRouted": 27,
+    "externalHttpAborted": 0,
+    "webSocketsAborted": 0,
+    "externalResponses": [],
+    "externalCompleted": [],
+    "cspBlocked": 34,
+    "observedExternalEscapes": 0,
+    "barrierVerified": true
+  },
+  "runtimeKind": "Official published KN editor native playback runtime in a local test shell; not a standalone published-work player",
+  "browserShellDegraded": true
+}

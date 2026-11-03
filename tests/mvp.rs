@@ -6817,7 +6817,7 @@ onStart(() => {
     assert!(blocks.values().any(|block| {
         block["type"] == "script_variables"
             && block["mutation"]
-                == r#"<mutation xmlns="http://www.w3.org/1999/xhtml" items="2"></mutation>"#
+                == r#"<mutation xmlns="http://www.w3.org/1999/xhtml" items="2"><arg name="PARAMS0"></arg><arg name="PARAMS1"></arg></mutation>"#
     }));
     assert!(blocks.values().any(|block| {
         block["type"] == "script_variables_param" && block["fields"]["TEXT"] == "localScore"

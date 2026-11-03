@@ -1397,6 +1397,16 @@ class WorkspaceCompiler {
   }
 
   compileChangeVariable(parentId, nameArg, valueArg) {
+    if (!ts.isNumericLiteral(valueArg) && !(ts.isPrefixUnaryExpression(valueArg) && ts.isNumericLiteral(valueArg.operand))) {
+      const id = this.addBlock({
+        type: "change_variables",
+        parent_id: parentId,
+        fields: { variable: stringLiteralValue(nameArg, this), method: "increase" },
+      });
+      const valueId = this.compileExpression(valueArg, id);
+      this.connectInput(id, valueId, "value", "value");
+      return id;
+    }
     const change = numericLiteralValue(valueArg, this);
     const method = change < 0 ? "decrease" : "increase";
     const id = this.addBlock({
@@ -1441,10 +1451,12 @@ class WorkspaceCompiler {
 
   compileScriptVars(call, parentId) {
     const paramCount = call.arguments.length;
+    if (paramCount > 20) this.unsupported(call, "A scriptVars block supports at most 20 names");
+    const args = Array.from({ length: paramCount }, (_, i) => `<arg name="PARAMS${i}"></arg>`).join("");
     const id = this.addBlock({
       type: "script_variables",
       parent_id: parentId,
-      mutation: `<mutation xmlns="http://www.w3.org/1999/xhtml" items="${paramCount}"></mutation>`,
+      mutation: `<mutation xmlns="http://www.w3.org/1999/xhtml" items="${paramCount}">${args}</mutation>`,
     });
     for (let index = 0; index < paramCount; index += 1) {
       const paramId = this.addBlock({
@@ -2221,7 +2233,11 @@ class WorkspaceCompiler {
 
   compileListCopyByArgs(parentId, listNameArg, targetNameArg) {
     const id = this.addBlock({ type: "list_copy", parent_id: parentId });
-    this.connectListInput(id, "list", stringLiteralValue(listNameArg, this));
+    if (ts.isStringLiteral(listNameArg)) {
+      this.connectListInput(id, "list", stringLiteralValue(listNameArg, this));
+    } else {
+      this.connectInput(id, this.compileExpression(listNameArg, id), "list", "value");
+    }
     this.connectListInput(id, "target_list", stringLiteralValue(targetNameArg, this));
     return id;
   }
@@ -2637,7 +2653,7 @@ class WorkspaceCompiler {
           parent_id: parentId,
           fields: {
             key: keyboardCode(stringLiteralValue(call.arguments[0], this)),
-            type: stringLiteralValue(call.arguments[1], this),
+            type: call.arguments[1] ? stringLiteralValue(call.arguments[1], this) : "down",
           },
           is_output: true,
         });
@@ -3184,26 +3200,27 @@ class WorkspaceCompiler {
   compilePrefixUnaryExpression(expression, parentId) {
     const op = expression.operator;
     if (op === ts.SyntaxKind.ExclamationToken) {
-      const operandId = this.compileExpression(expression.operand, parentId);
-      return this.addBlock({
+      const id = this.addBlock({
         type: "logic_negate",
         parent_id: parentId,
-        inputs: { logic: operandId },
         is_output: true,
       });
+      const operandId = this.compileExpression(expression.operand, id);
+      this.connectInput(id, operandId, "logic", "value");
+      return id;
     }
     if (op === ts.SyntaxKind.MinusToken) {
-      const operandId = this.compileExpression(expression.operand, parentId);
-      return this.addBlock({
+      const id = this.addBlock({
         type: "math_arithmetic",
         parent_id: parentId,
         fields: { type: "minus" },
-        inputs: {
-          A: this.addBlock({ type: "math_number", parent_id: parentId, fields: { NUM: "0" }, is_output: true }),
-          B: operandId,
-        },
         is_output: true,
       });
+      const zeroId = this.addBlock({ type: "math_number", parent_id: id, fields: { NUM: "0" }, is_output: true });
+      const operandId = this.compileExpression(expression.operand, id);
+      this.connectInput(id, zeroId, "A", "value");
+      this.connectInput(id, operandId, "B", "value");
+      return id;
     }
     if (op === ts.SyntaxKind.PlusToken) {
       return this.compileExpression(expression.operand, parentId);

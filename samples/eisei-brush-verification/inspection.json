@@ -1,0 +1,1212 @@
+{
+  "before": {
+    "count": 687,
+    "minX": 339,
+    "minY": 143,
+    "maxX": 420,
+    "maxY": 155
+  },
+  "after": {
+    "count": 0,
+    "minX": 1280,
+    "minY": 720,
+    "maxX": -1,
+    "maxY": -1
+  },
+  "canvas": {
+    "width": 1280,
+    "height": 720
+  },
+  "view": {
+    "width": 1280,
+    "height": 720
+  },
+  "stageTransform": {
+    "array": null,
+    "a": 1,
+    "b": 0,
+    "c": 0,
+    "d": 1,
+    "tx": 640,
+    "ty": 360
+  },
+  "log": [
+    {
+      "name": "set_pen_up",
+      "args": [],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -210
+      }
+    },
+    {
+      "name": "set_color",
+      "args": [
+        "c6ecff"
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -210
+      }
+    },
+    {
+      "name": "draw_text_stamp",
+      "args": [
+        "衛星 / PEN ASCII",
+        32,
+        "center",
+        0
+      ],
+      "color": "c6ecff",
+      "alpha": 1,
+      "pos": {
+        "x": 0,
+        "y": -70
+      }
+    },
+    {
+      "name": "draw_text_stamp",
+      "args": [
+        "即将开始…",
+        20,
+        "center",
+        0
+      ],
+      "color": "c6ecff",
+      "alpha": 1,
+      "pos": {
+        "x": 0,
+        "y": -10
+      }
+    },
+    {
+      "name": "draw_text_stamp",
+      "args": [
+        "音乐：柿崎ユウタ · Enter 播放 / Q 停止",
+        18,
+        "center",
+        0
+      ],
+      "color": "c6ecff",
+      "alpha": 1,
+      "pos": {
+        "x": 0,
+        "y": 60
+      }
+    },
+    {
+      "name": "set_color",
+      "args": [
+        "060616"
+      ],
+      "color": "c6ecff",
+      "alpha": 1,
+      "pos": {
+        "x": 0,
+        "y": 60
+      }
+    },
+    {
+      "name": "set_size",
+      "args": [
+        20
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 0,
+        "y": 60
+      }
+    },
+    {
+      "name": "set_pen_down",
+      "args": [],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 0,
+        "y": -350
+      }
+    },
+    {
+      "name": "draw_line",
+      "args": [
+        0,
+        -350
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 0,
+        "y": -350
+      }
+    },
+    {
+      "name": "draw_line",
+      "args": [
+        652,
+        -350
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -350
+      }
+    },
+    {
+      "name": "set_pen_up",
+      "args": [],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -350
+      }
+    },
+    {
+      "name": "set_color",
+      "args": [
+        "060616"
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -350
+      }
+    },
+    {
+      "name": "set_size",
+      "args": [
+        20
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -350
+      }
+    },
+    {
+      "name": "set_pen_down",
+      "args": [],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -330
+      }
+    },
+    {
+      "name": "draw_line",
+      "args": [
+        652,
+        -330
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -330
+      }
+    },
+    {
+      "name": "draw_line",
+      "args": [
+        652,
+        -330
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -330
+      }
+    },
+    {
+      "name": "set_pen_up",
+      "args": [],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -330
+      }
+    },
+    {
+      "name": "set_color",
+      "args": [
+        "060616"
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -330
+      }
+    },
+    {
+      "name": "set_size",
+      "args": [
+        20
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -330
+      }
+    },
+    {
+      "name": "set_pen_down",
+      "args": [],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -310
+      }
+    },
+    {
+      "name": "draw_line",
+      "args": [
+        652,
+        -310
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -310
+      }
+    },
+    {
+      "name": "draw_line",
+      "args": [
+        652,
+        -310
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -310
+      }
+    },
+    {
+      "name": "set_pen_up",
+      "args": [],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -310
+      }
+    },
+    {
+      "name": "set_color",
+      "args": [
+        "060616"
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -310
+      }
+    },
+    {
+      "name": "set_size",
+      "args": [
+        20
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -310
+      }
+    },
+    {
+      "name": "set_pen_down",
+      "args": [],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -290
+      }
+    },
+    {
+      "name": "draw_line",
+      "args": [
+        652,
+        -290
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -290
+      }
+    },
+    {
+      "name": "draw_line",
+      "args": [
+        652,
+        -290
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -290
+      }
+    },
+    {
+      "name": "set_pen_up",
+      "args": [],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -290
+      }
+    },
+    {
+      "name": "set_color",
+      "args": [
+        "060616"
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -290
+      }
+    },
+    {
+      "name": "set_size",
+      "args": [
+        20
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -290
+      }
+    },
+    {
+      "name": "set_pen_down",
+      "args": [],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -270
+      }
+    },
+    {
+      "name": "draw_line",
+      "args": [
+        652,
+        -270
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -270
+      }
+    },
+    {
+      "name": "draw_line",
+      "args": [
+        652,
+        -270
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -270
+      }
+    },
+    {
+      "name": "set_pen_up",
+      "args": [],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -270
+      }
+    },
+    {
+      "name": "set_color",
+      "args": [
+        "060616"
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -270
+      }
+    },
+    {
+      "name": "set_size",
+      "args": [
+        20
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -270
+      }
+    },
+    {
+      "name": "set_pen_down",
+      "args": [],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -250
+      }
+    },
+    {
+      "name": "draw_line",
+      "args": [
+        652,
+        -250
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -250
+      }
+    },
+    {
+      "name": "draw_line",
+      "args": [
+        652,
+        -250
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -250
+      }
+    },
+    {
+      "name": "set_pen_up",
+      "args": [],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -250
+      }
+    },
+    {
+      "name": "set_color",
+      "args": [
+        "060616"
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -250
+      }
+    },
+    {
+      "name": "set_size",
+      "args": [
+        20
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -250
+      }
+    },
+    {
+      "name": "set_pen_down",
+      "args": [],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -230
+      }
+    },
+    {
+      "name": "draw_line",
+      "args": [
+        652,
+        -230
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -230
+      }
+    },
+    {
+      "name": "draw_line",
+      "args": [
+        652,
+        -230
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -230
+      }
+    },
+    {
+      "name": "set_pen_up",
+      "args": [],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -230
+      }
+    },
+    {
+      "name": "set_color",
+      "args": [
+        "060616"
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -230
+      }
+    },
+    {
+      "name": "set_size",
+      "args": [
+        20
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -230
+      }
+    },
+    {
+      "name": "set_pen_down",
+      "args": [],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -210
+      }
+    },
+    {
+      "name": "draw_line",
+      "args": [
+        652,
+        -210
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -210
+      }
+    },
+    {
+      "name": "draw_line",
+      "args": [
+        652,
+        -210
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -210
+      }
+    },
+    {
+      "name": "set_pen_up",
+      "args": [],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -210
+      }
+    },
+    {
+      "name": "set_color",
+      "args": [
+        "060616"
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -210
+      }
+    },
+    {
+      "name": "set_size",
+      "args": [
+        20
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -210
+      }
+    },
+    {
+      "name": "set_pen_down",
+      "args": [],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -190
+      }
+    },
+    {
+      "name": "draw_line",
+      "args": [
+        652,
+        -190
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -190
+      }
+    },
+    {
+      "name": "draw_line",
+      "args": [
+        652,
+        -190
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -190
+      }
+    },
+    {
+      "name": "set_pen_up",
+      "args": [],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -190
+      }
+    },
+    {
+      "name": "set_color",
+      "args": [
+        "060616"
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -190
+      }
+    },
+    {
+      "name": "set_size",
+      "args": [
+        20
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -190
+      }
+    },
+    {
+      "name": "set_pen_down",
+      "args": [],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -170
+      }
+    },
+    {
+      "name": "draw_line",
+      "args": [
+        652,
+        -170
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -170
+      }
+    },
+    {
+      "name": "draw_line",
+      "args": [
+        652,
+        -170
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -170
+      }
+    },
+    {
+      "name": "set_pen_up",
+      "args": [],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -170
+      }
+    },
+    {
+      "name": "set_color",
+      "args": [
+        "060616"
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -170
+      }
+    },
+    {
+      "name": "set_size",
+      "args": [
+        20
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -170
+      }
+    },
+    {
+      "name": "set_pen_down",
+      "args": [],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -150
+      }
+    },
+    {
+      "name": "draw_line",
+      "args": [
+        652,
+        -150
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -150
+      }
+    },
+    {
+      "name": "draw_line",
+      "args": [
+        652,
+        -150
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -150
+      }
+    },
+    {
+      "name": "set_pen_up",
+      "args": [],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -150
+      }
+    },
+    {
+      "name": "set_color",
+      "args": [
+        "060616"
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -150
+      }
+    },
+    {
+      "name": "set_size",
+      "args": [
+        20
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -150
+      }
+    },
+    {
+      "name": "set_pen_down",
+      "args": [],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -130
+      }
+    },
+    {
+      "name": "draw_line",
+      "args": [
+        652,
+        -130
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -130
+      }
+    },
+    {
+      "name": "draw_line",
+      "args": [
+        652,
+        -130
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -130
+      }
+    },
+    {
+      "name": "set_pen_up",
+      "args": [],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -130
+      }
+    },
+    {
+      "name": "set_color",
+      "args": [
+        "060616"
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -130
+      }
+    },
+    {
+      "name": "set_size",
+      "args": [
+        20
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -130
+      }
+    },
+    {
+      "name": "set_pen_down",
+      "args": [],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -110
+      }
+    },
+    {
+      "name": "draw_line",
+      "args": [
+        652,
+        -110
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -110
+      }
+    },
+    {
+      "name": "draw_line",
+      "args": [
+        652,
+        -110
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -110
+      }
+    },
+    {
+      "name": "set_pen_up",
+      "args": [],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -110
+      }
+    },
+    {
+      "name": "set_color",
+      "args": [
+        "060616"
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -110
+      }
+    },
+    {
+      "name": "set_size",
+      "args": [
+        20
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -110
+      }
+    },
+    {
+      "name": "set_pen_down",
+      "args": [],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -90
+      }
+    },
+    {
+      "name": "draw_line",
+      "args": [
+        652,
+        -90
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -90
+      }
+    },
+    {
+      "name": "draw_line",
+      "args": [
+        652,
+        -90
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -90
+      }
+    },
+    {
+      "name": "set_pen_up",
+      "args": [],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -90
+      }
+    },
+    {
+      "name": "set_color",
+      "args": [
+        "060616"
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -90
+      }
+    },
+    {
+      "name": "set_size",
+      "args": [
+        20
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -90
+      }
+    },
+    {
+      "name": "set_pen_down",
+      "args": [],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -70
+      }
+    },
+    {
+      "name": "draw_line",
+      "args": [
+        652,
+        -70
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -70
+      }
+    },
+    {
+      "name": "draw_line",
+      "args": [
+        652,
+        -70
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -70
+      }
+    },
+    {
+      "name": "set_pen_up",
+      "args": [],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -70
+      }
+    },
+    {
+      "name": "set_color",
+      "args": [
+        "060616"
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -70
+      }
+    },
+    {
+      "name": "set_size",
+      "args": [
+        20
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -70
+      }
+    },
+    {
+      "name": "set_pen_down",
+      "args": [],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -50
+      }
+    },
+    {
+      "name": "draw_line",
+      "args": [
+        652,
+        -50
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -50
+      }
+    },
+    {
+      "name": "draw_line",
+      "args": [
+        652,
+        -50
+      ],
+      "color": "060616",
+      "alpha": 1,
+      "pos": {
+        "x": 652,
+        "y": -50
+      }
+    }
+  ]
+}

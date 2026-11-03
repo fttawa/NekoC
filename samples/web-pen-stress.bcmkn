@@ -1,0 +1,47 @@
+{
+  "projectName": "GPU Pen · 10,000 segments",
+  "version": "0.27.4", "toolType": "KN",
+  "stageSize": {"width": 900, "height": 562},
+  "scenes": {"currentSceneId": "scene", "sortList": ["scene"], "scenesDict": {
+    "scene": {"id": "scene", "name": "Paper", "screenName": "GPU canvas", "actorIds": ["pen"], "styles": [], "nekoBlockJsonList": [], "comments": {}}
+  }},
+  "actors": {"actorsDict": {"pen": {
+    "id": "pen", "name": "10K / 高密度画笔", "position": {"x": 0, "y": 0}, "rotation": 0, "scale": 100, "visible": false, "styles": [], "comments": {},
+    "nekoBlockJsonList": [{"id": "start", "type": "on_running_group_activated", "parent_id": null, "next": {
+      "id": "color", "type": "self_set_pen_color", "parent_id": "start", "fields": {"color": "#357756"}, "next": {
+        "id": "forever", "type": "repeat_forever", "parent_id": "color", "statements": {"DO": {
+          "id": "clear", "type": "clear_drawing", "parent_id": "forever", "next": {
+            "id": "warp", "type": "warp", "parent_id": "clear", "statements": {"DO": {
+              "id": "down", "type": "self_pen_down", "parent_id": "warp", "next": {
+                "id": "repeat", "type": "repeat_n_times", "parent_id": "down", "inputs": {"times": {"id": "count", "type": "math_number", "parent_id": "repeat", "fields": {"NUM": 10000}}},
+                "statements": {"DO": {
+                  "id": "angle", "type": "change_variables", "parent_id": "repeat", "fields": {"variable": "theta", "method": "increase"}, "inputs": {"value": {"id": "step", "type": "math_number", "parent_id": "angle", "fields": {"NUM": 0.8}}},
+                  "next": {"id": "move", "type": "self_move_to", "parent_id": "angle", "inputs": {
+                    "x": {"id": "xscale", "type": "math_arithmetic", "parent_id": "move", "fields": {"type": "multiply"}, "inputs": {
+                      "A": {"id": "xsin", "type": "math_trig", "parent_id": "xscale", "fields": {"type": "sin"}, "inputs": {"num": {"id": "xangle", "type": "variables_get", "parent_id": "xsin", "fields": {"variable": "theta"}}}},
+                      "B": {"id": "width", "type": "math_number", "parent_id": "xscale", "fields": {"NUM": 380}}
+                    }},
+                    "y": {"id": "yscale", "type": "math_arithmetic", "parent_id": "move", "fields": {"type": "multiply"}, "inputs": {
+                      "A": {"id": "ycos", "type": "math_trig", "parent_id": "yscale", "fields": {"type": "cos"}, "inputs": {"num": {
+                        "id": "frequency", "type": "math_arithmetic", "parent_id": "ycos", "fields": {"type": "multiply"}, "inputs": {
+                          "A": {"id": "yangle", "type": "variables_get", "parent_id": "frequency", "fields": {"variable": "theta"}},
+                          "B": {"id": "ratio", "type": "math_number", "parent_id": "frequency", "fields": {"NUM": 1.013}}
+                        }
+                      }}},
+                      "B": {"id": "height", "type": "math_number", "parent_id": "yscale", "fields": {"NUM": 220}}
+                    }}
+                  }}
+                }}, "next": {"id": "up", "type": "self_pen_up", "parent_id": "repeat"}
+              }
+            }}
+          }
+        }}
+      }
+    }}]
+  }}},
+  "variables": {"variablesDict": {"theta": {"id": "theta", "name": "Angle", "type": "any", "value": 0, "isGlobal": true}}},
+  "styles": {"stylesDict": {}}, "audios": {"audiosDict": {}, "sortList": []},
+  "broadcasts": {"broadcastsDict": {"scene": []}}, "procedures": {"proceduresDict": {}},
+  "hidden_toolbox": {"toolbox": [], "blocks": [], "forcibleShowBlocks": [], "isCombine": false},
+  "courseMaterials": {"courseMaterialsDict": {}, "sortList": []}, "previewUrl": ""
+}

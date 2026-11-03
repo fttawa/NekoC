@@ -1,0 +1,100 @@
+{
+  "total": 14,
+  "ready": 11,
+  "projects": [
+    {
+      "name": "eisei_pen.bcmkn",
+      "ready": false,
+      "diagnostics": [
+        {
+          "affected_scripts": 1,
+          "block": "b207",
+          "message": "\"math_arithmetic\": missing input A",
+          "owner": "nekoc-default-actor",
+          "scene": "nekoc-scene-main"
+        }
+      ]
+    },
+    {
+      "name": "eisei_pen_128.bcmkn",
+      "ready": false,
+      "diagnostics": [
+        {
+          "affected_scripts": 1,
+          "block": "b207",
+          "message": "\"math_arithmetic\": missing input A",
+          "owner": "nekoc-default-actor",
+          "scene": "nekoc-scene-main"
+        }
+      ]
+    },
+    {
+      "name": "eisei_pv.bcmkn",
+      "ready": true,
+      "diagnostics": []
+    },
+    {
+      "name": "kitten-n-0.27.4.bcmkn",
+      "ready": true,
+      "diagnostics": []
+    },
+    {
+      "name": "native-studio.bcmkn",
+      "ready": true,
+      "diagnostics": []
+    },
+    {
+      "name": "pencraft.bcmkn",
+      "ready": true,
+      "diagnostics": []
+    },
+    {
+      "name": "pen_display.bcmkn",
+      "ready": true,
+      "diagnostics": []
+    },
+    {
+      "name": "pen_display_columns.bcmkn",
+      "ready": true,
+      "diagnostics": []
+    },
+    {
+      "name": "pen_display_fast.bcmkn",
+      "ready": true,
+      "diagnostics": []
+    },
+    {
+      "name": "pen_polyhedron.bcmkn",
+      "ready": true,
+      "diagnostics": []
+    },
+    {
+      "name": "starhold.bcmkn",
+      "ready": true,
+      "diagnostics": []
+    },
+    {
+      "name": "three_body.bcmkn",
+      "ready": true,
+      "diagnostics": []
+    },
+    {
+      "name": "web-pen-stress.bcmkn",
+      "ready": true,
+      "diagnostics": []
+    },
+    {
+      "name": "我的作品-原生.bcmkn",
+      "ready": false,
+      "diagnostics": [
+        {
+          "affected_scripts": 1,
+          "block": "AmIu6UQSvlN8g8asRL0l",
+          "message": "owner \"change\": unsupported fast-VM block ask_and_choose (\"SDEKaSz6BkfWqSRi9sci\")",
+          "owner": "7fbd8a44-b653-4fbe-b872-20e399ae35ac",
+          "scene": "700824a5-44a8-4d03-a7e8-aa95d87e9b2a"
+        }
+      ]
+    }
+  ]
+}

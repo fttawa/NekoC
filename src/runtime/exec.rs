@@ -39,6 +39,7 @@ impl<'a> super::Thread<'a> {
         }
 
         self.yielded = false;
+        let started = std::time::Instant::now();
         let mut budget = 10_000;
         while budget > 0 && !self.done && !self.yielded && self.wait_ticks == 0 {
             budget -= 1;
@@ -47,8 +48,14 @@ impl<'a> super::Thread<'a> {
                 break;
             };
             self.execute_block(block, runtime)?;
+            if runtime.cooperative
+                && self.warped
+                && started.elapsed() >= std::time::Duration::from_millis(4)
+            {
+                self.yielded = true;
+            }
         }
-        if budget == 0 {
+        if budget == 0 && !runtime.cooperative {
             bail!(
                 "runtime step budget exhausted in owner {} at block {}",
                 self.owner_id,
@@ -209,6 +216,8 @@ impl<'a> super::Thread<'a> {
                 if let Some(body) = body {
                     self.loops.push(LoopFrame::Forever { body });
                     self.current = Some(body);
+                } else if runtime.cooperative {
+                    self.yielded = true;
                 } else {
                     self.advance(runtime, block.get("next"));
                 }
@@ -324,6 +333,7 @@ impl<'a> super::Thread<'a> {
                     self.procedure_frames.push(ProcedureFrame {
                         after: block.get("next"),
                         procedure_values: previous_values,
+                        warped: self.warped,
                     });
                     self.current = Some(body);
                 } else {
@@ -416,7 +426,15 @@ impl<'a> super::Thread<'a> {
                     self.advance(runtime, block.get("next"));
                 }
             }
-            "warp" | "tell" | "sync_tell" => {
+            "warp" => {
+                if let Some(body) = statement(block, "DO") {
+                    self.enter_branch(runtime, Some(body), block.get("next"));
+                    self.warped = true;
+                } else {
+                    self.advance(runtime, block.get("next"));
+                }
+            }
+            "tell" | "sync_tell" => {
                 self.enter_branch(runtime, statement(block, "DO"), block.get("next"));
             }
             "stop" => {
@@ -880,14 +898,16 @@ impl<'a> super::Thread<'a> {
         } else if self
             .continuations
             .last()
-            .is_some_and(|(depth, _)| *depth == self.loops.len())
+            .is_some_and(|(depth, _, _)| *depth == self.loops.len())
         {
-            let (_, continuation) = self.continuations.pop().unwrap();
+            let (_, continuation, warped) = self.continuations.pop().unwrap();
+            self.warped = warped;
             self.advance(runtime, continuation);
         } else if let Some(next_loop) = self.next_loop_iteration(runtime) {
             self.advance(runtime, next_loop);
         } else if let Some(frame) = self.procedure_frames.pop() {
             self.procedure_values = frame.procedure_values;
+            self.warped = frame.warped;
             if let Some(after) = frame.after {
                 self.current = Some(after);
             } else {
@@ -905,7 +925,8 @@ impl<'a> super::Thread<'a> {
         after: Option<&'a Value>,
     ) {
         if let Some(branch) = branch {
-            self.continuations.push((self.loops.len(), after));
+            self.continuations
+                .push((self.loops.len(), after, self.warped));
             self.current = Some(branch);
         } else {
             self.advance(runtime, after);
@@ -919,13 +940,17 @@ impl<'a> super::Thread<'a> {
         let owner_id = self.owner_id.as_str();
         let frame = self.loops.last_mut()?;
         match frame {
-            LoopFrame::Forever { body } => Some(Some(*body)),
+            LoopFrame::Forever { body } => {
+                self.yielded |= runtime.cooperative && !self.warped;
+                Some(Some(*body))
+            }
             LoopFrame::Repeat {
                 body,
                 remaining,
                 after,
             } => {
                 if *remaining > 0 {
+                    self.yielded |= runtime.cooperative && !self.warped;
                     *remaining -= 1;
                     Some(Some(*body))
                 } else {
@@ -954,6 +979,7 @@ impl<'a> super::Thread<'a> {
                     self.loops.pop();
                     Some(after)
                 } else {
+                    self.yielded |= runtime.cooperative && !self.warped;
                     Some(Some(body))
                 }
             }
@@ -967,6 +993,7 @@ impl<'a> super::Thread<'a> {
             } => {
                 let next = *current + *step;
                 if range_contains(next, *end, *step) {
+                    self.yielded |= runtime.cooperative && !self.warped;
                     *current = next;
                     self.range_values
                         .insert(variable.clone(), RuntimeValue::Number(next));
@@ -983,7 +1010,20 @@ impl<'a> super::Thread<'a> {
     }
 
     pub(super) fn break_loop(&mut self, runtime: &Runtime<'a>) {
-        self.continuations.clear();
+        if runtime.cooperative {
+            // Discard branches inside the loop being exited, but retain outer
+            // warp/if continuations so their mode and successor are restored.
+            while self
+                .continuations
+                .last()
+                .is_some_and(|(depth, _, _)| *depth >= self.loops.len())
+            {
+                let (_, _, warped) = self.continuations.pop().unwrap();
+                self.warped = warped;
+            }
+        } else {
+            self.continuations.clear();
+        }
         let Some(frame) = self.loops.pop() else {
             self.done = true;
             return;
@@ -1012,7 +1052,9 @@ impl<'a> super::Thread<'a> {
                 after
             }
         };
-        if let Some(after) = after {
+        if runtime.cooperative {
+            self.advance(runtime, after);
+        } else if let Some(after) = after {
             self.current = Some(after);
         } else if let Some(next_loop) = self.next_loop_iteration(runtime) {
             self.current = next_loop;

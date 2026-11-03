@@ -1,0 +1,37 @@
+{
+  "requireInputStageSize": true,
+  "startup": {
+    "variables": {"sides": 4, "ready": 1, "keyCount": 0},
+    "actors": {"nekoc-default-actor": {"x": -40, "y": -40, "rotation": 0}},
+    "brush": {
+      "width": 1280,
+      "height": 720,
+      "minNontransparentPixels": 1000,
+      "colors": {"#2563eb": 800},
+      "samples": [
+        {"x": 0, "y": -40, "color": "#2563eb"},
+        {"x": 40, "y": -80, "color": "#2563eb"},
+        {"x": 0, "y": -120, "color": "#2563eb"},
+        {"x": -40, "y": -80, "color": "#2563eb"}
+      ]
+    }
+  },
+  "steps": [
+    {
+      "label": "keyboard movement and green pen",
+      "keys": ["ArrowRight", "ArrowUp", "Space"],
+      "releaseOnVariable": "keyCount",
+      "expect": {
+        "variables": {"sides": 4, "ready": 1, "keyCount": 3},
+        "actors": {"nekoc-default-actor": {"x": -20, "y": -30, "rotation": 0}},
+        "brush": {"colors": {"#2563eb": 800, "#16a34a": 30}, "samples": [{"x": -25, "y": -30, "color": "#16a34a"}]}
+      }
+    },
+    {
+      "label": "C clears the actual brush canvas",
+      "keys": ["c"],
+      "releaseOnVariable": "keyCount",
+      "expect": {"brush": {"maxNontransparentPixels": 0}}
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "benchmark": "numeric-slot-loop-v1",
+  "compile_us": [
+    18,
+    18,
+    17,
+    16,
+    18,
+    17,
+    18,
+    16,
+    17
+  ],
+  "compiled_ms": [
+    1.6570999999999998,
+    1.7278,
+    1.6434,
+    1.5276,
+    1.6856,
+    1.5768,
+    1.4702000000000002,
+    1.6308,
+    1.5349000000000002
+  ],
+  "iterations": 100000,
+  "median_compiled_ms": 1.6308,
+  "median_reference_ms": 23.102899999999998,
+  "median_speedup": 14.166605347068922,
+  "profile": "release",
+  "reference_ms": [
+    23.5032,
+    23.7091,
+    23.5695,
+    23.102899999999998,
+    21.3611,
+    21.938200000000002,
+    20.6921,
+    24.0982,
+    21.750700000000002
+  ],
+  "result_verified": true,
+  "rounds": 9,
+  "scope": "Numeric loop microbenchmark. Does not measure full-project compatibility, HTTP, GPU, or all workloads."
+}

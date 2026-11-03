@@ -1,0 +1,12 @@
+{
+  "frames": 20,
+  "cols": 128,
+  "rows": 36,
+  "fps": 10,
+  "start": 0,
+  "duration": 2.0,
+  "uniqueRows": 186,
+  "stampCommandsInRowDictionary": 281,
+  "palette": 24,
+  "bytes": 260736
+}

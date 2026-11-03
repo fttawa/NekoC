@@ -1,0 +1,19 @@
+{
+  "before": [
+    {"name":"cube-128x80-reference","set":{"poly_auto":0,"poly_yaw":332,"poly_pitch":20,"poly_camera":600,"poly_zoom":100,"poly_mode":3,"poly_configure":1,"poly_visible_edges":-1},"waitMs":1500,"until":{"name":"poly_visible_edges","value":9},"assert":{"poly_width":128,"poly_height":80,"poly_scale":7,"poly_presented_mode":3}}
+  ],
+  "benchmark":{"label":"Paused reference cube at 128x80; not a high-resolution rotating-frame benchmark","windows":2,"windowMs":2000,"assert":{"poly_auto":0,"poly_visible_edges":9}},
+  "after": [
+    {"name":"cube-256x160","key":"4","domKey":true,"holdMs":500,"waitMs":1500,"timeout":90000,"until":{"name":"poly_presented_mode","value":4},"assert":{"poly_width":256,"poly_height":160,"poly_scale":3.5,"poly_visible_edges":9}},
+    {"name":"cube-448x280","key":"5","domKey":true,"waitMs":1500,"timeout":90000,"until":{"name":"poly_presented_mode","value":5},"assert":{"poly_width":448,"poly_height":280,"poly_scale":2,"poly_visible_edges":9}},
+    {"name":"cube-896x560","key":"6","domKey":true,"waitMs":1500,"timeout":90000,"until":{"name":"poly_presented_mode","value":6},"assert":{"poly_width":896,"poly_height":560,"poly_scale":1,"poly_visible_edges":9}},
+    {"name":"max-grid-xray","key":"h","domKey":true,"waitMs":1500,"timeout":90000,"until":{"name":"poly_visible_edges","value":12},"assert":{"poly_wireframe":1,"poly_width":896}},
+    {"name":"max-grid-hidden-restored","key":"h","domKey":true,"waitMs":1500,"timeout":90000,"until":{"name":"poly_visible_edges","value":9},"assert":{"poly_wireframe":0,"poly_width":896}},
+    {"name":"max-grid-front-square","set":{"poly_yaw":0,"poly_pitch":0,"poly_visible_edges":-1},"waitMs":1500,"timeout":90000,"until":{"name":"poly_visible_edges","value":4},"assert":{"poly_width":896,"poly_visible_edges":4}},
+    {"name":"max-grid-icosahedron-stress","set":{"poly_solid":5,"poly_rebuild":1,"poly_yaw":332,"poly_pitch":80,"poly_camera":450,"poly_zoom":130,"poly_visible_edges":-1},"waitMs":1500,"timeout":90000,"until":{"name":"poly_visible_edges","value":14},"assert":{"poly_presented_solid":5,"poly_faces":20,"poly_width":896}},
+    {"name":"max-grid-auto-rotate","set":{"__pd_frames":0},"key":"Space","domKey":true,"holdMs":500,"waitMs":1500,"timeout":90000,"until":{"name":"__pd_frames","op":"gt","value":2},"assert":{"poly_auto":1,"poly_presented_mode":6,"poly_width":896}},
+    {"name":"max-grid-pause","key":"Space","domKey":true,"holdMs":500,"waitMs":1500,"assert":{"poly_auto":0}},
+    {"name":"return-to-low-grid","key":"1","domKey":true,"waitMs":1500,"timeout":90000,"until":{"name":"poly_presented_mode","value":1},"assert":{"poly_width":32,"poly_height":20}},
+    {"name":"reset-from-hires","key":"r","domKey":true,"waitMs":2000,"timeout":90000,"until":{"name":"poly_presented_solid","value":2},"assert":{"poly_faces":6,"poly_mode":4,"poly_width":256,"poly_auto":1}}
+  ]
+}

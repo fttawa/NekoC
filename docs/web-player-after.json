@@ -1,0 +1,139 @@
+{
+  "browser": "156.0.4314.58",
+  "gpu": "SwiftShader (correctness / software-rendering measurements)",
+  "projects": [
+    {
+      "file": "samples/pen_display_fast.bcmkn",
+      "importMs": 384.65829999999994,
+      "ui": {
+        "elapsedMs": 4010.4000000059605,
+        "frames": 653,
+        "framesPerSecond": 162.8266507079168,
+        "vmMs": 0.021133231240428766,
+        "submitMs": 0.1399693714988177,
+        "bytes": 2376.1286370597245,
+        "roundtripMs": 2.4032159273328677,
+        "decodeMs": 0.06248085750737563,
+        "gpuMs": 4.35570245022971,
+        "domNodes": 1715,
+        "diagnostics": {
+          "roundtripMs": 14.900000005960464,
+          "decodeMs": 0.09999999403953552,
+          "completedFrames": 653,
+          "transport": "websocket"
+        },
+        "projectFrames": null,
+        "projectFps": null,
+        "windows": []
+      },
+      "api": {
+        "meanMs": 2.0110000005364417,
+        "p50Ms": 1.899999976158142,
+        "p95Ms": 3.5,
+        "vmMs": 0.014939999999999993,
+        "meanBytes": 2432.08
+      },
+      "websocket": {
+        "meanMs": 0.35699999928474424,
+        "p50Ms": 0.30000001192092896,
+        "p95Ms": 0.5,
+        "vmMs": 0.01109,
+        "meanBytes": 2431.36
+      }
+    },
+    {
+      "file": "samples/web-pen-stress.bcmkn",
+      "importMs": 42.47280000000046,
+      "ui": {
+        "elapsedMs": 4007.5999999940395,
+        "frames": 44,
+        "framesPerSecond": 10.97913963471041,
+        "vmMs": 3.204909090909091,
+        "submitMs": 0.22727272727272727,
+        "bytes": 352223.63636363635,
+        "roundtripMs": 71.99999999932267,
+        "decodeMs": 1.938636365261945,
+        "gpuMs": 78.30898863636365,
+        "domNodes": 244,
+        "diagnostics": {
+          "roundtripMs": 93.80000001192093,
+          "decodeMs": 0,
+          "completedFrames": 44,
+          "transport": "websocket"
+        },
+        "projectFrames": null,
+        "projectFps": null,
+        "windows": []
+      },
+      "api": {
+        "meanMs": 7.310000000894069,
+        "p50Ms": 6.799999982118607,
+        "p95Ms": 10.800000011920929,
+        "vmMs": 1.2705899999999999,
+        "meanBytes": 360407
+      },
+      "websocket": {
+        "meanMs": 11.95700000166893,
+        "p50Ms": 13,
+        "p95Ms": 27,
+        "vmMs": 1.1812299999999993,
+        "meanBytes": 360406.96
+      }
+    },
+    {
+      "file": "samples/pencraft.bcmkn",
+      "importMs": 323.15650000000096,
+      "ui": {
+        "elapsedMs": 24009.5,
+        "frames": 2808,
+        "framesPerSecond": 116.95370582477769,
+        "vmMs": 4.159736111111121,
+        "submitMs": 0.09195156680934789,
+        "bytes": 12878.153846153846,
+        "roundtripMs": 6.10605413116451,
+        "decodeMs": 0.043482906235504014,
+        "gpuMs": 11.88772945156698,
+        "domNodes": 2181,
+        "diagnostics": {
+          "roundtripMs": 14.799999982118607,
+          "decodeMs": 0,
+          "completedFrames": 2808,
+          "transport": "websocket"
+        },
+        "projectFrames": 1051,
+        "projectFps": 43.774339324017575,
+        "windows": [
+          {
+            "elapsedMs": 8000.000000005959,
+            "frames": 350,
+            "fps": 43.749999999967415
+          },
+          {
+            "elapsedMs": 8004,
+            "frames": 343,
+            "fps": 42.853573213393304
+          },
+          {
+            "elapsedMs": 8003.9000000000015,
+            "frames": 358,
+            "fps": 44.72819500493509
+          }
+        ]
+      },
+      "api": {
+        "meanMs": 3.313999999165535,
+        "p50Ms": 3.300000011920929,
+        "p95Ms": 4.299999982118607,
+        "vmMs": 1.1489699999999996,
+        "meanBytes": 16741.44
+      },
+      "websocket": {
+        "meanMs": 1.6,
+        "p50Ms": 1.899999976158142,
+        "p95Ms": 2.5,
+        "vmMs": 1.0550399999999993,
+        "meanBytes": 17074.6
+      }
+    }
+  ]
+}

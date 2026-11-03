@@ -6,7 +6,7 @@ use std::str::FromStr;
 #[derive(Debug, Parser)]
 #[command(
     version,
-    about = "Inspect and roundtrip JSON-based Kitten N .bcmkn files"
+    about = "Compile TypeScript and inspect Kitten N .bcmkn and Kitten 4 .bcm projects"
 )]
 struct Cli {
     #[command(subcommand)]
@@ -59,6 +59,15 @@ enum Command {
         out: PathBuf,
         #[arg(long)]
         optimize: bool,
+    },
+    /// Compile TypeScript to a native Kitten 4 .bcm project.
+    CompileTsKitten4 {
+        input: PathBuf,
+        /// Optional native Kitten 4 .bcm project whose resources should be reused.
+        #[arg(long)]
+        template: Option<PathBuf>,
+        #[arg(long)]
+        out: PathBuf,
     },
     CompileTsScenario {
         input: PathBuf,
@@ -314,6 +323,14 @@ fn main() -> Result<()> {
                 }
             }
             nekoc::bcmkn_compiler::compile_ts_bcmkn(input, template, out)?;
+        }
+        Command::CompileTsKitten4 {
+            input,
+            template,
+            out,
+        } => {
+            nekoc::kitten4_compiler::compile_ts_kitten4(&input, template.as_deref(), &out)?;
+            eprintln!("Compiled {} -> {}", input.display(), out.display());
         }
         Command::CompileTsScenario {
             input,

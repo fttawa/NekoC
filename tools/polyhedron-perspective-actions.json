@@ -1,0 +1,25 @@
+{
+  "before": [
+    {"name":"screenshot-pose-hidden-edges","set":{"poly_auto":0,"poly_yaw":332,"poly_pitch":20,"poly_camera":600,"poly_zoom":100,"poly_mode":3,"poly_configure":1,"poly_visible_edges":-1},"waitMs":2500,"until":{"name":"poly_visible_edges","value":9},"assert":{"poly_wireframe":0,"poly_visible_edges":9,"poly_width":128}}
+  ],
+  "benchmark":{"label":"Static cube at reported yaw332/pitch20; exact-pose fixture, official native playback","windows":2,"windowMs":2000,"assert":{"poly_auto":0,"poly_visible_edges":9}},
+  "after": [
+    {"name":"xray-original-comparison","key":"h","domKey":true,"waitMs":2000,"until":{"name":"poly_visible_edges","value":12},"assert":{"poly_wireframe":1,"poly_visible_edges":12}},
+    {"name":"hidden-edges-restored","key":"h","domKey":true,"waitMs":2000,"until":{"name":"poly_visible_edges","value":9},"assert":{"poly_wireframe":0,"poly_visible_edges":9}},
+    {"name":"front-facing-near-square","set":{"poly_yaw":0,"poly_pitch":0},"waitMs":2000,"until":{"name":"poly_visible_edges","value":4},"assert":{"poly_visible_edges":4}},
+    {"name":"tetrahedron","key":"q","domKey":true,"waitMs":2500,"until":{"name":"poly_visible_edges","value":5},"assert":{"poly_faces":4,"poly_vertex_count":4,"poly_edge_count":6}},
+    {"name":"lower-solid-boundary","key":"q","domKey":true,"holdMs":500,"waitMs":2000,"assert":{"poly_solid":1,"poly_faces":4}},
+    {"name":"cube-return","key":"e","domKey":true,"holdMs":500,"waitMs":2500,"until":{"name":"poly_visible_edges","value":4},"assert":{"poly_solid":2,"poly_faces":6}},
+    {"name":"octahedron","key":"e","domKey":true,"waitMs":2500,"until":{"name":"poly_visible_edges","value":8},"assert":{"poly_faces":8,"poly_vertex_count":6,"poly_edge_count":12}},
+    {"name":"dodecahedron","key":"e","domKey":true,"waitMs":2500,"until":{"name":"poly_visible_edges","value":15},"assert":{"poly_faces":12,"poly_vertex_count":20,"poly_edge_count":30}},
+    {"name":"icosahedron","key":"e","domKey":true,"waitMs":3500,"until":{"name":"poly_visible_edges","value":15},"assert":{"poly_faces":20,"poly_vertex_count":12,"poly_edge_count":30}},
+    {"name":"upper-solid-boundary","key":"e","domKey":true,"holdMs":500,"waitMs":2000,"assert":{"poly_solid":5,"poly_faces":20}},
+    {"name":"near-camera-high-pitch","set":{"poly_yaw":332,"poly_pitch":80,"poly_camera":450,"poly_zoom":130},"waitMs":2500,"until":{"name":"poly_visible_edges","value":14},"assert":{"poly_visible_edges":14}},
+    {"name":"resolution-32x20","key":"1","domKey":true,"holdMs":500,"waitMs":2000,"until":{"name":"__pd_frames","op":"gt","value":2},"assert":{"poly_width":32,"poly_height":20,"poly_visible_edges":14}},
+    {"name":"resolution-64x40","key":"2","domKey":true,"waitMs":2000,"until":{"name":"__pd_frames","op":"gt","value":2},"assert":{"poly_width":64,"poly_height":40,"poly_visible_edges":14}},
+    {"name":"resolution-128x80","key":"3","domKey":true,"waitMs":2000,"until":{"name":"__pd_frames","op":"gt","value":2},"assert":{"poly_width":128,"poly_height":80,"poly_visible_edges":14}},
+    {"name":"reset","key":"r","domKey":true,"waitMs":2000,"until":{"name":"poly_presented_solid","value":2},"assert":{"poly_faces":6,"poly_wireframe":0,"poly_auto":1,"poly_width":256}},
+    {"name":"pause-once","key":"Space","domKey":true,"holdMs":500,"waitMs":2000,"assert":{"poly_auto":0}},
+    {"name":"resume-once","key":"Space","domKey":true,"holdMs":500,"waitMs":2000,"assert":{"poly_auto":1}}
+  ]
+}

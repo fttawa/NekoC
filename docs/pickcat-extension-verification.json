@@ -1,0 +1,74 @@
+{
+  "browser": "156.0.8078.4",
+  "tests": [
+    "Real PICKCAT anonymous login gate remains intact",
+    "Official signed response captured; 43 MiB target project downloaded, privately compiled, Enter starts ASCII PV and real audio",
+    "Pause/resume retains sound position; restart stops sound and resets VM",
+    "Packaged extension: STARHOLD import, Enter release, mouse level selection and tower construction",
+    "Extension import leaves editor project untouched",
+    "Original/Rust toggle uses one iframe and restores original exact URL",
+    "Popup setting, offline status, port reconnect, disable/enable restore and replace",
+    "SPA work change removes extension player and preserves new gate"
+  ],
+  "errors": [],
+  "audio": [
+    {
+      "id": "eisei-song",
+      "wanted": true,
+      "paused": false,
+      "time": 3.443583,
+      "ready": 4
+    }
+  ],
+  "performance": {
+    "seconds": 8.002900000035762,
+    "updatesPerSecond": 59.35348436165358,
+    "completeFramesPerSecond": 9.996376313541655,
+    "textDrawingUpdatesPerSecond": 10.121331017460925,
+    "textStamps": 18317,
+    "vmMs": 0.366,
+    "renderer": {
+      "drawCalls": 273,
+      "penInstances": 38,
+      "submitMs": 1.199999988079071,
+      "framebufferBytes": 3686400,
+      "textureBytes": 3692800,
+      "gpuMs": 19.6427,
+      "textTextureBytes": 1961216,
+      "textUploads": 4,
+      "textStamps": 252
+    },
+    "variables": [
+      8,
+      1,
+      86,
+      405,
+      720,
+      8,
+      null,
+      36,
+      595,
+      18368,
+      1280,
+      -350,
+      143.5,
+      10,
+      86,
+      1435,
+      2.6324000000238423,
+      100,
+      2,
+      86,
+      8.50899999999997
+    ],
+    "audio": [
+      {
+        "id": "eisei-song",
+        "wanted": true,
+        "paused": false,
+        "time": 11.449248,
+        "ready": 4
+      }
+    ]
+  }
+}

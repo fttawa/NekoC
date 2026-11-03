@@ -1,0 +1,13 @@
+{
+  "startup": {
+    "actors": {"nekoc-default-actor": {"x": 40, "y": -30}},
+    "variables": {"heading": 60, "turnBy": 45},
+    "brush": {
+      "minNontransparentPixels": 200,
+      "samples": [
+        {"x": 20, "y": 0, "color": "#2563eb"},
+        {"x": 40, "y": -15, "color": "#2563eb"}
+      ]
+    }
+  }
+}

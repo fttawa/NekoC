@@ -1,0 +1,81 @@
+{
+  "browser": "156.0.4314.58",
+  "url": "http://127.0.0.1:4186",
+  "tests": [
+    "BOM native Kitten4 import returns canonical KN, identifies Kitten4, advertises .bcm export",
+    "numeric block input edit, undo/redo; internal canonical JSON clearly labeled and provenance unchanged",
+    "canonical JSON apply rejects metadata loss atomically; valid JSON edit succeeds",
+    "edited Kitten4 executes in Rust VM over WebSocket/binary frames and renders on WebGL2",
+    "native .bcm download/reimport preserves edited input, project name and opaque metadata across two roundtrips",
+    "standard bcmkn keeps original save label, extension and lossless unknown-block export"
+  ],
+  "errors": [],
+  "diagnostics": {
+    "renderer": {
+      "drawCalls": 0,
+      "penInstances": 0,
+      "submitMs": 0,
+      "framebufferBytes": 3686400,
+      "textureBytes": 2029600,
+      "gpuMs": 4.0367,
+      "textTextureBytes": 0,
+      "textUploads": 0,
+      "textStamps": 0
+    },
+    "sprites": [
+      {
+        "id": "nekoc-scene-main",
+        "name": "Stage",
+        "style": null,
+        "x": 0,
+        "y": 0,
+        "direction": 0,
+        "scale": 100,
+        "visible": false
+      },
+      {
+        "id": "nekoc-default-actor",
+        "name": "Sprite",
+        "style": "nekoc-costume",
+        "x": -33.000000000000014,
+        "y": -40.000000000000014,
+        "direction": 450,
+        "scale": 100,
+        "visible": true
+      }
+    ],
+    "frame": {
+      "sequence": 6,
+      "reset": false,
+      "sprites": [],
+      "variables": [
+        80,
+        0,
+        1,
+        4,
+        10
+      ],
+      "timer": 0.08759999999999991,
+      "timer_visible": false,
+      "logs": [],
+      "clear": false,
+      "active": 0,
+      "instructions": 0,
+      "execute_us": 0,
+      "budget_yield": false
+    },
+    "bytes": 220,
+    "running": false,
+    "started": true,
+    "pipeline": {
+      "roundtripMs": 1.199999988079071,
+      "decodeMs": 0,
+      "completedFrames": 6,
+      "transport": "websocket"
+    },
+    "framebuffer": [
+      1280,
+      720
+    ]
+  }
+}

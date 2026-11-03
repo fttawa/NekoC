@@ -1,0 +1,30 @@
+{
+  "browser": "156.0.8078.4",
+  "tests": [
+    "Real published 335008960: empty bcm_url/source_urls encoded download, decoding, private compilation, moving polyhedron, E changes faces, Space toggles rotation",
+    "Encoded work restores original URL and sandbox; Rust can retake the same iframe",
+    "Actual public forum article: lazy sandboxed embed auto-takes over, initializes, Enter plays animation/audio, bottom-right FPS updates, original URL/sandbox restored"
+  ],
+  "errors": [],
+  "cube": {
+    "seconds": 5.0025,
+    "updatesPerSecond": 59.97001499250374,
+    "completeFramesPerSecond": 59.97001499250374,
+    "drawFPS": 21,
+    "project": "基于画笔像素显示器的正多边体",
+    "vmMs": 0.083
+  },
+  "forum": {
+    "project": "衛星 ASCII PV",
+    "audio": [
+      {
+        "id": "eisei-song",
+        "wanted": true,
+        "paused": false,
+        "time": 3.552591,
+        "ready": 4
+      }
+    ],
+    "fps": "RUST3绘制 FPS"
+  }
+}

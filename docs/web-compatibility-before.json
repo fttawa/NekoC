@@ -1,0 +1,412 @@
+[
+  {
+    "name": "eisei_pen.bcmkn",
+    "ready": false,
+    "diagnostics": [
+      {
+        "affected_scripts": 1,
+        "block": "b207",
+        "message": "\"math_arithmetic\": missing input A",
+        "owner": "nekoc-default-actor",
+        "scene": "nekoc-scene-main"
+      }
+    ]
+  },
+  {
+    "name": "eisei_pen_128.bcmkn",
+    "ready": false,
+    "diagnostics": [
+      {
+        "affected_scripts": 1,
+        "block": "b207",
+        "message": "\"math_arithmetic\": missing input A",
+        "owner": "nekoc-default-actor",
+        "scene": "nekoc-scene-main"
+      }
+    ]
+  },
+  {
+    "name": "eisei_pv.bcmkn",
+    "ready": true,
+    "diagnostics": []
+  },
+  {
+    "name": "kitten-n-0.27.4.bcmkn",
+    "ready": true,
+    "diagnostics": []
+  },
+  {
+    "name": "native-studio.bcmkn",
+    "ready": true,
+    "diagnostics": []
+  },
+  {
+    "name": "pencraft.bcmkn",
+    "ready": true,
+    "diagnostics": []
+  },
+  {
+    "name": "pen_display.bcmkn",
+    "ready": true,
+    "diagnostics": []
+  },
+  {
+    "name": "pen_display_columns.bcmkn",
+    "ready": false,
+    "diagnostics": [
+      {
+        "affected_scripts": 1,
+        "block": "b1",
+        "message": "owner \"Display Controller\": unsupported fast-VM block self_broadcast_and_wait (\"b768\")",
+        "owner": "nekoc-actor-Display-Controller",
+        "scene": "nekoc-scene-main"
+      },
+      {
+        "affected_scripts": 1,
+        "block": "b888",
+        "message": "unsupported root self_listen in \"Column 0\" (block \"b888\")",
+        "owner": "nekoc-actor-Column-0",
+        "scene": "nekoc-scene-main"
+      },
+      {
+        "affected_scripts": 1,
+        "block": "b1138",
+        "message": "unsupported root self_listen in \"Column 1\" (block \"b1138\")",
+        "owner": "nekoc-actor-Column-1",
+        "scene": "nekoc-scene-main"
+      },
+      {
+        "affected_scripts": 1,
+        "block": "b1388",
+        "message": "unsupported root self_listen in \"Column 2\" (block \"b1388\")",
+        "owner": "nekoc-actor-Column-2",
+        "scene": "nekoc-scene-main"
+      },
+      {
+        "affected_scripts": 1,
+        "block": "b1638",
+        "message": "unsupported root self_listen in \"Column 3\" (block \"b1638\")",
+        "owner": "nekoc-actor-Column-3",
+        "scene": "nekoc-scene-main"
+      },
+      {
+        "affected_scripts": 1,
+        "block": "b1888",
+        "message": "unsupported root self_listen in \"Column 4\" (block \"b1888\")",
+        "owner": "nekoc-actor-Column-4",
+        "scene": "nekoc-scene-main"
+      },
+      {
+        "affected_scripts": 1,
+        "block": "b2138",
+        "message": "unsupported root self_listen in \"Column 5\" (block \"b2138\")",
+        "owner": "nekoc-actor-Column-5",
+        "scene": "nekoc-scene-main"
+      },
+      {
+        "affected_scripts": 1,
+        "block": "b2388",
+        "message": "unsupported root self_listen in \"Column 6\" (block \"b2388\")",
+        "owner": "nekoc-actor-Column-6",
+        "scene": "nekoc-scene-main"
+      },
+      {
+        "affected_scripts": 1,
+        "block": "b2638",
+        "message": "unsupported root self_listen in \"Column 7\" (block \"b2638\")",
+        "owner": "nekoc-actor-Column-7",
+        "scene": "nekoc-scene-main"
+      },
+      {
+        "affected_scripts": 1,
+        "block": "b2888",
+        "message": "unsupported root self_listen in \"Column 8\" (block \"b2888\")",
+        "owner": "nekoc-actor-Column-8",
+        "scene": "nekoc-scene-main"
+      },
+      {
+        "affected_scripts": 1,
+        "block": "b3138",
+        "message": "unsupported root self_listen in \"Column 9\" (block \"b3138\")",
+        "owner": "nekoc-actor-Column-9",
+        "scene": "nekoc-scene-main"
+      },
+      {
+        "affected_scripts": 1,
+        "block": "b3388",
+        "message": "unsupported root self_listen in \"Column 10\" (block \"b3388\")",
+        "owner": "nekoc-actor-Column-10",
+        "scene": "nekoc-scene-main"
+      },
+      {
+        "affected_scripts": 1,
+        "block": "b3638",
+        "message": "unsupported root self_listen in \"Column 11\" (block \"b3638\")",
+        "owner": "nekoc-actor-Column-11",
+        "scene": "nekoc-scene-main"
+      },
+      {
+        "affected_scripts": 1,
+        "block": "b3888",
+        "message": "unsupported root self_listen in \"Column 12\" (block \"b3888\")",
+        "owner": "nekoc-actor-Column-12",
+        "scene": "nekoc-scene-main"
+      },
+      {
+        "affected_scripts": 1,
+        "block": "b4138",
+        "message": "unsupported root self_listen in \"Column 13\" (block \"b4138\")",
+        "owner": "nekoc-actor-Column-13",
+        "scene": "nekoc-scene-main"
+      },
+      {
+        "affected_scripts": 1,
+        "block": "b4388",
+        "message": "unsupported root self_listen in \"Column 14\" (block \"b4388\")",
+        "owner": "nekoc-actor-Column-14",
+        "scene": "nekoc-scene-main"
+      },
+      {
+        "affected_scripts": 1,
+        "block": "b4638",
+        "message": "unsupported root self_listen in \"Column 15\" (block \"b4638\")",
+        "owner": "nekoc-actor-Column-15",
+        "scene": "nekoc-scene-main"
+      },
+      {
+        "affected_scripts": 1,
+        "block": "b4888",
+        "message": "unsupported root self_listen in \"Column 16\" (block \"b4888\")",
+        "owner": "nekoc-actor-Column-16",
+        "scene": "nekoc-scene-main"
+      },
+      {
+        "affected_scripts": 1,
+        "block": "b5138",
+        "message": "unsupported root self_listen in \"Column 17\" (block \"b5138\")",
+        "owner": "nekoc-actor-Column-17",
+        "scene": "nekoc-scene-main"
+      },
+      {
+        "affected_scripts": 1,
+        "block": "b5388",
+        "message": "unsupported root self_listen in \"Column 18\" (block \"b5388\")",
+        "owner": "nekoc-actor-Column-18",
+        "scene": "nekoc-scene-main"
+      },
+      {
+        "affected_scripts": 1,
+        "block": "b5638",
+        "message": "unsupported root self_listen in \"Column 19\" (block \"b5638\")",
+        "owner": "nekoc-actor-Column-19",
+        "scene": "nekoc-scene-main"
+      },
+      {
+        "affected_scripts": 1,
+        "block": "b5888",
+        "message": "unsupported root self_listen in \"Column 20\" (block \"b5888\")",
+        "owner": "nekoc-actor-Column-20",
+        "scene": "nekoc-scene-main"
+      },
+      {
+        "affected_scripts": 1,
+        "block": "b6138",
+        "message": "unsupported root self_listen in \"Column 21\" (block \"b6138\")",
+        "owner": "nekoc-actor-Column-21",
+        "scene": "nekoc-scene-main"
+      },
+      {
+        "affected_scripts": 1,
+        "block": "b6388",
+        "message": "unsupported root self_listen in \"Column 22\" (block \"b6388\")",
+        "owner": "nekoc-actor-Column-22",
+        "scene": "nekoc-scene-main"
+      },
+      {
+        "affected_scripts": 1,
+        "block": "b6638",
+        "message": "unsupported root self_listen in \"Column 23\" (block \"b6638\")",
+        "owner": "nekoc-actor-Column-23",
+        "scene": "nekoc-scene-main"
+      },
+      {
+        "affected_scripts": 1,
+        "block": "b6888",
+        "message": "unsupported root self_listen in \"Column 24\" (block \"b6888\")",
+        "owner": "nekoc-actor-Column-24",
+        "scene": "nekoc-scene-main"
+      },
+      {
+        "affected_scripts": 1,
+        "block": "b7138",
+        "message": "unsupported root self_listen in \"Column 25\" (block \"b7138\")",
+        "owner": "nekoc-actor-Column-25",
+        "scene": "nekoc-scene-main"
+      },
+      {
+        "affected_scripts": 1,
+        "block": "b7388",
+        "message": "unsupported root self_listen in \"Column 26\" (block \"b7388\")",
+        "owner": "nekoc-actor-Column-26",
+        "scene": "nekoc-scene-main"
+      },
+      {
+        "affected_scripts": 1,
+        "block": "b7638",
+        "message": "unsupported root self_listen in \"Column 27\" (block \"b7638\")",
+        "owner": "nekoc-actor-Column-27",
+        "scene": "nekoc-scene-main"
+      },
+      {
+        "affected_scripts": 1,
+        "block": "b7888",
+        "message": "unsupported root self_listen in \"Column 28\" (block \"b7888\")",
+        "owner": "nekoc-actor-Column-28",
+        "scene": "nekoc-scene-main"
+      },
+      {
+        "affected_scripts": 1,
+        "block": "b8138",
+        "message": "unsupported root self_listen in \"Column 29\" (block \"b8138\")",
+        "owner": "nekoc-actor-Column-29",
+        "scene": "nekoc-scene-main"
+      },
+      {
+        "affected_scripts": 1,
+        "block": "b8388",
+        "message": "unsupported root self_listen in \"Column 30\" (block \"b8388\")",
+        "owner": "nekoc-actor-Column-30",
+        "scene": "nekoc-scene-main"
+      },
+      {
+        "affected_scripts": 1,
+        "block": "b8638",
+        "message": "unsupported root self_listen in \"Column 31\" (block \"b8638\")",
+        "owner": "nekoc-actor-Column-31",
+        "scene": "nekoc-scene-main"
+      }
+    ]
+  },
+  {
+    "name": "pen_display_fast.bcmkn",
+    "ready": true,
+    "diagnostics": []
+  },
+  {
+    "name": "pen_polyhedron.bcmkn",
+    "ready": true,
+    "diagnostics": []
+  },
+  {
+    "name": "starhold.bcmkn",
+    "ready": true,
+    "diagnostics": []
+  },
+  {
+    "name": "three_body.bcmkn",
+    "ready": true,
+    "diagnostics": []
+  },
+  {
+    "name": "web-pen-stress.bcmkn",
+    "ready": true,
+    "diagnostics": []
+  },
+  {
+    "name": "我的作品-原生.bcmkn",
+    "ready": false,
+    "diagnostics": [
+      {
+        "affected_scripts": 1,
+        "block": "wc11HNtQGezkircrZ5L5",
+        "message": "unsupported root self_listen in \"新角色4\" (block \"wc11HNtQGezkircrZ5L5\")",
+        "owner": "17634c6a-31d6-4ca2-8285-4be96fced50d",
+        "scene": "700824a5-44a8-4d03-a7e8-aa95d87e9b2a"
+      },
+      {
+        "affected_scripts": 1,
+        "block": "86sWD9E35zIauZANLjfV",
+        "message": "unsupported root traverse_number_value in \"新角色4\" (block \"86sWD9E35zIauZANLjfV\")",
+        "owner": "17634c6a-31d6-4ca2-8285-4be96fced50d",
+        "scene": "700824a5-44a8-4d03-a7e8-aa95d87e9b2a"
+      },
+      {
+        "affected_scripts": 1,
+        "block": "iY5dKWktjJM3t8obSI1A",
+        "message": "unsupported root traverse_number_value in \"新角色4\" (block \"iY5dKWktjJM3t8obSI1A\")",
+        "owner": "17634c6a-31d6-4ca2-8285-4be96fced50d",
+        "scene": "700824a5-44a8-4d03-a7e8-aa95d87e9b2a"
+      },
+      {
+        "affected_scripts": 1,
+        "block": "nbLG61dZjlajahSGog7V",
+        "message": "unsupported root convert_type in \"新角色4\" (block \"nbLG61dZjlajahSGog7V\")",
+        "owner": "17634c6a-31d6-4ca2-8285-4be96fced50d",
+        "scene": "700824a5-44a8-4d03-a7e8-aa95d87e9b2a"
+      },
+      {
+        "affected_scripts": 1,
+        "block": "eo3DMx80wF67PFDvL1w8",
+        "message": "unsupported root variables_set in \"新角色4\" (block \"eo3DMx80wF67PFDvL1w8\")",
+        "owner": "17634c6a-31d6-4ca2-8285-4be96fced50d",
+        "scene": "700824a5-44a8-4d03-a7e8-aa95d87e9b2a"
+      },
+      {
+        "affected_scripts": 1,
+        "block": "6C5wqdZHGFtJDhmg6VR9",
+        "message": "unsupported root self_listen in \"新角色3\" (block \"6C5wqdZHGFtJDhmg6VR9\")",
+        "owner": "572c00eb-02e4-4150-877e-9c35e80a7303",
+        "scene": "700824a5-44a8-4d03-a7e8-aa95d87e9b2a"
+      },
+      {
+        "affected_scripts": 1,
+        "block": "xg4IWlLCkmFqNdwo7S8Z",
+        "message": "unsupported root variables_get in \"新角色3\" (block \"xg4IWlLCkmFqNdwo7S8Z\")",
+        "owner": "572c00eb-02e4-4150-877e-9c35e80a7303",
+        "scene": "700824a5-44a8-4d03-a7e8-aa95d87e9b2a"
+      },
+      {
+        "affected_scripts": 1,
+        "block": "AmIu6UQSvlN8g8asRL0l",
+        "message": "owner \"change\": unsupported fast-VM block ask_and_choose (\"SDEKaSz6BkfWqSRi9sci\")",
+        "owner": "7fbd8a44-b653-4fbe-b872-20e399ae35ac",
+        "scene": "700824a5-44a8-4d03-a7e8-aa95d87e9b2a"
+      },
+      {
+        "affected_scripts": 1,
+        "block": "coX7xX1Vh0R72ilUKMGC",
+        "message": "unsupported root traverse_number_value in \"change\" (block \"coX7xX1Vh0R72ilUKMGC\")",
+        "owner": "7fbd8a44-b653-4fbe-b872-20e399ae35ac",
+        "scene": "700824a5-44a8-4d03-a7e8-aa95d87e9b2a"
+      },
+      {
+        "affected_scripts": 1,
+        "block": "nUclaa7VIn399wkfHC7U",
+        "message": "unsupported root traverse_number_value in \"change\" (block \"nUclaa7VIn399wkfHC7U\")",
+        "owner": "7fbd8a44-b653-4fbe-b872-20e399ae35ac",
+        "scene": "700824a5-44a8-4d03-a7e8-aa95d87e9b2a"
+      },
+      {
+        "affected_scripts": 1,
+        "block": "FjCgaZQ5HUPsKucheO5N",
+        "message": "unsupported root variables_get in \"change\" (block \"FjCgaZQ5HUPsKucheO5N\")",
+        "owner": "7fbd8a44-b653-4fbe-b872-20e399ae35ac",
+        "scene": "700824a5-44a8-4d03-a7e8-aa95d87e9b2a"
+      },
+      {
+        "affected_scripts": 1,
+        "block": "AzzS6if9u6Ee9FP8NYTy",
+        "message": "unsupported root self_listen in \"新角色2\" (block \"AzzS6if9u6Ee9FP8NYTy\")",
+        "owner": "8e94708a-b0e0-4948-af73-05275b84f97d",
+        "scene": "700824a5-44a8-4d03-a7e8-aa95d87e9b2a"
+      },
+      {
+        "affected_scripts": 1,
+        "block": "52FDgXzFr2uPIALBMEqz",
+        "message": "owner \"新角色2\": unsupported fast-VM block self_broadcast (\"z8rKe6ArPRGl4HolVCUC\")",
+        "owner": "8e94708a-b0e0-4948-af73-05275b84f97d",
+        "scene": "700824a5-44a8-4d03-a7e8-aa95d87e9b2a"
+      }
+    ]
+  }
+]

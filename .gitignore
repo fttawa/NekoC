@@ -15,3 +15,5 @@
 *.report.json
 *.decompile.json
 *.validate.json
+__pycache__/
+/dist/

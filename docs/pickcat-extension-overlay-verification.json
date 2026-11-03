@@ -1,0 +1,30 @@
+{
+  "browser": "156.0.8078.4",
+  "tests": [
+    "Injection notice appears once, ignores clicks, dismisses after about four seconds",
+    "Delayed official navigation from inherited-origin about:blank has no postMessage origin error; wrong-origin resource is rejected; fetch capture takes over",
+    "Takeover confirmation dismisses; live drawing FPS is bottom-right and click-through, visible in fullscreen, dash when paused and resumes",
+    "Original player restores exact URL; enabling after official fetch has completed recovers cached resource without reload or duplicate detail request",
+    "Forum sandbox iframe takes over encoded source_urls with empty bcm_url; disallowed CDN ignored, corrupt encoded data rejected; early manual takeover request stays active",
+    "SPA replacement captures XHR, missing resource reports explicit status; gated work shows injection notice; leaving work removes it"
+  ],
+  "errors": [],
+  "layout": {
+    "right": 11,
+    "bottom": 11,
+    "pointerEvents": "none",
+    "hintPointerEvents": "none",
+    "clickThrough": true,
+    "value": "RUST57绘制 FPS",
+    "toolbarFPS": false
+  },
+  "fullscreenLayout": {
+    "right": 11,
+    "bottom": 11,
+    "pointerEvents": "none",
+    "hintPointerEvents": "none",
+    "clickThrough": true,
+    "value": "RUST60绘制 FPS",
+    "toolbarFPS": false
+  }
+}

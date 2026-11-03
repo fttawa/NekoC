@@ -1,0 +1,14 @@
+{
+  "actors": {
+    "nekoc-pen-actor": {
+      "x": 80,
+      "y": 40,
+      "brush": {"size": 8, "color": "#e84a5f", "down": false}
+    }
+  },
+  "brush": {
+    "minNontransparentPixels": 700,
+    "colors": {"#e84a5f": 600},
+    "samples": [{"x": 40, "y": 20, "color": "#e84a5f"}]
+  }
+}

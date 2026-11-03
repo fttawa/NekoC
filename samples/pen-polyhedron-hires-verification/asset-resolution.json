@@ -1,0 +1,9 @@
+{
+  "mode": "test-copy-localhost-style-urls",
+  "originalProjectSha256": "65e07d87b6a8426d18cc57774ebee01d5eb6b3600e0b188b6533d798147ca637",
+  "substitutions": [],
+  "onlyStyleUrlsChanged": true,
+  "originalContentExcludingResolvedUrlsSha256": "65e07d87b6a8426d18cc57774ebee01d5eb6b3600e0b188b6533d798147ca637",
+  "testContentExcludingResolvedUrlsSha256": "65e07d87b6a8426d18cc57774ebee01d5eb6b3600e0b188b6533d798147ca637",
+  "servedProjectSha256": "65e07d87b6a8426d18cc57774ebee01d5eb6b3600e0b188b6533d798147ca637"
+}
