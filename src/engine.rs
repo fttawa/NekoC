@@ -3364,6 +3364,14 @@ impl Engine {
                 op.apply(a)
             }
             ExprOp::Local(s) => self.tasks[self.current_task].locals[s],
+            // Indexed read of a global list: borrow in place, no handle clone.
+            ExprOp::ListItem(ListRef::Global(list), false) => {
+                let at = self.operand(pc - 1, actor);
+                let values = self.lists[list as usize].borrow();
+                list_index(at)
+                    .and_then(|i| values.get(i))
+                    .map_or(f64::NAN, Cell::number)
+            }
             ExprOp::Value(i) => self.eval_value(i, actor).number(),
             ExprOp::Truth(i) => u8::from(self.eval_value(i, actor).truth()) as f64,
             _ => self.node_slow(pc, actor),
