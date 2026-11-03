@@ -668,6 +668,7 @@ fn decompile_statement(
         | "logic_compare"
         | "logic_operation"
         | "logic_negate"
+        | "logic_ternary"
         | "math_modulo"
         | "random_num"
         | "divisible_by"
@@ -821,6 +822,12 @@ fn decompile_expr(block: &Value) -> String {
             } else {
                 format!("({a} && {b})")
             }
+        }
+        "logic_ternary" => {
+            let c = input_expr(block, "condition");
+            let a = input_expr(block, "ifTrue");
+            let b = input_expr(block, "ifFalse");
+            format!("({c} ? {a} : {b})")
         }
         "logic_negate" => {
             let val = input_expr(block, "logic");

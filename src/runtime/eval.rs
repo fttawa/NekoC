@@ -425,6 +425,11 @@ impl<'a> Runtime<'a> {
                 RuntimeValue::Bool(if op == "or" { a || b } else { a && b })
             }
             "logic_negate" => RuntimeValue::Bool(!eval(input(block, "logic")).is_truthy()),
+            "logic_ternary" => {
+                let condition = eval(input(block, "condition")).is_truthy();
+                let (a, b) = (eval(input(block, "ifTrue")), eval(input(block, "ifFalse")));
+                if condition { a } else { b }
+            }
             "convert_type" => {
                 let target = block
                     .get("fields")

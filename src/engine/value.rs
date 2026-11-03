@@ -155,6 +155,8 @@ pub(super) enum ValueExpr {
     Convert(usize, bool),
     Compare(usize, usize, super::Binary),
     Logic(usize, usize, bool),
+    /// logic_ternary: like the official runtime, both branches are evaluated.
+    Ternary(usize, usize, usize),
     Not(usize),
     /// Local weekday name (get_time week).
     WeekText,

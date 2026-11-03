@@ -83,6 +83,7 @@ pub fn compile_ts_bcmkn(
             rewrite_screen_references(&mut sprite.blocks, &screens);
         }
     }
+    apply_initial_values(&mut project, workspace_report.get("initialValues"));
     ensure_broadcasts(&mut project, &scripts);
     for procedure in &procedures {
         ensure_broadcasts(&mut project, &procedure.blocks);
@@ -849,6 +850,28 @@ fn collect_referenced_variable_names_in_value(value: &Value, names: &mut BTreeSe
             for child in items.values() {
                 collect_referenced_variable_names_in_value(child, names);
             }
+        }
+    }
+}
+
+/// Top-level `let x = 5` / `const s = "hi"`: the constant becomes the
+/// variable's stored value, so it holds before any script runs.
+fn apply_initial_values(project: &mut Value, values: Option<&Value>) {
+    let Some(values) = values.and_then(Value::as_object) else {
+        return;
+    };
+    let Some(dict) = project
+        .pointer_mut("/variables/variablesDict")
+        .and_then(Value::as_object_mut)
+    else {
+        return;
+    };
+    for variable in dict.values_mut() {
+        if variable["type"] == "list" {
+            continue;
+        }
+        if let Some(value) = variable["name"].as_str().and_then(|name| values.get(name)) {
+            variable["value"] = value.clone();
         }
     }
 }
