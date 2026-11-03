@@ -328,7 +328,7 @@ fn import_block(block: &Value, depth: usize) -> Result<Value> {
                 *input = angle_expression(input.clone(), offset, false, Some("input"));
             }
         }
-        "get_2" if field(block, "attribute") == "3" && result["type"] == "get_orientation" => {
+        "get_2" if field(block, "attribute") == "3" && result["type"] == "appearance_of_sprite" => {
             result = native_heading_reporter(result);
         }
         _ => {}
@@ -546,6 +546,8 @@ fn translate(block: &mut Value, export: bool) -> Result<bool> {
             | "self_get_position_y"
             | "self_get_rotation"
             | "get_orientation" => "get_2",
+            // Sprite heading; KN get_orientation is device tilt, not rotation.
+            "appearance_of_sprite" if field(block, "appearance") == "direction" => "get_2",
             other => other,
         }
         .to_owned()
@@ -826,6 +828,7 @@ fn translate(block: &mut Value, export: bool) -> Result<bool> {
                     "self_get_position_y" => ("1", "--self"),
                     "self_get_rotation" => ("3", "--self"),
                     "get_orientation" => ("3", field(block, "target")),
+                    "appearance_of_sprite" => ("3", field(block, "sprite")),
                     "coordinate_of_sprite" => (
                         if field(block, "coordinate") == "y" {
                             "1"
@@ -863,9 +866,9 @@ fn translate(block: &mut Value, export: bool) -> Result<bool> {
                         put_field(block, "sprite", &target);
                     }
                     "3" => {
-                        neko = "get_orientation".into();
-                        put_field(block, "target", &target);
-                        remove(&mut block["fields"], "sprite");
+                        neko = "appearance_of_sprite".into();
+                        put_field(block, "sprite", &target);
+                        put_field(block, "appearance", "direction");
                     }
                     _ => return Ok(false),
                 }
