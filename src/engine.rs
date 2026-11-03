@@ -1172,6 +1172,11 @@ impl Compiler {
                 self.constant(Cell::Bool(field(b, "BOOL").eq_ignore_ascii_case("true")))
             }
             "logic_negate" => ValueExpr::Not(self.value(input(b, "logic")?)?),
+            "logic_ternary" => ValueExpr::Ternary(
+                self.value(input(b, "condition")?)?,
+                self.value(input(b, "ifTrue")?)?,
+                self.value(input(b, "ifFalse")?)?,
+            ),
             "logic_operation" => ValueExpr::Logic(
                 self.value(input(b, "A")?)?,
                 self.value(input(b, "B")?)?,
@@ -1523,6 +1528,7 @@ impl Compiler {
             "logic_compare"
             | "logic_operation"
             | "logic_negate"
+            | "logic_ternary"
             | "procedures_2_callreturn"
             | "get_answer"
             | "get_choice_and_index" => ExprOp::Value(self.value(b)?),
@@ -3364,6 +3370,14 @@ impl Engine {
                 op.apply(a)
             }
             ExprOp::Local(s) => self.tasks[self.current_task].locals[s],
+            // Indexed read of a global list: borrow in place, no handle clone.
+            ExprOp::ListItem(ListRef::Global(list), false) => {
+                let at = self.operand(pc - 1, actor);
+                let values = self.lists[list as usize].borrow();
+                list_index(at)
+                    .and_then(|i| values.get(i))
+                    .map_or(f64::NAN, Cell::number)
+            }
             ExprOp::Value(i) => self.eval_value(i, actor).number(),
             ExprOp::Truth(i) => u8::from(self.eval_value(i, actor).truth()) as f64,
             _ => self.node_slow(pc, actor),
@@ -4679,6 +4693,12 @@ impl Engine {
                 let a = self.eval_value(a, actor);
                 let b = self.eval_value(b, actor);
                 if a.truth() == and { b } else { a }
+            }
+            ValueExpr::Ternary(c, a, b) => {
+                let c = self.eval_value(c, actor).truth();
+                let a = self.eval_value(a, actor);
+                let b = self.eval_value(b, actor);
+                if c { a } else { b }
             }
             ValueExpr::Select(i, start, end) => {
                 let text = self.eval_value(i, actor).text();

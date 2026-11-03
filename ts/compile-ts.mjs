@@ -24,13 +24,27 @@ class WorkspaceCompiler {
     this.procedureSpecs = new Map();
     this.procedures = [];
     this.inlineFunctions = new Map();
+    // Functions that cannot be inlined (recursive, or with early/multiple
+    // returns) compile to custom blocks: name -> { fn, spec, returnsValue }.
+    this.functionProcedures = new Map();
+    this.functionParams = null;
     this.expressionBindings = [];
     this.inlineCallStack = [];
     this.loadedModules = new Set();
     this.moduleExports = new Map();
     this.registeredImports = new Set();
     this.globalVariables = new Set();
+    // Constant initial values of top-level let/const, written into the
+    // project's variable table (they hold before any script runs).
+    this.initialValues = {};
+    this.enumValues = new Map();
+    // Variables initialised with an array (a list value held in a variable).
+    this.arrayVariables = new Set();
+    // Variables initialised with a string; `+` on them joins text.
+    this.stringVariables = new Set();
+    STRING_VARIABLES = this.stringVariables;
     this.loopDepth = 0;
+    this.loopBodyNext = false;
     this.rangeBindings = [];
     this.resources = {
       stage: null,
@@ -55,10 +69,18 @@ class WorkspaceCompiler {
         this.registerGlobalVariableDeclaration(statement);
         return;
       }
+      if (ts.isEnumDeclaration(statement)) {
+        this.compileEnumDeclaration(statement);
+        return;
+      }
       if (ts.isExpressionStatement(statement) && ts.isCallExpression(statement.expression)) {
         this.registerProcedureSpec(statement.expression);
       }
     });
+    this.planFunctionProcedures();
+    for (const entry of this.functionProcedures.values()) {
+      this.compileFunctionProcedure(entry);
+    }
 
     sourceFile.statements.forEach((statement) => {
       if (ts.isImportDeclaration(statement)) {
@@ -71,7 +93,6 @@ class WorkspaceCompiler {
         return;
       }
       if (ts.isEnumDeclaration(statement)) {
-        this.compileEnumDeclaration(statement);
         return;
       }
       if (ts.isClassDeclaration(statement)) {
@@ -102,6 +123,7 @@ class WorkspaceCompiler {
         comments: {},
       },
       sourceMap: this.sourceMap,
+      initialValues: this.initialValues,
       resources: this.resources,
       procedures: this.procedures,
     };
@@ -219,24 +241,35 @@ class WorkspaceCompiler {
         this.unsupported(declaration.name, `Duplicate variable declaration: ${declaration.name.text}`);
       }
       this.globalVariables.add(declaration.name.text);
+      if (declaration.initializer) {
+        const value = constantInitialValue(declaration.initializer, this);
+        this.initialValues[declaration.name.text] = value;
+        if (typeof value === "string") this.stringVariables.add(declaration.name.text);
+      }
     });
   }
 
+  // Enum members become constants: C.Green compiles to its value.
   compileEnumDeclaration(statement) {
     const enumName = statement.name.text;
-    this.globalVariables.add(enumName);
-    let counter = 0;
+    const members = new Map();
+    let next = 0;
     for (const member of statement.members) {
-      const memberName = member.name.text;
-      const fullName = `${enumName}_${memberName}`;
-      this.globalVariables.add(fullName);
+      let value = next;
       if (member.initializer) {
-        if (ts.isNumericLiteral(member.initializer)) {
-          counter = parseInt(member.initializer.text, 10);
+        if (ts.isStringLiteral(member.initializer)) {
+          value = member.initializer.text;
+        } else {
+          value = constantNumber(member.initializer);
+          if (value === null) {
+            this.unsupported(member.initializer, "Enum members need constant values");
+          }
         }
       }
-      counter += 1;
+      members.set(member.name.text, value);
+      next = typeof value === "number" ? value + 1 : next;
     }
+    this.enumValues.set(enumName, members);
   }
 
   compileClassDeclaration(statement) {
@@ -277,6 +310,144 @@ class WorkspaceCompiler {
       }),
       body,
     });
+  }
+
+  // Decide which functions become custom blocks instead of being inlined:
+  // recursive ones (directly or through other functions), and ones whose
+  // body is not "local declarations, then one final return".
+  planFunctionProcedures() {
+    const calls = new Map();
+    for (const [name, fn] of this.inlineFunctions) {
+      const called = new Set();
+      visitFunctionBody(fn.body, (node) => {
+        if (ts.isCallExpression(node) && ts.isIdentifier(node.expression) && this.inlineFunctions.has(node.expression.text)) {
+          called.add(node.expression.text);
+        }
+      });
+      calls.set(name, called);
+    }
+    const reaches = (from, target) => {
+      const seen = new Set();
+      const stack = [...calls.get(from)];
+      while (stack.length) {
+        const next = stack.pop();
+        if (next === target) return true;
+        if (seen.has(next)) continue;
+        seen.add(next);
+        stack.push(...calls.get(next));
+      }
+      return false;
+    };
+    for (const [name, fn] of this.inlineFunctions) {
+      let returnsValue = false;
+      let hasReturn = false;
+      visitFunctionBody(fn.body, (node) => {
+        if (ts.isReturnStatement(node)) {
+          hasReturn = true;
+          returnsValue ||= Boolean(node.expression);
+        }
+      });
+      if (!ts.isBlock(fn.body)) returnsValue = true;
+      const statements = ts.isBlock(fn.body) ? Array.from(fn.body.statements) : [];
+      const simpleExpression = !ts.isBlock(fn.body) || (
+        statements.length > 0
+        && ts.isReturnStatement(statements.at(-1)) && statements.at(-1).expression
+        && statements.slice(0, -1).every((statement) => ts.isVariableStatement(statement))
+      );
+      const simpleStatement = ts.isBlock(fn.body) && !hasReturn;
+      if (!reaches(name, name) && (simpleExpression || simpleStatement)) {
+        continue;
+      }
+      if (this.procedureSpecs.has(name)) {
+        this.unsupported(fn.body, `Function ${name} clashes with a procedure of the same name`);
+      }
+      const part = sanitizeIdPart(name);
+      const spec = {
+        id: `kn-proc-fn-${part}`,
+        name,
+        type: returnsValue ? "ROUND" : "NORMAL",
+        params: [
+          { id: `kn-label-fn-${part}-0`, type: "Label", name },
+          ...fn.params.map((param, index) => ({
+            id: `kn-param-fn-${part}-${index + 1}-${sanitizeIdPart(param)}`,
+            type: "String",
+            name: param,
+          })),
+        ],
+      };
+      this.functionProcedures.set(name, { fn, spec, returnsValue });
+    }
+  }
+
+  // Parameters are per call (procedure parameters); locals declared with
+  // let/const are ordinary variables shared by every call.
+  compileFunctionProcedure({ fn, spec, returnsValue }) {
+    const saved = [this.blocks, this.connections, this.expressionBindings, this.inlineCallStack,
+      this.rangeBindings, this.loopDepth, this.functionParams];
+    this.blocks = {};
+    this.connections = {};
+    this.expressionBindings = [];
+    this.inlineCallStack = [];
+    this.rangeBindings = [];
+    this.loopDepth = 0;
+    this.functionParams = new Set(fn.params);
+    try {
+      const defId = this.addBlockWithId(spec.id, {
+        type: "procedures_2_defnoreturn",
+        parent_id: null,
+        fields: { NAME: spec.id },
+        mutation: procedureMutation(spec.params),
+        shadows: {
+          PROCEDURES_2_DEFNORETURN_DEFINE: "",
+          ...procedureDefinitionShadows(spec.params),
+          STACK: "",
+        },
+        deletable: false,
+        editable: false,
+      });
+      spec.params.forEach((param, index) => {
+        if (param.type !== "String") return;
+        const paramId = this.addBlockWithId(param.id, {
+          type: "procedures_2_stable_parameter",
+          parent_id: defId,
+          fields: { param_name: param.name },
+        });
+        this.connectInput(defId, paramId, `PARAMS${index}`, "value");
+      });
+      let firstChild;
+      if (ts.isBlock(fn.body)) {
+        firstChild = this.compileStatementList(Array.from(fn.body.statements), defId);
+      } else {
+        firstChild = this.compileReturn(fn.body, defId);
+      }
+      if (firstChild) {
+        this.connectInput(defId, firstChild, "STACK", "statement");
+      }
+      this.procedures.push({
+        id: spec.id,
+        name: spec.name,
+        type: returnsValue ? "ROUND" : "NORMAL",
+        params: spec.params,
+        workspaceData: { blocks: this.blocks, connections: this.connections, comments: {} },
+      });
+    } finally {
+      [this.blocks, this.connections, this.expressionBindings, this.inlineCallStack,
+        this.rangeBindings, this.loopDepth, this.functionParams] = saved;
+    }
+  }
+
+  compileFunctionProcedureCall(call, parentId, asExpression) {
+    const { fn, spec, returnsValue } = this.functionProcedures.get(calleeName(call.expression));
+    if (call.arguments.length !== fn.params.length) {
+      this.unsupported(call, `Function ${spec.name} expects ${fn.params.length} arguments but got ${call.arguments.length}`);
+    }
+    if (asExpression && !returnsValue) {
+      this.unsupported(call, `Function ${spec.name} does not return a value`);
+    }
+    if (!asExpression && returnsValue) {
+      this.unsupported(call, `Function ${spec.name} returns a value; use it in an expression, e.g. setVar("result", ${spec.name}(...))`);
+    }
+    return this.compileProcedureCallArgs(spec, call.arguments, parentId, asExpression);
   }
 
   inlineArrowFunctionDeclaration(statement) {
@@ -657,8 +828,24 @@ class WorkspaceCompiler {
     let firstId = null;
     let previousId = null;
 
-    statements.forEach((statement) => {
-      const blockId = this.compileStatement(statement, parentIdForChildren);
+    statements = Array.from(statements);
+    // Kitten N has no continue block. Directly in a loop body,
+    // `if (c) { ...; continue; } rest` becomes `if (c) { ... } else { rest }`
+    // and a trailing `continue` is dropped.
+    const loopBody = this.loopBodyNext;
+    this.loopBodyNext = false;
+    if (loopBody && statements.length && ts.isContinueStatement(statements.at(-1)) && !statements.at(-1).label) {
+      statements = statements.slice(0, -1);
+    }
+    const continueAt = loopBody ? statements.findIndex((statement) => ifEndsWithContinue(statement)) : -1;
+    const tail = continueAt >= 0 ? statements.slice(continueAt + 1) : [];
+    if (continueAt >= 0) this.loopBodyNext = false;
+    if (continueAt >= 0) statements = statements.slice(0, continueAt + 1);
+
+    statements.forEach((statement, index) => {
+      const blockId = index === continueAt
+        ? this.compileIfContinue(statement, tail, parentIdForChildren)
+        : this.compileStatement(statement, parentIdForChildren);
       if (!blockId) return;
       if (!firstId) {
         firstId = blockId;
@@ -677,6 +864,37 @@ class WorkspaceCompiler {
     });
 
     return firstId;
+  }
+
+  compileIfContinue(statement, rest, parentId) {
+    const thenStatements = this.statementBodyStatements(statement.thenStatement).slice(0, -1);
+    const id = this.addBlock({
+      type: "controls_if",
+      parent_id: parentId,
+      ...(rest.length ? { mutation: '<mutation xmlns="http://www.w3.org/1999/xhtml" else="1"></mutation>' } : {}),
+    });
+    this.connectInput(id, this.compileExpression(statement.expression, id), "IF0", "value");
+    const first = this.compileStatementList(thenStatements, id);
+    if (first) this.connectInput(id, first, "DO0", "statement");
+    if (rest.length) {
+      this.loopBodyNext = true;
+      const elseFirst = this.compileStatementList(rest, id);
+      if (elseFirst) this.connectInput(id, elseFirst, "ELSE", "statement");
+    }
+    return id;
+  }
+
+  compileLoopBody(statements, parentId) {
+    this.loopBodyNext = true;
+    return this.compileStatementList(statements, parentId);
+  }
+
+  chainTail(id) {
+    for (;;) {
+      const next = Object.entries(this.connections[id] ?? {}).find(([, connection]) => connection.type === "next");
+      if (!next) return id;
+      id = next[0];
+    }
   }
 
   compileStatement(statement, parentId) {
@@ -716,18 +934,15 @@ class WorkspaceCompiler {
     }
     if (ts.isReturnStatement(statement)) {
       if (statement.expression) {
-        const valueId = this.compileExpression(statement.expression, parentId);
-        const retId = this.addBlock({
-          type: "procedures_2_return_value",
-          parent_id: parentId,
-        });
-        this.connectInput(retId, valueId, "VALUE", "value");
-        return retId;
+        return this.compileReturn(statement.expression, parentId);
       }
       return this.addBlock({ type: "stop", parent_id: parentId });
     }
     if (ts.isEmptyStatement(statement)) {
       return null;
+    }
+    if (ts.isContinueStatement(statement)) {
+      this.unsupported(statement, "continue is supported as the last statement of a loop body, or as `if (...) { ...; continue; }` directly in the loop body");
     }
     if (ts.isLabeledStatement(statement)) {
       return this.compileStatement(statement.statement, parentId);
@@ -765,6 +980,11 @@ class WorkspaceCompiler {
     }
     const variableName = declaration.name.text;
     this.registerBlockVariable(declaration.name, variableName);
+    if (declaration.initializer && this.isArrayExpression(declaration.initializer)) {
+      this.arrayVariables.add(variableName);
+    } else if (declaration.initializer && isStringExpression(declaration.initializer)) {
+      this.stringVariables.add(variableName);
+    }
     const id = this.addBlock({
       type: "variables_set",
       parent_id: parentId,
@@ -834,29 +1054,8 @@ class WorkspaceCompiler {
     return firstId || this.addBlock({ type: "restart", parent_id: parentId });
   }
 
-  compileObjectDestructuring(declaration, parentId) {
-    let firstId = null;
-    let previousId = null;
-    const elements = declaration.name.elements;
-    for (const elem of elements) {
-      if (!ts.isBindingElement(elem)) continue;
-      let varName;
-      if (ts.isIdentifier(elem.name)) {
-        varName = elem.name.text;
-      } else {
-        continue;
-      }
-      this.registerBlockVariable(elem, varName);
-      const id = this.addBlock({
-        type: "variables_set",
-        parent_id: parentId,
-        fields: { variable: varName },
-      });
-      if (!firstId) firstId = id;
-      if (previousId) this.connectNext(previousId, id);
-      previousId = id;
-    }
-    return firstId || this.addBlock({ type: "restart", parent_id: parentId });
+  compileObjectDestructuring(declaration) {
+    this.unsupported(declaration.name, "Object destructuring is not supported (Kitten N has no object values); use separate variables");
   }
 
   compileStatementExpression(expression, parentId) {
@@ -975,6 +1174,7 @@ class WorkspaceCompiler {
         return this.compileWaitUntil(call, parentId);
       case "forever":
         return this.compileForever(call, parentId);
+      case "repeat":
       case "repeatTimes":
         return this.compileRepeatTimes(call, parentId);
       case "repeatUntil":
@@ -1243,6 +1443,23 @@ class WorkspaceCompiler {
           body_part: stringLiteralValue(call.arguments[0], this),
         });
       default:
+        if (ts.isPropertyAccessExpression(call.expression) && call.expression.name.text === "push"
+          && this.isArrayExpression(call.expression.expression)) {
+          let firstId = null;
+          let previousId = null;
+          for (const argument of call.arguments) {
+            const id = this.addBlock({ type: "list_append", parent_id: parentId });
+            this.connectInput(id, this.compileExpression(call.expression.expression, id), "list", "value");
+            this.connectInput(id, this.compileExpression(argument, id), "list_item_value", "value");
+            if (previousId) this.connectNext(previousId, id);
+            firstId ??= id;
+            previousId = id;
+          }
+          return firstId;
+        }
+        if (this.functionProcedures.has(name)) {
+          return this.compileFunctionProcedureCall(call, parentId, false);
+        }
         if (this.inlineFunctions.has(name)) {
           return this.compileInlineStatementFunction(call, parentId, name);
         }
@@ -1294,8 +1511,17 @@ class WorkspaceCompiler {
       }
       this.unsupported(expression.left.name, `Unsupported self property assignment: ${propertyName}`);
     }
+    if (ts.isElementAccessExpression(expression.left) && this.isArrayExpression(expression.left.expression)
+      && expression.operatorToken.kind === ts.SyntaxKind.EqualsToken) {
+      // a[i] = v -> replace item i + 1
+      const id = this.addBlock({ type: "replace_list_item", parent_id: parentId, fields: { item: "any" } });
+      this.connectInput(id, this.compileExpression(expression.left.expression, id), "list", "value");
+      this.connectInput(id, this.compilePlusOne(expression.left.argumentExpression, id), "list_index", "value");
+      this.connectInput(id, this.compileExpression(expression.right, id), "list_item_value", "value");
+      return id;
+    }
     if (!ts.isIdentifier(expression.left)) {
-      this.unsupported(expression.left, "Only simple variable assignments are supported");
+      this.unsupported(expression.left, "Only variable and array element (a[i] = v) assignments are supported");
     }
     const variableName = expression.left.text;
     if (this.lookupRangeBinding(variableName)) {
@@ -1311,9 +1537,15 @@ class WorkspaceCompiler {
     if (!spec) {
       this.unsupported(expression.operatorToken, "Unsupported assignment operator");
     }
-    const valueId = spec.kind === "assign"
-      ? this.compileExpression(expression.right, id)
-      : this.compileVariableArithmeticExpression(variableName, expression.right, id, spec.operator);
+    let valueId;
+    if (spec.kind === "assign") {
+      valueId = this.compileExpression(expression.right, id);
+    } else if (spec.operator === "add" && isStringExpression(expression.right)) {
+      // s += "text" appends.
+      valueId = this.compileTextJoin([{ expression: expression.left }, { expression: expression.right }], id);
+    } else {
+      valueId = this.compileVariableArithmeticExpression(variableName, expression.right, id, spec.operator);
+    }
     this.connectInput(id, valueId, "value", "value");
     return id;
   }
@@ -1491,7 +1723,22 @@ class WorkspaceCompiler {
   }
 
   compileForever(call, parentId) {
-    return this.compileStatementBlock(call, parentId, "repeat_forever", 0);
+    return this.inLoop(() => {
+      const id = this.addBlock({ type: "repeat_forever", parent_id: parentId });
+      const first = this.compileLoopBody(callbackBody(call.arguments[0], this), id);
+      if (first) this.connectInput(id, first, "DO", "statement");
+      return id;
+    });
+  }
+
+  // Callback loops (forever/repeat/repeatUntil/forRange) accept break like native loops.
+  inLoop(compile) {
+    this.loopDepth += 1;
+    try {
+      return compile();
+    } finally {
+      this.loopDepth -= 1;
+    }
   }
 
   compileRepeatTimes(call, parentId) {
@@ -1502,7 +1749,7 @@ class WorkspaceCompiler {
     const timesId = this.compileExpression(call.arguments[0], id);
     this.connectInput(id, timesId, "times", "value");
     const body = callbackBody(call.arguments[1], this);
-    const firstChild = this.compileStatementList(body, id);
+    const firstChild = this.inLoop(() => this.compileLoopBody(body, id));
     if (firstChild) {
       this.connectInput(id, firstChild, "DO", "statement");
     }
@@ -1517,7 +1764,7 @@ class WorkspaceCompiler {
     const conditionId = this.compileExpression(call.arguments[0], id);
     this.connectInput(id, conditionId, "condition", "value");
     const body = callbackBody(call.arguments[1], this);
-    const firstChild = this.compileStatementList(body, id);
+    const firstChild = this.inLoop(() => this.compileLoopBody(body, id));
     if (firstChild) {
       this.connectInput(id, firstChild, "DO", "statement");
     }
@@ -1598,7 +1845,7 @@ class WorkspaceCompiler {
 
     this.loopDepth += 1;
     try {
-      const firstChild = this.compileStatementList(this.statementBodyStatements(statement.statement), id);
+      const firstChild = this.compileLoopBody(this.statementBodyStatements(statement.statement), id);
       if (firstChild) {
         this.connectInput(id, firstChild, "DO", "statement");
       }
@@ -1616,102 +1863,151 @@ class WorkspaceCompiler {
     return this.addBlock({ type: "break", parent_id: parentId });
   }
 
+  // switch -> if / else if / else chain. Empty cases share the next body
+  // (case 1: case 2: ...); other fall-through is rejected.
   compileSwitchStatement(statement, parentId) {
-    let firstId = null;
-    let previousId = null;
-    const discriminant = statement.expression;
-    let hasDefault = false;
-
-    for (const clause of statement.caseBlock.clauses) {
-      if (ts.isCaseClause(clause)) {
-        const ifId = this.addBlock({
-          type: "controls_if",
-          parent_id: parentId,
-        });
-        const condId = this.addBlock({
-          type: "logic_compare",
-          parent_id: ifId,
-          fields: { OP: "EQ" },
-          is_output: true,
-        });
-        const leftId = this.compileExpression(discriminant, condId);
-        this.connectInput(condId, leftId, "A", "value");
-        const rightId = this.compileExpression(clause.expression, condId);
-        this.connectInput(condId, rightId, "B", "value");
-        this.connectInput(ifId, condId, "IF0", "value");
-
-        const bodyStatements = clause.statements.filter(
-          (s) => !ts.isBreakStatement(s)
-        );
-        if (bodyStatements.length > 0) {
-          const firstChild = this.compileStatementList(bodyStatements, ifId);
-          if (firstChild) {
-            this.connectInput(ifId, firstChild, "DO0", "statement");
-          }
-        }
-
-        if (!firstId) firstId = ifId;
-        if (previousId) {
-          this.connectNext(previousId, ifId);
-        }
-        previousId = ifId;
-      } else if (ts.isDefaultClause(clause)) {
-        hasDefault = true;
-        const bodyStatements = clause.statements.filter(
-          (s) => !ts.isBreakStatement(s)
-        );
-        if (bodyStatements.length > 0) {
-          const firstChild = this.compileStatementList(bodyStatements, parentId);
-          if (firstChild && previousId) {
-            this.connectNext(previousId, firstChild);
-          }
-        }
+    const groups = [];
+    let pending = [];
+    const clauses = statement.caseBlock.clauses;
+    clauses.forEach((clause, index) => {
+      pending.push(clause);
+      if (clause.statements.length === 0 && index < clauses.length - 1) return;
+      const statements = Array.from(clause.statements);
+      const last = statements.at(-1);
+      const terminated = last && (ts.isBreakStatement(last) && !last.label || ts.isReturnStatement(last) || ts.isThrowStatement(last));
+      if (!terminated && index < clauses.length - 1) {
+        this.unsupported(clause, "switch fall-through into the next case is not supported; end the case with break");
       }
-    }
-
-    return firstId || this.addBlock({ type: "restart", parent_id: parentId });
+      const body = last && ts.isBreakStatement(last) && !last.label ? statements.slice(0, -1) : statements;
+      body.forEach((child) => visitOutsideLoops(child, (node) => {
+        if (ts.isBreakStatement(node) && !node.label) {
+          this.unsupported(node, "break inside a switch case is only supported as the last statement of the case");
+        }
+      }));
+      groups.push({ clauses: pending, body, isDefault: pending.some((c) => ts.isDefaultClause(c)) });
+      pending = [];
+    });
+    const cases = groups.filter((group) => !group.isDefault);
+    const fallback = groups.find((group) => group.isDefault);
+    const build = (index, parent) => {
+      if (index >= cases.length) {
+        return fallback ? this.compileStatementList(fallback.body, parent) : null;
+      }
+      const group = cases[index];
+      const rest = index + 1 < cases.length || fallback;
+      const ifId = this.addBlock({
+        type: "controls_if",
+        parent_id: parent,
+        ...(rest ? { mutation: '<mutation xmlns="http://www.w3.org/1999/xhtml" else="1"></mutation>' } : {}),
+      });
+      const conditions = group.clauses.filter((c) => ts.isCaseClause(c)).map((clause) => (conditionParent) => {
+        const condId = this.addBlock({ type: "logic_compare", parent_id: conditionParent, fields: { OP: "EQ" }, is_output: true });
+        this.connectInput(condId, this.compileExpression(statement.expression, condId), "A", "value");
+        this.connectInput(condId, this.compileExpression(clause.expression, condId), "B", "value");
+        return condId;
+      });
+      const anyOf = (items, conditionParent) => {
+        if (items.length === 1) return items[0](conditionParent);
+        const orId = this.addBlock({ type: "logic_operation", parent_id: conditionParent, fields: { type: "or" }, is_output: true });
+        this.connectInput(orId, items[0](orId), "A", "value");
+        this.connectInput(orId, anyOf(items.slice(1), orId), "B", "value");
+        return orId;
+      };
+      this.connectInput(ifId, anyOf(conditions, ifId), "IF0", "value");
+      const first = this.compileStatementList(group.body, ifId);
+      if (first) this.connectInput(ifId, first, "DO0", "statement");
+      if (rest) {
+        const elseFirst = build(index + 1, ifId);
+        if (elseFirst) this.connectInput(ifId, elseFirst, "ELSE", "statement");
+      }
+      return ifId;
+    };
+    return build(0, parentId);
   }
 
+  // do { B } while (C)  ->  forever { B; if (!C) break; }
   compileDoWhileStatement(statement, parentId) {
-    this.loopDepth += 1;
-    const body = this.statementBodyStatements(statement.statement);
-    const firstChild = this.compileStatementList(body, parentId);
-    this.loopDepth -= 1;
-    return firstChild;
+    const loopId = this.addBlock({ type: "repeat_forever", parent_id: parentId });
+    const body = [...this.statementBodyStatements(statement.statement)];
+    const first = this.inLoop(() => this.compileLoopBody(body, loopId));
+    const ifId = this.addBlock({ type: "controls_if", parent_id: loopId });
+    const notId = this.addBlock({ type: "logic_negate", parent_id: ifId, is_output: true });
+    this.connectInput(notId, this.compileExpression(statement.expression, notId), "logic", "value");
+    this.connectInput(ifId, notId, "IF0", "value");
+    this.connectInput(ifId, this.addBlock({ type: "break", parent_id: ifId }), "DO0", "statement");
+    if (first) {
+      const tail = this.chainTail(first);
+      this.connectNext(tail, ifId);
+      this.connectInput(loopId, first, "DO", "statement");
+    } else {
+      this.connectInput(loopId, ifId, "DO", "statement");
+    }
+    return loopId;
   }
 
+  // for (const x of [a, b]) unrolls inside a run-once loop (so break works);
+  // for (const x of list) walks the list by index.
   compileForOfStatement(statement, parentId) {
-    this.loopDepth += 1;
-    let variableName = "item";
-    if (ts.isVariableDeclarationList(statement.initializer)) {
-      const decl = statement.initializer.declarations[0];
-      if (ts.isIdentifier(decl.name)) {
-        variableName = decl.name.text;
-        this.globalVariables.add(variableName);
-      }
+    const decl = ts.isVariableDeclarationList(statement.initializer) ? statement.initializer.declarations[0] : null;
+    if (!decl || !ts.isIdentifier(decl.name)) {
+      this.unsupported(statement.initializer, "for...of needs a simple loop variable, e.g. for (const x of ...)");
     }
-
-    const listExpr = statement.expression;
-    const timesId = this.addBlock({
-      type: "repeat_n_times",
-      parent_id: parentId,
-    });
-    const lenId = this.addBlock({
-      type: "list_length",
-      parent_id: timesId,
-      is_output: true,
-    });
-    const listGetId = this.compileExpression(listExpr, lenId);
-    this.connectInput(lenId, listGetId, "list", "value");
-    this.connectInput(timesId, lenId, "times", "value");
-
+    const variableName = decl.name.text;
+    this.globalVariables.add(variableName);
     const body = this.statementBodyStatements(statement.statement);
-    const firstChild = this.compileStatementList(body, timesId);
-    if (firstChild) {
-      this.connectInput(timesId, firstChild, "DO", "statement");
+    const source = stripParens(statement.expression);
+    const setVariable = (parent, valueFor) => {
+      const setId = this.addBlock({ type: "variables_set", parent_id: parent, fields: { variable: variableName } });
+      this.connectInput(setId, valueFor(setId), "value", "value");
+      return setId;
+    };
+    const chain = (parent, ids) => {
+      ids = ids.filter(Boolean);
+      for (let i = 1; i < ids.length; i++) {
+        const tail = this.chainTail(ids[i - 1]);
+        this.connectNext(tail, ids[i]);
+      }
+      return ids[0] ?? null;
+    };
+    const loopId = this.addBlock({ type: "repeat_n_times", parent_id: parentId });
+    if (ts.isArrayLiteralExpression(source)) {
+      const once = this.addBlock({ type: "math_number", parent_id: loopId, fields: { NUM: "1" }, is_output: true });
+      this.connectInput(loopId, once, "times", "value");
+      const ids = [];
+      this.inLoop(() => {
+        for (const element of source.elements) {
+          ids.push(setVariable(loopId, (setId) => this.compileExpression(element, setId)));
+          ids.push(this.compileLoopBody(body, loopId));
+        }
+      });
+      const first = chain(loopId, ids);
+      if (first) this.connectInput(loopId, first, "DO", "statement");
+      return loopId;
     }
-    this.loopDepth -= 1;
-    return timesId;
+    const counter = `__for_of_${variableName}_${this.nextId}`;
+    this.globalVariables.add(counter);
+    // self.list("L") / self.list("L").get() name a project list directly.
+    const listName = forOfListName(source);
+    const connectList = (blockId) => (listName !== null
+      ? this.connectListInput(blockId, "list", listName)
+      : this.connectInput(blockId, this.compileExpression(statement.expression, blockId), "list", "value"));
+    const lenId = this.addBlock({ type: "list_length", parent_id: loopId, is_output: true });
+    connectList(lenId);
+    this.connectInput(loopId, lenId, "times", "value");
+    const resetId = this.addBlock({ type: "variables_set", parent_id: parentId, fields: { variable: counter } });
+    this.connectInput(resetId, this.addBlock({ type: "math_number", parent_id: resetId, fields: { NUM: "0" }, is_output: true }), "value", "value");
+    const stepId = this.addBlock({ type: "change_variables", parent_id: loopId, fields: { variable: counter, method: "increase" } });
+    this.connectInput(stepId, this.addBlock({ type: "math_number", parent_id: stepId, fields: { NUM: "1" }, is_output: true }), "value", "value");
+    const assignId = setVariable(loopId, (setId) => {
+      const itemId = this.addBlock({ type: "list_item", parent_id: setId, fields: { item: "any" }, is_output: true });
+      connectList(itemId);
+      this.connectInput(itemId, this.addBlock({ type: "variables_get", parent_id: itemId, fields: { variable: counter }, is_output: true }), "list_index", "value");
+      return itemId;
+    });
+    const first = chain(loopId, [stepId, assignId, this.inLoop(() => this.compileLoopBody(body, loopId))]);
+    this.connectInput(loopId, first, "DO", "statement");
+    this.connectNext(resetId, loopId);
+    return resetId;
   }
 
   compileTryStatement(statement, parentId) {
@@ -1719,8 +2015,35 @@ class WorkspaceCompiler {
     return this.compileStatementList(body, parentId);
   }
 
+  // C-style for -> traverse_number. That block counts toward `to` in either
+  // direction, so a loop whose bounds may be reversed (zero iterations in
+  // JS) is wrapped in `if (from <= to)` (or >= when counting down).
   compileNativeForStatement(statement, parentId) {
     const spec = this.nativeForLoopSpec(statement);
+    const fromConst = constantNumber(spec.from);
+    const toConst = constantNumber(spec.to);
+    if (fromConst !== null && toConst !== null) {
+      const last = spec.down ? toConst + (spec.exclusiveEnd ? 1 : 0) : toConst - (spec.exclusiveEnd ? 1 : 0);
+      if (spec.down ? fromConst < last : fromConst > last) {
+        return null;
+      }
+      return this.compileTraverseLoop(statement, spec, parentId);
+    }
+    const guardId = this.addBlock({ type: "controls_if", parent_id: parentId });
+    const compareId = this.addBlock({
+      type: "logic_compare",
+      parent_id: guardId,
+      fields: { OP: spec.down ? "GTE" : "LTE" },
+      is_output: true,
+    });
+    this.connectInput(compareId, this.compileExpression(spec.from, compareId), "A", "value");
+    this.connectInput(compareId, this.compileForLoopLimit(spec.to, compareId, spec.exclusiveEnd, spec.down), "B", "value");
+    this.connectInput(guardId, compareId, "IF0", "value");
+    this.connectInput(guardId, this.compileTraverseLoop(statement, spec, guardId), "DO0", "statement");
+    return guardId;
+  }
+
+  compileTraverseLoop(statement, spec, parentId) {
     const id = this.addBlock({
       type: "traverse_number",
       parent_id: parentId,
@@ -1735,7 +2058,7 @@ class WorkspaceCompiler {
     this.connectInput(id, paramId, "value", "value");
 
     const fromId = this.compileExpression(spec.from, id);
-    const toId = this.compileForLoopLimit(spec.to, id, spec.exclusiveEnd);
+    const toId = this.compileForLoopLimit(spec.to, id, spec.exclusiveEnd, spec.down);
     const byId = this.addBlock({
       type: "math_number",
       parent_id: id,
@@ -1749,7 +2072,7 @@ class WorkspaceCompiler {
     this.loopDepth += 1;
     this.rangeBindings.push(spec.variable);
     try {
-      const firstChild = this.compileStatementList(this.statementBodyStatements(statement.statement), id);
+      const firstChild = this.compileLoopBody(this.statementBodyStatements(statement.statement), id);
       if (firstChild) {
         this.connectInput(id, firstChild, "DO", "statement");
       }
@@ -1782,78 +2105,70 @@ class WorkspaceCompiler {
     ) {
       this.unsupported(statement, "For loop condition must compare the loop variable");
     }
-    const exclusiveEnd = condition.operatorToken.kind === ts.SyntaxKind.LessThanToken;
-    if (!exclusiveEnd && condition.operatorToken.kind !== ts.SyntaxKind.LessThanEqualsToken) {
-      this.unsupported(condition.operatorToken, "For loops support only < and <= conditions");
+    const { step, down } = this.nativeForLoopStep(statement.incrementor, variable);
+    const kind = condition.operatorToken.kind;
+    const allowed = down
+      ? [ts.SyntaxKind.GreaterThanToken, ts.SyntaxKind.GreaterThanEqualsToken]
+      : [ts.SyntaxKind.LessThanToken, ts.SyntaxKind.LessThanEqualsToken];
+    if (!allowed.includes(kind)) {
+      this.unsupported(condition.operatorToken, down
+        ? "Counting-down for loops need a > or >= condition"
+        : "Counting-up for loops need a < or <= condition");
     }
     return {
       variable,
       from: declaration.initializer,
       to: condition.right,
-      exclusiveEnd,
-      step: this.nativeForLoopStep(statement.incrementor, variable),
+      exclusiveEnd: kind === ts.SyntaxKind.LessThanToken || kind === ts.SyntaxKind.GreaterThanToken,
+      step,
+      down,
     };
   }
 
+  // i++, ++i, i += k, i = i + k count up; i--, --i, i -= k, i = i - k count down.
   nativeForLoopStep(incrementor, variable) {
-    if (
-      incrementor &&
-      (ts.isPostfixUnaryExpression(incrementor) || ts.isPrefixUnaryExpression(incrementor)) &&
-      incrementor.operator === ts.SyntaxKind.PlusPlusToken &&
-      ts.isIdentifier(incrementor.operand) &&
-      incrementor.operand.text === variable
-    ) {
-      return 1;
-    }
-    if (
-      incrementor &&
-      ts.isBinaryExpression(incrementor) &&
-      incrementor.operatorToken.kind === ts.SyntaxKind.PlusEqualsToken &&
-      ts.isIdentifier(incrementor.left) &&
-      incrementor.left.text === variable
-    ) {
-      const step = numericLiteralValue(incrementor.right, this);
+    const isVar = (node) => node && ts.isIdentifier(node) && node.text === variable;
+    const positive = (node) => {
+      const step = numericLiteralValue(node, this);
       if (step <= 0) {
-        this.unsupported(incrementor.right, "For loop increment must be positive");
+        this.unsupported(node, "For loop step must be a positive number");
       }
       return step;
+    };
+    if (incrementor && (ts.isPostfixUnaryExpression(incrementor) || ts.isPrefixUnaryExpression(incrementor)) && isVar(incrementor.operand)) {
+      if (incrementor.operator === ts.SyntaxKind.PlusPlusToken) return { step: 1, down: false };
+      if (incrementor.operator === ts.SyntaxKind.MinusMinusToken) return { step: 1, down: true };
     }
-    if (
-      !incrementor ||
-      !ts.isBinaryExpression(incrementor) ||
-      incrementor.operatorToken.kind !== ts.SyntaxKind.EqualsToken ||
-      !ts.isIdentifier(incrementor.left) ||
-      incrementor.left.text !== variable ||
-      !ts.isBinaryExpression(incrementor.right) ||
-      incrementor.right.operatorToken.kind !== ts.SyntaxKind.PlusToken ||
-      !ts.isIdentifier(incrementor.right.left) ||
-      incrementor.right.left.text !== variable
-    ) {
-      this.unsupported(incrementor, "For loop increment must be i = i + <positive number>");
+    if (incrementor && ts.isBinaryExpression(incrementor) && isVar(incrementor.left)) {
+      const op = incrementor.operatorToken.kind;
+      if (op === ts.SyntaxKind.PlusEqualsToken) return { step: positive(incrementor.right), down: false };
+      if (op === ts.SyntaxKind.MinusEqualsToken) return { step: positive(incrementor.right), down: true };
+      const right = incrementor.right;
+      if (op === ts.SyntaxKind.EqualsToken && ts.isBinaryExpression(right) && isVar(right.left)) {
+        if (right.operatorToken.kind === ts.SyntaxKind.PlusToken) return { step: positive(right.right), down: false };
+        if (right.operatorToken.kind === ts.SyntaxKind.MinusToken) return { step: positive(right.right), down: true };
+      }
     }
-    const step = numericLiteralValue(incrementor.right.right, this);
-    if (step <= 0) {
-      this.unsupported(incrementor.right.right, "For loop increment must be positive");
-    }
-    return step;
+    this.unsupported(incrementor, "For loop step must be i++, i--, i += k, i -= k, i = i + k or i = i - k");
   }
 
-  compileForLoopLimit(expression, parentId, exclusiveEnd) {
+  compileForLoopLimit(expression, parentId, exclusiveEnd, down = false) {
     if (!exclusiveEnd) {
       return this.compileExpression(expression, parentId);
     }
-    if (ts.isNumericLiteral(expression)) {
+    const value = constantNumber(expression);
+    if (value !== null) {
       return this.addBlock({
         type: "math_number",
         parent_id: parentId,
-        fields: { NUM: String(Number(expression.text) - 1) },
+        fields: { NUM: String(down ? value + 1 : value - 1) },
         is_output: true,
       });
     }
     const id = this.addBlock({
       type: "math_arithmetic",
       parent_id: parentId,
-      fields: { type: "minus" },
+      fields: { type: down ? "add" : "minus" },
       is_output: true,
     });
     const leftId = this.compileExpression(expression, id);
@@ -1890,7 +2205,7 @@ class WorkspaceCompiler {
     this.connectInput(id, byId, "by", "value");
 
     const body = callbackBody(call.arguments[4], this);
-    const firstChild = this.compileStatementList(body, id);
+    const firstChild = this.inLoop(() => this.compileLoopBody(body, id));
     if (firstChild) {
       this.connectInput(id, firstChild, "DO", "statement");
     }
@@ -1949,6 +2264,10 @@ class WorkspaceCompiler {
   compileProcedureCall(call, parentId, returnsValue) {
     const procedureName = stringLiteralValue(call.arguments[0], this);
     const spec = this.lookupProcedureSpec(call, procedureName);
+    return this.compileProcedureCallArgs(spec, call.arguments.slice(1), parentId, returnsValue);
+  }
+
+  compileProcedureCallArgs(spec, args, parentId, returnsValue) {
     const id = this.addBlock({
       type: returnsValue ? "procedures_2_callreturn" : "procedures_2_callnoreturn",
       parent_id: parentId,
@@ -1961,12 +2280,12 @@ class WorkspaceCompiler {
       ...(returnsValue ? { is_output: true } : {}),
     });
 
-    let valueArgumentIndex = 1;
+    let valueArgumentIndex = 0;
     spec.params.forEach((param, paramIndex) => {
       if (param.type !== "String") {
         return;
       }
-      const argument = call.arguments[valueArgumentIndex];
+      const argument = args[valueArgumentIndex];
       valueArgumentIndex += 1;
       if (!argument) {
         return;
@@ -2374,6 +2693,14 @@ class WorkspaceCompiler {
       if (boundExpression) {
         return this.compileExpression(boundExpression, parentId);
       }
+      if (this.functionParams?.has(expression.text)) {
+        return this.addBlock({
+          type: "procedures_2_parameter",
+          parent_id: parentId,
+          fields: { param_name: expression.text },
+          is_output: true,
+        });
+      }
       if (this.lookupRangeBinding(expression.text)) {
         return this.addBlock({
           type: "traverse_number_value",
@@ -2512,19 +2839,26 @@ class WorkspaceCompiler {
       });
     }
     if (ts.isPropertyAccessExpression(expression) && expression.name.text === "length") {
-      const objId = this.compileExpression(expression.expression, parentId);
-      return this.addBlock({
-        type: "text_length",
-        parent_id: parentId,
-        inputs: { text: objId },
-        is_output: true,
-      });
+      return this.compileLength(expression.expression, parentId);
     }
     this.unsupported(expression, "Unsupported expression");
   }
 
   compileExpressionCall(call, parentId) {
     const name = calleeName(call.expression);
+    if (name?.startsWith("Math.")) {
+      return this.compileMathCall(call, name.slice(5), parentId);
+    }
+    if (["Number", "parseFloat", "String", "parseInt"].includes(name)) {
+      const convert = (parent) => {
+        const id = this.addBlock({ type: "convert_type", parent_id: parent, fields: { type: name === "String" ? "string" : "number" }, is_output: true });
+        this.connectInput(id, this.compileExpression(call.arguments[0], id), "text", "value");
+        return id;
+      };
+      if (name !== "parseInt") return convert(parentId);
+      // parseInt: integer part (toward zero) of the numeric value.
+      return this.compileTruncate(convert, parentId);
+    }
     if (isMemberCallName(name, "getVar")) {
       return this.compileVariableGet(parentId, call.arguments[0]);
     }
@@ -2891,12 +3225,97 @@ class WorkspaceCompiler {
           leftInput: "A",
           rightInput: "B",
         });
-      default:
+      default: {
+        const method = this.compileMethodCall(call, parentId);
+        if (method) return method;
+      }
+        if (this.functionProcedures.has(name)) {
+          return this.compileFunctionProcedureCall(call, parentId, true);
+        }
         if (this.inlineFunctions.has(name)) {
           return this.compileInlineExpressionFunction(call, parentId, name);
         }
         this.unsupported(call, `Unsupported expression call: ${name || "<unknown>"}`);
     }
+  }
+
+  // Math.* follows the official converter: trig in radians (math_trig_rad),
+  // abs/sqrt/log/exp via math_function, rounding via math_round.
+  compileMathCall(call, method, parentId) {
+    const args = call.arguments;
+    const unary = (type, fields, argument = args[0]) => (parent) => {
+      const id = this.addBlock({ type, parent_id: parent, fields, is_output: true });
+      this.connectInput(id, typeof argument === "function" ? argument(id) : this.compileExpression(argument, id), "num", "value");
+      return id;
+    };
+    const arity = (n) => {
+      if (args.length !== n) this.unsupported(call, `Math.${method} expects ${n} argument${n === 1 ? "" : "s"}`);
+    };
+    switch (method) {
+      case "floor": case "ceil": case "round":
+        arity(1);
+        return unary("math_round", { type: { floor: "round_down", ceil: "round_up", round: "round" }[method] })(parentId);
+      case "abs": case "sqrt": case "exp": case "log": case "log10":
+        arity(1);
+        return unary("math_function", { type: mathFunctionCode({ log: "ln", log10: "log" }[method] ?? method) })(parentId);
+      case "sin": case "cos": case "tan": case "asin": case "acos": case "atan":
+        arity(1);
+        return unary("math_trig_rad", { type: method })(parentId);
+      case "trunc":
+        arity(1);
+        return this.compileTruncate((parent) => this.compileExpression(args[0], parent), parentId);
+      case "pow": {
+        arity(2);
+        const id = this.addBlock({ type: "math_arithmetic", parent_id: parentId, fields: { type: "power" }, is_output: true });
+        this.connectInput(id, this.compileExpression(args[0], id), "A", "value");
+        this.connectInput(id, this.compileExpression(args[1], id), "B", "value");
+        return id;
+      }
+      case "max": case "min": {
+        if (args.length < 1) this.unsupported(call, `Math.${method} needs at least one argument`);
+        const pick = (items, parent) => {
+          if (items.length === 1) return this.compileExpression(items[0], parent);
+          // a > b ? a : b  (operands are evaluated twice; keep them side-effect free)
+          const id = this.addBlock({ type: "logic_ternary", parent_id: parent, is_output: true });
+          const cmp = this.addBlock({ type: "logic_compare", parent_id: id, fields: { OP: method === "max" ? "GT" : "LT" }, is_output: true });
+          this.connectInput(cmp, this.compileExpression(items[0], cmp), "A", "value");
+          this.connectInput(cmp, pick(items.slice(1), cmp), "B", "value");
+          this.connectInput(id, cmp, "condition", "value");
+          this.connectInput(id, this.compileExpression(items[0], id), "ifTrue", "value");
+          this.connectInput(id, pick(items.slice(1), id), "ifFalse", "value");
+          return id;
+        };
+        return pick(Array.from(args), parentId);
+      }
+      case "random": {
+        arity(0);
+        // random_num returns integers: draw 0..999999999 and scale to [0, 1).
+        const id = this.addBlock({ type: "math_arithmetic", parent_id: parentId, fields: { type: "divide" }, is_output: true });
+        const rand = this.addBlock({ type: "random_num", parent_id: id, is_output: true });
+        this.connectInput(rand, this.addBlock({ type: "math_number", parent_id: rand, fields: { NUM: "0" }, is_output: true }), "A", "value");
+        this.connectInput(rand, this.addBlock({ type: "math_number", parent_id: rand, fields: { NUM: "999999999" }, is_output: true }), "B", "value");
+        this.connectInput(id, rand, "A", "value");
+        this.connectInput(id, this.addBlock({ type: "math_number", parent_id: id, fields: { NUM: "1000000000" }, is_output: true }), "B", "value");
+        return id;
+      }
+      default:
+        this.unsupported(call, `Unsupported Math function: Math.${method}`);
+    }
+  }
+
+  // Rounds toward zero: x < 0 ? ceil(x) : floor(x). `value(parent)` builds x.
+  compileTruncate(value, parentId) {
+    const id = this.addBlock({ type: "logic_ternary", parent_id: parentId, is_output: true });
+    const cmp = this.addBlock({ type: "logic_compare", parent_id: id, fields: { OP: "LT" }, is_output: true });
+    this.connectInput(cmp, value(cmp), "A", "value");
+    this.connectInput(cmp, this.addBlock({ type: "math_number", parent_id: cmp, fields: { NUM: "0" }, is_output: true }), "B", "value");
+    this.connectInput(id, cmp, "condition", "value");
+    for (const [input, type] of [["ifTrue", "round_up"], ["ifFalse", "round_down"]]) {
+      const round = this.addBlock({ type: "math_round", parent_id: id, fields: { type }, is_output: true });
+      this.connectInput(round, value(round), "num", "value");
+      this.connectInput(id, round, input, "value");
+    }
+    return id;
   }
 
   compileVariableGet(parentId, nameArg) {
@@ -3092,48 +3511,52 @@ class WorkspaceCompiler {
 
   compileTemplateExpression(expression, parentId) {
     const parts = [];
-    if (expression.head.text) {
-      parts.push(expression.head.text);
-    }
+    if (expression.head.text) parts.push({ text: expression.head.text });
     for (const span of expression.templateSpans) {
-      const exprId = this.compileExpression(span.expression, parentId);
-      parts.push(exprId);
-      if (span.literal.text) {
-        parts.push(span.literal.text);
-      }
+      parts.push({ expression: span.expression });
+      if (span.literal.text) parts.push({ text: span.literal.text });
     }
+    return this.compileTextJoin(parts, parentId);
+  }
+
+  // parts: [{ text }] literal pieces or [{ expression }] TS expressions.
+  compileTextJoin(parts, parentId) {
     const id = this.addBlock({
       type: "text_join",
       parent_id: parentId,
+      mutation: `<mutation xmlns="http://www.w3.org/1999/xhtml" items="${parts.length}"></mutation>`,
       is_output: true,
     });
-    for (let i = 0; i < parts.length; i++) {
-      const part = parts[i];
-      if (typeof part === "string") {
-        const textId = this.addBlock({
-          type: "text",
-          parent_id: id,
-          fields: { TEXT: part },
-          is_output: true,
-        });
-        this.connectInput(id, textId, `ADD${i}`, "value");
-      } else {
-        this.connectInput(id, part, `ADD${i}`, "value");
-      }
-    }
+    parts.forEach((part, index) => {
+      const childId = "text" in part
+        ? this.addBlock({ type: "text", parent_id: id, fields: { TEXT: part.text }, is_output: true })
+        : this.compileExpression(part.expression, id);
+      this.connectInput(id, childId, `ADD${index}`, "value");
+    });
     return id;
   }
 
   compilePropertyAccessExpression(expression, parentId) {
     const propertyName = expression.name.text;
     if (propertyName === "length") {
-      const objId = this.compileExpression(expression.expression, parentId);
-      return this.addBlock({
-        type: "text_length",
-        parent_id: parentId,
-        inputs: { text: objId },
-        is_output: true,
-      });
+      return this.compileLength(expression.expression, parentId);
+    }
+    if (ts.isIdentifier(expression.expression) && expression.expression.text === "Math") {
+      const constants = { PI: Math.PI, E: Math.E, SQRT2: Math.SQRT2, SQRT1_2: Math.SQRT1_2, LN2: Math.LN2, LN10: Math.LN10, LOG2E: Math.LOG2E, LOG10E: Math.LOG10E };
+      if (!(propertyName in constants)) {
+        this.unsupported(expression.name, `Unsupported Math constant: Math.${propertyName}`);
+      }
+      return this.addBlock({ type: "math_number", parent_id: parentId, fields: { NUM: String(constants[propertyName]) }, is_output: true });
+    }
+    if (ts.isIdentifier(expression.expression) && this.enumValues.has(expression.expression.text)) {
+      const members = this.enumValues.get(expression.expression.text);
+      if (!members.has(propertyName)) {
+        this.unsupported(expression.name, `Unknown enum member: ${expression.expression.text}.${propertyName}`);
+      }
+      const value = members.get(propertyName);
+      return typeof value === "number"
+        ? this.addBlock({ type: "math_number", parent_id: parentId, fields: { NUM: String(value) }, is_output: true })
+        : this.addBlock({ type: "text", parent_id: parentId, fields: { TEXT: value }, is_output: true });
     }
     if (ts.isIdentifier(expression.expression)) {
       const objName = expression.expression.text;
@@ -3161,40 +3584,148 @@ class WorkspaceCompiler {
         });
       }
     }
-    if (ts.isIdentifier(expression.expression) && ts.isNumericLiteral(expression.argumentExpression)) {
-      const listName = expression.expression.text;
-      const index = expression.argumentExpression.text;
+    // s[i] is a character; anything else is read as a list (a[i] -> item i + 1).
+    const target = expression.expression;
+    if (isStringExpression(target)) {
       const id = this.addBlock({
-        type: "data_itemoflist",
+        type: "text_select",
         parent_id: parentId,
-        fields: { item: "any" },
+        mutation: '<mutation xmlns="http://www.w3.org/1999/xhtml" items="1"></mutation>',
         is_output: true,
       });
-      this.connectListInput(id, "list", listName);
-      const indexId = this.addBlock({
-        type: "math_number",
-        parent_id: id,
-        fields: { NUM: index },
-        is_output: true,
-      });
-      this.connectInput(id, indexId, "index", "value");
+      this.connectInput(id, this.compileExpression(target, id), "text", "value");
+      this.connectInput(id, this.compilePlusOne(expression.argumentExpression, id), "start_index", "value");
+      this.connectInput(id, this.compilePlusOne(expression.argumentExpression, id), "end_index", "value");
       return id;
     }
-    return this.compileExpression(expression.expression, parentId);
+    const id = this.addBlock({ type: "list_item", parent_id: parentId, fields: { item: "any" }, is_output: true });
+    this.connectInput(id, this.compileExpression(target, id), "list", "value");
+    this.connectInput(id, this.compilePlusOne(expression.argumentExpression, id), "list_index", "value");
+    return id;
   }
 
+  // JS index (0-based) -> block position (1-based).
+  compilePlusOne(node, parentId) {
+    const value = constantNumber(node);
+    if (value !== null) {
+      return this.addBlock({ type: "math_number", parent_id: parentId, fields: { NUM: String(value + 1) }, is_output: true });
+    }
+    const id = this.addBlock({ type: "math_arithmetic", parent_id: parentId, fields: { type: "add" }, is_output: true });
+    this.connectInput(id, this.compileExpression(node, id), "A", "value");
+    this.connectInput(id, this.addBlock({ type: "math_number", parent_id: id, fields: { NUM: "1" }, is_output: true }), "B", "value");
+    return id;
+  }
+
+  isArrayExpression(node) {
+    node = stripParens(node);
+    if (ts.isArrayLiteralExpression(node)) return true;
+    if (ts.isIdentifier(node)) return this.arrayVariables.has(node.text);
+    if (ts.isCallExpression(node)) {
+      const name = calleeName(node.expression);
+      if (ts.isPropertyAccessExpression(node.expression) && node.expression.name.text === "split") return true;
+      return name === "splitText" || name === "tempList" || forOfListName(node) !== null && ts.isPropertyAccessExpression(node.expression);
+    }
+    return false;
+  }
+
+  compileLength(target, parentId) {
+    if (this.isArrayExpression(target)) {
+      const id = this.addBlock({ type: "list_length", parent_id: parentId, is_output: true });
+      this.connectInput(id, this.compileExpression(target, id), "list", "value");
+      return id;
+    }
+    const id = this.addBlock({ type: "text_length", parent_id: parentId, is_output: true });
+    this.connectInput(id, this.compileExpression(target, id), "text", "value");
+    return id;
+  }
+
+  // String and array methods: s.includes / slice / substring / charAt /
+  // split, a.length via compileLength.
+  compileMethodCall(call, parentId) {
+    if (!ts.isPropertyAccessExpression(call.expression)) return null;
+    const target = call.expression.expression;
+    const method = call.expression.name.text;
+    const args = call.arguments;
+    if (this.isArrayExpression(target)) {
+      if (method === "includes") {
+        const id = this.addBlock({ type: "list_is_exist", parent_id: parentId, is_output: true });
+        this.connectInput(id, this.compileExpression(target, id), "list", "value");
+        this.connectInput(id, this.compileExpression(args[0], id), "list_item_value", "value");
+        return id;
+      }
+      return null;
+    }
+    switch (method) {
+      case "includes": {
+        const id = this.addBlock({ type: "text_contain", parent_id: parentId, is_output: true });
+        this.connectInput(id, this.compileExpression(target, id), "A", "value");
+        this.connectInput(id, this.compileExpression(args[0], id), "B", "value");
+        return id;
+      }
+      case "charAt":
+      case "slice":
+      case "substring": {
+        if (method !== "charAt" && args.some((arg) => { const v = constantNumber(arg); return v !== null && v < 0; })) {
+          this.unsupported(call, `${method} with negative indices is not supported`);
+        }
+        const id = this.addBlock({
+          type: "text_select",
+          parent_id: parentId,
+          mutation: '<mutation xmlns="http://www.w3.org/1999/xhtml" items="1"></mutation>',
+          is_output: true,
+        });
+        this.connectInput(id, this.compileExpression(target, id), "text", "value");
+        this.connectInput(id, this.compilePlusOne(args[0] ?? ts.factory.createNumericLiteral(0), id), "start_index", "value");
+        let endId;
+        if (method === "charAt") endId = this.compilePlusOne(args[0], id);
+        else if (args[1]) endId = this.compileExpression(args[1], id);
+        else endId = this.compileLength(target, id);
+        this.connectInput(id, endId, "end_index", "value");
+        return id;
+      }
+      case "split": {
+        const id = this.addBlock({ type: "text_split", parent_id: parentId, is_output: true });
+        this.connectInput(id, this.compileExpression(target, id), "TEXT_TO_SPLIT", "value");
+        this.connectInput(id, this.compileExpression(args[0], id), "SPLIT_TEXT", "value");
+        return id;
+      }
+      default:
+        return null;
+    }
+  }
+
+  // Official logic_ternary evaluates both branches; `return c ? a : b` is
+  // lowered to if/else (see compileReturn) so recursion still terminates.
   compileConditionalExpression(expression, parentId) {
     const id = this.addBlock({
-      type: "controls_if",
+      type: "logic_ternary",
       parent_id: parentId,
+      is_output: true,
     });
-    const condId = this.compileExpression(expression.condition, id);
-    this.connectInput(id, condId, "IF0", "value");
-    const thenId = this.compileExpression(expression.whenTrue, id);
-    this.connectInput(id, thenId, "DO0", "statement");
-    const elseId = this.compileExpression(expression.whenFalse, id);
-    this.connectInput(id, elseId, "ELSE", "statement");
+    this.connectInput(id, this.compileExpression(expression.condition, id), "condition", "value");
+    this.connectInput(id, this.compileExpression(expression.whenTrue, id), "ifTrue", "value");
+    this.connectInput(id, this.compileExpression(expression.whenFalse, id), "ifFalse", "value");
     return id;
+  }
+
+  compileReturn(expression, parentId) {
+    let inner = expression;
+    while (ts.isParenthesizedExpression(inner)) inner = inner.expression;
+    if (ts.isConditionalExpression(inner)) {
+      const id = this.addBlock({
+        type: "controls_if",
+        parent_id: parentId,
+        mutation: '<mutation xmlns="http://www.w3.org/1999/xhtml" else="1"></mutation>',
+      });
+      this.connectInput(id, this.compileExpression(inner.condition, id), "IF0", "value");
+      this.connectInput(id, this.compileReturn(inner.whenTrue, id), "DO0", "statement");
+      this.connectInput(id, this.compileReturn(inner.whenFalse, id), "ELSE", "statement");
+      return id;
+    }
+    const valueId = this.compileExpression(expression, parentId);
+    const retId = this.addBlock({ type: "procedures_2_return_value", parent_id: parentId });
+    this.connectInput(retId, valueId, "VALUE", "value");
+    return retId;
   }
 
   compilePrefixUnaryExpression(expression, parentId) {
@@ -3226,12 +3757,11 @@ class WorkspaceCompiler {
       return this.compileExpression(expression.operand, parentId);
     }
     if (op === ts.SyntaxKind.TildeToken) {
-      return this.addBlock({
-        type: "math_number",
-        parent_id: parentId,
-        fields: { NUM: "0" },
-        is_output: true,
-      });
+      const value = constantNumber(expression);
+      if (value === null) {
+        this.unsupported(expression, "Bitwise operators work only on constant numbers (Kitten N has no bitwise blocks)");
+      }
+      return this.addBlock({ type: "math_number", parent_id: parentId, fields: { NUM: String(value) }, is_output: true });
     }
     if (op === ts.SyntaxKind.TypeOfKeyword) {
       return this.addBlock({
@@ -3307,7 +3837,22 @@ class WorkspaceCompiler {
   }
 
   compileNativeBinaryExpression(expression, parentId) {
-    const spec = nativeBinaryExpressionSpec(expression.operatorToken.kind);
+    const operator = expression.operatorToken.kind;
+    // `+` joins text when either side is statically a string; chains like
+    // "a" + x + "b" flatten into one join.
+    if (operator === ts.SyntaxKind.PlusToken && (isStringExpression(expression.left) || isStringExpression(expression.right))) {
+      return this.compileTextJoin(flattenStringConcat(expression).map((part) => (
+        ts.isStringLiteral(part) || ts.isNoSubstitutionTemplateLiteral(part) ? { text: part.text } : { expression: part }
+      )), parentId);
+    }
+    if (BITWISE_OPERATORS.has(operator)) {
+      const value = constantNumber(expression);
+      if (value === null) {
+        this.unsupported(expression.operatorToken, "Bitwise operators work only on constant numbers (Kitten N has no bitwise blocks)");
+      }
+      return this.addBlock({ type: "math_number", parent_id: parentId, fields: { NUM: String(value) }, is_output: true });
+    }
+    const spec = nativeBinaryExpressionSpec(operator);
     if (!spec) {
       this.unsupported(expression.operatorToken, "Unsupported binary expression operator");
     }
@@ -3583,6 +4128,37 @@ function selfVariableHandleCall(call) {
   };
 }
 
+function ifEndsWithContinue(statement) {
+  if (!ts.isIfStatement(statement) || statement.elseStatement) return false;
+  const body = ts.isBlock(statement.thenStatement) ? statement.thenStatement.statements : [statement.thenStatement];
+  const last = body.at(-1);
+  return Boolean(last && ts.isContinueStatement(last) && !last.label);
+}
+
+function constantInitialValue(node, compiler) {
+  const inner = stripParens(node);
+  if (ts.isStringLiteral(inner) || ts.isNoSubstitutionTemplateLiteral(inner)) return inner.text;
+  if (inner.kind === ts.SyntaxKind.TrueKeyword) return true;
+  if (inner.kind === ts.SyntaxKind.FalseKeyword) return false;
+  const value = constantNumber(inner);
+  if (value === null) {
+    compiler.unsupported(node, "Top-level variables need a constant initial value (number, string or boolean); assign other values in onStart");
+  }
+  return value;
+}
+
+function forOfListName(node) {
+  if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression)
+    && node.expression.name.text === "get" && node.arguments.length === 0) {
+    node = node.expression.expression;
+  }
+  if (ts.isCallExpression(node) && calleeName(node.expression) === "self.list"
+    && node.arguments[0] && ts.isStringLiteral(node.arguments[0])) {
+    return node.arguments[0].text;
+  }
+  return null;
+}
+
 function selfListHandleCall(call) {
   if (!ts.isPropertyAccessExpression(call.expression)) {
     return null;
@@ -3595,6 +4171,90 @@ function selfListHandleCall(call) {
     methodName: call.expression.name.text,
     nameArg: receiver.arguments[0],
   };
+}
+
+const BITWISE_OPERATORS = new Set([
+  ts.SyntaxKind.AmpersandToken,
+  ts.SyntaxKind.BarToken,
+  ts.SyntaxKind.CaretToken,
+  ts.SyntaxKind.LessThanLessThanToken,
+  ts.SyntaxKind.GreaterThanGreaterThanToken,
+  ts.SyntaxKind.GreaterThanGreaterThanGreaterThanToken,
+]);
+
+function stripParens(node) {
+  while (node && (ts.isParenthesizedExpression(node) || ts.isAsExpression(node) && !isStringType(node.type)
+    || ts.isNonNullExpression(node) || ts.isSatisfiesExpression(node))) {
+    node = node.expression;
+  }
+  return node;
+}
+
+function isStringType(type) {
+  return type && type.kind === ts.SyntaxKind.StringKeyword;
+}
+
+// Statically string-valued: literals, templates, `x as string`, text
+// reporters, or a `+` with a string side.
+let STRING_VARIABLES = new Set();
+
+function isStringExpression(node) {
+  node = stripParens(node);
+  if (!node) return false;
+  if (ts.isIdentifier(node) && STRING_VARIABLES.has(node.text)) return true;
+  if (ts.isAsExpression(node) && isStringType(node.type)) return true;
+  if (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node) || ts.isTemplateExpression(node)) return true;
+  if (ts.isCallExpression(node) && ts.isIdentifier(node.expression)
+    && ["join", "selectText", "answer", "String"].includes(node.expression.text)) return true;
+  if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.PlusToken) {
+    return isStringExpression(node.left) || isStringExpression(node.right);
+  }
+  return false;
+}
+
+function flattenStringConcat(node) {
+  const inner = stripParens(node);
+  if (ts.isBinaryExpression(inner) && inner.operatorToken.kind === ts.SyntaxKind.PlusToken
+    && isStringExpression(inner)) {
+    return [...flattenStringConcat(inner.left), ...flattenStringConcat(inner.right)];
+  }
+  return [node];
+}
+
+function constantNumber(node) {
+  node = stripParens(node);
+  if (ts.isNumericLiteral(node)) return Number(node.text);
+  if (ts.isPrefixUnaryExpression(node)) {
+    const value = constantNumber(node.operand);
+    if (value === null) return null;
+    switch (node.operator) {
+      case ts.SyntaxKind.MinusToken: return -value;
+      case ts.SyntaxKind.PlusToken: return value;
+      case ts.SyntaxKind.TildeToken: return ~value;
+      default: return null;
+    }
+  }
+  if (ts.isBinaryExpression(node)) {
+    const a = constantNumber(node.left);
+    const b = constantNumber(node.right);
+    if (a === null || b === null) return null;
+    switch (node.operatorToken.kind) {
+      case ts.SyntaxKind.PlusToken: return a + b;
+      case ts.SyntaxKind.MinusToken: return a - b;
+      case ts.SyntaxKind.AsteriskToken: return a * b;
+      case ts.SyntaxKind.SlashToken: return a / b;
+      case ts.SyntaxKind.PercentToken: return a % b;
+      case ts.SyntaxKind.AsteriskAsteriskToken: return a ** b;
+      case ts.SyntaxKind.AmpersandToken: return a & b;
+      case ts.SyntaxKind.BarToken: return a | b;
+      case ts.SyntaxKind.CaretToken: return a ^ b;
+      case ts.SyntaxKind.LessThanLessThanToken: return a << b;
+      case ts.SyntaxKind.GreaterThanGreaterThanToken: return a >> b;
+      case ts.SyntaxKind.GreaterThanGreaterThanGreaterThanToken: return a >>> b;
+      default: return null;
+    }
+  }
+  return null;
 }
 
 function nativeBinaryExpressionSpec(operator) {
@@ -3631,13 +4291,6 @@ function nativeBinaryExpressionSpec(operator) {
       return { type: "math_arithmetic", fields: { type: "power" }, leftInput: "A", rightInput: "B" };
     case ts.SyntaxKind.QuestionQuestionToken:
       return { type: "logic_operation", fields: { type: "or" }, leftInput: "A", rightInput: "B" };
-    case ts.SyntaxKind.AmpersandToken:
-    case ts.SyntaxKind.BarToken:
-    case ts.SyntaxKind.CaretToken:
-    case ts.SyntaxKind.LessThanLessThanToken:
-    case ts.SyntaxKind.GreaterThanGreaterThanToken:
-    case ts.SyntaxKind.GreaterThanGreaterThanGreaterThanToken:
-      return { type: "math_arithmetic", fields: { type: "add" }, leftInput: "A", rightInput: "B" };
     case ts.SyntaxKind.InKeyword:
       return { type: "logic_boolean", fields: { BOOL: "true" }, leftInput: "A", rightInput: "B" };
     case ts.SyntaxKind.InstanceOfKeyword:
@@ -3663,13 +4316,6 @@ function assignmentOperatorSpec(operator) {
       return { kind: "compound", operator: "mod" };
     case ts.SyntaxKind.AsteriskAsteriskEqualsToken:
       return { kind: "compound", operator: "power" };
-    case ts.SyntaxKind.AmpersandEqualsToken:
-    case ts.SyntaxKind.BarEqualsToken:
-    case ts.SyntaxKind.CaretEqualsToken:
-    case ts.SyntaxKind.LessThanLessThanEqualsToken:
-    case ts.SyntaxKind.GreaterThanGreaterThanEqualsToken:
-    case ts.SyntaxKind.GreaterThanGreaterThanGreaterThanEqualsToken:
-      return { kind: "compound", operator: "add" };
     case ts.SyntaxKind.AmpersandAmpersandEqualsToken:
     case ts.SyntaxKind.BarBarEqualsToken:
     case ts.SyntaxKind.QuestionQuestionEqualsToken:
@@ -3798,6 +4444,25 @@ function optionalBooleanOption(options, name, defaultValue, compiler, node) {
     return defaultValue;
   }
   return booleanLiteralValue(value, compiler);
+}
+
+// Visits statements, skipping nested loops, switches and functions (whose
+// break statements belong to them).
+function visitOutsideLoops(node, visit) {
+  visit(node);
+  if (ts.isFunctionLike(node) || ts.isIterationStatement(node, false) || ts.isSwitchStatement(node)) return;
+  ts.forEachChild(node, (child) => visitOutsideLoops(child, visit));
+}
+
+// Visits a function body without descending into nested functions.
+function visitFunctionBody(body, visit) {
+  const walk = (node) => {
+    visit(node);
+    if (ts.isFunctionLike(node)) return;
+    ts.forEachChild(node, walk);
+  };
+  if (ts.isBlock(body)) ts.forEachChild(body, walk);
+  else walk(body);
 }
 
 function sanitizeIdPart(value) {

@@ -20,7 +20,15 @@ function double(x: number) {
 }
 ```
 
-Functions are inlined at compile time. They don't create Kitten N custom procedures.
+Simple functions (local declarations plus one final `return`, or statement functions without `return`) are inlined at compile time.
+
+Recursive functions (including mutual recursion) and functions with early or multiple `return`s compile to Kitten N custom procedures. Parameters are per call; `let`/`const` locals inside them are shared by all calls. `return c ? a : b` is lowered to if/else so recursion terminates.
+
+```ts
+function fib(n: number): number {
+  return n < 2 ? n : fib(n - 1) + fib(n - 2);
+}
+```
 
 ### Arrow Functions (as Callbacks)
 
@@ -54,15 +62,25 @@ while (x < 10) {
 for (let i = 0; i < 10; i++) {
   moveSteps(10);
 }
+for (let i = 10; i > 0; i -= 2) {
+  moveSteps(i);
+}
 ```
+
+Counting up uses `<`/`<=` with `i++`, `i += k` or `i = i + k`; counting down uses `>`/`>=` with `i--`, `i -= k` or `i = i - k`. Bounds may be variables; a loop whose start is already past its end runs zero times.
 
 ### For...Of Loops
 
 ```ts
-for (const item of list) {
+for (const item of [1, 2, 3]) {
+  console.log(item);
+}
+for (const item of self.list("scores")) {
   console.log(item);
 }
 ```
+
+Works over array literals, array variables and project lists (`self.list("name")`).
 
 ### Do...While Loops
 
@@ -86,6 +104,19 @@ switch (value) {
     console.log("other");
 }
 ```
+
+### Continue
+
+```ts
+for (let i = 0; i < 10; i++) {
+  if (i % 2 === 0) {
+    continue;
+  }
+  changeVar("odd", 1);
+}
+```
+
+Supported as the last statement of a loop body, or as `if (...) { ...; continue; }` directly in a loop body (the rest of the body becomes the else branch).
 
 ### Try/Catch
 
@@ -124,6 +155,8 @@ forever(() => {
   }
 });
 ```
+
+`break` works in `while`, `for`, `for...of`, `do...while`, `forever`, `repeat` and `repeatUntil`. In `switch` it may only end a case.
 
 ### Labeled Statements
 
@@ -165,7 +198,7 @@ enum Color {
 }
 ```
 
-Enum members are registered as global variables.
+Enum members compile to constants (`Color.Green` becomes `1`); string members and explicit values are supported.
 
 ### Class Declarations
 
@@ -177,7 +210,7 @@ class Player {
 }
 ```
 
-Class methods are registered as global variables.
+Class declarations are accepted but instances and method calls are not supported.
 
 ### Template Literals
 
@@ -195,8 +228,9 @@ const items = [1, 2, 3];
 
 ```ts
 const [a, b] = [1, 2];
-const { x, y } = obj;
 ```
+
+Object destructuring is not supported (Kitten N has no object values).
 
 ### Import/Export (Project Files)
 
@@ -221,14 +255,6 @@ Type-only imports are stripped.
 const value = obj["key"];
 const item = arr[0];
 ```
-
-### Optional Chaining
-
-```ts
-const value = obj?.prop;
-```
-
-Simplified to regular property access.
 
 ### Nullish Coalescing
 
@@ -259,6 +285,22 @@ delete obj.prop;
 ```
 
 Returns `true`.
+
+### Ternary
+
+```ts
+setVar("label", score > 100 ? "high" : "low");
+```
+
+Compiles to `logic_ternary`. As in the official runtime both branches are evaluated.
+
+### Math
+
+`Math.floor/ceil/round/trunc/abs/sqrt/exp/log/log10/pow/max/min/random`, radian `Math.sin/cos/tan/asin/acos/atan`, and constants such as `Math.PI` map to math blocks.
+
+### Strings and Arrays
+
+`+` joins text when either side is statically a string (literal, template, string variable, `as string`, `join()`). Strings support `.length`, `s[i]`, `charAt`, `slice`, `substring`, `includes` and `split`. Variables initialised with an array literal (or `split()` / `tempList()`) hold a list value: `a[i]`, `a[i] = v`, `a.length`, `a.push(x)`, `a.includes(x)`.
 
 ### Spread Operator
 
@@ -307,12 +349,14 @@ Simplified to `true`.
 |------------|---------------|
 | `if (cond) { }` | `controls_if` |
 | `if (cond) { } else { }` | `controls_if` with ELSE |
-| `while (cond) { }` | `when` (condition checked each tick) |
-| `for (let i = 0; i < n; i++) { }` | `repeat_n_times` or `traverse_number` |
+| `while (cond) { }` | `repeat_forever_until` (not cond) |
+| `for (let i = 0; i < n; i++) { }` | `traverse_number` (guarded by `if` when bounds are not constant) |
 | `for (const x of arr) { }` | `repeat_n_times` with list access |
-| `do { } while (cond)` | Body executed once, then `when` |
-| `switch (x) { case: ... }` | Chain of `controls_if` blocks |
+| `do { } while (cond)` | `repeat_forever` with a trailing `if not cond: break` |
+| `switch (x) { case: ... }` | `controls_if` / else-if chain |
 | `break` | `break` |
+| `continue` | rest of the loop body moved into an else branch |
+| `c ? a : b` | `logic_ternary` |
 | `return expr` | `procedures_2_return_value` |
 | `throw` | `stop` |
 | `try { } catch { }` | Try body only |
