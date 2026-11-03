@@ -120,7 +120,7 @@ function monitor(now){
   $('#vm-time').textContent=lastFrame?`${(lastFrame.execute_us/1000).toFixed(2)} ms`:'—';
   $('#gpu-time').textContent=renderer.stats.gpuMs==null?'不可用':`${renderer.stats.gpuMs.toFixed(2)} ms`;
   $('#roundtrip').textContent=lastFrame?`${roundtripMs.toFixed(2)} ms`:'—';
-  $('#render-size').textContent=project?`${canvas.width} × ${canvas.height} · WebGL 2`:'WebGL 2';
+  $('#render-size').textContent=project?`${canvas.width}×${canvas.height}`:'—';
   $('#timer').hidden=!lastFrame?.timer_visible;
   if(lastFrame?.timer_visible)$('#timer').textContent=`计时器 ${lastFrame.timer.toFixed(2)}`;
 }
