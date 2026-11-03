@@ -150,7 +150,10 @@ export class StageRenderer {
     gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,w,h,0,gl.RGBA,gl.UNSIGNED_BYTE,null); return texture;
   }
 
-  apply(frame, lines) {
+  // present=false only draws pen deltas into the persistent FBO and marks the stage
+  // dirty; the caller composites once per display frame with render().
+  apply(frame, lines, present = true) {
+    this.changed = false;
     if (this.lost) return;
     if (lines.length % 9 !== 0) throw Error('损坏的画笔实例数据');
     const started = performance.now(), gl = this.gl;
@@ -193,8 +196,9 @@ export class StageRenderer {
       changed ||= !old||['style','x','y','direction','scale','visible','opacity'].some(k=>a[k]!==old[k]);
       if(index===undefined){this.spriteIndices.set(a.id,this.sprites.length);this.sprites.push(a);}else this.sprites[index]=a;
     }
-    this.dirty ||= changed || frame.clear || lines.length>0 || stamps.length>0;
-    this.render(false);
+    this.changed = changed || !!frame.clear || lines.length>0 || stamps.length>0;
+    this.dirty ||= this.changed;
+    if(present)this.render(false);
     } finally {if(query){gl.endQuery(this.gpuTimer.TIME_ELAPSED_EXT);this.gpuQueries.push(query);}}
     this.stats.submitMs = performance.now() - started;
   }

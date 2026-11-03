@@ -210,3 +210,10 @@ cargo clippy --all-targets --features studio -- -D warnings
 
 优先补动态类型运算符一致性、参数/返回值过程、完整列表、广播/克隆及官方差分测试；渲染优化以GPU实测为依据，继续定位10k压力场景的软件栅格化成本。
 UI 已转为 Web，后续以执行语义与端到端性能为主，不把视觉界面完成当成运行器完成。
+
+## 2026-11-03 播放器性能优化
+
+- **更新节奏与显示解耦**（`web/play.js`）：更新按「更新上限」用定时器推进，不再每个 `requestAnimationFrame` 只发一次往返；画面每个显示帧合成一次（`renderer.apply(frame, lines, false)` 只把画笔增量写入 FBO）。此前 120/s 实际被限制在屏幕刷新率；Pencraft 这类每帧 `wait(0)` 的作品在 120/s 下从 30 提升到约 55 作品 FPS（无头 Chromium + SwiftShader）。「跟随屏幕」仍是每显示帧一次更新；60/s 语义不变。
+- **TCP_NODELAY**（`src/bin/web.rs`）：监听套接字开启 NODELAY，接入连接继承，消除多段帧尾段被 Nagle/延迟 ACK 卡住。350KB 画笔压力帧 WebSocket 往返 mean 4.3→2.4ms、p95 9.6→4.0ms、max 60→8ms（Linux 回环）。
+- **VM**（`src/engine.rs`）：`ValueExpr` 变为 `Copy`（常量/拼接参数移入程序表），求值不再逐次克隆/释放；文本拼接直接追加；表达式改为在后缀数组上递归求值（预计算子树起点），去掉运行时值栈；`Op` 48→32 字节、`ExprOp` 24→16 字节；位置读取/有限性检查只在移动类指令执行。callgrind 指令数（60帧）：Pencraft 442M→370M，画笔压力 670M→594M，多面体 442M→383M。
+- 原生端到端基准：`cargo run --release --bin bench-player -- samples/pencraft.bcmkn --frames 600 --hold 87,39 --frame-var kn-var-frames`，测量与 WebSocket 播放器相同的 VM + 帧编码工作。

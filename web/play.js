@@ -9,7 +9,7 @@ const backend=extension?await extension.backendURL():location.origin;
 const $=selector=>document.querySelector(selector);
 const canvas=$('#stage'),shell=$('#player-shell');
 let renderer,input,project=null,playable=false,busy=true,running=false,connection=null,inFlight=null,epoch=0;
-let lastTick=0,nextDue=0,lastFrame=null,roundtripMs=0,updates=0,draws=0,totalUpdates=0;
+let lastTick=0,nextDue=0,lastFrame=null,roundtripMs=0,updates=0,draws=0,totalUpdates=0,pumpTimer=0;
 let sampleStart=performance.now(),lastMonitor=0,drawFps=0,updateFps=0;
 const audio=new ProjectAudio(notice);
 const settings={limit:60,budget:4,resolution:1};
@@ -71,7 +71,7 @@ async function launch(){
     const next=new PlayerConnection();connection=next;await next.open(project,backend);
     epoch++;lastFrame=null;totalUpdates=0;
   }
-  clearKeys();resetMeter();running=true;lastTick=performance.now();nextDue=lastTick;
+  clearKeys();resetMeter();running=true;lastTick=performance.now();nextDue=lastTick;queueMicrotask(pump);
   audio.resume();extension?.reportStatus('Rust 已连接');
   status('运行中');canvas.focus({preventScroll:true});syncControls();
 }
@@ -96,9 +96,10 @@ async function advance(dt){
     const buffer=await connection.frame({dt,...input.take(),budget_ms:settings.budget});
     if(token!==epoch)return;
     roundtripMs=performance.now()-start;
-    const {frame,lines}=decodeFrame(buffer);renderer.apply(frame,lines);lastFrame=frame;
+    // Draw pen deltas now; the stage is composited once on the next display frame.
+    const {frame,lines}=decodeFrame(buffer);renderer.apply(frame,lines,false);lastFrame=frame;
     audio.apply(frame);
-    updates++;totalUpdates++;if(renderer.stats.drawCalls>0)draws++;
+    updates++;totalUpdates++;if(renderer.changed)draws++;
   }catch(error){
     if(token!==epoch)return;
     epoch++;connection?.close();connection=null;pause('运行已中断');notice(error.message);
@@ -120,13 +121,24 @@ function monitor(now){
   $('#timer').hidden=!lastFrame?.timer_visible;
   if(lastFrame?.timer_visible)$('#timer').textContent=`计时器 ${lastFrame.timer.toFixed(2)}`;
 }
+// Runtime updates are paced by the update limit, not by the display: a limit above
+// the refresh rate (or a project that yields between compute and draw) is no longer
+// capped at one round trip per animation frame. Only one request is ever in flight.
+function step(now){
+  const dt=Math.min((now-lastTick)/1000,.25);lastTick=now;
+  const interval=settings.limit?1000/settings.limit:0;
+  nextDue=interval?Math.max(nextDue+interval,now):now;
+  inFlight=advance(dt).finally(()=>{inFlight=null;pump();});
+}
+function pump(){
+  clearTimeout(pumpTimer);pumpTimer=0;
+  // "Follow screen" keeps exactly one update per display frame.
+  if(!running||busy||inFlight||!settings.limit)return;
+  const now=performance.now(),wait=nextDue-now;
+  if(wait<=.5)step(now);else pumpTimer=setTimeout(pump,wait);
+}
 function loop(now){
-  if(running&&!busy&&!inFlight&&now>=nextDue-.5){
-    const dt=Math.min((now-lastTick)/1000,.25);lastTick=now;
-    const interval=settings.limit?1000/settings.limit:0;
-    nextDue=interval?Math.max(nextDue+interval,now):now;
-    inFlight=advance(dt).finally(()=>{inFlight=null;});
-  }
+  if(running&&!busy&&!inFlight&&now>=nextDue-.5)step(now);
   if(renderer){renderer.render();renderer.collectGpuTimes();monitor(now);}
   requestAnimationFrame(loop);
 }
@@ -147,7 +159,7 @@ for(const [id,key]of [['frame-limit','limit'],['budget','budget'],['resolution',
     const value=Number(select.value);if(!choices[key].includes(value))return;
     try{
       if(key==='resolution')renderer.setResolution(value);
-      settings[key]=value;nextDue=performance.now();
+      settings[key]=value;nextDue=performance.now();pump();
       lastMonitor=0;monitor(performance.now());
       try{localStorage.setItem('neko-play-settings',JSON.stringify(settings));}catch{}
       if(running)canvas.focus({preventScroll:true});
