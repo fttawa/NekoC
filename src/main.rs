@@ -101,6 +101,28 @@ enum Command {
         #[arg(long)]
         out: Option<PathBuf>,
     },
+    /// Shrink large text lists into a self-extracting .bcmkn that restores them
+    /// with blocks when it starts (works in the official player).
+    Pack {
+        input: PathBuf,
+        #[arg(long)]
+        out: PathBuf,
+        /// Pack lists whose JSON is at least this many KiB.
+        #[arg(long, default_value_t = 64)]
+        min_kb: usize,
+        /// Previous items a copy may reference.
+        #[arg(long, default_value_t = 8)]
+        window: usize,
+        /// Shortest copy; larger means faster unpacking, slightly larger file.
+        #[arg(long, default_value_t = 12)]
+        min_match: usize,
+    },
+    /// Restore a packed .bcmkn to its original form.
+    Unpack {
+        input: PathBuf,
+        #[arg(long)]
+        out: PathBuf,
+    },
     AnalyzeIr {
         input: PathBuf,
         #[arg(long)]
@@ -394,6 +416,42 @@ fn main() -> Result<()> {
             let differences = nekoc::scenario::check_runtime_scenario(&snapshot, &scenario);
             nekoc::scenario::ensure_scenario_matches(&differences)?;
             println!("Runtime scenario matches");
+        }
+        Command::Pack {
+            input,
+            out,
+            min_kb,
+            window,
+            min_match,
+        } => {
+            let project: serde_json::Value = serde_json::from_slice(&std::fs::read(&input)?)?;
+            let options = nekoc::pack::PackOptions {
+                min_list_bytes: min_kb * 1024,
+                window,
+                min_match,
+            };
+            let (packed, report) = nekoc::pack::pack(&project, &options)?;
+            std::fs::write(&out, serde_json::to_vec(&packed)?)?;
+            for list in &report.lists {
+                println!(
+                    "{}: {} items, {} -> {} bytes ({} tokens)",
+                    list.name, list.items, list.original_bytes, list.packed_bytes, list.tokens
+                );
+            }
+            for (name, reason) in &report.skipped {
+                println!("skipped {name}: {reason}");
+            }
+            println!(
+                "project: {} -> {} bytes ({:.1}%), {} start scripts wait for the decoder",
+                report.original_bytes,
+                report.packed_bytes,
+                report.packed_bytes as f64 * 100.0 / report.original_bytes.max(1) as f64,
+                report.gated_scripts
+            );
+        }
+        Command::Unpack { input, out } => {
+            let project: serde_json::Value = serde_json::from_slice(&std::fs::read(&input)?)?;
+            std::fs::write(&out, serde_json::to_vec(&nekoc::pack::unpack(&project)?)?)?;
         }
         Command::Validate { input, out } => {
             let project = nekoc::project::load_project(input)?;

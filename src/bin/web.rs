@@ -599,6 +599,17 @@ fn main() -> Result<()> {
                     let value = edited_project(payload, &project)?;
                     export_project(&value)?
                 }
+                "/api/export-packed" => {
+                    // Self-extracting export: large text lists shrink and are restored
+                    // by blocks when the project starts (also in the official player).
+                    let value = edited_project(payload, &project)?;
+                    ensure!(
+                        !is_kitten4_project(&value),
+                        "压缩导出目前只支持 Kitten N（.bcmkn）作品"
+                    );
+                    let (packed, report) = nekoc::pack::pack(&value, &Default::default())?;
+                    json!({"project":packed,"report":report})
+                }
                 "/api/validate" => nekoc::validate::build_report(&project)?,
                 "/api/compile" | "/api/start" => {
                     let compiled = Program::compile(&project)?;
