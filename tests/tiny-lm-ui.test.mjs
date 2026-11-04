@@ -1,3 +1,4 @@
+import os from 'node:os';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -72,7 +73,7 @@ if(process.env.NEKOC_TINY_LM_UI_ORIGINAL)test('complete modified HUD is unchange
 });
 
 test('repaired UI compiles without parameterized native procedures',()=>{
-  const dir=fs.mkdtempSync('D:/AppData/Local/Temp/opencode/nekoc-tiny-ui-');
+  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'nekoc-tiny-ui-'));
   try{
     fs.writeFileSync(path.join(dir,'ui.ts'),repairUi(fixture));
     execFileSync(process.execPath,[path.resolve('ts/compile-ts.mjs'),path.join(dir,'ui.ts'),path.join(dir,'ui.json')]);

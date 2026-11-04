@@ -46,7 +46,7 @@ test("list copy accepts split reporters while retaining named-list inputs", () =
 });
 
 test("string .length connects the source reporter, including cast and parenthesized expressions", () => {
-  const dir=fs.mkdtempSync("D:/AppData/Local/Temp/opencode/nekoc-text-length-");
+  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'nekoc-text-length-'));
   try {
     fs.writeFileSync(path.join(dir,"main.ts"), `onStart(()=>{
       setVar("a", (getVar("prompt") as string).length);
