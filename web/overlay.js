@@ -12,7 +12,7 @@ const STYLE = `
 .neko-monitor.list span{background:#fff;color:#1d2330;border-left:1px solid #c9d3c4}
 .neko-ask{position:absolute;left:12px;right:12px;bottom:12px;pointer-events:auto;background:#fff;color:#1d2330;border:1px solid #c9d3c4;border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px;box-shadow:0 6px 24px #0003}
 .neko-ask p{margin:0;font-size:14px;white-space:pre-wrap}
-.neko-ask form{display:flex;gap:8px}.neko-ask input{flex:1;min-width:0;font:inherit;font-size:14px;padding:8px 10px;border:1px solid #b9c4b4;border-radius:8px;outline:none;background:#fff;color:#1d2330;color-scheme:light}
+.neko-ask-row{display:flex;gap:8px}.neko-ask input{flex:1;min-width:0;font:inherit;font-size:14px;padding:8px 10px;border:1px solid #b9c4b4;border-radius:8px;outline:none;background:#fff;color:#1d2330;color-scheme:light}
 .neko-ask input:focus{border-color:#2f7d4e}.neko-ask button{font:inherit;font-size:13px;padding:8px 14px;border-radius:8px;border:1px solid #2f7d4e;background:#2f7d4e;color:#fff;cursor:pointer}
 .neko-ask .choices{display:flex;flex-wrap:wrap;gap:8px}.neko-ask .choices button{background:#f4f6f1;color:#1d2330;border-color:#c9d3c4}.neko-ask .choices button:hover{border-color:#2f7d4e}`;
 
@@ -56,10 +56,19 @@ export class StageOverlay {
       ask.choices.forEach((label, i) => { const button = document.createElement('button'); button.type = 'button'; button.textContent = label || `选项 ${i + 1}`; button.onclick = () => send(label, i + 1); list.append(button); });
       panel.append(list);
     } else {
-      const form = document.createElement('form'), input = document.createElement('input'), ok = document.createElement('button');
+      // No form submission: sandboxed forum iframes lack allow-forms and would block it.
+      const form = document.createElement('div'), input = document.createElement('input'), ok = document.createElement('button');
+      form.className = 'neko-ask-row'; ok.type = 'button';
       input.maxLength = 10000; input.setAttribute('aria-label', ask.question || '回答'); ok.textContent = '确定';
-      form.onsubmit = event => { event.preventDefault(); send(input.value); };
-      input.addEventListener('keydown', event => event.stopPropagation());
+      ok.onclick = () => send(input.value);
+      input.addEventListener('keydown', event => {
+        event.stopPropagation();
+        if (event.key !== 'Enter' || event.isComposing) return;
+        event.preventDefault();
+        // The panel is gone before Enter is released; the project must not see that keyup.
+        addEventListener('keyup', up => { if (up.key === 'Enter') up.stopImmediatePropagation(); }, { capture: true, once: true });
+        send(input.value);
+      });
       form.append(input, ok); panel.append(form); queueMicrotask(() => input.focus({ preventScroll: true }));
     }
     this.ask = panel; this.root.append(panel);
