@@ -38,20 +38,20 @@ Kitten N 在执行积木前就会载入所有造型，因此初始化百分比�
 
 ```powershell
 cargo build
-python tools/build-eisei-pv.py --source E:/test/eisei_pv --out samples/eisei_pv.bcmkn
+python tools/build-eisei-pv.py --source E:/test/eisei_pv --out projects/eisei/eisei_pv.bcmkn
 ```
 
 可用 `--fps`、`--width` 指定素材规格，或用 `--duration 6` 制作短片探针。输出旁的 `.build.json` 记录母版 SHA-256、帧数、规格与文件大小。
 
-构建器会从 `samples/eisei_pv.ts` 读取播放器逻辑，并将实际规格替换进对应初始化积木。修改源码后必须重新运行构建器；只用普通编译命令不会打包 PV 素材。
+构建器会从 `projects/eisei/eisei_pv.ts` 读取播放器逻辑，并将实际规格替换进对应初始化积木。修改源码后必须重新运行构建器；只用普通编译命令不会打包 PV 素材。
 
 验证命令：
 
 ```powershell
-npx tsc --noEmit --strict --lib es2020 ts/nekoc.d.ts samples/eisei_pv.ts
+npx tsc --noEmit --strict --lib es2020 ts/nekoc.d.ts projects/eisei/eisei_pv.ts
 node --test tests/resource-inputs.test.mjs tests/constant-folding.test.mjs
 # 需要 Playwright 与 Edge；依赖不在本仓库时可设置 NEKOC_NODE_MODULES。
-node tools/editor-compat.mjs samples/eisei_pv.bcmkn --channel msedge --out samples/eisei-verification/compat.json
+node tools/editor-compat.mjs projects/eisei/eisei_pv.bcmkn --channel msedge --out projects/eisei/eisei-verification/compat.json
 node tools/verify-eisei-pv.mjs
 ```
 

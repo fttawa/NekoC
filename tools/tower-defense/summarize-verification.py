@@ -5,10 +5,10 @@ from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[2]
 names=['m1','m1-gameplay','m2','m3','m3-ui','m4-normal','m4-final-high','m4-final-low','m5','final-campaign']
-result={'artifact':'samples/starhold.bcmkn','sha256':hashlib.sha256((ROOT/'samples/starhold.bcmkn').read_bytes()).hexdigest(),
+result={'artifact':'projects/starhold/starhold.bcmkn','sha256':hashlib.sha256((ROOT/'projects/starhold/starhold.bcmkn').read_bytes()).hexdigest(),
         'standalonePublishedPlayerVerified':False,'onlineCloudImplemented':False,'evidence':[]}
 for name in names:
-    path=ROOT/'samples/starhold-verification'/name/'report.json'
+    path=ROOT/'projects/starhold/starhold-verification'/name/'report.json'
     if not path.is_file():continue
     report=json.loads(path.read_text(encoding='utf8'))
     samples=report.get('snapshots',[])

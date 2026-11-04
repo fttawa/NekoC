@@ -33,7 +33,7 @@
 3. 生成作品。脚本会量化权重、生成积木 TS，再调用 NekoC 编译成 `out/qwen_mini.bcmkn`。`--prompt` 用来打印 Python 参考实现的贪心续写，可以和播放器里按 T 切到贪心后的结果对照。
 
    ```bash
-   python build.py --nekoc ../NekoC --prompt 从前，有一只小猫
+   python build.py --nekoc ../.. --prompt 从前，有一只小猫
    ```
 
 ## 操作

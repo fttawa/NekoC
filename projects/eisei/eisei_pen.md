@@ -92,14 +92,14 @@
 cargo build
 node tools/measure-eisei-font.mjs
 python tools/build-eisei-pen.py --source E:/test/eisei_pv
-python tools/build-eisei-pen.py --cols 128 --out samples/eisei_pen_128.bcmkn
-python tools/build-eisei-pen.py --cols 128 --fps 5 --out samples/eisei_pen_128_lite.bcmkn
-python tools/build-eisei-pen.py --cols 128 --fps 10 --out samples/eisei_pen_128_compact.bcmkn
-python tools/build-eisei-pen.py --cols 128 --fps 10 --out samples/eisei_pen_128_fixed.bcmkn
+python tools/build-eisei-pen.py --cols 128 --out projects/eisei/eisei_pen_128.bcmkn
+python tools/build-eisei-pen.py --cols 128 --fps 5 --out projects/eisei/eisei_pen_128_lite.bcmkn
+python tools/build-eisei-pen.py --cols 128 --fps 10 --out projects/eisei/eisei_pen_128_compact.bcmkn
+python tools/build-eisei-pen.py --cols 128 --fps 10 --out projects/eisei/eisei_pen_128_fixed.bcmkn
 python -m unittest discover -s tests -p test_eisei_pen.py
-npx tsc --noEmit --strict --lib es2020 ts/nekoc.d.ts samples/eisei_pen.ts
-node tools/editor-compat.mjs samples/eisei_pen.bcmkn --channel msedge --out samples/eisei-pen-verification/compat.json
-node tools/verify-eisei-pv.mjs samples/eisei_pen.bcmkn samples/eisei-pen-verification
+npx tsc --noEmit --strict --lib es2020 ts/nekoc.d.ts projects/eisei/eisei_pen.ts
+node tools/editor-compat.mjs projects/eisei/eisei_pen.bcmkn --channel msedge --out projects/eisei/eisei-pen-verification/compat.json
+node tools/verify-eisei-pv.mjs projects/eisei/eisei_pen.bcmkn projects/eisei/eisei-pen-verification
 ```
 
 可用 `--start 60 --duration 8 --out ...` 构建密集片段探针；`--cols` 支持原工程的四种网格，默认 96 列。更大网格需重新评估运行性能。

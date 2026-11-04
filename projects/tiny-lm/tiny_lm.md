@@ -43,17 +43,17 @@ Enter 打开输入框后，填写开头并点击旁边的 **✓ 确认按钮**�
 
 ## 训练数据与能力边界
 
-- 数据由 [`corpus.py`](../tools/tiny-lm/corpus.py) 在本机生成：小动物、地点、天气和心情的受限短句组合，没有下载语料或预训练检查点。
+- 数据由 [`corpus.py`](../../tools/tiny-lm/corpus.py) 在本机生成：小动物、地点、天气和心情的受限短句组合，没有下载语料或预训练检查点。
 - 按完整且去重的文档切分：训练 3,159 条、验证 351 条；验证集是**同一合成语法中的未见组合**，不是开放语言理解测试。
-- 离线 PyTorch 训练 1,800 步，batch 64，seed 1337。训练配置、损失历史、数据摘要及权重都保存在 [`model.json`](../assets/tiny-lm/model.json)。
+- 离线 PyTorch 训练 1,800 步，batch 64，seed 1337。训练配置、损失历史、数据摘要及权重都保存在 [`model.json`](../../assets/tiny-lm/model.json)。
 - NumPy 验证集交叉熵 **0.4881 nats/token**，困惑度 **1.629**，top-1 准确率 **77.52%**；均匀随机基线交叉熵 4.3694。这些数值只能说明窄语法学习效果，不能外推为聊天能力。
 - 训练文档最长 20 字。虽然实现有 64-token 容量，**长上下文位置没有得到充分训练**，容量不等于可靠长文本能力。
 - 不支持词表外的汉字、英文或 emoji，不具备可靠事实知识、推理、指令遵循、多轮对话或安全问答能力。
 
 ## 验证证据
 
-1. **训练结构 → NumPy：** [`training-parity.json`](../assets/tiny-lm/training-parity.json) 比较导出权重的 PyTorch FP64 前向与独立 NumPy 实现，包括完整 64-token 缓存边界。
-2. **NumPy 完整上下文 → KV cache：** [`reference.json`](../assets/tiny-lm/reference.json) 保存六组提示词的参考 logits；两条算法最大差约 `7.83e-15`。
+1. **训练结构 → NumPy：** [`training-parity.json`](../../assets/tiny-lm/training-parity.json) 比较导出权重的 PyTorch FP64 前向与独立 NumPy 实现，包括完整 64-token 缓存边界。
+2. **NumPy 完整上下文 → KV cache：** [`reference.json`](../../assets/tiny-lm/reference.json) 保存六组提示词的参考 logits；两条算法最大差约 `7.83e-15`。
 3. **源码算术 → NumPy：** `tests/tiny-lm.test.mjs` 执行生成的 TypeScript 内核，检查多组提示词的整组 logits、贪心生成、采样确定性、EOS、非法字符和作品结构。
 4. **官方原生运行 → NumPy：** [`report.json`](tiny-lm-verification/report.json) 来自缓存官方 0.27.4 编辑器内原生运行时；[`numerical-parity.json`](tiny-lm-verification/numerical-parity.json) 在播放结束后重算和核对每组输出 ID 及 logits。参考计算**不参与作品执行**。
 
@@ -79,26 +79,26 @@ Enter 打开输入框后，填写开头并点击旁边的 **✓ 确认按钮**�
 
 ## 源码与重建
 
-- [`runtime.ts`](../modules/tiny-lm/runtime.ts)：注意力、解码、界面与控制。
-- [`build.py`](../tools/tiny-lm/build.py)：生成专门化矩阵内核、编译作品、嵌入权重、局部化 scratch 数据。
+- [`runtime.ts`](../../modules/tiny-lm/runtime.ts)：注意力、解码、界面与控制。
+- [`build.py`](../../tools/tiny-lm/build.py)：生成专门化矩阵内核、编译作品、嵌入权重、局部化 scratch 数据。
 - [`tiny_lm.ts`](tiny_lm.ts)：生成的完整可检查源码。**普通 compile-ts-bcmkn 不会自动嵌入权重，需使用构建器。**
-- [`reference.py`](../tools/tiny-lm/reference.py)：独立 NumPy 完整与缓存推理。
-- [`train.py`](../tools/tiny-lm/train.py)：离线训练，仅此步骤需要 PyTorch。
+- [`reference.py`](../../tools/tiny-lm/reference.py)：独立 NumPy 完整与缓存推理。
+- [`train.py`](../../tools/tiny-lm/train.py)：离线训练，仅此步骤需要 PyTorch。
 
 ```powershell
 # 已有权重：无需训练，Python 标准库即可构建；依赖已安装的 node/typescript 和 nekoc.exe。
 python tools/tiny-lm/build.py
 # 编译自行修改的完整源码，并从原作品保留权重；不会重新生成/覆盖输入源码。
 python tools/tiny-lm/build.py --source D:/Downloads/tiny_lm_compatible.ts --banks-from D:/Downloads/tiny_lm.bcmkn --out D:/Downloads/tiny_lm_rebuilt.bcmkn
-node node_modules/typescript/bin/tsc --noEmit --strict --lib es2020 ts/nekoc.d.ts samples/tiny_lm.ts
-.\target\debug\nekoc.exe validate samples/tiny_lm.bcmkn
+node node_modules/typescript/bin/tsc --noEmit --strict --lib es2020 ts/nekoc.d.ts projects/tiny-lm/tiny_lm.ts
+.\target\debug\nekoc.exe validate projects/tiny-lm/tiny_lm.bcmkn
 node --test tests/resource-inputs.test.mjs tests/tiny-lm.test.mjs
 
 # NumPy 独立参考及评估
 python tools/tiny-lm/evaluate.py
 
 # 使用已缓存的官方运行时和 Playwright，全程离线验证作品。
-node tools/tiny-lm/verify.mjs samples/tiny_lm.bcmkn samples/tiny-lm-verification
+node tools/tiny-lm/verify.mjs projects/tiny-lm/tiny_lm.bcmkn projects/tiny-lm/tiny-lm-verification
 python tools/tiny-lm/check-native.py
 
 # 可选：在单独的、已安装 PyTorch 的环境重新训练及检查导出。

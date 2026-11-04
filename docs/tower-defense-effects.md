@@ -18,4 +18,4 @@ SHA256 `f00821a833a2c7bb036a06cb16d59b979fd81d376e400b3066d2096b95b60809`。
 
 所有场景无原生错误/警告，外部响应与完成均0。高低比较并非逐帧完全相同的状态，不将微小差异解读为低画质更慢。24敌时核心扫描/积木调度成为主要瓶颈，**30更新FPS目标没有在压力场景达成**，保留为已知问题。关闭全部特效也不能据此承诺解决；M3无特效同类早期压力尝试约17–30更新FPS。
 
-证据目录：`samples/starhold-verification/m4-normal`、`m4-final-high`、`m4-final-low`；早期试验`m4-high`/`m4-optimized`不是最终版本。
+证据目录：`projects/starhold/starhold-verification/m4-normal`、`m4-final-high`、`m4-final-low`；早期试验`m4-high`/`m4-optimized`不是最终版本。

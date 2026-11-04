@@ -32,7 +32,7 @@ fn compare(name: &str, keys: &[&str]) {
 }
 
 fn compare_with(name: &str, keys: &[&str], tapped: &[&str], expect_positive: Option<&str>) {
-    let path = format!("samples/{name}");
+    let path = name;
     let text = std::fs::read_to_string(&path).unwrap();
     let project: Value = serde_json::from_str(text.trim_start_matches('\u{feff}')).unwrap();
     let mut a = engine(&project, false);
@@ -103,29 +103,29 @@ fn compare_with(name: &str, keys: &[&str], tapped: &[&str], expect_positive: Opt
 
 #[test]
 fn pencraft_matches_interpreter() {
-    compare("pencraft.bcmkn", &["87", "39"]);
+    compare("projects/pencraft/pencraft.bcmkn", &["87", "39"]);
 }
 #[test]
 fn polyhedron_matches_interpreter() {
-    compare("pen_polyhedron.bcmkn", &[]);
+    compare("samples/pen_polyhedron.bcmkn", &[]);
 }
 #[test]
 fn pen_display_matches_interpreter() {
-    compare("pen_display_fast.bcmkn", &[]);
+    compare("samples/pen_display_fast.bcmkn", &[]);
 }
 #[test]
 fn columns_match_interpreter() {
-    compare("pen_display_columns.bcmkn", &[]);
+    compare("samples/pen_display_columns.bcmkn", &[]);
 }
 #[test]
 fn starhold_matches_interpreter() {
-    compare("starhold.bcmkn", &[]);
+    compare("projects/starhold/starhold.bcmkn", &[]);
 }
 #[test]
 fn native_studio_matches_interpreter() {
-    compare("native-studio.bcmkn", &[]);
+    compare("samples/native-studio.bcmkn", &[]);
 }
 #[test]
 fn tiny_lm_generation_matches_interpreter() {
-    compare_with("tiny_lm.bcmkn", &[], &["51"], Some("lm_generated"));
+    compare_with("projects/tiny-lm/tiny_lm.bcmkn", &[], &["51"], Some("lm_generated"));
 }

@@ -105,7 +105,7 @@ def main():
         for c in make():
             if c is None:H.append(-1);Sa.append(0);V.append(0);continue
             h,s,v=colorsys.rgb_to_hsv(*(x/255 for x in c));H.append(round(h*360,1));Sa.append(round(s*100,1));V.append(round(v*100,1))
-    src=ROOT/'modules/fangjie/game.ts';out=ROOT/'samples/fangjie.bcmkn'
+    src=ROOT/'modules/fangjie/game.ts';out=ROOT/'projects/fangjie/fangjie.bcmkn'
     subprocess.run([str(ROOT/'target/debug/nekoc.exe'),'compile-ts-bcmkn',str(src),'--template',str(ROOT/'samples/kitten-n-0.27.4.bcmkn'),'--out',str(out)],check=True)
     p=json.loads(out.read_text(encoding='utf-8-sig'));p['projectName']='方界'
     names=['草方块','泥土','石头','沙子','原木','树叶','木板','圆石','煤矿石','铁矿石','金矿石','钻石矿石','玻璃','红砖','水','雪块','基岩','工作台']

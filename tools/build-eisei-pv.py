@@ -1,6 +1,6 @@
 """Build a self-contained native Kitten N PV from the user's rendered master.
 
-python tools/build-eisei-pv.py --source E:/test/eisei_pv --out samples/eisei_pv.bcmkn
+python tools/build-eisei-pv.py --source E:/test/eisei_pv --out projects/eisei/eisei_pv.bcmkn
 Use --duration 6 --out <temp>/prototype.bcmkn for a small runtime probe.
 """
 import argparse
@@ -49,7 +49,7 @@ def main():
         run("ffmpeg", "-v", "error", "-i", master, "-vn", "-af",
             f"atrim=duration={args.duration},asetpts=PTS-STARTPTS,adelay=3000:all=1",
             "-c:a", "libmp3lame", "-b:a", "192k", tmp / "song.mp3")
-        source = (ROOT / "samples/eisei_pv.ts").read_text(encoding="utf-8")
+        source = (ROOT / "projects/eisei/eisei_pv.ts").read_text(encoding="utf-8")
         source = source.replace('10); // BUILD_FPS', f'{args.fps}); // BUILD_FPS')
         source = source.replace('1435); // BUILD_FRAMES', f'{count}); // BUILD_FRAMES')
         source = source.replace('143.5); // BUILD_DURATION', f'{args.duration}); // BUILD_DURATION')

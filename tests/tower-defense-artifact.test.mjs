@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-const project=JSON.parse(readFileSync(new URL('../samples/starhold.bcmkn',import.meta.url),'utf8'));
+const project=JSON.parse(readFileSync(new URL('../projects/starhold/starhold.bcmkn',import.meta.url),'utf8'));
 function* blocks(value){
   if(!value||typeof value!=='object')return;
   if(value.id&&value.type)yield value;

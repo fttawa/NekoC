@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 const require=createRequire(process.env.NEKOC_NODE_MODULES?path.join(process.env.NEKOC_NODE_MODULES,'package.json'):import.meta.url);
 const {chromium}=require('playwright');
 const output='D:/AppData/Local/Temp/opencode/neko-starhold';await mkdir(output,{recursive:true});
-const project=JSON.parse(await readFile('samples/starhold.bcmkn','utf8'));
+const project=JSON.parse(await readFile('projects/starhold/starhold.bcmkn','utf8'));
 const names=Object.keys(project.variables.variablesDict).filter(id=>project.variables.variablesDict[id].type!=='list').sort();
 const slots=Object.fromEntries(names.map((name,i)=>[name.replace(/^kn-var-/,''),i]));
 const report={tests:[],errors:[]};
@@ -15,7 +15,7 @@ async function waitVar(name,value){await page.waitForFunction(({i,value})=>windo
 async function click(x,y){const box=await page.locator('#stage').boundingBox();await page.mouse.click(box.x+(x+450)/900*box.width,box.y+(281-y)/562*box.height);}
 try{
   await page.goto('http://127.0.0.1:4173/play');await page.waitForFunction(()=>window.nekoPlayDiagnostics?.().busy===false);
-  await page.locator('#file').setInputFiles('samples/starhold.bcmkn');await waitVar('ready',1);
+  await page.locator('#file').setInputFiles('projects/starhold/starhold.bcmkn');await waitVar('ready',1);
   assert.ok(await page.evaluate(()=>window.nekoPlayDiagnostics().playable));
   await page.screenshot({path:`${output}/title.png`});
   await page.locator('#stage').focus();await page.keyboard.down('Enter');

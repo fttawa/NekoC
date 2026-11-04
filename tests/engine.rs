@@ -95,7 +95,7 @@ fn costume_selection_opacity_and_pen_order_survive_idle_and_reset() {
 
 #[test]
 fn starhold_compiles_and_key_release_enters_level_selection() {
-    let p = nekoc::project::load_project("samples/starhold.bcmkn")
+    let p = nekoc::project::load_project("projects/starhold/starhold.bcmkn")
         .unwrap()
         .value;
     let mut vm = Engine::new(Program::compile(&p).unwrap());
@@ -1289,7 +1289,7 @@ fn pen_properties_match_hsl_backed_black_and_preserve_transparency() {
 
 #[test]
 fn pencraft_imported_mixed_lists_locals_and_procedures_execute() {
-    let project = nekoc::project::load_project("samples/pencraft.bcmkn").unwrap();
+    let project = nekoc::project::load_project("projects/pencraft/pencraft.bcmkn").unwrap();
     let program = Program::compile(&project.value).unwrap();
     let frames = program
         .variable_names

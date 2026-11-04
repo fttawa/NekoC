@@ -4,8 +4,8 @@
 
 **离线游戏与本地社交降级版已交付；完整任务尚有两项硬性边界未完成：独立官方发布播放器验收、真实云端榜单/聊天室。**
 
-- 作品：[`samples/starhold.bcmkn`](../samples/starhold.bcmkn)
-- 操作/重建：[`samples/starhold.md`](../samples/starhold.md)
+- 作品：[`projects/starhold/starhold.bcmkn`](../projects/starhold/starhold.bcmkn)
+- 操作/重建：[`projects/starhold/starhold.md`](../projects/starhold/starhold.md)
 - 设计：[`tower-defense-design.md`](tower-defense-design.md)
 - 云限制与格式：[`tower-defense-cloud.md`](tower-defense-cloud.md)
 - 进度/提交/FPS：[`tower-defense-progress.md`](tower-defense-progress.md)

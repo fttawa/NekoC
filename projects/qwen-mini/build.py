@@ -1,5 +1,5 @@
 """ckpt.pt -> out/qwen_mini.bcmkn: quantize, generate blocks, compile with NekoC.
-  python build.py --nekoc ../NekoC [--ckpt ckpt.pt] [--greedy] [--prompt 从前，有一只小猫]"""
+  python build.py --nekoc ../.. [--ckpt ckpt.pt] [--greedy] [--prompt 从前，有一只小猫]"""
 import argparse, os, subprocess, sys
 
 ap = argparse.ArgumentParser()

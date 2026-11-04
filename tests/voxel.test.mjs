@@ -6,7 +6,7 @@ import ts from 'typescript';
 import {execFileSync} from 'node:child_process';
 
 function harness(deferred=false){
-  const project=JSON.parse(fs.readFileSync('samples/pencraft.bcmkn','utf8'));
+  const project=JSON.parse(fs.readFileSync('projects/pencraft/pencraft.bcmkn','utf8'));
   const vars={},lists={},procs={},keys=new Set(),strokes=[],paint=[];
   let pen=false,moved=false,x=0,y=0;
   for(const x of Object.values(project.variables.variablesDict))if(x.type==='list')lists[x.name]=structuredClone(x.value);

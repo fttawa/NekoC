@@ -119,7 +119,7 @@ def localize(project):
 
 def main():
     ap=argparse.ArgumentParser()
-    ap.add_argument('--out',type=Path,default=ROOT/'samples/tiny_lm.bcmkn')
+    ap.add_argument('--out',type=Path,default=ROOT/'projects/tiny-lm/tiny_lm.bcmkn')
     ap.add_argument('--source',type=Path,help='Compile an existing complete TinyLM source without regenerating it')
     ap.add_argument('--banks-from',type=Path,help='Preserve embedded weights/vocabulary from an existing project')
     args=ap.parse_args()
@@ -140,7 +140,7 @@ def main():
     else:
         source=generated+(ROOT/'modules/tiny-lm/runtime.ts').read_text(encoding='utf8')
         source=source.replace('__VOCAB__',str(model['architecture']['vocab'])).replace('__PARAMETERS__',str(model['parameterCount']))
-        entry=ROOT/'samples/tiny_lm.ts';entry.write_text(source,encoding='utf8')
+        entry=ROOT/'projects/tiny-lm/tiny_lm.ts';entry.write_text(source,encoding='utf8')
     args.out.parent.mkdir(parents=True,exist_ok=True)
     subprocess.run([str(ROOT/'target/debug/nekoc.exe'),'compile-ts-bcmkn',str(entry),'--template',str(ROOT/'samples/kitten-n-0.27.4.bcmkn'),'--out',str(args.out)],cwd=ROOT,check=True)
     project=json.loads(args.out.read_text(encoding='utf8'))

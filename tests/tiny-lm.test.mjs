@@ -5,8 +5,8 @@ import vm from 'node:vm';
 import ts from 'typescript';
 const model=JSON.parse(fs.readFileSync('assets/tiny-lm/model.json','utf8'));
 const reference=JSON.parse(fs.readFileSync('assets/tiny-lm/reference.json','utf8'));
-const sourcePath=process.env.NEKOC_TINY_LM_SOURCE||'samples/tiny_lm.ts';
-const artifactPath=process.env.NEKOC_TINY_LM_PROJECT||'samples/tiny_lm.bcmkn';
+const sourcePath=process.env.NEKOC_TINY_LM_SOURCE||'projects/tiny-lm/tiny_lm.ts';
+const artifactPath=process.env.NEKOC_TINY_LM_PROJECT||'projects/tiny-lm/tiny_lm.bcmkn';
 
 function harness(){
   const vars={lm_position:0},lists={},procs={},keys={};let start,frame;

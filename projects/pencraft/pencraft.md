@@ -74,9 +74,9 @@
 ```powershell
 python tools/build-pencraft.py
 node --test tests/voxel.test.mjs tests/unary-negative.test.mjs
-node node_modules/typescript/bin/tsc --noEmit --strict --lib es2020 ts/nekoc.d.ts samples/pencraft.ts modules/voxel/present.ts
+node node_modules/typescript/bin/tsc --noEmit --strict --lib es2020 ts/nekoc.d.ts projects/pencraft/pencraft.ts modules/voxel/present.ts
 $env:NEKOC_NODE_MODULES='D:\AppData\Local\Temp\opencode\nekoc-kitenn\node_modules'
-node tools/verify-pencraft.mjs samples/pencraft-verification-flicker-fixed
+node tools/verify-pencraft.mjs projects/pencraft/pencraft-verification-flicker-fixed
 ```
 
 设置 `NEKOC_PROFILE=1` 可额外保存 CPU profile；正常基准默认关闭采样器。验证器只在截图请求时捕获下一次清屏前的完整画笔帧。玩法测试会设置固定位置、时间等测试条件，再执行项目原生逻辑；这不等同于所有条件均通过纯手工按键完成。
@@ -89,4 +89,4 @@ node tools/verify-pencraft.mjs samples/pencraft-verification-flicker-fixed
 
 最终修复版完整玩法回归：**5869次浏览器刷新检查，0次半帧，271次完整提交**；零页面错误、零检测到的运行告警。当前可见工作区571个积木的字段及连接检查通过；还覆盖扫描带2、视距15与帮助叠层。三段8秒基准为 **6.74 / 7.74 / 6.11 FPS，总平均6.87 FPS**，单次集中提交中位耗时14.4ms。该次测量不代表所有设备保证达到同样速度。报告：[`pencraft-verification-flicker-fixed/report.json`](pencraft-verification-flicker-fixed/report.json)。
 
-源代码：`samples/pencraft.ts`、`modules/voxel/`。构建器 `tools/build-pencraft.py` 负责模块拼接、将绘图调用接入 `present.ts` 的原生命令队列、生成有界提交树、原生脚本变量转换、初始网格与项目打包。仍然使用原生画笔线段，没有像素帧缓冲或浏览器注入绘图。
+源代码：`projects/pencraft/pencraft.ts`、`modules/voxel/`。构建器 `tools/build-pencraft.py` 负责模块拼接、将绘图调用接入 `present.ts` 的原生命令队列、生成有界提交树、原生脚本变量转换、初始网格与项目打包。仍然使用原生画笔线段，没有像素帧缓冲或浏览器注入绘图。

@@ -88,7 +88,7 @@ node tools/tower-defense/verify.mjs samples/pen_display_fast.bcmkn D:/AppData/Lo
 ```
 
 For STARHOLD, clear `KN_SCENARIO` or point it to a STARHOLD action file, and pass
-the generated `samples/starhold.bcmkn`; automatic counter selection uses `frames`.
+the generated `projects/starhold/starhold.bcmkn`; automatic counter selection uses `frames`.
 
 `m1-actions.json` is the parent-prescribed M1 scenario. Object-format scenarios
 have `before`, `benchmark`, and `after`. The M1 benchmark begins after Enter,
@@ -123,13 +123,13 @@ runtime factory is modified.
 Project SHA-256:
 `710f32c3a74701bb78103fc3ec6edf0ae86a4ca0e367aed7ecc76964b5fbeba9`.
 
-- `samples/starhold-verification/m1/`: parent-prescribed three Pulse purchases,
+- `projects/starhold/starhold-verification/m1/`: parent-prescribed three Pulse purchases,
   wave-1 combat, visible actor layer assertions, 51/51 loaded embedded SVG styles.
   Final retained parent run: 952 controller frames / 12.0635s = **78.9157 update
   FPS**, **88.4486 rAF Hz**, 1,067 native updates. Per-window update FPS:
   79.4817 / 76.9727 / 80.2963. An earlier agent rerun reported higher rates;
   use the retained `report.json` and `frame-metrics.json` above.
-- `samples/starhold-verification/m1-gameplay/`: ordinary-gold central Pulse P3,
+- `projects/starhold/starhold-verification/m1-gameplay/`: ordinary-gold central Pulse P3,
   then entry and middle Pulse upgrades between waves. All four waves won with
   44 kills, 20 lives, three stars, score 7,660, gold 196. `R` resets normally.
   The subsequent undefended run loses on wave 3 (0 lives, 0 kills, 0 stars,
@@ -146,5 +146,5 @@ Project SHA-256:
   state and counters are readable, and the parent can polish layout later.
 
 Reproduce the campaign with `KN_SCENARIO=tools/tower-defense/m1-gameplay-actions.json`
-and output `samples/starhold-verification/m1-gameplay`. No commits were made by
+and output `projects/starhold/starhold-verification/m1-gameplay`. No commits were made by
 the verification agent.

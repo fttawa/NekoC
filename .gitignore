@@ -19,9 +19,9 @@ __pycache__/
 /dist/
 
 # qwen-mini：训练数据、权重和构建产物不入库
-/qwen-mini/data/
-/qwen-mini/out/
-/qwen-mini/*.pt
-/qwen-mini/*.npy
-/qwen-mini/layout.json
-/qwen-mini/params.json
+/projects/qwen-mini/data/
+/projects/qwen-mini/out/
+/projects/qwen-mini/*.pt
+/projects/qwen-mini/*.npy
+/projects/qwen-mini/layout.json
+/projects/qwen-mini/params.json

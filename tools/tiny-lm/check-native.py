@@ -11,7 +11,7 @@ import numpy as np
 from reference import Reference,ROOT
 
 def main():
-    ap=argparse.ArgumentParser();ap.add_argument('report',type=Path,nargs='?',default=ROOT/'samples/tiny-lm-verification/report.json');args=ap.parse_args()
+    ap=argparse.ArgumentParser();ap.add_argument('report',type=Path,nargs='?',default=ROOT/'projects/tiny-lm/tiny-lm-verification/report.json');args=ap.parse_args()
     report=json.loads(args.report.read_text(encoding='utf8'));assert report.get('ok'),report.get('failure')
     artifact=Path(report['project']);assert hashlib.sha256(artifact.read_bytes()).hexdigest()==report['projectSha256']
     assert report['nativeEvents']['errors']==[] and report['nativeEvents']['warnings']==[]

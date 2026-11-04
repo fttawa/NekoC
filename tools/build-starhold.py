@@ -150,7 +150,7 @@ def main():
     assets.generate(ROOT/'assets/tower-defense')
     manifest=json.loads((ROOT/'assets/tower-defense/manifest.json').read_text(encoding='utf8'))
     source=source_for(args.milestone)
-    out=ROOT/'samples/starhold.bcmkn'
+    out=ROOT/'projects/starhold/starhold.bcmkn'
     with tempfile.TemporaryDirectory(prefix='starhold-',dir='D:/AppData/Local/Temp/opencode') as tmp:
         entry=Path(tmp)/'main.ts';entry.write_text(source,encoding='utf8')
         subprocess.run([str(ROOT/'target/debug/nekoc.exe'),'compile-ts-bcmkn',str(entry),'--template',str(ROOT/'samples/kitten-n-0.27.4.bcmkn'),'--out',str(out)],check=True)
@@ -213,12 +213,12 @@ def main():
     localize(p)
     for key in locals_by_id:del p['variables']['variablesDict'][key]
     data=json.dumps(p,ensure_ascii=False,separators=(',',':')).encode();out.write_bytes(data)
-    (ROOT/'samples/starhold.ts').write_text(source,encoding='utf8')
+    (ROOT/'projects/starhold/starhold.ts').write_text(source,encoding='utf8')
     def count(x):
         if isinstance(x,dict):return int('type' in x and 'id' in x)+sum(count(v) for v in x.values())
         if isinstance(x,list):return sum(count(v) for v in x)
         return 0
     report={'milestone':args.milestone,'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest(),'actors':len(actors),'styles':len(styles),'blocks':count(p),'renderer':'native SVG actor pool + text-only stamps','networkResources':0}
-    (ROOT/'samples/starhold.build.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf8');print(json.dumps(report))
+    (ROOT/'projects/starhold/starhold.build.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf8');print(json.dumps(report))
 
 if __name__=='__main__':main()

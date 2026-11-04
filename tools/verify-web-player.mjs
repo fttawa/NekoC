@@ -13,7 +13,7 @@ const report={tests:[],errors};
 try{
   await page.goto('http://127.0.0.1:4173/play');await page.waitForFunction(()=>window.nekoPlayDiagnostics?.().busy===false);
   assert.equal(await page.locator('#blocks').count(),0);
-  const chooser=page.waitForEvent('filechooser');await page.locator('#import').click();await(await chooser).setFiles('samples/pencraft.bcmkn');
+  const chooser=page.waitForEvent('filechooser');await page.locator('#import').click();await(await chooser).setFiles('projects/pencraft/pencraft.bcmkn');
   await page.waitForFunction(()=>window.nekoPlayDiagnostics().frame?.variables[13]>=5);
   const before=await page.evaluate(()=>window.nekoPlayDiagnostics().frame.variables[29]);
   await page.locator('#stage').focus();await page.keyboard.down('w');

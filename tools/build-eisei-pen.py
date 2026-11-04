@@ -98,7 +98,7 @@ def decode_frames(path):
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--source", type=Path, default=Path("E:/test/eisei_pv"))
-    ap.add_argument("--out", type=Path, default=ROOT/"samples/eisei_pen.bcmkn")
+    ap.add_argument("--out", type=Path, default=ROOT/"projects/eisei/eisei_pen.bcmkn")
     ap.add_argument("--cols", type=int, choices=[96,128,160,192], default=96)
     ap.add_argument("--fps", type=int, default=10)
     ap.add_argument("--start", type=float, default=0)
@@ -158,7 +158,7 @@ def main():
     tables = {**{n:v for n,v in tables.items() if n in ("ep_h","ep_s","ep_v")},**banks}
     with tempfile.TemporaryDirectory(prefix="eisei-pen-",dir="D:/AppData/Local/Temp/opencode") as temp:
         temp=Path(temp)
-        source=(ROOT/"samples/eisei_pen.ts").read_text(encoding="utf-8")
+        source=(ROOT/"projects/eisei/eisei_pen.ts").read_text(encoding="utf-8")
         for name,value in {"ROWS":rows,"FPS":args.fps,"FRAMES":frame_count,"DURATION":args.duration,"WIDTH":args.cols*10,"HEIGHT":rows*20}.items():
             source=source.replace(f"0); // BUILD_{name}",f"{value}); // BUILD_{name}")
         (temp/"player.ts").write_text(source,encoding="utf-8")
