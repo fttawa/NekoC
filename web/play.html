@@ -39,9 +39,9 @@
   <section class="tile settings-tile">
     <button id="settings-toggle" class="settings-head" aria-expanded="true" aria-controls="settings"><span>性能设置</span><span class="chevron" aria-hidden="true">⌄</span></button>
     <div id="settings" class="settings" aria-label="性能控制">
-      <div class="setting"><label for="frame-limit">更新上限</label><select id="frame-limit"><option value="30">30 / 秒 · 省电</option><option value="60" selected>60 / 秒 · 均衡</option><option value="120">120 / 秒 · 高刷新</option><option value="0">不限 · 跟随屏幕</option></select><small>限制运行更新频率，实际速度取决于作品。</small></div>
-      <div class="setting"><label for="budget">执行预算</label><select id="budget"><option value="2">2 ms · 低占用</option><option value="4" selected>4 ms · 均衡</option><option value="8">8 ms · 高性能</option><option value="12">12 ms · 最大吞吐</option></select><small>每次运行更新的 CPU 软预算。</small></div>
-      <div class="setting"><label for="resolution">渲染精度</label><select id="resolution"><option value="0.5">0.5× · 省电</option><option value="1" selected>1× · 原始分辨率</option><option value="2">2× · 精细</option></select><small>实时切换，保留当前游戏进度与画笔图层。</small></div>
+      <div class="setting"><label for="frame-limit">更新上限</label><select id="frame-limit"><option value="30">30 / 秒 · 省电</option><option value="60" selected>60 / 秒 · 均衡</option><option value="120">120 / 秒 · 高刷新</option><option value="0">跟随屏幕</option><option value="240">240 / 秒</option><option value="480">480 / 秒</option><option value="1000">1000 / 秒</option><option value="-1">不限 · 算完就下一轮</option></select><small>限制运行更新频率，可高于屏幕刷新率。按帧计数的作品逻辑会随之变快。</small></div>
+      <div class="setting"><label for="budget">执行预算</label><select id="budget"><option value="2">2 ms · 低占用</option><option value="4">4 ms · 均衡</option><option value="8">8 ms</option><option value="12" selected>12 ms · 高性能</option><option value="16">16 ms · 最大吞吐</option></select><small>每次运行更新的 CPU 软预算；没算完会立即接着算。</small></div>
+      <div class="setting"><label for="resolution">渲染精度</label><select id="resolution"><option value="0" selected>跟随显示 · 最清晰</option><option value="0.5">0.5× · 省电</option><option value="1">1× · 原始分辨率</option><option value="2">2× · 精细</option></select><small>实时切换，保留当前游戏进度与画笔图层。</small></div>
       <div class="setting"><label for="coalesce">合并无画面更新</label><select id="coalesce"><option value="0" selected>关闭 · 官方节奏</option><option value="1">开启 · 实验</option></select><small>一次更新内连续执行没有画面变化的轮次（时间不前进）。分步绘制的作品更流畅，但只改变量的循环会跑得更快。</small></div>
     </div>
   </section>

@@ -344,7 +344,7 @@ fn frame_bytes(vm: &mut Engine, payload: &Value) -> Result<Vec<u8>> {
     };
     let frame = vm.advance_with(
         payload["dt"].as_f64().unwrap_or(1.0 / 60.0),
-        500_000,
+        usize::MAX,
         frame_budget(payload),
         ticks,
     )?;

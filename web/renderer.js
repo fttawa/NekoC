@@ -51,10 +51,12 @@ function program(gl, vertex, fragment) {
   return p;
 }
 
+const MAX_SCALE = 4;
+
 export class StageRenderer {
   constructor(canvas) {
     this.canvas = canvas;
-    const gl = canvas.getContext('webgl2', { alpha: false, antialias: false, preserveDrawingBuffer: false });
+    const gl = canvas.getContext('webgl2', { alpha: false, antialias: false, preserveDrawingBuffer: false, powerPreference: 'high-performance' });
     if (!gl) throw Error('需要支持 WebGL 2 的浏览器。');
     this.gl = gl; this.pen = program(gl, PEN_VERTEX, PEN_FRAGMENT); this.texture = program(gl, TEXTURE_VERTEX, TEXTURE_FRAGMENT);
     this.penSize = gl.getUniformLocation(this.pen, 'stageSize');
@@ -89,7 +91,7 @@ export class StageRenderer {
     this.width = Number(project.stageSize?.width || 900); this.height = Number(project.stageSize?.height || 562);
     if (![this.width,this.height].every(n => Number.isFinite(n) && n >= 1 && n <= 8192)) throw Error('无效舞台尺寸');
     const limit = gl.getParameter(gl.MAX_TEXTURE_SIZE);
-    const scale = Math.min(this.resolutionScale ?? (devicePixelRatio || 1), 2, limit / Math.max(this.width, this.height));
+    const scale = Math.min(this.resolutionScale === 0 ? this.displayScale() : this.resolutionScale ?? (devicePixelRatio || 1), MAX_SCALE, limit / Math.max(this.width, this.height));
     this.canvas.width = Math.ceil(this.width * scale); this.canvas.height = Math.ceil(this.height * scale);
     this.canvas.style.aspectRatio = `${this.width}/${this.height}`;
     this.stats.textureBytes = 0;
@@ -161,10 +163,18 @@ export class StageRenderer {
     }
   }
 
+  // Device pixels per stage unit at the stage's current on-screen size, in half steps.
+  displayScale() {
+    const shown=this.canvas.getBoundingClientRect().width*(devicePixelRatio||1);
+    return Math.min(Math.max(Math.ceil(shown/this.width*2)/2,1),MAX_SCALE);
+  }
+
+  // 0 follows the display and only ever grows: shrinking would discard pen detail.
   setResolution(scale) {
-    if(!Number.isFinite(scale)||scale<.5||scale>2)throw Error('渲染倍率应在 0.5–2 之间');
+    if(!Number.isFinite(scale)||(scale!==0&&(scale<.5||scale>2)))throw Error('渲染倍率应为 0（跟随显示）或 0.5–2');
     this.resolutionScale=scale;
     if(!this.framebuffer||this.lost)return;
+    if(scale===0)scale=Math.max(this.displayScale(),this.canvas.width/this.width);
     const gl=this.gl,limit=gl.getParameter(gl.MAX_TEXTURE_SIZE);
     scale=Math.min(scale,limit/Math.max(this.width,this.height));
     const width=Math.ceil(this.width*scale),height=Math.ceil(this.height*scale);

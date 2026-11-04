@@ -4,6 +4,7 @@
 use anyhow::{Context, Result, bail, ensure};
 use serde::Serialize;
 use serde_json::Value;
+mod jit;
 mod value;
 use std::{cell::RefCell, rc::Rc};
 use std::{
@@ -2868,6 +2869,8 @@ pub struct Frame {
 }
 pub struct Engine {
     pub program: Program,
+    jit: Option<Box<jit::Jit>>,
+    jit_error: Option<anyhow::Error>,
     /// Last on_bump_actor contact per (script, instance).
     bump_state: std::collections::HashMap<(usize, usize), Option<usize>>,
     has_bump_scripts: bool,
@@ -2968,7 +2971,16 @@ impl Engine {
         lines.clear();
         self.lines = lines;
     }
+    /// Fixes the random sequence (seeded from the clock by default).
+    pub fn set_random_seed(&mut self, seed: u64) {
+        self.random_state = seed | 1;
+    }
+    /// Interpreter only: the reference behaviour for differential tests.
+    pub fn disable_jit(&mut self) {
+        self.jit = None;
+    }
     pub fn new(program: Program) -> Self {
+        let jit = jit::Jit::new(program.ops.len());
         let slots = program.initial.clone();
         let lists = program
             .initial_lists
@@ -3028,6 +3040,8 @@ impl Engine {
             stopped: false,
             restart: false,
             reporter_depth: 0,
+            jit,
+            jit_error: None,
             order,
             current_scene,
             scene_orders,
@@ -5779,6 +5793,11 @@ impl Engine {
         }
         Ok(true)
     }
+    fn output_limit_reached(&self) -> bool {
+        self.lines.len() >= 9 * 65536
+            || self.text_stamps.len() >= 1024
+            || self.audio_commands.len() >= 1024
+    }
     /// One scheduler pass. Returns whether the instruction/time/output budget ended it.
     fn tick(
         &mut self,
@@ -5812,18 +5831,31 @@ impl Engine {
             }
             let actor = self.tasks[index].actor;
             self.current_task = index;
+            let mut clock_due = false;
+            let mut since_clock = 0usize;
             loop {
                 if count >= max_instructions
-                    || (count.is_multiple_of(256) && started.elapsed() >= budget)
-                    || self.lines.len() >= 9 * 65536
-                    || self.text_stamps.len() >= 1024
-                    || self.audio_commands.len() >= 1024
+                    || ((std::mem::take(&mut clock_due) || count.is_multiple_of(256))
+                        && started.elapsed() >= budget)
+                    || self.output_limit_reached()
                 {
                     exceeded = true;
                     self.cursor = (index + 1) % self.tasks.len();
                     break;
                 }
                 let pc = self.tasks[index].pc;
+                if let Some(used) = self.jit_try(index, pc, actor, max_instructions - count) {
+                    count += used;
+                    if let Some(error) = self.jit_error.take() {
+                        return Err(error);
+                    }
+                    since_clock += used;
+                    if since_clock >= 8192 {
+                        since_clock = 0;
+                        clock_due = true;
+                    }
+                    continue;
+                }
                 let op = self.program.ops[pc];
                 self.tasks[index].pc += 1;
                 count += 1;
