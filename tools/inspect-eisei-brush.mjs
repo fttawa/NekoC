@@ -4,7 +4,7 @@ import path from 'node:path';
 import assert from 'node:assert/strict';
 const require = createRequire(path.join(process.env.NEKOC_NODE_MODULES, 'package.json'));
 const { chromium } = require('playwright');
-const out = path.resolve(process.argv[3] || 'samples/eisei-brush-verification');
+const out = path.resolve(process.argv[3] || 'projects/eisei/eisei-brush-verification');
 await mkdir(out, {recursive:true});
 const browser = await chromium.launch({headless:true,channel:'msedge'});
 try {

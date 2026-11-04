@@ -50,7 +50,7 @@ try{
   await frame.locator('#restart').click();await frame.waitForFunction(()=>window.nekoPlayDiagnostics().frame?.variables[18]===1);
   assert.ok((await frame.evaluate(()=>window.nekoPlayDiagnostics().audio)).every(a=>!a.wanted));
   report.tests.push('Pause/resume retains sound position; restart stops sound and resets VM');
-  await frame.locator('#file').setInputFiles('samples/starhold.bcmkn');
+  await frame.locator('#file').setInputFiles('projects/starhold/starhold.bcmkn');
   await frame.waitForFunction(()=>window.nekoPlayDiagnostics().projectName?.startsWith('STARHOLD')&&window.nekoPlayDiagnostics().running);
   await frame.locator('#stage').press('Enter');
   await frame.waitForFunction(()=>window.nekoPlayDiagnostics().frame?.sprites.some(a=>a.id==='nekoc-actor-Menu'&&a.style==='td-style-level-select'));

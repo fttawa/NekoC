@@ -4,7 +4,7 @@ import path from 'node:path';
 import assert from 'node:assert/strict';
 const require=createRequire(process.env.NEKOC_NODE_MODULES?path.join(process.env.NEKOC_NODE_MODULES,'package.json'):import.meta.url);
 const {chromium}=require('playwright');
-const out=path.resolve(process.argv[2]||'samples/pencraft-verification');await mkdir(out,{recursive:true});
+const out=path.resolve(process.argv[2]||'projects/pencraft/pencraft-verification');await mkdir(out,{recursive:true});
 const browser=await chromium.launch({headless:true,channel:'msedge'});
 const page=await browser.newPage({viewport:{width:1440,height:900}});
 const report={errors:[],samples:[]};
@@ -41,7 +41,7 @@ try {
   await page.route(/\/main\.[\w-]+\.js(?:\?.*)?$/,async route=>{
     const response=await route.fetch();await route.fulfill({response,body:(await response.text()).replace('var __webpack_exports__=','window.__nekocRequire=__webpack_require__;var __webpack_exports__=')});
   });
-  await page.route('**/pencraft.bcmkn',async route=>route.fulfill({contentType:'application/json',body:await readFile(process.env.NEKOC_PROJECT||'samples/pencraft.bcmkn')}));
+  await page.route('**/pencraft.bcmkn',async route=>route.fulfill({contentType:'application/json',body:await readFile(process.env.NEKOC_PROJECT||'projects/pencraft/pencraft.bcmkn')}));
   await page.goto('https://kn.codemao.cn/editor?previewUrl=https%3A%2F%2Fkn.codemao.cn%2Fpencraft.bcmkn',{waitUntil:'domcontentloaded',timeout:60000});
   await page.waitForFunction(()=>window.__nekocRequire&&document.body.innerText.includes('ready'),null,{timeout:120000});
   await page.addStyleTag({content:'#DialogContainer{display:none!important}'});

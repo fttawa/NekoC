@@ -11,7 +11,7 @@ const report={browser:await browser.version(),gpu:'SwiftShader (correctness / so
 try {
   await page.goto(base,{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>window.nekoImportReport);
-  for(const file of ['samples/pen_display_fast.bcmkn','samples/web-pen-stress.bcmkn','samples/pencraft.bcmkn']){
+  for(const file of ['samples/pen_display_fast.bcmkn','samples/web-pen-stress.bcmkn','projects/pencraft/pencraft.bcmkn']){
     console.log('Profiling',file);
     const started=performance.now();
     await page.locator('#file').setInputFiles(file);

@@ -13,10 +13,10 @@ let renderer,input,overlay,sendCostumes=false,project=null,playable=false,busy=t
 let lastTick=0,nextDue=0,lastFrame=null,roundtripMs=0,updates=0,draws=0,totalUpdates=0,pumpTimer=0;
 let sampleStart=performance.now(),lastMonitor=0,drawFps=0,updateFps=0;
 const audio=new ProjectAudio(notice,id=>input?.push({kind:'audio_done',id}));
-const settings={limit:60,budget:4,resolution:1,coalesce:0};
-const choices={limit:[0,30,60,120],budget:[2,4,8,12],resolution:[.5,1,2],coalesce:[0,1]};
+const settings={limit:60,budget:12,resolution:0,coalesce:0};
+const choices={limit:[0,30,60,120,240,480,1000,-1],budget:[2,4,8,12,16],resolution:[0,.5,1,2],coalesce:[0,1]};
 try{
-  const saved=JSON.parse(localStorage.getItem('neko-play-settings')||'{}');
+  const saved=JSON.parse(localStorage.getItem('neko-play-settings-v2')||'{}');
   for(const key of Object.keys(settings))if(choices[key].includes(saved[key]))settings[key]=saved[key];
 }catch{/* Storage can be unavailable in private browsing. */}
 
@@ -127,18 +127,27 @@ function monitor(now){
 // Runtime updates are paced by the update limit, not by the display: a limit above
 // the refresh rate (or a project that yields between compute and draw) is no longer
 // capped at one round trip per animation frame. Only one request is ever in flight.
-function step(now){
+function step(now,continuation=false){
   const dt=Math.min((now-lastTick)/1000,.25);lastTick=now;
-  const interval=settings.limit?1000/settings.limit:0;
-  nextDue=interval?Math.max(nextDue+interval,now):now;
+  const interval=settings.limit>0?1000/settings.limit:0;
+  // A continuation finishes work the last update ran out of budget for: it is not a
+  // new paced update, so it neither waits for the limit nor delays the next one.
+  if(!continuation)nextDue=interval?Math.max(nextDue+interval,now):now;
   inFlight=advance(dt).finally(()=>{inFlight=null;pump();});
 }
+const pumpChannel=new MessageChannel();
+pumpChannel.port1.onmessage=()=>pump();
 function pump(){
   clearTimeout(pumpTimer);pumpTimer=0;
   // "Follow screen" keeps exactly one update per display frame.
-  if(!running||busy||inFlight||!settings.limit)return;
+  if(!running||busy||inFlight)return;
+  if(lastFrame?.budget_yield){step(performance.now(),true);return;}
+  if(!settings.limit)return;
   const now=performance.now(),wait=nextDue-now;
-  if(wait<=.5)step(now);else pumpTimer=setTimeout(pump,wait);
+  if(wait<=.5)step(now);
+  // Nested timers clamp to 4ms; shorter waits need a task that is not throttled.
+  else if(wait<4)pumpChannel.port2.postMessage(0);
+  else pumpTimer=setTimeout(pump,wait);
 }
 function loop(now){
   if(running&&!busy&&!inFlight&&now>=nextDue-.5)step(now);
@@ -164,7 +173,7 @@ for(const [id,key]of [['frame-limit','limit'],['budget','budget'],['resolution',
       if(key==='resolution')renderer.setResolution(value);
       settings[key]=value;nextDue=performance.now();pump();
       lastMonitor=0;monitor(performance.now());
-      try{localStorage.setItem('neko-play-settings',JSON.stringify(settings));}catch{}
+      try{localStorage.setItem('neko-play-settings-v2',JSON.stringify(settings));}catch{}
       if(running)canvas.focus({preventScroll:true});
     }catch(error){select.value=String(settings[key]);notice(error.message);}
   };
@@ -184,7 +193,12 @@ window.addEventListener('pagehide',()=>{connection?.close();audio.stop();});
 window.addEventListener('dragover',event=>{if(event.dataTransfer.types.includes('Files')){event.preventDefault();shell.classList.add('file-drag');}});
 window.addEventListener('dragleave',event=>{if(!event.relatedTarget)shell.classList.remove('file-drag');});
 window.addEventListener('drop',event=>{event.preventDefault();shell.classList.remove('file-drag');void importFile(event.dataTransfer.files[0]);});
-new ResizeObserver(fitStage).observe($('#viewport'));
+let resizeTimer=0;
+new ResizeObserver(()=>{
+  fitStage();
+  clearTimeout(resizeTimer);
+  resizeTimer=setTimeout(()=>{if(settings.resolution===0)renderer?.setResolution(0);},200);
+}).observe($('#viewport'));
 
 try{
   renderer=new StageRenderer(canvas);renderer.resolutionScale=settings.resolution;

@@ -38,7 +38,7 @@ cargo run --release --bin web -- samples/web-pen-stress.bcmkn
 
 已有作品兼容示例：`samples/pen_display_fast.bcmkn`。现在可直接打开运行，显示8条渐变色带、移动矩形、底部像素和FPS文字；按数字键1/2/3切换项目内的15/30/60调度档。
 
-`samples/pencraft.bcmkn`（57 个变量）也已通过导入与浏览器运行验证：材质名称混合列表、临时工作列表、局部变量和语句过程可执行，地形/HUD 可见，持续 W 移动、方向键转向、数字选材质和 H 帮助切换通过。
+`projects/pencraft/pencraft.bcmkn`（57 个变量）也已通过导入与浏览器运行验证：材质名称混合列表、临时工作列表、局部变量和语句过程可执行，地形/HUD 可见，持续 W 移动、方向键转向、数字选材质和 H 帮助切换通过。
 
 ## .bcmkn 支持
 
@@ -255,5 +255,5 @@ UI 已转为 Web，后续以执行语义与端到端性能为主，不把视觉�
 - **更新节奏与显示解耦**（`web/play.js`）：更新按「更新上限」用定时器推进，不再每个 `requestAnimationFrame` 只发一次往返；画面每个显示帧合成一次（`renderer.apply(frame, lines, false)` 只把画笔增量写入 FBO）。此前 120/s 实际被限制在屏幕刷新率；Pencraft 这类每帧 `wait(0)` 的作品在 120/s 下从 30 提升到约 55 作品 FPS（无头 Chromium + SwiftShader）。「跟随屏幕」仍是每显示帧一次更新；60/s 语义不变。
 - **TCP_NODELAY**（`src/bin/web.rs`）：监听套接字开启 NODELAY，接入连接继承，消除多段帧尾段被 Nagle/延迟 ACK 卡住。350KB 画笔压力帧 WebSocket 往返 mean 4.3→2.4ms、p95 9.6→4.0ms、max 60→8ms（Linux 回环）。
 - **VM**（`src/engine.rs`）：`ValueExpr` 变为 `Copy`（常量/拼接参数移入程序表），求值不再逐次克隆/释放；文本拼接直接追加；表达式改为在后缀数组上递归求值（预计算子树起点），去掉运行时值栈；`Op` 48→32 字节、`ExprOp` 24→16 字节；位置读取/有限性检查只在移动类指令执行。callgrind 指令数（60帧）：Pencraft 442M→370M，画笔压力 670M→594M，多面体 442M→383M。
-- 原生端到端基准：`cargo run --release --bin bench-player -- samples/pencraft.bcmkn --frames 600 --hold 87,39 --frame-var kn-var-frames`，测量与 WebSocket 播放器相同的 VM + 帧编码工作。
+- 原生端到端基准：`cargo run --release --bin bench-player -- projects/pencraft/pencraft.bcmkn --frames 600 --hold 87,39 --frame-var kn-var-frames`，测量与 WebSocket 播放器相同的 VM + 帧编码工作。
 - **合并无画面更新（可选，默认关闭）**：播放器设置「合并无画面更新」。开启后请求携带 `coalesce:true`，服务端 `Engine::advance_with(.., 16)` 在一轮没有任何画面变化（画笔、清屏、印章、角色、图层）且未触及预算时，以 dt=0 继续执行，最多16轮；计时等待不会提前完成，帧元数据 `ticks` 报告实际轮数。Pencraft 在 60/s 下作品帧率 30→约55（SwiftShader 环境）。代价：只改变量的循环每帧会多跑，按轮计数的作品会变快，因此不是默认行为。

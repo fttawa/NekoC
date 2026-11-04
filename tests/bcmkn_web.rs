@@ -18,7 +18,7 @@ fn repeated_shared_failures_are_grouped_without_losing_script_counts() {
 
 #[test]
 fn real_pencraft_import_has_no_numeric_list_error_or_duplicate_diagnostics() {
-    let p = nekoc::project::load_project("samples/pencraft.bcmkn").unwrap();
+    let p = nekoc::project::load_project("projects/pencraft/pencraft.bcmkn").unwrap();
     let (_, report) = bcmkn::import(p.value).unwrap();
     assert_eq!(report["fast_runtime_ready"], true, "{report}");
     assert_eq!(report["script_diagnostics"], json!([]));

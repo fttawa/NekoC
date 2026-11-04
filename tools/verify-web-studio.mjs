@@ -125,7 +125,7 @@ try{
   assert.match(report.penDisplay.lastStamp,/^FPS: \d+\.\d$/);assert.ok(report.penDisplay.brightTextPixels>100);assert.equal(report.penDisplay.glError,0);
   report.tests.push('ordered text stamps, persistent text, bounded LRU texture cache; real pen_display_fast bands/background/FPS GPU pixels');
   // Real mixed-list project, including drag/drop and held input through WebSocket.
-  const pencraft=JSON.parse(await readFile('samples/pencraft.bcmkn','utf8'));
+  const pencraft=JSON.parse(await readFile('projects/pencraft/pencraft.bcmkn','utf8'));
   console.log('Verifying Pencraft import and input');
   await page.evaluate(value=>{
     const dt=new DataTransfer();dt.items.add(new File([value],'pencraft.bcmkn',{type:'application/json'}));

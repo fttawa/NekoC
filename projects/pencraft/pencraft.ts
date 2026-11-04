@@ -1,7 +1,7 @@
-import {v,min,max,clamp} from "../modules/voxel/state";
-import "../modules/voxel/world";
-import "../modules/voxel/render";
-import "../modules/voxel/game";
+import {v,min,max,clamp} from "../../modules/voxel/state";
+import "../../modules/voxel/world";
+import "../../modules/voxel/render";
+import "../../modules/voxel/game";
 
 onStart(()=>{
   hide();penUp();hideTimer();timerStart();

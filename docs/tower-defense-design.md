@@ -2,7 +2,7 @@
 
 ## 目标与边界
 
-- 交付：`samples/starhold.bcmkn`，通过 NekoC TypeScript 前端编译，资源以内嵌SVG造型保存。
+- 交付：`projects/starhold/starhold.bcmkn`，通过 NekoC TypeScript 前端编译，资源以内嵌SVG造型保存。
 - 运行目标：Kitten N 官方发布版运行器。只使用已有本地官方发行代码进行离线验证，阻断外部HTTP/WebSocket；不登录、不发布、不操作账号。
 - 战场由背景造型、塔/敌人/弹体角色及原生特效组成。文字印章仅用于HUD、说明及云数据文本，不用画笔点阵或逐帧全屏绘图。
 - 性能目标：优先30 FPS以上；记录实际游戏更新频率和浏览器rAF，不混淆二者。低画质关闭震动、减少弹体/粒子。无法完成的项目写入进度，不停止其他里程碑。

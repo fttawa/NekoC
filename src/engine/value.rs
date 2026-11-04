@@ -5,7 +5,9 @@ use serde_json::Value;
 use std::{cell::RefCell, rc::Rc};
 
 pub type List = Rc<RefCell<Vec<Cell>>>;
+// repr(u8): native code tests the tag byte of `Option<Cell>`; see jit::none_tag.
 #[derive(Clone, Debug)]
+#[repr(u8)]
 pub enum Cell {
     Number(f64),
     Bool(bool),

@@ -29,7 +29,7 @@
 - 12.0635秒战斗：952次控制器更新，平均78.92更新FPS；各窗口79.48/76.97/80.30；rAF88.45Hz。这是Edge无头SwiftShader本机指标，不是设备最低保证；计时器量化的逻辑步进频率另计。
 - 15/15发行资源摘要和原生工厂一致；无原生错误/警告；35次CSP阻断，0外部响应/完成。
 - 本地检查27项通过，含36次正常经济六关模拟；模拟证明通关规则，不冒充官方完整战役。
-- 证据：`samples/starhold-verification/m1/`，被测SHA256 `710f32c3a74701bb78103fc3ec6edf0ae86a4ca0e367aed7ecc76964b5fbeba9`。
+- 证据：`projects/starhold/starhold-verification/m1/`，被测SHA256 `710f32c3a74701bb78103fc3ec6edf0ae86a4ca0e367aed7ecc76964b5fbeba9`。
 - 仍缺独立发布作品播放器外壳；现有缓存缺官方HTML/CSS/部分界面chunk，报告保留`browserShellDegraded=true`及界面Event错误。不得将本验收写成独立发布播放器通过。
 - 补存代理先前完成的`m1-gameplay/`：同M1 SHA，27步真实输入、0夹具；普通脉冲阵四波胜利44击杀20生命3星7660分，随后自然失败与R重试通过。开局94.89更新FPS仅3.02秒，不替换上表12秒主要基准。
 
@@ -39,7 +39,7 @@
 - 修复数字键：NekoC将数字字符串理解为原生键码，数字1–6必须传49–54；加入产物回归断言。
 - 展示场景明确注入5000金币和wave=3以集中检查全部塔及Boss；这不是普通经济通关证据。正常经济另由36次模拟覆盖，详见平衡文档。
 - 6.0464秒战斗平均65.82更新FPS，各窗口64.62/66.25/66.60；rAF89.31Hz。原生错误/警告均0，外部网络完成0。
-- 证据` samples/starhold-verification/m2/`，SHA256 `f066212417ec82d314c29b9fa8b2740bd4759d30bdf3f90b95436de7ffab3455`。
+- 证据` projects/starhold/starhold-verification/m2/`，SHA256 `f066212417ec82d314c29b9fa8b2740bd4759d30bdf3f90b95436de7ffab3455`。
 
 ## M3 验收
 
@@ -70,5 +70,5 @@
 - 与最终交付SHA相同，68步真实键鼠、0状态夹具。正常280起始金币，按照平衡文档分波购买；完整10波和双Boss结算通过。
 - 240击杀、20生命、3星、48890分、1589余额；与DSL模拟经济和结算一致。逻辑计时399.26秒（包括波间操作）；自动低画质触发并保留到结算。
 - 开局6.0664秒窗口平均59.84更新FPS，77.48 rAFHz；这是开局基准，不能当整局平均或最低帧率。
-- 原生错误0、警告0；35次CSP阻断，外部响应/完成0。证据` samples/starhold-verification/final-campaign/`。
+- 原生错误0、警告0；35次CSP阻断，外部响应/完成0。证据` projects/starhold/starhold-verification/final-campaign/`。
 - 最终检查合计41项（核心24、本地社交12、产物5）通过；`nekoc validate`无问题。完整清单见`docs/tower-defense-delivery.md`。

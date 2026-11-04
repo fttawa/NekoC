@@ -143,10 +143,10 @@ def mesh(world):
     return faces
 
 def main():
-    dest=ROOT/'samples/pencraft.bcmkn'
+    dest=ROOT/'projects/pencraft/pencraft.bcmkn'
     # Frontend imports inline functions only. Bundle native procedure modules
     # once, keeping their source files independently type-checkable.
-    sources=[ROOT/f'modules/voxel/{name}.ts' for name in ['state','world','render','game']]+[ROOT/'samples/pencraft.ts']
+    sources=[ROOT/f'modules/voxel/{name}.ts' for name in ['state','world','render','game']]+[ROOT/'projects/pencraft/pencraft.ts']
     source='\n'.join(re.sub(r'^import .*?;\s*','',p.read_text(encoding='utf8'),flags=re.M).replace('export function','function') for p in sources)
     # Deferred native pen backend: capture drawing, then present the completed
     # command list without a loop boundary that could expose a partial frame.

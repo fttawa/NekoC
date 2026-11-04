@@ -13,13 +13,13 @@ const report={tests:[],errors};
 try{
   await page.goto('http://127.0.0.1:4173/play');await page.waitForFunction(()=>window.nekoPlayDiagnostics?.().busy===false);
   assert.equal(await page.locator('#blocks').count(),0);
-  const chooser=page.waitForEvent('filechooser');await page.locator('#import').click();await(await chooser).setFiles('samples/pencraft.bcmkn');
+  const chooser=page.waitForEvent('filechooser');await page.locator('#import').click();await(await chooser).setFiles('projects/pencraft/pencraft.bcmkn');
   await page.waitForFunction(()=>window.nekoPlayDiagnostics().frame?.variables[13]>=5);
   const before=await page.evaluate(()=>window.nekoPlayDiagnostics().frame.variables[29]);
   await page.locator('#stage').focus();await page.keyboard.down('w');
   await page.waitForFunction(before=>Math.abs(window.nekoPlayDiagnostics().frame.variables[29]-before)>.1,before);await page.keyboard.up('w');
   await page.keyboard.press('h');await page.waitForFunction(()=>window.nekoPlayDiagnostics().frame.variables[15]===0);
-  await page.locator('#settings-toggle').click();await page.locator('#frame-limit').selectOption('30');await page.locator('#budget').selectOption('8');
+  if(!await page.locator('#frame-limit').isVisible())await page.locator('#settings-toggle').click();await page.locator('#frame-limit').selectOption('30');await page.locator('#budget').selectOption('8');
   await page.waitForFunction(()=>window.nekoPlayDiagnostics().totalUpdates>20);
   await page.waitForFunction(()=>Number(document.querySelector('#fps').textContent)>0);
   const rate=await page.evaluate(async()=>{
@@ -76,7 +76,7 @@ try{
   for(const result of report.resize){assert.deepEqual(result.pixel,[255,0,0,255]);assert.equal(result.error,0);}
   report.tests.push('persistent pen framebuffer pixel readback survives 0.5x/2x/1x');
   await page.reload();await page.waitForFunction(()=>window.nekoPlayDiagnostics?.().busy===false);
-  assert.deepEqual(await page.evaluate(()=>window.nekoPlayDiagnostics().settings),{limit:30,budget:8,resolution:1});
+  assert.deepEqual(await page.evaluate(()=>window.nekoPlayDiagnostics().settings),{limit:30,budget:8,resolution:1,coalesce:0});
   report.tests.push('performance preferences survive reload');
   assert.deepEqual(errors,[]);report.limitedUpdatesPerSecond=rate;
   await writeFile(path.join(output,'verification.json'),JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));

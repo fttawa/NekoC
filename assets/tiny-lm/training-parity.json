@@ -1,0 +1,7 @@
+{
+  "ok": true,
+  "maxAbsLogitError": 2.1316282072803006e-14,
+  "cases": 5,
+  "torchVersion": "2.14.1+cpu",
+  "scope": "exported weights loaded into FP64 training architecture vs independent full and KV-cache NumPy implementations; includes 64-token capacity boundary"
+}

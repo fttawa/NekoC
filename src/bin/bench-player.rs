@@ -72,7 +72,7 @@ fn main() -> Result<()> {
             let t = Instant::now();
             let frame = vm.advance_with(
                 1.0 / 60.0,
-                500_000,
+                usize::MAX,
                 budget,
                 if args.coalesce { 16 } else { 1 },
             )?;
@@ -100,6 +100,7 @@ fn main() -> Result<()> {
             "mean_encode_ms": encode_us as f64 / n / 1000.0,
             "p50_frame_ms": frame_times[frame_times.len() / 2],
             "p95_frame_ms": frame_times[frame_times.len() * 95 / 100],
+            "max_frame_ms": frame_times.last().copied().unwrap_or(0.0),
             "mean_bytes": bytes as f64 / n,
             "instructions_per_frame": instructions as f64 / n,
             "million_instructions_per_s": instructions as f64 / (vm_us as f64).max(1.0),
