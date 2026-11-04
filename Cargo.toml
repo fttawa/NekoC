@@ -38,6 +38,7 @@ cranelift-module = "0.132.3"
 cranelift-native = "0.132.3"
 
 [dev-dependencies]
+cranelift-codegen = { version = "0.132.3", features = ["arm64"] }
 assert_cmd = "2"
 predicates = "3"
 
