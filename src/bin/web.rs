@@ -20,6 +20,10 @@ struct Args {
     input: Option<PathBuf>,
     #[arg(long, default_value_t = 4173)]
     port: u16,
+    /// Package `input` as a standalone executable at this path instead of serving it.
+    #[cfg(feature = "desktop")]
+    #[arg(long)]
+    export_exe: Option<PathBuf>,
 }
 fn header(name: &str, value: &str) -> Header {
     Header::from_bytes(name, value).unwrap()
@@ -210,7 +214,9 @@ fn export_project(value: &Value) -> Result<Value> {
     if is_kitten4_project(value) {
         nekoc::kitten4::from_neko(value)
     } else {
-        Ok(value.clone())
+        let mut exported = value.clone();
+        nekoc::key_buttons::annotate(&mut exported, None);
+        Ok(exported)
     }
 }
 fn frame_budget(payload: &Value) -> Duration {
@@ -437,25 +443,170 @@ fn listener(port: u16) -> Result<std::net::TcpListener> {
     socket.listen(128)?;
     Ok(socket.into())
 }
+#[cfg(feature = "desktop")]
+mod desktop {
+    //! A standalone executable is this binary with a project appended:
+    //! `<exe><project json><length: u64 LE><MAGIC>`.
+    use super::*;
+    use std::io::{Read, Seek, SeekFrom, Write};
+    use tao::{
+        dpi::LogicalSize,
+        event::{Event, WindowEvent},
+        event_loop::{ControlFlow, EventLoop},
+        window::WindowBuilder,
+    };
+    use wry::{WebContext, WebViewBuilder};
+
+    const MAGIC: &[u8; 8] = b"NEKOCAPP";
+
+    fn stub_end(file: &mut std::fs::File) -> Result<Option<(u64, u64)>> {
+        let size = file.metadata()?.len();
+        if size < 16 {
+            return Ok(None);
+        }
+        file.seek(SeekFrom::Start(size - 16))?;
+        let mut trailer = [0; 16];
+        file.read_exact(&mut trailer)?;
+        if &trailer[8..] != MAGIC {
+            return Ok(None);
+        }
+        let length = u64::from_le_bytes(trailer[..8].try_into()?);
+        let start = (size - 16)
+            .checked_sub(length)
+            .context("corrupt embedded project")?;
+        Ok(Some((start, length)))
+    }
+
+    pub fn embedded_project() -> Result<Option<Value>> {
+        let mut file = std::fs::File::open(std::env::current_exe()?)?;
+        let Some((start, length)) = stub_end(&mut file)? else {
+            return Ok(None);
+        };
+        file.seek(SeekFrom::Start(start))?;
+        let mut bytes = vec![0; length as usize];
+        file.read_exact(&mut bytes)?;
+        Ok(Some(serde_json::from_slice(&bytes)?))
+    }
+
+    /// Marks a PE image as a GUI program so double-clicking opens no console.
+    fn set_gui_subsystem(image: &mut [u8]) {
+        if image.len() < 0x40 || &image[..2] != b"MZ" {
+            return;
+        }
+        let pe = u32::from_le_bytes(image[0x3c..0x40].try_into().unwrap()) as usize;
+        if image.get(pe..pe + 4) == Some(b"PE\0\0".as_slice()) && image.len() > pe + 0x5d {
+            image[pe + 0x5c] = 2;
+        }
+    }
+
+    pub fn export(input: &Value, output: &std::path::Path) -> Result<()> {
+        let payload = serde_json::to_vec(input)?;
+        ensure!(
+            payload.len() <= MAX_PROJECT_BYTES,
+            "project exceeds {MAX_PROJECT_BYTES} bytes"
+        );
+        let source = std::env::current_exe()?;
+        let mut file = std::fs::File::open(&source)?;
+        let stub_size = match stub_end(&mut file)? {
+            Some((start, _)) => start,
+            None => file.metadata()?.len(),
+        };
+        let mut image = vec![0; stub_size as usize];
+        file.seek(SeekFrom::Start(0))?;
+        file.read_exact(&mut image)?;
+        set_gui_subsystem(&mut image);
+        let mut out = std::fs::File::create(output)
+            .with_context(|| format!("cannot write {}", output.display()))?;
+        out.write_all(&image)?;
+        out.write_all(&payload)?;
+        out.write_all(&(payload.len() as u64).to_le_bytes())?;
+        out.write_all(MAGIC)?;
+        Ok(())
+    }
+
+    /// Same project, same port when free, so performance settings persist per work.
+    fn app_port(project: &Value) -> Result<u16> {
+        let name = project
+            .get("projectName")
+            .and_then(Value::as_str)
+            .unwrap_or("");
+        let hash = name
+            .bytes()
+            .fold(2166136261u32, |h, b| (h ^ b as u32).wrapping_mul(16777619));
+        let preferred = 49152 + (hash % 10000) as u16;
+        if listener(preferred).is_ok() {
+            return Ok(preferred);
+        }
+        Ok(listener(0)?.local_addr()?.port())
+    }
+
+    pub fn run(project: Value) -> Result<()> {
+        let title = project
+            .get("projectName")
+            .and_then(Value::as_str)
+            .unwrap_or("NekoC")
+            .to_owned();
+        let port = app_port(&project)?;
+        std::thread::spawn(move || {
+            let _ = serve(project, port);
+        });
+        let event_loop = EventLoop::new();
+        let window = WindowBuilder::new()
+            .with_title(title)
+            .with_inner_size(LogicalSize::new(1200.0, 750.0))
+            .build(&event_loop)?;
+        let data = std::env::temp_dir().join("NekoC-app");
+        let mut context = WebContext::new(Some(data));
+        let webview = WebViewBuilder::new_with_web_context(&mut context)
+            .with_url(format!("http://127.0.0.1:{port}/play?app=1"))
+            .with_autoplay(true)
+            .with_devtools(false)
+            .build(&window)
+            .map_err(|e| anyhow::anyhow!("{e}"))?;
+        event_loop.run(move |event, _, flow| {
+            *flow = ControlFlow::Wait;
+            let _ = &webview;
+            if let Event::WindowEvent {
+                event: WindowEvent::CloseRequested,
+                ..
+            } = event
+            {
+                std::process::exit(0);
+            }
+        })
+    }
+}
 fn main() -> Result<()> {
+    #[cfg(feature = "desktop")]
+    if let Some(project) = desktop::embedded_project()? {
+        return desktop::run(project);
+    }
     let args = Args::parse();
     let initial = if let Some(path) = args.input {
         nekoc::project::load_project(path)?.value
     } else {
         serde_json::from_str(include_str!("../../samples/native-studio.bcmkn"))?
     };
+    #[cfg(feature = "desktop")]
+    if let Some(output) = &args.export_exe {
+        desktop::export(&initial, output)?;
+        println!("{}", output.display());
+        return Ok(());
+    }
+    serve(initial, args.port)
+}
+fn serve(initial: Value, port: u16) -> Result<()> {
     let (mut project, _) = import_project(initial)?;
     let server =
-        Server::from_listener(listener(args.port)?, None).map_err(|e| anyhow::anyhow!("{e}"))?;
+        Server::from_listener(listener(port)?, None).map_err(|e| anyhow::anyhow!("{e}"))?;
     println!(
-        "NekoC Web Studio: http://127.0.0.1:{}\nRust VM / binary frame transport / WebGL2 persistent pen surface",
-        args.port
+        "NekoC Web Studio: http://127.0.0.1:{port}\nRust VM / binary frame transport / WebGL2 persistent pen surface"
     );
     let mut engine: Option<Engine> = None;
     for mut request in server.incoming_requests() {
         let url = request.url().to_owned();
         // Same-origin local API. Do not expose filesystem operations to the page.
-        let host = format!("127.0.0.1:{}", args.port);
+        let host = format!("127.0.0.1:{port}");
         let valid_host = request
             .headers()
             .iter()
@@ -514,7 +665,7 @@ fn main() -> Result<()> {
                 }
                 continue;
             }
-            let asset = match url.as_str() {
+            let asset = match url.split('?').next().unwrap_or_default() {
                 "/play" | "/play/" => Some((
                     "text/html; charset=utf-8",
                     include_bytes!("../../web/play.html").as_slice(),
@@ -559,6 +710,16 @@ fn main() -> Result<()> {
             };
             if let Some((mime, bytes)) = asset {
                 send(request, 200, mime, bytes.to_vec());
+                continue;
+            }
+            if url == "/api/key-buttons" {
+                let buttons = nekoc::key_buttons::manifest(&project, None);
+                send(
+                    request,
+                    200,
+                    "application/json",
+                    serde_json::to_vec(&nekoc::key_buttons::to_json(&buttons))?,
+                );
                 continue;
             }
             if url == "/api/project" {

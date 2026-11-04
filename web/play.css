@@ -103,3 +103,15 @@ h1{font-size:17px;font-weight:650;margin-top:4px;white-space:nowrap;overflow:hid
   .keyboard-hint{display:none}
   #fullscreen span{display:none}
 }
+/* Exported executable: the stage fills the window; only performance settings float above it. */
+body.app{overflow:hidden}
+body.app #player-shell{display:block;height:100vh;min-height:0;padding:0}
+body.app .brand-tile,body.app .fps-tile,body.app .controls-tile,body.app .timings-tile,body.app #welcome,body.app #drop-hint{display:none}
+body.app #viewport{position:fixed;inset:0;width:auto;height:auto;aspect-ratio:auto;border-radius:0}
+body.app #stage-box{border-radius:0}
+body.app .settings-tile{position:fixed;top:8px;right:8px;z-index:10;width:280px;max-height:calc(100vh - 16px);overflow:auto;padding:4px;opacity:.3;transition:opacity .15s}
+body.app .settings-tile:hover,body.app .settings-tile:focus-within{opacity:1}
+/* The Android client shows these settings in its own Material sheet. */
+body.native .settings-tile{display:none}
+body.app #stage-box,body.app #stage-box:focus-within{outline:none;box-shadow:none}
+body.app #stage:focus-visible{outline:none}
