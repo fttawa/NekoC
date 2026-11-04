@@ -629,6 +629,11 @@ class WorkspaceCompiler {
     }
 
     const procedureId = `kn-proc-${sanitizeIdPart(procedureName)}`;
+    for (const [otherName, other] of this.procedureSpecs) {
+      if (other.id === procedureId) {
+        this.unsupported(call, `Procedure names "${otherName}" and "${procedureName}" produce the same id ${procedureId}; rename one`);
+      }
+    }
     const valueParams = arrayStringLiteralValues(call.arguments[1], this).map((paramName, index) => ({
       id: `kn-param-${sanitizeIdPart(procedureName)}-${index + 1}-${sanitizeIdPart(paramName)}`,
       type: "String",
@@ -4907,9 +4912,13 @@ function visitFunctionBody(body, visit) {
 }
 
 function sanitizeIdPart(value) {
-  const sanitized = value
-    .split("")
-    .map((character) => (/[A-Za-z0-9_-]/.test(character) ? character : "-"))
+  // Non-ASCII names keep their identity: distinct Chinese names must not collapse.
+  const sanitized = Array.from(value)
+    .map((character) => {
+      if (/[A-Za-z0-9_-]/.test(character)) return character;
+      const code = character.codePointAt(0);
+      return code > 127 ? `u${code.toString(16)}-` : "-";
+    })
     .join("");
   return sanitized || "procedure";
 }
