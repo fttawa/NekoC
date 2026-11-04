@@ -17,3 +17,11 @@
 *.validate.json
 __pycache__/
 /dist/
+
+# qwen-mini：训练数据、权重和构建产物不入库
+/qwen-mini/data/
+/qwen-mini/out/
+/qwen-mini/*.pt
+/qwen-mini/*.npy
+/qwen-mini/layout.json
+/qwen-mini/params.json
