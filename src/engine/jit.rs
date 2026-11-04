@@ -2,8 +2,10 @@
 //! that can suspend, spawn or switch tasks side-exits to the interpreter, which
 //! stays the single source of truth for semantics. Instruction counts are exact.
 use super::{
-    Binary, Cell, Engine, Expr, ExprOp, ListRef, Op, Target, Unary, ValueExpr, list_index,
+    Binary, Cell, Engine, Expr, ExprOp, ListRef, Op, Target, Unary, ValueExpr, contains_list,
+    list_index,
 };
+use anyhow::anyhow;
 use cranelift_codegen::ir::{
     AbiParam, Block, InstBuilder, MemFlags, Signature, Value,
     condcodes::{FloatCC, IntCC},
@@ -376,6 +378,58 @@ unsafe extern "C" fn h_transfer(c: *mut NativeContext, pc: u64) -> u64 {
     }
     let c = unsafe { &*c };
     unsafe { (&(*c.engine).tasks)[c.index].pc as u64 }
+}
+/// Same semantics as `Op::ReplaceList` for a number written to a global list.
+unsafe extern "C" fn h_replace_number(c: *mut NativeContext, list: u64, at: f64, value: f64) {
+    let engine = unsafe { &*(*c).engine };
+    let mut values = engine.lists[list as usize].borrow_mut();
+    if let Some(at) = list_index(at) {
+        match values.get_mut(at) {
+            Some(cell) => *cell = Cell::Number(value),
+            None => values.push(Cell::Number(value)),
+        }
+    }
+}
+/// `Op::ReplaceList` copying a cell between global lists. 0: failed, leave the region.
+unsafe extern "C" fn h_replace_item(
+    c: *mut NativeContext,
+    target: u64,
+    at: f64,
+    source: u64,
+    from: f64,
+    pc: u64,
+) -> u64 {
+    let c = unsafe { &mut *c };
+    let engine = unsafe { &mut *c.engine };
+    let cell = {
+        let values = engine.lists[source as usize].borrow();
+        list_index(from)
+            .and_then(|i| values.get(i))
+            .cloned()
+            .unwrap_or(Cell::Number(f64::NAN))
+    };
+    if contains_list(&cell, &engine.lists[target as usize]) {
+        engine.tasks[c.index].pc = pc as usize + 1;
+        engine.jit_error = Some(anyhow!(
+            "cyclic list at {}",
+            engine.program.sources[pc as usize]
+        ));
+        return 0;
+    }
+    let mut values = engine.lists[target as usize].borrow_mut();
+    if let Some(at) = list_index(at) {
+        match values.get_mut(at) {
+            Some(slot) => *slot = cell,
+            None => values.push(cell),
+        }
+    }
+    1
+}
+unsafe extern "C" fn h_append_number(c: *mut NativeContext, list: u64, value: f64) {
+    let engine = unsafe { &*(*c).engine };
+    engine.lists[list as usize]
+        .borrow_mut()
+        .push(Cell::Number(value));
 }
 /// `target = list[at]` without the generic dispatch: bit 0 of `target` selects locals.
 unsafe extern "C" fn h_assign_item(c: *mut NativeContext, target: u64, list: u64, at: f64) {
@@ -819,6 +873,90 @@ impl Gen<'_, '_> {
         self.store(base, slot, sum);
     }
 
+    /// Writes a number to a global list directly; anything else takes `h_exec`.
+    fn list_write(
+        &mut self,
+        pc: usize,
+        list: u32,
+        at: Option<Expr>,
+        v: usize,
+        blocks: &BTreeMap<usize, Block>,
+        remaining: i64,
+    ) {
+        let next = blocks[&(pc + 1)];
+        if let (Some(at), ValueExpr::Item(ListRef::Global(source), Some(from))) =
+            (at, self.engine.program.values[v])
+        {
+            let at = self.expr(at.end as usize - 1);
+            let from = self.expr(from.end as usize - 1);
+            let target = self.b.ins().iconst(types::I64, list as i64);
+            let source = self.b.ins().iconst(types::I64, source as i64);
+            let site = self.b.ins().iconst(types::I64, pc as i64);
+            let ctx = self.ctx;
+            let done = self
+                .call(
+                    h_replace_item as *const () as usize,
+                    &[
+                        types::I64,
+                        types::I64,
+                        types::F64,
+                        types::I64,
+                        types::F64,
+                        types::I64,
+                    ],
+                    Some(types::I64),
+                    &[ctx, target, at, source, from, site],
+                )
+                .unwrap();
+            let exit = self.b.create_block();
+            self.b.ins().brif(done, next, &[], exit, &[]);
+            self.b.switch_to_block(exit);
+            self.side_exit(pc, remaining);
+            return;
+        }
+        let slow = self.b.create_block();
+        let mut guards = Vec::new();
+        if let Some(value) = self.numeric(v, &mut guards) {
+            self.check_unboxed(&guards, slow);
+            let at = at.map(|e| self.expr(e.end as usize - 1));
+            let number = self.numeric_value(value);
+            let list = self.b.ins().iconst(types::I64, list as i64);
+            let ctx = self.ctx;
+            match at {
+                Some(at) => self.call(
+                    h_replace_number as *const () as usize,
+                    &[types::I64, types::I64, types::F64, types::F64],
+                    None,
+                    &[ctx, list, at, number],
+                ),
+                None => self.call(
+                    h_append_number as *const () as usize,
+                    &[types::I64, types::I64, types::F64],
+                    None,
+                    &[ctx, list, number],
+                ),
+            };
+            self.b.ins().jump(next, &[]);
+        } else {
+            self.b.ins().jump(slow, &[]);
+        }
+        self.b.switch_to_block(slow);
+        let at = self.b.ins().iconst(types::I64, pc as i64);
+        let ctx = self.ctx;
+        let done = self
+            .call(
+                h_exec as *const () as usize,
+                &[types::I64, types::I64],
+                Some(types::I64),
+                &[ctx, at],
+            )
+            .unwrap();
+        let exit = self.b.create_block();
+        self.b.ins().brif(done, next, &[], exit, &[]);
+        self.b.switch_to_block(exit);
+        self.side_exit(pc, remaining);
+    }
+
     fn set_value(
         &mut self,
         pc: usize,
@@ -942,6 +1080,12 @@ impl Gen<'_, '_> {
                     .brif(again, block(target), &[], block(pc + 1), &[]);
             }
             Op::SetValue(target, v) => self.set_value(pc, target, v, blocks, remaining),
+            Op::ReplaceList(ListRef::Global(list), Some(at), v) => {
+                self.list_write(pc, list, Some(at), v, blocks, remaining)
+            }
+            Op::AppendList(ListRef::Global(list), v) => {
+                self.list_write(pc, list, None, v, blocks, remaining)
+            }
             Op::Range(_, end) => {
                 let next = self.transfer(pc, remaining);
                 let skipped = self.b.ins().icmp_imm(IntCC::Equal, next, end as i64);

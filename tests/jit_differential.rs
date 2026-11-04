@@ -148,3 +148,7 @@ fn tiny_lm_generation_matches_interpreter() {
         Some("lm_generated"),
     );
 }
+#[test]
+fn list_writes_match_interpreter() {
+    compare("tests/fixtures/list_writes.bcmkn", &[]);
+}
