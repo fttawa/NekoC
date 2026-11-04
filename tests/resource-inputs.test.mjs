@@ -44,3 +44,24 @@ test("list copy accepts split reporters while retaining named-list inputs", () =
     assert.equal(input(copies[1],'target_list').fields.list,'decoded');
   } finally { fs.rmSync(dir,{recursive:true,force:true}); }
 });
+
+test("string .length connects the source reporter, including cast and parenthesized expressions", () => {
+  const dir=fs.mkdtempSync("D:/AppData/Local/Temp/opencode/nekoc-text-length-");
+  try {
+    fs.writeFileSync(path.join(dir,"main.ts"), `onStart(()=>{
+      setVar("a", (getVar("prompt") as string).length);
+      setVar("b", "小猫".length);
+      if ((getVar("prompt") as string).length>0) setVar("nonempty",1);
+    });`);
+    execFileSync(process.execPath,[path.resolve("ts/compile-ts.mjs"),path.join(dir,"main.ts"),path.join(dir,"out.json")]);
+    const {workspaceData:{blocks,connections}}=JSON.parse(fs.readFileSync(path.join(dir,"out.json"),"utf8"));
+    const lengths=Object.values(blocks).filter(b=>b.type==='text_length');
+    assert.equal(lengths.length,3);
+    for(const b of lengths){
+      const connected=Object.entries(connections[b.id]||{}).find(([,c])=>c.input_name==='text');
+      assert.ok(connected,`${b.id} must have a serialized text connection`);
+      const child=blocks[connected[0]];assert.equal(child.parent_id,b.id);
+      assert.ok(['variables_get','text'].includes(child.type));
+    }
+  } finally { fs.rmSync(dir,{recursive:true,force:true}); }
+});

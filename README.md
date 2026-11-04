@@ -109,6 +109,7 @@ node tools/editor-compat.mjs hello.bcmkn
 - **[RGB 画笔显示器](modules/pen-display/README.md)**：RGB888 帧缓冲，可配置分辨率和目标刷新率；[可运行示例](samples/pen_display.bcmkn)。
 - **[全舞台快速单角色渲染器](samples/pen_display_fast.bcmkn)**：896×560 舞台单位下的增量 RGB 画笔绘制；[源码](samples/pen_display_fast.ts)、[运行时源码分析](docs/kitten-n-runtime-findings.md)。
 - **[按列渲染实验](samples/pen_display_columns.bcmkn)**：每一列一个角色；[源码](samples/pen_display_columns.ts)。
+- **[原生微型 Transformer](samples/tiny_lm.md)**：29,312 个训练参数，中文字符补全，原生数学运算和 KV cache；[可导入作品](samples/tiny_lm.bcmkn)。这是针对合成语言的小范围实验，不是通用对话模型。
 
 ## 示例
 
