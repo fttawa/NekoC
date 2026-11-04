@@ -98,6 +98,7 @@ pub fn compile_ts_bcmkn(
     inject_procedures(&mut project, procedures);
     project["projectName"] = Value::String(project_name(input));
 
+    crate::key_buttons::annotate(&mut project, workspace_report.get("keyButtons"));
     let bytes = serde_json::to_vec(&project)?;
     std::fs::write(output, bytes)
         .with_context(|| format!("failed to write output {}", output.display()))?;
