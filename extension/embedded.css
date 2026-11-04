@@ -2,7 +2,8 @@
 .embedded #viewport{height:auto;aspect-ratio:auto;min-height:0}
 .embedded .tile{border-radius:14px}
 .embedded .timings-tile{display:none}
-.embedded .brand-tile{grid-template-columns:auto 1fr auto auto;padding:8px 10px;gap:10px}
+/* The host page's Rust toolbar sits over the top-right corner of this frame. */
+.embedded .brand-tile{grid-template-columns:auto 1fr auto auto;padding:8px 204px 8px 10px;gap:10px}
 .embedded .brand-tile .primary{grid-column:auto;width:auto}
 .embedded .mark{width:28px;height:28px;font-size:18px;border-radius:9px}
 .embedded .eyebrow{font-size:9px}.embedded h1{font-size:13px;margin-top:2px}

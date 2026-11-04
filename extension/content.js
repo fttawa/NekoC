@@ -53,7 +53,7 @@
       // Only an existing, website-authorized official player can be replaced.
       const toolbar=document.createElement('div');toolbar.dataset.nekoRust='';
       const shadow=toolbar.attachShadow({mode:'open'});
-      const style=document.createElement('style');style.textContent=':host{position:absolute;right:8px;top:5px;z-index:40;display:block;font:11px system-ui}div{display:flex;align-items:center;gap:8px;background:#17221eee;color:#c9e0c1;border:1px solid #425442;border-radius:6px;padding:4px 6px}button{border:0;border-radius:4px;background:#b6d7a8;color:#192c1a;font:11px system-ui;cursor:pointer;padding:4px 8px}';
+      const style=document.createElement('style');style.textContent=':host{position:absolute;right:8px;top:5px;z-index:40;display:block;font:11px system-ui}div{display:flex;align-items:center;gap:8px;max-width:190px;background:#17221eee;color:#c9e0c1;border:1px solid #425442;border-radius:6px;padding:4px 6px}span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}button{flex:none;border:0;border-radius:4px;background:#b6d7a8;color:#192c1a;font:11px system-ui;cursor:pointer;padding:4px 8px}';
       const row=document.createElement('div'),label=document.createElement('span'),button=document.createElement('button');
       row.append(label,button);shadow.append(style,row);frame.parentElement.append(toolbar);
       const record={frame,id,original:frame.src,toolbar,label,button,page:location.pathname,rust:false,resource:null,auto:true};records.set(frame,record);

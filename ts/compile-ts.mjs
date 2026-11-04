@@ -37,6 +37,7 @@ class WorkspaceCompiler {
     // Constant initial values of top-level let/const, written into the
     // project's variable table (they hold before any script runs).
     this.initialValues = {};
+    this.keyButtons = [];
     this.enumValues = new Map();
     // Variables initialised with an array (a list value held in a variable).
     this.arrayVariables = new Set();
@@ -129,6 +130,7 @@ class WorkspaceCompiler {
       },
       sourceMap: this.sourceMap,
       initialValues: this.initialValues,
+      keyButtons: this.keyButtons,
       resources: this.resources,
       procedures: this.procedures,
     };
@@ -669,6 +671,8 @@ class WorkspaceCompiler {
         return this.compileProcedureDefinition(call, false);
       case "defineReporter":
         return this.compileProcedureDefinition(call, true);
+      case "keyButton":
+        return this.compileKeyButton(call);
       case "stage":
         return this.compileStageResource(call);
       case "screen":
@@ -690,6 +694,21 @@ class WorkspaceCompiler {
       default:
         this.unsupported(call, `Unsupported top-level call: ${name || "<unknown>"}`);
     }
+  }
+
+  compileKeyButton(call) {
+    const [key, label, visible] = call.arguments;
+    if (call.arguments.length < 2 || call.arguments.length > 3) {
+      this.unsupported(call, "keyButton expects (key, label, visible?)");
+    }
+    let shown = true;
+    if (visible) {
+      if (visible.kind !== ts.SyntaxKind.TrueKeyword && visible.kind !== ts.SyntaxKind.FalseKeyword) {
+        this.unsupported(call, "keyButton visible must be true or false");
+      }
+      shown = visible.kind === ts.SyntaxKind.TrueKeyword;
+    }
+    this.keyButtons.push({ key: stringLiteralValue(key, this), label: stringLiteralValue(label, this), visible: shown });
   }
 
   compileStageResource(call) {

@@ -236,6 +236,8 @@ declare function sprite(name: string, options: SpriteOptions, body?: (self: Neko
 
 declare function onStart(body: NekoStatementBody): void;
 declare function onClick(body: NekoStatementBody): void;
+/** Top level only: label and visibility of this key's on-screen button on touch clients. */
+declare function keyButton(key: string, label: string, visible?: boolean): void;
 declare function onKey(key: string, body: NekoStatementBody): void;
 declare function onKey(key: string, state: string, body: NekoStatementBody): void;
 declare function onMessage(message: string, body: NekoStatementBody): void;

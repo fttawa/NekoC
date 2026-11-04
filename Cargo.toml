@@ -6,6 +6,7 @@ default-run = "nekoc"
 
 [features]
 default = []
+desktop = ["dep:wry", "dep:tao"]
 studio = ["dep:eframe", "dep:egui_extras", "dep:base64", "dep:percent-encoding", "dep:image"]
 
 [[bin]]
@@ -36,6 +37,8 @@ cranelift-frontend = "0.132.3"
 cranelift-jit = "0.132.3"
 cranelift-module = "0.132.3"
 cranelift-native = "0.132.3"
+wry = { version = "0.57", optional = true }
+tao = { version = "0.37", optional = true }
 
 [dev-dependencies]
 cranelift-codegen = { version = "0.132.3", features = ["arm64"] }

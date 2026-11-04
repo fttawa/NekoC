@@ -5,6 +5,10 @@ import {StageInput} from './input.js';
 import {StageOverlay} from './overlay.js';
 
 const extension=location.protocol==='chrome-extension:'?await import('./extension.js'):null;
+// Exported executables: stage and performance settings only.
+const app=new URLSearchParams(location.search).has('app');
+document.body.classList.toggle('native',new URLSearchParams(location.search).has('native'));
+if(app){document.body.classList.add('app');document.querySelector('#settings').hidden=true;document.querySelector('#settings-toggle').setAttribute('aria-expanded','false');}
 const backend=extension?await extension.backendURL():location.origin;
 
 const $=selector=>document.querySelector(selector);
@@ -192,7 +196,7 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden&&running)pa
 window.addEventListener('pagehide',()=>{connection?.close();audio.stop();});
 window.addEventListener('dragover',event=>{if(event.dataTransfer.types.includes('Files')){event.preventDefault();shell.classList.add('file-drag');}});
 window.addEventListener('dragleave',event=>{if(!event.relatedTarget)shell.classList.remove('file-drag');});
-window.addEventListener('drop',event=>{event.preventDefault();shell.classList.remove('file-drag');void importFile(event.dataTransfer.files[0]);});
+window.addEventListener('drop',event=>{event.preventDefault();shell.classList.remove('file-drag');if(!app)void importFile(event.dataTransfer.files[0]);});
 let resizeTimer=0;
 new ResizeObserver(()=>{
   fitStage();
@@ -207,7 +211,7 @@ try{
   renderer.onError=message=>{pause('渲染提示');notice(message);};
   const value=extension?await extension.loadWork(backend,status):await(await fetch('/api/project')).json();
   await install(await api('import-player',value));
-  if(extension&&playable)await launch();
+  if((extension||app)&&playable)await launch();
 }catch(error){notice(error.message);status(extension?'连接或载入失败 · 点击重连': '请选择作品');extension?.reportStatus('Rust 未连接');}
 finally{busy=false;syncControls();requestAnimationFrame(loop);}
 
