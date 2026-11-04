@@ -36,7 +36,7 @@ function wrap(wrn: number): number { return wrn - floor(wrn / 128) * 128; }
 function put(pux: number, puy: number, puz: number, pub: number): void {
   replaceListItem("world", "any", wrap(pux) + wrap(puz) * 128 + puy * 16384 + 1, pub);
 }
-defineProc("fj14", ["cx", "cz"], () => {
+defineProc("生成区块", ["cx", "cz"], () => {
   warp(() => {
     setVar("gx", param("cx") * 16);
     setVar("gz", param("cz") * 16);
@@ -98,7 +98,7 @@ defineProc("fj14", ["cx", "cz"], () => {
   });
 });
 // 由近到远找一个还没加载的区块；每次最多生成一个
-defineProc("fj1", [], () => {
+defineProc("加载区块", [], () => {
   warp(() => {
     setVar("pcx", fl(v("px") / 16));
     setVar("pcz", fl(v("pz") / 16));
@@ -111,7 +111,7 @@ defineProc("fj1", [], () => {
             setVar("qz", v("pcz") + c);
             setVar("slot", wrap(v("qx") * 16) / 16 + (wrap(v("qz") * 16) / 16) * 8 + 1);
             if ((listItem("chunk_x", "any", v("slot")) as number) !== v("qx") || (listItem("chunk_z", "any", v("slot")) as number) !== v("qz")) {
-              callProc("fj14", v("qx"), v("qz"));
+              callProc("生成区块", v("qx"), v("qz"));
               setVar("done", 1);
             }
           }
@@ -139,7 +139,7 @@ defineReporter("collide", ["x", "y", "z"], () => {
 });
 
 // ---------- 渲染 ----------
-defineProc("fj16", [], () => {
+defineProc("相机", [], () => {
   setVar("sy", trig("sin", v("yaw"))); setVar("cy2", trig("cos", v("yaw")));
   setVar("sp", trig("sin", v("pitch"))); setVar("cp", trig("cos", v("pitch")));
   setVar("fx0", v("sy") * v("cp")); setVar("fy0", v("sp")); setVar("fz0", v("cy2") * v("cp"));
@@ -157,9 +157,9 @@ defineProc("fj16", [], () => {
   setPenSize(v("pix") / 2 + 1);
 });
 // 投射一条光线，给出命中方块、面和距离；tex_h 为 -1 的像素透明
-defineProc("fj15", [], () => {
+defineProc("画面", [], () => {
   warp(() => {
-    callProc("fj16");
+    callProc("相机");
     setVar("wex", wrap(fl(v("ex"))));
     setVar("wez", wrap(fl(v("ez"))));
     for (let r = 0; r < v("vrows"); r++) {
@@ -252,7 +252,7 @@ defineProc("fj15", [], () => {
 function rgb(rgh: number, rgs: number, rgb0: number): void {
   setPenEffect("hue", rgh); setPenEffect("saturation", rgs); setPenEffect("brightness", rgb0);
 }
-defineProc("fj18", ["x", "y", "w", "h"], () => {
+defineProc("矩形", ["x", "y", "w", "h"], () => {
   warp(() => {
     setPenSize(param("h"));
     penUp();
@@ -262,7 +262,7 @@ defineProc("fj18", ["x", "y", "w", "h"], () => {
     penUp();
   });
 });
-defineProc("fj11", ["x", "y", "w", "h"], () => {
+defineProc("横条", ["x", "y", "w", "h"], () => {
   warp(() => {
     setPenSize(3.5);
     for (let i = 1; i < param("h"); i += 2) {
@@ -275,7 +275,7 @@ function text(txs: unknown, txz: number, txx: number, txy: number, txa: "left" |
   penUp(); moveTo(txx, txy); stampText(txs as string, txz, txa);
 }
 // 用方块真实材质画图标
-defineProc("fj3", ["block", "x", "y", "size"], () => {
+defineProc("图标", ["block", "x", "y", "size"], () => {
   warp(() => {
     setVar("tid", listItem("block_faces", "any", (param("block") - 1) * 3 + 2) as number);
     setVar("cellp", param("size") / 8);
@@ -293,30 +293,30 @@ defineProc("fj3", ["block", "x", "y", "size"], () => {
     penUp();
   });
 });
-defineProc("fj7", ["label", "x", "y", "w", "h"], () => {
+defineProc("按钮", ["label", "x", "y", "w", "h"], () => {
   warp(() => {
     setVar("over", v("mx0") >= param("x") && v("mx0") <= param("x") + param("w") && v("my0") <= param("y") && v("my0") >= param("y") - param("h") ? 1 : 0);
     rgb(150, 30, v("over") === 1 ? 62 : 38);
-    callProc("fj11", param("x"), param("y"), param("w"), param("h"));
+    callProc("横条", param("x"), param("y"), param("w"), param("h"));
     rgb(0, 0, 100);
     text(param("label"), 22, param("x") + param("w") / 2, param("y") - param("h") / 2, "center");
     if (v("over") === 1 && v("clicked") === 1) { setVar("clicked", 0); setVar("action", param("x") * 1000 + param("y")); setVar("hitlabel", param("label")); }
   });
 });
-defineProc("fj22", ["title"], () => {
-  rgb(210, 25, 14); callProc("fj11", -400, 260, 800, 500);
+defineProc("面板", ["title"], () => {
+  rgb(210, 25, 14); callProc("横条", -400, 260, 800, 500);
   rgb(150, 45, 90); text(param("title"), 34, 0, 238, "center");
 });
-defineProc("fj6", [], () => {
+defineProc("快捷栏", [], () => {
   warp(() => {
-    rgb(210, 25, 10); callProc("fj11", -450, -191, 900, 90);
+    rgb(210, 25, 10); callProc("横条", -450, -191, 900, 90);
     setVar("hbx", -270);
     for (let i = 1; i <= 9; i++) {
       setVar("hb0", listItem("hot", "any", i) as number);
-      if (i === v("sel")) { rgb(50, 80, 100); callProc("fj11", v("hbx") - 3, -197, 58, 58); }
-      rgb(210, 15, 26); callProc("fj11", v("hbx"), -200, 52, 52);
+      if (i === v("sel")) { rgb(50, 80, 100); callProc("横条", v("hbx") - 3, -197, 58, 58); }
+      rgb(210, 15, 26); callProc("横条", v("hbx"), -200, 52, 52);
       if (v("hb0") > 0 && (listItem("inv", "any", v("hb0")) as number) > 0) {
-        callProc("fj3", v("hb0"), v("hbx") + 6, -206, 40);
+        callProc("图标", v("hb0"), v("hbx") + 6, -206, 40);
         rgb(0, 0, 100);
         text(listItem("inv", "any", v("hb0")), 13, v("hbx") + 50, -240, "right");
       }
@@ -335,13 +335,13 @@ defineProc("fj6", [], () => {
     text(join("时间 ", v("dayf") > 0.25 ? "白天" : "夜晚"), 13, 440, -232, "right");
   });
 });
-defineProc("fj0", [], () => {
+defineProc("准星", [], () => {
   rgb(0, 0, 100); setPenSize(2);
   setVar("ccy", 281 - v("vrows") * v("pix") / 2);
   penUp(); moveTo(-9, v("ccy")); penDown(); setX(9); penUp(); moveTo(0, v("ccy") - 9); penDown(); moveTo(0, v("ccy") + 9); penUp();
   if (v("mining") > 0) {
-    rgb(0, 0, 25); callProc("fj11", -40, v("ccy") - 18, 80, 8);
-    rgb(120, 80, 90); callProc("fj11", -40, v("ccy") - 18, 80 * v("mining"), 8);
+    rgb(0, 0, 25); callProc("横条", -40, v("ccy") - 18, 80, 8);
+    rgb(120, 80, 90); callProc("横条", -40, v("ccy") - 18, 80 * v("mining"), 8);
   }
   rgb(0, 0, 100);
   if (v("notice_t") > 0) text(getVar("notice"), 18, 0, 240, "center");
@@ -349,39 +349,39 @@ defineProc("fj0", [], () => {
 });
 function say(sayt: string): void { setVar("notice", sayt); setVar("notice_t", 3); }
 
-defineProc("fj10", [], () => {
+defineProc("标题界面", [], () => {
   warp(() => {
-    rgb(205, 60, 30); callProc("fj11", -450, 281, 900, 562);
-    for (let i = 0; i < 8; i++) callProc("fj3", 1 + (i * 2) % 13, -440 + i * 112, -180, 96);
+    rgb(205, 60, 30); callProc("横条", -450, 281, 900, 562);
+    for (let i = 0; i < 8; i++) callProc("图标", 1 + (i * 2) % 13, -440 + i * 112, -180, 96);
     rgb(0, 0, 100); text("方 界", 84, 0, 190, "center");
     rgb(50, 60, 100); text("无限世界 · 原创材质 · 全部由积木运行", 20, 0, 118, "center");
-    callProc("fj7", v("started") === 1 ? "继续游戏" : "开始新世界", -150, 90, 300, 54);
-    callProc("fj7", "设置", -150, 26, 300, 54);
-    callProc("fj7", "操作说明", -150, -38, 300, 54);
+    callProc("按钮", v("started") === 1 ? "继续游戏" : "开始新世界", -150, 90, 300, 54);
+    callProc("按钮", "设置", -150, 26, 300, 54);
+    callProc("按钮", "操作说明", -150, -38, 300, 54);
   });
 });
-defineProc("fj9", [], () => {
+defineProc("暂停界面", [], () => {
   warp(() => {
-    callProc("fj22", "游戏暂停");
-    callProc("fj7", "继续游戏", -150, 170, 300, 54);
-    callProc("fj7", "背包", -150, 106, 300, 54);
-    callProc("fj7", "合成", -150, 42, 300, 54);
-    callProc("fj7", "设置", -150, -22, 300, 54);
-    callProc("fj7", "操作说明", -150, -86, 300, 54);
-    callProc("fj7", "回到标题", -150, -150, 300, 54);
+    callProc("面板", "游戏暂停");
+    callProc("按钮", "继续游戏", -150, 170, 300, 54);
+    callProc("按钮", "背包", -150, 106, 300, 54);
+    callProc("按钮", "合成", -150, 42, 300, 54);
+    callProc("按钮", "设置", -150, -22, 300, 54);
+    callProc("按钮", "操作说明", -150, -86, 300, 54);
+    callProc("按钮", "回到标题", -150, -150, 300, 54);
   });
 });
-defineProc("fj19", [], () => {
+defineProc("背包界面", [], () => {
   warp(() => {
-    callProc("fj22", "背包");
+    callProc("面板", "背包");
     rgb(0, 0, 85); text("点击方块，放进当前选中的快捷栏格子", 16, 0, 205, "center");
     for (let i = 1; i <= 16; i++) {
       setVar("gx0", -360 + ((i - 1) % 6) * 120);
       setVar("gy0", 180 - fl((i - 1) / 6) * 120);
       setVar("slotb", i === 15 ? 16 : i === 16 ? 18 : i);
       setVar("over", v("mx0") >= v("gx0") && v("mx0") <= v("gx0") + 96 && v("my0") <= v("gy0") && v("my0") >= v("gy0") - 96 ? 1 : 0);
-      rgb(210, 15, v("over") === 1 ? 45 : 26); callProc("fj11", v("gx0"), v("gy0"), 96, 96);
-      callProc("fj3", v("slotb"), v("gx0") + 12, v("gy0") - 6, 72);
+      rgb(210, 15, v("over") === 1 ? 45 : 26); callProc("横条", v("gx0"), v("gy0"), 96, 96);
+      callProc("图标", v("slotb"), v("gx0") + 12, v("gy0") - 6, 72);
       rgb(0, 0, 100);
       text(listItem("block_names", "any", v("slotb")), 13, v("gx0") + 48, v("gy0") - 80, "center");
       text(listItem("inv", "any", v("slotb")), 13, v("gx0") + 92, v("gy0") - 62, "right");
@@ -392,13 +392,13 @@ defineProc("fj19", [], () => {
         setVar("gui_dirty", 1);
       }
     }
-    callProc("fj7", "返回", -100, -200, 200, 46);
+    callProc("按钮", "返回", -100, -200, 200, 46);
   });
 });
 // 配方：产物、产量、原料 1、数量、原料 2、数量（原料 2 为 0 表示没有）
-defineProc("fj2", [], () => {
+defineProc("合成界面", [], () => {
   warp(() => {
-    callProc("fj22", "合成");
+    callProc("面板", "合成");
     for (let i = 0; i < 6; i++) {
       setVar("ry", 200 - i * 58);
       setVar("r0", i * 6);
@@ -411,8 +411,8 @@ defineProc("fj2", [], () => {
       setVar("can", (listItem("inv", "any", v("a1")) as number) >= v("n1") && (v("a2") === 0 || (listItem("inv", "any", v("a2")) as number) >= v("n2")) ? 1 : 0);
       setVar("over", v("mx0") >= -370 && v("mx0") <= 370 && v("my0") <= v("ry") && v("my0") >= v("ry") - 52 ? 1 : 0);
       if (v("can") === 1) rgb(120, 35, v("over") === 1 ? 50 : 34); else rgb(0, 0, 22);
-      callProc("fj11", -370, v("ry"), 740, 52);
-      callProc("fj3", v("rb"), -360, v("ry") - 6, 40);
+      callProc("横条", -370, v("ry"), 740, 52);
+      callProc("图标", v("rb"), -360, v("ry") - 6, 40);
       rgb(0, 0, v("can") === 1 ? 100 : 55);
       text(join(listItem("block_names", "any", v("rb")), " ×", v("rn")), 18, -305, v("ry") - 18, "left");
       text(join("需要 ", listItem("block_names", "any", v("a1")), " ×", v("n1"), v("a2") > 0 ? join(" + ", listItem("block_names", "any", v("a2")), " ×", v("n2")) : ""), 15, 360, v("ry") - 18, "right");
@@ -427,40 +427,40 @@ defineProc("fj2", [], () => {
         } else say("材料不够");
       }
     }
-    callProc("fj7", "返回", -100, -214, 200, 44);
+    callProc("按钮", "返回", -100, -214, 200, 44);
   });
 });
-defineProc("fj21", [], () => {
+defineProc("设置界面", [], () => {
   warp(() => {
-    callProc("fj22", "设置");
-    callProc("fj7", join("画面精度：", v("cols") === 80 ? "流畅" : v("cols") === 120 ? "均衡" : "精细"), -200, 150, 400, 60);
-    callProc("fj7", join("视野距离：", v("far"), " 格"), -200, 70, 400, 60);
-    callProc("fj7", join("鼠标视角：", v("mouselook") === 1 ? "开" : "关"), -200, -10, 400, 60);
-    callProc("fj7", "返回", -200, -120, 400, 54);
+    callProc("面板", "设置");
+    callProc("按钮", join("画面精度：", v("cols") === 80 ? "流畅" : v("cols") === 120 ? "均衡" : "精细"), -200, 150, 400, 60);
+    callProc("按钮", join("视野距离：", v("far"), " 格"), -200, 70, 400, 60);
+    callProc("按钮", join("鼠标视角：", v("mouselook") === 1 ? "开" : "关"), -200, -10, 400, 60);
+    callProc("按钮", "返回", -200, -120, 400, 54);
   });
 });
-defineProc("fj5", [], () => {
+defineProc("帮助界面", [], () => {
   warp(() => {
-    callProc("fj22", "操作说明");
+    callProc("面板", "操作说明");
     rgb(0, 0, 100);
     setVar("hy0", 180);
     for (let i = 1; i <= 9; i++) { text(listItem("help", "any", i), 20, -340, v("hy0"), "left"); changeVar("hy0", -38); }
-    callProc("fj7", "返回", -100, -190, 200, 46);
+    callProc("按钮", "返回", -100, -190, 200, 46);
   });
 });
-defineProc("fj12", [], () => {
+defineProc("死亡界面", [], () => {
   warp(() => {
-    rgb(0, 70, 25); callProc("fj11", -450, 281, 900, 562);
+    rgb(0, 70, 25); callProc("横条", -450, 281, 900, 562);
     rgb(0, 0, 100); text("你倒下了", 60, 0, 110, "center");
-    callProc("fj7", "重生", -150, 30, 300, 60);
-    callProc("fj7", "回到标题", -150, -50, 300, 60);
+    callProc("按钮", "重生", -150, 30, 300, 60);
+    callProc("按钮", "回到标题", -150, -50, 300, 60);
   });
 });
 
 // ---------- 游戏逻辑 ----------
-defineProc("fj17", [], () => {
+defineProc("瞄准", [], () => {
   warp(() => {
-    callProc("fj16");
+    callProc("相机");
     setVar("aimx", -9999); setVar("aimok", 0);
     setVar("lastx", fl(v("ex"))); setVar("lasty", fl(v("ey"))); setVar("lastz", fl(v("ez")));
     for (let i = 1; i <= 50; i++) {
@@ -482,7 +482,7 @@ function setBlock(sbx: number, sby: number, sbz: number, sbb: number): void {
   appendList("edit_i", v("ei")); appendList("edit_b", sbb);
   appendList("edit_cx", floor(sbx / 16)); appendList("edit_cz", floor(sbz / 16));
 }
-defineProc("fj13", [], () => {
+defineProc("游戏更新", [], () => {
   warp(() => {
     setVar("dt", timerValue() as number - v("last"));
     changeVar("last", v("dt"));
@@ -540,7 +540,7 @@ defineProc("fj13", [], () => {
     setVar("regen", v("regen") + v("dt"));
     if (v("regen") > 6) { setVar("regen", 0); if (v("hp") < 20) { changeVar("hp", 1); setVar("hud_dirty", 1); } }
     // 挖与放
-    callProc("fj17");
+    callProc("瞄准");
     if ((keyPressed("70") || v("mousedown") === 1) && v("aimok") === 1) {
       setVar("mb", callReporter("block", v("aimx"), v("aimy"), v("aimz")) as number);
       if (v("mb") !== 17) {
@@ -564,15 +564,15 @@ defineProc("fj13", [], () => {
         else { replaceListItem("inv", "any", v("pb"), (listItem("inv", "any", v("pb")) as number) - 1); setVar("hud_dirty", 1); }
       }
     }
-    callProc("fj1");
+    callProc("加载区块");
   });
 });
-defineProc("fj4", [], () => {
+defineProc("处理按钮", [], () => {
   if (v("action") !== 0) {
   setVar("action", 0);
   setVar("gui_dirty", 1);
   setVar("lab", getVar("hitlabel"));
-  if (getVar("lab") === "开始新世界") { callProc("fj8"); setVar("screen", 1); setVar("hud_dirty", 1); }
+  if (getVar("lab") === "开始新世界") { callProc("新世界"); setVar("screen", 1); setVar("hud_dirty", 1); }
   else if (getVar("lab") === "继续游戏") { setVar("screen", 1); setVar("hud_dirty", 1); setVar("last", timerValue()); }
   else if (getVar("lab") === "背包") setVar("screen", 3);
   else if (getVar("lab") === "合成") setVar("screen", 4);
@@ -586,14 +586,14 @@ defineProc("fj4", [], () => {
   }
   }
 });
-defineProc("fj20", [], () => {
+defineProc("设置按钮", [], () => {
   if (v("screen") === 5 && v("clicked") === 1) {
   if (v("my0") <= 150 && v("my0") >= 90 && mathFunc("abs", v("mx0")) <= 200) { setVar("cols", v("cols") === 80 ? 120 : v("cols") === 120 ? 160 : 80); setVar("clicked", 0); setVar("gui_dirty", 1); }
   if (v("my0") <= 70 && v("my0") >= 10 && mathFunc("abs", v("mx0")) <= 200) { setVar("far", v("far") === 32 ? 44 : v("far") === 44 ? 20 : 32); setVar("clicked", 0); setVar("gui_dirty", 1); }
   if (v("my0") <= -10 && v("my0") >= -70 && mathFunc("abs", v("mx0")) <= 200) { setVar("mouselook", 1 - v("mouselook")); setVar("clicked", 0); setVar("gui_dirty", 1); }
   }
 });
-defineProc("fj8", [], () => {
+defineProc("新世界", [], () => {
   warp(() => {
     setVar("seed", (timeNow("second") as number) * 7.31 + (timerValue() as number) * 101);
     setVar("started", 1);
@@ -604,7 +604,7 @@ defineProc("fj8", [], () => {
     setVar("px", 8.5); setVar("pz", 8.5); setVar("yaw", 30); setVar("pitch", -8); setVar("vy", 0); setVar("hp", 20);
     setVar("clock", 0.08); setVar("sel", 1); setVar("mining", 0);
     setVar("pending", 1);
-    while (v("pending") === 1) callProc("fj1");
+    while (v("pending") === 1) callProc("加载区块");
     setVar("py", (callReporter("terrain", 8, 8) as number) + 2);
     if (v("py") < 14) setVar("py", 14);
     setVar("fallfrom", v("py"));
@@ -635,26 +635,26 @@ onStart(() => {
     if (v("mousedown") === 1 && v("wasdown") === 0) { setVar("clicked", 1); setVar("gui_dirty", 1); } else setVar("clicked", 0);
     setVar("wasdown", v("mousedown"));
     if (v("screen") === 1) {
-      callProc("fj13");
+      callProc("游戏更新");
       if (v("screen") === 1) {
-        callProc("fj15");
-        if (v("hud_dirty") === 1 || v("hudtick") <= 0) { callProc("fj6"); setVar("hud_dirty", 0); setVar("hudtick", 1); }
+        callProc("画面");
+        if (v("hud_dirty") === 1 || v("hudtick") <= 0) { callProc("快捷栏"); setVar("hud_dirty", 0); setVar("hudtick", 1); }
         changeVar("hudtick", -v("dt"));
-        callProc("fj0");
+        callProc("准星");
         changeVar("frames", 1);
       }
     } else {
-      callProc("fj20");
+      callProc("设置按钮");
       if (v("gui_dirty") === 1 || v("mx0") !== v("guimx") || v("my0") !== v("guimy")) {
         setVar("gui_dirty", 0); setVar("guimx", v("mx0")); setVar("guimy", v("my0"));
-        if (v("screen") === 0) callProc("fj10");
-        else if (v("screen") === 2) callProc("fj9");
-        else if (v("screen") === 3) callProc("fj19");
-        else if (v("screen") === 4) callProc("fj2");
-        else if (v("screen") === 5) callProc("fj21");
-        else if (v("screen") === 6) callProc("fj12");
-        else if (v("screen") === 7) callProc("fj5");
-        callProc("fj4");
+        if (v("screen") === 0) callProc("标题界面");
+        else if (v("screen") === 2) callProc("暂停界面");
+        else if (v("screen") === 3) callProc("背包界面");
+        else if (v("screen") === 4) callProc("合成界面");
+        else if (v("screen") === 5) callProc("设置界面");
+        else if (v("screen") === 6) callProc("死亡界面");
+        else if (v("screen") === 7) callProc("帮助界面");
+        callProc("处理按钮");
       }
     }
   });
