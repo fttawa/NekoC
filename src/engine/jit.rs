@@ -1,7 +1,9 @@
 //! Cranelift tier for hot bytecode. Numeric work runs as machine code; everything
 //! that can suspend, spawn or switch tasks side-exits to the interpreter, which
 //! stays the single source of truth for semantics. Instruction counts are exact.
-use super::{Binary, Cell, Engine, Expr, ExprOp, ListRef, Op, Target, Unary, ValueExpr, list_index};
+use super::{
+    Binary, Cell, Engine, Expr, ExprOp, ListRef, Op, Target, Unary, ValueExpr, list_index,
+};
 use cranelift_codegen::ir::{
     AbiParam, Block, InstBuilder, MemFlags, Signature, Value,
     condcodes::{FloatCC, IntCC},
@@ -135,7 +137,10 @@ impl Engine {
         let locals = &self.tasks[index].local_values;
         // Native writes never touch boxed values: enter only while they are empty.
         // Only SetValue boxes, and slots it targets in this region clear on write.
-        if !region.written_slots.iter().all(|&s| self.values[s].is_none())
+        if !region
+            .written_slots
+            .iter()
+            .all(|&s| self.values[s].is_none())
             || !region.written_locals.iter().all(|&s| locals[s].is_none())
         {
             return None;
@@ -378,10 +383,17 @@ unsafe extern "C" fn h_assign_item(c: *mut NativeContext, target: u64, list: u64
     let engine = unsafe { &mut *c.engine };
     let cell = {
         let values = engine.lists[list as usize].borrow();
-        list_index(at).and_then(|i| values.get(i)).cloned().unwrap_or(Cell::Number(f64::NAN))
+        list_index(at)
+            .and_then(|i| values.get(i))
+            .cloned()
+            .unwrap_or(Cell::Number(f64::NAN))
     };
     let slot = (target >> 1) as usize;
-    let target = if target & 1 == 1 { Target::Local(slot) } else { Target::Global(slot) };
+    let target = if target & 1 == 1 {
+        Target::Local(slot)
+    } else {
+        Target::Global(slot)
+    };
     engine.assign(target, cell);
 }
 unsafe extern "C" fn h_clear_slot(c: *mut NativeContext, slot: u64) {
@@ -424,16 +436,27 @@ impl Gen<'_, '_> {
         self.b.inst_results(call).first().copied()
     }
     fn call1(&mut self, address: usize, a: Value) -> Value {
-        self.call(address, &[types::F64], Some(types::F64), &[a]).unwrap()
+        self.call(address, &[types::F64], Some(types::F64), &[a])
+            .unwrap()
     }
     fn call2(&mut self, address: usize, a: Value, b: Value) -> Value {
-        self.call(address, &[types::F64, types::F64], Some(types::F64), &[a, b]).unwrap()
+        self.call(
+            address,
+            &[types::F64, types::F64],
+            Some(types::F64),
+            &[a, b],
+        )
+        .unwrap()
     }
     fn load(&mut self, base: Value, slot: usize) -> Value {
-        self.b.ins().load(types::F64, MemFlags::trusted(), base, (slot * 8) as i32)
+        self.b
+            .ins()
+            .load(types::F64, MemFlags::trusted(), base, (slot * 8) as i32)
     }
     fn store(&mut self, base: Value, slot: usize, value: Value) {
-        self.b.ins().store(MemFlags::trusted(), value, base, (slot * 8) as i32);
+        self.b
+            .ins()
+            .store(MemFlags::trusted(), value, base, (slot * 8) as i32);
     }
     fn truth(&mut self, v: Value) -> Value {
         let zero = self.b.ins().f64const(0.0);
@@ -473,34 +496,36 @@ impl Gen<'_, '_> {
                 )
                 .unwrap()
             }
-            ExprOp::Truth(i) if self.truth_tree(i, &mut Vec::new()) => self.guarded(pc, |g| {
-                let flag = g.truth_flag(i);
-                g.number(flag)
-            }, i),
-            ExprOp::Value(i) if self.numeric(i, &mut Vec::new()).is_some() => {
-                self.guarded(pc, |g| {
+            ExprOp::Truth(i) if self.truth_tree(i, &mut Vec::new()) => self.guarded(
+                pc,
+                |g| {
+                    let flag = g.truth_flag(i);
+                    g.number(flag)
+                },
+                i,
+            ),
+            ExprOp::Value(i) if self.numeric(i, &mut Vec::new()).is_some() => self.guarded(
+                pc,
+                |g| {
                     let n = g.numeric(i, &mut Vec::new()).unwrap();
                     g.numeric_value(n)
-                }, i)
-            }
+                },
+                i,
+            ),
             _ => self.node_call(pc),
         }
     }
 
     fn node_call(&mut self, pc: usize) -> Value {
-        match () {
-            () => {
-                let at = self.b.ins().iconst(types::I64, pc as i64);
-                let ctx = self.ctx;
-                self.call(
-                    h_node as *const () as usize,
-                    &[types::I64, types::I64],
-                    Some(types::F64),
-                    &[ctx, at],
-                )
-                .unwrap()
-            }
-        }
+        let at = self.b.ins().iconst(types::I64, pc as i64);
+        let ctx = self.ctx;
+        self.call(
+            h_node as *const () as usize,
+            &[types::I64, types::I64],
+            Some(types::F64),
+            &[ctx, at],
+        )
+        .unwrap()
     }
 
     /// Classifies a value as numeric, recording which variables must be unboxed.
@@ -527,8 +552,10 @@ impl Gen<'_, '_> {
     fn truth_tree(&self, i: usize, guards: &mut Vec<(bool, usize)>) -> bool {
         match self.engine.program.values[i] {
             ValueExpr::Compare(a, b, op) => {
-                matches!(op, Binary::Eq | Binary::Ne | Binary::Lt | Binary::Le | Binary::Gt | Binary::Ge)
-                    && self.numeric(a, guards).is_some()
+                matches!(
+                    op,
+                    Binary::Eq | Binary::Ne | Binary::Lt | Binary::Le | Binary::Gt | Binary::Ge
+                ) && self.numeric(a, guards).is_some()
                     && self.numeric(b, guards).is_some()
             }
             ValueExpr::Not(a) => self.truth_tree(a, guards),
@@ -570,7 +597,11 @@ impl Gen<'_, '_> {
             ValueExpr::Logic(a, b, and) => {
                 let a = self.truth_flag(a);
                 let b = self.truth_flag(b);
-                if and { self.b.ins().band(a, b) } else { self.b.ins().bor(a, b) }
+                if and {
+                    self.b.ins().band(a, b)
+                } else {
+                    self.b.ins().bor(a, b)
+                }
             }
             _ => {
                 let n = self.numeric(i, &mut Vec::new()).unwrap();
@@ -584,8 +615,15 @@ impl Gen<'_, '_> {
     fn check_unboxed(&mut self, guards: &[(bool, usize)], slow: Block) {
         let stride = std::mem::size_of::<Option<Cell>>();
         for &(local, slot) in guards {
-            let base = if local { self.local_values } else { self.values };
-            let tag = self.b.ins().load(types::I8, MemFlags::trusted(), base, (slot * stride) as i32);
+            let base = if local {
+                self.local_values
+            } else {
+                self.values
+            };
+            let tag =
+                self.b
+                    .ins()
+                    .load(types::I8, MemFlags::trusted(), base, (slot * stride) as i32);
             let unboxed = self.b.ins().icmp_imm(IntCC::Equal, tag, self.none);
             let next = self.b.create_block();
             self.b.ins().brif(unboxed, next, &[], slow, &[]);
@@ -624,7 +662,11 @@ impl Gen<'_, '_> {
             Target::Local(s) => (true, s),
         };
         self.store(if local { self.locals } else { self.slots }, slot, v);
-        if local { self.clear_local(slot) } else { self.clear_global(slot) }
+        if local {
+            self.clear_local(slot)
+        } else {
+            self.clear_global(slot)
+        }
     }
 
     fn compare(&mut self, cc: FloatCC, a: Value, b: Value) -> Value {
@@ -699,9 +741,14 @@ impl Gen<'_, '_> {
 
     /// Refunds this op and the rest of its chunk, then leaves at `pc`.
     fn side_exit(&mut self, pc: usize, remaining: i64) {
-        let fuel = self.b.ins().load(types::I64, MemFlags::trusted(), self.ctx, OFF_FUEL);
+        let fuel = self
+            .b
+            .ins()
+            .load(types::I64, MemFlags::trusted(), self.ctx, OFF_FUEL);
         let refunded = self.b.ins().iadd_imm(fuel, remaining);
-        self.b.ins().store(MemFlags::trusted(), refunded, self.ctx, OFF_FUEL);
+        self.b
+            .ins()
+            .store(MemFlags::trusted(), refunded, self.ctx, OFF_FUEL);
         let value = self.b.ins().iconst(types::I64, pc as i64);
         self.b.ins().return_(&[value]);
     }
@@ -711,8 +758,15 @@ impl Gen<'_, '_> {
         let drop_value = self.b.create_block();
         let done = self.b.create_block();
         let stride = std::mem::size_of::<Option<Cell>>();
-        let base = if local { self.local_values } else { self.values };
-        let tag = self.b.ins().load(types::I8, MemFlags::trusted(), base, (slot * stride) as i32);
+        let base = if local {
+            self.local_values
+        } else {
+            self.values
+        };
+        let tag = self
+            .b
+            .ins()
+            .load(types::I8, MemFlags::trusted(), base, (slot * stride) as i32);
         let unboxed = self.b.ins().icmp_imm(IntCC::Equal, tag, self.none);
         self.b.ins().brif(unboxed, done, &[], drop_value, &[]);
         self.b.switch_to_block(drop_value);
@@ -806,7 +860,12 @@ impl Gen<'_, '_> {
         let at = self.b.ins().iconst(types::I64, pc as i64);
         let ctx = self.ctx;
         let done = self
-            .call(h_exec as *const () as usize, &[types::I64, types::I64], Some(types::I64), &[ctx, at])
+            .call(
+                h_exec as *const () as usize,
+                &[types::I64, types::I64],
+                Some(types::I64),
+                &[ctx, at],
+            )
             .unwrap();
         let exit = self.b.create_block();
         self.b.ins().brif(done, next, &[], exit, &[]);
@@ -858,7 +917,9 @@ impl Gen<'_, '_> {
                         &[ctx, v],
                     )
                     .unwrap();
-                self.b.ins().brif(entered, block(pc + 1), &[], block(end), &[]);
+                self.b
+                    .ins()
+                    .brif(entered, block(pc + 1), &[], block(end), &[]);
             }
             Op::Next(target, _) | Op::RangeNext(target, _) => {
                 let helper = if matches!(op, Op::Next(..)) {
@@ -866,7 +927,9 @@ impl Gen<'_, '_> {
                 } else {
                     h_range_next as *const () as usize
                 };
-                let state = self.call(helper, &[types::I64], Some(types::I64), &[ctx]).unwrap();
+                let state = self
+                    .call(helper, &[types::I64], Some(types::I64), &[ctx])
+                    .unwrap();
                 let check = self.b.create_block();
                 let exit = self.b.create_block();
                 self.b.ins().brif(state, check, &[], exit, &[]);
@@ -874,13 +937,17 @@ impl Gen<'_, '_> {
                 self.side_exit(pc, remaining);
                 self.b.switch_to_block(check);
                 let again = self.b.ins().icmp_imm(IntCC::Equal, state, 1);
-                self.b.ins().brif(again, block(target), &[], block(pc + 1), &[]);
+                self.b
+                    .ins()
+                    .brif(again, block(target), &[], block(pc + 1), &[]);
             }
             Op::SetValue(target, v) => self.set_value(pc, target, v, blocks, remaining),
             Op::Range(_, end) => {
                 let next = self.transfer(pc, remaining);
                 let skipped = self.b.ins().icmp_imm(IntCC::Equal, next, end as i64);
-                self.b.ins().brif(skipped, block(end), &[], block(pc + 1), &[]);
+                self.b
+                    .ins()
+                    .brif(skipped, block(end), &[], block(pc + 1), &[]);
             }
             Op::Call(procedure, _) => {
                 self.transfer(pc, remaining);
@@ -900,7 +967,12 @@ impl Gen<'_, '_> {
             }
             Op::Break(target, pop) => {
                 let pop = self.b.ins().iconst(types::I64, pop as i64);
-                self.call(h_break as *const () as usize, &[types::I64, types::I64], None, &[ctx, pop]);
+                self.call(
+                    h_break as *const () as usize,
+                    &[types::I64, types::I64],
+                    None,
+                    &[ctx, pop],
+                );
                 self.b.ins().jump(block(target), &[]);
             }
             _ => {
@@ -1008,7 +1080,9 @@ fn compile(jit: &mut Jit, engine: &Engine, entry: usize) -> Option<Region> {
     signature.returns.push(AbiParam::new(types::I64));
     let name = format!("region{}", jit.next_name);
     jit.next_name += 1;
-    let id = module.declare_function(&name, Linkage::Local, &signature).ok()?;
+    let id = module
+        .declare_function(&name, Linkage::Local, &signature)
+        .ok()?;
     let mut context = module.make_context();
     context.func.signature = signature;
     let mut scope = FunctionBuilderContext::new();
@@ -1018,10 +1092,18 @@ fn compile(jit: &mut Jit, engine: &Engine, entry: usize) -> Option<Region> {
         b.append_block_params_for_function_params(start);
         b.switch_to_block(start);
         let ctx = b.block_params(start)[0];
-        let slots = b.ins().load(types::I64, MemFlags::trusted(), ctx, OFF_SLOTS);
-        let locals = b.ins().load(types::I64, MemFlags::trusted(), ctx, OFF_LOCALS);
-        let values = b.ins().load(types::I64, MemFlags::trusted(), ctx, OFF_VALUES);
-        let local_values = b.ins().load(types::I64, MemFlags::trusted(), ctx, OFF_LOCAL_VALUES);
+        let slots = b
+            .ins()
+            .load(types::I64, MemFlags::trusted(), ctx, OFF_SLOTS);
+        let locals = b
+            .ins()
+            .load(types::I64, MemFlags::trusted(), ctx, OFF_LOCALS);
+        let values = b
+            .ins()
+            .load(types::I64, MemFlags::trusted(), ctx, OFF_VALUES);
+        let local_values = b
+            .ins()
+            .load(types::I64, MemFlags::trusted(), ctx, OFF_LOCAL_VALUES);
         let blocks: BTreeMap<usize, Block> = region
             .iter()
             .chain(exits.iter())
@@ -1059,9 +1141,13 @@ fn compile(jit: &mut Jit, engine: &Engine, entry: usize) -> Option<Region> {
             }
             let remaining = (last - pc + 1) as i64;
             if leaders.contains(&pc) {
-                let fuel = g.b.ins().load(types::I64, MemFlags::trusted(), ctx, OFF_FUEL);
+                let fuel =
+                    g.b.ins()
+                        .load(types::I64, MemFlags::trusted(), ctx, OFF_FUEL);
                 let after = g.b.ins().iadd_imm(fuel, -remaining);
-                let ok = g.b.ins().icmp_imm(IntCC::SignedGreaterThanOrEqual, after, 0);
+                let ok =
+                    g.b.ins()
+                        .icmp_imm(IntCC::SignedGreaterThanOrEqual, after, 0);
                 let run = g.b.create_block();
                 let stop = g.b.create_block();
                 g.b.ins().brif(ok, run, &[], stop, &[]);

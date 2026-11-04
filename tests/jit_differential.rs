@@ -33,7 +33,7 @@ fn compare(name: &str, keys: &[&str]) {
 
 fn compare_with(name: &str, keys: &[&str], tapped: &[&str], expect_positive: Option<&str>) {
     let path = name;
-    let text = std::fs::read_to_string(&path).unwrap();
+    let text = std::fs::read_to_string(path).unwrap();
     let project: Value = serde_json::from_str(text.trim_start_matches('\u{feff}')).unwrap();
     let mut a = engine(&project, false);
     let mut b = engine(&project, true);
@@ -71,13 +71,19 @@ fn compare_with(name: &str, keys: &[&str], tapped: &[&str], expect_positive: Opt
                         .iter()
                         .take(3)
                         .map(|k| {
-                            let cut = |v: &Value| v.to_string().chars().take(400).collect::<String>();
+                            let cut =
+                                |v: &Value| v.to_string().chars().take(400).collect::<String>();
                             format!("{k}: {} <> {}", cut(&l[*k]), cut(&r[*k]))
                         })
                         .collect();
-                    panic!("{name}: metadata diverged at frame {frame}: {differing:?}\n{detail:#?}");
+                    panic!(
+                        "{name}: metadata diverged at frame {frame}: {differing:?}\n{detail:#?}"
+                    );
                 }
-                assert!(left.1 == right.1, "{name}: pen lines diverged at frame {frame}");
+                assert!(
+                    left.1 == right.1,
+                    "{name}: pen lines diverged at frame {frame}"
+                );
                 a.recycle_lines(x.lines);
                 b.recycle_lines(y.lines);
             }
@@ -96,8 +102,16 @@ fn compare_with(name: &str, keys: &[&str], tapped: &[&str], expect_positive: Opt
             .find(|(_, v)| v["name"] == variable)
             .map(|(id, _)| id.as_str())
             .unwrap();
-        let slot = a.program.variable_names.iter().position(|n| n == id || n == variable).unwrap();
-        assert!(a.numeric_variables()[slot] > 0.0, "{name}: {variable} stayed at zero");
+        let slot = a
+            .program
+            .variable_names
+            .iter()
+            .position(|n| n == id || n == variable)
+            .unwrap();
+        assert!(
+            a.numeric_variables()[slot] > 0.0,
+            "{name}: {variable} stayed at zero"
+        );
     }
 }
 
@@ -127,5 +141,10 @@ fn native_studio_matches_interpreter() {
 }
 #[test]
 fn tiny_lm_generation_matches_interpreter() {
-    compare_with("projects/tiny-lm/tiny_lm.bcmkn", &[], &["51"], Some("lm_generated"));
+    compare_with(
+        "projects/tiny-lm/tiny_lm.bcmkn",
+        &[],
+        &["51"],
+        Some("lm_generated"),
+    );
 }
