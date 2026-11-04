@@ -1332,7 +1332,7 @@ fn compile(jit: &mut Jit, engine: &Engine, entry: usize) -> Option<Region> {
         .ok()?;
     // A backend panic must only cost this region its native code, not the VM.
     std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-        module.define_function(id, &mut context)
+        module.define_function(id, &mut context).map_err(|_| ())
     }))
     .ok()?
     .ok()?;
