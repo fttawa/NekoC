@@ -513,8 +513,12 @@ impl Gen<'_, '_> {
             .store(MemFlags::trusted(), value, base, (slot * 8) as i32);
     }
     fn truth(&mut self, v: Value) -> Value {
+        // abs(v) > 0 is false for both signed zeros and NaNs, and true for
+        // every other f64 (including infinities). Unlike `fcmp one`, this
+        // predicate and its complement can both be lowered by aarch64.
+        let magnitude = self.b.ins().fabs(v);
         let zero = self.b.ins().f64const(0.0);
-        self.b.ins().fcmp(FloatCC::OrderedNotEqual, v, zero)
+        self.b.ins().fcmp(FloatCC::GreaterThan, magnitude, zero)
     }
     fn number(&mut self, flag: Value) -> Value {
         let one = self.b.ins().f64const(1.0);
@@ -1154,7 +1158,15 @@ fn is_straight(op: Op) -> bool {
     )
 }
 
-fn compile(jit: &mut Jit, engine: &Engine, entry: usize) -> Option<Region> {
+struct BuiltRegion {
+    context: cranelift_codegen::Context,
+    written_slots: Vec<usize>,
+    written_locals: Vec<usize>,
+}
+
+// Keep IR generation independent of executable memory so other backends can be
+// checked on the CI host without ever executing foreign machine code.
+fn build_region(engine: &Engine, entry: usize, conv: CallConv) -> Option<BuiltRegion> {
     let ops = &engine.program.ops;
     if !engine.jit_supported(ops[entry]) {
         return None;
@@ -1217,17 +1229,10 @@ fn compile(jit: &mut Jit, engine: &Engine, entry: usize) -> Option<Region> {
 
     let returns: Vec<usize> = returns.into_iter().take(16).collect();
     let none = i64::from(none_tag()?);
-    let module = &mut jit.module;
-    let conv = module.isa().default_call_conv();
-    let mut signature = module.make_signature();
+    let mut signature = Signature::new(conv);
     signature.params.push(AbiParam::new(types::I64));
     signature.returns.push(AbiParam::new(types::I64));
-    let name = format!("region{}", jit.next_name);
-    jit.next_name += 1;
-    let id = module
-        .declare_function(&name, Linkage::Local, &signature)
-        .ok()?;
-    let mut context = module.make_context();
+    let mut context = cranelift_codegen::Context::new();
     context.func.signature = signature;
     let mut scope = FunctionBuilderContext::new();
     {
@@ -1306,7 +1311,31 @@ fn compile(jit: &mut Jit, engine: &Engine, entry: usize) -> Option<Region> {
         b.seal_all_blocks();
         b.finalize();
     }
-    module.define_function(id, &mut context).ok()?;
+    Some(BuiltRegion {
+        context,
+        written_slots: written_slots.difference(&boxed_slots).copied().collect(),
+        written_locals: written_locals.difference(&boxed_locals).copied().collect(),
+    })
+}
+
+fn compile(jit: &mut Jit, engine: &Engine, entry: usize) -> Option<Region> {
+    let BuiltRegion {
+        mut context,
+        written_slots,
+        written_locals,
+    } = build_region(engine, entry, jit.module.isa().default_call_conv())?;
+    let name = format!("region{}", jit.next_name);
+    jit.next_name += 1;
+    let module = &mut jit.module;
+    let id = module
+        .declare_function(&name, Linkage::Local, &context.func.signature)
+        .ok()?;
+    // A backend panic must only cost this region its native code, not the VM.
+    std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        module.define_function(id, &mut context).map_err(|_| ())
+    }))
+    .ok()?
+    .ok()?;
     module.clear_context(&mut context);
     module.finalize_definitions().ok()?;
     let code = module.get_finalized_function(id);
@@ -1314,7 +1343,205 @@ fn compile(jit: &mut Jit, engine: &Engine, entry: usize) -> Option<Region> {
     let code: Entry = unsafe { std::mem::transmute::<*const u8, Entry>(code) };
     Some(Region {
         code,
-        written_slots: written_slots.difference(&boxed_slots).copied().collect(),
-        written_locals: written_locals.difference(&boxed_locals).copied().collect(),
+        written_slots,
+        written_locals,
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn aarch64_compiles_project_regions() {
+        assert_aarch64_regions(&[
+            "samples/pen_polyhedron.bcmkn",
+            "samples/native-studio.bcmkn",
+            "tests/fixtures/list_writes.bcmkn",
+        ]);
+    }
+
+    #[test]
+    #[ignore = "exhaustive backend check; run before releases with --ignored --exact"]
+    fn aarch64_compiles_all_project_regions() {
+        assert_aarch64_regions(&[
+            "samples/pen_polyhedron.bcmkn",
+            "projects/pencraft/pencraft.bcmkn",
+            "samples/native-studio.bcmkn",
+            "samples/pen_display_fast.bcmkn",
+            "samples/pen_display_columns.bcmkn",
+            "projects/starhold/starhold.bcmkn",
+            "projects/tiny-lm/tiny_lm.bcmkn",
+            "tests/fixtures/list_writes.bcmkn",
+        ]);
+    }
+
+    fn assert_aarch64_regions(paths: &[&str]) {
+        let mut flags = settings::builder();
+        flags.set("opt_level", "speed").unwrap();
+        let isa = cranelift_codegen::isa::lookup("aarch64-linux-android".parse().unwrap())
+            .unwrap()
+            .finish(settings::Flags::new(flags))
+            .unwrap();
+        for path in paths {
+            let project = crate::project::load_project(path).unwrap();
+            let engine = Engine::new(super::super::Program::compile(&project.value).unwrap());
+            let mut compiled = 0;
+            for pc in 0..engine.program.ops.len() {
+                let Some(mut region) = build_region(&engine, pc, isa.default_call_conv()) else {
+                    continue;
+                };
+                let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                    region
+                        .context
+                        .compile(isa.as_ref(), &mut Default::default())
+                        .map(|code| code.code_buffer().len())
+                        .map_err(|error| format!("{error:?}"))
+                }));
+                match result {
+                    Ok(Ok(bytes)) => assert!(bytes > 0),
+                    other => panic!("{path}: aarch64 compilation failed at pc={pc}: {other:?}"),
+                }
+                compiled += 1;
+            }
+            assert!(compiled > 0, "no native regions checked in {path}");
+            eprintln!("{path}: {compiled} aarch64 regions compiled");
+        }
+    }
+
+    fn predicate(engine: &Engine, conv: CallConv, kind: usize) -> cranelift_codegen::Context {
+        let mut context = cranelift_codegen::Context::new();
+        context.func.signature = Signature::new(conv);
+        context.func.signature.params = vec![AbiParam::new(types::F64); 2];
+        context
+            .func
+            .signature
+            .returns
+            .push(AbiParam::new(types::F64));
+        let mut scope = FunctionBuilderContext::new();
+        let mut b = FunctionBuilder::new(&mut context.func, &mut scope);
+        let start = b.create_block();
+        b.append_block_params_for_function_params(start);
+        b.switch_to_block(start);
+        let a = b.block_params(start)[0];
+        let c = b.block_params(start)[1];
+        let empty = BTreeSet::new();
+        let mut g = Gen {
+            b: &mut b,
+            engine,
+            ctx: a,
+            conv,
+            slots: a,
+            locals: a,
+            boxed_slots: &empty,
+            boxed_locals: &empty,
+            values: a,
+            local_values: a,
+            none: 0,
+            returns: &[],
+        };
+        let result = match kind {
+            0 => {
+                let flag = g.truth(a);
+                g.number(flag)
+            }
+            1 => {
+                let flag = g.truth(a);
+                let flag = g.b.ins().bxor_imm(flag, 1);
+                g.number(flag)
+            }
+            2 => g.binary(Binary::And, a, c),
+            3 => g.binary(Binary::Or, a, c),
+            // Exercise the originally suspected comparison unions and their
+            // complements too, with the ordinary bor/band emission restored.
+            4 | 5 => {
+                let lt = g.b.ins().fcmp(FloatCC::LessThan, a, c);
+                let gt = g.b.ins().fcmp(FloatCC::GreaterThan, a, c);
+                let flag = g.b.ins().bor(lt, gt);
+                let flag = if kind == 5 {
+                    g.b.ins().bxor_imm(flag, 1)
+                } else {
+                    flag
+                };
+                g.number(flag)
+            }
+            _ => unreachable!(),
+        };
+        g.b.ins().return_(&[result]);
+        b.seal_all_blocks();
+        b.finalize();
+        context
+    }
+
+    #[test]
+    fn truth_and_comparison_predicates_preserve_ieee_semantics() {
+        let project = crate::studio::document::Document::blank();
+        let engine = Engine::new(super::super::Program::compile(project.value()).unwrap());
+        let mut flags = settings::builder();
+        flags.set("opt_level", "speed").unwrap();
+        let flags = settings::Flags::new(flags);
+        let arm = cranelift_codegen::isa::lookup("aarch64-linux-android".parse().unwrap())
+            .unwrap()
+            .finish(flags.clone())
+            .unwrap();
+        let host = cranelift_native::builder().unwrap().finish(flags).unwrap();
+        let mut module = JITModule::new(JITBuilder::with_isa(host, default_libcall_names()));
+        let cases = [
+            0.0,
+            -0.0,
+            1.0,
+            -1.0,
+            f64::MIN,
+            f64::MAX,
+            f64::from_bits(1),
+            -f64::from_bits(1),
+            f64::INFINITY,
+            f64::NEG_INFINITY,
+            f64::NAN,
+            f64::from_bits(0x7ff0_0000_0000_0001),
+            f64::from_bits(0xfff8_0000_0000_0001),
+        ];
+        for kind in 0..6 {
+            let mut cross = predicate(&engine, arm.default_call_conv(), kind);
+            cross
+                .compile(arm.as_ref(), &mut Default::default())
+                .unwrap();
+            let mut native = predicate(&engine, module.isa().default_call_conv(), kind);
+            let id = module
+                .declare_function(
+                    &format!("predicate{kind}"),
+                    Linkage::Local,
+                    &native.func.signature,
+                )
+                .unwrap();
+            module.define_function(id, &mut native).unwrap();
+            module.finalize_definitions().unwrap();
+            // SAFETY: compiled on the host with the signature above. The module
+            // owns the executable memory until all calls have completed.
+            let code: unsafe extern "C" fn(f64, f64) -> f64 =
+                unsafe { std::mem::transmute(module.get_finalized_function(id)) };
+            for a in cases {
+                for c in cases {
+                    let ordered_unequal = matches!(
+                        a.partial_cmp(&c),
+                        Some(std::cmp::Ordering::Less | std::cmp::Ordering::Greater)
+                    );
+                    let expected = match kind {
+                        0 => super::super::truth(a),
+                        1 => !super::super::truth(a),
+                        2 => super::super::truth(a) && super::super::truth(c),
+                        3 => super::super::truth(a) || super::super::truth(c),
+                        4 => ordered_unequal,
+                        5 => !ordered_unequal,
+                        _ => unreachable!(),
+                    };
+                    assert_eq!(
+                        unsafe { code(a, c) },
+                        u8::from(expected) as f64,
+                        "kind={kind}, a={a:?}, b={c:?}"
+                    );
+                }
+            }
+        }
+    }
 }
