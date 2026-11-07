@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Neko Rust · PICKCAT 播放器",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "用本机 Rust VM + WebGL2 播放 PICKCAT 的 Kitten N 作品。需要启动本机 Neko 后端。",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyTw+m0hkucb7ZE0/TusctD6V803odu8VqbZdSzP4uaWmF5ZnlAikqlqh/FdSky3Rb+Hli+MdkDL9dLiMAeYQ/NTFEFEnq2Wq4To+dCUNroDklsGH3+tZnuGqrgOJCTlmumgZcA0NqMKV+NjWJ0WEcNwYeBnlBaOlXO3B1tvmF76NUPEID1ExPigz4/MLPHZI/LZ4MJnXYS/f0EtKOzPE+Vc4jkCDfk+BDAGmnCgBzClHJ511PFeJVELYXLWqMRfCdonA2+VLf8hCiXWxsX+dXIKk6arzdwTqRPkGPJHZFiHWNsx9hqtN8FiDVyf3NzDmK1wkxnONhgwEz5FBAm8DQQIDAQAB",
   "permissions": ["storage"],
