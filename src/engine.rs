@@ -612,6 +612,8 @@ pub struct Program {
     /// The project uses bump_into_color: the VM keeps a pen raster and needs
     /// costume colours from the viewer.
     pub uses_color: bool,
+    /// Heading at which a costume is drawn unrotated: 0 in Kitten N, 90 in Kitten 4.
+    pub costume_turn: f64,
 }
 
 #[derive(Debug, Serialize)]
@@ -638,7 +640,9 @@ impl Program {
     /// is unpacked natively first instead of running its block decoder.
     pub fn compile(project: &Value) -> Result<Self> {
         if project.get("_nekocKitten4").is_some() {
-            return Self::compile_exact(&crate::kitten4::lower_for_vm(project));
+            let mut program = Self::compile_exact(&crate::kitten4::lower_for_vm(project))?;
+            program.costume_turn = 90.0;
+            return Ok(program);
         }
         if crate::pack::is_packed(project) {
             return Self::compile_exact(&crate::pack::unpack(project)?);
@@ -721,6 +725,7 @@ impl Program {
                 scenes: vec![],
                 initial_scene: 0,
                 uses_color: false,
+                costume_turn: 0.0,
             },
             slots: BTreeMap::new(),
             locals: BTreeMap::new(),
@@ -3691,7 +3696,7 @@ impl Engine {
         let (costume, scale) = if let Some(text) = &a.text {
             let (w, h) = text.extent();
             let angle = if a.rotation_type == 0 {
-                a.direction.to_radians()
+                (a.direction - self.program.costume_turn).to_radians()
             } else {
                 0.0
             };
@@ -3711,7 +3716,7 @@ impl Engine {
         let w = costume.width * scale * a.size_x / 100.0;
         let h = costume.height * scale * a.size_y / 100.0;
         let angle = if a.rotation_type == 0 {
-            a.direction.to_radians()
+            (a.direction - self.program.costume_turn).to_radians()
         } else {
             0.0
         };
@@ -4951,6 +4956,7 @@ impl Engine {
         }
         let execute_us = started.elapsed().as_micros();
         let scene = self.current_scene;
+        let costume_turn = self.program.costume_turn;
         // Only the active scene is drawn; other scenes keep their dirty marks.
         let sprites = self
             .sprites
@@ -4961,7 +4967,11 @@ impl Engine {
                     return None;
                 }
                 *dirty = false;
-                a.alive.then(|| a.clone())
+                a.alive.then(|| {
+                    let mut drawn = a.clone();
+                    drawn.direction -= costume_turn;
+                    drawn
+                })
             })
             .collect();
         Ok(Frame {
@@ -5252,7 +5262,7 @@ impl Engine {
                         x: a.x,
                         y: a.y,
                         size: size.clamp(1.0, 1000.0),
-                        direction: a.direction,
+                        direction: a.direction - self.program.costume_turn,
                         align,
                         color: a.color,
                     });
@@ -5731,7 +5741,7 @@ impl Engine {
                         style: a.style.clone(),
                         x: a.x,
                         y: a.y,
-                        direction: a.direction,
+                        direction: a.direction - self.program.costume_turn,
                         scale: a.scale,
                         size_x: a.size_x,
                         size_y: a.size_y,

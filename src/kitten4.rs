@@ -523,6 +523,22 @@ fn lower_block(block: &mut Value) {
     block["type"] = json!(renamed);
 }
 
+/// Equality that survives a trip through the browser, where 100.0 comes back as 100.
+fn same_json(a: &Value, b: &Value) -> bool {
+    match (a, b) {
+        (Value::Number(a), Value::Number(b)) => a.as_f64() == b.as_f64(),
+        (Value::Array(a), Value::Array(b)) => {
+            a.len() == b.len() && a.iter().zip(b).all(|(a, b)| same_json(a, b))
+        }
+        (Value::Object(a), Value::Object(b)) => {
+            a.len() == b.len()
+                && a.iter()
+                    .all(|(key, a)| b.get(key).is_some_and(|b| same_json(a, b)))
+        }
+        _ => a == b,
+    }
+}
+
 fn is_published(source: &Value) -> bool {
     let no_workspace = |section: &str| {
         source["theatre"][section]
@@ -544,7 +560,7 @@ pub fn from_neko(value: &Value) -> Result<Value> {
             // No workspace to write edits into: only an unchanged work can be exported.
             let unchanged = ["scenes", "actors", "procedures"]
                 .iter()
-                .all(|section| value[section] == baseline[section]);
+                .all(|section| same_json(&value[section], &baseline[section]));
             ensure!(
                 unchanged,
                 "published Kitten 4 work has no block workspace, so edits cannot be exported"

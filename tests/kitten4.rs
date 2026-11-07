@@ -552,7 +552,8 @@ fn native_initial_rotation_is_radians_and_native_dynamic_turns_import_correctly(
     let reference_actor = &reference.actors["nekoc-pen-actor"];
     assert!((reference_actor.x - actor.x).abs() < 1e-9);
     assert!((reference_actor.y - actor.y).abs() < 1e-9);
-    assert!((reference_actor.rotation - actor.direction).abs() < 1e-9);
+    // Frames carry the drawn angle; a Kitten 4 costume is unrotated at heading 90.
+    assert!((reference_actor.rotation - 90.0 - actor.direction).abs() < 1e-9);
     canonical["variables"]["variablesDict"]["angle"]["value"] = json!(45);
     let edited = kitten4::from_neko(&canonical).unwrap();
     assert_eq!(edited["theatre"], native["theatre"]);
@@ -714,6 +715,51 @@ fn published_work_runs_from_compile_result() {
         .advance(1.0 / 60.0, 100_000, Duration::from_secs(1))
         .unwrap();
     assert_eq!(kitten4::from_neko(&canonical).unwrap(), native);
+}
+
+fn published_fixture() -> Value {
+    let mut native = fixture();
+    native["theatre"]["actors"]["nekoc-pen-actor"]
+        .as_object_mut()
+        .unwrap()
+        .remove("block_data_json");
+    for scene in native["theatre"]["scenes"]
+        .as_object_mut()
+        .unwrap()
+        .values_mut()
+    {
+        scene.as_object_mut().unwrap().remove("block_data_json");
+    }
+    native["compile_result"] = json!([]);
+    native
+}
+
+#[test]
+fn published_work_survives_browser_number_round_trip() {
+    let native = published_fixture();
+    let canonical = kitten4::to_neko(&native).unwrap();
+    // JavaScript serializes 100.0 as 100, so a float can come back as an integer.
+    let mut echoed = canonical.clone();
+    echoed["actors"]["actorsDict"]["nekoc-pen-actor"]["scale"] = json!(100.0);
+    let text = serde_json::to_string(&echoed).unwrap().replace(".0,", ",");
+    let echoed: Value = serde_json::from_str(&text).unwrap();
+    assert_eq!(kitten4::from_neko(&echoed).unwrap(), native);
+}
+
+#[test]
+fn costume_is_drawn_unrotated_at_the_native_zero_heading() {
+    let canonical = kitten4::to_neko(&published_fixture()).unwrap();
+    let mut engine = Engine::new(Program::compile(&canonical).unwrap());
+    engine.start();
+    let frame = engine
+        .advance(1.0 / 60.0, 100_000, Duration::from_secs(1))
+        .unwrap();
+    let actor = frame
+        .sprites
+        .iter()
+        .find(|a| a.id == "nekoc-pen-actor")
+        .unwrap();
+    assert!(actor.direction.abs() < 1e-9, "{}", actor.direction);
 }
 
 #[test]
