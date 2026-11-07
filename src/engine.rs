@@ -637,6 +637,9 @@ impl Program {
     /// Compiles a project. A self-extracting packed project (see `crate::pack`)
     /// is unpacked natively first instead of running its block decoder.
     pub fn compile(project: &Value) -> Result<Self> {
+        if project.get("_nekocKitten4").is_some() {
+            return Self::compile_exact(&crate::kitten4::lower_for_vm(project));
+        }
         if crate::pack::is_packed(project) {
             return Self::compile_exact(&crate::pack::unpack(project)?);
         }
@@ -1248,6 +1251,7 @@ impl Compiler {
                 }
             }
             "get_answer" => ValueExpr::Answer,
+            "current_scene_id" => ValueExpr::SceneId,
             "shadow_text" => match b["inputs"].get("text") {
                 Some(text) => return self.value(text),
                 None => self.constant(Cell::Text(field(b, "TEXT").into())),
@@ -1534,6 +1538,7 @@ impl Compiler {
             | "logic_ternary"
             | "procedures_2_callreturn"
             | "get_answer"
+            | "current_scene_id"
             | "get_choice_and_index" => ExprOp::Value(self.value(b)?),
             "check_key" => {
                 ensure!(
@@ -2323,6 +2328,10 @@ impl Compiler {
                     };
                     self.program.value_args.extend(choices);
                     Op::Ask(question, Some(span))
+                }
+                "kitten4_noop" => {
+                    block = b.get("next");
+                    continue;
                 }
                 "dispose_clone" => Op::DisposeClone,
                 "set_top_bottom_layer" | "self_change_layer" => {
@@ -4793,6 +4802,9 @@ impl Engine {
                 }
             }
             ValueExpr::Answer => self.answer.clone(),
+            ValueExpr::SceneId => {
+                Cell::Text(self.program.scenes[self.current_scene].id.as_str().into())
+            }
             ValueExpr::Choice(index) => {
                 if index {
                     Cell::Number(self.choice.0)

@@ -25,12 +25,532 @@ pub fn to_neko(value: &Value) -> Result<Value> {
     Ok(result)
 }
 
+/// What stops a work from running: untranslated blocks by use count, then the first
+/// compile or runtime error.
+pub fn coverage(source: &Value, frames: u32) -> Value {
+    use crate::engine::{Engine, Program};
+    let project = match to_neko(source) {
+        Ok(project) => project,
+        Err(error) => return json!({"stage": "import", "error": format!("{error:#}")}),
+    };
+    let mut blocks = 0u64;
+    let mut opaque = BTreeMap::new();
+    for section in ["scenes", "actors", "procedures"] {
+        count_blocks(&project[section], &mut blocks, &mut opaque);
+    }
+    let stubbed: BTreeMap<_, _> = opaque
+        .iter()
+        .filter(|(kind, _)| is_stub(kind))
+        .map(|(kind, count)| (kind.clone(), *count))
+        .collect();
+    let mut report = json!({"blocks": blocks, "opaque": opaque, "stubbed": stubbed});
+    if let Err(error) = from_neko(&project) {
+        report["export_error"] = json!(format!("{error:#}"));
+    }
+    let result = Program::compile(&project)
+        .map_err(|error| ("compile", error))
+        .and_then(|program| {
+            let mut engine = Engine::new(program);
+            engine.start();
+            for _ in 0..frames {
+                engine
+                    .advance(1.0 / 60.0, 2_000_000, std::time::Duration::from_millis(200))
+                    .map_err(|error| ("run", error))?;
+            }
+            Ok(())
+        });
+    match result {
+        Ok(()) => report["stage"] = json!("ran"),
+        Err((stage, error)) => {
+            report["stage"] = json!(stage);
+            report["error"] = json!(format!("{error:#}"));
+        }
+    }
+    report
+}
+
+fn count_blocks(value: &Value, blocks: &mut u64, opaque: &mut BTreeMap<String, u64>) {
+    match value {
+        Value::Array(items) => items.iter().for_each(|v| count_blocks(v, blocks, opaque)),
+        Value::Object(object) => {
+            if let Some(kind) = object.get("type").and_then(Value::as_str)
+                && object.contains_key("id")
+            {
+                *blocks += 1;
+                if let Some(kind) = kind.strip_prefix(OPAQUE) {
+                    *opaque.entry(kind.to_owned()).or_default() += 1;
+                }
+            }
+            object
+                .values()
+                .for_each(|v| count_blocks(v, blocks, opaque));
+        }
+        _ => {}
+    }
+}
+
+/// VM form of a Kitten 4 project. Blocks without an editable Kitten N equivalent stay
+/// opaque in the canonical project so they round-trip untouched, and are rewritten only
+/// here, just before compiling.
+pub fn lower_for_vm(project: &Value) -> Value {
+    let mut lowered = project.clone();
+    if let Some(object) = lowered.as_object_mut() {
+        object.remove(METADATA);
+    }
+    // Cloud data has no service to talk to here, so it behaves as local variables.
+    if let Some(cloud) = project
+        .pointer(&format!("/{METADATA}/source/cloud_variables"))
+        .and_then(Value::as_object)
+    {
+        for (id, variable) in cloud {
+            let list = variable["type"] == "public_list";
+            lowered["variables"]["variablesDict"][id] = json!({
+                "id": id, "name": variable["name"],
+                "type": if list { "list" } else { "variable" },
+                "value": if list { json!([]) } else { json!(0) },
+            });
+        }
+    }
+    let targets = Targets {
+        actors: project["actors"]["actorsDict"].clone(),
+        scenes: project["scenes"]["scenesDict"].clone(),
+        procedures: project["procedures"]["proceduresDict"].clone(),
+        groups: project
+            .pointer(&format!("/{METADATA}/source/theatre/groups"))
+            .cloned()
+            .unwrap_or(Value::Null),
+    };
+    for section in ["scenes", "actors", "procedures"] {
+        lower_blocks(&mut lowered[section], &targets);
+    }
+    lowered
+}
+
+struct Targets {
+    actors: Value,
+    scenes: Value,
+    procedures: Value,
+    groups: Value,
+}
+
+impl Targets {
+    /// Collision with an actor group is a collision with any member. A target that no
+    /// longer exists can never collide.
+    fn bump(&self, target: &str) -> Vec<String> {
+        if target.starts_with("__") || target.starts_with("--") {
+            return vec![target.replace("__edge", "--edge")];
+        }
+        if let Some(members) = self.groups[target]["actors"].as_array() {
+            return members
+                .iter()
+                .filter_map(Value::as_str)
+                .filter(|id| self.actors.get(id).is_some())
+                .map(str::to_owned)
+                .collect();
+        }
+        if self.actors.get(target).is_some() {
+            vec![target.to_owned()]
+        } else {
+            vec![]
+        }
+    }
+}
+
+/// Replaces what the official runtime can no longer resolve: a call to a deleted
+/// procedure or a block aimed at a deleted actor. A group target acts on its first member.
+fn lower_missing_reference(block: &mut Value, targets: &Targets) {
+    let kind = block["type"].as_str().unwrap_or_default().to_owned();
+    let call = kind.starts_with("procedures_2_call");
+    let mut missing = call && targets.procedures.get(field(block, "NAME")).is_none();
+    if !kind.ends_with("bump") {
+        for key in ["sprite", "target", "actor", "sprite1"] {
+            let id = field(block, key).to_owned();
+            if id.is_empty()
+                || id.starts_with("__")
+                || id.starts_with("--")
+                || targets.actors.get(&id).is_some()
+                || targets.scenes.get(&id).is_some()
+            {
+                continue;
+            }
+            match targets.bump(&id).first() {
+                Some(member) => put_field(block, key, member),
+                None => missing = true,
+            }
+        }
+    }
+    if !missing {
+        return;
+    }
+    let reporter = kind == "procedures_2_callreturn" || block["is_output"] == true || {
+        let kind = kind.trim_start_matches(OPAQUE);
+        kind.starts_with("get_") || kind.ends_with("_of_sprite")
+    };
+    block["type"] = json!(if reporter {
+        "math_number"
+    } else {
+        "kitten4_noop"
+    });
+    block["fields"] = json!({"NUM": "0"});
+    remove(block, "inputs");
+    remove(block, "mutation");
+}
+
+fn lower_bump(block: &mut Value, targets: &Targets) {
+    let id = block["id"].as_str().unwrap_or_default().to_owned();
+    let subjects = targets.bump(field(block, "sprite1"));
+    let others = targets.bump(field(block, "sprite2"));
+    let others = &others;
+    let id = &id;
+    let tests = subjects.iter().flat_map(|subject| {
+        others.iter().map(move |target| {
+            json!({"type": "bump_into", "id": id, "fields": {"sprite": subject, "sprite1": target}})
+        })
+    });
+    *block = tests
+        .reduce(|a, b| {
+            json!({"type": "logic_operation", "id": id, "fields": {"type": "or"},
+                "inputs": {"A": a, "B": b}})
+        })
+        .unwrap_or_else(|| json!({"type": "math_number", "id": id, "fields": {"NUM": "0"}}));
+}
+
+fn lower_blocks(value: &mut Value, targets: &Targets) {
+    match value {
+        Value::Array(items) => items.iter_mut().for_each(|v| lower_blocks(v, targets)),
+        Value::Object(object) => {
+            object.values_mut().for_each(|v| lower_blocks(v, targets));
+            if object.get("type").is_some_and(Value::is_string) && object.contains_key("id") {
+                lower_missing_reference(value, targets);
+            }
+            let Value::Object(object) = value else {
+                return;
+            };
+            if object.get("type").and_then(Value::as_str) == Some("kitten4::bump") {
+                lower_bump(value, targets);
+                return;
+            }
+            if object.get("type").and_then(Value::as_str) == Some("when") {
+                lower_when(value);
+                return;
+            }
+            if object
+                .get("type")
+                .and_then(Value::as_str)
+                .is_some_and(|t| t.starts_with(OPAQUE))
+            {
+                lower_block(value);
+            }
+        }
+        _ => {}
+    }
+}
+
+/// `when` runs its body each time the condition becomes true.
+fn lower_when(block: &mut Value) {
+    let id = block["id"].as_str().unwrap_or_default().to_owned();
+    let condition = block["inputs"]["condition"].clone();
+    let wait = |suffix: &str, condition: Value| json!({"type": "wait_until", "id": format!("{id}-{suffix}"), "inputs": {"condition": condition}});
+    let released =
+        json!({"type": "logic_negate", "id": format!("{id}-not"), "inputs": {"logic": condition}});
+    let mut body = block["statements"]["DO"].take();
+    let release = wait("release", released);
+    if body.is_object() {
+        let mut tail = &mut body;
+        while tail["next"].is_object() {
+            tail = &mut tail["next"];
+        }
+        tail["next"] = release;
+    } else {
+        body = release;
+    }
+    let mut trigger = wait("trigger", block["inputs"]["condition"].clone());
+    trigger["next"] = body;
+    *block = json!({
+        "type": "on_running_group_activated", "id": id,
+        "next": {"type": "repeat_forever", "id": format!("{id}-loop"), "statements": {"DO": trigger}},
+    });
+}
+
+/// Accepted so a work runs, but without their effect. `coverage` lists them.
+fn is_stub(kind: &str) -> bool {
+    kind.starts_with("physics2_")
+        || matches!(
+            kind,
+            "set_volume_or_rate_2"
+                | "set_layer_with_pen"
+                | "set_pen_path"
+                | "set_fill_style"
+                | "set_entity_show_hide"
+                | "self_shake"
+        )
+}
+
+fn cloud_list(block: &mut Value, native: &str) {
+    let list = field(block, "VAR").to_owned();
+    remove(&mut block["fields"], "VAR");
+    if !block["inputs"].is_object() {
+        block["inputs"] = json!({});
+    }
+    block["inputs"]["VAR"] = json!({"type": "pure_list_get", "fields": {"list": list}});
+    if field(block, "TYPE") == "nth" {
+        put_field(block, "TYPE", "first");
+    }
+    block["type"] = json!(native);
+    let _ = translate(block, false);
+}
+
+fn lower_block(block: &mut Value) {
+    let kind = block["type"]
+        .as_str()
+        .unwrap_or_default()
+        .trim_start_matches(OPAQUE)
+        .to_owned();
+    if is_stub(&kind) || (kind == "self_change_effect_3" && field(block, "scope") == "7") {
+        block["type"] = json!("kitten4_noop");
+        return;
+    }
+    if let Some(list) = kind.strip_prefix("cloud_lists_") {
+        cloud_list(block, &format!("lists_{list}"));
+        return;
+    }
+    let renamed = match kind.as_str() {
+        "cloud_variables_get" => {
+            fields(block, &[("VAR", "variable")], false);
+            "variables_get"
+        }
+        "cloud_variables_set" => {
+            fields(block, &[("VAR", "variable")], false);
+            inputs(block, &[("VALUE", "value")], false);
+            "variables_set"
+        }
+        "change_cloud_variable" => {
+            fields(block, &[("valname", "variable")], false);
+            inputs(block, &[("n", "value")], false);
+            "change_variables"
+        }
+        "show_hide_cloud_variable" => {
+            fields(block, &[("VAR", "variable"), ("FUNC", "show_hide")], false);
+            "show_hide_variables"
+        }
+        // No signed-in player in a local run.
+        "username_get" => {
+            put_field(block, "TEXT", "");
+            "text"
+        }
+        "user_id_get" | "connected_users_get" => {
+            put_field(block, "NUM", if kind == "user_id_get" { "0" } else { "1" });
+            "math_number"
+        }
+        "get_running_device" => {
+            put_field(block, "TEXT", "web");
+            "text"
+        }
+        "get_choice_or_index" => {
+            let index = field(block, "type") == "select_index";
+            put_field(block, "type", if index { "index" } else { "content" });
+            "get_choice_and_index"
+        }
+        "get_audios" | "get_whole_audios" => {
+            fields(block, &[("sound_id", "audio_id")], false);
+            "get_play_audio"
+        }
+        "play_audio_2" | "stop_audio_2" | "play_audio_and_wait_2" => {
+            inputs(block, &[("audio", "audio_id")], false);
+            match kind.as_str() {
+                "play_audio_2" => "play_audio",
+                "stop_audio_2" => "stop_audio",
+                _ => "play_audio_and_wait",
+            }
+        }
+        "check_screen" => {
+            let stay = field(block, "is_stay") == "true";
+            let screen = block["inputs"]["screen"].take();
+            block["fields"] = json!({"OP": if stay { "EQ" } else { "NEQ" }});
+            block["inputs"] = json!({"A": {"type": "current_scene_id"}, "B": screen});
+            "logic_compare"
+        }
+        "shadow_number" | "shadow_text" => {
+            if let Some(inner) = block.pointer("/inputs/VALUE").cloned() {
+                *block = inner;
+            }
+            return;
+        }
+        "default_value" => "text",
+        // The canonical form keeps forward trig only; the VM also has the inverses.
+        "math_trig" => {
+            let op = field(block, "OP").to_lowercase();
+            put_field(block, "type", &op);
+            remove(&mut block["fields"], "OP");
+            inputs(block, &[("NUM", "num")], false);
+            "math_trig"
+        }
+        "dispose" => "dispose_clone",
+        "self_prev_next_style" => {
+            fields(block, &[("prev_or_next", "prev_next")], false);
+            "self_prev_next_style"
+        }
+        "set_costume" => {
+            inputs(block, &[("index", "style_id")], false);
+            "set_sprite_style"
+        }
+        "get_current_costume" => "get_styles",
+        "check_key" => {
+            fields(block, &[("key_event_type", "type")], false);
+            "check_key"
+        }
+        "get_mouse_info" => {
+            fields(block, &[("position", "type")], false);
+            "get_mouse_info"
+        }
+        "sprite_on_tap" => {
+            let actor = match field(block, "actor") {
+                "__self" => "--self".to_owned(),
+                other => other.to_owned(),
+            };
+            remove(&mut block["fields"], "actor");
+            put_field(block, "sprite", &actor);
+            "sprite_on_tap"
+        }
+        "self_change_scale_2" => "self_change_scale",
+        "add_width_height_scale_2" => "add_width_height_scale",
+        "self_set_effect_2" => "self_set_effect",
+        "self_change_effect_3" => "self_change_effect",
+        "get_current_scene" | "get_sensing_current_scene" => "get_screens",
+        "text_select_changeable" => {
+            // Without an end index it selects a single character.
+            if block.pointer("/inputs/NUM1").is_none()
+                && let Some(start) = block.pointer("/inputs/NUM0").cloned()
+            {
+                block["inputs"]["NUM1"] = start;
+            }
+            inputs(
+                block,
+                &[
+                    ("STRING", "text"),
+                    ("NUM0", "start_index"),
+                    ("NUM1", "end_index"),
+                ],
+                false,
+            );
+            "text_select"
+        }
+        "get_3" => match field(block, "attribute") {
+            "0" | "1" => {
+                let axis = if field(block, "attribute") == "0" {
+                    "x"
+                } else {
+                    "y"
+                };
+                put_field(block, "coordinate", axis);
+                "coordinate_of_sprite"
+            }
+            "2" | "4" => "style_of_sprite",
+            "3" => {
+                put_field(block, "appearance", "direction");
+                block["type"] = json!("appearance_of_sprite");
+                *block = native_heading_reporter(block.clone());
+                return;
+            }
+            "5" => {
+                put_field(block, "appearance", "scale");
+                "appearance_of_sprite"
+            }
+            attribute @ ("7" | "8" | "9" | "10" | "11" | "12" | "13") => {
+                let scope = attribute.parse::<u8>().unwrap_or(7) - 7;
+                put_field(block, "effect", &scope.to_string());
+                "effect_of_sprite"
+            }
+            _ => return,
+        },
+        "set_theatre_layer" => {
+            let layer = match field(block, "layer") {
+                "previous_level" => "prev_layer",
+                "next_level" => "next_layer",
+                other => other,
+            }
+            .to_owned();
+            put_field(block, "layer", &layer);
+            "self_change_layer"
+        }
+        "self_out_of_boundary" => {
+            let boundary = match field(block, "boundary") {
+                "1" => "left",
+                "2" => "top",
+                "3" => "bottom",
+                "4" => "right",
+                _ => "edge",
+            };
+            put_field(block, "boundary", boundary);
+            "out_of_boundary"
+        }
+        "show_hide_variable" => {
+            fields(block, &[("VAR", "variable"), ("FUNC", "show_hide")], false);
+            "show_hide_variables"
+        }
+        "mouse_down"
+        | "mirror"
+        | "start_as_a_mirror"
+        | "dispose_clone"
+        | "self_move_specify"
+        | "self_face_to"
+        | "stamp"
+        | "image_stamp"
+        | "tell"
+        | "get_current_clone_index"
+        | "get_answer"
+        | "self_ask"
+        | "ask_and_choose"
+        | "restart"
+        | "self_gradually_show_hide"
+        | "self_glide_to"
+        | "self_glide_coordinate"
+        | "stop"
+        | "get_time"
+        | "set_width_height_scale"
+        | "self_rotate_around"
+        | "switch_to_screen"
+        | "self_set_draggable"
+        | "self_set_role_camp"
+        | "create_stage_dialog"
+        | "set_scene_transition" => kind.as_str(),
+        _ => return,
+    }
+    .to_owned();
+    if kind.starts_with("get_") && renamed == "get_screens" {
+        fields(block, &[("scene", "screen")], false);
+    }
+    block["type"] = json!(renamed);
+}
+
+fn is_published(source: &Value) -> bool {
+    let no_workspace = |section: &str| {
+        source["theatre"][section]
+            .as_object()
+            .is_none_or(|owners| owners.values().all(|o| o.get("block_data_json").is_none()))
+    };
+    source.get("compile_result").is_some_and(Value::is_array)
+        && no_workspace("actors")
+        && no_workspace("scenes")
+}
+
 pub fn from_neko(value: &Value) -> Result<Value> {
     ensure!(value.is_object(), "canonical project must be an object");
     let source = value.get(METADATA).and_then(|m| m.get("source"));
     if let Some(source) = source {
         ensure!(is_kitten4(source), "invalid _nekocKitten4.source");
         let baseline = import_project(source)?;
+        if is_published(source) {
+            // No workspace to write edits into: only an unchanged work can be exported.
+            let unchanged = ["scenes", "actors", "procedures"]
+                .iter()
+                .all(|section| value[section] == baseline[section]);
+            ensure!(
+                unchanged,
+                "published Kitten 4 work has no block workspace, so edits cannot be exported"
+            );
+            return Ok(source.clone());
+        }
         let old = export_project(&baseline, Some(source))?;
         let new = export_project(value, Some(source))?;
         let mut result = source.clone();
@@ -47,15 +567,16 @@ pub fn from_neko(value: &Value) -> Result<Value> {
 
 fn import_project(source: &Value) -> Result<Value> {
     ensure!(
-        source.get("version").and_then(Value::as_u64) == Some(25),
-        "unsupported Kitten 4 project version {}; this adapter supports version 25",
+        matches!(source.get("version").and_then(Value::as_u64), Some(24 | 25)),
+        "unsupported Kitten 4 project version {}; this adapter supports versions 24 and 25",
         source["version"]
     );
     let theatre = source
         .get("theatre")
         .context("Kitten 4 theatre is missing")?;
-    let scenes = import_owners(&theatre["scenes"], "scene")?;
-    let actors = import_owners(&theatre["actors"], "actor")?;
+    let compiled = CompiledWork::new(source);
+    let scenes = import_owners(&theatre["scenes"], "scene", &compiled)?;
+    let actors = import_owners(&theatre["actors"], "actor", &compiled)?;
     let current_scene = theatre
         .get("current_scene")
         .and_then(Value::as_str)
@@ -94,7 +615,7 @@ fn import_project(source: &Value) -> Result<Value> {
         "broadcasts": {"broadcastsDict": source.get("broadcasts").cloned().unwrap_or(json!({}))},
         "audios": {"audiosDict": source.get("audio").cloned().unwrap_or(json!({})),
             "sortList": source.get("audio_order").cloned().unwrap_or(json!([]))},
-        "procedures": {"proceduresDict": {}}
+        "procedures": {"proceduresDict": compiled.procedures()?}
     }))
 }
 
@@ -108,7 +629,7 @@ fn object_or_empty(value: Option<&Value>, label: &str) -> Result<Map<String, Val
     }
 }
 
-fn import_owners(value: &Value, kind: &str) -> Result<Map<String, Value>> {
+fn import_owners(value: &Value, kind: &str, compiled: &CompiledWork) -> Result<Map<String, Value>> {
     let owners = value
         .as_object()
         .with_context(|| format!("theatre.{kind}s must be an object"))?;
@@ -121,8 +642,12 @@ fn import_owners(value: &Value, kind: &str) -> Result<Map<String, Value>> {
                 .get("block_data_json")
                 .cloned()
                 .unwrap_or(json!({"blocks":{},"connections":{},"comments":{}}));
-            let scripts =
-                import_workspace(&workspace).with_context(|| format!("Kitten 4 {kind} {id}"))?;
+            let scripts = if owner.get("block_data_json").is_some() {
+                import_workspace(&workspace)
+            } else {
+                compiled.scripts(id)
+            }
+            .with_context(|| format!("Kitten 4 {kind} {id}"))?;
             result["nekoBlockJsonList"] = Value::Array(scripts);
             result["comments"] = workspace.get("comments").cloned().unwrap_or(json!({}));
             remove(&mut result, "block_data_json");
@@ -149,6 +674,193 @@ fn import_owners(value: &Value, kind: &str) -> Result<Map<String, Value>> {
 }
 
 /// Validate the entire graph (including disconnected cycles) before recursion.
+/// Published works carry no block workspace, only the tree the official compiler
+/// produced (`compile_result`). Its `params` use the same names as native fields and
+/// inputs, so it can be rebuilt into the nested form the importer already understands.
+struct CompiledWork<'a> {
+    entities: Vec<&'a Value>,
+    parameters: BTreeMap<&'a str, Vec<&'a str>>,
+}
+
+impl<'a> CompiledWork<'a> {
+    fn new(source: &'a Value) -> Self {
+        let entities: Vec<&Value> = source
+            .get("compile_result")
+            .and_then(Value::as_array)
+            .map(|entities| entities.iter().collect())
+            .unwrap_or_default();
+        let mut parameters = BTreeMap::new();
+        for (name, definition) in entities
+            .iter()
+            .filter_map(|entity| entity["procedures"].as_object())
+            .flatten()
+        {
+            let names = definition["params"]
+                .as_object()
+                .map(|params| params.keys().map(String::as_str).collect())
+                .unwrap_or_default();
+            parameters.insert(name.as_str(), names);
+        }
+        Self {
+            entities,
+            parameters,
+        }
+    }
+
+    fn scripts(&self, owner: &str) -> Result<Vec<Value>> {
+        let roots = self
+            .entities
+            .iter()
+            .filter(|entity| entity["id"].as_str() == Some(owner))
+            .filter_map(|entity| entity["compiled_block_map"].as_object())
+            .flat_map(Map::values);
+        self.finish(roots)
+    }
+
+    fn procedures(&self) -> Result<Map<String, Value>> {
+        let mut result = Map::new();
+        for (name, definition) in self
+            .entities
+            .iter()
+            .filter_map(|entity| entity["procedures"].as_object())
+            .flatten()
+        {
+            let params: Vec<Value> = self.parameters[name.as_str()]
+                .iter()
+                .map(|param| json!({"id": param, "name": param, "type": "String"}))
+                .collect();
+            let scripts = self
+                .finish(std::iter::once(definition))
+                .with_context(|| format!("Kitten 4 procedure {name}"))?;
+            result.insert(
+                name.clone(),
+                json!({"id": name, "name": name, "params": params, "nekoBlockJsonList": scripts}),
+            );
+        }
+        Ok(result)
+    }
+
+    fn finish<'b>(&self, roots: impl Iterator<Item = &'b Value>) -> Result<Vec<Value>> {
+        let mut scripts = roots
+            .map(|root| import_block(&self.native(root, 0)?, 0))
+            .collect::<Result<Vec<_>>>()?;
+        let mut ids = Graph::new(None);
+        for block in &scripts {
+            ids.reserve_ids(block, 0)?;
+        }
+        for block in &mut scripts {
+            ids.assign_ids(block, 0)?;
+            repair_parents(block, None);
+        }
+        Ok(scripts)
+    }
+
+    fn native(&self, node: &Value, depth: usize) -> Result<Value> {
+        ensure!(
+            depth <= MAX_DEPTH,
+            "Kitten 4 compiled block nesting exceeds {MAX_DEPTH}"
+        );
+        let kind = node["type"]
+            .as_str()
+            .context("compiled block has no type")?;
+        // Number sockets holding typed text compile to math_number with only TEXT.
+        let kind = if kind == "math_number" && node["params"].get("NUM").is_none() {
+            "text"
+        } else {
+            kind
+        };
+        let definition = kind.starts_with("procedures_2_def");
+        let (mut fields, mut inputs, mut statements) = (Map::new(), Map::new(), Map::new());
+        if !definition {
+            for (name, value) in node["params"].as_object().into_iter().flatten() {
+                if value.is_object() {
+                    inputs.insert(name.clone(), self.native(value, depth + 1)?);
+                } else if !value.is_null() {
+                    fields.insert(name.clone(), value.clone());
+                }
+            }
+        }
+        if matches!(
+            kind,
+            "procedures_2_callnoreturn" | "procedures_2_callreturn"
+        ) {
+            let name = node["procedure_name"].as_str().unwrap_or_default();
+            fields.insert("NAME".into(), json!(name));
+            let parameters = self.parameters.get(name);
+            inputs.retain(|key, _| parameters.is_none_or(|p| p.contains(&key.as_str())));
+            for parameter in parameters.into_iter().flatten() {
+                inputs
+                    .entry(parameter.to_string())
+                    .or_insert_with(|| json!({"type": "math_number", "fields": {"NUM": "0"}}));
+            }
+        }
+        if kind == "procedures_2_return_value" && !inputs.contains_key("VALUE") {
+            inputs.insert(
+                "VALUE".into(),
+                json!({"type": "text", "fields": {"TEXT": ""}}),
+            );
+        }
+        let conditions = node["conditions"].as_array().map_or(0, Vec::len);
+        for (index, condition) in node["conditions"]
+            .as_array()
+            .into_iter()
+            .flatten()
+            .enumerate()
+        {
+            if !condition.is_null() {
+                inputs.insert(format!("IF{index}"), self.native(condition, depth + 1)?);
+            }
+        }
+        for (index, child) in node["child_block"]
+            .as_array()
+            .into_iter()
+            .flatten()
+            .enumerate()
+        {
+            if child.is_null() {
+                continue;
+            }
+            let socket = match kind {
+                "controls_if" if index < conditions => format!("DO{index}"),
+                "controls_if" => "ELSE".to_owned(),
+                _ if definition => "STACK".to_owned(),
+                _ => "DO".to_owned(),
+            };
+            statements.insert(socket, self.native(child, depth + 1)?);
+        }
+        let mut block = json!({"type": kind});
+        if matches!(
+            kind,
+            "procedures_2_callnoreturn" | "procedures_2_callreturn"
+        ) {
+            let name = node["procedure_name"].as_str().unwrap_or_default();
+            let name = name
+                .replace('&', "&amp;")
+                .replace('<', "&lt;")
+                .replace('"', "&quot;");
+            block["mutation"] = json!(format!(
+                "<mutation def_id=\"{name}\" name=\"{name}\" type=\"NORMAL\"></mutation>"
+            ));
+        }
+        if let Some(id) = node.get("id") {
+            block["id"] = id.clone();
+        }
+        if !fields.is_empty() {
+            block["fields"] = Value::Object(fields);
+        }
+        if !inputs.is_empty() {
+            block["inputs"] = Value::Object(inputs);
+        }
+        if !statements.is_empty() {
+            block["statements"] = Value::Object(statements);
+        }
+        if let Some(next) = node.get("next_block").filter(|next| !next.is_null()) {
+            block["next"] = self.native(next, depth + 1)?;
+        }
+        Ok(block)
+    }
+}
+
 fn import_workspace(workspace: &Value) -> Result<Vec<Value>> {
     let blocks = workspace
         .get("blocks")
@@ -911,7 +1623,12 @@ fn translate(block: &mut Value, export: bool) -> Result<bool> {
         | "self_set_pen_size"
         | "self_set_pen_color"
         | "self_set_pen_color_property"
-        | "clear_drawing" => {}
+        | "clear_drawing"
+        | "procedures_2_defnoreturn"
+        | "procedures_2_callnoreturn"
+        | "procedures_2_callreturn"
+        | "procedures_2_parameter"
+        | "procedures_2_return_value" => {}
         _ => return Ok(false),
     }
     block["type"] = json!(if export { native } else { neko });

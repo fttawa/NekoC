@@ -162,6 +162,7 @@ pub(super) enum ValueExpr {
     Not(usize),
     /// Local weekday name (get_time week).
     WeekText,
+    SceneId,
     /// Reporter procedure call: (procedure entry index, call argument list).
     CallReturn(usize, usize),
     /// (original actor, 1-based clone index, attribute 0 x / 1 y / 2 costume no. / 4 name)

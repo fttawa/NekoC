@@ -666,3 +666,116 @@ fn editing_converted_heading_updates_native_input_without_growing_the_graph() {
         assert_eq!(repeated, edited);
     }
 }
+
+#[test]
+fn published_work_runs_from_compile_result() {
+    let number = |n: &str| json!({"kind":"domain_block","type":"math_number","id":n,"params":{"NUM":n},"child_block":[]});
+    let mut native = fixture();
+    let actor = "nekoc-pen-actor";
+    native["theatre"]["actors"][actor]
+        .as_object_mut()
+        .unwrap()
+        .remove("block_data_json");
+    for scene in native["theatre"]["scenes"]
+        .as_object_mut()
+        .unwrap()
+        .values_mut()
+    {
+        scene.as_object_mut().unwrap().remove("block_data_json");
+    }
+    let parameter = json!({"kind":"procedures_2_parameter","type":"procedures_2_parameter","id":"p","params":{"param_name":"步长"},"child_block":[]});
+    native["compile_result"] = json!([{
+        "id": actor,
+        "procedures": {"走": {
+            "kind":"procedures_2_defnoreturn","type":"procedures_2_defnoreturn","id":"def",
+            "params":{"步长":"x"},"procedure_name":"走",
+            "child_block":[{"kind":"domain_block","type":"self_move_to","id":"move",
+                "params":{"x":parameter,"y":number("7")},"child_block":[]}]
+        }},
+        "compiled_block_map": {"hat": {
+            "kind":"domain_block","type":"start_on_click","id":"hat","params":{},"child_block":[],
+            "next_block":{"kind":"controls_if","type":"controls_if","id":"if","params":{},
+                "conditions":[{"kind":"domain_block","type":"logic_compare","id":"c",
+                    "params":{"A":number("1"),"B":number("2"),"OP":"EQ"},"child_block":[]}],
+                "child_block":[null,{"kind":"procedures_2_callnoreturn","type":"procedures_2_callnoreturn",
+                    "id":"call","procedure_name":"走","params":{"步长":number("5")},"child_block":[]}]}
+        }}
+    }]);
+    let canonical = kitten4::to_neko(&native).unwrap();
+    let snapshot = runtime::run_project(&canonical, 2).unwrap();
+    assert_eq!(
+        (snapshot.actors[actor].x, snapshot.actors[actor].y),
+        (5.0, 7.0)
+    );
+    let program = Program::compile(&canonical).unwrap();
+    let mut engine = Engine::new(program);
+    engine.start();
+    engine
+        .advance(1.0 / 60.0, 100_000, Duration::from_secs(1))
+        .unwrap();
+    assert_eq!(kitten4::from_neko(&canonical).unwrap(), native);
+}
+
+#[test]
+fn accepts_version_24_works() {
+    let mut native = fixture();
+    native["version"] = json!(24);
+    assert!(kitten4::to_neko(&native).is_ok());
+}
+
+#[test]
+fn published_work_refuses_to_export_edits() {
+    let mut native = fixture();
+    native["theatre"]["actors"]["nekoc-pen-actor"]
+        .as_object_mut()
+        .unwrap()
+        .remove("block_data_json");
+    for scene in native["theatre"]["scenes"]
+        .as_object_mut()
+        .unwrap()
+        .values_mut()
+    {
+        scene.as_object_mut().unwrap().remove("block_data_json");
+    }
+    native["compile_result"] = json!([]);
+    let mut canonical = kitten4::to_neko(&native).unwrap();
+    assert_eq!(kitten4::from_neko(&canonical).unwrap(), native);
+    canonical["actors"]["actorsDict"]["nekoc-pen-actor"]["nekoBlockJsonList"] =
+        json!([{"id":"new","type":"start_on_click"}]);
+    assert!(kitten4::from_neko(&canonical).is_err());
+}
+
+#[test]
+fn lowering_rewrites_only_the_vm_copy() {
+    let mut native = fixture();
+    let actor = "nekoc-pen-actor";
+    native["theatre"]["actors"][actor]
+        .as_object_mut()
+        .unwrap()
+        .remove("block_data_json");
+    for scene in native["theatre"]["scenes"]
+        .as_object_mut()
+        .unwrap()
+        .values_mut()
+    {
+        scene.as_object_mut().unwrap().remove("block_data_json");
+    }
+    let bump = json!({"kind":"domain_block","type":"bump","id":"b",
+        "params":{"sprite1":"__self","sprite2":"deleted-actor"},"child_block":[]});
+    native["compile_result"] = json!([{"id": actor, "procedures": {}, "compiled_block_map": {
+        "w": {"kind":"event_block","type":"when","id":"w","params":{"condition":bump},
+            "child_block":[{"kind":"domain_block","type":"self_prev_next_style","id":"n",
+                "params":{"prev_or_next":"next"},"child_block":[]}]}
+    }}]);
+    let canonical = kitten4::to_neko(&native).unwrap();
+    assert!(canonical.to_string().contains("kitten4::bump"));
+    let lowered = kitten4::lower_for_vm(&canonical);
+    let script = &lowered["actors"]["actorsDict"][actor]["nekoBlockJsonList"][0];
+    assert_eq!(script["type"], "on_running_group_activated");
+    assert_eq!(script["next"]["type"], "repeat_forever");
+    let trigger = &script["next"]["statements"]["DO"];
+    assert_eq!(trigger["inputs"]["condition"]["type"], "math_number");
+    assert_eq!(trigger["next"]["fields"]["prev_next"], "next");
+    Program::compile(&canonical).unwrap();
+    assert_eq!(kitten4::from_neko(&canonical).unwrap(), native);
+}

@@ -96,6 +96,13 @@ enum Command {
         input: PathBuf,
         scenario: PathBuf,
     },
+    /// Report which Kitten 4 blocks each work uses that cannot run yet
+    Coverage {
+        inputs: Vec<PathBuf>,
+        /// Frames to run after a successful compile
+        #[arg(long, default_value_t = 120)]
+        frames: u32,
+    },
     Validate {
         input: PathBuf,
         #[arg(long)]
@@ -452,6 +459,13 @@ fn main() -> Result<()> {
         Command::Unpack { input, out } => {
             let project: serde_json::Value = serde_json::from_slice(&std::fs::read(&input)?)?;
             std::fs::write(&out, serde_json::to_vec(&nekoc::pack::unpack(&project)?)?)?;
+        }
+        Command::Coverage { inputs, frames } => {
+            for input in inputs {
+                let project = nekoc::project::load_project(&input)?;
+                let report = nekoc::kitten4::coverage(&project.value, frames);
+                println!("{}", serde_json::json!({"file": input, "report": report}));
+            }
         }
         Command::Validate { input, out } => {
             let project = nekoc::project::load_project(input)?;
