@@ -362,3 +362,7 @@ NekoC/
 ## 仓库约定
 
 不要往仓库里加第三方 `.bcmkn` 文件。大体积的编辑器打包文件、下载的编辑器资源、生成的报告和临时研究输出都应放在 Git 之外。
+
+## 友情链接
+
+- [HateNeko](https://github.com/SquCircle/HateNeko)
