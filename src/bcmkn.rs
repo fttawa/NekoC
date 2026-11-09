@@ -10,6 +10,7 @@ pub fn import(value: impl Into<crate::json::Json>) -> Result<(crate::json::Json,
     crate::json::expanded(|| import_inner(value))
 }
 fn import_inner(value: crate::json::Json) -> Result<(crate::json::Json, Value)> {
+    let _timing = crate::import_perf::span("diagnostics_coverage");
     ensure!(value.is_object(), ".bcmkn 顶层必须是 JSON 对象");
     ensure!(
         value["toolType"].as_str().is_none_or(|t| t == "KN"),
@@ -39,20 +40,35 @@ fn import_inner(value: crate::json::Json) -> Result<(crate::json::Json, Value)> 
     }
     let mut diagnostics = vec![];
     let mut diagnostic_indices = BTreeMap::<(String, String), usize>::new();
-    let mut probe = value.clone();
-    for (container, dict) in [("scenes", "scenesDict"), ("actors", "actorsDict")] {
-        if let Some(owners) = probe[container][dict].as_object_mut() {
-            for owner in owners.values_mut() {
-                owner["nekoBlockJsonList"] = json!([]);
-            }
-        }
-    }
+    // Packed decoder scripts are intentionally probed before native unpacking,
+    // as in the original diagnostic path. Keep that uncommon path unchanged.
+    let prepared =
+        (!crate::pack::is_packed(&value)).then(|| crate::engine::Program::prepare(&value, true));
+    let diagnostic_project = prepared
+        .as_ref()
+        .and_then(|p| p.as_ref().ok())
+        .map_or(&*value, |p| p.project.as_ref());
+    let current = match &prepared {
+        Some(Ok(prepared)) => prepared.compile(&prepared.project),
+        _ => crate::engine::Program::compile(&value),
+    };
     // Diagnose each root independently, including inactive scenes, to expose
     // more than the first unsupported script without mutating imported data.
-    if let Some(scenes) = value
-        .pointer("/scenes/scenesDict")
-        .and_then(Value::as_object)
+    // A successful whole-project compile checks all scenes and all executable
+    // roots already. Only failures need expensive root-by-root localization.
+    if (current.is_err() || crate::pack::is_packed(&value))
+        && let Some(scenes) = value
+            .pointer("/scenes/scenesDict")
+            .and_then(Value::as_object)
     {
+        let mut probe = crate::json::Json::new(crate::json::clone_value(diagnostic_project));
+        for (container, dict) in [("scenes", "scenesDict"), ("actors", "actorsDict")] {
+            if let Some(owners) = probe[container][dict].as_object_mut() {
+                for owner in owners.values_mut() {
+                    owner["nekoBlockJsonList"] = json!([]);
+                }
+            }
+        }
         for (scene_id, scene) in scenes {
             let owners = std::iter::once((scene_id.as_str(), scene, "scenesDict")).chain(
                 scene["actorIds"]
@@ -67,15 +83,29 @@ fn import_inner(value: crate::json::Json) -> Result<(crate::json::Json, Value)> 
                     }),
             );
             for (owner_id, owner, kind) in owners {
-                for block in owner["nekoBlockJsonList"].as_array().into_iter().flatten() {
+                for (index, block) in owner["nekoBlockJsonList"]
+                    .as_array()
+                    .into_iter()
+                    .flatten()
+                    .enumerate()
+                {
                     probe["scenes"]["currentSceneId"] = json!(scene_id);
                     let container = if kind == "scenesDict" {
                         "scenes"
                     } else {
                         "actors"
                     };
-                    probe[container][kind][owner_id]["nekoBlockJsonList"] = json!([block]);
-                    if let Err(error) = crate::engine::Program::compile(&probe) {
+                    let lowered =
+                        diagnostic_project[container][kind][owner_id]["nekoBlockJsonList"]
+                            .as_array()
+                            .and_then(|roots| roots.get(index))
+                            .unwrap_or(block);
+                    probe[container][kind][owner_id]["nekoBlockJsonList"] = json!([lowered]);
+                    let result = match &prepared {
+                        Some(Ok(prepared)) => prepared.compile(&probe),
+                        _ => crate::engine::Program::compile(&probe),
+                    };
+                    if let Err(error) = result {
                         let message = format!("{error:#}");
                         let key = (owner_id.to_owned(), error.root_cause().to_string());
                         if let Some(index) = diagnostic_indices.get(&key) {
@@ -92,7 +122,6 @@ fn import_inner(value: crate::json::Json) -> Result<(crate::json::Json, Value)> 
             }
         }
     }
-    let current = crate::engine::Program::compile(&value);
     let stats = current.as_ref().ok().map(|p| p.stats());
     let report = json!({"format":"bcmkn-json","inspection":inspection,"validation":validation,"stats":stats,
         "block_types":types,"fast_runtime_ready":current.is_ok(),"runtime_error":current.err().map(|e|format!("{e:#}")),
