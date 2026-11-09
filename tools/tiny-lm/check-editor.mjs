@@ -10,6 +10,7 @@ const require=createRequire('D:/AppData/Local/Temp/opencode/nekoc-kitenn/package
 const {chromium}=require('playwright');
 const project=path.resolve(process.argv[2]);
 const out=path.resolve(process.argv[3]||'D:/AppData/Local/Temp/opencode/tiny-lm-editor-check');
+const importOnly=process.argv.includes('--import-only');
 await mkdir(out,{recursive:true});
 const host=await startOfflinePlayer({project});
 const report={project,sha256:createHash('sha256').update(await readFile(project)).digest('hex'),pageErrors:[],console:[],externalCompleted:[]};
@@ -24,7 +25,7 @@ page.on('console',m=>{if(m.type()==='error')report.console.push(m.text());});
 try{
   await page.goto(host.origin+'/editor?previewUrl='+encodeURIComponent(host.origin+'/project.bcmkn'),{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>window.__nekocRequire?.(40742).BlinkInstance.core?.mainWorkspace&&window.__nekocRequire(40742).BlinkInstance.workspaceManager.workspaces.size>0,null,{timeout:60000});
-  report.compatibility=await page.evaluate(original=>{
+  report.compatibility=await page.evaluate(({original,importOnly})=>{
     const req=window.__nekocRequire,bcm=req(91107).BcmInstance,blink=req(40742).BlinkInstance;
     const summaries=[],issues=[];let blockCount=0,connections=0,sourceBlocks=0;
     const workspaces=[...blink.workspaceManager.workspaces.entries()];
@@ -45,6 +46,7 @@ try{
         if(b.next)edge(b.next,undefined,'next');
       };
       for(const root of entity?.nekoBlockJsonList||[])visit(root);
+      if(importOnly){summaries.push({owner,checked:Object.keys(data.blocks).length});continue;}
       blink.workspaceManager.selectWorkspace(owner,true);
       const rendered=blink.core.mainWorkspace;
       let checked=0;
@@ -64,9 +66,9 @@ try{
       }
       summaries.push({owner,checked});
     }
-    return {version:bcm.getBcm().version,scope:'source project connections checked against import, then all actor/procedure workspaces rendered with official block definitions',workspaces:summaries,sourceBlocks,blockCount,connections,issues};
-  },JSON.parse(await readFile(project,'utf8')));
-  assert.ok(report.compatibility.blockCount>10000);
+    return {version:bcm.getBcm().version,scope:importOnly?'source project blocks and connections checked against all imported workspaces; no repeated rendering':'source project connections checked against import, then all actor/procedure workspaces rendered with official block definitions',workspaces:summaries,sourceBlocks,blockCount,connections,issues};
+  },{original:JSON.parse(await readFile(project,'utf8')),importOnly});
+  assert.ok((importOnly?report.compatibility.sourceBlocks:report.compatibility.blockCount)>10000);
   assert.deepEqual(report.compatibility.issues,[]);
   assert.deepEqual(report.externalCompleted,[]);
   report.ok=true;
@@ -75,7 +77,7 @@ finally{
   report.missingAssets=host.missingAssets;
   report.release=host.audit;
   report.scope='Cached official 0.27.4 editor modules in local shell, missing official CSS/HTML; not current online editor acceptance';
-  await writeFile(path.join(out,'editor-compatibility.json'),JSON.stringify(report,null,2));
-  console.log(JSON.stringify({ok:report.ok,failure:report.failure,blocks:report.compatibility?.blockCount,connections:report.compatibility?.connections,issues:report.compatibility?.issues,externalCompleted:report.externalCompleted,out},null,2));
+  await writeFile(path.join(out,importOnly?'editor-import-integrity.json':'editor-compatibility.json'),JSON.stringify(report,null,2));
+  console.log(JSON.stringify({ok:report.ok,failure:report.failure,sourceBlocks:report.compatibility?.sourceBlocks,blocks:report.compatibility?.blockCount,connections:report.compatibility?.connections,issues:report.compatibility?.issues,externalCompleted:report.externalCompleted,out},null,2));
   await browser.close();await host.close();
 }

@@ -13,6 +13,40 @@ const OPAQUE: &str = "kitten4::";
 const ANGLE: &str = "_nekocKitten4Angle";
 const MAX_DEPTH: usize = 256;
 
+#[derive(Clone, Copy, Debug)]
+pub(crate) enum StartKind {
+    Global,
+    Activation,
+}
+// Stage/actor namespace, owner ID, then the canonical root ID assigned by the
+// importer. Never correlate an edited canonical script list by array position.
+pub(crate) type StartHats = BTreeMap<(bool, String, String), StartKind>;
+
+pub(crate) fn start_hats(source: &Value) -> Result<StartHats> {
+    let compiled = CompiledWork::new(source);
+    let mut hats = StartHats::new();
+    for (section, stage) in [("scenes", true), ("actors", false)] {
+        for (owner, value) in source["theatre"][section]
+            .as_object()
+            .context("Kitten 4 start provenance owners must be objects")?
+        {
+            let (_, starts) = if let Some(workspace) = value.get("block_data_json") {
+                import_workspace_with_starts(workspace)?
+            } else {
+                compiled.finish_with_starts(compiled.roots(owner))?
+            };
+            for (id, kind) in starts {
+                ensure!(
+                    hats.insert((stage, owner.clone(), id.clone()), kind)
+                        .is_none(),
+                    "ambiguous Kitten 4 start provenance for {section}/{owner}/{id}"
+                );
+            }
+        }
+    }
+    Ok(hats)
+}
+
 pub fn is_kitten4(value: &Value) -> bool {
     value.get("work_type").and_then(Value::as_str) == Some("KITTEN")
         && value.get("theatre").is_some_and(Value::is_object)
@@ -526,7 +560,20 @@ fn lower_block(block: &mut Value) {
 /// Equality that survives a trip through the browser, where 100.0 comes back as 100.
 fn same_json(a: &Value, b: &Value) -> bool {
     match (a, b) {
-        (Value::Number(a), Value::Number(b)) => a.as_f64() == b.as_f64(),
+        (Value::Number(a), Value::Number(b)) => {
+            if a == b {
+                return true;
+            }
+            // Do not round distinct large integers to the same f64. Browser
+            // integer/float normalization is safe only in the exact JS range.
+            let (Some(a_float), Some(b_float)) = (a.as_f64(), b.as_f64()) else {
+                return false;
+            };
+            (a.is_f64() || b.is_f64())
+                && a_float.abs() <= 9_007_199_254_740_991.0
+                && b_float.abs() <= 9_007_199_254_740_991.0
+                && a_float == b_float
+        }
         (Value::Array(a), Value::Array(b)) => {
             a.len() == b.len() && a.iter().zip(b).all(|(a, b)| same_json(a, b))
         }
@@ -558,9 +605,21 @@ pub fn from_neko(value: &Value) -> Result<Value> {
         let baseline = import_project(source)?;
         if is_published(source) {
             // No workspace to write edits into: only an unchanged work can be exported.
-            let unchanged = ["scenes", "actors", "procedures"]
-                .iter()
-                .all(|section| same_json(&value[section], &baseline[section]));
+            // Check the complete canonical snapshot, not just executable owners:
+            // root edits (variables, resources, name, size, future fields) would
+            // otherwise be silently lost by the source-clone return below.
+            let content = value.as_object().unwrap();
+            let baseline = baseline.as_object().unwrap();
+            let unchanged = content
+                .keys()
+                .filter(|key| key.as_str() != METADATA)
+                .count()
+                == baseline.len()
+                && baseline.iter().all(|(key, original)| {
+                    content
+                        .get(key)
+                        .is_some_and(|edited| same_json(edited, original))
+                });
             ensure!(
                 unchanged,
                 "published Kitten 4 work has no block workspace, so edits cannot be exported"
@@ -724,13 +783,15 @@ impl<'a> CompiledWork<'a> {
     }
 
     fn scripts(&self, owner: &str) -> Result<Vec<Value>> {
-        let roots = self
-            .entities
+        self.finish(self.roots(owner))
+    }
+
+    fn roots<'b>(&'b self, owner: &'b str) -> impl Iterator<Item = &'a Value> + 'b {
+        self.entities
             .iter()
             .filter(|entity| entity["id"].as_str() == Some(owner))
             .filter_map(|entity| entity["compiled_block_map"].as_object())
-            .flat_map(Map::values);
-        self.finish(roots)
+            .flat_map(Map::values)
     }
 
     fn procedures(&self) -> Result<Map<String, Value>> {
@@ -757,18 +818,14 @@ impl<'a> CompiledWork<'a> {
     }
 
     fn finish<'b>(&self, roots: impl Iterator<Item = &'b Value>) -> Result<Vec<Value>> {
-        let mut scripts = roots
-            .map(|root| import_block(&self.native(root, 0)?, 0))
-            .collect::<Result<Vec<_>>>()?;
-        let mut ids = Graph::new(None);
-        for block in &scripts {
-            ids.reserve_ids(block, 0)?;
-        }
-        for block in &mut scripts {
-            ids.assign_ids(block, 0)?;
-            repair_parents(block, None);
-        }
-        Ok(scripts)
+        Ok(self.finish_with_starts(roots)?.0)
+    }
+
+    fn finish_with_starts<'b>(
+        &self,
+        roots: impl Iterator<Item = &'b Value>,
+    ) -> Result<ImportedRoots> {
+        finish_roots(roots.map(|root| self.native(root, 0)), None)
     }
 
     fn native(&self, node: &Value, depth: usize) -> Result<Value> {
@@ -878,6 +935,12 @@ impl<'a> CompiledWork<'a> {
 }
 
 fn import_workspace(workspace: &Value) -> Result<Vec<Value>> {
+    Ok(import_workspace_with_starts(workspace)?.0)
+}
+
+type ImportedRoots = (Vec<Value>, Vec<(String, StartKind)>);
+
+fn import_workspace_with_starts(workspace: &Value) -> Result<ImportedRoots> {
     let blocks = workspace
         .get("blocks")
         .and_then(Value::as_object)
@@ -927,17 +990,32 @@ fn import_workspace(workspace: &Value) -> Result<Vec<Value>> {
     for id in blocks.keys() {
         visit(id, &connections, &mut state, 0)?;
     }
-    let mut scripts: Vec<Value> = blocks
+    let roots = blocks
         .keys()
         .filter(|id| !parents.contains_key(id.as_str()))
-        .map(|id| {
-            let native = nest(id, blocks, &connections, 0)?;
+        .map(|id| nest(id, blocks, &connections, 0));
+    finish_roots(roots, Some(workspace))
+}
+
+fn finish_roots(
+    roots: impl Iterator<Item = Result<Value>>,
+    workspace: Option<&Value>,
+) -> Result<ImportedRoots> {
+    let mut kinds = Vec::new();
+    let mut scripts = roots
+        .map(|native| {
+            let native = native?;
+            kinds.push(match native["type"].as_str() {
+                Some("start_on_click") => Some(StartKind::Global),
+                Some("on_running_group_activated") => Some(StartKind::Activation),
+                _ => None,
+            });
             import_block(&native, 0)
         })
-        .collect::<Result<_>>()?;
+        .collect::<Result<Vec<_>>>()?;
     // Conversion expressions are real editable KN blocks and need stable,
     // noncolliding IDs for workspace editors and subsequent graph export.
-    let mut ids = Graph::new(Some(workspace));
+    let mut ids = Graph::new(workspace);
     for block in &scripts {
         ids.reserve_ids(block, 0)?;
     }
@@ -945,7 +1023,14 @@ fn import_workspace(workspace: &Value) -> Result<Vec<Value>> {
         ids.assign_ids(block, 0)?;
         repair_parents(block, None);
     }
-    Ok(scripts)
+    let starts = scripts
+        .iter()
+        .zip(kinds)
+        .filter_map(|(block, kind)| {
+            kind.map(|kind| (block["id"].as_str().unwrap().to_owned(), kind))
+        })
+        .collect();
+    Ok((scripts, starts))
 }
 
 fn visit<'a>(

@@ -1125,15 +1125,41 @@ fn ranges_round_endpoints_descend_and_restore_nested_values_across_budgets() {
     }
     assert_eq!(vm.active_tasks(), 0);
     assert_eq!(logs, ["2", "5", "2", "5", "3", "3", "5", "3", "5", "3"]);
-    let p = project(range("bad", 0.0, 10.0, 0.0, movement(1.0)));
-    let mut vm = Engine::new(Program::compile(&p).unwrap());
-    vm.start();
-    assert!(
-        vm.advance(0.0, 100, Duration::from_secs(1))
-            .unwrap_err()
-            .to_string()
-            .contains("positive rounded step")
-    );
+    // Official KN repeats the same value for zero by. Bound the observation,
+    // check ordinary cooperative yield, then explicitly stop the live script.
+    for jit in [false, true] {
+        let mut p = project(chain(vec![
+            range(
+                "zero",
+                0.0,
+                10.0,
+                0.0,
+                chain(vec![log_value(range_value("zero")), movement(1.0)]),
+            ),
+            log_value(text("must not naturally finish")),
+        ]));
+        add_hat(
+            &mut p,
+            json!({"type":"on_keydown","fields":{"key":"32","type":"down"},"next":{"type":"stop","fields":{"scope":"0"}}}),
+        );
+        let mut vm = Engine::new(Program::compile(&p).unwrap());
+        if !jit {
+            vm.disable_jit();
+        }
+        vm.start();
+        for _ in 0..4 {
+            let f = vm.advance(0.0, 1_000, Duration::from_secs(1)).unwrap();
+            assert_eq!(f.logs, ["0"], "one iteration per cooperative yield");
+            assert_eq!(f.active, 1, "zero by must not naturally finish");
+        }
+        vm.key("32");
+        let f = frame(&mut vm);
+        // The already-live task runs once before the newly queued stop hat.
+        // It must still yield, then stop without reaching the range tail.
+        assert_eq!(f.logs, ["0"]);
+        assert_eq!(f.active, 0);
+        assert!(frame(&mut vm).logs.is_empty());
+    }
 }
 
 #[test]

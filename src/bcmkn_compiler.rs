@@ -1,5 +1,5 @@
 use crate::{project, ts_frontend};
-use anyhow::{Context, Result};
+use anyhow::{Context, Result, ensure};
 use serde_json::{Map, Value, json};
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Path, PathBuf};
@@ -43,13 +43,28 @@ pub fn compile_ts_bcmkn(
 
     ts_frontend::compile_ts(input, &workspace_path)?;
     let workspace_report = read_json_file(&workspace_path)?;
+    compile_workspace_bcmkn(&workspace_report, input, template, output)?;
+    let _ = std::fs::remove_file(workspace_path);
+    Ok(())
+}
+
+/// Assemble an already compiled (and optionally optimized) workspace report.
+/// No TypeScript recompilation occurs here.
+pub fn compile_workspace_bcmkn(
+    workspace_report: &Value,
+    input: impl AsRef<Path>,
+    template: impl AsRef<Path>,
+    output: impl AsRef<Path>,
+) -> Result<()> {
+    let input = input.as_ref();
+    let output = output.as_ref();
     let workspace_data = workspace_report
         .get("workspaceData")
         .context("compiled TypeScript report is missing workspaceData")?;
     let mut scripts = workspace_data_to_neko_blocks(workspace_data)?;
-    let mut procedures = compiled_procedures_from_report(&workspace_report)?;
-    let mut sprites = compiled_sprites_from_report(&workspace_report)?;
-    let screens = compiled_screens_from_report(&workspace_report, &mut sprites)?;
+    let mut procedures = compiled_procedures_from_report(workspace_report)?;
+    let mut sprites = compiled_sprites_from_report(workspace_report)?;
+    let screens = compiled_screens_from_report(workspace_report, &mut sprites)?;
     let has_registered_resources = !sprites.is_empty() || !screens.is_empty();
 
     if let Some(first) = scripts.first_mut().and_then(Value::as_object_mut) {
@@ -61,6 +76,15 @@ pub fn compile_ts_bcmkn(
     if has_registered_resources {
         reset_template_for_registered_resources(&mut project)?;
     }
+    ensure_variable_names(
+        &mut project,
+        workspace_report
+            .get("initialValues")
+            .and_then(Value::as_object)
+            .into_iter()
+            .flat_map(|values| values.keys().cloned())
+            .collect(),
+    );
     ensure_variables(&mut project, &mut scripts);
     ensure_lists(&mut project, &mut scripts);
     for procedure in &mut procedures {
@@ -104,7 +128,6 @@ pub fn compile_ts_bcmkn(
         .with_context(|| format!("failed to write output {}", output.display()))?;
     project::load_project(output)?;
 
-    let _ = std::fs::remove_file(workspace_path);
     Ok(())
 }
 
@@ -208,6 +231,8 @@ fn compiled_screens_from_report(
     };
 
     let mut compiled = Vec::new();
+    let mut screen_ids = BTreeSet::new();
+    let mut screen_names = BTreeSet::new();
     for screen in screens {
         let id = screen
             .get("id")
@@ -219,6 +244,11 @@ fn compiled_screens_from_report(
             .and_then(Value::as_str)
             .context("compiled screen resource is missing name")?
             .to_owned();
+        ensure!(screen_ids.insert(id.clone()), "duplicate screen id: {id}");
+        ensure!(
+            screen_names.insert(name.clone()),
+            "duplicate screen resource: {name}"
+        );
         let backdrop = screen
             .get("backdrop")
             .and_then(Value::as_str)
@@ -556,8 +586,9 @@ fn inject_screen_resources(project: &mut Value, screens: &[CompiledScreen]) -> R
 
     let mut scenes_dict = Map::new();
     let mut sort_list = Vec::new();
+    let mut style_ids = dictionary_ids(project, "/styles/stylesDict");
     for screen in screens {
-        let style_id = format!("{}-style", screen.id);
+        let style_id = allocate_id(&format!("{}-style", screen.id), &mut style_ids);
         scenes_dict.insert(
             screen.id.clone(),
             json!({
@@ -598,14 +629,23 @@ fn inject_sprite_resources(project: &mut Value, sprites: Vec<CompiledSprite>) ->
     ensure_actors_dict(project);
     ensure_styles_dict(project);
 
+    let mut actor_ids = dictionary_ids(project, "/actors/actorsDict");
+    let mut style_ids = dictionary_ids(project, "/styles/stylesDict");
+    let mut sprite_names = BTreeSet::new();
+
     for sprite in sprites {
         let scene_id = sprite
             .screen_id
             .clone()
             .unwrap_or_else(|| default_scene_id.clone());
+        ensure!(
+            sprite_names.insert((scene_id.clone(), sprite.name.clone())),
+            "duplicate sprite resource {} in scene {scene_id}",
+            sprite.name
+        );
         let id_part = sanitize_id_part(&sprite.name);
-        let actor_id = format!("nekoc-actor-{id_part}");
-        let style_id = format!("nekoc-style-{id_part}");
+        let actor_id = allocate_id(&format!("nekoc-actor-{id_part}"), &mut actor_ids);
+        let style_id = allocate_id(&format!("nekoc-style-{id_part}"), &mut style_ids);
 
         project["styles"]["stylesDict"][&style_id] = json!({
             "id": style_id,
@@ -706,29 +746,39 @@ fn inject_procedures(project: &mut Value, procedures: Vec<CompiledProcedure>) {
 }
 
 fn ensure_variables(project: &mut Value, scripts: &mut [Value]) {
-    let existing = collect_existing_variables(project);
     let referenced = collect_referenced_variable_names(scripts);
+    let mapping = ensure_variable_names(project, referenced);
+    rewrite_variable_fields(scripts, &mapping);
+}
+
+fn ensure_variable_names(
+    project: &mut Value,
+    referenced: BTreeSet<String>,
+) -> BTreeMap<String, String> {
+    let existing = collect_existing_variables(project);
     let mut mapping = existing;
+    let mut used = dictionary_ids(project, "/variables/variablesDict");
 
     for name in referenced {
         mapping.entry(name.clone()).or_insert_with(|| {
-            let id = format!("kn-var-{}", sanitize_id_part(&name));
+            let id = allocate_id(&format!("kn-var-{}", sanitize_id_part(&name)), &mut used);
             insert_variable(project, &id, &name);
             id
         });
     }
 
-    rewrite_variable_fields(scripts, &mapping);
+    mapping
 }
 
 fn ensure_lists(project: &mut Value, scripts: &mut [Value]) {
     let existing = collect_existing_lists(project);
     let referenced = collect_referenced_list_names(scripts);
     let mut mapping = existing;
+    let mut used = dictionary_ids(project, "/variables/variablesDict");
 
     for name in referenced {
         mapping.entry(name.clone()).or_insert_with(|| {
-            let id = format!("kn-list-{}", sanitize_id_part(&name));
+            let id = allocate_id(&format!("kn-list-{}", sanitize_id_part(&name)), &mut used);
             insert_list(project, &id, &name);
             id
         });
@@ -816,6 +866,7 @@ fn collect_existing_variables(project: &Value) -> BTreeMap<String, String> {
 
     variables
         .iter()
+        .filter(|(_, variable)| variable["type"] != "list")
         .filter_map(|(id, variable)| {
             variable
                 .get("name")
@@ -838,7 +889,6 @@ fn collect_referenced_variable_names_in_value(value: &Value, names: &mut BTreeSe
         .get("fields")
         .and_then(|fields| fields.get("variable"))
         .and_then(Value::as_str)
-        && !looks_like_generated_id(variable)
     {
         names.insert(variable.to_owned());
     }
@@ -931,7 +981,6 @@ fn collect_referenced_list_names_in_value(value: &Value, names: &mut BTreeSet<St
         .get("fields")
         .and_then(|fields| fields.get("list"))
         .and_then(Value::as_str)
-        && !looks_like_list_id(list)
     {
         names.insert(list.to_owned());
     }
@@ -1060,12 +1109,26 @@ fn rewrite_variable_fields_in_value(value: &mut Value, mapping: &BTreeMap<String
     }
 }
 
-fn looks_like_generated_id(value: &str) -> bool {
-    value.starts_with("kn-var-") || value.matches('-').count() >= 4
+fn dictionary_ids(project: &Value, path: &str) -> BTreeSet<String> {
+    project
+        .pointer(path)
+        .and_then(Value::as_object)
+        .into_iter()
+        .flat_map(|dict| dict.keys().cloned())
+        .collect()
 }
 
-fn looks_like_list_id(value: &str) -> bool {
-    value.starts_with("kn-list-") || value.matches('-').count() >= 4
+// Allocation order is deterministic (source order for resources, sorted names
+// for data). Check every candidate against the actual dictionary, not just a
+// name-derived suffix: templates and names like "a-2" can already occupy it.
+fn allocate_id(preferred: &str, used: &mut BTreeSet<String>) -> String {
+    let mut id = preferred.to_owned();
+    let mut suffix = 2;
+    while !used.insert(id.clone()) {
+        id = format!("{preferred}-{suffix}");
+        suffix += 1;
+    }
+    id
 }
 
 fn sanitize_id_part(value: &str) -> String {

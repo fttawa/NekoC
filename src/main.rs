@@ -337,21 +337,24 @@ fn main() -> Result<()> {
             optimize,
         } => {
             if optimize {
-                let workspace_path = out.with_extension("workspace.json");
-                nekoc::ts_frontend::compile_ts(&input, &workspace_path)?;
-                let report = std::fs::read_to_string(&workspace_path)?;
+                let workspace_file = tempfile::NamedTempFile::new()?;
+                let workspace_path = workspace_file.path();
+                nekoc::ts_frontend::compile_ts(&input, workspace_path)?;
+                let report = std::fs::read_to_string(workspace_path)?;
                 let report: serde_json::Value = serde_json::from_str(&report)?;
                 let optimized = nekoc::optimizer::optimize_report(&report);
-                let bytes = serde_json::to_vec_pretty(&optimized)?;
-                std::fs::write(&workspace_path, bytes)?;
+                nekoc::bcmkn_compiler::compile_workspace_bcmkn(
+                    &optimized, &input, &template, &out,
+                )?;
                 if let Some(stats) = optimized.get("optimization") {
                     eprintln!(
                         "Optimized: folded={}, removed={}, simplified={}",
                         stats["constantFolded"], stats["deadRemoved"], stats["simplified"]
                     );
                 }
+            } else {
+                nekoc::bcmkn_compiler::compile_ts_bcmkn(input, template, out)?;
             }
-            nekoc::bcmkn_compiler::compile_ts_bcmkn(input, template, out)?;
         }
         Command::CompileTsKitten4 {
             input,

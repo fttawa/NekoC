@@ -20,6 +20,8 @@ enum Binary {
     Sub,
     Mul,
     Div,
+    /// KN uses IEEE division, including signed infinities and NaN at zero.
+    KnDiv,
     Mod,
     Pow,
     Eq,
@@ -45,6 +47,7 @@ impl Binary {
                     a / b
                 }
             }
+            Self::KnDiv => a / b,
             Self::Mod => {
                 if b == 0.0 {
                     0.0
@@ -548,6 +551,10 @@ struct Script {
 #[derive(Clone, Debug)]
 enum ScriptEvent {
     Start,
+    /// KN level-triggered root; one persistent, scene-suspended task per hat.
+    KnWhen,
+    K4GlobalStart,
+    K4SceneActivate,
     CloneStart,
     Key(String, bool),
     Pointer(String, String),
@@ -570,8 +577,47 @@ pub struct Transition {
     pub direction: String,
     pub kind: String,
 }
+/// Execution provenance, captured before lowering removes native metadata.
+/// This is private VM state, not a new canonical-project or wire-format field.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum RuntimeSemantics {
+    KnCurrent,
+    Kitten4,
+}
+
+impl RuntimeSemantics {
+    fn from_project(project: &Value) -> Result<Self> {
+        let Some(metadata) = project.get("_nekocKitten4") else {
+            return Ok(Self::KnCurrent);
+        };
+        let source = metadata
+            .get("source")
+            .context("malformed _nekocKitten4 provenance: source is missing")?;
+        ensure!(
+            crate::kitten4::is_kitten4(source),
+            "malformed _nekocKitten4 provenance: source must be a native Kitten 4 project"
+        );
+        // Match the existing importer, without guessing from canonical toolType,
+        // application_version or legacy flags. KN optional-input defaults and
+        // K4 held-key policy both use this per-program provenance.
+        ensure!(
+            matches!(source.get("version").and_then(Value::as_u64), Some(24 | 25)),
+            "unsupported Kitten 4 provenance version {}; this adapter supports versions 24 and 25",
+            source["version"]
+        );
+        // Reuse the importer's structural validation rather than inventing a
+        // stricter metadata schema (published sources need no workspace). The
+        // canonical project may have been edited, so do not compare it to this
+        // fresh import or require an export round-trip to succeed.
+        crate::kitten4::to_neko(source)
+            .context("malformed _nekocKitten4 provenance: source cannot be imported")?;
+        Ok(Self::Kitten4)
+    }
+}
+
 #[derive(Debug)]
 pub struct Program {
+    semantics: RuntimeSemantics,
     ops: Vec<Op>,
     expressions: Vec<ExprOp>,
     /// For each postfix position, the first position of the subtree rooted there.
@@ -586,6 +632,9 @@ pub struct Program {
     initial_lists: Vec<Vec<Cell>>,
     initial_values: Vec<Option<Cell>>,
     values: Vec<ValueExpr>,
+    /// KN Select reporters with an omitted end. Keep the existing value/JIT
+    /// representation: the placeholder end is constant and is never evaluated.
+    single_text_selects: BTreeSet<usize>,
     constants: Vec<Cell>,
     value_args: Vec<usize>,
     local_count: usize,
@@ -606,7 +655,8 @@ pub struct Program {
     pub height: f64,
     pub scene: String,
     pub backdrop: Option<String>,
-    /// All scenes in project order; only `scenes[current]` runs at a time.
+    /// All scenes in project order; only `scenes[current]` is drawn. K4 global
+    /// Start tasks can run outside their owner's active scene.
     pub scenes: Vec<SceneInfo>,
     pub initial_scene: usize,
     /// The project uses bump_into_color: the VM keeps a pen raster and needs
@@ -639,18 +689,42 @@ impl Program {
     /// Compiles a project. A self-extracting packed project (see `crate::pack`)
     /// is unpacked natively first instead of running its block decoder.
     pub fn compile(project: &Value) -> Result<Self> {
-        if project.get("_nekocKitten4").is_some() {
-            let mut program = Self::compile_exact(&crate::kitten4::lower_for_vm(project))?;
-            program.costume_turn = 90.0;
-            return Ok(program);
-        }
-        if crate::pack::is_packed(project) {
-            return Self::compile_exact(&crate::pack::unpack(project)?);
-        }
-        Self::compile_exact(project)
+        Self::compile_project(project, true)
     }
-    /// Compiles the project exactly as given (packed projects run their decoder).
+    /// Compiles without native unpacking (packed projects run their decoder).
+    /// K4 provenance and VM lowering still apply; exact is not a platform bypass.
     pub fn compile_exact(project: &Value) -> Result<Self> {
+        Self::compile_project(project, false)
+    }
+    fn compile_project(project: &Value, unpack: bool) -> Result<Self> {
+        let semantics = RuntimeSemantics::from_project(project)?;
+        let start_hats = if semantics == RuntimeSemantics::Kitten4 {
+            crate::kitten4::start_hats(&project["_nekocKitten4"]["source"])
+                .context("invalid Kitten 4 start provenance")?
+        } else {
+            crate::kitten4::StartHats::new()
+        };
+        let unpacked;
+        let project = if unpack && crate::pack::is_packed(project) {
+            unpacked = crate::pack::unpack(project)?;
+            &unpacked
+        } else {
+            project
+        };
+        let lowered;
+        let project = if semantics == RuntimeSemantics::Kitten4 {
+            lowered = crate::kitten4::lower_for_vm(project);
+            &lowered
+        } else {
+            project
+        };
+        Self::compile_canonical(project, semantics, start_hats)
+    }
+    fn compile_canonical(
+        project: &Value,
+        semantics: RuntimeSemantics,
+        start_hats: crate::kitten4::StartHats,
+    ) -> Result<Self> {
         let scene = project
             .pointer("/scenes/currentSceneId")
             .and_then(Value::as_str)
@@ -661,7 +735,9 @@ impl Program {
             .and_then(|m| m.get(&scene))
             .context("current scene missing")?;
         let mut compiler = Compiler {
+            start_hats,
             program: Self {
+                semantics,
                 ops: vec![],
                 expressions: vec![],
                 expression_starts: vec![],
@@ -673,6 +749,7 @@ impl Program {
                 initial_lists: vec![],
                 initial_values: vec![],
                 values: vec![],
+                single_text_selects: BTreeSet::new(),
                 constants: vec![],
                 value_args: vec![],
                 local_count: 0,
@@ -725,7 +802,11 @@ impl Program {
                 scenes: vec![],
                 initial_scene: 0,
                 uses_color: false,
-                costume_turn: 0.0,
+                costume_turn: if semantics == RuntimeSemantics::Kitten4 {
+                    90.0
+                } else {
+                    0.0
+                },
             },
             slots: BTreeMap::new(),
             locals: BTreeMap::new(),
@@ -763,11 +844,11 @@ impl Program {
                         .into_iter()
                         .flatten()
                         .filter(|p| p["type"] != "Label")
-                        .map(|p| {
-                            (
-                                p["id"].as_str().unwrap_or("").to_owned(),
-                                p["name"].as_str().unwrap_or("").to_owned(),
-                            )
+                        .map(|p| ProcedureParam {
+                            id: p["id"].as_str().unwrap_or("").to_owned(),
+                            name: p["name"].as_str().unwrap_or("").to_owned(),
+                            kind: p["type"].as_str().unwrap_or("").to_owned(),
+                            options: p.get("options").cloned().unwrap_or(Value::Null),
                         })
                         .collect::<Vec<_>>();
                     compiler.procedure_params.insert(base, params);
@@ -811,8 +892,8 @@ impl Program {
                 }
             }
         }
-        // Every scene is compiled; scripts of the active scene run. Pass 1 creates
-        // all entities so scripts can reference actors of any scene.
+        // Every scene is compiled. Pass 1 creates all entities so scripts can
+        // reference actors of any scene, including K4 global Start owners.
         let scenes_dict = project
             .pointer("/scenes/scenesDict")
             .and_then(Value::as_object)
@@ -994,7 +1075,7 @@ impl Program {
                 compiler.parameters = compiler.procedure_params[&(index / 2 * 2)]
                     .iter()
                     .enumerate()
-                    .map(|(i, (_, name))| (name.clone(), i))
+                    .map(|(i, param)| (param.name.clone(), i))
                     .collect();
                 compiler.program.procedure_entries[index] = compiler.program.ops.len();
                 compiler.chain(definition["statements"].get("STACK"), index % 2 == 1)?;
@@ -1025,14 +1106,25 @@ fn expression_starts(expressions: &[ExprOp]) -> Result<Vec<u32>> {
     Ok(starts)
 }
 
+/// Compile-time metadata only: call frames and runtime/JIT value layouts stay
+/// unchanged. Preserve declaration order independently of JSON map key order.
+#[derive(Clone)]
+struct ProcedureParam {
+    id: String,
+    name: String,
+    kind: String,
+    options: Value,
+}
+
 struct Compiler {
     program: Program,
+    start_hats: crate::kitten4::StartHats,
     slots: BTreeMap<String, usize>,
     locals: BTreeMap<String, usize>,
     lists: BTreeMap<String, usize>,
     ranges: Vec<String>,
     procedures: BTreeMap<String, usize>,
-    procedure_params: BTreeMap<usize, Vec<(String, String)>>,
+    procedure_params: BTreeMap<usize, Vec<ProcedureParam>>,
     parameters: BTreeMap<String, usize>,
     loops: Vec<Vec<usize>>,
     depth: usize,
@@ -1099,6 +1191,27 @@ fn number(v: &Value) -> Option<f64> {
         }
     })
 }
+/// KN editor-normalized value compatibility, not raw-core TEXT semantics.
+/// NUM presence (even invalid/null) keeps the old numeric path. Only a string
+/// TEXT outside FieldNumber's untrimmed decimal subset becomes a text value.
+fn kn_preserved_number_text(b: &Value) -> Option<&str> {
+    if b["fields"].get("NUM").is_some() {
+        return None;
+    }
+    let text = b["fields"].get("TEXT")?.as_str()?;
+    static DECIMAL: std::sync::OnceLock<regex::Regex> = std::sync::OnceLock::new();
+    let decimal = DECIMAL.get_or_init(|| {
+        regex::Regex::new(r"\A[+-]?[0-9]*\.?[0-9]+(e[+-]?[0-9]+)?\z")
+            .expect("constant FieldNumber decimal pattern")
+    });
+    // Infinity/NaN and Rust-accepted nonfinite spellings were not part of the
+    // official oracle. Preserve their old parse/error path, not new text rules.
+    if decimal.is_match(text) || text.trim().parse::<f64>().is_ok_and(|n| !n.is_finite()) {
+        None
+    } else {
+        Some(text)
+    }
+}
 fn input<'a>(v: &'a Value, key: &str) -> Result<&'a Value> {
     v.get("inputs")
         .and_then(|m| m.get(key))
@@ -1154,6 +1267,13 @@ impl Compiler {
     }
     fn value(&mut self, b: &Value) -> Result<usize> {
         let value = match b["type"].as_str().unwrap_or("") {
+            "math_number" if self.program.semantics == RuntimeSemantics::KnCurrent => {
+                if let Some(text) = kn_preserved_number_text(b) {
+                    self.constant(Cell::Text(text.into()))
+                } else {
+                    ValueExpr::Number(self.expr(b)?)
+                }
+            }
             "broadcast_input" => self.constant(Cell::Text(field(b, "message").into())),
             "self_listen_value" => ValueExpr::Payload,
             "procedures_2_parameter" => {
@@ -1181,6 +1301,9 @@ impl Compiler {
             ),
             "logic_boolean" => {
                 self.constant(Cell::Bool(field(b, "BOOL").eq_ignore_ascii_case("true")))
+            }
+            "logic_empty" if self.program.semantics == RuntimeSemantics::KnCurrent => {
+                self.constant(Cell::Bool(false))
             }
             "logic_negate" => ValueExpr::Not(self.value(input(b, "logic")?)?),
             "logic_ternary" => ValueExpr::Ternary(
@@ -1299,11 +1422,25 @@ impl Compiler {
                 // warp-compiled body so loops do not yield.
                 ValueExpr::CallReturn(procedure + 1, args)
             }
-            "text_select" => ValueExpr::Select(
-                self.value(input(b, "text")?)?,
-                self.arg(b, "start_index")?,
-                self.arg(b, "end_index")?,
-            ),
+            "text_select" => {
+                let text = self.value(input(b, "text")?)?;
+                let start = self.arg(b, "start_index")?;
+                let single = self.program.semantics == RuntimeSemantics::KnCurrent
+                    && b["inputs"].get("end_index").is_none();
+                let end = if single {
+                    self.expr(&serde_json::json!({"type":"math_number","fields":{"NUM":0}}))?
+                } else {
+                    self.arg(b, "end_index")?
+                };
+                // Compile children first: their value indices must not be
+                // mistaken for this Select. Do not duplicate a dynamic start.
+                if single {
+                    self.program
+                        .single_text_selects
+                        .insert(self.program.values.len());
+                }
+                ValueExpr::Select(text, start, end)
+            }
             "get_time"
                 if b["fields"]
                     .get("op")
@@ -1348,17 +1485,80 @@ impl Compiler {
         let params = self.procedure_params[&base].clone();
         let args = params
             .iter()
-            .map(|(id, _)| self.value(input(b, id)?))
+            .map(|param| {
+                if self.program.semantics == RuntimeSemantics::KnCurrent {
+                    self.kn_procedure_argument(b, param)
+                } else {
+                    // K4 keeps its existing strict connected-input policy.
+                    self.value(input(b, &param.id)?)
+                }
+            })
             .collect::<Result<Vec<_>>>()?;
         ensure!(
             b["inputs"].as_object().is_none_or(|inputs| inputs
                 .keys()
-                .all(|key| params.iter().any(|(id, _)| id == key))),
+                .all(|key| params.iter().any(|param| &param.id == key))),
             "unknown procedure call input at {}",
             b["id"]
         );
         self.program.call_arguments.push(args);
         Ok((base, self.program.call_arguments.len() - 1))
+    }
+    fn kn_procedure_argument(&mut self, b: &Value, param: &ProcedureParam) -> Result<usize> {
+        let connected = b["inputs"].get(&param.id);
+        if param.kind == "Custom" {
+            ensure!(
+                connected.is_none(),
+                "KN Custom parameter {} has no value socket at {}",
+                param.id,
+                b["id"]
+            );
+            ensure!(
+                b["shadows"].get(&param.id).is_none(),
+                "unsupported KN Custom parameter shadow {} at {}",
+                param.id,
+                b["id"]
+            );
+            let options = param.options.as_array().with_context(|| {
+                format!("KN Custom parameter {} requires string options", param.id)
+            })?;
+            ensure!(
+                !options.is_empty() && options.iter().all(Value::is_string),
+                "KN Custom parameter {} requires nonempty string options",
+                param.id
+            );
+            // Presence, not truthiness: valid empty/"0"/"false" selections are
+            // text, not missing values, booleans or option indices.
+            let selected = b["fields"].get(&param.id).unwrap_or(&options[0]);
+            let text = selected.as_str().with_context(|| {
+                format!("KN Custom parameter {} requires a string field", param.id)
+            })?;
+            ensure!(
+                options.iter().any(|option| option.as_str() == Some(text)),
+                "KN Custom parameter {} has an undeclared option at {}",
+                param.id,
+                b["id"]
+            );
+            return Ok(self.push_constant(Cell::Text(text.into())));
+        }
+        if let Some(value) = connected {
+            // Compile once; the existing argument list evaluates each entry
+            // once per call, in declaration order, in both call forms.
+            return self.value(value);
+        }
+        // A stored shadow is not absence. XML materialization is a separate
+        // contract; never silently discard one and substitute a default.
+        ensure!(
+            b["shadows"].get(&param.id).is_none(),
+            "unsupported KN procedure shadow-only argument {} at {}",
+            param.id,
+            b["id"]
+        );
+        match param.kind.as_str() {
+            "String" | "Number" => Ok(self.push_constant(Cell::Number(0.0))),
+            "Boolean" => Ok(self.push_constant(Cell::Bool(false))),
+            _ => self.value(input(b, &param.id)?),
+        }
     }
     fn text(&mut self, b: &Value) -> Result<usize> {
         let mut parts = vec![];
@@ -1741,6 +1941,9 @@ impl Compiler {
                     "add" => Binary::Add,
                     "minus" | "subtract" => Binary::Sub,
                     "multiply" => Binary::Mul,
+                    "divide" if self.program.semantics == RuntimeSemantics::KnCurrent => {
+                        Binary::KnDiv
+                    }
                     "divide" => Binary::Div,
                     "mod" => Binary::Mod,
                     "power" => Binary::Pow,
@@ -1819,11 +2022,28 @@ impl Compiler {
         for root in owner["nekoBlockJsonList"].as_array().into_iter().flatten() {
             let kind = root["type"].as_str().unwrap_or("");
             let event = match kind {
+                "when" if self.program.semantics == RuntimeSemantics::KnCurrent => {
+                    ScriptEvent::KnWhen
+                }
                 "self_listen" | "self_listen_with_param" => ScriptEvent::Broadcast(
                     self.value(input(root, "message")?)?,
                     kind == "self_listen_with_param",
                 ),
-                "on_running_group_activated" | "start_on_click" => ScriptEvent::Start,
+                "on_running_group_activated" | "start_on_click" => {
+                    let sprite = &self.program.sprites[actor];
+                    let key = (
+                        sprite.stage,
+                        sprite.id.clone(),
+                        root["id"].as_str().unwrap_or("").to_owned(),
+                    );
+                    match self.start_hats.get(&key) {
+                        Some(crate::kitten4::StartKind::Global) => ScriptEvent::K4GlobalStart,
+                        Some(crate::kitten4::StartKind::Activation) => ScriptEvent::K4SceneActivate,
+                        // New canonical roots and VM-generated hats retain the
+                        // scene-bound policy; type alone is not provenance.
+                        None => ScriptEvent::Start,
+                    }
+                }
                 "start_as_a_mirror" | "start_as_clone" => ScriptEvent::CloneStart,
                 "on_swipe" => {
                     let direction = field(root, "type");
@@ -1872,6 +2092,18 @@ impl Compiler {
                     };
                     ScriptEvent::Pointer(target, state.into())
                 }
+                // Official KN leaves disconnected statement stacks dormant.
+                // Keep this explicit and provenance-scoped: unknown event hats
+                // and unsupported blocks inside executable bodies still fail.
+                "mirror"
+                | "procedures_2_callnoreturn"
+                | "wait_until"
+                | "self_gradually_show_hide"
+                | "set_scale"
+                    if self.program.semantics == RuntimeSemantics::KnCurrent =>
+                {
+                    continue;
+                }
                 // Loose workspace stacks/reporters are not executable scripts. Unknown
                 // event hats must still be diagnosed, not silently discarded.
                 _ if root["is_output"] == true
@@ -1894,6 +2126,22 @@ impl Compiler {
                 ),
             };
             let start = self.program.ops.len();
+            if matches!(event, ScriptEvent::KnWhen) {
+                let condition = self.condition(input(root, "condition")?)?;
+                self.emit(Op::WaitUntil(condition), root);
+                self.chain(root["statements"].get("DO"), false)
+                    .with_context(|| format!("owner {}", owner["name"]))?;
+                // Both false checks and completed bodies yield. The same task
+                // retains its pc/call/loop/wake state while DO is in flight.
+                self.emit(Op::Yield, root);
+                self.emit(Op::Jump(start), root);
+                self.program.scripts.push(Script {
+                    start,
+                    actor,
+                    event,
+                });
+                continue;
+            }
             let body = if matches!(event, ScriptEvent::Broadcast(_, _)) {
                 root["statements"].get("DO")
             } else if matches!(
@@ -2000,7 +2248,10 @@ impl Compiler {
                                 | "timer"
                                 | "traverse_number_value"
                         )
-                    ) {
+                    ) && !(self.program.semantics == RuntimeSemantics::KnCurrent
+                        && value["type"] == "math_number"
+                        && kn_preserved_number_text(value).is_some())
+                    {
                         let expr = self.expr(value)?;
                         match target {
                             Target::Global(i) => Op::Set(i, expr),
@@ -2365,6 +2616,18 @@ impl Compiler {
                         LayerMove::Relative(target, relative == "prev_layer")
                     })
                 }
+                "procedures_2_return_value"
+                    if self.program.semantics == RuntimeSemantics::KnCurrent
+                        && b["inputs"].get("VALUE").is_none()
+                        && crate::runtime::helpers::attr_value(
+                            b["mutation"].as_str().unwrap_or(""),
+                            "type",
+                        ) == Some("NORMAL") =>
+                {
+                    // KN's NORMAL form exits the current procedure; it has no
+                    // VALUE socket. ROUND/malformed missing values stay errors.
+                    Op::Return
+                }
                 "procedures_2_return_value" => Op::ReturnValue(self.value(input(b, "VALUE")?)?),
                 "when" => {
                     // Statement form: wait until the condition holds, run DO, continue.
@@ -2622,7 +2885,13 @@ impl Compiler {
                     );
                     let from = self.arg(b, "from")?;
                     let to = self.arg(b, "to")?;
-                    let by = self.arg(b, "by")?;
+                    let by = if self.program.semantics == RuntimeSemantics::KnCurrent
+                        && b["inputs"].get("by").is_none()
+                    {
+                        self.expr(&serde_json::json!({"type":"math_number","fields":{"NUM":1}}))?
+                    } else {
+                        self.arg(b, "by")?
+                    };
                     let spec = self.program.ranges.len();
                     self.program.ranges.push(RangeSpec { from, to, by });
                     let begin = self.emit(Op::Range(spec, 0), b);
@@ -2679,6 +2948,12 @@ struct Task {
     timeline: Option<Box<Timeline>>,
     /// Script index when spawned by an event dispatch (usize::MAX otherwise).
     script: usize,
+    /// A source-backed K4 global Start root keeps executing across scene changes.
+    /// Child tasks default to scene-bound; this is not a general stop immunity.
+    global_start: bool,
+    /// KN when only: survives scene exit but cannot execute off-scene. Unlike
+    /// K4 global Start this is suspension, not cross-scene execution immunity.
+    kn_when: bool,
 }
 impl Task {
     fn new(id: u64, script: &Script, locals: usize) -> Self {
@@ -2702,6 +2977,8 @@ impl Task {
             bumped: usize::MAX,
             timeline: None,
             script: usize::MAX,
+            global_start: false,
+            kn_when: false,
         }
     }
 }
@@ -2953,7 +3230,18 @@ pub struct Engine {
 }
 impl Engine {
     pub fn active_tasks(&self) -> usize {
-        self.tasks.iter().filter(|t| !t.done).count()
+        self.tasks.iter().filter(|t| self.task_active(t)).count()
+    }
+    /// Suspended KN when tasks stay allocated, but are neither active nor
+    /// runnable. Keep other event policies (including K4 global Start) intact.
+    fn task_active(&self, task: &Task) -> bool {
+        !task.done
+            && (!task.kn_when
+                || (self.sprites[task.actor].alive
+                    && self.sprites[task.actor].scene == self.current_scene))
+    }
+    fn task_runnable(&self, task: &Task) -> bool {
+        self.task_active(task) && task.pending == 0 && task.wake <= self.time
     }
     pub fn numeric_variables(&self) -> &[f64] {
         &self.slots
@@ -2970,7 +3258,10 @@ impl Engine {
             .variable_names
             .iter()
             .position(|n| n == id)
-            .map_or_else(String::new, |i| self.global_value(i).text())
+            .map_or_else(String::new, |i| {
+                self.global_value(i)
+                    .text_with_js_nonfinite(self.program.semantics == RuntimeSemantics::KnCurrent)
+            })
     }
     pub fn list_values(&self, index: usize) -> Vec<Cell> {
         self.lists[index].borrow().clone()
@@ -3137,7 +3428,19 @@ impl Engine {
         self.cursor = 0;
         self.bump_state.clear();
         self.pen_rasters.iter_mut().for_each(|r| *r = None);
-        self.dispatch(|event| matches!(event, ScriptEvent::Start));
+        self.dispatch(|event| {
+            matches!(
+                event,
+                ScriptEvent::Start | ScriptEvent::K4GlobalStart | ScriptEvent::K4SceneActivate
+            )
+        });
+        // Originals only. Clone when behaviour has no official oracle yet;
+        // do not infer clone responders from other event types.
+        for script in 0..self.program.scripts.len() {
+            if matches!(self.program.scripts[script].event, ScriptEvent::KnWhen) {
+                self.spawn(script, self.program.scripts[script].actor);
+            }
+        }
     }
     pub fn key(&mut self, key: &str) {
         self.key_event(key, true);
@@ -3149,7 +3452,29 @@ impl Engine {
             self.pressed.remove(key);
             self.released.insert(key.into());
         }
-        self.dispatch(|event| matches!(event, ScriptEvent::Key(k,d) if (k == key || k == "any") && *d == down));
+        if down && self.program.semantics == RuntimeSemantics::Kitten4 {
+            // Concrete down hats on originals are state responders, serviced at
+            // tick entry. Leave unverified any-key/clone event behaviour intact.
+            if !self.stopped {
+                for script in 0..self.program.scripts.len() {
+                    let spec = &self.program.scripts[script];
+                    if !matches!(&spec.event, ScriptEvent::Key(k, true) if k == key || k == "any")
+                        || !self.in_active_scene(spec.actor)
+                    {
+                        continue;
+                    }
+                    let actor = spec.actor;
+                    let any = matches!(&spec.event, ScriptEvent::Key(k, _) if k == "any");
+                    for target in self.instances(actor) {
+                        if any || target != actor {
+                            self.spawn(script, target);
+                        }
+                    }
+                }
+            }
+        } else {
+            self.dispatch(|event| matches!(event, ScriptEvent::Key(k,d) if (k == key || k == "any") && *d == down));
+        }
     }
     pub fn set_mouse(&mut self, x: f64, y: f64) {
         if x.is_finite() && y.is_finite() {
@@ -3295,6 +3620,11 @@ impl Engine {
         );
         task.actor = actor;
         task.script = script;
+        task.global_start = matches!(
+            self.program.scripts[script].event,
+            ScriptEvent::K4GlobalStart
+        );
+        task.kn_when = matches!(self.program.scripts[script].event, ScriptEvent::KnWhen);
         self.next_task_id += 1;
         self.tasks.push(task);
         Some(self.tasks.len() - 1)
@@ -3305,13 +3635,19 @@ impl Engine {
         }
         for script in 0..self.program.scripts.len() {
             if !matches(&self.program.scripts[script].event)
-                || !self.in_active_scene(self.program.scripts[script].actor)
+                || (!matches!(
+                    self.program.scripts[script].event,
+                    ScriptEvent::K4GlobalStart
+                ) && !self.in_active_scene(self.program.scripts[script].actor))
             {
                 continue;
             }
             // The start event runs originals only; other events reach clones too.
             let actor = self.program.scripts[script].actor;
-            let targets = if matches!(self.program.scripts[script].event, ScriptEvent::Start) {
+            let targets = if matches!(
+                self.program.scripts[script].event,
+                ScriptEvent::Start | ScriptEvent::K4GlobalStart | ScriptEvent::K4SceneActivate
+            ) {
                 vec![actor]
             } else {
                 self.instances(actor)
@@ -3319,6 +3655,33 @@ impl Engine {
             for target in targets {
                 self.spawn(script, target);
             }
+        }
+    }
+    /// K4 concrete down hats are single-flight per original script/actor. A
+    /// waiting, pending or budget-suspended task still owns the responder. Only
+    /// tick entry can retrigger it, so completion never restarts it in this tick.
+    fn dispatch_held_keys(&mut self) {
+        if self.stopped || self.program.semantics != RuntimeSemantics::Kitten4 {
+            return;
+        }
+        for script in 0..self.program.scripts.len() {
+            let spec = &self.program.scripts[script];
+            let ScriptEvent::Key(key, true) = &spec.event else {
+                continue;
+            };
+            let actor = spec.actor;
+            if key == "any"
+                || !self.pressed.contains(key)
+                || !self.in_active_scene(actor)
+                || !self.sprites[actor].alive
+                || self
+                    .tasks
+                    .iter()
+                    .any(|task| !task.done && task.script == script && task.actor == actor)
+            {
+                continue;
+            }
+            self.spawn(script, actor);
         }
     }
     fn broadcast(&mut self, message: String, payload: Cell, wait: bool) -> Result<()> {
@@ -4129,13 +4492,16 @@ impl Engine {
                 _ => None,
             })
     }
-    /// Deactivates the running scene (its scripts stop, its clones are deleted;
-    /// sprite state and pen drawing persist) and activates `target`, whose start
-    /// scripts run from the next tick.
+    /// Deactivates the running scene (ordinary scene-bound scripts stop, KN
+    /// when tasks suspend, clones are deleted; sprite/pen state persists) and
+    /// activates `target`, whose start scripts run from the next tick.
     fn switch_scene(&mut self, target: usize) {
         let old = self.current_scene;
         for task in 0..self.tasks.len() {
-            if self.sprites[self.tasks[task].actor].scene == old {
+            if self.sprites[self.tasks[task].actor].scene == old
+                && !self.tasks[task].global_start
+                && !self.tasks[task].kn_when
+            {
                 self.finish_task(task);
             }
         }
@@ -4163,7 +4529,7 @@ impl Engine {
                 self.dirty[i] = true;
             }
         }
-        self.dispatch(|event| matches!(event, ScriptEvent::Start));
+        self.dispatch(|event| matches!(event, ScriptEvent::Start | ScriptEvent::K4SceneActivate));
     }
     /// Text effect (official module: textEffects). `Some(text)` sets the text;
     /// None re-renders after a size/colour change. Empty text keeps the costume.
@@ -4540,6 +4906,9 @@ impl Engine {
         // A clone starts directly behind its source.
         let at = self.order.iter().position(|&i| i == source).unwrap_or(0);
         self.order.insert(at, index);
+        if self.program.semantics == RuntimeSemantics::KnCurrent && at < self.pen_layer {
+            self.pen_layer += 1;
+        }
         self.order_dirty = true;
         for script in 0..self.program.scripts.len() {
             if matches!(self.program.scripts[script].event, ScriptEvent::CloneStart)
@@ -4561,6 +4930,15 @@ impl Engine {
         sprite.alive = false;
         sprite.visible = false;
         self.removed.push(sprite.id.clone());
+        if self.program.semantics == RuntimeSemantics::KnCurrent
+            && self
+                .order
+                .iter()
+                .position(|&i| i == index)
+                .is_some_and(|at| at < self.pen_layer)
+        {
+            self.pen_layer -= 1;
+        }
         self.order.retain(|&i| i != index);
         self.order_dirty = true;
         self.free_slots.push(index);
@@ -4706,7 +5084,10 @@ impl Engine {
                 let mut text = String::new();
                 for k in parts.start..parts.start + parts.len {
                     let part = self.program.value_args[k as usize];
-                    self.eval_value(part, actor).append_text(&mut text);
+                    self.eval_value(part, actor).append_text_with_js_nonfinite(
+                        &mut text,
+                        self.program.semantics == RuntimeSemantics::KnCurrent,
+                    );
                 }
                 Cell::Text(text.into())
             }
@@ -4715,7 +5096,12 @@ impl Engine {
                 if number {
                     Cell::Number(v.number())
                 } else {
-                    Cell::Text(v.text().into())
+                    Cell::Text(
+                        v.text_with_js_nonfinite(
+                            self.program.semantics == RuntimeSemantics::KnCurrent,
+                        )
+                        .into(),
+                    )
                 }
             }
             ValueExpr::Not(i) => Cell::Bool(!self.eval_value(i, actor).truth()),
@@ -4730,11 +5116,30 @@ impl Engine {
                 let b = self.eval_value(b, actor);
                 if c { a } else { b }
             }
-            ValueExpr::Select(i, start, end) => {
-                let text = self.eval_value(i, actor).text();
+            ValueExpr::Select(text_index, start, end) => {
+                let single = self.program.single_text_selects.contains(&i);
+                let text = self.eval_value(text_index, actor).text();
                 let start = self.eval(start, actor);
-                let end = self.eval(end, actor);
                 let units = text.encode_utf16().collect::<Vec<_>>();
+                if single {
+                    let index = start.floor();
+                    let selected =
+                        if index.is_finite() && index >= 1.0 && index <= units.len() as f64 {
+                            &units[index as usize - 1..index as usize]
+                        } else {
+                            &[]
+                        };
+                    return match String::from_utf16(selected) {
+                        Ok(text) => Cell::Text(text.into()),
+                        Err(_) => {
+                            // Rc<str> cannot preserve JS lone surrogate code
+                            // units. Fail explicitly instead of substituting U+FFFD.
+                            self.value_error = Some("KN text_select produced an isolated UTF-16 surrogate; the current string model cannot preserve it".into());
+                            Cell::Null
+                        }
+                    };
+                }
+                let end = self.eval(end, actor);
                 let (start, end) = (start.floor(), end.floor());
                 let clamp = |n: f64| (n.max(0.0) as usize).min(units.len());
                 let selected = if start <= end - 1.0 {
@@ -4746,7 +5151,17 @@ impl Engine {
                         .copied()
                         .collect()
                 };
-                Cell::Text(String::from_utf16_lossy(&selected).into())
+                if self.program.semantics == RuntimeSemantics::KnCurrent {
+                    match String::from_utf16(&selected) {
+                        Ok(text) => Cell::Text(text.into()),
+                        Err(_) => {
+                            self.value_error = Some("KN text_select produced an isolated UTF-16 surrogate; the current string model cannot preserve it".into());
+                            Cell::Null
+                        }
+                    }
+                } else {
+                    Cell::Text(String::from_utf16_lossy(&selected).into())
+                }
             }
             ValueExpr::CallReturn(procedure, args) => self.call_reporter(procedure, args, actor),
             ValueExpr::CloneProperty(target, index, attribute) => {
@@ -4873,7 +5288,10 @@ impl Engine {
         for i in 0..self.program.texts[text].len() {
             match self.program.texts[text][i] {
                 TextPart::Literal(index) => value.push_str(&self.program.strings[index]),
-                TextPart::Value(i) => self.eval_value(i, actor).append_text(&mut value),
+                TextPart::Value(i) => self.eval_value(i, actor).append_text_with_js_nonfinite(
+                    &mut value,
+                    self.program.semantics == RuntimeSemantics::KnCurrent,
+                ),
             }
         }
         value
@@ -4941,10 +5359,7 @@ impl Engine {
                 || !self.image_stamps.is_empty()
                 || !self.removed.is_empty()
                 || self.dirty.iter().any(|d| *d);
-            let runnable = self
-                .tasks
-                .iter()
-                .any(|t| !t.done && t.pending == 0 && t.wake <= self.time);
+            let runnable = self.tasks.iter().any(|t| self.task_runnable(t));
             if exceeded
                 || visible
                 || !runnable
@@ -5000,7 +5415,7 @@ impl Engine {
             image_stamps: std::mem::take(&mut self.image_stamps),
             monitors: self.monitor_values(),
             clear: std::mem::take(&mut self.clear),
-            active: self.tasks.len(),
+            active: self.active_tasks(),
             instructions: count,
             ticks,
             execute_us,
@@ -5321,8 +5736,9 @@ impl Engine {
                     from.is_finite()
                         && to.is_finite()
                         && by.is_finite()
-                        && (by + 0.5).floor() > 0.0,
-                    "range requires finite endpoints and positive rounded step at {}",
+                        && (self.program.semantics == RuntimeSemantics::KnCurrent
+                            || (by + 0.5).floor() > 0.0),
+                    "range requires finite endpoints and a supported step at {}",
                     self.program.sources[pc]
                 );
                 let value = if from <= to {
@@ -5330,8 +5746,16 @@ impl Engine {
                 } else {
                     from.floor()
                 };
-                let step = (by + 0.5).floor() * if from <= to { 1.0 } else { -1.0 };
-                if (step > 0.0 && value > to) || (step < 0.0 && value < to) {
+                // KN clamps a nonpositive rounded interval to zero; direction
+                // still follows the endpoints. A zero step repeats until a
+                // script break/stop, rather than being silently skipped.
+                let interval = (by + 0.5).floor();
+                let step = if self.program.semantics == RuntimeSemantics::KnCurrent {
+                    interval.max(0.0)
+                } else {
+                    interval
+                } * if from <= to { 1.0 } else { -1.0 };
+                if (from <= to && value > to) || (from > to && value < to) {
                     self.tasks[index].pc = end;
                 } else {
                     self.tasks[index].ranges.push(RangeState {
@@ -5348,13 +5772,16 @@ impl Engine {
                     .context("invalid range stack")?;
                 let next = range.value + range.step;
                 ensure!(
-                    next != range.value,
+                    next != range.value
+                        || self.program.semantics == RuntimeSemantics::KnCurrent
+                            && range.step == 0.0,
                     "range step makes no progress at {}",
                     self.program.sources[pc]
                 );
                 range.value = next;
                 if (range.step > 0.0 && next <= range.end)
                     || (range.step < 0.0 && next >= range.end)
+                    || (self.program.semantics == RuntimeSemantics::KnCurrent && range.step == 0.0)
                 {
                     self.tasks[index].pc = target;
                     if yielding {
@@ -5835,6 +6262,7 @@ impl Engine {
         }
         self.received.clear();
         self.check_bumps();
+        self.dispatch_held_keys();
         let mut count = *total_count;
         let mut exceeded = false;
         let total = self.tasks.len();
@@ -5845,10 +6273,7 @@ impl Engine {
             if self.restart {
                 break;
             }
-            if self.tasks[index].done
-                || self.tasks[index].pending > 0
-                || self.tasks[index].wake > self.time
-            {
+            if !self.task_runnable(&self.tasks[index]) {
                 continue;
             }
             let actor = self.tasks[index].actor;

@@ -10,6 +10,17 @@ function fail(message) {
   process.exit(1);
 }
 
+function rejectParseDiagnostics(sourceFile) {
+  const diagnostics = sourceFile.parseDiagnostics ?? [];
+  if (!diagnostics.length) return;
+  fail(diagnostics.map((diagnostic) => {
+    const start = diagnostic.start ?? 0;
+    const { line, character } = sourceFile.getLineAndCharacterOfPosition(start);
+    const message = ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n");
+    return `${sourceFile.fileName}:${line + 1}:${character + 1}: TS${diagnostic.code}: ${message}`;
+  }).join("\n"));
+}
+
 class WorkspaceCompiler {
   constructor(source, sourceFile) {
     this.source = source;
@@ -166,6 +177,7 @@ class WorkspaceCompiler {
         true,
         ts.ScriptKind.TS,
       );
+      rejectParseDiagnostics(moduleSourceFile);
       this.loadImports(moduleSourceFile, resolvedPath);
       exports = this.collectModuleExports(moduleSourceFile);
       this.moduleExports.set(resolvedPath, exports);
@@ -733,7 +745,8 @@ class WorkspaceCompiler {
     const options = objectLiteralOptions(call.arguments[1], this);
     const body = callbackBody(call.arguments[2], this);
     const screen = {
-      id: `nekoc-screen-${sanitizeIdPart(name)}`,
+      id: allocateResourceId(`nekoc-screen-${sanitizeIdPart(name)}`,
+        new Set(this.resources.screens.map((screen) => screen.id))),
       name,
       backdrop: optionalStringOption(options, "backdrop", null, this, call.arguments[1]),
       sprites: [],
@@ -4942,6 +4955,14 @@ function sanitizeIdPart(value) {
   return sanitized || "procedure";
 }
 
+// Keep the historic ID when free, and never overwrite a previously allocated
+// identity (including a literal name that already ends in a numeric suffix).
+function allocateResourceId(preferred, used) {
+  let id = preferred;
+  for (let suffix = 2; used.has(id); suffix++) id = `${preferred}-${suffix}`;
+  return id;
+}
+
 function escapeXmlAttribute(value) {
   return String(value)
     .replaceAll("&", "&amp;")
@@ -5019,12 +5040,13 @@ function main() {
 
   const sourceText = fs.readFileSync(inputPath, "utf8");
   const sourceFile = ts.createSourceFile(
-    path.basename(inputPath),
+    inputPath,
     sourceText,
     ts.ScriptTarget.Latest,
     true,
     ts.ScriptKind.TS,
   );
+  rejectParseDiagnostics(sourceFile);
 
   const compiler = new WorkspaceCompiler(inputPath, sourceFile);
   const report = compiler.compile(sourceFile);

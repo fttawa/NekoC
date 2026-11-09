@@ -743,6 +743,7 @@ impl Gen<'_, '_> {
                 let quotient = self.b.ins().fdiv(a, b);
                 self.b.ins().select(is_zero, zero, quotient)
             }
+            Binary::KnDiv => self.b.ins().fdiv(a, b),
             Binary::Mod => self.call2(h_mod as *const () as usize, a, b),
             Binary::Pow => self.call2(h_pow as *const () as usize, a, b),
             Binary::Divisible => self.call2(h_divisible as *const () as usize, a, b),

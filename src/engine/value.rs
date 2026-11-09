@@ -44,10 +44,21 @@ impl Cell {
         }
     }
     pub fn text(&self) -> String {
+        self.text_with_js_nonfinite(false)
+    }
+    /// KN spells nonfinite numbers like JavaScript; legacy callers stay intact.
+    pub fn text_with_js_nonfinite(&self, js_nonfinite: bool) -> String {
         match self {
             Self::Number(n) => {
                 if *n == 0.0 {
                     "0".into()
+                } else if js_nonfinite && n.is_infinite() {
+                    if n.is_sign_negative() {
+                        "-Infinity"
+                    } else {
+                        "Infinity"
+                    }
+                    .into()
                 } else {
                     n.to_string()
                 }
@@ -58,23 +69,33 @@ impl Cell {
             Self::List(v) => v
                 .borrow()
                 .iter()
-                .map(Self::text)
+                .map(|v| v.text_with_js_nonfinite(js_nonfinite))
                 .collect::<Vec<_>>()
                 .join(","),
         }
     }
     /// Appends `text()` without an intermediate allocation for scalar values.
     pub fn append_text(&self, out: &mut String) {
+        self.append_text_with_js_nonfinite(out, false);
+    }
+    pub fn append_text_with_js_nonfinite(&self, out: &mut String, js_nonfinite: bool) {
         use std::fmt::Write;
         match self {
             Self::Number(n) if *n == 0.0 => out.push('0'),
+            Self::Number(n) if js_nonfinite && n.is_infinite() => {
+                out.push_str(if n.is_sign_negative() {
+                    "-Infinity"
+                } else {
+                    "Infinity"
+                });
+            }
             Self::Number(n) => {
                 let _ = write!(out, "{n}");
             }
             Self::Bool(v) => out.push_str(if *v { "true" } else { "false" }),
             Self::Text(s) => out.push_str(s),
             Self::Null => {}
-            Self::List(_) => out.push_str(&self.text()),
+            Self::List(_) => out.push_str(&self.text_with_js_nonfinite(js_nonfinite)),
         }
     }
     pub fn truth(&self) -> bool {

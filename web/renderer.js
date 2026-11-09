@@ -113,6 +113,8 @@ export class StageRenderer {
     await Promise.all(ids.map(async id => {
       const style = project.styles?.stylesDict?.[id]; if (!style?.url) return;
       try {
+        const centerPoint={x:style.centerPoint?.x??0,y:style.centerPoint?.y??0};
+        if(![centerPoint.x,centerPoint.y].every(n=>typeof n==='number'&&Number.isFinite(n)))throw Error('无效造型中心');
         const image = new Image(); image.crossOrigin = 'anonymous'; image.src = style.url;
         let timeout;
         try { await Promise.race([image.decode(),new Promise((_,reject)=>{timeout=setTimeout(()=>reject(Error('素材加载超时')),15000);})]); }
@@ -127,7 +129,7 @@ export class StageRenderer {
         const ctx=hit.getContext('2d',{willReadFrequently:true});ctx.drawImage(image,0,0);
         const rgba=ctx.getImageData(0,0,hit.width,hit.height).data,alpha=new Uint8Array(hit.width*hit.height);
         for(let i=0;i<alpha.length;i++)alpha[i]=rgba[i*4+3];
-        this.images.set(id,{texture,width:image.naturalWidth,height:image.naturalHeight,alpha,rgb:cellColors(rgba,hit.width,hit.height)});
+        this.images.set(id,{texture,width:image.naturalWidth,height:image.naturalHeight,centerPoint,alpha,rgb:cellColors(rgba,hit.width,hit.height)});
         this.stats.textureBytes += image.naturalWidth * image.naturalHeight * 4;
         this.dirty = true;
       } catch(error) { this.onError?.(`素材 ${style.name || id}: ${error.message}`); }
@@ -337,8 +339,8 @@ export class StageRenderer {
 
   drawImageStamp(stamp){
     const image=this.images.get(stamp.style);if(!image)return;
-    const {width,height,angle}=spriteGeometry(stamp,image);
-    this.drawTexture(image.texture,stamp.x,stamp.y,width,height,angle,[1,1,1,stamp.opacity??1],stamp.effects,[image.width,image.height]);
+    const {x,y,width,height,angle}=actorGeometry(stamp,image);
+    this.drawTexture(image.texture,x,y,width,height,angle,[1,1,1,stamp.opacity??1],stamp.effects,[image.width,image.height]);
   }
 
   // Costume sizes plus opacity masks (<=128x128, 1 bit per cell) for VM collisions;
@@ -390,8 +392,8 @@ export class StageRenderer {
       const a=this.sprites[this.spriteIndices.get(this.actorOrder[i])];if(!a)continue;
       if(!a.visible)continue;
       const image=this.spriteImage(a);
-      if(image){const {width,height,angle}=spriteGeometry(a,image);
-        this.drawTexture(image.texture,a.x,a.y,width,height,angle,[1,1,1,a.opacity??1],a.effects,[image.width,image.height]);}
+      if(image){const {x,y,width,height,angle}=actorGeometry(a,image);
+        this.drawTexture(image.texture,x,y,width,height,angle,[1,1,1,a.opacity??1],a.effects,[image.width,image.height]);}
     }
     this.dirty=false; if(resetStats)this.stats.submitMs=performance.now()-started;
   }
@@ -401,8 +403,8 @@ export class StageRenderer {
       const a=this.sprites[this.spriteIndices.get(this.actorOrder[i])];
       if(!a?.visible||!a.scale||(a.opacity??1)<=0)continue;
       const image=this.spriteImage(a);if(!image)continue;
-      const {width,height,angle}=spriteGeometry(a,image);if(!width||!height)continue;
-      const c=Math.cos(angle),s=Math.sin(angle),dx=x-a.x,dy=y-a.y;
+      const {x:cx,y:cy,width,height,angle}=actorGeometry(a,image);if(!width||!height||![cx,cy,width,height,angle].every(Number.isFinite))continue;
+      const c=Math.cos(angle),s=Math.sin(angle),dx=x-cx,dy=y-cy;
       const px=Math.floor((c*dx-s*dy)*image.width/width+image.width/2),py=Math.floor(image.height/2-(s*dx+c*dy)*image.height/height);
       if(px>=0&&px<image.width&&py>=0&&py<image.height&&image.alpha[py*image.width+px]>0)return a.id;
     }
@@ -429,6 +431,16 @@ export function spriteGeometry(a,image){
   if(a.rotation_type===2)angle=0;
   else if(a.rotation_type===1){const d=((a.direction%360)+540)%360-180;angle=0;if(d<0)width=-width;}
   return {width,height,angle};
+}
+
+// Texture centre after the existing draw-angle/rotation-type policy. Pivot is
+// relative to the image centre in unscaled pixels (x right, y down), not actor
+// position, CSS pixels or the collision mask grid. Text images have no pivot.
+function actorGeometry(a,image){
+  const geometry=spriteGeometry(a,image),{width,height,angle}=geometry;
+  const px=image.centerPoint?.x??0,py=image.centerPoint?.y??0;
+  const dx=-px*width/image.width,dy=py*height/image.height,c=Math.cos(angle),s=Math.sin(angle);
+  return {...geometry,x:a.x+c*dx+s*dy,y:a.y-s*dx+c*dy};
 }
 
 export function decodeFrame(buffer) {

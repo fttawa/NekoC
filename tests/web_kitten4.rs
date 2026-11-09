@@ -20,26 +20,36 @@ impl Drop for Studio {
 
 impl Studio {
     fn start(input: &str) -> Self {
+        use sha2::{Digest, Sha256};
+        let executable = env!("CARGO_BIN_EXE_web");
+        let binary_hash = format!("{:x}", Sha256::digest(std::fs::read(executable).unwrap()));
         let listener = TcpListener::bind("127.0.0.1:0").unwrap();
         let port = listener.local_addr().unwrap().port();
         drop(listener);
-        let process = Command::new(env!("CARGO_BIN_EXE_web"))
+        let process = Command::new(executable)
             .args([input, "--port", &port.to_string()])
             .stdout(Stdio::null())
             .stderr(Stdio::inherit())
             .spawn()
             .unwrap();
         let mut studio = Self { process, port };
+        let identity = format!(
+            "phase=tcp-listen port={port} pid={} executable={executable} sha256={binary_hash} input={input}",
+            studio.process.id()
+        );
         let deadline = Instant::now() + Duration::from_secs(15);
         loop {
             assert!(
                 studio.process.try_wait().unwrap().is_none(),
-                "Web Studio exited before becoming ready"
+                "Web Studio exited before becoming ready: {identity}"
             );
             if TcpStream::connect(("127.0.0.1", port)).is_ok() {
                 return studio;
             }
-            assert!(Instant::now() < deadline, "Web Studio did not start");
+            assert!(
+                Instant::now() < deadline,
+                "Web Studio did not start: {identity}"
+            );
             std::thread::sleep(Duration::from_millis(25));
         }
     }
