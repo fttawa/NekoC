@@ -24,6 +24,143 @@ fn frame(vm: &mut Engine) -> nekoc::engine::Frame {
 }
 
 #[test]
+fn kitten4_paths_record_pen_up_moves_reset_and_emit_ordered_opaque_fills() {
+    let chain = |blocks: Vec<Value>| {
+        blocks.into_iter().rev().fold(Value::Null, |next, mut b| {
+            if !next.is_null() {
+                b["next"] = next;
+            }
+            b
+        })
+    };
+    let path = |point| json!({"id":point,"type":"kitten4::set_pen_path","fields":{"point":point}});
+    let pos = |x, y| json!({"type":"self_move_to","inputs":{"x":num(x),"y":num(y)}});
+    let p = project(chain(vec![
+        pos(0.0, 0.0),
+        path("end_point"),
+        path("start_point"),
+        pos(-20.0, -20.0),
+        path("start_point"),
+        pos(20.0, -20.0),
+        pos(0.0, 20.0),
+        json!({"type":"self_set_pen_color","fields":{"color":"#ff0000"}}),
+        json!({"type":"self_set_pen_color_property","fields":{"scope":"alpha"},"inputs":{"val":num(0.0)}}),
+        path("end_point"),
+        path("end_point"),
+        json!({"id":"fill","type":"kitten4::set_fill_style","fields":{"color":"#777777"}}),
+        json!({"type":"pen_begin_path"}),
+        pos(0.0, 0.0),
+        pos(20.0, 0.0),
+        json!({"type":"pen_close_path"}),
+    ]));
+    let p = nekoc::kitten4::lower_for_vm(&p);
+    for interpreter in [false, true] {
+        let mut vm = Engine::new(Program::compile(&p).unwrap());
+        if interpreter {
+            vm.disable_jit();
+        }
+        vm.start();
+        let f = frame(&mut vm);
+        assert!(f.lines.is_empty());
+        assert_eq!(f.pen_fills.len(), 2);
+        assert_eq!(
+            f.pen_fills[0].points,
+            [[-20.0, -20.0], [20.0, -20.0], [0.0, 20.0]]
+        );
+        assert_eq!(f.pen_fills[0].color, [1.0, 0.0, 0.0, 1.0]);
+        assert_eq!(
+            f.pen_fills[1].color,
+            [119.0 / 255.0, 119.0 / 255.0, 119.0 / 255.0, 1.0]
+        );
+        assert_eq!(f.pen_fills[0].before_line, 0);
+        assert_eq!(f.pen_fills[0].before_text, 0);
+        assert_eq!(f.pen_fills[0].before_image, 0);
+        let idle = frame(&mut vm);
+        assert!(idle.pen_fills.is_empty());
+        assert!(
+            serde_json::to_value(idle)
+                .unwrap()
+                .get("pen_fills")
+                .is_none()
+        );
+        vm.start();
+        assert_eq!(frame(&mut vm).pen_fills.len(), 2);
+    }
+}
+
+#[test]
+fn path_survives_frames_clear_and_fill_is_visible_to_color_sensing() {
+    let pos = |x, y| json!({"type":"self_move_to","inputs":{"x":num(x),"y":num(y)}});
+    let p = var_project(
+        chain(vec![
+            pos(-30.0, -30.0),
+            json!({"type":"pen_begin_path"}),
+            pos(30.0, -30.0),
+            json!({"type":"wait","inputs":{"time":num(0.05)}}),
+            json!({"type":"clear_drawing"}),
+            pos(30.0, 30.0),
+            pos(-30.0, 30.0),
+            json!({"type":"set_fill_style","fields":{"color":"#ff0000"}}),
+            json!({"type":"pen_close_path"}),
+            pos(0.0, 0.0),
+            set("a", color_test("--self", "#ff0000")),
+            json!({"type":"clear_drawing"}),
+            set("b", color_test("--self", "#ff0000")),
+        ]),
+        &["a", "b"],
+    );
+    let mut vm = Engine::new(Program::compile(&p).unwrap());
+    vm.set_costume("nekoc-costume", solid(10.0, 10.0, [0, 0, 0]));
+    vm.start();
+    assert!(frame(&mut vm).pen_fills.is_empty());
+    run_frames(&mut vm, 10);
+    assert_eq!(vm.numeric_variables(), &[1.0, 0.0]);
+}
+
+#[test]
+fn pen_fill_order_tracks_lines_and_stamps_and_degenerate_paths_do_not_draw() {
+    let pos = |x, y| json!({"type":"self_move_to","inputs":{"x":num(x),"y":num(y)}});
+    let p = project(chain(vec![
+        json!({"type":"pen_begin_path"}),
+        json!({"type":"pen_close_path"}),
+        json!({"type":"pen_begin_path"}),
+        pos(10.0, 0.0),
+        json!({"type":"pen_close_path"}),
+        json!({"type":"self_pen_down"}),
+        json!({"type":"pen_begin_path"}),
+        pos(20.0, 0.0),
+        pos(20.0, 20.0),
+        json!({"type":"stamp","fields":{"align":"left"},"inputs":{"text":{"type":"text","fields":{"TEXT":"a"}},"size":num(10.0)}}),
+        json!({"type":"pen_close_path"}),
+        json!({"type":"pen_begin_path"}),
+        pos(30.0, 20.0),
+        pos(30.0, 30.0),
+        json!({"type":"image_stamp"}),
+        json!({"type":"pen_close_path"}),
+    ]));
+    let mut vm = Engine::new(Program::compile(&p).unwrap());
+    vm.start();
+    let f = frame(&mut vm);
+    assert_eq!(f.pen_fills.len(), 2);
+    assert_eq!(
+        (
+            f.pen_fills[0].before_line,
+            f.pen_fills[0].before_text,
+            f.pen_fills[0].before_image
+        ),
+        (3, 1, 0)
+    );
+    assert_eq!(
+        (
+            f.pen_fills[1].before_line,
+            f.pen_fills[1].before_text,
+            f.pen_fills[1].before_image
+        ),
+        (5, 1, 1)
+    );
+}
+
+#[test]
 fn key_release_and_pointer_targets_dispatch_only_matching_hats() {
     let mut p = project(json!({"type":"self_appear","fields":{"value":"appear"}}));
     let hats = p["actors"]["actorsDict"]["nekoc-default-actor"]["nekoBlockJsonList"]

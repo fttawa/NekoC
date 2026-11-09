@@ -98,6 +98,40 @@ impl Studio {
 }
 
 #[test]
+fn fill_delta_uses_existing_binary_envelope_and_legacy_frames_omit_extension() {
+    let studio = Studio::start("samples/native-studio.bcmkn");
+    let mut project = nekoc::studio::document::Document::blank().value().clone();
+    project["actors"]["actorsDict"]["nekoc-default-actor"]["nekoBlockJsonList"] = json!([{
+        "id":"start","type":"on_running_group_activated","next":{
+            "type":"pen_begin_path","next":{
+                "type":"self_move_to","inputs":{"x":{"type":"math_number","fields":{"NUM":20}},"y":{"type":"math_number","fields":{"NUM":0}}},"next":{
+                    "type":"self_move_to","inputs":{"x":{"type":"math_number","fields":{"NUM":20}},"y":{"type":"math_number","fields":{"NUM":20}}},"next":{
+                        "type":"pen_close_path","next":{"type":"self_pen_down"}
+                    }
+                }
+            }
+        }
+    }]);
+    studio.json("POST", "/api/import", &project, 200);
+    studio.json("POST", "/api/start", &json!({}), 200);
+    let (status, bytes) = studio.request("POST", "/api/frame", &json!({"dt":0.016}));
+    assert_eq!(status, 200);
+    let len = u32::from_le_bytes(bytes[..4].try_into().unwrap()) as usize;
+    assert_eq!(len % 4, 0);
+    let header: Value = serde_json::from_slice(&bytes[4..4 + len]).unwrap();
+    assert_eq!(
+        header["pen_fills"][0]["points"],
+        json!([[0.0, 0.0], [20.0, 0.0], [20.0, 20.0]])
+    );
+    assert_eq!(header["pen_fills"][0]["before_line"], 0);
+    assert_eq!(bytes.len() - 4 - len, 9 * 4); // Existing float32 line instance, no new trailer.
+    let (_, idle) = studio.request("POST", "/api/frame", &json!({"dt":0.016}));
+    let len = u32::from_le_bytes(idle[..4].try_into().unwrap()) as usize;
+    let header: Value = serde_json::from_slice(&idle[4..4 + len]).unwrap();
+    assert!(header.get("pen_fills").is_none());
+}
+
+#[test]
 fn extension_origin_is_scoped_and_private_players_keep_independent_snapshots() {
     use tungstenite::{Message, client::IntoClientRequest};
     let studio = Studio::start("samples/native-studio.bcmkn");

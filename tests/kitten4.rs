@@ -20,6 +20,41 @@ fn workspace(project: &mut Value) -> &mut Value {
 }
 
 #[test]
+fn native_fill_blocks_lower_only_for_vm_and_roundtrip_unchanged() {
+    let mut native = fixture();
+    let ws = workspace(&mut native);
+    let blocks = ws["blocks"].as_object_mut().unwrap();
+    blocks.clear();
+    for (id, kind, fields) in [
+        ("start", "on_running_group_activated", json!({})),
+        ("begin", "set_pen_path", json!({"point":"start_point"})),
+        ("color", "set_fill_style", json!({"color":"#777777"})),
+        ("end", "set_pen_path", json!({"point":"end_point"})),
+        ("old-begin", "pen_begin_path", json!({})),
+        ("old-end", "pen_close_path", json!({})),
+    ] {
+        blocks.insert(
+            id.into(),
+            json!({"id":id,"type":kind,"fields":fields,"shadows":{},"mutation":""}),
+        );
+    }
+    ws["connections"] = json!({"start":{"begin":{"type":"next"}},"begin":{"color":{"type":"next"}},"color":{"end":{"type":"next"}},"end":{"old-begin":{"type":"next"}},"old-begin":{"old-end":{"type":"next"}}});
+    let canonical = kitten4::to_neko(&native).unwrap();
+    assert_eq!(kitten4::from_neko(&canonical).unwrap(), native);
+    let lowered = kitten4::lower_for_vm(&canonical);
+    let first = &lowered["actors"]["actorsDict"]["nekoc-pen-actor"]["nekoBlockJsonList"][0]["next"];
+    assert_eq!(first["type"], "pen_begin_path");
+    assert_eq!(first["next"]["type"], "set_fill_style");
+    assert_eq!(first["next"]["next"]["type"], "pen_close_path");
+    let mut vm = Engine::new(Program::compile(&canonical).unwrap());
+    vm.start();
+    let f = vm
+        .advance(1.0 / 60.0, 100_000, Duration::from_secs(1))
+        .unwrap();
+    assert!(f.pen_fills.is_empty()); // Degenerate one-point paths are invisible.
+}
+
+#[test]
 fn official_native_pen_fixture_imports_and_runs_on_program() {
     let native = fixture();
     assert!(kitten4::is_kitten4(&native));
