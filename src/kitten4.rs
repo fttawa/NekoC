@@ -317,6 +317,13 @@ fn is_stub(kind: &str) -> bool {
                 | "set_fill_style"
                 | "set_entity_show_hide"
                 | "self_shake"
+                | "show_ranking"
+                | "hide_ranking"
+                | "is_ranking_show_hide"
+                | "play_video"
+                | "play_video_until_end"
+                | "continue_pause_video"
+                | "show_hide_video"
         )
 }
 
@@ -341,7 +348,13 @@ fn lower_block(block: &mut Value) {
         .trim_start_matches(OPAQUE)
         .to_owned();
     if is_stub(&kind) || (kind == "self_change_effect_3" && field(block, "scope") == "7") {
-        block["type"] = json!("kitten4_noop");
+        if kind == "is_ranking_show_hide" {
+            let hidden = field(block, "VAL") == "hide";
+            block["type"] = json!("logic_boolean");
+            put_field(block, "BOOL", if hidden { "TRUE" } else { "FALSE" });
+        } else {
+            block["type"] = json!("kitten4_noop");
+        }
         return;
     }
     if let Some(list) = kind.strip_prefix("cloud_lists_") {
@@ -366,6 +379,43 @@ fn lower_block(block: &mut Value) {
         "show_hide_cloud_variable" => {
             fields(block, &[("VAR", "variable"), ("FUNC", "show_hide")], false);
             "show_hide_variables"
+        }
+        "show_hide_list" | "show_hide_cloud_list" => {
+            fields(block, &[("VAR", "list"), ("FUNC", "show_hide")], false);
+            "show_hide_list"
+        }
+        "convert_type" => {
+            inputs(block, &[("original_value", "text")], false);
+            "convert_type"
+        }
+        "logic_empty" => {
+            put_field(block, "BOOL", "FALSE");
+            "logic_boolean"
+        }
+        "check_running_device" => {
+            // The local player is a desktop runtime, not a mobile emulator.
+            let computer = field(block, "device") == "computer";
+            put_field(block, "BOOL", if computer { "TRUE" } else { "FALSE" });
+            "logic_boolean"
+        }
+        "self_distance_to" => "distance_to",
+        "self_change_layer" => {
+            // Official set_theatre_layer's `n` adds a signed number of layers.
+            put_field(block, "layer", "n");
+            "self_change_layer"
+        }
+        "lists_get_value" => {
+            // `nth` occurs in legacy/cloud serialization; `first` means indexed,
+            // not the first element. Unknown TYPEs must not silently become indexed.
+            if !matches!(field(block, "TYPE"), "" | "first" | "last" | "nth") {
+                return;
+            }
+            if matches!(field(block, "TYPE"), "" | "nth") {
+                put_field(block, "TYPE", "first");
+            }
+            block["type"] = json!("lists_get_value");
+            let _ = translate(block, false);
+            return;
         }
         // No signed-in player in a local run.
         "username_get" => {
@@ -440,6 +490,7 @@ fn lower_block(block: &mut Value) {
         "sprite_on_tap" => {
             let actor = match field(block, "actor") {
                 "__self" => "--self".to_owned(),
+                "__scene" => "--screen".to_owned(),
                 other => other.to_owned(),
             };
             remove(&mut block["fields"], "actor");
@@ -479,21 +530,23 @@ fn lower_block(block: &mut Value) {
                 put_field(block, "coordinate", axis);
                 "coordinate_of_sprite"
             }
-            "2" | "4" => "style_of_sprite",
+            "2" | "4" | "5" | "7" | "8" | "9" | "10" | "11" | "12" | "13" | "16" | "17" => {
+                // The existing clone-property reporter also addresses the original
+                // with index 0, and preserves costume names as text (official
+                // get_clone_index_property / get_scene_or_actor_property).
+                block["inputs"]["index"] = if matches!(field(block, "sprite"), "__self" | "--self")
+                {
+                    json!({"type":"get_current_clone_index"})
+                } else {
+                    number(0.0)
+                };
+                "get_clone_index_property"
+            }
             "3" => {
                 put_field(block, "appearance", "direction");
                 block["type"] = json!("appearance_of_sprite");
                 *block = native_heading_reporter(block.clone());
                 return;
-            }
-            "5" => {
-                put_field(block, "appearance", "scale");
-                "appearance_of_sprite"
-            }
-            attribute @ ("7" | "8" | "9" | "10" | "11" | "12" | "13") => {
-                let scope = attribute.parse::<u8>().unwrap_or(7) - 7;
-                put_field(block, "effect", &scope.to_string());
-                "effect_of_sprite"
             }
             _ => return,
         },
@@ -523,6 +576,10 @@ fn lower_block(block: &mut Value) {
             "show_hide_variables"
         }
         "mouse_down"
+        | "self_set_rotation_type"
+        | "get_clone_index_property"
+        | "get_clone_num"
+        | "get_stage_info"
         | "mirror"
         | "start_as_a_mirror"
         | "dispose_clone"

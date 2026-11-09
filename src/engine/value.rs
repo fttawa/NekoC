@@ -176,6 +176,8 @@ pub(super) enum ValueExpr {
     Split(usize, usize),
     Select(usize, super::Expr, super::Expr),
     Convert(usize, bool),
+    /// K4 conversion has a text fallback for nonnumeric input, unlike KN.
+    Kitten4Convert(usize, u8),
     Compare(usize, usize, super::Binary),
     Logic(usize, usize, bool),
     /// logic_ternary: like the official runtime, both branches are evaluated.
@@ -186,7 +188,7 @@ pub(super) enum ValueExpr {
     SceneId,
     /// Reporter procedure call: (procedure entry index, call argument list).
     CallReturn(usize, usize),
-    /// (original actor, 1-based clone index, attribute 0 x / 1 y / 2 costume no. / 4 name)
+    /// (original actor, clone index including 0 for original, native attribute)
     CloneProperty(usize, super::Expr, u8),
     Answer,
     /// Last chosen option: index (true) or content.

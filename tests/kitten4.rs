@@ -734,6 +734,473 @@ fn published_fixture() -> Value {
     native
 }
 
+// Synthetic compile_result fixtures only: never embed downloaded corpus works.
+fn compiled(kind: &str, params: Value) -> Value {
+    json!({"type":kind,"params":params,"child_block":[]})
+}
+
+fn compiled_number(n: f64) -> Value {
+    compiled("math_number", json!({"NUM":n}))
+}
+
+fn published_script(blocks: Vec<Value>) -> Value {
+    let mut native = published_fixture();
+    let mut next = Value::Null;
+    for mut block in blocks.into_iter().rev() {
+        block["next_block"] = next;
+        next = block;
+    }
+    native["compile_result"] = json!([{"id":"nekoc-pen-actor","procedures":{},
+        "compiled_block_map":{"hat":{"id":"hat","type":"start_on_click","params":{},
+            "child_block":[],"next_block":next}}}]);
+    native
+}
+
+fn compiled_set(id: &str, value: Value) -> Value {
+    compiled("variables_set", json!({"VAR":id,"VALUE":value}))
+}
+
+fn start_published(native: &Value) -> Engine {
+    let canonical = kitten4::to_neko(native).unwrap();
+    let original = canonical.clone();
+    let mut engine = Engine::new(Program::compile(&canonical).unwrap());
+    engine.start();
+    engine
+        .advance(1.0 / 60.0, 100_000, Duration::from_secs(1))
+        .unwrap();
+    assert_eq!(canonical, original);
+    assert_eq!(kitten4::from_neko(&canonical).unwrap(), *native);
+    engine
+}
+
+#[test]
+fn published_conversions_preserve_types_and_official_number_fallback() {
+    for (target, input, expected) in [
+        ("number", json!("123.5"), json!(123.5)),
+        ("number", json!("hello"), json!("hello")),
+        ("number", json!("0xff"), json!(255.0)),
+        ("number", json!("0b101"), json!(5.0)),
+        ("number", json!("0o17"), json!(15.0)),
+        ("number", json!(""), json!(0.0)),
+        ("number", json!("NaN"), Value::Null),
+        ("string", json!(123.0), json!("123")),
+        ("boolean", json!("false"), json!(true)),
+        ("boolean", json!(""), json!(false)),
+        ("boolean", json!(0.0), json!(false)),
+        ("boolean", json!(2.0), json!(true)),
+    ] {
+        let input = if input.is_string() {
+            compiled("text", json!({"TEXT":input}))
+        } else {
+            compiled("math_number", json!({"NUM":input}))
+        };
+        let native = published_script(vec![compiled_set(
+            "result",
+            compiled(
+                "convert_type",
+                json!({"type":target,"original_value":input}),
+            ),
+        )]);
+        let engine = start_published(&native);
+        let text = if expected.is_string() {
+            expected.as_str().unwrap().to_owned()
+        } else if expected.is_null() {
+            "NaN".into()
+        } else {
+            expected.to_string().trim_end_matches(".0").to_owned()
+        };
+        assert_eq!(engine.variable_text("result"), text, "{target}: {expected}");
+    }
+}
+
+#[test]
+fn published_stage_device_empty_logic_and_distance_reporters() {
+    let mut blocks = vec![];
+    for (id, kind, params) in [
+        ("width", "get_stage_info", json!({"info":"width"})),
+        ("height", "get_stage_info", json!({"info":"height"})),
+        ("pc", "check_running_device", json!({"device":"computer"})),
+        ("phone", "check_running_device", json!({"device":"mobile"})),
+        ("tablet", "check_running_device", json!({"device":"tablet"})),
+        ("empty", "logic_empty", json!({})),
+        ("distance", "self_distance_to", json!({"sprite":"other"})),
+        ("mouse", "self_distance_to", json!({"sprite":"__mouse"})),
+    ] {
+        blocks.push(compiled_set(id, compiled(kind, params)));
+    }
+    let mut native = published_script(blocks);
+    native["theatre"]["actors"]["nekoc-pen-actor"]["x"] = json!(3);
+    native["theatre"]["actors"]["nekoc-pen-actor"]["y"] = json!(4);
+    native["theatre"]["actors"]["other"] = native["theatre"]["actors"]["nekoc-pen-actor"].clone();
+    native["theatre"]["actors"]["other"]["id"] = json!("other");
+    native["theatre"]["actors"]["other"]["x"] = json!(6);
+    native["theatre"]["actors"]["other"]["y"] = json!(8);
+    let scene = native["theatre"]["scenes_order"][0]
+        .as_str()
+        .unwrap()
+        .to_owned();
+    native["theatre"]["scenes"][&scene]["actors"]
+        .as_array_mut()
+        .unwrap()
+        .push(json!("other"));
+    let engine = start_published(&native);
+    for (id, expected) in [
+        ("width", "620"),
+        ("height", "900"),
+        ("pc", "true"),
+        ("phone", "false"),
+        ("tablet", "false"),
+        ("empty", "false"),
+        ("distance", "5"),
+        ("mouse", "5"),
+    ] {
+        assert_eq!(engine.variable_text(id), expected, "{id}");
+    }
+}
+
+#[test]
+fn published_rotation_modes_and_signed_dynamic_layer_moves() {
+    for mode in ["0", "1", "2"] {
+        for (steps, expected) in [
+            (2.0, vec!["c", "b", "nekoc-pen-actor"]),
+            (-2.0, vec!["nekoc-pen-actor", "c", "b"]),
+            (999.0, vec!["c", "b", "nekoc-pen-actor"]),
+        ] {
+            let mut native = published_script(vec![
+                compiled("self_set_rotation_type", json!({"rotation_type":mode})),
+                compiled(
+                    "self_change_layer",
+                    json!({"n":compiled("math_arithmetic",json!({
+                    "OP":"ADD","A":compiled_number(steps),"B":compiled_number(0.0)}))}),
+                ),
+            ]);
+            let scene = native["theatre"]["scenes_order"][0]
+                .as_str()
+                .unwrap()
+                .to_owned();
+            for id in ["b", "c"] {
+                native["theatre"]["actors"][id] =
+                    native["theatre"]["actors"]["nekoc-pen-actor"].clone();
+                native["theatre"]["actors"][id]["id"] = json!(id);
+                native["theatre"]["scenes"][&scene]["actors"]
+                    .as_array_mut()
+                    .unwrap()
+                    .push(json!(id));
+            }
+            let canonical = kitten4::to_neko(&native).unwrap();
+            let mut engine = Engine::new(Program::compile(&canonical).unwrap());
+            engine.start();
+            let frame = engine
+                .advance(1.0 / 60.0, 100_000, Duration::from_secs(1))
+                .unwrap();
+            assert_eq!(
+                frame
+                    .sprites
+                    .iter()
+                    .find(|a| a.id == "nekoc-pen-actor")
+                    .unwrap()
+                    .rotation_type,
+                mode.parse::<u8>().unwrap()
+            );
+            assert_eq!(frame.order.unwrap(), expected);
+            assert_eq!(kitten4::from_neko(&canonical).unwrap(), native);
+        }
+    }
+}
+
+#[test]
+fn published_get_3_and_clone_properties_keep_costume_names_and_axes() {
+    let attributes = [
+        ("0", "3"),
+        ("1", "4"),
+        ("2", "1"),
+        ("3", "57.3"),
+        ("4", "test costume"),
+        ("5", "100"),
+        ("7", "0"),
+        ("8", "0"),
+        ("9", "0"),
+        ("10", "0"),
+        ("11", "0"),
+        ("12", "0"),
+        ("13", "0"),
+        ("16", "100"),
+        ("17", "100"),
+    ];
+    let mut blocks = vec![];
+    for (attribute, _) in attributes {
+        blocks.push(compiled_set(
+            &format!("a{attribute}"),
+            compiled("get_3", json!({"sprite":"__self","attribute":attribute})),
+        ));
+        blocks.push(compiled_set(
+            &format!("c{attribute}"),
+            compiled(
+                "get_clone_index_property",
+                json!({"sprite":"__self","attribute":attribute,"index":compiled_number(0.0)}),
+            ),
+        ));
+    }
+    blocks.push(compiled("mirror", json!({"sprite":"__self"})));
+    blocks.push(compiled_set(
+        "count",
+        compiled("get_clone_num", json!({"sprite":"__self"})),
+    ));
+    blocks.push(compiled_set(
+        "clone_x",
+        compiled(
+            "get_clone_index_property",
+            json!({"sprite":"__self","attribute":"0","index":compiled_number(1.0)}),
+        ),
+    ));
+    let mut native = published_script(blocks);
+    let actor = &mut native["theatre"]["actors"]["nekoc-pen-actor"];
+    actor["x"] = json!(3);
+    actor["y"] = json!(4);
+    actor["rotation"] = json!(1.0);
+    actor["visible"] = json!(true);
+    actor["styles"] = json!(["style"]);
+    actor["current_style_id"] = json!("style");
+    native["theatre"]["styles"]["style"] = json!({"id":"style","name":"test costume"});
+    let engine = start_published(&native);
+    for (attribute, expected) in attributes {
+        assert_eq!(
+            engine.variable_text(&format!("a{attribute}")),
+            expected,
+            "get_3 {attribute}"
+        );
+        assert_eq!(
+            engine.variable_text(&format!("c{attribute}")),
+            expected,
+            "clone {attribute}"
+        );
+    }
+    assert_eq!(engine.variable_text("count"), "1");
+    assert_eq!(engine.variable_text("clone_x"), "3");
+}
+
+#[test]
+fn published_indexed_and_last_list_items_preserve_text_values() {
+    for selector in ["first", "last", "nth", ""] {
+        let mut native = published_script(vec![compiled_set(
+            "result",
+            compiled(
+                "lists_get_value",
+                json!({
+                    "VAR":compiled("lists_get",json!({"VAR":"items"})),"TYPE":selector,"INDEX":compiled_number(1.0)
+                }),
+            ),
+        )]);
+        native["variables"]["items"] =
+            json!({"id":"items","name":"items","type":"list","value":["first","last"]});
+        assert_eq!(
+            start_published(&native).variable_text("result"),
+            if selector == "last" { "last" } else { "first" }
+        );
+    }
+}
+
+#[test]
+fn published_list_and_variable_monitors_show_and_hide() {
+    for (kind, cloud, list) in [
+        ("show_hide_variable", false, false),
+        ("show_hide_list", false, true),
+        ("show_hide_cloud_variable", true, false),
+        ("show_hide_cloud_list", true, true),
+    ] {
+        let mut native =
+            published_script(vec![compiled(kind, json!({"VAR":"data","FUNC":"show"}))]);
+        if cloud {
+            native["cloud_variables"] = json!({"data":{"name":"data","type":if list {"public_list"} else {"public_variable"}}});
+        } else {
+            native["variables"]["data"] = json!({"id":"data","name":"data","type":if list {"list"} else {"any"},"value":if list {json!([])} else {json!(1)}});
+        }
+        let canonical = kitten4::to_neko(&native).unwrap();
+        let mut engine = Engine::new(Program::compile(&canonical).unwrap());
+        engine.start();
+        let frame = engine
+            .advance(1.0 / 60.0, 100_000, Duration::from_secs(1))
+            .unwrap();
+        assert!(
+            frame
+                .monitors
+                .iter()
+                .any(|m| m.id == "data" && m.list == list),
+            "{kind}"
+        );
+        native["compile_result"][0]["compiled_block_map"]["hat"]["next_block"]["params"]["FUNC"] =
+            json!("hide");
+        let canonical = kitten4::to_neko(&native).unwrap();
+        let mut engine = Engine::new(Program::compile(&canonical).unwrap());
+        engine.start();
+        assert!(
+            engine
+                .advance(1.0 / 60.0, 100_000, Duration::from_secs(1))
+                .unwrap()
+                .monitors
+                .is_empty()
+        );
+    }
+}
+
+#[test]
+fn published_scene_pointer_dispatches_and_explicit_stubs_continue() {
+    let stubs = [
+        "show_ranking",
+        "hide_ranking",
+        "play_video",
+        "play_video_until_end",
+        "continue_pause_video",
+        "show_hide_video",
+    ];
+    for stub in stubs {
+        let native = published_script(vec![
+            compiled(stub, json!({})),
+            compiled_set("after", compiled_number(7.0)),
+        ]);
+        assert_eq!(start_published(&native).variable_text("after"), "7");
+        let report = kitten4::coverage(&native, 1);
+        assert_eq!(report["stubbed"][stub], 1);
+        assert_eq!(report["stage"], "ran");
+    }
+    for (state, expected) in [("show", "false"), ("hide", "true")] {
+        let native = published_script(vec![compiled_set(
+            "ranking",
+            compiled("is_ranking_show_hide", json!({"VAL":state})),
+        )]);
+        assert_eq!(start_published(&native).variable_text("ranking"), expected);
+        assert_eq!(
+            kitten4::coverage(&native, 1)["stubbed"]["is_ranking_show_hide"],
+            1
+        );
+    }
+    let mut native = published_script(vec![compiled_set("clicked", compiled_number(1.0))]);
+    let root = &mut native["compile_result"][0]["compiled_block_map"]["hat"];
+    root["type"] = json!("sprite_on_tap");
+    root["params"] = json!({"actor":"__scene","type":"mouse_click"});
+    root["child_block"] = json!([root["next_block"].take()]);
+    let mut engine = start_published(&native);
+    engine.pointer_event("--screen", "mouse_click", 0.0, 0.0);
+    engine
+        .advance(1.0 / 60.0, 100_000, Duration::from_secs(1))
+        .unwrap();
+    assert_eq!(engine.variable_text("clicked"), "1");
+}
+
+#[test]
+fn published_monitor_hide_reuses_the_shown_monitor() {
+    for kind in ["show_hide_list", "show_hide_variable"] {
+        let mut native = published_script(vec![
+            compiled(kind, json!({"VAR":"data","FUNC":"show"})),
+            compiled(kind, json!({"VAR":"data","FUNC":"hide"})),
+        ]);
+        native["variables"]["data"] = json!({"id":"data","name":"data","type":if kind=="show_hide_list" {"list"} else {"any"},"value":if kind=="show_hide_list" {json!([])} else {json!(1)}});
+        let canonical = kitten4::to_neko(&native).unwrap();
+        let mut engine = Engine::new(Program::compile(&canonical).unwrap());
+        engine.start();
+        assert!(
+            engine
+                .advance(1.0 / 60.0, 100_000, Duration::from_secs(1))
+                .unwrap()
+                .monitors
+                .is_empty()
+        );
+    }
+}
+
+#[test]
+fn published_unknown_list_selectors_and_actor_variable_properties_stay_errors() {
+    let mut native = published_script(vec![compiled_set(
+        "value",
+        compiled(
+            "lists_get_value",
+            json!({
+                "TYPE":"unsupported","VAR":compiled("lists_get",json!({"VAR":"items"}))
+            }),
+        ),
+    )]);
+    native["variables"]["items"] = json!({"id":"items","name":"items","type":"list","value":[]});
+    assert!(Program::compile(&kitten4::to_neko(&native).unwrap()).is_err());
+    for kind in ["get_3", "get_clone_index_property"] {
+        let native = published_script(vec![compiled_set(
+            "value",
+            compiled(
+                kind,
+                json!({"sprite":"__self",
+            "attribute":"00000000-0000-4000-8000-000000000001","index":compiled_number(0.0)}),
+            ),
+        )]);
+        assert!(Program::compile(&kitten4::to_neko(&native).unwrap()).is_err());
+    }
+}
+
+#[test]
+fn published_clone_self_properties_and_nonuniform_scale_use_the_running_instance() {
+    let read = |id: &str, attribute: &str| {
+        compiled_set(
+            id,
+            compiled("get_3", json!({"sprite":"__self","attribute":attribute})),
+        )
+    };
+    let mut native = published_script(vec![compiled("mirror", json!({"sprite":"__self"}))]);
+    let actor = &mut native["theatre"]["actors"]["nekoc-pen-actor"];
+    actor["visible"] = json!(true);
+    actor["scale"] = json!(200);
+    let mut body = compiled(
+        "set_width_height_scale",
+        json!({"type":"width","value":compiled_number(150.0)}),
+    );
+    body["next_block"] = compiled(
+        "set_width_height_scale",
+        json!({"type":"height","value":compiled_number(75.0)}),
+    );
+    body["next_block"]["next_block"] = read("width", "16");
+    body["next_block"]["next_block"]["next_block"] = read("height", "17");
+    body["next_block"]["next_block"]["next_block"]["next_block"] = read("size", "5");
+    native["compile_result"][0]["compiled_block_map"]["clone"] =
+        json!({"type":"start_as_a_mirror","params":{},"child_block":[body]});
+    let engine = start_published(&native);
+    // K4 setters are absolute axis percentages; size is the current X scale.
+    assert_eq!(engine.variable_text("width"), "150");
+    assert_eq!(engine.variable_text("height"), "75");
+    assert_eq!(engine.variable_text("size"), "150");
+}
+
+#[test]
+fn published_size_changes_after_axis_setters_keep_k4_absolute_percentages() {
+    let read = |id: &str, attribute: &str| {
+        compiled_set(
+            id,
+            compiled("get_3", json!({"sprite":"__self","attribute":attribute})),
+        )
+    };
+    let native = published_script(vec![
+        compiled("set_scale", json!({"scale":compiled_number(200.0)})),
+        compiled(
+            "set_width_height_scale",
+            json!({"type":"width","value":compiled_number(150.0)}),
+        ),
+        compiled(
+            "self_change_scale_2",
+            json!({"increase":"increase","scale":compiled_number(10.0)}),
+        ),
+        read("width", "16"),
+        read("height", "17"),
+        compiled("set_scale", json!({"scale":compiled_number(80.0)})),
+        read("reset_width", "16"),
+        read("reset_height", "17"),
+    ]);
+    let engine = start_published(&native);
+    for (id, expected) in [
+        ("width", "160"),
+        ("height", "210"),
+        ("reset_width", "80"),
+        ("reset_height", "80"),
+    ] {
+        assert_eq!(engine.variable_text(id), expected);
+    }
+}
+
 #[test]
 fn published_work_survives_browser_number_round_trip() {
     let native = published_fixture();
