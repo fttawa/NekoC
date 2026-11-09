@@ -22,8 +22,6 @@ enum Binary {
     Sub,
     Mul,
     Div,
-    /// KN uses IEEE division, including signed infinities and NaN at zero.
-    KnDiv,
     Mod,
     Pow,
     Eq,
@@ -42,21 +40,9 @@ impl Binary {
             Self::Add => a + b,
             Self::Sub => a - b,
             Self::Mul => a * b,
-            Self::Div => {
-                if b == 0.0 {
-                    0.0
-                } else {
-                    a / b
-                }
-            }
-            Self::KnDiv => a / b,
-            Self::Mod => {
-                if b == 0.0 {
-                    0.0
-                } else {
-                    a % b
-                }
-            }
+            // Official K4 Tn6a/h and KN operators propagate IEEE nonfinite values.
+            Self::Div => a / b,
+            Self::Mod => a % b,
             Self::Pow => a.powf(b),
             Self::Eq => (a == b) as u8 as f64,
             Self::Ne => (a != b) as u8 as f64,
@@ -2151,9 +2137,6 @@ impl Compiler {
                     "add" => Binary::Add,
                     "minus" | "subtract" => Binary::Sub,
                     "multiply" => Binary::Mul,
-                    "divide" if self.program.semantics == RuntimeSemantics::KnCurrent => {
-                        Binary::KnDiv
-                    }
                     "divide" => Binary::Div,
                     "mod" => Binary::Mod,
                     "power" => Binary::Pow,
@@ -2512,7 +2495,7 @@ impl Compiler {
                     let op = match kind {
                         "math_sub_assign" | "math_decrement" => Binary::Sub,
                         "math_mul_assign" => Binary::Mul,
-                        "math_div_assign" => Binary::KnDiv,
+                        "math_div_assign" => Binary::Div,
                         "math_mod_assign" => Binary::Mod,
                         _ => Binary::Add,
                     };
@@ -4172,6 +4155,7 @@ impl Engine {
             // Indexed read of a global list: borrow in place, no handle clone.
             ExprOp::ListItem(ListRef::Global(list), false) => {
                 let at = self.operand(pc - 1, actor);
+                self.check_list_index(at);
                 let values = self.lists[list as usize].borrow();
                 list_index(at)
                     .and_then(|i| values.get(i))
@@ -4354,6 +4338,9 @@ impl Engine {
                 } else {
                     Some(self.node(pc - 1, actor))
                 };
+                if let Some(at) = at {
+                    self.check_list_index(at);
+                }
                 self.resolve_list(i).map_or(f64::NAN, |v| {
                     let values = v.borrow();
                     let at = match at {
@@ -4883,6 +4870,13 @@ impl Engine {
     }
     /// Scratch-style bounce: reflect away from the nearest touched edge, move inside.
     fn bounce(&mut self, actor: usize) {
+        let a = &self.sprites[actor];
+        if ![a.x, a.y, a.direction, a.scale, a.size_x, a.size_y]
+            .iter()
+            .all(|n| n.is_finite())
+        {
+            return;
+        }
         let (l, r, b, t) = self.bounds(actor);
         let (w, h) = (self.program.width / 2.0, self.program.height / 2.0);
         // Room left before each edge: left, top, right, bottom.
@@ -5598,6 +5592,9 @@ impl Engine {
             ValueExpr::List(r) => self.resolve_list(r).map_or(Cell::Null, Cell::List),
             ValueExpr::Item(r, e) => {
                 let at = e.map(|e| self.eval(e, actor));
+                if let Some(at) = at {
+                    self.check_list_index(at);
+                }
                 self.resolve_list(r).map_or(Cell::Null, |v| {
                     let v = v.borrow();
                     let at = at.map_or_else(|| v.len().checked_sub(1), list_index);
@@ -5640,7 +5637,14 @@ impl Engine {
             ValueExpr::Convert(i, number) => {
                 let v = self.eval_value(i, actor);
                 if number {
-                    Cell::Number(v.number())
+                    let n = v.number();
+                    // Official K4 Tn6a/convert_type and KN text_convert_to warn
+                    // and return the original text when conversion fails.
+                    if n.is_nan() && matches!(&v, Cell::Text(s) if s.as_ref() != "NaN") {
+                        v
+                    } else {
+                        Cell::Number(n)
+                    }
                 } else {
                     Cell::Text(
                         v.text_with_js_nonfinite(
@@ -5731,11 +5735,11 @@ impl Engine {
                 let selected = if start <= end - 1.0 {
                     units[clamp(start - 1.0)..clamp(end)].to_vec()
                 } else {
-                    units[clamp(end - 1.0)..clamp(start)]
-                        .iter()
-                        .rev()
-                        .copied()
-                        .collect()
+                    // JS slice returns an empty array when the normalized end
+                    // precedes the start (not a Rust slice-range panic on NaN).
+                    let lo = clamp(end - 1.0);
+                    let hi = clamp(start).max(lo);
+                    units[lo..hi].iter().rev().copied().collect()
                 };
                 if self.program.semantics == RuntimeSemantics::KnCurrent {
                     match String::from_utf16(&selected) {
@@ -5913,6 +5917,13 @@ impl Engine {
             Some(value)
         };
     }
+    fn check_list_index(&mut self, at: f64) {
+        // Official K4 Tn6a/lists_get_value throws invaild_list_index;
+        // KN list_item instead warns and returns NaN (official fixture evidence).
+        if self.program.semantics == RuntimeSemantics::Kitten4 && !at.is_finite() {
+            self.value_error = Some("invalid non-finite list index".into());
+        }
+    }
     fn eval_text(&mut self, text: usize, actor: usize) -> String {
         let mut value = String::new();
         for i in 0..self.program.texts[text].len() {
@@ -6029,6 +6040,14 @@ impl Engine {
                 a.alive.then(|| {
                     let mut drawn = a.clone();
                     drawn.direction -= costume_turn;
+                    // JSON maps nonfinite numbers to null. Hide invalid geometry
+                    // on the wire, without changing the VM's logical state.
+                    if ![a.x, a.y, a.direction, a.scale, a.size_x, a.size_y]
+                        .iter()
+                        .all(|n| n.is_finite())
+                    {
+                        drawn.visible = false;
+                    }
                     drawn
                 })
             })
@@ -6136,7 +6155,7 @@ impl Engine {
                 // JS remainder keeps NaN for a zero divisor (unlike legacy Mod).
                 // Official main.8ccf2442.js math_div_assign explicitly returns
                 // NaN for a zero divisor; HateNeko's raw IEEE division differs.
-                let result = if matches!(op, Binary::KnDiv) && value == 0.0 {
+                let result = if matches!(op, Binary::Div) && value == 0.0 {
                     f64::NAN
                 } else if matches!(op, Binary::Mod) {
                     current % value
@@ -6164,6 +6183,9 @@ impl Engine {
             }
             Op::Move(e) => {
                 let n = self.eval(e, actor);
+                if !n.is_finite() {
+                    return Ok(true);
+                }
                 let a = &mut self.sprites[actor];
                 let (sin, cos) = a.direction.to_radians().sin_cos();
                 a.x += n * sin;
@@ -6173,28 +6195,55 @@ impl Engine {
             Op::Position(x, y) => {
                 let x = self.eval(x, actor);
                 let y = self.eval(y, actor);
-                self.sprites[actor].x = x;
-                self.sprites[actor].y = y;
+                // Official K4 Tn6a/z/c ignores each nonfinite axis independently.
+                if x.is_finite() {
+                    self.sprites[actor].x = x;
+                }
+                if y.is_finite() {
+                    self.sprites[actor].y = y;
+                }
                 self.line(actor, old);
             }
             Op::X(e) => {
-                self.sprites[actor].x = self.eval(e, actor);
+                let value = self.eval(e, actor);
+                if value.is_finite() {
+                    self.sprites[actor].x = value;
+                }
                 self.line(actor, old);
             }
             Op::Y(e) => {
-                self.sprites[actor].y = self.eval(e, actor);
+                let value = self.eval(e, actor);
+                if value.is_finite() {
+                    self.sprites[actor].y = value;
+                }
                 self.line(actor, old);
             }
             Op::AddX(e) => {
-                self.sprites[actor].x += self.eval(e, actor);
+                let value = self.eval(e, actor);
+                if value.is_finite() {
+                    self.sprites[actor].x += value;
+                }
                 self.line(actor, old);
             }
             Op::AddY(e) => {
-                self.sprites[actor].y += self.eval(e, actor);
+                let value = self.eval(e, actor);
+                if value.is_finite() {
+                    self.sprites[actor].y += value;
+                }
                 self.line(actor, old);
             }
-            Op::Turn(e) => self.sprites[actor].direction += self.eval(e, actor),
-            Op::Direction(e) => self.sprites[actor].direction = self.eval(e, actor),
+            Op::Turn(e) => {
+                let value = self.eval(e, actor);
+                if value.is_finite() {
+                    self.sprites[actor].direction += value;
+                }
+            }
+            Op::Direction(e) => {
+                let value = self.eval(e, actor);
+                if value.is_finite() {
+                    self.sprites[actor].direction = value;
+                }
+            }
             Op::Scale(e) => {
                 let value = self.eval(e, actor);
                 let a = &mut self.sprites[actor];
@@ -6204,7 +6253,10 @@ impl Engine {
                         a.size_x = 100.0;
                         a.size_y = 100.0;
                     }
-                } else {
+                } else if value.is_finite()
+                    || (value.is_nan() && self.program.semantics == RuntimeSemantics::KnCurrent)
+                {
+                    // Official KN keeps a NaN size but ignores ±Infinity (docs/nonfinite.md).
                     a.scale = value;
                 }
             }
@@ -6540,7 +6592,7 @@ impl Engine {
             Op::LogNumber(e) => {
                 let n = self.eval(e, actor);
                 if self.logs.len() < 1024 {
-                    self.logs.push(n.to_string());
+                    self.logs.push(crate::js_number::text(n));
                 }
             }
             Op::LogText(text) => {
@@ -6619,18 +6671,21 @@ impl Engine {
             Op::ChangeScale(e) => {
                 let value = self.eval(e, actor);
                 let a = &mut self.sprites[actor];
-                if self.program.semantics == RuntimeSemantics::Kitten4 {
-                    if value.is_finite() {
-                        a.size_x = (a.size_x * a.scale / 100.0 + value).max(0.0);
-                        a.size_y = (a.size_y * a.scale / 100.0 + value).max(0.0);
-                        a.scale = 100.0;
-                    }
+                if !value.is_finite() {
+                    // Official setters ignore non-finite input (docs/nonfinite.md).
+                } else if self.program.semantics == RuntimeSemantics::Kitten4 {
+                    a.size_x = (a.size_x * a.scale / 100.0 + value).max(0.0);
+                    a.size_y = (a.size_y * a.scale / 100.0 + value).max(0.0);
+                    a.scale = 100.0;
                 } else {
                     a.scale += value;
                 }
             }
             Op::SizeAxis(height, e, add) => {
                 let v = self.eval(e, actor);
+                if !v.is_finite() {
+                    return Ok(true);
+                }
                 let a = &mut self.sprites[actor];
                 if self.program.semantics == RuntimeSemantics::Kitten4 {
                     // K4 axes are absolute percentages, not multipliers on the
@@ -6696,6 +6751,9 @@ impl Engine {
             }
             Op::RotateAround(target, e) => {
                 let degrees = self.eval(e, actor);
+                if !degrees.is_finite() {
+                    return Ok(true);
+                }
                 let center = self.point(target, actor);
                 let (sin, cos) = degrees.to_radians().sin_cos();
                 let a = &mut self.sprites[actor];
@@ -6722,11 +6780,12 @@ impl Engine {
                 if let Some(y) = y {
                     to.1 = self.eval(y, actor) + if relative { from.1 } else { 0.0 };
                 }
-                ensure!(
-                    to.0.is_finite() && to.1.is_finite(),
-                    "non-finite glide target at block {}",
-                    self.program.sources[pc]
-                );
+                if !to.0.is_finite() {
+                    to.0 = from.0;
+                }
+                if !to.1.is_finite() {
+                    to.1 = from.1;
+                }
                 self.tasks[index].anim = Some(Anim::Glide {
                     start: self.time,
                     duration: if duration.is_finite() {
@@ -7004,9 +7063,8 @@ impl Engine {
             let error = self.value_error.take().unwrap_or_default();
             bail!("{error} at block {}", self.program.sources[pc]);
         }
-        if moves && (!self.sprites[actor].x.is_finite() || !self.sprites[actor].y.is_finite()) {
-            bail!("non-finite position at block {}", self.program.sources[pc]);
-        }
+        // Nonfinite arithmetic is not a VM error. Input guards above implement
+        // the official setters; finite arithmetic can still overflow naturally.
         Ok(true)
     }
     fn output_limit_reached(&self) -> bool {
@@ -7222,6 +7280,7 @@ fn rgb_to_hsv(color: [f32; 4]) -> [f64; 3] {
     };
     [hue, if max == 0.0 { 0.0 } else { delta / max }, max]
 }
+
 impl Sprite {
     fn set_pen_property(&mut self, property: PenProperty, value: f64, change: i8) {
         let changed = |current| {
@@ -7486,5 +7545,43 @@ mod pivot_tests {
         });
         let program = Program::compile(&p).unwrap();
         assert_eq!(program.costumes["nekoc-costume"].center_point, [10.0, 6.0]);
+    }
+}
+
+#[cfg(test)]
+mod nonfinite_geometry_tests {
+    use super::*;
+
+    #[test]
+    fn nan_scale_is_not_hittable_and_bounce_does_not_repair_it() {
+        let document = crate::studio::document::Document::blank();
+        let mut vm = Engine::new(Program::compile(document.value()).unwrap());
+        let i = vm.sprites.iter().position(|s| !s.stage).unwrap();
+        let style = vm.sprites[i].style.clone().unwrap();
+        vm.set_costume(
+            &style,
+            Costume {
+                width: 20.0,
+                height: 20.0,
+                ..Costume::default()
+            },
+        );
+        vm.sprites[i].x = 100.0;
+        vm.sprites[i].y = 20.0;
+        vm.sprites[i].visible = true;
+        vm.sprites[i].scale = 80.0;
+        assert!(vm.contains(i, 100.0, 20.0));
+        assert!(vm.overlap(i, i));
+        vm.sprites[i].scale = f64::NAN;
+        assert!(!vm.contains(i, 100.0, 20.0));
+        assert!(!vm.contains(i, 0.0, 0.0));
+        assert!(!vm.overlap(i, i));
+        vm.bounce(i);
+        assert!(vm.sprites[i].scale.is_nan());
+        assert_eq!((vm.sprites[i].x, vm.sprites[i].y), (100.0, 20.0));
+        assert!(vm.sprites[i].visible);
+        vm.sprites[i].scale = 80.0;
+        assert!(vm.contains(i, 100.0, 20.0));
+        assert!(vm.overlap(i, i));
     }
 }

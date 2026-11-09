@@ -1,0 +1,6 @@
+# Self-authored fixtures are compared byte-for-byte (and by SHA-256 against
+# official evidence), so they must keep LF on every OS.
+*.bcm text eol=lf
+*.bcm4 text eol=lf
+*.bcmkn text eol=lf
+*.json text eol=lf

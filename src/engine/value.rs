@@ -35,36 +35,17 @@ impl Cell {
             Self::Number(n) => *n,
             Self::Bool(v) => u8::from(*v) as f64,
             Self::Null => 0.0,
-            Self::Text(s) => {
-                if s.trim().is_empty() {
-                    0.0
-                } else {
-                    s.trim().parse().unwrap_or(f64::NAN)
-                }
-            }
+            Self::Text(s) => crate::js_number::parse(s),
             Self::List(_) | Self::Costume(_) => f64::NAN,
         }
     }
     pub fn text(&self) -> String {
         self.text_with_js_nonfinite(false)
     }
-    /// KN spells nonfinite numbers like JavaScript; legacy callers stay intact.
-    pub fn text_with_js_nonfinite(&self, js_nonfinite: bool) -> String {
+    /// Both official products use JS String(number), including exponent notation.
+    pub fn text_with_js_nonfinite(&self, _js_nonfinite: bool) -> String {
         match self {
-            Self::Number(n) => {
-                if *n == 0.0 {
-                    "0".into()
-                } else if js_nonfinite && n.is_infinite() {
-                    if n.is_sign_negative() {
-                        "-Infinity"
-                    } else {
-                        "Infinity"
-                    }
-                    .into()
-                } else {
-                    n.to_string()
-                }
-            }
+            Self::Number(n) => crate::js_number::text(*n),
             Self::Bool(v) => v.to_string(),
             Self::Text(s) => s.to_string(),
             Self::Null => String::new(),
@@ -72,7 +53,7 @@ impl Cell {
             Self::List(v) => v
                 .borrow()
                 .iter()
-                .map(|v| v.text_with_js_nonfinite(js_nonfinite))
+                .map(Cell::text)
                 .collect::<Vec<_>>()
                 .join(","),
         }
@@ -82,19 +63,8 @@ impl Cell {
         self.append_text_with_js_nonfinite(out, false);
     }
     pub fn append_text_with_js_nonfinite(&self, out: &mut String, js_nonfinite: bool) {
-        use std::fmt::Write;
         match self {
-            Self::Number(n) if *n == 0.0 => out.push('0'),
-            Self::Number(n) if js_nonfinite && n.is_infinite() => {
-                out.push_str(if n.is_sign_negative() {
-                    "-Infinity"
-                } else {
-                    "Infinity"
-                });
-            }
-            Self::Number(n) => {
-                let _ = write!(out, "{n}");
-            }
+            Self::Number(n) => out.push_str(ryu_js::Buffer::new().format(*n)),
             Self::Bool(v) => out.push_str(if *v { "true" } else { "false" }),
             Self::Text(s) => out.push_str(s),
             Self::Null => {}

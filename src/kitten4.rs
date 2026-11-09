@@ -1735,6 +1735,8 @@ fn translate(block: &mut Value, export: bool) -> Result<bool> {
             inputs(block, &[("NUM", "num")], export);
         }
         "math_modulo" => inputs(block, &[("DIVIDEND", "A"), ("DIVISOR", "B")], export),
+        // Existing conversion reporter: K4 and KN name its operand differently.
+        "convert_type" => inputs(block, &[("original_value", "text")], export),
         "random" => {
             neko = "random_num".into();
             inputs(block, &[("a", "A"), ("b", "B")], export);

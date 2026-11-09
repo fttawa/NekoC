@@ -300,13 +300,7 @@ pub fn is_prime(value: f64) -> bool {
 
 pub fn format_value(value: &RuntimeValue) -> String {
     match value {
-        RuntimeValue::Number(value) => {
-            if value.fract() == 0.0 {
-                format!("{}", *value as i64)
-            } else {
-                value.to_string()
-            }
-        }
+        RuntimeValue::Number(value) => crate::js_number::text(*value),
         RuntimeValue::Bool(value) => value.to_string(),
         RuntimeValue::String(value) => value.clone(),
         RuntimeValue::List(value) => value.iter().map(format_value).collect::<Vec<_>>().join(","),

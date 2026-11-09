@@ -33,7 +33,7 @@ impl RuntimeValue {
                     0.0
                 }
             }
-            RuntimeValue::String(value) => value.parse().unwrap_or(0.0),
+            RuntimeValue::String(value) => crate::js_number::parse(value),
             RuntimeValue::List(value) => value.len() as f64,
             RuntimeValue::Null => 0.0,
         }
@@ -41,7 +41,7 @@ impl RuntimeValue {
 
     fn is_truthy(&self) -> bool {
         match self {
-            RuntimeValue::Number(value) => *value != 0.0,
+            RuntimeValue::Number(value) => *value != 0.0 && !value.is_nan(),
             RuntimeValue::Bool(value) => *value,
             RuntimeValue::String(value) => !value.is_empty() && value != "false" && value != "0",
             RuntimeValue::List(value) => !value.is_empty(),
@@ -373,6 +373,7 @@ pub struct Runtime<'a> {
     mouse_x: f64,
     mouse_y: f64,
     logs: Vec<String>,
+    value_error: std::cell::RefCell<Option<String>>,
     trace: Vec<RuntimeTraceEntry>,
     next_thread_id: usize,
     threads: Vec<Thread<'a>>,
@@ -501,6 +502,7 @@ impl<'a> Runtime<'a> {
         let source_map = collect_source_map(project);
 
         Ok(Self {
+            value_error: std::cell::RefCell::new(None),
             cooperative: false,
             project,
             ticks: 0,

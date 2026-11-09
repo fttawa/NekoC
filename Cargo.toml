@@ -26,6 +26,7 @@ stacker = "0.1"
 sha2 = "0.10"
 regex = "1"
 rapier2d-f64 = { version = "0.22", default-features = false, features = ["dim2", "f64"] }
+ryu-js = "1"
 tempfile = "3"
 tiny_http = "0.12"
 socket2 = "0.6"
