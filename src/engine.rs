@@ -370,6 +370,7 @@ enum LayerMove {
     Backward,
     /// Directly above (true) or below (false) another actor.
     Relative(usize, bool),
+    By(Expr),
 }
 #[derive(Clone, Copy, Debug)]
 struct GlideSpec {
@@ -1231,6 +1232,49 @@ fn effect_scope(scope: &str) -> Option<u8> {
 fn field<'a>(v: &'a Value, key: &str) -> &'a str {
     v["fields"][key].as_str().unwrap_or("")
 }
+fn k4_round(value: f64) -> f64 {
+    (value * 100.0 + 0.5).floor() / 100.0
+}
+
+/// lodash.toNumber's binary/octal/hex string cases (official K4 convert_type).
+fn k4_number_text(text: &str) -> f64 {
+    let text = text.trim().trim_matches('\u{feff}').trim();
+    if text.is_empty() {
+        return 0.0;
+    }
+    for (prefixes, radix) in [(["0x", "0X"], 16), (["0b", "0B"], 2), (["0o", "0O"], 8)] {
+        if let Some(digits) = prefixes.iter().find_map(|prefix| text.strip_prefix(prefix)) {
+            return if digits.is_empty() {
+                f64::NAN
+            } else {
+                digits
+                    .chars()
+                    .try_fold(0.0, |n, c| {
+                        c.to_digit(radix)
+                            .map(|v| n * f64::from(radix) + f64::from(v))
+                    })
+                    .unwrap_or(f64::NAN)
+            };
+        }
+    }
+    if matches!(text, "Infinity" | "+Infinity" | "-Infinity") {
+        return if text.starts_with('-') {
+            f64::NEG_INFINITY
+        } else {
+            f64::INFINITY
+        };
+    }
+    static DECIMAL: std::sync::OnceLock<regex::Regex> = std::sync::OnceLock::new();
+    let decimal = DECIMAL.get_or_init(|| {
+        regex::Regex::new(r"\A[+-]?(?:[0-9]+\.?[0-9]*|\.[0-9]+)(?:[eE][+-]?[0-9]+)?\z")
+            .expect("constant JS decimal pattern")
+    });
+    if decimal.is_match(text) {
+        text.parse().unwrap_or(f64::NAN)
+    } else {
+        f64::NAN
+    }
+}
 fn owner_styles(owner: &Value) -> Vec<String> {
     let mut styles: Vec<String> = owner["styles"]
         .as_array()
@@ -1485,6 +1529,12 @@ impl Compiler {
                     "1" | "y" => 1,
                     "2" => 2,
                     "4" => 4,
+                    attribute @ ("3" | "5" | "7" | "8" | "9" | "10" | "11" | "12" | "13" | "16"
+                    | "17")
+                        if self.program.semantics == RuntimeSemantics::Kitten4 =>
+                    {
+                        attribute.parse::<u8>()?
+                    }
                     other => bail!("unsupported clone attribute {other} at {}", b["id"]),
                 };
                 ValueExpr::CloneProperty(
@@ -1528,6 +1578,20 @@ impl Compiler {
                 ValueExpr::WeekText
             }
             "convert_type" => {
+                if self.program.semantics == RuntimeSemantics::Kitten4 {
+                    let conversion = match field(b, "type") {
+                        "number" => 0,
+                        "string" => 1,
+                        "boolean" => 2,
+                        other => bail!("unsupported conversion {other}"),
+                    };
+                    let value = self.value(input(b, "text")?)?;
+                    let i = self.program.values.len();
+                    self.program
+                        .values
+                        .push(ValueExpr::Kitten4Convert(value, conversion));
+                    return Ok(i);
+                }
                 ensure!(
                     matches!(field(b, "type"), "number" | "string"),
                     "unsupported conversion {}",
@@ -2224,6 +2288,10 @@ impl Compiler {
             }
             let body = if matches!(event, ScriptEvent::Broadcast(_, _)) {
                 root["statements"].get("DO")
+            } else if matches!(event, ScriptEvent::Pointer(..))
+                && self.program.semantics == RuntimeSemantics::Kitten4
+            {
+                root["statements"].get("DO").or(root.get("next"))
             } else if matches!(
                 event,
                 ScriptEvent::CloneStart | ScriptEvent::Swipe(_) | ScriptEvent::Bump(..)
@@ -2650,10 +2718,18 @@ impl Compiler {
                             }
                         }
                     };
-                    let monitor = self.program.monitor_targets.len();
-                    self.program
+                    let monitor = self
+                        .program
                         .monitor_targets
-                        .push((id.to_owned(), list, target));
+                        .iter()
+                        .position(|(existing, is_list, _)| existing == id && *is_list == list)
+                        .unwrap_or_else(|| {
+                            let monitor = self.program.monitor_targets.len();
+                            self.program
+                                .monitor_targets
+                                .push((id.to_owned(), list, target));
+                            monitor
+                        });
                     Op::Monitor(monitor, field(b, "show_hide") != "hide")
                 }
                 "self_ask" => Op::Ask(self.value(input(b, "text")?)?, None),
@@ -2685,6 +2761,9 @@ impl Compiler {
                             "bottom" | "back" => LayerMove::Back,
                             "prev_layer" | "forward" | "up" => LayerMove::Forward,
                             "next_layer" | "backward" | "down" => LayerMove::Backward,
+                            "n" if self.program.semantics == RuntimeSemantics::Kitten4 => {
+                                LayerMove::By(self.arg(b, "n")?)
+                            }
                             _ => bail!("unknown layer {layer} at {}", b["id"]),
                         }
                     } else {
@@ -3961,10 +4040,15 @@ impl Engine {
             }
             ExprOp::Coordinate(target, y) => {
                 let target = if target == usize::MAX { actor } else { target };
-                if y {
+                let coordinate = if y {
                     self.sprites[target].y
                 } else {
                     self.sprites[target].x
+                };
+                if self.program.semantics == RuntimeSemantics::Kitten4 {
+                    k4_round(coordinate)
+                } else {
+                    coordinate
                 }
             }
             ExprOp::Orientation(target) => {
@@ -3993,7 +4077,12 @@ impl Engine {
             ExprOp::Distance(target) => {
                 let (x, y) = self.point(target, actor);
                 let a = &self.sprites[actor];
-                (x - a.x).hypot(y - a.y)
+                let distance = (x - a.x).hypot(y - a.y);
+                if self.program.semantics == RuntimeSemantics::Kitten4 {
+                    k4_round(distance)
+                } else {
+                    distance
+                }
             }
             ExprOp::Time(unit) => local_time(self.tz_offset_min)[unit as usize],
             ExprOp::Effect(target, scope) => {
@@ -5158,6 +5247,14 @@ impl Engine {
                 .iter()
                 .position(|&i| i == target)
                 .map_or(at, |t| t + usize::from(above)),
+            LayerMove::By(by) => {
+                let by = self.eval(by, actor);
+                if by.is_finite() {
+                    (at as f64 + by).clamp(0.0, self.order.len() as f64) as usize
+                } else {
+                    at
+                }
+            }
         };
         self.order.insert(to, actor);
         self.order_dirty = true;
@@ -5303,6 +5400,28 @@ impl Engine {
                     )
                 }
             }
+            ValueExpr::Kitten4Convert(i, conversion) => {
+                // Official kitten bundle: convert_type uses lodash.toNumber,
+                // String and Boolean; failed numeric conversion returns String(i),
+                // except the literal "NaN" and numeric NaN which remain NaN.
+                let value = self.eval_value(i, actor);
+                match conversion {
+                    2 => Cell::Bool(value.truth()),
+                    1 => Cell::Text(value.text_with_js_nonfinite(true).into()),
+                    _ => {
+                        let text = value.text_with_js_nonfinite(true);
+                        let number = match &value {
+                            Cell::List(_) | Cell::Text(_) => k4_number_text(&text),
+                            _ => value.number(),
+                        };
+                        if number.is_nan() && text != "NaN" {
+                            Cell::Text(text.into())
+                        } else {
+                            Cell::Number(number)
+                        }
+                    }
+                }
+            }
             ValueExpr::Not(i) => Cell::Bool(!self.eval_value(i, actor).truth()),
             ValueExpr::Logic(a, b, and) => {
                 let a = self.eval_value(a, actor);
@@ -5393,14 +5512,33 @@ impl Engine {
                     Some(i) => {
                         let a = &self.sprites[i];
                         match attribute {
-                            0 => Cell::Number(a.x),
-                            1 => Cell::Number(a.y),
+                            0 | 1 => {
+                                let coordinate = if attribute == 0 { a.x } else { a.y };
+                                Cell::Number(
+                                    if self.program.semantics == RuntimeSemantics::Kitten4 {
+                                        k4_round(coordinate)
+                                    } else {
+                                        coordinate
+                                    },
+                                )
+                            }
                             2 => Cell::Number(
                                 a.styles
                                     .iter()
                                     .position(|id| Some(id) == a.style.as_ref())
                                     .map_or(0.0, |i| (i + 1) as f64),
                             ),
+                            3 => Cell::Number(k4_round(
+                                180.0 - (a.direction + 90.0).rem_euclid(360.0),
+                            )),
+                            5 | 16 => Cell::Number(k4_round(a.scale * a.size_x / 100.0)),
+                            17 => Cell::Number(k4_round(a.scale * a.size_y / 100.0)),
+                            8 => Cell::Number(if a.visible {
+                                (1.0 - a.opacity) * 100.0
+                            } else {
+                                100.0
+                            }),
+                            7 | 9..=13 => Cell::Number(a.effects[(attribute - 7) as usize]),
                             _ => {
                                 let id = a.style.as_deref().unwrap_or("");
                                 let name =
@@ -5749,7 +5887,19 @@ impl Engine {
             }
             Op::Turn(e) => self.sprites[actor].direction += self.eval(e, actor),
             Op::Direction(e) => self.sprites[actor].direction = self.eval(e, actor),
-            Op::Scale(e) => self.sprites[actor].scale = self.eval(e, actor),
+            Op::Scale(e) => {
+                let value = self.eval(e, actor);
+                let a = &mut self.sprites[actor];
+                if self.program.semantics == RuntimeSemantics::Kitten4 {
+                    if value.is_finite() {
+                        a.scale = value.max(0.0);
+                        a.size_x = 100.0;
+                        a.size_y = 100.0;
+                    }
+                } else {
+                    a.scale = value;
+                }
+            }
             Op::Visible(v) => self.sprites[actor].visible = v,
             Op::Style(value) => {
                 let value = self.eval_value(value, actor);
@@ -6158,12 +6308,39 @@ impl Engine {
                 task.loops.truncate(call.loops);
                 task.ranges.truncate(call.ranges);
             }
-            Op::ChangeScale(e) => self.sprites[actor].scale += self.eval(e, actor),
+            Op::ChangeScale(e) => {
+                let value = self.eval(e, actor);
+                let a = &mut self.sprites[actor];
+                if self.program.semantics == RuntimeSemantics::Kitten4 {
+                    if value.is_finite() {
+                        a.size_x = (a.size_x * a.scale / 100.0 + value).max(0.0);
+                        a.size_y = (a.size_y * a.scale / 100.0 + value).max(0.0);
+                        a.scale = 100.0;
+                    }
+                } else {
+                    a.scale += value;
+                }
+            }
             Op::SizeAxis(height, e, add) => {
                 let v = self.eval(e, actor);
                 let a = &mut self.sprites[actor];
+                if self.program.semantics == RuntimeSemantics::Kitten4 {
+                    // K4 axes are absolute percentages, not multipliers on the
+                    // uniform size. Preserve the other axis when normalizing.
+                    if !v.is_finite() {
+                        return Ok(false);
+                    }
+                    a.size_x *= a.scale / 100.0;
+                    a.size_y *= a.scale / 100.0;
+                    a.scale = 100.0;
+                }
                 let target = if height { &mut a.size_y } else { &mut a.size_x };
-                *target = if add { *target + v } else { v };
+                let next = if add { *target + v } else { v };
+                *target = if self.program.semantics == RuntimeSemantics::Kitten4 {
+                    next.max(0.0)
+                } else {
+                    next
+                };
             }
             Op::PenSizeChange(e) => {
                 let v = self.eval(e, actor);

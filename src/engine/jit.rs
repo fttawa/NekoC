@@ -203,9 +203,10 @@ impl Engine {
             ValueExpr::CallReturn(..) => false,
             ValueExpr::Number(e) => expr(e),
             ValueExpr::Item(_, e) => e.is_none_or(expr),
-            ValueExpr::Received(a) | ValueExpr::Convert(a, _) | ValueExpr::Not(a) => {
-                self.jit_pure_value(a)
-            }
+            ValueExpr::Received(a)
+            | ValueExpr::Convert(a, _)
+            | ValueExpr::Kitten4Convert(a, _)
+            | ValueExpr::Not(a) => self.jit_pure_value(a),
             ValueExpr::Find(_, a, _) => self.jit_pure_value(a),
             ValueExpr::Contains(a, b)
             | ValueExpr::Split(a, b)
