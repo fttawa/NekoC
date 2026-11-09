@@ -182,6 +182,7 @@ pub(super) enum ValueExpr {
     Contains(usize, usize),
     Find(ListRef, usize, bool),
     Item(ListRef, Option<super::Expr>),
+    CloudItem(ListRef, Option<super::Expr>),
     Join(Span),
     Temporary(Span),
     Split(usize, usize),

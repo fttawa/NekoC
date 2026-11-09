@@ -236,7 +236,7 @@ fn lower_missing_reference(block: &mut Value, targets: &Targets) {
     let kind = block["type"].as_str().unwrap_or_default().to_owned();
     let call = kind.starts_with("procedures_2_call");
     let mut missing = call && targets.procedures.get(field(block, "NAME")).is_none();
-    if !kind.ends_with("bump") {
+    if !matches!(kind.as_str(), "kitten4::bump" | "kitten4::bump_into_color") {
         for key in ["sprite", "target", "actor", "sprite1"] {
             let id = field(block, key).to_owned();
             if id.is_empty()
@@ -337,6 +337,20 @@ fn lower_node(value: &mut Value, targets: &Targets) {
             let Value::Object(object) = value else {
                 return;
             };
+            if object.get("type").and_then(Value::as_str) == Some("kitten4::bump_into_color") {
+                let id = object.get("id").cloned().unwrap_or(Value::Null);
+                let subjects = targets.bump(field(value, "sprite"));
+                let color = field(value, "color").to_owned();
+                let next = value.get("next").cloned();
+                *value = subjects.into_iter().map(|subject| {
+                    json!({"id":id,"type":"bump_into_color","fields":{"sprite":subject,"color":color}})
+                }).reduce(|a,b| json!({"id":id,"type":"logic_operation","fields":{"type":"or"},"inputs":{"A":a,"B":b}}))
+                    .unwrap_or_else(|| json!({"id":id,"type":"logic_boolean","fields":{"BOOL":"FALSE"}}));
+                if let Some(next) = next {
+                    value["next"] = next;
+                }
+                return;
+            }
             if object.get("type").and_then(Value::as_str) == Some("kitten4::bump") {
                 lower_bump(value, targets);
                 return;
@@ -375,7 +389,8 @@ fn is_stub(kind: &str) -> bool {
     kind.starts_with("physics2_")
         || matches!(
             kind,
-            "set_volume_or_rate_2"
+            "set_actor_as"
+                | "play_words_audio"
                 | "set_layer_with_pen"
                 | "set_entity_show_hide"
                 | "self_shake"
@@ -401,6 +416,9 @@ fn cloud_list(block: &mut Value, native: &str) {
     }
     block["type"] = json!(native);
     let _ = translate(block, false);
+    if native == "lists_get_value" {
+        block["type"] = json!("kitten4_cloud_list_item");
+    }
 }
 
 fn lower_block(block: &mut Value) {
@@ -539,6 +557,12 @@ fn lower_block(block: &mut Value) {
             "math_trig"
         }
         "dispose" => "kitten4_dispose",
+        "on_swipe" | "backdrop_on_change" | "self_flip" => kind.as_str(),
+        "terminate" => {
+            put_field(block, "scope", "0");
+            "stop"
+        }
+        "set_volume_or_rate_2" | "change_volume_or_rate_2" => kind.as_str(),
         "self_prev_next_style" => {
             fields(block, &[("prev_or_next", "prev_next")], false);
             "self_prev_next_style"

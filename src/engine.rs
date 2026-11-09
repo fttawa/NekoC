@@ -287,6 +287,7 @@ enum Op {
     Size(Expr),
     Clear,
     Audio(usize, bool),
+    AudioProperty(usize, usize, bool, bool, bool),
     ClearList(ListRef),
     AppendList(ListRef, usize),
     DeleteList(ListRef, Option<Expr>),
@@ -322,6 +323,7 @@ enum Op {
     Effect(u8, Expr, bool),
     ClearEffects,
     RotationType(u8),
+    Flip(bool),
     FaceTo(usize),
     MoveToTarget(usize),
     RotateAround(usize, Expr),
@@ -422,6 +424,10 @@ pub struct Sprite {
     /// Width/height percentages applied on top of `scale`.
     pub size_x: f64,
     pub size_y: f64,
+    #[serde(skip)]
+    flip_x: bool,
+    #[serde(skip)]
+    flip_y: bool,
     /// 0 free rotation, 1 left-right flip, 2 no rotation.
     pub rotation_type: u8,
     /// Speech or thought bubble.
@@ -614,6 +620,7 @@ enum ScriptEvent {
     Key(String, bool),
     Pointer(String, String),
     Swipe(String),
+    K4Backdrop(String),
     Broadcast(usize, bool),
     /// on_bump_actor: (other actor, 0 start / 1 move / 2 end).
     Bump(usize, u8),
@@ -991,6 +998,8 @@ impl Program {
                 effects: [0.0; 7],
                 size_x: 100.0,
                 size_y: 100.0,
+                flip_x: false,
+                flip_y: false,
                 rotation_type: 0,
                 dialog: None,
                 draggable: false,
@@ -1036,6 +1045,8 @@ impl Program {
                     effects: [0.0; 7],
                     size_x: 100.0,
                     size_y: 100.0,
+                    flip_x: false,
+                    flip_y: false,
                     rotation_type: actor["rotationType"].as_u64().unwrap_or(0).min(2) as u8,
                     dialog: None,
                     draggable: actor["draggable"].as_bool().unwrap_or(false),
@@ -1352,6 +1363,9 @@ impl Compiler {
                 | "logic_ternary"
                 | "self_listen_value",
             ) => Ok(ListRef::Expression(self.value(b)? as u32)),
+            _ if self.program.semantics == RuntimeSemantics::Kitten4 => {
+                Ok(ListRef::Expression(self.value(b)? as u32))
+            }
             _ => bail!("expected list reference at {}", b["id"]),
         }
     }
@@ -1461,6 +1475,14 @@ impl Compiler {
             }
             "script_variables_value" => ValueExpr::Local(self.local(field(b, "TEXT"))),
             "pure_list_get" | "list_get" => ValueExpr::List(self.list(b)?),
+            "kitten4_cloud_list_item" => ValueExpr::CloudItem(
+                self.list(input(b, "list")?)?,
+                if field(b, "item") == "last" {
+                    None
+                } else {
+                    Some(self.arg(b, "list_index")?)
+                },
+            ),
             "list_item" => ValueExpr::Item(
                 self.list(input(b, "list")?)?,
                 if field(b, "item") == "last" {
@@ -1906,6 +1928,10 @@ impl Compiler {
                     .context("range value outside its loop")?,
             ),
             "list_length" => ExprOp::ListLength(self.list(input(b, "list")?)?),
+            "kitten4_cloud_list_item" => ExprOp::Value(self.value(b)?),
+            "list_item" if self.program.semantics == RuntimeSemantics::Kitten4 => {
+                ExprOp::Value(self.value(b)?)
+            }
             "list_item" => {
                 let list = self.list(input(b, "list")?)?;
                 let last = field(b, "item") == "last";
@@ -2198,6 +2224,7 @@ impl Compiler {
                     );
                     ScriptEvent::Swipe(direction.into())
                 }
+                "backdrop_on_change" => ScriptEvent::K4Backdrop(field(root, "sprite").into()),
                 "on_keydown" => {
                     ensure!(
                         matches!(field(root, "type"), "down" | "up"),
@@ -2294,7 +2321,10 @@ impl Compiler {
                 root["statements"].get("DO").or(root.get("next"))
             } else if matches!(
                 event,
-                ScriptEvent::CloneStart | ScriptEvent::Swipe(_) | ScriptEvent::Bump(..)
+                ScriptEvent::CloneStart
+                    | ScriptEvent::Swipe(_)
+                    | ScriptEvent::Bump(..)
+                    | ScriptEvent::K4Backdrop(_)
             ) {
                 root["statements"]
                     .get("DO")
@@ -2959,6 +2989,25 @@ impl Compiler {
                     "3" => 3,
                     other => bail!("unknown stop scope {other}"),
                 }),
+                "self_flip" => Op::Flip(match field(b, "options") {
+                    "0" => false,
+                    "1" => true,
+                    other => bail!("unknown flip axis {other}"),
+                }),
+                "set_volume_or_rate_2" | "change_volume_or_rate_2" => {
+                    let rate = match field(b, "audio_key") {
+                        "volume" => false,
+                        "rate" => true,
+                        other => bail!("unknown audio property {other}"),
+                    };
+                    Op::AudioProperty(
+                        self.value(input(b, "audio")?)?,
+                        self.value(input(b, "audio_value")?)?,
+                        rate,
+                        kind == "change_volume_or_rate_2",
+                        field(b, "increase") == "decrease",
+                    )
+                }
                 "procedures_2_callnoreturn" => {
                     let (base, index) = self.call_arguments(b)?;
                     Op::Call(base + usize::from(warped), index)
@@ -3292,6 +3341,14 @@ pub struct AudioCommand {
     /// Report `audio_done` with this id when playback ends.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub wait: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub property: Option<AudioProperty>,
+}
+#[derive(Clone, Debug, Serialize)]
+pub struct AudioProperty {
+    pub rate: bool,
+    pub change: bool,
+    pub value: f64,
 }
 #[derive(Clone, Debug, Serialize)]
 pub struct Frame {
@@ -3657,11 +3714,12 @@ impl Engine {
         self.cursor = 0;
         self.bump_state.clear();
         self.pen_rasters.iter_mut().for_each(|r| *r = None);
+        let scene_id = self.program.scenes[self.current_scene].id.clone();
         self.dispatch(|event| {
             matches!(
                 event,
                 ScriptEvent::Start | ScriptEvent::K4GlobalStart | ScriptEvent::K4SceneActivate
-            )
+            ) || matches!(event, ScriptEvent::K4Backdrop(id) if id == &scene_id)
         });
         // Originals only. Clone when behaviour has no official oracle yet;
         // do not infer clone responders from other event types.
@@ -3883,7 +3941,10 @@ impl Engine {
             let actor = self.program.scripts[script].actor;
             let targets = if matches!(
                 self.program.scripts[script].event,
-                ScriptEvent::Start | ScriptEvent::K4GlobalStart | ScriptEvent::K4SceneActivate
+                ScriptEvent::Start
+                    | ScriptEvent::K4GlobalStart
+                    | ScriptEvent::K4SceneActivate
+                    | ScriptEvent::K4Backdrop(_)
             ) {
                 vec![actor]
             } else {
@@ -4004,7 +4065,7 @@ impl Engine {
             ExprOp::ListItem(ListRef::Global(list), false) => {
                 let at = self.operand(pc - 1, actor);
                 let values = self.lists[list as usize].borrow();
-                list_index(at)
+                read_list_index(at, values.len(), self.program.semantics)
                     .and_then(|i| values.get(i))
                     .map_or(f64::NAN, Cell::number)
             }
@@ -4188,7 +4249,7 @@ impl Engine {
                     let values = v.borrow();
                     let at = match at {
                         None => values.len().checked_sub(1),
-                        Some(at) => list_index(at),
+                        Some(at) => read_list_index(at, values.len(), self.program.semantics),
                     };
                     at.and_then(|i| values.get(i))
                         .map_or(f64::NAN, Cell::number)
@@ -4312,8 +4373,8 @@ impl Engine {
             (costume, costume.width, costume.height, costume.center_point)
         };
         let scale = a.scale / 100.0;
-        let mut width = w * scale * a.size_x / 100.0;
-        let height = h * scale * a.size_y / 100.0;
+        let mut width = w * scale * a.size_x / 100.0 * if a.flip_x { -1.0 } else { 1.0 };
+        let height = h * scale * a.size_y / 100.0 * if a.flip_y { -1.0 } else { 1.0 };
         let direction = a.direction - self.program.costume_turn;
         let angle = if a.rotation_type == 0 {
             direction.to_radians()
@@ -4813,7 +4874,11 @@ impl Engine {
                 self.dirty[i] = true;
             }
         }
-        self.dispatch(|event| matches!(event, ScriptEvent::Start | ScriptEvent::K4SceneActivate));
+        let scene_id = self.program.scenes[target].id.clone();
+        self.dispatch(|event| {
+            matches!(event, ScriptEvent::Start | ScriptEvent::K4SceneActivate)
+                || matches!(event, ScriptEvent::K4Backdrop(id) if id == &scene_id)
+        });
     }
     /// Text effect (official module: textEffects). `Some(text)` sets the text;
     /// None re-renders after a size/colour change. Empty text keeps the costume.
@@ -5305,7 +5370,12 @@ impl Engine {
         if let Cell::List(v) = value {
             Some(v)
         } else {
-            self.value_error = Some("list operation received a non-list value".into());
+            if self.value_error.is_none() {
+                self.value_error = Some(format!(
+                    "list operation received a non-list value ({})",
+                    value.text().chars().take(80).collect::<String>()
+                ));
+            }
             None
         }
     }
@@ -5346,14 +5416,42 @@ impl Engine {
                 }
             }
             ValueExpr::List(r) => self.resolve_list(r).map_or(Cell::Null, Cell::List),
+            ValueExpr::CloudItem(r, e) => {
+                let at = e.map(|e| self.eval(e, actor));
+                self.resolve_list(r).map_or(Cell::Text("".into()), |v| {
+                    let v = v.borrow();
+                    let at = at.map_or_else(
+                        || v.len().checked_sub(1),
+                        |n| (n.is_finite() && n > 0.0).then(|| n.max(1.0).trunc() as usize - 1),
+                    );
+                    at.and_then(|i| v.get(i))
+                        .cloned()
+                        .unwrap_or(Cell::Text("".into()))
+                })
+            }
             ValueExpr::Item(r, e) => {
                 let at = e.map(|e| self.eval(e, actor));
                 self.resolve_list(r).map_or(Cell::Null, |v| {
                     let v = v.borrow();
-                    let at = at.map_or_else(|| v.len().checked_sub(1), list_index);
-                    at.and_then(|i| v.get(i))
-                        .cloned()
-                        .unwrap_or(Cell::Number(f64::NAN))
+                    let at = at.map_or_else(
+                        || v.len().checked_sub(1),
+                        |at| read_list_index(at, v.len(), self.program.semantics),
+                    );
+                    match at.and_then(|i| v.get(i)) {
+                        Some(value) => value.clone(),
+                        None => {
+                            if self.program.semantics == RuntimeSemantics::Kitten4
+                                && self.value_error.is_none()
+                            {
+                                self.value_error = Some(format!(
+                                    "lists_get_value_bad_index (index {:?}, length {})",
+                                    at.and_then(|i| i.checked_add(1)),
+                                    v.len()
+                                ));
+                            }
+                            Cell::Number(f64::NAN)
+                        }
+                    }
                 })
             }
             ValueExpr::Temporary(parts) => {
@@ -5754,6 +5852,12 @@ impl Engine {
                 a.alive.then(|| {
                     let mut drawn = a.clone();
                     drawn.direction -= costume_turn;
+                    if a.flip_x {
+                        drawn.size_x = -drawn.size_x;
+                    }
+                    if a.flip_y {
+                        drawn.size_y = -drawn.size_y;
+                    }
                     drawn
                 })
             })
@@ -5828,6 +5932,7 @@ impl Engine {
                     | Op::ChangeScale(_)
                     | Op::SizeAxis(..)
                     | Op::RotationType(_)
+                    | Op::Flip(_)
                     | Op::FaceTo(_)
             )
         {
@@ -5904,24 +6009,44 @@ impl Engine {
             Op::Style(value) => {
                 let value = self.eval_value(value, actor);
                 let styles = &self.sprites[actor].styles;
+                let k4 = self.program.semantics == RuntimeSemantics::Kitten4;
+                let missing_uuid = matches!(&value, Cell::Costume(id) if {
+                    let parts: Vec<_> = id.split('-').collect();
+                    parts.len() == 5 && parts.iter().zip([8,4,4,4,12]).all(|(s,n)| s.len() == n && s.bytes().all(|b| b.is_ascii_alphanumeric()))
+                });
                 let selected = match value {
+                    Cell::Text(name) if k4 => styles.iter().find(|id| {
+                        self.program
+                            .style_names
+                            .get(*id)
+                            .is_some_and(|n| n == name.trim())
+                    }),
                     Cell::Text(id) | Cell::Costume(id) => {
                         styles.iter().find(|s| s.as_str() == id.as_ref())
+                    }
+                    Cell::Number(n) if k4 && n.is_finite() && !styles.is_empty() => {
+                        // Official Tn6a p(): round(index-1), then wrap, including negatives.
+                        let index = (n - 0.5).floor().rem_euclid(styles.len() as f64) as usize;
+                        styles.get(index)
                     }
                     Cell::Number(n) if n.is_finite() && (n + 0.5).floor() >= 1.0 => {
                         styles.get(((n + 0.5).floor() - 1.0) as usize)
                     }
                     _ => None,
                 }
-                .with_context(|| {
-                    format!(
+                .cloned();
+                if let Some(selected) = selected {
+                    self.leave_text(actor);
+                    self.sprites[actor].style = Some(selected);
+                } else if !k4 || missing_uuid {
+                    bail!(
                         "invalid costume for {} at block {}",
-                        self.sprites[actor].id, self.program.sources[pc]
-                    )
-                })?
-                .clone();
-                self.leave_text(actor);
-                self.sprites[actor].style = Some(selected);
+                        self.sprites[actor].id,
+                        self.program.sources[pc]
+                    );
+                }
+                // Official Tn6a ignores missing names/non-finite indices. Missing
+                // UUID objects still error in the editor (player may ignore them).
             }
             Op::NextStyle(next) => {
                 self.leave_text(actor);
@@ -6034,24 +6159,44 @@ impl Engine {
                 let at = e.map(|e| self.eval(e, actor));
                 if let Some(list) = self.resolve_list(list) {
                     let mut list = list.borrow_mut();
-                    let at = at.map_or_else(|| list.len().checked_sub(1), list_index);
+                    let at = at.map_or_else(
+                        || list.len().checked_sub(1),
+                        |at| {
+                            if self.program.semantics == RuntimeSemantics::Kitten4 {
+                                k4_splice_index(at, list.len(), false)
+                            } else {
+                                list_index(at)
+                            }
+                        },
+                    );
                     if let Some(at) = at.filter(|i| *i < list.len()) {
                         list.remove(at);
                     }
                 }
             }
             Op::InsertList(list, e, value) => {
-                let at = list_index(self.eval(e, actor));
+                let value_index = self.eval(e, actor);
                 let value = self.eval_value(value, actor);
-                if let (Some(at), Some(list)) = (at, self.resolve_list(list)) {
+                if let Some(list) = self.resolve_list(list) {
                     ensure!(
                         !contains_list(&value, &list),
                         "cyclic list at {}",
                         self.program.sources[pc]
                     );
                     let mut list = list.borrow_mut();
-                    let at = at.min(list.len());
-                    list.insert(at, value);
+                    let at = if self.program.semantics == RuntimeSemantics::Kitten4 {
+                        if value_index <= -1.0 && value_index > -2.0 {
+                            Some(list.len())
+                        } else {
+                            k4_splice_index(value_index, list.len(), true)
+                        }
+                    } else {
+                        list_index(value_index)
+                    };
+                    if let Some(at) = at {
+                        let at = at.min(list.len());
+                        list.insert(at, value);
+                    }
                 }
             }
             Op::ReplaceList(list, e, value) => {
@@ -6064,7 +6209,16 @@ impl Engine {
                         self.program.sources[pc]
                     );
                     let mut list = list.borrow_mut();
-                    let at = at.map_or_else(|| Some(list.len().saturating_sub(1)), list_index);
+                    let at = at.map_or_else(
+                        || Some(list.len().saturating_sub(1)),
+                        |at| {
+                            if self.program.semantics == RuntimeSemantics::Kitten4 {
+                                k4_splice_index(at, list.len(), false)
+                            } else {
+                                list_index(at)
+                            }
+                        },
+                    );
                     if let Some(at) = at {
                         if at >= list.len() {
                             list.push(value);
@@ -6227,7 +6381,26 @@ impl Engine {
                     audio,
                     play,
                     wait: None,
+                    property: None,
                 });
+            }
+            Op::AudioProperty(audio, value, rate, change, decrease) => {
+                // The official audio module checks typeof, without numeric coercion.
+                if let Cell::Number(value) = self.eval_value(value, actor)
+                    && value.is_finite()
+                {
+                    let audio = self.eval_value(audio, actor);
+                    self.audio_commands.push(AudioCommand {
+                        audio,
+                        play: false,
+                        wait: None,
+                        property: Some(AudioProperty {
+                            rate,
+                            change,
+                            value: value / 100.0 * if change && decrease { -1.0 } else { 1.0 },
+                        }),
+                    });
+                }
             }
             Op::LogNumber(e) => {
                 let n = self.eval(e, actor);
@@ -6372,6 +6545,14 @@ impl Engine {
                 a.opacity = 1.0;
             }
             Op::RotationType(kind) => self.sprites[actor].rotation_type = kind,
+            Op::Flip(y) => {
+                let a = &mut self.sprites[actor];
+                if y {
+                    a.flip_y = !a.flip_y;
+                } else {
+                    a.flip_x = !a.flip_x;
+                }
+            }
             Op::FaceTo(target) => {
                 let (x, y) = self.point(target, actor);
                 let a = &mut self.sprites[actor];
@@ -6620,8 +6801,8 @@ impl Engine {
                         y: a.y,
                         direction: a.direction - self.program.costume_turn,
                         scale: a.scale,
-                        size_x: a.size_x,
-                        size_y: a.size_y,
+                        size_x: a.size_x * if a.flip_x { -1.0 } else { 1.0 },
+                        size_y: a.size_y * if a.flip_y { -1.0 } else { 1.0 },
                         rotation_type: a.rotation_type,
                         opacity: a.opacity,
                         effects: a.effects,
@@ -6636,6 +6817,7 @@ impl Engine {
                     audio,
                     play: true,
                     wait: Some(wait),
+                    property: None,
                 });
                 self.audio_waits.push((self.tasks[index].id, wait));
                 self.tasks[index].pending += 1;
@@ -6890,6 +7072,38 @@ fn list_index(value: f64) -> Option<usize> {
     value
         .is_finite()
         .then(|| ((value + 0.5).floor().max(1.0) - 1.0) as usize)
+}
+
+fn read_list_index(value: f64, len: usize, semantics: RuntimeSemantics) -> Option<usize> {
+    if semantics != RuntimeSemantics::Kitten4 {
+        return list_index(value);
+    }
+    // Official lists_get_value uses JS property access, not rounded/clamped indices.
+    let index = if value > 0.0 {
+        value - 1.0
+    } else {
+        len as f64 + value
+    };
+    (value != 0.0 && index.is_finite() && index.fract() == 0.0 && index >= 0.0)
+        .then_some(index as usize)
+}
+
+fn k4_splice_index(value: f64, len: usize, insert: bool) -> Option<usize> {
+    if value.is_nan() || value == 0.0 {
+        return None;
+    }
+    // Array.splice truncates its start and clamps it relative to the current length.
+    let start = if value > 0.0 {
+        value - 1.0
+    } else {
+        value + f64::from(insert)
+    }
+    .trunc();
+    Some(if start < 0.0 {
+        (len as f64 + start).max(0.0) as usize
+    } else {
+        start.min(len as f64) as usize
+    })
 }
 fn rgb_to_hsv(color: [f32; 4]) -> [f64; 3] {
     let [r, g, b, _] = color.map(f64::from);

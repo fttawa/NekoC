@@ -789,6 +789,417 @@ fn published_fixture() -> Value {
 }
 
 // Synthetic compile_result fixtures only: never embed downloaded corpus works.
+#[test]
+fn published_second_round_stubs_are_explicit_and_nonblocking() {
+    for kind in ["set_actor_as", "play_words_audio"] {
+        let native = published_script(vec![
+            compiled(
+                kind,
+                json!({"physics_body_type":"not_attend_physics_world","text":"hello"}),
+            ),
+            compiled_set("after", compiled_number(1.0)),
+        ]);
+        assert!(kitten4::coverage(&native, 1)["stubbed"].get(kind).is_some());
+        assert_eq!(start_published(&native).variable_text("after"), "1");
+    }
+}
+
+#[test]
+fn published_audio_property_changes_emit_ordered_nonblocking_commands() {
+    let native = published_script(vec![
+        compiled(
+            "set_volume_or_rate_2",
+            json!({"audio":compiled("get_whole_audios",json!({"sound_id":"all"})),"audio_key":"volume","audio_value":compiled_number(50.0)}),
+        ),
+        compiled(
+            "change_volume_or_rate_2",
+            json!({"audio":compiled("get_audios",json!({"sound_id":"sound"})),"audio_key":"rate","increase":"decrease","audio_value":compiled_number(25.0)}),
+        ),
+        compiled_set("after", compiled_number(1.0)),
+    ]);
+    let canonical = kitten4::to_neko(&native).unwrap();
+    let mut engine = Engine::new(Program::compile(&canonical).unwrap());
+    engine.start();
+    let frame = engine
+        .advance(0.02, 100_000, Duration::from_secs(1))
+        .unwrap();
+    assert_eq!(engine.variable_text("after"), "1");
+    assert_eq!(frame.audio_commands.len(), 2);
+    let set = frame.audio_commands[0].property.as_ref().unwrap();
+    assert!(!set.rate && !set.change);
+    assert_eq!(set.value, 0.5);
+    let change = frame.audio_commands[1].property.as_ref().unwrap();
+    assert!(change.rate && change.change);
+    assert_eq!(change.value, -0.25);
+}
+
+#[test]
+fn published_audio_properties_do_not_coerce_text_or_boolean_values() {
+    for value in [
+        compiled("text", json!({"TEXT":"50"})),
+        compiled("logic_boolean", json!({"BOOL":"TRUE"})),
+    ] {
+        let native = published_script(vec![compiled(
+            "change_volume_or_rate_2",
+            json!({"audio":compiled("get_whole_audios",json!({"sound_id":"all"})),"audio_key":"volume","audio_value":value}),
+        )]);
+        let canonical = kitten4::to_neko(&native).unwrap();
+        let mut engine = Engine::new(Program::compile(&canonical).unwrap());
+        engine.start();
+        assert!(
+            engine
+                .advance(0.02, 100_000, Duration::from_secs(1))
+                .unwrap()
+                .audio_commands
+                .is_empty()
+        );
+    }
+}
+
+#[test]
+fn published_swipe_and_terminate_stop_later_events() {
+    let mut native = published_script(vec![]);
+    native["compile_result"][0]["compiled_block_map"] = json!({
+        "swipe":{"id":"swipe","type":"on_swipe","params":{"type":"up"},
+            "child_block":[compiled_set("hit",compiled_number(1.0))]},
+        "stop":{"id":"stop","type":"on_swipe","params":{"type":"down"},
+            "child_block":[{"type":"terminate","params":{},"child_block":[],
+                "next_block":compiled_set("after",compiled_number(1.0))}]}
+    });
+    let mut engine = start_published(&native);
+    engine.swipe("left");
+    engine
+        .advance(0.02, 100_000, Duration::from_secs(1))
+        .unwrap();
+    assert_eq!(engine.variable_text("hit"), "0");
+    engine.swipe("down");
+    engine
+        .advance(0.02, 100_000, Duration::from_secs(1))
+        .unwrap();
+    engine.swipe("up");
+    engine
+        .advance(0.02, 100_000, Duration::from_secs(1))
+        .unwrap();
+    assert_eq!(engine.variable_text("hit"), "0");
+    assert_eq!(engine.variable_text("after"), "0");
+    engine.start();
+    engine.swipe("up");
+    engine
+        .advance(0.02, 100_000, Duration::from_secs(1))
+        .unwrap();
+    assert_eq!(engine.variable_text("hit"), "1");
+}
+
+#[test]
+fn published_scene_backdrop_hat_runs_on_activation_not_costume_change() {
+    let mut native = published_script(vec![]);
+    let scene = native["theatre"]["scenes_order"][0]
+        .as_str()
+        .unwrap()
+        .to_owned();
+    native["compile_result"].as_array_mut().unwrap().push(
+        json!({"id":scene,"procedures":{},"compiled_block_map":{
+            "backdrop":{"id":"backdrop","type":"backdrop_on_change","params":{"sprite":scene},
+                "child_block":[compiled_set("activated",compiled_number(7.0))]}
+        }}),
+    );
+    assert_eq!(start_published(&native).variable_text("activated"), "7");
+}
+
+#[test]
+fn published_backdrop_hat_dispatches_the_selected_scene_after_switching() {
+    let mut native = published_script(vec![
+        compiled("wait", json!({"time":compiled_number(0.0)})),
+        compiled("switch_to_screen", json!({"screen":compiled_number(2.0)})),
+    ]);
+    let first = native["theatre"]["scenes_order"][0]
+        .as_str()
+        .unwrap()
+        .to_owned();
+    let mut second = native["theatre"]["scenes"][&first].clone();
+    second["id"] = json!("second-scene");
+    second["actors"] = json!([]);
+    second["group_order"] = json!([]);
+    native["theatre"]["scenes"]["second-scene"] = second;
+    native["theatre"]["scenes_order"] = json!([first, "second-scene"]);
+    for (scene, variable) in [(&*first, "first"), ("second-scene", "second")] {
+        native["compile_result"]
+            .as_array_mut()
+            .unwrap()
+            .push(json!({
+                "id":scene,"procedures":{},"compiled_block_map":{
+                    "hat":{"id":"hat","type":"backdrop_on_change","params":{"sprite":scene},
+                        "child_block":[compiled_set(variable,compiled_number(1.0))]}
+                }
+            }));
+    }
+    let mut engine = start_published(&native);
+    assert_eq!(engine.variable_text("first"), "1");
+    assert_eq!(engine.variable_text("second"), "0");
+    for _ in 0..3 {
+        engine
+            .advance(0.02, 100_000, Duration::from_secs(1))
+            .unwrap();
+    }
+    assert_eq!(engine.variable_text("first"), "1");
+    assert_eq!(engine.variable_text("second"), "1");
+}
+
+#[test]
+fn published_flip_keeps_absolute_reported_size_and_survives_scale_reset() {
+    for (axis, sx, sy) in [("0", -100.0, 100.0), ("1", 100.0, -100.0)] {
+        let native = published_script(vec![
+            compiled("self_flip", json!({"options":axis})),
+            compiled("set_scale", json!({"scale":compiled_number(80.0)})),
+            compiled_set(
+                "width",
+                compiled("get_3", json!({"sprite":"__self","attribute":"16"})),
+            ),
+            compiled("image_stamp", json!({})),
+        ]);
+        let engine = start_published(&native);
+        assert_eq!(engine.variable_text("width"), "80");
+        let canonical = kitten4::to_neko(&native).unwrap();
+        let mut engine = Engine::new(Program::compile(&canonical).unwrap());
+        engine.start();
+        let frame = engine
+            .advance(0.02, 100_000, Duration::from_secs(1))
+            .unwrap();
+        let actor = frame
+            .sprites
+            .iter()
+            .find(|a| a.id == "nekoc-pen-actor")
+            .unwrap();
+        assert_eq!((actor.size_x, actor.size_y), (sx, sy));
+        assert_eq!(actor.scale, 80.0);
+        assert_eq!(
+            (frame.image_stamps[0].size_x, frame.image_stamps[0].size_y),
+            (sx, sy)
+        );
+    }
+}
+
+#[test]
+fn published_color_collision_maps_self_and_missing_group_to_boolean() {
+    for target in ["__self", "deleted-actor"] {
+        let native = published_script(vec![compiled_set(
+            "touch",
+            compiled(
+                "bump_into_color",
+                json!({"sprite":target,"color":"#abcdef"}),
+            ),
+        )]);
+        assert!(matches!(
+            start_published(&native).variable_text("touch").as_str(),
+            "0" | "false"
+        ));
+    }
+}
+
+#[test]
+fn published_color_collision_expands_groups_in_the_vm_copy_only() {
+    let mut native = published_script(vec![compiled_set(
+        "touch",
+        compiled(
+            "bump_into_color",
+            json!({"sprite":"color-group","color":"#abcdef"}),
+        ),
+    )]);
+    native["theatre"]["groups"]["color-group"] =
+        json!({"id":"color-group","actors":["nekoc-pen-actor","deleted"]});
+    let canonical = kitten4::to_neko(&native).unwrap();
+    let lowered = kitten4::lower_for_vm(&canonical);
+    let root = &lowered["actors"]["actorsDict"]["nekoc-pen-actor"]["nekoBlockJsonList"][0];
+    assert_eq!(root["next"]["inputs"]["value"]["type"], "bump_into_color");
+    assert_eq!(
+        root["next"]["inputs"]["value"]["fields"]["sprite"],
+        "nekoc-pen-actor"
+    );
+    assert_eq!(kitten4::from_neko(&canonical).unwrap(), native);
+}
+
+#[test]
+fn published_costume_indices_wrap_names_trim_and_missing_names_preserve_style() {
+    let mut native = published_script(vec![]);
+    let actor = "nekoc-pen-actor";
+    native["theatre"]["actors"][actor]["styles"] = json!(["one", "two"]);
+    native["theatre"]["actors"][actor]["current_style_id"] = json!("one");
+    native["theatre"]["styles"]["one"] =
+        json!({"id":"one","name":"First","url":"","width":20,"height":20});
+    native["theatre"]["styles"]["two"] =
+        json!({"id":"two","name":"Second","url":"","width":20,"height":20});
+    for (value, expected) in [
+        (json!(0), "2"),
+        (json!(3), "1"),
+        (json!(1.5), "2"),
+        (json!(" Second "), "2"),
+        (json!("missing"), "1"),
+    ] {
+        let index = if value.is_string() {
+            compiled("text", json!({"TEXT":value}))
+        } else {
+            compiled("math_number", json!({"NUM":value}))
+        };
+        let script = published_script(vec![
+            compiled("set_costume", json!({"index":index})),
+            compiled_set(
+                "costume",
+                compiled("get_3", json!({"sprite":"__self","attribute":"2"})),
+            ),
+        ]);
+        native["compile_result"] = script["compile_result"].clone();
+        assert_eq!(
+            start_published(&native).variable_text("costume"),
+            expected,
+            "{value}"
+        );
+    }
+}
+
+#[test]
+fn published_negative_list_index_preserves_nested_list_identity() {
+    let split = compiled(
+        "text_split",
+        json!({"TEXT_TO_SPLIT":compiled("text",json!({"TEXT":"10,20"})),"SPLIT_TEXT":compiled("text",json!({"TEXT":","}))}),
+    );
+    let last = compiled(
+        "lists_get_value",
+        json!({"VAR":compiled("lists_get",json!({"VAR":"outer"})),"INDEX":compiled_number(-1.0),"TYPE":"first"}),
+    );
+    let mut native = published_script(vec![
+        compiled(
+            "lists_append",
+            json!({"VAR":compiled("lists_get",json!({"VAR":"outer"})),"VALUE":split}),
+        ),
+        compiled(
+            "lists_append",
+            json!({"VAR":last.clone(),"VALUE":compiled_number(30.0)}),
+        ),
+        compiled_set(
+            "length",
+            compiled("lists_length", json!({"VAR":last.clone()})),
+        ),
+        compiled_set(
+            "last",
+            compiled(
+                "lists_get_value",
+                json!({"VAR":last,"INDEX":compiled_number(-1.0),"TYPE":"first"}),
+            ),
+        ),
+    ]);
+    native["variables"]["outer"] =
+        json!({"id":"outer","name":"outer","type":"list","value":[],"is_global":true});
+    let engine = start_published(&native);
+    assert_eq!(engine.variable_text("length"), "3");
+    assert_eq!(engine.variable_text("last"), "30");
+}
+
+#[test]
+fn published_real_nonlist_inputs_still_fail_like_official_editor() {
+    let native = published_script(vec![compiled(
+        "lists_append",
+        json!({"VAR":compiled_number(123.0),"VALUE":compiled_number(7.0)}),
+    )]);
+    let canonical = kitten4::to_neko(&native).unwrap();
+    let mut engine = Engine::new(Program::compile(&canonical).unwrap());
+    engine.start();
+    let error = engine
+        .advance(0.02, 100_000, Duration::from_secs(1))
+        .unwrap_err();
+    assert!(error.to_string().contains("non-list value"), "{error}");
+}
+
+#[test]
+fn published_list_read_rejects_zero_fractional_and_out_of_range_indices() {
+    for index in [0.0, 1.5, 4.0, -4.0] {
+        let native = published_script(vec![compiled_set(
+            "value",
+            compiled(
+                "lists_get_value",
+                json!({
+                    "VAR":compiled("text_split",json!({"TEXT_TO_SPLIT":compiled("text",json!({"TEXT":"a,b,c"})),"SPLIT_TEXT":compiled("text",json!({"TEXT":","}))})),
+                    "INDEX":compiled_number(index),"TYPE":"first"
+                }),
+            ),
+        )]);
+        let canonical = kitten4::to_neko(&native).unwrap();
+        let mut engine = Engine::new(Program::compile(&canonical).unwrap());
+        engine.start();
+        let error = engine
+            .advance(0.02, 100_000, Duration::from_secs(1))
+            .unwrap_err();
+        assert!(
+            error.to_string().contains("lists_get_value_bad_index"),
+            "{index}: {error}"
+        );
+    }
+}
+
+#[test]
+fn published_cloud_list_reads_have_their_own_empty_and_truncation_semantics() {
+    for (index, expected) in [
+        (4.0, ""),
+        (0.0, ""),
+        (-1.0, ""),
+        (1.9, "a"),
+        (0.5, "a"),
+        (2.0, "b"),
+    ] {
+        let mut blocks = vec![];
+        for text in ["a", "b", "c"] {
+            blocks.push(compiled(
+                "cloud_lists_append",
+                json!({"VAR":"cloud-items","VALUE":compiled("text",json!({"TEXT":text}))}),
+            ));
+        }
+        blocks.push(compiled_set(
+            "value",
+            compiled(
+                "cloud_lists_get_value",
+                json!({
+                    "VAR":"cloud-items","INDEX":compiled_number(index),"TYPE":"nth"
+                }),
+            ),
+        ));
+        let mut native = published_script(blocks);
+        native["cloud_variables"]["cloud-items"] =
+            json!({"id":"cloud-items","name":"cloud-items","type":"public_list"});
+        assert_eq!(
+            start_published(&native).variable_text("value"),
+            expected,
+            "{index}"
+        );
+    }
+}
+
+#[test]
+fn published_list_mutations_use_js_splice_negative_and_fractional_indices() {
+    for (kind, index, expected) in [
+        ("lists_delete", -1.0, vec![10.0, 20.0]),
+        ("lists_delete", 0.0, vec![10.0, 20.0, 30.0]),
+        ("lists_delete", 1.5, vec![20.0, 30.0]),
+        ("lists_insert_value", -1.5, vec![10.0, 20.0, 30.0, 99.0]),
+        ("lists_insert_value", -2.0, vec![10.0, 20.0, 99.0, 30.0]),
+        ("lists_replace", -99.0, vec![99.0, 20.0, 30.0]),
+        ("lists_replace", 99.0, vec![10.0, 20.0, 30.0, 99.0]),
+    ] {
+        let mut native = published_script(vec![compiled(
+            kind,
+            json!({
+                "VAR":compiled("lists_get",json!({"VAR":"items"})),"INDEX":compiled_number(index),
+                "VALUE":compiled_number(99.0),"TYPE":"first"
+            }),
+        )]);
+        native["variables"]["items"] =
+            json!({"id":"items","name":"items","type":"list","value":[10,20,30],"is_global":true});
+        assert_eq!(
+            start_published(&native).numeric_lists()[0],
+            expected,
+            "{kind} {index}"
+        );
+    }
+}
+
 fn compiled(kind: &str, params: Value) -> Value {
     json!({"type":kind,"params":params,"child_block":[]})
 }
