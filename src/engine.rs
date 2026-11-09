@@ -5,6 +5,7 @@ use anyhow::{Context, Result, bail, ensure};
 use serde::Serialize;
 use serde_json::Value;
 mod jit;
+mod kn_helpers;
 mod value;
 use std::{cell::RefCell, rc::Rc};
 use std::{
@@ -265,6 +266,8 @@ enum Op {
     SetLocal(usize, Expr),
     ChangeLocal(usize, Expr, f64),
     Change(usize, Expr, f64),
+    /// Code-view compound assignment; always interpreted (including hot loops).
+    AssignLocal(usize, Option<usize>, Binary),
     Move(Expr),
     Position(Expr, Expr),
     X(Expr),
@@ -638,6 +641,7 @@ pub struct Program {
     constants: Vec<Cell>,
     value_args: Vec<usize>,
     local_count: usize,
+    code_locals: BTreeSet<usize>,
     scripts: Vec<Script>,
     initial: Vec<f64>,
     procedure_entries: Vec<usize>,
@@ -753,6 +757,7 @@ impl Program {
                 constants: vec![],
                 value_args: vec![],
                 local_count: 0,
+                code_locals: BTreeSet::new(),
                 scripts: vec![],
                 initial: vec![],
                 procedure_entries: vec![],
@@ -1265,6 +1270,11 @@ impl Compiler {
         }
         Target::Global(self.slot(name))
     }
+    fn code_local(&mut self, name: &str) -> usize {
+        let index = self.local(name);
+        self.program.code_locals.insert(index);
+        index
+    }
     fn value(&mut self, b: &Value) -> Result<usize> {
         let value = match b["type"].as_str().unwrap_or("") {
             "math_number" if self.program.semantics == RuntimeSemantics::KnCurrent => {
@@ -1339,6 +1349,26 @@ impl Compiler {
                 }
             }
             "script_variables_value" => ValueExpr::Local(self.local(field(b, "TEXT"))),
+            // 参考 HateNeko 0.7.1 的 rt/impl/data.lua::_variable_get。
+            "_variable_get" => ValueExpr::Local(self.code_local(field(b, "VAR"))),
+            // 参考 HateNeko 0.7.1 的 rt/impl/math.lua::logic_to_boolean。
+            "logic_to_boolean" => ValueExpr::Boolean(self.value(input(b, "VALUE")?)?),
+            // 参考 HateNeko 0.7.1 的 rt/impl/js.lua::atob/btoa/parseInt/parseFloat。
+            "atob" => ValueExpr::Decode64(self.value(input(b, "encoded")?)?),
+            "btoa" => ValueExpr::Encode64(self.value(input(b, "data")?)?),
+            "parseFloat" => ValueExpr::ParseFloat(self.value(input(b, "str")?)?),
+            "parseInt" => {
+                // Official editor: radix is a dropdown field, not a socket.
+                let radix = self.push_constant(Cell::Number(
+                    number(&b["fields"]["radix"]).unwrap_or(f64::NAN),
+                ));
+                ValueExpr::ParseInt(self.value(input(b, "str")?)?, radix)
+            }
+            // 参考 HateNeko 0.7.1 的 rt/impl/js.lua::isNaN/isFinite。
+            // Official main.8ccf2442.js uses Number predicates (no coercion),
+            // unlike HateNeko's V.js_num fallback for non-number values.
+            "isNaN" => ValueExpr::IsNumber(self.value(input(b, "value")?)?, false),
+            "isFinite" => ValueExpr::IsNumber(self.value(input(b, "value")?)?, true),
             "pure_list_get" | "list_get" => ValueExpr::List(self.list(b)?),
             "list_item" => ValueExpr::Item(
                 self.list(input(b, "list")?)?,
@@ -1731,6 +1761,14 @@ impl Compiler {
             | "text_join"
             | "text_select"
             | "convert_type"
+            | "_variable_get"
+            | "logic_to_boolean"
+            | "atob"
+            | "btoa"
+            | "parseInt"
+            | "parseFloat"
+            | "isNaN"
+            | "isFinite"
             | "self_listen_value"
             | "procedures_2_parameter"
             | "received_broadcast"
@@ -2278,6 +2316,28 @@ impl Compiler {
                         Target::Global(i) => Op::Change(i, expr, sign),
                         Target::Local(i) => Op::ChangeLocal(i, expr, sign),
                     }
+                }
+                // 参考 HateNeko 0.7.1 的 rt/impl/data.lua::_variable_set。
+                "_variable_set" => Op::SetValue(
+                    Target::Local(self.code_local(field(b, "VAR"))),
+                    self.value(input(b, "VALUE")?)?,
+                ),
+                // 参考 HateNeko 0.7.1 的 rt/impl/js.lua::assign、math_increment/decrement。
+                "math_add_assign" | "math_sub_assign" | "math_mul_assign" | "math_div_assign"
+                | "math_mod_assign" | "math_increment" | "math_decrement" => {
+                    let op = match kind {
+                        "math_sub_assign" | "math_decrement" => Binary::Sub,
+                        "math_mul_assign" => Binary::Mul,
+                        "math_div_assign" => Binary::KnDiv,
+                        "math_mod_assign" => Binary::Mod,
+                        _ => Binary::Add,
+                    };
+                    let value = if matches!(kind, "math_increment" | "math_decrement") {
+                        None
+                    } else {
+                        Some(self.value(input(b, "value")?)?)
+                    };
+                    Op::AssignLocal(self.code_local(field(b, "VAR")), value, op)
                 }
                 "self_go_forward" => Op::Move(self.arg(b, "steps")?),
                 "self_move_to" => Op::Position(self.arg(b, "x")?, self.arg(b, "y")?),
@@ -2956,7 +3016,7 @@ struct Task {
     kn_when: bool,
 }
 impl Task {
-    fn new(id: u64, script: &Script, locals: usize) -> Self {
+    fn new(id: u64, script: &Script, program: &Program) -> Self {
         Self {
             id,
             pc: script.start,
@@ -2970,8 +3030,16 @@ impl Task {
             pending: 0,
             wake: 0.0,
             done: false,
-            locals: vec![0.0; locals],
-            local_values: vec![None; locals],
+            locals: (0..program.local_count)
+                .map(|i| {
+                    if program.code_locals.contains(&i) {
+                        f64::NAN
+                    } else {
+                        0.0
+                    }
+                })
+                .collect(),
+            local_values: vec![None; program.local_count],
             anim: None,
             returned: None,
             bumped: usize::MAX,
@@ -3616,7 +3684,7 @@ impl Engine {
         let mut task = Task::new(
             self.next_task_id,
             &self.program.scripts[script],
-            self.program.local_count,
+            &self.program,
         );
         task.actor = actor;
         task.script = script;
@@ -3705,7 +3773,7 @@ impl Engine {
             }
             for target in self.instances(script.actor) {
                 ensure!(self.tasks.len() < 4096, "broadcast task limit exceeded");
-                let mut task = Task::new(self.next_task_id, &script, self.program.local_count);
+                let mut task = Task::new(self.next_task_id, &script, &self.program);
                 task.actor = target;
                 self.next_task_id += 1;
                 if with_param {
@@ -5105,6 +5173,24 @@ impl Engine {
                 }
             }
             ValueExpr::Not(i) => Cell::Bool(!self.eval_value(i, actor).truth()),
+            ValueExpr::Boolean(i) => Cell::Bool(self.eval_value(i, actor).truth()),
+            ValueExpr::IsNumber(i, finite) => Cell::Bool(
+                matches!(self.eval_value(i, actor), Cell::Number(n) if if finite { n.is_finite() } else { n.is_nan() }),
+            ),
+            ValueExpr::Encode64(i) => {
+                Cell::Text(kn_helpers::encode64(&self.eval_value(i, actor).text()).into())
+            }
+            ValueExpr::Decode64(i) => {
+                Cell::Text(kn_helpers::decode64(&self.eval_value(i, actor).text()).into())
+            }
+            ValueExpr::ParseFloat(i) => {
+                Cell::Number(kn_helpers::parse_float(&self.eval_value(i, actor).text()))
+            }
+            ValueExpr::ParseInt(i, radix) => {
+                let text = self.eval_value(i, actor).text();
+                let radix = self.eval_value(radix, actor).number();
+                Cell::Number(kn_helpers::parse_int(&text, radix))
+            }
             ValueExpr::Logic(a, b, and) => {
                 let a = self.eval_value(a, actor);
                 let b = self.eval_value(b, actor);
@@ -5467,6 +5553,27 @@ impl Engine {
             Op::Set(s, e) => {
                 self.slots[s] = self.eval(e, actor);
                 self.values[s] = None;
+            }
+            Op::AssignLocal(s, value, op) => {
+                let current = self.local_value(s);
+                let current = if current.truth() {
+                    current.number()
+                } else {
+                    0.0
+                };
+                let value = value.map_or(1.0, |v| self.eval_value(v, actor).number());
+                // JS remainder keeps NaN for a zero divisor (unlike legacy Mod).
+                // Official main.8ccf2442.js math_div_assign explicitly returns
+                // NaN for a zero divisor; HateNeko's raw IEEE division differs.
+                let result = if matches!(op, Binary::KnDiv) && value == 0.0 {
+                    f64::NAN
+                } else if matches!(op, Binary::Mod) {
+                    current % value
+                } else {
+                    op.apply(current, value)
+                };
+                self.tasks[self.current_task].locals[s] = result;
+                self.tasks[self.current_task].local_values[s] = None;
             }
             Op::Change(s, e, sign) => {
                 self.slots[s] += self.eval(e, actor) * sign;
@@ -6059,7 +6166,7 @@ impl Engine {
                     actor: target,
                     event: ScriptEvent::Start,
                 };
-                let mut task = Task::new(self.next_task_id, &script, self.program.local_count);
+                let mut task = Task::new(self.next_task_id, &script, &self.program);
                 self.next_task_id += 1;
                 task.locals.clone_from(&self.tasks[index].locals);
                 task.local_values
