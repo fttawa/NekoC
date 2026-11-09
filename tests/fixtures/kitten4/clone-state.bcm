@@ -1,0 +1,1796 @@
+{
+  "hidden_toolbox": {
+    "toolbox": [],
+    "blocks": []
+  },
+  "work_source_label": 1,
+  "version": 25,
+  "application_version": "4.11.20",
+  "work_type": "KITTEN",
+  "size": {
+    "width": 1280,
+    "height": 720
+  },
+  "type": 1,
+  "project_name": "NekoC clone state",
+  "theatre": {
+    "current_entity": "20000000-0000-4000-8000-000000000001",
+    "current_scene": "10000000-0000-4000-8000-000000000001",
+    "scenes_order": [
+      "10000000-0000-4000-8000-000000000001",
+      "10000000-0000-4000-8000-000000000002"
+    ],
+    "scenes": {
+      "10000000-0000-4000-8000-000000000001": {
+        "id": "10000000-0000-4000-8000-000000000001",
+        "name": "Background A",
+        "styles": [
+          "background"
+        ],
+        "current_style_id": "background",
+        "x": 0,
+        "y": 0,
+        "scale": 100,
+        "rotation": 0,
+        "rotation_type": 0,
+        "draggable": false,
+        "visible": true,
+        "workspace_offset": {
+          "x": 40,
+          "y": 40
+        },
+        "block_data_json": {
+          "blocks": {},
+          "connections": {},
+          "comments": {}
+        },
+        "actors": [
+          "20000000-0000-4000-8000-000000000001"
+        ],
+        "screen_name": "Scene A",
+        "group_order": [
+          "group"
+        ]
+      },
+      "10000000-0000-4000-8000-000000000002": {
+        "id": "10000000-0000-4000-8000-000000000002",
+        "name": "Background B",
+        "styles": [
+          "background"
+        ],
+        "current_style_id": "background",
+        "x": 0,
+        "y": 0,
+        "scale": 100,
+        "rotation": 0,
+        "rotation_type": 0,
+        "draggable": false,
+        "visible": true,
+        "workspace_offset": {
+          "x": 40,
+          "y": 40
+        },
+        "block_data_json": {
+          "blocks": {},
+          "connections": {},
+          "comments": {}
+        },
+        "actors": [],
+        "screen_name": "Scene B",
+        "group_order": []
+      }
+    },
+    "actors": {
+      "20000000-0000-4000-8000-000000000001": {
+        "id": "20000000-0000-4000-8000-000000000001",
+        "name": "Probe",
+        "styles": [
+          "costume-a",
+          "costume-b"
+        ],
+        "current_style_id": "costume-a",
+        "x": 0,
+        "y": 0,
+        "scale": 100,
+        "rotation": 0,
+        "rotation_type": 0,
+        "draggable": false,
+        "visible": true,
+        "workspace_offset": {
+          "x": 40,
+          "y": 40
+        },
+        "block_data_json": {
+          "blocks": {
+            "clone-probe-1": {
+              "type": "start_on_click",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "clone-probe-1",
+              "parent_id": null,
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clone-probe-2": {
+              "type": "controls_if",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "IF0": "",
+                "DO0": "",
+                "EXTRA_ADD_ELSE": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "clone-probe-2",
+              "parent_id": "clone-probe-1",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clone-probe-3": {
+              "type": "logic_compare",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "A": "",
+                "B": ""
+              },
+              "fields": {
+                "OP": "EQ"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "clone-probe-3",
+              "parent_id": "clone-probe-2",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clone-probe-4": {
+              "type": "get_current_clone_index",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "clone-probe-4",
+              "parent_id": "clone-probe-3",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clone-probe-5": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "clone-probe-5",
+              "parent_id": "clone-probe-3",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clone-probe-6": {
+              "type": "self_set_position",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "value": ""
+              },
+              "fields": {
+                "coordinary": "x"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "clone-probe-6",
+              "parent_id": "clone-probe-2",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clone-probe-7": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "30"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "clone-probe-7",
+              "parent_id": "clone-probe-6",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clone-probe-8": {
+              "type": "self_set_position",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "value": ""
+              },
+              "fields": {
+                "coordinary": "y"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "clone-probe-8",
+              "parent_id": "clone-probe-6",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clone-probe-9": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "40"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "clone-probe-9",
+              "parent_id": "clone-probe-8",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clone-probe-10": {
+              "type": "set_costume",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "index": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "clone-probe-10",
+              "parent_id": "clone-probe-8",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clone-probe-11": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "2"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "clone-probe-11",
+              "parent_id": "clone-probe-10",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clone-probe-12": {
+              "type": "set_scale",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "scale": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "clone-probe-12",
+              "parent_id": "clone-probe-10",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clone-probe-13": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "150"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "clone-probe-13",
+              "parent_id": "clone-probe-12",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clone-probe-14": {
+              "type": "self_set_pen_color",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "color": "#123456"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "clone-probe-14",
+              "parent_id": "clone-probe-12",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clone-probe-15": {
+              "type": "self_set_pen_size",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "size": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "clone-probe-15",
+              "parent_id": "clone-probe-14",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clone-probe-16": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "7"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "clone-probe-16",
+              "parent_id": "clone-probe-15",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clone-probe-17": {
+              "type": "self_pen_down",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "clone-probe-17",
+              "parent_id": "clone-probe-15",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clone-probe-18": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "shared"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "clone-probe-18",
+              "parent_id": "clone-probe-17",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clone-probe-19": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "12"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "clone-probe-19",
+              "parent_id": "clone-probe-18",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clone-probe-20": {
+              "type": "clone",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "x": "",
+                "y": ""
+              },
+              "fields": {
+                "sprite": "20000000-0000-4000-8000-000000000001"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "clone-probe-20",
+              "parent_id": "clone-probe-18",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clone-probe-21": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "100"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "clone-probe-21",
+              "parent_id": "clone-probe-20",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clone-probe-22": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "-80"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "clone-probe-22",
+              "parent_id": "clone-probe-20",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clone-probe-23": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "clone-probe-23",
+              "parent_id": "clone-probe-20",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clone-probe-24": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0.3"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "clone-probe-24",
+              "parent_id": "clone-probe-23",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clone-probe-25": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "x"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "clone-probe-25",
+              "parent_id": "clone-probe-23",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clone-probe-26": {
+              "type": "get_clone_index_property",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "index": ""
+              },
+              "fields": {
+                "sprite": "20000000-0000-4000-8000-000000000001",
+                "attribute": "0"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "clone-probe-26",
+              "parent_id": "clone-probe-25",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clone-probe-27": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "1"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "clone-probe-27",
+              "parent_id": "clone-probe-26",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clone-probe-28": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "y"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "clone-probe-28",
+              "parent_id": "clone-probe-25",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clone-probe-29": {
+              "type": "get_clone_index_property",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "index": ""
+              },
+              "fields": {
+                "sprite": "20000000-0000-4000-8000-000000000001",
+                "attribute": "1"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "clone-probe-29",
+              "parent_id": "clone-probe-28",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clone-probe-30": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "1"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "clone-probe-30",
+              "parent_id": "clone-probe-29",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clone-probe-31": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "costume"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "clone-probe-31",
+              "parent_id": "clone-probe-28",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clone-probe-32": {
+              "type": "get_clone_index_property",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "index": ""
+              },
+              "fields": {
+                "sprite": "20000000-0000-4000-8000-000000000001",
+                "attribute": "2"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "clone-probe-32",
+              "parent_id": "clone-probe-31",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clone-probe-33": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "1"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "clone-probe-33",
+              "parent_id": "clone-probe-32",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clone-probe-34": {
+              "type": "on_keydown",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "DO": ""
+              },
+              "fields": {
+                "key_event_type": "down",
+                "key": "66"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "clone-probe-34",
+              "parent_id": null,
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clone-probe-35": {
+              "type": "controls_if",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "IF0": "",
+                "DO0": "",
+                "EXTRA_ADD_ELSE": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "clone-probe-35",
+              "parent_id": "clone-probe-34",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clone-probe-36": {
+              "type": "logic_compare",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "A": "",
+                "B": ""
+              },
+              "fields": {
+                "OP": "EQ"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "clone-probe-36",
+              "parent_id": "clone-probe-35",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clone-probe-37": {
+              "type": "get_current_clone_index",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "clone-probe-37",
+              "parent_id": "clone-probe-36",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clone-probe-38": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "1"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "clone-probe-38",
+              "parent_id": "clone-probe-36",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clone-probe-39": {
+              "type": "self_set_position",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "value": ""
+              },
+              "fields": {
+                "coordinary": "x"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "clone-probe-39",
+              "parent_id": "clone-probe-35",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clone-probe-40": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "110"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "clone-probe-40",
+              "parent_id": "clone-probe-39",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clone-probe-41": {
+              "type": "self_pen_down",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "clone-probe-41",
+              "parent_id": "clone-probe-39",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clone-probe-42": {
+              "type": "self_set_position",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "value": ""
+              },
+              "fields": {
+                "coordinary": "x"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "clone-probe-42",
+              "parent_id": "clone-probe-41",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clone-probe-43": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "120"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "clone-probe-43",
+              "parent_id": "clone-probe-42",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clone-probe-44": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "clone-probe-44",
+              "parent_id": "clone-probe-42",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clone-probe-45": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "1"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "clone-probe-45",
+              "parent_id": "clone-probe-44",
+              "location": [
+                0,
+                0
+              ]
+            }
+          },
+          "connections": {
+            "clone-probe-1": {
+              "clone-probe-2": {
+                "type": "next"
+              }
+            },
+            "clone-probe-2": {
+              "clone-probe-3": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "IF0"
+              },
+              "clone-probe-6": {
+                "type": "input",
+                "input_type": "statement",
+                "input_name": "DO0"
+              }
+            },
+            "clone-probe-3": {
+              "clone-probe-4": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "A"
+              },
+              "clone-probe-5": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "B"
+              }
+            },
+            "clone-probe-4": {},
+            "clone-probe-5": {},
+            "clone-probe-6": {
+              "clone-probe-7": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "value"
+              },
+              "clone-probe-8": {
+                "type": "next"
+              }
+            },
+            "clone-probe-7": {},
+            "clone-probe-8": {
+              "clone-probe-9": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "value"
+              },
+              "clone-probe-10": {
+                "type": "next"
+              }
+            },
+            "clone-probe-9": {},
+            "clone-probe-10": {
+              "clone-probe-11": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "index"
+              },
+              "clone-probe-12": {
+                "type": "next"
+              }
+            },
+            "clone-probe-11": {},
+            "clone-probe-12": {
+              "clone-probe-13": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "scale"
+              },
+              "clone-probe-14": {
+                "type": "next"
+              }
+            },
+            "clone-probe-13": {},
+            "clone-probe-14": {
+              "clone-probe-15": {
+                "type": "next"
+              }
+            },
+            "clone-probe-15": {
+              "clone-probe-16": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "size"
+              },
+              "clone-probe-17": {
+                "type": "next"
+              }
+            },
+            "clone-probe-16": {},
+            "clone-probe-17": {
+              "clone-probe-18": {
+                "type": "next"
+              }
+            },
+            "clone-probe-18": {
+              "clone-probe-19": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "clone-probe-20": {
+                "type": "next"
+              }
+            },
+            "clone-probe-19": {},
+            "clone-probe-20": {
+              "clone-probe-21": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "x"
+              },
+              "clone-probe-22": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "y"
+              },
+              "clone-probe-23": {
+                "type": "next"
+              }
+            },
+            "clone-probe-21": {},
+            "clone-probe-22": {},
+            "clone-probe-23": {
+              "clone-probe-24": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              },
+              "clone-probe-25": {
+                "type": "next"
+              }
+            },
+            "clone-probe-24": {},
+            "clone-probe-25": {
+              "clone-probe-26": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "clone-probe-28": {
+                "type": "next"
+              }
+            },
+            "clone-probe-26": {
+              "clone-probe-27": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "index"
+              }
+            },
+            "clone-probe-27": {},
+            "clone-probe-28": {
+              "clone-probe-29": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "clone-probe-31": {
+                "type": "next"
+              }
+            },
+            "clone-probe-29": {
+              "clone-probe-30": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "index"
+              }
+            },
+            "clone-probe-30": {},
+            "clone-probe-31": {
+              "clone-probe-32": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              }
+            },
+            "clone-probe-32": {
+              "clone-probe-33": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "index"
+              }
+            },
+            "clone-probe-33": {},
+            "clone-probe-34": {
+              "clone-probe-35": {
+                "type": "input",
+                "input_type": "statement",
+                "input_name": "DO"
+              }
+            },
+            "clone-probe-35": {
+              "clone-probe-36": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "IF0"
+              },
+              "clone-probe-39": {
+                "type": "input",
+                "input_type": "statement",
+                "input_name": "DO0"
+              }
+            },
+            "clone-probe-36": {
+              "clone-probe-37": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "A"
+              },
+              "clone-probe-38": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "B"
+              }
+            },
+            "clone-probe-37": {},
+            "clone-probe-38": {},
+            "clone-probe-39": {
+              "clone-probe-40": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "value"
+              },
+              "clone-probe-41": {
+                "type": "next"
+              }
+            },
+            "clone-probe-40": {},
+            "clone-probe-41": {
+              "clone-probe-42": {
+                "type": "next"
+              }
+            },
+            "clone-probe-42": {
+              "clone-probe-43": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "value"
+              },
+              "clone-probe-44": {
+                "type": "next"
+              }
+            },
+            "clone-probe-43": {},
+            "clone-probe-44": {
+              "clone-probe-45": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              }
+            },
+            "clone-probe-45": {}
+          },
+          "comments": {}
+        },
+        "scene": "10000000-0000-4000-8000-000000000001",
+        "lock": false,
+        "editable_in_tuition_mode": true,
+        "user_change_r_c": false
+      }
+    },
+    "groups": {
+      "group": {
+        "id": "group",
+        "name": "",
+        "is_fold": false,
+        "is_group": false,
+        "actors": [
+          "20000000-0000-4000-8000-000000000001"
+        ],
+        "scene": "10000000-0000-4000-8000-000000000001",
+        "visible": true
+      }
+    },
+    "styles": {
+      "background": {
+        "id": "background",
+        "name": "Background",
+        "adaptive": false,
+        "pivot": {
+          "x": 0,
+          "y": 0
+        },
+        "rotate_center": {
+          "x": 0,
+          "y": 0
+        },
+        "cdn_url": "",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjgwIiBoZWlnaHQ9IjcyMCI+PHJlY3Qgd2lkdGg9IjEyODAiIGhlaWdodD0iNzIwIiBmaWxsPSIjMzM2Njk5Ii8+PC9zdmc+"
+      },
+      "costume-a": {
+        "id": "costume-a",
+        "name": "蓝色方块",
+        "adaptive": false,
+        "pivot": {
+          "x": 0,
+          "y": 0
+        },
+        "rotate_center": {
+          "x": 0,
+          "y": 0
+        },
+        "cdn_url": "",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCI+PHJlY3Qgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjMzM2Njk5Ii8+PC9zdmc+"
+      },
+      "costume-b": {
+        "id": "costume-b",
+        "name": "第二个造型",
+        "adaptive": false,
+        "pivot": {
+          "x": 0,
+          "y": 0
+        },
+        "rotate_center": {
+          "x": 0,
+          "y": 0
+        },
+        "cdn_url": "",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMCIgaGVpZ2h0PSIyMCI+PHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjMzM2Njk5Ii8+PC9zdmc+"
+      }
+    },
+    "videos": {},
+    "timer": {}
+  },
+  "variables": {
+    "shared": {
+      "id": "shared",
+      "name": "shared",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "x": {
+      "id": "x",
+      "name": "x",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "y": {
+      "id": "y",
+      "name": "y",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "costume": {
+      "id": "costume",
+      "name": "costume",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    }
+  },
+  "variable_order": [
+    "shared",
+    "x",
+    "y",
+    "costume"
+  ],
+  "cloud_variables": {},
+  "audio": {},
+  "audio_order": [],
+  "midimusic": [],
+  "midi_order": [],
+  "matrix": {},
+  "models": {},
+  "toolbox": {
+    "current_type": "event",
+    "pen": false
+  },
+  "toolbox_order": [
+    "event",
+    "control",
+    "action",
+    "appearance",
+    "sensing",
+    "operator",
+    "data"
+  ],
+  "last_toolbox_order": [],
+  "hardware_type": "",
+  "is_partial": false,
+  "ai_lab": {},
+  "broadcasts": {},
+  "painter": {
+    "color": []
+  }
+}

@@ -1,0 +1,2525 @@
+{
+  "officialUrl": "https://kitten4.codemao.cn/",
+  "verifiedAt": "2026-11-09T16:07:32.093Z",
+  "browserVersion": "157.0.4341.42",
+  "cases": {
+    "events": {
+      "checkpoints": [
+        {
+          "label": "settled",
+          "state": {
+            "variables": {
+              "started": 2,
+              "cloneStarted": 0,
+              "count": 1,
+              "ready": 1,
+              "keys": 0,
+              "conditions": 6,
+              "gate": 0,
+              "clicked": 0,
+              "broadcasts": 2
+            },
+            "cloneCount": 1,
+            "sprites": [
+              {
+                "id": "20000000-0000-4000-8000-000000000001",
+                "position": {
+                  "x": 0,
+                  "y": 0
+                },
+                "scale": {
+                  "x": 1,
+                  "y": 1
+                },
+                "visible": true,
+                "brush": {
+                  "size": 1,
+                  "stroke_color": "000000",
+                  "alpha": 1,
+                  "is_recording_fill_path": false
+                },
+                "brushState": [
+                  [
+                    "get_size",
+                    1
+                  ],
+                  [
+                    "get_color",
+                    "000000"
+                  ],
+                  [
+                    "get_alpha",
+                    1
+                  ],
+                  [
+                    "get_hue",
+                    0
+                  ],
+                  [
+                    "get_saturation",
+                    0
+                  ],
+                  [
+                    "get_brightness",
+                    0
+                  ]
+                ]
+              },
+              {
+                "id": "_clone_20000000-0000-4000-8000-000000000001_random_id641967612",
+                "position": {
+                  "x": 100,
+                  "y": 0
+                },
+                "scale": {
+                  "x": 1,
+                  "y": 1
+                },
+                "visible": true,
+                "brush": {
+                  "size": 1,
+                  "stroke_color": "000000",
+                  "alpha": 1,
+                  "is_recording_fill_path": false
+                },
+                "brushState": [
+                  [
+                    "get_size",
+                    1
+                  ],
+                  [
+                    "get_color",
+                    "000000"
+                  ],
+                  [
+                    "get_alpha",
+                    1
+                  ],
+                  [
+                    "get_hue",
+                    0
+                  ],
+                  [
+                    "get_saturation",
+                    0
+                  ],
+                  [
+                    "get_brightness",
+                    0
+                  ]
+                ]
+              }
+            ],
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "label": "official stage click on split",
+          "state": {
+            "variables": {
+              "started": 2,
+              "cloneStarted": 0,
+              "count": 1,
+              "ready": 1,
+              "keys": 0,
+              "conditions": 6,
+              "gate": 0,
+              "clicked": 1,
+              "broadcasts": 2
+            },
+            "cloneCount": 1,
+            "sprites": [
+              {
+                "id": "20000000-0000-4000-8000-000000000001",
+                "position": {
+                  "x": 0,
+                  "y": 0
+                },
+                "scale": {
+                  "x": 1,
+                  "y": 1
+                },
+                "visible": true,
+                "brush": {
+                  "size": 1,
+                  "stroke_color": "000000",
+                  "alpha": 1,
+                  "is_recording_fill_path": false
+                },
+                "brushState": [
+                  [
+                    "get_size",
+                    1
+                  ],
+                  [
+                    "get_color",
+                    "000000"
+                  ],
+                  [
+                    "get_alpha",
+                    1
+                  ],
+                  [
+                    "get_hue",
+                    0
+                  ],
+                  [
+                    "get_saturation",
+                    0
+                  ],
+                  [
+                    "get_brightness",
+                    0
+                  ]
+                ]
+              },
+              {
+                "id": "_clone_20000000-0000-4000-8000-000000000001_random_id641967612",
+                "position": {
+                  "x": 100,
+                  "y": 0
+                },
+                "scale": {
+                  "x": 1,
+                  "y": 1
+                },
+                "visible": true,
+                "brush": {
+                  "size": 1,
+                  "stroke_color": "000000",
+                  "alpha": 1,
+                  "is_recording_fill_path": false
+                },
+                "brushState": [
+                  [
+                    "get_size",
+                    1
+                  ],
+                  [
+                    "get_color",
+                    "000000"
+                  ],
+                  [
+                    "get_alpha",
+                    1
+                  ],
+                  [
+                    "get_hue",
+                    0
+                  ],
+                  [
+                    "get_saturation",
+                    0
+                  ],
+                  [
+                    "get_brightness",
+                    0
+                  ]
+                ]
+              }
+            ],
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "label": "keys released",
+          "state": {
+            "variables": {
+              "started": 2,
+              "cloneStarted": 0,
+              "count": 1,
+              "ready": 1,
+              "keys": 198,
+              "conditions": 6,
+              "gate": 0,
+              "clicked": 1,
+              "broadcasts": 2
+            },
+            "cloneCount": 1,
+            "sprites": [
+              {
+                "id": "20000000-0000-4000-8000-000000000001",
+                "position": {
+                  "x": 0,
+                  "y": 0
+                },
+                "scale": {
+                  "x": 1,
+                  "y": 1
+                },
+                "visible": true,
+                "brush": {
+                  "size": 1,
+                  "stroke_color": "000000",
+                  "alpha": 1,
+                  "is_recording_fill_path": false
+                },
+                "brushState": [
+                  [
+                    "get_size",
+                    1
+                  ],
+                  [
+                    "get_color",
+                    "000000"
+                  ],
+                  [
+                    "get_alpha",
+                    1
+                  ],
+                  [
+                    "get_hue",
+                    0
+                  ],
+                  [
+                    "get_saturation",
+                    0
+                  ],
+                  [
+                    "get_brightness",
+                    0
+                  ]
+                ]
+              },
+              {
+                "id": "_clone_20000000-0000-4000-8000-000000000001_random_id641967612",
+                "position": {
+                  "x": 100,
+                  "y": 0
+                },
+                "scale": {
+                  "x": 1,
+                  "y": 1
+                },
+                "visible": true,
+                "brush": {
+                  "size": 1,
+                  "stroke_color": "000000",
+                  "alpha": 1,
+                  "is_recording_fill_path": false
+                },
+                "brushState": [
+                  [
+                    "get_size",
+                    1
+                  ],
+                  [
+                    "get_color",
+                    "000000"
+                  ],
+                  [
+                    "get_alpha",
+                    1
+                  ],
+                  [
+                    "get_hue",
+                    0
+                  ],
+                  [
+                    "get_saturation",
+                    0
+                  ],
+                  [
+                    "get_brightness",
+                    0
+                  ]
+                ]
+              }
+            ],
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        }
+      ],
+      "pageErrors": [],
+      "fixture": "tests/fixtures/kitten4/clone-events.bcm",
+      "sha256": "ccb55f326829a1321c9f0e092268a8de3338795c5ddb09f9084a479b648e1ee2",
+      "applicationVersion": "4.11.20",
+      "vendorScripts": [
+        "https://kitten4.codemao.cn/browser-tip.js",
+        "https://creation.codemao.cn/kitten/build/72.d0c8e590841d585ca222.js",
+        "https://creation.codemao.cn/kitten/build/80.d10abbe101f61f1643c5.js",
+        "https://creation.codemao.cn/kitten/build/77.79dad0a4712bd232538c.js",
+        "https://creation.codemao.cn/kitten/build/73.04a112a110855e63b496.js",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://creation.codemao.cn/kitten/build/36.588b10f9f832eb8cf934.js",
+        "https://creation.codemao.cn/kitten/build/libs/lottie_svg_cmao.min.js",
+        "https://creation.codemao.cn/kitten/build/runtime.43302e3ecf1fd4923b40.js",
+        "https://creation.codemao.cn/kitten/build/vendors.5035cd22e77914a9f363.js",
+        "https://creation.codemao.cn/kitten/build/kitten.99f88a64d495cf0e79d0.js"
+      ],
+      "workspaceIssues": [],
+      "pointerInput": {
+        "method": "official stage actor:click event",
+        "target": "_clone_20000000-0000-4000-8000-000000000001_random_id641967612"
+      }
+    },
+    "state": {
+      "checkpoints": [
+        {
+          "label": "settled",
+          "state": {
+            "variables": {
+              "shared": 12,
+              "x": 100,
+              "y": -80,
+              "costume": 2
+            },
+            "cloneCount": 1,
+            "sprites": [
+              {
+                "id": "20000000-0000-4000-8000-000000000001",
+                "position": {
+                  "x": 30,
+                  "y": 40
+                },
+                "scale": {
+                  "x": 1.5,
+                  "y": 1.5
+                },
+                "visible": true,
+                "brush": {
+                  "size": 7,
+                  "stroke_color": "123456",
+                  "alpha": 1,
+                  "is_recording_fill_path": false,
+                  "origin_x": 30,
+                  "origin_y": -40
+                },
+                "brushState": [
+                  [
+                    "get_size",
+                    7
+                  ],
+                  [
+                    "get_color",
+                    "123456"
+                  ],
+                  [
+                    "get_alpha",
+                    1
+                  ],
+                  [
+                    "get_hue",
+                    210
+                  ],
+                  [
+                    "get_saturation",
+                    0.653846153846154
+                  ],
+                  [
+                    "get_brightness",
+                    0.20392156862745098
+                  ]
+                ]
+              },
+              {
+                "id": "_clone_20000000-0000-4000-8000-000000000001_random_id1105760742",
+                "position": {
+                  "x": 100,
+                  "y": -80
+                },
+                "scale": {
+                  "x": 1.5,
+                  "y": 1.5
+                },
+                "visible": true,
+                "brush": {
+                  "size": 1,
+                  "stroke_color": "000000",
+                  "alpha": 1,
+                  "is_recording_fill_path": false
+                },
+                "brushState": [
+                  [
+                    "get_size",
+                    1
+                  ],
+                  [
+                    "get_color",
+                    "000000"
+                  ],
+                  [
+                    "get_alpha",
+                    1
+                  ],
+                  [
+                    "get_hue",
+                    0
+                  ],
+                  [
+                    "get_saturation",
+                    0
+                  ],
+                  [
+                    "get_brightness",
+                    0
+                  ]
+                ]
+              }
+            ],
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "label": "clone draws with fresh brush",
+          "state": {
+            "variables": {
+              "shared": 12,
+              "x": 100,
+              "y": -80,
+              "costume": 2
+            },
+            "cloneCount": 1,
+            "sprites": [
+              {
+                "id": "20000000-0000-4000-8000-000000000001",
+                "position": {
+                  "x": 30,
+                  "y": 40
+                },
+                "scale": {
+                  "x": 1.5,
+                  "y": 1.5
+                },
+                "visible": true,
+                "brush": {
+                  "size": 7,
+                  "stroke_color": "123456",
+                  "alpha": 1,
+                  "is_recording_fill_path": false,
+                  "origin_x": 30,
+                  "origin_y": -40
+                },
+                "brushState": [
+                  [
+                    "get_size",
+                    7
+                  ],
+                  [
+                    "get_color",
+                    "123456"
+                  ],
+                  [
+                    "get_alpha",
+                    1
+                  ],
+                  [
+                    "get_hue",
+                    210
+                  ],
+                  [
+                    "get_saturation",
+                    0.653846153846154
+                  ],
+                  [
+                    "get_brightness",
+                    0.20392156862745098
+                  ]
+                ]
+              },
+              {
+                "id": "_clone_20000000-0000-4000-8000-000000000001_random_id1105760742",
+                "position": {
+                  "x": 120,
+                  "y": -80
+                },
+                "scale": {
+                  "x": 1.5,
+                  "y": 1.5
+                },
+                "visible": true,
+                "brush": {
+                  "size": 1,
+                  "stroke_color": "000000",
+                  "alpha": 1,
+                  "is_recording_fill_path": false,
+                  "origin_x": 120,
+                  "origin_y": 80
+                },
+                "brushState": [
+                  [
+                    "get_size",
+                    1
+                  ],
+                  [
+                    "get_color",
+                    "000000"
+                  ],
+                  [
+                    "get_alpha",
+                    1
+                  ],
+                  [
+                    "get_hue",
+                    0
+                  ],
+                  [
+                    "get_saturation",
+                    0
+                  ],
+                  [
+                    "get_brightness",
+                    0
+                  ]
+                ]
+              }
+            ],
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        }
+      ],
+      "pageErrors": [],
+      "fixture": "tests/fixtures/kitten4/clone-state.bcm",
+      "sha256": "5198e04e7e71b88a8c6f85aad5d71a1af778426743637eaec9c625db45506d04",
+      "applicationVersion": "4.11.20",
+      "vendorScripts": [
+        "https://kitten4.codemao.cn/browser-tip.js",
+        "https://creation.codemao.cn/kitten/build/72.d0c8e590841d585ca222.js",
+        "https://creation.codemao.cn/kitten/build/80.d10abbe101f61f1643c5.js",
+        "https://creation.codemao.cn/kitten/build/77.79dad0a4712bd232538c.js",
+        "https://creation.codemao.cn/kitten/build/73.04a112a110855e63b496.js",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://creation.codemao.cn/kitten/build/36.588b10f9f832eb8cf934.js",
+        "https://creation.codemao.cn/kitten/build/libs/lottie_svg_cmao.min.js",
+        "https://creation.codemao.cn/kitten/build/runtime.43302e3ecf1fd4923b40.js",
+        "https://creation.codemao.cn/kitten/build/vendors.5035cd22e77914a9f363.js",
+        "https://creation.codemao.cn/kitten/build/kitten.99f88a64d495cf0e79d0.js"
+      ],
+      "workspaceIssues": []
+    },
+    "variables": {
+      "checkpoints": [
+        {
+          "label": "settled",
+          "state": {
+            "variables": {
+              "private": 12,
+              "shared": 21,
+              "originalPrivate": 12,
+              "inheritedPrivate": 12,
+              "clonePrivate": 13,
+              "sharedAfter": 21
+            },
+            "cloneCount": 1,
+            "sprites": [
+              {
+                "id": "20000000-0000-4000-8000-000000000001",
+                "position": {
+                  "x": 0,
+                  "y": 0
+                },
+                "scale": {
+                  "x": 1,
+                  "y": 1
+                },
+                "visible": true,
+                "brush": {
+                  "size": 1,
+                  "stroke_color": "000000",
+                  "alpha": 1,
+                  "is_recording_fill_path": false
+                },
+                "brushState": [
+                  [
+                    "get_size",
+                    1
+                  ],
+                  [
+                    "get_color",
+                    "000000"
+                  ],
+                  [
+                    "get_alpha",
+                    1
+                  ],
+                  [
+                    "get_hue",
+                    0
+                  ],
+                  [
+                    "get_saturation",
+                    0
+                  ],
+                  [
+                    "get_brightness",
+                    0
+                  ]
+                ]
+              },
+              {
+                "id": "_clone_20000000-0000-4000-8000-000000000001_random_id977933959",
+                "position": {
+                  "x": 100,
+                  "y": 0
+                },
+                "scale": {
+                  "x": 1,
+                  "y": 1
+                },
+                "visible": true,
+                "brush": {
+                  "size": 1,
+                  "stroke_color": "000000",
+                  "alpha": 1,
+                  "is_recording_fill_path": false
+                },
+                "brushState": [
+                  [
+                    "get_size",
+                    1
+                  ],
+                  [
+                    "get_color",
+                    "000000"
+                  ],
+                  [
+                    "get_alpha",
+                    1
+                  ],
+                  [
+                    "get_hue",
+                    0
+                  ],
+                  [
+                    "get_saturation",
+                    0
+                  ],
+                  [
+                    "get_brightness",
+                    0
+                  ]
+                ]
+              }
+            ],
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        }
+      ],
+      "pageErrors": [],
+      "fixture": "tests/fixtures/kitten4/clone-variables.bcm",
+      "sha256": "8ea6d07a17f34701dd06e6aa9f84ec2f24d9df5bff8fb2353cf20fe5ef8ecb9c",
+      "applicationVersion": "4.11.20",
+      "vendorScripts": [
+        "https://kitten4.codemao.cn/browser-tip.js",
+        "https://creation.codemao.cn/kitten/build/72.d0c8e590841d585ca222.js",
+        "https://creation.codemao.cn/kitten/build/80.d10abbe101f61f1643c5.js",
+        "https://creation.codemao.cn/kitten/build/77.79dad0a4712bd232538c.js",
+        "https://creation.codemao.cn/kitten/build/73.04a112a110855e63b496.js",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://creation.codemao.cn/kitten/build/36.588b10f9f832eb8cf934.js",
+        "https://creation.codemao.cn/kitten/build/libs/lottie_svg_cmao.min.js",
+        "https://creation.codemao.cn/kitten/build/runtime.43302e3ecf1fd4923b40.js",
+        "https://creation.codemao.cn/kitten/build/vendors.5035cd22e77914a9f363.js",
+        "https://creation.codemao.cn/kitten/build/kitten.99f88a64d495cf0e79d0.js"
+      ],
+      "workspaceIssues": []
+    },
+    "mixed": {
+      "checkpoints": [
+        {
+          "label": "settled",
+          "state": {
+            "variables": {
+              "started": 2,
+              "cloneStarted": 1,
+              "count": 2,
+              "firstX": 0,
+              "secondX": 100,
+              "broadcasts": 2
+            },
+            "cloneCount": 2,
+            "sprites": [
+              {
+                "id": "20000000-0000-4000-8000-000000000001",
+                "position": {
+                  "x": 0,
+                  "y": 0
+                },
+                "scale": {
+                  "x": 1,
+                  "y": 1
+                },
+                "visible": true,
+                "brush": {
+                  "size": 1,
+                  "stroke_color": "000000",
+                  "alpha": 1,
+                  "is_recording_fill_path": false
+                },
+                "brushState": [
+                  [
+                    "get_size",
+                    1
+                  ],
+                  [
+                    "get_color",
+                    "000000"
+                  ],
+                  [
+                    "get_alpha",
+                    1
+                  ],
+                  [
+                    "get_hue",
+                    0
+                  ],
+                  [
+                    "get_saturation",
+                    0
+                  ],
+                  [
+                    "get_brightness",
+                    0
+                  ]
+                ]
+              },
+              {
+                "id": "_clone_20000000-0000-4000-8000-000000000001_random_id244458137",
+                "position": {
+                  "x": 0,
+                  "y": 0
+                },
+                "scale": {
+                  "x": 1,
+                  "y": 1
+                },
+                "visible": true,
+                "brush": {
+                  "size": 1,
+                  "stroke_color": "000000",
+                  "alpha": 1,
+                  "is_recording_fill_path": false
+                },
+                "brushState": [
+                  [
+                    "get_size",
+                    1
+                  ],
+                  [
+                    "get_color",
+                    "000000"
+                  ],
+                  [
+                    "get_alpha",
+                    1
+                  ],
+                  [
+                    "get_hue",
+                    0
+                  ],
+                  [
+                    "get_saturation",
+                    0
+                  ],
+                  [
+                    "get_brightness",
+                    0
+                  ]
+                ]
+              },
+              {
+                "id": "_clone_20000000-0000-4000-8000-000000000001_random_id512752145",
+                "position": {
+                  "x": 100,
+                  "y": 0
+                },
+                "scale": {
+                  "x": 1,
+                  "y": 1
+                },
+                "visible": true,
+                "brush": {
+                  "size": 1,
+                  "stroke_color": "000000",
+                  "alpha": 1,
+                  "is_recording_fill_path": false
+                },
+                "brushState": [
+                  [
+                    "get_size",
+                    1
+                  ],
+                  [
+                    "get_color",
+                    "000000"
+                  ],
+                  [
+                    "get_alpha",
+                    1
+                  ],
+                  [
+                    "get_hue",
+                    0
+                  ],
+                  [
+                    "get_saturation",
+                    0
+                  ],
+                  [
+                    "get_brightness",
+                    0
+                  ]
+                ]
+              }
+            ],
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "label": "keys released",
+          "state": {
+            "variables": {
+              "started": 2,
+              "cloneStarted": 1,
+              "count": 2,
+              "firstX": 0,
+              "secondX": 100,
+              "broadcasts": 2
+            },
+            "cloneCount": 2,
+            "sprites": [
+              {
+                "id": "20000000-0000-4000-8000-000000000001",
+                "position": {
+                  "x": 0,
+                  "y": 0
+                },
+                "scale": {
+                  "x": 1,
+                  "y": 1
+                },
+                "visible": true,
+                "brush": {
+                  "size": 1,
+                  "stroke_color": "000000",
+                  "alpha": 1,
+                  "is_recording_fill_path": false
+                },
+                "brushState": [
+                  [
+                    "get_size",
+                    1
+                  ],
+                  [
+                    "get_color",
+                    "000000"
+                  ],
+                  [
+                    "get_alpha",
+                    1
+                  ],
+                  [
+                    "get_hue",
+                    0
+                  ],
+                  [
+                    "get_saturation",
+                    0
+                  ],
+                  [
+                    "get_brightness",
+                    0
+                  ]
+                ]
+              },
+              {
+                "id": "_clone_20000000-0000-4000-8000-000000000001_random_id244458137",
+                "position": {
+                  "x": 0,
+                  "y": 0
+                },
+                "scale": {
+                  "x": 1,
+                  "y": 1
+                },
+                "visible": true,
+                "brush": {
+                  "size": 1,
+                  "stroke_color": "000000",
+                  "alpha": 1,
+                  "is_recording_fill_path": false
+                },
+                "brushState": [
+                  [
+                    "get_size",
+                    1
+                  ],
+                  [
+                    "get_color",
+                    "000000"
+                  ],
+                  [
+                    "get_alpha",
+                    1
+                  ],
+                  [
+                    "get_hue",
+                    0
+                  ],
+                  [
+                    "get_saturation",
+                    0
+                  ],
+                  [
+                    "get_brightness",
+                    0
+                  ]
+                ]
+              },
+              {
+                "id": "_clone_20000000-0000-4000-8000-000000000001_random_id512752145",
+                "position": {
+                  "x": 100,
+                  "y": 0
+                },
+                "scale": {
+                  "x": 1,
+                  "y": 1
+                },
+                "visible": true,
+                "brush": {
+                  "size": 1,
+                  "stroke_color": "000000",
+                  "alpha": 1,
+                  "is_recording_fill_path": false
+                },
+                "brushState": [
+                  [
+                    "get_size",
+                    1
+                  ],
+                  [
+                    "get_color",
+                    "000000"
+                  ],
+                  [
+                    "get_alpha",
+                    1
+                  ],
+                  [
+                    "get_hue",
+                    0
+                  ],
+                  [
+                    "get_saturation",
+                    0
+                  ],
+                  [
+                    "get_brightness",
+                    0
+                  ]
+                ]
+              }
+            ],
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        }
+      ],
+      "pageErrors": [],
+      "fixture": "tests/fixtures/kitten4/clone-mixed.bcm",
+      "sha256": "fef24da297c1360e8aa27865e9831ea4efc337b2c64bdf5400a8cd2d9251e93e",
+      "applicationVersion": "4.11.20",
+      "vendorScripts": [
+        "https://kitten4.codemao.cn/browser-tip.js",
+        "https://creation.codemao.cn/kitten/build/72.d0c8e590841d585ca222.js",
+        "https://creation.codemao.cn/kitten/build/80.d10abbe101f61f1643c5.js",
+        "https://creation.codemao.cn/kitten/build/77.79dad0a4712bd232538c.js",
+        "https://creation.codemao.cn/kitten/build/73.04a112a110855e63b496.js",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://creation.codemao.cn/kitten/build/36.588b10f9f832eb8cf934.js",
+        "https://creation.codemao.cn/kitten/build/libs/lottie_svg_cmao.min.js",
+        "https://creation.codemao.cn/kitten/build/runtime.43302e3ecf1fd4923b40.js",
+        "https://creation.codemao.cn/kitten/build/vendors.5035cd22e77914a9f363.js",
+        "https://creation.codemao.cn/kitten/build/kitten.99f88a64d495cf0e79d0.js"
+      ],
+      "workspaceIssues": []
+    },
+    "recurse": {
+      "checkpoints": [
+        {
+          "label": "settled",
+          "state": {
+            "variables": {
+              "started": 3
+            },
+            "cloneCount": 2,
+            "sprites": [
+              {
+                "id": "20000000-0000-4000-8000-000000000001",
+                "position": {
+                  "x": 0,
+                  "y": 0
+                },
+                "scale": {
+                  "x": 1,
+                  "y": 1
+                },
+                "visible": true,
+                "brush": {
+                  "size": 1,
+                  "stroke_color": "000000",
+                  "alpha": 1,
+                  "is_recording_fill_path": false
+                },
+                "brushState": [
+                  [
+                    "get_size",
+                    1
+                  ],
+                  [
+                    "get_color",
+                    "000000"
+                  ],
+                  [
+                    "get_alpha",
+                    1
+                  ],
+                  [
+                    "get_hue",
+                    0
+                  ],
+                  [
+                    "get_saturation",
+                    0
+                  ],
+                  [
+                    "get_brightness",
+                    0
+                  ]
+                ]
+              },
+              {
+                "id": "_clone_20000000-0000-4000-8000-000000000001_random_id71658101042",
+                "position": {
+                  "x": 100,
+                  "y": 0
+                },
+                "scale": {
+                  "x": 1,
+                  "y": 1
+                },
+                "visible": true,
+                "brush": {
+                  "size": 1,
+                  "stroke_color": "000000",
+                  "alpha": 1,
+                  "is_recording_fill_path": false
+                },
+                "brushState": [
+                  [
+                    "get_size",
+                    1
+                  ],
+                  [
+                    "get_color",
+                    "000000"
+                  ],
+                  [
+                    "get_alpha",
+                    1
+                  ],
+                  [
+                    "get_hue",
+                    0
+                  ],
+                  [
+                    "get_saturation",
+                    0
+                  ],
+                  [
+                    "get_brightness",
+                    0
+                  ]
+                ]
+              },
+              {
+                "id": "_clone_20000000-0000-4000-8000-000000000001_random_id3103924819",
+                "position": {
+                  "x": 200,
+                  "y": 0
+                },
+                "scale": {
+                  "x": 1,
+                  "y": 1
+                },
+                "visible": true,
+                "brush": {
+                  "size": 1,
+                  "stroke_color": "000000",
+                  "alpha": 1,
+                  "is_recording_fill_path": false
+                },
+                "brushState": [
+                  [
+                    "get_size",
+                    1
+                  ],
+                  [
+                    "get_color",
+                    "000000"
+                  ],
+                  [
+                    "get_alpha",
+                    1
+                  ],
+                  [
+                    "get_hue",
+                    0
+                  ],
+                  [
+                    "get_saturation",
+                    0
+                  ],
+                  [
+                    "get_brightness",
+                    0
+                  ]
+                ]
+              }
+            ],
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        }
+      ],
+      "pageErrors": [],
+      "fixture": "tests/fixtures/kitten4/clone-recurse.bcm",
+      "sha256": "3cb99c8c8941cbf48c3ebe9f610c412aa811fd50b7a5889748fbeed1b1aaab73",
+      "applicationVersion": "4.11.20",
+      "vendorScripts": [
+        "https://kitten4.codemao.cn/browser-tip.js",
+        "https://creation.codemao.cn/kitten/build/72.d0c8e590841d585ca222.js",
+        "https://creation.codemao.cn/kitten/build/80.d10abbe101f61f1643c5.js",
+        "https://creation.codemao.cn/kitten/build/77.79dad0a4712bd232538c.js",
+        "https://creation.codemao.cn/kitten/build/73.04a112a110855e63b496.js",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://creation.codemao.cn/kitten/build/36.588b10f9f832eb8cf934.js",
+        "https://creation.codemao.cn/kitten/build/libs/lottie_svg_cmao.min.js",
+        "https://creation.codemao.cn/kitten/build/runtime.43302e3ecf1fd4923b40.js",
+        "https://creation.codemao.cn/kitten/build/vendors.5035cd22e77914a9f363.js",
+        "https://creation.codemao.cn/kitten/build/kitten.99f88a64d495cf0e79d0.js"
+      ],
+      "workspaceIssues": []
+    },
+    "dispose": {
+      "checkpoints": [
+        {
+          "label": "settled",
+          "state": {
+            "variables": {
+              "count": 1,
+              "remainingX": 200,
+              "newX": 300,
+              "afterOriginal": 0,
+              "afterClone": 0,
+              "keys": 0
+            },
+            "cloneCount": 2,
+            "sprites": [
+              {
+                "id": "_clone_20000000-0000-4000-8000-000000000001_random_id691635876",
+                "position": {
+                  "x": 200,
+                  "y": 0
+                },
+                "scale": {
+                  "x": 1,
+                  "y": 1
+                },
+                "visible": true,
+                "brush": {
+                  "size": 1,
+                  "stroke_color": "000000",
+                  "alpha": 1,
+                  "is_recording_fill_path": false
+                },
+                "brushState": [
+                  [
+                    "get_size",
+                    1
+                  ],
+                  [
+                    "get_color",
+                    "000000"
+                  ],
+                  [
+                    "get_alpha",
+                    1
+                  ],
+                  [
+                    "get_hue",
+                    0
+                  ],
+                  [
+                    "get_saturation",
+                    0
+                  ],
+                  [
+                    "get_brightness",
+                    0
+                  ]
+                ]
+              },
+              {
+                "id": "_clone_20000000-0000-4000-8000-000000000001_random_id1099165763",
+                "position": {
+                  "x": 300,
+                  "y": 0
+                },
+                "scale": {
+                  "x": 1,
+                  "y": 1
+                },
+                "visible": true,
+                "brush": {
+                  "size": 1,
+                  "stroke_color": "000000",
+                  "alpha": 1,
+                  "is_recording_fill_path": false
+                },
+                "brushState": [
+                  [
+                    "get_size",
+                    1
+                  ],
+                  [
+                    "get_color",
+                    "000000"
+                  ],
+                  [
+                    "get_alpha",
+                    1
+                  ],
+                  [
+                    "get_hue",
+                    0
+                  ],
+                  [
+                    "get_saturation",
+                    0
+                  ],
+                  [
+                    "get_brightness",
+                    0
+                  ]
+                ]
+              }
+            ],
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "label": "keys released",
+          "state": {
+            "variables": {
+              "count": 1,
+              "remainingX": 200,
+              "newX": 300,
+              "afterOriginal": 0,
+              "afterClone": 0,
+              "keys": 196
+            },
+            "cloneCount": 2,
+            "sprites": [
+              {
+                "id": "_clone_20000000-0000-4000-8000-000000000001_random_id691635876",
+                "position": {
+                  "x": 200,
+                  "y": 0
+                },
+                "scale": {
+                  "x": 1,
+                  "y": 1
+                },
+                "visible": true,
+                "brush": {
+                  "size": 1,
+                  "stroke_color": "000000",
+                  "alpha": 1,
+                  "is_recording_fill_path": false
+                },
+                "brushState": [
+                  [
+                    "get_size",
+                    1
+                  ],
+                  [
+                    "get_color",
+                    "000000"
+                  ],
+                  [
+                    "get_alpha",
+                    1
+                  ],
+                  [
+                    "get_hue",
+                    0
+                  ],
+                  [
+                    "get_saturation",
+                    0
+                  ],
+                  [
+                    "get_brightness",
+                    0
+                  ]
+                ]
+              },
+              {
+                "id": "_clone_20000000-0000-4000-8000-000000000001_random_id1099165763",
+                "position": {
+                  "x": 300,
+                  "y": 0
+                },
+                "scale": {
+                  "x": 1,
+                  "y": 1
+                },
+                "visible": true,
+                "brush": {
+                  "size": 1,
+                  "stroke_color": "000000",
+                  "alpha": 1,
+                  "is_recording_fill_path": false
+                },
+                "brushState": [
+                  [
+                    "get_size",
+                    1
+                  ],
+                  [
+                    "get_color",
+                    "000000"
+                  ],
+                  [
+                    "get_alpha",
+                    1
+                  ],
+                  [
+                    "get_hue",
+                    0
+                  ],
+                  [
+                    "get_saturation",
+                    0
+                  ],
+                  [
+                    "get_brightness",
+                    0
+                  ]
+                ]
+              }
+            ],
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        }
+      ],
+      "pageErrors": [],
+      "fixture": "tests/fixtures/kitten4/clone-dispose.bcm",
+      "sha256": "23c35cd8df30c7636973b0a23ca91c7122ef97d18eec54036686b8a1bde9612a",
+      "applicationVersion": "4.11.20",
+      "vendorScripts": [
+        "https://kitten4.codemao.cn/browser-tip.js",
+        "https://creation.codemao.cn/kitten/build/72.d0c8e590841d585ca222.js",
+        "https://creation.codemao.cn/kitten/build/80.d10abbe101f61f1643c5.js",
+        "https://creation.codemao.cn/kitten/build/77.79dad0a4712bd232538c.js",
+        "https://creation.codemao.cn/kitten/build/73.04a112a110855e63b496.js",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://creation.codemao.cn/kitten/build/36.588b10f9f832eb8cf934.js",
+        "https://creation.codemao.cn/kitten/build/libs/lottie_svg_cmao.min.js",
+        "https://creation.codemao.cn/kitten/build/runtime.43302e3ecf1fd4923b40.js",
+        "https://creation.codemao.cn/kitten/build/vendors.5035cd22e77914a9f363.js",
+        "https://creation.codemao.cn/kitten/build/kitten.99f88a64d495cf0e79d0.js"
+      ],
+      "workspaceIssues": []
+    },
+    "limit": {
+      "checkpoints": [
+        {
+          "label": "settled",
+          "state": {
+            "variables": {
+              "count": 350,
+              "laterCount": 512
+            },
+            "cloneCount": 512,
+            "sprites": [
+              {
+                "id": "20000000-0000-4000-8000-000000000001",
+                "position": {
+                  "x": 0,
+                  "y": 0
+                },
+                "scale": {
+                  "x": 1,
+                  "y": 1
+                },
+                "visible": true,
+                "brush": {
+                  "size": 1,
+                  "stroke_color": "000000",
+                  "alpha": 1,
+                  "is_recording_fill_path": false
+                },
+                "brushState": [
+                  [
+                    "get_size",
+                    1
+                  ],
+                  [
+                    "get_color",
+                    "000000"
+                  ],
+                  [
+                    "get_alpha",
+                    1
+                  ],
+                  [
+                    "get_hue",
+                    0
+                  ],
+                  [
+                    "get_saturation",
+                    0
+                  ],
+                  [
+                    "get_brightness",
+                    0
+                  ]
+                ]
+              },
+              {
+                "id": "_clone_20000000-0000-4000-8000-000000000001_random_id91049109067",
+                "position": {
+                  "x": 100,
+                  "y": 0
+                },
+                "scale": {
+                  "x": 1,
+                  "y": 1
+                },
+                "visible": true,
+                "brush": {
+                  "size": 1,
+                  "stroke_color": "000000",
+                  "alpha": 1,
+                  "is_recording_fill_path": false
+                },
+                "brushState": [
+                  [
+                    "get_size",
+                    1
+                  ],
+                  [
+                    "get_color",
+                    "000000"
+                  ],
+                  [
+                    "get_alpha",
+                    1
+                  ],
+                  [
+                    "get_hue",
+                    0
+                  ],
+                  [
+                    "get_saturation",
+                    0
+                  ],
+                  [
+                    "get_brightness",
+                    0
+                  ]
+                ]
+              },
+              {
+                "id": "_clone_20000000-0000-4000-8000-000000000001_random_id959878435",
+                "position": {
+                  "x": 100,
+                  "y": 0
+                },
+                "scale": {
+                  "x": 1,
+                  "y": 1
+                },
+                "visible": true,
+                "brush": {
+                  "size": 1,
+                  "stroke_color": "000000",
+                  "alpha": 1,
+                  "is_recording_fill_path": false
+                },
+                "brushState": [
+                  [
+                    "get_size",
+                    1
+                  ],
+                  [
+                    "get_color",
+                    "000000"
+                  ],
+                  [
+                    "get_alpha",
+                    1
+                  ],
+                  [
+                    "get_hue",
+                    0
+                  ],
+                  [
+                    "get_saturation",
+                    0
+                  ],
+                  [
+                    "get_brightness",
+                    0
+                  ]
+                ]
+              },
+              {
+                "id": "_clone_20000000-0000-4000-8000-000000000001_random_id304296388",
+                "position": {
+                  "x": 100,
+                  "y": 0
+                },
+                "scale": {
+                  "x": 1,
+                  "y": 1
+                },
+                "visible": true,
+                "brush": {
+                  "size": 1,
+                  "stroke_color": "000000",
+                  "alpha": 1,
+                  "is_recording_fill_path": false
+                },
+                "brushState": [
+                  [
+                    "get_size",
+                    1
+                  ],
+                  [
+                    "get_color",
+                    "000000"
+                  ],
+                  [
+                    "get_alpha",
+                    1
+                  ],
+                  [
+                    "get_hue",
+                    0
+                  ],
+                  [
+                    "get_saturation",
+                    0
+                  ],
+                  [
+                    "get_brightness",
+                    0
+                  ]
+                ]
+              },
+              {
+                "id": "_clone_20000000-0000-4000-8000-000000000001_random_id28363210010",
+                "position": {
+                  "x": 100,
+                  "y": 0
+                },
+                "scale": {
+                  "x": 1,
+                  "y": 1
+                },
+                "visible": true,
+                "brush": {
+                  "size": 1,
+                  "stroke_color": "000000",
+                  "alpha": 1,
+                  "is_recording_fill_path": false
+                },
+                "brushState": [
+                  [
+                    "get_size",
+                    1
+                  ],
+                  [
+                    "get_color",
+                    "000000"
+                  ],
+                  [
+                    "get_alpha",
+                    1
+                  ],
+                  [
+                    "get_hue",
+                    0
+                  ],
+                  [
+                    "get_saturation",
+                    0
+                  ],
+                  [
+                    "get_brightness",
+                    0
+                  ]
+                ]
+              },
+              {
+                "id": "_clone_20000000-0000-4000-8000-000000000001_random_id867975172",
+                "position": {
+                  "x": 100,
+                  "y": 0
+                },
+                "scale": {
+                  "x": 1,
+                  "y": 1
+                },
+                "visible": true,
+                "brush": {
+                  "size": 1,
+                  "stroke_color": "000000",
+                  "alpha": 1,
+                  "is_recording_fill_path": false
+                },
+                "brushState": [
+                  [
+                    "get_size",
+                    1
+                  ],
+                  [
+                    "get_color",
+                    "000000"
+                  ],
+                  [
+                    "get_alpha",
+                    1
+                  ],
+                  [
+                    "get_hue",
+                    0
+                  ],
+                  [
+                    "get_saturation",
+                    0
+                  ],
+                  [
+                    "get_brightness",
+                    0
+                  ]
+                ]
+              },
+              {
+                "id": "_clone_20000000-0000-4000-8000-000000000001_random_id726944716",
+                "position": {
+                  "x": 100,
+                  "y": 0
+                },
+                "scale": {
+                  "x": 1,
+                  "y": 1
+                },
+                "visible": true,
+                "brush": {
+                  "size": 1,
+                  "stroke_color": "000000",
+                  "alpha": 1,
+                  "is_recording_fill_path": false
+                },
+                "brushState": [
+                  [
+                    "get_size",
+                    1
+                  ],
+                  [
+                    "get_color",
+                    "000000"
+                  ],
+                  [
+                    "get_alpha",
+                    1
+                  ],
+                  [
+                    "get_hue",
+                    0
+                  ],
+                  [
+                    "get_saturation",
+                    0
+                  ],
+                  [
+                    "get_brightness",
+                    0
+                  ]
+                ]
+              },
+              {
+                "id": "_clone_20000000-0000-4000-8000-000000000001_random_id710873946",
+                "position": {
+                  "x": 100,
+                  "y": 0
+                },
+                "scale": {
+                  "x": 1,
+                  "y": 1
+                },
+                "visible": true,
+                "brush": {
+                  "size": 1,
+                  "stroke_color": "000000",
+                  "alpha": 1,
+                  "is_recording_fill_path": false
+                },
+                "brushState": [
+                  [
+                    "get_size",
+                    1
+                  ],
+                  [
+                    "get_color",
+                    "000000"
+                  ],
+                  [
+                    "get_alpha",
+                    1
+                  ],
+                  [
+                    "get_hue",
+                    0
+                  ],
+                  [
+                    "get_saturation",
+                    0
+                  ],
+                  [
+                    "get_brightness",
+                    0
+                  ]
+                ]
+              }
+            ],
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        }
+      ],
+      "pageErrors": [],
+      "fixture": "tests/fixtures/kitten4/clone-limit.bcm",
+      "sha256": "2ae249dc6d2bb5af2487278504d0636f7b3b42ad5e1c1a50d053b5fcf4a24478",
+      "applicationVersion": "4.11.20",
+      "vendorScripts": [
+        "https://kitten4.codemao.cn/browser-tip.js",
+        "https://creation.codemao.cn/kitten/build/72.d0c8e590841d585ca222.js",
+        "https://creation.codemao.cn/kitten/build/80.d10abbe101f61f1643c5.js",
+        "https://creation.codemao.cn/kitten/build/77.79dad0a4712bd232538c.js",
+        "https://creation.codemao.cn/kitten/build/73.04a112a110855e63b496.js",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://creation.codemao.cn/kitten/build/36.588b10f9f832eb8cf934.js",
+        "https://creation.codemao.cn/kitten/build/libs/lottie_svg_cmao.min.js",
+        "https://creation.codemao.cn/kitten/build/runtime.43302e3ecf1fd4923b40.js",
+        "https://creation.codemao.cn/kitten/build/vendors.5035cd22e77914a9f363.js",
+        "https://creation.codemao.cn/kitten/build/kitten.99f88a64d495cf0e79d0.js"
+      ],
+      "workspaceIssues": []
+    },
+    "mirrorSelf": {
+      "checkpoints": [
+        {
+          "label": "settled",
+          "state": {
+            "variables": {},
+            "cloneCount": 0,
+            "sprites": [
+              {
+                "id": "20000000-0000-4000-8000-000000000001",
+                "position": {
+                  "x": 0,
+                  "y": 0
+                },
+                "scale": {
+                  "x": 1,
+                  "y": 1
+                },
+                "visible": true,
+                "brush": {
+                  "size": 1,
+                  "stroke_color": "000000",
+                  "alpha": 1,
+                  "is_recording_fill_path": false
+                },
+                "brushState": [
+                  [
+                    "get_size",
+                    1
+                  ],
+                  [
+                    "get_color",
+                    "000000"
+                  ],
+                  [
+                    "get_alpha",
+                    1
+                  ],
+                  [
+                    "get_hue",
+                    0
+                  ],
+                  [
+                    "get_saturation",
+                    0
+                  ],
+                  [
+                    "get_brightness",
+                    0
+                  ]
+                ]
+              }
+            ],
+            "error": {
+              "error_string": "克隆体无法克隆自己",
+              "show_error": true,
+              "bottom": 512,
+              "left": 1057.3245849609375,
+              "block_id": "clone-probe-8",
+              "show_more_info": false
+            },
+            "running": false
+          }
+        }
+      ],
+      "pageErrors": [],
+      "fixture": "tests/fixtures/kitten4/clone-mirrorSelf.bcm",
+      "sha256": "a5550e16d40fd3d9d5d6772075d9fb9110c10f204b3337620459e1711143978d",
+      "applicationVersion": "4.11.20",
+      "vendorScripts": [
+        "https://kitten4.codemao.cn/browser-tip.js",
+        "https://creation.codemao.cn/kitten/build/72.d0c8e590841d585ca222.js",
+        "https://creation.codemao.cn/kitten/build/80.d10abbe101f61f1643c5.js",
+        "https://creation.codemao.cn/kitten/build/77.79dad0a4712bd232538c.js",
+        "https://creation.codemao.cn/kitten/build/73.04a112a110855e63b496.js",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://creation.codemao.cn/kitten/build/36.588b10f9f832eb8cf934.js",
+        "https://creation.codemao.cn/kitten/build/libs/lottie_svg_cmao.min.js",
+        "https://creation.codemao.cn/kitten/build/runtime.43302e3ecf1fd4923b40.js",
+        "https://creation.codemao.cn/kitten/build/vendors.5035cd22e77914a9f363.js",
+        "https://creation.codemao.cn/kitten/build/kitten.99f88a64d495cf0e79d0.js"
+      ],
+      "workspaceIssues": []
+    },
+    "burst": {
+      "checkpoints": [
+        {
+          "label": "settled",
+          "state": {
+            "variables": {
+              "count": 301,
+              "laterCount": 302
+            },
+            "cloneCount": 302,
+            "sprites": [
+              {
+                "id": "20000000-0000-4000-8000-000000000001",
+                "position": {
+                  "x": 0,
+                  "y": 0
+                },
+                "scale": {
+                  "x": 1,
+                  "y": 1
+                },
+                "visible": true,
+                "brush": {
+                  "size": 1,
+                  "stroke_color": "000000",
+                  "alpha": 1,
+                  "is_recording_fill_path": false
+                },
+                "brushState": [
+                  [
+                    "get_size",
+                    1
+                  ],
+                  [
+                    "get_color",
+                    "000000"
+                  ],
+                  [
+                    "get_alpha",
+                    1
+                  ],
+                  [
+                    "get_hue",
+                    0
+                  ],
+                  [
+                    "get_saturation",
+                    0
+                  ],
+                  [
+                    "get_brightness",
+                    0
+                  ]
+                ]
+              },
+              {
+                "id": "_clone_20000000-0000-4000-8000-000000000001_random_id687507660",
+                "position": {
+                  "x": 100,
+                  "y": 0
+                },
+                "scale": {
+                  "x": 1,
+                  "y": 1
+                },
+                "visible": true,
+                "brush": {
+                  "size": 1,
+                  "stroke_color": "000000",
+                  "alpha": 1,
+                  "is_recording_fill_path": false
+                },
+                "brushState": [
+                  [
+                    "get_size",
+                    1
+                  ],
+                  [
+                    "get_color",
+                    "000000"
+                  ],
+                  [
+                    "get_alpha",
+                    1
+                  ],
+                  [
+                    "get_hue",
+                    0
+                  ],
+                  [
+                    "get_saturation",
+                    0
+                  ],
+                  [
+                    "get_brightness",
+                    0
+                  ]
+                ]
+              },
+              {
+                "id": "_clone_20000000-0000-4000-8000-000000000001_random_id501565157",
+                "position": {
+                  "x": 100,
+                  "y": 0
+                },
+                "scale": {
+                  "x": 1,
+                  "y": 1
+                },
+                "visible": true,
+                "brush": {
+                  "size": 1,
+                  "stroke_color": "000000",
+                  "alpha": 1,
+                  "is_recording_fill_path": false
+                },
+                "brushState": [
+                  [
+                    "get_size",
+                    1
+                  ],
+                  [
+                    "get_color",
+                    "000000"
+                  ],
+                  [
+                    "get_alpha",
+                    1
+                  ],
+                  [
+                    "get_hue",
+                    0
+                  ],
+                  [
+                    "get_saturation",
+                    0
+                  ],
+                  [
+                    "get_brightness",
+                    0
+                  ]
+                ]
+              },
+              {
+                "id": "_clone_20000000-0000-4000-8000-000000000001_random_id9610915835",
+                "position": {
+                  "x": 100,
+                  "y": 0
+                },
+                "scale": {
+                  "x": 1,
+                  "y": 1
+                },
+                "visible": true,
+                "brush": {
+                  "size": 1,
+                  "stroke_color": "000000",
+                  "alpha": 1,
+                  "is_recording_fill_path": false
+                },
+                "brushState": [
+                  [
+                    "get_size",
+                    1
+                  ],
+                  [
+                    "get_color",
+                    "000000"
+                  ],
+                  [
+                    "get_alpha",
+                    1
+                  ],
+                  [
+                    "get_hue",
+                    0
+                  ],
+                  [
+                    "get_saturation",
+                    0
+                  ],
+                  [
+                    "get_brightness",
+                    0
+                  ]
+                ]
+              },
+              {
+                "id": "_clone_20000000-0000-4000-8000-000000000001_random_id012466530",
+                "position": {
+                  "x": 100,
+                  "y": 0
+                },
+                "scale": {
+                  "x": 1,
+                  "y": 1
+                },
+                "visible": true,
+                "brush": {
+                  "size": 1,
+                  "stroke_color": "000000",
+                  "alpha": 1,
+                  "is_recording_fill_path": false
+                },
+                "brushState": [
+                  [
+                    "get_size",
+                    1
+                  ],
+                  [
+                    "get_color",
+                    "000000"
+                  ],
+                  [
+                    "get_alpha",
+                    1
+                  ],
+                  [
+                    "get_hue",
+                    0
+                  ],
+                  [
+                    "get_saturation",
+                    0
+                  ],
+                  [
+                    "get_brightness",
+                    0
+                  ]
+                ]
+              },
+              {
+                "id": "_clone_20000000-0000-4000-8000-000000000001_random_id72510530102",
+                "position": {
+                  "x": 100,
+                  "y": 0
+                },
+                "scale": {
+                  "x": 1,
+                  "y": 1
+                },
+                "visible": true,
+                "brush": {
+                  "size": 1,
+                  "stroke_color": "000000",
+                  "alpha": 1,
+                  "is_recording_fill_path": false
+                },
+                "brushState": [
+                  [
+                    "get_size",
+                    1
+                  ],
+                  [
+                    "get_color",
+                    "000000"
+                  ],
+                  [
+                    "get_alpha",
+                    1
+                  ],
+                  [
+                    "get_hue",
+                    0
+                  ],
+                  [
+                    "get_saturation",
+                    0
+                  ],
+                  [
+                    "get_brightness",
+                    0
+                  ]
+                ]
+              },
+              {
+                "id": "_clone_20000000-0000-4000-8000-000000000001_random_id3598761075",
+                "position": {
+                  "x": 100,
+                  "y": 0
+                },
+                "scale": {
+                  "x": 1,
+                  "y": 1
+                },
+                "visible": true,
+                "brush": {
+                  "size": 1,
+                  "stroke_color": "000000",
+                  "alpha": 1,
+                  "is_recording_fill_path": false
+                },
+                "brushState": [
+                  [
+                    "get_size",
+                    1
+                  ],
+                  [
+                    "get_color",
+                    "000000"
+                  ],
+                  [
+                    "get_alpha",
+                    1
+                  ],
+                  [
+                    "get_hue",
+                    0
+                  ],
+                  [
+                    "get_saturation",
+                    0
+                  ],
+                  [
+                    "get_brightness",
+                    0
+                  ]
+                ]
+              },
+              {
+                "id": "_clone_20000000-0000-4000-8000-000000000001_random_id578562926",
+                "position": {
+                  "x": 100,
+                  "y": 0
+                },
+                "scale": {
+                  "x": 1,
+                  "y": 1
+                },
+                "visible": true,
+                "brush": {
+                  "size": 1,
+                  "stroke_color": "000000",
+                  "alpha": 1,
+                  "is_recording_fill_path": false
+                },
+                "brushState": [
+                  [
+                    "get_size",
+                    1
+                  ],
+                  [
+                    "get_color",
+                    "000000"
+                  ],
+                  [
+                    "get_alpha",
+                    1
+                  ],
+                  [
+                    "get_hue",
+                    0
+                  ],
+                  [
+                    "get_saturation",
+                    0
+                  ],
+                  [
+                    "get_brightness",
+                    0
+                  ]
+                ]
+              }
+            ],
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        }
+      ],
+      "pageErrors": [],
+      "fixture": "tests/fixtures/kitten4/clone-burst.bcm",
+      "sha256": "ccf2a4071207e5fc79fdf3b7e9b0c0df8b5c4c02077c3ea32c37565e36967a14",
+      "applicationVersion": "4.11.20",
+      "vendorScripts": [
+        "https://kitten4.codemao.cn/browser-tip.js",
+        "https://creation.codemao.cn/kitten/build/72.d0c8e590841d585ca222.js",
+        "https://creation.codemao.cn/kitten/build/80.d10abbe101f61f1643c5.js",
+        "https://creation.codemao.cn/kitten/build/77.79dad0a4712bd232538c.js",
+        "https://creation.codemao.cn/kitten/build/73.04a112a110855e63b496.js",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://creation.codemao.cn/kitten/build/36.588b10f9f832eb8cf934.js",
+        "https://creation.codemao.cn/kitten/build/libs/lottie_svg_cmao.min.js",
+        "https://creation.codemao.cn/kitten/build/runtime.43302e3ecf1fd4923b40.js",
+        "https://creation.codemao.cn/kitten/build/vendors.5035cd22e77914a9f363.js",
+        "https://creation.codemao.cn/kitten/build/kitten.99f88a64d495cf0e79d0.js"
+      ],
+      "workspaceIssues": []
+    },
+    "collision": {
+      "checkpoints": [
+        {
+          "label": "settled",
+          "state": {
+            "variables": {
+              "collisions": 15
+            },
+            "cloneCount": 1,
+            "sprites": [
+              {
+                "id": "20000000-0000-4000-8000-000000000001",
+                "position": {
+                  "x": 0,
+                  "y": 0
+                },
+                "scale": {
+                  "x": 1,
+                  "y": 1
+                },
+                "visible": true,
+                "brush": {
+                  "size": 1,
+                  "stroke_color": "000000",
+                  "alpha": 1,
+                  "is_recording_fill_path": false
+                },
+                "brushState": [
+                  [
+                    "get_size",
+                    1
+                  ],
+                  [
+                    "get_color",
+                    "000000"
+                  ],
+                  [
+                    "get_alpha",
+                    1
+                  ],
+                  [
+                    "get_hue",
+                    0
+                  ],
+                  [
+                    "get_saturation",
+                    0
+                  ],
+                  [
+                    "get_brightness",
+                    0
+                  ]
+                ]
+              },
+              {
+                "id": "_clone_20000000-0000-4000-8000-000000000001_random_id298219327",
+                "position": {
+                  "x": 100,
+                  "y": 0
+                },
+                "scale": {
+                  "x": 1,
+                  "y": 1
+                },
+                "visible": true,
+                "brush": {
+                  "size": 1,
+                  "stroke_color": "000000",
+                  "alpha": 1,
+                  "is_recording_fill_path": false
+                },
+                "brushState": [
+                  [
+                    "get_size",
+                    1
+                  ],
+                  [
+                    "get_color",
+                    "000000"
+                  ],
+                  [
+                    "get_alpha",
+                    1
+                  ],
+                  [
+                    "get_hue",
+                    0
+                  ],
+                  [
+                    "get_saturation",
+                    0
+                  ],
+                  [
+                    "get_brightness",
+                    0
+                  ]
+                ]
+              }
+            ],
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        }
+      ],
+      "pageErrors": [],
+      "fixture": "tests/fixtures/kitten4/clone-collision.bcm",
+      "sha256": "cd9b337043c0e7e3a64a09f7e2dcc6dd02d34272fa44c52569b72ae051b4e287",
+      "applicationVersion": "4.11.20",
+      "vendorScripts": [
+        "https://kitten4.codemao.cn/browser-tip.js",
+        "https://creation.codemao.cn/kitten/build/72.d0c8e590841d585ca222.js",
+        "https://creation.codemao.cn/kitten/build/80.d10abbe101f61f1643c5.js",
+        "https://creation.codemao.cn/kitten/build/77.79dad0a4712bd232538c.js",
+        "https://creation.codemao.cn/kitten/build/73.04a112a110855e63b496.js",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://creation.codemao.cn/kitten/build/36.588b10f9f832eb8cf934.js",
+        "https://creation.codemao.cn/kitten/build/libs/lottie_svg_cmao.min.js",
+        "https://creation.codemao.cn/kitten/build/runtime.43302e3ecf1fd4923b40.js",
+        "https://creation.codemao.cn/kitten/build/vendors.5035cd22e77914a9f363.js",
+        "https://creation.codemao.cn/kitten/build/kitten.99f88a64d495cf0e79d0.js"
+      ],
+      "workspaceIssues": []
+    }
+  },
+  "ok": true
+}

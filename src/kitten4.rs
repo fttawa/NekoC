@@ -280,26 +280,12 @@ fn lower_blocks(value: &mut Value, targets: &Targets) {
     }
 }
 
-/// `when` runs its body each time the condition becomes true.
+/// Official 4.11.20: level-triggered single-flight, including split instances.
 fn lower_when(block: &mut Value) {
     let id = block["id"].as_str().unwrap_or_default().to_owned();
-    let condition = block["inputs"]["condition"].clone();
     let wait = |suffix: &str, condition: Value| json!({"type": "wait_until", "id": format!("{id}-{suffix}"), "inputs": {"condition": condition}});
-    let released =
-        json!({"type": "logic_negate", "id": format!("{id}-not"), "inputs": {"logic": condition}});
-    let mut body = block["statements"]["DO"].take();
-    let release = wait("release", released);
-    if body.is_object() {
-        let mut tail = &mut body;
-        while tail["next"].is_object() {
-            tail = &mut tail["next"];
-        }
-        tail["next"] = release;
-    } else {
-        body = release;
-    }
     let mut trigger = wait("trigger", block["inputs"]["condition"].clone());
-    trigger["next"] = body;
+    trigger["next"] = block["statements"]["DO"].take();
     *block = json!({
         "type": "on_running_group_activated", "id": id,
         "next": {"type": "repeat_forever", "id": format!("{id}-loop"), "statements": {"DO": trigger}},
@@ -419,7 +405,8 @@ fn lower_block(block: &mut Value) {
             inputs(block, &[("NUM", "num")], false);
             "math_trig"
         }
-        "dispose" => "dispose_clone",
+        "dispose" => "kitten4_dispose",
+        "clone" => "kitten4_split",
         "self_prev_next_style" => {
             fields(block, &[("prev_or_next", "prev_next")], false);
             "self_prev_next_style"
@@ -532,6 +519,8 @@ fn lower_block(block: &mut Value) {
         | "image_stamp"
         | "tell"
         | "get_current_clone_index"
+        | "get_clone_num"
+        | "get_clone_index_property"
         | "get_answer"
         | "self_ask"
         | "ask_and_choose"

@@ -332,7 +332,10 @@ enum Op {
     Tell(usize, usize, bool),
     Restart,
     Clone(usize),
+    /// Allocates sprites: must leave native code before invalidating its pointers.
+    Split(usize, Expr, Expr),
     DisposeClone,
+    DisposeSelf,
     SwitchScene(usize),
     SceneTransition(usize, usize),
     Dialog(usize, bool),
@@ -443,6 +446,9 @@ pub struct Sprite {
     /// 0 for originals, 1.. for clones in creation order.
     #[serde(skip)]
     clone_index: u32,
+    /// K4 mirror has empty ordinary code; split inherits ordinary responders.
+    #[serde(skip)]
+    empty_code: bool,
     #[serde(skip)]
     alive: bool,
     #[serde(skip)]
@@ -643,6 +649,8 @@ pub struct Program {
     procedure_entries: Vec<usize>,
     call_arguments: Vec<Vec<usize>>,
     pub variable_names: Vec<String>,
+    /// K4 entity variables are copied, rather than shared, by a split.
+    entity_variables: BTreeMap<usize, String>,
     style_names: BTreeMap<String, String>,
     /// Costume sizes from the project file, replaced by viewer-measured ones.
     costumes: BTreeMap<String, Costume>,
@@ -758,6 +766,7 @@ impl Program {
                 procedure_entries: vec![],
                 call_arguments: vec![],
                 variable_names: vec![],
+                entity_variables: BTreeMap::new(),
                 costumes: project
                     .pointer("/styles/stylesDict")
                     .and_then(Value::as_object)
@@ -885,6 +894,12 @@ impl Program {
                     continue;
                 }
                 let slot = compiler.slot(id);
+                if semantics == RuntimeSemantics::Kitten4 && var["isGlobal"] == false {
+                    compiler.program.entity_variables.insert(
+                        slot,
+                        var["current_entity"].as_str().unwrap_or("").to_owned(),
+                    );
+                }
                 let value = Cell::from_json(value)?;
                 compiler.program.initial[slot] = value.number();
                 if !matches!(value, Cell::Number(_) | Cell::Null) {
@@ -939,6 +954,7 @@ impl Program {
                 text_scale: None,
                 origin: stage,
                 clone_index: 0,
+                empty_code: false,
                 alive: true,
                 scene: scene_index,
                 stage: true,
@@ -986,6 +1002,7 @@ impl Program {
                     text_scale: None,
                     origin: index,
                     clone_index: 0,
+                    empty_code: false,
                     alive: true,
                     scene: scene_index,
                     stage: false,
@@ -2146,7 +2163,10 @@ impl Compiler {
                 root["statements"].get("DO")
             } else if matches!(
                 event,
-                ScriptEvent::CloneStart | ScriptEvent::Swipe(_) | ScriptEvent::Bump(..)
+                ScriptEvent::CloneStart
+                    | ScriptEvent::Swipe(_)
+                    | ScriptEvent::Bump(..)
+                    | ScriptEvent::Pointer(..)
             ) {
                 root["statements"]
                     .get("DO")
@@ -2440,6 +2460,11 @@ impl Compiler {
                 }
                 "restart" => Op::Restart,
                 "mirror" => Op::Clone(self.actor_target(field(b, "sprite"))?),
+                "kitten4_split" => Op::Split(
+                    self.actor_target(field(b, "sprite"))?,
+                    self.arg(b, "x")?,
+                    self.arg(b, "y")?,
+                ),
                 "switch_to_screen" => {
                     let target = b["inputs"]
                         .get("screen_id")
@@ -2590,6 +2615,7 @@ impl Compiler {
                     continue;
                 }
                 "dispose_clone" => Op::DisposeClone,
+                "kitten4_dispose" => Op::DisposeSelf,
                 "set_top_bottom_layer" | "self_change_layer" => {
                     let layer = field(b, "layer");
                     let relative = field(b, "target_layer");
@@ -3213,6 +3239,10 @@ pub struct Engine {
     free_slots: Vec<usize>,
     clone_serial: u64,
     clones: usize,
+    /// Values belonging to cloned entities; originals retain their stable slots.
+    entity_values: BTreeMap<(usize, usize), Cell>,
+    clone_counts: BTreeMap<usize, u32>,
+    clone_orders: BTreeMap<usize, u32>,
     asks: VecDeque<AskRequest>,
     next_ask: u64,
     image_stamps: Vec<ImageStamp>,
@@ -3358,6 +3388,9 @@ impl Engine {
             free_slots: vec![],
             clone_serial: 0,
             clones: 0,
+            entity_values: BTreeMap::new(),
+            clone_counts: BTreeMap::new(),
+            clone_orders: BTreeMap::new(),
             asks: VecDeque::new(),
             next_ask: 1,
             image_stamps: vec![],
@@ -3404,6 +3437,9 @@ impl Engine {
         self.free_slots.clear();
         self.clone_serial = 0;
         self.clones = 0;
+        self.entity_values.clear();
+        self.clone_counts.clear();
+        self.clone_orders.clear();
         self.asks.clear();
         self.image_stamps.clear();
         self.monitors.clear();
@@ -3453,8 +3489,6 @@ impl Engine {
             self.released.insert(key.into());
         }
         if down && self.program.semantics == RuntimeSemantics::Kitten4 {
-            // Concrete down hats on originals are state responders, serviced at
-            // tick entry. Leave unverified any-key/clone event behaviour intact.
             if !self.stopped {
                 for script in 0..self.program.scripts.len() {
                     let spec = &self.program.scripts[script];
@@ -3466,7 +3500,7 @@ impl Engine {
                     let actor = spec.actor;
                     let any = matches!(&spec.event, ScriptEvent::Key(k, _) if k == "any");
                     for target in self.instances(actor) {
-                        if any || target != actor {
+                        if any {
                             self.spawn(script, target);
                         }
                     }
@@ -3588,6 +3622,12 @@ impl Engine {
                 continue;
             }
             let Some(hit) = hit else { continue };
+            if self.program.semantics == RuntimeSemantics::Kitten4
+                && self.sprites[hit].empty_code
+                && self.sprites[hit].origin == actor
+            {
+                continue;
+            }
             // The script listens to actor `id`; a click on one of its clones counts.
             let origin = self.sprites[hit].origin;
             if self.program.sprites[origin].id != *id {
@@ -3602,15 +3642,17 @@ impl Engine {
     }
     /// Live sprite indices running an actor's scripts: the original and its clones.
     fn instances(&self, actor: usize) -> Vec<usize> {
-        if self.clones == 0 || self.sprites[actor].stage {
-            return vec![actor];
-        }
         (0..self.sprites.len())
-            .filter(|&i| self.sprites[i].alive && self.sprites[i].origin == actor)
+            .filter(|&i| {
+                self.sprites[i].alive
+                    && self.sprites[i].origin == actor
+                    && (self.program.semantics != RuntimeSemantics::Kitten4
+                        || !self.sprites[i].empty_code)
+            })
             .collect()
     }
     fn spawn(&mut self, script: usize, actor: usize) -> Option<usize> {
-        if self.tasks.len() >= 4096 {
+        if self.tasks.len() >= 4096 || !self.sprites[actor].alive {
             return None;
         }
         let mut task = Task::new(
@@ -3670,18 +3712,18 @@ impl Engine {
                 continue;
             };
             let actor = spec.actor;
-            if key == "any"
-                || !self.pressed.contains(key)
-                || !self.in_active_scene(actor)
-                || !self.sprites[actor].alive
-                || self
-                    .tasks
-                    .iter()
-                    .any(|task| !task.done && task.script == script && task.actor == actor)
-            {
+            if key == "any" || !self.pressed.contains(key) || !self.in_active_scene(actor) {
                 continue;
             }
-            self.spawn(script, actor);
+            for target in self.instances(actor) {
+                if !self
+                    .tasks
+                    .iter()
+                    .any(|task| !task.done && task.script == script && task.actor == target)
+                {
+                    self.spawn(script, target);
+                }
+            }
         }
     }
     fn broadcast(&mut self, message: String, payload: Cell, wait: bool) -> Result<()> {
@@ -3750,7 +3792,7 @@ impl Engine {
     fn node(&mut self, pc: usize, actor: usize) -> f64 {
         match self.program.expressions[pc] {
             ExprOp::Constant(n) => n,
-            ExprOp::Slot(s) => self.slots[s],
+            ExprOp::Slot(s) => self.actor_number(s, actor),
             ExprOp::Binary(op) => {
                 let right = pc - 1;
                 let left = self.program.expression_starts[right] as usize - 1;
@@ -3780,7 +3822,7 @@ impl Engine {
     fn operand(&mut self, pc: usize, actor: usize) -> f64 {
         match self.program.expressions[pc] {
             ExprOp::Constant(n) => n,
-            ExprOp::Slot(s) => self.slots[s],
+            ExprOp::Slot(s) => self.actor_number(s, actor),
             _ => self.node(pc, actor),
         }
     }
@@ -3788,7 +3830,7 @@ impl Engine {
     fn node_slow(&mut self, pc: usize, actor: usize) -> f64 {
         match self.program.expressions[pc] {
             ExprOp::Constant(n) => n,
-            ExprOp::Slot(s) => self.slots[s],
+            ExprOp::Slot(s) => self.actor_number(s, actor),
             ExprOp::Local(s) => self.tasks[self.current_task].locals[s],
             ExprOp::Value(i) => self.eval_value(i, actor).number(),
             ExprOp::Truth(i) => u8::from(self.eval_value(i, actor).truth()) as f64,
@@ -4878,21 +4920,64 @@ impl Engine {
             }
         }
     }
-    fn clone_sprite(&mut self, source: usize) -> Result<()> {
+    fn clone_sprite(&mut self, source: usize, split: Option<(f64, f64)>) -> Result<()> {
         ensure!(!self.sprites[source].stage, "the stage cannot be cloned");
+        ensure!(
+            self.program.semantics != RuntimeSemantics::Kitten4
+                || self.sprites[source].clone_index == 0,
+            "Kitten 4 clone body cannot clone itself"
+        );
+        if !self.sprites[source].alive {
+            return Ok(());
+        }
         let origin = self.sprites[source].origin;
         let live = (0..self.sprites.len())
             .filter(|&i| self.sprites[i].alive && self.sprites[i].origin == origin && i != origin)
             .count();
-        // Official limit: 300 clones per entity. Further requests are ignored.
-        if live >= 300 {
+        if self.program.semantics == RuntimeSemantics::Kitten4 {
+            // Official iNFq clone_entity: per-entity, per-frame guard uses >300,
+            // so the 301st creation succeeds. This is NOT a live clone cap.
+            let count = self.clone_counts.entry(origin).or_default();
+            if *count > 300 {
+                return Ok(());
+            }
+            *count += 1;
+        } else if live >= 300 {
             return Ok(());
+        }
+        // Official RuntimeDataImpl/clone_created evicts the oldest clone when
+        // per_entity_clone_limit (512 in Kitten 4) is exceeded, not the newest.
+        if self.program.semantics == RuntimeSemantics::Kitten4
+            && live >= 512
+            && let Some(oldest) = (0..self.sprites.len())
+                .filter(|&i| {
+                    self.sprites[i].alive && self.sprites[i].origin == origin && i != origin
+                })
+                .min_by_key(|&i| self.sprites[i].clone_index)
+        {
+            self.delete_clone(oldest);
         }
         self.clone_serial += 1;
         let mut sprite = self.sprites[source].clone();
         sprite.id = format!("{}#{}", self.sprites[origin].id, self.clone_serial);
         sprite.clone_index = live as u32 + 1;
+        if self.program.semantics == RuntimeSemantics::Kitten4 {
+            let order = self.clone_orders.entry(origin).or_default();
+            *order += 1;
+            sprite.clone_index = *order;
+        }
+        sprite.empty_code = self.program.semantics == RuntimeSemantics::Kitten4 && split.is_none();
+        if let Some((x, y)) = split {
+            sprite.x = if x.is_nan() { 0.0 } else { x };
+            sprite.y = if y.is_nan() { 0.0 } else { y };
+        }
         sprite.pen = false;
+        if split.is_some() {
+            // Official clone-state.bcm: a fresh brush, not a copy of the source.
+            sprite.size = 1.0;
+            sprite.color = [0.0, 0.0, 0.0, 1.0];
+            sprite.hsv = [0.0, 0.0, 0.0];
+        }
         let index = if let Some(slot) = self.free_slots.pop() {
             self.sprites[slot] = sprite;
             slot
@@ -4902,6 +4987,12 @@ impl Engine {
             self.sprites.len() - 1
         };
         self.dirty[index] = true;
+        for &slot in self.program.entity_variables.keys() {
+            if self.program.entity_variables[&slot] == self.sprites[origin].id {
+                self.entity_values
+                    .insert((index, slot), self.actor_value(slot, source).deep_clone());
+            }
+        }
         self.clones += 1;
         // A clone starts directly behind its source.
         let at = self.order.iter().position(|&i| i == source).unwrap_or(0);
@@ -4911,7 +5002,16 @@ impl Engine {
         }
         self.order_dirty = true;
         for script in 0..self.program.scripts.len() {
-            if matches!(self.program.scripts[script].event, ScriptEvent::CloneStart)
+            let event = &self.program.scripts[script].event;
+            let starts = if split.is_some() {
+                matches!(
+                    event,
+                    ScriptEvent::Start | ScriptEvent::K4GlobalStart | ScriptEvent::K4SceneActivate
+                )
+            } else {
+                matches!(event, ScriptEvent::CloneStart)
+            };
+            if starts
                 && self.program.scripts[script].actor == origin
                 && let Some(task) = self.spawn(script, index)
             {
@@ -4921,6 +5021,11 @@ impl Engine {
         Ok(())
     }
     fn delete_clone(&mut self, index: usize) {
+        if !self.sprites[index].alive {
+            return;
+        }
+        self.entity_values.retain(|&(actor, _), _| actor != index);
+        self.bump_state.retain(|&(_, actor), _| actor != index);
         for task in 0..self.tasks.len() {
             if self.tasks[task].actor == index {
                 self.finish_task(task);
@@ -4941,8 +5046,10 @@ impl Engine {
         }
         self.order.retain(|&i| i != index);
         self.order_dirty = true;
-        self.free_slots.push(index);
-        self.clones -= 1;
+        if self.sprites[index].clone_index > 0 {
+            self.free_slots.push(index);
+            self.clones -= 1;
+        }
     }
     fn move_layer(&mut self, actor: usize, movement: LayerMove) {
         let Some(at) = self.order.iter().position(|&i| i == actor) else {
@@ -4990,6 +5097,19 @@ impl Engine {
         }
     }
     #[inline]
+    fn actor_value(&self, slot: usize, actor: usize) -> Cell {
+        self.entity_values
+            .get(&(actor, slot))
+            .cloned()
+            .unwrap_or_else(|| self.global_value(slot))
+    }
+    #[inline]
+    fn actor_number(&self, slot: usize, actor: usize) -> f64 {
+        self.entity_values
+            .get(&(actor, slot))
+            .map_or(self.slots[slot], Cell::number)
+    }
+    #[inline]
     fn local_value(&self, i: usize) -> Cell {
         let t = &self.tasks[self.current_task];
         match &t.local_values[i] {
@@ -5018,7 +5138,7 @@ impl Engine {
         match self.program.values[i] {
             ValueExpr::Number(e) => Cell::Number(self.eval(e, actor)),
             ValueExpr::Constant(v) => self.program.constants[v].clone(),
-            ValueExpr::Global(i) => self.global_value(i),
+            ValueExpr::Global(i) => self.actor_value(i, actor),
             ValueExpr::Local(i) => self.local_value(i),
             ValueExpr::Parameter(i) => self.tasks[self.current_task]
                 .parameters
@@ -5269,6 +5389,13 @@ impl Engine {
         }
     }
     fn assign(&mut self, target: Target, value: Cell) {
+        if let Target::Global(slot) = target {
+            let actor = self.tasks[self.current_task].actor;
+            if let Some(cell) = self.entity_values.get_mut(&(actor, slot)) {
+                *cell = value;
+                return;
+            }
+        }
         let (number, dynamic) = match target {
             Target::Global(i) => (&mut self.slots[i], &mut self.values[i]),
             Target::Local(i) => {
@@ -5465,12 +5592,12 @@ impl Engine {
         }
         match op {
             Op::Set(s, e) => {
-                self.slots[s] = self.eval(e, actor);
-                self.values[s] = None;
+                let value = self.eval(e, actor);
+                self.assign(Target::Global(s), Cell::Number(value));
             }
             Op::Change(s, e, sign) => {
-                self.slots[s] += self.eval(e, actor) * sign;
-                self.values[s] = None;
+                let value = self.actor_value(s, actor).number() + self.eval(e, actor) * sign;
+                self.assign(Target::Global(s), Cell::Number(value));
             }
             Op::SetLocal(s, e) => {
                 self.tasks[index].locals[s] = self.eval(e, actor);
@@ -6080,7 +6207,12 @@ impl Engine {
             }
             Op::Clone(target) => {
                 let source = if target == usize::MAX { actor } else { target };
-                self.clone_sprite(source)?;
+                self.clone_sprite(source, None)?;
+            }
+            Op::Split(target, x, y) => {
+                let source = if target == usize::MAX { actor } else { target };
+                let position = (self.eval(x, actor), self.eval(y, actor));
+                self.clone_sprite(source, Some(position))?;
             }
             Op::Dialog(text, think) => {
                 let text = self.eval_value(text, actor).text();
@@ -6223,6 +6355,10 @@ impl Engine {
                     return Ok(false);
                 }
             }
+            Op::DisposeSelf => {
+                self.delete_clone(actor);
+                return Ok(false);
+            }
             Op::Layer(movement) => {
                 if !self.sprites[actor].stage {
                     self.move_layer(actor, movement);
@@ -6261,6 +6397,7 @@ impl Engine {
             self.timer += dt;
         }
         self.received.clear();
+        self.clone_counts.clear();
         self.check_bumps();
         self.dispatch_held_keys();
         let mut count = *total_count;

@@ -118,6 +118,11 @@ impl Engine {
         actor: usize,
         left: usize,
     ) -> Option<usize> {
+        // Native slot loads/stores address shared globals. Entity-scoped K4
+        // variables use instance storage; keep this path on the interpreter.
+        if !self.program.entity_variables.is_empty() {
+            return None;
+        }
         let jit = self.jit.as_mut()?;
         if jit.regions[pc].is_none() {
             let hot = &mut jit.hot[pc];
