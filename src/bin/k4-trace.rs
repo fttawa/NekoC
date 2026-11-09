@@ -2,7 +2,7 @@
 use anyhow::{Context, Result, ensure};
 use clap::Parser;
 use nekoc::{engine::Engine, engine::Program, kitten4};
-use serde_json::{Value, json};
+use serde_json::json;
 use std::{path::PathBuf, time::Duration};
 
 #[derive(Parser)]
@@ -26,7 +26,7 @@ struct Args {
 fn main() -> Result<()> {
     let args = Args::parse();
     let text = std::fs::read_to_string(&args.input)?;
-    let mut source: Value = serde_json::from_str(text.trim_start_matches('\u{feff}'))?;
+    let mut source = nekoc::json::from_str(text.trim_start_matches('\u{feff}'))?;
     if args.compiled {
         ensure!(
             source["compile_result"].is_array(),
@@ -47,7 +47,10 @@ fn main() -> Result<()> {
     }
     let project = kitten4::to_neko(&source)?;
     if args.lowered {
-        println!("{}", kitten4::lower_for_vm(&project));
+        println!(
+            "{}",
+            String::from_utf8(nekoc::json::to_vec(&kitten4::lower_for_vm(&project))?)?
+        );
         return Ok(());
     }
     let program = Program::compile(&project)?;
