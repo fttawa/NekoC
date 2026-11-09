@@ -676,6 +676,12 @@ pub struct CompileStats {
     pub scripts: usize,
 }
 impl Program {
+    /// Diagnostic IR, not a stable persistence format. Includes all compiled
+    /// fields (also source IDs); inequality alone does not prove a semantic bug.
+    pub fn oracle_program(&self) -> String {
+        format!("{self:#?}")
+    }
+
     pub fn stats(&self) -> CompileStats {
         CompileStats {
             instructions: self.ops.len(),
@@ -3229,6 +3235,36 @@ pub struct Engine {
     pointer_released: bool,
 }
 impl Engine {
+    /// Full, non-consuming state for local differential oracles. Unlike `Frame`,
+    /// this includes unchanged sprites and typed scalar/list values on every tick.
+    /// Rotation is expressed in native K4 degrees, scale in percentages.
+    pub fn oracle_snapshot(&self, frame: u32) -> Value {
+        let actors: BTreeMap<_, _> = self
+            .sprites
+            .iter()
+            .filter(|a| a.alive && !a.stage)
+            .map(|a| {
+                (
+                    a.id.clone(),
+                    serde_json::json!({"id": a.id,
+                        "prototype_id": self.sprites[a.origin].id, "name": a.name,
+                        "x": a.x, "y": a.y, "rotation": 90.0 - a.direction,
+                        "current_style_id": a.style, "scale": a.scale * a.size_x / 100.0,
+                        "scale_y": a.scale * a.size_y / 100.0, "visible": a.visible}),
+                )
+            })
+            .collect();
+        let mut variables = BTreeMap::new();
+        for (i, id) in self.program.variable_names.iter().enumerate() {
+            variables.insert(id.clone(), serde_json::json!(self.global_value(i)));
+        }
+        for (i, id) in self.program.list_names.iter().enumerate() {
+            variables.insert(id.clone(), serde_json::json!(self.list_values(i)));
+        }
+        serde_json::json!({"frame": frame, "current_scene_id": self.program.scenes[self.current_scene].id,
+            "actors": actors, "variables": variables, "entity_variables": {}})
+    }
+
     pub fn active_tasks(&self) -> usize {
         self.tasks.iter().filter(|t| self.task_active(t)).count()
     }
