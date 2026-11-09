@@ -1,0 +1,2288 @@
+{
+  "hidden_toolbox": {
+    "toolbox": [],
+    "blocks": []
+  },
+  "work_source_label": 1,
+  "version": 25,
+  "application_version": "4.11.20",
+  "work_type": "KITTEN",
+  "size": {
+    "width": 1280,
+    "height": 720
+  },
+  "type": 1,
+  "project_name": "NekoC physics flags",
+  "theatre": {
+    "current_entity": "20000000-0000-4000-8000-000000000001",
+    "current_scene": "10000000-0000-4000-8000-000000000001",
+    "scenes_order": [
+      "10000000-0000-4000-8000-000000000001"
+    ],
+    "scenes": {
+      "10000000-0000-4000-8000-000000000001": {
+        "id": "10000000-0000-4000-8000-000000000001",
+        "name": "Background",
+        "styles": [
+          "background"
+        ],
+        "current_style_id": "background",
+        "x": 0,
+        "y": 0,
+        "scale": 100,
+        "rotation": 0,
+        "rotation_type": 0,
+        "draggable": false,
+        "visible": true,
+        "workspace_offset": {
+          "x": 0,
+          "y": 0
+        },
+        "block_data_json": {
+          "blocks": {},
+          "connections": {},
+          "comments": {}
+        },
+        "actors": [
+          "20000000-0000-4000-8000-000000000001"
+        ],
+        "screen_name": "Physics",
+        "group_order": [
+          "group"
+        ]
+      }
+    },
+    "actors": {
+      "20000000-0000-4000-8000-000000000001": {
+        "id": "20000000-0000-4000-8000-000000000001",
+        "name": "Probe",
+        "styles": [
+          "probe-style"
+        ],
+        "current_style_id": "probe-style",
+        "x": 0,
+        "y": 0,
+        "scale": 100,
+        "rotation": 0,
+        "rotation_type": 0,
+        "draggable": false,
+        "visible": true,
+        "workspace_offset": {
+          "x": 0,
+          "y": 0
+        },
+        "block_data_json": {
+          "blocks": {
+            "physics-probe-1": {
+              "type": "start_on_click",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-probe-1",
+              "parent_id": null,
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-2": {
+              "type": "physics2_set_gravity",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "value": "",
+                "dir": "<shadow type=\"controller_shadow\" />"
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-probe-2",
+              "parent_id": "physics-probe-1",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-3": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-probe-3",
+              "parent_id": "physics-probe-2",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-4": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "-90"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-probe-4",
+              "parent_id": "physics-probe-2",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-5": {
+              "type": "physics2_set_speed",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "value": "",
+                "dir": "<shadow type=\"controller_shadow\" />"
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-probe-5",
+              "parent_id": "physics-probe-2",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-6": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "2"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-probe-6",
+              "parent_id": "physics-probe-5",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-7": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-probe-7",
+              "parent_id": "physics-probe-5",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-8": {
+              "type": "physics2_set_actor_as",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "physics_body_type": "exit_physics_world"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-probe-8",
+              "parent_id": "physics-probe-5",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-9": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-probe-9",
+              "parent_id": "physics-probe-8",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-10": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0.25"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-probe-10",
+              "parent_id": "physics-probe-9",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-11": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "sensorX"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-probe-11",
+              "parent_id": "physics-probe-9",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-12": {
+              "type": "get_3",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "0"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-probe-12",
+              "parent_id": "physics-probe-11",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-13": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "sensorY"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-probe-13",
+              "parent_id": "physics-probe-11",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-14": {
+              "type": "get_3",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "1"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-probe-14",
+              "parent_id": "physics-probe-13",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-15": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "sensorSpeed"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-probe-15",
+              "parent_id": "physics-probe-13",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-16": {
+              "type": "physics2_get_property",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "property": "speed"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-probe-16",
+              "parent_id": "physics-probe-15",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-17": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "sensorDir"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-probe-17",
+              "parent_id": "physics-probe-15",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-18": {
+              "type": "physics2_get_property",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "property": "speed_dir"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-probe-18",
+              "parent_id": "physics-probe-17",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-19": {
+              "type": "physics2_enable_force",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "is_enable": "false"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-probe-19",
+              "parent_id": "physics-probe-17",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-20": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-probe-20",
+              "parent_id": "physics-probe-19",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-21": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0.25"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-probe-21",
+              "parent_id": "physics-probe-20",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-22": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "staticX"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-probe-22",
+              "parent_id": "physics-probe-20",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-23": {
+              "type": "get_3",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "0"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-probe-23",
+              "parent_id": "physics-probe-22",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-24": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "staticY"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-probe-24",
+              "parent_id": "physics-probe-22",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-25": {
+              "type": "get_3",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "1"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-probe-25",
+              "parent_id": "physics-probe-24",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-26": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "staticSpeed"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-probe-26",
+              "parent_id": "physics-probe-24",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-27": {
+              "type": "physics2_get_property",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "property": "speed"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-probe-27",
+              "parent_id": "physics-probe-26",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-28": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "staticDir"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-probe-28",
+              "parent_id": "physics-probe-26",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-29": {
+              "type": "physics2_get_property",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "property": "speed_dir"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-probe-29",
+              "parent_id": "physics-probe-28",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-30": {
+              "type": "physics2_enable_force",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "is_enable": "true"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-probe-30",
+              "parent_id": "physics-probe-28",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-31": {
+              "type": "physics2_set_speed",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "value": "",
+                "dir": "<shadow type=\"controller_shadow\" />"
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-probe-31",
+              "parent_id": "physics-probe-30",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-32": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "2"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-probe-32",
+              "parent_id": "physics-probe-31",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-33": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-probe-33",
+              "parent_id": "physics-probe-31",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-34": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-probe-34",
+              "parent_id": "physics-probe-31",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-35": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0.25"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-probe-35",
+              "parent_id": "physics-probe-34",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-36": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "againX"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-probe-36",
+              "parent_id": "physics-probe-34",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-37": {
+              "type": "get_3",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "0"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-probe-37",
+              "parent_id": "physics-probe-36",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-38": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "againY"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-probe-38",
+              "parent_id": "physics-probe-36",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-39": {
+              "type": "get_3",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "1"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-probe-39",
+              "parent_id": "physics-probe-38",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-40": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "againSpeed"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-probe-40",
+              "parent_id": "physics-probe-38",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-41": {
+              "type": "physics2_get_property",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "property": "speed"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-probe-41",
+              "parent_id": "physics-probe-40",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-42": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "againDir"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-probe-42",
+              "parent_id": "physics-probe-40",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-43": {
+              "type": "physics2_get_property",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "property": "speed_dir"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-probe-43",
+              "parent_id": "physics-probe-42",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-44": {
+              "type": "physics2_enable_force",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "is_enable": "false"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-probe-44",
+              "parent_id": "physics-probe-42",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-45": {
+              "type": "physics2_set_actor_as",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "physics_body_type": "exit_physics_world"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-probe-45",
+              "parent_id": "physics-probe-44",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-46": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-probe-46",
+              "parent_id": "physics-probe-45",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-47": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0.25"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-probe-47",
+              "parent_id": "physics-probe-46",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-48": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "disabledX"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-probe-48",
+              "parent_id": "physics-probe-46",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-49": {
+              "type": "get_3",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "0"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-probe-49",
+              "parent_id": "physics-probe-48",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-50": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "disabledY"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-probe-50",
+              "parent_id": "physics-probe-48",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-51": {
+              "type": "get_3",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "1"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-probe-51",
+              "parent_id": "physics-probe-50",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-52": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "disabledSpeed"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-probe-52",
+              "parent_id": "physics-probe-50",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-53": {
+              "type": "physics2_get_property",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "property": "speed"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-probe-53",
+              "parent_id": "physics-probe-52",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-54": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "disabledDir"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-probe-54",
+              "parent_id": "physics-probe-52",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-55": {
+              "type": "physics2_get_property",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "property": "speed_dir"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-probe-55",
+              "parent_id": "physics-probe-54",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-56": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "done"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-probe-56",
+              "parent_id": "physics-probe-54",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-probe-57": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "1"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-probe-57",
+              "parent_id": "physics-probe-56",
+              "location": [
+                0,
+                0
+              ]
+            }
+          },
+          "connections": {
+            "physics-probe-1": {
+              "physics-probe-2": {
+                "type": "next"
+              }
+            },
+            "physics-probe-2": {
+              "physics-probe-3": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "value"
+              },
+              "physics-probe-4": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "dir"
+              },
+              "physics-probe-5": {
+                "type": "next"
+              }
+            },
+            "physics-probe-3": {},
+            "physics-probe-4": {},
+            "physics-probe-5": {
+              "physics-probe-6": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "value"
+              },
+              "physics-probe-7": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "dir"
+              },
+              "physics-probe-8": {
+                "type": "next"
+              }
+            },
+            "physics-probe-6": {},
+            "physics-probe-7": {},
+            "physics-probe-8": {
+              "physics-probe-9": {
+                "type": "next"
+              }
+            },
+            "physics-probe-9": {
+              "physics-probe-10": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              },
+              "physics-probe-11": {
+                "type": "next"
+              }
+            },
+            "physics-probe-10": {},
+            "physics-probe-11": {
+              "physics-probe-12": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "physics-probe-13": {
+                "type": "next"
+              }
+            },
+            "physics-probe-12": {},
+            "physics-probe-13": {
+              "physics-probe-14": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "physics-probe-15": {
+                "type": "next"
+              }
+            },
+            "physics-probe-14": {},
+            "physics-probe-15": {
+              "physics-probe-16": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "physics-probe-17": {
+                "type": "next"
+              }
+            },
+            "physics-probe-16": {},
+            "physics-probe-17": {
+              "physics-probe-18": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "physics-probe-19": {
+                "type": "next"
+              }
+            },
+            "physics-probe-18": {},
+            "physics-probe-19": {
+              "physics-probe-20": {
+                "type": "next"
+              }
+            },
+            "physics-probe-20": {
+              "physics-probe-21": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              },
+              "physics-probe-22": {
+                "type": "next"
+              }
+            },
+            "physics-probe-21": {},
+            "physics-probe-22": {
+              "physics-probe-23": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "physics-probe-24": {
+                "type": "next"
+              }
+            },
+            "physics-probe-23": {},
+            "physics-probe-24": {
+              "physics-probe-25": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "physics-probe-26": {
+                "type": "next"
+              }
+            },
+            "physics-probe-25": {},
+            "physics-probe-26": {
+              "physics-probe-27": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "physics-probe-28": {
+                "type": "next"
+              }
+            },
+            "physics-probe-27": {},
+            "physics-probe-28": {
+              "physics-probe-29": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "physics-probe-30": {
+                "type": "next"
+              }
+            },
+            "physics-probe-29": {},
+            "physics-probe-30": {
+              "physics-probe-31": {
+                "type": "next"
+              }
+            },
+            "physics-probe-31": {
+              "physics-probe-32": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "value"
+              },
+              "physics-probe-33": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "dir"
+              },
+              "physics-probe-34": {
+                "type": "next"
+              }
+            },
+            "physics-probe-32": {},
+            "physics-probe-33": {},
+            "physics-probe-34": {
+              "physics-probe-35": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              },
+              "physics-probe-36": {
+                "type": "next"
+              }
+            },
+            "physics-probe-35": {},
+            "physics-probe-36": {
+              "physics-probe-37": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "physics-probe-38": {
+                "type": "next"
+              }
+            },
+            "physics-probe-37": {},
+            "physics-probe-38": {
+              "physics-probe-39": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "physics-probe-40": {
+                "type": "next"
+              }
+            },
+            "physics-probe-39": {},
+            "physics-probe-40": {
+              "physics-probe-41": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "physics-probe-42": {
+                "type": "next"
+              }
+            },
+            "physics-probe-41": {},
+            "physics-probe-42": {
+              "physics-probe-43": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "physics-probe-44": {
+                "type": "next"
+              }
+            },
+            "physics-probe-43": {},
+            "physics-probe-44": {
+              "physics-probe-45": {
+                "type": "next"
+              }
+            },
+            "physics-probe-45": {
+              "physics-probe-46": {
+                "type": "next"
+              }
+            },
+            "physics-probe-46": {
+              "physics-probe-47": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              },
+              "physics-probe-48": {
+                "type": "next"
+              }
+            },
+            "physics-probe-47": {},
+            "physics-probe-48": {
+              "physics-probe-49": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "physics-probe-50": {
+                "type": "next"
+              }
+            },
+            "physics-probe-49": {},
+            "physics-probe-50": {
+              "physics-probe-51": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "physics-probe-52": {
+                "type": "next"
+              }
+            },
+            "physics-probe-51": {},
+            "physics-probe-52": {
+              "physics-probe-53": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "physics-probe-54": {
+                "type": "next"
+              }
+            },
+            "physics-probe-53": {},
+            "physics-probe-54": {
+              "physics-probe-55": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "physics-probe-56": {
+                "type": "next"
+              }
+            },
+            "physics-probe-55": {},
+            "physics-probe-56": {
+              "physics-probe-57": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              }
+            },
+            "physics-probe-57": {}
+          },
+          "comments": {}
+        },
+        "scene": "10000000-0000-4000-8000-000000000001",
+        "lock": false,
+        "editable_in_tuition_mode": true,
+        "user_change_r_c": false
+      }
+    },
+    "groups": {
+      "group": {
+        "id": "group",
+        "name": "",
+        "is_fold": false,
+        "is_group": false,
+        "actors": [
+          "20000000-0000-4000-8000-000000000001"
+        ],
+        "scene": "10000000-0000-4000-8000-000000000001",
+        "visible": true
+      }
+    },
+    "styles": {
+      "background": {
+        "id": "background",
+        "name": "background",
+        "width": 1280,
+        "height": 720,
+        "adaptive": false,
+        "pivot": {
+          "x": 0,
+          "y": 0
+        },
+        "rotate_center": {
+          "x": 0,
+          "y": 0
+        },
+        "cdn_url": "",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjgwIiBoZWlnaHQ9IjcyMCI+PHJlY3Qgd2lkdGg9IjEyODAiIGhlaWdodD0iNzIwIiBmaWxsPSIjMzM4OGFhIi8+PC9zdmc+"
+      },
+      "probe-style": {
+        "id": "probe-style",
+        "name": "probe-style",
+        "width": 20,
+        "height": 20,
+        "adaptive": false,
+        "pivot": {
+          "x": 0,
+          "y": 0
+        },
+        "rotate_center": {
+          "x": 0,
+          "y": 0
+        },
+        "cdn_url": "",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCI+PHJlY3Qgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjMzM4OGFhIi8+PC9zdmc+"
+      },
+      "floor-style": {
+        "id": "floor-style",
+        "name": "floor-style",
+        "width": 400,
+        "height": 20,
+        "adaptive": false,
+        "pivot": {
+          "x": 0,
+          "y": 0
+        },
+        "rotate_center": {
+          "x": 0,
+          "y": 0
+        },
+        "cdn_url": "",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MDAiIGhlaWdodD0iMjAiPjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMjAiIGZpbGw9IiMzMzg4YWEiLz48L3N2Zz4="
+      }
+    },
+    "videos": {},
+    "timer": {}
+  },
+  "variables": {
+    "done": {
+      "id": "done",
+      "name": "done",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "sensorX": {
+      "id": "sensorX",
+      "name": "sensorX",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "sensorY": {
+      "id": "sensorY",
+      "name": "sensorY",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "sensorSpeed": {
+      "id": "sensorSpeed",
+      "name": "sensorSpeed",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "sensorDir": {
+      "id": "sensorDir",
+      "name": "sensorDir",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "staticX": {
+      "id": "staticX",
+      "name": "staticX",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "staticY": {
+      "id": "staticY",
+      "name": "staticY",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "staticSpeed": {
+      "id": "staticSpeed",
+      "name": "staticSpeed",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "staticDir": {
+      "id": "staticDir",
+      "name": "staticDir",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "againX": {
+      "id": "againX",
+      "name": "againX",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "againY": {
+      "id": "againY",
+      "name": "againY",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "againSpeed": {
+      "id": "againSpeed",
+      "name": "againSpeed",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "againDir": {
+      "id": "againDir",
+      "name": "againDir",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "disabledX": {
+      "id": "disabledX",
+      "name": "disabledX",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "disabledY": {
+      "id": "disabledY",
+      "name": "disabledY",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "disabledSpeed": {
+      "id": "disabledSpeed",
+      "name": "disabledSpeed",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "disabledDir": {
+      "id": "disabledDir",
+      "name": "disabledDir",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    }
+  },
+  "variable_order": [
+    "done",
+    "sensorX",
+    "sensorY",
+    "sensorSpeed",
+    "sensorDir",
+    "staticX",
+    "staticY",
+    "staticSpeed",
+    "staticDir",
+    "againX",
+    "againY",
+    "againSpeed",
+    "againDir",
+    "disabledX",
+    "disabledY",
+    "disabledSpeed",
+    "disabledDir"
+  ],
+  "cloud_variables": {},
+  "audio": {},
+  "audio_order": [],
+  "midimusic": [],
+  "midi_order": [],
+  "matrix": {},
+  "models": {},
+  "toolbox": {
+    "current_type": "event",
+    "pen": false
+  },
+  "toolbox_order": [
+    "event",
+    "control",
+    "action",
+    "appearance",
+    "sensing",
+    "operator",
+    "data"
+  ],
+  "last_toolbox_order": [],
+  "hardware_type": "",
+  "is_partial": false,
+  "ai_lab": {},
+  "broadcasts": {},
+  "painter": {
+    "color": []
+  }
+}

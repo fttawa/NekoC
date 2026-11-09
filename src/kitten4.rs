@@ -373,21 +373,21 @@ fn lower_when(block: &mut Value) {
 
 /// Accepted so a work runs, but without their effect. `coverage` lists them.
 fn is_stub(kind: &str) -> bool {
-    kind.starts_with("physics2_")
-        || matches!(
-            kind,
-            "set_volume_or_rate_2"
-                | "set_layer_with_pen"
-                | "set_entity_show_hide"
-                | "self_shake"
-                | "show_ranking"
-                | "hide_ranking"
-                | "is_ranking_show_hide"
-                | "play_video"
-                | "play_video_until_end"
-                | "continue_pause_video"
-                | "show_hide_video"
-        )
+    matches!(
+        kind,
+        "set_volume_or_rate_2"
+            | "physics2_set_flexibility"
+            | "set_layer_with_pen"
+            | "set_entity_show_hide"
+            | "self_shake"
+            | "show_ranking"
+            | "hide_ranking"
+            | "is_ranking_show_hide"
+            | "play_video"
+            | "play_video_until_end"
+            | "continue_pause_video"
+            | "show_hide_video"
+    )
 }
 
 fn cloud_list(block: &mut Value, native: &str) {
@@ -410,6 +410,10 @@ fn lower_block(block: &mut Value) {
         .unwrap_or_default()
         .trim_start_matches(OPAQUE)
         .to_owned();
+    if kind.starts_with("physics2_") {
+        block["type"] = json!(kind);
+        return;
+    }
     if is_stub(&kind) || (kind == "self_change_effect_3" && field(block, "scope") == "7") {
         if kind == "is_ranking_show_hide" {
             let hidden = field(block, "VAL") == "hide";

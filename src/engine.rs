@@ -6,6 +6,7 @@ use serde::Serialize;
 use serde_json::Value;
 mod jit;
 mod kn_helpers;
+mod physics;
 mod value;
 use std::{cell::RefCell, rc::Rc};
 use std::{
@@ -180,10 +181,10 @@ fn camp_code(id: &str) -> Option<u8> {
 fn edge_target(id: &str) -> Option<usize> {
     Some(match id {
         "--edge" | "__edge" | "--boundary" | "__boundary" | "edge" => TARGET_EDGE,
-        "--edge_top" => TARGET_EDGE_SIDE,
-        "--edge_bottom" => TARGET_EDGE_SIDE - 1,
-        "--edge_left" => TARGET_EDGE_SIDE - 2,
-        "--edge_right" => TARGET_EDGE_SIDE - 3,
+        "--edge_top" | "__edge_top" => TARGET_EDGE_SIDE,
+        "--edge_bottom" | "__edge_bottom" => TARGET_EDGE_SIDE - 1,
+        "--edge_left" | "__edge_left" => TARGET_EDGE_SIDE - 2,
+        "--edge_right" | "__edge_right" => TARGET_EDGE_SIDE - 3,
         _ => return None,
     })
 }
@@ -225,6 +226,7 @@ enum ExprOp {
     OutOfBounds(usize, u8),
     /// bump_into_color: (subject actor | camp target, 0xRRGGBB)
     TouchingColor(usize, u32),
+    PhysicsProperty(physics::Property),
     Binary(Binary),
     Unary(Unary),
 }
@@ -366,6 +368,7 @@ enum Op {
     SpriteText(usize),
     TextSize(Expr),
     TextColor(u32),
+    Physics(physics::Command, Expr, Expr, Expr),
 }
 #[derive(Clone, Copy, Debug)]
 enum LayerMove {
@@ -2000,6 +2003,9 @@ impl Compiler {
                 }
             }
             "style_of_sprite" => ExprOp::Costume(self.actor_target(field(b, "sprite"))?),
+            "physics2_get_property" => {
+                ExprOp::PhysicsProperty(physics::Property::parse(field(b, "property"))?)
+            }
             "distance_to" => ExprOp::Distance(self.point_target(field(b, "sprite"))?),
             "get_clone_num" => ExprOp::CloneCount(self.actor_target(field(b, "sprite"))?),
             "bump_into" => {
@@ -2840,6 +2846,19 @@ impl Compiler {
                     block = b.get("next");
                     continue;
                 }
+                kind if kind.starts_with("physics2_") => {
+                    let command = physics::Command::parse(kind, b, |id| self.actor_target(id))?;
+                    let zero = serde_json::json!({"type":"math_number","fields":{"NUM":0}});
+                    let a = self.expr(
+                        ["value", "mass", "friction", "restitution"]
+                            .iter()
+                            .find_map(|key| b["inputs"].get(*key))
+                            .unwrap_or(&zero),
+                    )?;
+                    let dir = self.expr(b["inputs"].get("dir").unwrap_or(&zero))?;
+                    let time = self.expr(b["inputs"].get("time").unwrap_or(&zero))?;
+                    Op::Physics(command, a, dir, time)
+                }
                 "dispose_clone" => Op::DisposeClone,
                 "kitten4_dispose" => Op::DisposeSelf,
                 "set_top_bottom_layer" | "self_change_layer" => {
@@ -3441,6 +3460,7 @@ pub struct Frame {
     pub budget_yield: bool,
 }
 pub struct Engine {
+    physics: Option<Box<physics::Physics>>,
     pub program: Program,
     jit: Option<Box<jit::Jit>>,
     jit_error: Option<anyhow::Error>,
@@ -3666,6 +3686,7 @@ impl Engine {
             .iter()
             .any(|s| matches!(s.event, ScriptEvent::Bump(..)));
         Self {
+            physics: None,
             pen_rasters: vec![None; program.scenes.len()],
             bump_state: Default::default(),
             has_bump_scripts,
@@ -3736,6 +3757,7 @@ impl Engine {
         }
     }
     pub fn start(&mut self) {
+        self.physics = None;
         self.slots.clone_from(&self.program.initial);
         self.lists = self
             .program
@@ -3855,6 +3877,7 @@ impl Engine {
             costume.center_point = costume
                 .center_point
                 .map(|n| if n.is_finite() { n } else { 0.0 });
+            self.invalidate_physics_costume(id);
             self.program.costumes.insert(id.to_owned(), costume);
         }
     }
@@ -4248,6 +4271,7 @@ impl Engine {
                     .count() as f64
             }
             ExprOp::CloneIndex => self.sprites[actor].clone_index as f64,
+            ExprOp::PhysicsProperty(property) => self.physics_property(actor, property),
             ExprOp::Touching(subject, other) => {
                 // `--self` as the other side means the running actor, whatever the subject.
                 let other = if other == usize::MAX { actor } else { other };
@@ -4516,6 +4540,9 @@ impl Engine {
         let a = &self.sprites[subject];
         if !a.alive || !a.visible {
             return false;
+        }
+        if self.physics_touching(subject, other) == Some(true) {
+            return true;
         }
         match other {
             TARGET_MOUSE => self.contains(subject, self.mouse[0], self.mouse[1]),
@@ -5415,6 +5442,7 @@ impl Engine {
         }
         self.entity_values.retain(|&(actor, _), _| actor != index);
         self.bump_state.retain(|&(_, actor), _| actor != index);
+        self.remove_physics_body(index);
         for task in 0..self.tasks.len() {
             if self.tasks[task].actor == index {
                 self.finish_task(task);
@@ -6081,6 +6109,18 @@ impl Engine {
             self.dirty[actor] = true;
         }
         match op {
+            Op::Physics(command, a, dir, time) => {
+                let values = [
+                    self.eval(a, actor),
+                    self.eval(dir, actor),
+                    self.eval(time, actor),
+                ];
+                let duration = self.physics_command(actor, command, values)?;
+                if let Some(duration) = duration {
+                    self.tasks[index].wake = self.time + duration;
+                    return Ok(false);
+                }
+            }
             Op::Set(s, e) => {
                 let value = self.eval(e, actor);
                 self.assign(Target::Global(s), Cell::Number(value));
@@ -6996,6 +7036,7 @@ impl Engine {
         }
         self.received.clear();
         self.clone_counts.clear();
+        self.step_physics(dt);
         self.check_bumps();
         self.dispatch_held_keys();
         let mut count = *total_count;
