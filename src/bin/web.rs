@@ -276,6 +276,9 @@ fn frame_bytes(vm: &mut Engine, payload: &Value) -> Result<Vec<u8>> {
                 nekoc::engine::Costume {
                     width,
                     height,
+                    center_point: nekoc::engine::Costume::center_point_from_json(
+                        &costume["centerPoint"],
+                    ),
                     mask,
                     rgb,
                 },
@@ -811,6 +814,37 @@ fn serve(initial: Value, port: u16) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn frame_registers_pivot_with_costume_mask() {
+        for (pivot, expected) in [
+            (json!({"x":10,"y":6}), [10.0, 6.0]),
+            (json!({"x":"bad","y":6}), [0.0, 6.0]),
+            (Value::Null, [0.0, 0.0]),
+        ] {
+            let mut project = nekoc::studio::document::Document::blank().value().clone();
+            project["actors"]["actorsDict"]["nekoc-default-actor"]["nekoBlockJsonList"] = json!([{
+                "type":"on_running_group_activated","next":{
+                    "type":"console_log","inputs":{"console_log":{
+                        "type":"bump_into","fields":{"sprite":"__self","sprite1":"--mouse"}
+                    }}
+                }
+            }]);
+            let mut vm = Engine::new(Program::compile(&project).unwrap());
+            vm.start();
+            let bytes = frame_bytes(
+                &mut vm,
+                &json!({"mouse":{"x":-expected[0]-5.0,"y":expected[1]+3.0},"costumes":[{
+                    "id":"nekoc-costume","width":20,"height":12,"centerPoint":pivot,
+                    "mask_width":2,"mask_height":1,"mask":"AQ=="
+                }]}),
+            )
+            .unwrap();
+            let len = u32::from_le_bytes(bytes[..4].try_into().unwrap()) as usize;
+            let frame: Value = serde_json::from_slice(&bytes[4..4 + len]).unwrap();
+            assert_eq!(frame["logs"], json!(["1"]));
+        }
+    }
 
     #[test]
     fn playback_budget_is_bounded_and_editor_default_is_preserved() {

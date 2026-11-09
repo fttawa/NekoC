@@ -487,6 +487,7 @@ impl SpriteText {
 static TEXT_COSTUME: Costume = Costume {
     width: 1.0,
     height: 1.0,
+    center_point: [0.0; 2],
     mask: None,
     rgb: None,
 };
@@ -497,9 +498,55 @@ static TEXT_COSTUME: Costume = Costume {
 pub struct Costume {
     pub width: f64,
     pub height: f64,
+    /// Pivot relative to the image centre in unscaled pixels: x right, y down.
+    pub center_point: [f64; 2],
     pub mask: Option<(usize, usize, Vec<u8>)>,
     /// RGB per mask cell (row-major, 3 bytes each), sent for color sensing.
     pub rgb: Option<Vec<u8>>,
+}
+impl Costume {
+    /// Missing, nonnumeric or nonfinite pivot components default independently to zero.
+    pub fn center_point_from_json(value: &Value) -> [f64; 2] {
+        ["x", "y"].map(|key| value[key].as_f64().filter(|n| n.is_finite()).unwrap_or(0.0))
+    }
+}
+
+/// The renderer's actorGeometry in stage coordinates (y up). Signed dimensions
+/// include left/right mirroring; all collision and pen sampling uses this transform.
+struct CostumeGeometry<'a> {
+    costume: &'a Costume,
+    x: f64,
+    y: f64,
+    width: f64,
+    height: f64,
+    angle: f64,
+}
+impl CostumeGeometry<'_> {
+    fn bounds(&self) -> (f64, f64, f64, f64) {
+        let (s, c) = self.angle.sin_cos();
+        let (hw, hh) = (self.width.abs() / 2.0, self.height.abs() / 2.0);
+        let ex = hw * c.abs() + hh * s.abs();
+        let ey = hw * s.abs() + hh * c.abs();
+        (self.x - ex, self.x + ex, self.y - ey, self.y + ey)
+    }
+
+    fn uv(&self, x: f64, y: f64) -> Option<(f64, f64)> {
+        if self.width == 0.0 || self.height == 0.0 {
+            return None;
+        }
+        let (s, c) = self.angle.sin_cos();
+        let (dx, dy) = (x - self.x, y - self.y);
+        Some((
+            (c * dx - s * dy) / self.width + 0.5,
+            0.5 - (s * dx + c * dy) / self.height,
+        ))
+    }
+
+    fn point(&self, u: f64, v: f64) -> (f64, f64) {
+        let (s, c) = self.angle.sin_cos();
+        let (lx, ly) = ((u - 0.5) * self.width, (0.5 - v) * self.height);
+        (self.x + c * lx + s * ly, self.y - s * lx + c * ly)
+    }
 }
 #[derive(Clone, Debug, Serialize)]
 pub struct ImageStamp {
@@ -770,6 +817,9 @@ impl Program {
                             Costume {
                                 width,
                                 height,
+                                center_point: Costume::center_point_from_json(
+                                    &style["centerPoint"],
+                                ),
                                 mask: None,
                                 rgb: None,
                             },
@@ -3482,8 +3532,11 @@ impl Engine {
         }
     }
     /// Costume sizes and opacity masks measured by the viewer after decoding.
-    pub fn set_costume(&mut self, id: &str, costume: Costume) {
+    pub fn set_costume(&mut self, id: &str, mut costume: Costume) {
         if costume.width.is_finite() && costume.height.is_finite() {
+            costume.center_point = costume
+                .center_point
+                .map(|n| if n.is_finite() { n } else { 0.0 });
             self.program.costumes.insert(id.to_owned(), costume);
         }
     }
@@ -4053,68 +4106,63 @@ impl Engine {
         }
         out
     }
-    /// Drawn half-size and angle (radians, clockwise) like the renderer's geometry.
-    fn geometry(&self, i: usize) -> Option<(&Costume, f64, f64, f64)> {
+    /// Exactly the viewer's spriteGeometry + actorGeometry. Frames and image
+    /// stamps subtract costume_turn before reaching the viewer; do that here too.
+    fn geometry(&self, i: usize) -> Option<CostumeGeometry<'_>> {
         let a = &self.sprites[i];
-        let (costume, scale) = if let Some(text) = &a.text {
+        let (costume, w, h, pivot) = if let Some(text) = &a.text {
             let (w, h) = text.extent();
-            let angle = if a.rotation_type == 0 {
-                (a.direction - self.program.costume_turn).to_radians()
-            } else {
-                0.0
-            };
-            let s = a.scale / 100.0;
-            return Some((
-                &TEXT_COSTUME,
-                w * s * a.size_x / 100.0,
-                h * s * a.size_y / 100.0,
-                angle,
-            ));
+            (&TEXT_COSTUME, w, h, [0.0; 2])
         } else {
-            (
-                self.program.costumes.get(a.style.as_deref()?)?,
-                a.scale / 100.0,
-            )
+            let costume = self.program.costumes.get(a.style.as_deref()?)?;
+            (costume, costume.width, costume.height, costume.center_point)
         };
-        let w = costume.width * scale * a.size_x / 100.0;
-        let h = costume.height * scale * a.size_y / 100.0;
+        let scale = a.scale / 100.0;
+        let mut width = w * scale * a.size_x / 100.0;
+        let height = h * scale * a.size_y / 100.0;
+        let direction = a.direction - self.program.costume_turn;
         let angle = if a.rotation_type == 0 {
-            (a.direction - self.program.costume_turn).to_radians()
+            direction.to_radians()
         } else {
+            if a.rotation_type == 1 && (direction % 360.0 + 540.0) % 360.0 - 180.0 < 0.0 {
+                width = -width;
+            }
             0.0
         };
-        Some((costume, w, h, angle))
+        let (s, c) = angle.sin_cos();
+        // Use signed drawn dimensions, just as actorGeometry does. Avoid 0/0
+        // for empty images; their dimensions still make them non-hittable.
+        let dx = if w == 0.0 { 0.0 } else { -pivot[0] * width / w };
+        let dy = if h == 0.0 { 0.0 } else { pivot[1] * height / h };
+        Some(CostumeGeometry {
+            costume,
+            x: a.x + c * dx + s * dy,
+            y: a.y - s * dx + c * dy,
+            width,
+            height,
+            angle,
+        })
     }
     /// Axis-aligned bounds (left, right, bottom, top) of a sprite on the stage.
     fn bounds(&self, i: usize) -> (f64, f64, f64, f64) {
         let a = &self.sprites[i];
-        let Some((_, w, h, angle)) = self.geometry(i) else {
+        let Some(geometry) = self.geometry(i) else {
             return (a.x, a.x, a.y, a.y);
         };
-        let (s, c) = angle.sin_cos();
-        let (hw, hh) = (w.abs() / 2.0, h.abs() / 2.0);
-        let ex = hw * c.abs() + hh * s.abs();
-        let ey = hw * s.abs() + hh * c.abs();
-        (a.x - ex, a.x + ex, a.y - ey, a.y + ey)
+        geometry.bounds()
     }
     /// Whether a stage point lies on an opaque part of sprite `i`.
     fn contains(&self, i: usize, x: f64, y: f64) -> bool {
-        let a = &self.sprites[i];
-        let Some((costume, w, h, angle)) = self.geometry(i) else {
+        let Some(geometry) = self.geometry(i) else {
             return false;
         };
-        if w == 0.0 || h == 0.0 {
+        let Some((u, v)) = geometry.uv(x, y) else {
             return false;
-        }
-        let (s, c) = angle.sin_cos();
-        let (dx, dy) = (x - a.x, y - a.y);
-        // Inverse of the renderer's clockwise rotation, then normalised costume coords.
-        let u = (c * dx - s * dy) / w + 0.5;
-        let v = 0.5 - (s * dx + c * dy) / h;
+        };
         if !(0.0..1.0).contains(&u) || !(0.0..1.0).contains(&v) {
             return false;
         }
-        match &costume.mask {
+        match &geometry.costume.mask {
             None => true,
             Some((mw, mh, bits)) => {
                 let (px, py) = ((u * *mw as f64) as usize, (v * *mh as f64) as usize);
@@ -4189,15 +4237,9 @@ impl Engine {
     /// Needs the viewer's costume colours; effects other than opacity are ignored.
     fn color_at(&self, i: usize, x: f64, y: f64) -> Option<([f64; 3], f64)> {
         let a = &self.sprites[i];
-        let (costume, w, h, angle) = self.geometry(i)?;
-        if w == 0.0 || h == 0.0 {
-            return None;
-        }
-        let (s, c) = angle.sin_cos();
-        let (dx, dy) = (x - a.x, y - a.y);
-        let u = (c * dx - s * dy) / w + 0.5;
-        let v = 0.5 - (s * dx + c * dy) / h;
-        self.costume_texel(costume, u, v)
+        let geometry = self.geometry(i)?;
+        let (u, v) = geometry.uv(x, y)?;
+        self.costume_texel(geometry.costume, u, v)
             .map(|rgb| (rgb, a.opacity.clamp(0.0, 1.0)))
     }
     /// Costume colour at normalised (u, v), None where transparent or unknown.
@@ -4378,12 +4420,13 @@ impl Engine {
         if !a.alive || !a.visible || a.stage {
             return false;
         }
-        let Some((costume, w, h, angle)) = self.geometry(actor) else {
+        let Some(geometry) = self.geometry(actor) else {
             return false;
         };
-        if w == 0.0 || h == 0.0 {
+        if geometry.width == 0.0 || geometry.height == 0.0 {
             return false;
         }
+        let costume = geometry.costume;
         let target = [(color >> 16) as u8, (color >> 8) as u8, color as u8];
         let matches = |c: [f64; 3]| {
             let c = c.map(|v| v.round().clamp(0.0, 255.0) as u8);
@@ -4410,7 +4453,6 @@ impl Engine {
             .as_ref()
             .map_or((32, 32), |(mw, mh, _)| (*mw, *mh));
         let step = ((mw * mh) as f64 / 2000.0).sqrt().ceil().max(1.0) as usize;
-        let (s, c) = angle.sin_cos();
         let (hw, hh) = (self.program.width / 2.0, self.program.height / 2.0);
         for cy in (0..mh).step_by(step) {
             for cx in (0..mw).step_by(step) {
@@ -4424,9 +4466,7 @@ impl Engine {
                         continue;
                     }
                 }
-                let (lx, ly) = ((u - 0.5) * w, (0.5 - v) * h);
-                let x = a.x + c * lx + s * ly;
-                let y = a.y - s * lx + c * ly;
+                let (x, y) = geometry.point(u, v);
                 if x.abs() > hw || y.abs() > hh {
                     continue;
                 }
@@ -4461,6 +4501,18 @@ impl Engine {
             _ => dy = dy.abs(),
         }
         a.direction = dx.atan2(dy).to_degrees();
+        // A nonzero pivot moves the texture centre when reflection changes its
+        // angle (or mirror sign). Push the *new* bounds inside. Keep the legacy
+        // zero-pivot bounce correction unchanged.
+        let (l, r, b, t) = if self
+            .geometry(actor)
+            .is_some_and(|g| g.costume.center_point != [0.0; 2])
+        {
+            self.bounds(actor)
+        } else {
+            (l, r, b, t)
+        };
+        let a = &mut self.sprites[actor];
         // Push back inside along every violated axis.
         if l < -w {
             a.x += -w - l;
@@ -6491,5 +6543,224 @@ impl Sprite {
         for (dst, src) in self.color[..3].iter_mut().zip(rgb) {
             *dst = (src + m) as f32;
         }
+    }
+}
+
+#[cfg(test)]
+mod pivot_tests {
+    use super::*;
+    use serde_json::json;
+
+    fn engine() -> Engine {
+        let p = crate::studio::document::Document::blank().value().clone();
+        let mut vm = Engine::new(Program::compile(&p).unwrap());
+        vm.start();
+        vm.set_costume(
+            "nekoc-costume",
+            Costume {
+                width: 20.0,
+                height: 12.0,
+                center_point: [10.0, 6.0],
+                // Top-left only, so tests detect mirrored/rotated mask coordinates.
+                mask: Some((2, 2, vec![1])),
+                rgb: Some(vec![255, 0, 0, 0, 255, 0, 0, 0, 255, 0, 0, 0]),
+            },
+        );
+        let a = &mut vm.sprites[1];
+        a.x = 30.0;
+        a.y = 40.0;
+        vm
+    }
+
+    fn close(actual: f64, expected: f64) {
+        assert!((actual - expected).abs() < 1e-9, "{actual} != {expected}");
+    }
+
+    #[test]
+    fn renderer_pivot_cases_match_bounds_masks_and_colours() {
+        let cases: Value = serde_json::from_str(include_str!("../tests/pivot-cases.json")).unwrap();
+        for case in cases.as_array().unwrap() {
+            let mut vm = engine();
+            vm.program.costume_turn = case["turn"].as_f64().unwrap();
+            let a = &mut vm.sprites[1];
+            a.direction = case["direction"].as_f64().unwrap();
+            a.rotation_type = case["rotation_type"].as_u64().unwrap() as u8;
+            a.scale = case["scale"].as_f64().unwrap();
+            a.size_x = case["size_x"].as_f64().unwrap();
+            a.size_y = case["size_y"].as_f64().unwrap();
+            let g = vm.geometry(1).unwrap();
+            for (actual, expected) in [g.x, g.y]
+                .into_iter()
+                .zip(case["center"].as_array().unwrap())
+            {
+                close(actual, expected.as_f64().unwrap());
+            }
+            for (actual, expected) in [g.width, g.height, g.angle.to_degrees()]
+                .into_iter()
+                .zip(case["drawn"].as_array().unwrap())
+            {
+                close(actual, expected.as_f64().unwrap());
+            }
+            let (l, r, b, t) = vm.bounds(1);
+            for (actual, expected) in [l, r, b, t]
+                .into_iter()
+                .zip(case["bounds"].as_array().unwrap())
+            {
+                close(actual, expected.as_f64().unwrap());
+            }
+            for (u, v, hit) in [
+                (0.25, 0.25, true),
+                (0.75, 0.25, false),
+                (0.25, 0.75, false),
+                (-0.1, 0.5, false),
+            ] {
+                // Independent forward transform using the shared renderer fixture.
+                let angle = case["drawn"][2].as_f64().unwrap().to_radians();
+                let (s, c) = angle.sin_cos();
+                let dx = (u - 0.5) * case["drawn"][0].as_f64().unwrap();
+                let dy = (0.5 - v) * case["drawn"][1].as_f64().unwrap();
+                let x = case["center"][0].as_f64().unwrap() + c * dx + s * dy;
+                let y = case["center"][1].as_f64().unwrap() - s * dx + c * dy;
+                assert_eq!(vm.contains(1, x, y), hit, "{}", case["name"]);
+                assert_eq!(vm.color_at(1, x, y).is_some(), hit);
+                vm.set_mouse(x, y);
+                assert_eq!(vm.touching(1, TARGET_MOUSE), hit);
+            }
+            let (x, y) = vm.geometry(1).unwrap().point(0.25, 0.25);
+            vm.raster_stamp(1);
+            assert_eq!(vm.stage_color(x, y, 1, &[]), [255.0, 0.0, 0.0]);
+            assert_eq!(vm.stage_color(200.0, 200.0, 1, &[]), [255.0; 3]);
+        }
+    }
+
+    #[test]
+    fn zero_pivot_preserves_centred_geometry_and_empty_costumes_do_not_hit() {
+        let mut vm = engine();
+        vm.program
+            .costumes
+            .get_mut("nekoc-costume")
+            .unwrap()
+            .center_point = [0.0; 2];
+        for turn in [0.0, 90.0] {
+            vm.program.costume_turn = turn;
+            for rotation_type in [0, 1, 2] {
+                for direction in [0.0, 90.0, 180.0, -90.0] {
+                    let a = &mut vm.sprites[1];
+                    a.direction = direction;
+                    a.rotation_type = rotation_type;
+                    a.scale = 200.0;
+                    a.size_x = 150.0;
+                    a.size_y = 50.0;
+                    let angle = if rotation_type == 0 {
+                        (direction - turn).to_radians()
+                    } else {
+                        0.0
+                    };
+                    let (s, c) = angle.sin_cos();
+                    let ex = 30.0 * c.abs() + 6.0 * s.abs();
+                    let ey = 30.0 * s.abs() + 6.0 * c.abs();
+                    let (l, r, b, t) = vm.bounds(1);
+                    for (actual, expected) in
+                        [l, r, b, t]
+                            .into_iter()
+                            .zip([30.0 - ex, 30.0 + ex, 40.0 - ey, 40.0 + ey])
+                    {
+                        close(actual, expected);
+                    }
+                    let g = vm.geometry(1).unwrap();
+                    assert_eq!((g.x, g.y), (30.0, 40.0));
+                }
+            }
+        }
+        vm.sprites[1].scale = 0.0;
+        assert!(!vm.contains(1, 30.0, 40.0));
+        assert!(vm.color_at(1, 30.0, 40.0).is_none());
+    }
+
+    #[test]
+    fn pivot_overlap_colour_sensing_and_pen_stamp_use_the_same_position() {
+        let mut vm = engine();
+        // At zero rotation the centre would be (-80, 0), far from actor position.
+        vm.program
+            .costumes
+            .get_mut("nekoc-costume")
+            .unwrap()
+            .center_point = [80.0, 0.0];
+        vm.sprites[1].x = 0.0;
+        vm.sprites[1].y = 0.0;
+        vm.sprites[1].direction = 90.0;
+        // At 90 degrees the opaque top-left quarter lies near (3, 85).
+        let (x, y) = vm.geometry(1).unwrap().point(0.25, 0.25);
+        vm.sprites.push(vm.sprites[1].clone());
+        vm.sprites[2].style = Some("probe".into());
+        vm.sprites[2].x = x;
+        vm.sprites[2].y = y;
+        vm.sprites[2].direction = 0.0;
+        vm.set_costume(
+            "probe",
+            Costume {
+                width: 2.0,
+                height: 2.0,
+                mask: Some((1, 1, vec![1])),
+                rgb: Some(vec![0, 0, 255]),
+                ..Costume::default()
+            },
+        );
+        vm.order.push(2);
+        assert!(vm.overlap(1, 2));
+        assert!(vm.touching_color(2, 0xff0000)); // other actor's inverse transform
+        assert!(vm.touching_color(1, 0x0000ff)); // subject's forward transform
+        vm.raster_stamp(1);
+        vm.sprites[1].visible = false;
+        assert!(vm.touching_color(2, 0xff0000)); // red remains in pen raster
+        assert_eq!(vm.stage_color(0.0, 0.0, 2, &[]), [255.0; 3]);
+        vm.sprites[2].x = 0.0;
+        vm.sprites[2].y = 0.0;
+        assert!(!vm.overlap(1, 2));
+        assert!(!vm.touching_color(2, 0xff0000));
+    }
+
+    #[test]
+    fn pivot_edge_detection_and_bounce_correct_the_reflected_bounds() {
+        let mut vm = engine();
+        vm.program
+            .costumes
+            .get_mut("nekoc-costume")
+            .unwrap()
+            .center_point = [-30.0, 0.0];
+        vm.sprites[1].x = vm.program.width / 2.0 - 20.0;
+        vm.sprites[1].y = 0.0;
+        vm.sprites[1].direction = 45.0;
+        assert!(vm.touching(1, TARGET_EDGE));
+        vm.bounce(1);
+        close(vm.sprites[1].direction, -45.0);
+        let (l, r, b, t) = vm.bounds(1);
+        assert!(l >= -vm.program.width / 2.0 && r <= vm.program.width / 2.0 + 1e-9);
+        assert!(b >= -vm.program.height / 2.0 && t <= vm.program.height / 2.0);
+    }
+
+    #[test]
+    fn pivot_registration_defaults_invalid_components_without_changing_size_policy() {
+        assert_eq!(
+            Costume::center_point_from_json(&json!({"x":"bad","y":6})),
+            [0.0, 6.0]
+        );
+        assert_eq!(Costume::center_point_from_json(&Value::Null), [0.0; 2]);
+        let mut vm = engine();
+        let mut costume = vm.program.costumes["nekoc-costume"].clone();
+        costume.center_point = [f64::NAN, f64::INFINITY];
+        vm.set_costume("nekoc-costume", costume.clone());
+        assert_eq!(vm.program.costumes["nekoc-costume"].center_point, [0.0; 2]);
+        costume.width = f64::NAN;
+        costume.center_point = [1.0; 2];
+        vm.set_costume("nekoc-costume", costume);
+        assert_eq!(vm.program.costumes["nekoc-costume"].width, 20.0);
+        assert_eq!(vm.program.costumes["nekoc-costume"].center_point, [0.0; 2]);
+        let mut p = crate::studio::document::Document::blank().value().clone();
+        p["styles"]["stylesDict"]["nekoc-costume"] = json!({
+            "width":20,"height":12,"centerPoint":{"x":10,"y":6}
+        });
+        let program = Program::compile(&p).unwrap();
+        assert_eq!(program.costumes["nekoc-costume"].center_point, [10.0, 6.0]);
     }
 }
