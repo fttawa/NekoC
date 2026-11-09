@@ -308,16 +308,15 @@ fn lower_when(block: &mut Value) {
 
 /// Accepted so a work runs, but without their effect. `coverage` lists them.
 fn is_stub(kind: &str) -> bool {
-    kind.starts_with("physics2_")
-        || matches!(
-            kind,
-            "set_volume_or_rate_2"
-                | "set_layer_with_pen"
-                | "set_pen_path"
-                | "set_fill_style"
-                | "set_entity_show_hide"
-                | "self_shake"
-        )
+    matches!(
+        kind,
+        "set_volume_or_rate_2"
+            | "set_layer_with_pen"
+            | "set_pen_path"
+            | "set_fill_style"
+            | "set_entity_show_hide"
+            | "self_shake"
+    )
 }
 
 fn cloud_list(block: &mut Value, native: &str) {
@@ -340,6 +339,10 @@ fn lower_block(block: &mut Value) {
         .unwrap_or_default()
         .trim_start_matches(OPAQUE)
         .to_owned();
+    if kind.starts_with("physics2_") {
+        block["type"] = json!(kind);
+        return;
+    }
     if is_stub(&kind) || (kind == "self_change_effect_3" && field(block, "scope") == "7") {
         block["type"] = json!("kitten4_noop");
         return;

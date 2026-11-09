@@ -1,0 +1,2309 @@
+{
+  "officialUrl": "https://kitten4.codemao.cn/",
+  "verifiedAt": "2026-11-09T15:56:36.843Z",
+  "browserVersion": "157.0.4341.42",
+  "cases": {
+    "speed": {
+      "checkpoints": [
+        {
+          "afterDelayMs": 150,
+          "state": {
+            "variables": {
+              "done": 0,
+              "initialX": 0,
+              "initialY": 0,
+              "initialSpeed": 12,
+              "initialDir": 0,
+              "movingX": 0,
+              "movingY": 0,
+              "movingSpeed": 0,
+              "movingDir": 0,
+              "verticalX": 0,
+              "verticalY": 0,
+              "verticalSpeed": 0,
+              "verticalDir": 0
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 540,
+                "y": 0
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 500,
+          "state": {
+            "variables": {
+              "done": 1,
+              "initialX": 0,
+              "initialY": 0,
+              "initialSpeed": 12,
+              "initialDir": 0,
+              "movingX": 840,
+              "movingY": 0,
+              "movingSpeed": 12,
+              "movingDir": 0,
+              "verticalX": 840,
+              "verticalY": -150,
+              "verticalSpeed": 2,
+              "verticalDir": -90
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 840,
+                "y": -246.66666666666652
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 650,
+          "state": {
+            "variables": {
+              "done": 1,
+              "initialX": 0,
+              "initialY": 0,
+              "initialSpeed": 12,
+              "initialDir": 0,
+              "movingX": 840,
+              "movingY": 0,
+              "movingSpeed": 12,
+              "movingDir": 0,
+              "verticalX": 840,
+              "verticalY": -150,
+              "verticalSpeed": 2,
+              "verticalDir": -90
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 840,
+                "y": -630.0000000000017
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 1050,
+          "state": {
+            "variables": {
+              "done": 1,
+              "initialX": 0,
+              "initialY": 0,
+              "initialSpeed": 12,
+              "initialDir": 0,
+              "movingX": 840,
+              "movingY": 0,
+              "movingSpeed": 12,
+              "movingDir": 0,
+              "verticalX": 840,
+              "verticalY": -150,
+              "verticalSpeed": 2,
+              "verticalDir": -90
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 840,
+                "y": -1236.6666666666601
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 1800,
+          "state": {
+            "variables": {
+              "done": 1,
+              "initialX": 0,
+              "initialY": 0,
+              "initialSpeed": 12,
+              "initialDir": 0,
+              "movingX": 840,
+              "movingY": 0,
+              "movingSpeed": 12,
+              "movingDir": 0,
+              "verticalX": 840,
+              "verticalY": -150,
+              "verticalSpeed": 2,
+              "verticalDir": -90
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 840,
+                "y": -2296.6666666666883
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        }
+      ],
+      "pageErrors": [],
+      "fixture": "tests/fixtures/kitten4/physics-speed.bcm",
+      "sha256": "46dbcd660b38b7dcbe2f846db7f897b86c5d54f22654546ad756946e50d08ed6",
+      "scripts": [
+        "https://kitten4.codemao.cn/browser-tip.js",
+        "https://creation.codemao.cn/kitten/build/72.d0c8e590841d585ca222.js",
+        "https://creation.codemao.cn/kitten/build/80.d10abbe101f61f1643c5.js",
+        "https://creation.codemao.cn/kitten/build/77.79dad0a4712bd232538c.js",
+        "https://creation.codemao.cn/kitten/build/73.04a112a110855e63b496.js",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://creation.codemao.cn/kitten/build/36.588b10f9f832eb8cf934.js",
+        "https://creation.codemao.cn/kitten/build/6.be5157efbeb0ba432d5f.js",
+        "https://creation.codemao.cn/kitten/build/libs/lottie_svg_cmao.min.js",
+        "https://creation.codemao.cn/kitten/build/runtime.43302e3ecf1fd4923b40.js",
+        "https://creation.codemao.cn/kitten/build/vendors.5035cd22e77914a9f363.js",
+        "https://creation.codemao.cn/kitten/build/kitten.99f88a64d495cf0e79d0.js"
+      ],
+      "applicationVersion": "4.11.20",
+      "workspaceIssues": []
+    },
+    "default": {
+      "checkpoints": [
+        {
+          "afterDelayMs": 150,
+          "state": {
+            "variables": {
+              "done": 0,
+              "mass": 0.33,
+              "friction": 0.1,
+              "restitution": 0,
+              "fallingX": 0,
+              "fallingY": 0,
+              "fallingSpeed": 0,
+              "fallingDir": 0
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 0,
+                "y": -76.66666666666666
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 500,
+          "state": {
+            "variables": {
+              "done": 1,
+              "mass": 0.33,
+              "friction": 0.1,
+              "restitution": 0,
+              "fallingX": 0,
+              "fallingY": -205.83,
+              "fallingSpeed": 6.33,
+              "fallingDir": -90
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 0,
+                "y": -1510.0000000000002
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 650,
+          "state": {
+            "variables": {
+              "done": 1,
+              "mass": 0.33,
+              "friction": 0.1,
+              "restitution": 0,
+              "fallingX": 0,
+              "fallingY": -205.83,
+              "fallingSpeed": 6.33,
+              "fallingDir": -90
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 0,
+                "y": -3770.0000000000005
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 1050,
+          "state": {
+            "variables": {
+              "done": 1,
+              "mass": 0.33,
+              "friction": 0.1,
+              "restitution": 0,
+              "fallingX": 0,
+              "fallingY": -205.83,
+              "fallingSpeed": 6.33,
+              "fallingDir": -90
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 0,
+                "y": -7450.000000000001
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 1800,
+          "state": {
+            "variables": {
+              "done": 1,
+              "mass": 0.33,
+              "friction": 0.1,
+              "restitution": 0,
+              "fallingX": 0,
+              "fallingY": -205.83,
+              "fallingSpeed": 6.33,
+              "fallingDir": -90
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 0,
+                "y": -13770
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        }
+      ],
+      "pageErrors": [],
+      "fixture": "tests/fixtures/kitten4/physics-default.bcm",
+      "sha256": "fa37bc6006c0ac8ae52fa40f3f83cc93f1fdfff942c12b8ed4d8b3b0ed2b06f2",
+      "scripts": [
+        "https://kitten4.codemao.cn/browser-tip.js",
+        "https://creation.codemao.cn/kitten/build/72.d0c8e590841d585ca222.js",
+        "https://creation.codemao.cn/kitten/build/80.d10abbe101f61f1643c5.js",
+        "https://creation.codemao.cn/kitten/build/77.79dad0a4712bd232538c.js",
+        "https://creation.codemao.cn/kitten/build/73.04a112a110855e63b496.js",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://creation.codemao.cn/kitten/build/36.588b10f9f832eb8cf934.js",
+        "https://creation.codemao.cn/kitten/build/6.be5157efbeb0ba432d5f.js",
+        "https://creation.codemao.cn/kitten/build/libs/lottie_svg_cmao.min.js",
+        "https://creation.codemao.cn/kitten/build/runtime.43302e3ecf1fd4923b40.js",
+        "https://creation.codemao.cn/kitten/build/vendors.5035cd22e77914a9f363.js",
+        "https://creation.codemao.cn/kitten/build/kitten.99f88a64d495cf0e79d0.js"
+      ],
+      "applicationVersion": "4.11.20",
+      "workspaceIssues": []
+    },
+    "gravity": {
+      "checkpoints": [
+        {
+          "afterDelayMs": 150,
+          "state": {
+            "variables": {
+              "done": 0,
+              "fallingX": 0,
+              "fallingY": 0,
+              "fallingSpeed": 0,
+              "fallingDir": 0,
+              "stoppedX": 0,
+              "stoppedY": 0,
+              "stoppedSpeed": 0,
+              "stoppedDir": 0
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 1.214306433183765e-15,
+                "y": -19.499999999999996
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 500,
+          "state": {
+            "variables": {
+              "done": 1,
+              "fallingX": 0,
+              "fallingY": -45.56,
+              "fallingSpeed": 1.33,
+              "fallingDir": -90,
+              "stoppedX": 0,
+              "stoppedY": -45.56,
+              "stoppedSpeed": 0,
+              "stoppedDir": 0
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 2.7929047963226594e-15,
+                "y": -45.55555555555556
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 650,
+          "state": {
+            "variables": {
+              "done": 1,
+              "fallingX": 0,
+              "fallingY": -45.56,
+              "fallingSpeed": 1.33,
+              "fallingDir": -90,
+              "stoppedX": 0,
+              "stoppedY": -45.56,
+              "stoppedSpeed": 0,
+              "stoppedDir": 0
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 2.7929047963226594e-15,
+                "y": -45.55555555555556
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 1050,
+          "state": {
+            "variables": {
+              "done": 1,
+              "fallingX": 0,
+              "fallingY": -45.56,
+              "fallingSpeed": 1.33,
+              "fallingDir": -90,
+              "stoppedX": 0,
+              "stoppedY": -45.56,
+              "stoppedSpeed": 0,
+              "stoppedDir": 0
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 2.7929047963226594e-15,
+                "y": -45.55555555555556
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 1800,
+          "state": {
+            "variables": {
+              "done": 1,
+              "fallingX": 0,
+              "fallingY": -45.56,
+              "fallingSpeed": 1.33,
+              "fallingDir": -90,
+              "stoppedX": 0,
+              "stoppedY": -45.56,
+              "stoppedSpeed": 0,
+              "stoppedDir": 0
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 2.7929047963226594e-15,
+                "y": -45.55555555555556
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        }
+      ],
+      "pageErrors": [],
+      "fixture": "tests/fixtures/kitten4/physics-gravity.bcm",
+      "sha256": "cc92b560e4ab5b5e3c393a44e3a9b03df9ab7c0df7c91408a9b3cb2eb0a47eae",
+      "scripts": [
+        "https://kitten4.codemao.cn/browser-tip.js",
+        "https://creation.codemao.cn/kitten/build/72.d0c8e590841d585ca222.js",
+        "https://creation.codemao.cn/kitten/build/80.d10abbe101f61f1643c5.js",
+        "https://creation.codemao.cn/kitten/build/77.79dad0a4712bd232538c.js",
+        "https://creation.codemao.cn/kitten/build/73.04a112a110855e63b496.js",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://creation.codemao.cn/kitten/build/36.588b10f9f832eb8cf934.js",
+        "https://creation.codemao.cn/kitten/build/6.be5157efbeb0ba432d5f.js",
+        "https://creation.codemao.cn/kitten/build/libs/lottie_svg_cmao.min.js",
+        "https://creation.codemao.cn/kitten/build/runtime.43302e3ecf1fd4923b40.js",
+        "https://creation.codemao.cn/kitten/build/vendors.5035cd22e77914a9f363.js",
+        "https://creation.codemao.cn/kitten/build/kitten.99f88a64d495cf0e79d0.js"
+      ],
+      "applicationVersion": "4.11.20",
+      "workspaceIssues": []
+    },
+    "flags": {
+      "checkpoints": [
+        {
+          "afterDelayMs": 150,
+          "state": {
+            "variables": {
+              "done": 0,
+              "sensorX": 0,
+              "sensorY": 0,
+              "sensorSpeed": 0,
+              "sensorDir": 0,
+              "staticX": 0,
+              "staticY": 0,
+              "staticSpeed": 0,
+              "staticDir": 0,
+              "againX": 0,
+              "againY": 0,
+              "againSpeed": 0,
+              "againDir": 0,
+              "disabledX": 0,
+              "disabledY": 0,
+              "disabledSpeed": 0,
+              "disabledDir": 0
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 96.66666666666669,
+                "y": 0
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 500,
+          "state": {
+            "variables": {
+              "done": 0,
+              "sensorX": 146.67,
+              "sensorY": 0,
+              "sensorSpeed": 2,
+              "sensorDir": 0,
+              "staticX": 146.67,
+              "staticY": 0,
+              "staticSpeed": 2,
+              "staticDir": 0,
+              "againX": 0,
+              "againY": 0,
+              "againSpeed": 0,
+              "againDir": 0,
+              "disabledX": 0,
+              "disabledY": 0,
+              "disabledSpeed": 0,
+              "disabledDir": 0
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 249.99999999999977,
+                "y": 0
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 650,
+          "state": {
+            "variables": {
+              "done": 1,
+              "sensorX": 146.67,
+              "sensorY": 0,
+              "sensorSpeed": 2,
+              "sensorDir": 0,
+              "staticX": 146.67,
+              "staticY": 0,
+              "staticSpeed": 2,
+              "staticDir": 0,
+              "againX": 296.67,
+              "againY": 0,
+              "againSpeed": 2,
+              "againDir": 0,
+              "disabledX": 296.67,
+              "disabledY": 0,
+              "disabledSpeed": 2,
+              "disabledDir": 0
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 296.6666666666663,
+                "y": 0
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 1050,
+          "state": {
+            "variables": {
+              "done": 1,
+              "sensorX": 146.67,
+              "sensorY": 0,
+              "sensorSpeed": 2,
+              "sensorDir": 0,
+              "staticX": 146.67,
+              "staticY": 0,
+              "staticSpeed": 2,
+              "staticDir": 0,
+              "againX": 296.67,
+              "againY": 0,
+              "againSpeed": 2,
+              "againDir": 0,
+              "disabledX": 296.67,
+              "disabledY": 0,
+              "disabledSpeed": 2,
+              "disabledDir": 0
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 296.6666666666663,
+                "y": 0
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 1800,
+          "state": {
+            "variables": {
+              "done": 1,
+              "sensorX": 146.67,
+              "sensorY": 0,
+              "sensorSpeed": 2,
+              "sensorDir": 0,
+              "staticX": 146.67,
+              "staticY": 0,
+              "staticSpeed": 2,
+              "staticDir": 0,
+              "againX": 296.67,
+              "againY": 0,
+              "againSpeed": 2,
+              "againDir": 0,
+              "disabledX": 296.67,
+              "disabledY": 0,
+              "disabledSpeed": 2,
+              "disabledDir": 0
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 296.6666666666663,
+                "y": 0
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        }
+      ],
+      "pageErrors": [],
+      "fixture": "tests/fixtures/kitten4/physics-flags.bcm",
+      "sha256": "a280e522f7d035fd34d99e44f65c0efeb803d86f2e66721aea9de9a5b1a5eaca",
+      "scripts": [
+        "https://kitten4.codemao.cn/browser-tip.js",
+        "https://creation.codemao.cn/kitten/build/72.d0c8e590841d585ca222.js",
+        "https://creation.codemao.cn/kitten/build/80.d10abbe101f61f1643c5.js",
+        "https://creation.codemao.cn/kitten/build/77.79dad0a4712bd232538c.js",
+        "https://creation.codemao.cn/kitten/build/73.04a112a110855e63b496.js",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://creation.codemao.cn/kitten/build/36.588b10f9f832eb8cf934.js",
+        "https://creation.codemao.cn/kitten/build/6.be5157efbeb0ba432d5f.js",
+        "https://creation.codemao.cn/kitten/build/libs/lottie_svg_cmao.min.js",
+        "https://creation.codemao.cn/kitten/build/runtime.43302e3ecf1fd4923b40.js",
+        "https://creation.codemao.cn/kitten/build/vendors.5035cd22e77914a9f363.js",
+        "https://creation.codemao.cn/kitten/build/kitten.99f88a64d495cf0e79d0.js"
+      ],
+      "applicationVersion": "4.11.20",
+      "workspaceIssues": []
+    },
+    "properties": {
+      "checkpoints": [
+        {
+          "afterDelayMs": 150,
+          "state": {
+            "variables": {
+              "done": 1,
+              "mass": 2,
+              "friction": 1,
+              "restitution": 0,
+              "flexibility": 50
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 0,
+                "y": 0
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 500,
+          "state": {
+            "variables": {
+              "done": 1,
+              "mass": 2,
+              "friction": 1,
+              "restitution": 0,
+              "flexibility": 50
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 0,
+                "y": 0
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 650,
+          "state": {
+            "variables": {
+              "done": 1,
+              "mass": 2,
+              "friction": 1,
+              "restitution": 0,
+              "flexibility": 50
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 0,
+                "y": 0
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 1050,
+          "state": {
+            "variables": {
+              "done": 1,
+              "mass": 2,
+              "friction": 1,
+              "restitution": 0,
+              "flexibility": 50
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 0,
+                "y": 0
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 1800,
+          "state": {
+            "variables": {
+              "done": 1,
+              "mass": 2,
+              "friction": 1,
+              "restitution": 0,
+              "flexibility": 50
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 0,
+                "y": 0
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        }
+      ],
+      "pageErrors": [],
+      "fixture": "tests/fixtures/kitten4/physics-properties.bcm",
+      "sha256": "0f5743d7acd1700991b5ab43ba881ed0d8ec080d3baed3733ab9965ed96a838a",
+      "scripts": [
+        "https://kitten4.codemao.cn/browser-tip.js",
+        "https://creation.codemao.cn/kitten/build/72.d0c8e590841d585ca222.js",
+        "https://creation.codemao.cn/kitten/build/80.d10abbe101f61f1643c5.js",
+        "https://creation.codemao.cn/kitten/build/77.79dad0a4712bd232538c.js",
+        "https://creation.codemao.cn/kitten/build/73.04a112a110855e63b496.js",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://creation.codemao.cn/kitten/build/36.588b10f9f832eb8cf934.js",
+        "https://creation.codemao.cn/kitten/build/6.be5157efbeb0ba432d5f.js",
+        "https://creation.codemao.cn/kitten/build/libs/lottie_svg_cmao.min.js",
+        "https://creation.codemao.cn/kitten/build/runtime.43302e3ecf1fd4923b40.js",
+        "https://creation.codemao.cn/kitten/build/vendors.5035cd22e77914a9f363.js",
+        "https://creation.codemao.cn/kitten/build/kitten.99f88a64d495cf0e79d0.js"
+      ],
+      "applicationVersion": "4.11.20",
+      "workspaceIssues": []
+    },
+    "force": {
+      "checkpoints": [
+        {
+          "afterDelayMs": 150,
+          "state": {
+            "variables": {
+              "done": 0,
+              "pushedX": 0,
+              "pushedY": 0,
+              "pushedSpeed": 0,
+              "pushedDir": 0
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 3.6666666666666665,
+                "y": 0
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 500,
+          "state": {
+            "variables": {
+              "done": 1,
+              "pushedX": 6.33,
+              "pushedY": 0,
+              "pushedSpeed": 0.1,
+              "pushedDir": 0
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 18.333333333333318,
+                "y": 0
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 650,
+          "state": {
+            "variables": {
+              "done": 1,
+              "pushedX": 6.33,
+              "pushedY": 0,
+              "pushedSpeed": 0.1,
+              "pushedDir": 0
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 37.33333333333326,
+                "y": 0
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 1050,
+          "state": {
+            "variables": {
+              "done": 1,
+              "pushedX": 6.33,
+              "pushedY": 0,
+              "pushedSpeed": 0.1,
+              "pushedDir": 0
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 67.83333333333314,
+                "y": 0
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 1800,
+          "state": {
+            "variables": {
+              "done": 1,
+              "pushedX": 6.33,
+              "pushedY": 0,
+              "pushedSpeed": 0.1,
+              "pushedDir": 0
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 119.83333333333508,
+                "y": 0
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        }
+      ],
+      "pageErrors": [],
+      "fixture": "tests/fixtures/kitten4/physics-force.bcm",
+      "sha256": "7fd42c895bf4a614c8072e0eabe47b06f0cafb587b195d9438d98501a9e7e2fc",
+      "scripts": [
+        "https://kitten4.codemao.cn/browser-tip.js",
+        "https://creation.codemao.cn/kitten/build/72.d0c8e590841d585ca222.js",
+        "https://creation.codemao.cn/kitten/build/80.d10abbe101f61f1643c5.js",
+        "https://creation.codemao.cn/kitten/build/77.79dad0a4712bd232538c.js",
+        "https://creation.codemao.cn/kitten/build/73.04a112a110855e63b496.js",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://creation.codemao.cn/kitten/build/36.588b10f9f832eb8cf934.js",
+        "https://creation.codemao.cn/kitten/build/6.be5157efbeb0ba432d5f.js",
+        "https://creation.codemao.cn/kitten/build/libs/lottie_svg_cmao.min.js",
+        "https://creation.codemao.cn/kitten/build/runtime.43302e3ecf1fd4923b40.js",
+        "https://creation.codemao.cn/kitten/build/vendors.5035cd22e77914a9f363.js",
+        "https://creation.codemao.cn/kitten/build/kitten.99f88a64d495cf0e79d0.js"
+      ],
+      "applicationVersion": "4.11.20",
+      "workspaceIssues": []
+    },
+    "timed": {
+      "checkpoints": [
+        {
+          "afterDelayMs": 150,
+          "state": {
+            "variables": {
+              "done": 0,
+              "completeX": 0,
+              "completeY": 0,
+              "completeSpeed": 0,
+              "completeDir": 0,
+              "coastingX": 0,
+              "coastingY": 0,
+              "coastingSpeed": 0,
+              "coastingDir": 0
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 3.833333333333333,
+                "y": 0
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 500,
+          "state": {
+            "variables": {
+              "done": 1,
+              "completeX": 25.42,
+              "completeY": 0,
+              "completeSpeed": 0.5,
+              "completeDir": 0,
+              "coastingX": 62.92,
+              "coastingY": 0,
+              "coastingSpeed": 0.5,
+              "coastingDir": 0
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 67.9166666666666,
+                "y": 0
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 650,
+          "state": {
+            "variables": {
+              "done": 1,
+              "completeX": 25.42,
+              "completeY": 0,
+              "completeSpeed": 0.5,
+              "completeDir": 0,
+              "coastingX": 62.92,
+              "coastingY": 0,
+              "coastingSpeed": 0.5,
+              "coastingDir": 0
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 163.7500000000004,
+                "y": 0
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 1050,
+          "state": {
+            "variables": {
+              "done": 1,
+              "completeX": 25.42,
+              "completeY": 0,
+              "completeSpeed": 0.5,
+              "completeDir": 0,
+              "coastingX": 62.92,
+              "coastingY": 0,
+              "coastingSpeed": 0.5,
+              "coastingDir": 0
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 316.24999999999824,
+                "y": 0
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 1800,
+          "state": {
+            "variables": {
+              "done": 1,
+              "completeX": 25.42,
+              "completeY": 0,
+              "completeSpeed": 0.5,
+              "completeDir": 0,
+              "coastingX": 62.92,
+              "coastingY": 0,
+              "coastingSpeed": 0.5,
+              "coastingDir": 0
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 574.5833333333387,
+                "y": 0
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        }
+      ],
+      "pageErrors": [],
+      "fixture": "tests/fixtures/kitten4/physics-timed.bcm",
+      "sha256": "678397c4be7ca8ae73f8a726a2fceb8bf31242f059094286136b1b5bef4e194a",
+      "scripts": [
+        "https://kitten4.codemao.cn/browser-tip.js",
+        "https://creation.codemao.cn/kitten/build/72.d0c8e590841d585ca222.js",
+        "https://creation.codemao.cn/kitten/build/80.d10abbe101f61f1643c5.js",
+        "https://creation.codemao.cn/kitten/build/77.79dad0a4712bd232538c.js",
+        "https://creation.codemao.cn/kitten/build/73.04a112a110855e63b496.js",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://creation.codemao.cn/kitten/build/36.588b10f9f832eb8cf934.js",
+        "https://creation.codemao.cn/kitten/build/6.be5157efbeb0ba432d5f.js",
+        "https://creation.codemao.cn/kitten/build/libs/lottie_svg_cmao.min.js",
+        "https://creation.codemao.cn/kitten/build/runtime.43302e3ecf1fd4923b40.js",
+        "https://creation.codemao.cn/kitten/build/vendors.5035cd22e77914a9f363.js",
+        "https://creation.codemao.cn/kitten/build/kitten.99f88a64d495cf0e79d0.js"
+      ],
+      "applicationVersion": "4.11.20",
+      "workspaceIssues": []
+    },
+    "fractional": {
+      "checkpoints": [
+        {
+          "afterDelayMs": 150,
+          "state": {
+            "variables": {
+              "done": 0,
+              "passed": 1,
+              "unchangedX": 0,
+              "unchangedY": 0,
+              "unchangedSpeed": 0,
+              "unchangedDir": 0
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 0,
+                "y": 0
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 500,
+          "state": {
+            "variables": {
+              "done": 1,
+              "passed": 1,
+              "unchangedX": 0,
+              "unchangedY": 0,
+              "unchangedSpeed": 0,
+              "unchangedDir": 0
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 0,
+                "y": 0
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 650,
+          "state": {
+            "variables": {
+              "done": 1,
+              "passed": 1,
+              "unchangedX": 0,
+              "unchangedY": 0,
+              "unchangedSpeed": 0,
+              "unchangedDir": 0
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 0,
+                "y": 0
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 1050,
+          "state": {
+            "variables": {
+              "done": 1,
+              "passed": 1,
+              "unchangedX": 0,
+              "unchangedY": 0,
+              "unchangedSpeed": 0,
+              "unchangedDir": 0
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 0,
+                "y": 0
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 1800,
+          "state": {
+            "variables": {
+              "done": 1,
+              "passed": 1,
+              "unchangedX": 0,
+              "unchangedY": 0,
+              "unchangedSpeed": 0,
+              "unchangedDir": 0
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 0,
+                "y": 0
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        }
+      ],
+      "pageErrors": [],
+      "fixture": "tests/fixtures/kitten4/physics-fractional.bcm",
+      "sha256": "16339364f336e723f49dabdf7cd12315b540475930e998c70c0972961da998ea",
+      "scripts": [
+        "https://kitten4.codemao.cn/browser-tip.js",
+        "https://creation.codemao.cn/kitten/build/72.d0c8e590841d585ca222.js",
+        "https://creation.codemao.cn/kitten/build/80.d10abbe101f61f1643c5.js",
+        "https://creation.codemao.cn/kitten/build/77.79dad0a4712bd232538c.js",
+        "https://creation.codemao.cn/kitten/build/73.04a112a110855e63b496.js",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://creation.codemao.cn/kitten/build/36.588b10f9f832eb8cf934.js",
+        "https://creation.codemao.cn/kitten/build/6.be5157efbeb0ba432d5f.js",
+        "https://creation.codemao.cn/kitten/build/libs/lottie_svg_cmao.min.js",
+        "https://creation.codemao.cn/kitten/build/runtime.43302e3ecf1fd4923b40.js",
+        "https://creation.codemao.cn/kitten/build/vendors.5035cd22e77914a9f363.js",
+        "https://creation.codemao.cn/kitten/build/kitten.99f88a64d495cf0e79d0.js"
+      ],
+      "applicationVersion": "4.11.20",
+      "workspaceIssues": []
+    },
+    "boundary": {
+      "checkpoints": [
+        {
+          "afterDelayMs": 150,
+          "state": {
+            "variables": {
+              "done": 0,
+              "restingX": 0,
+              "restingY": 0,
+              "restingSpeed": 0,
+              "restingDir": 0,
+              "touching": 0,
+              "throughX": 0,
+              "throughY": 0,
+              "throughSpeed": 0,
+              "throughDir": 0
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 1.1275702593849246e-15,
+                "y": -18.055555555555554
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 500,
+          "state": {
+            "variables": {
+              "done": 0,
+              "restingX": 0,
+              "restingY": 0,
+              "restingSpeed": 0,
+              "restingDir": 0,
+              "touching": 0,
+              "throughX": 0,
+              "throughY": 0,
+              "throughSpeed": 0,
+              "throughDir": 0
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 2.1441182163073336e-14,
+                "y": -349.851
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 650,
+          "state": {
+            "variables": {
+              "done": 0,
+              "restingX": 0,
+              "restingY": 0,
+              "restingSpeed": 0,
+              "restingDir": 0,
+              "touching": 0,
+              "throughX": 0,
+              "throughY": 0,
+              "throughSpeed": 0,
+              "throughDir": 0
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 2.1441182163073336e-14,
+                "y": -349.8500015474251
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 1050,
+          "state": {
+            "variables": {
+              "done": 0,
+              "restingX": 0,
+              "restingY": 0,
+              "restingSpeed": 0,
+              "restingDir": 0,
+              "touching": 0,
+              "throughX": 0,
+              "throughY": 0,
+              "throughSpeed": 0,
+              "throughDir": 0
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 2.1441182163073336e-14,
+                "y": -349.8500015474251
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 1800,
+          "state": {
+            "variables": {
+              "done": 1,
+              "restingX": 0,
+              "restingY": -349.85,
+              "restingSpeed": 0,
+              "restingDir": 0,
+              "touching": true,
+              "throughX": 0,
+              "throughY": -562.52,
+              "throughSpeed": 2.9,
+              "throughDir": -90
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 9.537509670920485e-14,
+                "y": -1557.405557102982
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        }
+      ],
+      "pageErrors": [],
+      "fixture": "tests/fixtures/kitten4/physics-boundary.bcm",
+      "sha256": "54fb3cdd9518900e42dd6afa70dcf4300627560d7084bd05db9377ab130d4d03",
+      "scripts": [
+        "https://kitten4.codemao.cn/browser-tip.js",
+        "https://creation.codemao.cn/kitten/build/72.d0c8e590841d585ca222.js",
+        "https://creation.codemao.cn/kitten/build/80.d10abbe101f61f1643c5.js",
+        "https://creation.codemao.cn/kitten/build/77.79dad0a4712bd232538c.js",
+        "https://creation.codemao.cn/kitten/build/73.04a112a110855e63b496.js",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://creation.codemao.cn/kitten/build/36.588b10f9f832eb8cf934.js",
+        "https://creation.codemao.cn/kitten/build/6.be5157efbeb0ba432d5f.js",
+        "https://creation.codemao.cn/kitten/build/libs/lottie_svg_cmao.min.js",
+        "https://creation.codemao.cn/kitten/build/runtime.43302e3ecf1fd4923b40.js",
+        "https://creation.codemao.cn/kitten/build/vendors.5035cd22e77914a9f363.js",
+        "https://creation.codemao.cn/kitten/build/kitten.99f88a64d495cf0e79d0.js"
+      ],
+      "applicationVersion": "4.11.20",
+      "workspaceIssues": []
+    },
+    "collision": {
+      "checkpoints": [
+        {
+          "afterDelayMs": 150,
+          "state": {
+            "variables": {
+              "done": 1,
+              "restingX": 0,
+              "restingY": 0,
+              "restingSpeed": 0,
+              "restingDir": 0,
+              "touching": 0,
+              "throughX": 0,
+              "throughY": 0,
+              "throughSpeed": 0,
+              "throughDir": 0
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 1.1275702593849246e-15,
+                "y": -18.055555555555554
+              },
+              "20000000-0000-4000-8000-000000000002": {
+                "x": 0,
+                "y": -80.05555555555554
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 500,
+          "state": {
+            "variables": {
+              "done": 1,
+              "restingX": 0,
+              "restingY": 0,
+              "restingSpeed": 0,
+              "restingDir": 0,
+              "touching": 0,
+              "throughX": 0,
+              "throughY": 0,
+              "throughSpeed": 0,
+              "throughDir": 0
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 3.677613769070831e-15,
+                "y": -59.90556174525574
+              },
+              "20000000-0000-4000-8000-000000000002": {
+                "x": 0,
+                "y": -80.05555555555554
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 650,
+          "state": {
+            "variables": {
+              "done": 1,
+              "restingX": 0,
+              "restingY": -59.91,
+              "restingSpeed": 0,
+              "restingDir": 0,
+              "touching": true,
+              "throughX": 0,
+              "throughY": 0,
+              "throughSpeed": 0,
+              "throughDir": 0
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 9.298117831235686e-15,
+                "y": -151.73889507858905
+              },
+              "20000000-0000-4000-8000-000000000002": {
+                "x": 0,
+                "y": -80.05555555555554
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 1050,
+          "state": {
+            "variables": {
+              "done": 1,
+              "restingX": 0,
+              "restingY": -59.91,
+              "restingSpeed": 0,
+              "restingDir": 0,
+              "touching": true,
+              "throughX": 0,
+              "throughY": -282.41,
+              "throughSpeed": 2.97,
+              "throughDir": -90
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 1.0123846205800646e-13,
+                "y": -1653.23889507859
+              },
+              "20000000-0000-4000-8000-000000000002": {
+                "x": 0,
+                "y": -80.05555555555554
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 1800,
+          "state": {
+            "variables": {
+              "done": 1,
+              "restingX": 0,
+              "restingY": -59.91,
+              "restingSpeed": 0,
+              "restingDir": 0,
+              "touching": true,
+              "throughX": 0,
+              "throughY": -282.41,
+              "throughSpeed": 2.97,
+              "throughDir": -90
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 4.611762360884342e-13,
+                "y": -7509.90556174525
+              },
+              "20000000-0000-4000-8000-000000000002": {
+                "x": 0,
+                "y": -80.05555555555554
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        }
+      ],
+      "pageErrors": [],
+      "fixture": "tests/fixtures/kitten4/physics-collision.bcm",
+      "sha256": "4fd4ff3dc78d6b536e275e9e4a59a675f7cabfe4fa7db1fd0148f009d0825edf",
+      "scripts": [
+        "https://kitten4.codemao.cn/browser-tip.js",
+        "https://creation.codemao.cn/kitten/build/72.d0c8e590841d585ca222.js",
+        "https://creation.codemao.cn/kitten/build/80.d10abbe101f61f1643c5.js",
+        "https://creation.codemao.cn/kitten/build/77.79dad0a4712bd232538c.js",
+        "https://creation.codemao.cn/kitten/build/73.04a112a110855e63b496.js",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://creation.codemao.cn/kitten/build/36.588b10f9f832eb8cf934.js",
+        "https://creation.codemao.cn/kitten/build/6.be5157efbeb0ba432d5f.js",
+        "https://creation.codemao.cn/kitten/build/libs/lottie_svg_cmao.min.js",
+        "https://creation.codemao.cn/kitten/build/runtime.43302e3ecf1fd4923b40.js",
+        "https://creation.codemao.cn/kitten/build/vendors.5035cd22e77914a9f363.js",
+        "https://creation.codemao.cn/kitten/build/kitten.99f88a64d495cf0e79d0.js"
+      ],
+      "applicationVersion": "4.11.20",
+      "workspaceIssues": []
+    },
+    "bounce": {
+      "checkpoints": [
+        {
+          "afterDelayMs": 150,
+          "state": {
+            "variables": {
+              "done": 0,
+              "bouncedX": 0,
+              "bouncedY": 0,
+              "bouncedSpeed": 0,
+              "bouncedDir": 0
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 9.54097911787244e-16,
+                "y": -15.333333333333332
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 500,
+          "state": {
+            "variables": {
+              "done": 0,
+              "bouncedX": 0,
+              "bouncedY": 0,
+              "bouncedSpeed": 0,
+              "bouncedDir": 0
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 2.114627917215728e-14,
+                "y": -345.33333333333314
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 650,
+          "state": {
+            "variables": {
+              "done": 1,
+              "bouncedX": 0,
+              "bouncedY": -348.25,
+              "bouncedSpeed": 3.73,
+              "bouncedDir": 90
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 4.335073966466041e-14,
+                "y": -2.968229166666973
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 1050,
+          "state": {
+            "variables": {
+              "done": 1,
+              "bouncedX": 0,
+              "bouncedY": -348.25,
+              "bouncedSpeed": 3.73,
+              "bouncedDir": 90
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 1.158274864909714e-13,
+                "y": -41.166666666666615
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 1800,
+          "state": {
+            "variables": {
+              "done": 1,
+              "bouncedX": 0,
+              "bouncedY": -348.25,
+              "bouncedSpeed": 3.73,
+              "bouncedDir": 90
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 2.3652954594943765e-13,
+                "y": -70.96822916666697
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        }
+      ],
+      "pageErrors": [],
+      "fixture": "tests/fixtures/kitten4/physics-bounce.bcm",
+      "sha256": "7fdd1ed81317281286fda4fbdb80e66d3a3a79b2cdf8fbbb9733b62b6205cf0a",
+      "scripts": [
+        "https://kitten4.codemao.cn/browser-tip.js",
+        "https://creation.codemao.cn/kitten/build/72.d0c8e590841d585ca222.js",
+        "https://creation.codemao.cn/kitten/build/80.d10abbe101f61f1643c5.js",
+        "https://creation.codemao.cn/kitten/build/77.79dad0a4712bd232538c.js",
+        "https://creation.codemao.cn/kitten/build/73.04a112a110855e63b496.js",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://creation.codemao.cn/kitten/build/36.588b10f9f832eb8cf934.js",
+        "https://creation.codemao.cn/kitten/build/6.be5157efbeb0ba432d5f.js",
+        "https://creation.codemao.cn/kitten/build/libs/lottie_svg_cmao.min.js",
+        "https://creation.codemao.cn/kitten/build/runtime.43302e3ecf1fd4923b40.js",
+        "https://creation.codemao.cn/kitten/build/vendors.5035cd22e77914a9f363.js",
+        "https://creation.codemao.cn/kitten/build/kitten.99f88a64d495cf0e79d0.js"
+      ],
+      "applicationVersion": "4.11.20",
+      "workspaceIssues": []
+    },
+    "friction": {
+      "checkpoints": [
+        {
+          "afterDelayMs": 150,
+          "state": {
+            "variables": {
+              "done": 1,
+              "slidingX": 0,
+              "slidingY": 0,
+              "slidingSpeed": 0,
+              "slidingDir": 0
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 7.28583859910259e-16,
+                "y": -11.666666666666664
+              },
+              "20000000-0000-4000-8000-000000000002": {
+                "x": 0,
+                "y": -80.05555555555554
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 500,
+          "state": {
+            "variables": {
+              "done": 1,
+              "slidingX": 0,
+              "slidingY": 0,
+              "slidingSpeed": 0,
+              "slidingDir": 0
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 3.677613769070831e-15,
+                "y": -59.90556174525574
+              },
+              "20000000-0000-4000-8000-000000000002": {
+                "x": 0,
+                "y": -80.05555555555554
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 650,
+          "state": {
+            "variables": {
+              "done": 1,
+              "slidingX": 0,
+              "slidingY": 0,
+              "slidingSpeed": 0,
+              "slidingDir": 0
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 160.95975015412077,
+                "y": -59.905555555574075
+              },
+              "20000000-0000-4000-8000-000000000002": {
+                "x": 0,
+                "y": -80.05555555555554
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 1050,
+          "state": {
+            "variables": {
+              "done": 1,
+              "slidingX": 221.44,
+              "slidingY": -61.46,
+              "slidingSpeed": 1.19,
+              "slidingDir": -11.3
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 519.0889609407794,
+                "y": -775.4611111111113
+              },
+              "20000000-0000-4000-8000-000000000002": {
+                "x": 0,
+                "y": -80.05555555555554
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 1800,
+          "state": {
+            "variables": {
+              "done": 1,
+              "slidingX": 221.44,
+              "slidingY": -61.46,
+              "slidingSpeed": 1.19,
+              "slidingDir": -11.3
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 1098.6635238280076,
+                "y": -5961.803030422725
+              },
+              "20000000-0000-4000-8000-000000000002": {
+                "x": 0,
+                "y": -80.05555555555554
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        }
+      ],
+      "pageErrors": [],
+      "fixture": "tests/fixtures/kitten4/physics-friction.bcm",
+      "sha256": "25ced83422b279a0b42a93ea570cef5fb7904082b8d9b82b91125fc27b66ca48",
+      "scripts": [
+        "https://kitten4.codemao.cn/browser-tip.js",
+        "https://creation.codemao.cn/kitten/build/72.d0c8e590841d585ca222.js",
+        "https://creation.codemao.cn/kitten/build/80.d10abbe101f61f1643c5.js",
+        "https://creation.codemao.cn/kitten/build/77.79dad0a4712bd232538c.js",
+        "https://creation.codemao.cn/kitten/build/73.04a112a110855e63b496.js",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://creation.codemao.cn/kitten/build/36.588b10f9f832eb8cf934.js",
+        "https://creation.codemao.cn/kitten/build/6.be5157efbeb0ba432d5f.js",
+        "https://creation.codemao.cn/kitten/build/libs/lottie_svg_cmao.min.js",
+        "https://creation.codemao.cn/kitten/build/runtime.43302e3ecf1fd4923b40.js",
+        "https://creation.codemao.cn/kitten/build/vendors.5035cd22e77914a9f363.js",
+        "https://creation.codemao.cn/kitten/build/kitten.99f88a64d495cf0e79d0.js"
+      ],
+      "applicationVersion": "4.11.20",
+      "workspaceIssues": []
+    },
+    "rotation": {
+      "checkpoints": [
+        {
+          "afterDelayMs": 150,
+          "state": {
+            "variables": {
+              "done": 1,
+              "rotation": 0,
+              "tippedX": 0,
+              "tippedY": 0,
+              "tippedSpeed": 0,
+              "tippedDir": 0
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 12,
+                "y": -15.333333333333332
+              },
+              "20000000-0000-4000-8000-000000000002": {
+                "x": 0,
+                "y": -80.05555555555557
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 500,
+          "state": {
+            "variables": {
+              "done": 1,
+              "rotation": 0,
+              "tippedX": 0,
+              "tippedY": 0,
+              "tippedSpeed": 0,
+              "tippedDir": 0
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 86.5445359653082,
+                "y": -177.84321783754888
+              },
+              "20000000-0000-4000-8000-000000000002": {
+                "x": 0,
+                "y": -80.05555555555557
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 650,
+          "state": {
+            "variables": {
+              "done": 1,
+              "rotation": 130.47,
+              "tippedX": 157.82,
+              "tippedY": -486.25,
+              "tippedSpeed": 4.16,
+              "tippedDir": -80.01
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 227.56614678109406,
+                "y": -977.9883389577756
+              },
+              "20000000-0000-4000-8000-000000000002": {
+                "x": 0,
+                "y": -80.05555555555557
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 1050,
+          "state": {
+            "variables": {
+              "done": 1,
+              "rotation": 130.47,
+              "tippedX": 157.82,
+              "tippedY": -486.25,
+              "tippedSpeed": 4.16,
+              "tippedDir": -80.01
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 449.14591624833434,
+                "y": -3772.689122390263
+              },
+              "20000000-0000-4000-8000-000000000002": {
+                "x": 0,
+                "y": -80.05555555555557
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        },
+        {
+          "afterDelayMs": 1800,
+          "state": {
+            "variables": {
+              "done": 1,
+              "rotation": 130.47,
+              "tippedX": 157.82,
+              "tippedY": -486.25,
+              "tippedSpeed": 4.16,
+              "tippedDir": -80.01
+            },
+            "actors": {
+              "20000000-0000-4000-8000-000000000001": {
+                "x": 700.3887757170271,
+                "y": -10187.624473156506
+              },
+              "20000000-0000-4000-8000-000000000002": {
+                "x": 0,
+                "y": -80.05555555555557
+              }
+            },
+            "error": {
+              "error_string": "",
+              "show_error": false,
+              "bottom": 0,
+              "left": 0,
+              "show_more_info": false
+            },
+            "running": true
+          }
+        }
+      ],
+      "pageErrors": [],
+      "fixture": "tests/fixtures/kitten4/physics-rotation.bcm",
+      "sha256": "778f4d36a0681b69d9df27f0d5b93c14d22fa2f6210207581bc995bcc16671d8",
+      "scripts": [
+        "https://kitten4.codemao.cn/browser-tip.js",
+        "https://creation.codemao.cn/kitten/build/72.d0c8e590841d585ca222.js",
+        "https://creation.codemao.cn/kitten/build/80.d10abbe101f61f1643c5.js",
+        "https://creation.codemao.cn/kitten/build/77.79dad0a4712bd232538c.js",
+        "https://creation.codemao.cn/kitten/build/73.04a112a110855e63b496.js",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://creation.codemao.cn/kitten/build/36.588b10f9f832eb8cf934.js",
+        "https://creation.codemao.cn/kitten/build/6.be5157efbeb0ba432d5f.js",
+        "https://creation.codemao.cn/kitten/build/libs/lottie_svg_cmao.min.js",
+        "https://creation.codemao.cn/kitten/build/runtime.43302e3ecf1fd4923b40.js",
+        "https://creation.codemao.cn/kitten/build/vendors.5035cd22e77914a9f363.js",
+        "https://creation.codemao.cn/kitten/build/kitten.99f88a64d495cf0e79d0.js"
+      ],
+      "applicationVersion": "4.11.20",
+      "workspaceIssues": []
+    },
+    "soft": {
+      "checkpoints": [],
+      "pageErrors": [],
+      "fixture": "tests/fixtures/kitten4/physics-soft.bcm",
+      "sha256": "c7399818645676429cba722b2b334c355e7632a0d73dcac08bf8e3cb453effc1",
+      "scripts": [
+        "https://kitten4.codemao.cn/browser-tip.js",
+        "https://creation.codemao.cn/kitten/build/72.d0c8e590841d585ca222.js",
+        "https://creation.codemao.cn/kitten/build/80.d10abbe101f61f1643c5.js",
+        "https://creation.codemao.cn/kitten/build/77.79dad0a4712bd232538c.js",
+        "https://creation.codemao.cn/kitten/build/73.04a112a110855e63b496.js",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://pv.sohu.com/cityjson?ie=utf-8",
+        "https://creation.codemao.cn/kitten/build/36.588b10f9f832eb8cf934.js",
+        "https://creation.codemao.cn/kitten/build/6.be5157efbeb0ba432d5f.js",
+        "https://creation.codemao.cn/kitten/build/libs/lottie_svg_cmao.min.js",
+        "https://creation.codemao.cn/kitten/build/runtime.43302e3ecf1fd4923b40.js",
+        "https://creation.codemao.cn/kitten/build/vendors.5035cd22e77914a9f363.js",
+        "https://creation.codemao.cn/kitten/build/kitten.99f88a64d495cf0e79d0.js"
+      ],
+      "applicationVersion": "4.11.20",
+      "workspaceIssues": [],
+      "error": "TimeoutError: locator.dispatchEvent: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#btn_trigger')\u001b[22m\n"
+    }
+  },
+  "ok": false
+}
