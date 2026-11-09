@@ -747,7 +747,12 @@ fn inject_procedures(project: &mut Value, procedures: Vec<CompiledProcedure>) {
 
 fn ensure_variables(project: &mut Value, scripts: &mut [Value]) {
     let referenced = collect_referenced_variable_names(scripts);
-    let mapping = ensure_variable_names(project, referenced);
+    let ids = existing_reference_ids(project, false);
+    let mut mapping =
+        ensure_variable_names(project, referenced.difference(&ids).cloned().collect());
+    // Field references may already be ids. Exact, same-kind ids take precedence
+    // over names; punctuation alone must never classify a name as an id.
+    mapping.extend(ids.into_iter().map(|id| (id.clone(), id)));
     rewrite_variable_fields(scripts, &mapping);
 }
 
@@ -772,19 +777,32 @@ fn ensure_variable_names(
 
 fn ensure_lists(project: &mut Value, scripts: &mut [Value]) {
     let existing = collect_existing_lists(project);
+    let ids = existing_reference_ids(project, true);
     let referenced = collect_referenced_list_names(scripts);
     let mut mapping = existing;
     let mut used = dictionary_ids(project, "/variables/variablesDict");
 
-    for name in referenced {
+    for name in referenced.difference(&ids) {
         mapping.entry(name.clone()).or_insert_with(|| {
-            let id = allocate_id(&format!("kn-list-{}", sanitize_id_part(&name)), &mut used);
-            insert_list(project, &id, &name);
+            let id = allocate_id(&format!("kn-list-{}", sanitize_id_part(name)), &mut used);
+            insert_list(project, &id, name);
             id
         });
     }
 
+    mapping.extend(ids.into_iter().map(|id| (id.clone(), id)));
     rewrite_list_fields(scripts, &mapping);
+}
+
+fn existing_reference_ids(project: &Value, lists: bool) -> BTreeSet<String> {
+    project
+        .pointer("/variables/variablesDict")
+        .and_then(Value::as_object)
+        .into_iter()
+        .flatten()
+        .filter(|(_, variable)| (variable["type"] == "list") == lists)
+        .map(|(id, _)| id.clone())
+        .collect()
 }
 
 fn ensure_broadcasts(project: &mut Value, scripts: &[Value]) {
