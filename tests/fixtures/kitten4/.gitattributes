@@ -1,0 +1,3 @@
+# Official oracle hashes identify exact self-authored BCM bytes on every OS.
+semantics-*.bcm text eol=lf
+semantics-official.json text eol=lf
