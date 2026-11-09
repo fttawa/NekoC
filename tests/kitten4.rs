@@ -15,6 +15,25 @@ fn canonical_blank() -> Value {
     value
 }
 
+#[test]
+fn rotate_center_is_an_unscaled_image_centre_offset_without_axis_conversion() {
+    let mut native = fixture();
+    let styles = native["theatre"]["styles"].as_object_mut().unwrap();
+    let (id, style) = styles.iter_mut().next().unwrap();
+    let id = id.clone();
+    style["rotate_center"] = json!({"x":17,"y":-9});
+    style["width"] = json!(40);
+    style["height"] = json!(24);
+    let canonical = kitten4::to_neko(&native).unwrap();
+    assert_eq!(
+        canonical["styles"]["stylesDict"][&id]["centerPoint"],
+        json!({"x":17,"y":-9})
+    );
+    let program = Program::compile(&canonical).unwrap();
+    assert_eq!(program.costume_turn, 90.0);
+    assert_eq!(kitten4::from_neko(&canonical).unwrap(), native);
+}
+
 fn workspace(project: &mut Value) -> &mut Value {
     &mut project["theatre"]["actors"]["nekoc-pen-actor"]["block_data_json"]
 }

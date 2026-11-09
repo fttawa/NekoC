@@ -670,6 +670,8 @@ fn import_project(source: &Value) -> Result<Value> {
         .or_else(|| scenes.keys().next().map(String::as_str));
     let mut styles = object_or_empty(theatre.get("styles"), "theatre.styles")?;
     for style in styles.values_mut() {
+        // Both editors pass this unscaled, image-centred (x right, y down)
+        // offset directly to the runtime pivot; see docs/costume-pivot.md.
         rename(style, "rotate_center", "centerPoint");
     }
     let mut variables = object_or_empty(source.get("variables"), "variables")?;

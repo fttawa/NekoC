@@ -354,7 +354,7 @@ export class StageRenderer {
         if(image.alpha[sy*image.width+sx]>0){const bit=y*mw+x;bits[bit>>3]|=1<<(bit&7);}
       }
       let binary='';for(let i=0;i<bits.length;i+=8192)binary+=String.fromCharCode(...bits.subarray(i,i+8192));
-      const info={id,width:image.width,height:image.height,mask_width:mw,mask_height:mh,mask:btoa(binary)};
+      const info={id,width:image.width,height:image.height,centerPoint:image.centerPoint??{x:0,y:0},mask_width:mw,mask_height:mh,mask:btoa(binary)};
       if(colors&&image.rgb){let text='';for(let i=0;i<image.rgb.length;i+=8190)text+=String.fromCharCode(...image.rgb.subarray(i,i+8190));info.rgb=btoa(text);}
       out.push(info);
     }

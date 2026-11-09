@@ -1778,6 +1778,7 @@ fn square(vm: &mut Engine, ring: bool) {
         Costume {
             width: 40.0,
             height: 40.0,
+            center_point: [0.0; 2],
             mask: Some((4, 4, bits)),
             rgb: None,
         },
@@ -1849,6 +1850,45 @@ fn bounce_reflects_off_the_nearest_edge_and_moves_inside() {
         a.x
     );
     assert_eq!(vm.numeric_variables()[0], 0.0);
+}
+
+#[test]
+fn pivot_boundary_reporter_and_image_stamp_keep_actor_coordinates() {
+    let mut p = project(chain(vec![
+        set(
+            "before",
+            json!({"type":"out_of_boundary","fields":{"boundary":"right"}}),
+        ),
+        json!({"type":"image_stamp"}),
+        json!({"type":"self_bounce_off_edge"}),
+        set(
+            "after",
+            json!({"type":"out_of_boundary","fields":{"boundary":"right"}}),
+        ),
+    ]));
+    for name in ["before", "after"] {
+        p["variables"]["variablesDict"][name] = json!({"id":name,"value":-1});
+    }
+    let a = &mut p["actors"]["actorsDict"]["nekoc-default-actor"];
+    a["position"] = json!({"x":430,"y":0});
+    a["rotation"] = json!(std::f64::consts::FRAC_PI_4);
+    let mut vm = Engine::new(Program::compile(&p).unwrap());
+    vm.set_costume(
+        "nekoc-costume",
+        Costume {
+            width: 20.0,
+            height: 12.0,
+            center_point: [-30.0, 0.0],
+            ..Costume::default()
+        },
+    );
+    vm.start();
+    let f = frame(&mut vm);
+    // Numeric variables are sorted by ID: after, before.
+    assert_eq!(vm.numeric_variables(), &[0.0, 1.0]);
+    let stamp = &f.image_stamps[0];
+    assert_eq!((stamp.x, stamp.y, stamp.direction), (430.0, 0.0, 45.0));
+    assert_eq!(stamp.style.as_deref(), Some("nekoc-costume"));
 }
 
 #[test]
@@ -2227,6 +2267,7 @@ fn solid(width: f64, height: f64, rgb: [u8; 3]) -> Costume {
     Costume {
         width,
         height,
+        center_point: [0.0; 2],
         mask: Some((40, 40, vec![0xff; 200])),
         rgb: Some(rgb.repeat(1600)),
     }
