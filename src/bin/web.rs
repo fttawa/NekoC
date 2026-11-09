@@ -1,6 +1,7 @@
 use anyhow::{Context, Result, bail, ensure};
 use clap::Parser;
 use nekoc::engine::{Engine, Program};
+use nekoc::json::Json;
 use serde_json::{Value, json};
 use std::{path::PathBuf, time::Duration};
 use tiny_http::{Header, Method, Request, Response, Server, StatusCode};
@@ -46,7 +47,7 @@ fn send(request: Request, status: u16, mime: &str, body: Vec<u8>) {
     }
     let _ = request.respond(response);
 }
-fn body(request: &mut Request) -> Result<Value> {
+fn body(request: &mut Request) -> Result<Json> {
     use std::io::Read;
     let mut bytes = Vec::new();
     request
@@ -54,7 +55,7 @@ fn body(request: &mut Request) -> Result<Value> {
         .take(MAX_PROJECT_BYTES as u64 + 1)
         .read_to_end(&mut bytes)?;
     ensure!(bytes.len() <= MAX_PROJECT_BYTES, "project exceeds 64 MiB");
-    Ok(serde_json::from_slice(&bytes)?)
+    nekoc::json::from_slice(&bytes)
 }
 const KITTEN4_METADATA: &str = "_nekocKitten4";
 
@@ -149,34 +150,42 @@ fn check_project_shape(project: &Value) -> Result<()> {
 }
 
 fn check_block_shape(block: &Value, depth: usize) -> Result<()> {
-    ensure!(depth < 128, "block nesting exceeds 128 levels");
-    ensure!(
-        block.is_object() && block["type"].is_string(),
-        "block must be an object with a string type"
-    );
-    if let Some(fields) = block.get("fields") {
-        ensure!(fields.is_object(), "block fields must be an object");
-    }
-    for key in ["inputs", "statements"] {
-        if let Some(children) = block.get(key) {
-            let children = children
-                .as_object()
-                .with_context(|| format!("block {key} must be an object"))?;
-            for child in children.values() {
-                if key == "statements" && child.is_null() {
-                    continue;
+    let mut pending = vec![(block, depth)];
+    while let Some((block, depth)) = pending.pop() {
+        ensure!(
+            depth <= 64,
+            "block nesting exceeds 64 at block {} ({})",
+            block["id"],
+            block["type"]
+        );
+        ensure!(
+            block.is_object() && block["type"].is_string(),
+            "block must be an object with a string type"
+        );
+        if let Some(fields) = block.get("fields") {
+            ensure!(fields.is_object(), "block fields must be an object");
+        }
+        for key in ["inputs", "statements"] {
+            if let Some(children) = block.get(key) {
+                let children = children
+                    .as_object()
+                    .with_context(|| format!("block {key} must be an object"))?;
+                for child in children.values() {
+                    if key == "statements" && child.is_null() {
+                        continue;
+                    }
+                    pending.push((child, depth + 1));
                 }
-                check_block_shape(child, depth + 1)?;
             }
         }
-    }
-    if let Some(next) = block.get("next").filter(|v| !v.is_null()) {
-        check_block_shape(next, depth + 1)?;
+        if let Some(next) = block.get("next").filter(|v| !v.is_null()) {
+            pending.push((next, depth));
+        }
     }
     Ok(())
 }
 
-fn import_project(value: Value) -> Result<(Value, Value)> {
+fn import_project(value: Json) -> Result<(Json, Json)> {
     let value = if nekoc::kitten4::is_kitten4(&value) {
         nekoc::kitten4::to_neko(&value)?
     } else {
@@ -195,26 +204,30 @@ fn import_project(value: Value) -> Result<(Value, Value)> {
         "bcmkn"
     });
     report["editor_format"] = json!("bcmkn-json");
-    report["project"] = value.clone();
-    Ok((value, report))
+    report["project"] = nekoc::json::clone_value(&value);
+    Ok((value, Json::new(report)))
 }
 
-fn edited_project(value: Value, previous: &Value) -> Result<Value> {
+fn edited_project(value: Json, previous: &Value) -> Result<Json> {
     check_project_shape(&value)?;
     // Source metadata is an opaque adapter-owned snapshot, not editable JSON.
     // Changing formats is an explicit import, never an accidental source edit.
     ensure!(
-        value.get(KITTEN4_METADATA) == previous.get(KITTEN4_METADATA),
+        match (value.get(KITTEN4_METADATA), previous.get(KITTEN4_METADATA)) {
+            (Some(a), Some(b)) => nekoc::json::equal(a, b),
+            (None, None) => true,
+            _ => false,
+        },
         "请保留 Kitten4 保真元数据 {KITTEN4_METADATA} 原样；切换项目格式请使用导入"
     );
     Ok(value)
 }
 
-fn export_project(value: &Value) -> Result<Value> {
+fn export_project(value: &Value) -> Result<Json> {
     if is_kitten4_project(value) {
         nekoc::kitten4::from_neko(value)
     } else {
-        let mut exported = value.clone();
+        let mut exported = Json::new(nekoc::json::clone_value(value));
         nekoc::key_buttons::annotate(&mut exported, None);
         Ok(exported)
     }
@@ -358,7 +371,7 @@ fn frame_bytes(vm: &mut Engine, payload: &Value) -> Result<Vec<u8>> {
     vm.recycle_lines(frame.lines);
     Ok(bytes)
 }
-fn player_socket(request: Request, project: Option<Value>) -> Result<()> {
+fn player_socket(request: Request, project: Option<Json>) -> Result<()> {
     let key = request
         .headers()
         .iter()
@@ -386,7 +399,7 @@ fn player_socket(request: Request, project: Option<Value>) -> Result<()> {
             } else {
                 let message = socket.read()?;
                 ensure!(message.is_text(), "expected project JSON handshake");
-                let project: Value = serde_json::from_str(message.to_text()?)?;
+                let project = nekoc::json::from_str(message.to_text()?)?;
                 check_project_shape(&project)?;
                 project
             };
@@ -406,7 +419,7 @@ fn player_socket(request: Request, project: Option<Value>) -> Result<()> {
             loop {
                 match socket.read()? {
                     Message::Text(text) => {
-                        let payload: Value = serde_json::from_str(&text)?;
+                        let payload = nekoc::json::from_str(&text)?;
                         socket.send(Message::Binary(frame_bytes(&mut vm, &payload)?))?;
                     }
                     Message::Close(_) => {
@@ -477,15 +490,19 @@ mod desktop {
         Ok(Some((start, length)))
     }
 
-    pub fn embedded_project() -> Result<Option<Value>> {
+    pub fn embedded_project() -> Result<Option<Json>> {
         let mut file = std::fs::File::open(std::env::current_exe()?)?;
         let Some((start, length)) = stub_end(&mut file)? else {
             return Ok(None);
         };
         file.seek(SeekFrom::Start(start))?;
+        ensure!(
+            length <= MAX_PROJECT_BYTES as u64,
+            "embedded project exceeds 64 MiB"
+        );
         let mut bytes = vec![0; length as usize];
         file.read_exact(&mut bytes)?;
-        Ok(Some(serde_json::from_slice(&bytes)?))
+        Ok(Some(nekoc::json::from_slice(&bytes)?))
     }
 
     /// Marks a PE image as a GUI program so double-clicking opens no console.
@@ -500,7 +517,7 @@ mod desktop {
     }
 
     pub fn export(input: &Value, output: &std::path::Path) -> Result<()> {
-        let payload = serde_json::to_vec(input)?;
+        let payload = nekoc::json::to_vec(input)?;
         ensure!(
             payload.len() <= MAX_PROJECT_BYTES,
             "project exceeds {MAX_PROJECT_BYTES} bytes"
@@ -540,7 +557,7 @@ mod desktop {
         Ok(listener(0)?.local_addr()?.port())
     }
 
-    pub fn run(project: Value) -> Result<()> {
+    pub fn run(project: Json) -> Result<()> {
         let title = project
             .get("projectName")
             .and_then(Value::as_str)
@@ -585,7 +602,7 @@ fn main() -> Result<()> {
     let initial = if let Some(path) = args.input {
         nekoc::project::load_project(path)?.value
     } else {
-        serde_json::from_str(include_str!("../../samples/native-studio.bcmkn"))?
+        nekoc::json::from_str(include_str!("../../samples/native-studio.bcmkn"))?
     };
     #[cfg(feature = "desktop")]
     if let Some(output) = &args.export_exe {
@@ -595,7 +612,7 @@ fn main() -> Result<()> {
     }
     serve(initial, args.port)
 }
-fn serve(initial: Value, port: u16) -> Result<()> {
+fn serve(initial: Json, port: u16) -> Result<()> {
     let (mut project, _) = import_project(initial)?;
     let server =
         Server::from_listener(listener(port)?, None).map_err(|e| anyhow::anyhow!("{e}"))?;
@@ -727,7 +744,7 @@ fn serve(initial: Value, port: u16) -> Result<()> {
                     request,
                     200,
                     "application/json",
-                    serde_json::to_vec(&project)?,
+                    nekoc::json::to_vec(&project)?,
                 );
                 continue;
             }
@@ -740,7 +757,7 @@ fn serve(initial: Value, port: u16) -> Result<()> {
         }
         let result = (|| -> Result<(String, Vec<u8>)> {
             let payload = body(&mut request)?;
-            let json = match url.as_str() {
+            let json = Json::new(match url.as_str() {
                 "/api/project" => {
                     let value = edited_project(payload, &project)?;
                     engine = None;
@@ -751,14 +768,14 @@ fn serve(initial: Value, port: u16) -> Result<()> {
                     let (value, report) = import_project(payload)?;
                     engine = None;
                     project = value;
-                    report
+                    report.into_value()
                 }
-                "/api/import-player" => import_project(payload)?.1,
+                "/api/import-player" => import_project(payload)?.1.into_value(),
                 "/api/export" => {
                     // Export the submitted editor snapshot without stopping a live VM
                     // or changing the server project. Edits are validated atomically.
                     let value = edited_project(payload, &project)?;
-                    export_project(&value)?
+                    export_project(&value)?.into_value()
                 }
                 "/api/export-packed" => {
                     // Self-extracting export: large text lists shrink and are restored
@@ -792,8 +809,8 @@ fn serve(initial: Value, port: u16) -> Result<()> {
                     return Ok(("application/octet-stream".into(), bytes));
                 }
                 _ => bail!("unknown endpoint {url}"),
-            };
-            Ok(("application/json".into(), serde_json::to_vec(&json)?))
+            });
+            Ok(("application/json".into(), nekoc::json::to_vec(&json)?))
         })();
         match result {
             Ok((mime, bytes)) => send(request, 200, &mime, bytes),
@@ -811,6 +828,41 @@ fn serve(initial: Value, port: u16) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn deep_project_import_edit_export_response_and_private_handshake() {
+        let mut project =
+            nekoc::json::from_str(include_str!("../../samples/native-studio.bcmkn")).unwrap();
+        project["stageSize"] = json!({"width":1280,"height":720});
+        let scene = project["scenes"]["currentSceneId"]
+            .as_str()
+            .unwrap()
+            .to_owned();
+        let mut tail = None;
+        for i in (0..=2000).rev() {
+            let mut block = json!({"id":format!("deep-{i}"),"type":if i == 0 {"on_running_group_activated"} else {"self_set_position_x"},
+                "inputs":{"value":{"id":format!("n-{i}"),"type":"math_number","fields":{"NUM":i}}}});
+            if let Some(next) = tail {
+                block["next"] = next;
+            }
+            tail = Some(block);
+        }
+        project["scenes"]["scenesDict"][&scene]["nekoBlockJsonList"] = json!([]);
+        project["scenes"]["scenesDict"][&scene]["nekoBlockJsonList"]
+            .as_array_mut()
+            .unwrap()
+            .push(tail.unwrap());
+        let (project, report) = import_project(project).unwrap();
+        let response = nekoc::json::to_vec(&report).unwrap();
+        assert!(nekoc::json::from_slice(&response).is_ok());
+        let response = nekoc::json::to_vec(&project).unwrap();
+        let handshake = nekoc::json::from_slice(&response).unwrap();
+        check_project_shape(&handshake).unwrap();
+        Program::compile(&handshake).unwrap();
+        let edited = edited_project(handshake, &project).unwrap();
+        let exported = export_project(&edited).unwrap();
+        assert!(nekoc::json::equal(&exported, &project));
+    }
 
     #[test]
     fn playback_budget_is_bounded_and_editor_default_is_preserved() {

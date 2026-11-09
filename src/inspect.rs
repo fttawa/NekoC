@@ -149,22 +149,25 @@ fn walk_block_lists<F>(value: &Value, on_blocks: &mut F)
 where
     F: FnMut(&Vec<Value>),
 {
-    match value {
-        Value::Object(map) => {
-            if let Some(Value::Array(blocks)) = map.get("nekoBlockJsonList") {
-                on_blocks(blocks);
-            }
-            for (key, child) in map {
-                if key != "_nekocKitten4" {
-                    walk_block_lists(child, on_blocks);
+    let mut pending = vec![value];
+    while let Some(value) = pending.pop() {
+        match value {
+            Value::Object(map) => {
+                if let Some(Value::Array(blocks)) = map.get("nekoBlockJsonList") {
+                    on_blocks(blocks);
+                }
+                for (key, child) in map {
+                    if key != "_nekocKitten4" {
+                        pending.push(child);
+                    }
                 }
             }
-        }
-        Value::Array(items) => {
-            for child in items {
-                walk_block_lists(child, on_blocks);
+            Value::Array(items) => {
+                for child in items {
+                    pending.push(child);
+                }
             }
+            _ => {}
         }
-        _ => {}
     }
 }

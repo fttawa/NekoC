@@ -147,43 +147,36 @@ fn collect_screen_reference_issues(
     scene_ids: &BTreeSet<String>,
     issues: &mut Vec<Value>,
 ) {
-    match value {
-        Value::Object(object) => {
-            if object.get("type").and_then(Value::as_str) == Some("get_screens")
-                && let Some(screen_id) = object
-                    .get("fields")
-                    .and_then(|fields| fields.get("screen_id"))
-                    .and_then(Value::as_str)
-                && !scene_ids.contains(screen_id)
-            {
-                issues.push(json!({
-                    "kind": "dangling_screen_reference",
-                    "path": path,
-                    "screen_id": screen_id,
-                }));
-            }
-            for (key, child) in object {
-                if key != "_nekocKitten4" {
-                    collect_screen_reference_issues(
-                        child,
-                        &format!("{path}.{key}"),
-                        scene_ids,
-                        issues,
-                    );
+    let mut pending = vec![(value, path.to_owned())];
+    while let Some((value, path)) = pending.pop() {
+        match value {
+            Value::Object(object) => {
+                if object.get("type").and_then(Value::as_str) == Some("get_screens")
+                    && let Some(screen_id) = object
+                        .get("fields")
+                        .and_then(|fields| fields.get("screen_id"))
+                        .and_then(Value::as_str)
+                    && !scene_ids.contains(screen_id)
+                {
+                    issues.push(json!({
+                        "kind": "dangling_screen_reference",
+                        "path": path,
+                        "screen_id": screen_id,
+                    }));
+                }
+                for (key, child) in object {
+                    if key != "_nekocKitten4" {
+                        pending.push((child, format!("{path}.{key}")));
+                    }
                 }
             }
-        }
-        Value::Array(items) => {
-            for (index, child) in items.iter().enumerate() {
-                collect_screen_reference_issues(
-                    child,
-                    &format!("{path}[{index}]"),
-                    scene_ids,
-                    issues,
-                );
+            Value::Array(items) => {
+                for (index, child) in items.iter().enumerate() {
+                    pending.push((child, format!("{path}[{index}]")));
+                }
             }
+            _ => {}
         }
-        _ => {}
     }
 }
 
@@ -211,16 +204,19 @@ fn collect_block_ids(owner: &Value) -> BTreeSet<String> {
 }
 
 fn collect_block_ids_in_value(value: &Value, ids: &mut BTreeSet<String>) {
-    if let Some(id) = value.get("id").and_then(Value::as_str) {
-        ids.insert(id.to_owned());
-    }
-    if let Some(next) = value.get("next") {
-        collect_block_ids_in_value(next, ids);
-    }
-    for container in ["inputs", "statements"] {
-        if let Some(items) = value.get(container).and_then(Value::as_object) {
-            for child in items.values() {
-                collect_block_ids_in_value(child, ids);
+    let mut pending = vec![value];
+    while let Some(value) = pending.pop() {
+        if let Some(id) = value.get("id").and_then(Value::as_str) {
+            ids.insert(id.to_owned());
+        }
+        if let Some(next) = value.get("next") {
+            pending.push(next);
+        }
+        for container in ["inputs", "statements"] {
+            if let Some(items) = value.get(container).and_then(Value::as_object) {
+                for child in items.values() {
+                    pending.push(child);
+                }
             }
         }
     }
@@ -284,60 +280,47 @@ fn validate_block_parent_ids_in_value(
     block_ids: &BTreeSet<String>,
     issues: &mut Vec<Value>,
 ) {
-    let block_id = value.get("id").and_then(Value::as_str).unwrap_or("");
-    let parent_id = value.get("parent_id").and_then(Value::as_str);
+    let mut pending = vec![(value, expected_parent)];
+    while let Some((value, expected_parent)) = pending.pop() {
+        let block_id = value.get("id").and_then(Value::as_str).unwrap_or("");
+        let parent_id = value.get("parent_id").and_then(Value::as_str);
 
-    if let Some(parent_id) = parent_id
-        && !parent_id.is_empty()
-        && !block_ids.contains(parent_id)
-    {
-        issues.push(json!({
-            "kind": "dangling_block_parent",
-            "owner_kind": kind,
-            "owner_id": owner_id,
-            "owner_name": owner_name,
-            "block_id": block_id,
-            "parent_id": parent_id,
-        }));
-    }
+        if let Some(parent_id) = parent_id
+            && !parent_id.is_empty()
+            && !block_ids.contains(parent_id)
+        {
+            issues.push(json!({
+                "kind": "dangling_block_parent",
+                "owner_kind": kind,
+                "owner_id": owner_id,
+                "owner_name": owner_name,
+                "block_id": block_id,
+                "parent_id": parent_id,
+            }));
+        }
 
-    if let Some(expected_parent) = expected_parent
-        && parent_id != Some(expected_parent)
-    {
-        issues.push(json!({
-            "kind": "unexpected_block_parent",
-            "owner_kind": kind,
-            "owner_id": owner_id,
-            "owner_name": owner_name,
-            "block_id": block_id,
-            "expected_parent_id": expected_parent,
-            "parent_id": parent_id,
-        }));
-    }
+        if let Some(expected_parent) = expected_parent
+            && parent_id != Some(expected_parent)
+        {
+            issues.push(json!({
+                "kind": "unexpected_block_parent",
+                "owner_kind": kind,
+                "owner_id": owner_id,
+                "owner_name": owner_name,
+                "block_id": block_id,
+                "expected_parent_id": expected_parent,
+                "parent_id": parent_id,
+            }));
+        }
 
-    if let Some(next) = value.get("next") {
-        validate_block_parent_ids_in_value(
-            kind,
-            owner_id,
-            owner_name,
-            next,
-            Some(block_id),
-            block_ids,
-            issues,
-        );
-    }
-    for container in ["inputs", "statements"] {
-        if let Some(items) = value.get(container).and_then(Value::as_object) {
-            for child in items.values() {
-                validate_block_parent_ids_in_value(
-                    kind,
-                    owner_id,
-                    owner_name,
-                    child,
-                    Some(block_id),
-                    block_ids,
-                    issues,
-                );
+        if let Some(next) = value.get("next") {
+            pending.push((next, Some(block_id)));
+        }
+        for container in ["inputs", "statements"] {
+            if let Some(items) = value.get(container).and_then(Value::as_object) {
+                for child in items.values() {
+                    pending.push((child, Some(block_id)));
+                }
             }
         }
     }

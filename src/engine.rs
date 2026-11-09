@@ -697,6 +697,10 @@ impl Program {
         Self::compile_project(project, false)
     }
     fn compile_project(project: &Value, unpack: bool) -> Result<Self> {
+        crate::json::check_blocks(project, 64)?;
+        crate::json::expanded(|| Self::compile_project_inner(project, unpack))
+    }
+    fn compile_project_inner(project: &Value, unpack: bool) -> Result<Self> {
         let semantics = RuntimeSemantics::from_project(project)?;
         let start_hats = if semantics == RuntimeSemantics::Kitten4 {
             crate::kitten4::start_hats(&project["_nekocKitten4"]["source"])
@@ -2210,7 +2214,12 @@ impl Compiler {
     }
     fn chain(&mut self, mut block: Option<&Value>, warped: bool) -> Result<()> {
         self.depth += 1;
-        ensure!(self.depth <= 128, "statement nesting exceeds 128");
+        ensure!(
+            self.depth <= 64,
+            "statement nesting exceeds 64 at block {} ({})",
+            block.unwrap_or(&Value::Null)["id"],
+            block.unwrap_or(&Value::Null)["type"]
+        );
         while let Some(b) = block.filter(|v| v.is_object()) {
             ensure!(
                 self.program.ops.len() < 1_000_000,

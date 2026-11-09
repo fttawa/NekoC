@@ -5,15 +5,16 @@ use std::path::Path;
 /// Preserve the original JSON, including fields not yet understood by the editor.
 /// Changes are committed atomically and history stores complete document states.
 pub struct Document {
-    value: Value,
-    undo: Vec<Value>,
-    redo: Vec<Value>,
-    saved: Value,
+    value: crate::json::Json,
+    undo: Vec<crate::json::Json>,
+    redo: Vec<crate::json::Json>,
+    saved: crate::json::Json,
     next_id: u64,
 }
 
 impl Document {
-    pub fn new(value: Value) -> Result<Self> {
+    pub fn new(value: impl Into<crate::json::Json>) -> Result<Self> {
+        let value = value.into();
         ensure!(value.is_object(), "project root must be an object");
         Ok(Self {
             saved: value.clone(),
@@ -26,7 +27,7 @@ impl Document {
 
     pub fn blank() -> Self {
         Self::new(
-            serde_json::from_str(include_str!("../../samples/kitten-n-0.27.4.bcmkn")).unwrap(),
+            crate::json::from_str(include_str!("../../samples/kitten-n-0.27.4.bcmkn")).unwrap(),
         )
         .unwrap()
     }
@@ -60,9 +61,10 @@ impl Document {
 
     pub fn set(&mut self, pointer: &str, value: Value) -> Result<()> {
         self.edit(|root| {
-            *root
+            let target = root
                 .pointer_mut(pointer)
-                .with_context(|| format!("missing path: {pointer}"))? = value;
+                .with_context(|| format!("missing path: {pointer}"))?;
+            crate::json::discard(std::mem::replace(target, value));
             Ok(())
         })
     }
@@ -79,7 +81,7 @@ impl Document {
     }
 
     pub fn save(&mut self, path: &Path) -> Result<()> {
-        let bytes = serde_json::to_vec_pretty(&self.value)?;
+        let bytes = crate::json::to_vec_pretty(&self.value)?;
         let parent = path
             .parent()
             .filter(|p| !p.as_os_str().is_empty())

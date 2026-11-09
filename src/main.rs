@@ -434,14 +434,14 @@ fn main() -> Result<()> {
             window,
             min_match,
         } => {
-            let project: serde_json::Value = serde_json::from_slice(&std::fs::read(&input)?)?;
+            let project = nekoc::project::load_project(&input)?.value;
             let options = nekoc::pack::PackOptions {
                 min_list_bytes: min_kb * 1024,
                 window,
                 min_match,
             };
             let (packed, report) = nekoc::pack::pack(&project, &options)?;
-            std::fs::write(&out, serde_json::to_vec(&packed)?)?;
+            std::fs::write(&out, nekoc::json::to_vec(&packed)?)?;
             for list in &report.lists {
                 println!(
                     "{}: {} items, {} -> {} bytes ({} tokens)",
@@ -460,8 +460,8 @@ fn main() -> Result<()> {
             );
         }
         Command::Unpack { input, out } => {
-            let project: serde_json::Value = serde_json::from_slice(&std::fs::read(&input)?)?;
-            std::fs::write(&out, serde_json::to_vec(&nekoc::pack::unpack(&project)?)?)?;
+            let project = nekoc::project::load_project(&input)?.value;
+            std::fs::write(&out, nekoc::json::to_vec(&nekoc::pack::unpack(&project)?)?)?;
         }
         Command::Coverage { inputs, frames } => {
             for input in inputs {

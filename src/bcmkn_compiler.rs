@@ -123,7 +123,7 @@ pub fn compile_workspace_bcmkn(
     project["projectName"] = Value::String(project_name(input));
 
     crate::key_buttons::annotate(&mut project, workspace_report.get("keyButtons"));
-    let bytes = serde_json::to_vec(&project)?;
+    let bytes = crate::json::to_vec(&project)?;
     std::fs::write(output, bytes)
         .with_context(|| format!("failed to write output {}", output.display()))?;
     project::load_project(output)?;
@@ -1156,10 +1156,10 @@ fn get_path_mut<'a>(mut value: &'a mut Value, path: &[&str]) -> Option<&'a mut V
     Some(value)
 }
 
-fn read_json_file(path: &Path) -> Result<Value> {
+fn read_json_file(path: &Path) -> Result<crate::json::Json> {
     let text = std::fs::read_to_string(path)
         .with_context(|| format!("failed to read JSON file {}", path.display()))?;
-    serde_json::from_str(&text).with_context(|| format!("invalid JSON in {}", path.display()))
+    crate::json::from_str(&text).with_context(|| format!("invalid JSON in {}", path.display()))
 }
 
 fn temp_workspace_path(output: &Path) -> PathBuf {
