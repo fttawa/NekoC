@@ -1,0 +1,72 @@
+{
+  "checkedAt": "2026-11-09T16:40:27.184Z",
+  "browser": "Edge 157.0.4341.42",
+  "scope": "Self-authored nonfinite fixtures only; not corpus coverage or florr verification",
+  "command": "node tools/verify-nonfinite.mjs",
+  "exitCode": 0,
+  "sourceBundles": {
+    "kitten4": "https://creation.codemao.cn/kitten/build/kitten.99f88a64d495cf0e79d0.js",
+    "kn": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js"
+  },
+  "fixtures": {
+    "kitten4": {
+      "sha256": "5f298c6993e1f033c8f51b045aecd4d9241bb3ba5e8a8ace9000823cdf9f61a3",
+      "snapshots": 30,
+      "pageErrors": [],
+      "done": 1
+    },
+    "kitten4-list": {
+      "sha256": "c366212b0ec35f91d5daeba594b6f7f1b63dda1557871a938795cb45749544d6",
+      "snapshots": 30,
+      "pageErrors": [],
+      "done": 0,
+      "running": false,
+      "error": "列表的项数不合规范，快去修改吧！"
+    },
+    "kn": {
+      "sha256": "42aece2e8934fd51b890053813d365129ce70b83b67ad2833da73190826fbcc2",
+      "snapshots": 30,
+      "pageErrors": [],
+      "done": 1
+    },
+    "kn-list": {
+      "sha256": "8edeaeea6947892e66024afd0302e725bf7b5f898a288ab33e2eb02ae5ad68e2",
+      "snapshots": 30,
+      "pageErrors": [],
+      "done": 1,
+      "running": true,
+      "listRead": "NaN"
+    }
+  },
+  "assertedArithmeticText": {
+    "0/0": "NaN",
+    "1/0": "Infinity",
+    "sqrt(-1)": "NaN",
+    "log10(0)": "-Infinity",
+    "1%0": "NaN",
+    "Number(not-a-number)": "not-a-number",
+    "1e21": "1e+21",
+    "1e-7": "1e-7",
+    "-0": "0"
+  },
+  "knNaNScaleBeforeAndAfterBounce": {
+    "phases": [19, 20],
+    "position": { "x": 100, "y": 20 },
+    "rotationRadians": 0.6108652381980153,
+    "scale": { "x": "NaN", "y": "NaN" },
+    "visible": true,
+    "opacity": 0.75,
+    "hitAtOriginal": false,
+    "hitAtOrigin": false,
+    "collisionWithSelf": false,
+    "bounds": { "left": -450, "top": 281, "right": -450, "bottom": 281 }
+  },
+  "unverified": [
+    "Corpus coverage before/after: dist/kitten4-corpus/cov.mjs is absent",
+    "florr: dist/kitten4-corpus/335327306.bcm is absent",
+    "Nonfinite Range endpoints and no-progress behavior",
+    "Nonfinite costume indices, loop counts, durations and pen inputs",
+    "Reference interpreter full bounce and pixel-perfect collision"
+  ],
+  "fullLocalEvidence": "dist/nonfinite/official.json (ignored)"
+}

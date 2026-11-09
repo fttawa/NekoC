@@ -274,7 +274,8 @@ unsafe extern "C" fn h_node(c: *mut NativeContext, pc: u64) -> f64 {
     unsafe { (*c.engine).node(pc as usize, c.actor) }
 }
 unsafe extern "C" fn h_list_item(c: *mut NativeContext, list: u64, at: f64) -> f64 {
-    let engine = unsafe { &*(*c).engine };
+    let engine = unsafe { &mut *(*c).engine };
+    engine.check_list_index(at);
     let values = engine.lists[list as usize].borrow();
     list_index(at)
         .and_then(|i| values.get(i))
@@ -737,13 +738,7 @@ impl Gen<'_, '_> {
             Binary::Add => self.b.ins().fadd(a, b),
             Binary::Sub => self.b.ins().fsub(a, b),
             Binary::Mul => self.b.ins().fmul(a, b),
-            Binary::Div => {
-                let zero = self.b.ins().f64const(0.0);
-                let is_zero = self.b.ins().fcmp(FloatCC::Equal, b, zero);
-                let quotient = self.b.ins().fdiv(a, b);
-                self.b.ins().select(is_zero, zero, quotient)
-            }
-            Binary::KnDiv => self.b.ins().fdiv(a, b),
+            Binary::Div => self.b.ins().fdiv(a, b),
             Binary::Mod => self.call2(h_mod as *const () as usize, a, b),
             Binary::Pow => self.call2(h_pow as *const () as usize, a, b),
             Binary::Divisible => self.call2(h_divisible as *const () as usize, a, b),

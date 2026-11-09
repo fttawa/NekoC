@@ -152,3 +152,110 @@ fn tiny_lm_generation_matches_interpreter() {
 fn list_writes_match_interpreter() {
     compare("tests/fixtures/list_writes.bcmkn", &[]);
 }
+
+#[test]
+fn nonfinite_values_match_interpreter() {
+    for name in ["kn.bcmkn", "kn-list.bcmkn", "kitten4.bcm"] {
+        let loaded =
+            nekoc::project::load_project(format!("tests/fixtures/nonfinite/{name}")).unwrap();
+        let project = if nekoc::kitten4::is_kitten4(&loaded.value) {
+            nekoc::kitten4::to_neko(&loaded.value).unwrap()
+        } else {
+            loaded.value
+        };
+        let mut a = engine(&project, false);
+        let mut b = engine(&project, true);
+        // Repeated starts heat native regions while also exercising reset.
+        for _ in 0..10 {
+            a.start();
+            b.start();
+            for frame in 0..1000 {
+                let x = a
+                    .advance(1.0 / 60.0, 1_000_000, Duration::from_secs(5))
+                    .unwrap();
+                let y = b
+                    .advance(1.0 / 60.0, 1_000_000, Duration::from_secs(5))
+                    .unwrap();
+                assert_eq!(
+                    normalized(&encode_frame(&x).unwrap()),
+                    normalized(&encode_frame(&y).unwrap()),
+                    "{name}, frame {frame}"
+                );
+            }
+        }
+    }
+}
+
+#[test]
+fn nonfinite_arithmetic_in_hot_native_loop_matches_reference() {
+    use nekoc::{runtime::RuntimeValue, studio::document::Document};
+    use serde_json::json;
+    let num = |n: f64| json!({"type":"math_number","fields":{"NUM":n}});
+    let get = |s| json!({"type":"variables_get","fields":{"variable":s}});
+    let binary =
+        |op, a, b| json!({"type":"math_arithmetic","fields":{"type":op},"inputs":{"A":a,"B":b}});
+    let mut p = Document::blank().value().clone();
+    for (id, n) in [
+        ("zero", 0),
+        ("one", 1),
+        ("nan", 0),
+        ("inf", 0),
+        ("neg", 0),
+        ("rem", 0),
+        ("huge", 0),
+    ] {
+        p["variables"]["variablesDict"][id] = json!({"id":id,"name":id,"value":n});
+    }
+    let mut body = json!({"type":"self_set_position_x","inputs":{"value":get("nan")}});
+    for (id, value) in [
+        ("nan", binary("divide", get("zero"), get("zero"))),
+        ("inf", binary("divide", get("one"), get("zero"))),
+        ("neg", binary("divide", num(-1.0), get("zero"))),
+        ("rem", binary("mod", get("one"), get("zero"))),
+        ("huge", binary("multiply", num(1e308), num(1e308))),
+    ]
+    .into_iter()
+    .rev()
+    {
+        body = json!({"type":"variables_set","fields":{"variable":id},"inputs":{"value":value},"next":body});
+    }
+    p["actors"]["actorsDict"]["nekoc-default-actor"]["nekoBlockJsonList"] = json!([{
+        "type":"on_running_group_activated","next":{"type":"repeat_n_times","inputs":{"times":num(500.0)},"statements":{"DO":body}}
+    }]);
+    let mut a = engine(&p, false);
+    let mut b = engine(&p, true);
+    for _ in 0..2100 {
+        let x = a
+            .advance(1.0 / 60.0, 1_000_000, Duration::from_secs(5))
+            .unwrap();
+        let y = b
+            .advance(1.0 / 60.0, 1_000_000, Duration::from_secs(5))
+            .unwrap();
+        assert_eq!(
+            normalized(&encode_frame(&x).unwrap()),
+            normalized(&encode_frame(&y).unwrap())
+        );
+    }
+    let reference = nekoc::runtime::run_project(&p, 2100).unwrap();
+    for id in ["nan", "inf", "neg", "rem", "huge"] {
+        let slot = a
+            .program
+            .variable_names
+            .iter()
+            .position(|n| n == id)
+            .unwrap();
+        let expected = match &reference.variables[id] {
+            RuntimeValue::Number(n) => *n,
+            other => panic!("{other:?}"),
+        };
+        let left = a.numeric_variables()[slot];
+        let right = b.numeric_variables()[slot];
+        if matches!(id, "nan" | "rem") {
+            assert!(expected.is_nan() && left.is_nan() && right.is_nan());
+        } else {
+            assert_eq!(left, expected);
+            assert_eq!(right, expected);
+            assert!(expected.is_infinite());
+        }
+    }
+}

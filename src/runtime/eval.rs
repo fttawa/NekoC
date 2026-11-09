@@ -88,6 +88,9 @@ impl<'a> Runtime<'a> {
             "list_item" => {
                 let list_id = eval(input(block, "list")).as_string();
                 let index = eval(input(block, "list_index")).as_number();
+                if !index.is_finite() && self.project.get("_nekocKitten4").is_some() {
+                    *self.value_error.borrow_mut() = Some("invalid non-finite list index".into());
+                }
                 let item = block
                     .get("fields")
                     .and_then(|fields| fields.get("item"))
@@ -98,7 +101,7 @@ impl<'a> Runtime<'a> {
                 };
                 list_index(item, index, items.len())
                     .and_then(|index| items.get(index).cloned())
-                    .unwrap_or(RuntimeValue::Null)
+                    .unwrap_or(RuntimeValue::Number(f64::NAN))
             }
             "list_length" => {
                 let list_id = eval(input(block, "list")).as_string();
@@ -438,7 +441,14 @@ impl<'a> Runtime<'a> {
                     .unwrap_or("string");
                 let value = eval(input(block, "text"));
                 match target {
-                    "number" => RuntimeValue::Number(value.as_number()),
+                    "number" => {
+                        let n = value.as_number();
+                        if n.is_nan() && matches!(&value, RuntimeValue::String(s) if s != "NaN") {
+                            value
+                        } else {
+                            RuntimeValue::Number(n)
+                        }
+                    }
                     "boolean" => RuntimeValue::Bool(value.is_truthy()),
                     _ => RuntimeValue::String(value.as_string()),
                 }
@@ -510,13 +520,7 @@ impl<'a> Runtime<'a> {
                 let value = match op {
                     "minus" | "subtract" => a - b,
                     "multiply" => a * b,
-                    "divide" => {
-                        if b == 0.0 {
-                            0.0
-                        } else {
-                            a / b
-                        }
-                    }
+                    "divide" => a / b,
                     "mod" => a % b,
                     "power" => a.powf(b),
                     _ => a + b,
@@ -526,7 +530,7 @@ impl<'a> Runtime<'a> {
             "math_modulo" => {
                 let a = eval(input(block, "A")).as_number();
                 let b = eval(input(block, "B")).as_number();
-                RuntimeValue::Number(if b == 0.0 { 0.0 } else { a % b })
+                RuntimeValue::Number(a % b)
             }
             "random_num" => {
                 let a = eval(input(block, "A")).as_number();
