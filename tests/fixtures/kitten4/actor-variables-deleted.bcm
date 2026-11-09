@@ -1,0 +1,1357 @@
+{
+  "hidden_toolbox": {
+    "toolbox": [],
+    "blocks": []
+  },
+  "work_source_label": 1,
+  "version": 25,
+  "application_version": "4.11.20",
+  "work_type": "KITTEN",
+  "size": {
+    "width": 1280,
+    "height": 720
+  },
+  "type": 1,
+  "project_name": "NekoC actor variables deleted",
+  "theatre": {
+    "current_entity": "20000000-0000-4000-8000-000000000001",
+    "current_scene": "10000000-0000-4000-8000-000000000001",
+    "scenes_order": [
+      "10000000-0000-4000-8000-000000000001",
+      "10000000-0000-4000-8000-000000000002"
+    ],
+    "scenes": {
+      "10000000-0000-4000-8000-000000000001": {
+        "id": "10000000-0000-4000-8000-000000000001",
+        "name": "Background A",
+        "styles": [
+          "background"
+        ],
+        "current_style_id": "background",
+        "x": 0,
+        "y": 0,
+        "scale": 100,
+        "rotation": 0,
+        "rotation_type": 0,
+        "draggable": false,
+        "visible": true,
+        "workspace_offset": {
+          "x": 40,
+          "y": 40
+        },
+        "block_data_json": {
+          "blocks": {},
+          "connections": {},
+          "comments": {}
+        },
+        "actors": [
+          "20000000-0000-4000-8000-000000000001",
+          "20000000-0000-4000-8000-000000000002"
+        ],
+        "screen_name": "Scene A",
+        "group_order": [
+          "group"
+        ]
+      },
+      "10000000-0000-4000-8000-000000000002": {
+        "id": "10000000-0000-4000-8000-000000000002",
+        "name": "Background B",
+        "styles": [
+          "background"
+        ],
+        "current_style_id": "background",
+        "x": 0,
+        "y": 0,
+        "scale": 100,
+        "rotation": 0,
+        "rotation_type": 0,
+        "draggable": false,
+        "visible": true,
+        "workspace_offset": {
+          "x": 40,
+          "y": 40
+        },
+        "block_data_json": {
+          "blocks": {},
+          "connections": {},
+          "comments": {}
+        },
+        "actors": [],
+        "screen_name": "Scene B",
+        "group_order": []
+      }
+    },
+    "actors": {
+      "20000000-0000-4000-8000-000000000001": {
+        "id": "20000000-0000-4000-8000-000000000001",
+        "name": "Probe",
+        "styles": [
+          "costume-a",
+          "costume-b"
+        ],
+        "current_style_id": "costume-a",
+        "x": 0,
+        "y": 0,
+        "scale": 100,
+        "rotation": 0,
+        "rotation_type": 0,
+        "draggable": false,
+        "visible": true,
+        "workspace_offset": {
+          "x": 40,
+          "y": 40
+        },
+        "block_data_json": {
+          "blocks": {
+            "actorvars-58": {
+              "type": "start_on_click",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "actorvars-58",
+              "parent_id": null,
+              "location": [
+                0,
+                0
+              ]
+            },
+            "actorvars-59": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "30000000-0000-4000-8000-000000000001"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "actorvars-59",
+              "parent_id": "actorvars-58",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "actorvars-60": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "41"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "actorvars-60",
+              "parent_id": "actorvars-59",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "actorvars-61": {
+              "type": "mirror",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "actorvars-61",
+              "parent_id": "actorvars-59",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "actorvars-62": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "actorvars-62",
+              "parent_id": "actorvars-61",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "actorvars-63": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0.3"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "actorvars-63",
+              "parent_id": "actorvars-62",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "actorvars-64": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "original"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "actorvars-64",
+              "parent_id": "actorvars-62",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "actorvars-65": {
+              "type": "variables_get",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "VAR": "30000000-0000-4000-8000-000000000001"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "actorvars-65",
+              "parent_id": "actorvars-64",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "actorvars-66": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "cloneRead"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "actorvars-66",
+              "parent_id": "actorvars-64",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "actorvars-67": {
+              "type": "get_clone_index_property",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "index": ""
+              },
+              "fields": {
+                "sprite": "20000000-0000-4000-8000-000000000001",
+                "attribute": "30000000-0000-4000-8000-000000000001"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "actorvars-67",
+              "parent_id": "actorvars-66",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "actorvars-68": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "1"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "actorvars-68",
+              "parent_id": "actorvars-67",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "actorvars-69": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "otherRead"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "actorvars-69",
+              "parent_id": "actorvars-66",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "actorvars-70": {
+              "type": "get_3",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "20000000-0000-4000-8000-000000000002",
+                "attribute": "30000000-0000-4000-8000-000000000002"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "actorvars-70",
+              "parent_id": "actorvars-69",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "actorvars-71": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "done"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "actorvars-71",
+              "parent_id": "actorvars-69",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "actorvars-72": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "1"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "actorvars-72",
+              "parent_id": "actorvars-71",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "actorvars-73": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "actorvars-73",
+              "parent_id": "actorvars-71",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "actorvars-74": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0.5"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "actorvars-74",
+              "parent_id": "actorvars-73",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "actorvars-75": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "afterDelete"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "actorvars-75",
+              "parent_id": "actorvars-73",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "actorvars-76": {
+              "type": "get_clone_index_property",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "index": ""
+              },
+              "fields": {
+                "sprite": "20000000-0000-4000-8000-000000000001",
+                "attribute": "30000000-0000-4000-8000-000000000001"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "actorvars-76",
+              "parent_id": "actorvars-75",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "actorvars-77": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "1"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "actorvars-77",
+              "parent_id": "actorvars-76",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "actorvars-78": {
+              "type": "start_as_a_mirror",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "DO": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "actorvars-78",
+              "parent_id": null,
+              "location": [
+                0,
+                0
+              ]
+            },
+            "actorvars-79": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "inherited"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "actorvars-79",
+              "parent_id": "actorvars-78",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "actorvars-80": {
+              "type": "variables_get",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "VAR": "30000000-0000-4000-8000-000000000001"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "actorvars-80",
+              "parent_id": "actorvars-79",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "actorvars-81": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "30000000-0000-4000-8000-000000000001"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "actorvars-81",
+              "parent_id": "actorvars-79",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "actorvars-82": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "99"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "actorvars-82",
+              "parent_id": "actorvars-81",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "actorvars-83": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "cloneChanged"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "actorvars-83",
+              "parent_id": "actorvars-81",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "actorvars-84": {
+              "type": "get_3",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "30000000-0000-4000-8000-000000000001"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "actorvars-84",
+              "parent_id": "actorvars-83",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "actorvars-85": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "actorvars-85",
+              "parent_id": "actorvars-83",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "actorvars-86": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0.5"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "actorvars-86",
+              "parent_id": "actorvars-85",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "actorvars-87": {
+              "type": "dispose_clone",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "actorvars-87",
+              "parent_id": "actorvars-85",
+              "location": [
+                0,
+                0
+              ]
+            }
+          },
+          "connections": {
+            "actorvars-58": {
+              "actorvars-59": {
+                "type": "next"
+              }
+            },
+            "actorvars-59": {
+              "actorvars-60": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "actorvars-61": {
+                "type": "next"
+              }
+            },
+            "actorvars-60": {},
+            "actorvars-61": {
+              "actorvars-62": {
+                "type": "next"
+              }
+            },
+            "actorvars-62": {
+              "actorvars-63": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              },
+              "actorvars-64": {
+                "type": "next"
+              }
+            },
+            "actorvars-63": {},
+            "actorvars-64": {
+              "actorvars-65": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "actorvars-66": {
+                "type": "next"
+              }
+            },
+            "actorvars-65": {},
+            "actorvars-66": {
+              "actorvars-67": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "actorvars-69": {
+                "type": "next"
+              }
+            },
+            "actorvars-67": {
+              "actorvars-68": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "index"
+              }
+            },
+            "actorvars-68": {},
+            "actorvars-69": {
+              "actorvars-70": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "actorvars-71": {
+                "type": "next"
+              }
+            },
+            "actorvars-70": {},
+            "actorvars-71": {
+              "actorvars-72": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "actorvars-73": {
+                "type": "next"
+              }
+            },
+            "actorvars-72": {},
+            "actorvars-73": {
+              "actorvars-74": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              },
+              "actorvars-75": {
+                "type": "next"
+              }
+            },
+            "actorvars-74": {},
+            "actorvars-75": {
+              "actorvars-76": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              }
+            },
+            "actorvars-76": {
+              "actorvars-77": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "index"
+              }
+            },
+            "actorvars-77": {},
+            "actorvars-78": {
+              "actorvars-79": {
+                "type": "input",
+                "input_type": "statement",
+                "input_name": "DO"
+              }
+            },
+            "actorvars-79": {
+              "actorvars-80": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "actorvars-81": {
+                "type": "next"
+              }
+            },
+            "actorvars-80": {},
+            "actorvars-81": {
+              "actorvars-82": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "actorvars-83": {
+                "type": "next"
+              }
+            },
+            "actorvars-82": {},
+            "actorvars-83": {
+              "actorvars-84": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "actorvars-85": {
+                "type": "next"
+              }
+            },
+            "actorvars-84": {},
+            "actorvars-85": {
+              "actorvars-86": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              },
+              "actorvars-87": {
+                "type": "next"
+              }
+            },
+            "actorvars-86": {},
+            "actorvars-87": {}
+          },
+          "comments": {}
+        },
+        "scene": "10000000-0000-4000-8000-000000000001",
+        "lock": false,
+        "editable_in_tuition_mode": true,
+        "user_change_r_c": false
+      },
+      "20000000-0000-4000-8000-000000000002": {
+        "id": "20000000-0000-4000-8000-000000000002",
+        "name": "Other",
+        "styles": [
+          "costume-a",
+          "costume-b"
+        ],
+        "current_style_id": "costume-a",
+        "x": 0,
+        "y": 0,
+        "scale": 100,
+        "rotation": 0,
+        "rotation_type": 0,
+        "draggable": false,
+        "visible": true,
+        "workspace_offset": {
+          "x": 40,
+          "y": 40
+        },
+        "block_data_json": {
+          "blocks": {},
+          "connections": {},
+          "comments": {}
+        },
+        "scene": "10000000-0000-4000-8000-000000000001",
+        "lock": false,
+        "editable_in_tuition_mode": true,
+        "user_change_r_c": false
+      }
+    },
+    "groups": {
+      "group": {
+        "id": "group",
+        "name": "",
+        "is_fold": false,
+        "is_group": false,
+        "actors": [
+          "20000000-0000-4000-8000-000000000001",
+          "20000000-0000-4000-8000-000000000002"
+        ],
+        "scene": "10000000-0000-4000-8000-000000000001",
+        "visible": true
+      }
+    },
+    "styles": {
+      "background": {
+        "id": "background",
+        "name": "Background",
+        "adaptive": false,
+        "pivot": {
+          "x": 0,
+          "y": 0
+        },
+        "rotate_center": {
+          "x": 0,
+          "y": 0
+        },
+        "cdn_url": "",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjgwIiBoZWlnaHQ9IjcyMCI+PHJlY3Qgd2lkdGg9IjEyODAiIGhlaWdodD0iNzIwIiBmaWxsPSIjMzM2Njk5Ii8+PC9zdmc+"
+      },
+      "costume-a": {
+        "id": "costume-a",
+        "name": "蓝色方块",
+        "adaptive": false,
+        "pivot": {
+          "x": 0,
+          "y": 0
+        },
+        "rotate_center": {
+          "x": 0,
+          "y": 0
+        },
+        "cdn_url": "",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCI+PHJlY3Qgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjMzM2Njk5Ii8+PC9zdmc+"
+      },
+      "costume-b": {
+        "id": "costume-b",
+        "name": "第二个造型",
+        "adaptive": false,
+        "pivot": {
+          "x": 0,
+          "y": 0
+        },
+        "rotate_center": {
+          "x": 0,
+          "y": 0
+        },
+        "cdn_url": "",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMCIgaGVpZ2h0PSIyMCI+PHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjMzM2Njk5Ii8+PC9zdmc+"
+      }
+    },
+    "videos": {},
+    "timer": {}
+  },
+  "variables": {
+    "30000000-0000-4000-8000-000000000001": {
+      "id": "30000000-0000-4000-8000-000000000001",
+      "name": "30000000-0000-4000-8000-000000000001",
+      "value": 5,
+      "type": "any",
+      "is_global": false,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "30000000-0000-4000-8000-000000000002": {
+      "id": "30000000-0000-4000-8000-000000000002",
+      "name": "30000000-0000-4000-8000-000000000002",
+      "value": "other-value",
+      "type": "any",
+      "is_global": false,
+      "current_entity": "20000000-0000-4000-8000-000000000002",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "inherited": {
+      "id": "inherited",
+      "name": "inherited",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "cloneChanged": {
+      "id": "cloneChanged",
+      "name": "cloneChanged",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "original": {
+      "id": "original",
+      "name": "original",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "otherRead": {
+      "id": "otherRead",
+      "name": "otherRead",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "cloneRead": {
+      "id": "cloneRead",
+      "name": "cloneRead",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "done": {
+      "id": "done",
+      "name": "done",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "afterDelete": {
+      "id": "afterDelete",
+      "name": "afterDelete",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    }
+  },
+  "variable_order": [
+    "30000000-0000-4000-8000-000000000001",
+    "30000000-0000-4000-8000-000000000002",
+    "inherited",
+    "cloneChanged",
+    "original",
+    "otherRead",
+    "cloneRead",
+    "done",
+    "afterDelete"
+  ],
+  "cloud_variables": {},
+  "audio": {},
+  "audio_order": [],
+  "midimusic": [],
+  "midi_order": [],
+  "matrix": {},
+  "models": {},
+  "toolbox": {
+    "current_type": "event",
+    "pen": false
+  },
+  "toolbox_order": [
+    "event",
+    "control",
+    "action",
+    "appearance",
+    "sensing",
+    "operator",
+    "data"
+  ],
+  "last_toolbox_order": [],
+  "hardware_type": "",
+  "is_partial": false,
+  "ai_lab": {},
+  "broadcasts": {},
+  "painter": {
+    "color": []
+  }
+}

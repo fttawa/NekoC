@@ -51,7 +51,7 @@ impl<'a> Runtime<'a> {
                 .get("fields")
                 .and_then(|fields| fields.get("variable"))
                 .and_then(Value::as_str)
-                .and_then(|id| self.variables.get(id))
+                .and_then(|id| self.variable(id, owner_id))
                 .cloned()
                 .unwrap_or(RuntimeValue::Null),
             "broadcast_input" => RuntimeValue::String(
@@ -82,7 +82,7 @@ impl<'a> Runtime<'a> {
                 .get("fields")
                 .and_then(|fields| fields.get("list"))
                 .and_then(Value::as_str)
-                .and_then(|id| self.variables.get(id))
+                .and_then(|id| self.variable(id, owner_id))
                 .cloned()
                 .unwrap_or(RuntimeValue::List(Vec::new())),
             "list_item" => {
@@ -93,7 +93,7 @@ impl<'a> Runtime<'a> {
                     .and_then(|fields| fields.get("item"))
                     .and_then(Value::as_str)
                     .unwrap_or("any");
-                let Some(RuntimeValue::List(items)) = self.variables.get(&list_id) else {
+                let Some(RuntimeValue::List(items)) = self.variable(&list_id, owner_id) else {
                     return RuntimeValue::Null;
                 };
                 list_index(item, index, items.len())
@@ -103,8 +103,7 @@ impl<'a> Runtime<'a> {
             "list_length" => {
                 let list_id = eval(input(block, "list")).as_string();
                 let length = self
-                    .variables
-                    .get(&list_id)
+                    .variable(&list_id, owner_id)
                     .and_then(runtime_list)
                     .map(Vec::len)
                     .unwrap_or(0);
@@ -114,8 +113,7 @@ impl<'a> Runtime<'a> {
                 let list_id = eval(input(block, "list")).as_string();
                 let needle = eval(input(block, "list_item_value"));
                 let index = self
-                    .variables
-                    .get(&list_id)
+                    .variable(&list_id, owner_id)
                     .and_then(runtime_list)
                     .and_then(|items| {
                         items
@@ -130,8 +128,7 @@ impl<'a> Runtime<'a> {
                 let list_id = eval(input(block, "list")).as_string();
                 let needle = eval(input(block, "list_item_value"));
                 let exists = self
-                    .variables
-                    .get(&list_id)
+                    .variable(&list_id, owner_id)
                     .and_then(runtime_list)
                     .is_some_and(|items| {
                         items.iter().any(|item| same_runtime_value(item, &needle))
@@ -365,6 +362,13 @@ impl<'a> Runtime<'a> {
                 let sprite = field_string(block, "sprite").unwrap_or("--self");
                 let attribute = field_string(block, "attribute").unwrap_or("x");
                 let index = eval(input(block, "index")).as_number().floor().max(0.0) as usize;
+                if self.private_variable_ids.contains(attribute) {
+                    return self
+                        .clone_actor_by_index(sprite, owner_id, index)
+                        .and_then(|actor| self.variable(attribute, Some(&actor.id)))
+                        .cloned()
+                        .unwrap_or(RuntimeValue::Number(f64::NAN));
+                }
                 RuntimeValue::Number(self.clone_property(sprite, owner_id, index, attribute))
             }
             "get_appearance_of_part" => {

@@ -201,6 +201,9 @@ impl Engine {
         };
         match self.program.values[i] {
             ValueExpr::CallReturn(..) => false,
+            // Entity reads can report scope/clone errors. Keep them in the interpreter;
+            // the unchanged numeric global-slot path remains eligible for native code.
+            ValueExpr::ActorVariable(..) => false,
             ValueExpr::Number(e) => expr(e),
             ValueExpr::Item(_, e) => e.is_none_or(expr),
             ValueExpr::Received(a)

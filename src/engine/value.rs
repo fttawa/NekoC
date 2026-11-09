@@ -176,6 +176,8 @@ pub(super) enum ValueExpr {
     Global(usize),
     Local(usize),
     List(ListRef),
+    /// Entity target (MAX = self), private slot, optional clone ordinal.
+    ActorVariable(usize, usize, Option<super::Expr>),
     Parameter(usize),
     Payload,
     Received(usize),
