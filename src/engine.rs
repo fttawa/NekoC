@@ -280,6 +280,8 @@ enum Op {
     Opacity(Expr),
     PenLayer(PenLayer),
     Pen(bool),
+    PenPath(bool),
+    FillColor([f32; 4]),
     Color([f32; 4]),
     PenProperty(PenProperty, Expr, i8),
     Size(Expr),
@@ -458,6 +460,10 @@ pub struct Sprite {
     hsv: [f64; 3],
     #[serde(skip)]
     size: f64,
+    #[serde(skip)]
+    fill_color: Option<[f32; 4]>,
+    #[serde(skip)]
+    fill_path: Option<Vec<[f64; 2]>>,
 }
 
 #[derive(Clone, Debug, Serialize, PartialEq)]
@@ -994,6 +1000,8 @@ impl Program {
                 scene: scene_index,
                 stage: true,
                 pen: false,
+                fill_color: None,
+                fill_path: None,
                 color: [0.0, 0.0, 0.0, 1.0],
                 hsv: [0.0; 3],
                 size: 1.0,
@@ -1041,6 +1049,8 @@ impl Program {
                     scene: scene_index,
                     stage: false,
                     pen: false,
+                    fill_color: None,
+                    fill_path: None,
                     color: [0.0, 0.0, 0.0, 1.0],
                     hsv: [0.0; 3],
                     size: 1.0,
@@ -2747,6 +2757,8 @@ impl Compiler {
                 }
                 "self_pen_down" => Op::Pen(true),
                 "self_pen_up" => Op::Pen(false),
+                "pen_begin_path" => Op::PenPath(true),
+                "pen_close_path" => Op::PenPath(false),
                 "clear_drawing" => Op::Clear,
                 "play_audio" | "stop_audio" => {
                     let audio = input(b, "audio_id")
@@ -2823,16 +2835,21 @@ impl Compiler {
                     },
                 ),
                 "self_set_pen_size" => Op::Size(self.arg(b, "size")?),
-                "self_set_pen_color" => {
+                "self_set_pen_color" | "set_fill_style" => {
                     let color = field(b, "color").trim_start_matches('#');
                     ensure!(color.len() == 6, "expected RGB hex color");
                     let n = u32::from_str_radix(color, 16)?;
-                    Op::Color([
+                    let color = [
                         ((n >> 16) & 255) as f32 / 255.0,
                         ((n >> 8) & 255) as f32 / 255.0,
                         (n & 255) as f32 / 255.0,
                         1.0,
-                    ])
+                    ];
+                    if kind == "set_fill_style" {
+                        Op::FillColor(color)
+                    } else {
+                        Op::Color(color)
+                    }
                 }
                 "wait" => Op::Wait(self.arg(b, "time")?),
                 "wait_until" => Op::WaitUntil(self.condition(input(b, "condition")?)?),
@@ -3170,6 +3187,16 @@ pub struct TextStamp {
     pub align: TextAlign,
     pub color: [f32; 4],
 }
+/// Additive JSON header extension; packed line instances and frame envelope stay unchanged.
+#[derive(Clone, Debug, Serialize)]
+pub struct PenFill {
+    pub before_line: usize,
+    /// Per-kind cursors preserve ties even when text/image stamps interleave.
+    pub before_text: usize,
+    pub before_image: usize,
+    pub points: Vec<[f64; 2]>,
+    pub color: [f32; 4],
+}
 #[derive(Clone, Debug, Serialize)]
 pub struct AudioCommand {
     pub audio: Cell,
@@ -3217,6 +3244,8 @@ pub struct Frame {
     pub lines: Vec<f32>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub text_stamps: Vec<TextStamp>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub pen_fills: Vec<PenFill>,
     pub clear: bool,
     pub active: usize,
     pub instructions: usize,
@@ -3248,6 +3277,7 @@ pub struct Engine {
     received: BTreeSet<String>,
     lines: Vec<f32>,
     text_stamps: Vec<TextStamp>,
+    pen_fills: Vec<PenFill>,
     logs: Vec<String>,
     audio_commands: Vec<AudioCommand>,
     clear: bool,
@@ -3437,6 +3467,7 @@ impl Engine {
             received: BTreeSet::new(),
             lines: Vec::with_capacity(4096),
             text_stamps: vec![],
+            pen_fills: vec![],
             logs: vec![],
             audio_commands: vec![],
             clear: true,
@@ -3530,6 +3561,7 @@ impl Engine {
         self.clear = true;
         self.lines.clear();
         self.text_stamps.clear();
+        self.pen_fills.clear();
         self.logs.clear();
         self.audio_commands.clear();
         self.dirty.fill(true);
@@ -3619,9 +3651,13 @@ impl Engine {
             .iter()
             .position(|a| a.id == id && a.alive && a.draggable)
         {
+            let old = (self.sprites[i].x, self.sprites[i].y);
             self.sprites[i].x = x;
             self.sprites[i].y = y;
             self.dirty[i] = true;
+            if self.sprites[i].fill_path.is_some() {
+                self.line(i, old);
+            }
         }
     }
     pub fn swipe(&mut self, direction: &str) {
@@ -4385,6 +4421,43 @@ impl Engine {
             }
         }
     }
+    /// Nonzero winding fill at pixel centres, matching Canvas' default fill rule.
+    fn raster_fill(&mut self, points: &[[f64; 2]], color: [f32; 4]) {
+        let (w, h) = self.raster_size();
+        let Some(raster) = self.raster_mut() else {
+            return;
+        };
+        let rgb = [color[0], color[1], color[2]].map(|v| f64::from(v) * 255.0);
+        let mut crossings = Vec::with_capacity(points.len());
+        for py in 0..h {
+            let y = h as f64 / 2.0 - py as f64 - 0.5;
+            crossings.clear();
+            for (a, b) in points
+                .iter()
+                .zip(points.iter().cycle().skip(1))
+                .take(points.len())
+            {
+                if (a[1] <= y && b[1] > y) || (b[1] <= y && a[1] > y) {
+                    let x = a[0] + (y - a[1]) * (b[0] - a[0]) / (b[1] - a[1]);
+                    crossings.push((x, if b[1] > a[1] { 1 } else { -1 }));
+                }
+            }
+            crossings.sort_by(|a, b| a.0.total_cmp(&b.0));
+            let mut winding = 0;
+            let mut left = 0.0;
+            for &(right, delta) in &crossings {
+                if winding != 0 {
+                    let start = (left + w as f64 / 2.0 - 0.5).ceil().max(0.0) as usize;
+                    let end = ((right + w as f64 / 2.0 - 0.5).ceil().max(0.0) as usize).min(w);
+                    for px in start.min(w)..end {
+                        Self::blend_pixel(raster, (py * w + px) * 4, rgb, 1.0);
+                    }
+                }
+                winding += delta;
+                left = right;
+            }
+        }
+    }
     /// An image stamp of `actor` into the colour-sensing raster.
     fn raster_stamp(&mut self, actor: usize) {
         if self.sprites[actor].text.is_some() {
@@ -4628,6 +4701,7 @@ impl Engine {
         // Pen output of this frame was for the old scene's surface.
         self.lines.clear();
         self.text_stamps.clear();
+        self.pen_fills.clear();
         self.image_stamps.clear();
         self.clear = false;
         self.scene_orders[old] = std::mem::take(&mut self.order);
@@ -5005,6 +5079,7 @@ impl Engine {
         sprite.id = format!("{}#{}", self.sprites[origin].id, self.clone_serial);
         sprite.clone_index = live as u32 + 1;
         sprite.pen = false;
+        sprite.fill_path = None;
         let index = if let Some(slot) = self.free_slots.pop() {
             self.sprites[slot] = sprite;
             slot
@@ -5430,6 +5505,19 @@ impl Engine {
         value
     }
     fn line(&mut self, actor: usize, old: (f64, f64)) {
+        let a = &mut self.sprites[actor];
+        // Official a1xw/Rt records position changes independently of pen down.
+        if let Some(path) = &mut a.fill_path {
+            if ![a.x, a.y].iter().all(|v| v.is_finite() && v.abs() <= 1e9) {
+                self.value_error = Some("invalid pen path position".into());
+            } else if path.last() == Some(&[a.x, a.y]) {
+                // Consecutive duplicate points do not change a filled contour.
+            } else if path.len() < 65536 {
+                path.push([a.x, a.y]);
+            } else {
+                self.value_error = Some("pen path exceeds 65536 points".into());
+            }
+        }
         let a = &self.sprites[actor];
         if a.pen
             && [old.0, old.1, a.x, a.y, a.size]
@@ -5484,6 +5572,7 @@ impl Engine {
             dt = 0.0;
             let visible = !self.lines.is_empty()
                 || !self.text_stamps.is_empty()
+                || !self.pen_fills.is_empty()
                 || self.clear
                 || self.reset
                 || self.pen_layer != layer
@@ -5532,6 +5621,7 @@ impl Engine {
             pen_layer: self.pen_layer,
             lines: std::mem::take(&mut self.lines),
             text_stamps: std::mem::take(&mut self.text_stamps),
+            pen_fills: std::mem::take(&mut self.pen_fills),
             logs: std::mem::take(&mut self.logs),
             audio_commands: std::mem::take(&mut self.audio_commands),
             order: std::mem::take(&mut self.order_dirty).then(|| {
@@ -5713,6 +5803,38 @@ impl Engine {
                     self.line(actor, old);
                 }
             }
+            Op::FillColor(color) => {
+                ensure!(!self.sprites[actor].stage, "fill color requires an actor");
+                self.sprites[actor].fill_color = Some(color);
+            }
+            Op::PenPath(begin) => {
+                let a = &mut self.sprites[actor];
+                ensure!(!a.stage, "pen path requires an actor");
+                if begin {
+                    ensure!(
+                        [a.x, a.y].iter().all(|v| v.is_finite() && v.abs() <= 1e9),
+                        "invalid pen path start"
+                    );
+                    a.fill_path = Some(vec![[a.x, a.y]]);
+                } else if let Some(points) = a.fill_path.take()
+                    && points.len() >= 3
+                {
+                    // Official Rt.draw_fill_pattern uses Canvas nonzero fill, current
+                    // fill/stroke RGB at the end, and does not apply brush alpha.
+                    let mut color = a.fill_color.unwrap_or(a.color);
+                    color[3] = 1.0;
+                    if self.program.uses_color {
+                        self.raster_fill(&points, color);
+                    }
+                    self.pen_fills.push(PenFill {
+                        before_line: self.lines.len() / 9,
+                        before_text: self.text_stamps.len(),
+                        before_image: self.image_stamps.len(),
+                        points,
+                        color,
+                    });
+                }
+            }
             Op::Color(mut color) => {
                 color[3] = self.sprites[actor].color[3];
                 self.sprites[actor].color = color;
@@ -5825,6 +5947,7 @@ impl Engine {
                 }
                 self.lines.clear();
                 self.text_stamps.clear();
+                self.pen_fills.clear();
                 self.image_stamps.clear();
                 self.clear = true;
             }
@@ -6287,7 +6410,13 @@ impl Engine {
                     return Ok(false);
                 }
             }
-            Op::Bounce => self.bounce(actor),
+            Op::Bounce => {
+                let old = (self.sprites[actor].x, self.sprites[actor].y);
+                self.bounce(actor);
+                if self.sprites[actor].fill_path.is_some() {
+                    self.line(actor, old);
+                }
+            }
             Op::Draggable(on) => {
                 self.sprites[actor].draggable = on;
                 self.dirty[actor] = true;
@@ -6384,6 +6513,13 @@ impl Engine {
     fn output_limit_reached(&self) -> bool {
         self.lines.len() >= 9 * 65536
             || self.text_stamps.len() >= 1024
+            || self.pen_fills.len() >= 1024
+            || self
+                .pen_fills
+                .iter()
+                .map(|fill| fill.points.len())
+                .sum::<usize>()
+                >= 65536
             || self.audio_commands.len() >= 1024
     }
     /// One scheduler pass. Returns whether the instruction/time/output budget ended it.

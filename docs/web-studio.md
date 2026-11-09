@@ -172,6 +172,16 @@ float32 little-endian instances[]
 每个实例9个 float：`x1, y1, x2, y2, width, r, g, b, a`。
 metadata 包含 `sequence/reset/sprites/variables/timer/timer_visible/logs/clear/active/instructions/execute_us/budget_yield`。
 可选 `text_stamps[]` 包含 `before_line/text/x/y/size/direction/align/color`；`before_line`表示先绘制多少条本帧线段，然后绘制该文字。位置单调不减，同位置按数组顺序绘制；空数组省略，纯画笔的二进制实例格式不变。
+
+Kitten 4 路径填充通过可选 `pen_fills[]` 传送，每项为
+`{before_line,before_text,before_image,points:[[x,y],...],color:[r,g,b,a]}`。
+`before_text/before_image` 是该填充之前已输出的文字/造型印章数，用于同一线段位置的排序；
+同位置的多个填充按数组顺序绘制。路径坐标是舞台坐标，终点隐式连回起点，
+按 Canvas 默认 nonzero 规则填充（可处理凹多边形和自交），不额外描边。
+官方填充不使用画笔 alpha，故 `a=1`；未指定填充色时使用终点时的笔色。
+每条路径最多 65536 点，超限报错，不静默截断。空数组省略，现有 Kitten N
+作品不产生此字段；二进制帧头长度、JSON 后的线段数据和每线段 9 个 float32 均不变。
+渲染器只将新增填充的可见包围盒栅格化并上传，随后合成到原有持久画笔图层。
 `reset=true` 时重建角色表，否则 `sprites` 是按 ID 的更新列表。
 变量当前仍传数值槽数组；角色/资源初始信息在项目载入阶段传输。调试轨迹不随每帧增长。
 

@@ -1,5 +1,5 @@
 // Incremental renderer: one instanced capsule draw per pen delta, persistent FBO.
-// No CPU stroke history, no Canvas2D path replay, no per-stroke draw calls.
+// No CPU stroke history or per-stroke draw calls. New fills are rasterized once.
 const QUAD = `vec2 corner(){vec2 p[6]=vec2[6](vec2(0,0),vec2(1,0),vec2(0,1),vec2(0,1),vec2(1,0),vec2(1,1));return p[gl_VertexID];}`;
 const PEN_VERTEX = `#version 300 es
 precision highp float;
@@ -211,15 +211,33 @@ export class StageRenderer {
     if (lines.length % 9 !== 0) throw Error('损坏的画笔实例数据');
     const started = performance.now(), gl = this.gl;
     // Text and costume stamps interleave with pen lines by `before_line`.
-    const stamps=[...(frame.text_stamps||[]),...(frame.image_stamps||[]).map(s=>({...s,image:true}))];
-    for(const list of [frame.text_stamps||[],frame.image_stamps||[]]){
+    const fills=frame.pen_fills||[];
+    const rank=(index,key)=>{
+      let lo=0,hi=fills.length;
+      while(lo<hi){const mid=(lo+hi)>>>1;if(fills[mid][key]<=index)lo=mid+1;else hi=mid;}
+      return lo*2;
+    };
+    const stamps=[...(frame.text_stamps||[]).map((s,i)=>({...s,rank:rank(i,'before_text')})),...(frame.image_stamps||[]).map((s,i)=>({...s,image:true,rank:rank(i,'before_image')}))];
+    for(const list of [frame.text_stamps||[],frame.image_stamps||[],frame.pen_fills||[]]){
       let last=0;
       for(const stamp of list){
         if(!Number.isInteger(stamp.before_line)||stamp.before_line<last||stamp.before_line>lines.length/9)throw Error('损坏的印章绘制顺序');
         last=stamp.before_line;
       }
     }
-    stamps.sort((a,b)=>a.before_line-b.before_line);
+    // Fills carry per-kind cursors to preserve ties with text/image stamps without
+    // changing old frame headers or the packed 9-float line format.
+    let lastText=0,lastImage=0;
+    for(const [i,fill]of fills.entries()){
+      if(!Number.isInteger(fill.before_text)||fill.before_text<lastText||fill.before_text>(frame.text_stamps||[]).length||
+        !Number.isInteger(fill.before_image)||fill.before_image<lastImage||fill.before_image>(frame.image_stamps||[]).length||
+        !Array.isArray(fill.points)||fill.points.length<3||fill.points.length>65536||
+        !fill.points.every(p=>Array.isArray(p)&&p.length===2&&p.every(v=>Number.isFinite(v)&&Math.abs(v)<=1e9))||
+        !Array.isArray(fill.color)||fill.color.length!==4||!fill.color.every(v=>Number.isFinite(v)&&v>=0&&v<=1))throw Error('损坏的填充路径');
+      lastText=fill.before_text;lastImage=fill.before_image;
+      stamps.push({...fill,fill:true,rank:i*2+1});
+    }
+    stamps.sort((a,b)=>a.before_line-b.before_line||a.rank-b.rank);
     if(frame.scene&&frame.scene!==this.sceneId)this.switchScene(frame.scene,frame.transition);
     this.stats.drawCalls = 0; this.stats.penInstances = lines.length / 9;
     this.stats.textUploads=0;this.stats.textStamps=stamps.length;
@@ -242,7 +260,7 @@ export class StageRenderer {
     let cursor=0;
     for(const stamp of stamps){
       this.drawLines(cursor,stamp.before_line-cursor);cursor=stamp.before_line;
-      if(stamp.image)this.drawImageStamp(stamp);else this.drawTextStamp(stamp);
+      if(stamp.fill)this.drawPenFill(stamp);else if(stamp.image)this.drawImageStamp(stamp);else this.drawTextStamp(stamp);
     }
     this.drawLines(cursor,lines.length/9-cursor);
     gl.bindFramebuffer(gl.FRAMEBUFFER,null);
@@ -283,6 +301,29 @@ export class StageRenderer {
     gl.bindVertexArray(this.vao);gl.bindBuffer(gl.ARRAY_BUFFER,this.buffer);
     for(const [location,size,offset]of [[0,4,0],[1,1,16],[2,4,20]])gl.vertexAttribPointer(location,size,gl.FLOAT,false,36,start*36+offset);
     gl.drawArraysInstanced(gl.TRIANGLES,0,6,count);this.stats.drawCalls++;gl.bindVertexArray(null);
+  }
+
+  drawPenFill(fill){
+    // Canvas supplies nonzero winding and antialiasing for concave/self-crossing
+    // paths, just like official Rt.draw_fill_pattern; only this delta is uploaded.
+    const gl=this.gl,canvas=this.fillCanvas??=document.createElement('canvas');
+    const sx=this.canvas.width/this.width,sy=this.canvas.height/this.height;
+    let left=this.canvas.width,right=0,top=this.canvas.height,bottom=0;
+    for(const [x,y]of fill.points){const px=(x+this.width/2)*sx,py=(this.height/2-y)*sy;left=Math.min(left,px);right=Math.max(right,px);top=Math.min(top,py);bottom=Math.max(bottom,py);}
+    left=Math.max(0,Math.floor(left)-1);right=Math.min(this.canvas.width,Math.ceil(right)+1);
+    top=Math.max(0,Math.floor(top)-1);bottom=Math.min(this.canvas.height,Math.ceil(bottom)+1);
+    if(right<=left||bottom<=top)return;
+    canvas.width=right-left;canvas.height=bottom-top;
+    const ctx=canvas.getContext('2d');
+    ctx.setTransform(sx,0,0,-sy,this.canvas.width/2-left,this.canvas.height/2-top);
+    ctx.fillStyle=`rgb(${fill.color.slice(0,3).map(v=>Math.round(v*255)).join(',')})`;
+    ctx.beginPath();ctx.moveTo(...fill.points[0]);
+    for(let i=1;i<fill.points.length;i++)ctx.lineTo(...fill.points[i]);
+    ctx.closePath();ctx.fill();
+    const texture=this.fillTexture??=this.makeTexture(1,1);
+    gl.bindTexture(gl.TEXTURE_2D,texture);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,true);
+    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,canvas);
+    this.drawTexture(texture,(left+right)/2/sx-this.width/2,this.height/2-(top+bottom)/2/sy,canvas.width/sx,canvas.height/sy);
   }
 
   textTexture(text,size){

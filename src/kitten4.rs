@@ -298,12 +298,7 @@ fn is_stub(kind: &str) -> bool {
     kind.starts_with("physics2_")
         || matches!(
             kind,
-            "set_volume_or_rate_2"
-                | "set_layer_with_pen"
-                | "set_pen_path"
-                | "set_fill_style"
-                | "set_entity_show_hide"
-                | "self_shake"
+            "set_volume_or_rate_2" | "set_layer_with_pen" | "set_entity_show_hide" | "self_shake"
         )
 }
 
@@ -336,6 +331,15 @@ fn lower_block(block: &mut Value) {
         return;
     }
     let renamed = match kind.as_str() {
+        "set_pen_path" => {
+            block["type"] = json!(match field(block, "point") {
+                "start_point" => "pen_begin_path",
+                "end_point" => "pen_close_path",
+                _ => "kitten4_noop",
+            });
+            return;
+        }
+        "set_fill_style" | "pen_begin_path" | "pen_close_path" => kind.as_str(),
         "cloud_variables_get" => {
             fields(block, &[("VAR", "variable")], false);
             "variables_get"
