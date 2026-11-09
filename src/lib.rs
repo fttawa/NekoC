@@ -6,6 +6,7 @@ pub mod diff;
 pub mod engine;
 pub mod inspect;
 pub mod ir;
+pub mod json;
 pub mod key_buttons;
 pub mod kitten4;
 pub mod kitten4_compiler;

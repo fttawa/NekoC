@@ -11,7 +11,42 @@ use std::collections::{BTreeMap, BTreeSet};
 const METADATA: &str = "_nekocKitten4";
 const OPAQUE: &str = "kitten4::";
 const ANGLE: &str = "_nekocKitten4Angle";
-const MAX_DEPTH: usize = 256;
+// Inputs/statement bodies, not next links. Keeps recursive translators and VM
+// compiler frames bounded on default-size worker/test stacks.
+const MAX_DEPTH: usize = 64;
+
+fn check_depth(block: &Value, depth: usize) -> Result<()> {
+    ensure!(
+        depth <= MAX_DEPTH,
+        "block nesting exceeds {MAX_DEPTH} at block {} ({})",
+        block["id"],
+        block["type"]
+    );
+    Ok(())
+}
+
+fn without_next(block: &Value) -> Value {
+    Value::Object(
+        block
+            .as_object()
+            .into_iter()
+            .flatten()
+            .filter(|(key, _)| key.as_str() != "next")
+            .map(|(key, value)| (key.clone(), crate::json::clone_value(value)))
+            .collect(),
+    )
+}
+
+fn join_chain(nodes: Vec<Value>) -> Value {
+    let mut tail = None;
+    for mut node in nodes.into_iter().rev() {
+        if let Some(next) = tail {
+            node["next"] = next;
+        }
+        tail = Some(node);
+    }
+    tail.unwrap_or(Value::Null)
+}
 
 #[derive(Clone, Copy, Debug)]
 pub(crate) enum StartKind {
@@ -52,11 +87,13 @@ pub fn is_kitten4(value: &Value) -> bool {
         && value.get("theatre").is_some_and(Value::is_object)
 }
 
-pub fn to_neko(value: &Value) -> Result<Value> {
-    ensure!(is_kitten4(value), "not a native Kitten 4 project");
-    let mut result = import_project(value)?;
-    result[METADATA] = json!({"source": value});
-    Ok(result)
+pub fn to_neko(value: &Value) -> Result<crate::json::Json> {
+    crate::json::expanded(|| {
+        ensure!(is_kitten4(value), "not a native Kitten 4 project");
+        let mut result = import_project(value)?;
+        result[METADATA] = json!({"source": value});
+        Ok(crate::json::Json::new(result))
+    })
 }
 
 /// What stops a work from running: untranslated blocks by use count, then the first
@@ -104,60 +141,63 @@ pub fn coverage(source: &Value, frames: u32) -> Value {
 }
 
 fn count_blocks(value: &Value, blocks: &mut u64, opaque: &mut BTreeMap<String, u64>) {
-    match value {
-        Value::Array(items) => items.iter().for_each(|v| count_blocks(v, blocks, opaque)),
-        Value::Object(object) => {
-            if let Some(kind) = object.get("type").and_then(Value::as_str)
-                && object.contains_key("id")
-            {
-                *blocks += 1;
-                if let Some(kind) = kind.strip_prefix(OPAQUE) {
-                    *opaque.entry(kind.to_owned()).or_default() += 1;
+    let mut pending = vec![value];
+    while let Some(value) = pending.pop() {
+        match value {
+            Value::Array(items) => pending.extend(items),
+            Value::Object(object) => {
+                if let Some(kind) = object.get("type").and_then(Value::as_str)
+                    && object.contains_key("id")
+                {
+                    *blocks += 1;
+                    if let Some(kind) = kind.strip_prefix(OPAQUE) {
+                        *opaque.entry(kind.to_owned()).or_default() += 1;
+                    }
                 }
+                pending.extend(object.values());
             }
-            object
-                .values()
-                .for_each(|v| count_blocks(v, blocks, opaque));
+            _ => {}
         }
-        _ => {}
     }
 }
 
 /// VM form of a Kitten 4 project. Blocks without an editable Kitten N equivalent stay
 /// opaque in the canonical project so they round-trip untouched, and are rewritten only
 /// here, just before compiling.
-pub fn lower_for_vm(project: &Value) -> Value {
-    let mut lowered = project.clone();
-    if let Some(object) = lowered.as_object_mut() {
-        object.remove(METADATA);
-    }
-    // Cloud data has no service to talk to here, so it behaves as local variables.
-    if let Some(cloud) = project
-        .pointer(&format!("/{METADATA}/source/cloud_variables"))
-        .and_then(Value::as_object)
-    {
-        for (id, variable) in cloud {
-            let list = variable["type"] == "public_list";
-            lowered["variables"]["variablesDict"][id] = json!({
-                "id": id, "name": variable["name"],
-                "type": if list { "list" } else { "variable" },
-                "value": if list { json!([]) } else { json!(0) },
-            });
+pub fn lower_for_vm(project: &Value) -> crate::json::Json {
+    crate::json::expanded(|| {
+        let mut lowered = project.clone();
+        if let Some(object) = lowered.as_object_mut() {
+            object.remove(METADATA);
         }
-    }
-    let targets = Targets {
-        actors: project["actors"]["actorsDict"].clone(),
-        scenes: project["scenes"]["scenesDict"].clone(),
-        procedures: project["procedures"]["proceduresDict"].clone(),
-        groups: project
-            .pointer(&format!("/{METADATA}/source/theatre/groups"))
-            .cloned()
-            .unwrap_or(Value::Null),
-    };
-    for section in ["scenes", "actors", "procedures"] {
-        lower_blocks(&mut lowered[section], &targets);
-    }
-    lowered
+        // Cloud data has no service to talk to here, so it behaves as local variables.
+        if let Some(cloud) = project
+            .pointer(&format!("/{METADATA}/source/cloud_variables"))
+            .and_then(Value::as_object)
+        {
+            for (id, variable) in cloud {
+                let list = variable["type"] == "public_list";
+                lowered["variables"]["variablesDict"][id] = json!({
+                    "id": id, "name": variable["name"],
+                    "type": if list { "list" } else { "variable" },
+                    "value": if list { json!([]) } else { json!(0) },
+                });
+            }
+        }
+        let targets = Targets {
+            actors: project["actors"]["actorsDict"].clone(),
+            scenes: project["scenes"]["scenesDict"].clone(),
+            procedures: project["procedures"]["proceduresDict"].clone(),
+            groups: project
+                .pointer(&format!("/{METADATA}/source/theatre/groups"))
+                .cloned()
+                .unwrap_or(Value::Null),
+        };
+        for section in ["scenes", "actors", "procedures"] {
+            lower_blocks(&mut lowered[section], &targets);
+        }
+        crate::json::Json::new(lowered)
+    })
 }
 
 struct Targets {
@@ -250,10 +290,47 @@ fn lower_bump(block: &mut Value, targets: &Targets) {
 }
 
 fn lower_blocks(value: &mut Value, targets: &Targets) {
+    // Postorder traversal without recursive next links; each frame owns its
+    // detached node so transformations may replace it safely.
+    enum Work {
+        Enter(Value),
+        Array(usize),
+        Object(Vec<String>),
+    }
+    let mut work = vec![Work::Enter(value.take())];
+    let mut output = Vec::new();
+    while let Some(item) = work.pop() {
+        match item {
+            Work::Enter(Value::Array(items)) => {
+                work.push(Work::Array(items.len()));
+                work.extend(items.into_iter().rev().map(Work::Enter));
+            }
+            Work::Enter(Value::Object(object)) => {
+                let (keys, values): (Vec<_>, Vec<_>) = object.into_iter().unzip();
+                work.push(Work::Object(keys));
+                work.extend(values.into_iter().rev().map(Work::Enter));
+            }
+            Work::Enter(other) => output.push(other),
+            Work::Array(len) => {
+                let start = output.len() - len;
+                let items = output.drain(start..).collect();
+                output.push(Value::Array(items));
+            }
+            Work::Object(keys) => {
+                let start = output.len() - keys.len();
+                let mut node = Value::Object(keys.into_iter().zip(output.drain(start..)).collect());
+                lower_node(&mut node, targets);
+                output.push(node);
+            }
+        }
+    }
+    *value = output.pop().unwrap();
+}
+
+fn lower_node(value: &mut Value, targets: &Targets) {
     match value {
-        Value::Array(items) => items.iter_mut().for_each(|v| lower_blocks(v, targets)),
+        Value::Array(_) => {}
         Value::Object(object) => {
-            object.values_mut().for_each(|v| lower_blocks(v, targets));
             if object.get("type").is_some_and(Value::is_string) && object.contains_key("id") {
                 lower_missing_reference(value, targets);
             }
@@ -551,31 +628,46 @@ fn lower_block(block: &mut Value) {
 
 /// Equality that survives a trip through the browser, where 100.0 comes back as 100.
 fn same_json(a: &Value, b: &Value) -> bool {
-    match (a, b) {
-        (Value::Number(a), Value::Number(b)) => {
-            if a == b {
-                return true;
+    let mut pending = vec![(a, b)];
+    while let Some((a, b)) = pending.pop() {
+        match (a, b) {
+            (Value::Number(a), Value::Number(b)) => {
+                if a == b {
+                    continue;
+                }
+                // Do not round distinct large integers to the same f64. Browser
+                // integer/float normalization is safe only in the exact JS range.
+                let (Some(a_float), Some(b_float)) = (a.as_f64(), b.as_f64()) else {
+                    return false;
+                };
+                if !((a.is_f64() || b.is_f64())
+                    && a_float.abs() <= 9_007_199_254_740_991.0
+                    && b_float.abs() <= 9_007_199_254_740_991.0
+                    && a_float == b_float)
+                {
+                    return false;
+                }
             }
-            // Do not round distinct large integers to the same f64. Browser
-            // integer/float normalization is safe only in the exact JS range.
-            let (Some(a_float), Some(b_float)) = (a.as_f64(), b.as_f64()) else {
-                return false;
-            };
-            (a.is_f64() || b.is_f64())
-                && a_float.abs() <= 9_007_199_254_740_991.0
-                && b_float.abs() <= 9_007_199_254_740_991.0
-                && a_float == b_float
+            (Value::Array(a), Value::Array(b)) => {
+                if a.len() != b.len() {
+                    return false;
+                }
+                pending.extend(a.iter().zip(b));
+            }
+            (Value::Object(a), Value::Object(b)) => {
+                if a.len() != b.len() {
+                    return false;
+                }
+                for (key, a) in a {
+                    let Some(b) = b.get(key) else { return false };
+                    pending.push((a, b));
+                }
+            }
+            _ if a != b => return false,
+            _ => {}
         }
-        (Value::Array(a), Value::Array(b)) => {
-            a.len() == b.len() && a.iter().zip(b).all(|(a, b)| same_json(a, b))
-        }
-        (Value::Object(a), Value::Object(b)) => {
-            a.len() == b.len()
-                && a.iter()
-                    .all(|(key, a)| b.get(key).is_some_and(|b| same_json(a, b)))
-        }
-        _ => a == b,
     }
+    true
 }
 
 fn is_published(source: &Value) -> bool {
@@ -589,7 +681,12 @@ fn is_published(source: &Value) -> bool {
         && no_workspace("scenes")
 }
 
-pub fn from_neko(value: &Value) -> Result<Value> {
+pub fn from_neko(value: &Value) -> Result<crate::json::Json> {
+    crate::json::check_blocks(value, MAX_DEPTH)?;
+    crate::json::expanded(|| from_neko_inner(value).map(crate::json::Json::new))
+}
+
+fn from_neko_inner(value: &Value) -> Result<Value> {
     ensure!(value.is_object(), "canonical project must be an object");
     let source = value.get(METADATA).and_then(|m| m.get("source"));
     if let Some(source) = source {
@@ -823,10 +920,17 @@ impl<'a> CompiledWork<'a> {
     }
 
     fn native(&self, node: &Value, depth: usize) -> Result<Value> {
-        ensure!(
-            depth <= MAX_DEPTH,
-            "Kitten 4 compiled block nesting exceeds {MAX_DEPTH}"
-        );
+        let mut nodes = Vec::new();
+        let mut current = Some(node);
+        while let Some(node) = current {
+            nodes.push(self.native_one(node, depth)?);
+            current = node.get("next_block").filter(|v| !v.is_null());
+        }
+        Ok(join_chain(nodes))
+    }
+
+    fn native_one(&self, node: &Value, depth: usize) -> Result<Value> {
+        check_depth(node, depth)?;
         let kind = node["type"]
             .as_str()
             .context("compiled block has no type")?;
@@ -921,9 +1025,6 @@ impl<'a> CompiledWork<'a> {
         if !statements.is_empty() {
             block["statements"] = Value::Object(statements);
         }
-        if let Some(next) = node.get("next_block").filter(|next| !next.is_null()) {
-            block["next"] = self.native(next, depth + 1)?;
-        }
         Ok(block)
     }
 }
@@ -981,7 +1082,13 @@ fn import_workspace_with_starts(workspace: &Value) -> Result<ImportedRoots> {
         }
     }
     let mut state = BTreeMap::new();
-    for id in blocks.keys() {
+    // Visit complete root paths before cached descendants, so the path-length
+    // bound cannot be bypassed by dictionary ordering. Then check detached cycles.
+    for id in blocks
+        .keys()
+        .filter(|id| !parents.contains_key(id.as_str()))
+        .chain(blocks.keys())
+    {
         visit(id, &connections, &mut state, 0)?;
     }
     let roots = blocks
@@ -1033,22 +1140,39 @@ fn visit<'a>(
     state: &mut BTreeMap<&'a str, u8>,
     depth: usize,
 ) -> Result<()> {
-    ensure!(
-        depth <= MAX_DEPTH,
-        "Kitten 4 block graph nesting exceeds {MAX_DEPTH}"
-    );
-    match state.get(id) {
-        Some(1) => bail!("cycle in Kitten 4 block graph at {id}"),
-        Some(2) => return Ok(()),
-        _ => {}
-    }
-    state.insert(id, 1);
-    if let Some(children) = connections.get(id).and_then(Value::as_object) {
-        for child in children.keys() {
-            visit(child, connections, state, depth + 1)?;
+    let mut pending = vec![(id, depth, 0, false)];
+    while let Some((id, depth, path_depth, exit)) = pending.pop() {
+        if exit {
+            state.insert(id, 2);
+            continue;
+        }
+        ensure!(
+            depth <= MAX_DEPTH,
+            "Kitten 4 block graph nesting exceeds {MAX_DEPTH} at block {id}"
+        );
+        ensure!(
+            path_depth <= crate::json::MAX_BLOCK_PATH,
+            "Kitten 4 block path exceeds {} at block {id}",
+            crate::json::MAX_BLOCK_PATH
+        );
+        match state.get(id) {
+            Some(1) => bail!("cycle in Kitten 4 block graph at {id}"),
+            Some(2) => continue,
+            _ => {}
+        }
+        state.insert(id, 1);
+        pending.push((id, depth, path_depth, true));
+        if let Some(children) = connections.get(id).and_then(Value::as_object) {
+            for (child, connection) in children {
+                pending.push((
+                    child,
+                    depth + usize::from(connection["type"] != "next"),
+                    path_depth + 1,
+                    false,
+                ));
+            }
         }
     }
-    state.insert(id, 2);
     Ok(())
 }
 
@@ -1058,63 +1182,80 @@ fn nest(
     connections: &Map<String, Value>,
     depth: usize,
 ) -> Result<Value> {
-    ensure!(
-        depth <= MAX_DEPTH,
-        "Kitten 4 block nesting exceeds {MAX_DEPTH}"
-    );
-    let mut result = blocks[id]
-        .as_object()
-        .cloned()
-        .with_context(|| format!("block {id} must be an object"))?;
-    ensure!(
-        result.get("id").is_none_or(|v| v.as_str() == Some(id)),
-        "block ID disagrees with dictionary key {id}"
-    );
-    result.insert("id".into(), json!(id));
-    for key in ["next", "inputs", "statements"] {
-        result.remove(key);
-    }
-    if let Some(children) = connections.get(id).and_then(Value::as_object) {
-        for (child, connection) in children {
-            let nested = nest(child, blocks, connections, depth + 1)?;
-            if connection["type"] == "next" {
-                result.insert("next".into(), nested);
-            } else {
-                let container = if connection["input_type"] == "statement" {
-                    "statements"
+    let mut nodes = Vec::new();
+    let mut current = Some(id);
+    while let Some(id) = current {
+        ensure!(
+            depth <= MAX_DEPTH,
+            "Kitten 4 block nesting exceeds {MAX_DEPTH} at block {id}"
+        );
+        current = None;
+        let mut result = blocks[id]
+            .as_object()
+            .cloned()
+            .with_context(|| format!("block {id} must be an object"))?;
+        ensure!(
+            result.get("id").is_none_or(|v| v.as_str() == Some(id)),
+            "block ID disagrees with dictionary key {id}"
+        );
+        result.insert("id".into(), json!(id));
+        for key in ["next", "inputs", "statements"] {
+            result.remove(key);
+        }
+        if let Some(children) = connections.get(id).and_then(Value::as_object) {
+            for (child, connection) in children {
+                if connection["type"] == "next" {
+                    current = Some(child);
                 } else {
-                    "inputs"
-                };
-                let name = connection["input_name"]
-                    .as_str()
-                    .context("missing input name")?;
-                result
-                    .entry(container)
-                    .or_insert(json!({}))
-                    .as_object_mut()
-                    .unwrap()
-                    .insert(name.into(), nested);
+                    let nested = nest(child, blocks, connections, depth + 1)?;
+                    let container = if connection["input_type"] == "statement" {
+                        "statements"
+                    } else {
+                        "inputs"
+                    };
+                    let name = connection["input_name"]
+                        .as_str()
+                        .context("missing input name")?;
+                    result
+                        .entry(container)
+                        .or_insert(json!({}))
+                        .as_object_mut()
+                        .unwrap()
+                        .insert(name.into(), nested);
+                }
             }
         }
+        nodes.push(Value::Object(result));
     }
-    Ok(Value::Object(result))
+    Ok(join_chain(nodes))
 }
 
 fn import_block(block: &Value, depth: usize) -> Result<Value> {
+    let mut nodes = Vec::new();
+    let mut current = Some(block);
+    while let Some(block) = current {
+        nodes.push(import_one(block, depth)?);
+        current = block.get("next");
+    }
+    Ok(join_chain(nodes))
+}
+
+fn import_one(block: &Value, depth: usize) -> Result<Value> {
+    check_depth(block, depth)?;
     ensure!(
-        depth <= MAX_DEPTH,
-        "Kitten 4 block nesting exceeds {MAX_DEPTH}"
+        block["type"] != "on_keydown"
+            || block.get("next").is_none()
+            || block.pointer("/statements/DO").is_none(),
+        "native event has both next and DO bodies at block {}",
+        block["id"]
     );
-    let mut result = block.clone();
+    let mut result = without_next(block);
     for key in ["inputs", "statements"] {
         if let Some(children) = result.get_mut(key).and_then(Value::as_object_mut) {
             for child in children.values_mut() {
                 *child = import_block(child, depth + 1)?;
             }
         }
-    }
-    if let Some(next) = result.get_mut("next") {
-        *next = import_block(next, depth + 1)?;
     }
     let kind = block["type"]
         .as_str()
@@ -1218,15 +1359,19 @@ fn original_heading_reporter(block: &Value) -> Option<&Value> {
         .then_some(reporter)
 }
 fn repair_parents(block: &mut Value, parent: Option<&str>) {
-    block["parent_id"] = json!(parent);
-    let id = block["id"].as_str().unwrap_or("").to_owned();
-    if let Some(next) = block.get_mut("next") {
-        repair_parents(next, Some(&id));
-    }
-    for key in ["inputs", "statements"] {
-        if let Some(children) = block.get_mut(key).and_then(Value::as_object_mut) {
-            for child in children.values_mut() {
-                repair_parents(child, Some(&id));
+    let mut pending = vec![(block, parent.map(str::to_owned))];
+    while let Some((block, parent)) = pending.pop() {
+        block["parent_id"] = json!(parent);
+        let id = block["id"].as_str().unwrap_or("").to_owned();
+        for (key, child) in block.as_object_mut().unwrap() {
+            if key == "next" {
+                pending.push((child, Some(id.clone())));
+            } else if matches!(key.as_str(), "inputs" | "statements")
+                && let Some(children) = child.as_object_mut()
+            {
+                for child in children.values_mut() {
+                    pending.push((child, Some(id.clone())));
+                }
             }
         }
     }
@@ -1928,7 +2073,23 @@ fn export_owners(
 }
 
 fn export_block(block: &Value, originals: Option<&Value>, depth: usize) -> Result<Value> {
-    export_block_mode(block, originals, depth, true)
+    let mut nodes = Vec::new();
+    let mut current = Some(block);
+    while let Some(block) = current {
+        nodes.push(export_block_mode(block, originals, depth, true)?);
+        current = block.get("next");
+    }
+    let mut tail = None;
+    for mut node in nodes.into_iter().rev() {
+        if let Some(next) = tail {
+            node["next"] = next;
+            if node["type"] == "on_keydown" {
+                event_body(&mut node, true)?;
+            }
+        }
+        tail = Some(node);
+    }
+    Ok(tail.unwrap_or(Value::Null))
 }
 
 fn export_block_mode(
@@ -1937,15 +2098,14 @@ fn export_block_mode(
     depth: usize,
     convert_reporter: bool,
 ) -> Result<Value> {
-    ensure!(
-        depth <= MAX_DEPTH,
-        "canonical block nesting exceeds {MAX_DEPTH}"
-    );
+    check_depth(block, depth)?;
     ensure!(block.is_object(), "canonical block must be an object");
     if let Some(reporter) = original_heading_reporter(block) {
         return export_block_mode(reporter, originals, depth + 1, false);
     }
-    let mut result = block.clone();
+    let mut result = without_next(block);
+    // Event translation moves next into a statement socket. Attach it only
+    // after converting the individual chain node, in export_block.
     let kind = block["type"]
         .as_str()
         .context("canonical block missing type")?;
@@ -1993,9 +2153,6 @@ fn export_block_mode(
             }
         }
     }
-    if let Some(next) = result.get_mut("next") {
-        *next = export_block(next, originals, depth + 1)?;
-    }
     remove(&mut result, ANGLE);
     if let Some(offset) = angle_offset
         && !restore_input
@@ -2034,116 +2191,136 @@ impl Graph {
         }
     }
     fn reserve_ids(&mut self, block: &Value, depth: usize) -> Result<()> {
-        ensure!(
-            depth <= MAX_DEPTH,
-            "canonical block nesting exceeds {MAX_DEPTH}"
-        );
-        if let Some(id) = block["id"].as_str() {
-            self.reserved.insert(id.to_owned());
-        }
-        if let Some(next) = block.get("next") {
-            self.reserve_ids(next, depth + 1)?;
-        }
-        for key in ["inputs", "statements"] {
-            if let Some(children) = block.get(key).and_then(Value::as_object) {
-                for child in children.values() {
-                    self.reserve_ids(child, depth + 1)?;
+        let mut pending = vec![(block, depth)];
+        while let Some((block, depth)) = pending.pop() {
+            check_depth(block, depth)?;
+            if let Some(id) = block["id"].as_str() {
+                self.reserved.insert(id.to_owned());
+            }
+            if let Some(next) = block.get("next") {
+                pending.push((next, depth));
+            }
+            for key in ["inputs", "statements"] {
+                if let Some(children) = block.get(key).and_then(Value::as_object) {
+                    for child in children.values() {
+                        pending.push((child, depth + 1));
+                    }
                 }
             }
         }
         Ok(())
     }
     fn assign_ids(&mut self, block: &mut Value, depth: usize) -> Result<()> {
-        ensure!(
-            depth <= MAX_DEPTH,
-            "canonical block nesting exceeds {MAX_DEPTH}"
-        );
-        if block["id"].as_str().is_none() {
-            loop {
-                self.sequence += 1;
-                let id = format!("nekoc-k4-angle-{}", self.sequence);
-                if self.reserved.insert(id.clone()) {
-                    block["id"] = json!(id);
-                    break;
+        let mut pending = vec![(block, depth)];
+        while let Some((block, depth)) = pending.pop() {
+            check_depth(block, depth)?;
+            if block["id"].as_str().is_none() {
+                loop {
+                    self.sequence += 1;
+                    let id = format!("nekoc-k4-angle-{}", self.sequence);
+                    if self.reserved.insert(id.clone()) {
+                        block["id"] = json!(id);
+                        break;
+                    }
                 }
             }
-        }
-        if let Some(next) = block.get_mut("next") {
-            self.assign_ids(next, depth + 1)?;
-        }
-        for key in ["inputs", "statements"] {
-            if let Some(children) = block.get_mut(key).and_then(Value::as_object_mut) {
-                for child in children.values_mut() {
-                    self.assign_ids(child, depth + 1)?;
+            for (key, child) in block.as_object_mut().unwrap() {
+                if key == "next" {
+                    pending.push((child, depth));
+                } else if matches!(key.as_str(), "inputs" | "statements")
+                    && let Some(children) = child.as_object_mut()
+                {
+                    for child in children.values_mut() {
+                        pending.push((child, depth + 1));
+                    }
                 }
             }
         }
         Ok(())
     }
     fn flatten(&mut self, block: &Value, parent: Option<&str>, depth: usize) -> Result<String> {
-        ensure!(
-            depth <= MAX_DEPTH,
-            "canonical block nesting exceeds {MAX_DEPTH}"
-        );
-        let id = if let Some(id) = block["id"].as_str() {
-            id.to_owned()
-        } else {
-            loop {
-                self.sequence += 1;
-                let id = format!("nekoc-k4-{}", self.sequence);
-                if !self.reserved.contains(&id) && !self.blocks.contains_key(&id) {
-                    break id;
+        // Keep statement recursion bounded, but walk next links without frames.
+        let mut current = Some(block);
+        let mut parent = parent.map(str::to_owned);
+        let mut first = None;
+        while let Some(block) = current {
+            check_depth(block, depth)?;
+            let id = if let Some(id) = block["id"].as_str() {
+                id.to_owned()
+            } else {
+                loop {
+                    self.sequence += 1;
+                    let id = format!("nekoc-k4-{}", self.sequence);
+                    if !self.reserved.contains(&id) && !self.blocks.contains_key(&id) {
+                        break id;
+                    }
+                }
+            };
+            ensure!(
+                !self.blocks.contains_key(&id),
+                "duplicate canonical block id {id}"
+            );
+            let mut flat = without_next(block);
+            for key in ["next", "inputs", "statements", "shield"] {
+                remove(&mut flat, key);
+            }
+            flat["id"] = json!(id);
+            flat["parent_id"] = json!(parent);
+            for (key, default) in [
+                ("is_shadow", json!(false)),
+                ("collapsed", Value::Null),
+                ("disabled", Value::Null),
+                ("deletable", json!(true)),
+                ("movable", json!(true)),
+                ("editable", json!(true)),
+                ("visible", json!("visible")),
+                ("location", json!([0, 0])),
+                ("shadows", json!({})),
+                ("fields", json!({})),
+                ("field_constraints", json!({})),
+                ("field_extra_attr", json!({})),
+                ("comment", Value::Null),
+                ("mutation", json!("")),
+                ("is_output", Value::Null),
+            ] {
+                flat.as_object_mut().unwrap().entry(key).or_insert(default);
+            }
+            self.blocks.insert(id.clone(), flat);
+            let mut edges = Map::new();
+            if first.is_some()
+                && let Some(parent) = &parent
+            {
+                self.connections
+                    .entry(parent.clone())
+                    .or_insert(json!({}))
+                    .as_object_mut()
+                    .unwrap()
+                    .insert(id.clone(), json!({"type":"next"}));
+            }
+            if first.is_none() {
+                first = Some(id.clone());
+            }
+            for (key, input_type) in [("inputs", "value"), ("statements", "statement")] {
+                if let Some(children) = block.get(key).and_then(Value::as_object) {
+                    for (name, child) in children {
+                        let child = self.flatten(child, Some(&id), depth + 1)?;
+                        edges.insert(
+                            child,
+                            json!({"type":"input","input_name":name,"input_type":input_type}),
+                        );
+                    }
                 }
             }
-        };
-        ensure!(
-            !self.blocks.contains_key(&id),
-            "duplicate canonical block id {id}"
-        );
-        let mut flat = block.clone();
-        for key in ["next", "inputs", "statements", "shield"] {
-            remove(&mut flat, key);
+            self.connections
+                .entry(id.clone())
+                .or_insert(json!({}))
+                .as_object_mut()
+                .unwrap()
+                .extend(edges);
+            parent = Some(id);
+            current = block.get("next");
         }
-        flat["id"] = json!(id);
-        flat["parent_id"] = json!(parent);
-        for (key, default) in [
-            ("is_shadow", json!(false)),
-            ("collapsed", Value::Null),
-            ("disabled", Value::Null),
-            ("deletable", json!(true)),
-            ("movable", json!(true)),
-            ("editable", json!(true)),
-            ("visible", json!("visible")),
-            ("location", json!([0, 0])),
-            ("shadows", json!({})),
-            ("fields", json!({})),
-            ("field_constraints", json!({})),
-            ("field_extra_attr", json!({})),
-            ("comment", Value::Null),
-            ("mutation", json!("")),
-            ("is_output", Value::Null),
-        ] {
-            flat.as_object_mut().unwrap().entry(key).or_insert(default);
-        }
-        self.blocks.insert(id.clone(), flat);
-        let mut edges = Map::new();
-        if let Some(next) = block.get("next") {
-            let child = self.flatten(next, Some(&id), depth + 1)?;
-            edges.insert(child, json!({"type":"next"}));
-        }
-        for (key, input_type) in [("inputs", "value"), ("statements", "statement")] {
-            if let Some(children) = block.get(key).and_then(Value::as_object) {
-                for (name, child) in children {
-                    let child = self.flatten(child, Some(&id), depth + 1)?;
-                    edges.insert(
-                        child,
-                        json!({"type":"input","input_name":name,"input_type":input_type}),
-                    );
-                }
-            }
-        }
-        self.connections.insert(id.clone(), Value::Object(edges));
-        Ok(id)
+        Ok(first.unwrap())
     }
 }
 

@@ -49,20 +49,23 @@ fn parse_buttons(value: &Value) -> Vec<KeyButton> {
 }
 
 fn collect_keys(value: &Value, keys: &mut BTreeMap<u32, String>) {
-    match value {
-        Value::Array(items) => items.iter().for_each(|item| collect_keys(item, keys)),
-        Value::Object(object) => {
-            if matches!(
-                object.get("type").and_then(Value::as_str),
-                Some("on_keydown" | "check_key")
-            ) && let Some(key) = object["fields"]["key"].as_str()
-                && let Ok(code) = key.parse()
-            {
-                keys.insert(code, key.to_owned());
+    let mut pending = vec![value];
+    while let Some(value) = pending.pop() {
+        match value {
+            Value::Array(items) => pending.extend(items),
+            Value::Object(object) => {
+                if matches!(
+                    object.get("type").and_then(Value::as_str),
+                    Some("on_keydown" | "check_key")
+                ) && let Some(key) = object["fields"]["key"].as_str()
+                    && let Ok(code) = key.parse()
+                {
+                    keys.insert(code, key.to_owned());
+                }
+                pending.extend(object.values());
             }
-            object.values().for_each(|item| collect_keys(item, keys));
+            _ => {}
         }
-        _ => {}
     }
 }
 

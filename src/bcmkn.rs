@@ -5,7 +5,11 @@ use std::collections::BTreeMap;
 
 /// Validate the format without relabelling versions, rewriting mutations, or
 /// removing unknown extension fields. Runtime compatibility is a separate report.
-pub fn import(value: Value) -> Result<(Value, Value)> {
+pub fn import(value: impl Into<crate::json::Json>) -> Result<(crate::json::Json, Value)> {
+    let value = value.into();
+    crate::json::expanded(|| import_inner(value))
+}
+fn import_inner(value: crate::json::Json) -> Result<(crate::json::Json, Value)> {
     ensure!(value.is_object(), ".bcmkn 顶层必须是 JSON 对象");
     ensure!(
         value["toolType"].as_str().is_none_or(|t| t == "KN"),
@@ -17,7 +21,7 @@ pub fn import(value: Value) -> Result<(Value, Value)> {
             ".bcmkn 缺少对象 {path}"
         );
     }
-    let inspection = crate::inspect::build_report(&value, serde_json::to_vec(&value)?.len())?;
+    let inspection = crate::inspect::build_report(&value, crate::json::to_vec(&value)?.len())?;
     let validation = crate::validate::build_report(&value)?;
     let mut types = BTreeMap::new();
     for path in [
@@ -96,16 +100,19 @@ pub fn import(value: Value) -> Result<(Value, Value)> {
     Ok((value, report))
 }
 fn collect(block: &Value, types: &mut BTreeMap<String, usize>) {
-    if let Some(kind) = block["type"].as_str() {
-        *types.entry(kind.into()).or_default() += 1;
-    }
-    if let Some(next) = block.get("next") {
-        collect(next, types);
-    }
-    for key in ["inputs", "statements"] {
-        if let Some(children) = block[key].as_object() {
-            for child in children.values() {
-                collect(child, types);
+    let mut pending = vec![block];
+    while let Some(block) = pending.pop() {
+        if let Some(kind) = block["type"].as_str() {
+            *types.entry(kind.into()).or_default() += 1;
+        }
+        if let Some(next) = block.get("next") {
+            pending.push(next);
+        }
+        for key in ["inputs", "statements"] {
+            if let Some(children) = block[key].as_object() {
+                for child in children.values() {
+                    pending.push(child);
+                }
             }
         }
     }

@@ -1,13 +1,13 @@
 use anyhow::{Context, Result, bail};
 use serde_json::Value;
-use std::fs;
 use std::path::{Path, PathBuf};
+use std::{fs, io::Read};
 
 #[derive(Debug, Clone)]
 pub struct Project {
     pub path: PathBuf,
     pub byte_len: usize,
-    pub value: Value,
+    pub value: crate::json::Json,
     pub project_name: Option<String>,
     pub version: Option<String>,
     pub tool_type: Option<String>,
@@ -15,10 +15,14 @@ pub struct Project {
 
 pub fn load_project(path: impl AsRef<Path>) -> Result<Project> {
     let path = path.as_ref();
-    let bytes = fs::read(path).with_context(|| format!("failed to read {}", path.display()))?;
+    let mut bytes = Vec::new();
+    fs::File::open(path)
+        .with_context(|| format!("failed to read {}", path.display()))?
+        .take(crate::json::MAX_BYTES as u64 + 1)
+        .read_to_end(&mut bytes)?;
     let text = std::str::from_utf8(&bytes)
         .with_context(|| format!("{} is not valid UTF-8", path.display()))?;
-    let value: Value = serde_json::from_str(text.trim_start_matches('\u{feff}'))
+    let value = crate::json::from_str(text.trim_start_matches('\u{feff}'))
         .with_context(|| format!("invalid JSON in {}", path.display()))?;
 
     let Some(root) = value.as_object() else {
@@ -41,7 +45,7 @@ pub fn load_project(path: impl AsRef<Path>) -> Result<Project> {
 
 pub fn roundtrip_project(input: impl AsRef<Path>, output: impl AsRef<Path>) -> Result<()> {
     let project = load_project(input)?;
-    let bytes = serde_json::to_vec(&project.value).context("failed to serialize project JSON")?;
+    let bytes = crate::json::to_vec(&project.value).context("failed to serialize project JSON")?;
     fs::write(output.as_ref(), bytes)
         .with_context(|| format!("failed to write {}", output.as_ref().display()))?;
     load_project(output)?;

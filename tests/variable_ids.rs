@@ -7,6 +7,7 @@ fn template() -> Value {
     project::load_project("samples/kitten-n-0.27.4.bcmkn")
         .unwrap()
         .value
+        .into_value()
 }
 
 fn with_existing() -> Value {
@@ -32,7 +33,10 @@ fn compile(source: &str, base: &Value, module: &str) -> (Value, Value) {
     ts_frontend::compile_ts(&input, &workspace).unwrap();
     let report = serde_json::from_slice(&fs::read(workspace).unwrap()).unwrap();
     bcmkn_compiler::compile_workspace_bcmkn(&report, input, template_path, &output).unwrap();
-    (report, project::load_project(output).unwrap().value)
+    (
+        report,
+        project::load_project(output).unwrap().value.into_value(),
+    )
 }
 
 fn fields<'a>(value: &'a Value, field: &str) -> Vec<&'a str> {

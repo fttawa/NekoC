@@ -39,13 +39,12 @@ pub fn compile_ts_with_sidecars(
 
     let compiled = std::fs::read_to_string(output)
         .with_context(|| format!("failed to read compiled output {}", output.display()))?;
-    let workspace_report =
-        serde_json::from_str::<serde_json::Value>(&compiled).with_context(|| {
-            format!(
-                "TypeScript frontend wrote invalid JSON to {}",
-                output.display()
-            )
-        })?;
+    let workspace_report = crate::json::from_str(&compiled).with_context(|| {
+        format!(
+            "TypeScript frontend wrote invalid JSON to {}",
+            output.display()
+        )
+    })?;
 
     if emit_ir.is_some() || emit_analysis.is_some() {
         let ir_report = crate::ir::build_report(&workspace_report);

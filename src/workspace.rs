@@ -102,65 +102,54 @@ fn flatten_block(
     parent_id: Option<&str>,
     data: &mut WorkspaceData,
 ) -> Option<String> {
-    let block_type = block.get("type").and_then(Value::as_str)?;
-    let id = block
-        .get("id")
-        .and_then(Value::as_str)
-        .map(ToOwned::to_owned)
-        .unwrap_or_else(|| generated_id(block_type, data.blocks.len()));
-
-    let mut flat_block = block.as_object().cloned().unwrap_or_default();
-    flat_block.remove("next");
-    flat_block.remove("inputs");
-    flat_block.remove("statements");
-    flat_block.insert("id".to_owned(), Value::String(id.clone()));
-    flat_block.insert(
-        "parent_id".to_owned(),
-        parent_id.map_or(Value::Null, |parent_id| Value::String(parent_id.to_owned())),
-    );
-    data.blocks.insert(id.clone(), Value::Object(flat_block));
-
-    if let Some(next) = block.get("next")
-        && let Some(next_id) = flatten_block(next, Some(&id), data)
-    {
-        add_connection(data, &id, &next_id, json!({"type": "next"}));
-    }
-
-    if let Some(inputs) = block.get("inputs").and_then(Value::as_object) {
-        for (input_name, input) in inputs {
-            if let Some(input_id) = flatten_block(input, Some(&id), data) {
-                add_connection(
-                    data,
-                    &id,
-                    &input_id,
-                    json!({
-                        "type": "input",
-                        "input_name": input_name,
-                        "input_type": "value",
-                    }),
-                );
+    let mut pending = vec![(block, parent_id.map(str::to_owned), None)];
+    let mut first = None;
+    while let Some((block, parent_id, edge)) = pending.pop() {
+        let Some(block_type) = block.get("type").and_then(Value::as_str) else {
+            continue;
+        };
+        let id = block
+            .get("id")
+            .and_then(Value::as_str)
+            .map(ToOwned::to_owned)
+            .unwrap_or_else(|| generated_id(block_type, data.blocks.len()));
+        let mut flat_block: Map<String, Value> = block
+            .as_object()
+            .into_iter()
+            .flatten()
+            .filter(|(key, _)| !matches!(key.as_str(), "next" | "inputs" | "statements"))
+            .map(|(key, value)| (key.clone(), crate::json::clone_value(value)))
+            .collect();
+        flat_block.insert("id".into(), json!(id));
+        flat_block.insert("parent_id".into(), json!(parent_id));
+        data.blocks.insert(id.clone(), Value::Object(flat_block));
+        if first.is_none() {
+            first = Some(id.clone());
+        }
+        if let (Some(parent), Some(edge)) = (parent_id, edge) {
+            add_connection(data, &parent, &id, edge);
+        }
+        // Reverse pushes preserve the original next/inputs/statements DFS order
+        // and therefore generated IDs for blocks that have no source ID.
+        for (key, input_type) in [("statements", "statement"), ("inputs", "value")] {
+            for (name, child) in block
+                .get(key)
+                .and_then(Value::as_object)
+                .into_iter()
+                .flat_map(|m| m.iter().rev())
+            {
+                pending.push((
+                    child,
+                    Some(id.clone()),
+                    Some(json!({"type":"input","input_name":name,"input_type":input_type})),
+                ));
             }
         }
-    }
-
-    if let Some(statements) = block.get("statements").and_then(Value::as_object) {
-        for (input_name, statement) in statements {
-            if let Some(statement_id) = flatten_block(statement, Some(&id), data) {
-                add_connection(
-                    data,
-                    &id,
-                    &statement_id,
-                    json!({
-                        "type": "input",
-                        "input_name": input_name,
-                        "input_type": "statement",
-                    }),
-                );
-            }
+        if let Some(next) = block.get("next") {
+            pending.push((next, Some(id), Some(json!({"type":"next"}))));
         }
     }
-
-    Some(id)
+    first
 }
 
 fn add_connection(data: &mut WorkspaceData, parent_id: &str, child_id: &str, connection: Value) {

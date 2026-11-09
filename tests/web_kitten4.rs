@@ -69,7 +69,7 @@ impl Studio {
         stream
             .set_read_timeout(Some(Duration::from_secs(15)))
             .unwrap();
-        let body = serde_json::to_vec(payload).unwrap();
+        let body = nekoc::json::to_vec(payload).unwrap();
         let origin = origin.map_or(String::new(), |v| format!("Origin: {v}\r\n"));
         write!(stream, "{method} {path} HTTP/1.0\r\nHost: 127.0.0.1:{}\r\n{origin}Content-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n", self.port, body.len()).unwrap();
         stream.write_all(&body).unwrap();
@@ -129,6 +129,69 @@ fn fill_delta_uses_existing_binary_envelope_and_legacy_frames_omit_extension() {
     let len = u32::from_le_bytes(idle[..4].try_into().unwrap()) as usize;
     let header: Value = serde_json::from_slice(&idle[4..4 + len]).unwrap();
     assert!(header.get("pen_fills").is_none());
+}
+
+#[test]
+fn deep_published_work_survives_http_import_echo_export_and_private_player() {
+    use nekoc::json;
+    use tungstenite::{Message, client::IntoClientRequest};
+    let studio = Studio::start("samples/native-studio.bcmkn");
+    let mut source = json::from_str(include_str!("../samples/kitten4-public-pen.bcm")).unwrap();
+    for section in ["actors", "scenes"] {
+        for owner in source["theatre"][section]
+            .as_object_mut()
+            .unwrap()
+            .values_mut()
+        {
+            owner.as_object_mut().unwrap().remove("block_data_json");
+        }
+    }
+    let mut tail = None;
+    for i in (0..=2000).rev() {
+        let mut block = json!({"id":format!("deep-{i}"),"type":if i == 0 {"start_on_click"} else {"self_pen_down"},"params":{}});
+        if let Some(next) = tail {
+            block["next_block"] = next;
+        }
+        tail = Some(block);
+    }
+    source["compile_result"] = json!([{"id":"nekoc-pen-actor","compiled_block_map":{}}]);
+    source["compile_result"][0]["compiled_block_map"]["hat"] = tail.unwrap();
+    let (status, bytes) = studio.request("POST", "/api/import", &source);
+    assert_eq!(status, 200, "{}", String::from_utf8_lossy(&bytes));
+    let report = json::from_slice(&bytes).unwrap();
+    assert_eq!(report["fast_runtime_ready"], true);
+    let (status, bytes) = studio.request("GET", "/api/project", &Value::Null);
+    assert_eq!(status, 200);
+    let project = json::from_slice(&bytes).unwrap();
+    assert!(json::equal(&project, &report["project"]));
+    assert_eq!(studio.request("POST", "/api/project", &project).0, 200);
+    let (status, bytes) = studio.request("POST", "/api/export", &project);
+    assert_eq!(status, 200, "{}", String::from_utf8_lossy(&bytes));
+    assert!(json::equal(&json::from_slice(&bytes).unwrap(), &source));
+    let (status, bytes) = studio.request("POST", "/api/import-player", &source);
+    assert_eq!(status, 200);
+    assert_eq!(
+        json::from_slice(&bytes).unwrap()["fast_runtime_ready"],
+        true
+    );
+    let request = format!("ws://127.0.0.1:{}/api/player-private", studio.port)
+        .into_client_request()
+        .unwrap();
+    let stream = TcpStream::connect(("127.0.0.1", studio.port)).unwrap();
+    stream
+        .set_read_timeout(Some(Duration::from_secs(15)))
+        .unwrap();
+    let (mut socket, _) = tungstenite::client(request, stream).unwrap();
+    socket
+        .send(Message::Text(
+            String::from_utf8(json::to_vec(&project).unwrap()).unwrap(),
+        ))
+        .unwrap();
+    let ready = json::from_str(socket.read().unwrap().to_text().unwrap()).unwrap();
+    assert_eq!(ready["ready"], true);
+    socket.send(Message::Text("{}".into())).unwrap();
+    assert!(socket.read().unwrap().is_binary());
+    socket.close(None).unwrap();
 }
 
 #[test]
@@ -248,7 +311,7 @@ fn kitten4_cli_import_edit_run_export_and_validation_boundaries() {
     for invalid in [
         json!([]),
         json!({}),
-        native.clone(),
+        native.clone().into_value(),
         missing,
         altered,
         malformed_owner,
