@@ -257,3 +257,101 @@ fn kitten4_cli_import_edit_run_export_and_validation_boundaries() {
     assert_eq!(report["project"], kn);
     assert_eq!(studio.json("POST", "/api/export", &kn, 200), kn);
 }
+
+#[test]
+fn debug_snapshot_is_read_only_complete_and_same_origin_protected() {
+    use tungstenite::{Message, client::IntoClientRequest};
+    let studio = Studio::start("samples/kitten4-demo.bcm");
+    let url = format!("ws://127.0.0.1:{}/api/player", studio.port);
+    let mut forbidden = url.clone().into_client_request().unwrap();
+    forbidden
+        .headers_mut()
+        .insert("Origin", "https://example.com".parse().unwrap());
+    assert!(tungstenite::connect(forbidden).is_err());
+    let (mut socket, _) = tungstenite::connect(&url).unwrap();
+    let ready: Value = serde_json::from_str(socket.read().unwrap().to_text().unwrap()).unwrap();
+    assert_eq!(ready["ready"], true);
+    let read = |socket: &mut tungstenite::WebSocket<
+        tungstenite::stream::MaybeTlsStream<TcpStream>,
+    >| {
+        socket
+            .send(Message::Text(json!({"debug_snapshot":true,"dt":100,"events":[{"kind":"key","key":"32","down":true}]}).to_string()))
+            .unwrap();
+        let value: Value = serde_json::from_str(socket.read().unwrap().to_text().unwrap()).unwrap();
+        value["snapshot"].clone()
+    };
+    let before = read(&mut socket);
+    assert_eq!(before["sequence"], 0);
+    assert_eq!(before["time"].as_f64(), Some(0.0));
+    assert!(before["actors"].as_object().unwrap().values().all(|a| {
+        a["x"].is_number()
+            && a["direction"].is_number()
+            && a["visible"].is_boolean()
+            && a.get("costume").is_some()
+    }));
+    assert_eq!(read(&mut socket), before);
+    socket
+        .send(Message::Text(json!({"dt":0.016}).to_string()))
+        .unwrap();
+    let bytes = socket.read().unwrap().into_data();
+    let length = u32::from_le_bytes(bytes[..4].try_into().unwrap()) as usize;
+    let frame: Value = serde_json::from_slice(&bytes[4..4 + length]).unwrap();
+    // Reads have not consumed dirty sprites, reset flags, or sequence numbers.
+    assert_eq!(frame["sequence"], 1);
+    assert_eq!(frame["reset"], true);
+    assert!(!frame["sprites"].as_array().unwrap().is_empty());
+    let after = read(&mut socket);
+    assert_eq!(after["sequence"], 1);
+    assert_eq!(read(&mut socket), after);
+}
+
+#[test]
+fn debug_snapshot_keeps_text_lists_and_detaches_values() {
+    use nekoc::engine::{Engine, Program};
+    let mut project = nekoc::studio::document::Document::blank().value().clone();
+    project["variables"]["variablesDict"] = json!({
+        "text":{"id":"text","name":"text","type":"variable","value":"hello"},
+        "list":{"id":"list","name":"list","type":"list","value":[1,"two"]}
+    });
+    let mut vm = Engine::new(Program::compile(&project).unwrap());
+    vm.start();
+    let before = vm.debug_snapshot();
+    assert_eq!(before["variables"]["text"], "hello");
+    assert_eq!(before["lists"]["list"], json!([1.0, "two"]));
+    let mut detached = before.clone();
+    detached["lists"]["list"][0] = json!(99);
+    assert_eq!(vm.debug_snapshot(), before);
+}
+
+#[test]
+fn ephemeral_port_is_advertised_and_passes_host_validation() {
+    use std::io::BufRead;
+    let mut process = Command::new(env!("CARGO_BIN_EXE_web"))
+        .args(["samples/kitten4-demo.bcm", "--port", "0"])
+        .stdout(Stdio::piped())
+        .stderr(Stdio::inherit())
+        .spawn()
+        .unwrap();
+    let stdout = process.stdout.take().unwrap();
+    let mut studio = Studio { process, port: 0 };
+    let (send, receive) = std::sync::mpsc::channel();
+    std::thread::spawn(move || {
+        let mut line = String::new();
+        std::io::BufReader::new(stdout)
+            .read_line(&mut line)
+            .unwrap();
+        let _ = send.send(line);
+    });
+    let line = receive.recv_timeout(Duration::from_secs(15)).unwrap();
+    studio.port = line
+        .trim()
+        .strip_prefix("NekoC Web Studio: http://127.0.0.1:")
+        .unwrap()
+        .parse()
+        .unwrap();
+    assert_ne!(studio.port, 0);
+    assert_eq!(
+        studio.json("GET", "/api/health", &Value::Null, 200)["ok"],
+        true
+    );
+}

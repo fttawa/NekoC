@@ -410,7 +410,13 @@ fn player_socket(request: Request, project: Option<Value>) -> Result<()> {
                 match socket.read()? {
                     Message::Text(text) => {
                         let payload: Value = serde_json::from_str(&text)?;
-                        socket.send(Message::Binary(frame_bytes(&mut vm, &payload)?))?;
+                        if payload["debug_snapshot"] == true {
+                            socket.send(Message::Text(
+                                json!({"snapshot":vm.debug_snapshot()}).to_string(),
+                            ))?;
+                        } else {
+                            socket.send(Message::Binary(frame_bytes(&mut vm, &payload)?))?;
+                        }
                     }
                     Message::Close(_) => {
                         let _ = socket.flush();
@@ -602,6 +608,11 @@ fn serve(initial: Value, port: u16) -> Result<()> {
     let (mut project, _) = import_project(initial)?;
     let server =
         Server::from_listener(listener(port)?, None).map_err(|e| anyhow::anyhow!("{e}"))?;
+    let port = server
+        .server_addr()
+        .to_ip()
+        .context("expected TCP listener")?
+        .port();
     println!(
         "NekoC Web Studio: http://127.0.0.1:{port}\nRust VM / binary frame transport / WebGL2 persistent pen surface"
     );
@@ -858,5 +869,15 @@ mod tests {
         ] {
             assert_eq!(frame_budget(&payload), Duration::from_millis(millis));
         }
+    }
+
+    #[test]
+    fn listener_is_loopback_only_even_with_an_ephemeral_port() {
+        let socket = listener(0).unwrap();
+        assert_eq!(
+            socket.local_addr().unwrap().ip(),
+            std::net::Ipv4Addr::LOCALHOST
+        );
+        assert_ne!(socket.local_addr().unwrap().port(), 0);
     }
 }
