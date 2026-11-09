@@ -194,7 +194,8 @@ fn official_single_text_index_is_one_based_character_with_empty_out_of_range() {
 }
 
 #[test]
-fn split_clone_fixtures_explicitly_report_unsupported_instead_of_claiming_parity() {
+fn split_clone_fixtures_run() {
+    // Split behaviour itself is asserted in tests/kitten4_clone.rs.
     for name in ["when-split", "keys-split"] {
         let native: Value = serde_json::from_str(
             &std::fs::read_to_string(format!("tests/fixtures/kitten4/semantics-{name}.bcm"))
@@ -202,8 +203,6 @@ fn split_clone_fixtures_explicitly_report_unsupported_instead_of_claiming_parity
         )
         .unwrap();
         let report = kitten4::coverage(&native, 60);
-        assert_eq!(report["stage"], "compile");
-        assert!(report["error"].as_str().unwrap().contains("kitten4::clone"));
-        println!("{name}: {report}");
+        assert_eq!(report["stage"], "ran", "{name}: {report}");
     }
 }

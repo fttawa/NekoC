@@ -357,8 +357,9 @@ fn lower_node(value: &mut Value, targets: &Targets) {
     }
 }
 
-/// Official 4.11.20: level-triggered, single-flight on originals. A mirror has
-/// no condition responder. See tests/fixtures/kitten4/semantics-when.bcm.
+/// Official 4.11.20: level-triggered single-flight on originals and split
+/// instances; a mirror has no condition responder. See
+/// tests/fixtures/kitten4/semantics-when.bcm and semantics-when-split.bcm.
 fn lower_when(block: &mut Value) {
     let id = block["id"].as_str().unwrap_or_default().to_owned();
     let mut trigger = json!({"type": "wait_until", "id": format!("{id}-trigger"),
@@ -539,6 +540,7 @@ fn lower_block(block: &mut Value) {
             "math_trig"
         }
         "dispose" => "kitten4_dispose",
+        "clone" => "kitten4_split",
         "self_prev_next_style" => {
             fields(block, &[("prev_or_next", "prev_next")], false);
             "self_prev_next_style"
