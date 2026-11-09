@@ -13,7 +13,7 @@ const backend=extension?await extension.backendURL():location.origin;
 
 const $=selector=>document.querySelector(selector);
 const canvas=$('#stage'),shell=$('#player-shell');
-let renderer,input,overlay,sendCostumes=false,project=null,playable=false,busy=true,running=false,connection=null,inFlight=null,epoch=0;
+let renderer,input,overlay,sendCostumes=false,project=null,playable=false,busy=true,running=false,connection=null,inFlight=null,observing=false,epoch=0;
 let lastTick=0,nextDue=0,lastFrame=null,roundtripMs=0,updates=0,draws=0,totalUpdates=0,pumpTimer=0;
 let sampleStart=performance.now(),lastMonitor=0,drawFps=0,updateFps=0;
 const audio=new ProjectAudio(notice,id=>input?.push({kind:'audio_done',id}));
@@ -74,6 +74,8 @@ async function launch(){
   if(!connection?.ready){
     input?.reset();
     const next=new PlayerConnection();connection=next;await next.open(project,backend);sendCostumes=true;overlay.reset();
+    // Opt-in observation before any scheduler tick, not an extra simulation frame.
+    if(new URLSearchParams(location.search).has('compare'))window.nekoCompareZero=await next.snapshot();
     epoch++;lastFrame=null;totalUpdates=0;
   }
   clearKeys();resetMeter();running=true;lastTick=performance.now();nextDue=lastTick;queueMicrotask(pump);
@@ -144,7 +146,7 @@ pumpChannel.port1.onmessage=()=>pump();
 function pump(){
   clearTimeout(pumpTimer);pumpTimer=0;
   // "Follow screen" keeps exactly one update per display frame.
-  if(!running||busy||inFlight)return;
+  if(!running||busy||inFlight||observing)return;
   if(lastFrame?.budget_yield){step(performance.now(),true);return;}
   if(!settings.limit)return;
   const now=performance.now(),wait=nextDue-now;
@@ -154,7 +156,7 @@ function pump(){
   else pumpTimer=setTimeout(pump,wait);
 }
 function loop(now){
-  if(running&&!busy&&!inFlight&&now>=nextDue-.5)step(now);
+  if(running&&!busy&&!inFlight&&!observing&&now>=nextDue-.5)step(now);
   if(renderer){renderer.render();overlay?.update();renderer.collectGpuTimes();monitor(now);}
   requestAnimationFrame(loop);
 }
@@ -218,3 +220,11 @@ finally{busy=false;syncControls();requestAnimationFrame(loop);}
 // Read-only test/performance snapshot; the standalone page never builds editor DOM.
 window.nekoPlayDiagnostics=()=>({running,busy,playable,settings:{...settings},frame:lastFrame,totalUpdates,drawFps,updateFps,
   framebuffer:[canvas.width,canvas.height],renderer:{...renderer?.stats},pending:!!inFlight,projectName:project?.projectName,audio:audio.snapshot()});
+// A detached read, serialized after an outstanding frame. No pause/resume or VM mutation.
+window.nekoPlaySnapshot=async()=>{
+  if(!connection?.ready)throw Error('运行时尚未连接');
+  if(observing)throw Error('已有状态读取等待响应');
+  observing=true;
+  try{await inFlight;return await connection.snapshot();}
+  finally{observing=false;pump();}
+};

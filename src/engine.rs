@@ -3246,6 +3246,48 @@ impl Engine {
     pub fn numeric_variables(&self) -> &[f64] {
         &self.slots
     }
+    /// Complete, detached observation; unlike a frame this never ticks the VM,
+    /// drains deltas, clears dirty flags, or changes the scheduler.
+    pub fn debug_snapshot(&self) -> serde_json::Value {
+        let actors: BTreeMap<_, _> = self
+            .sprites
+            .iter()
+            .filter(|sprite| sprite.alive && !sprite.stage)
+            .map(|sprite| {
+                (
+                    sprite.id.clone(),
+                    serde_json::json!({
+                        "x":sprite.x, "y":sprite.y,
+                        // Raw VM heading, clockwise from up (not the draw angle).
+                        "direction":sprite.direction,
+                        "visible":sprite.visible, "scale":sprite.scale,
+                        "size_x":sprite.size_x, "size_y":sprite.size_y,
+                        "costume":sprite.style,
+                    }),
+                )
+            })
+            .collect();
+        let variables: BTreeMap<_, _> = self
+            .program
+            .variable_names
+            .iter()
+            .enumerate()
+            .map(|(index, id)| (id.clone(), self.global_value(index)))
+            .collect();
+        let lists: BTreeMap<_, _> = self
+            .program
+            .list_names
+            .iter()
+            .enumerate()
+            .map(|(index, id)| (id.clone(), self.list_values(index)))
+            .collect();
+        serde_json::json!({
+            "sequence":self.sequence, "time":self.time,
+            "scene":self.program.scenes[self.current_scene].id,
+            "actors":actors, "variables":variables, "lists":lists,
+            "costume_turn":self.program.costume_turn,
+        })
+    }
     pub fn numeric_lists(&self) -> Vec<Vec<f64>> {
         self.lists
             .iter()

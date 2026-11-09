@@ -17,6 +17,7 @@ export class PlayerConnection {
           if(typeof event.data==='string'){
             const message=JSON.parse(event.data);
             if(message.ready){clearTimeout(this.timer);this.openReject=null;this.ready=true;resolve(message);}
+            else if(message.snapshot){const pending=this.pending;this.pending=null;clearTimeout(this.timer);pending?.resolve(message.snapshot);}
             else if(message.error)this.fail(Error(message.error));
           }else{const pending=this.pending;this.pending=null;clearTimeout(this.timer);pending?.resolve(event.data);}
         }catch(error){this.fail(error);}
@@ -33,6 +34,8 @@ export class PlayerConnection {
       try{this.socket.send(JSON.stringify(payload));}catch(error){this.fail(error);}
     });
   }
+  // Read-only request on this VM's loopback, same-origin protected socket.
+  snapshot(){return this.frame({debug_snapshot:true});}
   fail(error){
     this.ready=false;clearTimeout(this.timer);this.openReject?.(error);this.openReject=null;
     this.pending?.reject(error);this.pending=null;
