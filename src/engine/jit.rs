@@ -200,7 +200,13 @@ impl Engine {
                 .all(|k| self.jit_pure_value(self.program.value_args[k as usize]))
         };
         match self.program.values[i] {
-            ValueExpr::CallReturn(..) => false,
+            ValueExpr::CallReturn(..)
+            | ValueExpr::Boolean(..)
+            | ValueExpr::Encode64(..)
+            | ValueExpr::Decode64(..)
+            | ValueExpr::ParseFloat(..)
+            | ValueExpr::IsNumber(..)
+            | ValueExpr::ParseInt(..) => false,
             ValueExpr::Number(e) => expr(e),
             ValueExpr::Item(_, e) => e.is_none_or(expr),
             ValueExpr::Received(a)

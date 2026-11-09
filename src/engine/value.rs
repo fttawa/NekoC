@@ -194,6 +194,12 @@ pub(super) enum ValueExpr {
     /// logic_ternary: like the official runtime, both branches are evaluated.
     Ternary(usize, usize, usize),
     Not(usize),
+    Boolean(usize),
+    Encode64(usize),
+    Decode64(usize),
+    ParseFloat(usize),
+    ParseInt(usize, usize),
+    IsNumber(usize, bool),
     /// Local weekday name (get_time week).
     WeekText,
     SceneId,
