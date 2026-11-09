@@ -103,6 +103,16 @@ enum Command {
         #[arg(long, default_value_t = 120)]
         frames: u32,
     },
+    /// Measure import phases (use a release build).
+    BenchImport {
+        inputs: Vec<PathBuf>,
+        #[arg(long)]
+        out: Option<PathBuf>,
+        #[arg(long, default_value_t = 0)]
+        frames: u32,
+        #[arg(long)]
+        snapshot: bool,
+    },
     Validate {
         input: PathBuf,
         #[arg(long)]
@@ -462,6 +472,19 @@ fn main() -> Result<()> {
         Command::Unpack { input, out } => {
             let project: serde_json::Value = serde_json::from_slice(&std::fs::read(&input)?)?;
             std::fs::write(&out, serde_json::to_vec(&nekoc::pack::unpack(&project)?)?)?;
+        }
+        Command::BenchImport {
+            inputs,
+            out,
+            frames,
+            snapshot,
+        } => {
+            nekoc::import_bench::run(nekoc::import_bench::Args {
+                files: inputs,
+                out,
+                frames,
+                snapshot,
+            })?;
         }
         Command::Coverage { inputs, frames } => {
             for input in inputs {

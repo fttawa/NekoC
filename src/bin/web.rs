@@ -2,6 +2,7 @@ use anyhow::{Context, Result, bail, ensure};
 use clap::Parser;
 use nekoc::engine::{Engine, Program};
 use serde_json::{Value, json};
+use sha2::{Digest, Sha256};
 use std::{path::PathBuf, time::Duration};
 use tiny_http::{Header, Method, Request, Response, Server, StatusCode};
 use tungstenite::{
@@ -9,6 +10,102 @@ use tungstenite::{
     handshake::derive_accept_key,
     protocol::{Role, WebSocketConfig},
 };
+
+struct CachedImport {
+    input_hash: [u8; 32],
+    canonical_hash: [u8; 32],
+    project: Value,
+    response: Vec<u8>,
+}
+
+#[derive(serde::Serialize)]
+struct ImportResponse<'a> {
+    #[serde(flatten)]
+    report: &'a Value,
+    project: &'a Value,
+}
+
+// Content addressed, bounded to one work. Editor edits and independent private
+// players never share mutable runtime state; cache hits only reuse import data.
+#[derive(Default)]
+struct ImportCache(Option<CachedImport>);
+
+fn project_hash(value: &Value) -> [u8; 32] {
+    let mut hash = Sha256::new();
+    let mut pending = vec![value];
+    while let Some(value) = pending.pop() {
+        match value {
+            Value::Object(object) => {
+                hash.update(b"object");
+                hash.update((object.len() as u64).to_le_bytes());
+                for key in object.keys() {
+                    hash.update((key.len() as u64).to_le_bytes());
+                    hash.update(key.as_bytes());
+                }
+                pending.extend(object.values().rev());
+            }
+            Value::Array(items) => {
+                hash.update(b"array");
+                hash.update((items.len() as u64).to_le_bytes());
+                pending.extend(items.iter().rev());
+            }
+            Value::Number(number) => {
+                // Browser JSON round trips normalize 100.0 to 100 and -0 to 0.
+                // Never merge distinct integers outside JS's exact range.
+                let text = match number.as_f64() {
+                    Some(n)
+                        if number.is_f64()
+                            && n.abs() <= 9_007_199_254_740_991.0
+                            && n.fract() == 0.0 =>
+                    {
+                        (n as i64).to_string()
+                    }
+                    _ => number.to_string(),
+                };
+                hash.update(b"number");
+                hash.update((text.len() as u64).to_le_bytes());
+                hash.update(text.as_bytes());
+            }
+            Value::String(text) => {
+                hash.update(b"string");
+                hash.update((text.len() as u64).to_le_bytes());
+                hash.update(text.as_bytes());
+            }
+            Value::Bool(value) => hash.update(if *value {
+                b"true".as_slice()
+            } else {
+                b"false".as_slice()
+            }),
+            Value::Null => hash.update(b"null"),
+        }
+    }
+    hash.finalize().into()
+}
+
+impl ImportCache {
+    fn import(&mut self, value: Value) -> Result<&CachedImport> {
+        let hash = project_hash(&value);
+        if !self
+            .0
+            .as_ref()
+            .is_some_and(|c| c.input_hash == hash || c.canonical_hash == hash)
+        {
+            let (project, report) = import_project(value)?;
+            let canonical_hash = project_hash(&project);
+            let response = serde_json::to_vec(&ImportResponse {
+                report: &report,
+                project: &project,
+            })?;
+            self.0 = Some(CachedImport {
+                input_hash: hash,
+                canonical_hash,
+                project,
+                response,
+            });
+        }
+        Ok(self.0.as_ref().unwrap())
+    }
+}
 
 const EXTENSION_ORIGIN: &str = "chrome-extension://aghbhbjmpgklpbgoeopacommcdjmeghj";
 const MAX_PROJECT_BYTES: usize = 64 * 1024 * 1024;
@@ -195,7 +292,6 @@ fn import_project(value: Value) -> Result<(Value, Value)> {
         "bcmkn"
     });
     report["editor_format"] = json!("bcmkn-json");
-    report["project"] = value.clone();
     Ok((value, report))
 }
 
@@ -596,7 +692,8 @@ fn main() -> Result<()> {
     serve(initial, args.port)
 }
 fn serve(initial: Value, port: u16) -> Result<()> {
-    let (mut project, _) = import_project(initial)?;
+    let mut imports = ImportCache::default();
+    let mut project = imports.import(initial)?.project.clone();
     let server =
         Server::from_listener(listener(port)?, None).map_err(|e| anyhow::anyhow!("{e}"))?;
     println!(
@@ -748,12 +845,15 @@ fn serve(initial: Value, port: u16) -> Result<()> {
                     json!({"ok":true})
                 }
                 "/api/import" => {
-                    let (value, report) = import_project(payload)?;
+                    let cached = imports.import(payload)?;
                     engine = None;
-                    project = value;
-                    report
+                    project = cached.project.clone();
+                    return Ok(("application/json".into(), cached.response.clone()));
                 }
-                "/api/import-player" => import_project(payload)?.1,
+                "/api/import-player" => {
+                    let cached = imports.import(payload)?;
+                    return Ok(("application/json".into(), cached.response.clone()));
+                }
                 "/api/export" => {
                     // Export the submitted editor snapshot without stopping a live VM
                     // or changing the server project. Edits are validated atomically.
@@ -811,6 +911,45 @@ fn serve(initial: Value, port: u16) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn content_hash_matches_browser_number_normalization_without_integer_aliases() {
+        assert_eq!(
+            project_hash(&json!([100.0, -0.0])),
+            project_hash(&json!([100, 0]))
+        );
+        assert_ne!(
+            project_hash(&json!(9_007_199_254_740_992_u64)),
+            project_hash(&json!(9_007_199_254_740_993_u64))
+        );
+        assert_ne!(
+            project_hash(&json!({"a":"bc"})),
+            project_hash(&json!({"ab":"c"}))
+        );
+    }
+
+    #[test]
+    fn import_cache_reuses_native_and_canonical_hashes_and_invalidates_on_edits() {
+        let source: Value =
+            serde_json::from_str(include_str!("../../samples/kitten4-demo.bcm")).unwrap();
+        let mut cache = ImportCache::default();
+        let canonical = cache.import(source.clone()).unwrap().project.clone();
+        let expected = cache.0.as_ref().unwrap().response.clone();
+        let ((), timings) = nekoc::import_perf::measure(|| {
+            assert_eq!(cache.import(source).unwrap().response, expected);
+            assert_eq!(cache.import(canonical.clone()).unwrap().response, expected);
+        });
+        assert!(!timings.contains_key("diagnostics_coverage"));
+        let mut edited = canonical;
+        edited["projectName"] = json!("edited");
+        assert_eq!(
+            cache.import(edited).unwrap().project["projectName"],
+            "edited"
+        );
+        let previous = cache.0.as_ref().unwrap().response.clone();
+        assert!(cache.import(json!({"toolType":"wrong"})).is_err());
+        assert_eq!(cache.0.as_ref().unwrap().response, previous);
+    }
 
     #[test]
     fn playback_budget_is_bounded_and_editor_default_is_preserved() {

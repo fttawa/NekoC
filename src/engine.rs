@@ -609,7 +609,7 @@ impl RuntimeSemantics {
         // stricter metadata schema (published sources need no workspace). The
         // canonical project may have been edited, so do not compare it to this
         // fresh import or require an export round-trip to succeed.
-        crate::kitten4::to_neko(source)
+        crate::kitten4::validate_source(source)
             .context("malformed _nekocKitten4 provenance: source cannot be imported")?;
         Ok(Self::Kitten4)
     }
@@ -675,6 +675,21 @@ pub struct CompileStats {
     pub lists: usize,
     pub scripts: usize,
 }
+
+/// A diagnostic pass can reuse provenance validation and lowering across roots.
+/// This never changes the caller's canonical document or its runtime semantics.
+pub(crate) struct PreparedProject<'a> {
+    pub project: std::borrow::Cow<'a, Value>,
+    semantics: RuntimeSemantics,
+    start_hats: crate::kitten4::StartHats,
+}
+
+impl PreparedProject<'_> {
+    pub fn compile(&self, project: &Value) -> Result<Program> {
+        Program::compile_canonical(project, self.semantics, self.start_hats.clone())
+    }
+}
+
 impl Program {
     pub fn stats(&self) -> CompileStats {
         CompileStats {
@@ -697,6 +712,13 @@ impl Program {
         Self::compile_project(project, false)
     }
     fn compile_project(project: &Value, unpack: bool) -> Result<Self> {
+        let _timing = crate::import_perf::span("engine_compile_total");
+        let prepared = Self::prepare(project, unpack)?;
+        prepared.compile(&prepared.project)
+    }
+    pub(crate) fn prepare(project: &Value, unpack: bool) -> Result<PreparedProject<'_>> {
+        let _timing = crate::import_perf::span("engine_prepare");
+        use std::borrow::Cow;
         let semantics = RuntimeSemantics::from_project(project)?;
         let start_hats = if semantics == RuntimeSemantics::Kitten4 {
             crate::kitten4::start_hats(&project["_nekocKitten4"]["source"])
@@ -704,27 +726,28 @@ impl Program {
         } else {
             crate::kitten4::StartHats::new()
         };
-        let unpacked;
         let project = if unpack && crate::pack::is_packed(project) {
-            unpacked = crate::pack::unpack(project)?;
-            &unpacked
+            Cow::Owned(crate::pack::unpack(project)?)
         } else {
-            project
+            Cow::Borrowed(project)
         };
-        let lowered;
         let project = if semantics == RuntimeSemantics::Kitten4 {
-            lowered = crate::kitten4::lower_for_vm(project);
-            &lowered
+            Cow::Owned(crate::kitten4::lower_for_vm(&project))
         } else {
             project
         };
-        Self::compile_canonical(project, semantics, start_hats)
+        Ok(PreparedProject {
+            project,
+            semantics,
+            start_hats,
+        })
     }
     fn compile_canonical(
         project: &Value,
         semantics: RuntimeSemantics,
         start_hats: crate::kitten4::StartHats,
     ) -> Result<Self> {
+        let _timing = crate::import_perf::span("engine_compile_canonical");
         let scene = project
             .pointer("/scenes/currentSceneId")
             .and_then(Value::as_str)
@@ -3285,6 +3308,7 @@ impl Engine {
         self.jit = None;
     }
     pub fn new(program: Program) -> Self {
+        let _timing = crate::import_perf::span("engine_init_jit");
         let jit = jit::Jit::new(program.ops.len());
         let slots = program.initial.clone();
         let lists = program

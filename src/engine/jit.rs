@@ -174,6 +174,7 @@ impl Engine {
     }
 
     fn jit_compile(&mut self, entry: usize) {
+        let _timing = crate::import_perf::span("jit_compile_hot");
         let mut jit = self.jit.take().expect("jit present");
         match compile(&mut jit, self, entry) {
             Some(region) => jit.regions[entry] = Some(region),

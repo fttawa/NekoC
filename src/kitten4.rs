@@ -2,11 +2,49 @@
 //!
 //! Block names and sockets below are taken from the official 4.11.20 editor.
 //! A native snapshot is retained, and export applies a three-way structural diff
-//! against a fresh conversion of that snapshot. Thus editing a supported field
+//! against a cached conversion of that exact snapshot. Thus editing a supported field
 //! does not normalize away unknown data, shadow XML, or legacy serialization.
 use anyhow::{Context, Result, bail, ensure};
 use serde_json::{Map, Value, json};
 use std::collections::{BTreeMap, BTreeSet};
+use std::{cell::RefCell, rc::Rc};
+
+struct SourceCache {
+    source: Value,
+    canonical: Rc<Value>,
+    starts: std::result::Result<StartHats, String>,
+}
+thread_local! {
+    // One successful source per importing/compiling thread. No unbounded global
+    // retention, no forged-metadata bypass, and failed imports never replace it.
+    static SOURCE_CACHE: RefCell<Option<SourceCache>> = const { RefCell::new(None) };
+}
+
+fn source_baseline(source: &Value) -> Result<Rc<Value>> {
+    if let Some(cached) = SOURCE_CACHE.with(|cache| {
+        cache
+            .borrow()
+            .as_ref()
+            .filter(|cache| cache.source == *source)
+            .map(|cache| Rc::clone(&cache.canonical))
+    }) {
+        return Ok(cached);
+    }
+    let (canonical, starts) = import_project(source)?;
+    let canonical = Rc::new(canonical);
+    SOURCE_CACHE.with(|cache| {
+        *cache.borrow_mut() = Some(SourceCache {
+            source: source.clone(),
+            canonical: Rc::clone(&canonical),
+            starts,
+        })
+    });
+    Ok(canonical)
+}
+
+pub(crate) fn validate_source(source: &Value) -> Result<()> {
+    source_baseline(source).map(|_| ())
+}
 
 const METADATA: &str = "_nekocKitten4";
 const OPAQUE: &str = "kitten4::";
@@ -23,28 +61,10 @@ pub(crate) enum StartKind {
 pub(crate) type StartHats = BTreeMap<(bool, String, String), StartKind>;
 
 pub(crate) fn start_hats(source: &Value) -> Result<StartHats> {
-    let compiled = CompiledWork::new(source);
-    let mut hats = StartHats::new();
-    for (section, stage) in [("scenes", true), ("actors", false)] {
-        for (owner, value) in source["theatre"][section]
-            .as_object()
-            .context("Kitten 4 start provenance owners must be objects")?
-        {
-            let (_, starts) = if let Some(workspace) = value.get("block_data_json") {
-                import_workspace_with_starts(workspace)?
-            } else {
-                compiled.finish_with_starts(compiled.roots(owner))?
-            };
-            for (id, kind) in starts {
-                ensure!(
-                    hats.insert((stage, owner.clone(), id.clone()), kind)
-                        .is_none(),
-                    "ambiguous Kitten 4 start provenance for {section}/{owner}/{id}"
-                );
-            }
-        }
-    }
-    Ok(hats)
+    source_baseline(source)?;
+    SOURCE_CACHE
+        .with(|cache| cache.borrow().as_ref().unwrap().starts.clone())
+        .map_err(anyhow::Error::msg)
 }
 
 pub fn is_kitten4(value: &Value) -> bool {
@@ -53,8 +73,9 @@ pub fn is_kitten4(value: &Value) -> bool {
 }
 
 pub fn to_neko(value: &Value) -> Result<Value> {
+    let _timing = crate::import_perf::span("kitten4_import");
     ensure!(is_kitten4(value), "not a native Kitten 4 project");
-    let mut result = import_project(value)?;
+    let mut result = source_baseline(value)?.as_ref().clone();
     result[METADATA] = json!({"source": value});
     Ok(result)
 }
@@ -127,10 +148,19 @@ fn count_blocks(value: &Value, blocks: &mut u64, opaque: &mut BTreeMap<String, u
 /// opaque in the canonical project so they round-trip untouched, and are rewritten only
 /// here, just before compiling.
 pub fn lower_for_vm(project: &Value) -> Value {
-    let mut lowered = project.clone();
-    if let Some(object) = lowered.as_object_mut() {
-        object.remove(METADATA);
-    }
+    let _timing = crate::import_perf::span("lower_for_vm");
+    // Do not clone the native source just to discard it. Published works often
+    // store most of their bytes in this provenance snapshot.
+    let mut lowered = match project.as_object() {
+        Some(object) => Value::Object(
+            object
+                .iter()
+                .filter(|(key, _)| key.as_str() != METADATA)
+                .map(|(key, value)| (key.clone(), value.clone()))
+                .collect(),
+        ),
+        None => project.clone(),
+    };
     // Cloud data has no service to talk to here, so it behaves as local variables.
     if let Some(cloud) = project
         .pointer(&format!("/{METADATA}/source/cloud_variables"))
@@ -146,13 +176,12 @@ pub fn lower_for_vm(project: &Value) -> Value {
         }
     }
     let targets = Targets {
-        actors: project["actors"]["actorsDict"].clone(),
-        scenes: project["scenes"]["scenesDict"].clone(),
-        procedures: project["procedures"]["proceduresDict"].clone(),
+        actors: &project["actors"]["actorsDict"],
+        scenes: &project["scenes"]["scenesDict"],
+        procedures: &project["procedures"]["proceduresDict"],
         groups: project
             .pointer(&format!("/{METADATA}/source/theatre/groups"))
-            .cloned()
-            .unwrap_or(Value::Null),
+            .unwrap_or(&Value::Null),
     };
     for section in ["scenes", "actors", "procedures"] {
         lower_blocks(&mut lowered[section], &targets);
@@ -160,14 +189,14 @@ pub fn lower_for_vm(project: &Value) -> Value {
     lowered
 }
 
-struct Targets {
-    actors: Value,
-    scenes: Value,
-    procedures: Value,
-    groups: Value,
+struct Targets<'a> {
+    actors: &'a Value,
+    scenes: &'a Value,
+    procedures: &'a Value,
+    groups: &'a Value,
 }
 
-impl Targets {
+impl Targets<'_> {
     /// Collision with an actor group is a collision with any member. A target that no
     /// longer exists can never collide.
     fn bump(&self, target: &str) -> Vec<String> {
@@ -602,7 +631,7 @@ pub fn from_neko(value: &Value) -> Result<Value> {
     let source = value.get(METADATA).and_then(|m| m.get("source"));
     if let Some(source) = source {
         ensure!(is_kitten4(source), "invalid _nekocKitten4.source");
-        let baseline = import_project(source)?;
+        let baseline = source_baseline(source)?;
         if is_published(source) {
             // No workspace to write edits into: only an unchanged work can be exported.
             // Check the complete canonical snapshot, not just executable owners:
@@ -640,7 +669,9 @@ pub fn from_neko(value: &Value) -> Result<Value> {
     }
 }
 
-fn import_project(source: &Value) -> Result<Value> {
+type SourceImport = (Value, std::result::Result<StartHats, String>);
+
+fn import_project(source: &Value) -> Result<SourceImport> {
     ensure!(
         matches!(source.get("version").and_then(Value::as_u64), Some(24 | 25)),
         "unsupported Kitten 4 project version {}; this adapter supports versions 24 and 25",
@@ -650,8 +681,9 @@ fn import_project(source: &Value) -> Result<Value> {
         .get("theatre")
         .context("Kitten 4 theatre is missing")?;
     let compiled = CompiledWork::new(source);
-    let scenes = import_owners(&theatre["scenes"], "scene", &compiled)?;
-    let actors = import_owners(&theatre["actors"], "actor", &compiled)?;
+    let mut starts = Ok(StartHats::new());
+    let scenes = import_owners(&theatre["scenes"], "scene", &compiled, &mut starts)?;
+    let actors = import_owners(&theatre["actors"], "actor", &compiled, &mut starts)?;
     let current_scene = theatre
         .get("current_scene")
         .and_then(Value::as_str)
@@ -677,21 +709,24 @@ fn import_project(source: &Value) -> Result<Value> {
         rename(variable, "is_global", "isGlobal");
         rename(variable, "create_time", "createTime");
     }
-    Ok(json!({
-        "projectName": source.get("project_name").cloned().unwrap_or(json!("Kitten 4")),
-        "version": "0.27.4", "toolType": "KN",
-        "stageSize": source.get("size").cloned().unwrap_or(json!({"width":640,"height":360})),
-        "scenes": {"scenesDict": scenes,
-            "sortList": theatre.get("scenes_order").cloned().unwrap_or(json!([])),
-            "currentSceneId": current_scene},
-        "actors": {"actorsDict": actors},
-        "styles": {"stylesDict": styles},
-        "variables": {"variablesDict": variables},
-        "broadcasts": {"broadcastsDict": source.get("broadcasts").cloned().unwrap_or(json!({}))},
-        "audios": {"audiosDict": source.get("audio").cloned().unwrap_or(json!({})),
-            "sortList": source.get("audio_order").cloned().unwrap_or(json!([]))},
-        "procedures": {"proceduresDict": compiled.procedures()?}
-    }))
+    Ok((
+        json!({
+            "projectName": source.get("project_name").cloned().unwrap_or(json!("Kitten 4")),
+            "version": "0.27.4", "toolType": "KN",
+            "stageSize": source.get("size").cloned().unwrap_or(json!({"width":640,"height":360})),
+            "scenes": {"scenesDict": scenes,
+                "sortList": theatre.get("scenes_order").cloned().unwrap_or(json!([])),
+                "currentSceneId": current_scene},
+            "actors": {"actorsDict": actors},
+            "styles": {"stylesDict": styles},
+            "variables": {"variablesDict": variables},
+            "broadcasts": {"broadcastsDict": source.get("broadcasts").cloned().unwrap_or(json!({}))},
+            "audios": {"audiosDict": source.get("audio").cloned().unwrap_or(json!({})),
+                "sortList": source.get("audio_order").cloned().unwrap_or(json!([]))},
+            "procedures": {"proceduresDict": compiled.procedures()?}
+        }),
+        starts,
+    ))
 }
 
 fn object_or_empty(value: Option<&Value>, label: &str) -> Result<Map<String, Value>> {
@@ -704,7 +739,12 @@ fn object_or_empty(value: Option<&Value>, label: &str) -> Result<Map<String, Val
     }
 }
 
-fn import_owners(value: &Value, kind: &str, compiled: &CompiledWork) -> Result<Map<String, Value>> {
+fn import_owners(
+    value: &Value,
+    kind: &str,
+    compiled: &CompiledWork,
+    starts: &mut std::result::Result<StartHats, String>,
+) -> Result<Map<String, Value>> {
     let owners = value
         .as_object()
         .with_context(|| format!("theatre.{kind}s must be an object"))?;
@@ -717,12 +757,26 @@ fn import_owners(value: &Value, kind: &str, compiled: &CompiledWork) -> Result<M
                 .get("block_data_json")
                 .cloned()
                 .unwrap_or(json!({"blocks":{},"connections":{},"comments":{}}));
-            let scripts = if owner.get("block_data_json").is_some() {
-                import_workspace(&workspace)
+            let (scripts, hats) = if owner.get("block_data_json").is_some() {
+                import_workspace_with_starts(&workspace)
             } else {
-                compiled.scripts(id)
+                compiled.finish_with_starts(compiled.roots(id))
             }
             .with_context(|| format!("Kitten 4 {kind} {id}"))?;
+            for (root, start) in hats {
+                if let Ok(starts_map) = starts
+                    && starts_map
+                        .insert((kind == "scene", id.clone(), root.clone()), start)
+                        .is_some()
+                {
+                    // Import itself used to succeed; only VM provenance checking
+                    // rejects ambiguous hats. Keep that boundary and message.
+                    let section = if kind == "scene" { "scenes" } else { "actors" };
+                    *starts = Err(format!(
+                        "ambiguous Kitten 4 start provenance for {section}/{id}/{root}"
+                    ));
+                }
+            }
             result["nekoBlockJsonList"] = Value::Array(scripts);
             result["comments"] = workspace.get("comments").cloned().unwrap_or(json!({}));
             remove(&mut result, "block_data_json");
@@ -782,10 +836,6 @@ impl<'a> CompiledWork<'a> {
         }
     }
 
-    fn scripts(&self, owner: &str) -> Result<Vec<Value>> {
-        self.finish(self.roots(owner))
-    }
-
     fn roots<'b>(&'b self, owner: &'b str) -> impl Iterator<Item = &'a Value> + 'b {
         self.entities
             .iter()
@@ -825,6 +875,7 @@ impl<'a> CompiledWork<'a> {
         &self,
         roots: impl Iterator<Item = &'b Value>,
     ) -> Result<ImportedRoots> {
+        let _timing = crate::import_perf::span("compiled_work_native");
         finish_roots(roots.map(|root| self.native(root, 0)), None)
     }
 
@@ -934,10 +985,6 @@ impl<'a> CompiledWork<'a> {
     }
 }
 
-fn import_workspace(workspace: &Value) -> Result<Vec<Value>> {
-    Ok(import_workspace_with_starts(workspace)?.0)
-}
-
 type ImportedRoots = (Vec<Value>, Vec<(String, StartKind)>);
 
 fn import_workspace_with_starts(workspace: &Value) -> Result<ImportedRoots> {
@@ -1010,7 +1057,7 @@ fn finish_roots(
                 Some("on_running_group_activated") => Some(StartKind::Activation),
                 _ => None,
             });
-            import_block(&native, 0)
+            import_block(native, 0)
         })
         .collect::<Result<Vec<_>>>()?;
     // Conversion expressions are real editable KN blocks and need stable,
@@ -1106,31 +1153,55 @@ fn nest(
     Ok(Value::Object(result))
 }
 
-fn import_block(block: &Value, depth: usize) -> Result<Value> {
+fn import_block(mut result: Value, depth: usize) -> Result<Value> {
     ensure!(
         depth <= MAX_DEPTH,
         "Kitten 4 block nesting exceeds {MAX_DEPTH}"
     );
-    let mut result = block.clone();
     for key in ["inputs", "statements"] {
         if let Some(children) = result.get_mut(key).and_then(Value::as_object_mut) {
             for child in children.values_mut() {
-                *child = import_block(child, depth + 1)?;
+                *child = import_block(child.take(), depth + 1)?;
             }
         }
     }
     if let Some(next) = result.get_mut("next") {
-        *next = import_block(next, depth + 1)?;
+        *next = import_block(next.take(), depth + 1)?;
     }
-    let kind = block["type"]
+    let kind = result["type"]
         .as_str()
-        .context("Kitten 4 block is missing type")?;
+        .context("Kitten 4 block is missing type")?
+        .to_owned();
+    let heading_reporter = kind == "get_2" && field(&result, "attribute") == "3";
+    // Roll back unsupported translation exactly as before, but keep the large
+    // next/statement subtrees out of this local transactional copy. Translators
+    // only rename direct sockets (on_keydown moves its body).
+    let full_rollback = (kind == "on_keydown").then(|| result.clone());
+    let next = result.as_object_mut().and_then(|o| o.remove("next"));
+    let statements = result.as_object_mut().and_then(|o| o.remove("statements"));
     let untranslated = result.clone();
+    if let Some(next) = next {
+        result["next"] = next;
+    }
+    if let Some(statements) = statements {
+        result["statements"] = statements;
+    }
     if !translate(&mut result, false).unwrap_or(false) {
+        let next = result.as_object_mut().and_then(|o| o.remove("next"));
+        let statements = result.as_object_mut().and_then(|o| o.remove("statements"));
         result = untranslated;
+        if let Some(next) = next {
+            result["next"] = next;
+        }
+        if let Some(statements) = statements {
+            result["statements"] = statements;
+        }
+        if let Some(original) = full_rollback {
+            result = original;
+        }
         result["type"] = json!(format!("{OPAQUE}{kind}"));
     }
-    match kind {
+    match kind.as_str() {
         "self_point_towards" | "self_rotate" => {
             let offset = if kind == "self_point_towards" {
                 90.0
@@ -1141,7 +1212,7 @@ fn import_block(block: &Value, depth: usize) -> Result<Value> {
                 *input = angle_expression(input.clone(), offset, false, Some("input"));
             }
         }
-        "get_2" if field(block, "attribute") == "3" && result["type"] == "appearance_of_sprite" => {
+        "get_2" if heading_reporter && result["type"] == "appearance_of_sprite" => {
             result = native_heading_reporter(result);
         }
         _ => {}
