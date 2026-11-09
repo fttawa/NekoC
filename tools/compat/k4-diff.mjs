@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { spawn } from "node:child_process";
-import { readdir } from "node:fs/promises";
+import { readdir, rm } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { readJson, saveJson, runOracle } from "./k4-oracle.mjs";
@@ -108,48 +108,87 @@ export function mismatchingBlockTypes(left, right, source) {
     note: "本地节点或连接不一致的候选积木类型；不递归归罪祖先，结构差异不等于行为差异" };
 }
 
-export async function compareWork(input, options) {
+export function projectCapabilities(project) {
+  const entities = ["scenes", "actors"].flatMap(section => Object.values(project.theatre?.[section] || {}));
+  const hasWorkspace = entities.some(entity => entity.block_data_json != null);
+  const randomBlocks = new Set();
+  const pending = [hasWorkspace ? entities.map(entity => entity.block_data_json) : project.compile_result];
+  while (pending.length) {
+    const value = pending.pop();
+    if (!value || typeof value !== "object") continue;
+    if (value.type === "random") randomBlocks.add(value.type);
+    // The official domain also calls Math.random for these dropdown targets.
+    if ((value.type === "self_face_to" && (value.params?.sprite ?? value.fields?.sprite) === "__random") ||
+        (value.type === "self_move_specify" && (value.params?.target ?? value.fields?.target) === "__random")) randomBlocks.add(value.type);
+    for (const child of Object.values(value)) if (child && typeof child === "object") pending.push(child);
+  }
+  return { compiledOnly: Array.isArray(project.compile_result) && !hasWorkspace, randomBlocks: [...randomBlocks].sort() };
+}
+
+export async function compareWork(input, options, dependencies = {}) {
+  const oracle = dependencies.runOracle || runOracle;
   const exe = options.nekoc || path.join(root, "target/debug/k4-trace" + (process.platform === "win32" ? ".exe" : ""));
   const traceArgs = ["--frames", String(options.frames ?? 60), "--seed", String(options.seed ?? 1)];
-  const native = async (file, extra = []) => JSON.parse(await command(exe, [path.resolve(file), ...traceArgs, ...extra]));
+  const native = dependencies.native || (async (file, extra = []) => JSON.parse(await command(exe, [path.resolve(file), ...traceArgs, ...extra])));
+  let project;
+  try { project = await readJson(input); }
+  catch (error) { return { file: input, status: "unverified", error: `Cannot read project: ${error.message}` }; }
+  const { compiledOnly, randomBlocks } = projectCapabilities(project);
+  const randomness = { detected: randomBlocks.length > 0, blockTypes: randomBlocks,
+    note: "静态 random 候选（不证明已执行）；官方 PCG 与 NekoC 序列不同，有随机数的轨迹差异不判为不一致" };
   let workspaceTrace;
   try { workspaceTrace = await native(input); }
-  catch (error) { return { file: input, status: "nekoc-unsupported", error: error.message }; }
-  const project = await readJson(input);
+  catch (error) { return { file: input, status: "nekoc-unsupported", error: error.message, randomness }; }
   const artifacts = path.join(options.artifactsDir, path.basename(input));
   let compile;
   try {
-    const compiled = await runOracle(project, { ...options, command: "compile" });
-    const compiledFile = path.join(artifacts, "official.bcm4");
-    await saveJson(compiledFile, compiled.project);
-    const [compiledTrace, workspaceLowered, compiledLowered, workspaceProgram, compiledProgram] = await Promise.all([
-      native(compiledFile, ["--compiled"]), native(input, ["--lowered"]), native(compiledFile, ["--compiled", "--lowered"]),
-      native(input, ["--program"]), native(compiledFile, ["--compiled", "--program"]),
-    ]);
-    const compileDifference = firstDifference(workspaceTrace, compiledTrace);
-    const structuralEqual = JSON.stringify(executableTrees(workspaceLowered)) === JSON.stringify(executableTrees(compiledLowered));
-    compile = { structuralEqual, programEqual: workspaceProgram.program === compiledProgram.program, firstDifference: compileDifference,
-      ...mismatchingBlockTypes(workspaceLowered, compiledLowered, project) };
-    await saveJson(path.join(artifacts, "workspace-program.json"), workspaceProgram);
-    await saveJson(path.join(artifacts, "compiled-program.json"), compiledProgram);
-    await saveJson(path.join(artifacts, "workspace-trace.json"), workspaceTrace);
-    await saveJson(path.join(artifacts, "compiled-trace.json"), compiledTrace);
-    const official = await runOracle(compiled.project, { ...options, command: "run" });
+    let runtimeProject = project;
+    if (compiledOnly) {
+      compile = { status: "skipped", reason: "published compile_result without block_data_json; no dual compilation available" };
+      await saveJson(path.join(artifacts, "compiled-trace.json"), workspaceTrace);
+      await saveJson(path.join(artifacts, "compiled-lowered.json"), await native(input, ["--compiled", "--lowered"]));
+    } else {
+      const compiled = await oracle(project, { ...options, command: "compile" });
+      const compiledFile = path.join(artifacts, "official.bcm4");
+      await saveJson(compiledFile, compiled.project);
+      const [compiledTrace, workspaceLowered, compiledLowered, workspaceProgram, compiledProgram] = await Promise.all([
+        native(compiledFile, ["--compiled"]), native(input, ["--lowered"]), native(compiledFile, ["--compiled", "--lowered"]),
+        native(input, ["--program"]), native(compiledFile, ["--compiled", "--program"]),
+      ]);
+      const compileDifference = firstDifference(workspaceTrace, compiledTrace);
+      const structuralEqual = JSON.stringify(executableTrees(workspaceLowered)) === JSON.stringify(executableTrees(compiledLowered));
+      compile = { status: "compared", structuralEqual, programEqual: workspaceProgram.program === compiledProgram.program, firstDifference: compileDifference,
+        ...mismatchingBlockTypes(workspaceLowered, compiledLowered, project) };
+      await saveJson(path.join(artifacts, "workspace-program.json"), workspaceProgram);
+      await saveJson(path.join(artifacts, "compiled-program.json"), compiledProgram);
+      await saveJson(path.join(artifacts, "workspace-trace.json"), workspaceTrace);
+      await saveJson(path.join(artifacts, "compiled-trace.json"), compiledTrace);
+      await saveJson(path.join(artifacts, "workspace-lowered.json"), workspaceLowered);
+      await saveJson(path.join(artifacts, "compiled-lowered.json"), compiledLowered);
+      runtimeProject = compiled.project;
+    }
+    const official = await oracle(runtimeProject, { ...options, command: "run" });
     await saveJson(path.join(artifacts, "official-trace.json"), official);
+    await rm(path.join(artifacts, "failure.json"), { force: true });
     const first = firstDifference(workspaceTrace, official, options.tolerance);
-    return { file: input, status: first ? "different" : "equal", firstDifference: first, compile,
+    return { file: input, status: first ? randomness.detected ? "unverified" : "different" : "equal", firstDifference: first, compile, randomness,
+      ...(first && randomness.detected ? { reason: "random-sequence: not a compatibility failure" } : {}),
       diagnostics: official.diagnostics, artifacts };
   } catch (error) {
     if (error.diagnostics) await saveJson(path.join(artifacts, "failure.json"), error.diagnostics);
-    return { file: input, status: "unverified", error: error.message, compile, artifacts };
+    return { file: input, status: "unverified", error: error.message, compile, randomness, artifacts };
   }
 }
 
 export function markdown(report) {
   return `# Kitten 4 本地对照（前 ${report.frames} 帧）\n\n` +
     `数值容差 ${report.tolerance}；旋转原值比较；无输入事件；随机序列算法不同，随机作品不能据此判定兼容性。\n\n` +
-    "| 作品 | 官方对照 | 首次差异（帧 / 角色 / 字段） | 双编译路径行为 | VM 程序完全相同 |\n|---|---|---|---|---|\n" +
-    report.works.map(w => `| ${path.basename(w.file)} | ${w.status} | ${w.firstDifference ? `${w.firstDifference.frame} / ${w.firstDifference.actor || "全局"} / ${w.firstDifference.field}` : w.error?.replaceAll("\n", " ").replaceAll("|", "\\|") || "无"} | ${w.compile ? w.compile.firstDifference ? `第 ${w.compile.firstDifference.frame} 帧不同` : "一致" : "未验证"} | ${w.compile ? w.compile.programEqual ? "是" : "否" : "未验证"} |`).join("\n") + "\n";
+    "| 作品 | 官方对照 | 随机候选 | 首次差异（帧 / 角色 / 字段） | NekoC / 官方值 | 双编译路径行为 | VM 程序完全相同 |\n|---|---|---|---|---|---|---|\n" +
+    report.works.map(w => {
+      const escape = value => String(value).replaceAll("\n", " ").replaceAll("|", "\\|");
+      const dual = w.compile && w.compile.status !== "skipped";
+      return `| ${path.basename(w.file)} | ${w.status} | ${w.randomness?.detected ? "是（不判不一致）" : "否"} | ${w.firstDifference ? escape(`${w.firstDifference.frame} / ${w.firstDifference.actor || "全局"} / ${w.firstDifference.field}`) : escape(w.error || "无")} | ${w.firstDifference ? escape(`${JSON.stringify(w.firstDifference.nekoc)} / ${JSON.stringify(w.firstDifference.official)}`) : "—"} | ${dual ? w.compile.firstDifference ? `第 ${w.compile.firstDifference.frame} 帧不同` : "一致" : w.compile?.status === "skipped" ? "跳过（仅发布 AST）" : "未验证"} | ${dual ? w.compile.programEqual ? "是" : "否" : "不适用"} |`;
+    }).join("\n") + "\n";
 }
 
 async function main() {

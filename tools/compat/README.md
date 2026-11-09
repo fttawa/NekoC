@@ -29,7 +29,8 @@ node --test tests/k4-oracle.test.mjs
 
 `K4_PLAYER_DIR` 必须指向 app 根目录；工具从 `src/player/page.html` **仅发现资源 URL**，
 自行生成极小页面和只绑定 `127.0.0.1` 的临时 HTTP 服务，不执行包装器的 `compile.js/cloud.js`。
-`/new/<非数字 token>` 的导航返回页面，XHR 返回作品；静态资源限定于外部 build 目录的直接文件，拒绝路径穿越。
+`/new/<16 位 hex token>` 的导航返回页面，同路径的 HEAD/XHR 返回作品；token 固定含字母，避免进入数字作品号 API 分支。
+静态资源限定于外部 build 目录的直接文件，拒绝路径穿越。
 端口随机分配，结束或失败均关闭浏览器和服务。不要给第三方服务传账号凭据。
 
 默认要求外部包保留 `player_v2*.js.orig`，**不回退到含调度优化的 `.js`**。
@@ -41,8 +42,11 @@ node --test tests/k4-oracle.test.mjs
 - 编译走外部内核 `JSONEntityCompiler.compile({id, blocksJSON})`，使用内核工具消除循环引用、
   递归规范数字 NUM 参数，再生成运行组归属。场景和角色均编译；缺 workspace 显式报错。
   不使用包装器的代码生成优化。对于空场景角色数组，以图层组补齐，所有适配记入 diagnostics。
-- `run` 自带 `compile_result` 时直接使用；缺失时先原生编译，再重新加载。
+- `run` 自带数组型 `compile_result` 时直接加载完整作品（包括合法空数组），不先把它清空再 bootstrap；
+  缺失时才用空 AST 初始化原生编译器，然后原生编译并重新加载。
   必须等待应用自身初始化，提前手工创建 Heart 会导致编译/加载假差异。
+- `k4-diff` 对仅有发布 AST、无任何 `block_data_json` 的作品跳过双编译比较，使用作品自带的官方
+  `compile_result`；`compile.status=skipped` 不表示双编译一致。有工作区的作品仍比较两条编译路径。
 - 无 DOM 输入事件。第一帧是官方 Start 发出的首次 `RuntimeManager.update` 完成后；
   后续每次执行一批受控 rAF 回调，固定 60 Hz。订阅 `after_update.immediate` 采样，
   不用“睡 1 秒”等价“60 帧”。帧数不符或官方运行错误即失败。
@@ -50,6 +54,9 @@ node --test tests/k4-oracle.test.mjs
   播放器 domain `random` 实际调用 `Math.random`，所以运行前将它指向另一个按参数固定种子的
   **内核自带 PCG** 实例。两个 PRNG 都用明确的 seed/inc 高低位；不是对积木结果硬编码。
   NekoC PRNG 算法不同，相同 seed 不保证跨内核随机序列一致。
+- 注意：以上 `Clock` 只固定调度/任务时钟。该包 `get_timer` 经 RuntimeManager 的
+  `get_timer_elapsed_s()` 仍直接读 `new Date()`；本工具不替换 Date，也不改写官方计时器。
+  因此依赖计时器的作品不能保证重复运行轨迹相同，其差异须单独归因，不能直接判为 VM 算术错误。
 - 输出 `nekoc-k4-trace-v1`：`frames[]` 每帧含 `frame/current_scene_id/actors/variables/entity_variables`。
   每个角色含 x、y、原始角度（度）、current_style_id、scale、scale_y（百分比）、visible。
   数值、字符串、布尔和列表保留类型；列表逐帧深拷贝。未变化的角色也逐帧输出。
@@ -63,8 +70,13 @@ node --test tests/k4-oracle.test.mjs
 - 双编译路径同时比较 VM 输入树、完整 VM Program 和 60 帧轨迹；结构不同不是行为不同。
   报告 `compile.details/blockTypes` 是局部节点/连接不同的候选类型，不把祖先全算根因。
   即使 60 帧相同，也不证明所有输入和运行时间等价。
+- 静态扫描 `random` 积木，以及 `self_face_to/self_move_specify` 的 `__random` 目标，写入
+  `randomness`（候选可能未执行）；这类作品有轨迹差异时标为
+  `unverified` / `random-sequence`，保留首次差异及两边值，不计为 `different`。这也可能保守地隐藏
+  与随机无关的差异，必须另行分析，不能称为一致。
 
-`k4-diff` 保留逐作品 `official.bcm4`、双方轨迹和 VM 程序于 `dist/k4-oracle/diff/`；
+`k4-diff` 保留逐作品双方轨迹和 lowered 输入树于 `dist/k4-oracle/diff/`；
+有工作区时另存 `official.bcm4` 和双方 VM 程序；仅发布 AST 的作品不生成或复制另一份作品。
 报告 JSON 和 Markdown 含跳过原因。不同/未验证/不支持时返回非零，空语料或缺目录不是通过。
 构建内存紧张时先设置 `$env:CARGO_BUILD_JOBS='1'`；不要同时开启多个 Cargo 构建。
 
@@ -73,6 +85,12 @@ node --test tests/k4-oracle.test.mjs
 默认外部 HTTP、WebSocket、Service Worker 均禁用；记录所有外部请求的方法、URL、类型和动作。
 可显式 `--allow-assets`：仅对白名单 CDN 的素材扩展名执行无凭据 Node GET，禁止重定向，
 不转发浏览器 Cookie/Authorization/Referer；统计 POST、IP 探测、云数据和其他地址仍拦截。
+作品 `theatre.styles/videos` 或 `audio` 中声明的 `url/cdn_url` 也可放行（同样限白名单 HTTPS CDN），
+支持发布作品的无扩展名 base64 素材键及播放器追加的 `imageView2` 查询；不泛化放行无扩展名 API。
+旧素材 CDN `static.codemao.cn` 和新素材 CDN `creation.bcmcdn.com` 仅允许作品声明的资源，
+即使 URL 带 `.json` 等扩展名也不会因此放行其他端点。
+`diagnostics.localRequests` 记录本地请求的导航/XHR 类型和状态，`failedRequests` 记录浏览器失败原因；
+配合 `externalRequests`、`console`、`pageErrors`、失败时的 `lastState` 区分初始化与素材加载失败。
 素材加载失败不伪造图片；角色缺失或运行失败会报错。有外部素材依赖时，离线失败不能算兼容性差异。
 
 本工具不覆盖音视频实际时钟、云端结果、网络传感器、物理引擎确定性或浏览器外独立时钟。
