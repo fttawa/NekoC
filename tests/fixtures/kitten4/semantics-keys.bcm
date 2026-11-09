@@ -1,0 +1,1178 @@
+{
+  "hidden_toolbox": {
+    "toolbox": [],
+    "blocks": []
+  },
+  "work_source_label": 1,
+  "version": 25,
+  "application_version": "4.11.20",
+  "work_type": "KITTEN",
+  "size": {
+    "width": 1280,
+    "height": 720
+  },
+  "type": 1,
+  "project_name": "NekoC semantics keys",
+  "theatre": {
+    "current_entity": "20000000-0000-4000-8000-000000000001",
+    "current_scene": "10000000-0000-4000-8000-000000000001",
+    "scenes_order": [
+      "10000000-0000-4000-8000-000000000001",
+      "10000000-0000-4000-8000-000000000002"
+    ],
+    "scenes": {
+      "10000000-0000-4000-8000-000000000001": {
+        "id": "10000000-0000-4000-8000-000000000001",
+        "name": "Background A",
+        "styles": [
+          "background"
+        ],
+        "current_style_id": "background",
+        "x": 0,
+        "y": 0,
+        "scale": 100,
+        "rotation": 0,
+        "rotation_type": 0,
+        "draggable": false,
+        "visible": true,
+        "workspace_offset": {
+          "x": 40,
+          "y": 40
+        },
+        "block_data_json": {
+          "blocks": {},
+          "connections": {},
+          "comments": {}
+        },
+        "actors": [
+          "20000000-0000-4000-8000-000000000001"
+        ],
+        "screen_name": "Scene A",
+        "group_order": [
+          "group"
+        ]
+      },
+      "10000000-0000-4000-8000-000000000002": {
+        "id": "10000000-0000-4000-8000-000000000002",
+        "name": "Background B",
+        "styles": [
+          "background"
+        ],
+        "current_style_id": "background",
+        "x": 0,
+        "y": 0,
+        "scale": 100,
+        "rotation": 0,
+        "rotation_type": 0,
+        "draggable": false,
+        "visible": true,
+        "workspace_offset": {
+          "x": 40,
+          "y": 40
+        },
+        "block_data_json": {
+          "blocks": {},
+          "connections": {},
+          "comments": {}
+        },
+        "actors": [],
+        "screen_name": "Scene B",
+        "group_order": []
+      }
+    },
+    "actors": {
+      "20000000-0000-4000-8000-000000000001": {
+        "id": "20000000-0000-4000-8000-000000000001",
+        "name": "Probe",
+        "styles": [
+          "costume-a",
+          "costume-b"
+        ],
+        "current_style_id": "costume-a",
+        "x": 0,
+        "y": 0,
+        "scale": 100,
+        "rotation": 0,
+        "rotation_type": 0,
+        "draggable": false,
+        "visible": true,
+        "workspace_offset": {
+          "x": 40,
+          "y": 40
+        },
+        "block_data_json": {
+          "blocks": {
+            "probe-1": {
+              "type": "start_on_click",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "probe-1",
+              "parent_id": null,
+              "location": [
+                0,
+                0
+              ]
+            },
+            "probe-2": {
+              "type": "mirror",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "probe-2",
+              "parent_id": "probe-1",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "probe-3": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "probe-3",
+              "parent_id": "probe-2",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "probe-4": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0.2"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "probe-4",
+              "parent_id": "probe-3",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "probe-5": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "done"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "probe-5",
+              "parent_id": "probe-3",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "probe-6": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "1"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "probe-6",
+              "parent_id": "probe-5",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "probe-7": {
+              "type": "start_as_a_mirror",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "DO": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "probe-7",
+              "parent_id": null,
+              "location": [
+                0,
+                0
+              ]
+            },
+            "probe-8": {
+              "type": "change_variable",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "n": ""
+              },
+              "fields": {
+                "valname": "cloneStarted",
+                "method": "increase"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "probe-8",
+              "parent_id": "probe-7",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "probe-9": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "1"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "probe-9",
+              "parent_id": "probe-8",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "probe-10": {
+              "type": "on_keydown",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "DO": ""
+              },
+              "fields": {
+                "key_event_type": "down",
+                "key": "65"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "probe-10",
+              "parent_id": null,
+              "location": [
+                0,
+                0
+              ]
+            },
+            "probe-11": {
+              "type": "controls_if",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "IF0": "",
+                "DO0": "",
+                "EXTRA_ADD_ELSE": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "<mutation else=\"1\"></mutation>",
+              "is_output": false,
+              "id": "probe-11",
+              "parent_id": "probe-10",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "probe-12": {
+              "type": "logic_compare",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "A": "",
+                "B": ""
+              },
+              "fields": {
+                "OP": "EQ"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "probe-12",
+              "parent_id": "probe-11",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "probe-13": {
+              "type": "get_current_clone_index",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "probe-13",
+              "parent_id": "probe-12",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "probe-14": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "probe-14",
+              "parent_id": "probe-12",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "probe-15": {
+              "type": "change_variable",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "n": ""
+              },
+              "fields": {
+                "valname": "originalEnter",
+                "method": "increase"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "probe-15",
+              "parent_id": "probe-11",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "probe-16": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "1"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "probe-16",
+              "parent_id": "probe-15",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "probe-17": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "probe-17",
+              "parent_id": "probe-15",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "probe-18": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0.15"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "probe-18",
+              "parent_id": "probe-17",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "probe-19": {
+              "type": "change_variable",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "n": ""
+              },
+              "fields": {
+                "valname": "originalExit",
+                "method": "increase"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "probe-19",
+              "parent_id": "probe-17",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "probe-20": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "1"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "probe-20",
+              "parent_id": "probe-19",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "probe-21": {
+              "type": "change_variable",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "n": ""
+              },
+              "fields": {
+                "valname": "cloneEnter",
+                "method": "increase"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "probe-21",
+              "parent_id": "probe-11",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "probe-22": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "1"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "probe-22",
+              "parent_id": "probe-21",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "probe-23": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "probe-23",
+              "parent_id": "probe-21",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "probe-24": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0.15"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "probe-24",
+              "parent_id": "probe-23",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "probe-25": {
+              "type": "change_variable",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "n": ""
+              },
+              "fields": {
+                "valname": "cloneExit",
+                "method": "increase"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "probe-25",
+              "parent_id": "probe-23",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "probe-26": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "1"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "probe-26",
+              "parent_id": "probe-25",
+              "location": [
+                0,
+                0
+              ]
+            }
+          },
+          "connections": {
+            "probe-1": {
+              "probe-2": {
+                "type": "next"
+              }
+            },
+            "probe-2": {
+              "probe-3": {
+                "type": "next"
+              }
+            },
+            "probe-3": {
+              "probe-4": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              },
+              "probe-5": {
+                "type": "next"
+              }
+            },
+            "probe-4": {},
+            "probe-5": {
+              "probe-6": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              }
+            },
+            "probe-6": {},
+            "probe-7": {
+              "probe-8": {
+                "type": "input",
+                "input_type": "statement",
+                "input_name": "DO"
+              }
+            },
+            "probe-8": {
+              "probe-9": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "n"
+              }
+            },
+            "probe-9": {},
+            "probe-10": {
+              "probe-11": {
+                "type": "input",
+                "input_type": "statement",
+                "input_name": "DO"
+              }
+            },
+            "probe-11": {
+              "probe-12": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "IF0"
+              },
+              "probe-15": {
+                "type": "input",
+                "input_type": "statement",
+                "input_name": "DO0"
+              },
+              "probe-21": {
+                "type": "input",
+                "input_type": "statement",
+                "input_name": "ELSE"
+              }
+            },
+            "probe-12": {
+              "probe-13": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "A"
+              },
+              "probe-14": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "B"
+              }
+            },
+            "probe-13": {},
+            "probe-14": {},
+            "probe-15": {
+              "probe-16": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "n"
+              },
+              "probe-17": {
+                "type": "next"
+              }
+            },
+            "probe-16": {},
+            "probe-17": {
+              "probe-18": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              },
+              "probe-19": {
+                "type": "next"
+              }
+            },
+            "probe-18": {},
+            "probe-19": {
+              "probe-20": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "n"
+              }
+            },
+            "probe-20": {},
+            "probe-21": {
+              "probe-22": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "n"
+              },
+              "probe-23": {
+                "type": "next"
+              }
+            },
+            "probe-22": {},
+            "probe-23": {
+              "probe-24": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              },
+              "probe-25": {
+                "type": "next"
+              }
+            },
+            "probe-24": {},
+            "probe-25": {
+              "probe-26": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "n"
+              }
+            },
+            "probe-26": {}
+          },
+          "comments": {}
+        },
+        "scene": "10000000-0000-4000-8000-000000000001",
+        "lock": false,
+        "editable_in_tuition_mode": true,
+        "user_change_r_c": false
+      }
+    },
+    "groups": {
+      "group": {
+        "id": "group",
+        "name": "",
+        "is_fold": false,
+        "is_group": false,
+        "actors": [
+          "20000000-0000-4000-8000-000000000001"
+        ],
+        "scene": "10000000-0000-4000-8000-000000000001",
+        "visible": true
+      }
+    },
+    "styles": {
+      "background": {
+        "id": "background",
+        "name": "Background",
+        "adaptive": false,
+        "pivot": {
+          "x": 0,
+          "y": 0
+        },
+        "rotate_center": {
+          "x": 0,
+          "y": 0
+        },
+        "cdn_url": "",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjgwIiBoZWlnaHQ9IjcyMCI+PHJlY3Qgd2lkdGg9IjEyODAiIGhlaWdodD0iNzIwIiBmaWxsPSIjMzM2Njk5Ii8+PC9zdmc+"
+      },
+      "costume-a": {
+        "id": "costume-a",
+        "name": "蓝色方块",
+        "adaptive": false,
+        "pivot": {
+          "x": 0,
+          "y": 0
+        },
+        "rotate_center": {
+          "x": 0,
+          "y": 0
+        },
+        "cdn_url": "",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCI+PHJlY3Qgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjMzM2Njk5Ii8+PC9zdmc+"
+      },
+      "costume-b": {
+        "id": "costume-b",
+        "name": "第二个造型",
+        "adaptive": false,
+        "pivot": {
+          "x": 0,
+          "y": 0
+        },
+        "rotate_center": {
+          "x": 0,
+          "y": 0
+        },
+        "cdn_url": "",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMCIgaGVpZ2h0PSIyMCI+PHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjMzM2Njk5Ii8+PC9zdmc+"
+      }
+    },
+    "videos": {},
+    "timer": {}
+  },
+  "variables": {
+    "originalEnter": {
+      "id": "originalEnter",
+      "name": "originalEnter",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "originalExit": {
+      "id": "originalExit",
+      "name": "originalExit",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "cloneEnter": {
+      "id": "cloneEnter",
+      "name": "cloneEnter",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "cloneExit": {
+      "id": "cloneExit",
+      "name": "cloneExit",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "cloneStarted": {
+      "id": "cloneStarted",
+      "name": "cloneStarted",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "done": {
+      "id": "done",
+      "name": "done",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    }
+  },
+  "variable_order": [
+    "originalEnter",
+    "originalExit",
+    "cloneEnter",
+    "cloneExit",
+    "cloneStarted",
+    "done"
+  ],
+  "cloud_variables": {},
+  "audio": {},
+  "audio_order": [],
+  "midimusic": [],
+  "midi_order": [],
+  "matrix": {},
+  "models": {},
+  "toolbox": {
+    "current_type": "event",
+    "pen": false
+  },
+  "toolbox_order": [
+    "event",
+    "control",
+    "action",
+    "appearance",
+    "sensing",
+    "operator",
+    "data"
+  ],
+  "last_toolbox_order": [],
+  "hardware_type": "",
+  "is_partial": false,
+  "ai_lab": {},
+  "broadcasts": {},
+  "painter": {
+    "color": []
+  }
+}

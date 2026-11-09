@@ -68,6 +68,7 @@ fn none_tag() -> Option<u8> {
         Cell::Text("".into()),
         Cell::List(Default::default()),
         Cell::Null,
+        Cell::Costume("".into()),
     ];
     samples
         .into_iter()

@@ -280,26 +280,13 @@ fn lower_blocks(value: &mut Value, targets: &Targets) {
     }
 }
 
-/// `when` runs its body each time the condition becomes true.
+/// Official 4.11.20: level-triggered, single-flight on originals. A mirror has
+/// no condition responder. See tests/fixtures/kitten4/semantics-when.bcm.
 fn lower_when(block: &mut Value) {
     let id = block["id"].as_str().unwrap_or_default().to_owned();
-    let condition = block["inputs"]["condition"].clone();
-    let wait = |suffix: &str, condition: Value| json!({"type": "wait_until", "id": format!("{id}-{suffix}"), "inputs": {"condition": condition}});
-    let released =
-        json!({"type": "logic_negate", "id": format!("{id}-not"), "inputs": {"logic": condition}});
-    let mut body = block["statements"]["DO"].take();
-    let release = wait("release", released);
-    if body.is_object() {
-        let mut tail = &mut body;
-        while tail["next"].is_object() {
-            tail = &mut tail["next"];
-        }
-        tail["next"] = release;
-    } else {
-        body = release;
-    }
-    let mut trigger = wait("trigger", block["inputs"]["condition"].clone());
-    trigger["next"] = body;
+    let mut trigger = json!({"type": "wait_until", "id": format!("{id}-trigger"),
+        "inputs": {"condition": block["inputs"]["condition"].clone()}});
+    trigger["next"] = block["statements"]["DO"].take();
     *block = json!({
         "type": "on_running_group_activated", "id": id,
         "next": {"type": "repeat_forever", "id": format!("{id}-loop"), "statements": {"DO": trigger}},
@@ -398,11 +385,9 @@ fn lower_block(block: &mut Value) {
             }
         }
         "check_screen" => {
-            let stay = field(block, "is_stay") == "true";
-            let screen = block["inputs"]["screen"].take();
-            block["fields"] = json!({"OP": if stay { "EQ" } else { "NEQ" }});
-            block["inputs"] = json!({"A": {"type": "current_scene_id"}, "B": screen});
-            "logic_compare"
+            // Official Tn6a/check_screen accepts scene IDs, names and 1-based
+            // numbers; an unknown scene is outside, not an error.
+            "kitten4_check_screen"
         }
         "shadow_number" | "shadow_text" => {
             if let Some(inner) = block.pointer("/inputs/VALUE").cloned() {
@@ -419,7 +404,7 @@ fn lower_block(block: &mut Value) {
             inputs(block, &[("NUM", "num")], false);
             "math_trig"
         }
-        "dispose" => "dispose_clone",
+        "dispose" => "kitten4_dispose",
         "self_prev_next_style" => {
             fields(block, &[("prev_or_next", "prev_next")], false);
             "self_prev_next_style"
@@ -428,7 +413,9 @@ fn lower_block(block: &mut Value) {
             inputs(block, &[("index", "style_id")], false);
             "set_sprite_style"
         }
-        "get_current_costume" => "get_styles",
+        // Official Tn6a/get_current_costume returns {style_id}, not a number
+        // (nor a plain ID string). Keep the canonical KN reporter unchanged.
+        "get_current_costume" => "kitten4_costume_literal",
         "check_key" => {
             fields(block, &[("key_event_type", "type")], false);
             "check_key"
@@ -479,7 +466,8 @@ fn lower_block(block: &mut Value) {
                 put_field(block, "coordinate", axis);
                 "coordinate_of_sprite"
             }
-            "2" | "4" => "style_of_sprite",
+            "2" => "style_of_sprite",
+            "4" => "kitten4_costume_name",
             "3" => {
                 put_field(block, "appearance", "direction");
                 block["type"] = json!("appearance_of_sprite");

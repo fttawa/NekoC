@@ -333,6 +333,7 @@ enum Op {
     Restart,
     Clone(usize),
     DisposeClone,
+    DisposeSelf,
     SwitchScene(usize),
     SceneTransition(usize, usize),
     Dialog(usize, bool),
@@ -1292,6 +1293,18 @@ impl Compiler {
             ),
             "text" => self.constant(Cell::Text(field(b, "TEXT").into())),
             "get_styles" => self.constant(Cell::from_json(&b["fields"]["style_id"])?),
+            "kitten4_costume_literal" => {
+                let id = self.program.strings.len();
+                self.program.strings.push(field(b, "style_id").into());
+                ValueExpr::CostumeLiteral(id)
+            }
+            "kitten4_costume_name" => {
+                ValueExpr::CostumeName(self.actor_target(field(b, "sprite"))?)
+            }
+            "kitten4_check_screen" => ValueExpr::K4Screen(
+                self.value(input(b, "screen")?)?,
+                field(b, "is_stay") == "true",
+            ),
             "get_play_audio" | "get_stop_audio" => {
                 self.constant(Cell::from_json(&b["fields"]["audio_id"])?)
             }
@@ -1744,6 +1757,9 @@ impl Compiler {
             | "procedures_2_callreturn"
             | "get_answer"
             | "current_scene_id"
+            | "kitten4_costume_literal"
+            | "kitten4_costume_name"
+            | "kitten4_check_screen"
             | "get_choice_and_index" => ExprOp::Value(self.value(b)?),
             "check_key" => {
                 ensure!(
@@ -2590,6 +2606,7 @@ impl Compiler {
                     continue;
                 }
                 "dispose_clone" => Op::DisposeClone,
+                "kitten4_dispose" => Op::DisposeSelf,
                 "set_top_bottom_layer" | "self_change_layer" => {
                     let layer = field(b, "layer");
                     let relative = field(b, "target_layer");
@@ -3454,7 +3471,8 @@ impl Engine {
         }
         if down && self.program.semantics == RuntimeSemantics::Kitten4 {
             // Concrete down hats on originals are state responders, serviced at
-            // tick entry. Leave unverified any-key/clone event behaviour intact.
+            // tick entry. Official mirrors do not run concrete down hats
+            // (semantics-keys.bcm). Leave unverified any-key policy unchanged.
             if !self.stopped {
                 for script in 0..self.program.scripts.len() {
                     let spec = &self.program.scripts[script];
@@ -3465,8 +3483,8 @@ impl Engine {
                     }
                     let actor = spec.actor;
                     let any = matches!(&spec.event, ScriptEvent::Key(k, _) if k == "any");
-                    for target in self.instances(actor) {
-                        if any || target != actor {
+                    if any {
+                        for target in self.instances(actor) {
                             self.spawn(script, target);
                         }
                     }
@@ -3610,7 +3628,7 @@ impl Engine {
             .collect()
     }
     fn spawn(&mut self, script: usize, actor: usize) -> Option<usize> {
-        if self.tasks.len() >= 4096 {
+        if self.tasks.len() >= 4096 || !self.sprites[actor].alive {
             return None;
         }
         let mut task = Task::new(
@@ -4941,8 +4959,11 @@ impl Engine {
         }
         self.order.retain(|&i| i != index);
         self.order_dirty = true;
-        self.free_slots.push(index);
-        self.clones -= 1;
+        // Original indices are stable program references, never reusable slots.
+        if self.sprites[index].clone_index > 0 {
+            self.free_slots.push(index);
+            self.clones -= 1;
+        }
     }
     fn move_layer(&mut self, actor: usize, movement: LayerMove) {
         let Some(at) = self.order.iter().position(|&i| i == actor) else {
@@ -5164,6 +5185,24 @@ impl Engine {
                 }
             }
             ValueExpr::CallReturn(procedure, args) => self.call_reporter(procedure, args, actor),
+            ValueExpr::K4Screen(value, stay) => {
+                let value = self.eval_value(value, actor);
+                Cell::Bool(stay == (self.find_scene(&value) == Some(self.current_scene)))
+            }
+            ValueExpr::CostumeName(target) => {
+                let target = if target == usize::MAX { actor } else { target };
+                let id = self.sprites[target].style.as_deref().unwrap_or("");
+                Cell::Text(
+                    self.program
+                        .style_names
+                        .get(id)
+                        .map_or(id, String::as_str)
+                        .into(),
+                )
+            }
+            ValueExpr::CostumeLiteral(id) => {
+                Cell::Costume(self.program.strings[id].as_str().into())
+            }
             ValueExpr::CloneProperty(target, index, attribute) => {
                 let origin = self.sprites[if target == usize::MAX { actor } else { target }].origin;
                 let wanted = self.eval(index, actor);
@@ -5523,7 +5562,9 @@ impl Engine {
                 let value = self.eval_value(value, actor);
                 let styles = &self.sprites[actor].styles;
                 let selected = match value {
-                    Cell::Text(id) => styles.iter().find(|s| s.as_str() == id.as_ref()),
+                    Cell::Text(id) | Cell::Costume(id) => {
+                        styles.iter().find(|s| s.as_str() == id.as_ref())
+                    }
                     Cell::Number(n) if n.is_finite() && (n + 0.5).floor() >= 1.0 => {
                         styles.get(((n + 0.5).floor() - 1.0) as usize)
                     }
@@ -6222,6 +6263,10 @@ impl Engine {
                     self.delete_clone(actor);
                     return Ok(false);
                 }
+            }
+            Op::DisposeSelf => {
+                self.delete_clone(actor);
+                return Ok(false);
             }
             Op::Layer(movement) => {
                 if !self.sprites[actor].stage {

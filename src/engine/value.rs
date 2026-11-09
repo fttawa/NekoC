@@ -14,6 +14,8 @@ pub enum Cell {
     Text(Rc<str>),
     List(List),
     Null,
+    /// Official K4 costume dropdown value: a fresh {style_id: string} object.
+    Costume(Rc<str>),
 }
 impl Cell {
     pub fn from_json(value: &Value) -> Result<Self> {
@@ -40,7 +42,7 @@ impl Cell {
                     s.trim().parse().unwrap_or(f64::NAN)
                 }
             }
-            Self::List(_) => f64::NAN,
+            Self::List(_) | Self::Costume(_) => f64::NAN,
         }
     }
     pub fn text(&self) -> String {
@@ -66,6 +68,7 @@ impl Cell {
             Self::Bool(v) => v.to_string(),
             Self::Text(s) => s.to_string(),
             Self::Null => String::new(),
+            Self::Costume(_) => "[object Object]".into(),
             Self::List(v) => v
                 .borrow()
                 .iter()
@@ -95,6 +98,7 @@ impl Cell {
             Self::Bool(v) => out.push_str(if *v { "true" } else { "false" }),
             Self::Text(s) => out.push_str(s),
             Self::Null => {}
+            Self::Costume(_) => out.push_str("[object Object]"),
             Self::List(_) => out.push_str(&self.text_with_js_nonfinite(js_nonfinite)),
         }
     }
@@ -103,7 +107,7 @@ impl Cell {
             Self::Number(n) => super::truth(*n),
             Self::Bool(b) => *b,
             Self::Text(s) => !s.is_empty(),
-            Self::List(_) => true,
+            Self::List(_) | Self::Costume(_) => true,
             Self::Null => false,
         }
     }
@@ -122,6 +126,7 @@ impl Cell {
             (Self::Text(a), Self::Text(b)) => a == b,
             (Self::Null, Self::Null) => true,
             (Self::List(a), Self::List(b)) => Rc::ptr_eq(a, b),
+            (Self::Costume(a), Self::Costume(b)) => Rc::ptr_eq(a, b),
             _ => false,
         }
     }
@@ -134,6 +139,12 @@ impl Serialize for Cell {
             Self::Text(v) => v.as_ref().serialize(s),
             Self::List(v) => v.borrow().serialize(s),
             Self::Null => s.serialize_none(),
+            Self::Costume(id) => {
+                use serde::ser::SerializeMap;
+                let mut map = s.serialize_map(Some(1))?;
+                map.serialize_entry("style_id", id.as_ref())?;
+                map.end()
+            }
         }
     }
 }
@@ -184,6 +195,9 @@ pub(super) enum ValueExpr {
     /// Local weekday name (get_time week).
     WeekText,
     SceneId,
+    K4Screen(usize, bool),
+    CostumeName(usize),
+    CostumeLiteral(usize),
     /// Reporter procedure call: (procedure entry index, call argument list).
     CallReturn(usize, usize),
     /// (original actor, 1-based clone index, attribute 0 x / 1 y / 2 costume no. / 4 name)
