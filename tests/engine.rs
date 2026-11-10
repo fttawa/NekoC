@@ -347,10 +347,13 @@ fn compiled_control_and_values_match_reference_interpreter() {
     project["variables"]["variablesDict"]["score"] = json!({"id":"score","value":0});
     let mut reference = Runtime::from_project(&project).unwrap();
     reference.set_cooperative(true);
+    // 关闭两侧的墙钟预算，否则 CPU 繁忙时 warp 循环会在一帧内被提前切断。
+    reference.disable_warp_time_slice();
     reference.start();
     reference.run_ticks(1).unwrap();
     let old = reference.snapshot();
     let mut vm = Engine::new(Program::compile(&project).unwrap());
+    vm.use_virtual_clock();
     vm.start();
     let new = frame(&mut vm);
     assert_eq!(new.active, 0);

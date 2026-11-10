@@ -53,7 +53,9 @@ impl<'a> super::Thread<'a> {
             }
             if runtime.cooperative
                 && self.warped
-                && started.elapsed() >= std::time::Duration::from_millis(4)
+                && runtime
+                    .warp_time_slice
+                    .is_some_and(|slice| started.elapsed() >= slice)
             {
                 self.yielded = true;
             }
