@@ -9,6 +9,9 @@ use serde_json::{Map, Value, json};
 use std::collections::{BTreeMap, BTreeSet};
 use std::{cell::RefCell, rc::Rc};
 
+mod aliases;
+use aliases::lower_legacy_alias;
+
 struct SourceCache {
     source: crate::json::Json,
     canonical: Rc<crate::json::Json>,
@@ -266,7 +269,9 @@ fn lower_missing_reference(block: &mut Value, targets: &Targets) {
     let kind = block["type"].as_str().unwrap_or_default().to_owned();
     let call = kind.starts_with("procedures_2_call");
     let mut missing = call && targets.procedures.get(field(block, "NAME")).is_none();
-    if !matches!(kind.as_str(), "kitten4::bump" | "kitten4::bump_into_color") {
+    let visibility_group = kind == "kitten4::set_entity_show_hide"
+        && targets.groups.get(field(block, "sprite")).is_some();
+    if !visibility_group && !matches!(kind.as_str(), "kitten4::bump" | "kitten4::bump_into_color") {
         for key in ["sprite", "target", "actor", "sprite1"] {
             let id = field(block, key).to_owned();
             if id.is_empty()
@@ -425,7 +430,6 @@ fn is_stub(kind: &str) -> bool {
             | "wood_block_set"
             | "wood_block_get"
             | "set_camera_status"
-            | "set_entity_show_hide"
             | "self_shake"
             | "play_video"
             | "play_video_until_end"
@@ -457,6 +461,27 @@ fn lower_block(block: &mut Value, targets: &Targets) {
         .unwrap_or_default()
         .trim_start_matches(OPAQUE)
         .to_owned();
+    if kind == "set_entity_show_hide" {
+        // Official Tn6a/lt: group members are affected together; the caller's
+        // interpreter (not a tell thread) is blocked by gradual visibility.
+        let target = field(block, "sprite");
+        let ids = if targets.scenes.get(target).is_some() {
+            vec![target.to_owned()]
+        } else {
+            targets.bump(target)
+        };
+        if ids.is_empty() {
+            // Tn6a rejects an unresolved visibility target. Do not turn a
+            // dangling/empty group into a successful no-effect instruction.
+            return;
+        }
+        block["type"] = json!("kitten4_entity_visibility");
+        block["visibility_targets"] = json!(ids);
+        return;
+    }
+    if lower_legacy_alias(block, targets) {
+        return;
+    }
     if kind.starts_with("physics2_") {
         block["type"] = json!(kind);
         return;

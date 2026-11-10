@@ -14,6 +14,7 @@ mod physics;
 mod stage_dialog;
 mod value;
 use k4_clock::{K4Timer, timer_policy, to_fixed2};
+mod visibility;
 pub use stage_dialog::StageDialogRequest;
 use std::{cell::RefCell, rc::Rc};
 use std::{
@@ -279,6 +280,7 @@ enum Op {
     Direction(Expr),
     Scale(Expr),
     Visible(bool),
+    EntityVisibility(usize, Option<Expr>, bool),
     Style(usize),
     NextStyle(bool),
     Opacity(Expr),
@@ -402,8 +404,14 @@ struct GlideSpec {
     y: Option<Expr>,
     relative: bool,
 }
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Debug)]
 enum Anim {
+    EntityVisibility {
+        start: f64,
+        duration: f64,
+        targets: Vec<(usize, f64)>,
+        show: bool,
+    },
     Glide {
         start: f64,
         duration: f64,
@@ -726,6 +734,7 @@ pub struct Program {
     texts: Vec<Vec<TextPart>>,
     ranges: Vec<RangeSpec>,
     glides: Vec<GlideSpec>,
+    visibility_targets: Vec<Vec<usize>>,
     initial_lists: Vec<Vec<Cell>>,
     initial_values: Vec<Option<Cell>>,
     values: Vec<ValueExpr>,
@@ -988,6 +997,7 @@ impl Program {
                 texts: vec![],
                 ranges: vec![],
                 glides: vec![],
+                visibility_targets: vec![],
                 initial_lists: vec![],
                 initial_values: vec![],
                 values: vec![],
@@ -3204,6 +3214,30 @@ impl Compiler {
                     "self_point_towards" => Op::Direction(self.arg(b, "degrees")?),
                     "set_scale" => Op::Scale(self.arg(b, "scale")?),
                     "self_appear" => Op::Visible(field(b, "value") == "appear"),
+                    "kitten4_entity_visibility" => {
+                        let targets = b["visibility_targets"]
+                            .as_array()
+                            .context("missing visibility targets")?
+                            .iter()
+                            .map(|id| self.actor_target(id.as_str().unwrap_or_default()))
+                            .collect::<Result<Vec<_>>>()?;
+                        let show = match field(b, "type") {
+                            "show" | "grad_show" => true,
+                            "hide" | "grad_hide" => false,
+                            other => bail!("unknown visibility state {other}"),
+                        };
+                        let time = b["inputs"].get("time").map(|v| self.expr(v)).transpose()?;
+                        self.program.visibility_targets.push(targets);
+                        self.emit(
+                            Op::EntityVisibility(
+                                self.program.visibility_targets.len() - 1,
+                                time,
+                                show,
+                            ),
+                            b,
+                        );
+                        Op::AnimStep
+                    }
                     "set_sprite_style" => Op::Style(self.value(input(b, "style_id")?)?),
                     "self_prev_next_style" => {
                         ensure!(
@@ -5522,7 +5556,7 @@ impl Engine {
             ranges: task.ranges.len(),
         });
         let saved_returned = task.returned.take();
-        let (wake, anim) = (task.wake, task.anim);
+        let (wake, anim) = (task.wake, task.anim.clone());
         let wait = (task.wait_started, task.wait_finished);
         task.pc = self.program.procedure_entries[procedure];
         self.reporter_depth += 1;
@@ -8601,6 +8635,10 @@ impl Engine {
             }
             Op::Fade(time, show) => {
                 let duration = self.eval(time, actor);
+                if self.program.semantics == RuntimeSemantics::Kitten4 {
+                    self.start_entity_visibility(index, actor, vec![actor], duration, show);
+                    return Ok(true);
+                }
                 let a = &mut self.sprites[actor];
                 let from = if show { 0.0 } else { a.opacity };
                 if show {
@@ -8620,8 +8658,13 @@ impl Engine {
                     hide: !show,
                 });
             }
+            Op::EntityVisibility(spec, time, show) => {
+                let duration = time.map(|time| self.eval(time, actor)).unwrap_or(0.0);
+                let targets = self.program.visibility_targets[spec].clone();
+                self.start_entity_visibility(index, actor, targets, duration, show);
+            }
             Op::AnimStep => {
-                let Some(anim) = self.tasks[index].anim else {
+                let Some(anim) = self.tasks[index].anim.clone() else {
                     return Ok(true);
                 };
                 let (start, duration) = match anim {
@@ -8629,6 +8672,9 @@ impl Engine {
                         start, duration, ..
                     }
                     | Anim::Fade {
+                        start, duration, ..
+                    }
+                    | Anim::EntityVisibility {
                         start, duration, ..
                     } => (start, duration),
                 };
@@ -8639,6 +8685,9 @@ impl Engine {
                 };
                 self.dirty[actor] = true;
                 match anim {
+                    Anim::EntityVisibility { targets, show, .. } => {
+                        self.update_entity_visibility(&targets, show, t);
+                    }
                     Anim::Glide { from, to, .. } => {
                         let old = (self.sprites[actor].x, self.sprites[actor].y);
                         self.sprites[actor].x = from.0 + (to.0 - from.0) * t;

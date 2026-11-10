@@ -1,0 +1,7915 @@
+{
+  "bundle": "src/player/build/player_v2.2d180c468559fbd29528.js.orig",
+  "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160",
+  "corpus": "E:/nekoc/dist/kitten4-corpus",
+  "files": 53,
+  "workspaceOwners": 0,
+  "compiledOwners": 4529,
+  "count": 377,
+  "counts": {
+    "已实现": 220,
+    "stub": 8,
+    "缺失": 139,
+    "设备降级": 10
+  },
+  "audit": {
+    "tables": [
+      {
+        "module": "TL4g",
+        "anchor": "cloud_variables_get",
+        "offset": 6146,
+        "count": 20
+      },
+      {
+        "module": "Tn6a",
+        "anchor": "incompatible_block",
+        "offset": 2244,
+        "count": 32
+      },
+      {
+        "module": "Tn6a",
+        "anchor": "self_go_forward",
+        "offset": 11853,
+        "count": 16
+      },
+      {
+        "module": "Tn6a",
+        "anchor": "self_change_x",
+        "offset": 15108,
+        "count": 8
+      },
+      {
+        "module": "Tn6a",
+        "anchor": "self_appear",
+        "offset": 26449,
+        "count": 25
+      },
+      {
+        "module": "Tn6a",
+        "anchor": "self_gradually_appear",
+        "offset": 32817,
+        "count": 15
+      },
+      {
+        "module": "Tn6a",
+        "anchor": "start_as_a_mirror",
+        "offset": 34571,
+        "count": 9
+      },
+      {
+        "module": "Tn6a",
+        "anchor": "dispose",
+        "offset": 37174,
+        "count": 1
+      },
+      {
+        "module": "Tn6a",
+        "anchor": "self_distance_to",
+        "offset": 37850,
+        "count": 15
+      },
+      {
+        "module": "Tn6a",
+        "anchor": "get",
+        "offset": 42386,
+        "count": 2
+      },
+      {
+        "module": "Tn6a",
+        "anchor": "play_video",
+        "offset": 49310,
+        "count": 4
+      },
+      {
+        "module": "Tn6a",
+        "anchor": "self_enable_physics",
+        "offset": 50440,
+        "count": 17
+      },
+      {
+        "module": "Tn6a",
+        "anchor": "get_mobile_slope_value",
+        "offset": 58028,
+        "count": 4
+      },
+      {
+        "module": "Tn6a",
+        "anchor": "self_pen_down",
+        "offset": 59368,
+        "count": 13
+      },
+      {
+        "module": "Tn6a",
+        "anchor": "set_camera_status",
+        "offset": 63343,
+        "count": 7
+      },
+      {
+        "module": "Tn6a",
+        "anchor": "wood_block_get",
+        "offset": 67345,
+        "count": 2
+      },
+      {
+        "module": "Tn6a",
+        "anchor": "clone",
+        "offset": 68254,
+        "count": 1
+      },
+      {
+        "module": "Tn6a",
+        "anchor": "physics2_enable_force",
+        "offset": 68973,
+        "count": 15
+      },
+      {
+        "module": "Tn6a",
+        "anchor": "controller_shadow",
+        "offset": 74903,
+        "count": 1
+      },
+      {
+        "module": "fhSb",
+        "anchor": "wood_block_get",
+        "offset": 367,
+        "count": 2
+      },
+      {
+        "module": "ls7Z",
+        "anchor": "set_digital_port_status",
+        "offset": 132,
+        "count": 35
+      },
+      {
+        "module": "ls7Z",
+        "anchor": "led_light_on",
+        "offset": 1660,
+        "count": 20
+      },
+      {
+        "module": "ls7Z",
+        "anchor": "microbit_when_press_key",
+        "offset": 2562,
+        "count": 19
+      },
+      {
+        "module": "oiyH",
+        "anchor": "text_indexOf",
+        "offset": 2413,
+        "count": 52
+      },
+      {
+        "module": "xQfl",
+        "anchor": "get_audios",
+        "offset": 26823,
+        "count": 26
+      }
+    ],
+    "responders": [
+      {
+        "module": "IiH9",
+        "offset": 166,
+        "count": 0
+      },
+      {
+        "module": "IiH9",
+        "offset": 318,
+        "count": 1
+      },
+      {
+        "module": "Tn6a",
+        "offset": 75206,
+        "count": 1
+      },
+      {
+        "module": "Tn6a",
+        "offset": 75834,
+        "count": 1
+      },
+      {
+        "module": "Tn6a",
+        "offset": 76109,
+        "count": 1
+      },
+      {
+        "module": "Tn6a",
+        "offset": 76369,
+        "count": 0
+      },
+      {
+        "module": "Tn6a",
+        "offset": 76515,
+        "count": 1
+      },
+      {
+        "module": "Tn6a",
+        "offset": 76869,
+        "count": 1
+      },
+      {
+        "module": "Tn6a",
+        "offset": 77223,
+        "count": 1
+      },
+      {
+        "module": "Tn6a",
+        "offset": 77581,
+        "count": 1
+      },
+      {
+        "module": "Tn6a",
+        "offset": 77974,
+        "count": 1
+      },
+      {
+        "module": "Tn6a",
+        "offset": 91166,
+        "count": 1
+      },
+      {
+        "module": "Tn6a",
+        "offset": 91306,
+        "count": 1
+      }
+    ],
+    "compilerTables": [
+      {
+        "module": "Qeyy",
+        "name": "LOOP_BLOCKS",
+        "offset": 78,
+        "count": 5
+      },
+      {
+        "module": "Qeyy",
+        "name": "IF_BLOCKS",
+        "offset": 307,
+        "count": 3
+      },
+      {
+        "module": "Qeyy",
+        "name": "EVENT_BLOCKS",
+        "offset": 484,
+        "count": 6
+      },
+      {
+        "module": "Qeyy",
+        "name": "PROCEDURE_BLOCKS",
+        "offset": 768,
+        "count": 10
+      },
+      {
+        "module": "Qeyy",
+        "name": "MIDI_BLOCKS",
+        "offset": 1393,
+        "count": 2
+      },
+      {
+        "module": "Qeyy",
+        "name": "HAT_BLOCKS",
+        "offset": 1509,
+        "count": 4
+      },
+      {
+        "module": "Qeyy",
+        "name": "ATOMIC_BLOCKS",
+        "offset": 1751,
+        "count": 2
+      },
+      {
+        "module": "Qeyy",
+        "name": "SPECIAL_BLOCKS",
+        "offset": 1855,
+        "count": 4
+      }
+    ],
+    "registryModules": [
+      "TL4g",
+      "Tn6a",
+      "VlbI",
+      "fhSb",
+      "tSBa",
+      "xQfl"
+    ]
+  },
+  "rows": [
+    {
+      "type": "math_number",
+      "official": [
+        {
+          "module": "Qeyy",
+          "offset": 1767,
+          "registration": "compiler:ATOMIC_BLOCKS"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2196 (translate)"
+      ],
+      "limitations": [
+        "仅编译器结构表证据，不表示存在普通 domain handler",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 42835
+    },
+    {
+      "type": "variables_get",
+      "official": [
+        {
+          "module": "oiyH",
+          "offset": 4016,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:1877 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 15784
+    },
+    {
+      "type": "math_arithmetic",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 6492,
+          "registration": "domain",
+          "table": "incompatible_block"
+        },
+        {
+          "module": "oiyH",
+          "offset": 3455,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:1938 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 11268
+    },
+    {
+      "type": "default_value",
+      "official": [
+        {
+          "module": "oiyH",
+          "offset": 7575,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:655 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 8701
+    },
+    {
+      "type": "lists_get_value",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 3694,
+          "registration": "domain",
+          "table": "incompatible_block"
+        },
+        {
+          "module": "oiyH",
+          "offset": 6384,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:1891 (translate)",
+        "src/kitten4.rs:1897 (translate)",
+        "src/kitten4.rs:1914 (translate)",
+        "src/kitten4.rs:599 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 7986
+    },
+    {
+      "type": "lists_get",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 2985,
+          "registration": "domain",
+          "table": "incompatible_block"
+        },
+        {
+          "module": "oiyH",
+          "offset": 5840,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:1886 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 7839
+    },
+    {
+      "type": "logic_compare",
+      "official": [
+        {
+          "module": "oiyH",
+          "offset": 3404,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2199 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 7254
+    },
+    {
+      "type": "text",
+      "official": [
+        {
+          "module": "Qeyy",
+          "offset": 1800,
+          "registration": "compiler:ATOMIC_BLOCKS"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2197 (translate)"
+      ],
+      "limitations": [
+        "仅编译器结构表证据，不表示存在普通 domain handler",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 6278
+    },
+    {
+      "type": "controls_if",
+      "official": [
+        {
+          "module": "Qeyy",
+          "offset": 323,
+          "registration": "compiler:IF_BLOCKS"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2205 (translate)"
+      ],
+      "limitations": [
+        "仅编译器结构表证据，不表示存在普通 domain handler",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 6218
+    },
+    {
+      "type": "procedures_2_parameter",
+      "official": [
+        {
+          "module": "Qeyy",
+          "offset": 1295,
+          "registration": "compiler:PROCEDURE_BLOCKS"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2231 (translate)"
+      ],
+      "limitations": [
+        "仅编译器结构表证据，不表示存在普通 domain handler",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 6098
+    },
+    {
+      "type": "variables_set",
+      "official": [
+        {
+          "module": "oiyH",
+          "offset": 4098,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:1877 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 4792
+    },
+    {
+      "type": "procedures_2_callnoreturn",
+      "official": [
+        {
+          "module": "Qeyy",
+          "offset": 1116,
+          "registration": "compiler:PROCEDURE_BLOCKS"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2229 (translate)"
+      ],
+      "limitations": [
+        "仅编译器结构表证据，不表示存在普通 domain handler",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 4384
+    },
+    {
+      "type": "on_running_group_activated",
+      "official": [
+        {
+          "module": "IiH9",
+          "offset": 337,
+          "registration": "responder"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:1876 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 3770
+    },
+    {
+      "type": "procedures_2_callreturn",
+      "official": [
+        {
+          "module": "Qeyy",
+          "offset": 1177,
+          "registration": "compiler:PROCEDURE_BLOCKS"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2230 (translate)"
+      ],
+      "limitations": [
+        "仅编译器结构表证据，不表示存在普通 domain handler",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 3084
+    },
+    {
+      "type": "repeat_forever",
+      "official": [
+        {
+          "module": "Qeyy",
+          "offset": 94,
+          "registration": "compiler:LOOP_BLOCKS"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2203 (translate)"
+      ],
+      "limitations": [
+        "仅编译器结构表证据，不表示存在普通 domain handler",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 2888
+    },
+    {
+      "type": "repeat_n_times",
+      "official": [
+        {
+          "module": "Qeyy",
+          "offset": 133,
+          "registration": "compiler:LOOP_BLOCKS"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2202 (translate)"
+      ],
+      "limitations": [
+        "仅编译器结构表证据，不表示存在普通 domain handler",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 2689
+    },
+    {
+      "type": "text_split",
+      "official": [
+        {
+          "module": "oiyH",
+          "offset": 7332,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2201 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 2595
+    },
+    {
+      "type": "logic_operation",
+      "official": [
+        {
+          "module": "oiyH",
+          "offset": 3255,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2053 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 2408
+    },
+    {
+      "type": "bump",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 38731,
+          "registration": "domain",
+          "table": "self_distance_to"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:308 (lower_bump)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 2319
+    },
+    {
+      "type": "wait",
+      "official": [
+        {
+          "module": "oiyH",
+          "offset": 4767,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2208 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 2190
+    },
+    {
+      "type": "change_variable",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 6548,
+          "registration": "domain",
+          "table": "incompatible_block"
+        },
+        {
+          "module": "oiyH",
+          "offset": 4837,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:1881 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 2129
+    },
+    {
+      "type": "get_3",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 38280,
+          "registration": "domain",
+          "table": "self_distance_to"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4.rs:724 (lower_block)"
+      ],
+      "limitations": [
+        "仅显式属性/角色局部变量；未列出的属性仍不支持",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 2049
+    },
+    {
+      "type": "controller_shadow",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 74904,
+          "registration": "domain",
+          "table": "controller_shadow"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:1873 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 2039
+    },
+    {
+      "type": "self_disappear",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 26493,
+          "registration": "domain",
+          "table": "self_appear"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2111 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 1711
+    },
+    {
+      "type": "set_costume",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 32109,
+          "registration": "domain",
+          "table": "self_appear"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:676 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 1557
+    },
+    {
+      "type": "broadcast_input",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 4801,
+          "registration": "domain",
+          "table": "incompatible_block"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:1933 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 1538
+    },
+    {
+      "type": "start_on_click",
+      "official": [
+        {
+          "module": "oiyH",
+          "offset": 3832,
+          "registration": "domain",
+          "table": "text_indexOf"
+        },
+        {
+          "module": "Qeyy",
+          "offset": 1525,
+          "registration": "compiler:HAT_BLOCKS"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:1870 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 1527
+    },
+    {
+      "type": "self_appear",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 26450,
+          "registration": "domain",
+          "table": "self_appear"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2111 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 1386
+    },
+    {
+      "type": "get_current_costume",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 32507,
+          "registration": "domain",
+          "table": "self_appear"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:682 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 1384
+    },
+    {
+      "type": "self_set_role_camp",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 14907,
+          "registration": "domain",
+          "table": "self_go_forward"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4.rs:818 (lower_block)"
+      ],
+      "limitations": [
+        "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 1336
+    },
+    {
+      "type": "self_move_to",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 13348,
+          "registration": "domain",
+          "table": "self_go_forward"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2215 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 1304
+    },
+    {
+      "type": "text_join",
+      "official": [
+        {
+          "module": "oiyH",
+          "offset": 2755,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2200 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 1284
+    },
+    {
+      "type": "self_set_effect_2",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 29849,
+          "registration": "domain",
+          "table": "self_appear"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4.rs:703 (lower_block)"
+      ],
+      "limitations": [
+        "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 1228
+    },
+    {
+      "type": "lists_replace",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 3504,
+          "registration": "domain",
+          "table": "incompatible_block"
+        },
+        {
+          "module": "oiyH",
+          "offset": 6247,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:1890 (translate)",
+        "src/kitten4.rs:1895 (translate)",
+        "src/kitten4.rs:1914 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 1126
+    },
+    {
+      "type": "set_actor_as",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 51080,
+          "registration": "domain",
+          "table": "self_enable_physics"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4.rs:512 (lower_block)",
+        "src/engine.rs:3537 (kitten4_legacy_)"
+      ],
+      "limitations": [
+        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 1051
+    },
+    {
+      "type": "set_theatre_layer",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 31148,
+          "registration": "domain",
+          "table": "self_appear"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:765 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 1035
+    },
+    {
+      "type": "start_as_a_mirror",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 34572,
+          "registration": "domain",
+          "table": "start_as_a_mirror"
+        },
+        {
+          "module": "Qeyy",
+          "offset": 533,
+          "registration": "compiler:EVENT_BLOCKS"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:796 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 1032
+    },
+    {
+      "type": "check_key",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 41596,
+          "registration": "domain",
+          "table": "self_distance_to"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:683 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 1017
+    },
+    {
+      "type": "self_change_scale_2",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 30253,
+          "registration": "domain",
+          "table": "self_appear"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:701 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 1012
+    },
+    {
+      "type": "mirror",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 34611,
+          "registration": "domain",
+          "table": "start_as_a_mirror"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:795 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 986
+    },
+    {
+      "type": "sprite_on_tap",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 75225,
+          "registration": "responder"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:691 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 985
+    },
+    {
+      "type": "lists_append",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 3042,
+          "registration": "domain",
+          "table": "incompatible_block"
+        },
+        {
+          "module": "oiyH",
+          "offset": 5915,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:1890 (translate)",
+        "src/kitten4.rs:1893 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 943
+    },
+    {
+      "type": "repeat_forever_until",
+      "official": [
+        {
+          "module": "Qeyy",
+          "offset": 172,
+          "registration": "compiler:LOOP_BLOCKS"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2204 (translate)"
+      ],
+      "limitations": [
+        "仅编译器结构表证据，不表示存在普通 domain handler",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 921
+    },
+    {
+      "type": "self_change_coordinate",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 13975,
+          "registration": "domain",
+          "table": "self_go_forward"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2068 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 880
+    },
+    {
+      "type": "self_go_forward",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 11854,
+          "registration": "domain",
+          "table": "self_go_forward"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2214 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 854
+    },
+    {
+      "type": "self_rotate",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 11984,
+          "registration": "domain",
+          "table": "self_go_forward"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2216 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 853
+    },
+    {
+      "type": "wait_until",
+      "official": [
+        {
+          "module": "Qeyy",
+          "offset": 223,
+          "registration": "compiler:LOOP_BLOCKS"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2209 (translate)"
+      ],
+      "limitations": [
+        "仅编译器结构表证据，不表示存在普通 domain handler",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 840
+    },
+    {
+      "type": "self_point_towards",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 12957,
+          "registration": "domain",
+          "table": "self_go_forward"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2217 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 808
+    },
+    {
+      "type": "self_listen",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 5084,
+          "registration": "domain",
+          "table": "incompatible_block"
+        },
+        {
+          "module": "oiyH",
+          "offset": 4515,
+          "registration": "domain",
+          "table": "text_indexOf"
+        },
+        {
+          "module": "Qeyy",
+          "offset": 500,
+          "registration": "compiler:EVENT_BLOCKS"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2211 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 792
+    },
+    {
+      "type": "procedures_2_defnoreturn",
+      "official": [
+        {
+          "module": "Qeyy",
+          "offset": 1057,
+          "registration": "compiler:PROCEDURE_BLOCKS"
+        },
+        {
+          "module": "Qeyy",
+          "offset": 1662,
+          "registration": "compiler:HAT_BLOCKS"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2228 (translate)"
+      ],
+      "limitations": [
+        "仅编译器结构表证据，不表示存在普通 domain handler",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 778
+    },
+    {
+      "type": "when",
+      "official": [
+        {
+          "module": "oiyH",
+          "offset": 4730,
+          "registration": "domain",
+          "table": "text_indexOf"
+        },
+        {
+          "module": "Qeyy",
+          "offset": 715,
+          "registration": "compiler:EVENT_BLOCKS"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2210 (translate)",
+        "src/kitten4.rs:412 (lower_when)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 767
+    },
+    {
+      "type": "math_round",
+      "official": [
+        {
+          "module": "oiyH",
+          "offset": 3784,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:1996 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 742
+    },
+    {
+      "type": "self_change_effect_3",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 29909,
+          "registration": "domain",
+          "table": "self_appear"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4.rs:518 (lower_block)",
+        "src/kitten4.rs:704 (lower_block)"
+      ],
+      "limitations": [
+        "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
+        "scope=7 降级为 noop（条件 stub，不是全积木 stub）",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 735
+    },
+    {
+      "type": "self_broadcast",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 4851,
+          "registration": "domain",
+          "table": "incompatible_block"
+        },
+        {
+          "module": "oiyH",
+          "offset": 4298,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2212 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 725
+    },
+    {
+      "type": "dispose_clone",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 34922,
+          "registration": "domain",
+          "table": "start_as_a_mirror"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:797 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 698
+    },
+    {
+      "type": "random",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 6728,
+          "registration": "domain",
+          "table": "incompatible_block"
+        },
+        {
+          "module": "oiyH",
+          "offset": 5078,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2031 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 696
+    },
+    {
+      "type": "self_gradually_show_hide",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 26539,
+          "registration": "domain",
+          "table": "self_appear"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:809 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 682
+    },
+    {
+      "type": "lists_length",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 4379,
+          "registration": "domain",
+          "table": "incompatible_block"
+        },
+        {
+          "module": "oiyH",
+          "offset": 6999,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:1891 (translate)",
+        "src/kitten4.rs:1898 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 647
+    },
+    {
+      "type": "procedures_2_return_value",
+      "official": [
+        {
+          "module": "Qeyy",
+          "offset": 1234,
+          "registration": "compiler:PROCEDURE_BLOCKS"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2232 (translate)"
+      ],
+      "limitations": [
+        "仅编译器结构表证据，不表示存在普通 domain handler",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 591
+    },
+    {
+      "type": "switch_to_screen",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 36119,
+          "registration": "domain",
+          "table": "start_as_a_mirror"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:816 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 534
+    },
+    {
+      "type": "get_current_scene",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 36069,
+          "registration": "domain",
+          "table": "start_as_a_mirror"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:705 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 533
+    },
+    {
+      "type": "get_audios",
+      "official": [
+        {
+          "module": "xQfl",
+          "offset": 26824,
+          "registration": "domain",
+          "table": "get_audios"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:630 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 528
+    },
+    {
+      "type": "add_width_height_scale_2",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 30782,
+          "registration": "domain",
+          "table": "self_appear"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:702 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 503
+    },
+    {
+      "type": "mouse_down",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 41323,
+          "registration": "domain",
+          "table": "self_distance_to"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:790 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 483
+    },
+    {
+      "type": "on_keydown",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 76128,
+          "registration": "responder"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:1934 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 469
+    },
+    {
+      "type": "play_audio_2",
+      "official": [
+        {
+          "module": "xQfl",
+          "offset": 26922,
+          "registration": "domain",
+          "table": "get_audios"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:634 (lower_block)",
+        "src/kitten4.rs:637 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 446
+    },
+    {
+      "type": "logic_negate",
+      "official": [
+        {
+          "module": "oiyH",
+          "offset": 3308,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2056 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 435
+    },
+    {
+      "type": "math_single",
+      "official": [
+        {
+          "module": "oiyH",
+          "offset": 3735,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:1962 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 430
+    },
+    {
+      "type": "self_set_rotation_type",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 14238,
+          "registration": "domain",
+          "table": "self_go_forward"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:791 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 412
+    },
+    {
+      "type": "self_prev_next_style",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 32572,
+          "registration": "domain",
+          "table": "self_appear"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:672 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 404
+    },
+    {
+      "type": "self_move_specify",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 13395,
+          "registration": "domain",
+          "table": "self_go_forward"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:798 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 401
+    },
+    {
+      "type": "warp",
+      "official": [
+        {
+          "module": "Qeyy",
+          "offset": 1952,
+          "registration": "compiler:SPECIAL_BLOCKS"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2206 (translate)"
+      ],
+      "limitations": [
+        "仅编译器结构表证据，不表示存在普通 domain handler",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 377
+    },
+    {
+      "type": "get_timer",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 41219,
+          "registration": "domain",
+          "table": "self_distance_to"
+        },
+        {
+          "module": "oiyH",
+          "offset": 5319,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2134 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 363
+    },
+    {
+      "type": "math_trig",
+      "official": [
+        {
+          "module": "oiyH",
+          "offset": 3688,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2017 (translate)",
+        "src/kitten4.rs:657 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 355
+    },
+    {
+      "type": "set_scale",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 30134,
+          "registration": "domain",
+          "table": "self_appear"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2219 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 354
+    },
+    {
+      "type": "physics2_enable_force",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 68974,
+          "registration": "domain",
+          "table": "physics2_enable_force"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/engine/physics.rs:327 (parse)"
+      ],
+      "limitations": [
+        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 317
+    },
+    {
+      "type": "text_select_changeable",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 5395,
+          "registration": "domain",
+          "table": "incompatible_block"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:706 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 312
+    },
+    {
+      "type": "stamp",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 61615,
+          "registration": "domain",
+          "table": "self_pen_down"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4.rs:800 (lower_block)"
+      ],
+      "limitations": [
+        "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 308
+    },
+    {
+      "type": "get_current_clone_index",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 35086,
+          "registration": "domain",
+          "table": "start_as_a_mirror"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:804 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 307
+    },
+    {
+      "type": "self_face_to",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 13008,
+          "registration": "domain",
+          "table": "self_go_forward"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:799 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 306
+    },
+    {
+      "type": "math_modulo",
+      "official": [
+        {
+          "module": "oiyH",
+          "offset": 3629,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2028 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 299
+    },
+    {
+      "type": "lists_delete",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 3112,
+          "registration": "domain",
+          "table": "incompatible_block"
+        },
+        {
+          "module": "oiyH",
+          "offset": 5984,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:1890 (translate)",
+        "src/kitten4.rs:1896 (translate)",
+        "src/kitten4.rs:1914 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 297
+    },
+    {
+      "type": "cloud_variables_get",
+      "official": [
+        {
+          "module": "TL4g",
+          "offset": 6147,
+          "registration": "domain",
+          "table": "cloud_variables_get"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4.rs:567 (lower_block)"
+      ],
+      "limitations": [
+        "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 296
+    },
+    {
+      "type": "self_set_pen_color",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 60229,
+          "registration": "domain",
+          "table": "self_pen_down"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2225 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 288
+    },
+    {
+      "type": "shadow_text",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 5305,
+          "registration": "domain",
+          "table": "incompatible_block"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:647 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 281
+    },
+    {
+      "type": "get_mouse_info",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 38144,
+          "registration": "domain",
+          "table": "self_distance_to"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:687 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 279
+    },
+    {
+      "type": "self_set_position",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 13859,
+          "registration": "domain",
+          "table": "self_go_forward"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2068 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 274
+    },
+    {
+      "type": "set_velocity",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 54897,
+          "registration": "domain",
+          "table": "self_enable_physics"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4.rs:491 (lower_block)",
+        "src/engine.rs:3533 (kitten4_set_velocity)"
+      ],
+      "limitations": [
+        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 250
+    },
+    {
+      "type": "text_length",
+      "official": [
+        {
+          "module": "oiyH",
+          "offset": 2862,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2057 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 244
+    },
+    {
+      "type": "break",
+      "official": [
+        {
+          "module": "Qeyy",
+          "offset": 254,
+          "registration": "compiler:LOOP_BLOCKS"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2207 (translate)"
+      ],
+      "limitations": [
+        "仅编译器结构表证据，不表示存在普通 domain handler",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 232
+    },
+    {
+      "type": "set_width_height_scale",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 30513,
+          "registration": "domain",
+          "table": "self_appear"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:814 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 219
+    },
+    {
+      "type": "set_scene_transition",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 36848,
+          "registration": "domain",
+          "table": "start_as_a_mirror"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4.rs:820 (lower_block)"
+      ],
+      "limitations": [
+        "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 215
+    },
+    {
+      "type": "get_whole_audios",
+      "official": [
+        {
+          "module": "xQfl",
+          "offset": 26870,
+          "registration": "domain",
+          "table": "get_audios"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:630 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 189
+    },
+    {
+      "type": "lists_index_of",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 4274,
+          "registration": "domain",
+          "table": "incompatible_block"
+        },
+        {
+          "module": "oiyH",
+          "offset": 6901,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:1891 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 180
+    },
+    {
+      "type": "physics2_set_actor_as",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 69246,
+          "registration": "domain",
+          "table": "physics2_enable_force"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/engine/physics.rs:328 (parse)"
+      ],
+      "limitations": [
+        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 173
+    },
+    {
+      "type": "self_glide_to",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 14078,
+          "registration": "domain",
+          "table": "self_go_forward"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:810 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 173
+    },
+    {
+      "type": "image_stamp",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 61472,
+          "registration": "domain",
+          "table": "self_pen_down"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4.rs:801 (lower_block)"
+      ],
+      "limitations": [
+        "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 165
+    },
+    {
+      "type": "get_clone_index_property",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 35434,
+          "registration": "domain",
+          "table": "start_as_a_mirror"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4.rs:792 (lower_block)"
+      ],
+      "limitations": [
+        "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 162
+    },
+    {
+      "type": "lists_is_exist",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 4196,
+          "registration": "domain",
+          "table": "incompatible_block"
+        },
+        {
+          "module": "oiyH",
+          "offset": 6785,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:1891 (translate)",
+        "src/kitten4.rs:1899 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 161
+    },
+    {
+      "type": "cloud_variables_set",
+      "official": [
+        {
+          "module": "TL4g",
+          "offset": 6217,
+          "registration": "domain",
+          "table": "cloud_variables_get"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4.rs:535 (lower_block)"
+      ],
+      "limitations": [
+        "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 159
+    },
+    {
+      "type": "lists_insert_value",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 3321,
+          "registration": "domain",
+          "table": "incompatible_block"
+        },
+        {
+          "module": "oiyH",
+          "offset": 6108,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:1890 (translate)",
+        "src/kitten4.rs:1894 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 149
+    },
+    {
+      "type": "get_answer",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 28180,
+          "registration": "domain",
+          "table": "self_appear"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:805 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 145
+    },
+    {
+      "type": "stop_audio_2",
+      "official": [
+        {
+          "module": "xQfl",
+          "offset": 27433,
+          "registration": "domain",
+          "table": "get_audios"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:634 (lower_block)",
+        "src/kitten4.rs:638 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 143
+    },
+    {
+      "type": "self_distance_to",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 37851,
+          "registration": "domain",
+          "table": "self_distance_to"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:593 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 128
+    },
+    {
+      "type": "create_stage_dialog",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 27032,
+          "registration": "domain",
+          "table": "self_appear"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:819 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 126
+    },
+    {
+      "type": "text_contain",
+      "official": [
+        {
+          "module": "oiyH",
+          "offset": 3159,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2058 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 124
+    },
+    {
+      "type": "get_time",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 5700,
+          "registration": "domain",
+          "table": "incompatible_block"
+        },
+        {
+          "module": "oiyH",
+          "offset": 3890,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:813 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 116
+    },
+    {
+      "type": "change_cloud_variable",
+      "official": [
+        {
+          "module": "TL4g",
+          "offset": 6571,
+          "registration": "domain",
+          "table": "cloud_variables_get"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4.rs:536 (lower_block)"
+      ],
+      "limitations": [
+        "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 114
+    },
+    {
+      "type": "cloud_lists_get_value",
+      "official": [
+        {
+          "module": "TL4g",
+          "offset": 8253,
+          "registration": "domain",
+          "table": "cloud_variables_get"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4.rs:443 (cloud_list)"
+      ],
+      "limitations": [
+        "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 110
+    },
+    {
+      "type": "play_audio_and_wait_2",
+      "official": [
+        {
+          "module": "xQfl",
+          "offset": 27178,
+          "registration": "domain",
+          "table": "get_audios"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:634 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 108
+    },
+    {
+      "type": "convert_type",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 2595,
+          "registration": "domain",
+          "table": "incompatible_block"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2030 (translate)",
+        "src/kitten4.rs:579 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 106
+    },
+    {
+      "type": "physics2_set_texture",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 74142,
+          "registration": "domain",
+          "table": "physics2_enable_force"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/engine/physics.rs:355 (parse)"
+      ],
+      "limitations": [
+        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 103
+    },
+    {
+      "type": "logic_boolean",
+      "official": [
+        {
+          "module": "oiyH",
+          "offset": 3354,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2198 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 96
+    },
+    {
+      "type": "self_enable_physics",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 50441,
+          "registration": "domain",
+          "table": "self_enable_physics"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4.rs:505 (lower_block)"
+      ],
+      "limitations": [
+        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 95
+    },
+    {
+      "type": "stop",
+      "official": [
+        {
+          "module": "oiyH",
+          "offset": 5574,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:812 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 94
+    },
+    {
+      "type": "self_set_friction",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 53516,
+          "registration": "domain",
+          "table": "self_enable_physics"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4.rs:507 (lower_block)"
+      ],
+      "limitations": [
+        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 93
+    },
+    {
+      "type": "self_set_boundary",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 52445,
+          "registration": "domain",
+          "table": "self_enable_physics"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4.rs:509 (lower_block)"
+      ],
+      "limitations": [
+        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 92
+    },
+    {
+      "type": "self_set_restitution",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 53661,
+          "registration": "domain",
+          "table": "self_enable_physics"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4.rs:508 (lower_block)"
+      ],
+      "limitations": [
+        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 91
+    },
+    {
+      "type": "clear_drawing",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 59647,
+          "registration": "domain",
+          "table": "self_pen_down"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2227 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 90
+    },
+    {
+      "type": "cloud_lists_append",
+      "official": [
+        {
+          "module": "TL4g",
+          "offset": 8036,
+          "registration": "domain",
+          "table": "cloud_variables_get"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4.rs:537 (lower_block)"
+      ],
+      "limitations": [
+        "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 83
+    },
+    {
+      "type": "lists_copy",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 4442,
+          "registration": "domain",
+          "table": "incompatible_block"
+        },
+        {
+          "module": "oiyH",
+          "offset": 7197,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:1925 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 81
+    },
+    {
+      "type": "self_out_of_boundary",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 40491,
+          "registration": "domain",
+          "table": "self_distance_to"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:775 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 80
+    },
+    {
+      "type": "set_layer_with_pen",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 62300,
+          "registration": "domain",
+          "table": "self_pen_down"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:495 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 80
+    },
+    {
+      "type": "check_screen",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 41832,
+          "registration": "domain",
+          "table": "self_distance_to"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:642 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 77
+    },
+    {
+      "type": "get_sensing_current_scene",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 41774,
+          "registration": "domain",
+          "table": "self_distance_to"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:705 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 77
+    },
+    {
+      "type": "physics2_set_speed",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 72907,
+          "registration": "domain",
+          "table": "physics2_enable_force"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/engine/physics.rs:349 (parse)"
+      ],
+      "limitations": [
+        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 77
+    },
+    {
+      "type": "get_choice_or_index",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 29121,
+          "registration": "domain",
+          "table": "self_appear"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:625 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 75
+    },
+    {
+      "type": "shadow_number",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 5349,
+          "registration": "domain",
+          "table": "incompatible_block"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:647 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 73
+    },
+    {
+      "type": "math_number_property",
+      "official": [
+        {
+          "module": "oiyH",
+          "offset": 3508,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2036 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 71
+    },
+    {
+      "type": "physics2_set_boundary",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 70811,
+          "registration": "domain",
+          "table": "physics2_enable_force"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/engine/physics.rs:332 (parse)"
+      ],
+      "limitations": [
+        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 67
+    },
+    {
+      "type": "self_pen_up",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 59510,
+          "registration": "domain",
+          "table": "self_pen_down"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2223 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 67
+    },
+    {
+      "type": "username_get",
+      "official": [
+        {
+          "module": "TL4g",
+          "offset": 7677,
+          "registration": "domain",
+          "table": "cloud_variables_get"
+        }
+      ],
+      "status": "设备降级",
+      "semantics": "offline/device",
+      "mapping": [
+        "src/kitten4.rs:613 (lower_block)"
+      ],
+      "limitations": [
+        "本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义"
+      ],
+      "occurrences": 67
+    },
+    {
+      "type": "self_pen_down",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 59369,
+          "registration": "domain",
+          "table": "self_pen_down"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2222 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 66
+    },
+    {
+      "type": "self_glide_coordinate",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 14131,
+          "registration": "domain",
+          "table": "self_go_forward"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:811 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 64
+    },
+    {
+      "type": "set_entity_show_hide",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 26701,
+          "registration": "domain",
+          "table": "self_appear"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4.rs:466 (lower_block)",
+        "src/engine.rs:3173 (kitten4_entity_visibility)"
+      ],
+      "limitations": [
+        "角色/分组/场景显隐与有限正时长并发渐变已有源码推导回归；点击状态清理、取消/删克隆、竞争渐变和非有限时长未验证；删除引用沿用通用 noop 策略（官方悬空 UUID 行为未验证）",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 64
+    },
+    {
+      "type": "user_id_get",
+      "official": [
+        {
+          "module": "TL4g",
+          "offset": 7803,
+          "registration": "domain",
+          "table": "cloud_variables_get"
+        }
+      ],
+      "status": "设备降级",
+      "semantics": "offline/device",
+      "mapping": [
+        "src/kitten4.rs:617 (lower_block)",
+        "src/kitten4.rs:618 (lower_block)"
+      ],
+      "limitations": [
+        "本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义"
+      ],
+      "occurrences": 64
+    },
+    {
+      "type": "clone",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 68255,
+          "registration": "domain",
+          "table": "clone"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:665 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 57
+    },
+    {
+      "type": "self_set_pen_color_property",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 60406,
+          "registration": "domain",
+          "table": "self_pen_down"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2226 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 51
+    },
+    {
+      "type": "self_set_pen_size",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 59781,
+          "registration": "domain",
+          "table": "self_pen_down"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2224 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 48
+    },
+    {
+      "type": "ask_and_choose",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 28353,
+          "registration": "domain",
+          "table": "self_appear"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:807 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 47
+    },
+    {
+      "type": "self_broadcast_and_wait",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 4963,
+          "registration": "domain",
+          "table": "incompatible_block"
+        },
+        {
+          "module": "oiyH",
+          "offset": 4402,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2213 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 44
+    },
+    {
+      "type": "physics2_set_force",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 73276,
+          "registration": "domain",
+          "table": "physics2_enable_force"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/engine/physics.rs:350 (parse)"
+      ],
+      "limitations": [
+        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 43
+    },
+    {
+      "type": "self_ask",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 27779,
+          "registration": "domain",
+          "table": "self_appear"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:806 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 42
+    },
+    {
+      "type": "logic_empty",
+      "official": [
+        {
+          "module": "Qeyy",
+          "offset": 1890,
+          "registration": "compiler:SPECIAL_BLOCKS"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:583 (lower_block)"
+      ],
+      "limitations": [
+        "仅编译器结构表证据，不表示存在普通 domain handler",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 37
+    },
+    {
+      "type": "show_hide_variable",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 2782,
+          "registration": "domain",
+          "table": "incompatible_block"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:786 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 37
+    },
+    {
+      "type": "self_rotate_around",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 14475,
+          "registration": "domain",
+          "table": "self_go_forward"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:815 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 36
+    },
+    {
+      "type": "set_volume_or_rate_2",
+      "official": [
+        {
+          "module": "xQfl",
+          "offset": 30673,
+          "registration": "domain",
+          "table": "get_audios"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:671 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 35
+    },
+    {
+      "type": "self_dialog",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 27719,
+          "registration": "domain",
+          "table": "self_appear"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2220 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 34
+    },
+    {
+      "type": "physics2_forbid_bump_with",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 69539,
+          "registration": "domain",
+          "table": "physics2_enable_force"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/engine/physics.rs:339 (parse)"
+      ],
+      "limitations": [
+        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 33
+    },
+    {
+      "type": "set_timer_state",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 40885,
+          "registration": "domain",
+          "table": "self_distance_to"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2135 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 33
+    },
+    {
+      "type": "cloud_lists_delete",
+      "official": [
+        {
+          "module": "TL4g",
+          "offset": 8159,
+          "registration": "domain",
+          "table": "cloud_variables_get"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4.rs:539 (lower_block)"
+      ],
+      "limitations": [
+        "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 32
+    },
+    {
+      "type": "get_stage_info",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 38640,
+          "registration": "domain",
+          "table": "self_distance_to"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4.rs:794 (lower_block)"
+      ],
+      "limitations": [
+        "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 32
+    },
+    {
+      "type": "show_hide_list",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 4606,
+          "registration": "domain",
+          "table": "incompatible_block"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:575 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 32
+    },
+    {
+      "type": "cloud_lists_length",
+      "official": [
+        {
+          "module": "TL4g",
+          "offset": 8465,
+          "registration": "domain",
+          "table": "cloud_variables_get"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4.rs:443 (cloud_list)"
+      ],
+      "limitations": [
+        "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 28
+    },
+    {
+      "type": "physics2_set_resilience",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 72029,
+          "registration": "domain",
+          "table": "physics2_enable_force"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/engine/physics.rs:354 (parse)"
+      ],
+      "limitations": [
+        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 27
+    },
+    {
+      "type": "set_pen_path",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 62027,
+          "registration": "domain",
+          "table": "self_pen_down"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:558 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 26
+    },
+    {
+      "type": "cloud_lists_replace",
+      "official": [
+        {
+          "module": "TL4g",
+          "offset": 8205,
+          "registration": "domain",
+          "table": "cloud_variables_get"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4.rs:540 (lower_block)"
+      ],
+      "limitations": [
+        "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 24
+    },
+    {
+      "type": "get_clone_num",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 35165,
+          "registration": "domain",
+          "table": "start_as_a_mirror"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:793 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 22
+    },
+    {
+      "type": "dispose",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 37175,
+          "registration": "domain",
+          "table": "dispose"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:664 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 20
+    },
+    {
+      "type": "physics2_set_roughness",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 71736,
+          "registration": "domain",
+          "table": "physics2_enable_force"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/engine/physics.rs:353 (parse)"
+      ],
+      "limitations": [
+        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 20
+    },
+    {
+      "type": "tell",
+      "official": [
+        {
+          "module": "Qeyy",
+          "offset": 1871,
+          "registration": "compiler:SPECIAL_BLOCKS"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:802 (lower_block)"
+      ],
+      "limitations": [
+        "仅编译器结构表证据，不表示存在普通 domain handler",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 20
+    },
+    {
+      "type": "divisible_by",
+      "official": [
+        {
+          "module": "oiyH",
+          "offset": 3572,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2035 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 19
+    },
+    {
+      "type": "restart",
+      "official": [
+        {
+          "module": "oiyH",
+          "offset": 5519,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:808 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 19
+    },
+    {
+      "type": "physics2_allow_rotate",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 70169,
+          "registration": "domain",
+          "table": "physics2_enable_force"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/engine/physics.rs:331 (parse)"
+      ],
+      "limitations": [
+        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 18
+    },
+    {
+      "type": "self_bounce_off_edge",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 12802,
+          "registration": "domain",
+          "table": "self_go_forward"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2218 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 17
+    },
+    {
+      "type": "self_change_pen_color_property_2",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 60898,
+          "registration": "domain",
+          "table": "self_pen_down"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2133 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 17
+    },
+    {
+      "type": "show_hide_timer",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 40760,
+          "registration": "domain",
+          "table": "self_distance_to"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2136 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 17
+    },
+    {
+      "type": "self_clear_effects",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 29979,
+          "registration": "domain",
+          "table": "self_appear"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4.rs:553 (lower_block)"
+      ],
+      "limitations": [
+        "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 16
+    },
+    {
+      "type": "self_dialog_wait",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 27657,
+          "registration": "domain",
+          "table": "self_appear"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2221 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 16
+    },
+    {
+      "type": "self_flip",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 31914,
+          "registration": "domain",
+          "table": "self_appear"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:666 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 16
+    },
+    {
+      "type": "set_fill_style",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 61849,
+          "registration": "domain",
+          "table": "self_pen_down"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:566 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 16
+    },
+    {
+      "type": "continue_pause_video",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 49809,
+          "registration": "domain",
+          "table": "play_video"
+        }
+      ],
+      "status": "stub",
+      "semantics": "no-effect",
+      "mapping": [
+        "src/kitten4.rs:438 (is_stub)"
+      ],
+      "limitations": [
+        "is_stub 明确列出：无效果或固定返回值；不视为完整实现"
+      ],
+      "occurrences": 14
+    },
+    {
+      "type": "physics2_set_gravity",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 70397,
+          "registration": "domain",
+          "table": "physics2_enable_force"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/engine/physics.rs:348 (parse)"
+      ],
+      "limitations": [
+        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 14
+    },
+    {
+      "type": "show_hide_cloud_list",
+      "official": [
+        {
+          "module": "TL4g",
+          "offset": 8722,
+          "registration": "domain",
+          "table": "cloud_variables_get"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4.rs:575 (lower_block)"
+      ],
+      "limitations": [
+        "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 13
+    },
+    {
+      "type": "show_hide_cloud_variable",
+      "official": [
+        {
+          "module": "TL4g",
+          "offset": 7234,
+          "registration": "domain",
+          "table": "cloud_variables_get"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4.rs:571 (lower_block)"
+      ],
+      "limitations": [
+        "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 13
+    },
+    {
+      "type": "change_volume_or_rate_2",
+      "official": [
+        {
+          "module": "xQfl",
+          "offset": 30973,
+          "registration": "domain",
+          "table": "get_audios"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:671 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 12
+    },
+    {
+      "type": "cloud_lists_is_exist",
+      "official": [
+        {
+          "module": "TL4g",
+          "offset": 8538,
+          "registration": "domain",
+          "table": "cloud_variables_get"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4.rs:443 (cloud_list)"
+      ],
+      "limitations": [
+        "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 11
+    },
+    {
+      "type": "self_shake",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 12136,
+          "registration": "domain",
+          "table": "self_go_forward"
+        }
+      ],
+      "status": "stub",
+      "semantics": "no-effect",
+      "mapping": [
+        "src/kitten4.rs:435 (is_stub)"
+      ],
+      "limitations": [
+        "is_stub 明确列出：无效果或固定返回值；不视为完整实现"
+      ],
+      "occurrences": 10
+    },
+    {
+      "type": "show_ranking",
+      "official": [
+        {
+          "module": "TL4g",
+          "offset": 7375,
+          "registration": "domain",
+          "table": "cloud_variables_get"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4.rs:541 (lower_block)"
+      ],
+      "limitations": [
+        "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 10
+    },
+    {
+      "type": "set_camera_status",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 63344,
+          "registration": "domain",
+          "table": "set_camera_status"
+        }
+      ],
+      "status": "设备降级",
+      "semantics": "offline/device",
+      "mapping": [
+        "src/kitten4.rs:432 (is_stub)"
+      ],
+      "limitations": [
+        "is_stub 明确列出：无效果或固定返回值；不视为完整实现",
+        "本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义"
+      ],
+      "occurrences": 9
+    },
+    {
+      "type": "backdrop_on_change",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 77600,
+          "registration": "responder"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:666 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 8
+    },
+    {
+      "type": "check_running_device",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 2415,
+          "registration": "domain",
+          "table": "incompatible_block"
+        }
+      ],
+      "status": "设备降级",
+      "semantics": "offline/device",
+      "mapping": [
+        "src/kitten4.rs:587 (lower_block)"
+      ],
+      "limitations": [
+        "本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义"
+      ],
+      "occurrences": 7
+    },
+    {
+      "type": "self_set_draggable",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 14753,
+          "registration": "domain",
+          "table": "self_go_forward"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4.rs:817 (lower_block)"
+      ],
+      "limitations": [
+        "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 7
+    },
+    {
+      "type": "connected_users_get",
+      "official": [
+        {
+          "module": "TL4g",
+          "offset": 7914,
+          "registration": "domain",
+          "table": "cloud_variables_get"
+        }
+      ],
+      "status": "设备降级",
+      "semantics": "offline/device",
+      "mapping": [
+        "src/kitten4.rs:617 (lower_block)"
+      ],
+      "limitations": [
+        "本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义"
+      ],
+      "occurrences": 6
+    },
+    {
+      "type": "enable_voice_detection",
+      "official": [
+        {
+          "module": "xQfl",
+          "offset": 30425,
+          "registration": "domain",
+          "table": "get_audios"
+        }
+      ],
+      "status": "设备降级",
+      "semantics": "offline/device",
+      "mapping": [
+        "src/kitten4.rs:428 (is_stub)"
+      ],
+      "limitations": [
+        "is_stub 明确列出：无效果或固定返回值；不视为完整实现",
+        "本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义"
+      ],
+      "occurrences": 6
+    },
+    {
+      "type": "play_video",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 49311,
+          "registration": "domain",
+          "table": "play_video"
+        }
+      ],
+      "status": "stub",
+      "semantics": "no-effect",
+      "mapping": [
+        "src/kitten4.rs:436 (is_stub)"
+      ],
+      "limitations": [
+        "is_stub 明确列出：无效果或固定返回值；不视为完整实现"
+      ],
+      "occurrences": 6
+    },
+    {
+      "type": "get_running_device",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 2342,
+          "registration": "domain",
+          "table": "incompatible_block"
+        }
+      ],
+      "status": "设备降级",
+      "semantics": "offline/device",
+      "mapping": [
+        "src/kitten4.rs:621 (lower_block)"
+      ],
+      "limitations": [
+        "本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义"
+      ],
+      "occurrences": 5
+    },
+    {
+      "type": "calculate",
+      "official": [
+        {
+          "module": "oiyH",
+          "offset": 7051,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:554 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 4
+    },
+    {
+      "type": "show_hide_video",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 49722,
+          "registration": "domain",
+          "table": "play_video"
+        }
+      ],
+      "status": "stub",
+      "semantics": "no-effect",
+      "mapping": [
+        "src/kitten4.rs:439 (is_stub)"
+      ],
+      "limitations": [
+        "is_stub 明确列出：无效果或固定返回值；不视为完整实现"
+      ],
+      "occurrences": 4
+    },
+    {
+      "type": "bump_into_color",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 40194,
+          "registration": "domain",
+          "table": "self_distance_to"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:365 (lower_node)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 3
+    },
+    {
+      "type": "cloud_lists_index_of",
+      "official": [
+        {
+          "module": "TL4g",
+          "offset": 8631,
+          "registration": "domain",
+          "table": "cloud_variables_get"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4.rs:443 (cloud_list)"
+      ],
+      "limitations": [
+        "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 3
+    },
+    {
+      "type": "get_voice_volume",
+      "official": [
+        {
+          "module": "xQfl",
+          "offset": 30609,
+          "registration": "domain",
+          "table": "get_audios"
+        }
+      ],
+      "status": "设备降级",
+      "semantics": "offline/device",
+      "mapping": [
+        "src/kitten4.rs:519 (lower_block)",
+        "src/kitten4.rs:429 (is_stub)"
+      ],
+      "limitations": [
+        "is_stub 明确列出：无效果或固定返回值；不视为完整实现",
+        "本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义"
+      ],
+      "occurrences": 3
+    },
+    {
+      "type": "physics2_set_flexibility",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 74470,
+          "registration": "domain",
+          "table": "physics2_enable_force"
+        }
+      ],
+      "status": "stub",
+      "semantics": "no-effect",
+      "mapping": [
+        "src/engine/physics.rs:362 (parse)",
+        "src/kitten4.rs:427 (is_stub)"
+      ],
+      "limitations": [
+        "is_stub 明确列出：无效果或固定返回值；不视为完整实现",
+        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md"
+      ],
+      "occurrences": 3
+    },
+    {
+      "type": "play_words_audio_wait",
+      "official": [
+        {
+          "module": "xQfl",
+          "offset": 27938,
+          "registration": "domain",
+          "table": "get_audios"
+        }
+      ],
+      "status": "stub",
+      "semantics": "no-effect",
+      "mapping": [
+        "src/kitten4.rs:434 (is_stub)"
+      ],
+      "limitations": [
+        "is_stub 明确列出：无效果或固定返回值；不视为完整实现"
+      ],
+      "occurrences": 3
+    },
+    {
+      "type": "on_swipe",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 75853,
+          "registration": "responder"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:666 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 2
+    },
+    {
+      "type": "physics2_set_force_in_time",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 73636,
+          "registration": "domain",
+          "table": "physics2_enable_force"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/engine/physics.rs:351 (parse)"
+      ],
+      "limitations": [
+        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 2
+    },
+    {
+      "type": "self_change_layer",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 33238,
+          "registration": "domain",
+          "table": "self_gradually_appear"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:594 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 2
+    },
+    {
+      "type": "self_disable_physics",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 50777,
+          "registration": "domain",
+          "table": "self_enable_physics"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4.rs:506 (lower_block)"
+      ],
+      "limitations": [
+        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 2
+    },
+    {
+      "type": "sync_tell",
+      "official": [
+        {
+          "module": "Qeyy",
+          "offset": 1923,
+          "registration": "compiler:SPECIAL_BLOCKS"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:803 (lower_block)"
+      ],
+      "limitations": [
+        "仅编译器结构表证据，不表示存在普通 domain handler",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 2
+    },
+    {
+      "type": "is_ranking_show_hide",
+      "official": [
+        {
+          "module": "TL4g",
+          "offset": 7588,
+          "registration": "domain",
+          "table": "cloud_variables_get"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4.rs:543 (lower_block)"
+      ],
+      "limitations": [
+        "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 1
+    },
+    {
+      "type": "play_video_until_end",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 49469,
+          "registration": "domain",
+          "table": "play_video"
+        }
+      ],
+      "status": "stub",
+      "semantics": "no-effect",
+      "mapping": [
+        "src/kitten4.rs:437 (is_stub)"
+      ],
+      "limitations": [
+        "is_stub 明确列出：无效果或固定返回值；不视为完整实现"
+      ],
+      "occurrences": 1
+    },
+    {
+      "type": "play_words_audio",
+      "official": [
+        {
+          "module": "xQfl",
+          "offset": 27747,
+          "registration": "domain",
+          "table": "get_audios"
+        }
+      ],
+      "status": "stub",
+      "semantics": "no-effect",
+      "mapping": [
+        "src/kitten4.rs:433 (is_stub)"
+      ],
+      "limitations": [
+        "is_stub 明确列出：无效果或固定返回值；不视为完整实现"
+      ],
+      "occurrences": 1
+    },
+    {
+      "type": "terminate",
+      "official": [
+        {
+          "module": "oiyH",
+          "offset": 5395,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:667 (lower_block)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 1
+    },
+    {
+      "type": "wood_block_get",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 67346,
+          "registration": "domain",
+          "table": "wood_block_get"
+        },
+        {
+          "module": "fhSb",
+          "offset": 368,
+          "registration": "domain",
+          "table": "wood_block_get"
+        }
+      ],
+      "status": "设备降级",
+      "semantics": "offline/device",
+      "mapping": [
+        "src/kitten4.rs:519 (lower_block)",
+        "src/kitten4.rs:526 (lower_block)",
+        "src/kitten4.rs:431 (is_stub)"
+      ],
+      "limitations": [
+        "is_stub 明确列出：无效果或固定返回值；不视为完整实现",
+        "本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义",
+        "官方 fhSb 玩家覆盖也返回 NaN，不执行 Python；这不是 Python 功能支持"
+      ],
+      "occurrences": 1
+    },
+    {
+      "type": "wood_block_set",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 67770,
+          "registration": "domain",
+          "table": "wood_block_get"
+        },
+        {
+          "module": "fhSb",
+          "offset": 410,
+          "registration": "domain",
+          "table": "wood_block_get"
+        }
+      ],
+      "status": "设备降级",
+      "semantics": "offline/device",
+      "mapping": [
+        "src/kitten4.rs:430 (is_stub)"
+      ],
+      "limitations": [
+        "is_stub 明确列出：无效果或固定返回值；不视为完整实现",
+        "本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义"
+      ],
+      "occurrences": 1
+    },
+    {
+      "type": "add_width_height_scale",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 33316,
+          "registration": "domain",
+          "table": "self_gradually_appear"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4/aliases.rs:39 (lower_legacy_alias)",
+        "src/kitten4/aliases.rs:44 (lower_legacy_alias)"
+      ],
+      "limitations": [
+        "legacy alias 归一化；继承目标积木的字段、子选项与运行时限制",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "allow_rotate",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 51496,
+          "registration": "domain",
+          "table": "self_enable_physics"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4.rs:513 (lower_block)"
+      ],
+      "limitations": [
+        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "block_on_break",
+      "official": [
+        {
+          "module": "Qeyy",
+          "offset": 676,
+          "registration": "compiler:EVENT_BLOCKS"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "仅编译器结构表证据，不表示存在普通 domain handler"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "buzzer_play_midi",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 1778,
+          "registration": "domain",
+          "table": "led_light_on"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "buzzer_sound",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 637,
+          "registration": "domain",
+          "table": "set_digital_port_status"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "car_light_on",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 1700,
+          "registration": "domain",
+          "table": "led_light_on"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "change_volume_or_rate",
+      "official": [
+        {
+          "module": "xQfl",
+          "offset": 32400,
+          "registration": "domain",
+          "table": "get_audios"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "cloud_lists_get",
+      "official": [
+        {
+          "module": "TL4g",
+          "offset": 7958,
+          "registration": "domain",
+          "table": "cloud_variables_get"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4.rs:443 (cloud_list)"
+      ],
+      "limitations": [
+        "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "cloud_lists_insert_value",
+      "official": [
+        {
+          "module": "TL4g",
+          "offset": 8107,
+          "registration": "domain",
+          "table": "cloud_variables_get"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4.rs:538 (lower_block)"
+      ],
+      "limitations": [
+        "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "controls_if_dropdown",
+      "official": [
+        {
+          "module": "Qeyy",
+          "offset": 405,
+          "registration": "compiler:IF_BLOCKS"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "仅编译器结构表证据，不表示存在普通 domain handler"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "controls_if_no_else",
+      "official": [
+        {
+          "module": "Qeyy",
+          "offset": 356,
+          "registration": "compiler:IF_BLOCKS"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "仅编译器结构表证据，不表示存在普通 domain handler"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "days_after_2000",
+      "official": [
+        {
+          "module": "oiyH",
+          "offset": 4181,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "dc_both_motor_speed",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 591,
+          "registration": "domain",
+          "table": "set_digital_port_status"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "dc_both_motor_turn",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 546,
+          "registration": "domain",
+          "table": "set_digital_port_status"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "dc_single_motor_speed",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 498,
+          "registration": "domain",
+          "table": "set_digital_port_status"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "dc_single_motor_turn",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 451,
+          "registration": "domain",
+          "table": "set_digital_port_status"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "destruct",
+      "official": [
+        {
+          "module": "oiyH",
+          "offset": 5254,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "dht11_get_temp_humi",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 1252,
+          "registration": "domain",
+          "table": "set_digital_port_status"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "digital_show",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 1739,
+          "registration": "domain",
+          "table": "led_light_on"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "display_recognition_result",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 65507,
+          "registration": "domain",
+          "table": "set_camera_status"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "fan_speed",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 1821,
+          "registration": "domain",
+          "table": "led_light_on"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "get",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 42387,
+          "registration": "domain",
+          "table": "get"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4/aliases.rs:74 (lower_legacy_alias)"
+      ],
+      "limitations": [
+        "legacy alias 归一化；继承目标积木的字段、子选项与运行时限制",
+        "仅显式属性/角色局部变量；未列出的属性仍不支持",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "get_2",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 42434,
+          "registration": "domain",
+          "table": "get"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4.rs:2137 (translate)"
+      ],
+      "limitations": [
+        "仅坐标 0/1 与方向 3；其他属性走后续 lowering 或仍不支持",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "get_analog_port_value",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 277,
+          "registration": "domain",
+          "table": "set_digital_port_status"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "get_camera_data",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 63918,
+          "registration": "domain",
+          "table": "set_camera_status"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "get_choice",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 33908,
+          "registration": "domain",
+          "table": "self_gradually_appear"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "get_choice_index",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 33969,
+          "registration": "domain",
+          "table": "self_gradually_appear"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "get_cur_frames",
+      "official": [
+        {
+          "module": "oiyH",
+          "offset": 3936,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "get_distance",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 2042,
+          "registration": "domain",
+          "table": "led_light_on"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "get_light_sensor_intensity",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 879,
+          "registration": "domain",
+          "table": "set_digital_port_status"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "get_mobile_rocker_value",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 58299,
+          "registration": "domain",
+          "table": "get_mobile_slope_value"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "get_mobile_slope_value",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 58029,
+          "registration": "domain",
+          "table": "get_mobile_slope_value"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "get_orientation",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 42128,
+          "registration": "domain",
+          "table": "self_distance_to"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "get_physics_property",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 54388,
+          "registration": "domain",
+          "table": "self_enable_physics"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4.rs:499 (lower_block)"
+      ],
+      "limitations": [
+        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "get_potentiometer_turn_angle",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 1426,
+          "registration": "domain",
+          "table": "set_digital_port_status"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "get_press_intensity",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 1295,
+          "registration": "domain",
+          "table": "set_digital_port_status"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "get_recognition_result",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 66019,
+          "registration": "domain",
+          "table": "set_camera_status"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "get_resistance_intensity",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 1478,
+          "registration": "domain",
+          "table": "set_digital_port_status"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "get_sound_intensity",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 800,
+          "registration": "domain",
+          "table": "set_digital_port_status"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "get_temp_humi",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 2178,
+          "registration": "domain",
+          "table": "led_light_on"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "get_voice_answer",
+      "official": [
+        {
+          "module": "xQfl",
+          "offset": 29026,
+          "registration": "domain",
+          "table": "get_audios"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "grayscale_sensor_get",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 1382,
+          "registration": "domain",
+          "table": "set_digital_port_status"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "hcsr04_get_distance",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 1209,
+          "registration": "domain",
+          "table": "set_digital_port_status"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "hide_ranking",
+      "official": [
+        {
+          "module": "TL4g",
+          "offset": 7546,
+          "registration": "domain",
+          "table": "cloud_variables_get"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4.rs:542 (lower_block)"
+      ],
+      "limitations": [
+        "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "incompatible_block",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 2245,
+          "registration": "domain",
+          "table": "incompatible_block"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "incompatible_output_block",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 2290,
+          "registration": "domain",
+          "table": "incompatible_block"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "infrared_sensor_switch",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 1006,
+          "registration": "domain",
+          "table": "set_digital_port_status"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "is_button_pressed",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 965,
+          "registration": "domain",
+          "table": "set_digital_port_status"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "is_digital_port_status",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 228,
+          "registration": "domain",
+          "table": "set_digital_port_status"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "is_get_high_temp",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 1130,
+          "registration": "domain",
+          "table": "set_digital_port_status"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "is_get_light",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 843,
+          "registration": "domain",
+          "table": "set_digital_port_status"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "is_get_magnetic",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 1170,
+          "registration": "domain",
+          "table": "set_digital_port_status"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "is_get_sound",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 764,
+          "registration": "domain",
+          "table": "set_digital_port_status"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "is_get_sport",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 1094,
+          "registration": "domain",
+          "table": "set_digital_port_status"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "is_infrared_control",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 2471,
+          "registration": "domain",
+          "table": "led_light_on"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "is_joystick_pressed",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 1614,
+          "registration": "domain",
+          "table": "set_digital_port_status"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "is_sensor_get_line",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 1052,
+          "registration": "domain",
+          "table": "set_digital_port_status"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "is_switch_on",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 929,
+          "registration": "domain",
+          "table": "set_digital_port_status"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "is_touch_sensor_switch",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 2425,
+          "registration": "domain",
+          "table": "led_light_on"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "joystick_get_x_value",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 1526,
+          "registration": "domain",
+          "table": "set_digital_port_status"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "joystick_get_y_value",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 1570,
+          "registration": "domain",
+          "table": "set_digital_port_status"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "led_light",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 369,
+          "registration": "domain",
+          "table": "set_digital_port_status"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "led_light_intensity",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 405,
+          "registration": "domain",
+          "table": "set_digital_port_status"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "led_light_on",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 1661,
+          "registration": "domain",
+          "table": "led_light_on"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "microbit_clear_screen",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 3009,
+          "registration": "domain",
+          "table": "microbit_when_press_key"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "microbit_display_custom_lattice_image",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 2731,
+          "registration": "domain",
+          "table": "microbit_when_press_key"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "microbit_display_lattice_image",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 2674,
+          "registration": "domain",
+          "table": "microbit_when_press_key"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "microbit_display_text",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 2795,
+          "registration": "domain",
+          "table": "microbit_when_press_key"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "microbit_get_acceleration",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 3195,
+          "registration": "domain",
+          "table": "microbit_when_press_key"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "microbit_get_compass_field_strength",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 3396,
+          "registration": "domain",
+          "table": "microbit_when_press_key"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "microbit_get_compass_heading",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 3344,
+          "registration": "domain",
+          "table": "microbit_when_press_key"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "microbit_get_incline_angle",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 3145,
+          "registration": "domain",
+          "table": "microbit_when_press_key"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "microbit_get_light_intensity",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 3244,
+          "registration": "domain",
+          "table": "microbit_when_press_key"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "microbit_get_temperature",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 3296,
+          "registration": "domain",
+          "table": "microbit_when_press_key"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "microbit_is_incline",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 3102,
+          "registration": "domain",
+          "table": "microbit_when_press_key"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "microbit_is_pin_level",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 3455,
+          "registration": "domain",
+          "table": "microbit_when_press_key"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "microbit_is_press_key",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 3057,
+          "registration": "domain",
+          "table": "microbit_when_press_key"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "microbit_set_light_intensity",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 2843,
+          "registration": "domain",
+          "table": "microbit_when_press_key"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "microbit_set_xy_light_intensity",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 2898,
+          "registration": "domain",
+          "table": "microbit_when_press_key"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "microbit_turn_off_xy_light",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 2956,
+          "registration": "domain",
+          "table": "microbit_when_press_key"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "microbit_when_be_operated",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 2635,
+          "registration": "domain",
+          "table": "microbit_when_press_key"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "microbit_when_incline",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 2600,
+          "registration": "domain",
+          "table": "microbit_when_press_key"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "microbit_when_press_key",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 2563,
+          "registration": "domain",
+          "table": "microbit_when_press_key"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "midi_get",
+      "official": [
+        {
+          "module": "xQfl",
+          "offset": 28986,
+          "registration": "domain",
+          "table": "get_audios"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "midi_play_note",
+      "official": [
+        {
+          "module": "xQfl",
+          "offset": 28306,
+          "registration": "domain",
+          "table": "get_audios"
+        },
+        {
+          "module": "Qeyy",
+          "offset": 1409,
+          "registration": "compiler:MIDI_BLOCKS"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "midi_play_num_note",
+      "official": [
+        {
+          "module": "xQfl",
+          "offset": 28559,
+          "registration": "domain",
+          "table": "get_audios"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "midi_wait",
+      "official": [
+        {
+          "module": "xQfl",
+          "offset": 28229,
+          "registration": "domain",
+          "table": "get_audios"
+        },
+        {
+          "module": "Qeyy",
+          "offset": 1448,
+          "registration": "compiler:MIDI_BLOCKS"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "mobile_vibrate",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 58566,
+          "registration": "domain",
+          "table": "get_mobile_slope_value"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "mouse_on_emit",
+      "official": [
+        {
+          "module": "Qeyy",
+          "offset": 639,
+          "registration": "compiler:EVENT_BLOCKS"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "仅编译器结构表证据，不表示存在普通 domain handler"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "multiline_text",
+      "official": [
+        {
+          "module": "oiyH",
+          "offset": 7527,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4/aliases.rs:75 (lower_legacy_alias)"
+      ],
+      "limitations": [
+        "legacy alias 归一化；继承目标积木的字段、子选项与运行时限制",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "on_mobile_click_btn",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 58661,
+          "registration": "domain",
+          "table": "get_mobile_slope_value"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "on_mobile_shake",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 77242,
+          "registration": "responder"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "on_mobile_slide",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 76534,
+          "registration": "responder"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "on_mobile_slope",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 76888,
+          "registration": "responder"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "on_shake",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 6050,
+          "registration": "domain",
+          "table": "incompatible_block"
+        },
+        {
+          "module": "Tn6a",
+          "offset": 91185,
+          "registration": "responder"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "on_tilt",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 6085,
+          "registration": "domain",
+          "table": "incompatible_block"
+        },
+        {
+          "module": "Tn6a",
+          "offset": 91325,
+          "registration": "responder"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "physics2_get_property",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 72329,
+          "registration": "domain",
+          "table": "physics2_enable_force"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/engine.rs:2444 (physics2_get_property)"
+      ],
+      "limitations": [
+        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "physics2_set_mass",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 71456,
+          "registration": "domain",
+          "table": "physics2_enable_force"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/engine/physics.rs:352 (parse)"
+      ],
+      "limitations": [
+        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "play_ask_record",
+      "official": [
+        {
+          "module": "xQfl",
+          "offset": 30126,
+          "registration": "domain",
+          "table": "get_audios"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "play_audio",
+      "official": [
+        {
+          "module": "xQfl",
+          "offset": 31836,
+          "registration": "domain",
+          "table": "get_audios"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "play_audio_and_wait",
+      "official": [
+        {
+          "module": "xQfl",
+          "offset": 32000,
+          "registration": "domain",
+          "table": "get_audios"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "player_position_on_change",
+      "official": [
+        {
+          "module": "Qeyy",
+          "offset": 578,
+          "registration": "compiler:EVENT_BLOCKS"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "仅编译器结构表证据，不表示存在普通 domain handler"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "procedures_callnoreturn",
+      "official": [
+        {
+          "module": "Qeyy",
+          "offset": 839,
+          "registration": "compiler:PROCEDURE_BLOCKS"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "仅编译器结构表证据，不表示存在普通 domain handler"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "procedures_callreturn",
+      "official": [
+        {
+          "module": "Qeyy",
+          "offset": 896,
+          "registration": "compiler:PROCEDURE_BLOCKS"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "仅编译器结构表证据，不表示存在普通 domain handler"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "procedures_defnoreturn",
+      "official": [
+        {
+          "module": "Qeyy",
+          "offset": 784,
+          "registration": "compiler:PROCEDURE_BLOCKS"
+        },
+        {
+          "module": "Qeyy",
+          "offset": 1607,
+          "registration": "compiler:HAT_BLOCKS"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "仅编译器结构表证据，不表示存在普通 domain handler"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "procedures_parameter",
+      "official": [
+        {
+          "module": "Qeyy",
+          "offset": 1006,
+          "registration": "compiler:PROCEDURE_BLOCKS"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "仅编译器结构表证据，不表示存在普通 domain handler"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "procedures_return_value",
+      "official": [
+        {
+          "module": "Qeyy",
+          "offset": 949,
+          "registration": "compiler:PROCEDURE_BLOCKS"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "仅编译器结构表证据，不表示存在普通 domain handler"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "reset_timer",
+      "official": [
+        {
+          "module": "oiyH",
+          "offset": 5191,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "rgb_light_color",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 1898,
+          "registration": "domain",
+          "table": "led_light_on"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "rgb_light_color_digital",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 1940,
+          "registration": "domain",
+          "table": "led_light_on"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "self_ask_listen",
+      "official": [
+        {
+          "module": "xQfl",
+          "offset": 29180,
+          "registration": "domain",
+          "table": "get_audios"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "self_ask_record",
+      "official": [
+        {
+          "module": "xQfl",
+          "offset": 29769,
+          "registration": "domain",
+          "table": "get_audios"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "self_change_effect",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 33416,
+          "registration": "domain",
+          "table": "self_gradually_appear"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4/aliases.rs:40 (lower_legacy_alias)"
+      ],
+      "limitations": [
+        "legacy alias 归一化；继承目标积木的字段、子选项与运行时限制",
+        "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "self_change_effect_2",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 33508,
+          "registration": "domain",
+          "table": "self_gradually_appear"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4/aliases.rs:41 (lower_legacy_alias)"
+      ],
+      "limitations": [
+        "legacy alias 归一化；继承目标积木的字段、子选项与运行时限制",
+        "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "self_change_pen_size_2",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 59983,
+          "registration": "domain",
+          "table": "self_pen_down"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2132 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "self_change_position",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 15705,
+          "registration": "domain",
+          "table": "self_change_x"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4/aliases.rs:28 (lower_legacy_alias)"
+      ],
+      "limitations": [
+        "legacy alias 归一化；继承目标积木的字段、子选项与运行时限制",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "self_change_scale",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 33077,
+          "registration": "domain",
+          "table": "self_gradually_appear"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4/aliases.rs:38 (lower_legacy_alias)",
+        "src/kitten4/aliases.rs:43 (lower_legacy_alias)"
+      ],
+      "limitations": [
+        "legacy alias 归一化；继承目标积木的字段、子选项与运行时限制",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "self_change_x",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 15109,
+          "registration": "domain",
+          "table": "self_change_x"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4/aliases.rs:11 (lower_legacy_alias)"
+      ],
+      "limitations": [
+        "legacy alias 归一化；继承目标积木的字段、子选项与运行时限制",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "self_change_y",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 15215,
+          "registration": "domain",
+          "table": "self_change_x"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4/aliases.rs:11 (lower_legacy_alias)"
+      ],
+      "limitations": [
+        "legacy alias 归一化；继承目标积木的字段、子选项与运行时限制",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "self_glide_position",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 15774,
+          "registration": "domain",
+          "table": "self_change_x"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4/aliases.rs:29 (lower_legacy_alias)"
+      ],
+      "limitations": [
+        "legacy alias 归一化；继承目标积木的字段、子选项与运行时限制",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "self_glide_x",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 15425,
+          "registration": "domain",
+          "table": "self_change_x"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4/aliases.rs:11 (lower_legacy_alias)"
+      ],
+      "limitations": [
+        "legacy alias 归一化；继承目标积木的字段、子选项与运行时限制",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "self_glide_y",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 15321,
+          "registration": "domain",
+          "table": "self_change_x"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4/aliases.rs:11 (lower_legacy_alias)"
+      ],
+      "limitations": [
+        "legacy alias 归一化；继承目标积木的字段、子选项与运行时限制",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "self_gradually_appear",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 32818,
+          "registration": "domain",
+          "table": "self_gradually_appear"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4/aliases.rs:33 (lower_legacy_alias)",
+        "src/kitten4/aliases.rs:34 (lower_legacy_alias)"
+      ],
+      "limitations": [
+        "legacy alias 归一化；继承目标积木的字段、子选项与运行时限制",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "self_gradually_disappear",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 32912,
+          "registration": "domain",
+          "table": "self_gradually_appear"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4/aliases.rs:33 (lower_legacy_alias)"
+      ],
+      "limitations": [
+        "legacy alias 归一化；继承目标积木的字段、子选项与运行时限制",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "self_next_style",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 33819,
+          "registration": "domain",
+          "table": "self_gradually_appear"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4/aliases.rs:55 (lower_legacy_alias)"
+      ],
+      "limitations": [
+        "legacy alias 归一化；继承目标积木的字段、子选项与运行时限制",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "self_on_tap",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 77993,
+          "registration": "responder"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "self_set_density",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 53374,
+          "registration": "domain",
+          "table": "self_enable_physics"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4.rs:511 (lower_block)"
+      ],
+      "limitations": [
+        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "self_set_effect",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 33602,
+          "registration": "domain",
+          "table": "self_gradually_appear"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4/aliases.rs:50 (lower_legacy_alias)"
+      ],
+      "limitations": [
+        "legacy alias 归一化；继承目标积木的字段、子选项与运行时限制",
+        "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "self_set_mass",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 53241,
+          "registration": "domain",
+          "table": "self_enable_physics"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4.rs:510 (lower_block)"
+      ],
+      "limitations": [
+        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "self_set_x",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 15529,
+          "registration": "domain",
+          "table": "self_change_x"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4/aliases.rs:22 (lower_legacy_alias)"
+      ],
+      "limitations": [
+        "legacy alias 归一化；继承目标积木的字段、子选项与运行时限制",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "self_set_y",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 15617,
+          "registration": "domain",
+          "table": "self_change_x"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4/aliases.rs:22 (lower_legacy_alias)"
+      ],
+      "limitations": [
+        "legacy alias 归一化；继承目标积木的字段、子选项与运行时限制",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "self_texture",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 53815,
+          "registration": "domain",
+          "table": "self_enable_physics"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "sensor_get_light_intensity",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 2078,
+          "registration": "domain",
+          "table": "led_light_on"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "sensor_get_sound_intensity",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 2128,
+          "registration": "domain",
+          "table": "led_light_on"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "servo_motor_angle",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 325,
+          "registration": "domain",
+          "table": "set_digital_port_status"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "set_camera_opcity",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 63714,
+          "registration": "domain",
+          "table": "set_camera_status"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "set_costume_by_id",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 33666,
+          "registration": "domain",
+          "table": "self_gradually_appear"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4/aliases.rs:60 (lower_legacy_alias)"
+      ],
+      "limitations": [
+        "legacy alias 归一化；继承目标积木的字段、子选项与运行时限制",
+        "仅字段 style_id literal；动态 style_id 输入保持 opaque 并明确拒绝编译（编辑器可达性未验证）",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "set_costume_by_index",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 33756,
+          "registration": "domain",
+          "table": "self_gradually_appear"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4/aliases.rs:59 (lower_legacy_alias)"
+      ],
+      "limitations": [
+        "legacy alias 归一化；继承目标积木的字段、子选项与运行时限制",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "set_digital_port_status",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 133,
+          "registration": "domain",
+          "table": "set_digital_port_status"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "set_force",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 55684,
+          "registration": "domain",
+          "table": "self_enable_physics"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "set_force_by_vector",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 56058,
+          "registration": "domain",
+          "table": "self_enable_physics"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "set_gravity",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 51768,
+          "registration": "domain",
+          "table": "self_enable_physics"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "set_gravity_by_orientation",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 52040,
+          "registration": "domain",
+          "table": "self_enable_physics"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "set_pwm_port_value",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 183,
+          "registration": "domain",
+          "table": "set_digital_port_status"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "set_speaking_language",
+      "official": [
+        {
+          "module": "xQfl",
+          "offset": 31377,
+          "registration": "domain",
+          "table": "get_audios"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "set_top",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 33167,
+          "registration": "domain",
+          "table": "self_gradually_appear"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4/aliases.rs:51 (lower_legacy_alias)"
+      ],
+      "limitations": [
+        "legacy alias 归一化；继承目标积木的字段、子选项与运行时限制",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "set_velocity_by_vector",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 55282,
+          "registration": "domain",
+          "table": "self_enable_physics"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "set_volume_or_rate",
+      "official": [
+        {
+          "module": "xQfl",
+          "offset": 32165,
+          "registration": "domain",
+          "table": "get_audios"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "shake_sensor",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 676,
+          "registration": "domain",
+          "table": "set_digital_port_status"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "shake_sensor_intensity",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 715,
+          "registration": "domain",
+          "table": "set_digital_port_status"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "shock_duration",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 6320,
+          "registration": "domain",
+          "table": "incompatible_block"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "shock_for_n_times",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 6119,
+          "registration": "domain",
+          "table": "incompatible_block"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "show_stage_dialog",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 33009,
+          "registration": "domain",
+          "table": "self_gradually_appear"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "soil_sensor_get_humi",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 1338,
+          "registration": "domain",
+          "table": "set_digital_port_status"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "start_on_click_2",
+      "official": [
+        {
+          "module": "oiyH",
+          "offset": 3860,
+          "registration": "domain",
+          "table": "text_indexOf"
+        },
+        {
+          "module": "Qeyy",
+          "offset": 1564,
+          "registration": "compiler:HAT_BLOCKS"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "steering_angle",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 1857,
+          "registration": "domain",
+          "table": "led_light_on"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "stop_all_audios",
+      "official": [
+        {
+          "module": "xQfl",
+          "offset": 32686,
+          "registration": "domain",
+          "table": "get_audios"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "text_append",
+      "official": [
+        {
+          "module": "oiyH",
+          "offset": 2546,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "text_implicit",
+      "official": [
+        {
+          "module": "oiyH",
+          "offset": 2668,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "text_indexOf",
+      "official": [
+        {
+          "module": "oiyH",
+          "offset": 2414,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "text_select",
+      "official": [
+        {
+          "module": "oiyH",
+          "offset": 2956,
+          "registration": "domain",
+          "table": "text_indexOf"
+        }
+      ],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4.rs:2059 (translate)"
+      ],
+      "limitations": [
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "translate",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 29365,
+          "registration": "domain",
+          "table": "self_appear"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "translate_result",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 29544,
+          "registration": "domain",
+          "table": "self_appear"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "turn_on_the_camera",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 64227,
+          "registration": "domain",
+          "table": "set_camera_status"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "turn_on_the_qrcode_camera",
+      "official": [
+        {
+          "module": "Tn6a",
+          "offset": 64142,
+          "registration": "domain",
+          "table": "set_camera_status"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "voice_recognition",
+      "official": [
+        {
+          "module": "xQfl",
+          "offset": 29552,
+          "registration": "domain",
+          "table": "get_audios"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "weeemake_get_double_line",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 2271,
+          "registration": "domain",
+          "table": "led_light_on"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "weeemake_get_potentiometer_angle",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 2215,
+          "registration": "domain",
+          "table": "led_light_on"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "weeemake_is_get_sport",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 2514,
+          "registration": "domain",
+          "table": "led_light_on"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "weeemake_joystick_get_x_value",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 2319,
+          "registration": "domain",
+          "table": "led_light_on"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "weeemake_joystick_get_y_value",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 2372,
+          "registration": "domain",
+          "table": "led_light_on"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    },
+    {
+      "type": "weeemake_motor_turn_speed",
+      "official": [
+        {
+          "module": "ls7Z",
+          "offset": 1990,
+          "registration": "domain",
+          "table": "led_light_on"
+        }
+      ],
+      "status": "缺失",
+      "semantics": "unsupported",
+      "mapping": [],
+      "limitations": [
+        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
+        "官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持"
+      ],
+      "occurrences": 0
+    }
+  ]
+}
