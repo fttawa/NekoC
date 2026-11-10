@@ -425,8 +425,6 @@ fn is_stub(kind: &str) -> bool {
             | "wood_block_set"
             | "wood_block_get"
             | "set_camera_status"
-            | "play_words_audio"
-            | "play_words_audio_wait"
             | "set_entity_show_hide"
             | "self_shake"
             | "play_video"
@@ -612,6 +610,31 @@ fn lower_block(block: &mut Value, targets: &Targets) {
                 "play_audio_2" => "play_audio",
                 "stop_audio_2" => "stop_audio",
                 _ => "play_audio_and_wait",
+            }
+        }
+        "play_audio" | "play_audio_and_wait" => {
+            let id = field(block, "audio").to_owned();
+            block["inputs"]["audio_id"] = json!({"type":"text","fields":{"TEXT":id}});
+            kind.as_str()
+        }
+        "stop_all_audios" => {
+            block["inputs"]["audio_id"] = json!({"type":"text","fields":{"TEXT":"all"}});
+            "stop_audio"
+        }
+        "play_words_audio" | "play_words_audio_wait" => {
+            if block["inputs"].get("text").is_none() {
+                let text = field(block, "text").to_owned();
+                block["inputs"]["text"] = json!({"type":"text","fields":{"TEXT":text}});
+            }
+            kind.as_str()
+        }
+        "set_volume_or_rate" | "change_volume_or_rate" => {
+            let id = field(block, "audio").to_owned();
+            block["inputs"]["audio"] = json!({"type":"text","fields":{"TEXT":id}});
+            if kind == "set_volume_or_rate" {
+                "set_volume_or_rate_2"
+            } else {
+                "change_volume_or_rate_2"
             }
         }
         "check_screen" => {

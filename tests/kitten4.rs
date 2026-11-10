@@ -816,7 +816,7 @@ fn published_fixture() -> Value {
 
 // Synthetic compile_result fixtures only: never embed downloaded corpus works.
 #[test]
-fn published_second_round_stubs_are_explicit_and_nonblocking() {
+fn published_speech_is_an_explicit_headless_nonblocking_command() {
     for kind in ["play_words_audio", "play_words_audio_wait"] {
         let native = published_script(vec![
             compiled(
@@ -825,7 +825,7 @@ fn published_second_round_stubs_are_explicit_and_nonblocking() {
             ),
             compiled_set("after", compiled_number(1.0)),
         ]);
-        assert!(kitten4::coverage(&native, 1)["stubbed"].get(kind).is_some());
+        assert!(kitten4::coverage(&native, 1)["stubbed"].get(kind).is_none());
         assert_eq!(start_published(&native).variable_text("after"), "1");
     }
 }

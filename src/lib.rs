@@ -1,4 +1,5 @@
 pub mod analysis;
+mod audio;
 pub mod bcmkn;
 pub mod bcmkn_compiler;
 pub mod cloud;

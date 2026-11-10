@@ -63,9 +63,9 @@ SHA-256：`1ffbfced591fd00d2ad604a00211cfcbd1a35e6ad3fcbe6ff7107a3ba76daaa2`。
 | 2494500 附近 helper `o`、2496537 `lists_get_value` | 非 Array 抛 `only_list_type_supported`。读取支持负下标；0、非整数、越界均不是四舍五入／夹紧后的合法读取。修正 K4 读取并保留第一处列表错误，嵌套列表继续保留引用身份。 |
 | 2494500–2496537 `lists_delete` / `lists_insert_value` / `lists_replace` | 写操作使用 JS `splice` 截断／相对负下标；插入 `(-2,-1]` 的特殊边界按源码处理。此处不宣称已覆盖所有类型及非有限值边界，KN 仍使用原索引语义。 |
 | 4768429 `cloud_lists_get_value:function` | 云列表与普通列表不同：非正数／无效／越界读取返回空文本，正小数截断（小于 1 时按 1）。单独保留云列表读取路径，避免严格普通列表错误检查误伤现有本地云模拟；不提供云同步。 |
-| 3516607 `m`、3521248 `change_volume_or_rate_2`、此前的 `set_volume_or_rate_2` | `all`、名称、UUID、四舍五入的一基数字选择音频；严格数值输入，百分比除 100，增减按 increase；音量夹紧 [0,1]，速率 [.05,4]。VM 输出命令并由 `web/audio.js` 消费，属性命令不停止播放；不再作为 stub。未在官方浏览器实测音频播放。 |
+| 3516607 `m`、3521248 `change_volume_or_rate_2`、此前的 `set_volume_or_rate_2` | `all`、名称、UUID、四舍五入的一基数字选择音频；严格数值输入，百分比除 100，增减按 increase；音量夹紧 [0,1]，速率 [.05,4]。VM 输出命令并由 `web/audio.js` 消费，属性命令不停止播放；不再作为 stub。后续官方音频实测、原始 bundle 偏移与完整边界见 [audio.md](audio.md)。 |
 | 2553515 `set_actor_as:function` | 旧物理世界开关，不是普通外观操作；明确归类为物理 stub，不实现物理。 |
-| 3517880 `play_words_audio:function` | TTS 调用 `lock:false`；明确为无语音输出、非阻塞 stub，不调用外部 TTS。 |
+| 3517880 `play_words_audio:function` | TTS 调用 `lock:false`；后续由 Web 本地 speechSynthesis 离线播报，CLI 无语音服务直接继续，不调用外部 TTS。不是在线音色一致，见 [audio.md](audio.md)。 |
 
 ### 可复现的官方编辑器实测
 
@@ -140,7 +140,7 @@ VM 的第一失败实际是前面的列表读取越界（分别为第 426 项／
 | 629518 摩擦、629663 弹性、665493 `set_physics_property` | 摩擦/弹性按全局 isFinite 的数值转换后夹紧 [0,1]，质量仅接受 Number 且 >0；只改已有 body，场景上执行报错。也接入质量、密度、allow_rotate、set_actor_as，set_actor_as 不再是 stub。负密度不送入 Rapier（风险边界见下）。 |
 | 628xxx `self_set_boundary` | 同时修改所有已有 world 的上/下/左/右边界；支持无、全、下、左右下，不凭空建立 world。 |
 | 630xxx `get_physics_property`、663770 `generate_clone_actor` | 旧属性读取不创建 body，无 body 返回 0；旧物理克隆继承材质，初始不碰撞、不受力、不继承速度。 |
-| 1771431 `play_words_audio_wait`、1768xxx helper `m` | 继续推进 172151013 时遇到。没有 TTS 后端，和现有 play_words_audio 一样明确 stub；无输出且立即继续，**不等于官方成功播放后的等待语义**。源码的在线 TTS 请求失败分支不取播放锁。 |
+| 1771431 `play_words_audio_wait`、1768xxx helper `m` | 后续 Web 本地语音等待 end/error/停止再继续；CLI 无 TTS 服务，不伪造文字时长并直接继续，**不等于官方成功播放后的等待语义**。源码的在线 TTS 请求失败分支不取播放锁，见 [audio.md](audio.md)。 |
 | 467xxx `compile_sync_tell` | 继续推进 326380741 时遇到；接入现有同步 tell VM，而非 noop。 |
 | 1644388 `WHOLE` | 继续推进 235277933 时遇到；修正已有 WHOLE → integer 菜单与编译器的断接。K4 用严格 Number === floor(Number) 并保留 Boolean 返回类型。 |
 

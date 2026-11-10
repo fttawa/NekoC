@@ -1,0 +1,16 @@
+{
+  "schema": "nekoc-audio-runtime-evidence-v1",
+  "checkedAt": "2026-11-10T14:20:49.108Z",
+  "command": "node tools/compat/audio-oracle.mjs",
+  "fixture": "tests/fixtures/kitten4/audio.bcm",
+  "scope": "owned 100ms inline WAV, original offline K4 player; 300ms real media clock between updates 1 and 2",
+  "player_sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160",
+  "vendor_sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867",
+  "samples": [
+    {"frame":1,"volume":0.25,"rate":2,"duration":0.1,"playing":true,"audio-after":0},
+    {"frame":2,"volume":0.25,"rate":2,"duration":0.1,"playing":false,"audio-after":1},
+    {"frame":3,"volume":0.25,"rate":2,"duration":0.1,"playing":false,"audio-after":1}
+  ],
+  "errors": [],
+  "not_verified": ["online TTS voices and scaling", "KN native bridge audio", "speaker acoustic equivalence", "all clone/stop/load races"]
+}

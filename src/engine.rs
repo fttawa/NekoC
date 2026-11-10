@@ -290,6 +290,8 @@ enum Op {
     Clear,
     Audio(usize, bool),
     AudioProperty(usize, usize, bool, bool, bool),
+    Speech(usize, bool),
+    SpeechConfig([f64; 4]),
     ClearList(ListRef),
     AppendList(ListRef, usize),
     DeleteList(ListRef, Option<Expr>),
@@ -701,6 +703,7 @@ impl RuntimeSemantics {
 
 #[derive(Debug)]
 pub struct Program {
+    audio_resources: Vec<crate::audio::Resource>,
     cloud: Vec<cloud::Binding>,
     deep_values: BTreeSet<usize>,
     semantics: RuntimeSemantics,
@@ -935,6 +938,7 @@ impl Program {
         let mut compiler = Compiler {
             start_hats,
             program: Self {
+                audio_resources: crate::audio::State::resources(project),
                 cloud: vec![],
                 deep_values: BTreeSet::new(),
                 semantics,
@@ -3423,6 +3427,26 @@ impl Compiler {
                             })?;
                         Op::AudioWait(audio)
                     }
+                    "play_words_audio" | "play_word_audio_wait" | "play_words_audio_wait" => {
+                        Op::Speech(self.value(input(b, "text")?)?, kind != "play_words_audio")
+                    }
+                    "sound_color" => {
+                        let mutation = b["mutation"].as_str().unwrap_or_default();
+                        let attribute = |name: &str| {
+                            mutation
+                                .split_once(&format!("{name}=\""))
+                                .and_then(|(_, rest)| rest.split('"').next())
+                                .and_then(|v| v.parse::<f64>().ok())
+                                .filter(|v| v.is_finite())
+                                .unwrap_or(10.0)
+                        };
+                        Op::SpeechConfig([
+                            field(b, "sound_color_per").parse().unwrap_or(0.0),
+                            attribute("sound_color_speed"),
+                            attribute("sound_color_pitch"),
+                            attribute("sound_color_volume"),
+                        ])
+                    }
                     "show_hide_variables" | "show_hide_list" => {
                         let list = kind == "show_hide_list";
                         let id = field(b, if list { "list" } else { "variable" });
@@ -4088,6 +4112,15 @@ pub struct AudioProperty {
     pub value: f64,
 }
 #[derive(Clone, Debug, Serialize)]
+pub struct SpeechCommand {
+    pub before_audio: usize,
+    pub text: String,
+    pub config: [f64; 4],
+    pub kitten4: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub wait: Option<u64>,
+}
+#[derive(Clone, Debug, Serialize)]
 pub struct Frame {
     pub sequence: u64,
     pub reset: bool,
@@ -4100,6 +4133,8 @@ pub struct Frame {
     pub logs: Vec<String>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub audio_commands: Vec<AudioCommand>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub speech_commands: Vec<SpeechCommand>,
     /// Sprite ids back to front, sent when layers change or clones appear.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<Vec<String>>,
@@ -4139,6 +4174,9 @@ pub struct Frame {
     pub budget_yield: bool,
 }
 pub struct Engine {
+    audio: crate::audio::State,
+    speech_commands: Vec<SpeechCommand>,
+    speech_config: [f64; 4],
     trace_filter: Option<BTreeSet<String>>,
     trace_truncated: bool,
     warp_iterations: u32,
@@ -4504,6 +4542,9 @@ impl Engine {
             .iter()
             .any(|s| matches!(s.event, ScriptEvent::Bump(..)));
         Self {
+            audio: crate::audio::State::default(),
+            speech_commands: vec![],
+            speech_config: [0.0, 10.0, 10.0, 10.0],
             cloud: cloud::State::default(),
             scheduler_tick: 0,
             trace_filter: None,
@@ -4634,6 +4675,7 @@ impl Engine {
         self.image_stamps.clear();
         self.monitors.clear();
         self.audio_waits.clear();
+        self.audio.reset(&self.program.audio_resources);
         self.answer = Cell::Text("".into());
         self.choice = (0.0, Cell::Text("".into()));
         self.tasks.clear();
@@ -4651,6 +4693,8 @@ impl Engine {
         self.pen_fills.clear();
         self.logs.clear();
         self.audio_commands.clear();
+        self.speech_commands.clear();
+        self.speech_config = [0.0, 10.0, 10.0, 10.0];
         self.dirty.fill(true);
         self.reset = true;
         self.cursor = 0;
@@ -4723,12 +4767,17 @@ impl Engine {
     }
     /// Resumes a task waiting in play-and-wait.
     pub fn audio_finished(&mut self, wait: u64) {
+        self.audio.finished(wait);
         if let Some(at) = self.audio_waits.iter().position(|(_, w)| *w == wait) {
             let (task, _) = self.audio_waits.remove(at);
             if let Some(task) = self.tasks.iter_mut().find(|t| t.id == task && !t.done) {
                 task.pending = task.pending.saturating_sub(1);
             }
         }
+    }
+    /// Web players use actual end/error events. CLI VMs use the simulation clock.
+    pub fn use_browser_audio(&mut self) {
+        self.audio.browser = true;
     }
     /// Moves a draggable sprite (player drag gesture).
     pub fn drag(&mut self, id: &str, x: f64, y: f64) {
@@ -4990,7 +5039,36 @@ impl Engine {
         let id = self.tasks[index].id;
         self.asks.retain(|ask| ask.task != id);
         self.stage_dialogs.retain(|dialog| dialog.task != id);
+        let waits = self
+            .audio_waits
+            .iter()
+            .filter(|(task, _)| *task == id)
+            .map(|(_, wait)| *wait)
+            .collect::<Vec<_>>();
         self.audio_waits.retain(|(task, _)| *task != id);
+        for wait in waits {
+            // Official KN registers resource-level stop on cancellation, not
+            // just lock removal. Other waits on that resource also complete.
+            if let Some(audio) = self.audio.cancel(wait) {
+                for other in self.audio.stop(&audio) {
+                    self.audio_finished(other);
+                }
+                self.audio_commands.push(AudioCommand {
+                    audio,
+                    play: false,
+                    wait: None,
+                    property: None,
+                });
+            } else {
+                // A null stop target plus wait identifies a cancelled utterance.
+                self.audio_commands.push(AudioCommand {
+                    audio: Cell::Number(f64::NAN),
+                    play: false,
+                    wait: Some(wait),
+                    property: None,
+                });
+            }
+        }
         if let Some(id) = self.tasks[index].waiter.take()
             && let Some(parent) = self
                 .tasks
@@ -7447,6 +7525,7 @@ impl Engine {
             pen_fills: std::mem::take(&mut self.pen_fills),
             logs: std::mem::take(&mut self.logs),
             audio_commands: std::mem::take(&mut self.audio_commands),
+            speech_commands: std::mem::take(&mut self.speech_commands),
             order: std::mem::take(&mut self.order_dirty).then(|| {
                 self.order
                     .iter()
@@ -8136,6 +8215,11 @@ impl Engine {
             }
             Op::Audio(i, play) => {
                 let audio = self.eval_value(i, actor);
+                if !play {
+                    for id in self.audio.stop(&audio) {
+                        self.audio_finished(id);
+                    }
+                }
                 self.audio_commands.push(AudioCommand {
                     audio,
                     play,
@@ -8143,12 +8227,46 @@ impl Engine {
                     property: None,
                 });
             }
+            Op::SpeechConfig(config) => self.speech_config = config,
+            Op::Speech(value, blocking) => {
+                let text = self.eval_value(value, actor).text();
+                // No headless TTS duration can be inferred from text. As with a
+                // failed official online synthesis, no playback lock is taken.
+                let wait = (blocking && self.audio.browser && !text.is_empty()).then(|| {
+                    let wait = self.next_audio_wait;
+                    self.next_audio_wait += 1;
+                    self.audio_waits.push((self.tasks[index].id, wait));
+                    self.tasks[index].pending += 1;
+                    wait
+                });
+                self.speech_commands.push(SpeechCommand {
+                    before_audio: self.audio_commands.len(),
+                    text,
+                    config: self.speech_config,
+                    kitten4: self.program.semantics == RuntimeSemantics::Kitten4,
+                    wait,
+                });
+                if wait.is_some() {
+                    return Ok(false);
+                }
+            }
             Op::AudioProperty(audio, value, rate, change, decrease) => {
                 // The official audio module checks typeof, without numeric coercion.
                 if let Cell::Number(value) = self.eval_value(value, actor)
-                    && value.is_finite()
+                    && !value.is_nan()
+                    && (!change || value.is_finite())
                 {
                     let audio = self.eval_value(audio, actor);
+                    let value = if value.is_finite() {
+                        value / 100.0 * if change && decrease { -1.0 } else { 1.0 }
+                    } else if value.is_sign_positive() {
+                        if rate { 4.0 } else { 1.0 }
+                    } else if rate {
+                        0.05
+                    } else {
+                        0.0
+                    };
+                    self.audio.property(&audio, rate, change, value);
                     self.audio_commands.push(AudioCommand {
                         audio,
                         play: false,
@@ -8156,7 +8274,7 @@ impl Engine {
                         property: Some(AudioProperty {
                             rate,
                             change,
-                            value: value / 100.0 * if change && decrease { -1.0 } else { 1.0 },
+                            value,
                         }),
                     });
                 }
@@ -8190,6 +8308,14 @@ impl Engine {
             Op::Stop(scope) => {
                 if scope == 0 {
                     self.stopped = true;
+                    let audio = Cell::Text("all".into());
+                    self.audio.stop(&audio);
+                    self.audio_commands.push(AudioCommand {
+                        audio,
+                        play: false,
+                        wait: None,
+                        property: None,
+                    });
                 }
                 for target in 0..self.tasks.len() {
                     let stop = match scope {
@@ -8597,6 +8723,12 @@ impl Engine {
                 let audio = self.eval_value(value, actor);
                 let wait = self.next_audio_wait;
                 self.next_audio_wait += 1;
+                if !self.audio.play(&audio, wait) && !self.audio.browser && self.logs.len() < 1024 {
+                    self.logs.push(format!(
+                        "音频 {} 时长未知：CLI 按加载失败降级，下一 tick 继续",
+                        audio.text()
+                    ));
+                }
                 self.audio_commands.push(AudioCommand {
                     audio,
                     play: true,
@@ -8676,6 +8808,7 @@ impl Engine {
                 .sum::<usize>()
                 >= 65536
             || self.audio_commands.len() >= 1024
+            || self.speech_commands.len() >= 1024
     }
     /// One scheduler pass. Returns whether the instruction/time/output budget ended it.
     fn tick(
@@ -8687,6 +8820,9 @@ impl Engine {
         total_count: &mut usize,
     ) -> Result<bool> {
         self.scheduler_tick += 1;
+        for id in self.audio.tick(dt) {
+            self.audio_finished(id);
+        }
         self.tick_stage_dialog(dt);
         // K9+f/update_dispose removes blockers at update entry. Expiration is
         // observed at the previous update's end, not guessed using a 60 Hz delta.
