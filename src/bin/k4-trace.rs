@@ -74,6 +74,7 @@ fn main() -> Result<()> {
         return Ok(());
     }
     let mut engine = Engine::new(program);
+    engine.use_virtual_clock();
     if let Some(file) = &args.costumes {
         let costumes: serde_json::Value = serde_json::from_slice(&std::fs::read(file)?)?;
         for costume in costumes.as_array().context("expected costume array")? {

@@ -24,10 +24,11 @@ export function parseArgs(argv) {
   if (argv[0] && !argv[0].startsWith("--")) args.command = argv.shift();
   const keys = { "--input": "input", "--out": "out", "--player-dir": "playerDir", "--channel": "channel",
      "--frames": "frames", "--seed": "seed", "--timeout-ms": "timeoutMs", "--diagnostics": "diagnostics",
-     "--random-source": "randomSource", "--block-filter": "blockFilter" };
+     "--random-source": "randomSource", "--block-filter": "blockFilter", "--variable-filter": "variableFilter" };
   for (let i = 0; i < argv.length; i++) {
     if (argv[i] === "--allow-assets") { args.allowAssets = true; continue; }
     if (argv[i] === "--blocks") { args.blocks = true; continue; }
+    if (argv[i] === "--virtual-time") { args.virtualTime = true; continue; }
     if (argv[i] === "--help" || argv[i] === "-h") { args.help = true; continue; }
     const key = keys[argv[i]];
     if (!key || !argv[i + 1] || argv[i + 1].startsWith("--")) throw new Error(`Invalid option: ${argv[i]}`);
@@ -305,7 +306,8 @@ export async function runOracle(input, options = {}) {
     "rAF held during load; official Start performs update 1, then one rAF batch per update",
     "native deterministic scheduler/PCG config; native Clock fixed to 1000/60 ms",
     "Math.random redirected at Start to a separate seeded native PCG instance",
-    "get_timer uses native Date wall clock, not deterministic Clock; timer-dependent traces are not cross-run deterministic",
+    options.virtualTime ? "diagnostic virtual Date: UTC 2000-01-01 + update count / 60 (not native wall-clock behavior)" :
+      "get_timer uses native Date wall clock, not deterministic Clock; timer-dependent traces are not cross-run deterministic",
   ];
   if (options.randomSource === "nekoc") kernel.diagnostics.instrumentation.push(
     "random block calls only: xorshift64 override matches NekoC draws; incidental Math.random stays on native PCG");
@@ -327,7 +329,23 @@ export async function runOracle(input, options = {}) {
     kernel.diagnostics.phase = "trace";
     const importMs = options.measurePerformance ? previousNavigationMs + await kernel.page.evaluate(() => performance.now()) : 0;
     if (options.beforeStart) await options.beforeStart(kernel.page, project);
-    await kernel.page.evaluate(({ seed, blocks, randomSource, blockFilter, measurePerformance, warmup }) => {
+    if (options.virtualTime) await kernel.page.evaluate(() => {
+      const NativeDate = Date;
+      const manager = window.__k4OracleContainer.get(window.__k4OracleBinding.RuntimeManager);
+      const now = () => 946684800000 + manager.frames * 1000 / 60;
+      window.Date = class extends NativeDate {
+        constructor(...args) { super(...(args.length ? args : [now()])); }
+        static now() { return now(); }
+        getFullYear() { return this.getUTCFullYear(); }
+        getMonth() { return this.getUTCMonth(); }
+        getDate() { return this.getUTCDate(); }
+        getDay() { return this.getUTCDay(); }
+        getHours() { return this.getUTCHours(); }
+        getMinutes() { return this.getUTCMinutes(); }
+        getSeconds() { return this.getUTCSeconds(); }
+      };
+    });
+    await kernel.page.evaluate(({ seed, blocks, randomSource, blockFilter, variableFilter, measurePerformance, warmup }) => {
       const req = window.__k4OracleRequire;
       const heart = req("KmiX").b();
       const prngSeed = { seed_high: 0, seed_low: seed, inc_high: 0, inc_low: 1 };
@@ -361,6 +379,7 @@ export async function runOracle(input, options = {}) {
       const events = [];
       let traceTruncated = false;
       const filter = blockFilter ? new Set(blockFilter.split(",")) : null;
+      const variableIds = variableFilter ? new Set(variableFilter.split(",")) : null;
       if (blocks || randomSource === "nekoc") {
         const manager = window.__k4OracleContainer.get(window.__k4OracleBinding.RuntimeManager);
         let current = null;
@@ -450,6 +469,7 @@ export async function runOracle(input, options = {}) {
           }
         }
         for (const [id, variable] of Object.entries(state.variable_states)) {
+          if (variableIds && !variableIds.has(id)) continue;
           variable_names[id] = variable.name;
           variables[id] = manager.get_variable(id, undefined, variable.current_entity);
           if (!variable.is_global && variable.current_entity) {
@@ -459,6 +479,7 @@ export async function runOracle(input, options = {}) {
           }
         }
         for (const [id, variable] of Object.entries(window.CmCloud?.db.get_variables() || {})) {
+          if (variableIds && !variableIds.has(id)) continue;
           variable_names[id] = variable.name;
           variables[id] = variable.type === "public_list" ? manager.lists_get(id) : manager.get_variable(id);
         }
@@ -482,7 +503,7 @@ export async function runOracle(input, options = {}) {
       }
       heart.get_event_bus().runtime_manager.after_update.immediate.sub(() => frames.push(measurePerformance ? { frame: frames.length + 1 } : snapshot()));
       window.__k4Oracle = { frames, errors, heart, events, snapshot, timings, heaps, warmup, get traceTruncated() { return traceTruncated; } };
-    }, { seed: options.seed ?? 1, blocks: !!options.blocks, randomSource: options.randomSource, blockFilter: options.blockFilter,
+    }, { seed: options.seed ?? 1, blocks: !!options.blocks, randomSource: options.randomSource, blockFilter: options.blockFilter, variableFilter: options.variableFilter,
       measurePerformance: !!options.measurePerformance, warmup: options.warmup ?? 0 });
     if ((options.frames ?? 60) > 0) {
       // Use the player's Start entry, including anonymous/cloud initialization,
@@ -532,7 +553,7 @@ export async function runOracle(input, options = {}) {
 async function main() {
   const options = parseArgs(process.argv.slice(2));
   if (options.help || !options.input) {
-    console.log("Usage: node tools/compat/k4-oracle.mjs run|compile --input work.bcm [--out output.json] [--player-dir app] [--frames 60] [--seed 1] [--channel msedge] [--allow-assets] [--blocks] [--block-filter id,id] [--random-source pcg|nekoc] [--diagnostics log.json]");
+    console.log("Usage: node tools/compat/k4-oracle.mjs run|compile --input work.bcm [--out output.json] [--player-dir app] [--frames 60] [--seed 1] [--channel msedge] [--allow-assets] [--blocks] [--block-filter id,id] [--variable-filter id,id] [--virtual-time] [--random-source pcg|nekoc] [--diagnostics log.json]");
     if (!options.help) process.exitCode = 2;
     return;
   }

@@ -66,6 +66,8 @@ enum Unary {
     Floor,
     Ceil,
     Round,
+    /// K4 oiyH trigonometry rounds its result to two decimal places.
+    Round2,
     Sin,
     Cos,
     Tan,
@@ -100,6 +102,7 @@ impl Unary {
             Self::Floor => v.floor(),
             Self::Ceil => v.ceil(),
             Self::Round => (v + 0.5).floor(),
+            Self::Round2 => k4_round(v),
             Self::Sin => v.to_radians().sin(),
             Self::Cos => v.to_radians().cos(),
             Self::Tan => v.to_radians().tan(),
@@ -2616,6 +2619,11 @@ impl Compiler {
             _ => bail!("unsupported expression {kind} at block {}", b["id"]),
         };
         self.expression_work.push(op);
+        if self.program.semantics == RuntimeSemantics::Kitten4
+            && matches!(kind, "math_trig" | "math_arc_trig")
+        {
+            self.expression_work.push(ExprOp::Unary(Unary::Round2));
+        }
         Ok(())
     }
     fn scripts(&mut self, owner: &Value, actor: usize) -> Result<()> {
@@ -4127,6 +4135,8 @@ pub struct Engine {
     audio_commands: Vec<AudioCommand>,
     clear: bool,
     time: f64,
+    /// Offline diagnostics: epoch seconds + simulation time, never wall time.
+    virtual_epoch: Option<f64>,
     timer: f64,
     timer_running: bool,
     timer_visible: bool,
@@ -4217,9 +4227,18 @@ impl Engine {
             .scripts
             .get(task.script)
             .map(|s| s.hat.as_str());
-        let entry = serde_json::json!({"frame":self.sequence.max(1), "event":event,
+        let mut entry = serde_json::json!({"frame":self.sequence.max(1), "event":event,
             "entity":self.sprites[task.actor].id, "hat":hat,
             "block":block.map(|pc| &self.program.sources[pc]), "pc":task.pc});
+        if event == "block" && self.trace_filter.is_some() {
+            let scalars: BTreeMap<_, _> = self.sprites[task.actor]
+                .variables
+                .iter()
+                .filter(|(_, v)| !matches!(v, Cell::List(_)))
+                .map(|(&i, v)| (self.program.actor_variable_names[i].clone(), v.clone()))
+                .collect();
+            entry["entityScalars"] = serde_json::json!(scalars);
+        }
         self.oracle_events.as_mut().unwrap().push(entry);
     }
     fn trace_list_lengths(&self) -> Option<Vec<usize>> {
@@ -4277,8 +4296,23 @@ impl Engine {
         for (i, id) in self.program.list_names.iter().enumerate() {
             variables.insert(id.clone(), serde_json::json!(self.list_values(i)));
         }
+        let entity_variables: BTreeMap<_, _> = self
+            .sprites
+            .iter()
+            .filter(|a| a.alive && !a.stage)
+            .map(|a| {
+                let values: BTreeMap<_, _> = a
+                    .variables
+                    .iter()
+                    .map(|(&i, value)| {
+                        (self.program.actor_variable_names[i].clone(), value.clone())
+                    })
+                    .collect();
+                (a.id.clone(), values)
+            })
+            .collect();
         serde_json::json!({"frame": frame, "current_scene_id": self.program.scenes[self.current_scene].id,
-            "actors": actors, "variables": variables, "entity_variables": {}})
+            "actors": actors, "variables": variables, "entity_variables": entity_variables})
     }
 
     pub fn active_tasks(&self) -> usize {
@@ -4462,6 +4496,7 @@ impl Engine {
             audio_commands: vec![],
             clear: true,
             time: 0.0,
+            virtual_epoch: None,
             timer: 0.0,
             timer_running: true,
             timer_visible: false,
@@ -5112,7 +5147,12 @@ impl Engine {
                     distance
                 }
             }
-            ExprOp::Time(unit) => local_time(self.tz_offset_min)[unit as usize],
+            ExprOp::Time(unit) => {
+                let now = self
+                    .virtual_epoch
+                    .map_or_else(wall_time, |epoch| epoch + self.time);
+                local_time(now, self.tz_offset_min)[unit as usize]
+            }
             ExprOp::Effect(target, scope) => {
                 let a = &self.sprites[if target == usize::MAX { actor } else { target }];
                 if scope == 1 {
@@ -7055,14 +7095,24 @@ impl Engine {
                     "星期五",
                     "星期六",
                 ];
-                Cell::Text(DAYS[local_time(self.tz_offset_min)[4] as usize].into())
+                let now = self
+                    .virtual_epoch
+                    .map_or_else(wall_time, |epoch| epoch + self.time);
+                Cell::Text(DAYS[local_time(now, self.tz_offset_min)[4] as usize].into())
             }
             ValueExpr::Compare(a, b, op) => {
                 let a = self.eval_value(a, actor);
                 let b = self.eval_value(b, actor);
+                let equal = || {
+                    if self.program.semantics == RuntimeSemantics::Kitten4 {
+                        a.k4_equals(&b)
+                    } else {
+                        a.equals(&b)
+                    }
+                };
                 let result = match op {
-                    Binary::Eq => a.equals(&b),
-                    Binary::Ne => !a.equals(&b),
+                    Binary::Eq => equal(),
+                    Binary::Ne => !equal(),
                     _ => {
                         if let (Cell::Text(a), Cell::Text(b)) = (&a, &b) {
                             match op {
@@ -7158,6 +7208,14 @@ impl Engine {
     pub fn advance(&mut self, dt: f64, max_instructions: usize, budget: Duration) -> Result<Frame> {
         self.advance_with(dt, max_instructions, budget, 1)
     }
+    /// Use a fixed UTC epoch (2000-01-01) for calendar reporters and ignore the
+    /// wall-clock execution budget. Timer/waits already use the supplied dt.
+    /// Instruction/output limits remain deterministic safety bounds. This does
+    /// not attach a cloud backend, load assets, or synthesize external input.
+    pub fn use_virtual_clock(&mut self) {
+        self.virtual_epoch = Some(946_684_800.0);
+        self.tz_offset_min = 0.0;
+    }
     /// Like `advance`, but when a tick ends with no visible change (no pen output,
     /// clear, stamp, sprite or layer change) and nothing hit the budget, immediately
     /// runs up to `max_ticks - 1` more ticks in the same frame with dt = 0. Waits on
@@ -7198,7 +7256,7 @@ impl Engine {
                 || visible
                 || !runnable
                 || ticks >= max_ticks.max(1)
-                || started.elapsed() >= budget
+                || (self.virtual_epoch.is_none() && started.elapsed() >= budget)
             {
                 break;
             }
@@ -8532,7 +8590,8 @@ impl Engine {
             let mut since_clock = 0usize;
             loop {
                 if count >= max_instructions
-                    || ((std::mem::take(&mut clock_due) || count.is_multiple_of(256))
+                    || (self.virtual_epoch.is_none()
+                        && (std::mem::take(&mut clock_due) || count.is_multiple_of(256))
                         && started.elapsed() >= budget)
                     || self.output_limit_reached()
                 {
@@ -8637,10 +8696,13 @@ pub fn encode_frame(frame: &Frame) -> Result<Vec<u8>> {
 }
 
 /// [year, month, date, -, weekday (Sunday 0), hour, minute, second] in local time.
-fn local_time(offset_min: f64) -> [f64; 8] {
-    let now = std::time::SystemTime::now()
+fn wall_time() -> f64 {
+    std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
-        .map_or(0.0, |d| d.as_secs_f64());
+        .map_or(0.0, |d| d.as_secs_f64())
+}
+
+fn local_time(now: f64, offset_min: f64) -> [f64; 8] {
     let local = (now + offset_min * 60.0).floor() as i64;
     let days = local.div_euclid(86_400);
     let secs = local.rem_euclid(86_400);

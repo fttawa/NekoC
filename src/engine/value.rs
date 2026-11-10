@@ -142,6 +142,88 @@ impl Cell {
             _ => false,
         }
     }
+    /// K4 oiyH/logic_compare calls lodash isEqual (Y+p1), not JS ===.
+    /// List search still uses `equals`/`index_in` and reference identity.
+    pub fn k4_equals(&self, other: &Self) -> bool {
+        // Explicit work stack avoids recursive comparison overflow. Track only
+        // the active path, as lodash does, so shared lists need not alias alike.
+        let mut work = vec![Some((self.clone(), other.clone()))];
+        let mut active = Vec::new();
+        while let Some(pair) = work.pop() {
+            let Some((a, b)) = pair else {
+                active.pop();
+                continue;
+            };
+            let equal = match (&a, &b) {
+                (Self::Number(a), Self::Number(b)) => a == b || (a.is_nan() && b.is_nan()),
+                (Self::List(a), Self::List(b)) => {
+                    if Rc::ptr_eq(a, b) {
+                        continue;
+                    }
+                    let pointers = (Rc::as_ptr(a), Rc::as_ptr(b));
+                    if let Some(previous) = active
+                        .iter()
+                        .find(|&&(a, b)| a == pointers.0 || b == pointers.1)
+                    {
+                        if *previous != pointers {
+                            return false;
+                        }
+                        continue;
+                    }
+                    let (a, b) = (a.borrow(), b.borrow());
+                    if a.len() != b.len() {
+                        return false;
+                    }
+                    active.push(pointers);
+                    work.push(None);
+                    work.extend(
+                        a.iter()
+                            .zip(b.iter())
+                            .map(|(a, b)| Some((a.clone(), b.clone()))),
+                    );
+                    true
+                }
+                (Self::Costume(a), Self::Costume(b)) => a == b,
+                _ => a.equals(&b),
+            };
+            if !equal {
+                return false;
+            }
+        }
+        true
+    }
+}
+
+#[cfg(test)]
+mod equality_tests {
+    use super::*;
+
+    #[test]
+    fn k4_structural_equality_does_not_change_strict_search() {
+        let a = Cell::from_json(&serde_json::json!([[1, 2], true, "x"])).unwrap();
+        let b = Cell::from_json(&serde_json::json!([[1, 2], true, "x"])).unwrap();
+        assert!(a.k4_equals(&b));
+        assert!(!a.equals(&b));
+        assert_eq!(a.index_in(std::slice::from_ref(&b)), None);
+        assert_eq!(a.index_in(std::slice::from_ref(&a)), Some(0));
+        assert!(!a.k4_equals(&Cell::from_json(&serde_json::json!([[1, 3], true, "x"])).unwrap()));
+        assert!(Cell::Number(f64::NAN).k4_equals(&Cell::Number(f64::NAN)));
+        assert!(!Cell::Number(1.0).k4_equals(&Cell::Text("1".into())));
+        assert!(Cell::Costume("id".into()).k4_equals(&Cell::Costume("id".into())));
+    }
+
+    #[test]
+    fn k4_cyclic_lists_compare_without_recursion() {
+        let a = Rc::new(RefCell::new(vec![]));
+        let b = Rc::new(RefCell::new(vec![]));
+        a.borrow_mut().push(Cell::List(a.clone()));
+        b.borrow_mut().push(Cell::List(b.clone()));
+        assert!(Cell::List(a.clone()).k4_equals(&Cell::List(b.clone())));
+        b.borrow_mut().push(Cell::Null);
+        assert!(!Cell::List(a.clone()).k4_equals(&Cell::List(b.clone())));
+        a.borrow_mut().clear();
+        b.borrow_mut().clear();
+    }
 }
 impl Serialize for Cell {
     fn serialize<S: Serializer>(&self, s: S) -> Result<S::Ok, S::Error> {

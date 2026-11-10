@@ -1,5 +1,7 @@
 # K4 剩余列表运行错误
 
+> 本页是前一轮调查记录。后续固定输入、debug/release 确定性及 305999424 第 29 帧错误见 [kitten4-runerr2.md](kitten4-runerr2.md)；本页历史 200 ms coverage 分布不能视作确定性复验。
+
 ## 证据范围
 
 只读检查离线播放器 `src/player/build/player_v2.2d180c468559fbd29528.js.orig`；资源 SHA-256 和八个自制探针的文件 SHA-256、四帧变量及任务边界见 [kitten4-run-error-evidence.json](kitten4-run-error-evidence.json)。不携带内核源码或第三方作品。没有使用/移植 HateNeko。
@@ -40,7 +42,7 @@ cargo test --test kitten4_run_errors
 - 双方 `--blocks --block-filter id,id` 过滤积木，不过滤任务边界。官方对指定积木增加 `input/output`，即时深拷贝实参，不重跑 reporter 或更改列表。
 - NekoC 事件上限与官方一样 500000，显式 `traceTruncated`；截断不干预运行，不可据截断后缺少事件推断没执行。
 - oracle `--random-source nekoc` 是**诊断输入替换**：只在 random 积木调用期间使用 NekoC 的 xorshift64，UUID/渲染等随机调用不占用该流。默认仍为原有官方 PCG。它不是官方 PRNG 一致性的证据，也暂不覆盖随机移动/朝向目标。PCG 与 xorshift 的相同 seed 不等价。
-- `node tools/compat/k4-run-error-corpus.mjs <只读语料目录> --official` 在 `dist/runerr/multiseed/` 保存 seed 1、6、42 全语料 60 帧 coverage；两个目标另保存过滤积木追踪（florr 8 帧、305999424 3 帧）。这是运行 stage 分布，不是全语料状态相等证明。
+- `node tools/compat/k4-run-error-corpus.mjs <只读语料目录> --profile debug --official` 在 `dist/runerr2/debug/` 保存 seed 1、6、42 全语料 60 帧 coverage（可指定 release 或 --out）；两个目标另保存过滤积木追踪（florr 8 帧、305999424 3 帧）。这是运行 stage 分布，不是全语料状态相等证明。
 
 ## 未验证/限制
 

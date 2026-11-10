@@ -1,5 +1,7 @@
 # Kitten 4 调度对齐记录
 
+离线 coverage/trace 的固定时间和确定性预算后续改动见 [kitten4-runerr2.md](kitten4-runerr2.md)。正常播放器仍使用墙钟预算；虚拟时间不是官方原生时间行为的声明。
+
 ## 证据边界
 
 本次只读检查外部播放器 `resources/app/src/player/build/player_v2.2d180c468559fbd29528.js.orig`，通过 webpack 模块 ID 定位原始实现；没有移植第三方内核。资源路径及 SHA-256 见 [kitten4-scheduling-evidence.json](kitten4-scheduling-evidence.json)。外部作品不属于回归夹具，也没有加入仓库。

@@ -100,7 +100,8 @@ pub fn coverage(source: &Value, frames: u32) -> Value {
     coverage_with_seed(source, frames, None)
 }
 
-/// A fixed seed makes random-dependent runtime failures reproducible.
+/// Offline coverage uses virtual time and deterministic instruction/output
+/// bounds. A fixed seed additionally fixes the random block input stream.
 pub fn coverage_with_seed(source: &Value, frames: u32, seed: Option<u64>) -> Value {
     use crate::engine::{Engine, Program};
     let project = match to_neko(source) {
@@ -126,15 +127,19 @@ pub fn coverage_with_seed(source: &Value, frames: u32, seed: Option<u64>) -> Val
         .map_err(|error| ("compile", error))
         .and_then(|program| {
             let mut engine = Engine::new(program);
+            engine.use_virtual_clock();
             if let Some(seed) = seed {
                 engine.set_random_seed(seed);
             }
             engine.start();
+            let mut budget_frames = 0u32;
             for _ in 0..frames {
-                engine
+                let frame = engine
                     .advance(1.0 / 60.0, 2_000_000, std::time::Duration::from_millis(200))
                     .map_err(|error| ("run", error))?;
+                budget_frames += u32::from(frame.budget_yield);
             }
+            report["budget_frames"] = json!(budget_frames);
             Ok(())
         });
     match result {

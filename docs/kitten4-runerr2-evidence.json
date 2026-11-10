@@ -1,0 +1,178 @@
+{
+  "schema": "nekoc-k4-runerr2-evidence-v1",
+  "cases": {
+    "equality": {
+      "sha256": "8d27705890d87150461a5ae3aeb0e8aaed0c16befc816c5a9c899a893235458b",
+      "variables": [
+        {
+          "log": 1,
+          "result": [
+            true,
+            true,
+            [
+              1,
+              2
+            ],
+            false
+          ]
+        },
+        {
+          "log": 1,
+          "result": [
+            true,
+            true,
+            [
+              1,
+              2
+            ],
+            false
+          ]
+        },
+        {
+          "log": 1,
+          "result": [
+            true,
+            true,
+            [
+              1,
+              2
+            ],
+            false
+          ]
+        },
+        {
+          "log": 1,
+          "result": [
+            true,
+            true,
+            [
+              1,
+              2
+            ],
+            false
+          ]
+        }
+      ],
+      "errors": []
+    },
+    "trig": {
+      "sha256": "37f66b0e041b94aa9f678866ef61b5f7598e4d45970f700bc242bfb006adf536",
+      "variables": [
+        {
+          "log": 0,
+          "result": [
+            0.95,
+            0.31,
+            -0.95,
+            26.57
+          ]
+        },
+        {
+          "log": 0,
+          "result": [
+            0.95,
+            0.31,
+            -0.95,
+            26.57
+          ]
+        },
+        {
+          "log": 0,
+          "result": [
+            0.95,
+            0.31,
+            -0.95,
+            26.57
+          ]
+        },
+        {
+          "log": 0,
+          "result": [
+            0.95,
+            0.31,
+            -0.95,
+            26.57
+          ]
+        }
+      ],
+      "errors": []
+    },
+    "clock": {
+      "sha256": "cc1d68d5be8e4fb6d77cdc11c117670d3390179843fb771fc2873a6cfb081727",
+      "variables": [
+        {
+          "log": 0,
+          "result": [
+            2000,
+            "星期六",
+            1
+          ]
+        },
+        {
+          "log": 0,
+          "result": [
+            2000,
+            "星期六",
+            1
+          ]
+        },
+        {
+          "log": 0,
+          "result": [
+            2000,
+            "星期六",
+            1,
+            2
+          ]
+        },
+        {
+          "log": 0,
+          "result": [
+            2000,
+            "星期六",
+            1,
+            2
+          ]
+        }
+      ],
+      "errors": []
+    }
+  },
+  "assets": [
+    {
+      "name": "player_v2__3ffeebbd0c789e8d9422.css",
+      "source": "player_v2__3ffeebbd0c789e8d9422.css",
+      "sha256": "39e8e70b124b604831773893cdc95931cdee3eaea52c6dd69f33f5781d48b45a"
+    },
+    {
+      "name": "runtime.f42f527f119e09010b85.js",
+      "source": "runtime.f42f527f119e09010b85.js",
+      "sha256": "4164d67795238f64d035f473418236038ae475ae36032a967cba16ede263735f"
+    },
+    {
+      "name": "vendors.d00f4bd454a6352e9d71.js",
+      "source": "vendors.d00f4bd454a6352e9d71.js",
+      "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
+    },
+    {
+      "name": "player_v2.2d180c468559fbd29528.js",
+      "source": "player_v2.2d180c468559fbd29528.js.orig",
+      "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160"
+    },
+    {
+      "name": "9.c396696e9dc71e25b012.js",
+      "source": "9.c396696e9dc71e25b012.js",
+      "sha256": "5758343310c47596d56e954aa05fa76a546080c8bf4fefd41cac0042794d6195"
+    },
+    {
+      "name": "14.c95e6f2ddd61fb701d0e.js",
+      "source": "14.c95e6f2ddd61fb701d0e.js",
+      "sha256": "d3ce91c9113463db4c0988210caeb1be2ddc508499d5c53a8e73a13b5f440175"
+    },
+    {
+      "name": "11.477512e6f03fd2f6f3c5.js",
+      "source": "11.477512e6f03fd2f6f3c5.js",
+      "sha256": "e81bfe3462cc3e79a70ba016ddee2a372a31480d3f52964952e1d21f3a490f91"
+    }
+  ]
+}
