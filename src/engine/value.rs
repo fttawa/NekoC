@@ -140,6 +140,7 @@ pub(super) struct Span {
 }
 #[derive(Clone, Copy, Debug)]
 pub(super) enum ValueExpr {
+    Ranking(bool),
     Calculate(usize),
     Whole(usize),
     Number(super::Expr),

@@ -175,7 +175,10 @@ export async function openKernel(options, input) {
     const page = await context.newPage();
     page.on("pageerror", e => diagnostics.pageErrors.push(e.message));
     page.on("requestfailed", request => diagnostics.failedRequests.push({ url: request.url(), error: request.failure()?.errorText }));
-    page.on("console", m => { if (diagnostics.console.length < 200) diagnostics.console.push({ type: m.type(), text: m.text() }); });
+    page.on("console", m => {
+      // Large works can fill the log cap before their first runtime error.
+      if (diagnostics.console.length < 200 || (m.type() === "error" && diagnostics.console.length < 220)) diagnostics.console.push({ type: m.type(), text: m.text() });
+    });
     await page.addInitScript(() => {
       // Hold rAF until the harness explicitly advances a frame; boot uses real timers.
       const callbacks = new Map(); let serial = 0;
@@ -285,6 +288,15 @@ export async function runOracle(input, options = {}) {
       clock.ms_per_update = 1000 / 60;
       clock.current_time = 0;
       const errors = [], frames = [];
+      // The player's own error subscriber can stop/reset before later bus
+      // subscribers run. Observe the native reporting boundary without changing it.
+      const runtime = window.__k4OracleContainer.get(window.__k4OracleBinding.RuntimeManager);
+      const reportError = runtime.report_error_and_stop;
+      runtime.report_error_and_stop = function (error, where) {
+        errors.push(JSON.stringify({ category: error.category, code: error.code,
+          message: error.message, annotation: error.annotation, where }));
+        return reportError.call(this, error, where);
+      };
       const events = [];
       let traceTruncated = false;
       if (blocks) {
@@ -362,6 +374,10 @@ export async function runOracle(input, options = {}) {
             }
           }
         }
+        for (const [id, variable] of Object.entries(window.CmCloud?.db.get_variables() || {})) {
+          variable_names[id] = variable.name;
+          variables[id] = variable.type === "public_list" ? manager.lists_get(id) : manager.get_variable(id);
+        }
         // Lists are mutable in the runtime: detach each frame, or later writes
         // would retroactively change every earlier snapshot.
         return structuredClone({ frame: frames.length + 1, current_scene_id: stage.core.scenes.get_current_scene(),
@@ -371,17 +387,21 @@ export async function runOracle(input, options = {}) {
       window.__k4Oracle = { frames, errors, heart, events, get traceTruncated() { return traceTruncated; } };
     }, { seed: options.seed ?? 1, blocks: !!options.blocks });
     if ((options.frames ?? 60) > 0) {
-      await kernel.page.evaluate(() => window.__k4OracleRequire("vxpV").m());
-      await kernel.page.waitForFunction(() => window.__k4Oracle.frames.length > 0 || window.__k4Oracle.errors.length > 0,
+      // Use the player's Start entry, including anonymous/cloud initialization,
+      // rather than bypassing it with the lower-level run function (m).
+      await kernel.page.evaluate(() => window.__k4OracleRequire("vxpV").n());
+      await kernel.page.waitForFunction(() => window.__k4Oracle.frames.length > 0 || window.__k4Oracle.errors.length > 0 || window.__k4OracleRequire("ALsR").a.get_state().run_states.is_error,
         null, { timeout: options.timeoutMs || 45000, polling: 20 });
       // Start emits the first update synchronously. Each subsequent rAF batch is
       // exactly one official scheduler update; never use wall-clock sleeps as frames.
       for (let frame = 1; frame < (options.frames ?? 60); frame++) {
+        if (await kernel.page.evaluate(() => window.__k4OracleRequire("ALsR").a.get_state().run_states.is_error)) break;
         await kernel.page.evaluate(timestamp => window.__k4OracleFrame(timestamp), frame * 1000 / 60);
       }
     }
     const result = await kernel.page.evaluate(() => ({ frames: window.__k4Oracle.frames, errors: window.__k4Oracle.errors,
       events: window.__k4Oracle.events, traceTruncated: window.__k4Oracle.traceTruncated }));
+    if (await kernel.page.evaluate(() => window.__k4OracleRequire("ALsR").a.get_state().run_states.is_error)) result.errors.push("official player run_states.is_error");
     if (result.errors.length || result.frames.length !== (options.frames ?? 60)) {
       kernel.diagnostics.partialTrace = result;
       throw new Error(`Official runtime failed: ${JSON.stringify({ errors: result.errors, frames: result.frames.length })}`);

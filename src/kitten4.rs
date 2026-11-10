@@ -204,7 +204,8 @@ fn lower_for_vm_inner(project: &Value) -> crate::json::Json {
         ),
         None => crate::json::clone_value(project),
     });
-    // Cloud data has no service to talk to here, so it behaves as local variables.
+    // TL4g/Ct + vxpV/I + O8fc/UserVariableImpl: anonymous/offline Start
+    // supplies no cloud specs, so first access defaults to 0 / [], not saved value.
     if let Some(cloud) = project
         .pointer(&format!("/{METADATA}/source/cloud_variables"))
         .and_then(Value::as_object)
@@ -215,6 +216,7 @@ fn lower_for_vm_inner(project: &Value) -> crate::json::Json {
                 "id": id, "name": variable["name"],
                 "type": if list { "list" } else { "variable" },
                 "value": if list { json!([]) } else { json!(0) },
+                "cloud": variable,
             });
         }
     }
@@ -434,9 +436,6 @@ fn is_stub(kind: &str) -> bool {
             | "set_layer_with_pen"
             | "set_entity_show_hide"
             | "self_shake"
-            | "show_ranking"
-            | "hide_ranking"
-            | "is_ranking_show_hide"
             | "play_video"
             | "play_video_until_end"
             | "continue_pause_video"
@@ -504,13 +503,24 @@ fn lower_block(block: &mut Value, targets: &Targets) {
                 "NUM",
                 if kind == "wood_block_get" { "NaN" } else { "0" },
             );
-        } else if kind == "is_ranking_show_hide" {
-            let hidden = field(block, "VAL") == "hide";
-            block["type"] = json!("logic_boolean");
-            put_field(block, "BOOL", if hidden { "TRUE" } else { "FALSE" });
         } else {
             block["type"] = json!("kitten4_noop");
         }
+        return;
+    }
+    if matches!(
+        kind.as_str(),
+        "cloud_variables_set"
+            | "change_cloud_variable"
+            | "cloud_lists_append"
+            | "cloud_lists_insert_value"
+            | "cloud_lists_delete"
+            | "cloud_lists_replace"
+            | "show_ranking"
+            | "hide_ranking"
+            | "is_ranking_show_hide"
+    ) {
+        block["type"] = json!(format!("kitten4_{kind}"));
         return;
     }
     if let Some(list) = kind.strip_prefix("cloud_lists_") {
@@ -535,16 +545,6 @@ fn lower_block(block: &mut Value, targets: &Targets) {
         "cloud_variables_get" => {
             fields(block, &[("VAR", "variable")], false);
             "variables_get"
-        }
-        "cloud_variables_set" => {
-            fields(block, &[("VAR", "variable")], false);
-            inputs(block, &[("VALUE", "value")], false);
-            "variables_set"
-        }
-        "change_cloud_variable" => {
-            fields(block, &[("valname", "variable")], false);
-            inputs(block, &[("n", "value")], false);
-            "change_variables"
         }
         "show_hide_cloud_variable" => {
             fields(block, &[("VAR", "variable"), ("FUNC", "show_hide")], false);

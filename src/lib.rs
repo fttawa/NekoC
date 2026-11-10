@@ -1,6 +1,7 @@
 pub mod analysis;
 pub mod bcmkn;
 pub mod bcmkn_compiler;
+pub mod cloud;
 pub mod decompile;
 pub mod diff;
 pub mod engine;
