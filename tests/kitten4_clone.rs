@@ -246,6 +246,8 @@ fn split_collision_condition_remains_active_and_hot_keys_fall_back_safely() {
 fn kitten4_clone_cannot_copy_itself_as_a_mirror() {
     for interpreted in [true, false] {
         let mut engine = load("clone-mirrorSelf", interpreted);
+        // Official queues mirror initialization until the next update.
+        advance(&mut engine, 1);
         let error = engine
             .advance(1.0 / 60.0, 100_000, Duration::from_secs(1))
             .unwrap_err();

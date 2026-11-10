@@ -2,8 +2,8 @@
 //! that can suspend, spawn or switch tasks side-exits to the interpreter, which
 //! stays the single source of truth for semantics. Instruction counts are exact.
 use super::{
-    Binary, Cell, Engine, Expr, ExprOp, ListRef, Op, Target, Unary, ValueExpr, contains_list,
-    list_index,
+    Binary, Cell, Engine, Expr, ExprOp, ListRef, Op, RuntimeSemantics, Target, Unary, ValueExpr,
+    contains_list, list_index,
 };
 use anyhow::anyhow;
 use cranelift_codegen::ir::{
@@ -317,7 +317,8 @@ extern "C" fn h_unary(op: u64, v: f64) -> f64 {
 /// 0: skip the body, 1: entered.
 unsafe extern "C" fn h_repeat(c: *mut NativeContext, n: f64) -> u64 {
     let c = unsafe { &mut *c };
-    let n = n.floor().clamp(0.0, u32::MAX as f64) as u64;
+    let k4 = unsafe { (*c.engine).program.semantics == RuntimeSemantics::Kitten4 };
+    let n = if k4 { n.ceil() } else { n.floor() }.clamp(0.0, u32::MAX as f64) as u64;
     if n == 0 {
         return 0;
     }
@@ -1481,6 +1482,34 @@ mod tests {
         b.seal_all_blocks();
         b.finalize();
         context
+    }
+
+    #[test]
+    fn fractional_kitten4_repeat_really_compiles_a_native_region() {
+        let source = crate::json::from_str(include_str!(
+            "../../tests/fixtures/kitten4/scheduling-fractional.bcm"
+        ))
+        .unwrap();
+        let project = crate::kitten4::to_neko(&source).unwrap();
+        let mut engine = Engine::new(super::super::Program::compile(&project).unwrap());
+        for _ in 0..650 {
+            engine.start();
+            for _ in 0..4 {
+                engine
+                    .advance(1.0 / 60.0, 10000, std::time::Duration::from_secs(5))
+                    .unwrap();
+            }
+            assert_eq!(engine.oracle_snapshot(4)["variables"]["log"], "AAC");
+        }
+        assert!(
+            engine
+                .jit
+                .as_ref()
+                .expect("native JIT required for this test")
+                .regions
+                .iter()
+                .any(Option::is_some)
+        );
     }
 
     #[test]

@@ -602,6 +602,7 @@ pub struct AskRequest {
 #[derive(Clone, Debug)]
 struct Script {
     start: usize,
+    hat: String,
     actor: usize,
     event: ScriptEvent,
 }
@@ -744,6 +745,7 @@ pub(crate) struct PreparedProject<'a> {
     pub project: PreparedJson<'a>,
     semantics: RuntimeSemantics,
     start_hats: crate::kitten4::StartHats,
+    k4_owners: Vec<String>,
 }
 
 pub(crate) enum PreparedJson<'a> {
@@ -771,7 +773,12 @@ impl PreparedProject<'_> {
     pub fn compile(&self, project: &Value) -> Result<Program> {
         crate::json::check_blocks(project, 64)?;
         crate::json::expanded(|| {
-            Program::compile_canonical(project, self.semantics, self.start_hats.clone())
+            Program::compile_canonical(
+                project,
+                self.semantics,
+                self.start_hats.clone(),
+                &self.k4_owners,
+            )
         })
     }
 }
@@ -818,6 +825,23 @@ impl Program {
         } else {
             crate::kitten4::StartHats::new()
         };
+        let source = &project["_nekocKitten4"]["source"];
+        let k4_owners = if let Some(compiled) = source["compile_result"].as_array() {
+            compiled
+                .iter()
+                .filter_map(|e| e["id"].as_str().map(str::to_owned))
+                .collect()
+        } else {
+            ["scenes", "actors"]
+                .into_iter()
+                .flat_map(|section| {
+                    source["theatre"][section]
+                        .as_object()
+                        .into_iter()
+                        .flat_map(|o| o.keys().cloned())
+                })
+                .collect()
+        };
         let project = if unpack && crate::pack::is_packed(project) {
             PreparedJson::Owned(crate::pack::unpack(project)?)
         } else {
@@ -826,18 +850,24 @@ impl Program {
         let project = if semantics == RuntimeSemantics::Kitten4 {
             PreparedJson::Owned(crate::kitten4::lower_for_vm(&project))
         } else {
-            project
+            // KN historically used serde_json's sorted object maps. Preserve
+            // that execution policy despite retaining insertion order for K4.
+            let mut sorted = crate::json::Json::new(crate::json::clone_value(&project));
+            crate::json::expanded(|| sorted.sort_all_objects());
+            PreparedJson::Owned(sorted)
         };
         Ok(PreparedProject {
             project,
             semantics,
             start_hats,
+            k4_owners,
         })
     }
     fn compile_canonical(
         project: &Value,
         semantics: RuntimeSemantics,
         start_hats: crate::kitten4::StartHats,
+        k4_owners: &[String],
     ) -> Result<Self> {
         let _timing = crate::import_perf::span("engine_compile_canonical");
         let scene = project
@@ -1143,10 +1173,15 @@ impl Program {
                 actors,
             });
         }
-        compiler.program.initial_scene = scene_ids
-            .iter()
-            .position(|id| *id == scene)
-            .context("current scene missing")?;
+        compiler.program.initial_scene = if semantics == RuntimeSemantics::Kitten4 {
+            // The player starts scenes_order[0], not the editor's selected scene.
+            0
+        } else {
+            scene_ids
+                .iter()
+                .position(|id| *id == scene)
+                .context("current scene missing")?
+        };
         // Pass 2: scripts, resolving actor references within the owner's scene first.
         for scene_index in 0..compiler.program.scenes.len() {
             let info = compiler.program.scenes[scene_index].clone();
@@ -1219,6 +1254,17 @@ impl Program {
             }
         }
         compiler.program.expression_starts = expression_starts(&compiler.program.expressions)?;
+        if semantics == RuntimeSemantics::Kitten4 {
+            // iNFq/create_singleton_entity_instances follows mXOY's loaded
+            // typeclass order, not the stage's display/layer order.
+            compiler.program.scripts.sort_by_key(|script| {
+                let id = &compiler.program.sprites[script.actor].id;
+                k4_owners
+                    .iter()
+                    .position(|owner| owner == id)
+                    .unwrap_or(usize::MAX)
+            });
+        }
         Ok(compiler.program)
     }
 }
@@ -1478,6 +1524,15 @@ impl Compiler {
                 b["type"] == "list_is_exist",
             ),
             "text" => self.constant(Cell::Text(field(b, "TEXT").into())),
+            "kitten4_default_value" => {
+                let text = field(b, "TEXT");
+                let number = k4_number_text(text);
+                self.constant(if number.is_nan() {
+                    Cell::Text(text.into())
+                } else {
+                    Cell::Number(number)
+                })
+            }
             "get_styles" => self.constant(Cell::from_json(&b["fields"]["style_id"])?),
             "kitten4_costume_literal" => {
                 let id = self.program.strings.len();
@@ -1975,6 +2030,7 @@ impl Compiler {
                 ExprOp::Random
             }
             "text"
+            | "kitten4_default_value"
             | "text_join"
             | "text_select"
             | "convert_type"
@@ -2400,6 +2456,7 @@ impl Compiler {
                 self.emit(Op::Jump(start), root);
                 self.program.scripts.push(Script {
                     start,
+                    hat: root["id"].as_str().unwrap_or("").into(),
                     actor,
                     event,
                 });
@@ -2431,6 +2488,7 @@ impl Compiler {
             self.emit(Op::Halt, root);
             self.program.scripts.push(Script {
                 start,
+                hat: root["id"].as_str().unwrap_or("").into(),
                 actor,
                 event,
             });
@@ -3282,6 +3340,9 @@ impl Compiler {
 #[derive(Clone)]
 struct Task {
     id: u64,
+    created: u64,
+    wait_started: Option<u64>,
+    wait_finished: bool,
     pc: usize,
     actor: usize,
     loops: Vec<u64>,
@@ -3313,6 +3374,9 @@ impl Task {
     fn new(id: u64, script: &Script, program: &Program) -> Self {
         Self {
             id,
+            created: 0,
+            wait_started: None,
+            wait_finished: false,
             pc: script.start,
             actor: script.actor,
             loops: vec![],
@@ -3541,6 +3605,8 @@ pub struct Frame {
     pub budget_yield: bool,
 }
 pub struct Engine {
+    scheduler_tick: u64,
+    oracle_events: Option<Vec<Value>>,
     physics: Option<Box<physics::Physics>>,
     pub program: Program,
     jit: Option<Box<jit::Jit>>,
@@ -3617,6 +3683,52 @@ pub struct Engine {
     pointer_released: bool,
 }
 impl Engine {
+    /// Opt-in instruction tracing. Disable native batching so source boundaries
+    /// remain visible; normal execution pays no snapshot/allocation cost.
+    pub fn trace_blocks(&mut self) {
+        self.disable_jit();
+        self.oracle_events = Some(Vec::new());
+    }
+    pub fn take_oracle_events(&mut self) -> Vec<Value> {
+        self.oracle_events
+            .as_mut()
+            .map(std::mem::take)
+            .unwrap_or_default()
+    }
+    fn trace_task(&mut self, event: &str, index: usize, block: Option<usize>) {
+        if self.oracle_events.is_none() {
+            return;
+        }
+        let task = &self.tasks[index];
+        let hat = self
+            .program
+            .scripts
+            .get(task.script)
+            .map(|s| s.hat.as_str());
+        let entry = serde_json::json!({"frame":self.sequence.max(1), "event":event,
+            "entity":self.sprites[task.actor].id, "hat":hat,
+            "block":block.map(|pc| &self.program.sources[pc]), "pc":task.pc});
+        self.oracle_events.as_mut().unwrap().push(entry);
+    }
+    fn trace_list_lengths(&self) -> Option<Vec<usize>> {
+        self.oracle_events
+            .as_ref()
+            .map(|_| self.lists.iter().map(|list| list.borrow().len()).collect())
+    }
+    fn trace_list_changes(&mut self, index: usize, pc: usize, lengths: Option<Vec<usize>>) {
+        if let Some(lengths) = lengths {
+            for (list, before) in lengths.into_iter().enumerate() {
+                let after = self.lists[list].borrow().len();
+                if before != after {
+                    self.trace_task("list", index, Some(pc));
+                    let entry = self.oracle_events.as_mut().unwrap().last_mut().unwrap();
+                    entry["list"] = serde_json::json!(self.program.list_names[list]);
+                    entry["before"] = serde_json::json!(before);
+                    entry["length"] = serde_json::json!(after);
+                }
+            }
+        }
+    }
     /// Full, non-consuming state for local differential oracles. Unlike `Frame`,
     /// this includes unchanged sprites and typed scalar/list values on every tick.
     /// Rotation is expressed in native K4 degrees, scale in percentages.
@@ -3659,7 +3771,10 @@ impl Engine {
                     && self.sprites[task.actor].scene == self.current_scene))
     }
     fn task_runnable(&self, task: &Task) -> bool {
-        self.task_active(task) && task.pending == 0 && task.wake <= self.time
+        self.task_active(task)
+            && task.pending == 0
+            && task.wake <= self.time
+            && task.wait_started.is_none()
     }
     pub fn numeric_variables(&self) -> &[f64] {
         &self.slots
@@ -3768,6 +3883,8 @@ impl Engine {
             .iter()
             .any(|s| matches!(s.event, ScriptEvent::Bump(..)));
         Self {
+            scheduler_tick: 0,
+            oracle_events: None,
             physics: None,
             pen_rasters: vec![None; program.scenes.len()],
             bump_state: Default::default(),
@@ -4108,6 +4225,7 @@ impl Engine {
             &self.program,
         );
         task.actor = actor;
+        task.created = self.scheduler_tick;
         task.script = script;
         task.global_start = matches!(
             self.program.scripts[script].event,
@@ -4116,6 +4234,7 @@ impl Engine {
         task.kn_when = matches!(self.program.scripts[script].event, ScriptEvent::KnWhen);
         self.next_task_id += 1;
         self.tasks.push(task);
+        self.trace_task("start", self.tasks.len() - 1, None);
         Some(self.tasks.len() - 1)
     }
     fn dispatch(&mut self, matches: impl Fn(&ScriptEvent) -> bool) {
@@ -4199,6 +4318,8 @@ impl Engine {
                 ensure!(self.tasks.len() < 4096, "broadcast task limit exceeded");
                 let mut task = Task::new(self.next_task_id, &script, &self.program);
                 task.actor = target;
+                task.script = i;
+                task.created = self.scheduler_tick;
                 self.next_task_id += 1;
                 if with_param {
                     task.payload = payload.clone();
@@ -4207,8 +4328,11 @@ impl Engine {
                     task.waiter = Some(self.tasks[parent].id);
                     self.tasks[parent].pending += 1;
                 }
-                self.ready.push_back(self.tasks.len());
+                if self.program.semantics == RuntimeSemantics::KnCurrent {
+                    self.ready.push_back(self.tasks.len());
+                }
                 self.tasks.push(task);
+                self.trace_task("start", self.tasks.len() - 1, None);
             }
         }
         Ok(())
@@ -4228,7 +4352,10 @@ impl Engine {
                 .position(|task| task.id == id && !task.done)
         {
             self.tasks[parent].pending -= 1;
-            if self.tasks[parent].pending == 0 && !self.ready.contains(&parent) {
+            if self.tasks[parent].pending == 0
+                && !self.ready.contains(&parent)
+                && self.program.semantics == RuntimeSemantics::KnCurrent
+            {
                 self.ready.push_back(parent);
             }
         }
@@ -4495,6 +4622,7 @@ impl Engine {
         });
         let saved_returned = task.returned.take();
         let (wake, anim) = (task.wake, task.anim);
+        let wait = (task.wait_started, task.wait_finished);
         task.pc = self.program.procedure_entries[procedure];
         self.reporter_depth += 1;
         let mut steps = 0usize;
@@ -4506,8 +4634,12 @@ impl Engine {
             }
             let pc = self.tasks[index].pc;
             let op = self.program.ops[pc];
+            self.trace_task("block", index, Some(pc));
+            let lengths = self.trace_list_lengths();
             self.tasks[index].pc += 1;
-            if let Err(error) = self.exec(index, pc, op, actor) {
+            let result = self.exec(index, pc, op, actor);
+            self.trace_list_changes(index, pc, lengths);
+            if let Err(error) = result {
                 self.value_error = Some(format!("{error:#}"));
                 break;
             }
@@ -4527,6 +4659,7 @@ impl Engine {
         }
         task.wake = wake;
         task.anim = anim;
+        (task.wait_started, task.wait_finished) = wait;
         std::mem::replace(&mut task.returned, saved_returned).unwrap_or(Cell::Null)
     }
     fn monitor_values(&self) -> Vec<Monitor> {
@@ -5531,6 +5664,7 @@ impl Engine {
             if starts
                 && self.program.scripts[script].actor == origin
                 && let Some(task) = self.spawn(script, index)
+                && self.program.semantics == RuntimeSemantics::KnCurrent
             {
                 self.ready.push_back(task);
             }
@@ -6675,10 +6809,25 @@ impl Engine {
             Op::Yield => return Ok(false),
             Op::Wait(e) => {
                 self.tasks[index].wake = self.time + self.eval(e, actor).max(0.0);
+                if self.program.semantics == RuntimeSemantics::Kitten4 {
+                    // K9+f/task_update starts at the end of this update, expires
+                    // no earlier than the next, and disposes at the following
+                    // update's entry. Even wait 0 skips one full update.
+                    self.tasks[index].wait_started = Some(self.scheduler_tick);
+                    self.tasks[index].wait_finished = false;
+                }
                 return Ok(false);
             }
             Op::Repeat(e, end) => {
-                let n = self.eval(e, actor).floor().clamp(0.0, u32::MAX as f64) as u64;
+                let value = self.eval(e, actor);
+                // inF4/eval_repeat_n_times compares an integer counter < times;
+                // a positive fractional count executes ceil(times) iterations.
+                let n = if self.program.semantics == RuntimeSemantics::Kitten4 {
+                    value.ceil()
+                } else {
+                    value.floor()
+                }
+                .clamp(0.0, u32::MAX as f64) as u64;
                 if n == 0 {
                     self.tasks[index].pc = end;
                 } else {
@@ -6698,6 +6847,9 @@ impl Engine {
                     }
                 } else {
                     self.tasks[index].loops.pop();
+                    if yielding && self.program.semantics == RuntimeSemantics::Kitten4 {
+                        return Ok(false);
+                    }
                 }
             }
             Op::Range(spec, end) => {
@@ -6762,6 +6914,9 @@ impl Engine {
                     }
                 } else {
                     self.tasks[index].ranges.pop();
+                    if yielding && self.program.semantics == RuntimeSemantics::Kitten4 {
+                        return Ok(false);
+                    }
                 }
             }
             Op::Break(target, pop) => {
@@ -7090,6 +7245,7 @@ impl Engine {
                 );
                 let script = Script {
                     start,
+                    hat: self.program.sources[pc].clone(),
                     actor: target,
                     event: ScriptEvent::Start,
                 };
@@ -7260,7 +7416,11 @@ impl Engine {
                 })?;
                 if target != self.current_scene {
                     self.switch_scene(target);
-                    return Ok(false);
+                    if self.program.semantics == RuntimeSemantics::KnCurrent
+                        || !self.tasks[index].global_start
+                    {
+                        return Ok(false);
+                    }
                 }
             }
             Op::DisposeClone => {
@@ -7312,6 +7472,15 @@ impl Engine {
         started: Instant,
         total_count: &mut usize,
     ) -> Result<bool> {
+        self.scheduler_tick += 1;
+        // K9+f/update_dispose removes blockers at update entry. Expiration is
+        // observed at the previous update's end, not guessed using a 60 Hz delta.
+        for task in &mut self.tasks {
+            if task.wait_finished {
+                task.wait_started = None;
+                task.wait_finished = false;
+            }
+        }
         self.time += dt;
         if self.timer_running {
             self.timer += dt;
@@ -7327,6 +7496,19 @@ impl Engine {
         self.ready.clear();
         self.ready
             .extend((0..total).map(|i| (self.cursor + i) % total));
+        if self.program.semantics == RuntimeSemantics::Kitten4 {
+            // iNFq/get_interpreter_sorters + reverse step_code traversal:
+            // listeners first, newest frame first, stable creation order last.
+            self.ready.make_contiguous().sort_by_key(|&index| {
+                let task = &self.tasks[index];
+                let listener = self
+                    .program
+                    .scripts
+                    .get(task.script)
+                    .is_some_and(|s| matches!(s.event, ScriptEvent::Broadcast(..)));
+                (!listener, std::cmp::Reverse(task.created), task.id)
+            });
+        }
         while let Some(index) = self.ready.pop_front() {
             if self.restart {
                 break;
@@ -7335,6 +7517,7 @@ impl Engine {
                 continue;
             }
             let actor = self.tasks[index].actor;
+            self.trace_task("resume", index, None);
             self.current_task = index;
             let mut clock_due = false;
             let mut since_clock = 0usize;
@@ -7362,14 +7545,37 @@ impl Engine {
                     continue;
                 }
                 let op = self.program.ops[pc];
+                self.trace_task("block", index, Some(pc));
+                let lengths = self.trace_list_lengths();
                 self.tasks[index].pc += 1;
                 count += 1;
-                if !self.exec(index, pc, op, actor)? || self.tasks[index].done {
+                let result = self.exec(index, pc, op, actor);
+                self.trace_list_changes(index, pc, lengths);
+                let continuing = result?;
+                if !continuing || self.tasks[index].done {
+                    self.trace_task(
+                        if self.tasks[index].done {
+                            "finish"
+                        } else {
+                            "yield"
+                        },
+                        index,
+                        Some(pc),
+                    );
                     break;
                 }
             }
             if exceeded {
                 break;
+            }
+        }
+        for task in &mut self.tasks {
+            if task
+                .wait_started
+                .is_some_and(|tick| tick < self.scheduler_tick)
+                && task.wake <= self.time
+            {
+                task.wait_finished = true;
             }
         }
         // Rebase the round-robin cursor when finished tasks are compacted. Wait

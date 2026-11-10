@@ -678,6 +678,9 @@ impl<'a> Runtime<'a> {
             return;
         };
 
+        // KN's reference interpreter historically traversed sorted JSON maps.
+        // serde_json/preserve_order is required by K4, not a KN scheduling change.
+        let owners: BTreeMap<_, _> = owners.iter().collect();
         for (owner_id, owner) in owners {
             let Some(blocks) = owner.get("nekoBlockJsonList").and_then(Value::as_array) else {
                 continue;
@@ -1118,6 +1121,7 @@ fn collect_listeners_at<'a>(
         return;
     };
 
+    let owners: BTreeMap<_, _> = owners.iter().collect();
     for (owner_id, owner) in owners {
         let Some(blocks) = owner.get("nekoBlockJsonList").and_then(Value::as_array) else {
             continue;

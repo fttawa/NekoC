@@ -1624,7 +1624,11 @@ fn published_clone_self_properties_and_nonuniform_scale_use_the_running_instance
     body["next_block"]["next_block"]["next_block"]["next_block"] = read("size", "5");
     native["compile_result"][0]["compiled_block_map"]["clone"] =
         json!({"type":"start_as_a_mirror","params":{},"child_block":[body]});
-    let engine = start_published(&native);
+    let mut engine = start_published(&native);
+    // Mirror scripts start at the next update (official scheduling-clone probe).
+    engine
+        .advance(1.0 / 60.0, 2_000_000, std::time::Duration::from_secs(5))
+        .unwrap();
     // K4 setters are absolute axis percentages; size is the current X scale.
     assert_eq!(engine.variable_text("width"), "150");
     assert_eq!(engine.variable_text("height"), "75");

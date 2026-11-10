@@ -13,6 +13,7 @@ const trace = (actor = {}, variables = {}) => ({ schema: "nekoc-k4-trace-v1", fr
 test("k4 oracle options reject malformed values and default to msedge", () => {
   assert.equal(parseArgs([]).channel, "msedge");
   assert.equal(parseArgs(["compile", "--input", "a.bcm"]).command, "compile");
+  assert.equal(parseArgs(["run", "--blocks"]).blocks, true);
   for (const args of [["run", "--frames", "NaN"], ["run", "--seed", "-1"], ["run", "--seed", "4294967296"], ["run", "--input"], ["what"]]) assert.throws(() => parseArgs(args));
 });
 
@@ -150,6 +151,16 @@ test("offline native compiler and fixed-step traces are repeatable", { skip: !pr
   assert.deepEqual(c.frames, a.frames);
   assert.equal(c.diagnostics.localRequests.filter(request => request.url === "/new/abcdef0123456789" && request.destination === "document").length, 1);
   assert.ok(c.diagnostics.localRequests.some(request => request.url === "/new/abcdef0123456789" && request.destination !== "document" && request.status === 200));
+});
+
+test("scheduling fixtures reproduce offline evidence and expose block/list boundaries", { skip: !process.env.K4_ORACLE_INTEGRATION }, async () => {
+  const evidence = await readJson("docs/kitten4-scheduling-evidence.json");
+  for (const [name, expected] of Object.entries(evidence.cases)) {
+    const trace = await runOracle(await readJson(`tests/fixtures/kitten4/scheduling-${name}.bcm`), { frames: 6, blocks: true });
+    assert.deepEqual(trace.frames.map(f => f.variables.log), expected.log, name);
+    assert.ok(trace.events.some(e => e.event === "block" && e.hat && e.entity && e.block), name);
+    assert.equal(trace.traceTruncated, false);
+  }
 });
 
 test("official PCG random probe repeats with seed and advances on each frame", { skip: !process.env.K4_ORACLE_INTEGRATION }, async () => {

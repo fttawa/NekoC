@@ -213,10 +213,12 @@ fn physics_fixed_step_accepts_different_viewer_framerates() {
             if key.ends_with("Dir") && key.starts_with("resting") {
                 continue;
             }
-            // Wait scripts sample at the next viewer tick: allow two 60Hz
-            // steps plus contact solver position slop, not equal wall-clock paths.
+            // K4 wait expires at update end and removes its blocker at the next
+            // entry. At 30 Hz this adds up to four 60 Hz physics steps of sample
+            // skew across the fixture's successive waits (200 units/s), plus
+            // contact solver slop. This is not an equal wall-clock sample test.
             let tolerance = if key.ends_with('X') || key.ends_with('Y') {
-                8.0
+                15.0
             } else {
                 0.1
             };
