@@ -1,7 +1,8 @@
 //! Cranelift tier for hot bytecode. Numeric work runs as machine code; typed
 //! helpers preserve Cells and procedure frames. Scheduling boundaries return a
 //! yield flag to tick; reporters that can re-enter the VM remain interpreted.
-//! Instruction counts are exact.
+//! Instruction counts are exact. Fuel leaders share native code so returning to
+//! another entry does not recompile an overlapping control-flow region.
 use super::{
     Binary, Cell, Engine, Expr, ExprOp, ListRef, Op, RuntimeSemantics, Target, Unary, ValueExpr,
     contains_list, list_index, read_list_index,
@@ -19,13 +20,19 @@ use cranelift_jit::{JITBuilder, JITModule};
 use cranelift_module::{Linkage, Module, default_libcall_names};
 use std::collections::{BTreeMap, BTreeSet};
 
+mod entries;
+mod parameters;
 mod runtime;
+mod timing;
 use runtime::{h_append_cell, h_boundary, h_call, h_reentrant, h_return};
 
 /// Interpreted executions of one pc before it is compiled.
 const HOT_THRESHOLD: u16 = 500;
 const COLD_NEVER: u16 = u16::MAX;
-const MAX_REGION_OPS: usize = 400;
+const MAX_REGION_OPS: usize = 48;
+/// A terminal entry can only call Rust and leave. Keep a small real-native
+/// sample, then prefer the interpreter instead of paying a trampoline forever.
+const TERMINAL_SAMPLE: u8 = 32;
 /// Upper bound on one native run, so the scheduler still samples its clock.
 const FUEL_SLICE: usize = 1 << 16;
 
@@ -62,6 +69,10 @@ struct NativeContext {
     actor: usize,
     values: *mut Option<Cell>,
     local_values: *mut Option<Cell>,
+    // Appended: generated code's existing numeric-pointer/fuel offsets stay fixed.
+    timing: Option<timing::Handle>,
+    parameters: *const Cell,
+    parameter_count: usize,
 }
 const OFF_VALUES: i32 = 48;
 const OFF_LOCAL_VALUES: i32 = 56;
@@ -69,19 +80,22 @@ const OFF_SLOTS: i32 = 8;
 const OFF_LOCALS: i32 = 16;
 const OFF_FUEL: i32 = 24;
 
-type Entry = unsafe extern "C" fn(*mut NativeContext) -> u64;
+type Entry = unsafe extern "C" fn(*mut NativeContext, u64) -> u64;
 
+#[derive(Clone)]
 struct Region {
     code: Entry,
-    written_slots: Vec<usize>,
-    written_locals: Vec<usize>,
+    written_slots: std::rc::Rc<[usize]>,
+    written_locals: std::rc::Rc<[usize]>,
 }
 
 pub(super) struct Jit {
     module: JITModule,
     regions: Vec<Option<Region>>,
     hot: Vec<u16>,
+    terminal_runs: Vec<u8>,
     next_name: usize,
+    timing: Option<timing::Handle>,
 }
 
 /// Tag byte of an empty `Option<Cell>`, or None if the layout native code relies on
@@ -132,6 +146,9 @@ impl Jit {
             return None;
         }
         none_tag()?;
+        if !parameters::number_layout() {
+            return None;
+        }
         let mut flags = settings::builder();
         flags.set("opt_level", "speed").ok()?;
         let isa = cranelift_native::builder()
@@ -143,7 +160,9 @@ impl Jit {
             module,
             regions: (0..ops).map(|_| None).collect(),
             hot: vec![0; ops],
+            terminal_runs: vec![0; ops],
             next_name: 0,
+            timing: timing::from_env(),
         }))
     }
 }
@@ -156,7 +175,71 @@ impl Engine {
     }
 
     pub fn jit_profile(&self) -> serde_json::Value {
-        serde_json::to_value(&self.jit_profile).expect("serializable JIT counters")
+        let mut profile =
+            serde_json::to_value(&self.jit_profile).expect("serializable JIT counters");
+        if let Some(timing) = self.jit.as_ref().and_then(|jit| jit.timing.as_ref()) {
+            if profile.is_null() {
+                profile = serde_json::json!({});
+            }
+            let mut measured = timing::snapshot(timing);
+            // Resolve observed op sites only, without evaluating any expression.
+            let pcs: BTreeSet<usize> = measured["sites"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .filter(|row| {
+                    let name = row["name"].as_str().unwrap();
+                    name == "compile"
+                        || name.starts_with("region/")
+                        || name.starts_with("reentrant/")
+                        || matches!(
+                            name,
+                            "helper/call"
+                                | "helper/return"
+                                | "helper/reentrant"
+                                | "helper/append-cell"
+                                | "helper/boundary"
+                                | "helper/exec"
+                                | "helper/error-check"
+                                | "helper/replace-item"
+                        )
+                })
+                .map(|row| row["site"].as_u64().unwrap() as usize)
+                .collect();
+            measured["op_sites"] = serde_json::Value::Array(
+                pcs.into_iter()
+                    .filter_map(|pc| {
+                        self.program.ops.get(pc).map(|op| {
+                            serde_json::json!({
+                                "pc":pc,"op":variant(op),"source":self.program.sources.get(pc)
+                            })
+                        })
+                    })
+                    .collect(),
+            );
+            measured["expression_sites"] = serde_json::Value::Array(
+                measured["sites"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .filter(|row| row["name"] == "reporter/node")
+                    .filter_map(|row| {
+                        let pc = row["site"].as_u64().unwrap() as usize;
+                        self.program.expressions.get(pc).map(|op| {
+                            let value = match op {
+                                ExprOp::Value(i) | ExprOp::Truth(i) | ExprOp::TextLength(i) => {
+                                    self.program.values.get(*i).map(variant)
+                                }
+                                _ => None,
+                            };
+                            serde_json::json!({"pc":pc,"expression":variant(op),"value":value})
+                        })
+                    })
+                    .collect(),
+            );
+            profile["timing"] = measured;
+        }
+        profile
     }
 
     pub(super) fn jit_record_interpreted(&mut self, pc: usize) {
@@ -169,6 +252,8 @@ impl Engine {
                 format!("unsupported-or-impure/{}", variant(op))
             } else if jit.hot[pc] == COLD_NEVER {
                 "backend-rejected".into()
+            } else if jit.terminal_runs[pc] > TERMINAL_SAMPLE {
+                "unprofitable-terminal-entry".into()
             } else if jit.regions[pc].is_some() {
                 "boxed-write-or-fuel-exit".into()
             } else {
@@ -258,6 +343,9 @@ impl Engine {
         left: usize,
     ) -> Option<usize> {
         let jit = self.jit.as_mut()?;
+        if jit.terminal_runs[pc] > TERMINAL_SAMPLE {
+            return None;
+        }
         if jit.regions[pc].is_none() {
             let hot = &mut jit.hot[pc];
             if *hot == COLD_NEVER {
@@ -269,12 +357,23 @@ impl Engine {
             }
             self.jit_compile(pc);
         }
-        self.jit_run(index, pc, actor, left)
+        let used = self.jit_run(index, pc, actor, left);
+        if used.is_some_and(|n| n > 0) {
+            let jit = self.jit.as_mut().unwrap();
+            if jit.terminal_runs[pc] != 0 {
+                jit.terminal_runs[pc] += 1;
+            }
+        }
+        used
     }
 
     fn jit_run(&mut self, index: usize, pc: usize, actor: usize, left: usize) -> Option<usize> {
+        let timing = self.jit.as_ref()?.timing.clone();
+        let _run = timing::span(timing.as_ref(), "region/run", pc);
+        let entry_timing = timing::span(timing.as_ref(), "region/entry", pc);
         self.jit_yield = false;
         if self.output_limit_reached() {
+            timing::count(timing.as_ref(), "entry/output-limit", pc, 1);
             return None;
         }
         let region = self.jit.as_ref()?.regions[pc].as_ref()?;
@@ -288,6 +387,7 @@ impl Engine {
             .all(|&s| self.values[s].is_none())
             || !region.written_locals.iter().all(|&s| locals[s].is_none())
         {
+            timing::count(timing.as_ref(), "entry/boxed-write", pc, 1);
             return None;
         }
         let fuel = left.min(FUEL_SLICE) as i64;
@@ -304,12 +404,29 @@ impl Engine {
             actor,
             values,
             local_values,
+            timing: timing.clone(),
+            parameters: self.tasks[index].parameters.as_ptr(),
+            parameter_count: self.tasks[index].parameters.len(),
         };
+        drop(entry_timing);
         // SAFETY: ordinary helpers do not invalidate cached numeric pointers.
         // Reentrant helpers may invalidate them, but are terminal: no generated
         // instruction after that call reads anything except NativeContext fuel.
-        let next = unsafe { code(&mut context) } as usize;
+        let native_timing = timing::span(timing.as_ref(), "region/native", pc);
+        let next = unsafe { code(&mut context, pc as u64) } as usize;
+        drop(native_timing);
+        let _exit = timing::span(timing.as_ref(), "region/exit", pc);
         let used = (fuel - context.fuel) as usize;
+        timing::count(timing.as_ref(), "region/ops", pc, used as u64);
+        if used == 0 {
+            timing::count(timing.as_ref(), "exit/zero-ops", pc, 1);
+        }
+        if context.fuel <= 0 {
+            timing::count(timing.as_ref(), "exit/fuel-exhausted", pc, 1);
+        }
+        if self.jit_yield {
+            timing::count(timing.as_ref(), "exit/yield", pc, 1);
+        }
         if let Some(profile) = self.jit_profile.as_mut() {
             profile.native_ops += used as u64;
         }
@@ -326,15 +443,32 @@ impl Engine {
 
     fn jit_compile(&mut self, entry: usize) {
         let _timing = crate::import_perf::span("jit_compile_hot");
+        let timing = self.jit.as_ref().and_then(|jit| jit.timing.clone());
+        let _compile = timing::span(timing.as_ref(), "compile", entry);
         let mut jit = self.jit.take().expect("jit present");
         match compile(&mut jit, self, entry) {
-            Some(region) => {
+            Some((region, entries)) => {
+                timing::count(timing.as_ref(), "compile/accepted", entry, 1);
+                // Only leaders can enter independently: each owns its fuel
+                // deduction. Share code/guard storage without replacing older
+                // entries, and still recheck pointers/boxed writes on every run.
+                for pc in entries {
+                    if jit.regions[pc].is_none() {
+                        jit.regions[pc] = Some(region.clone());
+                        if self.jit_reentrant(self.program.ops[pc]) {
+                            jit.terminal_runs[pc] = 1;
+                        }
+                    }
+                }
                 jit.regions[entry] = Some(region);
                 if let Some(profile) = self.jit_profile.as_mut() {
                     profile.regions += 1;
                 }
             }
-            None => jit.hot[entry] = COLD_NEVER,
+            None => {
+                timing::count(timing.as_ref(), "compile/rejected", entry, 1);
+                jit.hot[entry] = COLD_NEVER;
+            }
         }
         self.jit = Some(jit);
     }
@@ -469,6 +603,7 @@ impl Engine {
 
 unsafe extern "C" fn h_node(c: *mut NativeContext, pc: u64) -> f64 {
     let c = unsafe { &mut *c };
+    let _timing = timing::span(c.timing.as_ref(), "reporter/node", pc as usize);
     let engine = unsafe { &mut *c.engine };
     if let Some(profile) = engine.jit_profile.as_mut() {
         profile.node_calls += 1;
@@ -507,6 +642,11 @@ fn key_list(key: u64) -> ListRef {
 }
 
 unsafe extern "C" fn h_list_item(c: *mut NativeContext, list: u64, at: f64) -> f64 {
+    let _timing = timing::span(
+        unsafe { (*c).timing.as_ref() },
+        "helper/list-item",
+        list as usize,
+    );
     let engine = unsafe { &mut *(*c).engine };
     engine.check_list_index(at);
     engine
@@ -520,6 +660,11 @@ unsafe extern "C" fn h_list_item(c: *mut NativeContext, list: u64, at: f64) -> f
 }
 
 unsafe extern "C" fn h_list_length(c: *mut NativeContext, list: u64) -> f64 {
+    let _timing = timing::span(
+        unsafe { (*c).timing.as_ref() },
+        "helper/list-length",
+        list as usize,
+    );
     let engine = unsafe { &mut *(*c).engine };
     engine
         .resolve_list(key_list(list))
@@ -530,24 +675,35 @@ unsafe extern "C" fn h_list_length(c: *mut NativeContext, list: u64) -> f64 {
 /// evaluator executes, preserving Cell types and the precise error semantics.
 unsafe extern "C" fn h_actor_is_number(c: *mut NativeContext, actor: u64, slot: u64) -> u64 {
     let c = unsafe { &*c };
+    let _timing = timing::span(c.timing.as_ref(), "guard/actor", slot as usize);
     let engine = unsafe { &*c.engine };
     let actor = if actor == u64::MAX {
         c.actor
     } else {
         actor as usize
     };
-    u64::from(
-        engine
-            .sprites
-            .get(actor)
-            .filter(|s| s.alive)
-            .and_then(|s| s.variables.get(&(slot as usize)))
-            .is_some_and(|v| matches!(v, Cell::Number(_))),
-    )
+    let valid = engine
+        .sprites
+        .get(actor)
+        .filter(|s| s.alive)
+        .and_then(|s| s.variables.get(&(slot as usize)))
+        .is_some_and(|v| matches!(v, Cell::Number(_)));
+    timing::count(
+        c.timing.as_ref(),
+        if valid {
+            "guard/actor-pass"
+        } else {
+            "guard/actor-fail"
+        },
+        slot as usize,
+        1,
+    );
+    u64::from(valid)
 }
 
 unsafe extern "C" fn h_actor_number(c: *mut NativeContext, actor: u64, slot: u64) -> f64 {
     let c = unsafe { &*c };
+    let _timing = timing::span(c.timing.as_ref(), "helper/actor-read", slot as usize);
     let engine = unsafe { &mut *c.engine };
     let actor = if actor == u64::MAX {
         c.actor
@@ -559,22 +715,13 @@ unsafe extern "C" fn h_actor_number(c: *mut NativeContext, actor: u64, slot: u64
 
 unsafe extern "C" fn h_set_actor_number(c: *mut NativeContext, slot: u64, value: f64) {
     let c = unsafe { &*c };
+    let _timing = timing::span(c.timing.as_ref(), "helper/actor-write", slot as usize);
     unsafe { &mut *c.engine }.write_actor_variable(c.actor, slot as usize, Cell::Number(value));
-}
-
-unsafe extern "C" fn h_parameter(c: *mut NativeContext, slot: u64, guard: u64) -> f64 {
-    let c = unsafe { &*c };
-    let engine = unsafe { &*c.engine };
-    let value = engine.tasks[c.index].parameters.get(slot as usize);
-    if guard != 0 {
-        f64::from(value.is_some_and(|v| matches!(v, Cell::Number(_))))
-    } else {
-        value.map_or(f64::NAN, Cell::number)
-    }
 }
 
 unsafe extern "C" fn h_error(c: *mut NativeContext, pc: u64, next: u64) -> u64 {
     let c = unsafe { &*c };
+    let _timing = timing::span(c.timing.as_ref(), "helper/error-check", pc as usize);
     let engine = unsafe { &mut *c.engine };
     if let Some(error) = engine.value_error.take() {
         engine.tasks[c.index].pc = next as usize;
@@ -609,6 +756,7 @@ extern "C" fn h_unary(op: u64, v: f64) -> f64 {
 /// 0: skip the body, 1: entered.
 unsafe extern "C" fn h_repeat(c: *mut NativeContext, n: f64) -> u64 {
     let c = unsafe { &mut *c };
+    let _timing = timing::span(c.timing.as_ref(), "helper/repeat", 0);
     let k4 = unsafe { (*c.engine).program.semantics == RuntimeSemantics::Kitten4 };
     let n = if k4 { n.ceil() } else { n.floor() }.clamp(0.0, u32::MAX as f64) as u64;
     if n == 0 {
@@ -619,6 +767,7 @@ unsafe extern "C" fn h_repeat(c: *mut NativeContext, n: f64) -> u64 {
 }
 unsafe extern "C" fn h_break(c: *mut NativeContext, pop: u64) {
     let c = unsafe { &mut *c };
+    let _timing = timing::span(c.timing.as_ref(), "helper/break", 0);
     let task = unsafe { &mut (&mut (*c.engine).tasks)[c.index] };
     if pop == 1 {
         task.loops.pop();
@@ -629,6 +778,7 @@ unsafe extern "C" fn h_break(c: *mut NativeContext, pop: u64) {
 /// 0: not executed (output limit), 1: done, 2: executed and failed.
 unsafe extern "C" fn h_exec(c: *mut NativeContext, pc: u64) -> u64 {
     let c = unsafe { &mut *c };
+    let _timing = timing::span(c.timing.as_ref(), "helper/exec", pc as usize);
     let engine = unsafe { &mut *c.engine };
     if engine.output_limit_reached() {
         return 0;
@@ -673,6 +823,11 @@ unsafe extern "C" fn h_pc(c: *mut NativeContext) -> u64 {
 }
 /// Same semantics as `Op::ReplaceList` for a number written to a global list.
 unsafe extern "C" fn h_replace_number(c: *mut NativeContext, list: u64, at: f64, value: f64) {
+    let _timing = timing::span(
+        unsafe { (*c).timing.as_ref() },
+        "helper/replace-number",
+        list as usize,
+    );
     let engine = unsafe { &*(*c).engine };
     let mut values = engine.lists[list as usize].borrow_mut();
     if let Some(at) = list_index(at) {
@@ -692,6 +847,7 @@ unsafe extern "C" fn h_replace_item(
     pc: u64,
 ) -> u64 {
     let c = unsafe { &mut *c };
+    let _timing = timing::span(c.timing.as_ref(), "helper/replace-item", pc as usize);
     let engine = unsafe { &mut *c.engine };
     let cell = {
         let values = engine.lists[source as usize].borrow();
@@ -718,6 +874,11 @@ unsafe extern "C" fn h_replace_item(
     1
 }
 unsafe extern "C" fn h_append_number(c: *mut NativeContext, list: u64, value: f64) {
+    let _timing = timing::span(
+        unsafe { (*c).timing.as_ref() },
+        "helper/append-number",
+        list as usize,
+    );
     let engine = unsafe { &mut *(*c).engine };
     if let Some(list) = engine.resolve_list(key_list(list)) {
         list.borrow_mut().push(Cell::Number(value));
@@ -726,6 +887,7 @@ unsafe extern "C" fn h_append_number(c: *mut NativeContext, list: u64, value: f6
 /// `target = list[at]` without the generic dispatch: bit 0 of `target` selects locals.
 unsafe extern "C" fn h_assign_item(c: *mut NativeContext, target: u64, list: u64, at: f64) {
     let c = unsafe { &mut *c };
+    let _timing = timing::span(c.timing.as_ref(), "helper/assign-item", target as usize);
     let engine = unsafe { &mut *c.engine };
     engine.check_list_index(at);
     let cell = engine
@@ -1088,6 +1250,9 @@ impl Gen<'_, '_> {
             }
             Numeric::Parameter(slot) => self.parameter(slot, false),
             Numeric::Add(a, b) => {
+                // Every caller first classified the complete Add tree and ran
+                // its guards. Reclassification here must not become an entry
+                // point that bypasses parameter length/tag checks.
                 let a = self.numeric(a, &mut Vec::new()).unwrap();
                 let b = self.numeric(b, &mut Vec::new()).unwrap();
                 let a = self.numeric_value(a);
@@ -1095,18 +1260,6 @@ impl Gen<'_, '_> {
                 self.b.ins().fadd(a, b)
             }
         }
-    }
-
-    fn parameter(&mut self, slot: usize, guard: bool) -> Value {
-        let slot = self.b.ins().iconst(types::I64, slot as i64);
-        let guard = self.b.ins().iconst(types::I64, i64::from(guard));
-        self.call(
-            h_parameter as *const () as usize,
-            &[types::I64, types::I64, types::I64],
-            Some(types::F64),
-            &[self.ctx, slot, guard],
-        )
-        .unwrap()
     }
 
     fn truth_flag(&mut self, i: usize) -> Value {
@@ -1839,6 +1992,7 @@ fn is_straight(op: Op) -> bool {
 
 struct BuiltRegion {
     context: cranelift_codegen::Context,
+    entries: Vec<usize>,
     written_slots: Vec<usize>,
     written_locals: Vec<usize>,
 }
@@ -1916,16 +2070,19 @@ fn build_region(engine: &Engine, entry: usize, conv: CallConv) -> Option<BuiltRe
     let none = i64::from(none_tag()?);
     let mut signature = Signature::new(conv);
     signature.params.push(AbiParam::new(types::I64));
+    signature.params.push(AbiParam::new(types::I64));
     signature.returns.push(AbiParam::new(types::I64));
     let mut context = cranelift_codegen::Context::new();
     context.func.signature = signature;
     let mut scope = FunctionBuilderContext::new();
+    let entries;
     {
         let mut b = FunctionBuilder::new(&mut context.func, &mut scope);
         let start = b.create_block();
         b.append_block_params_for_function_params(start);
         b.switch_to_block(start);
         let ctx = b.block_params(start)[0];
+        let entry_pc = b.block_params(start)[1];
         let slots = b
             .ins()
             .load(types::I64, MemFlags::trusted(), ctx, OFF_SLOTS);
@@ -1943,7 +2100,7 @@ fn build_region(engine: &Engine, entry: usize, conv: CallConv) -> Option<BuiltRe
             .chain(exits.iter())
             .map(|&pc| (pc, b.create_block()))
             .collect();
-        b.ins().jump(blocks[&entry], &[]);
+        entries = entries::dispatch(&mut b, entry_pc, &leaders, &region, &blocks);
         for &pc in &exits {
             b.switch_to_block(blocks[&pc]);
             let value = b.ins().iconst(types::I64, pc as i64);
@@ -1999,14 +2156,16 @@ fn build_region(engine: &Engine, entry: usize, conv: CallConv) -> Option<BuiltRe
     }
     Some(BuiltRegion {
         context,
+        entries,
         written_slots: written_slots.difference(&boxed_slots).copied().collect(),
         written_locals: written_locals.difference(&boxed_locals).copied().collect(),
     })
 }
 
-fn compile(jit: &mut Jit, engine: &Engine, entry: usize) -> Option<Region> {
+fn compile(jit: &mut Jit, engine: &Engine, entry: usize) -> Option<(Region, Vec<usize>)> {
     let BuiltRegion {
         mut context,
+        entries,
         written_slots,
         written_locals,
     } = build_region(engine, entry, jit.module.isa().default_call_conv())?;
@@ -2027,11 +2186,14 @@ fn compile(jit: &mut Jit, engine: &Engine, entry: usize) -> Option<Region> {
     let code = module.get_finalized_function(id);
     // SAFETY: `code` was just generated with exactly this signature.
     let code: Entry = unsafe { std::mem::transmute::<*const u8, Entry>(code) };
-    Some(Region {
-        code,
-        written_slots,
-        written_locals,
-    })
+    Some((
+        Region {
+            code,
+            written_slots: written_slots.into(),
+            written_locals: written_locals.into(),
+        },
+        entries,
+    ))
 }
 
 #[cfg(test)]

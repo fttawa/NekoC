@@ -1,5 +1,7 @@
 # JIT 覆盖统计与边界
 
+分项 profiler、无统计计时与 region 多入口复用见 [jit-performance.md](jit-performance.md)。
+
 ## 复现
 
 ```powershell

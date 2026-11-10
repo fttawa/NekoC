@@ -23,6 +23,9 @@ struct Args {
     /// Per-frame VM budget, identical for the interpreter and native tier.
     #[arg(long, default_value_t = 2_000_000)]
     instructions: usize,
+    /// Restrict diagnostics to exact file stems without copying corpus inputs.
+    #[arg(long, value_delimiter = ',')]
+    only: Vec<String>,
 }
 
 fn normalized(bytes: &[u8]) -> Result<(Value, Vec<u8>)> {
@@ -107,6 +110,20 @@ fn main() -> Result<()> {
         .map(|e| Ok(e?.path()))
         .collect::<Result<Vec<_>>>()?;
     files.retain(|p| p.extension().is_some_and(|e| e == "bcm"));
+    if !args.only.is_empty() {
+        files.retain(|p| {
+            p.file_stem()
+                .is_some_and(|s| args.only.iter().any(|id| s == id.as_str()))
+        });
+        for id in &args.only {
+            anyhow::ensure!(
+                files
+                    .iter()
+                    .any(|p| p.file_stem().is_some_and(|s| s == id.as_str())),
+                "requested corpus work not found: {id}"
+            );
+        }
+    }
     files.sort();
     anyhow::ensure!(!files.is_empty(), "empty corpus");
     let mut works = Vec::new();
@@ -133,7 +150,7 @@ fn main() -> Result<()> {
     std::fs::write(
         &args.out,
         serde_json::to_vec_pretty(&json!({
-            "frames":args.frames,"seed":args.seed,"instructions":args.instructions,
+            "frames":args.frames,"seed":args.seed,"instructions":args.instructions,"only":args.only,
             "build":if cfg!(debug_assertions) {"debug"} else {"release"},
             "arch":std::env::consts::ARCH,"os":std::env::consts::OS,"works":works
         }))?,
@@ -164,5 +181,20 @@ mod tests {
         );
         assert!(normalized(&[]).is_err());
         assert!(normalized(&100u32.to_le_bytes()).is_err());
+    }
+
+    #[test]
+    fn only_accepts_exact_comma_separated_work_ids() {
+        let args = Args::try_parse_from([
+            "jit-corpus",
+            "corpus",
+            "--out",
+            "result.json",
+            "--only",
+            "123,456",
+        ])
+        .unwrap();
+        assert_eq!(args.only, ["123", "456"]);
+        assert!(args.instructions > 0);
     }
 }
