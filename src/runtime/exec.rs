@@ -84,6 +84,9 @@ impl<'a> super::Thread<'a> {
             | "start_as_clone" => {
                 self.advance(runtime, block.get("next"));
             }
+            "start_as_a_mirror" => {
+                self.enter_branch(runtime, statement(block, "DO"), block.get("next"));
+            }
             "when" => {
                 if self.eval(runtime, input(block, "condition")).is_truthy() {
                     self.enter_branch(runtime, statement(block, "DO"), block.get("next"));
@@ -95,7 +98,7 @@ impl<'a> super::Thread<'a> {
             "variables_set" => {
                 let variable = variable_field(block).context("variables_set missing variable")?;
                 let value = self.eval(runtime, input(block, "value"));
-                runtime.variables.insert(variable.to_owned(), value);
+                runtime.set_variable(variable, &self.owner_id, value)?;
                 self.advance(runtime, block.get("next"));
             }
             "change_variables" => {
@@ -103,8 +106,7 @@ impl<'a> super::Thread<'a> {
                     variable_field(block).context("change_variables missing variable")?;
                 let delta = self.eval(runtime, input(block, "value")).as_number();
                 let current = runtime
-                    .variables
-                    .get(variable)
+                    .variable(variable, Some(&self.owner_id))
                     .cloned()
                     .unwrap_or(RuntimeValue::Number(0.0))
                     .as_number();
@@ -118,33 +120,20 @@ impl<'a> super::Thread<'a> {
                 } else {
                     current + delta
                 };
-                runtime
-                    .variables
-                    .insert(variable.to_owned(), RuntimeValue::Number(value));
+                runtime.set_variable(variable, &self.owner_id, RuntimeValue::Number(value))?;
                 self.advance(runtime, block.get("next"));
             }
             "list_append" => {
                 let list_id = self.eval(runtime, input(block, "list")).as_string();
                 let value = self.eval(runtime, input(block, "list_item_value"));
-                ensure_runtime_list(
-                    runtime
-                        .variables
-                        .entry(list_id)
-                        .or_insert(RuntimeValue::Null),
-                )
-                .push(value);
+                ensure_runtime_list(runtime.variable_mut(&list_id, &self.owner_id)?).push(value);
                 self.advance(runtime, block.get("next"));
             }
             "list_insert_value" => {
                 let list_id = self.eval(runtime, input(block, "list")).as_string();
                 let index = self.eval(runtime, input(block, "list_index")).as_number();
                 let value = self.eval(runtime, input(block, "list_item_value"));
-                let items = ensure_runtime_list(
-                    runtime
-                        .variables
-                        .entry(list_id)
-                        .or_insert(RuntimeValue::Null),
-                );
+                let items = ensure_runtime_list(runtime.variable_mut(&list_id, &self.owner_id)?);
                 let index = insertion_index(index, items.len());
                 items.insert(index, value);
                 self.advance(runtime, block.get("next"));
@@ -158,12 +147,7 @@ impl<'a> super::Thread<'a> {
                     .and_then(|fields| fields.get("item"))
                     .and_then(Value::as_str)
                     .unwrap_or("any");
-                let items = ensure_runtime_list(
-                    runtime
-                        .variables
-                        .entry(list_id)
-                        .or_insert(RuntimeValue::Null),
-                );
+                let items = ensure_runtime_list(runtime.variable_mut(&list_id, &self.owner_id)?);
                 if let Some(index) = list_index(item, index, items.len())
                     && let Some(slot) = items.get_mut(index)
                 {
@@ -179,12 +163,7 @@ impl<'a> super::Thread<'a> {
                     .and_then(|fields| fields.get("item"))
                     .and_then(Value::as_str)
                     .unwrap_or("any");
-                let items = ensure_runtime_list(
-                    runtime
-                        .variables
-                        .entry(list_id)
-                        .or_insert(RuntimeValue::Null),
-                );
+                let items = ensure_runtime_list(runtime.variable_mut(&list_id, &self.owner_id)?);
                 if item == "all" {
                     items.clear();
                 } else if let Some(index) = list_index(item, index, items.len()) {
@@ -196,11 +175,10 @@ impl<'a> super::Thread<'a> {
                 let source_id = self.eval(runtime, input(block, "list")).as_string();
                 let target_id = self.eval(runtime, input(block, "target_list")).as_string();
                 let value = runtime
-                    .variables
-                    .get(&source_id)
+                    .variable(&source_id, Some(&self.owner_id))
                     .cloned()
                     .unwrap_or(RuntimeValue::List(Vec::new()));
-                runtime.variables.insert(target_id, value);
+                runtime.set_variable(&target_id, &self.owner_id, value)?;
                 self.advance(runtime, block.get("next"));
             }
             "show_hide_list" => {

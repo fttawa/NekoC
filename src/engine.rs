@@ -357,6 +357,9 @@ enum Op {
     TextSize(Expr),
     TextColor(u32),
     Physics(physics::Command, Expr, Expr, Expr),
+    // Append private ops so existing global/JIT opcode discriminants stay stable.
+    SetActorVariable(usize, usize),
+    ChangeActorVariable(usize, Expr, f64),
 }
 #[derive(Clone, Copy, Debug)]
 enum LayerMove {
@@ -452,6 +455,9 @@ pub struct Sprite {
     empty_code: bool,
     #[serde(skip)]
     alive: bool,
+    /// Independent per-entity cells. Clone creation deep-copies the current table.
+    #[serde(skip)]
+    variables: BTreeMap<usize, Cell>,
     #[serde(skip)]
     scene: usize,
     #[serde(skip)]
@@ -703,14 +709,15 @@ pub struct Program {
     procedure_entries: Vec<usize>,
     call_arguments: Vec<Vec<usize>>,
     pub variable_names: Vec<String>,
-    /// K4 entity variables are copied, rather than shared, by a split.
-    entity_variables: BTreeMap<usize, String>,
+    actor_variable_names: Vec<String>,
     style_names: BTreeMap<String, String>,
     /// Costume sizes from the project file, replaced by viewer-measured ones.
     costumes: BTreeMap<String, Costume>,
     display_names: BTreeMap<String, String>,
     /// Monitor targets: variable slot or list index with its id.
     monitor_targets: Vec<(String, bool, usize)>,
+    /// Private monitor index -> (declaring original entity, private slot).
+    actor_monitors: BTreeMap<usize, (usize, usize)>,
     pub list_names: Vec<String>,
     pub sprites: Vec<Sprite>,
     pub width: f64,
@@ -788,7 +795,7 @@ impl Program {
             instructions: self.ops.len(),
             instruction_bytes: self.ops.len() * std::mem::size_of::<Op>(),
             expression_ops: self.expressions.len(),
-            variables: self.initial.len(),
+            variables: self.initial.len() + self.actor_variable_names.len(),
             lists: self.initial_lists.len(),
             scripts: self.scripts.len(),
         }
@@ -874,7 +881,7 @@ impl Program {
                 procedure_entries: vec![],
                 call_arguments: vec![],
                 variable_names: vec![],
-                entity_variables: BTreeMap::new(),
+                actor_variable_names: vec![],
                 costumes: project
                     .pointer("/styles/stylesDict")
                     .and_then(Value::as_object)
@@ -904,6 +911,7 @@ impl Program {
                     .map(|(id, v)| (id.clone(), v["name"].as_str().unwrap_or(id).to_owned()))
                     .collect(),
                 monitor_targets: vec![],
+                actor_monitors: BTreeMap::new(),
                 style_names: project
                     .pointer("/styles/stylesDict")
                     .and_then(Value::as_object)
@@ -929,6 +937,7 @@ impl Program {
                 },
             },
             slots: BTreeMap::new(),
+            actor_variables: BTreeMap::new(),
             locals: BTreeMap::new(),
             lists: BTreeMap::new(),
             ranges: vec![],
@@ -989,6 +998,17 @@ impl Program {
         {
             for (id, var) in vars {
                 let value = var.get("value").unwrap_or(&Value::Null);
+                if var["isGlobal"] == false
+                    || (var["isGlobal"].is_null()
+                        && var["currentEntityId"]
+                            .as_str()
+                            .is_some_and(|id| !id.is_empty()))
+                {
+                    let slot = compiler.program.actor_variable_names.len();
+                    compiler.program.actor_variable_names.push(id.clone());
+                    compiler.actor_variables.insert(id.clone(), slot);
+                    continue;
+                }
                 if var["type"] == "list" {
                     let items = value
                         .as_array()
@@ -1005,12 +1025,6 @@ impl Program {
                     continue;
                 }
                 let slot = compiler.slot(id);
-                if semantics == RuntimeSemantics::Kitten4 && var["isGlobal"] == false {
-                    compiler.program.entity_variables.insert(
-                        slot,
-                        var["current_entity"].as_str().unwrap_or("").to_owned(),
-                    );
-                }
                 let value = Cell::from_json(value)?;
                 compiler.program.initial[slot] = value.number();
                 if !matches!(value, Cell::Number(_) | Cell::Null) {
@@ -1069,6 +1083,7 @@ impl Program {
                 clone_index: 0,
                 empty_code: false,
                 alive: true,
+                variables: BTreeMap::new(),
                 scene: scene_index,
                 stage: true,
                 pen: false,
@@ -1121,6 +1136,7 @@ impl Program {
                     clone_index: 0,
                     empty_code: false,
                     alive: true,
+                    variables: BTreeMap::new(),
                     scene: scene_index,
                     stage: false,
                     pen: false,
@@ -1142,6 +1158,27 @@ impl Program {
                 stage,
                 actors,
             });
+        }
+        if let Some(vars) = project
+            .pointer("/variables/variablesDict")
+            .and_then(Value::as_object)
+        {
+            for (id, &slot) in &compiler.actor_variables {
+                let var = &vars[id];
+                let owner = var["currentEntityId"]
+                    .as_str()
+                    .or_else(|| var["current_entity"].as_str())
+                    .with_context(|| format!("private variable {id}: missing owner"))?;
+                let sprite = compiler
+                    .program
+                    .sprites
+                    .iter_mut()
+                    .find(|s| s.id == owner)
+                    .with_context(|| format!("private variable {id}: unknown owner {owner}"))?;
+                sprite
+                    .variables
+                    .insert(slot, Cell::from_json(&var["value"])?);
+            }
         }
         compiler.program.initial_scene = scene_ids
             .iter()
@@ -1256,6 +1293,7 @@ struct Compiler {
     program: Program,
     start_hats: crate::kitten4::StartHats,
     slots: BTreeMap<String, usize>,
+    actor_variables: BTreeMap<String, usize>,
     locals: BTreeMap<String, usize>,
     lists: BTreeMap<String, usize>,
     ranges: Vec<String>,
@@ -1399,6 +1437,16 @@ fn input<'a>(v: &'a Value, key: &str) -> Result<&'a Value> {
 impl Compiler {
     fn list(&mut self, b: &Value) -> Result<ListRef> {
         match b["type"].as_str() {
+            Some("pure_list_get" | "list_get")
+                if self.actor_variables.contains_key(field(b, "list")) =>
+            {
+                let slot = self.actor_variables[field(b, "list")];
+                let value = self.program.values.len();
+                self.program
+                    .values
+                    .push(ValueExpr::ActorVariable(usize::MAX, slot, None));
+                Ok(ListRef::Expression(value as u32))
+            }
             Some("pure_list_get" | "list_get") => Ok(ListRef::Global(
                 *self
                     .lists
@@ -1408,6 +1456,9 @@ impl Compiler {
             )),
             Some("script_variables_value") => {
                 Ok(ListRef::Local(self.local(field(b, "TEXT")) as u32))
+            }
+            Some("variables_get") if self.actor_variables.contains_key(field(b, "variable")) => {
+                Ok(ListRef::Expression(self.value(b)? as u32))
             }
             Some("variables_get") => match self.target(field(b, "variable")) {
                 Target::Local(i) => Ok(ListRef::Local(i as u32)),
@@ -1528,7 +1579,9 @@ impl Compiler {
                 ValueExpr::Compare(self.value(input(b, "A")?)?, self.value(input(b, "B")?)?, op)
             }
             "variables_get" => {
-                if let Some(i) = self.lists.get(field(b, "variable")) {
+                if let Some(&slot) = self.actor_variables.get(field(b, "variable")) {
+                    ValueExpr::ActorVariable(usize::MAX, slot, None)
+                } else if let Some(i) = self.lists.get(field(b, "variable")) {
                     ValueExpr::List(ListRef::Global(*i as u32))
                 } else {
                     match self.target(field(b, "variable")) {
@@ -1537,6 +1590,14 @@ impl Compiler {
                     }
                 }
             }
+            "kitten4_actor_variable" => ValueExpr::ActorVariable(
+                self.actor_target(field(b, "sprite"))?,
+                *self
+                    .actor_variables
+                    .get(field(b, "attribute"))
+                    .context("unknown private variable attribute")?,
+                None,
+            ),
             "script_variables_value" => ValueExpr::Local(self.local(field(b, "TEXT"))),
             // 参考 HateNeko 0.7.1 的 rt/impl/data.lua::_variable_get。
             "_variable_get" => ValueExpr::Local(self.code_local(field(b, "VAR"))),
@@ -1630,6 +1691,15 @@ impl Compiler {
             )),
             "get_choice_and_index" => ValueExpr::Choice(field(b, "type") == "index"),
             "get_clone_index_property" => {
+                if let Some(&slot) = self.actor_variables.get(field(b, "attribute")) {
+                    let target = self.actor_target(field(b, "sprite"))?;
+                    let index = self.arg(b, "index")?;
+                    let value = self.program.values.len();
+                    self.program
+                        .values
+                        .push(ValueExpr::ActorVariable(target, slot, Some(index)));
+                    return Ok(value);
+                }
                 let attribute = match field(b, "attribute") {
                     "0" | "x" => 0,
                     "1" | "y" => 1,
@@ -1949,6 +2019,9 @@ impl Compiler {
                 ExprOp::Constant(field(b, "BOOL").eq_ignore_ascii_case("true") as u8 as f64)
             }
             "variables_get" => {
+                if self.actor_variables.contains_key(field(b, "variable")) {
+                    return self.expression_value(b);
+                }
                 ensure!(
                     !self.lists.contains_key(field(b, "variable")),
                     "list used as scalar at {}",
@@ -2117,9 +2190,10 @@ impl Compiler {
                 )
             }
             "get_current_clone_index" => ExprOp::CloneIndex,
-            "get_clone_index_property" | "shadow_text" | "on_bump_actor_value" => {
-                ExprOp::Value(self.value(b)?)
-            }
+            "get_clone_index_property"
+            | "kitten4_actor_variable"
+            | "shadow_text"
+            | "on_bump_actor_value" => ExprOp::Value(self.value(b)?),
             "get_stage_info" => {
                 let info = b["fields"].get("info").or_else(|| b["fields"].get("type"));
                 match info.and_then(Value::as_str).unwrap_or("width") {
@@ -2505,6 +2579,12 @@ impl Compiler {
                     continue;
                 }
                 "variables_set" => {
+                    if let Some(&slot) = self.actor_variables.get(field(b, "variable")) {
+                        let value = self.value(input(b, "value")?)?;
+                        self.emit(Op::SetActorVariable(slot, value), b);
+                        block = b.get("next");
+                        continue;
+                    }
                     ensure!(
                         !self.lists.contains_key(field(b, "variable")),
                         "list assignment requires list operations at {}",
@@ -2538,6 +2618,17 @@ impl Compiler {
                     }
                 }
                 "change_variables" => {
+                    if let Some(&slot) = self.actor_variables.get(field(b, "variable")) {
+                        let expr = self.arg(b, "value")?;
+                        let sign = if field(b, "method") == "decrease" {
+                            -1.0
+                        } else {
+                            1.0
+                        };
+                        self.emit(Op::ChangeActorVariable(slot, expr, sign), b);
+                        block = b.get("next");
+                        continue;
+                    }
                     ensure!(
                         !self.lists.contains_key(field(b, "variable")),
                         "list used as scalar at {}",
@@ -2855,6 +2946,31 @@ impl Compiler {
                 "show_hide_variables" | "show_hide_list" => {
                     let list = kind == "show_hide_list";
                     let id = field(b, if list { "list" } else { "variable" });
+                    let private = self.actor_variables.get(id).copied();
+                    if let Some(slot) = private {
+                        let owner = self
+                            .program
+                            .sprites
+                            .iter()
+                            .position(|s| s.variables.contains_key(&slot))
+                            .with_context(|| format!("private monitor {id}: missing owner"))?;
+                        let monitor = self
+                            .program
+                            .monitor_targets
+                            .iter()
+                            .position(|(existing, _, _)| existing == id)
+                            .unwrap_or_else(|| {
+                                let monitor = self.program.monitor_targets.len();
+                                self.program
+                                    .monitor_targets
+                                    .push((id.to_owned(), list, slot));
+                                self.program.actor_monitors.insert(monitor, (owner, slot));
+                                monitor
+                            });
+                        self.emit(Op::Monitor(monitor, field(b, "show_hide") != "hide"), b);
+                        block = b.get("next");
+                        continue;
+                    }
                     let target = if list {
                         *self
                             .lists
@@ -3597,8 +3713,7 @@ pub struct Engine {
     free_slots: Vec<usize>,
     clone_serial: u64,
     clones: usize,
-    /// Values belonging to cloned entities; originals retain their stable slots.
-    entity_values: BTreeMap<(usize, usize), Cell>,
+    /// Per-frame creation counts and monotonic clone numbers (not variable storage).
     clone_counts: BTreeMap<usize, u32>,
     clone_orders: BTreeMap<usize, u32>,
     asks: VecDeque<AskRequest>,
@@ -3681,6 +3796,9 @@ impl Engine {
                         "visible":sprite.visible, "scale":sprite.scale,
                         "size_x":sprite.size_x, "size_y":sprite.size_y,
                         "costume":sprite.style,
+                        "variables":sprite.variables.iter().map(|(&slot, value)|
+                            (self.program.actor_variable_names[slot].clone(), value.clone()))
+                            .collect::<BTreeMap<_, _>>(),
                     }),
                 )
             })
@@ -3746,7 +3864,15 @@ impl Engine {
     }
     pub fn new(program: Program) -> Self {
         let _timing = crate::import_perf::span("engine_init_jit");
-        let jit = jit::Jit::new(program.ops.len());
+        // Private list references can be nested inside ListRef::Expression and
+        // reporter calls. Conservatively keep the entire private-variable program
+        // interpreted until all native helpers understand entity ownership. Purely
+        // global projects retain the exact same JIT and indexed-slot fast path.
+        let jit = if program.actor_variable_names.is_empty() {
+            jit::Jit::new(program.ops.len())
+        } else {
+            None
+        };
         let slots = program.initial.clone();
         let lists = program
             .initial_lists
@@ -3759,6 +3885,17 @@ impl Engine {
             .map(|v| v.as_ref().map(Cell::deep_clone))
             .collect();
         let sprites = program.sprites.clone();
+        let sprites = sprites
+            .into_iter()
+            .map(|mut s| {
+                s.variables = s
+                    .variables
+                    .iter()
+                    .map(|(&k, v)| (k, v.deep_clone()))
+                    .collect();
+                s
+            })
+            .collect::<Vec<_>>();
         let dirty = vec![true; sprites.len()];
         let scene_orders = initial_orders(&program);
         let order = scene_orders[program.initial_scene].clone();
@@ -3821,7 +3958,6 @@ impl Engine {
             free_slots: vec![],
             clone_serial: 0,
             clones: 0,
-            entity_values: BTreeMap::new(),
             clone_counts: BTreeMap::new(),
             clone_orders: BTreeMap::new(),
             asks: VecDeque::new(),
@@ -3859,6 +3995,13 @@ impl Engine {
         self.pen_layer = 0;
         self.timer_visible = false;
         self.sprites.clone_from(&self.program.sprites);
+        for sprite in &mut self.sprites {
+            sprite.variables = sprite
+                .variables
+                .iter()
+                .map(|(&k, v)| (k, v.deep_clone()))
+                .collect();
+        }
         self.dirty.resize(self.sprites.len(), true);
         self.scene_orders = initial_orders(&self.program);
         self.current_scene = self.program.initial_scene;
@@ -3871,7 +4014,6 @@ impl Engine {
         self.free_slots.clear();
         self.clone_serial = 0;
         self.clones = 0;
-        self.entity_values.clear();
         self.clone_counts.clear();
         self.clone_orders.clear();
         self.asks.clear();
@@ -4242,7 +4384,7 @@ impl Engine {
     fn node(&mut self, pc: usize, actor: usize) -> f64 {
         match self.program.expressions[pc] {
             ExprOp::Constant(n) => n,
-            ExprOp::Slot(s) => self.actor_number(s, actor),
+            ExprOp::Slot(s) => self.slots[s],
             ExprOp::Binary(op) => {
                 let right = pc - 1;
                 let left = self.program.expression_starts[right] as usize - 1;
@@ -4273,7 +4415,7 @@ impl Engine {
     fn operand(&mut self, pc: usize, actor: usize) -> f64 {
         match self.program.expressions[pc] {
             ExprOp::Constant(n) => n,
-            ExprOp::Slot(s) => self.actor_number(s, actor),
+            ExprOp::Slot(s) => self.slots[s],
             _ => self.node(pc, actor),
         }
     }
@@ -4281,7 +4423,7 @@ impl Engine {
     fn node_slow(&mut self, pc: usize, actor: usize) -> f64 {
         match self.program.expressions[pc] {
             ExprOp::Constant(n) => n,
-            ExprOp::Slot(s) => self.actor_number(s, actor),
+            ExprOp::Slot(s) => self.slots[s],
             ExprOp::Local(s) => self.tasks[self.current_task].locals[s],
             ExprOp::Value(i) => self.eval_value(i, actor).number(),
             ExprOp::Truth(i) => u8::from(self.eval_value(i, actor).truth()) as f64,
@@ -4536,7 +4678,12 @@ impl Engine {
                 continue;
             }
             let (id, list, target) = &self.program.monitor_targets[i];
-            let value = if *list {
+            let value = if let Some(&(owner, slot)) = self.program.actor_monitors.get(&i) {
+                self.sprites[owner]
+                    .variables
+                    .get(&slot)
+                    .map_or_else(String::new, Cell::text)
+            } else if *list {
                 let items = self.lists[*target].borrow();
                 let mut text = items
                     .iter()
@@ -5436,6 +5583,46 @@ impl Engine {
             }
         }
     }
+    /// Shared inheritance hook for clone/split implementations. Never copy defaults:
+    /// official UserVariableImpl.clone_entity_variables copies the live source table.
+    fn copy_actor_variables(&self, source: usize) -> BTreeMap<usize, Cell> {
+        self.sprites[source]
+            .variables
+            .iter()
+            .map(|(&k, v)| (k, v.deep_clone()))
+            .collect()
+    }
+    fn read_actor_variable(&mut self, actor: usize, slot: usize) -> Cell {
+        if let Some(value) = self
+            .sprites
+            .get(actor)
+            .filter(|s| s.alive)
+            .and_then(|s| s.variables.get(&slot))
+        {
+            value.clone()
+        } else {
+            self.value_error = Some(format!(
+                "entity_variable_operation_out_of_scope: {}",
+                self.program.actor_variable_names[slot]
+            ));
+            Cell::Null
+        }
+    }
+    fn write_actor_variable(&mut self, actor: usize, slot: usize, value: Cell) {
+        if let Some(cell) = self
+            .sprites
+            .get_mut(actor)
+            .filter(|s| s.alive)
+            .and_then(|s| s.variables.get_mut(&slot))
+        {
+            *cell = value;
+        } else {
+            self.value_error = Some(format!(
+                "entity_variable_operation_out_of_scope: {}",
+                self.program.actor_variable_names[slot]
+            ));
+        }
+    }
     fn clone_sprite(&mut self, source: usize, split: Option<(f64, f64)>) -> Result<()> {
         ensure!(!self.sprites[source].stage, "the stage cannot be cloned");
         ensure!(
@@ -5475,6 +5662,7 @@ impl Engine {
         }
         self.clone_serial += 1;
         let mut sprite = self.sprites[source].clone();
+        sprite.variables = self.copy_actor_variables(source);
         sprite.id = format!("{}#{}", self.sprites[origin].id, self.clone_serial);
         sprite.clone_index = live as u32 + 1;
         if self.program.semantics == RuntimeSemantics::Kitten4 {
@@ -5504,12 +5692,6 @@ impl Engine {
             self.sprites.len() - 1
         };
         self.dirty[index] = true;
-        for &slot in self.program.entity_variables.keys() {
-            if self.program.entity_variables[&slot] == self.sprites[origin].id {
-                self.entity_values
-                    .insert((index, slot), self.actor_value(slot, source).deep_clone());
-            }
-        }
         self.clones += 1;
         // A clone starts directly behind its source.
         let at = self.order.iter().position(|&i| i == source).unwrap_or(0);
@@ -5541,7 +5723,6 @@ impl Engine {
         if !self.sprites[index].alive {
             return;
         }
-        self.entity_values.retain(|&(actor, _), _| actor != index);
         self.bump_state.retain(|&(_, actor), _| actor != index);
         self.remove_physics_body(index);
         for task in 0..self.tasks.len() {
@@ -5551,6 +5732,7 @@ impl Engine {
         }
         let sprite = &mut self.sprites[index];
         sprite.alive = false;
+        sprite.variables.clear();
         sprite.visible = false;
         self.removed.push(sprite.id.clone());
         if self.program.semantics == RuntimeSemantics::KnCurrent
@@ -5624,19 +5806,6 @@ impl Engine {
         }
     }
     #[inline]
-    fn actor_value(&self, slot: usize, actor: usize) -> Cell {
-        self.entity_values
-            .get(&(actor, slot))
-            .cloned()
-            .unwrap_or_else(|| self.global_value(slot))
-    }
-    #[inline]
-    fn actor_number(&self, slot: usize, actor: usize) -> f64 {
-        self.entity_values
-            .get(&(actor, slot))
-            .map_or(self.slots[slot], Cell::number)
-    }
-    #[inline]
     fn local_value(&self, i: usize) -> Cell {
         let t = &self.tasks[self.current_task];
         match &t.local_values[i] {
@@ -5670,7 +5839,27 @@ impl Engine {
         match self.program.values[i] {
             ValueExpr::Number(e) => Cell::Number(self.eval(e, actor)),
             ValueExpr::Constant(v) => self.program.constants[v].clone(),
-            ValueExpr::Global(i) => self.actor_value(i, actor),
+            ValueExpr::Global(i) => self.global_value(i),
+            ValueExpr::ActorVariable(target, slot, index) => {
+                let target = if target == usize::MAX { actor } else { target };
+                let target = if let Some(index) = index {
+                    let origin = self.sprites[target].origin;
+                    let wanted = self.eval(index, actor);
+                    self.sprites.iter().position(|s| {
+                        s.alive && s.origin == origin && f64::from(s.clone_index) == wanted
+                    })
+                } else {
+                    Some(target)
+                };
+                if let Some(target) = target {
+                    self.read_actor_variable(target, slot)
+                } else {
+                    if self.program.semantics == RuntimeSemantics::Kitten4 {
+                        self.value_error = Some("clone_not_found".into());
+                    }
+                    Cell::Number(f64::NAN)
+                }
+            }
             ValueExpr::Local(i) => self.local_value(i),
             ValueExpr::Parameter(i) => self.tasks[self.current_task]
                 .parameters
@@ -6036,13 +6225,6 @@ impl Engine {
         }
     }
     fn assign(&mut self, target: Target, value: Cell) {
-        if let Target::Global(slot) = target {
-            let actor = self.tasks[self.current_task].actor;
-            if let Some(cell) = self.entity_values.get_mut(&(actor, slot)) {
-                *cell = value;
-                return;
-            }
-        }
         let (number, dynamic) = match target {
             Target::Global(i) => (&mut self.slots[i], &mut self.values[i]),
             Target::Local(i) => {
@@ -6287,6 +6469,15 @@ impl Engine {
                     return Ok(false);
                 }
             }
+            Op::SetActorVariable(slot, value) => {
+                let value = self.eval_value(value, actor);
+                self.write_actor_variable(actor, slot, value);
+            }
+            Op::ChangeActorVariable(slot, expr, sign) => {
+                let previous = self.read_actor_variable(actor, slot).number();
+                let value = previous + self.eval(expr, actor) * sign;
+                self.write_actor_variable(actor, slot, Cell::Number(value));
+            }
             Op::Set(s, e) => {
                 let value = self.eval(e, actor);
                 self.assign(Target::Global(s), Cell::Number(value));
@@ -6313,7 +6504,7 @@ impl Engine {
                 self.tasks[self.current_task].local_values[s] = None;
             }
             Op::Change(s, e, sign) => {
-                let value = self.actor_value(s, actor).number() + self.eval(e, actor) * sign;
+                let value = self.global_value(s).number() + self.eval(e, actor) * sign;
                 self.assign(Target::Global(s), Cell::Number(value));
             }
             Op::SetLocal(s, e) => {

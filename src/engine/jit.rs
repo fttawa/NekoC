@@ -119,11 +119,6 @@ impl Engine {
         actor: usize,
         left: usize,
     ) -> Option<usize> {
-        // Native slot loads/stores address shared globals. Entity-scoped K4
-        // variables use instance storage; keep this path on the interpreter.
-        if !self.program.entity_variables.is_empty() {
-            return None;
-        }
         let jit = self.jit.as_mut()?;
         if jit.regions[pc].is_none() {
             let hot = &mut jit.hot[pc];
@@ -213,6 +208,9 @@ impl Engine {
             | ValueExpr::ParseFloat(..)
             | ValueExpr::IsNumber(..)
             | ValueExpr::ParseInt(..) => false,
+            // Entity reads can report scope/clone errors. Keep them in the interpreter;
+            // the unchanged numeric global-slot path remains eligible for native code.
+            ValueExpr::ActorVariable(..) => false,
             ValueExpr::Number(e) => expr(e),
             ValueExpr::Item(_, e) => e.is_none_or(expr),
             ValueExpr::Received(a)
@@ -1361,6 +1359,39 @@ fn compile(jit: &mut Jit, engine: &Engine, entry: usize) -> Option<Region> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn only_private_variable_programs_disable_native_slots() {
+        let mut project = crate::studio::document::Document::blank().value().clone();
+        let actor = project["actors"]["actorsDict"]
+            .as_object()
+            .unwrap()
+            .keys()
+            .next()
+            .unwrap()
+            .clone();
+        project["variables"]["variablesDict"]["score"] =
+            serde_json::json!({"id":"score", "value":0, "isGlobal":true});
+        project["actors"]["actorsDict"][&actor]["nekoBlockJsonList"] = serde_json::json!([
+            {"type":"on_running_group_activated", "next":{
+                "type":"variables_set", "fields":{"variable":"score"},
+                "inputs":{"value":{"type":"math_number", "fields":{"NUM":3}}}
+            }}
+        ]);
+        let global = Engine::new(super::super::Program::compile(&project).unwrap());
+        assert!(
+            global.jit.is_some(),
+            "global programs must retain native slots"
+        );
+        project["variables"]["variablesDict"]["private"] = serde_json::json!({
+            "id":"private", "value":[[7]], "isGlobal":false, "currentEntityId":actor
+        });
+        let private = Engine::new(super::super::Program::compile(&project).unwrap());
+        assert!(private.jit.is_none());
+        assert_eq!(private.program.variable_names, ["score"]);
+        assert_eq!(private.slots.len(), 1);
+        assert_eq!(private.program.actor_variable_names, ["private"]);
+    }
 
     #[test]
     fn aarch64_compiles_project_regions() {

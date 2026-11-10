@@ -186,4 +186,6 @@ pub(super) enum ValueExpr {
     Choice(bool),
     /// Attribute (see `bump_attribute`) of the actor this collision script met.
     BumpProperty(u8),
+    /// Entity target (MAX = self), private slot, optional clone ordinal.
+    ActorVariable(usize, usize, Option<super::Expr>),
 }

@@ -219,6 +219,7 @@ fn lower_for_vm_inner(project: &Value) -> crate::json::Json {
         }
     }
     let targets = Targets {
+        variables: &project["variables"]["variablesDict"],
         actors: &project["actors"]["actorsDict"],
         scenes: &project["scenes"]["scenesDict"],
         procedures: &project["procedures"]["proceduresDict"],
@@ -233,6 +234,7 @@ fn lower_for_vm_inner(project: &Value) -> crate::json::Json {
 }
 
 struct Targets<'a> {
+    variables: &'a Value,
     actors: &'a Value,
     scenes: &'a Value,
     procedures: &'a Value,
@@ -396,7 +398,7 @@ fn lower_node(value: &mut Value, targets: &Targets) {
                 .and_then(Value::as_str)
                 .is_some_and(|t| t.starts_with(OPAQUE))
             {
-                lower_block(value);
+                lower_block(value, targets);
             }
         }
         _ => {}
@@ -454,7 +456,7 @@ fn cloud_list(block: &mut Value, native: &str) {
     }
 }
 
-fn lower_block(block: &mut Value) {
+fn lower_block(block: &mut Value, targets: &Targets) {
     let kind = block["type"]
         .as_str()
         .unwrap_or_default()
@@ -683,6 +685,14 @@ fn lower_block(block: &mut Value) {
                 block["type"] = json!("appearance_of_sprite");
                 *block = native_heading_reporter(block.clone());
                 return;
+            }
+            attribute
+                if targets
+                    .variables
+                    .get(attribute)
+                    .is_some_and(|v| v["isGlobal"] == false) =>
+            {
+                "kitten4_actor_variable"
             }
             _ => return,
         },
