@@ -9,6 +9,7 @@ mod cloud;
 mod extensions;
 mod jit;
 mod k4_clock;
+mod kn_catalog;
 mod kn_helpers;
 mod physics;
 mod stage_dialog;
@@ -227,6 +228,7 @@ enum ExprOp {
     TouchingColor(usize, u32),
     PhysicsProperty(physics::Property),
     LegacyPhysicsProperty(usize, physics::Property),
+    BlockTimer,
     Binary(Binary),
     Unary(Unary),
 }
@@ -389,6 +391,9 @@ enum Op {
     CloudList(usize, u8, Option<Expr>, Option<usize>),
     Ranking(Option<usize>, bool),
     Extension(usize),
+    ResetBlockTimer,
+    /// Evaluate a code-view action exactly once and discard its result.
+    Execute(usize),
 }
 #[derive(Clone, Copy, Debug)]
 enum LayerMove {
@@ -1691,6 +1696,8 @@ impl Compiler {
             },
             Some(
                 "_compiled_value"
+                | "_array_literal"
+                | "_variable_get"
                 | "text_split"
                 | "temporary_list"
                 | "list_item"
@@ -1758,7 +1765,10 @@ impl Compiler {
             {
                 ValueExpr::Kitten4Add(self.value(input(b, "A")?)?, self.value(input(b, "B")?)?)
             }
-            "kitten4_calculate" => ValueExpr::Calculate(self.value(input(b, "input")?)?),
+            "kitten4_calculate" | "calculate" => {
+                ValueExpr::Calculate(self.value(input(b, "input")?)?)
+            }
+            "_array_literal" => self.array_literal(b)?,
             "math_number_property"
                 if self.program.semantics == RuntimeSemantics::Kitten4
                     && matches!(field(b, "type"), "integer" | "whole") =>
@@ -2417,6 +2427,8 @@ impl Compiler {
             | "btoa"
             | "parseInt"
             | "parseFloat"
+            | "_array_literal"
+            | "calculate"
             | "isNaN"
             | "isFinite"
             | "self_listen_value"
@@ -2468,6 +2480,7 @@ impl Compiler {
             "self_get_position_y" => ExprOp::Y,
             "self_get_rotation" => ExprOp::Direction,
             "timer" => ExprOp::Timer,
+            "get_timer" => ExprOp::BlockTimer,
             "coordinate_of_sprite" => {
                 ensure!(
                     matches!(field(b, "coordinate"), "x" | "y"),
@@ -2976,6 +2989,7 @@ impl Compiler {
                 }
                 Work::Loop(b, warped, begin) => {
                     let kind = b["type"].as_str().unwrap();
+                    let next = self.program.ops.len();
                     if kind == "repeat_n_times" {
                         self.emit(Op::Next(begin + 1, !warped), b);
                     } else {
@@ -2993,18 +3007,31 @@ impl Compiler {
                     if kind == "repeat_forever_until" {
                         self.program.ops[begin + 1] = Op::Jump(end);
                     }
+                    if kind == "controls_while"
+                        && let Op::Branch(condition, _) = self.program.ops[begin]
+                    {
+                        self.program.ops[begin] = Op::Branch(condition, end);
+                    }
                     for pc in self.loops.pop().unwrap() {
-                        self.program.ops[pc] =
-                            Op::Break(end, usize::from(kind == "repeat_n_times"));
+                        self.program.ops[pc] = if matches!(self.program.ops[pc], Op::Jump(_)) {
+                            Op::Jump(next)
+                        } else {
+                            Op::Break(end, usize::from(kind == "repeat_n_times"))
+                        };
                     }
                     continue;
                 }
                 Work::Range(b, warped, begin, spec) => {
+                    let next = self.program.ops.len();
                     self.emit(Op::RangeNext(begin + 1, !warped), b);
                     let end = self.program.ops.len();
                     self.program.ops[begin] = Op::Range(spec, end);
                     for pc in self.loops.pop().unwrap() {
-                        self.program.ops[pc] = Op::Break(end, 2);
+                        self.program.ops[pc] = if matches!(self.program.ops[pc], Op::Jump(_)) {
+                            Op::Jump(next)
+                        } else {
+                            Op::Break(end, 2)
+                        };
                     }
                     self.ranges.pop();
                     continue;
@@ -3034,7 +3061,14 @@ impl Compiler {
                         block = b.get("next");
                         continue;
                     }
-                    "variables_set" => {
+                    // main.8ccf2442.js:2962264 has an empty domain body; the
+                    // action input is still evaluated before discarding it.
+                    "_execute" => Op::Execute(self.value(input(b, "action")?)?),
+                    "reset_timer" => Op::ResetBlockTimer,
+                    // script_variables_set is an API alias, not an official
+                    // registered type. Preserve it as an explicit compatibility
+                    // input; official workspaces use variables_set + JSON field.
+                    "variables_set" | "script_variables_set" => {
                         if let Some(&slot) = self.actor_variables.get(field(b, "variable")) {
                             let value = self.value(input(b, "value")?)?;
                             self.emit(Op::SetActorVariable(slot, value), b);
@@ -3046,7 +3080,11 @@ impl Compiler {
                             "list assignment requires list operations at {}",
                             b["id"]
                         );
-                        let target = self.target(field(b, "variable"));
+                        let target = if kind == "script_variables_set" {
+                            self.script_target(field(b, "variable"))
+                        } else {
+                            self.target(field(b, "variable"))
+                        };
                         let value = input(b, "value")?;
                         if matches!(
                             value["type"].as_str(),
@@ -3076,7 +3114,7 @@ impl Compiler {
                             Op::SetValue(target, self.value(value)?)
                         }
                     }
-                    "change_variables" => {
+                    "change_variables" | "change_script_variables" => {
                         if let Some(&slot) = self.actor_variables.get(field(b, "variable")) {
                             let expr = self.arg(b, "value")?;
                             let sign = if field(b, "method") == "decrease" {
@@ -3093,7 +3131,11 @@ impl Compiler {
                             "list used as scalar at {}",
                             b["id"]
                         );
-                        let target = self.target(field(b, "variable"));
+                        let target = if kind == "change_script_variables" {
+                            self.script_target(field(b, "variable"))
+                        } else {
+                            self.target(field(b, "variable"))
+                        };
                         if self.program.semantics == RuntimeSemantics::Kitten4 {
                             let value = self.value(input(b, "value")?)?;
                             self.emit(
@@ -3685,7 +3727,9 @@ impl Compiler {
                         // VALUE socket. ROUND/malformed missing values stay errors.
                         Op::Return
                     }
-                    "procedures_2_return_value" => Op::ReturnValue(self.value(input(b, "VALUE")?)?),
+                    "procedures_2_return_value" | "_return_statement" => {
+                        Op::ReturnValue(self.value(input(b, "VALUE")?)?)
+                    }
                     "when" => {
                         // Statement form: wait until the condition holds, run DO, continue.
                         let condition = self.condition(input(b, "condition")?)?;
@@ -3919,7 +3963,10 @@ impl Compiler {
                         block = None;
                         continue;
                     }
-                    "repeat_n_times" | "repeat_forever" | "repeat_forever_until" => {
+                    "repeat_n_times"
+                    | "repeat_forever"
+                    | "repeat_forever_until"
+                    | "controls_while" => {
                         let begin = self.program.ops.len();
                         if kind == "repeat_n_times" {
                             let n = self.arg(b, "times")?;
@@ -3929,6 +3976,12 @@ impl Compiler {
                             let gate = self.emit(Op::Branch(c, begin + 2), b);
                             debug_assert_eq!(gate, begin);
                             self.emit(Op::Jump(0), b);
+                        } else if kind == "controls_while" {
+                            // Official main-vendors.07f7dd7e.js:6183639 converts
+                            // BOOL/DO to a pre-tested while. Native KN scheduling
+                            // parity is unverified; retain our normal loop policy.
+                            let condition = self.condition(input(b, "BOOL")?)?;
+                            self.emit(Op::Branch(condition, 0), b);
                         }
                         self.loops.push(vec![]);
                         work.push(Work::Chain(b.get("next"), warped));
@@ -3966,7 +4019,9 @@ impl Compiler {
                         block = None;
                         continue;
                     }
-                    "break" => {
+                    // __break__ is the public type declaration alias for break,
+                    // not an editor block (main.8ccf2442.js:2878885).
+                    "break" | "__break__" | "_break_statement" => {
                         ensure!(!self.loops.is_empty(), "break outside loop");
                         let pc = self.emit(Op::Break(0, 0), b);
                         self.loops.last_mut().unwrap().push(pc);
@@ -3974,6 +4029,13 @@ impl Compiler {
                         continue;
                     }
                     "nekoc_extension_call" => self.extension_call(b)?,
+                    "_continue_statement" => {
+                        ensure!(!self.loops.is_empty(), "continue outside loop");
+                        let pc = self.emit(Op::Jump(0), b);
+                        self.loops.last_mut().unwrap().push(pc);
+                        block = b.get("next");
+                        continue;
+                    }
                     _ => bail!("unsupported fast-VM block {kind} ({})", b["id"]),
                 };
                 self.emit(op, b);
@@ -4321,6 +4383,7 @@ pub struct Engine {
     /// Offline diagnostics: epoch seconds + simulation time, never wall time.
     virtual_epoch: Option<f64>,
     timer: f64,
+    block_timer: kn_catalog::BlockTimer,
     timer_running: bool,
     /// Kitten 4 only: the millisecond clock scripts see during this update, and
     /// the clock value the running stage timer counts from.
@@ -4703,6 +4766,7 @@ impl Engine {
             time: 0.0,
             virtual_epoch: None,
             timer: 0.0,
+            block_timer: kn_catalog::BlockTimer::default(),
             timer_running: true,
             clock_ms: 0.0,
             timer_origin_ms: 0.0,
@@ -4825,6 +4889,7 @@ impl Engine {
         self.timer_running = self.program.k4_timer.is_none();
         self.clock_ms = 0.0;
         self.timer_origin_ms = 0.0;
+        self.block_timer.reset(0.0);
         self.clear = true;
         self.lines.clear();
         self.text_stamps.clear();
@@ -5405,6 +5470,7 @@ impl Engine {
                 Some(K4Timer::RunClock) => self.clock_ms / 1000.0,
                 Some(K4Timer::Widget) => to_fixed2(self.timer),
             },
+            ExprOp::BlockTimer => self.block_timer.elapsed(self.time),
             ExprOp::Mouse(y) => self.mouse[usize::from(y)],
             ExprOp::TextLength(i) => self.eval_value(i, actor).text().encode_utf16().count() as f64,
             ExprOp::Distance(target) => {
@@ -8112,6 +8178,10 @@ impl Engine {
                 }
             }
             Op::TimerVisible(visible) => self.timer_visible = visible,
+            Op::ResetBlockTimer => self.block_timer.reset(self.time),
+            Op::Execute(value) => {
+                self.eval_value(value, actor);
+            }
             Op::ClearList(list) => {
                 if let Some(list) = self.resolve_list(list) {
                     list.borrow_mut().clear();
