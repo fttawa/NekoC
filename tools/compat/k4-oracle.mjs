@@ -7,6 +7,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
 import { loadPlaywright } from "../probe-kitten4.mjs";
+import { validateInputScript, installInputReplay } from "./input-script.mjs";
 
 // Optional per-run media cache shared by official and NekoC pages. Entries are
 // populated only after the same CDN/method checks as an uncached request.
@@ -24,7 +25,7 @@ export function parseArgs(argv) {
   if (argv[0] && !argv[0].startsWith("--")) args.command = argv.shift();
   const keys = { "--input": "input", "--out": "out", "--player-dir": "playerDir", "--channel": "channel",
      "--frames": "frames", "--seed": "seed", "--timeout-ms": "timeoutMs", "--diagnostics": "diagnostics",
-     "--random-source": "randomSource", "--block-filter": "blockFilter", "--variable-filter": "variableFilter" };
+     "--random-source": "randomSource", "--block-filter": "blockFilter", "--variable-filter": "variableFilter", "--input-script": "inputScript" };
   for (let i = 0; i < argv.length; i++) {
     if (argv[i] === "--allow-assets") { args.allowAssets = true; continue; }
     if (argv[i] === "--blocks") { args.blocks = true; continue; }
@@ -209,6 +210,16 @@ export async function openKernel(options, input) {
         for (const callback of batch) callback(timestamp);
       };
     });
+    if (options.inputScript) await page.addInitScript(() => {
+      // Install before Hammer/lodash capture Date.now. Outside DOM dispatch the
+      // clock delegates to the native Date; VM timer reporters stay untouched.
+      const NativeDate=Date;
+      window.__k4InputTime=null;
+      window.Date=class extends NativeDate {
+        constructor(...args) { super(...(args.length?args:[window.__k4InputTime??NativeDate.now()])); }
+        static now() { return window.__k4InputTime??NativeDate.now(); }
+      };
+    });
     const timeout = options.timeoutMs || 45000;
     async function load(project) {
       served = project;
@@ -288,6 +299,8 @@ export async function compileProject(page, project) {
 }
 
 export async function runOracle(input, options = {}) {
+  if (options.inputScript && options.virtualTime) throw new Error('input-script and virtual-time use distinct clocks; run separately');
+  const inputScript = options.inputScript ? validateInputScript(typeof options.inputScript === 'string' ? await readJson(options.inputScript) : options.inputScript, options.frames ?? 60) : null;
   const { project, adaptations } = runtimeProject(input);
   // Published works already contain the official AST: load them directly. Only
   // editable works need an empty-AST bootstrap to access the native compiler.
@@ -519,6 +532,10 @@ export async function runOracle(input, options = {}) {
       window.__k4Oracle = { frames, errors, heart, events, snapshot, timings, heaps, warmup, get traceTruncated() { return traceTruncated; } };
     }, { seed: options.seed ?? 1, blocks: !!options.blocks, randomSource: options.randomSource, blockFilter: options.blockFilter, variableFilter: options.variableFilter,
       measurePerformance: !!options.measurePerformance, warmup: options.warmup ?? 0 });
+    if (inputScript) {
+      await kernel.page.evaluate(installInputReplay, inputScript);
+      kernel.diagnostics.instrumentation.push('nekoc-input-v1: DOM input before update; dispatch-only Date clock for click/Hammer duration');
+    }
     if ((options.frames ?? 60) > 0) {
       // Use the player's Start entry, including anonymous/cloud initialization,
       // rather than bypassing it with the lower-level run function (m).
@@ -535,7 +552,8 @@ export async function runOracle(input, options = {}) {
       }
     }
     const result = await kernel.page.evaluate(() => ({ frames: window.__k4Oracle.frames, errors: window.__k4Oracle.errors,
-      events: window.__k4Oracle.events, traceTruncated: window.__k4Oracle.traceTruncated }));
+      events: window.__k4Oracle.events, traceTruncated: window.__k4Oracle.traceTruncated,
+      ...(window.__k4InputObservations ? { inputObservations:window.__k4InputObservations } : {}) }));
     if (options.measurePerformance) result.performance = await kernel.page.evaluate(importMs => {
       const p = window.__k4Oracle;
       return { import_ms: importMs, frame_ms: p.timings.slice(p.warmup), warmup_ms: p.timings.slice(0, p.warmup),
@@ -553,7 +571,7 @@ export async function runOracle(input, options = {}) {
     }
     kernel.diagnostics.phase = "done";
     return { schema: "nekoc-k4-trace-v1", fps: 60, seed: options.seed ?? 1,
-      random: options.randomSource === "nekoc" ? "NekoC xorshift64 (diagnostic override)" : "official PCG (not the NekoC PRNG)", ...result, diagnostics: kernel.diagnostics };
+      random: options.randomSource === "nekoc" ? "NekoC xorshift64 (diagnostic override)" : "official PCG (not the NekoC PRNG)", ...(inputScript ? { inputScript } : {}), ...result, diagnostics: kernel.diagnostics };
   } catch (error) {
     kernel.diagnostics.partialTrace = await kernel.page.evaluate(() => window.__k4Oracle && ({
       frames: window.__k4Oracle.frames, errors: window.__k4Oracle.errors, events: window.__k4Oracle.events,
@@ -567,7 +585,7 @@ export async function runOracle(input, options = {}) {
 async function main() {
   const options = parseArgs(process.argv.slice(2));
   if (options.help || !options.input) {
-    console.log("Usage: node tools/compat/k4-oracle.mjs run|compile --input work.bcm [--out output.json] [--player-dir app] [--frames 60] [--seed 1] [--channel msedge] [--allow-assets] [--blocks] [--block-filter id,id] [--variable-filter id,id] [--virtual-time] [--random-source pcg|nekoc] [--diagnostics log.json]");
+    console.log("Usage: node tools/compat/k4-oracle.mjs run|compile --input work.bcm [--input-script events.json] [--out output.json] [--player-dir app] [--frames 60] [--seed 1] [--channel msedge] [--allow-assets] [--blocks] [--block-filter id,id] [--variable-filter id,id] [--virtual-time] [--random-source pcg|nekoc] [--diagnostics log.json]");
     if (!options.help) process.exitCode = 2;
     return;
   }

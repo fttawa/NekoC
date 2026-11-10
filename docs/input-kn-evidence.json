@@ -1,0 +1,461 @@
+{
+  "schema": "nekoc-kn-input-official-v1",
+  "checkedAt": "2026-11-10T14:18:04.041Z",
+  "editorUrl": "https://kn.codemao.cn/editor",
+  "fixture": "tests/fixtures/input-kn.bcmkn",
+  "fixtureSha256": "0acff8a7b40e638caf2db736e53c49118937ea1aebe0d5c5b25752cbb160ea4a",
+  "method": "Load self-authored project through previewUrl, click official Start, send browser keyboard/mouse events, read official runtime variables. Only webpack require reference and passive event logging added.",
+  "sources": [
+    {
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+      "sha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7",
+      "bytes": 1297643
+    },
+    {
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/base.f158ddbf.js",
+      "sha256": "724251e202e9dac074241e6296f3bbf3773c420141516764c8434dd17eb113e7",
+      "bytes": 949823
+    },
+    {
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main-vendors.07f7dd7e.js",
+      "sha256": "38183ab8a9620f33fef75f1bd1f90ee26b492e7b6ded8b6b065fc052e7948f68",
+      "bytes": 6460489
+    },
+    {
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+      "sha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "bytes": 5594327
+    }
+  ],
+  "samples": [
+    {
+      "label": "before-down",
+      "at": 7671.399999976158,
+      "running": true,
+      "variables": {
+        "ready": 1,
+        "a-down": 0,
+        "a-up": 0,
+        "any-down": 0,
+        "any-up": 0,
+        "sprite-down": 0,
+        "sprite-up": 0,
+        "sprite-click": 0
+      },
+      "aState": "",
+      "anyState": "",
+      "keyboardEvents": []
+    },
+    {
+      "label": "held-180ms",
+      "at": 7894.399999976158,
+      "running": true,
+      "variables": {
+        "ready": 1,
+        "a-down": 28,
+        "a-up": 0,
+        "any-down": 28,
+        "any-up": 0,
+        "sprite-down": 0,
+        "sprite-up": 0,
+        "sprite-click": 0
+      },
+      "aState": "down",
+      "anyState": "down",
+      "keyboardEvents": [
+        {
+          "type": "keydown",
+          "keyCode": 65,
+          "key": "a",
+          "repeat": false,
+          "isTrusted": true,
+          "at": 7676.199999988079
+        }
+      ]
+    },
+    {
+      "label": "held-780ms",
+      "at": 8555.199999988079,
+      "running": true,
+      "variables": {
+        "ready": 1,
+        "a-down": 116,
+        "a-up": 0,
+        "any-down": 116,
+        "any-up": 0,
+        "sprite-down": 0,
+        "sprite-up": 0,
+        "sprite-click": 0
+      },
+      "aState": "down",
+      "anyState": "down",
+      "keyboardEvents": [
+        {
+          "type": "keydown",
+          "keyCode": 65,
+          "key": "a",
+          "repeat": false,
+          "isTrusted": true,
+          "at": 7676.199999988079
+        }
+      ]
+    },
+    {
+      "label": "held-1380ms",
+      "at": 9181.199999988079,
+      "running": true,
+      "variables": {
+        "ready": 1,
+        "a-down": 213,
+        "a-up": 0,
+        "any-down": 213,
+        "any-up": 0,
+        "sprite-down": 0,
+        "sprite-up": 0,
+        "sprite-click": 0
+      },
+      "aState": "down",
+      "anyState": "down",
+      "keyboardEvents": [
+        {
+          "type": "keydown",
+          "keyCode": 65,
+          "key": "a",
+          "repeat": false,
+          "isTrusted": true,
+          "at": 7676.199999988079
+        }
+      ]
+    },
+    {
+      "label": "released-250ms",
+      "at": 9458.5,
+      "running": true,
+      "variables": {
+        "ready": 1,
+        "a-down": 214,
+        "a-up": 1,
+        "any-down": 214,
+        "any-up": 1,
+        "sprite-down": 0,
+        "sprite-up": 0,
+        "sprite-click": 0
+      },
+      "aState": "",
+      "anyState": "",
+      "keyboardEvents": [
+        {
+          "type": "keydown",
+          "keyCode": 65,
+          "key": "a",
+          "repeat": false,
+          "isTrusted": true,
+          "at": 7676.199999988079
+        },
+        {
+          "type": "keyup",
+          "keyCode": 65,
+          "key": "a",
+          "repeat": false,
+          "isTrusted": true,
+          "at": 9187.799999982119
+        }
+      ]
+    },
+    {
+      "label": "released-850ms",
+      "at": 10071.899999976158,
+      "running": true,
+      "variables": {
+        "ready": 1,
+        "a-down": 214,
+        "a-up": 1,
+        "any-down": 214,
+        "any-up": 1,
+        "sprite-down": 0,
+        "sprite-up": 0,
+        "sprite-click": 0
+      },
+      "aState": "",
+      "anyState": "",
+      "keyboardEvents": [
+        {
+          "type": "keydown",
+          "keyCode": 65,
+          "key": "a",
+          "repeat": false,
+          "isTrusted": true,
+          "at": 7676.199999988079
+        },
+        {
+          "type": "keyup",
+          "keyCode": 65,
+          "key": "a",
+          "repeat": false,
+          "isTrusted": true,
+          "at": 9187.799999982119
+        }
+      ]
+    }
+  ],
+  "mouseSamples": [
+    {
+      "label": "before-mouse",
+      "at": 10084,
+      "running": true,
+      "variables": {
+        "ready": 1,
+        "a-down": 214,
+        "a-up": 1,
+        "any-down": 214,
+        "any-up": 1,
+        "sprite-down": 0,
+        "sprite-up": 0,
+        "sprite-click": 0
+      },
+      "aState": "",
+      "anyState": "",
+      "keyboardEvents": [
+        {
+          "type": "keydown",
+          "keyCode": 65,
+          "key": "a",
+          "repeat": false,
+          "isTrusted": true,
+          "at": 7676.199999988079
+        },
+        {
+          "type": "keyup",
+          "keyCode": 65,
+          "key": "a",
+          "repeat": false,
+          "isTrusted": true,
+          "at": 9187.799999982119
+        }
+      ]
+    },
+    {
+      "label": "short-held",
+      "at": 10272.5,
+      "running": true,
+      "variables": {
+        "ready": 1,
+        "a-down": 214,
+        "a-up": 1,
+        "any-down": 214,
+        "any-up": 1,
+        "sprite-down": 40,
+        "sprite-up": 0,
+        "sprite-click": 0
+      },
+      "aState": "",
+      "anyState": "",
+      "keyboardEvents": [
+        {
+          "type": "keydown",
+          "keyCode": 65,
+          "key": "a",
+          "repeat": false,
+          "isTrusted": true,
+          "at": 7676.199999988079
+        },
+        {
+          "type": "keyup",
+          "keyCode": 65,
+          "key": "a",
+          "repeat": false,
+          "isTrusted": true,
+          "at": 9187.799999982119
+        }
+      ]
+    },
+    {
+      "label": "short-released",
+      "at": 10491.09999999404,
+      "running": true,
+      "variables": {
+        "ready": 1,
+        "a-down": 214,
+        "a-up": 1,
+        "any-down": 214,
+        "any-up": 1,
+        "sprite-down": 42,
+        "sprite-up": 1,
+        "sprite-click": 1
+      },
+      "aState": "",
+      "anyState": "",
+      "keyboardEvents": [
+        {
+          "type": "keydown",
+          "keyCode": 65,
+          "key": "a",
+          "repeat": false,
+          "isTrusted": true,
+          "at": 7676.199999988079
+        },
+        {
+          "type": "keyup",
+          "keyCode": 65,
+          "key": "a",
+          "repeat": false,
+          "isTrusted": true,
+          "at": 9187.799999982119
+        }
+      ]
+    },
+    {
+      "label": "long-held-1200ms",
+      "at": 11703.799999982119,
+      "running": true,
+      "variables": {
+        "ready": 1,
+        "a-down": 214,
+        "a-up": 1,
+        "any-down": 214,
+        "any-up": 1,
+        "sprite-down": 313,
+        "sprite-up": 1,
+        "sprite-click": 1
+      },
+      "aState": "",
+      "anyState": "",
+      "keyboardEvents": [
+        {
+          "type": "keydown",
+          "keyCode": 65,
+          "key": "a",
+          "repeat": false,
+          "isTrusted": true,
+          "at": 7676.199999988079
+        },
+        {
+          "type": "keyup",
+          "keyCode": 65,
+          "key": "a",
+          "repeat": false,
+          "isTrusted": true,
+          "at": 9187.799999982119
+        }
+      ]
+    },
+    {
+      "label": "long-released",
+      "at": 11975,
+      "running": true,
+      "variables": {
+        "ready": 1,
+        "a-down": 214,
+        "a-up": 1,
+        "any-down": 214,
+        "any-up": 1,
+        "sprite-down": 315,
+        "sprite-up": 2,
+        "sprite-click": 1
+      },
+      "aState": "",
+      "anyState": "",
+      "keyboardEvents": [
+        {
+          "type": "keydown",
+          "keyCode": 65,
+          "key": "a",
+          "repeat": false,
+          "isTrusted": true,
+          "at": 7676.199999988079
+        },
+        {
+          "type": "keyup",
+          "keyCode": 65,
+          "key": "a",
+          "repeat": false,
+          "isTrusted": true,
+          "at": 9187.799999982119
+        }
+      ]
+    }
+  ],
+  "pageErrors": [],
+  "consoleErrors": [
+    "Failed to load resource: the server responded with a status of 403 ()",
+    "j",
+    "Failed to load resource: the server responded with a status of 401 ()"
+  ],
+  "failures": [],
+  "okMeaning": "Keyboard held-state assertion and fixture editor-compat passed, with no uncaught page errors. Optional mouse result is separate; console/resource errors are retained and are not a claim of a clean network session.",
+  "limitations": [
+    "Headless desktop Edge only; no physical keyboard, touch device, blur or IME testing.",
+    "No comparison against NekoC runtime; this is an official editor oracle only.",
+    "Observed counts depend on scheduling; monotonic growth/stability is tested, not a fixed FPS or exact frame count."
+  ],
+  "browser": "157.0.4341.42",
+  "keyboardConclusion": {
+    "verified": true,
+    "exactlyOneKeydownAndKeyup": true,
+    "interpretation": "A short synchronous on_keydown/down script is restarted while the key state remains down after one browser keydown; releasing the key stops further down count growth. Not an OS autorepeat test.",
+    "holdGrowth": 185,
+    "afterReleaseGrowth": 0
+  },
+  "mouseTarget": {
+    "x": 252,
+    "y": 500,
+    "canvas": {
+      "width": 900,
+      "height": 562
+    },
+    "rect": {
+      "x": 12,
+      "y": 350.140625,
+      "width": 480,
+      "height": 299.71875
+    },
+    "bounds": {
+      "x": 430,
+      "y": 261,
+      "width": 40,
+      "height": 40
+    }
+  },
+  "mouseConclusion": {
+    "verified": true,
+    "interpretation": "Actor down repeats during hold; a short release clicks; a >1s hold still releases but adds no click. No drag/outside/transparent pixel cases covered."
+  },
+  "finalKeyboardEvents": [
+    {
+      "type": "keydown",
+      "keyCode": 65,
+      "key": "a",
+      "repeat": false,
+      "isTrusted": true,
+      "at": 7676.199999988079
+    },
+    {
+      "type": "keyup",
+      "keyCode": 65,
+      "key": "a",
+      "repeat": false,
+      "isTrusted": true,
+      "at": 9187.799999982119
+    }
+  ],
+  "editorCompat": {
+    "editorUrl": "https://kn.codemao.cn/editor",
+    "checkedAt": "2026-11-10T14:14:57.490Z",
+    "projects": [
+      {
+        "input": "tests/fixtures/input-kn.bcmkn",
+        "editorVersion": "0.27.4",
+        "projectVersion": "0.27.4",
+        "blockCount": 24,
+        "issues": [],
+        "pageErrors": [],
+        "ok": true
+      }
+    ],
+    "bundleUrl": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+    "ok": true,
+    "fixtureSha256": "0acff8a7b40e638caf2db736e53c49118937ea1aebe0d5c5b25752cbb160ea4a",
+    "hashAttribution": "Validation was run immediately before the probe on the same generated fixture; re-run editor-compat after regenerating it."
+  },
+  "ok": true
+}

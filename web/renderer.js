@@ -482,7 +482,9 @@ export class StageRenderer {
   hitTest(x,y){
     for(let i=this.actorOrder.length-1;i>=0;i--){
       const a=this.sprites[this.spriteIndices.get(this.actorOrder[i])];
-      if(!a?.visible||!a.scale||(a.opacity??1)<=0)continue;
+      // K4 Lt/Mt and KN 61248 hit areas use original costume alpha, not
+      // the ghost-effect opacity (docs/input.md and docs/input-kn.md).
+      if(!a?.visible||!a.scale)continue;
       const image=this.spriteImage(a);if(!image)continue;
       const {x:cx,y:cy,width,height,angle}=actorGeometry(a,image,this.kitten4);if(!width||!height||![cx,cy,width,height,angle].every(Number.isFinite))continue;
       const c=Math.cos(angle),s=Math.sin(angle),dx=x-cx,dy=y-cy;
