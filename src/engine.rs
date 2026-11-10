@@ -8551,7 +8551,8 @@ impl Engine {
                 if !matches!(
                     previous,
                     Cell::List(_) | Cell::Costume(_) | Cell::Midi(_) | Cell::Null
-                ) {
+                ) && self.value_error.is_none()
+                {
                     let result = if !decrease
                         && (matches!(previous, Cell::Text(_))
                             || matches!(
@@ -8649,16 +8650,25 @@ impl Engine {
             }
             Op::SetActorVariable(slot, value) => {
                 let value = self.eval_value(value, actor);
-                self.write_actor_variable(actor, slot, value);
+                if self.program.semantics != RuntimeSemantics::Kitten4 || self.value_error.is_none()
+                {
+                    self.write_actor_variable(actor, slot, value);
+                }
             }
             Op::ChangeActorVariable(slot, expr, sign) => {
                 let previous = self.read_actor_variable(actor, slot).number();
                 let value = previous + self.eval(expr, actor) * sign;
-                self.write_actor_variable(actor, slot, Cell::Number(value));
+                if self.program.semantics != RuntimeSemantics::Kitten4 || self.value_error.is_none()
+                {
+                    self.write_actor_variable(actor, slot, Cell::Number(value));
+                }
             }
             Op::Set(s, e) => {
                 let value = self.eval(e, actor);
-                self.assign(Target::Global(s), Cell::Number(value));
+                if self.program.semantics != RuntimeSemantics::Kitten4 || self.value_error.is_none()
+                {
+                    self.assign(Target::Global(s), Cell::Number(value));
+                }
             }
             Op::AssignLocal(s, value, op) => {
                 let current = self.local_value(s);
@@ -8686,8 +8696,11 @@ impl Engine {
                 self.assign(Target::Global(s), Cell::Number(value));
             }
             Op::SetLocal(s, e) => {
-                self.tasks[index].locals[s] = self.eval(e, actor);
-                self.tasks[index].local_values[s] = None;
+                let value = self.eval(e, actor);
+                if self.program.semantics != RuntimeSemantics::Kitten4 || self.value_error.is_none()
+                {
+                    self.assign(Target::Local(s), Cell::Number(value));
+                }
             }
             Op::ChangeLocal(s, e, sign) => {
                 self.tasks[index].locals[s] += self.eval(e, actor) * sign;
@@ -8704,14 +8717,15 @@ impl Engine {
             Op::Extension(call) => return self.exec_extension(index, actor, call),
             Op::Move(e) => {
                 let n = self.eval(e, actor);
-                if !n.is_finite() {
-                    return Ok(true);
+                // Nonfinite motion is a no-op, but a failed input must still
+                // reach the trailing error check before any successor runs.
+                if n.is_finite() {
+                    let a = &mut self.sprites[actor];
+                    let (sin, cos) = a.direction.to_radians().sin_cos();
+                    a.x += n * sin;
+                    a.y += n * cos;
+                    self.line(actor, old);
                 }
-                let a = &mut self.sprites[actor];
-                let (sin, cos) = a.direction.to_radians().sin_cos();
-                a.x += n * sin;
-                a.y += n * cos;
-                self.line(actor, old);
             }
             Op::Position(x, y) => {
                 let x = self.eval(x, actor);

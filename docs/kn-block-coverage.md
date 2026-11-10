@@ -285,7 +285,7 @@
 | 206 | `self_glide_coordinate_x` | 有执行路径／未完整验证 | 普通面板配置／默认未隐藏 | `src/engine.rs:3764` | T23 | 有路径；完整语义未验证 |
 | 207 | `self_glide_coordinate_y` | 有执行路径／未完整验证 | 普通面板配置／默认未隐藏 | `src/engine.rs:3764` | T23 | 有路径；完整语义未验证 |
 | 208 | `self_glide_to` | 有执行路径／未完整验证 | 普通面板配置／默认未隐藏 | `src/engine.rs:3764` | T5, T23 | 有路径；完整语义未验证 |
-| 209 | `self_go_forward` | 有执行路径／未完整验证 | 普通面板配置／默认未隐藏 | `src/engine.rs:3623` | T5, T23, T26 | 有路径；完整语义未验证 |
+| 209 | `self_go_forward` | 有执行路径／未完整验证 | 普通面板配置／默认未隐藏 | `src/engine.rs:3623` | T5, T9, T23, T26 | 有路径；完整语义未验证 |
 | 210 | `self_gradually_show_hide` | 有执行路径／未完整验证 | 普通面板配置／默认未隐藏 | `src/engine.rs:3803` | T5, T23 | 有路径；完整语义未验证 |
 | 211 | `self_listen` | 有执行路径／未完整验证 | 普通面板配置／默认未隐藏 | `src/engine.rs:3065` | T5, T23 | 有路径；完整语义未验证 |
 | 212 | `self_listen_value` | 有执行路径／未完整验证 | 已注册／本次面板未列出 | `src/engine.rs:1964`<br>`src/engine.rs:2689` | T5, T23 | 有路径；完整语义未验证 |

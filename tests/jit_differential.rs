@@ -553,7 +553,11 @@ fn hot_list_errors_stop_at_the_same_boundary() {
                 let vm = compare_hot(&p, error);
                 assert_eq!(vm.variable_text("tick"), if k4 { "851" } else { "900" });
                 assert_eq!(vm.variable_text("after"), if k4 { "850" } else { "900" });
-                if !k4 {
+                if k4 {
+                    // The failed assignment must retain its last successful
+                    // value, not replace it with the evaluator's error sentinel.
+                    assert_eq!(vm.variable_text("out"), "12");
+                } else {
                     assert_eq!(
                         vm.variable_text("out"),
                         if nonfinite || out_of_range {
@@ -564,6 +568,62 @@ fn hot_list_errors_stop_at_the_same_boundary() {
                     );
                 }
             }
+        }
+    }
+}
+
+#[test]
+fn hot_k4_failed_change_inputs_and_nonfinite_move_stop_before_successors() {
+    use serde_json::json;
+    for (operation, target) in [
+        ("set", "out"),
+        ("increase", "out"),
+        ("decrease", "out"),
+        ("move", "out"),
+        ("set", "private"),
+        ("increase", "private"),
+        ("decrease", "private"),
+    ] {
+        for numeric in [false, true] {
+            let index = json!({"type":"logic_ternary","inputs":{
+                "condition":{"type":"logic_compare","fields":{"OP":"GT"},"inputs":{"A":get("tick"),"B":num(850.0)}},
+                "ifTrue":arithmetic("divide",num(0.0),num(0.0)),"ifFalse":num(1.0)
+            }});
+            let value = json!({"type":"list_item","fields":{"item":"any"},"inputs":{
+                "list":{"type":"pure_list_get","fields":{"list":"items"}},"list_index":index
+            }});
+            let value = if numeric {
+                arithmetic("multiply", value, num(2.0))
+            } else {
+                value
+            };
+            let failing = match operation {
+                "set" => set(target, value),
+                "increase" => changed(target, value, false),
+                "decrease" => changed(target, value, true),
+                _ => json!({"type":"self_go_forward","inputs":{"steps":value}}),
+            };
+            let body = chain(vec![
+                changed("tick", num(1.0), false),
+                set(target, num(7.0)),
+                failing,
+                set("after", get("tick")),
+            ]);
+            let mut p = private_project(body, json!(0), true);
+            p["variables"]["variablesDict"]["items"] =
+                json!({"id":"items","type":"list","isGlobal":true,"value":[2]});
+            let vm = compare_hot(&p, Some("invalid non-finite list index"));
+            assert_eq!(vm.variable_text("tick"), "851", "{operation}/{numeric}");
+            if target == "private" {
+                assert_eq!(
+                    vm.debug_snapshot()["actors"]["nekoc-default-actor"]["variables"][target],
+                    7.0,
+                    "{operation}/{numeric}"
+                );
+            } else {
+                assert_eq!(vm.variable_text(target), "7", "{operation}/{numeric}");
+            }
+            assert_eq!(vm.variable_text("after"), "850", "{operation}/{numeric}");
         }
     }
 }

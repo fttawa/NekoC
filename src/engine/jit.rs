@@ -945,8 +945,8 @@ struct Gen<'a, 'b> {
 }
 
 impl Gen<'_, '_> {
-    /// Report an expression error at the instruction that evaluated it, after
-    /// that instruction's writes but before any subsequent op can run.
+    /// Report an expression error at the instruction that evaluated it, before
+    /// any successor runs. K4 assignments check before writing their target.
     fn check_error(&mut self, pc: usize, remaining: i64) {
         let next = self.b.ins().iconst(types::I64, pc as i64 + 1);
         self.check_error_next(pc, remaining, next);
@@ -1624,6 +1624,9 @@ impl Gen<'_, '_> {
             self.check_unboxed(&guards, slow);
             // K4 evaluates the increment before reading the previous value.
             let delta = self.numeric_value(value);
+            // A throwing input aborts change_variable before its write, just
+            // as it aborts set_variable (official LmbJ/compile_domain_functions).
+            self.check_error(pc, remaining);
             let base = if local { self.locals } else { self.slots };
             let old = self.load(base, slot);
             let number = if decrease {
@@ -1822,6 +1825,9 @@ impl Gen<'_, '_> {
         match op {
             Op::Set(s, e) => {
                 let v = self.expr(e.end as usize - 1);
+                if self.engine.program.semantics == RuntimeSemantics::Kitten4 {
+                    self.check_error(pc, remaining);
+                }
                 self.store(self.slots, s, v);
                 self.clear_global(s);
                 self.check_error(pc, remaining);
@@ -1829,6 +1835,9 @@ impl Gen<'_, '_> {
             }
             Op::SetLocal(s, e) => {
                 let v = self.expr(e.end as usize - 1);
+                if self.engine.program.semantics == RuntimeSemantics::Kitten4 {
+                    self.check_error(pc, remaining);
+                }
                 self.store(self.locals, s, v);
                 self.clear_local(s);
                 self.check_error(pc, remaining);
@@ -1897,6 +1906,9 @@ impl Gen<'_, '_> {
                 if let Some(value) = self.numeric(v, &mut guards) {
                     self.check_unboxed(&guards, slow);
                     let number = self.numeric_value(value);
+                    if self.engine.program.semantics == RuntimeSemantics::Kitten4 {
+                        self.check_error(pc, remaining);
+                    }
                     let slot = self.b.ins().iconst(types::I64, slot as i64);
                     self.call(
                         h_set_actor_number as *const () as usize,
@@ -1919,6 +1931,9 @@ impl Gen<'_, '_> {
                 let sign = self.b.ins().f64const(sign);
                 let delta = self.b.ins().fmul(delta, sign);
                 let number = self.b.ins().fadd(previous, delta);
+                if self.engine.program.semantics == RuntimeSemantics::Kitten4 {
+                    self.check_error(pc, remaining);
+                }
                 let slot = self.b.ins().iconst(types::I64, slot as i64);
                 self.call(
                     h_set_actor_number as *const () as usize,

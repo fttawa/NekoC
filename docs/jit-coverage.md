@@ -38,11 +38,11 @@ cargo test --test jit_differential
 - 过程数值参数、纯数值 K4 Add 可在 guard 后计算。参数变为文本时慢路径保留 JS 拼接及 typed 比较，不把文本数字当数值比较。
 - 常见列表索引读取、长度读取支持 global/local/variable/expression 引用；typed item 赋值保留原 Cell/列表引用，不强转 f64。K4 列表写保留解释器的 splice、负索引和异常规则，不套用 KN 的舍入/append 快路径。
 - K4 typed EQ/NE 保留 `NaN == NaN`；普通算术比较和 KN 规则不因此改变。
-- 表达式异常在当前指令完成其解释器相同写入后立即退出，不执行后续指令。委托 helper 区分未执行与已执行失败，保留执行后 PC、正确扣除 fuel。
+- 表达式异常必须在当前指令边界报告，不执行后续指令。K4 SetValue/Kitten4Change 的输入失败时不写目标；typed item 和 numeric 快路径均在写入前检查错误。Move 的非有限数 no-op 也不能绕过错误检查。委托 helper 区分未执行与已执行失败，保留执行后 PC、正确扣除 fuel；其他指令的既有副作用不据此宣称已全部对齐官方。合并冲突与官方依据见 [jit-error-semantics.md](jit-error-semantics.md)。
 - Boolean、Encode/Decode64、ParseFloat/ParseInt、IsNumber 转换自身不会调度；纯度检查遍历其输入，只有子树含 reporter 过程才退出。不把转换标为纯数值或自行重写 JS 类型规则，复杂值仍调用 typed evaluator。
 - Call/Return 使用专用 native helper 维护真实 VM 调用帧、参数、循环/范围深度和返回值，纯参数的调用在 region 内可直接跳到过程入口及已知返回点；其他返回点退出后重新选 tier。未静态内联过程，也没有绕过递归栈上限。
 - 含 reporter 过程的 Call/Branch/AppendList/SetValue/ReturnValue/Kitten4Change 只允许 terminal gateway：执行完整指令后立即返回实际 PC，不探索后继，也不再读取 native 缓存的 slots/locals/values 指针。这样输入 reporter 即使广播/克隆导致 tasks 扩容、boxing 或停止/重启作品，也不会返回旧 region 的数值路径；调度器检查 done 后才重新选择 tier，restart 仍在原 ready-task 边界处理，不提前改变指令计数。Call/Append/Return 使用专用 helper；SetValue/Change 的通用 exec 如实记 delegated_ops。**reporter 本体仍由 call_reporter 解释执行**，不能将“unsupported 降为零”当作消除了实际解释成本。
-- 全局/局部 `Kitten4Change` 仅在目标和增量实际为 Number 时执行 f64 ADD/SUB；文本拼接、列表/造型/Null 不写、typed coercion 都退回原指令。输入先求值、再读旧值，保留错误时写入顺序。
+- 全局/局部 `Kitten4Change` 仅在目标和增量实际为 Number 时执行 f64 ADD/SUB；文本拼接、列表/造型/Null 不写、typed coercion 都退回原指令。输入先求值，出错则退出、不写目标；正常时再读旧值。
 - AppendList 的数值路径支持所有 ListRef，包括 K4；typed 路径经专用 helper 保留 Cell 和嵌套列表引用，先求值再解析目标，保留循环引用拒绝和异常优先级。列表替换的 K4 splice/index 规则仍用原解释器。
 - Next/RangeNext/WarpIteration 的专用 helper 执行一次边界，维护循环栈和原有 warp 计数；真正 yield 时设置 `jit_yield` 并立刻退款后续指令，调度器结束当前 pass。K4 末次 yielding 迭代、KN Range 末次差异和无进展错误均保留。只是消除 tier 往返，不删除让出或放宽预算。
 - 直接的 clone/tell、场景切换等仍退出 region；可能重分配 native 缓存数组的 reporter 只允许上述尾部 gateway。列表 split 的纯值构造不改数组地址，可由 evaluator 在非重入 native helper 中执行。

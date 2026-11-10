@@ -657,29 +657,104 @@ fn region_capacity_does_not_publish_an_uncompiled_leader() {
 #[test]
 fn numeric_writes_observe_a_pending_error_from_an_early_returning_helper() {
     for change in [false, true] {
-        let mut e = engine(vec![
-            Op::Move(Expr { end: 2 }),
-            if change {
-                Op::Kitten4Change(Target::Global(0), 0, false)
+        for native in [false, true] {
+            let mut e = engine(vec![
+                Op::Move(Expr { end: 2 }),
+                if change {
+                    Op::Kitten4Change(Target::Global(0), 0, false)
+                } else {
+                    Op::SetValue(Target::Global(0), 0)
+                },
+                Op::SetValue(Target::Global(1), 0),
+                Op::Halt,
+            ]);
+            e.program.semantics = RuntimeSemantics::Kitten4;
+            e.program.expressions = vec![
+                ExprOp::Constant(f64::NAN),
+                ExprOp::ListItem(ListRef::Global(0), false),
+            ];
+            e.program.expression_starts = vec![0, 0];
+            e.lists = vec![Default::default()];
+            // The error belongs to Move's input, not the following assignment.
+            // Official LmbJ/compile_domain_functions evaluates inputs before invocation;
+            // the official text_indexOf probes also preserve the assignment sentinel.
+            let error = if native {
+                e.jit_compile(0);
+                assert_eq!(e.jit_run(0, 0, 1, 100), Some(1));
+                e.jit_error.take().unwrap()
             } else {
-                Op::SetValue(Target::Global(0), 0)
-            },
-            Op::SetValue(Target::Global(1), 0),
-            Op::Halt,
-        ]);
-        e.program.semantics = RuntimeSemantics::Kitten4;
-        e.program.expressions = vec![
-            ExprOp::Constant(f64::NAN),
-            ExprOp::ListItem(ListRef::Global(0), false),
-        ];
-        e.program.expression_starts = vec![0, 0];
-        e.lists = vec![Default::default()];
-        e.jit_compile(0);
-        assert_eq!(e.jit_run(0, 0, 1, 100), Some(2));
-        assert_eq!(e.slots[0], 2.0);
-        assert_eq!(e.slots[1], 0.0);
-        assert_eq!(e.tasks[0].pc, 2);
-        assert!(e.jit_error.take().is_some());
+                e.tasks[0].pc = 1;
+                e.exec(0, 0, e.program.ops[0], 1).unwrap_err()
+            };
+            assert!(error.to_string().contains("invalid non-finite list index"));
+            assert_eq!(e.slots[0], 0.0);
+            assert_eq!(e.slots[1], 0.0);
+            assert_eq!(e.tasks[0].pc, 1);
+            assert!(e.value_error.is_none());
+        }
+    }
+}
+
+#[test]
+fn failed_assignment_inputs_preserve_numeric_and_typed_targets_in_both_tiers() {
+    for target in [Target::Global(0), Target::Local(0)] {
+        for initial in [Cell::Number(7.0), Cell::Text("sentinel".into())] {
+            for mode in 0..3 {
+                for change in [None, Some(false), Some(true)] {
+                    for native in [false, true] {
+                        let op = match change {
+                            None if mode == 2 => match target {
+                                Target::Global(slot) => Op::Set(slot, Expr { end: 2 }),
+                                Target::Local(slot) => Op::SetLocal(slot, Expr { end: 2 }),
+                            },
+                            None => Op::SetValue(target, 2),
+                            Some(decrease) => Op::Kitten4Change(target, 2, decrease),
+                        };
+                        let mut e = engine(vec![op, Op::SetValue(Target::Global(1), 0), Op::Halt]);
+                        e.program.semantics = RuntimeSemantics::Kitten4;
+                        e.program.expressions = vec![
+                            ExprOp::Constant(f64::NAN),
+                            ExprOp::ListItem(ListRef::Global(0), false),
+                        ];
+                        e.program.expression_starts = vec![0, 0];
+                        e.program.values.push(if mode != 0 {
+                            ValueExpr::Number(Expr { end: 2 })
+                        } else {
+                            ValueExpr::Item(ListRef::Global(0), Some(Expr { end: 1 }))
+                        });
+                        e.lists = vec![Default::default()];
+                        e.assign(target, initial.clone());
+                        let error = if native {
+                            e.jit_compile(0);
+                            let ran = e.jit_run(0, 0, 1, 100);
+                            if mode == 2 && change.is_none() && matches!(initial, Cell::Text(_)) {
+                                // Numeric Set/SetLocal rejects boxed targets at
+                                // entry; the scheduler must run the interpreter.
+                                assert_eq!(ran, None);
+                                e.tasks[0].pc = 1;
+                                e.exec(0, 0, op, 1).unwrap_err()
+                            } else {
+                                assert_eq!(ran, Some(1));
+                                e.jit_error.take().unwrap()
+                            }
+                        } else {
+                            // The scheduler advances PC before invoking exec.
+                            e.tasks[0].pc = 1;
+                            e.exec(0, 0, op, 1).unwrap_err()
+                        };
+                        assert!(error.to_string().contains("invalid non-finite list index"));
+                        let actual = match target {
+                            Target::Global(slot) => e.global_value(slot),
+                            Target::Local(slot) => e.local_value(slot),
+                        };
+                        assert_eq!(format!("{actual:?}"), format!("{initial:?}"));
+                        assert_eq!(e.slots[1], 0.0);
+                        assert_eq!(e.tasks[0].pc, 1);
+                        assert!(e.value_error.is_none());
+                    }
+                }
+            }
+        }
     }
 }
 
