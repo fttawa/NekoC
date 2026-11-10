@@ -152,6 +152,10 @@ node --test tests/k4-visual.test.mjs
 - `--renderer-source dist/renderer-before.js --nekoc dist/k4-trace-before.exe` 可复验旧版本基线。
   两者须配套保存，保持同一固定帧、素材和 oracle 采样方式。
 
+含视频作品逐帧排除双方可见视频矩形的并集（含 1 像素边缘），指标只统计剩余区域；
+记录 `pixels/maskedPixels/videoBounds/scope`，不验证视频本身。整屏遮罩或含视频等待的控制流仍为 `unverified`，
+不会以零像素宣称通过。视频语义、元数据 CLI、官方证据和回归命令见 [kitten4-video.md](../../docs/kitten4-video.md)。
+
 发现、官方源码定位、分布与未完成项见 [kitten4-visual.md](../../docs/kitten4-visual.md)。
 
 克隆层序链、移层与阻塞介绍弹窗的原创夹具、官方观测和回归见

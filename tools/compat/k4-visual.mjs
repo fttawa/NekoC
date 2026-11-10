@@ -7,17 +7,34 @@ import { command, compareWork, projectCapabilities } from './k4-diff.mjs';
 import { readJson, saveJson, runOracle } from './k4-oracle.mjs';
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../..');
-export function pixelDifference(a,b,tolerance=8){
+export function pixelDifference(a,b,tolerance=8,mask=null){
   if(a.length!==b.length||!a.length||a.length%4)throw Error('RGBA size mismatch');
   if(!Number.isFinite(tolerance)||tolerance<0||tolerance>255)throw Error('Invalid pixel tolerance');
-  let changed=0,absolute=0,squared=0;
-  for(let i=0;i<a.length;i+=4){let max=0;for(let c=0;c<3;c++){const d=Math.abs(a[i+c]-b[i+c]);max=Math.max(max,d);absolute+=d;squared+=d*d;}if(max>tolerance)changed++;}
-  const mse=squared/(a.length/4*3);
-  return {pixels:a.length/4,changedPixels:changed,changedPercent:changed/(a.length/4)*100,mae:absolute/(a.length/4*3),rmse:Math.sqrt(mse),psnr:mse?10*Math.log10(255**2/mse):null,tolerance};
+  if(mask&&mask.length!==a.length/4)throw Error('Mask size mismatch');
+  let changed=0,absolute=0,squared=0,pixels=0;
+  for(let i=0;i<a.length;i+=4){if(mask?.[i/4])continue;pixels++;let max=0;for(let c=0;c<3;c++){const d=Math.abs(a[i+c]-b[i+c]);max=Math.max(max,d);absolute+=d;squared+=d*d;}if(max>tolerance)changed++;}
+  const mse=pixels?squared/(pixels*3):null;
+  return {pixels,maskedPixels:a.length/4-pixels,changedPixels:changed,changedPercent:pixels?changed/pixels*100:null,mae:pixels?absolute/(pixels*3):null,rmse:mse===null?null:Math.sqrt(mse),psnr:mse?10*Math.log10(255**2/mse):null,tolerance};
+}
+// Rectangles use backing-pixel coordinates from each actual renderer. Exclude
+// their union, with a one-pixel edge guard; do not compare asynchronous video.
+export function videoMask(width,height,rectangles){
+  const mask=new Uint8Array(width*height);
+  for(const r of rectangles){if(![r.x,r.y,r.width,r.height].every(Number.isFinite))throw Error('Invalid video bounds');
+    if(r.width<=0||r.height<=0)continue;
+    const x0=Math.max(0,Math.floor(r.x)-1),y0=Math.max(0,Math.floor(r.y)-1),x1=Math.min(width,Math.ceil(r.x+r.width)+1),y1=Math.min(height,Math.ceil(r.y+r.height)+1);
+    if(x1<=x0||y1<=y0)continue;
+    for(let y=y0;y<y1;y++)mask.fill(1,y*width+x0,y*width+x1);
+  }return mask;
 }
 export function selectedWork(w){return ['equal','different'].includes(w.status)&&!w.randomness?.detected;}
+export function mediaWaitCandidate(project){
+  const stack=[project.compile_result,...Object.values(project.theatre?.actors||{}).map(a=>a.block_data_json),...Object.values(project.theatre?.scenes||{}).map(s=>s.block_data_json)];
+  while(stack.length){const node=stack.pop();if(!node||typeof node!=='object')continue;if(node.type==='play_video_until_end')return true;stack.push(...Object.values(node));}
+  return false;
+}
 export function distribution(works){
-  const values=works.filter(w=>w.status==='captured').flatMap(w=>(w.frames||[]).map(f=>f.changedPercent)).sort((a,b)=>a-b);
+  const values=works.filter(w=>w.status==='captured').flatMap(w=>(w.frames||[]).filter(f=>Number.isFinite(f.changedPercent)).map(f=>f.changedPercent)).sort((a,b)=>a-b);
   return {count:values.length,exact:values.filter(x=>x===0).length,under1:values.filter(x=>x<1).length,under5:values.filter(x=>x<5).length,
     median:values.length?values[Math.floor((values.length-1)*.5)]:null,p90:values.length?values[Math.floor((values.length-1)*.9)]:null,max:values.at(-1)??null};
 }
@@ -43,23 +60,27 @@ async function capture(page,official){
       const ctx=canvas.getContext('2d');ctx.fillStyle='white';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(image,0,0);
       const rgba=ctx.getImageData(0,0,canvas.width,canvas.height).data;
       let bytes='';for(let i=0;i<rgba.length;i+=8192)bytes+=String.fromCharCode(...rgba.subarray(i,i+8192));
-      return {width:canvas.width,height:canvas.height,png,rgba:btoa(bytes),overlay:true};
+      // Overlay captures are taken at CSS 1:1 canonical size, so VM video rects map directly.
+      const r=window.renderer,videoBounds=(r.videoStates||[]).filter(v=>v.visible).map(v=>({id:v.id,x:(r.width/2+v.x-v.width/2)*canvas.width/r.width,y:(r.height/2-v.y-v.height/2)*canvas.height/r.height,width:v.width*canvas.width/r.width,height:v.height*canvas.height/r.height}));
+      return {width:canvas.width,height:canvas.height,png,rgba:btoa(bytes),overlay:true,videoBounds};
     },png);
   }
   return page.evaluate(official=>{
-    let source;
+    let source,videoBounds=[];
     if(official){const stage=window.__k4OracleRequire('a1xw').a();
       // Ct.on_tick uploads pending brush deltas; this does not advance the VM,
       // clocks or transitions. Start's first update occurs before the ticker.
       stage.get_scene_by_id(stage.core.scenes.get_current_scene()).on_tick();
-      const app=stage.core.app.get_app();app.renderer.render(app.stage);source=app.view;}
-    else{window.renderer.dirty=true;window.renderer.render();source=window.renderer.canvas;}
+      const app=stage.core.app.get_app();app.renderer.render(app.stage);source=app.view;
+      videoBounds=(stage.core.components.get_playable_manager()?.get_all_videos()||[]).filter(v=>v.visible&&v.worldVisible).map(v=>{const b=v.getBounds();return {id:v.get_id(),x:b.x,y:b.y,width:b.width,height:b.height};});}
+    else{const r=window.renderer;r.dirty=true;r.render();source=r.canvas;
+      videoBounds=(r.videoStates||[]).filter(v=>v.visible).map(v=>({id:v.id,x:(r.width/2+v.x-v.width/2)*source.width/r.width,y:(r.height/2-v.y-v.height/2)*source.height/r.height,width:v.width*source.width/r.width,height:v.height*source.height/r.height}));}
     if(!source)throw Error('Missing stage canvas');
     const canvas=document.createElement('canvas');canvas.width=source.width;canvas.height=source.height;
     const ctx=canvas.getContext('2d');ctx.fillStyle='white';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(source,0,0);
     const rgba=ctx.getImageData(0,0,canvas.width,canvas.height).data;
     let bytes='';for(let i=0;i<rgba.length;i+=8192)bytes+=String.fromCharCode(...rgba.subarray(i,i+8192));
-    return {width:canvas.width,height:canvas.height,png:canvas.toDataURL('image/png').split(',')[1],rgba:btoa(bytes)};
+    return {width:canvas.width,height:canvas.height,videoBounds,png:canvas.toDataURL('image/png').split(',')[1],rgba:btoa(bytes)};
   },official);
 }
 export async function visualWork(input,options){
@@ -71,14 +92,16 @@ export async function visualWork(input,options){
   const frames=[];
   try{
     const inputProject=await readJson(input);
-    // Videos run on an independent media clock; fixed VM updates cannot freeze
-    // them. Keep diagnostic PNGs but do not mix them into a pixel distribution.
-    const dynamicMedia=Object.values(inputProject.theatre?.videos||{}).some(v=>v.visible!==false);
     rendered=JSON.parse(await command(exe,args));
     // k4-trace runs on the virtual clock; give the official side the same one so
     // timer-driven works are sampled at the same script time on both sides.
     const official=await runOracle(inputProject,{...options,virtualTime:true,frames:Math.max(...options.captureFrames),
       beforeStart:async(page)=>{
+        const videos=await page.evaluate(()=>{
+          const stage=window.__k4OracleRequire('a1xw').a();
+          return (stage.core.components.get_playable_manager()?.get_all_videos()||[]).map(v=>({id:v.get_id(),duration:v.get_video_element_from_base_texture()?.duration,...v.get_size()}));
+        });
+        await saveJson(path.join(artifact,'videos.json'),videos);
         nekoPage=await page.context().newPage();
         const {width,height}=rendered.project.stageSize;
         await nekoPage.setViewportSize({width,height});
@@ -90,7 +113,7 @@ export async function visualWork(input,options){
         await nekoPage.evaluate(async project=>{
           const {StageRenderer}=await import('/nekoc-renderer.js');
           const {StageOverlay}=await import('/nekoc-overlay.js');
-          window.renderer=new StageRenderer(document.querySelector('canvas'));window.renderer.resolutionScale=1;
+          window.renderer=new StageRenderer(document.querySelector('canvas'));window.renderer.resolutionScale=1;window.renderer.skipVideos=true;
           window.overlay=new StageOverlay(document.getElementById('box'),window.renderer,()=>{});
           window.assetErrors=[];window.renderer.onError=e=>window.assetErrors.push(e);await window.renderer.load(project);
           if(window.assetErrors.length)throw Error(window.assetErrors.join('\n'));
@@ -98,15 +121,16 @@ export async function visualWork(input,options){
         const costumes=await nekoPage.evaluate(()=>window.renderer.costumeInfo(true).map(c=>({...c,
           mask_bytes:[...atob(c.mask)].map(x=>x.charCodeAt(0)),rgb_bytes:[...atob(c.rgb)].map(x=>x.charCodeAt(0))})));
         const file=path.join(artifact,'costumes.json');await saveJson(file,costumes);
-        rendered=JSON.parse(await command(exe,[...args,'--costumes',path.resolve(file)]));
+        const videoFile=path.join(artifact,'video-metadata.json');await saveJson(videoFile,videos.filter(v=>Number.isFinite(v.duration)));
+        rendered=JSON.parse(await command(exe,[...args,'--costumes',path.resolve(file),'--videos',path.resolve(videoFile)]));
       },
       onFrame:async(page,frame)=>{
         const delta=rendered.frames[frame-1];
-        await nekoPage.evaluate(({frame,lines})=>{window.renderer.apply(frame,new Float32Array(lines));window.overlay.apply(frame);window.overlay.update();},delta);
+        await nekoPage.evaluate(({frame,lines})=>{window.renderer.videoStates=frame.videos||[];window.renderer.apply(frame,new Float32Array(lines));window.overlay.apply(frame);window.overlay.update();},delta);
         if(!options.captureFrames.includes(frame))return;
         const [a,b]=await Promise.all([capture(nekoPage,false),capture(page,true)]);
         if(a.width!==b.width||a.height!==b.height)throw Error(`Canvas size mismatch: NekoC ${a.width}x${a.height}, official ${b.width}x${b.height}`);
-        const metrics=pixelDifference(Buffer.from(a.rgba,'base64'),Buffer.from(b.rgba,'base64'),options.pixelTolerance??8);
+        const metrics=pixelDifference(Buffer.from(a.rgba,'base64'),Buffer.from(b.rgba,'base64'),options.pixelTolerance??8,videoMask(a.width,a.height,[...a.videoBounds,...b.videoBounds]));
         for(const [name,image]of [['nekoc',a],['official',b]])await writeFile(path.join(artifact,`${frame}-${name}.png`),Buffer.from(image.png,'base64'));
         const officialState=await page.evaluate(()=>{
           const stage=window.__k4OracleRequire('a1xw').a(),scene=stage.get_scene_by_id(stage.core.scenes.get_current_scene());
@@ -114,18 +138,22 @@ export async function visualWork(input,options){
           return {order:scene.get_actor_ids(),brushTarget:scene.get_brush_target()?.get_id()??null,
             stageDialog:dialog?{visible:dialog.visible,printing:dialog.is_printing,text:dialog.content.text,name:dialog.target_name.text}:null};
         });
-        await saveJson(path.join(artifact,`${frame}-state.json`),{nekoc:delta.frame,official:officialState});
+        const videoBounds={nekoc:a.videoBounds,official:b.videoBounds};
+        await saveJson(path.join(artifact,`${frame}-state.json`),{nekoc:delta.frame,official:officialState,videoBounds});
         await nekoPage.evaluate(()=>{if(window.assetErrors.length)throw Error(window.assetErrors.join('\n'));});
-        frames.push({frame,width:a.width,height:a.height,overlay:!!a.overlay,...metrics});
+        frames.push({frame,width:a.width,height:a.height,overlay:!!a.overlay,videoBounds,scope:metrics.maskedPixels?'non-video':'canvas',...metrics});
       }});
     await saveJson(path.join(artifact,'diagnostics.json'),official.diagnostics);
-    return {file:input,status:dynamicMedia?'unverified':'captured',...(dynamicMedia?{error:'visible video: media clock is not controlled; diagnostic screenshots only'}:{}),frames,artifacts:artifact,kernelAssets:official.diagnostics.assets};
+    const empty=frames.some(f=>!f.pixels);
+    const wait=mediaWaitCandidate(inputProject);
+    const error=empty?'video mask leaves no comparable pixels':wait?'video completion can affect non-video control flow: official media clock is uncontrolled':null;
+    return {file:input,status:error?'unverified':'captured',...(error?{error}:{}),frames,artifacts:artifact,kernelAssets:official.diagnostics.assets};
   }catch(error){if(error.diagnostics)await saveJson(path.join(artifact,'failure.json'),error.diagnostics);return {file:input,status:'unverified',error:error.message,frames,artifacts:artifact};}
 }
 export function markdown(report){
   return '# K4 固定帧像素对比\n\n'+
-    `帧 ${report.captureFrames.join('/')}；RGB 单通道容差 ${report.pixelTolerance}/255，任一通道超差计为差异像素；MAE/RMSE 使用全部 RGB 通道。透明区域合成白底，不缩放画布。只纳入非随机 equal/different；不同 VM 状态仍可能导致画面不同，不能全部归因渲染器。\n\n分布：\`${JSON.stringify(report.distribution)}\`\n\n`+
-    '|作品|状态|帧|差异像素 %|MAE|\n|---|---|---|---|---|\n'+report.works.flatMap(w=>w.frames?.length?w.frames.map(f=>`|${path.basename(w.file)}|${w.status}|${f.frame}|${f.changedPercent.toFixed(4)}|${f.mae.toFixed(4)}|`):[`|${path.basename(w.file)}|${w.status}|—|${String(w.error||w.reason||'').replaceAll('|','\\|')}|—|`]).join('\n')+'\n';
+    `帧 ${report.captureFrames.join('/')}；RGB 单通道容差 ${report.pixelTolerance}/255，任一通道超差计为差异像素；MAE/RMSE 使用未遮罩区域全部 RGB 通道。逐帧排除双方视频矩形并集和 1 像素边缘，不验证视频及其覆盖内容；零有效像素不算通过。透明区域合成白底，不缩放画布。只纳入非随机 equal/different；不同 VM 状态仍可能导致画面不同，不能全部归因渲染器。\n\n分布：\`${JSON.stringify(report.distribution)}\`\n\n`+
+    '|作品|状态|帧|差异像素 %|MAE|排除视频像素|\n|---|---|---|---|---|---|\n'+report.works.flatMap(w=>w.frames?.length?w.frames.map(f=>`|${path.basename(w.file)}|${w.status}|${f.frame}|${f.changedPercent?.toFixed(4)??'无可比较区域'}|${f.mae?.toFixed(4)??'—'}|${f.maskedPixels||0}|`):[`|${path.basename(w.file)}|${w.status}|—|${String(w.error||w.reason||'').replaceAll('|','\\|')}|—|—|`]).join('\n')+'\n';
 }
 async function main(){
   const options={captureFrames:[1,30,60],seed:1,pixelTolerance:8,channel:'msedge',wallTimeoutMs:90000,corpus:'E:/nekoc/dist/kitten4-corpus',artifactsDir:'dist/k4-visual/frames',out:'dist/k4-visual/report.json',assetCache:new Map()};

@@ -431,10 +431,6 @@ fn is_stub(kind: &str) -> bool {
             | "wood_block_get"
             | "set_camera_status"
             | "self_shake"
-            | "play_video"
-            | "play_video_until_end"
-            | "continue_pause_video"
-            | "show_hide_video"
     )
 }
 
@@ -526,6 +522,13 @@ fn lower_block(block: &mut Value, targets: &Targets) {
         } else {
             block["type"] = json!("kitten4_noop");
         }
+        return;
+    }
+    if matches!(
+        kind.as_str(),
+        "play_video" | "play_video_until_end" | "continue_pause_video" | "show_hide_video"
+    ) {
+        block["type"] = json!(format!("kitten4_{kind}"));
         return;
     }
     if matches!(
@@ -1005,6 +1008,7 @@ fn import_project(source: &Value) -> Result<SourceImport> {
                 "currentSceneId": current_scene},
             "actors": {"actorsDict": actors},
             "styles": {"stylesDict": styles},
+            "videos": {"videosDict": theatre.get("videos").cloned().unwrap_or(json!({}))},
             "variables": {"variablesDict": variables},
             "broadcasts": {"broadcastsDict": source.get("broadcasts").cloned().unwrap_or(json!({}))},
             "audios": {"audiosDict": source.get("audio").cloned().unwrap_or(json!({})),

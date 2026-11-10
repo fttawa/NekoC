@@ -144,7 +144,7 @@ test("mapping regression: if/matches/aliases/cloud are implemented, precise stub
   for (const type of types.slice(0, 12)) assert.equal(by[type].status, "已实现", type);
   assert.match(by.self_change_x.mapping[0], /src\/kitten4\/aliases\.rs:\d+/);
   assert.equal(by.get_choice.status, "缺失");
-  assert.equal(by.play_video.status, "stub");
+  assert.equal(by.play_video.status, "已实现");
   assert.equal(by.set_camera_status.status, "设备降级");
   assert.equal(by.wood_block_get.status, "设备降级");
   assert.equal(by.self_change_effect_3.status, "已实现");

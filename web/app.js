@@ -153,29 +153,29 @@ function renderPalette(){
   }
 }
 function compiled(stats){$('#compile-status').textContent=`编译就绪 · ${kitten4()?'Kitten4 · ':''}Rust 运行时`;$('#instruction-count').textContent=`${stats.instructions} OPS · ${stats.expression_ops} EXPR`;}
-async function start(){
+async function start(resume=true){
   if(starting)return starting;
-  starting=startRuntime().finally(()=>{starting=null;});return starting;
+  starting=startRuntime(resume).finally(()=>{starting=null;});return starting;
 }
-async function startRuntime(){
+async function startRuntime(resume=true){
   if(running)return;await inFlight;
   if(!started){await api('project',project);audio.load(project);player=new PlayerConnection();const ready=await player.open(playerExtensions.schemas().length?project:null);compiled(ready.stats);started=true;sendCostumes=true;overlay?.reset();epoch++;input.reset();lastFrame=null;lastBytes=0;history=[];pipeline.completedFrames=0;renderEditor();renderPalette();}
   frames=0;fpsStart=performance.now();fps=0;
-  running=true;audio.resume();lastTick=performance.now();state('运行中');$('#stage').focus();
+   running=resume;if(resume){audio.resume();renderer.pauseMedia(false);}else{audio.pause();renderer.pauseMedia();}lastTick=performance.now();state(resume?'运行中':'已暂停');$('#stage').focus();
 }
 function state(text){$('#runtime-state').replaceChildren(make('i'),document.createTextNode(text));$('#run').disabled=running;}
 async function stop(){await starting;running=false;audio.stop();epoch++;player?.close();player=null;await inFlight;await api('stop');started=false;input.reset();overlay?.reset();timerLabel.hidden=true;await renderer.load(project);renderEditor();renderPalette();state('就绪');}
 async function nextFrame(dt){
   const token=epoch,start=performance.now();let buffer;
   try{const costumes=sendCostumes?renderer.costumeInfo(sensesColor(project)):undefined;sendCostumes=false;
-  buffer=await player.frame({dt,...input.take(),costumes,utc_offset:-new Date().getTimezoneOffset()});}catch(error){if(token!==epoch)return;throw error;}if(token!==epoch)return;
+   buffer=await player.frame({dt,...input.take(),costumes,videos:renderer.videoInfo(),utc_offset:-new Date().getTimezoneOffset()});}catch(error){if(token!==epoch)return;throw error;}if(token!==epoch)return;
   pipeline.roundtripMs=performance.now()-start;
   const decodeStart=performance.now(),{frame,lines}=decodeFrame(buffer);pipeline.decodeMs=performance.now()-decodeStart;lastBytes=buffer.byteLength;lastFrame=frame;
    renderer.apply(frame,lines);overlay?.apply(frame);audio.apply(frame);for(const message of frame.logs)log(message);
   timerLabel.hidden=!frame.timer_visible;if(frame.timer_visible)timerLabel.textContent=`计时器 ${frame.timer.toFixed(2)}`;
   pipeline.completedFrames++;frames++;
 }
-function handleError(error){running=false;audio.pause();state('已暂停');log(error.message,true);$('#compile-status').textContent=error.message;notify(error.message);}
+function handleError(error){running=false;audio.pause();renderer.pauseMedia();state('已暂停');log(error.message,true);$('#compile-status').textContent=error.message;notify(error.message);}
 function monitor(now){
   if(now-fpsStart>=1000){fps=frames*1000/(now-fpsStart);frames=0;fpsStart=now;}
   if(now-lastMonitor<250)return;lastMonitor=now;
@@ -211,9 +211,13 @@ async function loadProject(value){
   window.nekoImportReport=report;
 }
 $('#run').onclick=()=>start().catch(handleError);
-$('#pause').onclick=()=>{running=false;audio.pause();input.release();state('已暂停');};
+$('#pause').onclick=()=>{running=false;audio.pause();renderer.pauseMedia();input.release();state('已暂停');};
 $('#stop').onclick=()=>stop().catch(handleError);
-$('#step').onclick=async()=>{try{await start();running=false;await inFlight;inFlight=nextFrame(1/60);await inFlight;inFlight=null;state('单步完成');}catch(e){inFlight=null;handleError(e);}};
+$('#step').onclick=async()=>{const button=$('#step');if(button.disabled)return;button.disabled=true;
+  try{running=false;audio.pause();renderer.pauseMedia();await start(false);running=false;audio.pause();renderer.pauseMedia();await inFlight;inFlight=nextFrame(1/60);await inFlight;inFlight=null;state('单步完成');}
+  catch(e){inFlight=null;handleError(e);}
+  finally{running=false;audio.pause();renderer.pauseMedia();button.disabled=false;}
+};
 $('#open').onclick=()=>$('#file').click();
 async function openFile(file){if(!file)return;if(dirty&&!confirm('当前项目尚未导出。仍然打开其他项目？'))return;
   const button=$('#open');button.disabled=true;button.textContent='正在导入…';

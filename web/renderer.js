@@ -54,6 +54,19 @@ function program(gl, vertex, fragment) {
 
 const MAX_SCALE = 4;
 
+// Settle superseded loads immediately, rather than leaving their timers/events alive.
+function waitForAsset(promise,signal,message){
+  return new Promise((resolve,reject)=>{
+    let settled=false;
+    const done=(error,value)=>{if(settled)return;settled=true;clearTimeout(timer);signal.removeEventListener('abort',abort);error?reject(error):resolve(value);};
+    const abort=()=>done(new DOMException('素材加载已取消','AbortError'));
+    const timer=setTimeout(()=>done(Error(message)),15000);
+    signal.addEventListener('abort',abort,{once:true});
+    promise.then(value=>done(null,value),error=>done(error));
+    if(signal.aborted)abort();
+  });
+}
+
 export class StageRenderer {
   constructor(canvas) {
     this.canvas = canvas;
@@ -74,11 +87,15 @@ export class StageRenderer {
     this.textCache = new Map(); this.textCanvas = document.createElement('canvas');
     this.stats.textTextureBytes=0; this.stats.textUploads=0; this.stats.textStamps=0;
     this.generation = 0; this.lost = false;
+    this.videos=new Map();this.mediaPaused=false;
     canvas.addEventListener('webglcontextlost', event => { event.preventDefault(); this.lost = true; this.onError?.('GPU 上下文丢失，请重新加载项目。'); });
   }
 
   async load(project) {
     const generation = ++this.generation;
+    this.loadController?.abort();this.loadController=new AbortController();const {signal}=this.loadController;
+    for(const item of this.videos.values()){item.element.onseeked=null;item.element.onloadeddata=null;item.element.onerror=null;item.element.pause();item.element.removeAttribute('src');item.element.load();this.gl.deleteTexture(item.texture);}
+    this.videos=new Map();this.mediaPaused=false;
     this.kitten4 = Object.hasOwn(project,'_nekocKitten4');
     const gl = this.gl;
     for(const query of this.gpuQueries)gl.deleteQuery(query);
@@ -103,7 +120,7 @@ export class StageRenderer {
     const scene = project.scenes?.scenesDict?.[project.scenes.currentSceneId];
     this.backdrop = scene?.currentStyleId;
     this.backgroundState = null;
-    this.sceneId=project.scenes?.currentSceneId;this.actorOrder=[...(scene?.actorIds||[])];if(!project._nekocKitten4)this.actorOrder.reverse();this.penLayer=0;
+    this.sceneId=project.scenes?.currentSceneId;this.actorOrder=[...(scene?.actorIds||[])];if(!project._nekocKitten4)this.actorOrder.reverse();this.penLayer=0;this.videoAbovePen=false;
     this.sprites = (scene?.actorIds || []).map(id => {
       const a = project.actors.actorsDict[id];
       return { id, name:a.name, style:a.currentStyleId, x:a.position?.x||0,y:a.position?.y||0,direction:(a.rotation||0)*180/Math.PI-(this.kitten4?90:0),scale:a.scale??100,rotation_type:a.rotationType??0,visible:a.visible!==false,opacity:1 };
@@ -119,9 +136,8 @@ export class StageRenderer {
         const centerPoint={x:style.centerPoint?.x??0,y:style.centerPoint?.y??0};
         if(![centerPoint.x,centerPoint.y].every(n=>typeof n==='number'&&Number.isFinite(n)))throw Error('无效造型中心');
         const image = new Image(); image.crossOrigin = 'anonymous'; image.src = style.url;
-        let timeout;
-        try { await Promise.race([image.decode(),new Promise((_,reject)=>{timeout=setTimeout(()=>reject(Error('素材加载超时')),15000);})]); }
-        finally { clearTimeout(timeout); }
+        try { await waitForAsset(image.decode(),signal,'素材加载超时'); }
+        finally { if(signal.aborted)image.removeAttribute('src'); }
         if (generation !== this.generation) return;
         if (image.naturalWidth > limit || image.naturalHeight > limit) throw Error('素材超过 GPU 纹理尺寸上限');
         const texture = this.makeTexture(1,1); gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -135,8 +151,53 @@ export class StageRenderer {
         this.images.set(id,{texture,src:image.src,width:image.naturalWidth,height:image.naturalHeight,centerPoint,adaptive:style.adaptive!==false,alpha,rgb:cellColors(rgba,hit.width,hit.height)});
         this.stats.textureBytes += image.naturalWidth * image.naturalHeight * 4;
         this.dirty = true;
-      } catch(error) { this.onError?.(`素材 ${style.name || id}: ${error.message}`); }
+      } catch(error) { if(generation===this.generation)this.onError?.(`素材 ${style.name || id}: ${error.message}`); }
     }));
+    if(generation!==this.generation)return;
+    // K4 ki/add_playable: successful decode uses native dimensions * scale;
+    // saved width/height are fallback display dimensions, not multiplied again.
+    // Video origin is the centre and y points upwards.
+    await Promise.all(Object.entries(project.videos?.videosDict||{}).map(async([id,state])=>{
+      if(this.skipVideos)return;
+      const element=document.createElement('video');element.crossOrigin='anonymous';element.preload='auto';element.playsInline=true;
+      const item={element,texture:this.makeTexture(1,1),state:{...state,id,playing:false,position:0,generation:0}};this.videos.set(id,item);
+      element.onseeked=()=>{if(generation===this.generation&&this.videos.get(id)===item)this.dirty=true;};
+      try{
+        try{await waitForAsset(new Promise((resolve,reject)=>{
+          element.onloadeddata=()=>resolve();element.onerror=()=>reject(Error('视频解码失败'));element.src=state.url;
+        }),signal,'视频加载超时');}finally{element.onloadeddata=null;element.onerror=null;}
+        if(generation!==this.generation)return;
+        const scale=Number.isFinite(state.scale)&&state.scale>=0?state.scale:Math.min(this.width/element.videoWidth,this.height/element.videoHeight,1);
+        item.displayWidth=element.videoWidth*scale;item.displayHeight=element.videoHeight*scale;
+        item.state.width=item.displayWidth;item.state.height=item.displayHeight;
+        this.dirty=true;
+      }catch(error){if(generation===this.generation){element.onseeked=null;element.pause();element.removeAttribute('src');element.load();this.gl.deleteTexture(item.texture);this.videos.delete(id);this.onError?.(`视频 ${id}: ${error.message}`);}}
+    }));
+  }
+
+  videoInfo(){return [...this.videos].filter(([,v])=>Number.isFinite(v.element.duration)&&Number.isFinite(v.displayWidth)&&Number.isFinite(v.displayHeight)).map(([id,v])=>({id,duration:v.element.duration,width:v.displayWidth,height:v.displayHeight}));}
+  pauseMedia(paused=true){this.mediaPaused=paused;for(const v of this.videos.values()){if(paused)v.element.pause();else if(v.state.playing)this.playVideo(v);}}
+  playVideo(v){v.element.play().catch(error=>{if(this.videos.get(v.state.id)===v&&v.state.playing&&!this.mediaPaused&&error.name!=='AbortError')this.onError?.(`视频 ${v.state.id}: ${error.message}`);});}
+  applyVideos(states){
+    for(const state of states||[]){const v=this.videos.get(state.id);if(!v)continue;
+      const restart=v.state.generation!==state.generation,playing=state.playing&&!this.mediaPaused;
+      // Running playback tolerates clock drift; a paused/stepped frame must seek
+      // even a small delta, then seeked invalidates the previously drawn frame.
+      if(restart||Math.abs(v.element.currentTime-state.position)>(playing ? .25 : .001))v.element.currentTime=state.position;
+      const wasPlaying=v.state.playing;v.state={...state,width:v.displayWidth??v.state.width,height:v.displayHeight??v.state.height};
+      if(!playing)v.element.pause();else if(restart||!wasPlaying)this.playVideo(v);
+    }
+    if(states?.length)this.dirty=true;
+  }
+
+  drawVideos(){
+    const gl=this.gl;
+    for(const v of this.videos.values()){
+      const s=v.state;if(s.visible===false||v.element.readyState<2)continue;
+      gl.bindTexture(gl.TEXTURE_2D,v.texture);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,true);
+      gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,v.element);
+      this.drawTexture(v.texture,s.x||0,s.y||0,s.width,s.height);
+    }
   }
 
   makeSurface(width,height){
@@ -210,6 +271,8 @@ export class StageRenderer {
   // present=false only draws pen deltas into the persistent FBO and marks the stage
   // dirty; the caller composites once per display frame with render().
   apply(frame, lines, present = true) {
+    this.applyVideos(frame.videos);
+    if(typeof frame.video_above_pen==='boolean'&&frame.video_above_pen!==this.videoAbovePen){this.videoAbovePen=frame.video_above_pen;this.dirty=true;}
     this.changed = false;
     if (this.lost) return;
     if (lines.length % 9 !== 0) throw Error('损坏的画笔实例数据');
@@ -452,6 +515,7 @@ export class StageRenderer {
   }
 
   render(resetStats=true) {
+    if([...this.videos?.values()||[]].some(v=>v.state.visible!==false&&v.state.playing&&!this.mediaPaused))this.dirty=true;
     if (!this.dirty || this.lost || !this.penTexture) return;
     const gl=this.gl,started=performance.now(); if(resetStats)this.stats.drawCalls=0;
     gl.bindFramebuffer(gl.FRAMEBUFFER,null); gl.viewport(0,0,this.canvas.width,this.canvas.height);
@@ -467,9 +531,12 @@ export class StageRenderer {
         if(sx&&sy)this.drawTexture(backdrop.texture,0,0,this.width,this.height,0,[1,1,1,a?.opacity??1],a?.effects,null,[this.width/(backdrop.width*sx),this.height/(backdrop.height*sy)]);
       }else this.drawTexture(backdrop.texture,0,0,this.width,this.height);
     }
+    // QqDm.h=1: media container above backdrop and below actor/pen content.
+    if(!this.videoAbovePen||this.penLayer>0)this.drawVideos();
     const layer=Math.min(this.penLayer,this.actorOrder.length);
     for(let i=0;i<=this.actorOrder.length;i++) {
       if(i===layer)this.drawTexture(this.penTexture,0,0,this.width,this.height);
+      if(i===0&&this.videoAbovePen&&this.penLayer===0)this.drawVideos();
       const a=this.sprites[this.spriteIndices.get(this.actorOrder[i])];if(!a)continue;
       if(!a.visible)continue;
       const image=this.spriteImage(a);
