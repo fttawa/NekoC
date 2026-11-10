@@ -140,6 +140,10 @@ pub fn coverage_with_seed(source: &Value, frames: u32, seed: Option<u64>) -> Val
                 budget_frames += u32::from(frame.budget_yield);
             }
             report["budget_frames"] = json!(budget_frames);
+            if let Some(dialog) = engine.pending_stage_dialog() {
+                report["blocked"] = json!({"kind":"stage_dialog", "id":dialog.id,
+                    "target":dialog.target, "active_tasks":engine.active_tasks()});
+            }
             Ok(())
         });
     match result {
@@ -423,7 +427,6 @@ fn is_stub(kind: &str) -> bool {
             | "set_camera_status"
             | "play_words_audio"
             | "play_words_audio_wait"
-            | "set_layer_with_pen"
             | "set_entity_show_hide"
             | "self_shake"
             | "play_video"
@@ -462,6 +465,10 @@ fn lower_block(block: &mut Value, targets: &Targets) {
     }
     if kind == "set_velocity" {
         block["type"] = json!("kitten4_set_velocity");
+        return;
+    }
+    if kind == "set_layer_with_pen" {
+        block["type"] = json!("kitten4_layer_with_pen");
         return;
     }
     if kind == "get_physics_property" {

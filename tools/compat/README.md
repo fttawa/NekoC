@@ -148,3 +148,7 @@ node --test tests/k4-visual.test.mjs
   两者须配套保存，保持同一固定帧、素材和 oracle 采样方式。
 
 发现、官方源码定位、分布与未完成项见 [kitten4-visual.md](../../docs/kitten4-visual.md)。
+
+克隆层序链、移层与阻塞介绍弹窗的原创夹具、官方观测和回归见
+[kitten4-layer-dialog.md](../../docs/kitten4-layer-dialog.md)。`k4-visual` 的 state JSON
+额外记录官方弹窗是否可见/打印中；画布对比不包含 NekoC DOM 弹窗。

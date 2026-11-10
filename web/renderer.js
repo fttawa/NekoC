@@ -103,7 +103,7 @@ export class StageRenderer {
     const scene = project.scenes?.scenesDict?.[project.scenes.currentSceneId];
     this.backdrop = scene?.currentStyleId;
     this.backgroundState = null;
-    this.sceneId=project.scenes?.currentSceneId;this.actorOrder=[...(scene?.actorIds||[])].reverse();this.penLayer=0;
+    this.sceneId=project.scenes?.currentSceneId;this.actorOrder=[...(scene?.actorIds||[])];if(!project._nekocKitten4)this.actorOrder.reverse();this.penLayer=0;
     this.sprites = (scene?.actorIds || []).map(id => {
       const a = project.actors.actorsDict[id];
       return { id, name:a.name, style:a.currentStyleId, x:a.position?.x||0,y:a.position?.y||0,direction:(a.rotation||0)*180/Math.PI-(this.kitten4?90:0),scale:a.scale??100,rotation_type:a.rotationType??0,visible:a.visible!==false,opacity:1 };
@@ -132,7 +132,7 @@ export class StageRenderer {
         const ctx=hit.getContext('2d',{willReadFrequently:true});ctx.drawImage(image,0,0);
         const rgba=ctx.getImageData(0,0,hit.width,hit.height).data,alpha=new Uint8Array(hit.width*hit.height);
         for(let i=0;i<alpha.length;i++)alpha[i]=rgba[i*4+3];
-        this.images.set(id,{texture,width:image.naturalWidth,height:image.naturalHeight,centerPoint,adaptive:style.adaptive!==false,alpha,rgb:cellColors(rgba,hit.width,hit.height)});
+        this.images.set(id,{texture,src:image.src,width:image.naturalWidth,height:image.naturalHeight,centerPoint,adaptive:style.adaptive!==false,alpha,rgb:cellColors(rgba,hit.width,hit.height)});
         this.stats.textureBytes += image.naturalWidth * image.naturalHeight * 4;
         this.dirty = true;
       } catch(error) { this.onError?.(`素材 ${style.name || id}: ${error.message}`); }
