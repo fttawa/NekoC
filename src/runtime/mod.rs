@@ -347,6 +347,8 @@ pub fn run_project_steps(value: &Value, steps: &[RuntimeStep]) -> Result<Runtime
 /// Incremental interpreter. The project must outlive the execution session.
 pub struct Runtime<'a> {
     cooperative: bool,
+    /// 墙钟时间片：cooperative 模式下 warp 线程运行超过该时长就让出；None 表示不按时间让出（测试用，保证确定性）。
+    pub(crate) warp_time_slice: Option<std::time::Duration>,
     project: &'a Value,
     ticks: usize,
     current_scene_id: Option<String>,
@@ -534,6 +536,7 @@ impl<'a> Runtime<'a> {
         Ok(Self {
             value_error: std::cell::RefCell::new(None),
             cooperative: false,
+            warp_time_slice: Some(std::time::Duration::from_millis(4)),
             project,
             ticks: 0,
             current_scene_id,
@@ -573,6 +576,11 @@ impl<'a> Runtime<'a> {
     /// retains its historical scheduling until its timing fixtures are migrated.
     pub fn set_cooperative(&mut self, enabled: bool) {
         self.cooperative = enabled;
+    }
+
+    /// 关闭 warp 的墙钟时间片，使结果不受 CPU 负载影响（测试用；播放器保持默认 4ms）。
+    pub fn disable_warp_time_slice(&mut self) {
+        self.warp_time_slice = None;
     }
 
     pub fn start(&mut self) {
