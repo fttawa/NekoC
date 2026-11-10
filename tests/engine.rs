@@ -188,7 +188,8 @@ fn key_release_and_pointer_targets_dispatch_only_matching_hats() {
     assert!(frame(&mut vm).logs.is_empty());
     vm.key_event("13", true);
     vm.key_event("13", false);
-    assert_eq!(frame(&mut vm).logs, ["down", "up"]);
+    // State responders observe the final state of a quick pair in this tick.
+    assert_eq!(frame(&mut vm).logs, ["up"]);
     assert!(frame(&mut vm).logs.is_empty());
     vm.pointer_event("other", "mouse_click", 12.0, 34.0);
     assert_eq!(frame(&mut vm).logs, ["screen"]);
@@ -268,10 +269,10 @@ fn pen_layer_moves_and_relative_targets_use_back_to_front_order() {
         .as_array_mut()
         .unwrap();
     for (key, layer, target) in [
-        ("1", "prev_layer", ""),
-        ("2", "next_layer", ""),
-        ("3", "nekoc-default-actor", "prev_layer"),
-        ("4", "back", "next_layer"),
+        ("49", "prev_layer", ""),
+        ("50", "next_layer", ""),
+        ("51", "nekoc-default-actor", "prev_layer"),
+        ("52", "back", "next_layer"),
     ] {
         hats.push(json!({"type":"on_keydown","fields":{"key":key,"type":"down"},"next":{"type":"set_pen_layer","fields":{"layer":layer,"target_layer":target}}}));
     }
@@ -279,16 +280,17 @@ fn pen_layer_moves_and_relative_targets_use_back_to_front_order() {
     vm.start();
     assert_eq!(frame(&mut vm).pen_layer, 0);
     for (key, expected) in [
-        ("1", 1),
-        ("1", 2),
-        ("1", 2),
-        ("2", 1),
-        ("3", 2),
-        ("4", 0),
-        ("2", 0),
+        ("49", 1),
+        ("49", 2),
+        ("49", 2),
+        ("50", 1),
+        ("51", 2),
+        ("52", 0),
+        ("50", 0),
     ] {
         vm.key(key);
         assert_eq!(frame(&mut vm).pen_layer, expected);
+        vm.key_event(key, false);
     }
     vm.start();
     assert_eq!(frame(&mut vm).pen_layer, 0);

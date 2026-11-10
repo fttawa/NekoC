@@ -49,7 +49,8 @@ node --test tests/k4-oracle.test.mjs
   必须等待应用自身初始化，提前手工创建 Heart 会导致编译/加载假差异。
 - `k4-diff` 对仅有发布 AST、无任何 `block_data_json` 的作品跳过双编译比较，使用作品自带的官方
   `compile_result`；`compile.status=skipped` 不表示双编译一致。有工作区的作品仍比较两条编译路径。
-- 无 DOM 输入事件。第一帧是官方 Start 发出的首次 `RuntimeManager.update` 完成后；
+- 默认无 DOM 输入事件。可用双方 `--input-script events.json` 在每次 update 前重放输入，
+  契约、原创建具与证据边界见 [输入一致性](../../docs/input.md)。第一帧是官方 Start 发出的首次 `RuntimeManager.update` 完成后；
   后续每次执行一批受控 rAF 回调，固定 60 Hz。订阅 `after_update.immediate` 采样，
   不用“睡 1 秒”等价“60 帧”。帧数不符或官方运行错误即失败。
 - 心跳开启原生 deterministic 配置；原生 Clock 每 update 递增 `1000/60` ms。

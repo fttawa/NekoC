@@ -9,6 +9,7 @@ pub mod engine;
 pub mod extensions;
 pub mod import_bench;
 pub mod import_perf;
+pub mod input;
 pub mod inspect;
 pub mod ir;
 mod js_number;

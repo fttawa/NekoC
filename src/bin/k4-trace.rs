@@ -14,6 +14,9 @@ struct Args {
     frames: u32,
     #[arg(long, default_value_t = 1)]
     seed: u64,
+    /// Replay nekoc-input-v1 DOM events before each numbered update.
+    #[arg(long)]
+    input_script: Option<PathBuf>,
     /// Force the official AST importer, even if editable workspaces exist.
     #[arg(long)]
     compiled: bool,
@@ -38,7 +41,7 @@ struct Args {
     #[arg(long, requires = "render", conflicts_with = "blocks")]
     render_only: bool,
     /// Costume measurements supplied by the browser, as in the web player.
-    #[arg(long, requires = "render")]
+    #[arg(long)]
     costumes: Option<PathBuf>,
     /// Decoded video durations; no wall-clock or network probing in the VM.
     #[arg(long)]
@@ -47,6 +50,18 @@ struct Args {
 
 fn main() -> Result<()> {
     let args = Args::parse();
+    let input_script = args
+        .input_script
+        .as_ref()
+        .map(|file| -> Result<nekoc::input::InputScript> {
+            let text = std::fs::read_to_string(file)?;
+            let script: nekoc::input::InputScript =
+                serde_json::from_str(text.trim_start_matches('\u{feff}'))?;
+            script.validate(args.frames)?;
+            Ok(script)
+        })
+        .transpose()?;
+    let mut input_replay = nekoc::input::InputReplay::default();
     let text = std::fs::read_to_string(&args.input)?;
     let mut source = nekoc::json::from_str(text.trim_start_matches('\u{feff}'))?;
     if args.compiled {
@@ -180,6 +195,9 @@ fn main() -> Result<()> {
     let mut frames = Vec::new();
     let mut render_frames = Vec::new();
     for frame in 1..=args.frames {
+        if let Some(script) = &input_script {
+            input_replay.before_frame(&mut engine, script, frame);
+        }
         let update = match engine.advance(1.0 / 60.0, 2_000_000, Duration::from_secs(5)) {
             Ok(update) => update,
             Err(error) if args.blocks => {

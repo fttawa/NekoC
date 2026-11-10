@@ -7,6 +7,7 @@ use serde_json::Value;
 mod calculate;
 mod cloud;
 mod extensions;
+mod input;
 mod jit;
 mod k4_clock;
 mod kn_catalog;
@@ -4434,6 +4435,8 @@ pub struct Engine {
     pointer_down: bool,
     pointer_clicked: bool,
     pointer_released: bool,
+    input_targets: BTreeMap<String, String>,
+    input_clicks: BTreeSet<String>,
 }
 impl Engine {
     /// Opt-in instruction tracing. Disable native batching so source boundaries
@@ -4666,10 +4669,24 @@ impl Engine {
         self.lists[index].borrow().clone()
     }
     pub fn set_pressed_keys(&mut self, keys: impl IntoIterator<Item = String>) {
-        let pressed = keys.into_iter().collect::<BTreeSet<_>>();
-        self.released
-            .extend(self.pressed.difference(&pressed).cloned());
-        self.pressed = pressed;
+        // Snapshot reconciliation must not overwrite the independent any state
+        // every web frame (releasing A while B is held sends any/up).
+        let pressed = keys
+            .into_iter()
+            .filter(|key| key != "any")
+            .collect::<BTreeSet<_>>();
+        let previous = self
+            .pressed
+            .iter()
+            .filter(|key| key.as_str() != "any")
+            .cloned()
+            .collect::<BTreeSet<_>>();
+        for key in previous.difference(&pressed) {
+            self.key_event(key, false);
+        }
+        for key in pressed.difference(&previous) {
+            self.key_event(key, true);
+        }
     }
     pub fn recycle_lines(&mut self, mut lines: Vec<f32>) {
         lines.clear();
@@ -4812,6 +4829,8 @@ impl Engine {
             pointer_down: false,
             pointer_clicked: false,
             pointer_released: false,
+            input_targets: BTreeMap::new(),
+            input_clicks: BTreeSet::new(),
         }
     }
     pub fn start(&mut self) {
@@ -4844,6 +4863,11 @@ impl Engine {
         } else {
             [0.0; 2]
         };
+        self.pointer_down = false;
+        self.pointer_clicked = false;
+        self.pointer_released = false;
+        self.input_targets.clear();
+        self.input_clicks.clear();
         self.pen_layer = 0;
         self.timer_visible = false;
         self.sprites.clone_from(&self.program.sprites);
@@ -4922,35 +4946,35 @@ impl Engine {
         self.key_event(key, true);
     }
     pub fn key_event(&mut self, key: &str, down: bool) {
+        let normalized;
+        let key = {
+            let Ok(mut code) = key.parse::<u32>() else {
+                return;
+            };
+            if (96..=105).contains(&code) {
+                code -= 48;
+            }
+            if !matches!(code, 13 | 32 | 37..=40 | 48..=57 | 65..=90) {
+                return;
+            }
+            normalized = code.to_string();
+            normalized.as_str()
+        };
         if down {
             self.pressed.insert(key.into());
+            self.released.remove(key);
         } else {
             self.pressed.remove(key);
             self.released.insert(key.into());
         }
-        if down && self.program.semantics == RuntimeSemantics::Kitten4 {
-            // Concrete down hats on originals and split instances are state
-            // responders, serviced at tick entry. Official mirrors do not run
-            // concrete down hats (semantics-keys.bcm). Any-key policy unverified.
-            if !self.stopped {
-                for script in 0..self.program.scripts.len() {
-                    let spec = &self.program.scripts[script];
-                    if !matches!(&spec.event, ScriptEvent::Key(k, true) if k == key || k == "any")
-                        || !self.in_active_scene(spec.actor)
-                    {
-                        continue;
-                    }
-                    let actor = spec.actor;
-                    let any = matches!(&spec.event, ScriptEvent::Key(k, _) if k == "any");
-                    if any {
-                        for target in self.instances(actor) {
-                            self.spawn(script, target);
-                        }
-                    }
-                }
-            }
+        // Both official adapters send a second, independent "any" state.
+        // Releasing one key clears it even if another concrete key is held.
+        if down {
+            self.pressed.insert("any".into());
+            self.released.remove("any");
         } else {
-            self.dispatch(|event| matches!(event, ScriptEvent::Key(k,d) if (k == key || k == "any") && *d == down));
+            self.pressed.remove("any");
+            self.released.insert("any".into());
         }
     }
     pub fn set_mouse(&mut self, x: f64, y: f64) {
@@ -5048,53 +5072,28 @@ impl Engine {
         }
     }
     pub fn pointer_event(&mut self, target: &str, state: &str, x: f64, y: f64) {
+        let target = if target == "--screen" { "" } else { target };
         self.set_mouse(x, y);
         match state {
-            "mouse_down" => self.pointer_down = true,
+            "mouse_down" => {
+                self.pointer_down = true;
+                self.pointer_released = false;
+            }
             "mouse_up" => {
                 self.pointer_down = false;
                 self.pointer_released = true;
             }
             "mouse_click" => self.pointer_clicked = true,
+            "" => self.pointer_down = false,
             _ => {}
         }
         if self.stopped {
             return;
         }
-        let hit = self
-            .sprites
-            .iter()
-            .position(|sprite| sprite.id == target && sprite.visible && sprite.alive);
-        for script in 0..self.program.scripts.len() {
-            let ScriptEvent::Pointer(id, s) = &self.program.scripts[script].event else {
-                continue;
-            };
-            if self.program.sprites[self.program.scripts[script].actor].scene != self.current_scene
-            {
-                continue;
-            }
-            if s != state {
-                continue;
-            }
-            let actor = self.program.scripts[script].actor;
-            if id == "--screen" {
-                self.spawn(script, actor);
-                continue;
-            }
-            let Some(hit) = hit else { continue };
-            if self.program.semantics == RuntimeSemantics::Kitten4
-                && self.sprites[hit].empty_code
-                && self.sprites[hit].origin == actor
-            {
-                continue;
-            }
-            // The script listens to actor `id`; a click on one of its clones counts.
-            let origin = self.sprites[hit].origin;
-            if self.program.sprites[origin].id != *id {
-                continue;
-            }
-            // A sprite's own click script runs on the clicked instance.
-            self.spawn(script, if origin == actor { hit } else { actor });
+        if state == "mouse_click" {
+            self.input_clicks.insert(target.into());
+        } else {
+            self.input_targets.insert(target.into(), state.into());
         }
     }
     fn in_active_scene(&self, actor: usize) -> bool {
@@ -5164,20 +5163,21 @@ impl Engine {
             }
         }
     }
-    /// K4 concrete down hats are single-flight per original script/actor. A
+    /// Official key hats are single-flight per original script/actor. A
     /// waiting, pending or budget-suspended task still owns the responder. Only
     /// tick entry can retrigger it, so completion never restarts it in this tick.
     fn dispatch_held_keys(&mut self) {
-        if self.stopped || self.program.semantics != RuntimeSemantics::Kitten4 {
+        if self.stopped {
             return;
         }
         for script in 0..self.program.scripts.len() {
             let spec = &self.program.scripts[script];
-            let ScriptEvent::Key(key, true) = &spec.event else {
+            let ScriptEvent::Key(key, down) = &spec.event else {
                 continue;
             };
             let actor = spec.actor;
-            if key == "any" || !self.pressed.contains(key) || !self.in_active_scene(actor) {
+            let keys = if *down { &self.pressed } else { &self.released };
+            if !keys.contains(key) || !self.in_active_scene(actor) {
                 continue;
             }
             for target in self.instances(actor) {
@@ -5426,11 +5426,7 @@ impl Engine {
             ExprOp::Key(i, down) => {
                 let keys = if down { &self.pressed } else { &self.released };
                 let key = &self.program.strings[i];
-                u8::from(if key == "any" {
-                    !keys.is_empty()
-                } else {
-                    keys.contains(key)
-                }) as f64
+                u8::from(keys.contains(key)) as f64
             }
             ExprOp::Coordinate(target, y) => {
                 let target = if target == usize::MAX { actor } else { target };
@@ -6258,6 +6254,11 @@ impl Engine {
         self.scene_orders[old] = std::mem::take(&mut self.order);
         self.order = self.scene_orders[target].clone();
         self.current_scene = target;
+        if self.program.semantics == RuntimeSemantics::Kitten4 {
+            // Official adapter clears the old entity down on scene switch.
+            self.input_targets.clear();
+            self.input_clicks.clear();
+        }
         self.order_dirty = true;
         self.scene_changed = true;
         self.transition = self.next_transition.clone();
@@ -9109,6 +9110,7 @@ impl Engine {
         self.step_physics(dt);
         self.check_bumps();
         self.dispatch_held_keys();
+        self.dispatch_pointer_states();
         let mut count = *total_count;
         let mut exceeded = false;
         let total = self.tasks.len();
@@ -9215,6 +9217,9 @@ impl Engine {
         self.released.clear();
         self.pointer_clicked = false;
         self.pointer_released = false;
+        self.input_clicks.clear();
+        self.input_targets
+            .retain(|_, state| state != "mouse_up" && !state.is_empty());
         if std::mem::take(&mut self.restart) {
             self.start();
         }

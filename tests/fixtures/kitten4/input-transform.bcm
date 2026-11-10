@@ -1,0 +1,2133 @@
+{
+  "hidden_toolbox": {
+    "toolbox": [],
+    "blocks": []
+  },
+  "work_source_label": 1,
+  "version": 25,
+  "application_version": "4.11.20",
+  "work_type": "KITTEN",
+  "size": {
+    "width": 1280,
+    "height": 720
+  },
+  "type": 1,
+  "project_name": "NekoC original rotated scaled input probe",
+  "theatre": {
+    "current_entity": "20000000-0000-4000-8000-000000000001",
+    "current_scene": "10000000-0000-4000-8000-000000000001",
+    "scenes_order": [
+      "10000000-0000-4000-8000-000000000001",
+      "10000000-0000-4000-8000-000000000002"
+    ],
+    "scenes": {
+      "10000000-0000-4000-8000-000000000001": {
+        "id": "10000000-0000-4000-8000-000000000001",
+        "name": "Background A",
+        "styles": [
+          "background"
+        ],
+        "current_style_id": "background",
+        "x": 0,
+        "y": 0,
+        "scale": 100,
+        "rotation": 0,
+        "rotation_type": 0,
+        "draggable": false,
+        "visible": true,
+        "workspace_offset": {
+          "x": 40,
+          "y": 40
+        },
+        "block_data_json": {
+          "blocks": {},
+          "connections": {},
+          "comments": {}
+        },
+        "actors": [
+          "20000000-0000-4000-8000-000000000001"
+        ],
+        "screen_name": "Scene A",
+        "group_order": [
+          "group"
+        ]
+      },
+      "10000000-0000-4000-8000-000000000002": {
+        "id": "10000000-0000-4000-8000-000000000002",
+        "name": "Background B",
+        "styles": [
+          "background"
+        ],
+        "current_style_id": "background",
+        "x": 0,
+        "y": 0,
+        "scale": 100,
+        "rotation": 0,
+        "rotation_type": 0,
+        "draggable": false,
+        "visible": true,
+        "workspace_offset": {
+          "x": 40,
+          "y": 40
+        },
+        "block_data_json": {
+          "blocks": {},
+          "connections": {},
+          "comments": {}
+        },
+        "actors": [],
+        "screen_name": "Scene B",
+        "group_order": []
+      }
+    },
+    "actors": {
+      "20000000-0000-4000-8000-000000000001": {
+        "id": "20000000-0000-4000-8000-000000000001",
+        "name": "Probe",
+        "styles": [
+          "costume-a",
+          "costume-b"
+        ],
+        "current_style_id": "costume-a",
+        "x": 0,
+        "y": 0,
+        "scale": 200,
+        "rotation": 1.5707963267948966,
+        "rotation_type": 0,
+        "draggable": true,
+        "visible": true,
+        "workspace_offset": {
+          "x": 40,
+          "y": 40
+        },
+        "block_data_json": {
+          "blocks": {
+            "start": {
+              "type": "start_on_click",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "start",
+              "parent_id": null,
+              "location": [
+                0,
+                0
+              ]
+            },
+            "drag-enabled": {
+              "type": "self_set_draggable",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "draggable": "1"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "drag-enabled",
+              "parent_id": "start",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "hat-key-65-down": {
+              "type": "on_keydown",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "DO": ""
+              },
+              "fields": {
+                "key_event_type": "down",
+                "key": "65"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "hat-key-65-down",
+              "parent_id": null,
+              "location": [
+                0,
+                0
+              ]
+            },
+            "add-key-65-down": {
+              "type": "change_variable",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "n": ""
+              },
+              "fields": {
+                "valname": "key-65-down",
+                "method": "increase"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "add-key-65-down",
+              "parent_id": "hat-key-65-down",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-1": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "1"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-1",
+              "parent_id": "add-key-65-down",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "hat-key-65-up": {
+              "type": "on_keydown",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "DO": ""
+              },
+              "fields": {
+                "key_event_type": "up",
+                "key": "65"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "hat-key-65-up",
+              "parent_id": null,
+              "location": [
+                0,
+                0
+              ]
+            },
+            "add-key-65-up": {
+              "type": "change_variable",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "n": ""
+              },
+              "fields": {
+                "valname": "key-65-up",
+                "method": "increase"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "add-key-65-up",
+              "parent_id": "hat-key-65-up",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-2": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "1"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-2",
+              "parent_id": "add-key-65-up",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "hat-key-any-down": {
+              "type": "on_keydown",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "DO": ""
+              },
+              "fields": {
+                "key_event_type": "down",
+                "key": "any"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "hat-key-any-down",
+              "parent_id": null,
+              "location": [
+                0,
+                0
+              ]
+            },
+            "add-key-any-down": {
+              "type": "change_variable",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "n": ""
+              },
+              "fields": {
+                "valname": "key-any-down",
+                "method": "increase"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "add-key-any-down",
+              "parent_id": "hat-key-any-down",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-3": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "1"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-3",
+              "parent_id": "add-key-any-down",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "hat-key-any-up": {
+              "type": "on_keydown",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "DO": ""
+              },
+              "fields": {
+                "key_event_type": "up",
+                "key": "any"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "hat-key-any-up",
+              "parent_id": null,
+              "location": [
+                0,
+                0
+              ]
+            },
+            "add-key-any-up": {
+              "type": "change_variable",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "n": ""
+              },
+              "fields": {
+                "valname": "key-any-up",
+                "method": "increase"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "add-key-any-up",
+              "parent_id": "hat-key-any-up",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-4": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "1"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-4",
+              "parent_id": "add-key-any-up",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "hat-key-48-down": {
+              "type": "on_keydown",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "DO": ""
+              },
+              "fields": {
+                "key_event_type": "down",
+                "key": "48"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "hat-key-48-down",
+              "parent_id": null,
+              "location": [
+                0,
+                0
+              ]
+            },
+            "add-key-48-down": {
+              "type": "change_variable",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "n": ""
+              },
+              "fields": {
+                "valname": "key-48-down",
+                "method": "increase"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "add-key-48-down",
+              "parent_id": "hat-key-48-down",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-5": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "1"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-5",
+              "parent_id": "add-key-48-down",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "hat-key-48-up": {
+              "type": "on_keydown",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "DO": ""
+              },
+              "fields": {
+                "key_event_type": "up",
+                "key": "48"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "hat-key-48-up",
+              "parent_id": null,
+              "location": [
+                0,
+                0
+              ]
+            },
+            "add-key-48-up": {
+              "type": "change_variable",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "n": ""
+              },
+              "fields": {
+                "valname": "key-48-up",
+                "method": "increase"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "add-key-48-up",
+              "parent_id": "hat-key-48-up",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-6": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "1"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-6",
+              "parent_id": "add-key-48-up",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "hat-__self-mouse_down": {
+              "type": "sprite_on_tap",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "DO": ""
+              },
+              "fields": {
+                "actor": "__self",
+                "type": "mouse_down"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "hat-__self-mouse_down",
+              "parent_id": null,
+              "location": [
+                0,
+                0
+              ]
+            },
+            "add-__self-mouse_down": {
+              "type": "change_variable",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "n": ""
+              },
+              "fields": {
+                "valname": "__self-mouse_down",
+                "method": "increase"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "add-__self-mouse_down",
+              "parent_id": "hat-__self-mouse_down",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-7": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "1"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-7",
+              "parent_id": "add-__self-mouse_down",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "hat-__self-mouse_up": {
+              "type": "sprite_on_tap",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "DO": ""
+              },
+              "fields": {
+                "actor": "__self",
+                "type": "mouse_up"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "hat-__self-mouse_up",
+              "parent_id": null,
+              "location": [
+                0,
+                0
+              ]
+            },
+            "add-__self-mouse_up": {
+              "type": "change_variable",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "n": ""
+              },
+              "fields": {
+                "valname": "__self-mouse_up",
+                "method": "increase"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "add-__self-mouse_up",
+              "parent_id": "hat-__self-mouse_up",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-8": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "1"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-8",
+              "parent_id": "add-__self-mouse_up",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "hat-__self-mouse_click": {
+              "type": "sprite_on_tap",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "DO": ""
+              },
+              "fields": {
+                "actor": "__self",
+                "type": "mouse_click"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "hat-__self-mouse_click",
+              "parent_id": null,
+              "location": [
+                0,
+                0
+              ]
+            },
+            "add-__self-mouse_click": {
+              "type": "change_variable",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "n": ""
+              },
+              "fields": {
+                "valname": "__self-mouse_click",
+                "method": "increase"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "add-__self-mouse_click",
+              "parent_id": "hat-__self-mouse_click",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-9": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "1"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-9",
+              "parent_id": "add-__self-mouse_click",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "hat-__scene-mouse_down": {
+              "type": "sprite_on_tap",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "DO": ""
+              },
+              "fields": {
+                "actor": "__scene",
+                "type": "mouse_down"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "hat-__scene-mouse_down",
+              "parent_id": null,
+              "location": [
+                0,
+                0
+              ]
+            },
+            "add-__scene-mouse_down": {
+              "type": "change_variable",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "n": ""
+              },
+              "fields": {
+                "valname": "__scene-mouse_down",
+                "method": "increase"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "add-__scene-mouse_down",
+              "parent_id": "hat-__scene-mouse_down",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-10": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "1"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-10",
+              "parent_id": "add-__scene-mouse_down",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "hat-__scene-mouse_up": {
+              "type": "sprite_on_tap",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "DO": ""
+              },
+              "fields": {
+                "actor": "__scene",
+                "type": "mouse_up"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "hat-__scene-mouse_up",
+              "parent_id": null,
+              "location": [
+                0,
+                0
+              ]
+            },
+            "add-__scene-mouse_up": {
+              "type": "change_variable",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "n": ""
+              },
+              "fields": {
+                "valname": "__scene-mouse_up",
+                "method": "increase"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "add-__scene-mouse_up",
+              "parent_id": "hat-__scene-mouse_up",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-11": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "1"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-11",
+              "parent_id": "add-__scene-mouse_up",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "hat-__scene-mouse_click": {
+              "type": "sprite_on_tap",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "DO": ""
+              },
+              "fields": {
+                "actor": "__scene",
+                "type": "mouse_click"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "hat-__scene-mouse_click",
+              "parent_id": null,
+              "location": [
+                0,
+                0
+              ]
+            },
+            "add-__scene-mouse_click": {
+              "type": "change_variable",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "n": ""
+              },
+              "fields": {
+                "valname": "__scene-mouse_click",
+                "method": "increase"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "add-__scene-mouse_click",
+              "parent_id": "hat-__scene-mouse_click",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-12": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "1"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-12",
+              "parent_id": "add-__scene-mouse_click",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "hat-swipe-left": {
+              "type": "on_swipe",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "DO": ""
+              },
+              "fields": {
+                "type": "left"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "hat-swipe-left",
+              "parent_id": null,
+              "location": [
+                0,
+                0
+              ]
+            },
+            "add-swipe-left": {
+              "type": "change_variable",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "n": ""
+              },
+              "fields": {
+                "valname": "swipe-left",
+                "method": "increase"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "add-swipe-left",
+              "parent_id": "hat-swipe-left",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-13": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "1"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-13",
+              "parent_id": "add-swipe-left",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "hat-swipe-right": {
+              "type": "on_swipe",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "DO": ""
+              },
+              "fields": {
+                "type": "right"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "hat-swipe-right",
+              "parent_id": null,
+              "location": [
+                0,
+                0
+              ]
+            },
+            "add-swipe-right": {
+              "type": "change_variable",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "n": ""
+              },
+              "fields": {
+                "valname": "swipe-right",
+                "method": "increase"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "add-swipe-right",
+              "parent_id": "hat-swipe-right",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-14": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "1"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-14",
+              "parent_id": "add-swipe-right",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "hat-swipe-up": {
+              "type": "on_swipe",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "DO": ""
+              },
+              "fields": {
+                "type": "up"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "hat-swipe-up",
+              "parent_id": null,
+              "location": [
+                0,
+                0
+              ]
+            },
+            "add-swipe-up": {
+              "type": "change_variable",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "n": ""
+              },
+              "fields": {
+                "valname": "swipe-up",
+                "method": "increase"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "add-swipe-up",
+              "parent_id": "hat-swipe-up",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-15": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "1"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-15",
+              "parent_id": "add-swipe-up",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "hat-swipe-down": {
+              "type": "on_swipe",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "DO": ""
+              },
+              "fields": {
+                "type": "down"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "hat-swipe-down",
+              "parent_id": null,
+              "location": [
+                0,
+                0
+              ]
+            },
+            "add-swipe-down": {
+              "type": "change_variable",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "n": ""
+              },
+              "fields": {
+                "valname": "swipe-down",
+                "method": "increase"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "add-swipe-down",
+              "parent_id": "hat-swipe-down",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-16": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "1"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-16",
+              "parent_id": "add-swipe-down",
+              "location": [
+                0,
+                0
+              ]
+            }
+          },
+          "connections": {
+            "start": {
+              "drag-enabled": {
+                "type": "next"
+              }
+            },
+            "drag-enabled": {},
+            "hat-key-65-down": {
+              "add-key-65-down": {
+                "type": "input",
+                "input_type": "statement",
+                "input_name": "DO"
+              }
+            },
+            "add-key-65-down": {
+              "generated-1": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "n"
+              }
+            },
+            "generated-1": {},
+            "hat-key-65-up": {
+              "add-key-65-up": {
+                "type": "input",
+                "input_type": "statement",
+                "input_name": "DO"
+              }
+            },
+            "add-key-65-up": {
+              "generated-2": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "n"
+              }
+            },
+            "generated-2": {},
+            "hat-key-any-down": {
+              "add-key-any-down": {
+                "type": "input",
+                "input_type": "statement",
+                "input_name": "DO"
+              }
+            },
+            "add-key-any-down": {
+              "generated-3": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "n"
+              }
+            },
+            "generated-3": {},
+            "hat-key-any-up": {
+              "add-key-any-up": {
+                "type": "input",
+                "input_type": "statement",
+                "input_name": "DO"
+              }
+            },
+            "add-key-any-up": {
+              "generated-4": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "n"
+              }
+            },
+            "generated-4": {},
+            "hat-key-48-down": {
+              "add-key-48-down": {
+                "type": "input",
+                "input_type": "statement",
+                "input_name": "DO"
+              }
+            },
+            "add-key-48-down": {
+              "generated-5": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "n"
+              }
+            },
+            "generated-5": {},
+            "hat-key-48-up": {
+              "add-key-48-up": {
+                "type": "input",
+                "input_type": "statement",
+                "input_name": "DO"
+              }
+            },
+            "add-key-48-up": {
+              "generated-6": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "n"
+              }
+            },
+            "generated-6": {},
+            "hat-__self-mouse_down": {
+              "add-__self-mouse_down": {
+                "type": "input",
+                "input_type": "statement",
+                "input_name": "DO"
+              }
+            },
+            "add-__self-mouse_down": {
+              "generated-7": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "n"
+              }
+            },
+            "generated-7": {},
+            "hat-__self-mouse_up": {
+              "add-__self-mouse_up": {
+                "type": "input",
+                "input_type": "statement",
+                "input_name": "DO"
+              }
+            },
+            "add-__self-mouse_up": {
+              "generated-8": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "n"
+              }
+            },
+            "generated-8": {},
+            "hat-__self-mouse_click": {
+              "add-__self-mouse_click": {
+                "type": "input",
+                "input_type": "statement",
+                "input_name": "DO"
+              }
+            },
+            "add-__self-mouse_click": {
+              "generated-9": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "n"
+              }
+            },
+            "generated-9": {},
+            "hat-__scene-mouse_down": {
+              "add-__scene-mouse_down": {
+                "type": "input",
+                "input_type": "statement",
+                "input_name": "DO"
+              }
+            },
+            "add-__scene-mouse_down": {
+              "generated-10": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "n"
+              }
+            },
+            "generated-10": {},
+            "hat-__scene-mouse_up": {
+              "add-__scene-mouse_up": {
+                "type": "input",
+                "input_type": "statement",
+                "input_name": "DO"
+              }
+            },
+            "add-__scene-mouse_up": {
+              "generated-11": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "n"
+              }
+            },
+            "generated-11": {},
+            "hat-__scene-mouse_click": {
+              "add-__scene-mouse_click": {
+                "type": "input",
+                "input_type": "statement",
+                "input_name": "DO"
+              }
+            },
+            "add-__scene-mouse_click": {
+              "generated-12": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "n"
+              }
+            },
+            "generated-12": {},
+            "hat-swipe-left": {
+              "add-swipe-left": {
+                "type": "input",
+                "input_type": "statement",
+                "input_name": "DO"
+              }
+            },
+            "add-swipe-left": {
+              "generated-13": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "n"
+              }
+            },
+            "generated-13": {},
+            "hat-swipe-right": {
+              "add-swipe-right": {
+                "type": "input",
+                "input_type": "statement",
+                "input_name": "DO"
+              }
+            },
+            "add-swipe-right": {
+              "generated-14": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "n"
+              }
+            },
+            "generated-14": {},
+            "hat-swipe-up": {
+              "add-swipe-up": {
+                "type": "input",
+                "input_type": "statement",
+                "input_name": "DO"
+              }
+            },
+            "add-swipe-up": {
+              "generated-15": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "n"
+              }
+            },
+            "generated-15": {},
+            "hat-swipe-down": {
+              "add-swipe-down": {
+                "type": "input",
+                "input_type": "statement",
+                "input_name": "DO"
+              }
+            },
+            "add-swipe-down": {
+              "generated-16": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "n"
+              }
+            },
+            "generated-16": {}
+          },
+          "comments": {}
+        },
+        "scene": "10000000-0000-4000-8000-000000000001",
+        "lock": false,
+        "editable_in_tuition_mode": true,
+        "user_change_r_c": false
+      }
+    },
+    "groups": {
+      "group": {
+        "id": "group",
+        "name": "",
+        "is_fold": false,
+        "is_group": false,
+        "actors": [
+          "20000000-0000-4000-8000-000000000001"
+        ],
+        "scene": "10000000-0000-4000-8000-000000000001",
+        "visible": true
+      }
+    },
+    "styles": {
+      "background": {
+        "id": "background",
+        "name": "Background",
+        "adaptive": false,
+        "pivot": {
+          "x": 0,
+          "y": 0
+        },
+        "rotate_center": {
+          "x": 0,
+          "y": 0
+        },
+        "cdn_url": "",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjgwIiBoZWlnaHQ9IjcyMCI+PHJlY3Qgd2lkdGg9IjEyODAiIGhlaWdodD0iNzIwIiBmaWxsPSIjMzM2Njk5Ii8+PC9zdmc+"
+      },
+      "costume-a": {
+        "id": "costume-a",
+        "name": "蓝色方块",
+        "adaptive": false,
+        "pivot": {
+          "x": 0,
+          "y": 0
+        },
+        "rotate_center": {
+          "x": 0,
+          "y": 0
+        },
+        "cdn_url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MCIgaGVpZ2h0PSI0MCI+PHBhdGggZmlsbD0icmVkIiBkPSJNMCAwaDQwdjQwSDB6Ii8+PC9zdmc+",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MCIgaGVpZ2h0PSI0MCI+PHBhdGggZmlsbD0icmVkIiBkPSJNMCAwaDQwdjQwSDB6Ii8+PC9zdmc+"
+      },
+      "costume-b": {
+        "id": "costume-b",
+        "name": "第二个造型",
+        "adaptive": false,
+        "pivot": {
+          "x": 0,
+          "y": 0
+        },
+        "rotate_center": {
+          "x": 0,
+          "y": 0
+        },
+        "cdn_url": "",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMCIgaGVpZ2h0PSIyMCI+PHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjMzM2Njk5Ii8+PC9zdmc+"
+      }
+    },
+    "videos": {},
+    "timer": {}
+  },
+  "variables": {
+    "key-65-down": {
+      "id": "key-65-down",
+      "name": "key-65-down",
+      "value": 0,
+      "type": "number",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "key-65-up": {
+      "id": "key-65-up",
+      "name": "key-65-up",
+      "value": 0,
+      "type": "number",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "key-any-down": {
+      "id": "key-any-down",
+      "name": "key-any-down",
+      "value": 0,
+      "type": "number",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "key-any-up": {
+      "id": "key-any-up",
+      "name": "key-any-up",
+      "value": 0,
+      "type": "number",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "key-48-down": {
+      "id": "key-48-down",
+      "name": "key-48-down",
+      "value": 0,
+      "type": "number",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "key-48-up": {
+      "id": "key-48-up",
+      "name": "key-48-up",
+      "value": 0,
+      "type": "number",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "__self-mouse_down": {
+      "id": "__self-mouse_down",
+      "name": "__self-mouse_down",
+      "value": 0,
+      "type": "number",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "__self-mouse_up": {
+      "id": "__self-mouse_up",
+      "name": "__self-mouse_up",
+      "value": 0,
+      "type": "number",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "__self-mouse_click": {
+      "id": "__self-mouse_click",
+      "name": "__self-mouse_click",
+      "value": 0,
+      "type": "number",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "__scene-mouse_down": {
+      "id": "__scene-mouse_down",
+      "name": "__scene-mouse_down",
+      "value": 0,
+      "type": "number",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "__scene-mouse_up": {
+      "id": "__scene-mouse_up",
+      "name": "__scene-mouse_up",
+      "value": 0,
+      "type": "number",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "__scene-mouse_click": {
+      "id": "__scene-mouse_click",
+      "name": "__scene-mouse_click",
+      "value": 0,
+      "type": "number",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "swipe-left": {
+      "id": "swipe-left",
+      "name": "swipe-left",
+      "value": 0,
+      "type": "number",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "swipe-right": {
+      "id": "swipe-right",
+      "name": "swipe-right",
+      "value": 0,
+      "type": "number",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "swipe-up": {
+      "id": "swipe-up",
+      "name": "swipe-up",
+      "value": 0,
+      "type": "number",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "swipe-down": {
+      "id": "swipe-down",
+      "name": "swipe-down",
+      "value": 0,
+      "type": "number",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    }
+  },
+  "variable_order": [
+    "key-65-down",
+    "key-65-up",
+    "key-any-down",
+    "key-any-up",
+    "key-48-down",
+    "key-48-up",
+    "__self-mouse_down",
+    "__self-mouse_up",
+    "__self-mouse_click",
+    "__scene-mouse_down",
+    "__scene-mouse_up",
+    "__scene-mouse_click",
+    "swipe-left",
+    "swipe-right",
+    "swipe-up",
+    "swipe-down"
+  ],
+  "cloud_variables": {},
+  "audio": {},
+  "audio_order": [],
+  "midimusic": [],
+  "midi_order": [],
+  "matrix": {},
+  "models": {},
+  "toolbox": {
+    "current_type": "event",
+    "pen": false
+  },
+  "toolbox_order": [
+    "event",
+    "control",
+    "action",
+    "appearance",
+    "sensing",
+    "operator",
+    "data"
+  ],
+  "last_toolbox_order": [],
+  "hardware_type": "",
+  "is_partial": false,
+  "ai_lab": {},
+  "broadcasts": {},
+  "painter": {
+    "color": []
+  }
+}
