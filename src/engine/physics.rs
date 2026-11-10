@@ -65,6 +65,27 @@ mod tests {
     }
 
     #[test]
+    fn legacy_velocity_does_not_allocate_and_checks_finite_before_scene_error() {
+        let mut e = engine();
+        command(&mut e, 1, Command::LegacyVelocity, [99.0, 0.0, 0.0]);
+        assert!(e.physics.is_none());
+        command(&mut e, 0, Command::LegacyVelocity, [f64::NAN, 0.0, 0.0]);
+        assert!(e.physics.is_none());
+        assert!(
+            e.physics_command(0, Command::LegacyVelocity, [1.0, 0.0, 0.0])
+                .is_err()
+        );
+        command(&mut e, 1, Command::Gravity, [0.0; 3]);
+        command(&mut e, 1, Command::LegacyVelocity, [2.0, 90.0, 0.0]);
+        let y = e.sprites[1].y;
+        e.step_physics(STEP);
+        assert!((e.sprites[1].y - y - 200.0 * STEP).abs() < 0.001);
+        assert_eq!(e.physics_property(1, Property::Speed), 2.0);
+        command(&mut e, 1, Command::LegacyVelocity, [20000.0, 0.0, 0.0]);
+        assert_eq!(e.physics_property(1, Property::Speed), 10000.0);
+    }
+
+    #[test]
     fn sensor_static_hidden_and_repeated_enable_preserve_velocity() {
         let mut e = engine();
         command(&mut e, 1, Command::Gravity, [0.0; 3]);
@@ -164,6 +185,7 @@ pub(super) enum Command {
     Filter(usize, bool),
     Gravity,
     Speed,
+    LegacyVelocity,
     Force,
     TimedForce,
     Mass,
@@ -406,10 +428,25 @@ impl Engine {
         command: Command,
         values: [f64; 3],
     ) -> Result<Option<f64>> {
+        // Offline official player_v2/Bt.set_velocity: finite Numbers only,
+        // no lazy body/world creation, unlike physics2_set_speed.
+        let legacy = matches!(command, Command::LegacyVelocity);
+        if legacy && (!values[0].is_finite() || !values[1].is_finite()) {
+            return Ok(None);
+        }
         ensure!(
             !self.sprites[actor].stage,
             "Kitten 4 physics blocks cannot run on a scene"
         );
+        if legacy
+            && !self
+                .physics
+                .as_ref()
+                .and_then(|p| p.worlds.get(&self.sprites[actor].scene))
+                .is_some_and(|w| w.actors.contains_key(&actor))
+        {
+            return Ok(None);
+        }
         self.ensure_physics_body(actor);
         // LiquidFun particle groups have no equivalent in this rigid solver: a
         // soft actor keeps running as a rigid body so the work does not stop.
@@ -464,6 +501,10 @@ impl Engine {
             }
             Command::Speed if !value.is_nan() && dir.is_finite() => {
                 state.saved_velocity = vector(12.0);
+                body.set_linvel(state.saved_velocity, true)
+            }
+            Command::LegacyVelocity => {
+                state.saved_velocity = vector(10000.0);
                 body.set_linvel(state.saved_velocity, true)
             }
             Command::Force if dir.is_finite() => body.add_force(

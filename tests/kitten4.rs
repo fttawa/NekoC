@@ -805,6 +805,170 @@ fn published_second_round_stubs_are_explicit_and_nonblocking() {
 }
 
 #[test]
+fn published_offline_voice_and_player_wood_stubs_continue_and_keep_return_types() {
+    for jit in [false, true] {
+        let native = published_script(vec![
+            compiled("enable_voice_detection", json!({"state":"open"})),
+            compiled_set("volume", compiled("get_voice_volume", json!({}))),
+            compiled("enable_voice_detection", json!({"state":"close"})),
+            compiled(
+                "wood_block_set",
+                json!({"NAME":"save","VAR0":compiled_number(7.0)}),
+            ),
+            compiled_set("wood", compiled("wood_block_get", json!({"NAME":"load"}))),
+            compiled_set("after", compiled_number(1.0)),
+        ]);
+        let canonical = kitten4::to_neko(&native).unwrap();
+        assert_eq!(kitten4::from_neko(&canonical).unwrap(), native);
+        let report = kitten4::coverage(&native, 1);
+        assert_eq!(report["stage"], "ran", "{report}");
+        for kind in [
+            "enable_voice_detection",
+            "get_voice_volume",
+            "wood_block_set",
+            "wood_block_get",
+        ] {
+            assert!(report["stubbed"].get(kind).is_some(), "{kind}: {report}");
+        }
+        let mut e = Engine::new(Program::compile(&canonical).unwrap());
+        if !jit {
+            e.disable_jit();
+        }
+        e.start();
+        e.advance(1.0 / 60.0, 100_000, Duration::from_secs(1))
+            .unwrap();
+        assert_eq!(e.variable_text("volume"), "0");
+        assert_eq!(e.variable_text("wood"), "NaN");
+        assert_eq!(e.variable_text("after"), "1");
+    }
+}
+
+#[test]
+fn workspace_voice_wood_and_legacy_velocity_roundtrip_without_rewriting_source() {
+    let mut native = fixture();
+    *workspace(&mut native) = json!({"blocks":{
+        "hat":{"id":"hat","type":"start_on_click"},
+        "open":{"id":"open","type":"enable_voice_detection","fields":{"state":"open"}},
+        "wood":{"id":"wood","type":"wood_block_set","fields":{"NAME":"save"},"mutation":"<mutation items=\"0\"></mutation>"},
+        "velocity":{"id":"velocity","type":"set_velocity"},
+        "value":{"id":"value","type":"math_number","fields":{"NUM":99}},
+        "dir":{"id":"dir","type":"controller_shadow","fields":{"NUM":90}}
+    },"connections":{
+        "hat":{"open":{"type":"next"}},"open":{"wood":{"type":"next"}},
+        "wood":{"velocity":{"type":"next"}},"velocity":{
+            "value":{"type":"input","input_type":"value","input_name":"value"},
+            "dir":{"type":"input","input_type":"value","input_name":"dir"}}
+    }});
+    let canonical = kitten4::to_neko(&native).unwrap();
+    assert_eq!(kitten4::from_neko(&canonical).unwrap(), native);
+    let report = kitten4::coverage(&native, 1);
+    assert_eq!(report["stage"], "ran", "{report}");
+    assert_eq!(report["stubbed"]["enable_voice_detection"], 1);
+    assert_eq!(report["stubbed"]["wood_block_set"], 1);
+    assert!(report["stubbed"].get("set_velocity").is_none());
+}
+
+#[test]
+fn published_legacy_velocity_uses_existing_body_and_strict_finite_numbers() {
+    for jit in [false, true] {
+        for (value, dir, expected_speed, expected_dir) in [
+            (compiled_number(99.0), compiled_number(0.0), "99", "0"),
+            (compiled_number(-2.0), compiled_number(90.0), "2", "-90"),
+            (compiled_number(20000.0), compiled_number(0.0), "10000", "0"),
+            (
+                compiled_number(-20000.0),
+                compiled_number(0.0),
+                "10000",
+                "-180",
+            ),
+            (
+                compiled("text", json!({"TEXT":"99"})),
+                compiled_number(0.0),
+                "1",
+                "0",
+            ),
+            (
+                compiled_number(99.0),
+                compiled("text", json!({"TEXT":"90"})),
+                "1",
+                "0",
+            ),
+            (
+                compiled("math_number", json!({"NUM":"NaN"})),
+                compiled_number(0.0),
+                "1",
+                "0",
+            ),
+            (
+                compiled("math_number", json!({"NUM":"Infinity"})),
+                compiled_number(0.0),
+                "1",
+                "0",
+            ),
+            (
+                compiled_number(99.0),
+                compiled("math_number", json!({"NUM":"Infinity"})),
+                "1",
+                "0",
+            ),
+        ] {
+            let native = published_script(vec![
+                // A physics2 command deliberately creates the existing body.
+                compiled(
+                    "physics2_set_speed",
+                    json!({"value":compiled_number(1.0),"dir":compiled_number(0.0)}),
+                ),
+                compiled("set_velocity", json!({"value":value,"dir":dir})),
+                compiled_set(
+                    "speed",
+                    compiled("physics2_get_property", json!({"property":"speed"})),
+                ),
+                compiled_set(
+                    "dir",
+                    compiled("physics2_get_property", json!({"property":"speed_dir"})),
+                ),
+                compiled_set("after", compiled_number(1.0)),
+            ]);
+            let canonical = kitten4::to_neko(&native).unwrap();
+            assert_eq!(kitten4::from_neko(&canonical).unwrap(), native);
+            let mut e = Engine::new(Program::compile(&canonical).unwrap());
+            if !jit {
+                e.disable_jit();
+            }
+            e.start();
+            e.advance(1.0 / 60.0, 100_000, Duration::from_secs(1))
+                .unwrap();
+            assert_eq!(e.variable_text("speed"), expected_speed);
+            assert_eq!(e.variable_text("dir"), expected_dir);
+            assert_eq!(e.variable_text("after"), "1");
+        }
+        let native = published_script(vec![
+            compiled(
+                "set_velocity",
+                json!({"value":compiled_number(99.0),"dir":compiled_number(0.0)}),
+            ),
+            compiled_set(
+                "speed",
+                compiled("physics2_get_property", json!({"property":"speed"})),
+            ),
+        ]);
+        let canonical = kitten4::to_neko(&native).unwrap();
+        let mut e = Engine::new(Program::compile(&canonical).unwrap());
+        if !jit {
+            e.disable_jit();
+        }
+        e.start();
+        e.advance(1.0 / 60.0, 100_000, Duration::from_secs(1))
+            .unwrap();
+        assert_eq!(
+            e.variable_text("speed"),
+            "0",
+            "legacy setter must not create a body"
+        );
+    }
+}
+
+#[test]
 fn published_audio_property_changes_emit_ordered_nonblocking_commands() {
     let native = published_script(vec![
         compiled(
