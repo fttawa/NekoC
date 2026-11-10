@@ -11,6 +11,8 @@ mod input;
 mod jit;
 mod jit_observation;
 mod k4_clock;
+mod k4_effects;
+mod k4_properties;
 mod kn_appearance;
 mod kn_async;
 mod kn_catalog;
@@ -348,6 +350,7 @@ enum Op {
     SizeAxis(bool, Expr, bool),
     PenSizeChange(Expr),
     Effect(u8, Expr, bool),
+    K4Effect(k4_effects::K4Effect),
     ClearEffects,
     RotationType(u8),
     Flip(bool),
@@ -478,8 +481,8 @@ pub struct Sprite {
     pub visible: bool,
     pub opacity: f64,
     /// Effect values by native scope: 0 color, 2 brightness, 3 pixelate,
-    /// 4 ripple, 5 twist, 6 grayscale (1 transparency is `opacity`).
-    pub effects: [f64; 7],
+    /// 4 ripple, 5 twist, 6 grayscale, 7 ASCII (1 transparency is `opacity`).
+    pub effects: [f64; 8],
     /// Width/height percentages applied on top of `scale`.
     pub size_x: f64,
     pub size_y: f64,
@@ -639,7 +642,7 @@ pub struct ImageStamp {
     pub size_y: f64,
     pub rotation_type: u8,
     pub opacity: f64,
-    pub effects: [f64; 7],
+    pub effects: [f64; 8],
 }
 #[derive(Clone, Debug, Serialize)]
 pub struct Monitor {
@@ -1241,19 +1244,39 @@ impl Program {
         }
         for (scene_index, scene_id) in scene_ids.iter().enumerate() {
             let scene_value = &scenes_dict[scene_id];
+            let kitten4 = semantics == RuntimeSemantics::Kitten4;
             let stage = compiler.program.sprites.len();
             // Stage scripts have no sprite target. A hidden entity gives them scalar state.
             compiler.program.sprites.push(Sprite {
                 id: scene_id.clone(),
                 name: scene_value["name"].as_str().unwrap_or("Stage").into(),
                 style: scene_value["currentStyleId"].as_str().map(str::to_owned),
-                x: 0.0,
-                y: 0.0,
-                direction: 0.0,
-                scale: 100.0,
-                visible: false,
+                x: if kitten4 {
+                    scene_value["position"]["x"].as_f64().unwrap_or(0.0)
+                } else {
+                    0.0
+                },
+                y: if kitten4 {
+                    scene_value["position"]["y"].as_f64().unwrap_or(0.0)
+                } else {
+                    0.0
+                },
+                direction: if kitten4 {
+                    scene_value["rotation"]
+                        .as_f64()
+                        .unwrap_or(std::f64::consts::FRAC_PI_2)
+                        .to_degrees()
+                } else {
+                    0.0
+                },
+                scale: if kitten4 {
+                    scene_value["scale"].as_f64().unwrap_or(100.0)
+                } else {
+                    100.0
+                },
+                visible: kitten4 && scene_value["visible"].as_bool().unwrap_or(true),
                 opacity: 1.0,
-                effects: [0.0; 7],
+                effects: [0.0; 8],
                 size_x: 100.0,
                 size_y: 100.0,
                 flip_x: false,
@@ -1302,7 +1325,7 @@ impl Program {
                     scale: actor["scale"].as_f64().unwrap_or(100.0),
                     visible: actor["visible"].as_bool().unwrap_or(true),
                     opacity: 1.0,
-                    effects: [0.0; 7],
+                    effects: [0.0; 8],
                     size_x: 100.0,
                     size_y: 100.0,
                     flip_x: false,
@@ -2075,6 +2098,7 @@ impl Compiler {
                 }
             }
             "get_answer" => ValueExpr::Answer,
+            "kitten4_property" => return self.k4_property(b, false),
             "current_scene_id" => ValueExpr::SceneId,
             "shadow_text" => match b["inputs"].get("text") {
                 Some(text) => return self.value(text),
@@ -2099,6 +2123,9 @@ impl Compiler {
             )),
             "get_choice_and_index" => ValueExpr::Choice(field(b, "type") == "index"),
             "get_clone_index_property" => {
+                if self.program.semantics == RuntimeSemantics::Kitten4 {
+                    return self.k4_property(b, true);
+                }
                 if let Some(&slot) = self.actor_variables.get(field(b, "attribute")) {
                     let target = self.actor_target(field(b, "sprite"))?;
                     let index = self.arg(b, "index")?;
@@ -2756,15 +2783,26 @@ impl Compiler {
             }
             "get_current_clone_index" => ExprOp::CloneIndex,
             "get_clone_index_property"
+            | "kitten4_property"
             | "kitten4_actor_variable"
             | "shadow_text"
             | "on_bump_actor_value" => ExprOp::Value(self.value(b)?),
             "get_stage_info" => {
-                let info = b["fields"].get("info").or_else(|| b["fields"].get("type"));
-                match info.and_then(Value::as_str).unwrap_or("width") {
-                    "width" => ExprOp::Constant(self.program.width),
-                    "height" => ExprOp::Constant(self.program.height),
-                    other => bail!("unsupported stage information {other}"),
+                if self.program.semantics == RuntimeSemantics::Kitten4 {
+                    // Official domain function tests only `info === "width"`.
+                    // Any other (including absent) field selects the height.
+                    ExprOp::Constant(if field(b, "info") == "width" {
+                        self.program.width
+                    } else {
+                        self.program.height
+                    })
+                } else {
+                    let info = b["fields"].get("info").or_else(|| b["fields"].get("type"));
+                    match info.and_then(Value::as_str).unwrap_or("width") {
+                        "width" => ExprOp::Constant(self.program.width),
+                        "height" => ExprOp::Constant(self.program.height),
+                        other => bail!("unsupported stage information {other}"),
+                    }
                 }
             }
             "get_time" => {
@@ -3537,6 +3575,9 @@ impl Compiler {
                         );
                         Op::NextStyle(field(b, "prev_next") == "next")
                     }
+                    "kitten4_set_effect" | "kitten4_change_effect" => Op::K4Effect(
+                        k4_effects::K4Effect::compile(self, b, kind == "kitten4_change_effect")?,
+                    ),
                     "self_set_effect" | "self_change_effect" => {
                         let scope = effect_scope(field(b, "scope")).with_context(|| {
                             format!(
@@ -3735,6 +3776,14 @@ impl Compiler {
                     "close_self_dialog" => Op::CloseDialog,
                     "self_bounce_off_edge" => Op::Bounce,
                     "self_set_role_camp" => {
+                        // camp_green is a KN compatibility alias, not the K4
+                        // editor's green option (whose stored id is camp_yellow).
+                        ensure!(
+                            self.program.semantics != RuntimeSemantics::Kitten4
+                                || field(b, "role_camp") != "camp_green",
+                            "unsupported Kitten 4 camp camp_green at {}",
+                            b["id"]
+                        );
                         Op::Camp(camp_code(field(b, "role_camp")).with_context(|| {
                             format!("unknown camp {} at {}", field(b, "role_camp"), b["id"])
                         })?)
@@ -3785,7 +3834,11 @@ impl Compiler {
                         })?)
                     }
                     "self_set_draggable" => {
-                        Op::Draggable(matches!(field(b, "draggable"), "1" | "true" | "draggable"))
+                        Op::Draggable(if self.program.semantics == RuntimeSemantics::Kitten4 {
+                            b["fields"]["draggable"].as_str() == Some("1")
+                        } else {
+                            matches!(field(b, "draggable"), "1" | "true" | "draggable")
+                        })
                     }
                     "image_stamp" => Op::ImageStamp,
                     "kitten4_play_video"
@@ -7363,6 +7416,9 @@ impl Engine {
             _ => None,
         };
         match self.program.values[key.1] {
+            ValueExpr::K4Property(property) => {
+                children.extend(property.index.map(|i| (true, i)));
+            }
             ValueExpr::K4Media(reporter) => {
                 children.extend(reporter.children().into_iter().map(|i| (true, i)))
             }
@@ -7949,6 +8005,7 @@ impl Engine {
                 Cell::Null
             }
             ValueExpr::K4Media(reporter) => self.eval_k4_media(reporter, actor),
+            ValueExpr::K4Property(property) => self.eval_k4_property(property, actor),
             ValueExpr::K4DomainError(message) => {
                 let message = self.eval_value(message, actor).text();
                 self.value_error = Some(format!("K4 domain error: {message}"));
@@ -8271,6 +8328,7 @@ impl Engine {
                     | Op::NextStyle(_)
                     | Op::Opacity(_)
                     | Op::Effect(..)
+                    | Op::K4Effect(..)
                     | Op::ClearEffects
                     | Op::ChangeScale(_)
                     | Op::SizeAxis(..)
@@ -9171,6 +9229,7 @@ impl Engine {
                 let a = &mut self.sprites[actor];
                 a.size = (a.size + v).clamp(1.0, 1000.0);
             }
+            Op::K4Effect(effect) => self.exec_k4_effect(effect, actor),
             Op::Effect(scope, e, change) => {
                 let v = self.eval(e, actor);
                 if v.is_finite() {
@@ -9199,7 +9258,7 @@ impl Engine {
             }
             Op::ClearEffects => {
                 let a = &mut self.sprites[actor];
-                a.effects = [0.0; 7];
+                a.effects = [0.0; 8];
                 a.opacity = 1.0;
             }
             Op::RotationType(kind) => self.sprites[actor].rotation_type = kind,
@@ -9454,7 +9513,15 @@ impl Engine {
                 self.tasks[index].pending += 1;
                 return Ok(false);
             }
-            Op::Camp(camp) => self.sprites[actor].camp = camp,
+            Op::Camp(camp) => {
+                ensure!(
+                    self.program.semantics != RuntimeSemantics::Kitten4
+                        || !self.sprites[actor].stage,
+                    "K4 domain error: use_actor_blocks_in_scene at block {}",
+                    self.program.sources[pc]
+                );
+                self.sprites[actor].camp = camp;
+            }
             Op::Emphasis(_) | Op::Transition(..) => {
                 if !self.sprites[actor].stage {
                     self.tasks[index].timeline = self.timeline(actor, op).map(Box::new);
@@ -9497,6 +9564,12 @@ impl Engine {
                 }
             }
             Op::Draggable(on) => {
+                ensure!(
+                    self.program.semantics != RuntimeSemantics::Kitten4
+                        || !self.sprites[actor].stage,
+                    "K4 domain error: use_actor_blocks_in_scene at block {}",
+                    self.program.sources[pc]
+                );
                 self.sprites[actor].draggable = on;
                 self.dirty[actor] = true;
             }

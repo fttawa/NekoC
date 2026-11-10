@@ -76,7 +76,12 @@ fn deleted_clone_read_matches_each_official_runtime() {
             vm.start();
             let result = run(&mut vm, 90);
             if k4 {
-                assert!(result.unwrap_err().to_string().contains("clone_not_found"));
+                assert!(
+                    result
+                        .unwrap_err()
+                        .to_string()
+                        .contains("clone_entity_not_exist")
+                );
             } else {
                 result.unwrap();
                 assert_eq!(vm.variable_text("afterDelete"), "NaN");

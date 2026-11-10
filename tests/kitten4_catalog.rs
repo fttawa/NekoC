@@ -1232,9 +1232,9 @@ fn legacy_effect_aliases_use_steps_for_change_and_val_for_set() {
                 let canonical = imported(
                     &native,
                     if change {
-                        "self_change_effect"
+                        "kitten4_change_effect"
                     } else {
-                        "self_set_effect"
+                        "kitten4_set_effect"
                     },
                 );
                 let lowered = kitten4::lower_for_vm(&canonical);
@@ -1397,9 +1397,9 @@ fn legacy_get_returns_the_delegated_reporter_result() {
     // get_3 at 614280 resolves __self then reads the selected native property.
     for source in SOURCES {
         for (attribute, lowered, expected) in [
-            ("0", "coordinate_of_sprite", "17"),
-            ("1", "coordinate_of_sprite", "-11"),
-            ("4", "kitten4_costume_name", "first"),
+            ("0", "kitten4_property", "17"),
+            ("1", "kitten4_property", "-11"),
+            ("4", "kitten4_property", "first"),
         ] {
             let native = project(
                 source,

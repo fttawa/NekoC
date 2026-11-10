@@ -171,6 +171,17 @@ test("markdown contains full rows and audit metadata, never factory or corpus co
   assert.ok(!markdown.includes("function()"));
 });
 
+test("partial work removes only measured block-body limits and retains renderer and backend gaps", () => {
+  const types = ["get_stage_info", "self_set_draggable", "self_set_role_camp", "get", "get_2", "get_3",
+    "get_clone_index_property", "self_set_effect_2", "self_change_effect_3", "self_clear_effects", "physics2_set_speed", "cloud_variables_get"];
+  const rows = mappingStatus(root, types.map(type => ({ type, official: [] })));
+  for (const row of rows) {
+    assert.equal(row.status, "已实现", row.type);
+    assert.equal(row.semantics, types.slice(0, 2).includes(row.type) ? "offline-oracle-verified" : "partial", row.type);
+    assert.ok(!row.limitations.some(s => s.includes("scope=7 降级为 noop")));
+  }
+});
+
 test("second round scans explicit module dispatches without swallowing unrelated types", () => {
   const types = ["text_indexOf", "text_append", "text_implicit", "days_after_2000", "start_on_click_2",
     "controls_if_no_else", "self_on_tap", "show_stage_dialog", "self_shake", "get_camera_data",

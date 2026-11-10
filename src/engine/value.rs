@@ -467,6 +467,7 @@ pub(super) enum ValueExpr {
     CallReturn(usize, usize),
     /// (original actor, clone index including 0 for original, native attribute)
     CloneProperty(usize, super::Expr, u8),
+    K4Property(super::k4_properties::Property),
     Answer,
     /// Last chosen option: index (true) or content.
     Choice(bool),
