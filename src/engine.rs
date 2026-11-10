@@ -695,6 +695,7 @@ impl RuntimeSemantics {
 #[derive(Debug)]
 pub struct Program {
     cloud: Vec<cloud::Binding>,
+    deep_values: BTreeSet<usize>,
     semantics: RuntimeSemantics,
     ops: Vec<Op>,
     legacy_physics_scenes: BTreeSet<usize>,
@@ -792,7 +793,7 @@ impl std::ops::Deref for PreparedJson<'_> {
 
 impl PreparedProject<'_> {
     pub fn compile(&self, project: &Value) -> Result<Program> {
-        crate::json::check_blocks(project, 64)?;
+        crate::json::check_blocks(project, crate::json::MAX_BLOCK_DEPTH)?;
         crate::json::expanded(|| {
             Program::compile_canonical(
                 project,
@@ -838,7 +839,7 @@ impl Program {
     }
     pub(crate) fn prepare(project: &Value, unpack: bool) -> Result<PreparedProject<'_>> {
         let _timing = crate::import_perf::span("engine_prepare");
-        crate::json::check_blocks(project, 64)?;
+        crate::json::check_blocks(project, crate::json::MAX_BLOCK_DEPTH)?;
         let semantics = RuntimeSemantics::from_project(project)?;
         let start_hats = if semantics == RuntimeSemantics::Kitten4 {
             crate::kitten4::start_hats(&project["_nekocKitten4"]["source"])
@@ -874,7 +875,7 @@ impl Program {
             // KN historically used serde_json's sorted object maps. Preserve
             // that execution policy despite retaining insertion order for K4.
             let mut sorted = crate::json::Json::new(crate::json::clone_value(&project));
-            crate::json::expanded(|| sorted.sort_all_objects());
+            crate::json::sort_objects(&mut sorted);
             PreparedJson::Owned(sorted)
         };
         Ok(PreparedProject {
@@ -912,6 +913,7 @@ impl Program {
             start_hats,
             program: Self {
                 cloud: vec![],
+                deep_values: BTreeSet::new(),
                 semantics,
                 ops: vec![],
                 legacy_physics_scenes: BTreeSet::new(),
@@ -1000,8 +1002,9 @@ impl Program {
             procedure_params: BTreeMap::new(),
             parameters: BTreeMap::new(),
             loops: vec![],
-            depth: 0,
             expression_work: vec![],
+            compile_work: false,
+            compile_depth: 0,
             actor_ids: vec![],
             owner_scene: 0,
         };
@@ -1364,6 +1367,8 @@ struct ProcedureParam {
 }
 
 struct Compiler {
+    compile_work: bool,
+    compile_depth: usize,
     program: Program,
     start_hats: crate::kitten4::StartHats,
     slots: BTreeMap<String, usize>,
@@ -1375,7 +1380,6 @@ struct Compiler {
     procedure_params: BTreeMap<usize, Vec<ProcedureParam>>,
     parameters: BTreeMap<String, usize>,
     loops: Vec<Vec<usize>>,
-    depth: usize,
     expression_work: Vec<ExprOp>,
     /// Actor ids of the scene whose scripts are being compiled (front to back).
     actor_ids: Vec<String>,
@@ -1509,6 +1513,70 @@ fn input<'a>(v: &'a Value, key: &str) -> Result<&'a Value> {
         .with_context(|| format!("{}: missing input {key}", v["type"]))
 }
 impl Compiler {
+    fn deep_value(&mut self, root: &Value) -> Result<usize> {
+        self.compile_work = true;
+        let result = self.deep_value_inner(root);
+        self.compile_work = false;
+        if let Ok(index) = result {
+            self.program.deep_values.insert(index);
+        }
+        result
+    }
+    fn deep_value_inner(&mut self, root: &Value) -> Result<usize> {
+        let mut work = vec![(root, false)];
+        let mut output = BTreeMap::new();
+        while let Some((node, exit)) = work.pop() {
+            ensure!(
+                node["type"] != "_compiled_value",
+                "reserved internal expression type"
+            );
+            if !exit {
+                work.push((node, true));
+                for child in node["inputs"]
+                    .as_object()
+                    .into_iter()
+                    .flat_map(|o| o.values())
+                    .rev()
+                {
+                    // These reporters must retain their special list/range identity.
+                    if !matches!(
+                        child["type"].as_str(),
+                        Some("pure_list_get" | "list_get" | "traverse_number_param")
+                    ) {
+                        work.push((child, false));
+                    }
+                }
+                continue;
+            }
+            let mut shallow = Value::Object(
+                node.as_object()
+                    .context("expression must be an object")?
+                    .iter()
+                    .filter(|(k, _)| !matches!(k.as_str(), "inputs" | "statements" | "next"))
+                    .map(|(k, v)| (k.clone(), crate::json::clone_value(v)))
+                    .collect(),
+            );
+            if let Some(inputs) = node["inputs"].as_object() {
+                shallow["inputs"] = Value::Object(
+                    inputs
+                        .iter()
+                        .map(|(key, child)| {
+                            let address = child as *const Value as usize;
+                            let proxy = match output.remove(&address) {
+                                Some(index) => json_proxy(index),
+                                None => crate::json::clone_value(child),
+                            };
+                            (key.clone(), proxy)
+                        })
+                        .collect(),
+                );
+            }
+            let value = self.value(&shallow)?;
+            self.program.deep_values.insert(value);
+            output.insert(node as *const Value as usize, value);
+        }
+        Ok(output.remove(&(root as *const Value as usize)).unwrap())
+    }
     fn list(&mut self, b: &Value) -> Result<ListRef> {
         match b["type"].as_str() {
             Some("pure_list_get" | "list_get")
@@ -1539,7 +1607,8 @@ impl Compiler {
                 Target::Global(i) => Ok(ListRef::Variable(i as u32)),
             },
             Some(
-                "text_split"
+                "_compiled_value"
+                | "text_split"
                 | "temporary_list"
                 | "list_item"
                 | "procedures_2_parameter"
@@ -1577,7 +1646,28 @@ impl Compiler {
         self.program.code_locals.insert(index);
         index
     }
+    #[inline]
     fn value(&mut self, b: &Value) -> Result<usize> {
+        if !self.compile_work && self.compile_depth >= 32 {
+            return self.deep_value(b);
+        }
+        self.compile_depth += 1;
+        let result = self.value_one(b);
+        self.compile_depth -= 1;
+        result
+    }
+    fn value_one(&mut self, b: &Value) -> Result<usize> {
+        if b["type"] == "_compiled_value" {
+            ensure!(self.compile_work, "reserved internal expression type");
+            let index = b["index"]
+                .as_u64()
+                .context("invalid internal expression index")? as usize;
+            ensure!(
+                index < self.program.values.len(),
+                "invalid internal expression index"
+            );
+            return Ok(index);
+        }
         let value = match b["type"].as_str().unwrap_or("") {
             "math_arithmetic"
                 if self.program.semantics == RuntimeSemantics::Kitten4
@@ -1982,32 +2072,33 @@ impl Compiler {
         Ok(index)
     }
     fn text_parts(&mut self, b: &Value, parts: &mut Vec<TextPart>, depth: usize) -> Result<()> {
-        ensure!(depth < 128, "text nesting exceeds 128");
-        match b["type"].as_str() {
-            Some("text") => {
-                let index = self.program.strings.len();
-                self.program.strings.push(field(b, "TEXT").into());
-                parts.push(TextPart::Literal(index));
-            }
-            Some("text_join") => {
-                let mut inputs = b["inputs"]
-                    .as_object()
-                    .into_iter()
-                    .flatten()
-                    .filter_map(|(name, v)| {
-                        name.strip_prefix("ADD")?
-                            .parse::<usize>()
-                            .ok()
-                            .map(|i| (i, v))
-                    })
-                    .collect::<Vec<_>>();
-                inputs.sort_by_key(|(i, _)| *i);
-                for (_, value) in inputs {
-                    self.text_parts(value, parts, depth + 1)?;
+        let mut pending = vec![b];
+        while let Some(b) = pending.pop() {
+            match b["type"].as_str() {
+                Some("text") => {
+                    let index = self.program.strings.len();
+                    self.program.strings.push(field(b, "TEXT").into());
+                    parts.push(TextPart::Literal(index));
                 }
+                Some("text_join") => {
+                    let mut inputs = b["inputs"]
+                        .as_object()
+                        .into_iter()
+                        .flatten()
+                        .filter_map(|(name, v)| {
+                            name.strip_prefix("ADD")?
+                                .parse::<usize>()
+                                .ok()
+                                .map(|i| (i, v))
+                        })
+                        .collect::<Vec<_>>();
+                    inputs.sort_by_key(|(i, _)| *i);
+                    pending.extend(inputs.into_iter().rev().map(|(_, value)| value));
+                }
+                _ => parts.push(TextPart::Value(self.value(b)?)),
             }
-            _ => parts.push(TextPart::Value(self.value(b)?)),
         }
+        let _ = depth;
         Ok(())
     }
     fn slot(&mut self, id: &str) -> usize {
@@ -2029,7 +2120,21 @@ impl Compiler {
             .push(block["id"].as_str().unwrap_or("?").into());
         pc
     }
+    #[inline]
     fn expr(&mut self, block: &Value) -> Result<Expr> {
+        if !self.compile_work && self.compile_depth >= 32 {
+            let value = self.deep_value(block)?;
+            self.program.expressions.push(ExprOp::Value(value));
+            return Ok(Expr {
+                end: self.program.expressions.len() as u32,
+            });
+        }
+        self.compile_depth += 1;
+        let result = self.expr_one(block);
+        self.compile_depth -= 1;
+        result
+    }
+    fn expr_one(&mut self, block: &Value) -> Result<Expr> {
         let outer = std::mem::take(&mut self.expression_work);
         self.expression(block, 0)?;
         let start = self.program.expressions.len();
@@ -2094,7 +2199,71 @@ impl Compiler {
         Ok(())
     }
     fn expression(&mut self, b: &Value, depth: usize) -> Result<()> {
-        ensure!(depth < 128, "expression nesting exceeds 128");
+        // Compile ordinary numeric trees without allocating a traversal stack.
+        // Recursion is strictly bounded, even for synthesized/proxy reporters.
+        if depth < 32 {
+            for key in self.expression_inputs(b) {
+                self.expression(input(b, key)?, depth + 1)?;
+            }
+            return self.expression_one(b, depth);
+        }
+        let mut work = vec![(b, false)];
+        while let Some((node, exit)) = work.pop() {
+            if exit {
+                self.expression_one(node, depth)?;
+                continue;
+            }
+            work.push((node, true));
+            for key in self.expression_inputs(node).iter().rev() {
+                work.push((input(node, key)?, false));
+            }
+        }
+        Ok(())
+    }
+    fn expression_inputs(&self, node: &Value) -> &'static [&'static str] {
+        match node["type"].as_str().unwrap_or("") {
+            // K4 ADD consumes typed values. As with whole below, value() owns
+            // its children; numeric traversal must not compile/evaluate them twice.
+            "math_arithmetic"
+                if self.program.semantics == RuntimeSemantics::Kitten4
+                    && field(node, "type") == "add" =>
+            {
+                &[]
+            }
+            "random_num" | "math_arithmetic" | "math_modulo" | "math_arithmetic_power" => {
+                &["A", "B"]
+            }
+            "divisible_by" if node["inputs"].get("NUMBER_TO_CHECK").is_some() => {
+                &["NUMBER_TO_CHECK", "DIVISOR"]
+            }
+            "divisible_by" => &["A", "B"],
+            // K4 whole checks the typed value, not a numeric operand. Its
+            // input is compiled by value(); do not leave a duplicate postfix
+            // operand (or evaluate a reporter twice).
+            "math_number_property"
+                if self.program.semantics == RuntimeSemantics::Kitten4
+                    && matches!(field(node, "type"), "integer" | "whole") =>
+            {
+                &[]
+            }
+            "math_number_property" if node["inputs"].get("NUMBER_TO_CHECK").is_some() => {
+                &["NUMBER_TO_CHECK"]
+            }
+            "math_number_property" | "math_arc_trig" | "math_trig_rad" => &["num"],
+            "math_function" | "math_round" | "math_trig" if node["inputs"].get("num").is_none() => {
+                &["NUM"]
+            }
+            "math_function" | "math_round" | "math_trig" => &["num"],
+            "list_item"
+                if self.program.semantics == RuntimeSemantics::KnCurrent
+                    && field(node, "item") != "last" =>
+            {
+                &["list_index"]
+            }
+            _ => &[],
+        }
+    }
+    fn expression_one(&mut self, b: &Value, _depth: usize) -> Result<()> {
         let kind = b["type"].as_str().unwrap_or("");
         // Slider/dial/servo number shadows carry the same NUM field.
         let kind = if kind.starts_with("math_number_with_") || kind == "math_number_not_allow_text"
@@ -2139,10 +2308,20 @@ impl Compiler {
                 ExprOp::Mouse(field(b, "type") == "y")
             }
             "text_length" => ExprOp::TextLength(self.value(input(b, "text")?)?),
-            "random_num" => {
-                self.expression(input(b, "A")?, depth + 1)?;
-                self.expression(input(b, "B")?, depth + 1)?;
-                ExprOp::Random
+            "random_num" => ExprOp::Random,
+            "_compiled_value" => {
+                let index = self.value(b)?;
+                match self.program.values[index] {
+                    ValueExpr::Number(expr)
+                        if matches!(
+                            self.program.expressions[expr.end as usize - 1],
+                            ExprOp::Constant(_)
+                        ) =>
+                    {
+                        self.program.expressions[expr.end as usize - 1]
+                    }
+                    _ => ExprOp::Value(index),
+                }
             }
             "text"
             | "kitten4_default_value"
@@ -2200,9 +2379,6 @@ impl Compiler {
             "list_item" => {
                 let list = self.list(input(b, "list")?)?;
                 let last = field(b, "item") == "last";
-                if !last {
-                    self.expression(input(b, "list_index")?, depth + 1)?;
-                }
                 ExprOp::ListItem(list, last)
             }
             "self_get_position_x" => ExprOp::X,
@@ -2338,30 +2514,13 @@ impl Compiler {
                 self.actor_target(field(b, "sprite"))?,
                 physics::Property::parse(field(b, "attribute"))?,
             ),
-            "divisible_by" => {
-                let (a, d) = if b["inputs"].get("NUMBER_TO_CHECK").is_some() {
-                    ("NUMBER_TO_CHECK", "DIVISOR")
-                } else {
-                    ("A", "B")
-                };
-                self.expression(input(b, a)?, depth + 1)?;
-                self.expression(input(b, d)?, depth + 1)?;
-                ExprOp::Binary(Binary::Divisible)
-            }
+            "divisible_by" => ExprOp::Binary(Binary::Divisible),
             "math_number_property" => {
                 if self.program.semantics == RuntimeSemantics::Kitten4
                     && matches!(field(b, "type"), "integer" | "whole")
                 {
-                    let value = self.value(b)?;
-                    self.program.expressions.push(ExprOp::Value(value));
-                    return Ok(());
+                    return self.expression_value(b);
                 }
-                let key = if b["inputs"].get("NUMBER_TO_CHECK").is_some() {
-                    "NUMBER_TO_CHECK"
-                } else {
-                    "num"
-                };
-                self.expression(input(b, key)?, depth + 1)?;
                 let property = b["fields"]
                     .get("PROPERTY")
                     .or_else(|| b["fields"].get("type"))
@@ -2384,8 +2543,6 @@ impl Compiler {
                 {
                     return self.expression_value(b);
                 }
-                self.expression(input(b, "A")?, depth + 1)?;
-                self.expression(input(b, "B")?, depth + 1)?;
                 let name = if kind == "logic_compare" {
                     field(b, "OP")
                 } else if kind == "math_modulo" {
@@ -2411,13 +2568,8 @@ impl Compiler {
                     _ => bail!("unsupported numeric operator {name}"),
                 })
             }
-            "math_arithmetic_power" => {
-                self.expression(input(b, "A")?, depth + 1)?;
-                self.expression(input(b, "B")?, depth + 1)?;
-                ExprOp::Binary(Binary::Pow)
-            }
+            "math_arithmetic_power" => ExprOp::Binary(Binary::Pow),
             "math_arc_trig" | "math_trig_rad" => {
-                self.expression(input(b, "num")?, depth + 1)?;
                 let radians = kind == "math_trig_rad";
                 ExprOp::Unary(match (field(b, "type"), radians) {
                     ("asin", false) => Unary::Asin,
@@ -2434,11 +2586,6 @@ impl Compiler {
             }
             "math_function" | "math_round" | "math_trig" => {
                 // Kitten 4 style math_round uses NUM / OP.
-                let value = b["inputs"].get("num").or_else(|| b["inputs"].get("NUM"));
-                self.expression(
-                    value.with_context(|| format!("{kind}: missing input num"))?,
-                    depth + 1,
-                )?;
                 let name = match field(b, "OP") {
                     "ROUND" => "round",
                     "ROUNDUP" => "round_up",
@@ -2697,861 +2844,50 @@ impl Compiler {
             .with_context(|| format!("unknown actor target {id}"))
     }
     fn chain(&mut self, mut block: Option<&Value>, warped: bool) -> Result<()> {
-        self.depth += 1;
-        ensure!(
-            self.depth <= 64,
-            "statement nesting exceeds 64 at block {} ({})",
-            block.unwrap_or(&Value::Null)["id"],
-            block.unwrap_or(&Value::Null)["type"]
-        );
-        while let Some(b) = block.filter(|v| v.is_object()) {
-            ensure!(
-                self.program.ops.len() < 1_000_000,
-                "program instruction limit exceeded"
-            );
-            let kind = b["type"].as_str().unwrap_or("");
-            let op = match kind {
-                "script_variables" => {
-                    for name in crate::runtime::helpers::script_variable_names(b) {
-                        let local = self.local(name);
-                        let zero = self
-                            .expr(&serde_json::json!({"type":"math_number","fields":{"NUM":0}}))?;
-                        self.emit(Op::SetLocal(local, zero), b);
-                    }
-                    block = b.get("next");
-                    continue;
+        enum Work<'a> {
+            Chain(Option<&'a Value>, bool),
+            If(&'a Value, bool, usize, Vec<usize>),
+            IfBranch(&'a Value, bool, usize, Vec<usize>, usize, Expr),
+            IfEnd(Vec<usize>),
+            Loop(&'a Value, bool, usize),
+            Range(&'a Value, bool, usize, usize),
+            Tell(&'a Value, usize, Vec<Vec<usize>>),
+        }
+        let mut work = vec![Work::Chain(block, warped)];
+        while let Some(item) = work.pop() {
+            let warped = match item {
+                Work::Chain(next, warped) => {
+                    block = next;
+                    warped
                 }
-                "variables_set" => {
-                    if let Some(&slot) = self.actor_variables.get(field(b, "variable")) {
-                        let value = self.value(input(b, "value")?)?;
-                        self.emit(Op::SetActorVariable(slot, value), b);
-                        block = b.get("next");
-                        continue;
-                    }
-                    ensure!(
-                        !self.lists.contains_key(field(b, "variable")),
-                        "list assignment requires list operations at {}",
-                        b["id"]
-                    );
-                    let target = self.target(field(b, "variable"));
-                    let value = input(b, "value")?;
-                    if matches!(
-                        value["type"].as_str(),
-                        Some(
-                            "math_number"
-                                | "math_arithmetic"
-                                | "math_function"
-                                | "math_round"
-                                | "math_trig"
-                                | "math_modulo"
-                                | "timer"
-                                | "traverse_number_value"
-                        )
-                    ) && !(self.program.semantics == RuntimeSemantics::Kitten4
-                        && value["type"] == "math_arithmetic"
-                        && field(value, "type") == "add")
-                        && !(self.program.semantics == RuntimeSemantics::KnCurrent
-                            && value["type"] == "math_number"
-                            && kn_preserved_number_text(value).is_some())
-                    {
-                        let expr = self.expr(value)?;
-                        match target {
-                            Target::Global(i) => Op::Set(i, expr),
-                            Target::Local(i) => Op::SetLocal(i, expr),
-                        }
-                    } else {
-                        Op::SetValue(target, self.value(value)?)
-                    }
-                }
-                "change_variables" => {
-                    if let Some(&slot) = self.actor_variables.get(field(b, "variable")) {
-                        let expr = self.arg(b, "value")?;
-                        let sign = if field(b, "method") == "decrease" {
-                            -1.0
-                        } else {
-                            1.0
-                        };
-                        self.emit(Op::ChangeActorVariable(slot, expr, sign), b);
-                        block = b.get("next");
-                        continue;
-                    }
-                    ensure!(
-                        !self.lists.contains_key(field(b, "variable")),
-                        "list used as scalar at {}",
-                        b["id"]
-                    );
-                    let target = self.target(field(b, "variable"));
-                    if self.program.semantics == RuntimeSemantics::Kitten4 {
-                        let value = self.value(input(b, "value")?)?;
-                        self.emit(
-                            Op::Kitten4Change(target, value, field(b, "method") == "decrease"),
-                            b,
-                        );
-                        block = b.get("next");
-                        continue;
-                    }
-                    let expr = self.arg(b, "value")?;
-                    let sign = if field(b, "method") == "decrease" {
-                        -1.0
-                    } else {
-                        1.0
-                    };
-                    match target {
-                        Target::Global(i) => Op::Change(i, expr, sign),
-                        Target::Local(i) => Op::ChangeLocal(i, expr, sign),
-                    }
-                }
-                // 参考 HateNeko 0.7.1 的 rt/impl/data.lua::_variable_set。
-                "_variable_set" => Op::SetValue(
-                    Target::Local(self.code_local(field(b, "VAR"))),
-                    self.value(input(b, "VALUE")?)?,
-                ),
-                // 参考 HateNeko 0.7.1 的 rt/impl/js.lua::assign、math_increment/decrement。
-                "math_add_assign" | "math_sub_assign" | "math_mul_assign" | "math_div_assign"
-                | "math_mod_assign" | "math_increment" | "math_decrement" => {
-                    let op = match kind {
-                        "math_sub_assign" | "math_decrement" => Binary::Sub,
-                        "math_mul_assign" => Binary::Mul,
-                        "math_div_assign" => Binary::Div,
-                        "math_mod_assign" => Binary::Mod,
-                        _ => Binary::Add,
-                    };
-                    let value = if matches!(kind, "math_increment" | "math_decrement") {
-                        None
-                    } else {
-                        Some(self.value(input(b, "value")?)?)
-                    };
-                    Op::AssignLocal(self.code_local(field(b, "VAR")), value, op)
-                }
-                "kitten4_cloud_variables_set" | "kitten4_change_cloud_variable" => {
-                    let change = kind == "kitten4_change_cloud_variable";
-                    let id = field(b, if change { "valname" } else { "VAR" });
-                    let binding = self
-                        .program
-                        .cloud
-                        .iter()
-                        .position(|v| v.id == id)
-                        .unwrap_or(usize::MAX);
-                    let value = self.value(input(b, if change { "n" } else { "VALUE" })?)?;
-                    Op::CloudSet(binding, value, change, field(b, "method") == "decrease")
-                }
-                "kitten4_cloud_lists_append"
-                | "kitten4_cloud_lists_insert_value"
-                | "kitten4_cloud_lists_delete"
-                | "kitten4_cloud_lists_replace" => {
-                    let binding = self
-                        .program
-                        .cloud
-                        .iter()
-                        .position(|v| v.id == field(b, "VAR"))
-                        .unwrap_or(usize::MAX);
-                    let action = match kind {
-                        "kitten4_cloud_lists_append" => {
-                            if field(b, "POS") == "last" {
-                                0
-                            } else {
-                                1
-                            }
-                        }
-                        "kitten4_cloud_lists_insert_value" => 2,
-                        "kitten4_cloud_lists_delete" => {
-                            if field(b, "TYPE") == "all" {
-                                5
-                            } else {
-                                3
-                            }
-                        }
-                        _ => 4,
-                    };
-                    let at = if matches!(action, 0 | 1 | 5) || field(b, "TYPE") == "last" {
-                        None
-                    } else {
-                        Some(self.arg(b, "INDEX")?)
-                    };
-                    let value = if matches!(action, 3 | 5) {
-                        None
-                    } else {
-                        Some(self.value(input(b, "VALUE")?)?)
-                    };
-                    Op::CloudList(binding, action, at, value)
-                }
-                "kitten4_show_ranking" => Op::Ranking(
-                    self.program
-                        .cloud
-                        .iter()
-                        .position(|v| v.id == field(b, "VAR")),
-                    true,
-                ),
-                "kitten4_hide_ranking" => Op::Ranking(None, false),
-                "self_go_forward" => Op::Move(self.arg(b, "steps")?),
-                "self_move_to" => Op::Position(self.arg(b, "x")?, self.arg(b, "y")?),
-                "self_set_position_x" => Op::X(self.arg(b, "value")?),
-                "self_set_position_y" => Op::Y(self.arg(b, "value")?),
-                "self_add_position_x" => Op::AddX(self.arg(b, "value")?),
-                "self_add_position_y" => Op::AddY(self.arg(b, "value")?),
-                "self_change_coordinate_x" | "self_change_coordinate_y" => {
-                    let mut e = self.arg(b, "value")?;
-                    if field(b, "increase") == "decrease" || field(b, "method") == "decrease" {
-                        self.program.expressions.push(ExprOp::Unary(Unary::Neg));
-                        e.end += 1;
-                    }
-                    if kind.ends_with('x') {
-                        Op::AddX(e)
-                    } else {
-                        Op::AddY(e)
-                    }
-                }
-                "self_rotate" => Op::Turn(self.arg(b, "degrees")?),
-                "self_point_towards" => Op::Direction(self.arg(b, "degrees")?),
-                "set_scale" => Op::Scale(self.arg(b, "scale")?),
-                "self_appear" => Op::Visible(field(b, "value") == "appear"),
-                "set_sprite_style" => Op::Style(self.value(input(b, "style_id")?)?),
-                "self_prev_next_style" => {
-                    ensure!(
-                        matches!(field(b, "prev_next"), "next" | "prev"),
-                        "unknown costume direction"
-                    );
-                    Op::NextStyle(field(b, "prev_next") == "next")
-                }
-                "self_set_effect" | "self_change_effect" => {
-                    let scope = effect_scope(field(b, "scope")).with_context(|| {
-                        format!(
-                            "unsupported sprite effect {} at {}",
-                            field(b, "scope"),
-                            b["id"]
-                        )
-                    })?;
-                    if kind == "self_set_effect" {
-                        let value = self.arg_any(b, &["value", "val"])?;
-                        if scope == 1 {
-                            Op::Opacity(value)
-                        } else {
-                            Op::Effect(scope, value, false)
-                        }
-                    } else {
-                        Op::Effect(scope, self.signed_arg(b, &["value", "steps"])?, true)
-                    }
-                }
-                "clear_all_effects" => Op::ClearEffects,
-                "self_change_scale" => Op::ChangeScale(self.signed_arg(b, &["scale", "value"])?),
-                "set_width_height_scale" | "add_width_height_scale" => {
-                    let axis = match field(b, "type") {
-                        "width" => false,
-                        "height" => true,
-                        other => bail!("unsupported size axis {other} at {}", b["id"]),
-                    };
-                    let add = kind == "add_width_height_scale";
-                    let value = if add {
-                        self.signed_arg(b, &["value"])?
-                    } else {
-                        self.arg(b, "value")?
-                    };
-                    Op::SizeAxis(axis, value, add)
-                }
-                "self_change_pen_size" => {
-                    Op::PenSizeChange(self.signed_arg(b, &["steps", "size", "value"])?)
-                }
-                "self_set_rotation_type" => Op::RotationType(match field(b, "rotation_type") {
-                    "0" => 0,
-                    "1" => 1,
-                    "2" => 2,
-                    other => bail!("unsupported rotation type {other} at {}", b["id"]),
-                }),
-                "self_face_to" | "self_face_to_sprite" => {
-                    Op::FaceTo(self.point_target(field(b, "sprite"))?)
-                }
-                "self_move_specify" | "self_move_specify_sprite" => {
-                    let target = b["fields"]
-                        .get("target")
-                        .or_else(|| b["fields"].get("sprite"))
-                        .and_then(Value::as_str)
-                        .unwrap_or("");
-                    Op::MoveToTarget(self.point_target(target)?)
-                }
-                "self_rotate_around" => Op::RotateAround(
-                    self.actor_target(field(b, "sprite"))?,
-                    self.arg(b, "degrees")?,
-                ),
-                "self_set_position" => {
-                    let value = self.arg(b, "value")?;
-                    match field(b, "coordinary") {
-                        "x" => Op::X(value),
-                        "y" => Op::Y(value),
-                        other => bail!("unknown coordinate {other} at {}", b["id"]),
-                    }
-                }
-                "self_change_coordinate" => {
-                    let value = self.signed_arg(b, &["value"])?;
-                    match field(b, "coordinary") {
-                        "x" => Op::AddX(value),
-                        "y" => Op::AddY(value),
-                        other => bail!("unknown coordinate {other} at {}", b["id"]),
-                    }
-                }
-                "self_glide_to"
-                | "self_glide_coordinate"
-                | "self_glide_coordinate_x"
-                | "self_glide_coordinate_y" => {
-                    let time = self.arg(b, "time")?;
-                    let spec = if kind == "self_glide_to" {
-                        GlideSpec {
-                            time,
-                            x: Some(self.arg(b, "x")?),
-                            y: Some(self.arg(b, "y")?),
-                            relative: false,
-                        }
-                    } else {
-                        let axis = match kind {
-                            "self_glide_coordinate_x" => "x",
-                            "self_glide_coordinate_y" => "y",
-                            _ => field(b, "coordinary"),
-                        };
-                        let value = self.signed_arg(b, &["value"])?;
-                        match axis {
-                            "x" => GlideSpec {
-                                time,
-                                x: Some(value),
-                                y: None,
-                                relative: true,
-                            },
-                            "y" => GlideSpec {
-                                time,
-                                x: None,
-                                y: Some(value),
-                                relative: true,
-                            },
-                            other => bail!("unknown coordinate {other} at {}", b["id"]),
-                        }
-                    };
-                    self.program.glides.push(spec);
-                    self.emit(Op::Glide(self.program.glides.len() - 1), b);
-                    Op::AnimStep
-                }
-                "self_gradually_show_hide" => {
-                    let state = b["fields"]
-                        .get("is_show")
-                        .or_else(|| b["fields"].get("show_hide"))
-                        .and_then(Value::as_str)
-                        .unwrap_or("");
-                    let show = match state {
-                        "show" | "appear" => true,
-                        "hide" | "disappear" => false,
-                        other => bail!("unknown fade state {other} at {}", b["id"]),
-                    };
-                    let time = self.arg(b, "time")?;
-                    self.emit(Op::Fade(time, show), b);
-                    Op::AnimStep
-                }
-                "restart" => Op::Restart,
-                "mirror" => Op::Clone(self.actor_target(field(b, "sprite"))?),
-                "kitten4_split" => Op::Split(
-                    self.actor_target(field(b, "sprite"))?,
-                    self.arg(b, "x")?,
-                    self.arg(b, "y")?,
-                ),
-                "switch_to_screen" => {
-                    let target = b["inputs"]
-                        .get("screen_id")
-                        .or_else(|| b["inputs"].get("screen"))
-                        .with_context(|| {
-                            format!("switch_to_screen: missing scene at {}", b["id"])
-                        })?;
-                    Op::SwitchScene(self.value(target)?)
-                }
-                "set_screen_transition" | "set_scene_transition" => {
-                    let direction = field(b, "direction");
-                    let kind = b["fields"]
-                        .get("type")
-                        .or_else(|| b["fields"].get("transition"))
-                        .and_then(Value::as_str)
-                        .unwrap_or("");
-                    ensure!(
-                        matches!(direction, "up" | "down" | "left" | "right" | ""),
-                        "unknown transition direction {direction} at {}",
-                        b["id"]
-                    );
-                    Op::SceneTransition(
-                        self.push_constant(Cell::Text(direction.into())),
-                        self.push_constant(Cell::Text(kind.into())),
-                    )
-                }
-                "self_dialog" | "self_dialog_wait" | "create_stage_dialog" => {
-                    let think = match field(b, "type") {
-                        "think" => true,
-                        "" | "say" | "talk" => false,
-                        other => bail!("unknown dialog type {other} at {}", b["id"]),
-                    };
-                    let text = self.value(input(b, "text")?)?;
-                    let timed = kind == "self_dialog" && b["inputs"].get("time").is_some();
-                    if timed {
-                        // Say for N seconds: show, wait, close.
-                        self.emit(Op::Dialog(text, think), b);
-                        let time = self.arg(b, "time")?;
-                        self.emit(Op::Wait(time), b);
-                        Op::CloseDialog
-                    } else {
-                        Op::Dialog(text, think)
-                    }
-                }
-                "close_self_dialog" => Op::CloseDialog,
-                "self_bounce_off_edge" => Op::Bounce,
-                "self_set_role_camp" => {
-                    Op::Camp(camp_code(field(b, "role_camp")).with_context(|| {
-                        format!("unknown camp {} at {}", field(b, "role_camp"), b["id"])
-                    })?)
-                }
-                "self_stress_animation" => {
-                    self.emit(
-                        Op::Emphasis(match field(b, "animation") {
-                            "shake" => 0,
-                            "scale" => 1,
-                            "bounce" => 2,
-                            other => bail!("unknown emphasis animation {other} at {}", b["id"]),
-                        }),
-                        b,
-                    );
-                    Op::TimelineStep
-                }
-                "self_appear_animation" => {
-                    let appear = match field(b, "appear") {
-                        "appear" => true,
-                        "disappear" => false,
-                        other => bail!("unknown appear mode {other} at {}", b["id"]),
-                    };
-                    let kind = match field(b, "animation") {
-                        "slideIn" => 0,
-                        "bounceIn" => 1,
-                        "flyIn" => 2,
-                        "slideOut" => 3,
-                        "bounceOut" => 4,
-                        "flyOut" => 5,
-                        other => bail!("unknown transition animation {other} at {}", b["id"]),
-                    };
-                    let direction = match field(b, "direction") {
-                        "up" => 0,
-                        "down" => 1,
-                        "left" => 2,
-                        "right" => 3,
-                        other => bail!("unknown animation direction {other} at {}", b["id"]),
-                    };
-                    self.emit(Op::Transition(appear, kind, direction), b);
-                    Op::TimelineStep
-                }
-                "self_text_effect_text" => Op::SpriteText(self.value(input(b, "text")?)?),
-                "self_text_effect_size" => Op::TextSize(self.arg(b, "size")?),
-                "self_text_effect_color" => {
-                    let color = field(b, "color").trim_start_matches('#');
-                    Op::TextColor(u32::from_str_radix(color, 16).with_context(|| {
-                        format!("invalid text colour {} at {}", field(b, "color"), b["id"])
-                    })?)
-                }
-                "self_set_draggable" => {
-                    Op::Draggable(matches!(field(b, "draggable"), "1" | "true" | "draggable"))
-                }
-                "image_stamp" => Op::ImageStamp,
-                "play_audio_and_wait" => {
-                    let audio = b["inputs"]
-                        .get("audio_id")
-                        .map(|v| self.value(v))
-                        .unwrap_or_else(|| {
-                            Ok(self.push_constant(Cell::Text(field(b, "audio").into())))
-                        })?;
-                    Op::AudioWait(audio)
-                }
-                "show_hide_variables" | "show_hide_list" => {
-                    let list = kind == "show_hide_list";
-                    let id = field(b, if list { "list" } else { "variable" });
-                    let private = self.actor_variables.get(id).copied();
-                    if let Some(slot) = private {
-                        let owner = self
-                            .program
-                            .sprites
-                            .iter()
-                            .position(|s| s.variables.contains_key(&slot))
-                            .with_context(|| format!("private monitor {id}: missing owner"))?;
-                        let monitor = self
-                            .program
-                            .monitor_targets
-                            .iter()
-                            .position(|(existing, _, _)| existing == id)
-                            .unwrap_or_else(|| {
-                                let monitor = self.program.monitor_targets.len();
-                                self.program
-                                    .monitor_targets
-                                    .push((id.to_owned(), list, slot));
-                                self.program.actor_monitors.insert(monitor, (owner, slot));
-                                monitor
-                            });
-                        self.emit(Op::Monitor(monitor, field(b, "show_hide") != "hide"), b);
-                        block = b.get("next");
-                        continue;
-                    }
-                    let target = if list {
-                        *self
-                            .lists
-                            .get(id)
-                            .with_context(|| format!("unknown list {id}"))?
-                    } else {
-                        match self.target(id) {
-                            Target::Global(slot) => slot,
-                            Target::Local(_) => {
-                                bail!("script variables have no monitor at {}", b["id"])
-                            }
-                        }
-                    };
-                    let monitor = self
-                        .program
-                        .monitor_targets
-                        .iter()
-                        .position(|(existing, is_list, _)| existing == id && *is_list == list)
-                        .unwrap_or_else(|| {
-                            let monitor = self.program.monitor_targets.len();
-                            self.program
-                                .monitor_targets
-                                .push((id.to_owned(), list, target));
-                            monitor
-                        });
-                    Op::Monitor(monitor, field(b, "show_hide") != "hide")
-                }
-                "self_ask" => Op::Ask(self.value(input(b, "text")?)?, None),
-                "ask_and_choose" => {
-                    let question = self.value(input(b, "question")?)?;
-                    let mut choices = vec![];
-                    while let Some(choice) = b["inputs"].get(format!("CHOICE{}", choices.len())) {
-                        choices.push(self.value(choice)?);
-                    }
-                    let span = Span {
-                        start: self.program.value_args.len() as u32,
-                        len: choices.len() as u32,
-                    };
-                    self.program.value_args.extend(choices);
-                    Op::Ask(question, Some(span))
-                }
-                "kitten4_noop" => {
-                    block = b.get("next");
-                    continue;
-                }
-                "kitten4_set_velocity" => Op::PhysicsVelocity(
-                    self.value(input(b, "value")?)?,
-                    self.value(input(b, "dir")?)?,
-                ),
-                kind if kind.starts_with("kitten4_legacy_") => {
-                    let command = physics::Command::parse_legacy(kind, b)?;
-                    let zero = serde_json::json!({"type":"math_number","fields":{"NUM":0}});
-                    let value = self.value(
-                        ["friction", "restitution", "mass", "density"]
-                            .iter()
-                            .find_map(|key| b["inputs"].get(*key))
-                            .unwrap_or(&zero),
-                    )?;
-                    Op::LegacyPhysics(command, value)
-                }
-                kind if kind.starts_with("physics2_") => {
-                    let command = physics::Command::parse(kind, b, |id| self.actor_target(id))?;
-                    let zero = serde_json::json!({"type":"math_number","fields":{"NUM":0}});
-                    let a = self.expr(
-                        ["value", "mass", "friction", "restitution"]
-                            .iter()
-                            .find_map(|key| b["inputs"].get(*key))
-                            .unwrap_or(&zero),
-                    )?;
-                    let dir = self.expr(b["inputs"].get("dir").unwrap_or(&zero))?;
-                    let time = self.expr(b["inputs"].get("time").unwrap_or(&zero))?;
-                    Op::Physics(command, a, dir, time)
-                }
-                "dispose_clone" => Op::DisposeClone,
-                "kitten4_dispose" => Op::DisposeSelf,
-                "set_top_bottom_layer" | "self_change_layer" => {
-                    let layer = field(b, "layer");
-                    let relative = field(b, "target_layer");
-                    Op::Layer(if relative.is_empty() {
-                        match layer {
-                            "peak" | "top" | "front" => LayerMove::Front,
-                            "bottom" | "back" => LayerMove::Back,
-                            "prev_layer" | "forward" | "up" => LayerMove::Forward,
-                            "next_layer" | "backward" | "down" => LayerMove::Backward,
-                            "n" if self.program.semantics == RuntimeSemantics::Kitten4 => {
-                                LayerMove::By(self.arg(b, "n")?)
-                            }
-                            _ => bail!("unknown layer {layer} at {}", b["id"]),
-                        }
-                    } else {
-                        ensure!(
-                            matches!(relative, "prev_layer" | "next_layer"),
-                            "unknown relative layer {relative} at {}",
-                            b["id"]
-                        );
-                        let target = self.actor_target(layer)?;
-                        ensure!(
-                            target != usize::MAX && !self.program.sprites[target].stage,
-                            "relative layer needs another actor at {}",
-                            b["id"]
-                        );
-                        LayerMove::Relative(target, relative == "prev_layer")
-                    })
-                }
-                "procedures_2_return_value"
-                    if self.program.semantics == RuntimeSemantics::KnCurrent
-                        && b["inputs"].get("VALUE").is_none()
-                        && crate::runtime::helpers::attr_value(
-                            b["mutation"].as_str().unwrap_or(""),
-                            "type",
-                        ) == Some("NORMAL") =>
-                {
-                    // KN's NORMAL form exits the current procedure; it has no
-                    // VALUE socket. ROUND/malformed missing values stay errors.
-                    Op::Return
-                }
-                "procedures_2_return_value" => Op::ReturnValue(self.value(input(b, "VALUE")?)?),
-                "when" => {
-                    // Statement form: wait until the condition holds, run DO, continue.
-                    let condition = self.condition(input(b, "condition")?)?;
-                    self.emit(Op::WaitUntil(condition), b);
-                    self.chain(b["statements"].get("DO"), warped)?;
-                    block = b.get("next");
-                    continue;
-                }
-                "tell" | "sync_tell" => {
-                    let target = self.actor_target(field(b, "sprite"))?;
-                    let tell = self.emit(Op::Tell(target, 0, kind == "sync_tell"), b);
-                    let jump = self.emit(Op::Jump(0), b);
-                    // The body is a separate task: loop breaks never cross into it.
-                    let loops = std::mem::take(&mut self.loops);
-                    self.chain(b["statements"].get("DO"), false)?;
-                    self.loops = loops;
-                    self.emit(Op::Halt, b);
-                    self.program.ops[tell] = Op::Tell(target, jump + 1, kind == "sync_tell");
-                    self.program.ops[jump] = Op::Jump(self.program.ops.len());
-                    block = b.get("next");
-                    continue;
-                }
-                "set_pen_layer" => {
-                    let layer = field(b, "layer");
-                    let relative = field(b, "target_layer");
-                    Op::PenLayer(if relative.is_empty() {
-                        match layer {
-                            "peak" => PenLayer::Top,
-                            "bottom" => PenLayer::Bottom,
-                            "prev_layer" => PenLayer::Forward,
-                            "next_layer" => PenLayer::Backward,
-                            _ => bail!("unknown pen layer {layer} at {}", b["id"]),
-                        }
-                    } else {
-                        ensure!(
-                            matches!(relative, "prev_layer" | "next_layer"),
-                            "unknown relative pen layer {relative}"
-                        );
-                        let index = self
-                            .actor_ids
-                            .iter()
-                            .position(|id| id == layer)
-                            .context("unknown pen layer target")?;
-                        PenLayer::Relative(
-                            self.actor_ids.len() - 1 - index,
-                            relative == "prev_layer",
-                        )
-                    })
-                }
-                "self_pen_down" => Op::Pen(true),
-                "self_pen_up" => Op::Pen(false),
-                "pen_begin_path" => Op::PenPath(true),
-                "pen_close_path" => Op::PenPath(false),
-                "clear_drawing" => Op::Clear,
-                "play_audio" | "stop_audio" => {
-                    let audio = input(b, "audio_id")
-                        .with_context(|| format!("audio input at {}", b["id"]))?;
-                    Op::Audio(self.value(audio)?, kind == "play_audio")
-                }
-                "delete_list_item" => {
-                    let list = self.list(input(b, "list")?)?;
-                    match field(b, "item") {
-                        "all" => Op::ClearList(list),
-                        "last" => Op::DeleteList(list, None),
-                        "any" => Op::DeleteList(list, Some(self.arg(b, "list_index")?)),
-                        other => bail!("unsupported list selector {other}"),
-                    }
-                }
-                "list_append" => Op::AppendList(
-                    self.list(input(b, "list")?)?,
-                    self.value(input(b, "list_item_value")?)?,
-                ),
-                "list_insert_value" => Op::InsertList(
-                    self.list(input(b, "list")?)?,
-                    self.arg(b, "list_index")?,
-                    self.value(input(b, "list_item_value")?)?,
-                ),
-                "replace_list_item" => Op::ReplaceList(
-                    self.list(input(b, "list")?)?,
-                    if field(b, "item") == "last" {
-                        None
-                    } else {
-                        Some(self.arg(b, "list_index")?)
-                    },
-                    self.value(input(b, "list_item_value")?)?,
-                ),
-                "list_copy" => Op::CopyList(
-                    self.list(input(b, "list")?)?,
-                    self.list(input(b, "target_list")?)?,
-                ),
-                "show_hide_timer" => Op::TimerVisible(field(b, "showHide") == "show"),
-                "set_timer_state" => Op::Timer(match field(b, "type") {
-                    "start" => TimerState::Start,
-                    "stop" => TimerState::Stop,
-                    "reset" => TimerState::Reset,
-                    other => bail!("unknown timer state {other}"),
-                }),
-                "self_set_pen_color_property" | "self_change_pen_color_property" => {
-                    let property = match field(b, "scope") {
-                        "hue" => PenProperty::Hue,
-                        "saturation" => PenProperty::Saturation,
-                        "brightness" => PenProperty::Brightness,
-                        "alpha" => PenProperty::Alpha,
-                        other => bail!("unsupported pen property {other}"),
-                    };
-                    let change = kind == "self_change_pen_color_property";
-                    Op::PenProperty(
-                        property,
-                        self.arg(b, if change { "steps" } else { "val" })?,
-                        if !change {
-                            0
-                        } else if field(b, "increase") == "decrease" {
-                            -1
-                        } else {
-                            1
-                        },
-                    )
-                }
-                "stamp" => Op::Stamp(
-                    self.text(input(b, "text")?)?,
-                    self.arg(b, "size")?,
-                    match field(b, "align") {
-                        "left" => TextAlign::Left,
-                        "center" => TextAlign::Center,
-                        "right" => TextAlign::Right,
-                        other => bail!("unsupported stamp alignment {other}"),
-                    },
-                ),
-                "self_set_pen_size" => Op::Size(self.arg(b, "size")?),
-                "self_set_pen_color" | "set_fill_style" => {
-                    let color = field(b, "color").trim_start_matches('#');
-                    ensure!(color.len() == 6, "expected RGB hex color");
-                    let n = u32::from_str_radix(color, 16)?;
-                    let color = [
-                        ((n >> 16) & 255) as f32 / 255.0,
-                        ((n >> 8) & 255) as f32 / 255.0,
-                        (n & 255) as f32 / 255.0,
-                        1.0,
-                    ];
-                    if kind == "set_fill_style" {
-                        Op::FillColor(color)
-                    } else {
-                        Op::Color(color)
-                    }
-                }
-                "wait" => Op::Wait(self.arg(b, "time")?),
-                "wait_until" => Op::WaitUntil(self.condition(input(b, "condition")?)?),
-                "self_broadcast" | "self_broadcast_with_param" | "self_broadcast_and_wait" => {
-                    Op::Broadcast(
-                        self.value(input(b, "message")?)?,
-                        if kind == "self_broadcast_with_param" {
-                            Some(self.value(input(b, "param")?)?)
-                        } else {
-                            None
-                        },
-                        kind == "self_broadcast_and_wait",
-                    )
-                }
-                "stop" => Op::Stop(match field(b, "scope") {
-                    "0" => 0,
-                    "" | "1" => 1,
-                    "2" => 2,
-                    "3" => 3,
-                    other => bail!("unknown stop scope {other}"),
-                }),
-                "self_flip" => Op::Flip(match field(b, "options") {
-                    "0" => false,
-                    "1" => true,
-                    other => bail!("unknown flip axis {other}"),
-                }),
-                "set_volume_or_rate_2" | "change_volume_or_rate_2" => {
-                    let rate = match field(b, "audio_key") {
-                        "volume" => false,
-                        "rate" => true,
-                        other => bail!("unknown audio property {other}"),
-                    };
-                    Op::AudioProperty(
-                        self.value(input(b, "audio")?)?,
-                        self.value(input(b, "audio_value")?)?,
-                        rate,
-                        kind == "change_volume_or_rate_2",
-                        field(b, "increase") == "decrease",
-                    )
-                }
-                "procedures_2_callnoreturn" => {
-                    let (base, index) = self.call_arguments(b)?;
-                    Op::Call(base + usize::from(warped), index)
-                }
-                "console_log" => {
-                    let val = input(b, "console_log")?;
-                    if !matches!(
-                        val["type"].as_str(),
-                        Some(
-                            "math_number"
-                                | "math_arithmetic"
-                                | "math_round"
-                                | "timer"
-                                | "traverse_number_value"
-                                | "text"
-                        )
-                    ) {
-                        Op::LogText(self.text(val)?)
-                    } else if val["type"] == "text" {
-                        let index = self.program.strings.len();
-                        self.program.strings.push(field(val, "TEXT").into());
-                        Op::Log(index)
-                    } else {
-                        Op::LogNumber(self.expr(val)?)
-                    }
-                }
-                "warp" => {
-                    self.chain(b.get("statements").and_then(|s| s.get("DO")), true)?;
-                    block = b.get("next");
-                    continue;
-                }
-                "controls_if" => {
-                    // IF0/DO0, optional else-if IFn/DOn, optional ELSE.
-                    let mut jumps = vec![];
-                    let mut n = 0;
-                    while let Some(test) = b["inputs"].get(format!("IF{n}")) {
+                Work::If(b, warped, n, jumps) => {
+                    if let Some(test) = b["inputs"].get(format!("IF{n}")) {
                         let condition = self.condition(test)?;
                         let branch = self.emit(Op::Branch(condition, 0), b);
-                        self.chain(b["statements"].get(format!("DO{n}")), warped)?;
-                        jumps.push(self.emit(Op::Jump(0), b));
-                        self.program.ops[branch] = Op::Branch(condition, self.program.ops.len());
-                        n += 1;
+                        work.push(Work::IfBranch(b, warped, n, jumps, branch, condition));
+                        work.push(Work::Chain(b["statements"].get(format!("DO{n}")), warped));
+                    } else {
+                        ensure!(n > 0, "controls_if: missing input IF0");
+                        work.push(Work::IfEnd(jumps));
+                        work.push(Work::Chain(b["statements"].get("ELSE"), warped));
                     }
-                    ensure!(n > 0, "controls_if: missing input IF0");
-                    self.chain(b["statements"].get("ELSE"), warped)?;
+                    continue;
+                }
+                Work::IfBranch(b, warped, n, mut jumps, branch, condition) => {
+                    jumps.push(self.emit(Op::Jump(0), b));
+                    self.program.ops[branch] = Op::Branch(condition, self.program.ops.len());
+                    work.push(Work::If(b, warped, n + 1, jumps));
+                    continue;
+                }
+                Work::IfEnd(jumps) => {
                     let end = self.program.ops.len();
                     for jump in jumps {
                         self.program.ops[jump] = Op::Jump(end);
                     }
-                    block = b.get("next");
                     continue;
                 }
-                "repeat_n_times" | "repeat_forever" | "repeat_forever_until" => {
-                    let begin = self.program.ops.len();
-                    if kind == "repeat_n_times" {
-                        let n = self.arg(b, "times")?;
-                        self.emit(Op::Repeat(n, 0), b);
-                    } else if kind == "repeat_forever_until" {
-                        let c = self.condition(input(b, "condition")?)?;
-                        let gate = self.emit(Op::Branch(c, begin + 2), b);
-                        debug_assert_eq!(gate, begin);
-                        self.emit(Op::Jump(0), b);
-                    }
-                    self.loops.push(vec![]);
-                    self.chain(b["statements"].get("DO"), warped)?;
+                Work::Loop(b, warped, begin) => {
+                    let kind = b["type"].as_str().unwrap();
                     if kind == "repeat_n_times" {
                         self.emit(Op::Next(begin + 1, !warped), b);
                     } else {
@@ -3563,9 +2899,7 @@ impl Compiler {
                         self.emit(Op::Jump(begin), b);
                     }
                     let end = self.program.ops.len();
-                    if kind == "repeat_n_times"
-                        && let Op::Repeat(n, _) = self.program.ops[begin]
-                    {
+                    if let Op::Repeat(n, _) = self.program.ops[begin] {
                         self.program.ops[begin] = Op::Repeat(n, end);
                     }
                     if kind == "repeat_forever_until" {
@@ -3573,33 +2907,11 @@ impl Compiler {
                     }
                     for pc in self.loops.pop().unwrap() {
                         self.program.ops[pc] =
-                            Op::Break(end, if kind == "repeat_n_times" { 1 } else { 0 });
+                            Op::Break(end, usize::from(kind == "repeat_n_times"));
                     }
-                    block = b.get("next");
                     continue;
                 }
-                "traverse_number" => {
-                    let param = input(b, "value")?;
-                    ensure!(
-                        param["type"] == "traverse_number_param",
-                        "range missing parameter at {}",
-                        b["id"]
-                    );
-                    let from = self.arg(b, "from")?;
-                    let to = self.arg(b, "to")?;
-                    let by = if self.program.semantics == RuntimeSemantics::KnCurrent
-                        && b["inputs"].get("by").is_none()
-                    {
-                        self.expr(&serde_json::json!({"type":"math_number","fields":{"NUM":1}}))?
-                    } else {
-                        self.arg(b, "by")?
-                    };
-                    let spec = self.program.ranges.len();
-                    self.program.ranges.push(RangeSpec { from, to, by });
-                    let begin = self.emit(Op::Range(spec, 0), b);
-                    self.ranges.push(field(param, "TEXT").into());
-                    self.loops.push(vec![]);
-                    self.chain(b["statements"].get("DO"), warped)?;
+                Work::Range(b, warped, begin, spec) => {
                     self.emit(Op::RangeNext(begin + 1, !warped), b);
                     let end = self.program.ops.len();
                     self.program.ops[begin] = Op::Range(spec, end);
@@ -3607,24 +2919,909 @@ impl Compiler {
                         self.program.ops[pc] = Op::Break(end, 2);
                     }
                     self.ranges.pop();
-                    block = b.get("next");
                     continue;
                 }
-                "break" => {
-                    ensure!(!self.loops.is_empty(), "break outside loop");
-                    let pc = self.emit(Op::Break(0, 0), b);
-                    self.loops.last_mut().unwrap().push(pc);
-                    block = b.get("next");
+                Work::Tell(b, jump, loops) => {
+                    self.loops = loops;
+                    self.emit(Op::Halt, b);
+                    self.program.ops[jump] = Op::Jump(self.program.ops.len());
                     continue;
                 }
-                _ => bail!("unsupported fast-VM block {kind} ({})", b["id"]),
             };
-            self.emit(op, b);
-            block = b.get("next");
+            while let Some(b) = block.filter(|v| v.is_object()) {
+                ensure!(
+                    self.program.ops.len() < 1_000_000,
+                    "program instruction limit exceeded"
+                );
+                let kind = b["type"].as_str().unwrap_or("");
+                let op = match kind {
+                    "script_variables" => {
+                        for name in crate::runtime::helpers::script_variable_names(b) {
+                            let local = self.local(name);
+                            let zero = self.expr(
+                                &serde_json::json!({"type":"math_number","fields":{"NUM":0}}),
+                            )?;
+                            self.emit(Op::SetLocal(local, zero), b);
+                        }
+                        block = b.get("next");
+                        continue;
+                    }
+                    "variables_set" => {
+                        if let Some(&slot) = self.actor_variables.get(field(b, "variable")) {
+                            let value = self.value(input(b, "value")?)?;
+                            self.emit(Op::SetActorVariable(slot, value), b);
+                            block = b.get("next");
+                            continue;
+                        }
+                        ensure!(
+                            !self.lists.contains_key(field(b, "variable")),
+                            "list assignment requires list operations at {}",
+                            b["id"]
+                        );
+                        let target = self.target(field(b, "variable"));
+                        let value = input(b, "value")?;
+                        if matches!(
+                            value["type"].as_str(),
+                            Some(
+                                "math_number"
+                                    | "math_arithmetic"
+                                    | "math_function"
+                                    | "math_round"
+                                    | "math_trig"
+                                    | "math_modulo"
+                                    | "timer"
+                                    | "traverse_number_value"
+                            )
+                        ) && !(self.program.semantics == RuntimeSemantics::Kitten4
+                            && value["type"] == "math_arithmetic"
+                            && field(value, "type") == "add")
+                            && !(self.program.semantics == RuntimeSemantics::KnCurrent
+                                && value["type"] == "math_number"
+                                && kn_preserved_number_text(value).is_some())
+                        {
+                            let expr = self.expr(value)?;
+                            match target {
+                                Target::Global(i) => Op::Set(i, expr),
+                                Target::Local(i) => Op::SetLocal(i, expr),
+                            }
+                        } else {
+                            Op::SetValue(target, self.value(value)?)
+                        }
+                    }
+                    "change_variables" => {
+                        if let Some(&slot) = self.actor_variables.get(field(b, "variable")) {
+                            let expr = self.arg(b, "value")?;
+                            let sign = if field(b, "method") == "decrease" {
+                                -1.0
+                            } else {
+                                1.0
+                            };
+                            self.emit(Op::ChangeActorVariable(slot, expr, sign), b);
+                            block = b.get("next");
+                            continue;
+                        }
+                        ensure!(
+                            !self.lists.contains_key(field(b, "variable")),
+                            "list used as scalar at {}",
+                            b["id"]
+                        );
+                        let target = self.target(field(b, "variable"));
+                        if self.program.semantics == RuntimeSemantics::Kitten4 {
+                            let value = self.value(input(b, "value")?)?;
+                            self.emit(
+                                Op::Kitten4Change(target, value, field(b, "method") == "decrease"),
+                                b,
+                            );
+                            block = b.get("next");
+                            continue;
+                        }
+                        let expr = self.arg(b, "value")?;
+                        let sign = if field(b, "method") == "decrease" {
+                            -1.0
+                        } else {
+                            1.0
+                        };
+                        match target {
+                            Target::Global(i) => Op::Change(i, expr, sign),
+                            Target::Local(i) => Op::ChangeLocal(i, expr, sign),
+                        }
+                    }
+                    // 参考 HateNeko 0.7.1 的 rt/impl/data.lua::_variable_set。
+                    "_variable_set" => Op::SetValue(
+                        Target::Local(self.code_local(field(b, "VAR"))),
+                        self.value(input(b, "VALUE")?)?,
+                    ),
+                    // 参考 HateNeko 0.7.1 的 rt/impl/js.lua::assign、math_increment/decrement。
+                    "math_add_assign" | "math_sub_assign" | "math_mul_assign"
+                    | "math_div_assign" | "math_mod_assign" | "math_increment"
+                    | "math_decrement" => {
+                        let op = match kind {
+                            "math_sub_assign" | "math_decrement" => Binary::Sub,
+                            "math_mul_assign" => Binary::Mul,
+                            "math_div_assign" => Binary::Div,
+                            "math_mod_assign" => Binary::Mod,
+                            _ => Binary::Add,
+                        };
+                        let value = if matches!(kind, "math_increment" | "math_decrement") {
+                            None
+                        } else {
+                            Some(self.value(input(b, "value")?)?)
+                        };
+                        Op::AssignLocal(self.code_local(field(b, "VAR")), value, op)
+                    }
+                    "kitten4_cloud_variables_set" | "kitten4_change_cloud_variable" => {
+                        let change = kind == "kitten4_change_cloud_variable";
+                        let id = field(b, if change { "valname" } else { "VAR" });
+                        let binding = self
+                            .program
+                            .cloud
+                            .iter()
+                            .position(|v| v.id == id)
+                            .unwrap_or(usize::MAX);
+                        let value = self.value(input(b, if change { "n" } else { "VALUE" })?)?;
+                        Op::CloudSet(binding, value, change, field(b, "method") == "decrease")
+                    }
+                    "kitten4_cloud_lists_append"
+                    | "kitten4_cloud_lists_insert_value"
+                    | "kitten4_cloud_lists_delete"
+                    | "kitten4_cloud_lists_replace" => {
+                        let binding = self
+                            .program
+                            .cloud
+                            .iter()
+                            .position(|v| v.id == field(b, "VAR"))
+                            .unwrap_or(usize::MAX);
+                        let action = match kind {
+                            "kitten4_cloud_lists_append" => {
+                                if field(b, "POS") == "last" {
+                                    0
+                                } else {
+                                    1
+                                }
+                            }
+                            "kitten4_cloud_lists_insert_value" => 2,
+                            "kitten4_cloud_lists_delete" => {
+                                if field(b, "TYPE") == "all" {
+                                    5
+                                } else {
+                                    3
+                                }
+                            }
+                            _ => 4,
+                        };
+                        let at = if matches!(action, 0 | 1 | 5) || field(b, "TYPE") == "last" {
+                            None
+                        } else {
+                            Some(self.arg(b, "INDEX")?)
+                        };
+                        let value = if matches!(action, 3 | 5) {
+                            None
+                        } else {
+                            Some(self.value(input(b, "VALUE")?)?)
+                        };
+                        Op::CloudList(binding, action, at, value)
+                    }
+                    "kitten4_show_ranking" => Op::Ranking(
+                        self.program
+                            .cloud
+                            .iter()
+                            .position(|v| v.id == field(b, "VAR")),
+                        true,
+                    ),
+                    "kitten4_hide_ranking" => Op::Ranking(None, false),
+                    "self_go_forward" => Op::Move(self.arg(b, "steps")?),
+                    "self_move_to" => Op::Position(self.arg(b, "x")?, self.arg(b, "y")?),
+                    "self_set_position_x" => Op::X(self.arg(b, "value")?),
+                    "self_set_position_y" => Op::Y(self.arg(b, "value")?),
+                    "self_add_position_x" => Op::AddX(self.arg(b, "value")?),
+                    "self_add_position_y" => Op::AddY(self.arg(b, "value")?),
+                    "self_change_coordinate_x" | "self_change_coordinate_y" => {
+                        let mut e = self.arg(b, "value")?;
+                        if field(b, "increase") == "decrease" || field(b, "method") == "decrease" {
+                            self.program.expressions.push(ExprOp::Unary(Unary::Neg));
+                            e.end += 1;
+                        }
+                        if kind.ends_with('x') {
+                            Op::AddX(e)
+                        } else {
+                            Op::AddY(e)
+                        }
+                    }
+                    "self_rotate" => Op::Turn(self.arg(b, "degrees")?),
+                    "self_point_towards" => Op::Direction(self.arg(b, "degrees")?),
+                    "set_scale" => Op::Scale(self.arg(b, "scale")?),
+                    "self_appear" => Op::Visible(field(b, "value") == "appear"),
+                    "set_sprite_style" => Op::Style(self.value(input(b, "style_id")?)?),
+                    "self_prev_next_style" => {
+                        ensure!(
+                            matches!(field(b, "prev_next"), "next" | "prev"),
+                            "unknown costume direction"
+                        );
+                        Op::NextStyle(field(b, "prev_next") == "next")
+                    }
+                    "self_set_effect" | "self_change_effect" => {
+                        let scope = effect_scope(field(b, "scope")).with_context(|| {
+                            format!(
+                                "unsupported sprite effect {} at {}",
+                                field(b, "scope"),
+                                b["id"]
+                            )
+                        })?;
+                        if kind == "self_set_effect" {
+                            let value = self.arg_any(b, &["value", "val"])?;
+                            if scope == 1 {
+                                Op::Opacity(value)
+                            } else {
+                                Op::Effect(scope, value, false)
+                            }
+                        } else {
+                            Op::Effect(scope, self.signed_arg(b, &["value", "steps"])?, true)
+                        }
+                    }
+                    "clear_all_effects" => Op::ClearEffects,
+                    "self_change_scale" => {
+                        Op::ChangeScale(self.signed_arg(b, &["scale", "value"])?)
+                    }
+                    "set_width_height_scale" | "add_width_height_scale" => {
+                        let axis = match field(b, "type") {
+                            "width" => false,
+                            "height" => true,
+                            other => bail!("unsupported size axis {other} at {}", b["id"]),
+                        };
+                        let add = kind == "add_width_height_scale";
+                        let value = if add {
+                            self.signed_arg(b, &["value"])?
+                        } else {
+                            self.arg(b, "value")?
+                        };
+                        Op::SizeAxis(axis, value, add)
+                    }
+                    "self_change_pen_size" => {
+                        Op::PenSizeChange(self.signed_arg(b, &["steps", "size", "value"])?)
+                    }
+                    "self_set_rotation_type" => Op::RotationType(match field(b, "rotation_type") {
+                        "0" => 0,
+                        "1" => 1,
+                        "2" => 2,
+                        other => bail!("unsupported rotation type {other} at {}", b["id"]),
+                    }),
+                    "self_face_to" | "self_face_to_sprite" => {
+                        Op::FaceTo(self.point_target(field(b, "sprite"))?)
+                    }
+                    "self_move_specify" | "self_move_specify_sprite" => {
+                        let target = b["fields"]
+                            .get("target")
+                            .or_else(|| b["fields"].get("sprite"))
+                            .and_then(Value::as_str)
+                            .unwrap_or("");
+                        Op::MoveToTarget(self.point_target(target)?)
+                    }
+                    "self_rotate_around" => Op::RotateAround(
+                        self.actor_target(field(b, "sprite"))?,
+                        self.arg(b, "degrees")?,
+                    ),
+                    "self_set_position" => {
+                        let value = self.arg(b, "value")?;
+                        match field(b, "coordinary") {
+                            "x" => Op::X(value),
+                            "y" => Op::Y(value),
+                            other => bail!("unknown coordinate {other} at {}", b["id"]),
+                        }
+                    }
+                    "self_change_coordinate" => {
+                        let value = self.signed_arg(b, &["value"])?;
+                        match field(b, "coordinary") {
+                            "x" => Op::AddX(value),
+                            "y" => Op::AddY(value),
+                            other => bail!("unknown coordinate {other} at {}", b["id"]),
+                        }
+                    }
+                    "self_glide_to"
+                    | "self_glide_coordinate"
+                    | "self_glide_coordinate_x"
+                    | "self_glide_coordinate_y" => {
+                        let time = self.arg(b, "time")?;
+                        let spec = if kind == "self_glide_to" {
+                            GlideSpec {
+                                time,
+                                x: Some(self.arg(b, "x")?),
+                                y: Some(self.arg(b, "y")?),
+                                relative: false,
+                            }
+                        } else {
+                            let axis = match kind {
+                                "self_glide_coordinate_x" => "x",
+                                "self_glide_coordinate_y" => "y",
+                                _ => field(b, "coordinary"),
+                            };
+                            let value = self.signed_arg(b, &["value"])?;
+                            match axis {
+                                "x" => GlideSpec {
+                                    time,
+                                    x: Some(value),
+                                    y: None,
+                                    relative: true,
+                                },
+                                "y" => GlideSpec {
+                                    time,
+                                    x: None,
+                                    y: Some(value),
+                                    relative: true,
+                                },
+                                other => bail!("unknown coordinate {other} at {}", b["id"]),
+                            }
+                        };
+                        self.program.glides.push(spec);
+                        self.emit(Op::Glide(self.program.glides.len() - 1), b);
+                        Op::AnimStep
+                    }
+                    "self_gradually_show_hide" => {
+                        let state = b["fields"]
+                            .get("is_show")
+                            .or_else(|| b["fields"].get("show_hide"))
+                            .and_then(Value::as_str)
+                            .unwrap_or("");
+                        let show = match state {
+                            "show" | "appear" => true,
+                            "hide" | "disappear" => false,
+                            other => bail!("unknown fade state {other} at {}", b["id"]),
+                        };
+                        let time = self.arg(b, "time")?;
+                        self.emit(Op::Fade(time, show), b);
+                        Op::AnimStep
+                    }
+                    "restart" => Op::Restart,
+                    "mirror" => Op::Clone(self.actor_target(field(b, "sprite"))?),
+                    "kitten4_split" => Op::Split(
+                        self.actor_target(field(b, "sprite"))?,
+                        self.arg(b, "x")?,
+                        self.arg(b, "y")?,
+                    ),
+                    "switch_to_screen" => {
+                        let target = b["inputs"]
+                            .get("screen_id")
+                            .or_else(|| b["inputs"].get("screen"))
+                            .with_context(|| {
+                                format!("switch_to_screen: missing scene at {}", b["id"])
+                            })?;
+                        Op::SwitchScene(self.value(target)?)
+                    }
+                    "set_screen_transition" | "set_scene_transition" => {
+                        let direction = field(b, "direction");
+                        let kind = b["fields"]
+                            .get("type")
+                            .or_else(|| b["fields"].get("transition"))
+                            .and_then(Value::as_str)
+                            .unwrap_or("");
+                        ensure!(
+                            matches!(direction, "up" | "down" | "left" | "right" | ""),
+                            "unknown transition direction {direction} at {}",
+                            b["id"]
+                        );
+                        Op::SceneTransition(
+                            self.push_constant(Cell::Text(direction.into())),
+                            self.push_constant(Cell::Text(kind.into())),
+                        )
+                    }
+                    "self_dialog" | "self_dialog_wait" | "create_stage_dialog" => {
+                        let think = match field(b, "type") {
+                            "think" => true,
+                            "" | "say" | "talk" => false,
+                            other => bail!("unknown dialog type {other} at {}", b["id"]),
+                        };
+                        let text = self.value(input(b, "text")?)?;
+                        let timed = kind == "self_dialog" && b["inputs"].get("time").is_some();
+                        if timed {
+                            // Say for N seconds: show, wait, close.
+                            self.emit(Op::Dialog(text, think), b);
+                            let time = self.arg(b, "time")?;
+                            self.emit(Op::Wait(time), b);
+                            Op::CloseDialog
+                        } else {
+                            Op::Dialog(text, think)
+                        }
+                    }
+                    "close_self_dialog" => Op::CloseDialog,
+                    "self_bounce_off_edge" => Op::Bounce,
+                    "self_set_role_camp" => {
+                        Op::Camp(camp_code(field(b, "role_camp")).with_context(|| {
+                            format!("unknown camp {} at {}", field(b, "role_camp"), b["id"])
+                        })?)
+                    }
+                    "self_stress_animation" => {
+                        self.emit(
+                            Op::Emphasis(match field(b, "animation") {
+                                "shake" => 0,
+                                "scale" => 1,
+                                "bounce" => 2,
+                                other => bail!("unknown emphasis animation {other} at {}", b["id"]),
+                            }),
+                            b,
+                        );
+                        Op::TimelineStep
+                    }
+                    "self_appear_animation" => {
+                        let appear = match field(b, "appear") {
+                            "appear" => true,
+                            "disappear" => false,
+                            other => bail!("unknown appear mode {other} at {}", b["id"]),
+                        };
+                        let kind = match field(b, "animation") {
+                            "slideIn" => 0,
+                            "bounceIn" => 1,
+                            "flyIn" => 2,
+                            "slideOut" => 3,
+                            "bounceOut" => 4,
+                            "flyOut" => 5,
+                            other => bail!("unknown transition animation {other} at {}", b["id"]),
+                        };
+                        let direction = match field(b, "direction") {
+                            "up" => 0,
+                            "down" => 1,
+                            "left" => 2,
+                            "right" => 3,
+                            other => bail!("unknown animation direction {other} at {}", b["id"]),
+                        };
+                        self.emit(Op::Transition(appear, kind, direction), b);
+                        Op::TimelineStep
+                    }
+                    "self_text_effect_text" => Op::SpriteText(self.value(input(b, "text")?)?),
+                    "self_text_effect_size" => Op::TextSize(self.arg(b, "size")?),
+                    "self_text_effect_color" => {
+                        let color = field(b, "color").trim_start_matches('#');
+                        Op::TextColor(u32::from_str_radix(color, 16).with_context(|| {
+                            format!("invalid text colour {} at {}", field(b, "color"), b["id"])
+                        })?)
+                    }
+                    "self_set_draggable" => {
+                        Op::Draggable(matches!(field(b, "draggable"), "1" | "true" | "draggable"))
+                    }
+                    "image_stamp" => Op::ImageStamp,
+                    "play_audio_and_wait" => {
+                        let audio = b["inputs"]
+                            .get("audio_id")
+                            .map(|v| self.value(v))
+                            .unwrap_or_else(|| {
+                                Ok(self.push_constant(Cell::Text(field(b, "audio").into())))
+                            })?;
+                        Op::AudioWait(audio)
+                    }
+                    "show_hide_variables" | "show_hide_list" => {
+                        let list = kind == "show_hide_list";
+                        let id = field(b, if list { "list" } else { "variable" });
+                        if let Some(&slot) = self.actor_variables.get(id) {
+                            let owner = self
+                                .program
+                                .sprites
+                                .iter()
+                                .position(|s| s.variables.contains_key(&slot))
+                                .with_context(|| format!("private monitor {id}: missing owner"))?;
+                            let monitor = self
+                                .program
+                                .monitor_targets
+                                .iter()
+                                .position(|(existing, _, _)| existing == id)
+                                .unwrap_or_else(|| {
+                                    let monitor = self.program.monitor_targets.len();
+                                    self.program
+                                        .monitor_targets
+                                        .push((id.to_owned(), list, slot));
+                                    self.program.actor_monitors.insert(monitor, (owner, slot));
+                                    monitor
+                                });
+                            self.emit(Op::Monitor(monitor, field(b, "show_hide") != "hide"), b);
+                            block = b.get("next");
+                            continue;
+                        }
+                        let target = if list {
+                            *self
+                                .lists
+                                .get(id)
+                                .with_context(|| format!("unknown list {id}"))?
+                        } else {
+                            match self.target(id) {
+                                Target::Global(slot) => slot,
+                                Target::Local(_) => {
+                                    bail!("script variables have no monitor at {}", b["id"])
+                                }
+                            }
+                        };
+                        let monitor = self
+                            .program
+                            .monitor_targets
+                            .iter()
+                            .position(|(existing, is_list, _)| existing == id && *is_list == list)
+                            .unwrap_or_else(|| {
+                                let monitor = self.program.monitor_targets.len();
+                                self.program
+                                    .monitor_targets
+                                    .push((id.to_owned(), list, target));
+                                monitor
+                            });
+                        Op::Monitor(monitor, field(b, "show_hide") != "hide")
+                    }
+                    "self_ask" => Op::Ask(self.value(input(b, "text")?)?, None),
+                    "ask_and_choose" => {
+                        let question = self.value(input(b, "question")?)?;
+                        let mut choices = vec![];
+                        while let Some(choice) = b["inputs"].get(format!("CHOICE{}", choices.len()))
+                        {
+                            choices.push(self.value(choice)?);
+                        }
+                        let span = Span {
+                            start: self.program.value_args.len() as u32,
+                            len: choices.len() as u32,
+                        };
+                        self.program.value_args.extend(choices);
+                        Op::Ask(question, Some(span))
+                    }
+                    "kitten4_noop" => {
+                        block = b.get("next");
+                        continue;
+                    }
+                    "kitten4_set_velocity" => Op::PhysicsVelocity(
+                        self.value(input(b, "value")?)?,
+                        self.value(input(b, "dir")?)?,
+                    ),
+                    kind if kind.starts_with("kitten4_legacy_") => {
+                        let command = physics::Command::parse_legacy(kind, b)?;
+                        let zero = serde_json::json!({"type":"math_number","fields":{"NUM":0}});
+                        let value = self.value(
+                            ["friction", "restitution", "mass", "density"]
+                                .iter()
+                                .find_map(|key| b["inputs"].get(*key))
+                                .unwrap_or(&zero),
+                        )?;
+                        Op::LegacyPhysics(command, value)
+                    }
+                    kind if kind.starts_with("physics2_") => {
+                        let command = physics::Command::parse(kind, b, |id| self.actor_target(id))?;
+                        let zero = serde_json::json!({"type":"math_number","fields":{"NUM":0}});
+                        let a = self.expr(
+                            ["value", "mass", "friction", "restitution"]
+                                .iter()
+                                .find_map(|key| b["inputs"].get(*key))
+                                .unwrap_or(&zero),
+                        )?;
+                        let dir = self.expr(b["inputs"].get("dir").unwrap_or(&zero))?;
+                        let time = self.expr(b["inputs"].get("time").unwrap_or(&zero))?;
+                        Op::Physics(command, a, dir, time)
+                    }
+                    "dispose_clone" => Op::DisposeClone,
+                    "kitten4_dispose" => Op::DisposeSelf,
+                    "set_top_bottom_layer" | "self_change_layer" => {
+                        let layer = field(b, "layer");
+                        let relative = field(b, "target_layer");
+                        Op::Layer(if relative.is_empty() {
+                            match layer {
+                                "peak" | "top" | "front" => LayerMove::Front,
+                                "bottom" | "back" => LayerMove::Back,
+                                "prev_layer" | "forward" | "up" => LayerMove::Forward,
+                                "next_layer" | "backward" | "down" => LayerMove::Backward,
+                                "n" if self.program.semantics == RuntimeSemantics::Kitten4 => {
+                                    LayerMove::By(self.arg(b, "n")?)
+                                }
+                                _ => bail!("unknown layer {layer} at {}", b["id"]),
+                            }
+                        } else {
+                            ensure!(
+                                matches!(relative, "prev_layer" | "next_layer"),
+                                "unknown relative layer {relative} at {}",
+                                b["id"]
+                            );
+                            let target = self.actor_target(layer)?;
+                            ensure!(
+                                target != usize::MAX && !self.program.sprites[target].stage,
+                                "relative layer needs another actor at {}",
+                                b["id"]
+                            );
+                            LayerMove::Relative(target, relative == "prev_layer")
+                        })
+                    }
+                    "procedures_2_return_value"
+                        if self.program.semantics == RuntimeSemantics::KnCurrent
+                            && b["inputs"].get("VALUE").is_none()
+                            && crate::runtime::helpers::attr_value(
+                                b["mutation"].as_str().unwrap_or(""),
+                                "type",
+                            ) == Some("NORMAL") =>
+                    {
+                        // KN's NORMAL form exits the current procedure; it has no
+                        // VALUE socket. ROUND/malformed missing values stay errors.
+                        Op::Return
+                    }
+                    "procedures_2_return_value" => Op::ReturnValue(self.value(input(b, "VALUE")?)?),
+                    "when" => {
+                        // Statement form: wait until the condition holds, run DO, continue.
+                        let condition = self.condition(input(b, "condition")?)?;
+                        self.emit(Op::WaitUntil(condition), b);
+                        work.push(Work::Chain(b.get("next"), warped));
+                        work.push(Work::Chain(b["statements"].get("DO"), warped));
+                        block = None;
+                        continue;
+                    }
+                    "tell" | "sync_tell" => {
+                        let target = self.actor_target(field(b, "sprite"))?;
+                        let tell = self.emit(Op::Tell(target, 0, kind == "sync_tell"), b);
+                        let jump = self.emit(Op::Jump(0), b);
+                        // The body is a separate task: loop breaks never cross into it.
+                        let loops = std::mem::take(&mut self.loops);
+                        self.program.ops[tell] = Op::Tell(target, jump + 1, kind == "sync_tell");
+                        work.push(Work::Chain(b.get("next"), warped));
+                        work.push(Work::Tell(b, jump, loops));
+                        work.push(Work::Chain(b["statements"].get("DO"), false));
+                        block = None;
+                        continue;
+                    }
+                    "set_pen_layer" => {
+                        let layer = field(b, "layer");
+                        let relative = field(b, "target_layer");
+                        Op::PenLayer(if relative.is_empty() {
+                            match layer {
+                                "peak" => PenLayer::Top,
+                                "bottom" => PenLayer::Bottom,
+                                "prev_layer" => PenLayer::Forward,
+                                "next_layer" => PenLayer::Backward,
+                                _ => bail!("unknown pen layer {layer} at {}", b["id"]),
+                            }
+                        } else {
+                            ensure!(
+                                matches!(relative, "prev_layer" | "next_layer"),
+                                "unknown relative pen layer {relative}"
+                            );
+                            let index = self
+                                .actor_ids
+                                .iter()
+                                .position(|id| id == layer)
+                                .context("unknown pen layer target")?;
+                            PenLayer::Relative(
+                                self.actor_ids.len() - 1 - index,
+                                relative == "prev_layer",
+                            )
+                        })
+                    }
+                    "self_pen_down" => Op::Pen(true),
+                    "self_pen_up" => Op::Pen(false),
+                    "pen_begin_path" => Op::PenPath(true),
+                    "pen_close_path" => Op::PenPath(false),
+                    "clear_drawing" => Op::Clear,
+                    "play_audio" | "stop_audio" => {
+                        let audio = input(b, "audio_id")
+                            .with_context(|| format!("audio input at {}", b["id"]))?;
+                        Op::Audio(self.value(audio)?, kind == "play_audio")
+                    }
+                    "delete_list_item" => {
+                        let list = self.list(input(b, "list")?)?;
+                        match field(b, "item") {
+                            "all" => Op::ClearList(list),
+                            "last" => Op::DeleteList(list, None),
+                            "any" => Op::DeleteList(list, Some(self.arg(b, "list_index")?)),
+                            other => bail!("unsupported list selector {other}"),
+                        }
+                    }
+                    "list_append" => Op::AppendList(
+                        self.list(input(b, "list")?)?,
+                        self.value(input(b, "list_item_value")?)?,
+                    ),
+                    "list_insert_value" => Op::InsertList(
+                        self.list(input(b, "list")?)?,
+                        self.arg(b, "list_index")?,
+                        self.value(input(b, "list_item_value")?)?,
+                    ),
+                    "replace_list_item" => Op::ReplaceList(
+                        self.list(input(b, "list")?)?,
+                        if field(b, "item") == "last" {
+                            None
+                        } else {
+                            Some(self.arg(b, "list_index")?)
+                        },
+                        self.value(input(b, "list_item_value")?)?,
+                    ),
+                    "list_copy" => Op::CopyList(
+                        self.list(input(b, "list")?)?,
+                        self.list(input(b, "target_list")?)?,
+                    ),
+                    "show_hide_timer" => Op::TimerVisible(field(b, "showHide") == "show"),
+                    "set_timer_state" => Op::Timer(match field(b, "type") {
+                        "start" => TimerState::Start,
+                        "stop" => TimerState::Stop,
+                        "reset" => TimerState::Reset,
+                        other => bail!("unknown timer state {other}"),
+                    }),
+                    "self_set_pen_color_property" | "self_change_pen_color_property" => {
+                        let property = match field(b, "scope") {
+                            "hue" => PenProperty::Hue,
+                            "saturation" => PenProperty::Saturation,
+                            "brightness" => PenProperty::Brightness,
+                            "alpha" => PenProperty::Alpha,
+                            other => bail!("unsupported pen property {other}"),
+                        };
+                        let change = kind == "self_change_pen_color_property";
+                        Op::PenProperty(
+                            property,
+                            self.arg(b, if change { "steps" } else { "val" })?,
+                            if !change {
+                                0
+                            } else if field(b, "increase") == "decrease" {
+                                -1
+                            } else {
+                                1
+                            },
+                        )
+                    }
+                    "stamp" => Op::Stamp(
+                        self.text(input(b, "text")?)?,
+                        self.arg(b, "size")?,
+                        match field(b, "align") {
+                            "left" => TextAlign::Left,
+                            "center" => TextAlign::Center,
+                            "right" => TextAlign::Right,
+                            other => bail!("unsupported stamp alignment {other}"),
+                        },
+                    ),
+                    "self_set_pen_size" => Op::Size(self.arg(b, "size")?),
+                    "self_set_pen_color" | "set_fill_style" => {
+                        let color = field(b, "color").trim_start_matches('#');
+                        ensure!(color.len() == 6, "expected RGB hex color");
+                        let n = u32::from_str_radix(color, 16)?;
+                        let color = [
+                            ((n >> 16) & 255) as f32 / 255.0,
+                            ((n >> 8) & 255) as f32 / 255.0,
+                            (n & 255) as f32 / 255.0,
+                            1.0,
+                        ];
+                        if kind == "set_fill_style" {
+                            Op::FillColor(color)
+                        } else {
+                            Op::Color(color)
+                        }
+                    }
+                    "wait" => Op::Wait(self.arg(b, "time")?),
+                    "wait_until" => Op::WaitUntil(self.condition(input(b, "condition")?)?),
+                    "self_broadcast" | "self_broadcast_with_param" | "self_broadcast_and_wait" => {
+                        Op::Broadcast(
+                            self.value(input(b, "message")?)?,
+                            if kind == "self_broadcast_with_param" {
+                                Some(self.value(input(b, "param")?)?)
+                            } else {
+                                None
+                            },
+                            kind == "self_broadcast_and_wait",
+                        )
+                    }
+                    "stop" => Op::Stop(match field(b, "scope") {
+                        "0" => 0,
+                        "" | "1" => 1,
+                        "2" => 2,
+                        "3" => 3,
+                        other => bail!("unknown stop scope {other}"),
+                    }),
+                    "self_flip" => Op::Flip(match field(b, "options") {
+                        "0" => false,
+                        "1" => true,
+                        other => bail!("unknown flip axis {other}"),
+                    }),
+                    "set_volume_or_rate_2" | "change_volume_or_rate_2" => {
+                        let rate = match field(b, "audio_key") {
+                            "volume" => false,
+                            "rate" => true,
+                            other => bail!("unknown audio property {other}"),
+                        };
+                        Op::AudioProperty(
+                            self.value(input(b, "audio")?)?,
+                            self.value(input(b, "audio_value")?)?,
+                            rate,
+                            kind == "change_volume_or_rate_2",
+                            field(b, "increase") == "decrease",
+                        )
+                    }
+                    "procedures_2_callnoreturn" => {
+                        let (base, index) = self.call_arguments(b)?;
+                        Op::Call(base + usize::from(warped), index)
+                    }
+                    "console_log" => {
+                        let val = input(b, "console_log")?;
+                        if !matches!(
+                            val["type"].as_str(),
+                            Some(
+                                "math_number"
+                                    | "math_arithmetic"
+                                    | "math_round"
+                                    | "timer"
+                                    | "traverse_number_value"
+                                    | "text"
+                            )
+                        ) {
+                            Op::LogText(self.text(val)?)
+                        } else if val["type"] == "text" {
+                            let index = self.program.strings.len();
+                            self.program.strings.push(field(val, "TEXT").into());
+                            Op::Log(index)
+                        } else {
+                            Op::LogNumber(self.expr(val)?)
+                        }
+                    }
+                    "warp" => {
+                        work.push(Work::Chain(b.get("next"), warped));
+                        work.push(Work::Chain(
+                            b.get("statements").and_then(|s| s.get("DO")),
+                            true,
+                        ));
+                        block = None;
+                        continue;
+                    }
+                    "controls_if" => {
+                        work.push(Work::Chain(b.get("next"), warped));
+                        work.push(Work::If(b, warped, 0, vec![]));
+                        block = None;
+                        continue;
+                    }
+                    "repeat_n_times" | "repeat_forever" | "repeat_forever_until" => {
+                        let begin = self.program.ops.len();
+                        if kind == "repeat_n_times" {
+                            let n = self.arg(b, "times")?;
+                            self.emit(Op::Repeat(n, 0), b);
+                        } else if kind == "repeat_forever_until" {
+                            let c = self.condition(input(b, "condition")?)?;
+                            let gate = self.emit(Op::Branch(c, begin + 2), b);
+                            debug_assert_eq!(gate, begin);
+                            self.emit(Op::Jump(0), b);
+                        }
+                        self.loops.push(vec![]);
+                        work.push(Work::Chain(b.get("next"), warped));
+                        work.push(Work::Loop(b, warped, begin));
+                        work.push(Work::Chain(b["statements"].get("DO"), warped));
+                        block = None;
+                        continue;
+                    }
+                    "traverse_number" => {
+                        let param = input(b, "value")?;
+                        ensure!(
+                            param["type"] == "traverse_number_param",
+                            "range missing parameter at {}",
+                            b["id"]
+                        );
+                        let from = self.arg(b, "from")?;
+                        let to = self.arg(b, "to")?;
+                        let by = if self.program.semantics == RuntimeSemantics::KnCurrent
+                            && b["inputs"].get("by").is_none()
+                        {
+                            self.expr(
+                                &serde_json::json!({"type":"math_number","fields":{"NUM":1}}),
+                            )?
+                        } else {
+                            self.arg(b, "by")?
+                        };
+                        let spec = self.program.ranges.len();
+                        self.program.ranges.push(RangeSpec { from, to, by });
+                        let begin = self.emit(Op::Range(spec, 0), b);
+                        self.ranges.push(field(param, "TEXT").into());
+                        self.loops.push(vec![]);
+                        work.push(Work::Chain(b.get("next"), warped));
+                        work.push(Work::Range(b, warped, begin, spec));
+                        work.push(Work::Chain(b["statements"].get("DO"), warped));
+                        block = None;
+                        continue;
+                    }
+                    "break" => {
+                        ensure!(!self.loops.is_empty(), "break outside loop");
+                        let pc = self.emit(Op::Break(0, 0), b);
+                        self.loops.last_mut().unwrap().push(pc);
+                        block = b.get("next");
+                        continue;
+                    }
+                    _ => bail!("unsupported fast-VM block {kind} ({})", b["id"]),
+                };
+                self.emit(op, b);
+                block = b.get("next");
+            }
         }
-        self.depth -= 1;
         Ok(())
     }
+}
+
+fn json_proxy(index: usize) -> Value {
+    serde_json::json!({"type":"_compiled_value", "index":index})
 }
 
 #[derive(Clone)]
@@ -3901,6 +4098,7 @@ pub struct Engine {
     cloud: cloud::State,
     scheduler_tick: u64,
     oracle_events: Option<Vec<Value>>,
+    evaluation_cache: Vec<BTreeMap<(bool, usize), VecDeque<Cell>>>,
     physics: Option<Box<physics::Physics>>,
     pub program: Program,
     jit: Option<Box<jit::Jit>>,
@@ -4274,6 +4472,7 @@ impl Engine {
             dirty,
             reset: true,
             value_error: None,
+            evaluation_cache: vec![],
             stopped: false,
             restart: false,
             reporter_depth: 0,
@@ -4727,25 +4926,50 @@ impl Engine {
     }
     /// Evaluates the postfix subtree rooted at `pc`, left operand first. Kept small:
     /// numeric leaves and arithmetic stay here, everything else is out of line.
+    #[inline(always)]
     fn node(&mut self, pc: usize, actor: usize) -> f64 {
+        if self.program.deep_values.is_empty() {
+            return self.node_one::<false>(pc, actor);
+        }
+        if let Some(value) = self
+            .evaluation_cache
+            .last_mut()
+            .and_then(|c| c.get_mut(&(false, pc)))
+            .and_then(VecDeque::pop_front)
+        {
+            return value.number();
+        }
+        self.node_one::<true>(pc, actor)
+    }
+    fn node_one<const CACHED: bool>(&mut self, pc: usize, actor: usize) -> f64 {
+        // The common scalar fast path remains allocation-free. Composite numeric
+        // trees are already postfix, so no traversal/call stack is necessary.
+        if pc - self.program.expression_starts[pc] as usize >= 64
+            && matches!(
+                self.program.expressions[pc],
+                ExprOp::Binary(_) | ExprOp::Unary(_) | ExprOp::Random | ExprOp::ListItem(_, false)
+            )
+        {
+            return self.node_iterative(pc, actor);
+        }
         match self.program.expressions[pc] {
             ExprOp::Constant(n) => n,
             ExprOp::Slot(s) => self.slots[s],
             ExprOp::Binary(op) => {
                 let right = pc - 1;
                 let left = self.program.expression_starts[right] as usize - 1;
-                let a = self.operand(left, actor);
-                let b = self.operand(right, actor);
+                let a = self.operand_one::<CACHED>(left, actor);
+                let b = self.operand_one::<CACHED>(right, actor);
                 op.apply(a, b)
             }
             ExprOp::Unary(op) => {
-                let a = self.operand(pc - 1, actor);
+                let a = self.operand_one::<CACHED>(pc - 1, actor);
                 op.apply(a)
             }
             ExprOp::Local(s) => self.tasks[self.current_task].locals[s],
             // Indexed read of a global list: borrow in place, no handle clone.
             ExprOp::ListItem(ListRef::Global(list), false) => {
-                let at = self.operand(pc - 1, actor);
+                let at = self.operand_one::<CACHED>(pc - 1, actor);
                 self.check_list_index(at);
                 let values = self.lists[list as usize].borrow();
                 read_list_index(at, values.len(), self.program.semantics)
@@ -4757,12 +4981,71 @@ impl Engine {
             _ => self.node_slow(pc, actor),
         }
     }
+    #[inline(never)]
+    fn node_iterative(&mut self, pc: usize, actor: usize) -> f64 {
+        let start = self.program.expression_starts[pc] as usize;
+        let mut values = Vec::new();
+        for at in start..=pc {
+            let value = match self.program.expressions[at] {
+                ExprOp::Binary(op) => {
+                    let b = values.pop().unwrap();
+                    let a = values.pop().unwrap();
+                    op.apply(a, b)
+                }
+                ExprOp::Unary(op) => op.apply(values.pop().unwrap()),
+                ExprOp::Random => {
+                    let b = values.pop().unwrap();
+                    let a = values.pop().unwrap();
+                    let (a, b) = if self.program.semantics == RuntimeSemantics::Kitten4 {
+                        (a, b)
+                    } else {
+                        ((a + 0.5_f64).floor(), (b + 0.5_f64).floor())
+                    };
+                    self.random_state ^= self.random_state << 13;
+                    self.random_state ^= self.random_state >> 7;
+                    self.random_state ^= self.random_state << 17;
+                    let unit = (self.random_state >> 11) as f64 / ((1u64 << 53) as f64);
+                    (unit * (b - a + 1.0)).floor() + a
+                }
+                ExprOp::ListItem(list, false) => {
+                    let index = values.pop().unwrap();
+                    self.check_list_index(index);
+                    self.resolve_list(list).map_or(f64::NAN, |list| {
+                        let list = list.borrow();
+                        read_list_index(index, list.len(), self.program.semantics)
+                            .and_then(|i| list.get(i))
+                            .map_or(f64::NAN, Cell::number)
+                    })
+                }
+                _ => self.operand(at, actor),
+            };
+            values.push(value);
+        }
+        values.pop().unwrap()
+    }
     #[inline(always)]
     fn operand(&mut self, pc: usize, actor: usize) -> f64 {
+        if self.program.deep_values.is_empty() {
+            self.operand_one::<false>(pc, actor)
+        } else {
+            self.operand_one::<true>(pc, actor)
+        }
+    }
+    #[inline(always)]
+    fn operand_one<const CACHED: bool>(&mut self, pc: usize, actor: usize) -> f64 {
+        if CACHED
+            && let Some(value) = self
+                .evaluation_cache
+                .last_mut()
+                .and_then(|c| c.get_mut(&(false, pc)))
+                .and_then(VecDeque::pop_front)
+        {
+            return value.number();
+        }
         match self.program.expressions[pc] {
             ExprOp::Constant(n) => n,
             ExprOp::Slot(s) => self.slots[s],
-            _ => self.node(pc, actor),
+            _ => self.node_one::<CACHED>(pc, actor),
         }
     }
     #[inline(never)]
@@ -6212,7 +6495,148 @@ impl Engine {
             None
         }
     }
+    #[inline(always)]
     fn eval_value(&mut self, i: usize, actor: usize) -> Cell {
+        if self.program.deep_values.is_empty() {
+            self.eval_value_one::<true>(i, actor)
+        } else {
+            self.eval_value_one::<false>(i, actor)
+        }
+    }
+    fn eval_deep_value(&mut self, root: usize, actor: usize) -> Cell {
+        // Each frame retains already evaluated operands until its parent runs.
+        // A scoped queue (not a global memo) preserves duplicate evaluations,
+        // order, reporter side effects and nested scheduler re-entry.
+        let mut work = vec![((true, root), false)];
+        let mut output = Vec::new();
+        while let Some((key, exit)) = work.pop() {
+            let children = self.evaluation_children(key);
+            if !exit && !children.is_empty() {
+                work.push((key, true));
+                work.extend(children.into_iter().rev().map(|key| (key, false)));
+                continue;
+            }
+            let mut cache: BTreeMap<_, VecDeque<_>> = BTreeMap::new();
+            let start = output.len() - children.len();
+            for (child, value) in children.into_iter().zip(output.drain(start..)) {
+                cache.entry(child).or_default().push_back(value);
+            }
+            self.evaluation_cache.push(cache);
+            let value = if key.0 {
+                self.eval_value_one::<true>(key.1, actor)
+            } else {
+                Cell::Number(self.node_shallow(key.1, actor))
+            };
+            self.evaluation_cache.pop();
+            output.push(value);
+        }
+        output.pop().unwrap()
+    }
+    fn node_shallow(&mut self, pc: usize, actor: usize) -> f64 {
+        match self.program.expressions[pc] {
+            ExprOp::Binary(op) => {
+                let right = pc - 1;
+                let left = self.program.expression_starts[right] as usize - 1;
+                let a = self.operand(left, actor);
+                let b = self.operand(right, actor);
+                op.apply(a, b)
+            }
+            ExprOp::Unary(op) => {
+                let a = self.operand(pc - 1, actor);
+                op.apply(a)
+            }
+            _ => self.node_slow(pc, actor),
+        }
+    }
+    fn evaluation_children(&self, key: (bool, usize)) -> Vec<(bool, usize)> {
+        let mut children = Vec::new();
+        if !key.0 {
+            match self.program.expressions[key.1] {
+                ExprOp::Binary(_) | ExprOp::Random => {
+                    let right = key.1 - 1;
+                    children.push((false, self.program.expression_starts[right] as usize - 1));
+                    children.push((false, right));
+                }
+                ExprOp::Unary(_) | ExprOp::ListItem(_, false) => children.push((false, key.1 - 1)),
+                ExprOp::Value(i) | ExprOp::Truth(i) | ExprOp::TextLength(i) => {
+                    children.push((true, i))
+                }
+                _ => {}
+            }
+            match self.program.expressions[key.1] {
+                ExprOp::ListItem(ListRef::Expression(i), _)
+                | ExprOp::ListLength(ListRef::Expression(i)) => children.push((true, i as usize)),
+                _ => {}
+            }
+            return children;
+        }
+        let expression = |e: Expr| (false, e.end as usize - 1);
+        let list = |r: ListRef| match r {
+            ListRef::Expression(i) => Some((true, i as usize)),
+            _ => None,
+        };
+        match self.program.values[key.1] {
+            ValueExpr::Number(e)
+            | ValueExpr::CloneProperty(_, e, _)
+            | ValueExpr::ActorVariable(_, _, Some(e)) => children.push(expression(e)),
+            ValueExpr::Received(i)
+            | ValueExpr::Whole(i)
+            | ValueExpr::Calculate(i)
+            | ValueExpr::Convert(i, _)
+            | ValueExpr::Kitten4Convert(i, _)
+            | ValueExpr::Not(i)
+            | ValueExpr::Boolean(i)
+            | ValueExpr::IsNumber(i, _)
+            | ValueExpr::Encode64(i)
+            | ValueExpr::Decode64(i)
+            | ValueExpr::ParseFloat(i)
+            | ValueExpr::K4Screen(i, _) => children.push((true, i)),
+            ValueExpr::Contains(a, b)
+            | ValueExpr::Kitten4Add(a, b)
+            | ValueExpr::Split(a, b)
+            | ValueExpr::ParseInt(a, b)
+            | ValueExpr::Compare(a, b, _)
+            | ValueExpr::Logic(a, b, _) => children.extend([(true, a), (true, b)]),
+            ValueExpr::Ternary(c, a, b) => children.extend([(true, c), (true, a), (true, b)]),
+            ValueExpr::List(r) => children.extend(list(r)),
+            ValueExpr::Find(r, i, _) => {
+                children.push((true, i));
+                children.extend(list(r));
+            }
+            ValueExpr::Item(r, e) | ValueExpr::CloudItem(r, e) => {
+                children.extend(e.map(expression));
+                children.extend(list(r));
+            }
+            ValueExpr::Join(span) | ValueExpr::Temporary(span) => children.extend(
+                (span.start..span.start + span.len)
+                    .map(|i| (true, self.program.value_args[i as usize])),
+            ),
+            ValueExpr::Select(i, a, b) => {
+                children.extend([(true, i), expression(a)]);
+                if !self.program.single_text_selects.contains(&key.1) {
+                    children.push(expression(b));
+                }
+            }
+            _ => {}
+        }
+        children
+    }
+    fn eval_value_one<const PREPARED: bool>(&mut self, i: usize, actor: usize) -> Cell {
+        // Keep dispatch and the ordinary evaluator in one function. The deep
+        // walker specializes away this prelude after preparing its operands.
+        if !PREPARED {
+            if let Some(value) = self
+                .evaluation_cache
+                .last_mut()
+                .and_then(|c| c.get_mut(&(true, i)))
+                .and_then(VecDeque::pop_front)
+            {
+                return value;
+            }
+            if self.program.deep_values.contains(&i) {
+                return self.eval_deep_value(i, actor);
+            }
+        }
         // Only strings/list references are cloned; numeric expressions stay unboxed.
         match self.program.values[i] {
             ValueExpr::Kitten4Add(a, b) => {

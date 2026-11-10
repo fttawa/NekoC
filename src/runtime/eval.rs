@@ -23,16 +23,104 @@ impl<'a> Runtime<'a> {
         script_values: &BTreeMap<String, RuntimeValue>,
         procedure_values: &BTreeMap<String, RuntimeValue>,
     ) -> RuntimeValue {
+        let Some(root) = block else {
+            return RuntimeValue::Null;
+        };
+        self.eval_one(
+            Some(root),
+            owner_id,
+            range_values,
+            script_values,
+            procedure_values,
+            None,
+            0,
+        )
+    }
+
+    fn eval_deep(
+        &self,
+        root: &Value,
+        owner_id: Option<&str>,
+        range_values: &BTreeMap<String, RuntimeValue>,
+        script_values: &BTreeMap<String, RuntimeValue>,
+        procedure_values: &BTreeMap<String, RuntimeValue>,
+    ) -> RuntimeValue {
+        let mut work = vec![(root, false)];
+        let mut values = BTreeMap::new();
+        while let Some((node, exit)) = work.pop() {
+            if !exit {
+                work.push((node, true));
+                work.extend(
+                    node["inputs"]
+                        .as_object()
+                        .into_iter()
+                        .flat_map(|o| o.values())
+                        .rev()
+                        .map(|v| (v, false)),
+                );
+                continue;
+            }
+            let value = self.eval_one(
+                Some(node),
+                owner_id,
+                range_values,
+                script_values,
+                procedure_values,
+                Some(&values),
+                0,
+            );
+            for child in node["inputs"]
+                .as_object()
+                .into_iter()
+                .flat_map(|o| o.values())
+            {
+                values.remove(&(child as *const Value as usize));
+            }
+            values.insert(node as *const Value as usize, value);
+        }
+        values.remove(&(root as *const Value as usize)).unwrap()
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn eval_one(
+        &self,
+        block: Option<&Value>,
+        owner_id: Option<&str>,
+        range_values: &BTreeMap<String, RuntimeValue>,
+        script_values: &BTreeMap<String, RuntimeValue>,
+        procedure_values: &BTreeMap<String, RuntimeValue>,
+        evaluated: Option<&BTreeMap<usize, RuntimeValue>>,
+        depth: usize,
+    ) -> RuntimeValue {
         let Some(block) = block else {
             return RuntimeValue::Null;
         };
-        let eval = |block| {
-            self.eval_for_context(
+        if depth >= 64 && evaluated.is_none() {
+            return self.eval_deep(
                 block,
                 owner_id,
                 range_values,
                 script_values,
                 procedure_values,
+            );
+        }
+        let eval = |block: Option<&Value>| {
+            if let Some(values) = evaluated {
+                return block
+                    .and_then(|b| values.get(&(b as *const Value as usize)))
+                    .cloned()
+                    .unwrap_or(RuntimeValue::Null);
+            }
+            // Ordinary reporters stay allocation-free; switch to the heap
+            // evaluator only after a bounded number of recursive frames.
+            self.eval_one(
+                block,
+                owner_id,
+                range_values,
+                script_values,
+                procedure_values,
+                None,
+                depth + 1,
             )
         };
         match block_type(block).unwrap_or("") {

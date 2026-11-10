@@ -59,6 +59,94 @@ fn offline_matches_official_cloud_evidence_in_both_execution_modes() {
 }
 
 #[test]
+fn cloud_branches_survive_deep_statement_continuations() {
+    let evidence: Value =
+        serde_json::from_str(include_str!("../docs/kitten4-cloud-evidence.json")).unwrap();
+    for (case, expected) in evidence["cases"].as_object().unwrap() {
+        let source = nekoc::json::from_str(
+            &std::fs::read_to_string(format!("tests/fixtures/kitten4/cloud-{case}.bcm")).unwrap(),
+        )
+        .unwrap();
+        let mut project = kitten4::to_neko(&source).unwrap();
+        for section in ["scenes", "actors"] {
+            for owner in project[section][format!("{section}Dict")]
+                .as_object_mut()
+                .unwrap()
+                .values_mut()
+            {
+                for root in owner["nekoBlockJsonList"].as_array_mut().unwrap() {
+                    if let Some(body) = root.get_mut("next") {
+                        let mut value = body.take();
+                        for _ in 0..9900 {
+                            let mut parent = json!({"type":"warp","statements":{}});
+                            parent["statements"]["DO"] = value;
+                            value = parent;
+                        }
+                        *body = value;
+                    }
+                }
+            }
+        }
+        for jit in [false, true] {
+            let mut vm = Engine::new(Program::compile(&project).unwrap());
+            if !jit {
+                vm.disable_jit();
+            }
+            vm.start();
+            for expected in expected["variables"].as_array().unwrap() {
+                tick(&mut vm).unwrap();
+                assert_eq!(
+                    normalize(&vm.oracle_snapshot(1)["variables"]),
+                    normalize(expected),
+                    "{case}, jit={jit}"
+                );
+            }
+        }
+    }
+}
+
+#[test]
+fn cloud_item_and_ranking_reporters_follow_deep_value_edges() {
+    let source =
+        nekoc::json::from_str(include_str!("fixtures/kitten4/cloud-defaults.bcm")).unwrap();
+    for ranking in [false, true] {
+        let mut project = kitten4::to_neko(&source).unwrap();
+        let mut value = if ranking {
+            json!({"type":"kitten4::is_ranking_show_hide","fields":{"VAL":"hide"}})
+        } else {
+            json!({"type":"kitten4::cloud_lists_get_value","fields":{"VAR":"items","TYPE":"nth"},"inputs":{"INDEX":{"type":"math_number","fields":{"NUM":1}}}})
+        };
+        for _ in 0..9998 {
+            let mut parent = json!({"type":"convert_type","fields":{"type":"string"},"inputs":{}});
+            parent["inputs"]["text"] = value;
+            value = parent;
+        }
+        let actor = project["actors"]["actorsDict"]
+            .as_object_mut()
+            .unwrap()
+            .values_mut()
+            .next()
+            .unwrap();
+        nekoc::json::discard(actor["nekoBlockJsonList"].take());
+        let mut hat = json!({"id":"deep-cloud","type":"on_running_group_activated","next":{"type":"variables_set","fields":{"variable":"public"},"inputs":{}}});
+        hat["next"]["inputs"]["value"] = value;
+        actor["nekoBlockJsonList"] = Value::Array(vec![hat]);
+        for jit in [false, true] {
+            let mut vm = Engine::new(Program::compile(&project).unwrap());
+            if !jit {
+                vm.disable_jit();
+            }
+            vm.start();
+            tick(&mut vm).unwrap();
+            assert_eq!(
+                vm.variable_text("public"),
+                if ranking { "true" } else { "" }
+            );
+        }
+    }
+}
+
+#[test]
 fn explicit_memory_profile_persists_only_cloud_and_separates_private_identities() {
     let backend = Arc::new(MemoryCloudBackend::default());
     let mut writer = engine("writes");

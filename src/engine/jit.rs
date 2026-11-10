@@ -190,47 +190,39 @@ impl Engine {
         let start = self.program.expression_starts[root] as usize;
         (start..=root).all(|pc| match self.program.expressions[pc] {
             ExprOp::Value(i) | ExprOp::Truth(i) | ExprOp::TextLength(i) => self.jit_pure_value(i),
+            ExprOp::ListItem(ListRef::Expression(i), _)
+            | ExprOp::ListLength(ListRef::Expression(i)) => self.jit_pure_value(i as usize),
             _ => true,
         })
     }
 
     fn jit_pure_value(&self, i: usize) -> bool {
-        let expr = |e: Expr| self.jit_pure_expr(e.end as usize - 1);
-        let span = |parts: super::Span| {
-            (parts.start..parts.start + parts.len)
-                .all(|k| self.jit_pure_value(self.program.value_args[k as usize]))
-        };
-        match self.program.values[i] {
-            ValueExpr::CallReturn(..)
-            | ValueExpr::Boolean(..)
-            | ValueExpr::Encode64(..)
-            | ValueExpr::Decode64(..)
-            | ValueExpr::ParseFloat(..)
-            | ValueExpr::IsNumber(..)
-            | ValueExpr::ParseInt(..) => false,
-            // Entity reads can report scope/clone errors. Keep them in the interpreter;
-            // the unchanged numeric global-slot path remains eligible for native code.
-            ValueExpr::ActorVariable(..) => false,
-            ValueExpr::Number(e) => expr(e),
-            ValueExpr::Item(_, e) => e.is_none_or(expr),
-            ValueExpr::Received(a)
-            | ValueExpr::Convert(a, _)
-            | ValueExpr::Kitten4Convert(a, _)
-            | ValueExpr::Not(a) => self.jit_pure_value(a),
-            ValueExpr::Find(_, a, _) => self.jit_pure_value(a),
-            ValueExpr::Contains(a, b)
-            | ValueExpr::Kitten4Add(a, b)
-            | ValueExpr::Split(a, b)
-            | ValueExpr::Compare(a, b, _)
-            | ValueExpr::Logic(a, b, _) => self.jit_pure_value(a) && self.jit_pure_value(b),
-            ValueExpr::Ternary(a, b, c) => {
-                self.jit_pure_value(a) && self.jit_pure_value(b) && self.jit_pure_value(c)
+        self.jit_pure_tree((true, i))
+    }
+
+    fn jit_pure_tree(&self, root: (bool, usize)) -> bool {
+        let mut pending = vec![root];
+        while let Some(key) = pending.pop() {
+            if key.0
+                && matches!(
+                    self.program.values[key.1],
+                    ValueExpr::CallReturn(..)
+                        | ValueExpr::Boolean(..)
+                        | ValueExpr::Encode64(..)
+                        | ValueExpr::Decode64(..)
+                        | ValueExpr::ParseFloat(..)
+                        | ValueExpr::IsNumber(..)
+                        | ValueExpr::ParseInt(..)
+                        // Entity reads can report scope/clone errors; globals
+                        // retain their unchanged native indexed-slot path.
+                        | ValueExpr::ActorVariable(..)
+                )
+            {
+                return false;
             }
-            ValueExpr::Join(parts) | ValueExpr::Temporary(parts) => span(parts),
-            ValueExpr::Select(a, x, y) => self.jit_pure_value(a) && expr(x) && expr(y),
-            ValueExpr::CloneProperty(_, e, _) => expr(e),
-            _ => true,
+            pending.extend(self.evaluation_children(key));
         }
+        true
     }
 
     /// Non-suspending ops native code delegates to `exec`.
@@ -549,33 +541,81 @@ impl Gen<'_, '_> {
     }
 
     fn expr(&mut self, pc: usize) -> Value {
+        // Avoid heap traversal for the usual tiny numeric expression. Postfix
+        // span bounds this recursion; mixed-value roots cannot inline deep trees.
+        if pc - (self.engine.program.expression_starts[pc] as usize) < 64 {
+            return match self.engine.program.expressions[pc] {
+                ExprOp::Binary(op) => {
+                    let right = pc - 1;
+                    let left = self.engine.program.expression_starts[right] as usize - 1;
+                    let a = self.expr(left);
+                    let b = self.expr(right);
+                    self.binary(op, a, b)
+                }
+                ExprOp::Unary(op) => {
+                    let a = self.expr(pc - 1);
+                    self.unary(op, a)
+                }
+                // Global indexed reads and other helpers use the common
+                // explicit-stack path below to preserve operand order.
+                ExprOp::ListItem(ListRef::Global(_), false) => self.expr_iterative(pc),
+                _ => self.expr_leaf(pc),
+            };
+        }
+        self.expr_iterative(pc)
+    }
+    fn expr_iterative(&mut self, pc: usize) -> Value {
+        let mut work = vec![(pc, false)];
+        let mut values = Vec::new();
+        while let Some((at, exit)) = work.pop() {
+            if !exit {
+                match self.engine.program.expressions[at] {
+                    ExprOp::Binary(_) => {
+                        let right = at - 1;
+                        let left = self.engine.program.expression_starts[right] as usize - 1;
+                        work.extend([(at, true), (right, false), (left, false)]);
+                        continue;
+                    }
+                    ExprOp::Unary(_) | ExprOp::ListItem(ListRef::Global(_), false) => {
+                        work.extend([(at, true), (at - 1, false)]);
+                        continue;
+                    }
+                    _ => {}
+                }
+            }
+            let value = match self.engine.program.expressions[at] {
+                ExprOp::Binary(op) => {
+                    let b = values.pop().unwrap();
+                    let a = values.pop().unwrap();
+                    self.binary(op, a, b)
+                }
+                ExprOp::Unary(op) => {
+                    let a = values.pop().unwrap();
+                    self.unary(op, a)
+                }
+                ExprOp::ListItem(ListRef::Global(list), false) => {
+                    let at = values.pop().unwrap();
+                    let list = self.b.ins().iconst(types::I64, list as i64);
+                    let ctx = self.ctx;
+                    self.call(
+                        h_list_item as *const () as usize,
+                        &[types::I64, types::I64, types::F64],
+                        Some(types::F64),
+                        &[ctx, list, at],
+                    )
+                    .unwrap()
+                }
+                _ => self.expr_leaf(at),
+            };
+            values.push(value);
+        }
+        values.pop().unwrap()
+    }
+    fn expr_leaf(&mut self, pc: usize) -> Value {
         match self.engine.program.expressions[pc] {
             ExprOp::Constant(n) => self.b.ins().f64const(n),
             ExprOp::Slot(s) => self.load(self.slots, s),
             ExprOp::Local(s) => self.load(self.locals, s),
-            ExprOp::Binary(op) => {
-                let right = pc - 1;
-                let left = self.engine.program.expression_starts[right] as usize - 1;
-                let a = self.expr(left);
-                let b = self.expr(right);
-                self.binary(op, a, b)
-            }
-            ExprOp::Unary(op) => {
-                let a = self.expr(pc - 1);
-                self.unary(op, a)
-            }
-            ExprOp::ListItem(ListRef::Global(list), false) => {
-                let at = self.expr(pc - 1);
-                let list = self.b.ins().iconst(types::I64, list as i64);
-                let ctx = self.ctx;
-                self.call(
-                    h_list_item as *const () as usize,
-                    &[types::I64, types::I64, types::F64],
-                    Some(types::F64),
-                    &[ctx, list, at],
-                )
-                .unwrap()
-            }
             ExprOp::Truth(i) if self.truth_tree(i, &mut Vec::new()) => self.guarded(
                 pc,
                 |g| {
@@ -610,6 +650,11 @@ impl Gen<'_, '_> {
 
     /// Classifies a value as numeric, recording which variables must be unboxed.
     fn numeric(&self, i: usize, guards: &mut Vec<(bool, usize)>) -> Option<Numeric> {
+        // Deep mixed-value trees use the heap evaluator through h_node rather
+        // than recursively inlining Number -> Value -> Number chains.
+        if self.engine.program.deep_values.contains(&i) {
+            return None;
+        }
         match self.engine.program.values[i] {
             ValueExpr::Number(e) => Some(Numeric::Expr(e.end as usize - 1)),
             ValueExpr::Constant(c) => match self.engine.program.constants[c] {
@@ -630,18 +675,29 @@ impl Gen<'_, '_> {
 
     /// Whether the truth of this value is computable from numbers alone.
     fn truth_tree(&self, i: usize, guards: &mut Vec<(bool, usize)>) -> bool {
-        match self.engine.program.values[i] {
-            ValueExpr::Compare(a, b, op) => {
-                matches!(
-                    op,
-                    Binary::Eq | Binary::Ne | Binary::Lt | Binary::Le | Binary::Gt | Binary::Ge
-                ) && self.numeric(a, guards).is_some()
-                    && self.numeric(b, guards).is_some()
+        let mut pending = vec![i];
+        while let Some(i) = pending.pop() {
+            match self.engine.program.values[i] {
+                ValueExpr::Compare(a, b, op) => {
+                    if !(matches!(
+                        op,
+                        Binary::Eq | Binary::Ne | Binary::Lt | Binary::Le | Binary::Gt | Binary::Ge
+                    ) && self.numeric(a, guards).is_some()
+                        && self.numeric(b, guards).is_some())
+                    {
+                        return false;
+                    }
+                }
+                ValueExpr::Not(a) => pending.push(a),
+                ValueExpr::Logic(a, b, _) => pending.extend([b, a]),
+                _ => {
+                    if self.numeric(i, guards).is_none() {
+                        return false;
+                    }
+                }
             }
-            ValueExpr::Not(a) => self.truth_tree(a, guards),
-            ValueExpr::Logic(a, b, _) => self.truth_tree(a, guards) && self.truth_tree(b, guards),
-            _ => self.numeric(i, guards).is_some(),
         }
+        true
     }
 
     fn numeric_value(&mut self, value: Numeric) -> Value {
@@ -654,41 +710,58 @@ impl Gen<'_, '_> {
     }
 
     fn truth_flag(&mut self, i: usize) -> Value {
-        match self.engine.program.values[i] {
-            ValueExpr::Compare(a, b, op) => {
-                let a = self.numeric(a, &mut Vec::new()).unwrap();
-                let b = self.numeric(b, &mut Vec::new()).unwrap();
-                let a = self.numeric_value(a);
-                let b = self.numeric_value(b);
-                let cc = match op {
-                    Binary::Eq => FloatCC::Equal,
-                    Binary::Ne => FloatCC::NotEqual,
-                    Binary::Lt => FloatCC::LessThan,
-                    Binary::Le => FloatCC::LessThanOrEqual,
-                    Binary::Gt => FloatCC::GreaterThan,
-                    _ => FloatCC::GreaterThanOrEqual,
-                };
-                self.b.ins().fcmp(cc, a, b)
-            }
-            ValueExpr::Not(a) => {
-                let flag = self.truth_flag(a);
-                self.b.ins().bxor_imm(flag, 1)
-            }
-            ValueExpr::Logic(a, b, and) => {
-                let a = self.truth_flag(a);
-                let b = self.truth_flag(b);
-                if and {
-                    self.b.ins().band(a, b)
-                } else {
-                    self.b.ins().bor(a, b)
+        let mut pending = vec![(i, false)];
+        let mut output = Vec::new();
+        while let Some((i, exit)) = pending.pop() {
+            if !exit {
+                pending.push((i, true));
+                match self.engine.program.values[i] {
+                    ValueExpr::Not(a) => pending.push((a, false)),
+                    ValueExpr::Logic(a, b, _) => pending.extend([(b, false), (a, false)]),
+                    _ => {}
                 }
+                continue;
             }
-            _ => {
-                let n = self.numeric(i, &mut Vec::new()).unwrap();
-                let v = self.numeric_value(n);
-                self.truth(v)
-            }
+            let value = match self.engine.program.values[i] {
+                ValueExpr::Compare(a, b, op) => {
+                    let a = self.numeric(a, &mut Vec::new()).unwrap();
+                    let b = self.numeric(b, &mut Vec::new()).unwrap();
+                    let a = self.numeric_value(a);
+                    let b = self.numeric_value(b);
+                    let cc = match op {
+                        Binary::Eq => FloatCC::Equal,
+                        Binary::Ne => FloatCC::NotEqual,
+                        Binary::Lt => FloatCC::LessThan,
+                        Binary::Le => FloatCC::LessThanOrEqual,
+                        Binary::Gt => FloatCC::GreaterThan,
+                        _ => FloatCC::GreaterThanOrEqual,
+                    };
+                    self.b.ins().fcmp(cc, a, b)
+                }
+                ValueExpr::Not(a) => {
+                    let _ = a;
+                    let flag = output.pop().unwrap();
+                    self.b.ins().bxor_imm(flag, 1)
+                }
+                ValueExpr::Logic(a, b, and) => {
+                    let _ = (a, b);
+                    let b = output.pop().unwrap();
+                    let a = output.pop().unwrap();
+                    if and {
+                        self.b.ins().band(a, b)
+                    } else {
+                        self.b.ins().bor(a, b)
+                    }
+                }
+                _ => {
+                    let n = self.numeric(i, &mut Vec::new()).unwrap();
+                    let v = self.numeric_value(n);
+                    self.truth(v)
+                }
+            };
+            output.push(value);
         }
+        output.pop().unwrap()
     }
 
     /// Branches to `slow` unless every listed variable is unboxed.
@@ -1367,7 +1440,141 @@ fn compile(jit: &mut Jit, engine: &Engine, entry: usize) -> Option<Region> {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn ten_thousand_numeric_and_truth_nodes_compile_native_regions() {
+        use super::super::{ExprOp, Program, Unary};
+        use serde_json::json;
+        let mut project =
+            crate::json::from_str(include_str!("../../samples/native-studio.bcmkn")).unwrap();
+        for section in ["scenes", "actors", "procedures"] {
+            let dict = format!("{section}Dict");
+            for owner in project[section][&dict]
+                .as_object_mut()
+                .into_iter()
+                .flat_map(|o| o.values_mut())
+            {
+                crate::json::discard(owner["nekoBlockJsonList"].take());
+                owner["nekoBlockJsonList"] = json!([]);
+            }
+        }
+        let mut program = Program::compile(&project).unwrap();
+        program.expressions = vec![ExprOp::Constant(7.0)];
+        program
+            .expressions
+            .extend(std::iter::repeat_n(ExprOp::Unary(Unary::Neg), 10000));
+        program.expression_starts = super::super::expression_starts(&program.expressions).unwrap();
+        program.initial = vec![0.0];
+        program.initial_values = vec![None];
+        program.ops = vec![
+            super::Op::Set(0, super::Expr { end: 10001 }),
+            super::Op::Halt,
+        ];
+        program.sources = vec!["deep".into(); 2];
+        let mut engine = super::Engine::new(program);
+        assert_eq!(engine.node(10000, 0), 7.0);
+        if engine.jit.is_none() {
+            return;
+        }
+        engine.jit_compile(0);
+        assert!(engine.jit.as_ref().unwrap().regions[0].is_some());
+        engine.program.scripts.push(super::super::Script {
+            hat: "deep-native".into(),
+            actor: 0,
+            event: super::super::ScriptEvent::Start,
+            start: 0,
+        });
+        engine.start();
+        engine
+            .advance(1.0 / 60.0, 100_000, std::time::Duration::from_secs(60))
+            .unwrap();
+        assert_eq!(engine.slots[0], 7.0);
+        engine.program.values = vec![super::ValueExpr::Constant(0)];
+        engine.program.constants = vec![super::Cell::Number(1.0)];
+        for i in 0..10000 {
+            engine.program.values.push(super::ValueExpr::Not(i));
+        }
+        // Match the compiler's marking of deep mixed-value trees: the cold
+        // instruction before native dispatch must also use the heap evaluator.
+        engine.program.deep_values.insert(10000);
+        engine.program.expressions = vec![ExprOp::Truth(10000)];
+        engine.program.expression_starts = vec![0];
+        engine.program.ops[0] = super::Op::Set(0, super::Expr { end: 1 });
+        engine.jit_compile(0);
+        assert!(engine.jit.as_ref().unwrap().regions[0].is_some());
+        engine.start();
+        engine
+            .advance(1.0 / 60.0, 100_000, std::time::Duration::from_secs(60))
+            .unwrap();
+        assert_eq!(engine.slots[0], 1.0);
+    }
     use super::*;
+
+    #[test]
+    fn deep_kitten4_add_uses_heap_evaluation_and_checks_descendant_purity() {
+        let source = crate::json::from_str(include_str!(
+            "../../tests/fixtures/kitten4/runerr-addition.bcm"
+        ))
+        .unwrap();
+        let project = crate::kitten4::to_neko(&source).unwrap();
+        let mut engine = Engine::new(super::super::Program::compile(&project).unwrap());
+        engine.program.constants = vec![super::Cell::Number(1.0)];
+        engine.program.values = vec![ValueExpr::Constant(0)];
+        for i in 0..10000 {
+            engine.program.values.push(ValueExpr::Kitten4Add(i, 0));
+        }
+        engine.program.deep_values.insert(10000);
+        engine.program.expressions = vec![ExprOp::Value(10000)];
+        engine.program.expression_starts = vec![0];
+        engine.program.ops = vec![Op::Set(0, Expr { end: 1 }), Op::Halt];
+        engine.program.sources = vec!["deep-add".into(); 2];
+        assert!(engine.jit_pure_value(10000));
+        assert_eq!(engine.node(0, 0), 10001.0);
+        if engine.jit.is_some() {
+            engine.jit_compile(0);
+            assert!(engine.jit.as_ref().unwrap().regions[0].is_some());
+            engine.program.scripts.truncate(1);
+            engine.program.scripts[0].start = 0;
+            engine.start();
+            engine
+                .advance(1.0 / 60.0, 100_000, std::time::Duration::from_secs(60))
+                .unwrap();
+            assert_eq!(engine.slots[0], 10001.0);
+        }
+        // An impure leaf below ten thousand ADDs must not be hidden by the new
+        // variant. Do not execute this deliberately synthetic reporter call.
+        engine.program.values[0] = ValueExpr::CallReturn(0, 0);
+        assert!(!engine.jit_pure_value(10000));
+    }
+
+    #[test]
+    fn iterative_random_keeps_platform_endpoint_policy_and_draw_count() {
+        let source = crate::json::from_str(include_str!(
+            "../../tests/fixtures/kitten4/runerr-random.bcm"
+        ))
+        .unwrap();
+        let project = crate::kitten4::to_neko(&source).unwrap();
+        for semantics in [RuntimeSemantics::Kitten4, RuntimeSemantics::KnCurrent] {
+            let mut engine = Engine::new(super::super::Program::compile(&project).unwrap());
+            engine.program.semantics = semantics;
+            engine.program.expressions = vec![
+                ExprOp::Constant(0.25),
+                ExprOp::Constant(10.75),
+                ExprOp::Random,
+            ];
+            engine.program.expressions.extend(std::iter::repeat_n(
+                ExprOp::Unary(super::super::Unary::Neg),
+                10000,
+            ));
+            engine.program.expression_starts =
+                super::super::expression_starts(&engine.program.expressions).unwrap();
+            engine.set_random_seed(42);
+            let shallow = engine.node(2, 0);
+            let state = engine.random_state;
+            engine.set_random_seed(42);
+            assert_eq!(engine.node(10002, 0), shallow);
+            assert_eq!(engine.random_state, state);
+        }
+    }
 
     #[test]
     fn k4_warp_body_is_native_but_suspends_at_the_official_boundary() {
