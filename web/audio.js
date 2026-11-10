@@ -13,6 +13,10 @@ export class ProjectAudio {
     if(typeof value==='number')return this.resources[this.order[Math.round(value)-1]];
     return this.resources[value]||Object.values(this.resources).find(audio=>audio.name===value);
   }
+  resolveMany(value){
+    if(value==='all')return Object.values(this.resources);
+    return [this.resolve(value)].filter(Boolean);
+  }
   play(voice){
     void voice.element.play().catch(error=>{
       if(!voice.wanted||this.paused||error.name==='AbortError')return;
@@ -21,16 +25,22 @@ export class ProjectAudio {
   }
   apply(frame){
     for(const command of frame.audio_commands||[]){
+      if(command.property){
+        const {rate,change,value}=command.property;
+        for(const resource of this.resolveMany(command.audio)){
+          let voice=this.voices.get(resource.id);
+          if(!voice){voice=this.createVoice(resource);}
+          const key=rate?'playbackRate':'volume',min=rate?0.05:0,max=rate?4:1;
+          voice.element[key]=Math.min(max,Math.max(min,(change?voice.element[key]:0)+value));
+        }
+        continue;
+      }
       const resource=this.resolve(command.audio);
       if(!resource){this.onError(`找不到音频：${command.audio}`);if(command.wait)this.onDone(command.wait);continue;}
       let voice=this.voices.get(resource.id);
       if(command.play){
         if(!voice){
-          const element=new Audio(resource.url);element.preload='auto';
-          voice={element,wanted:false};this.voices.set(resource.id,voice);
-          element.onended=()=>{voice.wanted=false;for(const id of voice.waits.splice(0))this.onDone(id);};
-          element.onerror=()=>{for(const id of voice.waits.splice(0))this.onDone(id);};
-          voice.waits=[];
+          voice=this.createVoice(resource);
         }
         // Restarting a sound ends earlier play-and-wait blocks on it.
         for(const id of voice.waits.splice(0))this.onDone(id);
@@ -39,6 +49,13 @@ export class ProjectAudio {
         if(!this.paused)this.play(voice);
       }else if(voice){voice.wanted=false;voice.element.pause();voice.element.currentTime=0;for(const id of voice.waits.splice(0))this.onDone(id);}
     }
+  }
+  createVoice(resource){
+    const element=new Audio(resource.url);element.preload='auto';
+    const voice={element,wanted:false,waits:[]};this.voices.set(resource.id,voice);
+    element.onended=()=>{voice.wanted=false;for(const id of voice.waits.splice(0))this.onDone(id);};
+    element.onerror=()=>{for(const id of voice.waits.splice(0))this.onDone(id);};
+    return voice;
   }
   pause(){this.paused=true;for(const voice of this.voices.values())voice.element.pause();}
   resume(){this.paused=false;for(const voice of this.voices.values())if(voice.wanted)this.play(voice);}
