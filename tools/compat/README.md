@@ -97,6 +97,13 @@ oracle `--random-source nekoc` 仅在 random 积木调用内注入 NekoC xorshif
 默认 `pcg` 不变；随机位置/朝向目标不受此选项覆盖。
 详细证据、夹具和多 seed coverage 命令见 [kitten4-run-errors.md](../../docs/kitten4-run-errors.md)。
 
+K4 partial 第二轮的 41 份仓库原创离线探针与保留边界：
+[物理控制](../../docs/kitten4-physics-partial.md)、
+[云变量/列表](../../docs/kitten4-partial-cloud-2.md)、
+[印章/画笔尺寸/过渡](../../docs/kitten4-partial-drawing.md)、
+[文本搜索/媒体默认值](../../docs/kitten4-partial-text-2.md)。
+有限分支实测不等于完整兼容；这些类型仍保留 partial。
+
 ## 联网、安全与未验证范围
 
 默认外部 HTTP、WebSocket、Service Worker 均禁用；记录所有外部请求的方法、URL、类型和动作。

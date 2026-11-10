@@ -48,6 +48,11 @@
 
 ## 积木语义
 
+> 本节是早期现代物理调查记录。第二轮固定离线 `.orig` 实测补充见
+> [kitten4-physics-partial.md](kitten4-physics-partial.md)：旧 `set_actor_as(exit)`
+> 和现代 `physics2_set_actor_as(exit)` 不同，前者立即 static 清速；现代 forceable
+> 变化在 ticker、body 启用时才应用底层类型。禁用的动态体保速，不等于静态体保速。
+
 由 `Tn6a.Ae` / `HP1x.nt` 核对：
 
 - 每种物理积木都可能惰性创建角色刚体。`set_actor_as(exit)` 仅关闭碰撞；保持 forceable 时是动态 sensor，不是退出 world。

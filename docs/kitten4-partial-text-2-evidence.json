@@ -1,0 +1,1285 @@
+{
+  "schema": "nekoc-k4-partial-text-2-evidence-v1",
+  "scope": "offline original fixtures; no credentials, hardware or allowed external requests",
+  "cases": {
+    "search": {
+      "status": "completed",
+      "sha256": "fc30b1df22e6db6fb98da8e2a84218e1be31b38d82ccf8fd77b0a114129a1a9e",
+      "variables": [
+        {
+          "FIRST-repeat": 1,
+          "FIRST-missing": 0,
+          "FIRST-utf16-a": 4,
+          "FIRST-utf16-emoji": 2,
+          "FIRST-utf16-empty": 1,
+          "FIRST-empty": 1,
+          "FIRST-empty-missing": 0,
+          "FIRST-longer": 0,
+          "FIRST-case": 0,
+          "FIRST-combining": 3,
+          "FIRST-number-find": 2,
+          "FIRST-boolean-find": 5,
+          "FIRST-array-find": 2,
+          "LAST-repeat": 3,
+          "LAST-missing": 0,
+          "LAST-utf16-a": 4,
+          "LAST-utf16-emoji": 7,
+          "LAST-utf16-empty": 3,
+          "LAST-empty": 1,
+          "LAST-empty-missing": 0,
+          "LAST-longer": 0,
+          "LAST-case": 0,
+          "LAST-combining": 3,
+          "LAST-number-find": 5,
+          "LAST-boolean-find": 5,
+          "LAST-array-find": 6
+        },
+        {
+          "FIRST-repeat": 1,
+          "FIRST-missing": 0,
+          "FIRST-utf16-a": 4,
+          "FIRST-utf16-emoji": 2,
+          "FIRST-utf16-empty": 1,
+          "FIRST-empty": 1,
+          "FIRST-empty-missing": 0,
+          "FIRST-longer": 0,
+          "FIRST-case": 0,
+          "FIRST-combining": 3,
+          "FIRST-number-find": 2,
+          "FIRST-boolean-find": 5,
+          "FIRST-array-find": 2,
+          "LAST-repeat": 3,
+          "LAST-missing": 0,
+          "LAST-utf16-a": 4,
+          "LAST-utf16-emoji": 7,
+          "LAST-utf16-empty": 3,
+          "LAST-empty": 1,
+          "LAST-empty-missing": 0,
+          "LAST-longer": 0,
+          "LAST-case": 0,
+          "LAST-combining": 3,
+          "LAST-number-find": 5,
+          "LAST-boolean-find": 5,
+          "LAST-array-find": 6
+        },
+        {
+          "FIRST-repeat": 1,
+          "FIRST-missing": 0,
+          "FIRST-utf16-a": 4,
+          "FIRST-utf16-emoji": 2,
+          "FIRST-utf16-empty": 1,
+          "FIRST-empty": 1,
+          "FIRST-empty-missing": 0,
+          "FIRST-longer": 0,
+          "FIRST-case": 0,
+          "FIRST-combining": 3,
+          "FIRST-number-find": 2,
+          "FIRST-boolean-find": 5,
+          "FIRST-array-find": 2,
+          "LAST-repeat": 3,
+          "LAST-missing": 0,
+          "LAST-utf16-a": 4,
+          "LAST-utf16-emoji": 7,
+          "LAST-utf16-empty": 3,
+          "LAST-empty": 1,
+          "LAST-empty-missing": 0,
+          "LAST-longer": 0,
+          "LAST-case": 0,
+          "LAST-combining": 3,
+          "LAST-number-find": 5,
+          "LAST-boolean-find": 5,
+          "LAST-array-find": 6
+        }
+      ],
+      "errors": [],
+      "observations": [
+        [],
+        [],
+        []
+      ],
+      "externalRequests": [
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/kitten",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/sysinfo",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/player-icons/mob%EF%BC%8Ficn_keyboard_nor.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/player-icons/mob_icn_reset.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        }
+      ],
+      "pageErrors": []
+    },
+    "array-value": {
+      "status": "completed",
+      "sha256": "0ed51ac1bd8c1b64e896232491bc7f09b26770b3fab720d2ebaa8e1bf0632b23",
+      "variables": [
+        {
+          "FIRST-array-hit": 2,
+          "FIRST-array-missing": 0,
+          "FIRST-array-empty": 0,
+          "FIRST-array-number": 1,
+          "FIRST-array-string": 0,
+          "LAST-array-hit": 2,
+          "LAST-array-missing": 0,
+          "LAST-array-empty": 0,
+          "LAST-array-number": 3,
+          "LAST-array-string": 0
+        },
+        {
+          "FIRST-array-hit": 2,
+          "FIRST-array-missing": 0,
+          "FIRST-array-empty": 0,
+          "FIRST-array-number": 1,
+          "FIRST-array-string": 0,
+          "LAST-array-hit": 2,
+          "LAST-array-missing": 0,
+          "LAST-array-empty": 0,
+          "LAST-array-number": 3,
+          "LAST-array-string": 0
+        },
+        {
+          "FIRST-array-hit": 2,
+          "FIRST-array-missing": 0,
+          "FIRST-array-empty": 0,
+          "FIRST-array-number": 1,
+          "FIRST-array-string": 0,
+          "LAST-array-hit": 2,
+          "LAST-array-missing": 0,
+          "LAST-array-empty": 0,
+          "LAST-array-number": 3,
+          "LAST-array-string": 0
+        }
+      ],
+      "errors": [],
+      "observations": [
+        [],
+        [],
+        []
+      ],
+      "externalRequests": [
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/kitten",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/sysinfo",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/player-icons/mob%EF%BC%8Ficn_keyboard_nor.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/player-icons/mob_icn_reset.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        }
+      ],
+      "pageErrors": []
+    },
+    "error-number-FIRST": {
+      "status": "runtime-error",
+      "sha256": "37db5a4d953095ca131553e4befccd5bc51f9f7e6668f1bc4ffd66ea5ef596a7",
+      "variables": [],
+      "errors": [
+        "{\"category\":{\"unique_code\":\"HEART.SYSTEM\",\"description\":\"Internal heart errors not caused by users\",\"default_http_code\":500},\"annotation\":{\"block_id\":\"generated-2\",\"block_type\":\"text_indexOf\",\"root_block_id\":\"text-start\",\"entity_id\":\"20000000-0000-4000-8000-000000000001\",\"interpreter_id\":\"__typeclass-20000000-0000-4000-8000-000000000001__instance-20000000-0000-4000-8000-000000000001__srbid-text-start__6872312510\",\"interpreter_stack\":[{\"interpreter_id\":\"__typeclass-20000000-0000-4000-8000-000000000001__instance-20000000-0000-4000-8000-000000000001__srbid-text-start__6872312510\",\"source_entity_id\":\"20000000-0000-4000-8000-000000000001\",\"source_map_rbid\":\"text-start\",\"proc_parameters\":{}}],\"source_map_rbid\":\"text-start\",\"source_entity_id\":\"20000000-0000-4000-8000-000000000001\"},\"where\":\"RuntimeManager::update, stepping code\"}"
+      ],
+      "observations": [
+        [
+          {
+            "before": 1,
+            "result": "unexecuted",
+            "after": "unexecuted"
+          }
+        ]
+      ],
+      "externalRequests": [
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/kitten",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/sysinfo",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        }
+      ],
+      "pageErrors": []
+    },
+    "error-number-LAST": {
+      "status": "runtime-error",
+      "sha256": "f75787cfb31b2b9bfd4836398a846cefa12bb5f02039ab64b9f37721e8d6d133",
+      "variables": [],
+      "errors": [
+        "{\"category\":{\"unique_code\":\"HEART.SYSTEM\",\"description\":\"Internal heart errors not caused by users\",\"default_http_code\":500},\"annotation\":{\"block_id\":\"generated-2\",\"block_type\":\"text_indexOf\",\"root_block_id\":\"text-start\",\"entity_id\":\"20000000-0000-4000-8000-000000000001\",\"interpreter_id\":\"__typeclass-20000000-0000-4000-8000-000000000001__instance-20000000-0000-4000-8000-000000000001__srbid-text-start__6872312510\",\"interpreter_stack\":[{\"interpreter_id\":\"__typeclass-20000000-0000-4000-8000-000000000001__instance-20000000-0000-4000-8000-000000000001__srbid-text-start__6872312510\",\"source_entity_id\":\"20000000-0000-4000-8000-000000000001\",\"source_map_rbid\":\"text-start\",\"proc_parameters\":{}}],\"source_map_rbid\":\"text-start\",\"source_entity_id\":\"20000000-0000-4000-8000-000000000001\"},\"where\":\"RuntimeManager::update, stepping code\"}"
+      ],
+      "observations": [
+        [
+          {
+            "before": 1,
+            "result": "unexecuted",
+            "after": "unexecuted"
+          }
+        ]
+      ],
+      "externalRequests": [
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/kitten",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/sysinfo",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        }
+      ],
+      "pageErrors": []
+    },
+    "error-boolean-FIRST": {
+      "status": "runtime-error",
+      "sha256": "5881edb343968a00b40b2e87e9266350dbe67ff5201eca18dd9e800f2ffa1403",
+      "variables": [],
+      "errors": [
+        "{\"category\":{\"unique_code\":\"HEART.SYSTEM\",\"description\":\"Internal heart errors not caused by users\",\"default_http_code\":500},\"annotation\":{\"block_id\":\"generated-2\",\"block_type\":\"text_indexOf\",\"root_block_id\":\"text-start\",\"entity_id\":\"20000000-0000-4000-8000-000000000001\",\"interpreter_id\":\"__typeclass-20000000-0000-4000-8000-000000000001__instance-20000000-0000-4000-8000-000000000001__srbid-text-start__6872312510\",\"interpreter_stack\":[{\"interpreter_id\":\"__typeclass-20000000-0000-4000-8000-000000000001__instance-20000000-0000-4000-8000-000000000001__srbid-text-start__6872312510\",\"source_entity_id\":\"20000000-0000-4000-8000-000000000001\",\"source_map_rbid\":\"text-start\",\"proc_parameters\":{}}],\"source_map_rbid\":\"text-start\",\"source_entity_id\":\"20000000-0000-4000-8000-000000000001\"},\"where\":\"RuntimeManager::update, stepping code\"}"
+      ],
+      "observations": [
+        [
+          {
+            "before": 1,
+            "result": "unexecuted",
+            "after": "unexecuted"
+          }
+        ]
+      ],
+      "externalRequests": [
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/kitten",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/sysinfo",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        }
+      ],
+      "pageErrors": []
+    },
+    "error-boolean-LAST": {
+      "status": "runtime-error",
+      "sha256": "234d79ed1a8f0461dd5c8a2f40e20b4e339d1305a11f886f7e5f4c58a1a27506",
+      "variables": [],
+      "errors": [
+        "{\"category\":{\"unique_code\":\"HEART.SYSTEM\",\"description\":\"Internal heart errors not caused by users\",\"default_http_code\":500},\"annotation\":{\"block_id\":\"generated-2\",\"block_type\":\"text_indexOf\",\"root_block_id\":\"text-start\",\"entity_id\":\"20000000-0000-4000-8000-000000000001\",\"interpreter_id\":\"__typeclass-20000000-0000-4000-8000-000000000001__instance-20000000-0000-4000-8000-000000000001__srbid-text-start__6872312510\",\"interpreter_stack\":[{\"interpreter_id\":\"__typeclass-20000000-0000-4000-8000-000000000001__instance-20000000-0000-4000-8000-000000000001__srbid-text-start__6872312510\",\"source_entity_id\":\"20000000-0000-4000-8000-000000000001\",\"source_map_rbid\":\"text-start\",\"proc_parameters\":{}}],\"source_map_rbid\":\"text-start\",\"source_entity_id\":\"20000000-0000-4000-8000-000000000001\"},\"where\":\"RuntimeManager::update, stepping code\"}"
+      ],
+      "observations": [
+        [
+          {
+            "before": 1,
+            "result": "unexecuted",
+            "after": "unexecuted"
+          }
+        ]
+      ],
+      "externalRequests": [
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/kitten",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/sysinfo",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        }
+      ],
+      "pageErrors": []
+    },
+    "error-object-FIRST": {
+      "status": "runtime-error",
+      "sha256": "a0b1643607c596e5d4ec7f46105d5f63ee92cbdbb03ab10645e299fe66888165",
+      "variables": [],
+      "errors": [
+        "{\"category\":{\"unique_code\":\"HEART.SYSTEM\",\"description\":\"Internal heart errors not caused by users\",\"default_http_code\":500},\"annotation\":{\"block_id\":\"generated-2\",\"block_type\":\"text_indexOf\",\"root_block_id\":\"text-start\",\"entity_id\":\"20000000-0000-4000-8000-000000000001\",\"interpreter_id\":\"__typeclass-20000000-0000-4000-8000-000000000001__instance-20000000-0000-4000-8000-000000000001__srbid-text-start__6872312510\",\"interpreter_stack\":[{\"interpreter_id\":\"__typeclass-20000000-0000-4000-8000-000000000001__instance-20000000-0000-4000-8000-000000000001__srbid-text-start__6872312510\",\"source_entity_id\":\"20000000-0000-4000-8000-000000000001\",\"source_map_rbid\":\"text-start\",\"proc_parameters\":{}}],\"source_map_rbid\":\"text-start\",\"source_entity_id\":\"20000000-0000-4000-8000-000000000001\"},\"where\":\"RuntimeManager::update, stepping code\"}"
+      ],
+      "observations": [
+        [
+          {
+            "before": 1,
+            "result": "unexecuted",
+            "after": "unexecuted"
+          }
+        ]
+      ],
+      "externalRequests": [
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/kitten",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/sysinfo",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        }
+      ],
+      "pageErrors": []
+    },
+    "error-object-LAST": {
+      "status": "runtime-error",
+      "sha256": "7b6506241399b1f0e2e5e7db986944630909c428c510146e1c49b96d7b696f52",
+      "variables": [],
+      "errors": [
+        "{\"category\":{\"unique_code\":\"HEART.SYSTEM\",\"description\":\"Internal heart errors not caused by users\",\"default_http_code\":500},\"annotation\":{\"block_id\":\"generated-2\",\"block_type\":\"text_indexOf\",\"root_block_id\":\"text-start\",\"entity_id\":\"20000000-0000-4000-8000-000000000001\",\"interpreter_id\":\"__typeclass-20000000-0000-4000-8000-000000000001__instance-20000000-0000-4000-8000-000000000001__srbid-text-start__6872312510\",\"interpreter_stack\":[{\"interpreter_id\":\"__typeclass-20000000-0000-4000-8000-000000000001__instance-20000000-0000-4000-8000-000000000001__srbid-text-start__6872312510\",\"source_entity_id\":\"20000000-0000-4000-8000-000000000001\",\"source_map_rbid\":\"text-start\",\"proc_parameters\":{}}],\"source_map_rbid\":\"text-start\",\"source_entity_id\":\"20000000-0000-4000-8000-000000000001\"},\"where\":\"RuntimeManager::update, stepping code\"}"
+      ],
+      "observations": [
+        [
+          {
+            "before": 1,
+            "result": "unexecuted",
+            "after": "unexecuted"
+          }
+        ]
+      ],
+      "externalRequests": [
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/kitten",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/sysinfo",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        }
+      ],
+      "pageErrors": []
+    },
+    "media-defaults": {
+      "status": "completed",
+      "sha256": "ce0450db20db34981a55f25bc22d06fb59239de980851587c8302074d98adfcd",
+      "variables": [
+        {
+          "voice": "",
+          "scan": "",
+          "midi-string": {
+            "id": "60"
+          },
+          "midi-text": "[object Object]",
+          "midi-identity": true,
+          "translate-empty": "unexecuted",
+          "translate-zero": "unexecuted",
+          "translate-false": "unexecuted",
+          "done": "unexecuted"
+        },
+        {
+          "voice": "",
+          "scan": "",
+          "midi-string": {
+            "id": "60"
+          },
+          "midi-text": "[object Object]",
+          "midi-identity": true,
+          "translate-empty": "",
+          "translate-zero": "unexecuted",
+          "translate-false": "unexecuted",
+          "done": "unexecuted"
+        },
+        {
+          "voice": "",
+          "scan": "",
+          "midi-string": {
+            "id": "60"
+          },
+          "midi-text": "[object Object]",
+          "midi-identity": true,
+          "translate-empty": "",
+          "translate-zero": "",
+          "translate-false": "unexecuted",
+          "done": "unexecuted"
+        },
+        {
+          "voice": "",
+          "scan": "",
+          "midi-string": {
+            "id": "60"
+          },
+          "midi-text": "[object Object]",
+          "midi-identity": true,
+          "translate-empty": "",
+          "translate-zero": "",
+          "translate-false": "",
+          "done": 1
+        },
+        {
+          "voice": "",
+          "scan": "",
+          "midi-string": {
+            "id": "60"
+          },
+          "midi-text": "[object Object]",
+          "midi-identity": true,
+          "translate-empty": "",
+          "translate-zero": "",
+          "translate-false": "",
+          "done": 1
+        },
+        {
+          "voice": "",
+          "scan": "",
+          "midi-string": {
+            "id": "60"
+          },
+          "midi-text": "[object Object]",
+          "midi-identity": true,
+          "translate-empty": "",
+          "translate-zero": "",
+          "translate-false": "",
+          "done": 1
+        },
+        {
+          "voice": "",
+          "scan": "",
+          "midi-string": {
+            "id": "60"
+          },
+          "midi-text": "[object Object]",
+          "midi-identity": true,
+          "translate-empty": "",
+          "translate-zero": "",
+          "translate-false": "",
+          "done": 1
+        },
+        {
+          "voice": "",
+          "scan": "",
+          "midi-string": {
+            "id": "60"
+          },
+          "midi-text": "[object Object]",
+          "midi-identity": true,
+          "translate-empty": "",
+          "translate-zero": "",
+          "translate-false": "",
+          "done": 1
+        },
+        {
+          "voice": "",
+          "scan": "",
+          "midi-string": {
+            "id": "60"
+          },
+          "midi-text": "[object Object]",
+          "midi-identity": true,
+          "translate-empty": "",
+          "translate-zero": "",
+          "translate-false": "",
+          "done": 1
+        },
+        {
+          "voice": "",
+          "scan": "",
+          "midi-string": {
+            "id": "60"
+          },
+          "midi-text": "[object Object]",
+          "midi-identity": true,
+          "translate-empty": "",
+          "translate-zero": "",
+          "translate-false": "",
+          "done": 1
+        },
+        {
+          "voice": "",
+          "scan": "",
+          "midi-string": {
+            "id": "60"
+          },
+          "midi-text": "[object Object]",
+          "midi-identity": true,
+          "translate-empty": "",
+          "translate-zero": "",
+          "translate-false": "",
+          "done": 1
+        },
+        {
+          "voice": "",
+          "scan": "",
+          "midi-string": {
+            "id": "60"
+          },
+          "midi-text": "[object Object]",
+          "midi-identity": true,
+          "translate-empty": "",
+          "translate-zero": "",
+          "translate-false": "",
+          "done": 1
+        }
+      ],
+      "errors": [],
+      "observations": [
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "externalRequests": [
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/kitten",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/sysinfo",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/player-icons/mob%EF%BC%8Ficn_keyboard_nor.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/player-icons/mob_icn_reset.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        }
+      ],
+      "pageErrors": []
+    }
+  },
+  "assets": [
+    {
+      "name": "player_v2__3ffeebbd0c789e8d9422.css",
+      "source": "player_v2__3ffeebbd0c789e8d9422.css",
+      "sha256": "39e8e70b124b604831773893cdc95931cdee3eaea52c6dd69f33f5781d48b45a"
+    },
+    {
+      "name": "runtime.f42f527f119e09010b85.js",
+      "source": "runtime.f42f527f119e09010b85.js",
+      "sha256": "4164d67795238f64d035f473418236038ae475ae36032a967cba16ede263735f"
+    },
+    {
+      "name": "vendors.d00f4bd454a6352e9d71.js",
+      "source": "vendors.d00f4bd454a6352e9d71.js",
+      "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
+    },
+    {
+      "name": "player_v2.2d180c468559fbd29528.js",
+      "source": "player_v2.2d180c468559fbd29528.js.orig",
+      "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160"
+    },
+    {
+      "name": "9.c396696e9dc71e25b012.js",
+      "source": "9.c396696e9dc71e25b012.js",
+      "sha256": "5758343310c47596d56e954aa05fa76a546080c8bf4fefd41cac0042794d6195"
+    },
+    {
+      "name": "14.c95e6f2ddd61fb701d0e.js",
+      "source": "14.c95e6f2ddd61fb701d0e.js",
+      "sha256": "d3ce91c9113463db4c0988210caeb1be2ddc508499d5c53a8e73a13b5f440175"
+    },
+    {
+      "name": "11.477512e6f03fd2f6f3c5.js",
+      "source": "11.477512e6f03fd2f6f3c5.js",
+      "sha256": "e81bfe3462cc3e79a70ba016ddee2a372a31480d3f52964952e1d21f3a490f91"
+    }
+  ]
+}

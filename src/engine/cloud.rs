@@ -35,10 +35,35 @@ fn limit(value: Cell, max: usize) -> Option<Cell> {
     }
 }
 fn add(a: &Cell, b: &Cell) -> Cell {
+    // JS + first converts arrays/objects to primitives. In particular an empty
+    // cloud-list reporter is "", not numeric NaN (12 + [] is "12"). Keep this
+    // conversion local: ordinary VM arithmetic has a different contract.
+    let primitive = |v: &Cell| match v {
+        Cell::List(_) | Cell::Costume(_) | Cell::Object(_) | Cell::Midi(_) => {
+            Cell::Text(v.text().into())
+        }
+        _ => v.clone(),
+    };
+    let a = primitive(a);
+    let b = primitive(b);
     if matches!(a, Cell::Text(_)) || matches!(b, Cell::Text(_)) {
-        Cell::Text(format!("{}{}", a.text(), b.text()).into())
+        let text = |v: &Cell| {
+            if matches!(v, Cell::Null) {
+                "null".into()
+            } else {
+                v.text()
+            }
+        };
+        Cell::Text(format!("{}{}", text(&a), text(&b)).into())
     } else {
         Cell::Number(a.number() + b.number())
+    }
+}
+
+fn js_number(value: &Cell) -> f64 {
+    match value {
+        Cell::List(_) => crate::js_number::parse(&value.text()),
+        _ => value.number(),
     }
 }
 
@@ -213,11 +238,14 @@ impl Engine {
         };
         let value = if change {
             let previous = self.global_value(slot);
-            if matches!(previous, Cell::List(_) | Cell::Costume(_) | Cell::Midi(_)) {
+            if matches!(
+                previous,
+                Cell::List(_) | Cell::Costume(_) | Cell::Object(_) | Cell::Midi(_)
+            ) {
                 return;
             }
             if decrease {
-                Cell::Number(previous.number() - value.number())
+                Cell::Number(js_number(&previous) - js_number(&value))
             } else {
                 add(&previous, &value)
             }
@@ -232,7 +260,7 @@ impl Engine {
         &mut self,
         binding: usize,
         action: u8,
-        at: Option<f64>,
+        at: Option<Cell>,
         value: Option<Cell>,
     ) {
         let Some(b) = self.program.cloud.get(binding) else {
@@ -241,12 +269,12 @@ impl Engine {
         let Some(index) = self.program.list_names.iter().position(|id| id == &b.id) else {
             return;
         };
-        if at.is_some_and(|n| !n.is_finite() || n <= 0.0) {
-            return;
-        }
-        let value = value
-            .and_then(|v| limit(v, 128))
-            .unwrap_or(Cell::Number(f64::NAN));
+        let at = match at {
+            Some(Cell::Number(n)) if n.is_finite() && n > 0.0 => Some(n),
+            None => None,
+            _ => return,
+        };
+        let value = value.and_then(|v| limit(v, 128)).unwrap_or(Cell::Undefined);
         let mut list = self.lists[index].borrow_mut();
         let at = at
             .map(|n| n.max(1.0).trunc() as usize - 1)

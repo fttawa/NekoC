@@ -447,7 +447,7 @@ export class StageRenderer {
 
   drawImageStamp(stamp){
     const image=this.images.get(stamp.style);if(!image)return;
-    const {x,y,width,height,angle}=actorGeometry(stamp,image,this.kitten4);
+    const {x,y,width,height,angle}=this.kitten4?k4ImageStampGeometry(stamp,image):actorGeometry(stamp,image,false);
     this.drawTexture(image.texture,x,y,width,height,angle,[1,1,1,stamp.opacity??1],stamp.effects,[image.width,image.height]);
   }
 
@@ -593,6 +593,17 @@ function actorGeometry(a,image,kitten4=false){
   const px=image.centerPoint?.x??0,py=image.centerPoint?.y??0;
   const dx=-px*width/image.width,dy=py*height/image.height,c=Math.cos(angle),s=Math.sin(angle);
   return {...geometry,x:a.x+c*dx+s*dy,y:a.y-s*dx+c*dy};
+}
+
+// a1xw/Rt.draw_image_stamp floors the Canvas destination rectangle, not the
+// pivot/translation. An odd/fractional size therefore shifts the pixel centre.
+export function k4ImageStampGeometry(stamp,image){
+  const g=actorGeometry(stamp,image,true),w=Math.abs(g.width),h=Math.abs(g.height);
+  const width=Math.floor(w)*Math.sign(g.width),height=Math.floor(h)*Math.sign(g.height);
+  const dx=(Math.floor(-w/2)+Math.floor(w)/2)*Math.sign(g.width);
+  const dy=-(Math.floor(-h/2)+Math.floor(h)/2)*Math.sign(g.height);
+  const c=Math.cos(g.angle),s=Math.sin(g.angle);
+  return {width,height,angle:g.angle,x:g.x+c*dx+s*dy,y:g.y-s*dx+c*dy};
 }
 
 export function decodeFrame(buffer) {

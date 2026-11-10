@@ -11,6 +11,7 @@ mod input;
 mod jit;
 mod jit_observation;
 mod k4_clock;
+mod k4_drawing;
 mod k4_effects;
 mod k4_properties;
 mod kn_appearance;
@@ -381,6 +382,7 @@ enum Op {
     Bounce,
     Draggable(bool),
     ImageStamp,
+    K4Drawing(k4_drawing::Command),
     /// Play an audio value and wait for the viewer to report its end.
     AudioWait(usize),
     /// Show (true) or hide a variable/list monitor.
@@ -407,7 +409,7 @@ enum Op {
     PhysicsVelocity(usize, usize),
     LegacyPhysics(physics::Command, usize),
     CloudSet(usize, usize, bool, bool),
-    CloudList(usize, u8, Option<Expr>, Option<usize>),
+    CloudList(usize, u8, Option<usize>, Option<usize>),
     Ranking(Option<usize>, bool),
     Extension(usize),
     ResetBlockTimer,
@@ -2078,7 +2080,7 @@ impl Compiler {
                 if field(b, "item") == "last" {
                     None
                 } else {
-                    Some(self.arg(b, "list_index")?)
+                    Some(self.value(input(b, "list_index")?)?)
                 },
             ),
             "list_item" => ValueExpr::Item(
@@ -3540,7 +3542,7 @@ impl Compiler {
                         let at = if matches!(action, 0 | 1 | 5) || field(b, "TYPE") == "last" {
                             None
                         } else {
-                            Some(self.arg(b, "INDEX")?)
+                            Some(self.value(input(b, "INDEX")?)?)
                         };
                         let value = if matches!(action, 3 | 5) {
                             None
@@ -3651,7 +3653,9 @@ impl Compiler {
                         };
                         Op::SizeAxis(axis, value, add)
                     }
-                    "self_change_pen_size" => {
+                    "self_change_pen_size"
+                        if self.program.semantics != RuntimeSemantics::Kitten4 =>
+                    {
                         Op::PenSizeChange(self.signed_arg(b, &["steps", "size", "value"])?)
                     }
                     "self_set_rotation_type" => Op::RotationType(match field(b, "rotation_type") {
@@ -3774,7 +3778,8 @@ impl Compiler {
                             .and_then(Value::as_str)
                             .unwrap_or("");
                         ensure!(
-                            matches!(direction, "up" | "down" | "left" | "right" | ""),
+                            self.program.semantics == RuntimeSemantics::Kitten4
+                                || matches!(direction, "up" | "down" | "left" | "right" | ""),
                             "unknown transition direction {direction} at {}",
                             b["id"]
                         );
@@ -4225,6 +4230,32 @@ impl Compiler {
                                 1
                             },
                         )
+                    }
+                    "stamp" if self.program.semantics == RuntimeSemantics::Kitten4 => {
+                        Op::K4Drawing(k4_drawing::Command::Text {
+                            text: self.value(input(b, "text")?)?,
+                            size: self.value(input(b, "size")?)?,
+                            align: match field(b, "align") {
+                                "center" => TextAlign::Center,
+                                "right" => TextAlign::Right,
+                                _ => TextAlign::Left,
+                            },
+                        })
+                    }
+                    "self_set_pen_size" | "self_change_pen_size"
+                        if self.program.semantics == RuntimeSemantics::Kitten4 =>
+                    {
+                        let change = kind == "self_change_pen_size";
+                        Op::K4Drawing(k4_drawing::Command::Size {
+                            value: self.value(input(b, if change { "steps" } else { "size" })?)?,
+                            change: if !change {
+                                0
+                            } else if field(b, "increase") == "decrease" {
+                                -1
+                            } else {
+                                1
+                            },
+                        })
                     }
                     "stamp" => Op::Stamp(
                         self.text(input(b, "text")?)?,
@@ -6388,6 +6419,10 @@ impl Engine {
     }
     /// An image stamp of `actor` into the colour-sensing raster.
     fn raster_stamp(&mut self, actor: usize) {
+        if self.program.semantics == RuntimeSemantics::Kitten4 {
+            self.raster_k4_stamp(actor);
+            return;
+        }
         if self.sprites[actor].text.is_some() {
             return;
         }
@@ -7498,7 +7533,11 @@ impl Engine {
                 children.push((true, i));
                 children.extend(list(r));
             }
-            ValueExpr::Item(r, e) | ValueExpr::CloudItem(r, e) => {
+            ValueExpr::CloudItem(r, e) => {
+                children.extend(e.map(|i| (true, i)));
+                children.extend(list(r));
+            }
+            ValueExpr::Item(r, e) => {
                 children.extend(e.map(expression));
                 children.extend(list(r));
             }
@@ -7669,6 +7708,17 @@ impl Engine {
             ValueExpr::TextIndex(a, b, last) => {
                 let value = self.eval_value(a, actor);
                 let needle = self.eval_value(b, actor);
+                // oiyH calls VALUE.indexOf/lastIndexOf directly: arrays use
+                // strict element identity/type, unlike string needle coercion.
+                if let Cell::List(items) = &value {
+                    let items = items.borrow();
+                    let at = if last {
+                        items.iter().rposition(|item| item.equals(&needle))
+                    } else {
+                        needle.index_in(&items)
+                    };
+                    return Cell::Number(at.map_or(0.0, |at| (at + 1) as f64));
+                }
                 let Cell::Text(value) = value else {
                     self.value_error = Some("K4 text_indexOf requires a string VALUE".into());
                     return Cell::Null;
@@ -7697,14 +7747,20 @@ impl Engine {
             }
             ValueExpr::List(r) => self.resolve_list(r).map_or(Cell::Null, Cell::List),
             ValueExpr::CloudItem(r, e) => {
-                let at = e.map(|e| self.eval(e, actor));
+                let at = e.map(|e| self.eval_value(e, actor));
                 self.resolve_list(r).map_or(Cell::Text("".into()), |v| {
                     let v = v.borrow();
                     let at = at.map_or_else(
                         || v.len().checked_sub(1),
-                        |n| (n.is_finite() && n > 0.0).then(|| n.max(1.0).trunc() as usize - 1),
+                        |n| match n {
+                            Cell::Number(n) if n.is_finite() && n > 0.0 => {
+                                Some(n.max(1.0).trunc() as usize - 1)
+                            }
+                            _ => None,
+                        },
                     );
                     at.and_then(|i| v.get(i))
+                        .filter(|v| !matches!(v, Cell::Undefined | Cell::Null))
                         .cloned()
                         .unwrap_or(Cell::Text("".into()))
                 })
@@ -8350,6 +8406,28 @@ impl Engine {
     /// (or finishes) for this tick.
     #[inline(always)]
     fn exec(&mut self, index: usize, pc: usize, op: Op, actor: usize) -> Result<bool> {
+        if self.program.semantics == RuntimeSemantics::Kitten4
+            && self.sprites[actor].stage
+            && matches!(
+                op,
+                Op::K4Drawing(_)
+                    | Op::ImageStamp
+                    | Op::Pen(_)
+                    | Op::Clear
+                    | Op::Size(_)
+                    | Op::PenSizeChange(_)
+                    | Op::Color(_)
+                    | Op::PenProperty(..)
+                    | Op::PenPath(_)
+                    | Op::FillColor(_)
+                    | Op::LayerWithPen(_)
+            )
+        {
+            bail!(
+                "K4 domain error: use_pen_blocks_in_scene at block {}",
+                self.program.sources[pc]
+            );
+        }
         let moves = matches!(
             op,
             Op::Move(_)
@@ -8390,6 +8468,7 @@ impl Engine {
             self.dirty[actor] = true;
         }
         match op {
+            Op::K4Drawing(command) => self.exec_k4_drawing(command, actor),
             Op::Kitten4Change(target, value, decrease) => {
                 // Tn6a/change_variable evaluates n first, then f(previous,n,op).
                 let value = self.eval_value(value, actor);
@@ -8432,7 +8511,7 @@ impl Engine {
                 self.cloud_set(binding, value, change, decrease);
             }
             Op::CloudList(binding, action, at, value) => {
-                let at = at.map(|e| self.eval(e, actor));
+                let at = at.map(|e| self.eval_value(e, actor));
                 let value = value.map(|v| self.eval_value(v, actor));
                 self.cloud_list(binding, action, at, value);
             }
@@ -8545,7 +8624,11 @@ impl Engine {
             }
             Op::SetValue(target, v) => {
                 let value = self.eval_value(v, actor);
-                self.assign(target, value);
+                // A failing K4 reporter aborts the assignment itself, not just
+                // its following statement (official text_indexOf error probes).
+                if self.value_error.is_none() {
+                    self.assign(target, value);
+                }
             }
             Op::Extension(call) => return self.exec_extension(index, actor, call),
             Op::Move(e) => {
@@ -9639,8 +9722,17 @@ impl Engine {
                         size_x: a.size_x * if a.flip_x { -1.0 } else { 1.0 },
                         size_y: a.size_y * if a.flip_y { -1.0 } else { 1.0 },
                         rotation_type: a.rotation_type,
-                        opacity: a.opacity,
-                        effects: a.effects,
+                        // a1xw/Rt draws the raw source, without sprite filters/alpha.
+                        opacity: if self.program.semantics == RuntimeSemantics::Kitten4 {
+                            1.0
+                        } else {
+                            a.opacity
+                        },
+                        effects: if self.program.semantics == RuntimeSemantics::Kitten4 {
+                            [0.0; 8]
+                        } else {
+                            a.effects
+                        },
                     });
                 }
             }
@@ -9679,7 +9771,10 @@ impl Engine {
             }
             Op::SceneTransition(direction, kind) => {
                 let direction = self.eval_value(direction, actor).text();
-                let kind = self.eval_value(kind, actor).text();
+                let mut kind = self.eval_value(kind, actor).text();
+                if self.program.semantics == RuntimeSemantics::Kitten4 {
+                    kind = k4_drawing::transition_kind(&kind, &direction);
+                }
                 self.next_transition = (!matches!(kind.as_str(), "" | "none"))
                     .then_some(Transition { direction, kind });
             }

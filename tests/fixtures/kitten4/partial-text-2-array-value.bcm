@@ -1,0 +1,2310 @@
+{
+  "hidden_toolbox": {
+    "toolbox": [],
+    "blocks": []
+  },
+  "work_source_label": 1,
+  "version": 25,
+  "application_version": "4.11.20",
+  "work_type": "KITTEN",
+  "size": {
+    "width": 1280,
+    "height": 720
+  },
+  "type": 1,
+  "project_name": "NekoC partial-text-2 array-value",
+  "theatre": {
+    "current_entity": "20000000-0000-4000-8000-000000000001",
+    "current_scene": "10000000-0000-4000-8000-000000000001",
+    "scenes_order": [
+      "10000000-0000-4000-8000-000000000001",
+      "10000000-0000-4000-8000-000000000002"
+    ],
+    "scenes": {
+      "10000000-0000-4000-8000-000000000001": {
+        "id": "10000000-0000-4000-8000-000000000001",
+        "name": "Background A",
+        "styles": [
+          "background"
+        ],
+        "current_style_id": "background",
+        "x": 0,
+        "y": 0,
+        "scale": 100,
+        "rotation": 0,
+        "rotation_type": 0,
+        "draggable": false,
+        "visible": true,
+        "workspace_offset": {
+          "x": 40,
+          "y": 40
+        },
+        "block_data_json": {
+          "blocks": {},
+          "connections": {},
+          "comments": {}
+        },
+        "actors": [
+          "20000000-0000-4000-8000-000000000001"
+        ],
+        "screen_name": "Scene A",
+        "group_order": [
+          "group"
+        ]
+      },
+      "10000000-0000-4000-8000-000000000002": {
+        "id": "10000000-0000-4000-8000-000000000002",
+        "name": "Background B",
+        "styles": [
+          "background"
+        ],
+        "current_style_id": "background",
+        "x": 0,
+        "y": 0,
+        "scale": 100,
+        "rotation": 0,
+        "rotation_type": 0,
+        "draggable": false,
+        "visible": true,
+        "workspace_offset": {
+          "x": 40,
+          "y": 40
+        },
+        "block_data_json": {
+          "blocks": {},
+          "connections": {},
+          "comments": {}
+        },
+        "actors": [],
+        "screen_name": "Scene B",
+        "group_order": []
+      }
+    },
+    "actors": {
+      "20000000-0000-4000-8000-000000000001": {
+        "id": "20000000-0000-4000-8000-000000000001",
+        "name": "Probe",
+        "styles": [
+          "costume-a",
+          "costume-b"
+        ],
+        "current_style_id": "costume-a",
+        "x": 0,
+        "y": 0,
+        "scale": 100,
+        "rotation": 0,
+        "rotation_type": 0,
+        "draggable": false,
+        "visible": true,
+        "workspace_offset": {
+          "x": 40,
+          "y": 40
+        },
+        "block_data_json": {
+          "blocks": {
+            "text-start": {
+              "type": "start_on_click",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "text-start",
+              "parent_id": null,
+              "location": [
+                0,
+                0
+              ]
+            },
+            "set-FIRST-array-hit": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "FIRST-array-hit"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "set-FIRST-array-hit",
+              "parent_id": "text-start",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-1": {
+              "type": "text_indexOf",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": "",
+                "FIND": ""
+              },
+              "fields": {
+                "END": "FIRST"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-1",
+              "parent_id": "set-FIRST-array-hit",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-2": {
+              "type": "text_split",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "TEXT_TO_SPLIT": "",
+                "SPLIT_TEXT": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-2",
+              "parent_id": "generated-1",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-3": {
+              "type": "text",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "TEXT": "a/b"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-3",
+              "parent_id": "generated-2",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-4": {
+              "type": "text",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "TEXT": "/"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-4",
+              "parent_id": "generated-2",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-5": {
+              "type": "text",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "TEXT": "b"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-5",
+              "parent_id": "generated-1",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "set-FIRST-array-missing": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "FIRST-array-missing"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "set-FIRST-array-missing",
+              "parent_id": "set-FIRST-array-hit",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-6": {
+              "type": "text_indexOf",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": "",
+                "FIND": ""
+              },
+              "fields": {
+                "END": "FIRST"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-6",
+              "parent_id": "set-FIRST-array-missing",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-7": {
+              "type": "text_split",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "TEXT_TO_SPLIT": "",
+                "SPLIT_TEXT": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-7",
+              "parent_id": "generated-6",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-8": {
+              "type": "text",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "TEXT": "a/b"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-8",
+              "parent_id": "generated-7",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-9": {
+              "type": "text",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "TEXT": "/"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-9",
+              "parent_id": "generated-7",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-10": {
+              "type": "text",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "TEXT": "z"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-10",
+              "parent_id": "generated-6",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "set-FIRST-array-empty": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "FIRST-array-empty"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "set-FIRST-array-empty",
+              "parent_id": "set-FIRST-array-missing",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-11": {
+              "type": "text_indexOf",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": "",
+                "FIND": ""
+              },
+              "fields": {
+                "END": "FIRST"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-11",
+              "parent_id": "set-FIRST-array-empty",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-12": {
+              "type": "text_split",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "TEXT_TO_SPLIT": "",
+                "SPLIT_TEXT": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-12",
+              "parent_id": "generated-11",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-13": {
+              "type": "text",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "TEXT": "a/b"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-13",
+              "parent_id": "generated-12",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-14": {
+              "type": "text",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "TEXT": "/"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-14",
+              "parent_id": "generated-12",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-15": {
+              "type": "text",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "TEXT": ""
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-15",
+              "parent_id": "generated-11",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "set-FIRST-array-number": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "FIRST-array-number"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "set-FIRST-array-number",
+              "parent_id": "set-FIRST-array-empty",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-16": {
+              "type": "text_indexOf",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": "",
+                "FIND": ""
+              },
+              "fields": {
+                "END": "FIRST"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-16",
+              "parent_id": "set-FIRST-array-number",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-17": {
+              "type": "text_split",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "TEXT_TO_SPLIT": "",
+                "SPLIT_TEXT": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-17",
+              "parent_id": "generated-16",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-18": {
+              "type": "text",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "TEXT": "1/2/1"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-18",
+              "parent_id": "generated-17",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-19": {
+              "type": "text",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "TEXT": "/"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-19",
+              "parent_id": "generated-17",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-20": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "1"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-20",
+              "parent_id": "generated-16",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "set-FIRST-array-string": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "FIRST-array-string"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "set-FIRST-array-string",
+              "parent_id": "set-FIRST-array-number",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-21": {
+              "type": "text_indexOf",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": "",
+                "FIND": ""
+              },
+              "fields": {
+                "END": "FIRST"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-21",
+              "parent_id": "set-FIRST-array-string",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-22": {
+              "type": "text_split",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "TEXT_TO_SPLIT": "",
+                "SPLIT_TEXT": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-22",
+              "parent_id": "generated-21",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-23": {
+              "type": "text",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "TEXT": "1/2/1"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-23",
+              "parent_id": "generated-22",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-24": {
+              "type": "text",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "TEXT": "/"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-24",
+              "parent_id": "generated-22",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-25": {
+              "type": "text",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "TEXT": "1"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-25",
+              "parent_id": "generated-21",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "set-LAST-array-hit": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "LAST-array-hit"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "set-LAST-array-hit",
+              "parent_id": "set-FIRST-array-string",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-26": {
+              "type": "text_indexOf",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": "",
+                "FIND": ""
+              },
+              "fields": {
+                "END": "LAST"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-26",
+              "parent_id": "set-LAST-array-hit",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-27": {
+              "type": "text_split",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "TEXT_TO_SPLIT": "",
+                "SPLIT_TEXT": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-27",
+              "parent_id": "generated-26",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-28": {
+              "type": "text",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "TEXT": "a/b"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-28",
+              "parent_id": "generated-27",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-29": {
+              "type": "text",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "TEXT": "/"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-29",
+              "parent_id": "generated-27",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-30": {
+              "type": "text",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "TEXT": "b"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-30",
+              "parent_id": "generated-26",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "set-LAST-array-missing": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "LAST-array-missing"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "set-LAST-array-missing",
+              "parent_id": "set-LAST-array-hit",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-31": {
+              "type": "text_indexOf",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": "",
+                "FIND": ""
+              },
+              "fields": {
+                "END": "LAST"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-31",
+              "parent_id": "set-LAST-array-missing",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-32": {
+              "type": "text_split",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "TEXT_TO_SPLIT": "",
+                "SPLIT_TEXT": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-32",
+              "parent_id": "generated-31",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-33": {
+              "type": "text",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "TEXT": "a/b"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-33",
+              "parent_id": "generated-32",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-34": {
+              "type": "text",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "TEXT": "/"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-34",
+              "parent_id": "generated-32",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-35": {
+              "type": "text",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "TEXT": "z"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-35",
+              "parent_id": "generated-31",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "set-LAST-array-empty": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "LAST-array-empty"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "set-LAST-array-empty",
+              "parent_id": "set-LAST-array-missing",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-36": {
+              "type": "text_indexOf",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": "",
+                "FIND": ""
+              },
+              "fields": {
+                "END": "LAST"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-36",
+              "parent_id": "set-LAST-array-empty",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-37": {
+              "type": "text_split",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "TEXT_TO_SPLIT": "",
+                "SPLIT_TEXT": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-37",
+              "parent_id": "generated-36",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-38": {
+              "type": "text",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "TEXT": "a/b"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-38",
+              "parent_id": "generated-37",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-39": {
+              "type": "text",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "TEXT": "/"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-39",
+              "parent_id": "generated-37",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-40": {
+              "type": "text",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "TEXT": ""
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-40",
+              "parent_id": "generated-36",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "set-LAST-array-number": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "LAST-array-number"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "set-LAST-array-number",
+              "parent_id": "set-LAST-array-empty",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-41": {
+              "type": "text_indexOf",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": "",
+                "FIND": ""
+              },
+              "fields": {
+                "END": "LAST"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-41",
+              "parent_id": "set-LAST-array-number",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-42": {
+              "type": "text_split",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "TEXT_TO_SPLIT": "",
+                "SPLIT_TEXT": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-42",
+              "parent_id": "generated-41",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-43": {
+              "type": "text",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "TEXT": "1/2/1"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-43",
+              "parent_id": "generated-42",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-44": {
+              "type": "text",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "TEXT": "/"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-44",
+              "parent_id": "generated-42",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-45": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "1"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-45",
+              "parent_id": "generated-41",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "set-LAST-array-string": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "LAST-array-string"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "set-LAST-array-string",
+              "parent_id": "set-LAST-array-number",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-46": {
+              "type": "text_indexOf",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": "",
+                "FIND": ""
+              },
+              "fields": {
+                "END": "LAST"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-46",
+              "parent_id": "set-LAST-array-string",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-47": {
+              "type": "text_split",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "TEXT_TO_SPLIT": "",
+                "SPLIT_TEXT": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-47",
+              "parent_id": "generated-46",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-48": {
+              "type": "text",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "TEXT": "1/2/1"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-48",
+              "parent_id": "generated-47",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-49": {
+              "type": "text",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "TEXT": "/"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-49",
+              "parent_id": "generated-47",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-50": {
+              "type": "text",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "TEXT": "1"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-50",
+              "parent_id": "generated-46",
+              "location": [
+                0,
+                0
+              ]
+            }
+          },
+          "connections": {
+            "text-start": {
+              "set-FIRST-array-hit": {
+                "type": "next"
+              }
+            },
+            "set-FIRST-array-hit": {
+              "generated-1": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "set-FIRST-array-missing": {
+                "type": "next"
+              }
+            },
+            "generated-1": {
+              "generated-2": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "generated-5": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "FIND"
+              }
+            },
+            "generated-2": {
+              "generated-3": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "TEXT_TO_SPLIT"
+              },
+              "generated-4": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "SPLIT_TEXT"
+              }
+            },
+            "generated-3": {},
+            "generated-4": {},
+            "generated-5": {},
+            "set-FIRST-array-missing": {
+              "generated-6": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "set-FIRST-array-empty": {
+                "type": "next"
+              }
+            },
+            "generated-6": {
+              "generated-7": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "generated-10": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "FIND"
+              }
+            },
+            "generated-7": {
+              "generated-8": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "TEXT_TO_SPLIT"
+              },
+              "generated-9": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "SPLIT_TEXT"
+              }
+            },
+            "generated-8": {},
+            "generated-9": {},
+            "generated-10": {},
+            "set-FIRST-array-empty": {
+              "generated-11": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "set-FIRST-array-number": {
+                "type": "next"
+              }
+            },
+            "generated-11": {
+              "generated-12": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "generated-15": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "FIND"
+              }
+            },
+            "generated-12": {
+              "generated-13": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "TEXT_TO_SPLIT"
+              },
+              "generated-14": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "SPLIT_TEXT"
+              }
+            },
+            "generated-13": {},
+            "generated-14": {},
+            "generated-15": {},
+            "set-FIRST-array-number": {
+              "generated-16": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "set-FIRST-array-string": {
+                "type": "next"
+              }
+            },
+            "generated-16": {
+              "generated-17": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "generated-20": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "FIND"
+              }
+            },
+            "generated-17": {
+              "generated-18": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "TEXT_TO_SPLIT"
+              },
+              "generated-19": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "SPLIT_TEXT"
+              }
+            },
+            "generated-18": {},
+            "generated-19": {},
+            "generated-20": {},
+            "set-FIRST-array-string": {
+              "generated-21": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "set-LAST-array-hit": {
+                "type": "next"
+              }
+            },
+            "generated-21": {
+              "generated-22": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "generated-25": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "FIND"
+              }
+            },
+            "generated-22": {
+              "generated-23": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "TEXT_TO_SPLIT"
+              },
+              "generated-24": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "SPLIT_TEXT"
+              }
+            },
+            "generated-23": {},
+            "generated-24": {},
+            "generated-25": {},
+            "set-LAST-array-hit": {
+              "generated-26": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "set-LAST-array-missing": {
+                "type": "next"
+              }
+            },
+            "generated-26": {
+              "generated-27": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "generated-30": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "FIND"
+              }
+            },
+            "generated-27": {
+              "generated-28": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "TEXT_TO_SPLIT"
+              },
+              "generated-29": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "SPLIT_TEXT"
+              }
+            },
+            "generated-28": {},
+            "generated-29": {},
+            "generated-30": {},
+            "set-LAST-array-missing": {
+              "generated-31": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "set-LAST-array-empty": {
+                "type": "next"
+              }
+            },
+            "generated-31": {
+              "generated-32": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "generated-35": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "FIND"
+              }
+            },
+            "generated-32": {
+              "generated-33": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "TEXT_TO_SPLIT"
+              },
+              "generated-34": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "SPLIT_TEXT"
+              }
+            },
+            "generated-33": {},
+            "generated-34": {},
+            "generated-35": {},
+            "set-LAST-array-empty": {
+              "generated-36": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "set-LAST-array-number": {
+                "type": "next"
+              }
+            },
+            "generated-36": {
+              "generated-37": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "generated-40": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "FIND"
+              }
+            },
+            "generated-37": {
+              "generated-38": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "TEXT_TO_SPLIT"
+              },
+              "generated-39": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "SPLIT_TEXT"
+              }
+            },
+            "generated-38": {},
+            "generated-39": {},
+            "generated-40": {},
+            "set-LAST-array-number": {
+              "generated-41": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "set-LAST-array-string": {
+                "type": "next"
+              }
+            },
+            "generated-41": {
+              "generated-42": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "generated-45": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "FIND"
+              }
+            },
+            "generated-42": {
+              "generated-43": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "TEXT_TO_SPLIT"
+              },
+              "generated-44": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "SPLIT_TEXT"
+              }
+            },
+            "generated-43": {},
+            "generated-44": {},
+            "generated-45": {},
+            "set-LAST-array-string": {
+              "generated-46": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              }
+            },
+            "generated-46": {
+              "generated-47": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "generated-50": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "FIND"
+              }
+            },
+            "generated-47": {
+              "generated-48": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "TEXT_TO_SPLIT"
+              },
+              "generated-49": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "SPLIT_TEXT"
+              }
+            },
+            "generated-48": {},
+            "generated-49": {},
+            "generated-50": {}
+          },
+          "comments": {}
+        },
+        "scene": "10000000-0000-4000-8000-000000000001",
+        "lock": false,
+        "editable_in_tuition_mode": true,
+        "user_change_r_c": false
+      }
+    },
+    "groups": {
+      "group": {
+        "id": "group",
+        "name": "",
+        "is_fold": false,
+        "is_group": false,
+        "actors": [
+          "20000000-0000-4000-8000-000000000001"
+        ],
+        "scene": "10000000-0000-4000-8000-000000000001",
+        "visible": true
+      }
+    },
+    "styles": {
+      "background": {
+        "id": "background",
+        "name": "Background",
+        "adaptive": false,
+        "pivot": {
+          "x": 0,
+          "y": 0
+        },
+        "rotate_center": {
+          "x": 0,
+          "y": 0
+        },
+        "cdn_url": "",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjgwIiBoZWlnaHQ9IjcyMCI+PHJlY3Qgd2lkdGg9IjEyODAiIGhlaWdodD0iNzIwIiBmaWxsPSIjMzM2Njk5Ii8+PC9zdmc+"
+      },
+      "costume-a": {
+        "id": "costume-a",
+        "name": "蓝色方块",
+        "adaptive": false,
+        "pivot": {
+          "x": 0,
+          "y": 0
+        },
+        "rotate_center": {
+          "x": 0,
+          "y": 0
+        },
+        "cdn_url": "",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCI+PHJlY3Qgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjMzM2Njk5Ii8+PC9zdmc+"
+      },
+      "costume-b": {
+        "id": "costume-b",
+        "name": "第二个造型",
+        "adaptive": false,
+        "pivot": {
+          "x": 0,
+          "y": 0
+        },
+        "rotate_center": {
+          "x": 0,
+          "y": 0
+        },
+        "cdn_url": "",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMCIgaGVpZ2h0PSIyMCI+PHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjMzM2Njk5Ii8+PC9zdmc+"
+      }
+    },
+    "videos": {},
+    "timer": {}
+  },
+  "variables": {
+    "FIRST-array-hit": {
+      "id": "FIRST-array-hit",
+      "name": "FIRST-array-hit",
+      "value": "unexecuted",
+      "type": "any",
+      "is_global": true,
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "FIRST-array-missing": {
+      "id": "FIRST-array-missing",
+      "name": "FIRST-array-missing",
+      "value": "unexecuted",
+      "type": "any",
+      "is_global": true,
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "FIRST-array-empty": {
+      "id": "FIRST-array-empty",
+      "name": "FIRST-array-empty",
+      "value": "unexecuted",
+      "type": "any",
+      "is_global": true,
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "FIRST-array-number": {
+      "id": "FIRST-array-number",
+      "name": "FIRST-array-number",
+      "value": "unexecuted",
+      "type": "any",
+      "is_global": true,
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "FIRST-array-string": {
+      "id": "FIRST-array-string",
+      "name": "FIRST-array-string",
+      "value": "unexecuted",
+      "type": "any",
+      "is_global": true,
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "LAST-array-hit": {
+      "id": "LAST-array-hit",
+      "name": "LAST-array-hit",
+      "value": "unexecuted",
+      "type": "any",
+      "is_global": true,
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "LAST-array-missing": {
+      "id": "LAST-array-missing",
+      "name": "LAST-array-missing",
+      "value": "unexecuted",
+      "type": "any",
+      "is_global": true,
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "LAST-array-empty": {
+      "id": "LAST-array-empty",
+      "name": "LAST-array-empty",
+      "value": "unexecuted",
+      "type": "any",
+      "is_global": true,
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "LAST-array-number": {
+      "id": "LAST-array-number",
+      "name": "LAST-array-number",
+      "value": "unexecuted",
+      "type": "any",
+      "is_global": true,
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "LAST-array-string": {
+      "id": "LAST-array-string",
+      "name": "LAST-array-string",
+      "value": "unexecuted",
+      "type": "any",
+      "is_global": true,
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    }
+  },
+  "variable_order": [
+    "FIRST-array-hit",
+    "FIRST-array-missing",
+    "FIRST-array-empty",
+    "FIRST-array-number",
+    "FIRST-array-string",
+    "LAST-array-hit",
+    "LAST-array-missing",
+    "LAST-array-empty",
+    "LAST-array-number",
+    "LAST-array-string"
+  ],
+  "cloud_variables": {},
+  "audio": {},
+  "audio_order": [],
+  "midimusic": [],
+  "midi_order": [],
+  "matrix": {},
+  "models": {},
+  "toolbox": {
+    "current_type": "event",
+    "pen": false
+  },
+  "toolbox_order": [
+    "event",
+    "control",
+    "action",
+    "appearance",
+    "sensing",
+    "operator",
+    "data"
+  ],
+  "last_toolbox_order": [],
+  "hardware_type": "",
+  "is_partial": false,
+  "ai_lab": {},
+  "broadcasts": {},
+  "painter": {
+    "color": []
+  }
+}

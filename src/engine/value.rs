@@ -440,7 +440,7 @@ pub(super) enum ValueExpr {
     TextIndex(usize, usize, bool),
     Find(ListRef, usize, bool),
     Item(ListRef, Option<super::Expr>),
-    CloudItem(ListRef, Option<super::Expr>),
+    CloudItem(ListRef, Option<usize>),
     Join(Span),
     Temporary(Span),
     Split(usize, usize),
