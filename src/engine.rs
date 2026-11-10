@@ -9,7 +9,9 @@ mod cloud;
 mod jit;
 mod kn_helpers;
 mod physics;
+mod stage_dialog;
 mod value;
+pub use stage_dialog::StageDialogRequest;
 use std::{cell::RefCell, rc::Rc};
 use std::{
     collections::{BTreeMap, BTreeSet, VecDeque},
@@ -275,6 +277,7 @@ enum Op {
     NextStyle(bool),
     Opacity(Expr),
     PenLayer(PenLayer),
+    LayerWithPen(bool),
     Pen(bool),
     PenPath(bool),
     FillColor([f32; 4]),
@@ -339,6 +342,7 @@ enum Op {
     SwitchScene(usize),
     SceneTransition(usize, usize),
     Dialog(usize, bool),
+    StageDialog(usize, usize),
     CloseDialog,
     Bounce,
     Draggable(bool),
@@ -749,6 +753,8 @@ pub struct Program {
     pub uses_color: bool,
     /// Heading at which a costume is drawn unrotated: 0 in Kitten N, 90 in Kitten 4.
     pub costume_turn: f64,
+    /// Since 4.1.0, clones form an insertion chain above their original.
+    linked_clone_layers: bool,
 }
 
 #[derive(Debug, Serialize)]
@@ -768,6 +774,7 @@ pub(crate) struct PreparedProject<'a> {
     semantics: RuntimeSemantics,
     start_hats: crate::kitten4::StartHats,
     k4_owners: Vec<String>,
+    linked_clone_layers: bool,
 }
 
 pub(crate) enum PreparedJson<'a> {
@@ -795,12 +802,14 @@ impl PreparedProject<'_> {
     pub fn compile(&self, project: &Value) -> Result<Program> {
         crate::json::check_blocks(project, crate::json::MAX_BLOCK_DEPTH)?;
         crate::json::expanded(|| {
-            Program::compile_canonical(
+            let mut program = Program::compile_canonical(
                 project,
                 self.semantics,
                 self.start_hats.clone(),
                 &self.k4_owners,
-            )
+            )?;
+            program.linked_clone_layers = self.linked_clone_layers;
+            Ok(program)
         })
     }
 }
@@ -848,6 +857,16 @@ impl Program {
             crate::kitten4::StartHats::new()
         };
         let source = &project["_nekocKitten4"]["source"];
+        let linked_clone_layers = semantics == RuntimeSemantics::Kitten4
+            && source["application_version"]
+                .as_str()
+                .and_then(|v| {
+                    v.split('.')
+                        .map(str::parse::<u32>)
+                        .collect::<std::result::Result<Vec<_>, _>>()
+                        .ok()
+                })
+                .is_none_or(|v| v.len() != 3 || v.as_slice() >= [4, 1, 0].as_slice());
         let k4_owners = if let Some(compiled) = source["compile_result"].as_array() {
             compiled
                 .iter()
@@ -883,6 +902,7 @@ impl Program {
             semantics,
             start_hats,
             k4_owners,
+            linked_clone_layers,
         })
     }
     fn compile_canonical(
@@ -987,6 +1007,7 @@ impl Program {
                 scenes: vec![],
                 initial_scene: 0,
                 uses_color: false,
+                linked_clone_layers: false,
                 costume_turn: if semantics == RuntimeSemantics::Kitten4 {
                     90.0
                 } else {
@@ -1124,7 +1145,7 @@ impl Program {
             // Stage scripts have no sprite target. A hidden entity gives them scalar state.
             compiler.program.sprites.push(Sprite {
                 id: scene_id.clone(),
-                name: "Stage".into(),
+                name: scene_value["name"].as_str().unwrap_or("Stage").into(),
                 style: scene_value["currentStyleId"].as_str().map(str::to_owned),
                 x: 0.0,
                 y: 0.0,
@@ -3303,6 +3324,14 @@ impl Compiler {
                             self.push_constant(Cell::Text(kind.into())),
                         )
                     }
+                    "create_stage_dialog"
+                        if self.program.semantics == RuntimeSemantics::Kitten4 =>
+                    {
+                        Op::StageDialog(
+                            self.value(input(b, "text")?)?,
+                            self.actor_target(field(b, "actor"))?,
+                        )
+                    }
                     "self_dialog" | "self_dialog_wait" | "create_stage_dialog" => {
                         let think = match field(b, "type") {
                             "think" => true,
@@ -3579,6 +3608,14 @@ impl Compiler {
                                 relative == "prev_layer",
                             )
                         })
+                    }
+                    "kitten4_layer_with_pen" => {
+                        ensure!(
+                            matches!(field(b, "position"), "above" | "below"),
+                            "unknown pen position at {}",
+                            b["id"]
+                        );
+                        Op::LayerWithPen(field(b, "position") == "above")
                     }
                     "self_pen_down" => Op::Pen(true),
                     "self_pen_up" => Op::Pen(false),
@@ -4076,6 +4113,8 @@ pub struct Frame {
     /// The question waiting for an answer (repeated every frame until answered).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ask: Option<AskRequest>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stage_dialog: Option<StageDialogRequest>,
     /// Packed capsule instances: x1,y1,x2,y2,width,r,g,b,a. Only NEW strokes.
     #[serde(skip)]
     pub lines: Vec<f32>,
@@ -4158,7 +4197,9 @@ pub struct Engine {
     /// Per-frame creation counts and monotonic clone numbers (not variable storage).
     clone_counts: BTreeMap<usize, u32>,
     clone_orders: BTreeMap<usize, u32>,
+    clone_layers: BTreeMap<usize, Vec<usize>>,
     asks: VecDeque<AskRequest>,
+    stage_dialogs: VecDeque<StageDialogRequest>,
     next_ask: u64,
     image_stamps: Vec<ImageStamp>,
     monitors: Vec<bool>,
@@ -4491,7 +4532,9 @@ impl Engine {
             clones: 0,
             clone_counts: BTreeMap::new(),
             clone_orders: BTreeMap::new(),
+            clone_layers: BTreeMap::new(),
             asks: VecDeque::new(),
+            stage_dialogs: VecDeque::new(),
             next_ask: 1,
             image_stamps: vec![],
             monitors: vec![],
@@ -4550,7 +4593,9 @@ impl Engine {
         self.clones = 0;
         self.clone_counts.clear();
         self.clone_orders.clear();
+        self.clone_layers.clear();
         self.asks.clear();
+        self.stage_dialogs.clear();
         self.image_stamps.clear();
         self.monitors.clear();
         self.audio_waits.clear();
@@ -4674,12 +4719,16 @@ impl Engine {
     }
     /// The question currently shown to the viewer, if any.
     pub fn pending_ask(&self) -> Option<&AskRequest> {
-        self.asks.front()
+        self.asks
+            .front()
+            .filter(|ask| self.stage_dialogs.front().is_none_or(|d| ask.id < d.id))
     }
     /// Answers the current question and resumes the task that asked it.
     /// `choice` is the 1-based option for ask-and-choose.
     pub fn answer(&mut self, id: u64, text: &str, choice: Option<usize>) {
-        let Some(ask) = self.asks.front() else { return };
+        let Some(ask) = self.pending_ask() else {
+            return;
+        };
         if ask.id != id {
             return;
         }
@@ -4905,6 +4954,7 @@ impl Engine {
         self.tasks[index].done = true;
         let id = self.tasks[index].id;
         self.asks.retain(|ask| ask.task != id);
+        self.stage_dialogs.retain(|dialog| dialog.task != id);
         self.audio_waits.retain(|(task, _)| *task != id);
         if let Some(id) = self.tasks[index].waiter.take()
             && let Some(parent) = self
@@ -6354,9 +6404,39 @@ impl Engine {
             self.clone_legacy_physics_body(source, index);
         }
         self.clones += 1;
-        // A clone starts directly behind its source.
-        let at = self.order.iter().position(|&i| i == source).unwrap_or(0);
+        let extends_pen = self.pen_layer > 0
+            && self.order.get(self.pen_layer - 1).is_some_and(|&target| {
+                target == source
+                    || self
+                        .clone_layers
+                        .get(&origin)
+                        .is_some_and(|chain| chain.contains(&target))
+            });
+        // Official clone_actor: legacy projects append at the top; >=4.1.0
+        // inserts above the latest still-linked clone, or above the original.
+        // KN retains its own directly-behind-source policy.
+        let at = if self.program.semantics == RuntimeSemantics::Kitten4 {
+            if self.program.linked_clone_layers {
+                let chain = self.clone_layers.entry(origin).or_default();
+                let anchor = chain.last().copied().unwrap_or(source);
+                chain.push(index);
+                self.order
+                    .iter()
+                    .position(|&i| i == anchor)
+                    .map_or(self.order.len(), |i| i + 1)
+            } else {
+                self.order.len()
+            }
+        } else {
+            self.order.iter().position(|&i| i == source).unwrap_or(0)
+        };
         self.order.insert(at, index);
+        if self.program.semantics == RuntimeSemantics::Kitten4
+            && self.pen_layer > 0
+            && (at < self.pen_layer || extends_pen)
+        {
+            self.pen_layer += 1;
+        }
         if self.program.semantics == RuntimeSemantics::KnCurrent && at < self.pen_layer {
             self.pen_layer += 1;
         }
@@ -6397,16 +6477,18 @@ impl Engine {
         sprite.variables.clear();
         sprite.visible = false;
         self.removed.push(sprite.id.clone());
-        if self.program.semantics == RuntimeSemantics::KnCurrent
-            && self
-                .order
-                .iter()
-                .position(|&i| i == index)
-                .is_some_and(|at| at < self.pen_layer)
+        if self
+            .order
+            .iter()
+            .position(|&i| i == index)
+            .is_some_and(|at| at < self.pen_layer)
         {
             self.pen_layer -= 1;
         }
         self.order.retain(|&i| i != index);
+        for chain in self.clone_layers.values_mut() {
+            chain.retain(|&i| i != index);
+        }
         self.order_dirty = true;
         // Original indices are stable program references, never reusable slots.
         if self.sprites[index].clone_index > 0 {
@@ -6418,27 +6500,83 @@ impl Engine {
         let Some(at) = self.order.iter().position(|&i| i == actor) else {
             return;
         };
-        self.order.remove(at);
-        let to = match movement {
-            LayerMove::Front => self.order.len(),
+        let mut to = match movement {
+            LayerMove::Front => self.order.len() - 1,
             LayerMove::Back => 0,
-            LayerMove::Forward => (at + 1).min(self.order.len()),
+            LayerMove::Forward => (at + 1).min(self.order.len() - 1),
             LayerMove::Backward => at.saturating_sub(1),
             LayerMove::Relative(target, above) => self
                 .order
                 .iter()
                 .position(|&i| i == target)
-                .map_or(at, |t| t + usize::from(above)),
+                .map_or(at, |t| {
+                    if t == at {
+                        at
+                    } else {
+                        t - usize::from(t > at) + usize::from(above)
+                    }
+                }),
             LayerMove::By(by) => {
                 let by = self.eval(by, actor);
                 if by.is_finite() {
-                    (at as f64 + by).clamp(0.0, self.order.len() as f64) as usize
+                    (at as f64 + by).clamp(0.0, (self.order.len() - 1) as f64) as usize
                 } else {
                     at
                 }
             }
         };
+        if self.program.semantics == RuntimeSemantics::Kitten4 {
+            // Ordinary layers cannot cross the shared pen plane.
+            let below = at < self.pen_layer;
+            to = if below {
+                to.min(self.pen_layer - 1)
+            } else {
+                to.max(self.pen_layer)
+            };
+            if at == to {
+                return;
+            }
+            if let Some(chain) = self.clone_layers.get_mut(&self.sprites[actor].origin) {
+                if self.sprites[actor].clone_index == 0 {
+                    chain.clear();
+                } else {
+                    chain.retain(|&i| i != actor);
+                }
+            }
+        }
+        self.order.remove(at);
         self.order.insert(to, actor);
+        self.order_dirty = true;
+    }
+    fn layer_with_pen(&mut self, actor: usize, above: bool) {
+        let Some(at) = self.order.iter().position(|&i| i == actor) else {
+            return;
+        };
+        if (at >= self.pen_layer) == above {
+            return;
+        }
+        // Official set_layer_with_pen bypasses normal plane clamping and always
+        // invalidates the clone insertion link, even when set_z_index is a no-op.
+        if let Some(chain) = self.clone_layers.get_mut(&self.sprites[actor].origin) {
+            if self.sprites[actor].clone_index == 0 {
+                chain.clear();
+            } else {
+                chain.retain(|&i| i != actor);
+            }
+        }
+        if above {
+            self.pen_layer -= 1;
+            self.order.remove(at);
+            self.order.push(actor);
+        } else {
+            self.pen_layer = if self.pen_layer == 0 {
+                1
+            } else {
+                self.pen_layer + 1
+            };
+            self.order.remove(at);
+            self.order.insert(0, actor);
+        }
         self.order_dirty = true;
     }
     fn random_unit(&mut self) -> f64 {
@@ -7261,7 +7399,8 @@ impl Engine {
             scene: self.program.scenes[scene].id.clone(),
             transition: self.transition.take(),
             scene_changed: std::mem::take(&mut self.scene_changed),
-            ask: self.asks.front().cloned(),
+            ask: self.pending_ask().cloned(),
+            stage_dialog: self.pending_stage_dialog().cloned(),
             image_stamps: std::mem::take(&mut self.image_stamps),
             monitors: self.monitor_values(),
             clear: std::mem::take(&mut self.clear),
@@ -7610,6 +7749,10 @@ impl Engine {
                         PenLayer::Relative(index, above) => index + usize::from(above),
                     };
                 }
+            }
+            Op::LayerWithPen(above) => {
+                ensure!(!self.sprites[actor].stage, "pen layer requires an actor");
+                self.layer_with_pen(actor, above);
             }
             Op::Pen(down) => {
                 let was = self.sprites[actor].pen;
@@ -8290,6 +8433,11 @@ impl Engine {
                 self.sprites[actor].dialog = (!text.is_empty()).then_some(Dialog { text, think });
                 self.dirty[actor] = true;
             }
+            Op::StageDialog(text, target) => {
+                let text = self.eval_value(text, actor).text();
+                self.stage_dialog(actor, target, text, index);
+                return Ok(false);
+            }
             Op::CloseDialog => {
                 self.sprites[actor].dialog = None;
                 self.dirty[actor] = true;
@@ -8481,6 +8629,7 @@ impl Engine {
         total_count: &mut usize,
     ) -> Result<bool> {
         self.scheduler_tick += 1;
+        self.tick_stage_dialog(dt);
         // K9+f/update_dispose removes blockers at update entry. Expiration is
         // observed at the previous update's end, not guessed using a 60 Hz delta.
         for task in &mut self.tasks {
@@ -8615,7 +8764,13 @@ fn initial_orders(program: &Program) -> Vec<Vec<usize>> {
     program
         .scenes
         .iter()
-        .map(|scene| scene.actors.iter().rev().copied().collect())
+        .map(|scene| {
+            if program.semantics == RuntimeSemantics::Kitten4 {
+                scene.actors.clone()
+            } else {
+                scene.actors.iter().rev().copied().collect()
+            }
+        })
         .collect()
 }
 

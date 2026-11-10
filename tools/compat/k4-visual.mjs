@@ -80,7 +80,9 @@ export async function visualWork(input,options){
         for(const [name,image]of [['nekoc',a],['official',b]])await writeFile(path.join(artifact,`${frame}-${name}.png`),Buffer.from(image.png,'base64'));
         const officialState=await page.evaluate(()=>{
           const stage=window.__k4OracleRequire('a1xw').a(),scene=stage.get_scene_by_id(stage.core.scenes.get_current_scene());
-          return {order:scene.get_actor_ids(),brushTarget:scene.get_brush_target()?.get_id()??null};
+          const dialog=stage.core.components.get_stage_dialog();
+          return {order:scene.get_actor_ids(),brushTarget:scene.get_brush_target()?.get_id()??null,
+            stageDialog:dialog?{visible:dialog.visible,printing:dialog.is_printing,text:dialog.content.text,name:dialog.target_name.text}:null};
         });
         await saveJson(path.join(artifact,`${frame}-state.json`),{nekoc:delta.frame,official:officialState});
         frames.push({frame,width:a.width,height:a.height,...metrics});

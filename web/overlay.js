@@ -14,7 +14,9 @@ const STYLE = `
 .neko-ask p{margin:0;font-size:14px;white-space:pre-wrap}
 .neko-ask-row{display:flex;gap:8px}.neko-ask input{flex:1;min-width:0;font:inherit;font-size:14px;padding:8px 10px;border:1px solid #b9c4b4;border-radius:8px;outline:none;background:#fff;color:#1d2330;color-scheme:light}
 .neko-ask input:focus{border-color:#2f7d4e}.neko-ask button{font:inherit;font-size:13px;padding:8px 14px;border-radius:8px;border:1px solid #2f7d4e;background:#2f7d4e;color:#fff;cursor:pointer}
-.neko-ask .choices{display:flex;flex-wrap:wrap;gap:8px}.neko-ask .choices button{background:#f4f6f1;color:#1d2330;border-color:#c9d3c4}.neko-ask .choices button:hover{border-color:#2f7d4e}`;
+.neko-ask .choices{display:flex;flex-wrap:wrap;gap:8px}.neko-ask .choices button{background:#f4f6f1;color:#1d2330;border-color:#c9d3c4}.neko-ask .choices button:hover{border-color:#2f7d4e}
+.neko-stage-dialog{position:absolute;left:1.25%;right:1.25%;bottom:1.67%;height:25%;box-sizing:border-box;pointer-events:auto;border:2px solid #d9d9ce;border-radius:4px;background:white;color:#333;display:grid;grid-template-columns:12% 1fr;gap:1.25%;padding:2.1%;font-family:"Microsoft YaHei",sans-serif;cursor:pointer;overflow:hidden}
+.neko-stage-dialog img{width:100%;height:100%;object-fit:contain;grid-row:1/4}.neko-stage-dialog b{color:#498ad9;font-size:2.19cqw;font-weight:normal}.neko-stage-dialog p{white-space:pre-wrap;overflow-wrap:anywhere;margin:0;font-size:2.29cqw;line-height:1.25;min-height:2.5em}.neko-stage-dialog button{justify-self:end;border:0;background:white;color:#aeaeae;font:inherit;font-size:2.19cqw;cursor:pointer}`;
 
 export class StageOverlay {
   constructor(box, renderer, onAnswer) {
@@ -26,11 +28,13 @@ export class StageOverlay {
     this.monitors = document.createElement('div'); this.monitors.className = 'neko-monitors';
     this.root.append(this.monitors); box.append(this.root);
     this.bubbles = new Map(); this.ask = null; this.askId = null; this.monitorKey = '';
+    this.stageDialog = null;
   }
   reset() {
     for (const bubble of this.bubbles.values()) bubble.remove();
     this.bubbles.clear(); this.monitors.replaceChildren(); this.monitorKey = '';
     this.ask?.remove(); this.ask = null; this.askId = null;
+    this.stageDialog?.remove(); this.stageDialog = null;
   }
   apply(frame) {
     const monitors = frame.monitors || [], key = JSON.stringify(monitors);
@@ -44,6 +48,38 @@ export class StageOverlay {
     }
     const ask = frame.ask || null;
     if ((ask?.id ?? null) !== this.askId) this.showAsk(ask);
+    this.showStageDialog(frame.stage_dialog || null);
+  }
+  showStageDialog(dialog) {
+    if (dialog && this.stageDialog?.dataset.id === String(dialog.id)) {
+      this.stageDialog.querySelector('p').textContent = dialog.visible_text ?? dialog.text;
+      this.stageDialog.querySelector('button').textContent = dialog.printing ? '显示全部 ▷' : dialog.more ? '下一页 ▷' : '点击继续 ▷';
+      delete this.stageDialog.dataset.sent;
+      return;
+    }
+    this.stageDialog?.remove(); this.stageDialog = null;
+    if (!dialog) return;
+    const panel = document.createElement('div'); panel.className = 'neko-stage-dialog';
+    panel.dataset.id = String(dialog.id);
+    panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-label', dialog.name || '舞台对话');
+    const actor = this.renderer.sprites.find(a => a.id === dialog.target);
+    const image = actor && this.renderer.spriteImage(actor);
+    const preview = document.createElement('img'); preview.alt = '';
+    if (image?.src) preview.src = image.src;
+    else { preview.style.display = 'none'; panel.style.gridTemplateColumns = '1fr'; }
+    const name = document.createElement('b'), text = document.createElement('p'), next = document.createElement('button');
+    name.textContent = dialog.name; text.textContent = dialog.visible_text ?? dialog.text;
+    next.type = 'button'; next.textContent = dialog.printing ? '显示全部 ▷' : dialog.more ? '下一页 ▷' : '点击继续 ▷';
+    // Do not leak dialog clicks/keys into project hats or stage pointer state.
+    const consume = event => event.stopPropagation();
+    for (const type of ['pointerdown','pointerup','mousedown','mouseup','touchstart','touchend','keydown','keyup']) panel.addEventListener(type, consume);
+    panel.onclick = event => {
+      event.stopPropagation();
+      if (panel.dataset.sent) return;
+      panel.dataset.sent = 'true';
+      this.onAnswer({ kind: 'stage_dialog_click', id: dialog.id });
+    };
+    panel.append(preview, name, text, next); this.root.append(panel); this.stageDialog = panel;
   }
   showAsk(ask) {
     this.ask?.remove(); this.ask = null; this.askId = ask?.id ?? null;

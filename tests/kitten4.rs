@@ -1665,9 +1665,10 @@ fn published_stage_device_empty_logic_and_distance_reporters() {
 fn published_rotation_modes_and_signed_dynamic_layer_moves() {
     for mode in ["0", "1", "2"] {
         for (steps, expected) in [
-            (2.0, vec!["c", "b", "nekoc-pen-actor"]),
-            (-2.0, vec!["nekoc-pen-actor", "c", "b"]),
-            (999.0, vec!["c", "b", "nekoc-pen-actor"]),
+            // K4 native scene.actors (unlike KN actorIds) is back to front.
+            (2.0, vec!["b", "c", "nekoc-pen-actor"]),
+            (-2.0, vec!["nekoc-pen-actor", "b", "c"]),
+            (999.0, vec!["b", "c", "nekoc-pen-actor"]),
         ] {
             let mut native = published_script(vec![
                 compiled("self_set_rotation_type", json!({"rotation_type":mode})),

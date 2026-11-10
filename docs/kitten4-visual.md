@@ -1,5 +1,8 @@
 # K4 固定帧像素验证
 
+> 下文分布为首轮 visual 任务的历史记录。后续 K4 克隆层序链、画笔跨层与阻塞介绍弹窗已在
+> [kitten4-layer-dialog.md](kitten4-layer-dialog.md) 专项修正；最新配对分布见该专项 worktree 的 `OC-REPORT.md`。
+
 ## 范围与采样约定
 
 工具：`tools/compat/k4-visual.mjs`，入口/参数见同目录 README。固定 update 1/30/60、60 Hz、seed 1；

@@ -445,6 +445,11 @@ fn frame_bytes(vm: &mut Engine, payload: &Value) -> Result<Vec<u8>> {
                         );
                     }
                 }
+                Some("stage_dialog_click") => {
+                    if let Some(id) = event["id"].as_u64() {
+                        vm.stage_dialog_click(id);
+                    }
+                }
                 Some("pointer") => {
                     if let (Some(state), Some(x), Some(y)) = (
                         event["state"].as_str(),
