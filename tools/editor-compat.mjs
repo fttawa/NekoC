@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { createRequire } from "node:module";
+import { createHash } from "node:crypto";
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { parseArgs } from "node:util";
@@ -61,7 +62,8 @@ async function main() {
   const report = { editorUrl: values.url, checkedAt: new Date().toISOString(), projects: [] };
   try {
     for (const input of positionals) {
-      const project = JSON.parse(await readFile(input, "utf8"));
+      const source = await readFile(input, "utf8");
+      const project = JSON.parse(source);
       const page = await browser.newPage();
       // Large native projects can exceed Playwright's deep argument serializer.
       // Transfer the exact JSON through a same-origin route, not evaluate args.
@@ -135,7 +137,7 @@ async function main() {
         return { editorVersion, projectVersion: project.version, blockCount, issues };
       }, projectUrl);
       result.issues.push(...procedureParameterIssues(project));
-      report.projects.push({ input: path.resolve(input), ...result, pageErrors, ok: !result.issues.length && !pageErrors.length });
+      report.projects.push({ input: path.resolve(input), sha256: createHash("sha256").update(source).digest("hex"), ...result, pageErrors, ok: !result.issues.length && !pageErrors.length });
       await page.close();
     }
   } finally {

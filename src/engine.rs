@@ -4429,7 +4429,18 @@ impl Engine {
             .map(|l| l.borrow().iter().map(Cell::number).collect())
             .collect()
     }
-    /// Current text of a global variable by id.
+    /// Current typed global scalar/list value by id; unknown IDs return Null.
+    pub fn variable_value(&self, id: &str) -> Cell {
+        if let Some(i) = self.program.variable_names.iter().position(|n| n == id) {
+            return self.global_value(i);
+        }
+        self.program
+            .list_names
+            .iter()
+            .position(|n| n == id)
+            .map_or(Cell::Null, |i| Cell::List(self.lists[i].clone()))
+    }
+    /// Current text of a global scalar variable by id.
     pub fn variable_text(&self, id: &str) -> String {
         self.program
             .variable_names
@@ -7000,6 +7011,11 @@ impl Engine {
             ValueExpr::Convert(i, number) => {
                 let v = self.eval_value(i, actor);
                 if number {
+                    // Official KN main.8ccf2442.js convertType (1633578):
+                    // booleans warn and return String(value), not 0/1.
+                    if matches!(v, Cell::Bool(_)) {
+                        return Cell::Text(v.text().into());
+                    }
                     let n = v.number();
                     // Official K4 Tn6a/convert_type and KN text_convert_to warn
                     // and return the original text when conversion fails.
@@ -8043,7 +8059,9 @@ impl Engine {
                     }
                 } else {
                     self.tasks[index].loops.pop();
-                    if yielding && self.program.semantics == RuntimeSemantics::Kitten4 {
+                    // KN 0.27.4 also yields after the final iteration:
+                    // tools/semantics-kitten-n.mjs yield => ABABABab.
+                    if yielding {
                         return Ok(false);
                     }
                 }

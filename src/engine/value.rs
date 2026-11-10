@@ -286,7 +286,7 @@ pub(super) enum ValueExpr {
     Split(usize, usize),
     Select(usize, super::Expr, super::Expr),
     Convert(usize, bool),
-    /// K4 conversion has a text fallback for nonnumeric input, unlike KN.
+    /// K4 additionally supports Boolean conversion and list-to-number coercion.
     Kitten4Convert(usize, u8),
     Compare(usize, usize, super::Binary),
     Logic(usize, usize, bool),

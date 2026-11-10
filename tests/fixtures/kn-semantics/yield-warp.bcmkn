@@ -1,0 +1,364 @@
+{
+  "projectName": "NekoC KN semantics yield-warp",
+  "version": "0.27.4",
+  "toolType": "KN",
+  "stageSize": {
+    "width": 900,
+    "height": 562
+  },
+  "scenes": {
+    "currentSceneId": "nekoc-scene-main",
+    "sortList": [
+      "nekoc-scene-main"
+    ],
+    "scenesDict": {
+      "nekoc-scene-main": {
+        "id": "nekoc-scene-main",
+        "name": "Background",
+        "screenName": "Main",
+        "styles": [
+          "nekoc-background"
+        ],
+        "currentStyleId": "nekoc-background",
+        "actorIds": [
+          "20000000-0000-4000-8000-000000000001"
+        ],
+        "visible": true,
+        "editable": true,
+        "workspaceScrollXy": {
+          "x": 100,
+          "y": 50
+        },
+        "nekoBlockJsonList": [],
+        "comments": {}
+      }
+    }
+  },
+  "actors": {
+    "actorsDict": {
+      "20000000-0000-4000-8000-000000000001": {
+        "id": "20000000-0000-4000-8000-000000000001",
+        "name": "Sprite",
+        "styles": [
+          "nekoc-costume"
+        ],
+        "currentStyleId": "nekoc-costume",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": 100,
+        "rotation": 0,
+        "visible": true,
+        "locked": false,
+        "editable": true,
+        "deletable": true,
+        "workspaceScrollXy": {
+          "x": 100,
+          "y": 50
+        },
+        "nekoBlockJsonList": [
+          {
+            "id": "knsem-154",
+            "type": "on_running_group_activated",
+            "fields": {},
+            "inputs": {},
+            "statements": {},
+            "next": {
+              "id": "knsem-147",
+              "type": "warp",
+              "fields": {},
+              "inputs": {},
+              "statements": {
+                "DO": {
+                  "id": "knsem-146",
+                  "type": "repeat_n_times",
+                  "fields": {},
+                  "inputs": {
+                    "times": {
+                      "id": "knsem-145",
+                      "type": "math_number",
+                      "fields": {
+                        "NUM": "3"
+                      },
+                      "inputs": {},
+                      "statements": {}
+                    }
+                  },
+                  "statements": {
+                    "DO": {
+                      "id": "knsem-144",
+                      "type": "variables_set",
+                      "fields": {
+                        "variable": "trace"
+                      },
+                      "inputs": {
+                        "value": {
+                          "id": "knsem-143",
+                          "type": "text_join",
+                          "fields": {},
+                          "inputs": {
+                            "ADD0": {
+                              "id": "knsem-141",
+                              "type": "variables_get",
+                              "fields": {
+                                "variable": "trace"
+                              },
+                              "inputs": {},
+                              "statements": {}
+                            },
+                            "ADD1": {
+                              "id": "knsem-142",
+                              "type": "text",
+                              "fields": {
+                                "TEXT": "A"
+                              },
+                              "inputs": {},
+                              "statements": {}
+                            }
+                          },
+                          "statements": {},
+                          "mutation": "<mutation items=\"2\"></mutation>"
+                        }
+                      },
+                      "statements": {}
+                    }
+                  }
+                }
+              },
+              "next": {
+                "id": "knsem-151",
+                "type": "variables_set",
+                "fields": {
+                  "variable": "trace"
+                },
+                "inputs": {
+                  "value": {
+                    "id": "knsem-150",
+                    "type": "text_join",
+                    "fields": {},
+                    "inputs": {
+                      "ADD0": {
+                        "id": "knsem-148",
+                        "type": "variables_get",
+                        "fields": {
+                          "variable": "trace"
+                        },
+                        "inputs": {},
+                        "statements": {}
+                      },
+                      "ADD1": {
+                        "id": "knsem-149",
+                        "type": "text",
+                        "fields": {
+                          "TEXT": "a"
+                        },
+                        "inputs": {},
+                        "statements": {}
+                      }
+                    },
+                    "statements": {},
+                    "mutation": "<mutation items=\"2\"></mutation>"
+                  }
+                },
+                "statements": {},
+                "next": {
+                  "id": "knsem-153",
+                  "type": "variables_set",
+                  "fields": {
+                    "variable": "done"
+                  },
+                  "inputs": {
+                    "value": {
+                      "id": "knsem-152",
+                      "type": "math_number",
+                      "fields": {
+                        "NUM": "1"
+                      },
+                      "inputs": {},
+                      "statements": {}
+                    }
+                  },
+                  "statements": {}
+                }
+              }
+            }
+          },
+          {
+            "id": "knsem-165",
+            "type": "on_running_group_activated",
+            "fields": {},
+            "inputs": {},
+            "statements": {},
+            "next": {
+              "id": "knsem-160",
+              "type": "repeat_n_times",
+              "fields": {},
+              "inputs": {
+                "times": {
+                  "id": "knsem-159",
+                  "type": "math_number",
+                  "fields": {
+                    "NUM": "3"
+                  },
+                  "inputs": {},
+                  "statements": {}
+                }
+              },
+              "statements": {
+                "DO": {
+                  "id": "knsem-158",
+                  "type": "variables_set",
+                  "fields": {
+                    "variable": "trace"
+                  },
+                  "inputs": {
+                    "value": {
+                      "id": "knsem-157",
+                      "type": "text_join",
+                      "fields": {},
+                      "inputs": {
+                        "ADD0": {
+                          "id": "knsem-155",
+                          "type": "variables_get",
+                          "fields": {
+                            "variable": "trace"
+                          },
+                          "inputs": {},
+                          "statements": {}
+                        },
+                        "ADD1": {
+                          "id": "knsem-156",
+                          "type": "text",
+                          "fields": {
+                            "TEXT": "B"
+                          },
+                          "inputs": {},
+                          "statements": {}
+                        }
+                      },
+                      "statements": {},
+                      "mutation": "<mutation items=\"2\"></mutation>"
+                    }
+                  },
+                  "statements": {}
+                }
+              },
+              "next": {
+                "id": "knsem-164",
+                "type": "variables_set",
+                "fields": {
+                  "variable": "trace"
+                },
+                "inputs": {
+                  "value": {
+                    "id": "knsem-163",
+                    "type": "text_join",
+                    "fields": {},
+                    "inputs": {
+                      "ADD0": {
+                        "id": "knsem-161",
+                        "type": "variables_get",
+                        "fields": {
+                          "variable": "trace"
+                        },
+                        "inputs": {},
+                        "statements": {}
+                      },
+                      "ADD1": {
+                        "id": "knsem-162",
+                        "type": "text",
+                        "fields": {
+                          "TEXT": "b"
+                        },
+                        "inputs": {},
+                        "statements": {}
+                      }
+                    },
+                    "statements": {},
+                    "mutation": "<mutation items=\"2\"></mutation>"
+                  }
+                },
+                "statements": {}
+              }
+            }
+          }
+        ],
+        "comments": {},
+        "sceneId": "nekoc-scene-main"
+      }
+    }
+  },
+  "styles": {
+    "stylesDict": {
+      "nekoc-background": {
+        "id": "nekoc-background",
+        "name": "Background",
+        "url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='562'%3E%3Crect width='900' height='562' fill='white'/%3E%3C/svg%3E"
+      },
+      "nekoc-costume": {
+        "id": "nekoc-costume",
+        "name": "Sprite",
+        "url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Ccircle cx='20' cy='20' r='18' fill='rgb(96,143,238)'/%3E%3C/svg%3E",
+        "centerPoint": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    }
+  },
+  "variables": {
+    "variablesDict": {
+      "trace": {
+        "id": "trace",
+        "name": "trace",
+        "value": "",
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "done": {
+        "id": "done",
+        "name": "done",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    }
+  },
+  "broadcasts": {
+    "broadcastsDict": {
+      "nekoc-scene-main": []
+    }
+  },
+  "procedures": {
+    "proceduresDict": {}
+  },
+  "audios": {
+    "audiosDict": {},
+    "sortList": [],
+    "currentAudioId": ""
+  },
+  "hidden_toolbox": {
+    "toolbox": [],
+    "blocks": [],
+    "forcibleShowBlocks": [],
+    "isCombine": false
+  },
+  "courseMaterials": {
+    "courseMaterialsDict": {},
+    "sortList": []
+  },
+  "previewUrl": ""
+}
