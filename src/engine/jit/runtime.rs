@@ -50,6 +50,7 @@ fn finish(c: &NativeContext, pc: usize) -> u64 {
 pub(super) unsafe extern "C" fn h_reentrant(c: *mut NativeContext, pc: u64) -> u64 {
     let c = unsafe { &*c };
     let pc = pc as usize;
+    let _timing = timing::instruction(c, "helper/reentrant", pc);
     if !begin(c, pc) {
         return u64::MAX;
     }
@@ -85,8 +86,9 @@ pub(super) unsafe extern "C" fn h_reentrant(c: *mut NativeContext, pc: u64) -> u
 }
 
 pub(super) unsafe extern "C" fn h_call(c: *mut NativeContext, pc: u64) -> u64 {
-    let c = unsafe { &*c };
+    let c = unsafe { &mut *c };
     let pc = pc as usize;
+    let _timing = timing::instruction(c, "helper/call", pc);
     if !begin(c, pc) {
         return u64::MAX;
     }
@@ -115,12 +117,14 @@ pub(super) unsafe extern "C" fn h_call(c: *mut NativeContext, pc: u64) -> u64 {
         ranges: task.ranges.len(),
     });
     task.pc = engine.program.procedure_entries[procedure];
+    parameters::refresh(c);
     finish(c, pc)
 }
 
 pub(super) unsafe extern "C" fn h_return(c: *mut NativeContext, pc: u64) -> u64 {
-    let c = unsafe { &*c };
+    let c = unsafe { &mut *c };
     let pc = pc as usize;
+    let _timing = timing::instruction(c, "helper/return", pc);
     if !begin(c, pc) {
         return u64::MAX;
     }
@@ -138,6 +142,7 @@ pub(super) unsafe extern "C" fn h_return(c: *mut NativeContext, pc: u64) -> u64 
     task.parameters = call.parameters;
     task.loops.truncate(call.loops);
     task.ranges.truncate(call.ranges);
+    parameters::refresh(c);
     finish(c, pc)
 }
 
@@ -146,6 +151,7 @@ pub(super) unsafe extern "C" fn h_return(c: *mut NativeContext, pc: u64) -> u64 
 pub(super) unsafe extern "C" fn h_append_cell(c: *mut NativeContext, pc: u64) -> u64 {
     let c = unsafe { &*c };
     let pc = pc as usize;
+    let _timing = timing::instruction(c, "helper/append-cell", pc);
     if !begin(c, pc) {
         return u64::MAX;
     }
@@ -169,6 +175,7 @@ pub(super) unsafe extern "C" fn h_append_cell(c: *mut NativeContext, pc: u64) ->
 pub(super) unsafe extern "C" fn h_boundary(c: *mut NativeContext, pc: u64) -> u64 {
     let c = unsafe { &*c };
     let pc = pc as usize;
+    let _timing = timing::span(c.timing.as_ref(), "helper/boundary", pc);
     if !begin(c, pc) {
         return u64::MAX;
     }

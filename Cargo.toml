@@ -6,6 +6,7 @@ default-run = "nekoc"
 
 [features]
 default = []
+jit-timing = []
 desktop = ["dep:wry", "dep:tao"]
 studio = ["dep:eframe", "dep:egui_extras", "dep:base64", "dep:percent-encoding", "dep:image"]
 

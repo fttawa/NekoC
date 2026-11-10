@@ -1,6 +1,27 @@
 use super::super::{CallFrame, Program, RangeState, Script, ScriptEvent};
 use super::*;
 
+#[test]
+fn native_context_offsets_match_both_diagnostic_and_normal_builds() {
+    assert_eq!(
+        std::mem::offset_of!(NativeContext, slots),
+        OFF_SLOTS as usize
+    );
+    assert_eq!(
+        std::mem::offset_of!(NativeContext, locals),
+        OFF_LOCALS as usize
+    );
+    assert_eq!(
+        std::mem::offset_of!(NativeContext, values),
+        OFF_VALUES as usize
+    );
+    assert_eq!(
+        std::mem::offset_of!(NativeContext, local_values),
+        OFF_LOCAL_VALUES as usize
+    );
+    assert_eq!(std::mem::offset_of!(NativeContext, fuel), OFF_FUEL as usize);
+}
+
 fn engine(ops: Vec<Op>) -> Engine {
     let project = crate::studio::document::Document::blank().value().clone();
     let mut program = Program::compile(&project).unwrap();
@@ -415,4 +436,279 @@ fn reentrant_tail_preserves_error_fuel_pc_and_reporter_done_state() {
             );
         }
     }
+}
+
+#[test]
+fn compiled_control_flow_shares_leader_entries_without_recompiling() {
+    let mut e = engine(vec![
+        Op::Branch(Expr { end: 1 }, 3),
+        Op::Set(0, Expr { end: 1 }),
+        Op::Jump(3),
+        Op::Change(1, Expr { end: 1 }, 1.0),
+        Op::Jump(0),
+    ]);
+    e.jit_compile(0);
+    let jit = e.jit.as_ref().unwrap();
+    for pc in [0, 1, 3] {
+        assert!(jit.regions[pc].is_some(), "missing leader {pc}");
+        assert_eq!(
+            jit.regions[pc].as_ref().unwrap().code as usize,
+            jit.regions[0].as_ref().unwrap().code as usize
+        );
+    }
+    assert_eq!(e.jit_profile()["regions"], 1);
+    // Entry at a non-original leader charges only the instructions it executes.
+    assert_eq!(e.jit_try(0, 3, 1, 2), Some(2));
+    assert_eq!(e.tasks[0].pc, 0);
+    assert_eq!(e.slots[0], 0.0);
+    assert_eq!(e.slots[1], 1.0);
+    assert_eq!(e.jit_profile()["regions"], 1);
+    assert_eq!(e.jit_try(0, 1, 1, 1), None);
+    assert_eq!(
+        e.slots[0], 0.0,
+        "insufficient chunk fuel cannot run a prefix"
+    );
+    assert_eq!(e.jit_try(0, 1, 1, 2), Some(2));
+    assert_eq!(e.tasks[0].pc, 3);
+    assert_eq!(e.slots[0], 1.0);
+}
+
+#[test]
+fn shared_leader_entry_keeps_boxed_write_guards() {
+    let mut e = engine(vec![
+        Op::Branch(Expr { end: 1 }, 2),
+        Op::Jump(2),
+        Op::Change(0, Expr { end: 1 }, 1.0),
+        Op::Halt,
+    ]);
+    e.jit_compile(0);
+    assert!(e.jit.as_ref().unwrap().regions[2].is_some());
+    e.assign(Target::Global(0), Cell::Text("keep".into()));
+    assert_eq!(e.jit_try(0, 2, 1, 10), None);
+    assert!(matches!(e.global_value(0), Cell::Text(ref s) if &**s == "keep"));
+    assert_eq!(e.jit_profile()["native_ops"], 0);
+}
+
+#[test]
+fn shared_return_entries_restore_the_actual_callers_frame() {
+    let mut e = engine(vec![
+        Op::Call(0, 0),
+        Op::Jump(0),
+        Op::Change(1, Expr { end: 1 }, 1.0),
+        Op::Return,
+    ]);
+    e.program.call_arguments = vec![vec![]];
+    e.program.procedure_entries = vec![2];
+    e.jit_compile(0);
+    assert!(e.jit.as_ref().unwrap().regions[2].is_some());
+    // Stop after the call and resume via its shared callee entry.
+    assert_eq!(e.jit_run(0, 0, 1, 1), Some(1));
+    assert_eq!(e.tasks[0].calls.len(), 1);
+    assert_eq!(e.tasks[0].pc, 2);
+    assert_eq!(e.jit_try(0, 2, 1, 2), Some(2));
+    assert!(e.tasks[0].calls.is_empty());
+    assert_eq!(e.tasks[0].pc, 1);
+    assert_eq!(e.slots[1], 1.0);
+    assert_eq!(e.jit_profile()["regions"], 1);
+}
+
+#[test]
+fn shared_entry_reentrant_tail_does_not_expose_uncharged_successors() {
+    let mut e = engine(vec![
+        Op::Branch(Expr { end: 1 }, 2),
+        Op::Jump(2),
+        Op::AppendList(ListRef::Global(0), 2),
+        Op::Set(1, Expr { end: 1 }),
+        Op::Halt,
+        Op::ReturnValue(0),
+    ]);
+    e.program.values.push(ValueExpr::CallReturn(0, 0));
+    e.program.call_arguments = vec![vec![]];
+    e.program.procedure_entries = vec![5];
+    e.lists = vec![Default::default()];
+    e.jit_compile(0);
+    assert!(e.jit.as_ref().unwrap().regions[2].is_some());
+    assert!(e.jit.as_ref().unwrap().regions[3].is_none());
+    assert_eq!(e.jit_try(0, 2, 1, 100), Some(1));
+    assert_eq!(e.tasks[0].pc, 3);
+    assert_eq!(e.slots[1], 0.0);
+    assert!(matches!(e.lists[0].borrow()[0], Cell::Number(2.0)));
+}
+
+#[test]
+fn inline_parameters_refresh_after_calls_and_returns_and_keep_typed_fallback() {
+    let mut e = engine(vec![
+        Op::Call(0, 0),
+        Op::SetValue(Target::Global(0), 2),
+        Op::Halt,
+        Op::SetValue(Target::Global(1), 2),
+        Op::Return,
+    ]);
+    e.program.values.push(ValueExpr::Parameter(0));
+    e.program.call_arguments = vec![vec![0]];
+    e.program.procedure_entries = vec![3];
+    e.tasks[0].parameters = vec![Cell::Number(7.0)];
+    e.jit_compile(0);
+    assert_eq!(e.jit_run(0, 0, 1, 100), Some(4));
+    assert_eq!(e.slots[0], 7.0);
+    assert_eq!(e.slots[1], 2.0);
+    for value in [Cell::Text("typed".into()), Cell::Bool(true), Cell::Null] {
+        e.tasks[0].parameters = vec![value.clone()];
+        assert_eq!(e.jit_run(0, 1, 1, 100), Some(1));
+        let expected = if matches!(value, Cell::Null) {
+            Cell::Number(0.0)
+        } else {
+            value
+        };
+        assert_eq!(variant(e.global_value(0)), variant(expected));
+    }
+    e.tasks[0].parameters.clear();
+    assert_eq!(e.jit_run(0, 1, 1, 100), Some(1));
+    assert!(matches!(e.global_value(0), Cell::Number(n) if n.is_nan()));
+}
+
+#[test]
+fn inline_parameter_nonzero_slots_preserve_bits_and_recheck_length_and_type() {
+    for slot in [1, 7] {
+        let mut e = engine(vec![Op::SetValue(Target::Global(0), 2), Op::Halt]);
+        e.program.values.push(ValueExpr::Parameter(slot));
+        e.jit_compile(0);
+        for number in [-0.0, f64::NAN, f64::INFINITY, f64::NEG_INFINITY, 123.5] {
+            e.tasks[0].parameters = vec![Cell::Null; slot + 1];
+            e.tasks[0].parameters[slot] = Cell::Number(number);
+            assert_eq!(e.jit_run(0, 0, 1, 100), Some(1));
+            assert_eq!(e.slots[0].to_bits(), number.to_bits());
+        }
+        for value in [
+            Cell::Text("typed".into()),
+            Cell::Bool(true),
+            Cell::Null,
+            Cell::List(Default::default()),
+            Cell::Object(Default::default()),
+            Cell::Undefined,
+            Cell::Midi(std::rc::Rc::new(Cell::Number(3.0))),
+        ] {
+            e.tasks[0].parameters[slot] = value.clone();
+            assert_eq!(e.jit_run(0, 0, 1, 100), Some(1));
+            let expected = if matches!(value, Cell::Null | Cell::Undefined) {
+                Cell::Number(0.0)
+            } else {
+                value
+            };
+            assert_eq!(variant(e.global_value(0)), variant(expected));
+        }
+        for len in [slot, 0, slot + 1, slot] {
+            e.tasks[0].parameters = vec![Cell::Number(9.0); len];
+            assert_eq!(e.jit_run(0, 0, 1, 100), Some(1));
+            assert!(if len > slot {
+                e.slots[0] == 9.0
+            } else {
+                e.slots[0].is_nan()
+            });
+        }
+    }
+}
+
+#[test]
+fn inline_parameters_refresh_twice_in_one_native_run() {
+    let mut e = engine(vec![
+        Op::Call(0, 0),
+        Op::SetValue(Target::Global(0), 2),
+        Op::Halt,
+        Op::Call(1, 1),
+        Op::SetValue(Target::Global(1), 2),
+        Op::Return,
+        Op::SetValue(Target::Global(2), 2),
+        Op::Return,
+    ]);
+    e.program
+        .values
+        .extend([ValueExpr::Parameter(1), ValueExpr::Constant(1)]);
+    e.program.constants.push(Cell::Number(11.0));
+    e.program.call_arguments = vec![vec![0, 0], vec![0, 3, 0, 0]];
+    e.program.procedure_entries = vec![3, 6];
+    e.tasks[0].parameters = vec![Cell::Number(0.0), Cell::Number(7.0)];
+    e.jit_compile(0);
+    assert_eq!(e.jit_run(0, 0, 1, 100), Some(7));
+    assert_eq!(e.slots, [7.0, 2.0, 11.0]);
+    assert!(e.tasks[0].calls.is_empty());
+}
+
+#[test]
+fn region_capacity_does_not_publish_an_uncompiled_leader() {
+    let mut ops = vec![Op::Jump(1)];
+    ops.extend(std::iter::repeat_n(
+        Op::Set(0, Expr { end: 1 }),
+        MAX_REGION_OPS,
+    ));
+    ops.push(Op::Halt);
+    let mut e = engine(ops);
+    e.jit_compile(0);
+    assert!(e.jit.as_ref().unwrap().regions[1].is_some());
+    assert!(e.jit.as_ref().unwrap().regions[MAX_REGION_OPS].is_none());
+    assert_eq!(
+        e.jit_run(0, 1, 1, MAX_REGION_OPS + 10),
+        Some(MAX_REGION_OPS - 1)
+    );
+    assert_eq!(e.tasks[0].pc, MAX_REGION_OPS);
+    assert_eq!(e.slots[0], 1.0);
+}
+
+#[test]
+fn numeric_writes_observe_a_pending_error_from_an_early_returning_helper() {
+    for change in [false, true] {
+        let mut e = engine(vec![
+            Op::Move(Expr { end: 2 }),
+            if change {
+                Op::Kitten4Change(Target::Global(0), 0, false)
+            } else {
+                Op::SetValue(Target::Global(0), 0)
+            },
+            Op::SetValue(Target::Global(1), 0),
+            Op::Halt,
+        ]);
+        e.program.semantics = RuntimeSemantics::Kitten4;
+        e.program.expressions = vec![
+            ExprOp::Constant(f64::NAN),
+            ExprOp::ListItem(ListRef::Global(0), false),
+        ];
+        e.program.expression_starts = vec![0, 0];
+        e.lists = vec![Default::default()];
+        e.jit_compile(0);
+        assert_eq!(e.jit_run(0, 0, 1, 100), Some(2));
+        assert_eq!(e.slots[0], 2.0);
+        assert_eq!(e.slots[1], 0.0);
+        assert_eq!(e.tasks[0].pc, 2);
+        assert!(e.jit_error.take().is_some());
+    }
+}
+
+#[test]
+fn terminal_only_entry_stops_paying_native_trampoline_after_real_sample() {
+    let mut e = engine(vec![
+        Op::AppendList(ListRef::Global(0), 2),
+        Op::Halt,
+        Op::ReturnValue(0),
+    ]);
+    e.program.values.push(ValueExpr::CallReturn(0, 0));
+    e.program.call_arguments = vec![vec![]];
+    e.program.procedure_entries = vec![2];
+    e.lists = vec![Default::default()];
+    e.jit_compile(0);
+    for _ in 0..TERMINAL_SAMPLE {
+        assert_eq!(e.jit_try(0, 0, 1, 100), Some(1));
+    }
+    assert_eq!(e.jit_profile()["native_ops"], u64::from(TERMINAL_SAMPLE));
+    assert_eq!(e.jit_try(0, 0, 1, 100), None);
+    e.jit_record_interpreted(0);
+    assert_eq!(e.jit_profile()["interpreted_ops"], 1);
+    assert_eq!(
+        e.jit_profile()["fallback_reasons"]["unprofitable-terminal-entry"],
+        1
+    );
+    assert_eq!(e.lists[0].borrow().len(), usize::from(TERMINAL_SAMPLE));
+    // A different entry may still execute useful instructions before the tail.
+    e.program.ops[1] = Op::Jump(0);
+    e.jit_compile(1);
+    assert_eq!(e.jit_try(0, 1, 1, 100), Some(2));
 }
