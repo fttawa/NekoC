@@ -217,6 +217,19 @@ test("third round explicitly maps all formerly missing types and preserves parti
   for (const row of unknown) assert.equal(row.status,"缺失");
 });
 
+test("second partial round records scoped evidence without clearing unresolved parity boundaries", () => {
+  const types = ["set_actor_as", "physics2_enable_force", "set_velocity", "physics2_set_actor_as", "physics2_set_speed",
+    "cloud_variables_get", "cloud_variables_set", "change_cloud_variable", "cloud_lists_get",
+    "stamp", "image_stamp", "set_scene_transition"];
+  const rows = mappingStatus(root, types.map(type => ({ type, official: [] })));
+  for (const row of rows) {
+    assert.equal(row.status, "已实现", row.type);
+    assert.equal(row.semantics, "partial", row.type);
+    assert.ok(row.limitations.some(s => s.includes("第二轮") && s.includes("原创")), row.type);
+    assert.ok(row.limitations.some(s => s.includes("未验证") || s.includes("限制") || s.includes("不声明")), row.type);
+  }
+});
+
 test("optional official-package integration: 377 types and audited complete registration tables", {
   skip: !process.env.K4_PLAYER_DIR,
 }, () => {

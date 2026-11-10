@@ -1,0 +1,1818 @@
+{
+  "schema": "nekoc-k4-partial-drawing-evidence-v1",
+  "cases": {
+    "text-sizes": {
+      "sha256": "8fca7c3dc7242bf5f91a5b2e5bcf0d1ad95b623e849360cdec7c1def174e956e",
+      "observations": [
+        {
+          "frame": 1,
+          "calls": [
+            {
+              "method": "fillText",
+              "args": [
+                "NekoC",
+                0,
+                0
+              ],
+              "font": "bold 1px Arial, \"Microsoft YaHei\"",
+              "align": "center",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                0.8660254037844387,
+                -0.49999999999999994,
+                0.49999999999999994,
+                0.8660254037844387,
+                480,
+                360
+              ]
+            },
+            {
+              "method": "fillText",
+              "args": [
+                "NekoC",
+                0,
+                0
+              ],
+              "font": "bold 1px Arial, \"Microsoft YaHei\"",
+              "align": "center",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                0.8660254037844387,
+                -0.49999999999999994,
+                0.49999999999999994,
+                0.8660254037844387,
+                480,
+                360
+              ]
+            },
+            {
+              "method": "fillText",
+              "args": [
+                "NekoC",
+                0,
+                0
+              ],
+              "font": "bold 1px Arial, \"Microsoft YaHei\"",
+              "align": "center",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                0.8660254037844387,
+                -0.49999999999999994,
+                0.49999999999999994,
+                0.8660254037844387,
+                480,
+                360
+              ]
+            },
+            {
+              "method": "fillText",
+              "args": [
+                "NekoC",
+                0,
+                0
+              ],
+              "font": "bold 24.5px Arial, \"Microsoft YaHei\"",
+              "align": "center",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                0.8660254037844387,
+                -0.49999999999999994,
+                0.49999999999999994,
+                0.8660254037844387,
+                480,
+                360
+              ]
+            },
+            {
+              "method": "fillText",
+              "args": [
+                "NekoC",
+                0,
+                0
+              ],
+              "font": "bold 1001px Arial, \"Microsoft YaHei\"",
+              "align": "center",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                0.8660254037844387,
+                -0.49999999999999994,
+                0.49999999999999994,
+                0.8660254037844387,
+                480,
+                360
+              ]
+            },
+            {
+              "method": "fillText",
+              "args": [
+                "NekoC",
+                0,
+                0
+              ],
+              "font": "bold 10000px Arial, \"Microsoft YaHei\"",
+              "align": "center",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                0.8660254037844387,
+                -0.49999999999999994,
+                0.49999999999999994,
+                0.8660254037844387,
+                480,
+                360
+              ]
+            }
+          ],
+          "transition": "none",
+          "sizes": [
+            1
+          ]
+        },
+        {
+          "frame": 2,
+          "calls": [
+            {
+              "method": "fillText",
+              "args": [
+                "NekoC",
+                0,
+                0
+              ],
+              "font": "bold 1px Arial, \"Microsoft YaHei\"",
+              "align": "center",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                0.8660254037844387,
+                -0.49999999999999994,
+                0.49999999999999994,
+                0.8660254037844387,
+                480,
+                360
+              ]
+            },
+            {
+              "method": "fillText",
+              "args": [
+                "NekoC",
+                0,
+                0
+              ],
+              "font": "bold 1px Arial, \"Microsoft YaHei\"",
+              "align": "center",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                0.8660254037844387,
+                -0.49999999999999994,
+                0.49999999999999994,
+                0.8660254037844387,
+                480,
+                360
+              ]
+            },
+            {
+              "method": "fillText",
+              "args": [
+                "NekoC",
+                0,
+                0
+              ],
+              "font": "bold 1px Arial, \"Microsoft YaHei\"",
+              "align": "center",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                0.8660254037844387,
+                -0.49999999999999994,
+                0.49999999999999994,
+                0.8660254037844387,
+                480,
+                360
+              ]
+            },
+            {
+              "method": "fillText",
+              "args": [
+                "NekoC",
+                0,
+                0
+              ],
+              "font": "bold 24.5px Arial, \"Microsoft YaHei\"",
+              "align": "center",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                0.8660254037844387,
+                -0.49999999999999994,
+                0.49999999999999994,
+                0.8660254037844387,
+                480,
+                360
+              ]
+            },
+            {
+              "method": "fillText",
+              "args": [
+                "NekoC",
+                0,
+                0
+              ],
+              "font": "bold 1001px Arial, \"Microsoft YaHei\"",
+              "align": "center",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                0.8660254037844387,
+                -0.49999999999999994,
+                0.49999999999999994,
+                0.8660254037844387,
+                480,
+                360
+              ]
+            },
+            {
+              "method": "fillText",
+              "args": [
+                "NekoC",
+                0,
+                0
+              ],
+              "font": "bold 10000px Arial, \"Microsoft YaHei\"",
+              "align": "center",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                0.8660254037844387,
+                -0.49999999999999994,
+                0.49999999999999994,
+                0.8660254037844387,
+                480,
+                360
+              ]
+            }
+          ],
+          "transition": "none",
+          "sizes": [
+            1
+          ]
+        },
+        {
+          "frame": 3,
+          "calls": [
+            {
+              "method": "fillText",
+              "args": [
+                "NekoC",
+                0,
+                0
+              ],
+              "font": "bold 1px Arial, \"Microsoft YaHei\"",
+              "align": "center",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                0.8660254037844387,
+                -0.49999999999999994,
+                0.49999999999999994,
+                0.8660254037844387,
+                480,
+                360
+              ]
+            },
+            {
+              "method": "fillText",
+              "args": [
+                "NekoC",
+                0,
+                0
+              ],
+              "font": "bold 1px Arial, \"Microsoft YaHei\"",
+              "align": "center",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                0.8660254037844387,
+                -0.49999999999999994,
+                0.49999999999999994,
+                0.8660254037844387,
+                480,
+                360
+              ]
+            },
+            {
+              "method": "fillText",
+              "args": [
+                "NekoC",
+                0,
+                0
+              ],
+              "font": "bold 1px Arial, \"Microsoft YaHei\"",
+              "align": "center",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                0.8660254037844387,
+                -0.49999999999999994,
+                0.49999999999999994,
+                0.8660254037844387,
+                480,
+                360
+              ]
+            },
+            {
+              "method": "fillText",
+              "args": [
+                "NekoC",
+                0,
+                0
+              ],
+              "font": "bold 24.5px Arial, \"Microsoft YaHei\"",
+              "align": "center",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                0.8660254037844387,
+                -0.49999999999999994,
+                0.49999999999999994,
+                0.8660254037844387,
+                480,
+                360
+              ]
+            },
+            {
+              "method": "fillText",
+              "args": [
+                "NekoC",
+                0,
+                0
+              ],
+              "font": "bold 1001px Arial, \"Microsoft YaHei\"",
+              "align": "center",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                0.8660254037844387,
+                -0.49999999999999994,
+                0.49999999999999994,
+                0.8660254037844387,
+                480,
+                360
+              ]
+            },
+            {
+              "method": "fillText",
+              "args": [
+                "NekoC",
+                0,
+                0
+              ],
+              "font": "bold 10000px Arial, \"Microsoft YaHei\"",
+              "align": "center",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                0.8660254037844387,
+                -0.49999999999999994,
+                0.49999999999999994,
+                0.8660254037844387,
+                480,
+                360
+              ]
+            }
+          ],
+          "transition": "none",
+          "sizes": [
+            1
+          ]
+        }
+      ],
+      "variables": [
+        {
+          "tail": 1
+        },
+        {
+          "tail": 1
+        },
+        {
+          "tail": 1
+        }
+      ],
+      "errors": [],
+      "externalAllowed": 0
+    },
+    "text-types": {
+      "sha256": "f377a8999177fab0b1994c341cfa36f37f63b2099fab7cef83723d40449ec204",
+      "observations": [
+        {
+          "frame": 1,
+          "calls": [
+            {
+              "method": "fillText",
+              "args": [
+                "NekoC",
+                0,
+                0
+              ],
+              "font": "bold 10000px Arial, \"Microsoft YaHei\"",
+              "align": "center",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                0.8660254037844387,
+                -0.49999999999999994,
+                0.49999999999999994,
+                0.8660254037844387,
+                480,
+                360
+              ]
+            },
+            {
+              "method": "fillText",
+              "args": [
+                "NekoC",
+                0,
+                0
+              ],
+              "font": "bold 1px Arial, \"Microsoft YaHei\"",
+              "align": "center",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                0.8660254037844387,
+                -0.49999999999999994,
+                0.49999999999999994,
+                0.8660254037844387,
+                480,
+                360
+              ]
+            },
+            {
+              "method": "fillText",
+              "args": [
+                123,
+                0,
+                0
+              ],
+              "font": "bold 20px Arial, \"Microsoft YaHei\"",
+              "align": "left",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                0.8660254037844387,
+                -0.49999999999999994,
+                0.49999999999999994,
+                0.8660254037844387,
+                480,
+                360
+              ]
+            },
+            {
+              "method": "fillText",
+              "args": [
+                "",
+                0,
+                0
+              ],
+              "font": "bold 20px Arial, \"Microsoft YaHei\"",
+              "align": "right",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                0.8660254037844387,
+                -0.49999999999999994,
+                0.49999999999999994,
+                0.8660254037844387,
+                480,
+                360
+              ]
+            }
+          ],
+          "transition": "none",
+          "sizes": [
+            1
+          ]
+        },
+        {
+          "frame": 2,
+          "calls": [
+            {
+              "method": "fillText",
+              "args": [
+                "NekoC",
+                0,
+                0
+              ],
+              "font": "bold 10000px Arial, \"Microsoft YaHei\"",
+              "align": "center",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                0.8660254037844387,
+                -0.49999999999999994,
+                0.49999999999999994,
+                0.8660254037844387,
+                480,
+                360
+              ]
+            },
+            {
+              "method": "fillText",
+              "args": [
+                "NekoC",
+                0,
+                0
+              ],
+              "font": "bold 1px Arial, \"Microsoft YaHei\"",
+              "align": "center",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                0.8660254037844387,
+                -0.49999999999999994,
+                0.49999999999999994,
+                0.8660254037844387,
+                480,
+                360
+              ]
+            },
+            {
+              "method": "fillText",
+              "args": [
+                123,
+                0,
+                0
+              ],
+              "font": "bold 20px Arial, \"Microsoft YaHei\"",
+              "align": "left",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                0.8660254037844387,
+                -0.49999999999999994,
+                0.49999999999999994,
+                0.8660254037844387,
+                480,
+                360
+              ]
+            },
+            {
+              "method": "fillText",
+              "args": [
+                "",
+                0,
+                0
+              ],
+              "font": "bold 20px Arial, \"Microsoft YaHei\"",
+              "align": "right",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                0.8660254037844387,
+                -0.49999999999999994,
+                0.49999999999999994,
+                0.8660254037844387,
+                480,
+                360
+              ]
+            }
+          ],
+          "transition": "none",
+          "sizes": [
+            1
+          ]
+        },
+        {
+          "frame": 3,
+          "calls": [
+            {
+              "method": "fillText",
+              "args": [
+                "NekoC",
+                0,
+                0
+              ],
+              "font": "bold 10000px Arial, \"Microsoft YaHei\"",
+              "align": "center",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                0.8660254037844387,
+                -0.49999999999999994,
+                0.49999999999999994,
+                0.8660254037844387,
+                480,
+                360
+              ]
+            },
+            {
+              "method": "fillText",
+              "args": [
+                "NekoC",
+                0,
+                0
+              ],
+              "font": "bold 1px Arial, \"Microsoft YaHei\"",
+              "align": "center",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                0.8660254037844387,
+                -0.49999999999999994,
+                0.49999999999999994,
+                0.8660254037844387,
+                480,
+                360
+              ]
+            },
+            {
+              "method": "fillText",
+              "args": [
+                123,
+                0,
+                0
+              ],
+              "font": "bold 20px Arial, \"Microsoft YaHei\"",
+              "align": "left",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                0.8660254037844387,
+                -0.49999999999999994,
+                0.49999999999999994,
+                0.8660254037844387,
+                480,
+                360
+              ]
+            },
+            {
+              "method": "fillText",
+              "args": [
+                "",
+                0,
+                0
+              ],
+              "font": "bold 20px Arial, \"Microsoft YaHei\"",
+              "align": "right",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                0.8660254037844387,
+                -0.49999999999999994,
+                0.49999999999999994,
+                0.8660254037844387,
+                480,
+                360
+              ]
+            }
+          ],
+          "transition": "none",
+          "sizes": [
+            1
+          ]
+        }
+      ],
+      "variables": [
+        {
+          "tail": 1
+        },
+        {
+          "tail": 1
+        },
+        {
+          "tail": 1
+        }
+      ],
+      "errors": [],
+      "externalAllowed": 0
+    },
+    "text-align": {
+      "sha256": "c2b06238dbed445239a0a17a78d6bac1bf846e4f5a74fc8131161940fef1812f",
+      "observations": [
+        {
+          "frame": 1,
+          "calls": [
+            {
+              "method": "fillText",
+              "args": [
+                "NekoC",
+                0,
+                0
+              ],
+              "font": "bold 25px Arial, \"Microsoft YaHei\"",
+              "align": "left",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                0.8660254037844387,
+                -0.49999999999999994,
+                0.49999999999999994,
+                0.8660254037844387,
+                480,
+                360
+              ]
+            },
+            {
+              "method": "fillText",
+              "args": [
+                "NekoC",
+                0,
+                0
+              ],
+              "font": "bold 25px Arial, \"Microsoft YaHei\"",
+              "align": "center",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                0.8660254037844387,
+                -0.49999999999999994,
+                0.49999999999999994,
+                0.8660254037844387,
+                480,
+                360
+              ]
+            },
+            {
+              "method": "fillText",
+              "args": [
+                "NekoC",
+                0,
+                0
+              ],
+              "font": "bold 25px Arial, \"Microsoft YaHei\"",
+              "align": "right",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                0.8660254037844387,
+                -0.49999999999999994,
+                0.49999999999999994,
+                0.8660254037844387,
+                480,
+                360
+              ]
+            },
+            {
+              "method": "fillText",
+              "args": [
+                "NekoC",
+                0,
+                0
+              ],
+              "font": "bold 25px Arial, \"Microsoft YaHei\"",
+              "align": "start",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                0.8660254037844387,
+                -0.49999999999999994,
+                0.49999999999999994,
+                0.8660254037844387,
+                480,
+                360
+              ]
+            },
+            {
+              "method": "fillText",
+              "args": [
+                "NekoC",
+                0,
+                0
+              ],
+              "font": "bold 25px Arial, \"Microsoft YaHei\"",
+              "align": "start",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                0.8660254037844387,
+                -0.49999999999999994,
+                0.49999999999999994,
+                0.8660254037844387,
+                480,
+                360
+              ]
+            }
+          ],
+          "transition": "none",
+          "sizes": [
+            1
+          ]
+        },
+        {
+          "frame": 2,
+          "calls": [
+            {
+              "method": "fillText",
+              "args": [
+                "NekoC",
+                0,
+                0
+              ],
+              "font": "bold 25px Arial, \"Microsoft YaHei\"",
+              "align": "left",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                0.8660254037844387,
+                -0.49999999999999994,
+                0.49999999999999994,
+                0.8660254037844387,
+                480,
+                360
+              ]
+            },
+            {
+              "method": "fillText",
+              "args": [
+                "NekoC",
+                0,
+                0
+              ],
+              "font": "bold 25px Arial, \"Microsoft YaHei\"",
+              "align": "center",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                0.8660254037844387,
+                -0.49999999999999994,
+                0.49999999999999994,
+                0.8660254037844387,
+                480,
+                360
+              ]
+            },
+            {
+              "method": "fillText",
+              "args": [
+                "NekoC",
+                0,
+                0
+              ],
+              "font": "bold 25px Arial, \"Microsoft YaHei\"",
+              "align": "right",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                0.8660254037844387,
+                -0.49999999999999994,
+                0.49999999999999994,
+                0.8660254037844387,
+                480,
+                360
+              ]
+            },
+            {
+              "method": "fillText",
+              "args": [
+                "NekoC",
+                0,
+                0
+              ],
+              "font": "bold 25px Arial, \"Microsoft YaHei\"",
+              "align": "start",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                0.8660254037844387,
+                -0.49999999999999994,
+                0.49999999999999994,
+                0.8660254037844387,
+                480,
+                360
+              ]
+            },
+            {
+              "method": "fillText",
+              "args": [
+                "NekoC",
+                0,
+                0
+              ],
+              "font": "bold 25px Arial, \"Microsoft YaHei\"",
+              "align": "start",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                0.8660254037844387,
+                -0.49999999999999994,
+                0.49999999999999994,
+                0.8660254037844387,
+                480,
+                360
+              ]
+            }
+          ],
+          "transition": "none",
+          "sizes": [
+            1
+          ]
+        },
+        {
+          "frame": 3,
+          "calls": [
+            {
+              "method": "fillText",
+              "args": [
+                "NekoC",
+                0,
+                0
+              ],
+              "font": "bold 25px Arial, \"Microsoft YaHei\"",
+              "align": "left",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                0.8660254037844387,
+                -0.49999999999999994,
+                0.49999999999999994,
+                0.8660254037844387,
+                480,
+                360
+              ]
+            },
+            {
+              "method": "fillText",
+              "args": [
+                "NekoC",
+                0,
+                0
+              ],
+              "font": "bold 25px Arial, \"Microsoft YaHei\"",
+              "align": "center",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                0.8660254037844387,
+                -0.49999999999999994,
+                0.49999999999999994,
+                0.8660254037844387,
+                480,
+                360
+              ]
+            },
+            {
+              "method": "fillText",
+              "args": [
+                "NekoC",
+                0,
+                0
+              ],
+              "font": "bold 25px Arial, \"Microsoft YaHei\"",
+              "align": "right",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                0.8660254037844387,
+                -0.49999999999999994,
+                0.49999999999999994,
+                0.8660254037844387,
+                480,
+                360
+              ]
+            },
+            {
+              "method": "fillText",
+              "args": [
+                "NekoC",
+                0,
+                0
+              ],
+              "font": "bold 25px Arial, \"Microsoft YaHei\"",
+              "align": "start",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                0.8660254037844387,
+                -0.49999999999999994,
+                0.49999999999999994,
+                0.8660254037844387,
+                480,
+                360
+              ]
+            },
+            {
+              "method": "fillText",
+              "args": [
+                "NekoC",
+                0,
+                0
+              ],
+              "font": "bold 25px Arial, \"Microsoft YaHei\"",
+              "align": "start",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                0.8660254037844387,
+                -0.49999999999999994,
+                0.49999999999999994,
+                0.8660254037844387,
+                480,
+                360
+              ]
+            }
+          ],
+          "transition": "none",
+          "sizes": [
+            1
+          ]
+        }
+      ],
+      "variables": [
+        {
+          "tail": 1
+        },
+        {
+          "tail": 1
+        },
+        {
+          "tail": 1
+        }
+      ],
+      "errors": [],
+      "externalAllowed": 0
+    },
+    "image-state": {
+      "sha256": "27ed7ff4f8c6631a35b2eac5264e935ca522e71f19c0feffd1fffc7dd83972ed",
+      "observations": [
+        {
+          "frame": 1,
+          "calls": [
+            {
+              "method": "drawImage",
+              "args": [
+                -50,
+                -25,
+                98,
+                49
+              ],
+              "font": "10px sans-serif",
+              "align": "start",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                1,
+                0,
+                0,
+                1,
+                476.2080078125,
+                384.38800048828125
+              ]
+            }
+          ],
+          "transition": "none",
+          "sizes": [
+            1
+          ]
+        },
+        {
+          "frame": 2,
+          "calls": [
+            {
+              "method": "drawImage",
+              "args": [
+                -50,
+                -25,
+                98,
+                49
+              ],
+              "font": "10px sans-serif",
+              "align": "start",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                1,
+                0,
+                0,
+                1,
+                476.2080078125,
+                384.38800048828125
+              ]
+            }
+          ],
+          "transition": "none",
+          "sizes": [
+            1
+          ]
+        },
+        {
+          "frame": 3,
+          "calls": [
+            {
+              "method": "drawImage",
+              "args": [
+                -50,
+                -25,
+                98,
+                49
+              ],
+              "font": "10px sans-serif",
+              "align": "start",
+              "color": "#000000",
+              "alpha": 1,
+              "matrix": [
+                1,
+                0,
+                0,
+                1,
+                476.2080078125,
+                384.38800048828125
+              ]
+            }
+          ],
+          "transition": "none",
+          "sizes": [
+            1
+          ]
+        }
+      ],
+      "variables": [
+        {
+          "tail": 1
+        },
+        {
+          "tail": 1
+        },
+        {
+          "tail": 1
+        }
+      ],
+      "errors": [],
+      "externalAllowed": 0
+    },
+    "scene-stamp": {
+      "sha256": "fe909c4595b474f360a92d8fedd5d2f8d5340644642d6d363784367dadd8d04b",
+      "observations": [
+        {
+          "frame": 1,
+          "calls": [],
+          "transition": "none",
+          "sizes": [
+            1
+          ]
+        }
+      ],
+      "variables": [],
+      "errors": [
+        "{\"category\":{\"unique_code\":\"HEART.CLIENT\",\"description\":\"Errors created and thrown by the client environment\",\"default_http_code\":500},\"annotation\":{\"client_annotation\":{\"namespace\":\"\",\"id\":\"use_pen_blocks_in_scene\"},\"block_id\":\"scene-command\",\"block_type\":\"stamp\",\"root_block_id\":\"start\",\"entity_id\":\"10000000-0000-4000-8000-000000000001\",\"interpreter_id\":\"__typeclass-10000000-0000-4000-8000-000000000001__instance-10000000-0000-4000-8000-000000000001__srbid-start__6872312510\",\"interpreter_stack\":[{\"interpreter_id\":\"__typeclass-10000000-0000-4000-8000-000000000001__instance-10000000-0000-4000-8000-000000000001__srbid-start__6872312510\",\"source_entity_id\":\"10000000-0000-4000-8000-000000000001\",\"source_map_rbid\":\"start\",\"proc_parameters\":{}}],\"source_map_rbid\":\"start\",\"source_entity_id\":\"10000000-0000-4000-8000-000000000001\"},\"where\":\"RuntimeManager::update, stepping code\"}"
+      ],
+      "externalAllowed": 0
+    },
+    "scene-image_stamp": {
+      "sha256": "f6f8874540e593188f70dea88a8f7e4ee93f2315c755c8ef9caa99e576773724",
+      "observations": [
+        {
+          "frame": 1,
+          "calls": [],
+          "transition": "none",
+          "sizes": [
+            1
+          ]
+        }
+      ],
+      "variables": [],
+      "errors": [
+        "{\"category\":{\"unique_code\":\"HEART.CLIENT\",\"description\":\"Errors created and thrown by the client environment\",\"default_http_code\":500},\"annotation\":{\"client_annotation\":{\"namespace\":\"\",\"id\":\"use_pen_blocks_in_scene\"},\"block_id\":\"scene-command\",\"block_type\":\"image_stamp\",\"root_block_id\":\"start\",\"entity_id\":\"10000000-0000-4000-8000-000000000001\",\"interpreter_id\":\"__typeclass-10000000-0000-4000-8000-000000000001__instance-10000000-0000-4000-8000-000000000001__srbid-start__6872312510\",\"interpreter_stack\":[{\"interpreter_id\":\"__typeclass-10000000-0000-4000-8000-000000000001__instance-10000000-0000-4000-8000-000000000001__srbid-start__6872312510\",\"source_entity_id\":\"10000000-0000-4000-8000-000000000001\",\"source_map_rbid\":\"start\",\"proc_parameters\":{}}],\"source_map_rbid\":\"start\",\"source_entity_id\":\"10000000-0000-4000-8000-000000000001\"},\"where\":\"RuntimeManager::update, stepping code\"}"
+      ],
+      "externalAllowed": 0
+    },
+    "scene-self_set_pen_size": {
+      "sha256": "741a28a8d0fff1ea7c6d7f3c02abebe85d38744c5fc76ccfbcc4f25055e74259",
+      "observations": [
+        {
+          "frame": 1,
+          "calls": [],
+          "transition": "none",
+          "sizes": [
+            1
+          ]
+        }
+      ],
+      "variables": [],
+      "errors": [
+        "{\"category\":{\"unique_code\":\"HEART.CLIENT\",\"description\":\"Errors created and thrown by the client environment\",\"default_http_code\":500},\"annotation\":{\"client_annotation\":{\"namespace\":\"\",\"id\":\"use_pen_blocks_in_scene\"},\"block_id\":\"scene-command\",\"block_type\":\"self_set_pen_size\",\"root_block_id\":\"start\",\"entity_id\":\"10000000-0000-4000-8000-000000000001\",\"interpreter_id\":\"__typeclass-10000000-0000-4000-8000-000000000001__instance-10000000-0000-4000-8000-000000000001__srbid-start__6872312510\",\"interpreter_stack\":[{\"interpreter_id\":\"__typeclass-10000000-0000-4000-8000-000000000001__instance-10000000-0000-4000-8000-000000000001__srbid-start__6872312510\",\"source_entity_id\":\"10000000-0000-4000-8000-000000000001\",\"source_map_rbid\":\"start\",\"proc_parameters\":{}}],\"source_map_rbid\":\"start\",\"source_entity_id\":\"10000000-0000-4000-8000-000000000001\"},\"where\":\"RuntimeManager::update, stepping code\"}"
+      ],
+      "externalAllowed": 0
+    },
+    "scene-self_pen_down": {
+      "sha256": "741dd11c2bfc7d08e829daaa23f16bc17b381dc7e5dbd9a75593f4752e6d847f",
+      "observations": [
+        {
+          "frame": 1,
+          "calls": [],
+          "transition": "none",
+          "sizes": [
+            1
+          ]
+        }
+      ],
+      "variables": [],
+      "errors": [
+        "{\"category\":{\"unique_code\":\"HEART.CLIENT\",\"description\":\"Errors created and thrown by the client environment\",\"default_http_code\":500},\"annotation\":{\"client_annotation\":{\"namespace\":\"\",\"id\":\"use_pen_blocks_in_scene\"},\"block_id\":\"scene-command\",\"block_type\":\"self_pen_down\",\"root_block_id\":\"start\",\"entity_id\":\"10000000-0000-4000-8000-000000000001\",\"interpreter_id\":\"__typeclass-10000000-0000-4000-8000-000000000001__instance-10000000-0000-4000-8000-000000000001__srbid-start__6872312510\",\"interpreter_stack\":[{\"interpreter_id\":\"__typeclass-10000000-0000-4000-8000-000000000001__instance-10000000-0000-4000-8000-000000000001__srbid-start__6872312510\",\"source_entity_id\":\"10000000-0000-4000-8000-000000000001\",\"source_map_rbid\":\"start\",\"proc_parameters\":{}}],\"source_map_rbid\":\"start\",\"source_entity_id\":\"10000000-0000-4000-8000-000000000001\"},\"where\":\"RuntimeManager::update, stepping code\"}"
+      ],
+      "externalAllowed": 0
+    },
+    "scene-clear_drawing": {
+      "sha256": "2d9d5c279c57228203b4823c7cf7dbacbcdfbab44735122d150e30b779e99b1e",
+      "observations": [
+        {
+          "frame": 1,
+          "calls": [],
+          "transition": "none",
+          "sizes": [
+            1
+          ]
+        }
+      ],
+      "variables": [],
+      "errors": [
+        "{\"category\":{\"unique_code\":\"HEART.CLIENT\",\"description\":\"Errors created and thrown by the client environment\",\"default_http_code\":500},\"annotation\":{\"client_annotation\":{\"namespace\":\"\",\"id\":\"use_pen_blocks_in_scene\"},\"block_id\":\"scene-command\",\"block_type\":\"clear_drawing\",\"root_block_id\":\"start\",\"entity_id\":\"10000000-0000-4000-8000-000000000001\",\"interpreter_id\":\"__typeclass-10000000-0000-4000-8000-000000000001__instance-10000000-0000-4000-8000-000000000001__srbid-start__6872312510\",\"interpreter_stack\":[{\"interpreter_id\":\"__typeclass-10000000-0000-4000-8000-000000000001__instance-10000000-0000-4000-8000-000000000001__srbid-start__6872312510\",\"source_entity_id\":\"10000000-0000-4000-8000-000000000001\",\"source_map_rbid\":\"start\",\"proc_parameters\":{}}],\"source_map_rbid\":\"start\",\"source_entity_id\":\"10000000-0000-4000-8000-000000000001\"},\"where\":\"RuntimeManager::update, stepping code\"}"
+      ],
+      "externalAllowed": 0
+    },
+    "pen-sizes": {
+      "sha256": "179019b73a9871a10f537ee4500ff140e30c01c2d210a076c43597cb43988db1",
+      "observations": [
+        {
+          "frame": 1,
+          "calls": [],
+          "transition": "none",
+          "sizes": [
+            5000
+          ]
+        },
+        {
+          "frame": 2,
+          "calls": [],
+          "transition": "none",
+          "sizes": [
+            5000
+          ]
+        },
+        {
+          "frame": 3,
+          "calls": [],
+          "transition": "none",
+          "sizes": [
+            10000
+          ]
+        },
+        {
+          "frame": 4,
+          "calls": [],
+          "transition": "none",
+          "sizes": [
+            10000
+          ]
+        },
+        {
+          "frame": 5,
+          "calls": [],
+          "transition": "none",
+          "sizes": [
+            1
+          ]
+        },
+        {
+          "frame": 6,
+          "calls": [],
+          "transition": "none",
+          "sizes": [
+            1
+          ]
+        },
+        {
+          "frame": 7,
+          "calls": [],
+          "transition": "none",
+          "sizes": [
+            1
+          ]
+        },
+        {
+          "frame": 8,
+          "calls": [],
+          "transition": "none",
+          "sizes": [
+            1
+          ]
+        },
+        {
+          "frame": 9,
+          "calls": [],
+          "transition": "none",
+          "sizes": [
+            10000
+          ]
+        },
+        {
+          "frame": 10,
+          "calls": [],
+          "transition": "none",
+          "sizes": [
+            10000
+          ]
+        },
+        {
+          "frame": 11,
+          "calls": [],
+          "transition": "none",
+          "sizes": [
+            10000
+          ]
+        },
+        {
+          "frame": 12,
+          "calls": [],
+          "transition": "none",
+          "sizes": [
+            10000
+          ]
+        },
+        {
+          "frame": 13,
+          "calls": [],
+          "transition": "none",
+          "sizes": [
+            10000
+          ]
+        },
+        {
+          "frame": 14,
+          "calls": [],
+          "transition": "none",
+          "sizes": [
+            10000
+          ]
+        },
+        {
+          "frame": 15,
+          "calls": [],
+          "transition": "none",
+          "sizes": [
+            10000
+          ]
+        },
+        {
+          "frame": 16,
+          "calls": [],
+          "transition": "none",
+          "sizes": [
+            10000
+          ]
+        },
+        {
+          "frame": 17,
+          "calls": [],
+          "transition": "none",
+          "sizes": [
+            10000
+          ]
+        },
+        {
+          "frame": 18,
+          "calls": [],
+          "transition": "none",
+          "sizes": [
+            10000
+          ]
+        }
+      ],
+      "variables": [
+        {
+          "tail": 0
+        },
+        {
+          "tail": 0
+        },
+        {
+          "tail": 0
+        },
+        {
+          "tail": 0
+        },
+        {
+          "tail": 0
+        },
+        {
+          "tail": 0
+        },
+        {
+          "tail": 0
+        },
+        {
+          "tail": 0
+        },
+        {
+          "tail": 0
+        },
+        {
+          "tail": 0
+        },
+        {
+          "tail": 1
+        },
+        {
+          "tail": 1
+        },
+        {
+          "tail": 1
+        },
+        {
+          "tail": 1
+        },
+        {
+          "tail": 1
+        },
+        {
+          "tail": 1
+        },
+        {
+          "tail": 1
+        },
+        {
+          "tail": 1
+        }
+      ],
+      "errors": [],
+      "externalAllowed": 0
+    },
+    "transition-distrot-left": {
+      "sha256": "106bd91bd3d9cf24f7c3c74313dd99bc472f9299d0d1f78e9c5de5b4f809bbb7",
+      "observations": [
+        {
+          "frame": 1,
+          "calls": [],
+          "transition": "distort",
+          "sizes": [
+            1
+          ]
+        },
+        {
+          "frame": 2,
+          "calls": [],
+          "transition": "distort",
+          "sizes": [
+            1
+          ]
+        },
+        {
+          "frame": 3,
+          "calls": [],
+          "transition": "distort",
+          "sizes": [
+            1
+          ]
+        }
+      ],
+      "variables": [
+        {
+          "tail": 1
+        },
+        {
+          "tail": 1
+        },
+        {
+          "tail": 1
+        }
+      ],
+      "errors": [],
+      "externalAllowed": 0
+    },
+    "transition-fadeInOut-right": {
+      "sha256": "5ec3a7c3c9f6ee9f0e7ebd270a23f35908e32200ad2b37ab4dbcd3109694ad92",
+      "observations": [
+        {
+          "frame": 1,
+          "calls": [],
+          "transition": "fade_in_out",
+          "sizes": [
+            1
+          ]
+        },
+        {
+          "frame": 2,
+          "calls": [],
+          "transition": "fade_in_out",
+          "sizes": [
+            1
+          ]
+        },
+        {
+          "frame": 3,
+          "calls": [],
+          "transition": "fade_in_out",
+          "sizes": [
+            1
+          ]
+        }
+      ],
+      "variables": [
+        {
+          "tail": 1
+        },
+        {
+          "tail": 1
+        },
+        {
+          "tail": 1
+        }
+      ],
+      "errors": [],
+      "externalAllowed": 0
+    },
+    "transition-bounce-up": {
+      "sha256": "06adaf6e319f1020f880174b75999a7f7ec2c389ed9b34b3cd853191fcc85bfc",
+      "observations": [
+        {
+          "frame": 1,
+          "calls": [],
+          "transition": "bounce_up",
+          "sizes": [
+            1
+          ]
+        },
+        {
+          "frame": 2,
+          "calls": [],
+          "transition": "bounce_up",
+          "sizes": [
+            1
+          ]
+        },
+        {
+          "frame": 3,
+          "calls": [],
+          "transition": "bounce_up",
+          "sizes": [
+            1
+          ]
+        }
+      ],
+      "variables": [
+        {
+          "tail": 1
+        },
+        {
+          "tail": 1
+        },
+        {
+          "tail": 1
+        }
+      ],
+      "errors": [],
+      "externalAllowed": 0
+    },
+    "transition-slide-down": {
+      "sha256": "5258e4058098ab9f313017b8ba86a35e06ada4bf9b7d576841686234fc65f405",
+      "observations": [
+        {
+          "frame": 1,
+          "calls": [],
+          "transition": "slide_down",
+          "sizes": [
+            1
+          ]
+        },
+        {
+          "frame": 2,
+          "calls": [],
+          "transition": "slide_down",
+          "sizes": [
+            1
+          ]
+        },
+        {
+          "frame": 3,
+          "calls": [],
+          "transition": "slide_down",
+          "sizes": [
+            1
+          ]
+        }
+      ],
+      "variables": [
+        {
+          "tail": 1
+        },
+        {
+          "tail": 1
+        },
+        {
+          "tail": 1
+        }
+      ],
+      "errors": [],
+      "externalAllowed": 0
+    },
+    "transition-slide-invalid": {
+      "sha256": "fcd41af072e48544168706b3d09c08648d873b138b81dfd02e8497568ebbacad",
+      "observations": [
+        {
+          "frame": 1,
+          "calls": [],
+          "transition": "slide_invalid",
+          "sizes": [
+            1
+          ]
+        },
+        {
+          "frame": 2,
+          "calls": [],
+          "transition": "slide_invalid",
+          "sizes": [
+            1
+          ]
+        },
+        {
+          "frame": 3,
+          "calls": [],
+          "transition": "slide_invalid",
+          "sizes": [
+            1
+          ]
+        }
+      ],
+      "variables": [
+        {
+          "tail": 1
+        },
+        {
+          "tail": 1
+        },
+        {
+          "tail": 1
+        }
+      ],
+      "errors": [],
+      "externalAllowed": 0
+    },
+    "transition-none-invalid": {
+      "sha256": "1c00ce73d329d460a592ac048c80d7b246ce6b28bbd8a0779ee71c534bf7e052",
+      "observations": [
+        {
+          "frame": 1,
+          "calls": [],
+          "transition": "none",
+          "sizes": [
+            1
+          ]
+        },
+        {
+          "frame": 2,
+          "calls": [],
+          "transition": "none",
+          "sizes": [
+            1
+          ]
+        },
+        {
+          "frame": 3,
+          "calls": [],
+          "transition": "none",
+          "sizes": [
+            1
+          ]
+        }
+      ],
+      "variables": [
+        {
+          "tail": 1
+        },
+        {
+          "tail": 1
+        },
+        {
+          "tail": 1
+        }
+      ],
+      "errors": [],
+      "externalAllowed": 0
+    },
+    "transition-empty-empty": {
+      "sha256": "46f6518600c61208047687fefc819d8525c09def82434569afa3645df07a7cd9",
+      "observations": [
+        {
+          "frame": 1,
+          "calls": [],
+          "transition": "",
+          "sizes": [
+            1
+          ]
+        },
+        {
+          "frame": 2,
+          "calls": [],
+          "transition": "",
+          "sizes": [
+            1
+          ]
+        },
+        {
+          "frame": 3,
+          "calls": [],
+          "transition": "",
+          "sizes": [
+            1
+          ]
+        }
+      ],
+      "variables": [
+        {
+          "tail": 1
+        },
+        {
+          "tail": 1
+        },
+        {
+          "tail": 1
+        }
+      ],
+      "errors": [],
+      "externalAllowed": 0
+    },
+    "transition-custom-diagonal": {
+      "sha256": "62b0463fa182a772268df26ecc45d744618b515ddbf4da6fe30df9d1214d7050",
+      "observations": [
+        {
+          "frame": 1,
+          "calls": [],
+          "transition": "custom",
+          "sizes": [
+            1
+          ]
+        },
+        {
+          "frame": 2,
+          "calls": [],
+          "transition": "custom",
+          "sizes": [
+            1
+          ]
+        },
+        {
+          "frame": 3,
+          "calls": [],
+          "transition": "custom",
+          "sizes": [
+            1
+          ]
+        }
+      ],
+      "variables": [
+        {
+          "tail": 1
+        },
+        {
+          "tail": 1
+        },
+        {
+          "tail": 1
+        }
+      ],
+      "errors": [],
+      "externalAllowed": 0
+    }
+  },
+  "assets": [
+    {
+      "name": "player_v2__3ffeebbd0c789e8d9422.css",
+      "source": "player_v2__3ffeebbd0c789e8d9422.css",
+      "sha256": "39e8e70b124b604831773893cdc95931cdee3eaea52c6dd69f33f5781d48b45a"
+    },
+    {
+      "name": "runtime.f42f527f119e09010b85.js",
+      "source": "runtime.f42f527f119e09010b85.js",
+      "sha256": "4164d67795238f64d035f473418236038ae475ae36032a967cba16ede263735f"
+    },
+    {
+      "name": "vendors.d00f4bd454a6352e9d71.js",
+      "source": "vendors.d00f4bd454a6352e9d71.js",
+      "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
+    },
+    {
+      "name": "player_v2.2d180c468559fbd29528.js",
+      "source": "player_v2.2d180c468559fbd29528.js.orig",
+      "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160"
+    },
+    {
+      "name": "9.c396696e9dc71e25b012.js",
+      "source": "9.c396696e9dc71e25b012.js",
+      "sha256": "5758343310c47596d56e954aa05fa76a546080c8bf4fefd41cac0042794d6195"
+    },
+    {
+      "name": "14.c95e6f2ddd61fb701d0e.js",
+      "source": "14.c95e6f2ddd61fb701d0e.js",
+      "sha256": "d3ce91c9113463db4c0988210caeb1be2ddc508499d5c53a8e73a13b5f440175"
+    },
+    {
+      "name": "11.477512e6f03fd2f6f3c5.js",
+      "source": "11.477512e6f03fd2f6f3c5.js",
+      "sha256": "e81bfe3462cc3e79a70ba016ddee2a372a31480d3f52964952e1d21f3a490f91"
+    }
+  ]
+}

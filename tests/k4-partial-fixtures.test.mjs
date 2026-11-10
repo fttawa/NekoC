@@ -5,8 +5,9 @@ import test from "node:test";
 import { propertyFixtures } from "../tools/compat/k4-partial-properties-fixtures.mjs";
 import { partialEffectsFixtures } from "../tools/compat/k4-partial-effects-fixtures.mjs";
 import { partialMiscFixtures } from "../tools/compat/k4-partial-misc-fixtures.mjs";
+import { partialDrawingFixtures } from "../tools/compat/k4-partial-drawing-fixtures.mjs";
 
-for (const [category, generate] of [["properties", propertyFixtures], ["effects", partialEffectsFixtures], ["misc", partialMiscFixtures]]) {
+for (const [category, generate] of [["properties", propertyFixtures], ["effects", partialEffectsFixtures], ["misc", partialMiscFixtures], ["drawing", partialDrawingFixtures]]) {
   test(`partial ${category}: original fixtures and official evidence hashes stay reproducible`, async () => {
     const evidence = JSON.parse(await fs.readFile(`docs/kitten4-partial-${category}-evidence.json`, "utf8"));
     const fixtures = await generate();

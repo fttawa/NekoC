@@ -99,7 +99,7 @@ mod tests {
     }
 
     #[test]
-    fn sensor_static_hidden_and_repeated_enable_preserve_velocity() {
+    fn disabled_sensor_and_hidden_dynamic_body_preserve_velocity() {
         let mut e = engine();
         command(&mut e, 1, Command::Gravity, [0.0; 3]);
         command(&mut e, 1, Command::Speed, [2.0, 0.0, 0.0]);
@@ -299,6 +299,23 @@ mod legacy_tests {
         assert_eq!(e.physics.as_ref().unwrap().worlds[&0].edges.len(), 3);
         command(&mut e, 1, Command::LegacyBoundary(0), [0.0; 3]);
         assert!(e.physics.as_ref().unwrap().worlds[&0].edges.is_empty());
+    }
+
+    #[test]
+    fn legacy_exit_clears_velocity_but_hidden_attend_only_changes_forceable() {
+        let mut e = engine();
+        command(&mut e, 1, Command::Gravity, [0.0; 3]);
+        command(&mut e, 1, Command::LegacyVelocity, [2.0, 0.0, 0.0]);
+        command(&mut e, 1, Command::LegacyCollidable(false), [0.0; 3]);
+        assert_eq!(e.legacy_physics_property(1, Property::Speed), 0.0);
+        command(&mut e, 1, Command::LegacyCollidable(true), [0.0; 3]);
+        command(&mut e, 1, Command::LegacyVelocity, [3.0, 0.0, 0.0]);
+        assert_eq!(e.legacy_physics_property(1, Property::Speed), 0.0);
+        command(&mut e, 1, Command::LegacyEnable(true), [0.0; 3]);
+        command(&mut e, 1, Command::LegacyVelocity, [2.0, 0.0, 0.0]);
+        e.sprites[1].visible = false;
+        command(&mut e, 1, Command::LegacyCollidable(true), [0.0; 3]);
+        assert_eq!(e.legacy_physics_property(1, Property::Speed), 2.0);
     }
 
     #[test]
@@ -567,7 +584,6 @@ struct Body {
     rotate: bool,
     shape: (Option<String>, f64, f64),
     forces: Vec<(u64, Vector<f64>)>,
-    saved_velocity: Vector<f64>,
     // Official adapter keeps this on rigid actors too. It only changes the
     // particle group when an elastic body actually exists (not implemented).
     strength: f64,
@@ -736,6 +752,7 @@ impl Engine {
             .get_mut(&self.sprites[clone].scene)
             .unwrap();
         let b = w.actors.get_mut(&clone).unwrap();
+        w.bodies[b.handle].set_body_type(RigidBodyType::Fixed, true);
         b.strength = if material.3 == 0.0 { 1.0 } else { material.3 };
         let c = &mut w.colliders[b.collider];
         c.set_density(material.0);
@@ -759,6 +776,15 @@ impl Engine {
                 self.ensure_physics_body(actor);
                 self.physics_command(actor, Command::Forceable(false), [0.0; 3])
                     .unwrap();
+                let w = self
+                    .physics
+                    .as_mut()
+                    .unwrap()
+                    .worlds
+                    .get_mut(&self.sprites[actor].scene)
+                    .unwrap();
+                let b = &w.actors[&actor];
+                w.bodies[b.handle].set_body_type(RigidBodyType::Fixed, true);
             }
         }
     }
@@ -809,7 +835,6 @@ impl Engine {
                 rotate: false,
                 shape: signature(a),
                 forces: vec![],
-                saved_velocity: Vector::zeros(),
                 strength: 2.5,
             },
         );
@@ -913,9 +938,24 @@ impl Engine {
                         .get_mut(&self.sprites[actor].scene)
                         .unwrap();
                     let b = w.actors.get_mut(&actor).unwrap();
-                    b.saved_velocity = Vector::zeros();
                     w.bodies[b.handle].set_linvel(Vector::zeros(), true);
                 }
+                let w = self
+                    .physics
+                    .as_mut()
+                    .unwrap()
+                    .worlds
+                    .get_mut(&self.sprites[actor].scene)
+                    .unwrap();
+                let b = w.actors.get_mut(&actor).unwrap();
+                w.bodies[b.handle].set_body_type(
+                    if enabled {
+                        RigidBodyType::Dynamic
+                    } else {
+                        RigidBodyType::Fixed
+                    },
+                    true,
+                );
                 Command::Forceable(enabled)
             }
             Command::LegacyCollidable(enabled) => {
@@ -924,6 +964,22 @@ impl Engine {
                 let b = &w.actors[&actor];
                 if enabled != (self.sprites[actor].visible && (b.forceable || enabled)) {
                     self.physics_command(actor, Command::Forceable(false), values)?;
+                    if !enabled {
+                        // Bt.set_actor_as(exit) also calls the underlying
+                        // Box2D set_dynamic(false), which clears velocity.
+                        // Merely changing adapter forceable preserves it until
+                        // the next ticker, so the modern command differs here.
+                        let w = self
+                            .physics
+                            .as_mut()
+                            .unwrap()
+                            .worlds
+                            .get_mut(&self.sprites[actor].scene)
+                            .unwrap();
+                        let b = w.actors.get_mut(&actor).unwrap();
+                        w.bodies[b.handle].set_linvel(Vector::zeros(), true);
+                        w.bodies[b.handle].set_body_type(RigidBodyType::Fixed, true);
+                    }
                 }
                 Command::Collidable(enabled)
             }
@@ -959,22 +1015,10 @@ impl Engine {
         };
         match command {
             Command::Forceable(enabled) => {
-                let was_forceable = state.forceable;
-                if state.forceable && !enabled {
-                    state.saved_velocity = *body.linvel();
-                }
+                // Adapter flags are synchronous, but update_body_state applies
+                // the actual body type on the PIXI ticker, only while enabled.
+                // This distinction is observable by a following set_velocity.
                 state.forceable = enabled;
-                body.set_body_type(
-                    if enabled {
-                        RigidBodyType::Dynamic
-                    } else {
-                        RigidBodyType::Fixed
-                    },
-                    true,
-                );
-                if enabled && !was_forceable {
-                    body.set_linvel(state.saved_velocity, true);
-                }
             }
             Command::Collidable(enabled) => state.collidable = enabled,
             Command::Rotate(enabled) => {
@@ -984,23 +1028,21 @@ impl Engine {
             Command::Gravity if !value.is_nan() && dir.is_finite() => {
                 world.gravity = vector(10000.0)
             }
-            Command::Speed if !value.is_nan() && dir.is_finite() => {
-                state.saved_velocity = vector(12.0);
-                body.set_linvel(state.saved_velocity, true)
+            Command::Speed if !value.is_nan() && dir.is_finite() && body.is_dynamic() => {
+                body.set_linvel(vector(12.0), true)
             }
             Command::LegacyVelocity => {
-                if state.forceable {
-                    state.saved_velocity = vector(10000.0);
-                    body.set_linvel(state.saved_velocity, true)
+                if body.is_dynamic() {
+                    body.set_linvel(vector(10000.0), true)
                 }
             }
             Command::LegacyVelocityVector => {
-                if state.forceable {
-                    state.saved_velocity = vector![
+                if body.is_dynamic() {
+                    let velocity = vector![
                         value.clamp(-10000.0, 10000.0) * 10.0,
                         dir.clamp(-10000.0, 10000.0) * 10.0
                     ];
-                    body.set_linvel(state.saved_velocity, true);
+                    body.set_linvel(velocity, true);
                 }
             }
             Command::LegacyForce => body.add_force(vector(10000.0), true),
@@ -1138,21 +1180,9 @@ impl Engine {
         let b = &w.actors[&actor];
         let body = &w.bodies[b.handle];
         let value = match property {
-            Property::Speed => {
-                if b.forceable {
-                    body.linvel()
-                } else {
-                    &b.saved_velocity
-                }
-                .norm()
-                    / 10.0
-            }
+            Property::Speed => body.linvel().norm() / 10.0,
             Property::Direction => {
-                let v = if b.forceable {
-                    body.linvel()
-                } else {
-                    &b.saved_velocity
-                };
+                let v = body.linvel();
                 v.y.atan2(v.x).to_degrees()
             }
             Property::Mass => body.mass(),
@@ -1189,6 +1219,19 @@ impl Engine {
                 let a = &self.sprites[actor];
                 let body = &mut w.bodies[b.handle];
                 body.set_enabled(a.alive && a.visible && (b.forceable || b.collidable));
+                if body.is_enabled() {
+                    let kind = if b.forceable {
+                        RigidBodyType::Dynamic
+                    } else {
+                        RigidBodyType::Fixed
+                    };
+                    if body.body_type() != kind {
+                        if !b.forceable {
+                            body.set_linvel(Vector::zeros(), true);
+                        }
+                        body.set_body_type(kind, true);
+                    }
+                }
                 let position = Isometry::new(
                     vector![a.x / PIXELS, a.y / PIXELS],
                     (90.0 - a.direction).to_radians(),

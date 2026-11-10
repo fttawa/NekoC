@@ -753,7 +753,9 @@ unsafe extern "C" fn h_assign_item(c: *mut NativeContext, target: u64, list: u64
     } else {
         Target::Global(slot)
     };
-    engine.assign(target, cell);
+    if engine.value_error.is_none() {
+        engine.assign(target, cell);
+    }
 }
 unsafe extern "C" fn h_clear_slot(c: *mut NativeContext, slot: u64) {
     unsafe { (&mut (*(*c).engine).values)[slot as usize] = None };
@@ -1625,6 +1627,7 @@ impl Gen<'_, '_> {
         if let Some(value) = self.numeric(v, &mut guards) {
             self.check_unboxed(&guards, slow);
             let number = self.numeric_value(value);
+            self.check_error(pc, remaining);
             self.assign_number(target, number);
             self.check_error(pc, remaining);
             self.b.ins().jump(next, &[]);

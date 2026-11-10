@@ -387,6 +387,15 @@ export function mappingStatus(root, rows) {
         ["get", "get_3"].includes(row.type) ? "仅显式属性/角色局部变量；未列出的属性仍不支持" :
         "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致");
     }
+    if (["stamp", "image_stamp", "set_scene_transition"].includes(row.type) && evidence.length) {
+      limitations.push("第二轮 18 份原创夹具官方实测：严格尺寸/10000 上限、场景错误、原图无角色滤镜/alpha、目的矩形 floor、过渡别名与任意 direction 已补齐；字体/像素、颜色 raster 与真实过渡动画仍有限制，见 kitten4-partial-drawing.md");
+    }
+    if (cloud && evidence.length) {
+      limitations.push("第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md");
+    }
+    if (["set_actor_as", "physics2_enable_force", "set_velocity", "physics2_set_actor_as", "physics2_set_speed"].includes(row.type) && evidence.length) {
+      limitations.push("第二轮 7 份原创物理夹具/210 帧官方实测：旧 exit 即时 static 清速、新 forceable/ticker 延迟和禁用动态体保速已修正；不声明跨求解器等价，见 kitten4-physics-partial.md");
+    }
     if (["self_change_effect_3", "self_change_effect", "self_change_effect_2", "self_set_effect_2", "self_set_effect", "self_clear_effects"].includes(row.type)) {
       limitations.push("8 种 scope、严格 number、别名增减、纹理尺寸 clamp、场景及小数 reporter 经 11 份原创夹具/1794 状态观察实测；ASCII 状态已支持但像素渲染、ELASTIC 与 iOS 仍未验证，见 kitten4-partial-effects.md");
     }
@@ -416,11 +425,14 @@ export function mappingStatus(root, rows) {
     }
     if (row.type === "text_indexOf" && evidence.length) {
       semantics = "partial";
-      limitations.push("FIRST/LAST、空 needle 的 1-based UTF-16 位置及非字符串 VALUE 的类型错误已有源码推导回归；孤立 surrogate 的精确 JS 字符串行为未覆盖");
+      limitations.push("第二轮原创离线实测验证 FIRST/LAST、空 needle 的 1-based UTF-16 位置、FIND 转型、数组 VALUE 严格搜索和非字符串/非数组错误；孤立 surrogate、无效 END 与 nullish 参数未验证，见 kitten4-partial-text-2.md");
     }
     if (thirdMedia.has(row.type) && evidence.length) {
       semantics = "partial";
       limitations.push("媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md");
+      if (["get_voice_answer", "get_recognition_result", "midi_get", "translate_result"].includes(row.type)) {
+        limitations.push("第二轮原创官方离线实测默认 voice/scan、falsy translate 与 midi 对象最终值；异步帧相位、在线及实际设备未验证，见 kitten4-partial-text-2.md");
+      }
     }
     if (["block_on_break", "mouse_on_emit", "player_position_on_change", "incompatible_block", "incompatible_output_block"].includes(row.type) && evidence.length) {
       limitations.push("实现该固定官方包的抛错边界（枚举旧事件无 domain handler）；不是可工作的新增事件，不静默执行或忽略");
@@ -441,7 +453,10 @@ export function mappingStatus(root, rows) {
     if (row.official.every(e => e.registration.startsWith("compiler:"))) limitations.push("仅编译器结构表证据，不表示存在普通 domain handler");
     if (status === "已实现" && semantics !== "offline-oracle-verified") {
       const probed = ["get", "get_2", "get_3", "get_clone_index_property", "self_set_role_camp",
-        "self_change_effect_3", "self_change_effect", "self_change_effect_2", "self_set_effect_2", "self_set_effect", "self_clear_effects"];
+        "self_change_effect_3", "self_change_effect", "self_change_effect_2", "self_set_effect_2", "self_set_effect", "self_clear_effects",
+        "stamp", "image_stamp", "set_scene_transition", "set_actor_as", "physics2_enable_force", "set_velocity", "physics2_set_actor_as", "physics2_set_speed",
+        "text_indexOf", "get_voice_answer", "get_recognition_result", "midi_get", "translate_result",
+        ...(cloud ? [row.type] : [])];
       limitations.push(probed.includes(row.type) ? "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致" :
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证");
     }
@@ -474,6 +489,7 @@ export function markdownReport(report) {
     `已知 partial：${report.rows.filter(r => r.semantics === "partial").length} 项（不是第五种主状态）。`, "",
     "## 本次按频率补齐", "",
     "- partial 专项：实际基线为 98 项（任务说明约 67 项已过时）。先核对高频属性、效果、阵营与舞台/拖拽；本轮证据及明确未完成范围见 kitten4-partial-properties.md、kitten4-partial-effects.md、kitten4-partial-misc.md。未完成官方实测的项保留 partial，不以仅有执行映射冒充完成。",
+    "- partial 第二轮从 96 项继续按语料高频核对物理、云、印章与场景过渡，另核验文本搜索与媒体默认 reporter；41 份原创夹具经官方离线实测及回归，修复与保留边界见 kitten4-physics-partial.md、kitten4-partial-cloud-2.md、kitten4-partial-drawing.md、kitten4-partial-text-2.md。物理求解器、在线云、字体/图像像素和真实过渡动画仍不完整，保留 partial。",
     "- 第三轮：剩余 46 个类型逐项增加执行映射或固定官方错误边界，最后一个 flexibility stub 实现硬体 adapter；媒体/设备通过明确 host 请求、完成结果和事件 API，不伪装真实设备可用。源码定位、原创回归与未接 viewer 限制见 kitten4-third-round.md、kitten4-third-media.md、kitten4-third-physics.md。",
     "- 高频 partial 优先核对 get_3（2049 次）与其 get/get_2 别名：修复完整属性委派和未知属性 NaN；物理质量/惯量与非法参数的 body 分配边界也有加强。仍保留 partial，不以映射清零声称全语义清零。以下第二轮内容为历史记录。",
     "- 第二轮：先补语料 10 次的 self_shake（保留时序/物理 partial），再按常用类别补文本、旧启动/条件/点击/弹窗入口；原始缺失项频率均为 0，未宣称有编辑器面板使用统计。详见 kitten4-second-round.md 与 tests/kitten4_catalog.rs。",

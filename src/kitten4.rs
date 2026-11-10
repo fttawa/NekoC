@@ -458,6 +458,11 @@ fn is_stub(kind: &str) -> bool {
 
 fn cloud_list(block: &mut Value, native: &str) {
     let list = field(block, "VAR").to_owned();
+    if native == "lists_get" {
+        block["type"] = json!("pure_list_get");
+        block["fields"] = json!({"list": list});
+        return;
+    }
     remove(&mut block["fields"], "VAR");
     if !block["inputs"].is_object() {
         block["inputs"] = json!({});

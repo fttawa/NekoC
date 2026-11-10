@@ -1,0 +1,1132 @@
+{
+  "hidden_toolbox": {
+    "toolbox": [],
+    "blocks": []
+  },
+  "work_source_label": 1,
+  "version": 25,
+  "application_version": "4.11.20",
+  "work_type": "KITTEN",
+  "size": {
+    "width": 1280,
+    "height": 720
+  },
+  "type": 1,
+  "project_name": "NekoC partial-text-2 media-defaults",
+  "theatre": {
+    "current_entity": "20000000-0000-4000-8000-000000000001",
+    "current_scene": "10000000-0000-4000-8000-000000000001",
+    "scenes_order": [
+      "10000000-0000-4000-8000-000000000001",
+      "10000000-0000-4000-8000-000000000002"
+    ],
+    "scenes": {
+      "10000000-0000-4000-8000-000000000001": {
+        "id": "10000000-0000-4000-8000-000000000001",
+        "name": "Background A",
+        "styles": [
+          "background"
+        ],
+        "current_style_id": "background",
+        "x": 0,
+        "y": 0,
+        "scale": 100,
+        "rotation": 0,
+        "rotation_type": 0,
+        "draggable": false,
+        "visible": true,
+        "workspace_offset": {
+          "x": 40,
+          "y": 40
+        },
+        "block_data_json": {
+          "blocks": {},
+          "connections": {},
+          "comments": {}
+        },
+        "actors": [
+          "20000000-0000-4000-8000-000000000001"
+        ],
+        "screen_name": "Scene A",
+        "group_order": [
+          "group"
+        ]
+      },
+      "10000000-0000-4000-8000-000000000002": {
+        "id": "10000000-0000-4000-8000-000000000002",
+        "name": "Background B",
+        "styles": [
+          "background"
+        ],
+        "current_style_id": "background",
+        "x": 0,
+        "y": 0,
+        "scale": 100,
+        "rotation": 0,
+        "rotation_type": 0,
+        "draggable": false,
+        "visible": true,
+        "workspace_offset": {
+          "x": 40,
+          "y": 40
+        },
+        "block_data_json": {
+          "blocks": {},
+          "connections": {},
+          "comments": {}
+        },
+        "actors": [],
+        "screen_name": "Scene B",
+        "group_order": []
+      }
+    },
+    "actors": {
+      "20000000-0000-4000-8000-000000000001": {
+        "id": "20000000-0000-4000-8000-000000000001",
+        "name": "Probe",
+        "styles": [
+          "costume-a",
+          "costume-b"
+        ],
+        "current_style_id": "costume-a",
+        "x": 0,
+        "y": 0,
+        "scale": 100,
+        "rotation": 0,
+        "rotation_type": 0,
+        "draggable": false,
+        "visible": true,
+        "workspace_offset": {
+          "x": 40,
+          "y": 40
+        },
+        "block_data_json": {
+          "blocks": {
+            "text-start": {
+              "type": "start_on_click",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "text-start",
+              "parent_id": null,
+              "location": [
+                0,
+                0
+              ]
+            },
+            "set-voice": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "voice"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "set-voice",
+              "parent_id": "text-start",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-1": {
+              "type": "get_voice_answer",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-1",
+              "parent_id": "set-voice",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "set-scan": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "scan"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "set-scan",
+              "parent_id": "set-voice",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-2": {
+              "type": "get_recognition_result",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-2",
+              "parent_id": "set-scan",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "set-midi-string": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "midi-string"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "set-midi-string",
+              "parent_id": "set-scan",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-3": {
+              "type": "midi_get",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "midi": "60"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-3",
+              "parent_id": "set-midi-string",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "set-midi-text": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "midi-text"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "set-midi-text",
+              "parent_id": "set-midi-string",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-4": {
+              "type": "convert_type",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "original_value": ""
+              },
+              "fields": {
+                "type": "string"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-4",
+              "parent_id": "set-midi-text",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-5": {
+              "type": "midi_get",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "midi": "60"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-5",
+              "parent_id": "generated-4",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "set-midi-identity": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "midi-identity"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "set-midi-identity",
+              "parent_id": "set-midi-text",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-6": {
+              "type": "logic_compare",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "A": "",
+                "B": ""
+              },
+              "fields": {
+                "OP": "EQ"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-6",
+              "parent_id": "set-midi-identity",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-7": {
+              "type": "midi_get",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "midi": "60"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-7",
+              "parent_id": "generated-6",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-8": {
+              "type": "midi_get",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "midi": "60"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-8",
+              "parent_id": "generated-6",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "set-translate-empty": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "translate-empty"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "set-translate-empty",
+              "parent_id": "set-midi-identity",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-9": {
+              "type": "translate_result",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "text": ""
+              },
+              "fields": {
+                "language": "english"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-9",
+              "parent_id": "set-translate-empty",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-10": {
+              "type": "text",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "TEXT": ""
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-10",
+              "parent_id": "generated-9",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "set-translate-zero": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "translate-zero"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "set-translate-zero",
+              "parent_id": "set-translate-empty",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-11": {
+              "type": "translate_result",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "text": ""
+              },
+              "fields": {
+                "language": "japanese"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-11",
+              "parent_id": "set-translate-zero",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-12": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-12",
+              "parent_id": "generated-11",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "set-translate-false": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "translate-false"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "set-translate-false",
+              "parent_id": "set-translate-zero",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-13": {
+              "type": "translate_result",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "text": ""
+              },
+              "fields": {
+                "language": "english"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-13",
+              "parent_id": "set-translate-false",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-14": {
+              "type": "logic_boolean",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "BOOL": "FALSE"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-14",
+              "parent_id": "generated-13",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "set-done": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "done"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "set-done",
+              "parent_id": "set-translate-false",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-15": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "1"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-15",
+              "parent_id": "set-done",
+              "location": [
+                0,
+                0
+              ]
+            }
+          },
+          "connections": {
+            "text-start": {
+              "set-voice": {
+                "type": "next"
+              }
+            },
+            "set-voice": {
+              "generated-1": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "set-scan": {
+                "type": "next"
+              }
+            },
+            "generated-1": {},
+            "set-scan": {
+              "generated-2": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "set-midi-string": {
+                "type": "next"
+              }
+            },
+            "generated-2": {},
+            "set-midi-string": {
+              "generated-3": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "set-midi-text": {
+                "type": "next"
+              }
+            },
+            "generated-3": {},
+            "set-midi-text": {
+              "generated-4": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "set-midi-identity": {
+                "type": "next"
+              }
+            },
+            "generated-4": {
+              "generated-5": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "original_value"
+              }
+            },
+            "generated-5": {},
+            "set-midi-identity": {
+              "generated-6": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "set-translate-empty": {
+                "type": "next"
+              }
+            },
+            "generated-6": {
+              "generated-7": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "A"
+              },
+              "generated-8": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "B"
+              }
+            },
+            "generated-7": {},
+            "generated-8": {},
+            "set-translate-empty": {
+              "generated-9": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "set-translate-zero": {
+                "type": "next"
+              }
+            },
+            "generated-9": {
+              "generated-10": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "text"
+              }
+            },
+            "generated-10": {},
+            "set-translate-zero": {
+              "generated-11": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "set-translate-false": {
+                "type": "next"
+              }
+            },
+            "generated-11": {
+              "generated-12": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "text"
+              }
+            },
+            "generated-12": {},
+            "set-translate-false": {
+              "generated-13": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "set-done": {
+                "type": "next"
+              }
+            },
+            "generated-13": {
+              "generated-14": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "text"
+              }
+            },
+            "generated-14": {},
+            "set-done": {
+              "generated-15": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              }
+            },
+            "generated-15": {}
+          },
+          "comments": {}
+        },
+        "scene": "10000000-0000-4000-8000-000000000001",
+        "lock": false,
+        "editable_in_tuition_mode": true,
+        "user_change_r_c": false
+      }
+    },
+    "groups": {
+      "group": {
+        "id": "group",
+        "name": "",
+        "is_fold": false,
+        "is_group": false,
+        "actors": [
+          "20000000-0000-4000-8000-000000000001"
+        ],
+        "scene": "10000000-0000-4000-8000-000000000001",
+        "visible": true
+      }
+    },
+    "styles": {
+      "background": {
+        "id": "background",
+        "name": "Background",
+        "adaptive": false,
+        "pivot": {
+          "x": 0,
+          "y": 0
+        },
+        "rotate_center": {
+          "x": 0,
+          "y": 0
+        },
+        "cdn_url": "",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjgwIiBoZWlnaHQ9IjcyMCI+PHJlY3Qgd2lkdGg9IjEyODAiIGhlaWdodD0iNzIwIiBmaWxsPSIjMzM2Njk5Ii8+PC9zdmc+"
+      },
+      "costume-a": {
+        "id": "costume-a",
+        "name": "蓝色方块",
+        "adaptive": false,
+        "pivot": {
+          "x": 0,
+          "y": 0
+        },
+        "rotate_center": {
+          "x": 0,
+          "y": 0
+        },
+        "cdn_url": "",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCI+PHJlY3Qgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjMzM2Njk5Ii8+PC9zdmc+"
+      },
+      "costume-b": {
+        "id": "costume-b",
+        "name": "第二个造型",
+        "adaptive": false,
+        "pivot": {
+          "x": 0,
+          "y": 0
+        },
+        "rotate_center": {
+          "x": 0,
+          "y": 0
+        },
+        "cdn_url": "",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMCIgaGVpZ2h0PSIyMCI+PHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjMzM2Njk5Ii8+PC9zdmc+"
+      }
+    },
+    "videos": {},
+    "timer": {}
+  },
+  "variables": {
+    "voice": {
+      "id": "voice",
+      "name": "voice",
+      "value": "unexecuted",
+      "type": "any",
+      "is_global": true,
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "scan": {
+      "id": "scan",
+      "name": "scan",
+      "value": "unexecuted",
+      "type": "any",
+      "is_global": true,
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "midi-string": {
+      "id": "midi-string",
+      "name": "midi-string",
+      "value": "unexecuted",
+      "type": "any",
+      "is_global": true,
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "midi-text": {
+      "id": "midi-text",
+      "name": "midi-text",
+      "value": "unexecuted",
+      "type": "any",
+      "is_global": true,
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "midi-identity": {
+      "id": "midi-identity",
+      "name": "midi-identity",
+      "value": "unexecuted",
+      "type": "any",
+      "is_global": true,
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "translate-empty": {
+      "id": "translate-empty",
+      "name": "translate-empty",
+      "value": "unexecuted",
+      "type": "any",
+      "is_global": true,
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "translate-zero": {
+      "id": "translate-zero",
+      "name": "translate-zero",
+      "value": "unexecuted",
+      "type": "any",
+      "is_global": true,
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "translate-false": {
+      "id": "translate-false",
+      "name": "translate-false",
+      "value": "unexecuted",
+      "type": "any",
+      "is_global": true,
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "done": {
+      "id": "done",
+      "name": "done",
+      "value": "unexecuted",
+      "type": "any",
+      "is_global": true,
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    }
+  },
+  "variable_order": [
+    "voice",
+    "scan",
+    "midi-string",
+    "midi-text",
+    "midi-identity",
+    "translate-empty",
+    "translate-zero",
+    "translate-false",
+    "done"
+  ],
+  "cloud_variables": {},
+  "audio": {},
+  "audio_order": [],
+  "midimusic": [],
+  "midi_order": [],
+  "matrix": {},
+  "models": {},
+  "toolbox": {
+    "current_type": "event",
+    "pen": false
+  },
+  "toolbox_order": [
+    "event",
+    "control",
+    "action",
+    "appearance",
+    "sensing",
+    "operator",
+    "data"
+  ],
+  "last_toolbox_order": [],
+  "hardware_type": "",
+  "is_partial": false,
+  "ai_lab": {},
+  "broadcasts": {},
+  "painter": {
+    "color": []
+  }
+}
