@@ -370,6 +370,7 @@ impl Engine {
                     ValueExpr::CallReturn(..)
                         | ValueExpr::OfflineOcrCheck(..)
                         | ValueExpr::OfflineMicrobitMap(..)
+                        | ValueExpr::OfflineMicrobitLed(..)
                         | ValueExpr::ObjectLiteral(..)
                         | ValueExpr::ObjectGet(..)
                         | ValueExpr::ObjectSet(..)

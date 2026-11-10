@@ -420,6 +420,8 @@ pub(super) enum ValueExpr {
     OfflineOcrCheck(usize),
     /// Five evaluated sockets, then official disconnected-microbit NaN.
     OfflineMicrobitMap([usize; 5]),
+    /// Official no-device LED query, after evaluating x and y once each.
+    OfflineMicrobitLed([usize; 2]),
     Kitten4Add(usize, usize),
     Ranking(bool),
     Calculate(usize),

@@ -1,0 +1,111 @@
+{
+  "schema": "nekoc-kn-panel-metadata-v1",
+  "checkedAt": "2026-11-10T17:57:30.164Z",
+  "editorUrl": "https://kn.codemao.cn/editor",
+  "version": "0.27.4",
+  "catalogSha256": "7fc0f41daf559baa6bab970607fc37e6109e359f947c314b1d2621f42ca3b535",
+  "method": "Fresh anonymous desktop Edge. Read actual initial toolbox/flyout nodes, render all 19 ordinary/AI manager categories, read exported hardware panel configurations without installing hardware. Construct/dispose all 300 candidate types with Blockly events temporarily disabled. Domain indices were read, never invoked. Only names, classifications, counts, hashes, locations and authored conversion observations are retained here.",
+  "rawReport": "dist/kn-panel/report.json",
+  "bundles": [
+    {"name":"main.8ccf2442.js","url":"https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js","bytes":5594327,"sha256":"58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165"},
+    {"name":"8011.ffdc9c7e.chunk.js","url":"https://creation.bcmcdn.com/neko/web/release/static/js/8011.ffdc9c7e.chunk.js","bytes":22733,"sha256":"c8e17b0fa395887ebad9e8effae35c73ef11b6fd318e3b6aabc7dd6ac5f9c8b8"},
+    {"name":"entry_hardware.481194e4.chunk.js","url":"https://creation.bcmcdn.com/neko/web/release/static/js/entry_hardware.481194e4.chunk.js","bytes":681355,"sha256":"7259df6bc25c81905028a569ca5e99fba5091ca4fbddd29c2ec92ac15c75842d"}
+  ],
+  "initialCategoryIds": ["events","control","actions","appearance","animation","interaction","audio","pen","sensing","operator","variables","list","procedure"],
+  "initialDynamicCallbacks": {"variables":"CUSTOM_VARIABLES","list":"CUSTOM_LIST","procedure":"CUSTOM_PROCEDURE"},
+  "initialHiddenCategoryIds": ["aiChat","aiClassify","aiText","camera","cognitive","judge","online"],
+  "managerCategories": [
+    {"id":"events","ai":false,"invisible":false,"types":["on_running_group_activated","sprite_on_tap","on_swipe","on_keydown","on_bump_actor","when","self_listen","self_broadcast","self_broadcast_and_wait","received_broadcast","self_listen_with_param","self_broadcast_with_param","stop","restart","switch_to_screen","set_screen_transition","start_as_a_mirror","mirror","dispose_clone","get_current_clone_index","get_clone_num","get_clone_index_property"]},
+    {"id":"control","ai":false,"invisible":false,"types":["repeat_forever","repeat_n_times","traverse_number","repeat_forever_until","break","controls_if","controls_if_else","wait","wait_until","console_log","warp","tell","sync_tell"]},
+    {"id":"actions","ai":false,"invisible":false,"types":["self_go_forward","self_move_specify","self_move_specify_sprite","self_bounce_off_edge","self_move_to","self_set_position_x","self_set_position_y","self_change_coordinate_x","self_change_coordinate_y","self_glide_to","self_glide_coordinate_x","self_glide_coordinate_y","self_rotate","self_rotate_around","self_set_rotation_type","self_point_towards","self_face_to","self_face_to_sprite","self_set_draggable","self_set_role_camp"]},
+    {"id":"appearance","ai":false,"invisible":false,"types":["set_sprite_style","self_prev_next_style","self_appear","self_gradually_show_hide","set_scale","self_change_scale","set_width_height_scale","add_width_height_scale","self_set_effect","self_change_effect","clear_all_effects","set_top_bottom_layer"]},
+    {"id":"animation","ai":false,"invisible":false,"types":["self_stress_animation","self_appear_animation","global_animation","self_text_effect_text","self_text_effect_size","self_text_effect_color"]},
+    {"id":"interaction","ai":false,"invisible":false,"types":["create_stage_dialog","self_dialog_wait","self_dialog","close_self_dialog","self_ask","get_answer","ask_and_choose","get_choice_and_index","translate","translate_result"]},
+    {"id":"audio","ai":false,"invisible":false,"types":["play_audio","play_audio_and_wait","stop_audio","sound_color","play_words_audio","play_word_audio_wait","voice_recognition","get_voice_answer"]},
+    {"id":"pen","ai":false,"invisible":false,"types":["self_pen_down","self_pen_up","clear_drawing","self_set_pen_size","self_change_pen_size","self_set_pen_color","self_set_pen_color_property","self_change_pen_color_property","image_stamp","stamp","set_pen_layer"]},
+    {"id":"sensing","ai":false,"invisible":false,"types":["bump_into","bump_into_color","out_of_boundary","coordinate_of_sprite","style_of_sprite","appearance_of_sprite","orientation_of_sprite","effect_of_sprite","distance_to","mouse_down","check_key","get_mouse_info","get_orientation","get_voice_volume","get_time","set_timer_state","show_hide_timer","timer","get_stage_info"]},
+    {"id":"operator","ai":false,"invisible":false,"types":["math_arithmetic","random_num","logic_compare","logic_operation","logic_negate","logic_boolean","math_round","math_modulo","divisible_by","math_number_property","math_trig","math_function","text_join","text_select","text_length","text_contain","text_split","convert_type"]},
+    {"id":"variables","ai":false,"invisible":false,"types":["variables_set","change_variables","show_hide_variables","variables_get","script_variables"]},
+    {"id":"list","ai":false,"invisible":false,"types":["list_append","list_insert_value","delete_list_item","replace_list_item","list_copy","list_item","list_length","list_index_of","list_is_exist","show_hide_list","temporary_list","list_get"]},
+    {"id":"procedure","ai":false,"invisible":false,"types":["procedures_2_callnoreturn","procedures_2_callreturn","procedures_2_actor_param","procedures_2_list_get_param"]},
+    {"id":"online","ai":false,"invisible":false,"types":["show_hide_ranking","update_ranking","user_ranking_info","user_info_of_th","username_get","user_id_get"]},
+    {"id":"camera","ai":true,"invisible":false,"types":["open_hide_camera","set_camera_alpha","recognize_body_part","bump_into_body_part","move_to_body_part","face_to_body_part","get_position_of_body_part","get_appearance_of_part","get_tilt_angle_of_face","check_tilt_direction_of_face","recognize_gesture"]},
+    {"id":"cognitive","ai":true,"invisible":false,"types":["enable_face_detect_by_actor","enable_face_detect_by_photo","get_face_detection_result","check_emotion","check_gender","check_face_shape","enable_object_detect_by_actor","enable_object_detect_by_photo","get_object_detection_result"]},
+    {"id":"aiChat","ai":true,"invisible":false,"types":["ai_chat_ask","ai_chat_answer","set_system_preset","new_conversation"]},
+    {"id":"aiClassify","ai":true,"invisible":false,"types":["evaluate_actor_style","evaluate_photo","open_close_webcam","set_webcam_alpha","evaluate_camera","get_evaluate_class_name","get_evaluate_class_accuracy"]},
+    {"id":"judge","ai":false,"invisible":true,"types":["send_judge_result"]},
+    {"id":"aiText","ai":true,"invisible":false,"types":["ai_text_actor","ai_text_photo","ai_text_result","ai_text_result_check"]}
+  ],
+  "renderObservations": {
+    "managerCategoriesRendered":19,
+    "globalAnimationRenderedType":"global_animation",
+    "systemPresetRenderedType":"set_system_preset",
+    "procedureManagerRenderedTypes":[],
+    "procedureManagerIsWholeCategoryToggle":true,
+    "configuredToRenderedAliases":{"controls_if_else":"controls_if","self_move_specify_sprite":"self_move_specify","self_face_to_sprite":"self_face_to","orientation_of_sprite":"appearance_of_sprite"},
+    "getPlayAudioNestedInInitialCategory":"audio",
+    "hardwareCardNamesRendered":["Microbit V2","TUDAO Master","TUDAO Lite","动力舱","小猫板","魔法棒","点点猫"],
+    "hardwareCardIdsRegistered":["microbit","tudao","tudao2","tudao3","catbit","catbitUsb","wand","kids_tudao2","kittenbit"],
+    "hardwareCardIdsNotRenderedInThisMode":["catbitUsb","kids_tudao2"]
+  },
+  "hardwareCatalogConfigs": [
+    {"moduleId":"636","export":"C","id":"tudao2_power","types":["set_robot2_master_motor_power_rotation","set_robot2_master_motor_power_rotation_duration","change_robot2_master_motor_power","stop_robot2_master_motor","get_robot2_master_motor_power"]},
+    {"moduleId":"11441","export":"i","id":"catbitUsb_event","types":["catbit_usb_button_when"]},
+    {"moduleId":"32990","export":"L","id":"wand_event","types":["wand_direction_when","wand_coordinate","wand_rotation","wand_button_is_pressed","wand_reset_position"]},
+    {"moduleId":"92782","export":"RM","id":"tudao_light","types":["set_robot_master_light_color","set_robot_master_light_color_duration","stop_robot_master_light"]},
+    {"moduleId":"92782","export":"XV","id":"tudao_power","types":["set_robot_master_motor_power_rotation","set_robot_master_motor_power_rotation_duration","change_robot_master_motor_power","stop_robot_master_motor","get_robot_master_motor_power"]},
+    {"moduleId":"92782","export":"oe","id":"tudao_sensor","types":["get_robot_master_infrared_sensor_distance"]},
+    {"moduleId":"92913","export":"P","id":"catbit_event","types":["catbit_button_when","catbit_button_is_pressed"]},
+    {"moduleId":"94955","export":"AT","id":"microbit_steering_engine","types":["microbit_servo_set_angle_270"]},
+    {"moduleId":"94955","export":"MK","id":"microbit_pin","types":["microbit_pin_when","microbit_pin_digital_write","microbit_pin_digital_read","microbit_pin_analog_write","microbit_pin_analog_read","microbit_pin_set_touch_mode","microbit_math_map"]},
+    {"moduleId":"94955","export":"bx","id":"microbit_led","types":["microbit_led_show_number","microbit_led_show_text","microbit_led_show_icon","microbit_led_show_custom","microbit_led_plot_graph","microbit_led_clear","microbit_led_plot","microbit_led_toggle","microbit_led_unplot","microbit_led_is_plot"]},
+    {"moduleId":"94955","export":"g7","id":"microbit_input","types":["microbit_button_when","microbit_logo_when","microbit_button_is_pressed","microbit_logo_is_pressed","microbit_is_gesture","microbit_light_level","microbit_temperature","microbit_sound_level","microbit_accelerometer","microbit_magnetometer","microbit_compass_heading","microbit_rotation"]},
+    {"moduleId":"94955","export":"tA","id":"microbit_buzzer","types":["microbit_play_melody","microbit_play_tone_by_beats","microbit_pause_by_beats","microbit_stop","microbit_set_bpm","microbit_change_bpm","microbit_set_volume","microbit_get_volume"]}
+  ],
+  "sourceLocations": [
+    {"moduleId":"636","bundle":"entry_hardware.481194e4.chunk.js","byteOffset":260855,"evaluatedFactorySha256":"6b55510a2783fb60d4b1e9d6ebe128a885e4bdc2530e1f73b02a0d0fc0727389"},
+    {"moduleId":"11441","bundle":"entry_hardware.481194e4.chunk.js","byteOffset":15141,"evaluatedFactorySha256":"320bbd717738d08a2769b2acffd204e349c96df8179cad2b791ef95cee80fa00"},
+    {"moduleId":"32990","bundle":"entry_hardware.481194e4.chunk.js","byteOffset":568106,"evaluatedFactorySha256":"f3a23bded05d92ce91e14da7e782e689b224b07d99bf7bc09c5fbe7598ec9096"},
+    {"moduleId":"92782","bundle":"entry_hardware.481194e4.chunk.js","byteOffset":240977,"evaluatedFactorySha256":"51830c3582964bed77f525eb3b47637198faedfd487d8e1505146f2edae04ab4"},
+    {"moduleId":"92913","bundle":"entry_hardware.481194e4.chunk.js","byteOffset":77,"evaluatedFactorySha256":"5f8102e4bd69405ceb1f67b78e46d9c75358aa9034065a819f681a17c4c223d3"},
+    {"moduleId":"94955","bundle":"entry_hardware.481194e4.chunk.js","byteOffset":142541,"evaluatedFactorySha256":"35f2c6a68c23b7947bcc529dcd0381757542c0dca87d4afac72f08464c1ba90b"}
+  ],
+  "registration": {
+    "checkedTypeCount":300,
+    "registeredCount":236,
+    "unregisteredCount":64,
+    "definitionAndConstructionAgree":true,
+    "unregisteredGroups":["code-api-alias-not-block","hardware-extension-config-not-installed"],
+    "global_animation":{"registered":true,"domainIndex":189},
+    "set_system_preset":{"registered":true,"domainIndex":229},
+    "registeredWithoutDomainIndex":["_break_statement","_continue_statement","_return_statement","controls_while","on_bump_actor","on_keydown","on_running_group_activated","on_swipe","procedures_2_defnoreturn","repeat_forever","repeat_forever_until","repeat_n_times","sprite_on_tap","sync_tell","tell","traverse_number","wait_until","warp"]
+  },
+  "authoredConversions": [
+    {"code":"get_sprite_property('--self', 'x');","blockTypes":["_execute","coordinate_of_sprite"],"errorCount":0},
+    {"code":"get_sprite_property('--self', 'size');","blockTypes":["_execute","get_sprite_property"],"errorCount":1,"observation":"Unsupported attribute; emitted unknown type is not registration evidence."},
+    {"code":"get_sprite_property('--self', 'color');","blockTypes":["_execute","effect_of_sprite"],"errorCount":0},
+    {"code":"script_variables_set('panel_probe', 4);","blockTypes":["variables_set"],"errorCount":0},
+    {"code":"change_script_variables('panel_probe', 'increase', 2);","blockTypes":["variables_set"],"errorCount":0,"observation":"Known reverse-converter defect; not evidence of increment semantics."},
+    {"code":"break_loop();","blockTypes":["break"],"errorCount":0}
+  ],
+  "counts":{"code-api-alias-not-block":4,"hardware-extension-config-not-installed":60,"panel-configurable-default-hidden":52,"panel-default":142,"panel-nested-or-dynamic":1,"registered-not-in-audited-panels":41},
+  "typeGroups": {
+    "code-api-alias-not-block":["__break__","change_script_variables","get_sprite_property","script_variables_set"],
+    "hardware-extension-config-not-installed":["catbit_button_is_pressed","catbit_button_when","catbit_usb_button_when","change_robot2_master_motor_power","change_robot_master_motor_power","get_robot2_master_motor_power","get_robot_master_infrared_sensor_distance","get_robot_master_motor_power","microbit_accelerometer","microbit_button_is_pressed","microbit_button_when","microbit_change_bpm","microbit_compass_heading","microbit_get_volume","microbit_is_gesture","microbit_led_clear","microbit_led_is_plot","microbit_led_plot","microbit_led_plot_graph","microbit_led_show_custom","microbit_led_show_icon","microbit_led_show_number","microbit_led_show_text","microbit_led_toggle","microbit_led_unplot","microbit_light_level","microbit_logo_is_pressed","microbit_logo_when","microbit_magnetometer","microbit_math_map","microbit_pause_by_beats","microbit_pin_analog_read","microbit_pin_analog_write","microbit_pin_digital_read","microbit_pin_digital_write","microbit_pin_set_touch_mode","microbit_pin_when","microbit_play_melody","microbit_play_tone_by_beats","microbit_rotation","microbit_servo_set_angle_270","microbit_set_bpm","microbit_set_volume","microbit_sound_level","microbit_stop","microbit_temperature","set_robot2_master_motor_power_rotation","set_robot2_master_motor_power_rotation_duration","set_robot_master_light_color","set_robot_master_light_color_duration","set_robot_master_motor_power_rotation","set_robot_master_motor_power_rotation_duration","stop_robot2_master_motor","stop_robot_master_light","stop_robot_master_motor","wand_button_is_pressed","wand_coordinate","wand_direction_when","wand_reset_position","wand_rotation"],
+    "panel-configurable-default-hidden":["ai_chat_answer","ai_chat_ask","ai_text_actor","ai_text_photo","ai_text_result","ai_text_result_check","bump_into_body_part","check_emotion","check_face_shape","check_gender","check_tilt_direction_of_face","enable_face_detect_by_actor","enable_face_detect_by_photo","enable_object_detect_by_actor","enable_object_detect_by_photo","evaluate_actor_style","evaluate_camera","evaluate_photo","face_to_body_part","get_appearance_of_part","get_clone_index_property","get_clone_num","get_current_clone_index","get_evaluate_class_accuracy","get_evaluate_class_name","get_face_detection_result","get_object_detection_result","get_position_of_body_part","get_tilt_angle_of_face","logic_boolean","move_to_body_part","new_conversation","open_close_webcam","open_hide_camera","recognize_body_part","recognize_gesture","script_variables","self_broadcast_with_param","self_listen_with_param","set_camera_alpha","set_system_preset","set_webcam_alpha","show_hide_ranking","sync_tell","tell","temporary_list","update_ranking","user_id_get","user_info_of_th","user_ranking_info","username_get","warp"],
+    "panel-default":["add_width_height_scale","appearance_of_sprite","ask_and_choose","bump_into","bump_into_color","change_variables","check_key","clear_all_effects","clear_drawing","close_self_dialog","console_log","convert_type","coordinate_of_sprite","create_stage_dialog","delete_list_item","dispose_clone","distance_to","divisible_by","effect_of_sprite","get_answer","get_choice_and_index","get_mouse_info","get_orientation","get_stage_info","get_time","get_voice_answer","get_voice_volume","global_animation","image_stamp","list_append","list_copy","list_get","list_index_of","list_insert_value","list_is_exist","list_item","list_length","logic_compare","logic_negate","logic_operation","math_arithmetic","math_function","math_modulo","math_number_property","math_round","math_trig","mirror","mouse_down","on_bump_actor","on_keydown","on_running_group_activated","on_swipe","out_of_boundary","play_audio","play_audio_and_wait","play_word_audio_wait","play_words_audio","procedures_2_actor_param","random_num","received_broadcast","repeat_forever","repeat_forever_until","repeat_n_times","replace_list_item","restart","self_appear","self_appear_animation","self_ask","self_bounce_off_edge","self_broadcast","self_broadcast_and_wait","self_change_coordinate_x","self_change_coordinate_y","self_change_effect","self_change_pen_color_property","self_change_pen_size","self_change_scale","self_dialog","self_dialog_wait","self_face_to","self_face_to_sprite","self_glide_coordinate_x","self_glide_coordinate_y","self_glide_to","self_go_forward","self_gradually_show_hide","self_listen","self_move_specify","self_move_specify_sprite","self_move_to","self_pen_down","self_pen_up","self_point_towards","self_prev_next_style","self_rotate","self_rotate_around","self_set_draggable","self_set_effect","self_set_pen_color","self_set_pen_color_property","self_set_pen_size","self_set_position_x","self_set_position_y","self_set_role_camp","self_set_rotation_type","self_stress_animation","self_text_effect_color","self_text_effect_size","self_text_effect_text","set_pen_layer","set_scale","set_screen_transition","set_sprite_style","set_timer_state","set_top_bottom_layer","set_width_height_scale","show_hide_list","show_hide_timer","show_hide_variables","sound_color","sprite_on_tap","stamp","start_as_a_mirror","stop","stop_audio","style_of_sprite","switch_to_screen","text_contain","text_join","text_length","text_select","text_split","timer","translate","translate_result","traverse_number","variables_get","variables_set","voice_recognition","wait","wait_until","when"],
+    "panel-nested-or-dynamic":["get_play_audio"],
+    "registered-not-in-audited-panels":["_array_literal","_break_statement","_continue_statement","_execute","_object_get","_object_literal","_object_set","_return_statement","_variable_get","_variable_set","atob","btoa","calculate","clearInterval","clearTimeout","controls_while","get_timer","isFinite","isNaN","logic_ternary","logic_to_boolean","math_add_assign","math_decrement","math_div_assign","math_increment","math_mod_assign","math_mul_assign","math_sub_assign","math_trig_rad","on_bump_actor_value","parseFloat","parseInt","procedures_2_defnoreturn","reset_timer","script_variables_value","self_listen_value","setInterval","setTimeout","start_on_click","traverse_number_param","traverse_number_value"]
+  },
+  "notFoundTypes":[],
+  "certifiedUnofficialTypes":[],
+  "certifiedRetiredTypes":[],
+  "pageErrors":[],
+  "limitations":[
+    "Single anonymous desktop build, default sprite. No historical versions, account-specific/classroom configuration, mobile or kids environment audited.",
+    "Panel-default means present in manager config and not default-hidden; dynamic procedure/list/variable flyouts depend on project content. Not all configured names instantiate verbatim: rendered aliases are recorded separately.",
+    "Hardware configurations were read from official exported objects. No extension installation, connection, transport, sensor, actuator or hardware runtime semantics tested. Catbit USB card is filtered from this desktop hardware chooser but its official panel definition remains present.",
+    "Registered-not-in-audited-panels includes internal, code-view and context/metadata blocks; absence from these panels is not proof of global invisibility or retirement.",
+    "No candidate is certified unofficial or retired. API aliases are official names but not same-named registered blocks. No NekoC runtime compatibility claim is made."
+  ]
+}

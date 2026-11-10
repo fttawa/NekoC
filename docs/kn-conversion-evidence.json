@@ -1,0 +1,1009 @@
+{
+  "schema": "nekoc-kn-conversion-v1",
+  "editorUrl": "https://kn.codemao.cn/editor",
+  "checkedAt": "2026-11-10T17:47:01.717Z",
+  "bundles": [
+    {
+      "name": "crc_libs.8196dbd1.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+      "bytes": 1297643,
+      "sha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7"
+    },
+    {
+      "name": "base.f158ddbf.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/base.f158ddbf.js",
+      "bytes": 949823,
+      "sha256": "724251e202e9dac074241e6296f3bbf3773c420141516764c8434dd17eb113e7"
+    },
+    {
+      "name": "main.8ccf2442.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+      "bytes": 5594327,
+      "sha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165"
+    },
+    {
+      "name": "main-vendors.07f7dd7e.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main-vendors.07f7dd7e.js",
+      "bytes": 6460489,
+      "sha256": "38183ab8a9620f33fef75f1bd1f90ee26b492e7b6ded8b6b065fc052e7948f68"
+    },
+    {
+      "name": "6062.1ef86232.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/6062.1ef86232.chunk.js",
+      "bytes": 5199,
+      "sha256": "362c82cbd0f2c6a05349ab05e2e6517cf40783429421424ef21b0b1e34978704"
+    },
+    {
+      "name": "5851.a37eb285.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/5851.a37eb285.chunk.js",
+      "bytes": 181408,
+      "sha256": "79f96472792b16fb60cb13ee65fe2a64f16b224a8848c591308cad0d02baced5"
+    },
+    {
+      "name": "catui2.c678ccd3.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/catui2.c678ccd3.chunk.js",
+      "bytes": 36077,
+      "sha256": "731eec8687c6bf701cae14a35a72f3bd08e35a6f36d7ef15bfb3a7330fcd3efb"
+    },
+    {
+      "name": "4984.26063c69.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/4984.26063c69.chunk.js",
+      "bytes": 13538,
+      "sha256": "afda963988a73b83d4be21b2584d22ceb4a774502016fdce1c9c5d92569920c2"
+    },
+    {
+      "name": "4023.4ec8fceb.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/4023.4ec8fceb.chunk.js",
+      "bytes": 18773,
+      "sha256": "e0b2892d66f6aa6e798b42d5573313fd41a0e1682d4d3a1c00a595bfb8ac40fb"
+    },
+    {
+      "name": "2704.ec059467.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/2704.ec059467.chunk.js",
+      "bytes": 34835,
+      "sha256": "99a86c599cbda9180918819dc5b25b20cb83e1e2c1205ab47eb61f0b05b806b3"
+    },
+    {
+      "name": "2455.fff7df4c.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/2455.fff7df4c.chunk.js",
+      "bytes": 64310,
+      "sha256": "ef75b9497e0c59df11906a787139390ff5f7cb1092fa71eccb0de343adc08c9f"
+    },
+    {
+      "name": "2121.88168974.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/2121.88168974.chunk.js",
+      "bytes": 95951,
+      "sha256": "ba8237837aab054dcdc620b0878dfa53c6c41887ddb92765a9df8b86dead4dc3"
+    },
+    {
+      "name": "6729.cc22670b.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/6729.cc22670b.chunk.js",
+      "bytes": 109,
+      "sha256": "76619f79ea51dfcd0c0ea4572f14d224829ee6ebe6f05d7443474a04f5dcd721"
+    },
+    {
+      "name": "8178.8c1ca691.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/8178.8c1ca691.chunk.js",
+      "bytes": 10683,
+      "sha256": "fbc439dc045b654365926c3b49b8622f270cba0fc86ed4e102e0e550d659eab5"
+    },
+    {
+      "name": "stage_animation.871fede4.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/stage_animation.871fede4.chunk.js",
+      "bytes": 202201,
+      "sha256": "ab9d29b8b3dbcda99ec3be20754901fc80b4266325a57ab2eb14f8d2ae741656"
+    }
+  ],
+  "pageErrors": [],
+  "method": "Fresh anonymous official Edge editor; expose webpack loader and call unchanged registered convert_type domain function. No service or conversion helper replaced.",
+  "limitations": [
+    "Direct domain calls, not complete project playback.",
+    "Warning UI, custom object prototypes and cyclic values are not validated."
+  ],
+  "editor": {
+    "version": "0.27.4",
+    "domainIndex": 113,
+    "calls": [
+      {
+        "label": "null",
+        "target": "number",
+        "input": {
+          "type": "object",
+          "value": null
+        },
+        "result": {
+          "type": "number",
+          "value": 0
+        }
+      },
+      {
+        "label": "null",
+        "target": "string",
+        "input": {
+          "type": "object",
+          "value": null
+        },
+        "result": {
+          "type": "string",
+          "value": "null"
+        }
+      },
+      {
+        "label": "null",
+        "target": "boolean",
+        "input": {
+          "type": "object",
+          "value": null
+        },
+        "result": {
+          "type": "boolean",
+          "value": false
+        }
+      },
+      {
+        "label": "undefined",
+        "target": "number",
+        "input": {
+          "type": "undefined"
+        },
+        "result": {
+          "type": "string",
+          "value": "undefined"
+        }
+      },
+      {
+        "label": "undefined",
+        "target": "string",
+        "input": {
+          "type": "undefined"
+        },
+        "result": {
+          "type": "string",
+          "value": "undefined"
+        }
+      },
+      {
+        "label": "undefined",
+        "target": "boolean",
+        "input": {
+          "type": "undefined"
+        },
+        "result": {
+          "type": "boolean",
+          "value": false
+        }
+      },
+      {
+        "label": "true",
+        "target": "number",
+        "input": {
+          "type": "boolean",
+          "value": true
+        },
+        "result": {
+          "type": "string",
+          "value": "true"
+        }
+      },
+      {
+        "label": "true",
+        "target": "string",
+        "input": {
+          "type": "boolean",
+          "value": true
+        },
+        "result": {
+          "type": "string",
+          "value": "true"
+        }
+      },
+      {
+        "label": "true",
+        "target": "boolean",
+        "input": {
+          "type": "boolean",
+          "value": true
+        },
+        "result": {
+          "type": "boolean",
+          "value": true
+        }
+      },
+      {
+        "label": "false",
+        "target": "number",
+        "input": {
+          "type": "boolean",
+          "value": false
+        },
+        "result": {
+          "type": "string",
+          "value": "false"
+        }
+      },
+      {
+        "label": "false",
+        "target": "string",
+        "input": {
+          "type": "boolean",
+          "value": false
+        },
+        "result": {
+          "type": "string",
+          "value": "false"
+        }
+      },
+      {
+        "label": "false",
+        "target": "boolean",
+        "input": {
+          "type": "boolean",
+          "value": false
+        },
+        "result": {
+          "type": "boolean",
+          "value": false
+        }
+      },
+      {
+        "label": "empty array",
+        "target": "number",
+        "input": {
+          "type": "object",
+          "items": []
+        },
+        "result": {
+          "type": "number",
+          "value": 0
+        }
+      },
+      {
+        "label": "empty array",
+        "target": "string",
+        "input": {
+          "type": "object",
+          "items": []
+        },
+        "result": {
+          "type": "string",
+          "value": ""
+        }
+      },
+      {
+        "label": "empty array",
+        "target": "boolean",
+        "input": {
+          "type": "object",
+          "items": []
+        },
+        "result": {
+          "type": "boolean",
+          "value": true
+        }
+      },
+      {
+        "label": "singleton number",
+        "target": "number",
+        "input": {
+          "type": "object",
+          "items": [
+            {
+              "type": "number",
+              "value": 12
+            }
+          ]
+        },
+        "result": {
+          "type": "number",
+          "value": 12
+        }
+      },
+      {
+        "label": "singleton number",
+        "target": "string",
+        "input": {
+          "type": "object",
+          "items": [
+            {
+              "type": "number",
+              "value": 12
+            }
+          ]
+        },
+        "result": {
+          "type": "string",
+          "value": "12"
+        }
+      },
+      {
+        "label": "singleton number",
+        "target": "boolean",
+        "input": {
+          "type": "object",
+          "items": [
+            {
+              "type": "number",
+              "value": 12
+            }
+          ]
+        },
+        "result": {
+          "type": "boolean",
+          "value": true
+        }
+      },
+      {
+        "label": "singleton numeric text",
+        "target": "number",
+        "input": {
+          "type": "object",
+          "items": [
+            {
+              "type": "string",
+              "value": "0x10"
+            }
+          ]
+        },
+        "result": {
+          "type": "number",
+          "value": 16
+        }
+      },
+      {
+        "label": "singleton numeric text",
+        "target": "string",
+        "input": {
+          "type": "object",
+          "items": [
+            {
+              "type": "string",
+              "value": "0x10"
+            }
+          ]
+        },
+        "result": {
+          "type": "string",
+          "value": "0x10"
+        }
+      },
+      {
+        "label": "singleton numeric text",
+        "target": "boolean",
+        "input": {
+          "type": "object",
+          "items": [
+            {
+              "type": "string",
+              "value": "0x10"
+            }
+          ]
+        },
+        "result": {
+          "type": "boolean",
+          "value": true
+        }
+      },
+      {
+        "label": "singleton bad text",
+        "target": "number",
+        "input": {
+          "type": "object",
+          "items": [
+            {
+              "type": "string",
+              "value": "bad"
+            }
+          ]
+        },
+        "result": {
+          "type": "string",
+          "value": "bad"
+        }
+      },
+      {
+        "label": "singleton bad text",
+        "target": "string",
+        "input": {
+          "type": "object",
+          "items": [
+            {
+              "type": "string",
+              "value": "bad"
+            }
+          ]
+        },
+        "result": {
+          "type": "string",
+          "value": "bad"
+        }
+      },
+      {
+        "label": "singleton bad text",
+        "target": "boolean",
+        "input": {
+          "type": "object",
+          "items": [
+            {
+              "type": "string",
+              "value": "bad"
+            }
+          ]
+        },
+        "result": {
+          "type": "boolean",
+          "value": true
+        }
+      },
+      {
+        "label": "two items",
+        "target": "number",
+        "input": {
+          "type": "object",
+          "items": [
+            {
+              "type": "number",
+              "value": 1
+            },
+            {
+              "type": "number",
+              "value": 2
+            }
+          ]
+        },
+        "result": {
+          "type": "string",
+          "value": "1,2"
+        }
+      },
+      {
+        "label": "two items",
+        "target": "string",
+        "input": {
+          "type": "object",
+          "items": [
+            {
+              "type": "number",
+              "value": 1
+            },
+            {
+              "type": "number",
+              "value": 2
+            }
+          ]
+        },
+        "result": {
+          "type": "string",
+          "value": "1,2"
+        }
+      },
+      {
+        "label": "two items",
+        "target": "boolean",
+        "input": {
+          "type": "object",
+          "items": [
+            {
+              "type": "number",
+              "value": 1
+            },
+            {
+              "type": "number",
+              "value": 2
+            }
+          ]
+        },
+        "result": {
+          "type": "boolean",
+          "value": true
+        }
+      },
+      {
+        "label": "nested singleton",
+        "target": "number",
+        "input": {
+          "type": "object",
+          "items": [
+            {
+              "type": "object",
+              "items": [
+                {
+                  "type": "number",
+                  "value": 7
+                }
+              ]
+            }
+          ]
+        },
+        "result": {
+          "type": "number",
+          "value": 7
+        }
+      },
+      {
+        "label": "nested singleton",
+        "target": "string",
+        "input": {
+          "type": "object",
+          "items": [
+            {
+              "type": "object",
+              "items": [
+                {
+                  "type": "number",
+                  "value": 7
+                }
+              ]
+            }
+          ]
+        },
+        "result": {
+          "type": "string",
+          "value": "7"
+        }
+      },
+      {
+        "label": "nested singleton",
+        "target": "boolean",
+        "input": {
+          "type": "object",
+          "items": [
+            {
+              "type": "object",
+              "items": [
+                {
+                  "type": "number",
+                  "value": 7
+                }
+              ]
+            }
+          ]
+        },
+        "result": {
+          "type": "boolean",
+          "value": true
+        }
+      },
+      {
+        "label": "null item",
+        "target": "number",
+        "input": {
+          "type": "object",
+          "items": [
+            {
+              "type": "object",
+              "value": null
+            }
+          ]
+        },
+        "result": {
+          "type": "number",
+          "value": 0
+        }
+      },
+      {
+        "label": "null item",
+        "target": "string",
+        "input": {
+          "type": "object",
+          "items": [
+            {
+              "type": "object",
+              "value": null
+            }
+          ]
+        },
+        "result": {
+          "type": "string",
+          "value": ""
+        }
+      },
+      {
+        "label": "null item",
+        "target": "boolean",
+        "input": {
+          "type": "object",
+          "items": [
+            {
+              "type": "object",
+              "value": null
+            }
+          ]
+        },
+        "result": {
+          "type": "boolean",
+          "value": true
+        }
+      },
+      {
+        "label": "undefined item",
+        "target": "number",
+        "input": {
+          "type": "object",
+          "items": [
+            {
+              "type": "undefined"
+            }
+          ]
+        },
+        "result": {
+          "type": "number",
+          "value": 0
+        }
+      },
+      {
+        "label": "undefined item",
+        "target": "string",
+        "input": {
+          "type": "object",
+          "items": [
+            {
+              "type": "undefined"
+            }
+          ]
+        },
+        "result": {
+          "type": "string",
+          "value": ""
+        }
+      },
+      {
+        "label": "undefined item",
+        "target": "boolean",
+        "input": {
+          "type": "object",
+          "items": [
+            {
+              "type": "undefined"
+            }
+          ]
+        },
+        "result": {
+          "type": "boolean",
+          "value": true
+        }
+      },
+      {
+        "label": "object",
+        "target": "number",
+        "input": {
+          "type": "object",
+          "value": {
+            "a": 1
+          }
+        },
+        "result": {
+          "type": "string",
+          "value": "[object Object]"
+        }
+      },
+      {
+        "label": "object",
+        "target": "string",
+        "input": {
+          "type": "object",
+          "value": {
+            "a": 1
+          }
+        },
+        "result": {
+          "type": "string",
+          "value": "[object Object]"
+        }
+      },
+      {
+        "label": "object",
+        "target": "boolean",
+        "input": {
+          "type": "object",
+          "value": {
+            "a": 1
+          }
+        },
+        "result": {
+          "type": "boolean",
+          "value": true
+        }
+      },
+      {
+        "label": "NaN",
+        "target": "number",
+        "input": {
+          "type": "number",
+          "value": "NaN"
+        },
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        }
+      },
+      {
+        "label": "NaN",
+        "target": "string",
+        "input": {
+          "type": "number",
+          "value": "NaN"
+        },
+        "result": {
+          "type": "string",
+          "value": "NaN"
+        }
+      },
+      {
+        "label": "NaN",
+        "target": "boolean",
+        "input": {
+          "type": "number",
+          "value": "NaN"
+        },
+        "result": {
+          "type": "boolean",
+          "value": false
+        }
+      },
+      {
+        "label": "Infinity",
+        "target": "number",
+        "input": {
+          "type": "number",
+          "value": "Infinity"
+        },
+        "result": {
+          "type": "number",
+          "value": "Infinity"
+        }
+      },
+      {
+        "label": "Infinity",
+        "target": "string",
+        "input": {
+          "type": "number",
+          "value": "Infinity"
+        },
+        "result": {
+          "type": "string",
+          "value": "Infinity"
+        }
+      },
+      {
+        "label": "Infinity",
+        "target": "boolean",
+        "input": {
+          "type": "number",
+          "value": "Infinity"
+        },
+        "result": {
+          "type": "boolean",
+          "value": true
+        }
+      },
+      {
+        "label": "empty",
+        "target": "number",
+        "input": {
+          "type": "string",
+          "value": ""
+        },
+        "result": {
+          "type": "number",
+          "value": 0
+        }
+      },
+      {
+        "label": "empty",
+        "target": "string",
+        "input": {
+          "type": "string",
+          "value": ""
+        },
+        "result": {
+          "type": "string",
+          "value": ""
+        }
+      },
+      {
+        "label": "empty",
+        "target": "boolean",
+        "input": {
+          "type": "string",
+          "value": ""
+        },
+        "result": {
+          "type": "boolean",
+          "value": false
+        }
+      },
+      {
+        "label": "space",
+        "target": "number",
+        "input": {
+          "type": "string",
+          "value": " "
+        },
+        "result": {
+          "type": "number",
+          "value": 0
+        }
+      },
+      {
+        "label": "space",
+        "target": "string",
+        "input": {
+          "type": "string",
+          "value": " "
+        },
+        "result": {
+          "type": "string",
+          "value": " "
+        }
+      },
+      {
+        "label": "space",
+        "target": "boolean",
+        "input": {
+          "type": "string",
+          "value": " "
+        },
+        "result": {
+          "type": "boolean",
+          "value": true
+        }
+      },
+      {
+        "label": "binary",
+        "target": "number",
+        "input": {
+          "type": "string",
+          "value": "0b11"
+        },
+        "result": {
+          "type": "number",
+          "value": 3
+        }
+      },
+      {
+        "label": "binary",
+        "target": "string",
+        "input": {
+          "type": "string",
+          "value": "0b11"
+        },
+        "result": {
+          "type": "string",
+          "value": "0b11"
+        }
+      },
+      {
+        "label": "binary",
+        "target": "boolean",
+        "input": {
+          "type": "string",
+          "value": "0b11"
+        },
+        "result": {
+          "type": "boolean",
+          "value": true
+        }
+      },
+      {
+        "label": "octal",
+        "target": "number",
+        "input": {
+          "type": "string",
+          "value": "0o17"
+        },
+        "result": {
+          "type": "number",
+          "value": 15
+        }
+      },
+      {
+        "label": "octal",
+        "target": "string",
+        "input": {
+          "type": "string",
+          "value": "0o17"
+        },
+        "result": {
+          "type": "string",
+          "value": "0o17"
+        }
+      },
+      {
+        "label": "octal",
+        "target": "boolean",
+        "input": {
+          "type": "string",
+          "value": "0o17"
+        },
+        "result": {
+          "type": "boolean",
+          "value": true
+        }
+      },
+      {
+        "label": "invalid",
+        "target": "number",
+        "input": {
+          "type": "string",
+          "value": "bad"
+        },
+        "result": {
+          "type": "string",
+          "value": "bad"
+        }
+      },
+      {
+        "label": "invalid",
+        "target": "string",
+        "input": {
+          "type": "string",
+          "value": "bad"
+        },
+        "result": {
+          "type": "string",
+          "value": "bad"
+        }
+      },
+      {
+        "label": "invalid",
+        "target": "boolean",
+        "input": {
+          "type": "string",
+          "value": "bad"
+        },
+        "result": {
+          "type": "boolean",
+          "value": true
+        }
+      },
+      {
+        "label": "literal NaN",
+        "target": "number",
+        "input": {
+          "type": "string",
+          "value": "NaN"
+        },
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        }
+      },
+      {
+        "label": "literal NaN",
+        "target": "string",
+        "input": {
+          "type": "string",
+          "value": "NaN"
+        },
+        "result": {
+          "type": "string",
+          "value": "NaN"
+        }
+      },
+      {
+        "label": "literal NaN",
+        "target": "boolean",
+        "input": {
+          "type": "string",
+          "value": "NaN"
+        },
+        "result": {
+          "type": "boolean",
+          "value": true
+        }
+      }
+    ]
+  },
+  "sourceLocations": [
+    {
+      "symbol": "convert_type",
+      "bundle": "main.8ccf2442.js",
+      "bundleUrl": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1633578,
+      "excerptCharacters": 1800,
+      "excerptSha256": "32f6786e69a23e77b3201f4d5e768378e037c76bcb449a25d0e6d8da43e74265"
+    }
+  ],
+  "ok": true
+}

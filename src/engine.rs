@@ -16,6 +16,8 @@ mod k4_properties;
 mod kn_appearance;
 mod kn_async;
 mod kn_catalog;
+mod kn_conversion;
+mod kn_hardware;
 mod kn_helpers;
 mod kn_objects;
 mod kn_services;
@@ -1822,6 +1824,26 @@ impl Compiler {
             return Ok(index);
         }
         let value = match b["type"].as_str().unwrap_or("") {
+            "microbit_button_is_pressed"
+            | "microbit_logo_is_pressed"
+            | "microbit_is_gesture"
+            | "microbit_pin_digital_read"
+            | "microbit_pin_analog_read"
+                if self.program.semantics == RuntimeSemantics::KnCurrent =>
+            {
+                let spec = kn_hardware::reporter(b["type"].as_str().unwrap()).unwrap();
+                debug_assert!(spec.inputs.is_empty());
+                self.constant(match spec.result {
+                    kn_hardware::DisconnectedValue::BooleanFalse => Cell::Bool(false),
+                    kn_hardware::DisconnectedValue::NumberNaN => Cell::Number(f64::NAN),
+                })
+            }
+            "microbit_led_is_plot" if self.program.semantics == RuntimeSemantics::KnCurrent => {
+                ValueExpr::OfflineMicrobitLed([
+                    self.value(input(b, "x")?)?,
+                    self.value(input(b, "y")?)?,
+                ])
+            }
             "username_get"
             | "user_id_get"
             | "ai_chat_answer"
@@ -2209,6 +2231,14 @@ impl Compiler {
                         .push(ValueExpr::Kitten4Convert(value, conversion));
                     return Ok(i);
                 }
+                if self.program.semantics == RuntimeSemantics::KnCurrent
+                    && field(b, "type") == "boolean"
+                {
+                    let value = self.value(input(b, "text")?)?;
+                    let index = self.program.values.len();
+                    self.program.values.push(ValueExpr::Boolean(value));
+                    return Ok(index);
+                }
                 ensure!(
                     matches!(field(b, "type"), "number" | "string"),
                     "unsupported conversion {}",
@@ -2545,6 +2575,12 @@ impl Compiler {
             | "ai_text_result"
             | "ai_text_result_check"
             | "microbit_math_map"
+            | "microbit_button_is_pressed"
+            | "microbit_logo_is_pressed"
+            | "microbit_is_gesture"
+            | "microbit_led_is_plot"
+            | "microbit_pin_digital_read"
+            | "microbit_pin_analog_read"
             | "get_face_detection_result"
             | "get_object_detection_result"
             | "check_gender"
@@ -7425,6 +7461,9 @@ impl Engine {
             ValueExpr::OfflineMicrobitMap(args) => {
                 children.extend(args.map(|i| (true, i)));
             }
+            ValueExpr::OfflineMicrobitLed(args) => {
+                children.extend(args.map(|i| (true, i)));
+            }
             ValueExpr::Number(e)
             | ValueExpr::CloneProperty(_, e, _)
             | ValueExpr::ActorVariable(_, _, Some(e)) => children.push(expression(e)),
@@ -7577,6 +7616,14 @@ impl Engine {
                     let _ = self.eval_value(i, actor);
                 }
                 Cell::Number(f64::NAN)
+            }
+            ValueExpr::OfflineMicrobitLed(args) => {
+                // Official disconnected guard returns false, but sockets still
+                // evaluate in panel order before the domain call. No LED backend.
+                for i in args {
+                    let _ = self.eval_value(i, actor);
+                }
+                Cell::Bool(false)
             }
             ValueExpr::Constant(v) => self.program.constants[v].clone(),
             ValueExpr::Global(i) => self.global_value(i),
@@ -7760,6 +7807,9 @@ impl Engine {
             }
             ValueExpr::Convert(i, number) => {
                 let v = self.eval_value(i, actor);
+                if self.program.semantics == RuntimeSemantics::KnCurrent {
+                    return kn_conversion::convert(v, number);
+                }
                 if number {
                     // Official KN main.8ccf2442.js convertType (1633578):
                     // booleans warn and return String(value), not 0/1.

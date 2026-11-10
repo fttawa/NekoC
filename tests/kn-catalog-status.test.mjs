@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
-import { dispatchEvidence, inventory, statuses, coverageMarkdown } from "../tools/compat/kn-catalog-status.mjs";
+import { dispatchEvidence, inventory, statuses, officialCategories, coverageMarkdown } from "../tools/compat/kn-catalog-status.mjs";
 import { catalogTypes } from "../tools/compat/kn-catalog-manifest.mjs";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
@@ -34,6 +34,8 @@ test("snapshot is exactly 300 unique names with mutually exclusive conservative 
     assert.equal(row.status === "缺失", row.vm.length === 0, row.type);
     assert.ok(row.compiler.includes("build_nested_block"));
     assert.ok(row.risk.length > 0);
+    assert.ok(officialCategories[row.officialCategory], row.type);
+    assert.equal(row.panelEvidence, "docs/kn-panel-evidence.json");
   }
   // New paths must keep their explicit limitations, rather than being promoted
   // to a parity claim. Truly unsupported types are checked independently below.
@@ -49,7 +51,8 @@ test("snapshot is exactly 300 unique names with mutually exclusive conservative 
     assert.equal(row.status, "部分语义", type);
   }
   for (const type of ["username_get", "user_id_get", "get_voice_answer", "recognize_body_part", "get_position_of_body_part", "move_to_body_part",
-    "ai_chat_answer", "ai_text_result", "ai_text_result_check", "get_face_detection_result", "get_object_detection_result", "check_gender", "check_emotion", "check_face_shape", "microbit_math_map"]) {
+    "ai_chat_answer", "ai_text_result", "ai_text_result_check", "get_face_detection_result", "get_object_detection_result", "check_gender", "check_emotion", "check_face_shape", "microbit_math_map",
+    "microbit_button_is_pressed", "microbit_logo_is_pressed", "microbit_is_gesture", "microbit_led_is_plot", "microbit_pin_digital_read", "microbit_pin_analog_read"]) {
     const row = result.rows.find(row => row.type === type);
     assert.ok(row.vm.length > 0, type);
     assert.equal(row.status, "部分语义", type);
@@ -65,6 +68,21 @@ test("snapshot is exactly 300 unique names with mutually exclusive conservative 
   for (const type of ["procedures_2_defnoreturn", "traverse_number_param"]) {
     assert.equal(result.rows.find(row => row.type === type).status, "元数据", type);
   }
+});
+
+test("official panel evidence remains separate from VM support or retirement claims", () => {
+  const result = inventory(root);
+  assert.equal(Object.values(result.panelCounts).reduce((a,b) => a+b,0),300);
+  for (const [type, category] of [["global_animation","panel-default"],
+    ["set_system_preset","panel-configurable-default-hidden"],
+    ["get_sprite_property","code-api-alias-not-block"],
+    ["wand_coordinate","hardware-extension-config-not-installed"]]) {
+    const row = result.rows.find(r => r.type === type);
+    assert.equal(row.officialCategory, category);
+    assert.equal(row.status, "缺失");
+    assert.deepEqual(row.vm, []);
+  }
+  assert.match(coverageMarkdown(result), /两者均0/);
 });
 
 test("field arms and traversal-only type mentions never become VM evidence", () => {

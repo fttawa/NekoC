@@ -34,6 +34,14 @@ function filesUnder(root, suffix) {
 }
 
 export const statuses = ["有执行路径／未完整验证", "部分语义", "固定值占位", "元数据", "缺失"];
+export const officialCategories = {
+  "panel-default": "普通面板配置／默认未隐藏",
+  "panel-configurable-default-hidden": "可配置面板／默认隐藏",
+  "panel-nested-or-dynamic": "面板嵌套／动态块",
+  "registered-not-in-audited-panels": "已注册／本次面板未列出",
+  "hardware-extension-config-not-installed": "官方硬件扩展定义／未安装",
+  "code-api-alias-not-block": "官方代码API／非同名积木",
+};
 
 const risks = {
   appearance_of_sprite: "已实现独立横纵百分比与官方两位舍入；文本 costume 特殊缩放及全部错误路径未验证",
@@ -41,7 +49,7 @@ const risks = {
   mouse_down: "已区分屏幕/当前实例/命名角色及克隆并保留布尔类型；非法目标编译期拒绝，完整事件顺序未验证",
   self_dialog_wait: "官方实际为无限时非阻塞气泡；已补可见性/空文本/截断，跨场景及并发 timed 气泡取消未验证",
   get_clone_index_property: "已补命名宽高/方向/造型属性；历史数字属性码与特效重叠及其他属性未完整验证",
-  convert_type: "KN 只允许 number/string，其他转换报错；未验证全部强制转换边界",
+  convert_type: "已按63条官方观测补齐列表/null/undefined/普通对象与boolean目标；警告UI、自定义原型及循环值未验证",
   setTimeout: "按官方 0.27.4 原生实测丢弃 callback statement，只调度空回调；通用 JS function 回调未实现，墙钟精度未验证",
   setInterval: "按官方 0.27.4 原生实测丢弃 callback statement，只调度空回调；通用 JS function 回调未实现，墙钟精度未验证",
   clearTimeout: "取消尚未派发的定时器；浏览器 timer ID 数值不保证相同",
@@ -67,6 +75,12 @@ const risks = {
   check_emotion: "仅人脸缓存为空时 numeric NaN，不是 false；检测后端未实现",
   check_face_shape: "仅人脸缓存为空时 numeric NaN，不是 false；检测后端未实现",
   microbit_math_map: "仅无 microbit 连接时求值五个输入后 NaN；官方映射公式本身也检查连接，真实设备分支未实现",
+  microbit_button_is_pressed: "仅无microbit连接时boolean false；真实设备按键未实现",
+  microbit_logo_is_pressed: "仅无microbit连接时boolean false；真实设备logo触摸未实现",
+  microbit_is_gesture: "仅无microbit连接时boolean false；真实设备手势未实现",
+  microbit_led_is_plot: "仅无microbit连接时顺序求值x/y后boolean false；真实LED查询未实现",
+  microbit_pin_digital_read: "仅无microbit连接时numeric NaN；真实数字引脚未实现",
+  microbit_pin_analog_read: "仅无microbit连接时numeric NaN；真实模拟引脚未实现",
 };
 const limitations = {
   __break__: "官方类型声明/API 伪名；编辑器实际积木为 break。此分派仅为兼容输入，非同名积木支持",
@@ -113,6 +127,15 @@ function primaryDispatch(engine) {
 }
 
 export function inventory(root, reference, engineSource) {
+  const panel = JSON.parse(fs.readFileSync(path.join(root, "docs/kn-panel-evidence.json"), "utf8"));
+  const panelRows = Object.entries(panel.typeGroups).flatMap(([category, types]) =>
+    types.map(type => [type, category]));
+  const panelCategories = new Map(panelRows);
+  if (panel.catalogSha256 !== catalogSha256 || panelRows.length !== catalogTypes.length ||
+      panelCategories.size !== catalogTypes.length ||
+      catalogTypes.some(type => !officialCategories[panelCategories.get(type)])) {
+    throw new Error("Re-audit official panel evidence: expected exact 300-name partition");
+  }
   if (reference) {
     const bytes = fs.readFileSync(path.join(reference, "kn_spec/block_catalog.json"));
     if (createHash("sha256").update(bytes).digest("hex") !== catalogSha256) {
@@ -166,13 +189,15 @@ export function inventory(root, reference, engineSource) {
     return { type, status, risk: risks[type] ?? limitations[type] ?? (vm.length ? "显式路径仅证明会编译；全部字段、选项、错误与官方行为尚未逐项验证" : missingReason(type)),
       occurrences: frequencies.get(type) ?? 0, event: eventTypes.has(type), tests,
       vm, compiler: "src/bcmkn_compiler.rs::build_nested_block (generic field-preserving import)",
-      reference: referenceFunctions };
+      reference: referenceFunctions, officialCategory: panelCategories.get(type),
+      panelEvidence: "docs/kn-panel-evidence.json" };
   });
   const catalogTest = testSources.find(([file]) => path.basename(file) === "kn_catalog.rs")?.[1] ?? "";
   return { catalogCount: rows.length, projectCount: projects.length,
     catalogTestCount: [...catalogTest.matchAll(/#\[test\]/g)].length,
     scope: "显式 VM 分派覆盖；不代表所有字段/子选项均已实现。编译器能读指原生 JSON/工作区导入，不代表 TS API 会生成。游离积木被忽略不算 VM 支持。",
-    counts: Object.fromEntries(statuses.map(s => [s, rows.filter(r => r.status === s).length])), rows };
+    counts: Object.fromEntries(statuses.map(s => [s, rows.filter(r => r.status === s).length])),
+    panelCounts: Object.fromEntries(Object.keys(officialCategories).map(s => [s, rows.filter(r => r.officialCategory === s).length])), rows };
 }
 
 function missingReason(type) {
@@ -205,6 +230,9 @@ export function coverageMarkdown(result) {
     "- 最新集成基线另有 [kn-semantics.md](kn-semantics.md) 的官方 KN 原创夹具实测，覆盖有限调度、列表读取与转换样例；它不把本表升级成全类型/全字段认证。",
     "- 第二轮对象、定时器及离线服务降级的证据和未验证范围见 [kn-objects.md](kn-objects.md)、[kn-async-services.md](kn-async-services.md)、[kn-timers.md](kn-timers.md)；无设备降级路径不代表真实设备、AI 或账户后端。",
     "- 第三轮常用外观/对白与鼠标目标的修复见 [kn-appearance-dialog.md](kn-appearance-dialog.md)、[kn-pointer.md](kn-pointer.md)；新增 AI/OCR/检测查询仅是 [kn-offline-round3.md](kn-offline-round3.md) 的官方空缓存分支，不实现获取命令或实际后端。microbit map 的无连接 NaN 分支见 [kn-microbit-map.md](kn-microbit-map.md)，不能把它当作无条件数学映射。",
+    "- 第四轮常用类型转换的63条官方带类型观测及边界见 [kn-conversion.md](kn-conversion.md)；完整工程警告 UI、自定义原型和循环值仍未验证。",
+    "- 第四轮6个新增microbit同步查询只覆盖 [kn-hardware.md](kn-hardware.md) 的官方无连接分支；37条官方局部调用含已有map，不代表真实硬件或完整原生工程调度支持。",
+    "- 第四轮已逐项核对300名称的官方面板/注册/扩展配置，见 [kn-panel-audit.md](kn-panel-audit.md) 和 [kn-panel-evidence.json](kn-panel-evidence.json)。普通默认配置142、可配置默认隐藏52、嵌套动态1、已注册但本次面板未列出41、硬件扩展定义60、官方代码API/声明别名4；本轮没有足够证据认证任何名称为“非官方/已下线”（两者均0）。这套分类独立于VM状态：缺失包含1个非同名积木API，不把它伪造为可执行入口，也不拿面板分类减少VM缺失计数。",
     "- 官方 bundle：`https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js`；SHA-256 `58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165`。`_execute` byte 2962264 是空函数；`_array_literal` byte 2962446 使用 `Object.values`。空函数不等于输入不求值，执行管线仍需单独验证。",
     "- 导入层 `src/bcmkn_compiler.rs::build_nested_block` 泛型保留 type/fields，再按连接重建 inputs/statements/next；这只能说明能装配/读取，不能证明 VM 支持。`tests/kn_gap.rs::workspace_compiler_preserves_unknown_types_without_claiming_vm_support` 专门覆盖此区别。",
     "- 实现定位只扫描 value_one、expression_one、scripts、chain 的类型分派，排除注释、字段选项、expression_inputs 遍历提示和游离根忽略名单。元数据单独列出。此静态审计不能证明每条 guard 在 KN 模式均可达，也不能替代运行测试。",
@@ -220,9 +248,9 @@ export function coverageMarkdown(result) {
     ...testIds.map(file => `- **${testRef(file)}**：[${file}](../${file})（源码引用，执行状态见上文）`),
     "", "## 全量逐项表（300 行）", "",
     "所有行的导入层均为上文 `build_nested_block` 泛型路径；只在“VM/编译位置”列有路径时才有进一步实现证据。行号随源码演化变化，可用下述命令重新生成。", "",
-    "| # | 类型 | 状态 | VM/编译位置 | 测试源码线索 | 限制／未验证 |",
-    "| ---: | --- | --- | --- | --- | --- |",
-    ...result.rows.map((row, i) => `| ${i + 1} | \`${row.type}\` | ${row.status} | ${row.vm.map(at => `\`${at}\``).join("<br>") || "—"} | ${row.tests.map(testRef).join(", ") || "未定位"} | ${shortRisk[row.status] ?? limitations[row.type] ?? (row.status === statuses[0] ? "有路径；完整语义未验证" : row.risk)} |`),
+    "| # | 类型 | VM状态 | 官方面板证据类别 | VM/编译位置 | 测试源码线索 | 限制／未验证 |",
+    "| ---: | --- | --- | --- | --- | --- | --- |",
+    ...result.rows.map((row, i) => `| ${i + 1} | \`${row.type}\` | ${row.status} | ${officialCategories[row.officialCategory]} | ${row.vm.map(at => `\`${at}\``).join("<br>") || "—"} | ${row.tests.map(testRef).join(", ") || "未定位"} | ${shortRisk[row.status] ?? limitations[row.type] ?? (row.status === statuses[0] ? "有路径；完整语义未验证" : row.risk)} |`),
     "", "## 复现与更新", "", "```powershell",
     "# 无外部依赖：用仓库内名称快照重新扫描当前 engine 并生成文档",
     "node tools/compat/kn-catalog-status.mjs --snapshot docs/kn-block-coverage.md",
