@@ -4665,19 +4665,20 @@ impl Engine {
         // Evaluate listener expressions in the sender context; each receiver gets
         // fresh script locals and its own payload slot (list identity is preserved).
         for i in 0..self.program.scripts.len() {
-            let script = self.program.scripts[i].clone();
-            let ScriptEvent::Broadcast(value, with_param) = script.event else {
+            let ScriptEvent::Broadcast(value, with_param) = self.program.scripts[i].event else {
                 continue;
             };
-            if !self.in_active_scene(script.actor) {
+            let actor = self.program.scripts[i].actor;
+            if !self.in_active_scene(actor) {
                 continue;
             }
-            if self.eval_value(value, script.actor).text() != message {
+            if self.eval_value(value, actor).text() != message {
                 continue;
             }
-            for target in self.instances(script.actor) {
+            for target in self.instances(actor) {
                 ensure!(self.tasks.len() < 4096, "broadcast task limit exceeded");
-                let mut task = Task::new(self.next_task_id, &script, &self.program);
+                let mut task =
+                    Task::new(self.next_task_id, &self.program.scripts[i], &self.program);
                 task.actor = target;
                 task.script = i;
                 task.created = self.scheduler_tick;
@@ -6223,7 +6224,7 @@ impl Engine {
                 if matches!(a, Cell::Text(_) | Cell::List(_) | Cell::Costume(_))
                     || matches!(b, Cell::Text(_) | Cell::List(_) | Cell::Costume(_))
                 {
-                    Cell::Text(format!("{}{}", a.text(), b.text()).into())
+                    Cell::concat(&a, &b)
                 } else {
                     Cell::Number(a.number() + b.number())
                 }
@@ -6298,7 +6299,7 @@ impl Engine {
                 let value = self.eval_value(value, actor);
                 let index = self
                     .resolve_list(list)
-                    .and_then(|list| list.borrow().iter().position(|v| v.equals(&value)));
+                    .and_then(|list| value.index_in(&list.borrow()));
                 if contains {
                     Cell::Bool(index.is_some())
                 } else {
@@ -6369,6 +6370,21 @@ impl Engine {
                 Cell::List(Rc::new(RefCell::new(parts)))
             }
             ValueExpr::Join(parts) => {
+                if parts.len == 2 {
+                    // Only immutable text may be held across evaluation of the
+                    // second reporter. A list must stringify before that reporter
+                    // can mutate it (the general join path's evaluation order).
+                    let a = self.eval_value(self.program.value_args[parts.start as usize], actor);
+                    if matches!(a, Cell::Text(_)) {
+                        let b = self
+                            .eval_value(self.program.value_args[parts.start as usize + 1], actor);
+                        return Cell::concat(&a, &b);
+                    }
+                    let mut text = a.text();
+                    self.eval_value(self.program.value_args[parts.start as usize + 1], actor)
+                        .append_text(&mut text);
+                    return Cell::Text(text.into());
+                }
                 let mut text = String::new();
                 for k in parts.start..parts.start + parts.len {
                     let part = self.program.value_args[k as usize];
@@ -6901,7 +6917,7 @@ impl Engine {
                         && (matches!(previous, Cell::Text(_))
                             || matches!(value, Cell::Text(_) | Cell::List(_) | Cell::Costume(_)))
                     {
-                        Cell::Text(format!("{}{}", previous.text(), value.text()).into())
+                        Cell::concat(&previous, &value)
                     } else {
                         Cell::Number(if decrease {
                             previous.number() - value.number()
