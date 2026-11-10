@@ -215,6 +215,32 @@ pub fn equal(left: &Value, right: &Value) -> bool {
     true
 }
 
+/// K4 object insertion order is executable state (script/typeclass order).
+/// Keep ordinary document equality order-insensitive, but never reuse a native
+/// import cache across two differently ordered source objects.
+pub(crate) fn ordered_equal(left: &Value, right: &Value) -> bool {
+    let mut pending = vec![(left, right)];
+    while let Some((left, right)) = pending.pop() {
+        match (left, right) {
+            (Value::Array(a), Value::Array(b)) if a.len() == b.len() => {
+                pending.extend(a.iter().zip(b))
+            }
+            (Value::Object(a), Value::Object(b)) if a.len() == b.len() => {
+                for ((ka, va), (kb, vb)) in a.iter().zip(b) {
+                    if ka != kb {
+                        return false;
+                    }
+                    pending.push((va, vb));
+                }
+            }
+            (Value::Array(_) | Value::Object(_), _) => return false,
+            _ if left != right => return false,
+            _ => {}
+        }
+    }
+    true
+}
+
 pub fn from_str(text: &str) -> Result<Json> {
     from_slice(text.as_bytes())
 }

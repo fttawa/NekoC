@@ -21,6 +21,10 @@ struct Args {
     /// Dump the complete VM program (including diagnostic source IDs).
     #[arg(long)]
     program: bool,
+    #[arg(long)]
+    blocks: bool,
+    #[arg(long)]
+    interpreter: bool,
 }
 
 fn main() -> Result<()> {
@@ -59,11 +63,28 @@ fn main() -> Result<()> {
         return Ok(());
     }
     let mut engine = Engine::new(program);
+    if args.blocks {
+        engine.trace_blocks();
+    } else if args.interpreter {
+        engine.disable_jit();
+    }
     engine.set_random_seed(args.seed);
     engine.start();
     let mut frames = Vec::new();
     for frame in 1..=args.frames {
-        let update = engine.advance(1.0 / 60.0, 2_000_000, Duration::from_millis(200))?;
+        let update = match engine.advance(1.0 / 60.0, 2_000_000, Duration::from_secs(5)) {
+            Ok(update) => update,
+            Err(error) if args.blocks => {
+                println!(
+                    "{}",
+                    json!({"schema":"nekoc-k4-trace-v1", "frames":frames,
+                    "events":engine.take_oracle_events(), "error":format!("{error:#}"),
+                    "failedFrame":engine.oracle_snapshot(frame)})
+                );
+                return Ok(());
+            }
+            Err(error) => return Err(error),
+        };
         ensure!(
             !update.budget_yield,
             "frame {frame} exceeded execution budget"
@@ -72,7 +93,8 @@ fn main() -> Result<()> {
     }
     println!(
         "{}",
-        json!({"schema":"nekoc-k4-trace-v1", "fps":60, "seed":args.seed, "frames":frames})
+        json!({"schema":"nekoc-k4-trace-v1", "fps":60, "seed":args.seed, "frames":frames,
+            "events":engine.take_oracle_events()})
     );
     Ok(())
 }

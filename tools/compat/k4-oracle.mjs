@@ -14,6 +14,7 @@ export function parseArgs(argv) {
     "--frames": "frames", "--seed": "seed", "--timeout-ms": "timeoutMs", "--diagnostics": "diagnostics" };
   for (let i = 0; i < argv.length; i++) {
     if (argv[i] === "--allow-assets") { args.allowAssets = true; continue; }
+    if (argv[i] === "--blocks") { args.blocks = true; continue; }
     if (argv[i] === "--help" || argv[i] === "-h") { args.help = true; continue; }
     const key = keys[argv[i]];
     if (!key || !argv[i + 1] || argv[i + 1].startsWith("--")) throw new Error(`Invalid option: ${argv[i]}`);
@@ -269,7 +270,7 @@ export async function runOracle(input, options = {}) {
       return state.cloud_states.loading_state === "load_done" && state.theatre_states.scenes[scene] && req("a1xw").a().get_scene_by_id(scene);
     }, project.theatre.scenes_order?.[0] || Object.keys(project.theatre.scenes)[0], { timeout: options.timeoutMs || 45000, polling: 20 });
     kernel.diagnostics.phase = "trace";
-    await kernel.page.evaluate(({ seed }) => {
+    await kernel.page.evaluate(({ seed, blocks }) => {
       const req = window.__k4OracleRequire;
       const heart = req("KmiX").b();
       const prngSeed = { seed_high: 0, seed_low: seed, inc_high: 0, inc_low: 1 };
@@ -284,6 +285,57 @@ export async function runOracle(input, options = {}) {
       clock.ms_per_update = 1000 / 60;
       clock.current_time = 0;
       const errors = [], frames = [];
+      const events = [];
+      let traceTruncated = false;
+      if (blocks) {
+        const manager = window.__k4OracleContainer.get(window.__k4OracleBinding.RuntimeManager);
+        let current = null;
+        const emit = (event, runner, extra = {}) => {
+          if (events.length >= 500000) { traceTruncated = true; return; }
+          const identities = runner?.original_identities;
+          events.push({ frame: manager.frames + 1, event,
+            entity: identities?.target_entity, hat: identities?.source_map_rbid, ...extra });
+        };
+        const spawn = manager.do_spawn_interpreter;
+        function instrument(runner) {
+          // OptiRunner mutates original_identities.source_map_rbid while entering
+          // procedures. Freeze the script identity, not the current call frame.
+          const identity = { ...runner.original_identities };
+          const record = (event, extra = {}) => emit(event, { original_identities: identity }, extra);
+          record("start", { priorities: runner.metadata.priorities });
+          const step = runner.step;
+          runner.step = function () {
+            current = { original_identities: identity };
+            record("resume");
+            try {
+              const result = step.call(this);
+              record(result === req("eLij").StepResult.finished ? "finish" : "yield",
+                { stack: this.program_state.proc_stack.map(f => ({ procedure: f.proc_id, pc: [...f.program_counter] })) });
+              return result;
+            } finally { current = null; }
+          };
+          const before = runner.step_outputs.before_expression;
+          runner.step_outputs.before_expression = function (...args) {
+            record("block", { block: args[0] });
+            return before(...args);
+          };
+        }
+        for (const runner of Object.values(manager.interpreters)) instrument(runner);
+        manager.do_spawn_interpreter = function (spec) {
+          const result = spawn.call(this, spec);
+          instrument(this.interpreters[spec.interpreter_id]);
+          return result;
+        };
+        // Observe the native notification boundary; do not replace list operations.
+        for (const name of ["report_list_updated", "report_entity_list_updated"]) {
+          const original = manager.runtime_data[name];
+          if (typeof original !== "function") continue;
+          manager.runtime_data[name] = function (...args) {
+            emit("list", current, { list: args[0], length: args[1].length, owner: args[2] });
+            return original.apply(this, args);
+          };
+        }
+      }
       heart.get_event_bus().error.runtime.immediate.sub(e => errors.push(String(e.error?.message || e.error || e)));
       function snapshot() {
         const stage = req("a1xw").a();
@@ -316,8 +368,8 @@ export async function runOracle(input, options = {}) {
           actors, variables, variable_names, entity_variables });
       }
       heart.get_event_bus().runtime_manager.after_update.immediate.sub(() => frames.push(snapshot()));
-      window.__k4Oracle = { frames, errors, heart };
-    }, { seed: options.seed ?? 1 });
+      window.__k4Oracle = { frames, errors, heart, events, get traceTruncated() { return traceTruncated; } };
+    }, { seed: options.seed ?? 1, blocks: !!options.blocks });
     if ((options.frames ?? 60) > 0) {
       await kernel.page.evaluate(() => window.__k4OracleRequire("vxpV").m());
       await kernel.page.waitForFunction(() => window.__k4Oracle.frames.length > 0 || window.__k4Oracle.errors.length > 0,
@@ -328,12 +380,19 @@ export async function runOracle(input, options = {}) {
         await kernel.page.evaluate(timestamp => window.__k4OracleFrame(timestamp), frame * 1000 / 60);
       }
     }
-    const result = await kernel.page.evaluate(() => ({ frames: window.__k4Oracle.frames, errors: window.__k4Oracle.errors }));
-    if (result.errors.length || result.frames.length !== (options.frames ?? 60)) throw new Error(`Official runtime failed: ${JSON.stringify({ errors: result.errors, frames: result.frames.length })}`);
+    const result = await kernel.page.evaluate(() => ({ frames: window.__k4Oracle.frames, errors: window.__k4Oracle.errors,
+      events: window.__k4Oracle.events, traceTruncated: window.__k4Oracle.traceTruncated }));
+    if (result.errors.length || result.frames.length !== (options.frames ?? 60)) {
+      kernel.diagnostics.partialTrace = result;
+      throw new Error(`Official runtime failed: ${JSON.stringify({ errors: result.errors, frames: result.frames.length })}`);
+    }
     kernel.diagnostics.phase = "done";
     return { schema: "nekoc-k4-trace-v1", fps: 60, seed: options.seed ?? 1,
       random: "official PCG (not the NekoC PRNG)", ...result, diagnostics: kernel.diagnostics };
   } catch (error) {
+    kernel.diagnostics.partialTrace = await kernel.page.evaluate(() => window.__k4Oracle && ({
+      frames: window.__k4Oracle.frames, errors: window.__k4Oracle.errors, events: window.__k4Oracle.events,
+    })).catch(() => null);
     kernel.diagnostics.lastState = await kernel.page.evaluate(() => window.__k4OracleRequire("ALsR").a.get_state()).catch(() => null);
     error.diagnostics = kernel.diagnostics;
     throw error;

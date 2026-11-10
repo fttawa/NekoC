@@ -1,0 +1,710 @@
+{
+  "schema": "nekoc-k4-scheduling-evidence-v1",
+  "cases": {
+    "order": {
+      "log": [
+        "AB",
+        "AB",
+        "AB",
+        "AB",
+        "AB",
+        "AB"
+      ],
+      "execution": [
+        {
+          "frame": 1,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "z-first"
+        },
+        {
+          "frame": 1,
+          "event": "finish",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "z-first",
+          "stack": []
+        },
+        {
+          "frame": 1,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "a-second"
+        },
+        {
+          "frame": 1,
+          "event": "finish",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "a-second",
+          "stack": []
+        }
+      ]
+    },
+    "wait": {
+      "log": [
+        "AB",
+        "AB",
+        "ABC",
+        "ABC",
+        "ABC",
+        "ABC"
+      ],
+      "execution": [
+        {
+          "frame": 1,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "z-first"
+        },
+        {
+          "frame": 1,
+          "event": "yield",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "z-first",
+          "stack": [
+            {
+              "procedure": "__main__",
+              "pc": [
+                28
+              ]
+            }
+          ]
+        },
+        {
+          "frame": 1,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "a-second"
+        },
+        {
+          "frame": 1,
+          "event": "finish",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "a-second",
+          "stack": []
+        },
+        {
+          "frame": 3,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "z-first"
+        },
+        {
+          "frame": 3,
+          "event": "finish",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "z-first",
+          "stack": []
+        }
+      ]
+    },
+    "loop": {
+      "log": [
+        "AB",
+        "ABA",
+        "ABAC",
+        "ABAC",
+        "ABAC",
+        "ABAC"
+      ],
+      "execution": [
+        {
+          "frame": 1,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "z-first"
+        },
+        {
+          "frame": 1,
+          "event": "yield",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "z-first",
+          "stack": [
+            {
+              "procedure": "__main__",
+              "pc": [
+                8,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "frame": 1,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "a-second"
+        },
+        {
+          "frame": 1,
+          "event": "finish",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "a-second",
+          "stack": []
+        },
+        {
+          "frame": 2,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "z-first"
+        },
+        {
+          "frame": 2,
+          "event": "yield",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "z-first",
+          "stack": [
+            {
+              "procedure": "__main__",
+              "pc": [
+                8,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "frame": 3,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "z-first"
+        },
+        {
+          "frame": 3,
+          "event": "finish",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "z-first",
+          "stack": []
+        }
+      ]
+    },
+    "fractional": {
+      "log": [
+        "A",
+        "AA",
+        "AAC",
+        "AAC",
+        "AAC",
+        "AAC"
+      ],
+      "execution": [
+        {
+          "frame": 1,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "z-first"
+        },
+        {
+          "frame": 1,
+          "event": "yield",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "z-first",
+          "stack": [
+            {
+              "procedure": "__main__",
+              "pc": [
+                8,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "frame": 2,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "z-first"
+        },
+        {
+          "frame": 2,
+          "event": "yield",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "z-first",
+          "stack": [
+            {
+              "procedure": "__main__",
+              "pc": [
+                8,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "frame": 3,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "z-first"
+        },
+        {
+          "frame": 3,
+          "event": "finish",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "z-first",
+          "stack": []
+        }
+      ]
+    },
+    "defaults": {
+      "log": [
+        "AB",
+        "AB",
+        "AB",
+        "AB",
+        "AB",
+        "AB"
+      ],
+      "execution": [
+        {
+          "frame": 1,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start"
+        },
+        {
+          "frame": 1,
+          "event": "finish",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "stack": []
+        }
+      ]
+    },
+    "broadcast": {
+      "log": [
+        "AB",
+        "ABC",
+        "ABCD",
+        "ABCD",
+        "ABCD",
+        "ABCD"
+      ],
+      "execution": [
+        {
+          "frame": 1,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "listen"
+        },
+        {
+          "frame": 1,
+          "event": "finish",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "listen",
+          "stack": []
+        },
+        {
+          "frame": 1,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "sender"
+        },
+        {
+          "frame": 1,
+          "event": "yield",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "sender",
+          "stack": [
+            {
+              "procedure": "__main__",
+              "pc": [
+                52
+              ]
+            }
+          ]
+        },
+        {
+          "frame": 2,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "listen"
+        },
+        {
+          "frame": 2,
+          "event": "finish",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "listen",
+          "stack": []
+        },
+        {
+          "frame": 3,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "listen"
+        },
+        {
+          "frame": 3,
+          "event": "finish",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "listen",
+          "stack": []
+        },
+        {
+          "frame": 3,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "sender"
+        },
+        {
+          "frame": 3,
+          "event": "finish",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "sender",
+          "stack": []
+        },
+        {
+          "frame": 4,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "listen"
+        },
+        {
+          "frame": 4,
+          "event": "finish",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "listen",
+          "stack": []
+        },
+        {
+          "frame": 5,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "listen"
+        },
+        {
+          "frame": 5,
+          "event": "finish",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "listen",
+          "stack": []
+        },
+        {
+          "frame": 6,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "listen"
+        },
+        {
+          "frame": 6,
+          "event": "finish",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "listen",
+          "stack": []
+        }
+      ]
+    },
+    "broadcast-wait": {
+      "log": [
+        "A",
+        "AB",
+        "AB",
+        "ABCD",
+        "ABCD",
+        "ABCD"
+      ],
+      "execution": [
+        {
+          "frame": 1,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "listen"
+        },
+        {
+          "frame": 1,
+          "event": "finish",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "listen",
+          "stack": []
+        },
+        {
+          "frame": 1,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "sender"
+        },
+        {
+          "frame": 1,
+          "event": "yield",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "sender",
+          "stack": [
+            {
+              "procedure": "__main__",
+              "pc": [
+                28
+              ]
+            }
+          ]
+        },
+        {
+          "frame": 2,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "listen"
+        },
+        {
+          "frame": 2,
+          "event": "yield",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "listen",
+          "stack": [
+            {
+              "procedure": "__main__",
+              "pc": [
+                7,
+                24
+              ]
+            }
+          ]
+        },
+        {
+          "frame": 4,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "listen"
+        },
+        {
+          "frame": 4,
+          "event": "finish",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "listen",
+          "stack": []
+        },
+        {
+          "frame": 4,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "sender"
+        },
+        {
+          "frame": 4,
+          "event": "finish",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "sender",
+          "stack": []
+        },
+        {
+          "frame": 5,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "listen"
+        },
+        {
+          "frame": 5,
+          "event": "finish",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "listen",
+          "stack": []
+        },
+        {
+          "frame": 6,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "listen"
+        },
+        {
+          "frame": 6,
+          "event": "finish",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "listen",
+          "stack": []
+        }
+      ]
+    },
+    "clone": {
+      "log": [
+        "AB",
+        "ABC",
+        "ABCD",
+        "ABCD",
+        "ABCD",
+        "ABCD"
+      ],
+      "execution": [
+        {
+          "frame": 1,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "sender"
+        },
+        {
+          "frame": 1,
+          "event": "yield",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "sender",
+          "stack": [
+            {
+              "procedure": "__main__",
+              "pc": [
+                52
+              ]
+            }
+          ]
+        },
+        {
+          "frame": 2,
+          "event": "resume",
+          "entity": "_clone_20000000-0000-4000-8000-000000000001_random_id558946697",
+          "hat": "cloned"
+        },
+        {
+          "frame": 2,
+          "event": "finish",
+          "entity": "_clone_20000000-0000-4000-8000-000000000001_random_id558946697",
+          "hat": "cloned",
+          "stack": []
+        },
+        {
+          "frame": 3,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "sender"
+        },
+        {
+          "frame": 3,
+          "event": "finish",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "sender",
+          "stack": []
+        }
+      ]
+    },
+    "scene": {
+      "log": [
+        "AB",
+        "ABC",
+        "ABC",
+        "ABC",
+        "ABC",
+        "ABC"
+      ],
+      "execution": [
+        {
+          "frame": 1,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "global"
+        },
+        {
+          "frame": 1,
+          "event": "finish",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "global",
+          "stack": []
+        },
+        {
+          "frame": 2,
+          "event": "resume",
+          "entity": "10000000-0000-4000-8000-000000000002",
+          "hat": "activate"
+        },
+        {
+          "frame": 2,
+          "event": "finish",
+          "entity": "10000000-0000-4000-8000-000000000002",
+          "hat": "activate",
+          "stack": []
+        }
+      ]
+    },
+    "entities": {
+      "log": [
+        "AB",
+        "AB",
+        "AB",
+        "AB",
+        "AB",
+        "AB"
+      ],
+      "execution": [
+        {
+          "frame": 1,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "actor-one"
+        },
+        {
+          "frame": 1,
+          "event": "finish",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "actor-one",
+          "stack": []
+        },
+        {
+          "frame": 1,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000002",
+          "hat": "actor-two"
+        },
+        {
+          "frame": 1,
+          "event": "finish",
+          "entity": "20000000-0000-4000-8000-000000000002",
+          "hat": "actor-two",
+          "stack": []
+        }
+      ]
+    },
+    "initial": {
+      "log": [
+        "A",
+        "A",
+        "A",
+        "A",
+        "A",
+        "A"
+      ],
+      "execution": [
+        {
+          "frame": 1,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "actor-one"
+        },
+        {
+          "frame": 1,
+          "event": "finish",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "actor-one",
+          "stack": []
+        }
+      ]
+    }
+  },
+  "assets": [
+    {
+      "name": "player_v2__3ffeebbd0c789e8d9422.css",
+      "source": "player_v2__3ffeebbd0c789e8d9422.css",
+      "sha256": "39e8e70b124b604831773893cdc95931cdee3eaea52c6dd69f33f5781d48b45a"
+    },
+    {
+      "name": "player_v2.2d180c468559fbd29528.js",
+      "source": "player_v2.2d180c468559fbd29528.js.orig",
+      "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160"
+    },
+    {
+      "name": "runtime.f42f527f119e09010b85.js",
+      "source": "runtime.f42f527f119e09010b85.js",
+      "sha256": "4164d67795238f64d035f473418236038ae475ae36032a967cba16ede263735f"
+    },
+    {
+      "name": "vendors.d00f4bd454a6352e9d71.js",
+      "source": "vendors.d00f4bd454a6352e9d71.js",
+      "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
+    },
+    {
+      "name": "9.c396696e9dc71e25b012.js",
+      "source": "9.c396696e9dc71e25b012.js",
+      "sha256": "5758343310c47596d56e954aa05fa76a546080c8bf4fefd41cac0042794d6195"
+    },
+    {
+      "name": "14.c95e6f2ddd61fb701d0e.js",
+      "source": "14.c95e6f2ddd61fb701d0e.js",
+      "sha256": "d3ce91c9113463db4c0988210caeb1be2ddc508499d5c53a8e73a13b5f440175"
+    },
+    {
+      "name": "11.477512e6f03fd2f6f3c5.js",
+      "source": "11.477512e6f03fd2f6f3c5.js",
+      "sha256": "e81bfe3462cc3e79a70ba016ddee2a372a31480d3f52964952e1d21f3a490f91"
+    }
+  ]
+}

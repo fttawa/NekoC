@@ -25,7 +25,7 @@ fn source_baseline(source: &Value) -> Result<Rc<crate::json::Json>> {
         cache
             .borrow()
             .as_ref()
-            .filter(|cache| crate::json::equal(&cache.source, source))
+            .filter(|cache| crate::json::ordered_equal(&cache.source, source))
             .map(|cache| Rc::clone(&cache.canonical))
     }) {
         return Ok(cached);
@@ -628,7 +628,9 @@ fn lower_block(block: &mut Value, targets: &Targets) {
             }
             return;
         }
-        "default_value" => "text",
+        // oiyH/default_value returns Number(TEXT), retaining text only for NaN.
+        // A numeric default is not a string when passed to typed comparisons.
+        "default_value" => "kitten4_default_value",
         // The canonical form keeps forward trig only; the VM also has the inverses.
         "math_trig" => {
             let op = field(block, "OP").to_lowercase();

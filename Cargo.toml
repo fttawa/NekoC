@@ -20,7 +20,7 @@ clap = { version = "4", features = ["derive"] }
 notify = "7"
 notify-debouncer-mini = "0.5"
 serde = { version = "1", features = ["derive"] }
-serde_json = { version = "1", features = ["float_roundtrip", "unbounded_depth"] }
+serde_json = { version = "1", features = ["float_roundtrip", "unbounded_depth", "preserve_order"] }
 serde_stacker = "0.1"
 stacker = "0.1"
 sha2 = "0.10"
