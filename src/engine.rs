@@ -849,8 +849,16 @@ impl Program {
         start_hats: crate::kitten4::StartHats,
     ) -> Result<Self> {
         let _timing = crate::import_perf::span("engine_compile_canonical");
+        // K4 player load/start selects scenes_order[0], not the editor's saved
+        // current_scene. Keep the canonical selection intact for round trips.
+        // Official evidence and invalid-order boundary: docs/kitten4-scenes.md.
+        let scene_path = if semantics == RuntimeSemantics::Kitten4 {
+            "/scenes/sortList/0"
+        } else {
+            "/scenes/currentSceneId"
+        };
         let scene = project
-            .pointer("/scenes/currentSceneId")
+            .pointer(scene_path)
             .and_then(Value::as_str)
             .context("project has no current scene")?
             .to_owned();
@@ -3771,11 +3779,12 @@ impl Engine {
     pub fn active_tasks(&self) -> usize {
         self.tasks.iter().filter(|t| self.task_active(t)).count()
     }
-    /// Suspended KN when tasks stay allocated, but are neither active nor
-    /// runnable. Keep other event policies (including K4 global Start) intact.
+    /// Scene-bound K4 tasks and KN when tasks suspend outside their scene.
+    /// K4 global Start remains runnable regardless of its owner's scene.
     fn task_active(&self, task: &Task) -> bool {
         !task.done
-            && (!task.kn_when
+            && (!(task.kn_when
+                || (self.program.semantics == RuntimeSemantics::Kitten4 && !task.global_start))
                 || (self.sprites[task.actor].alive
                     && self.sprites[task.actor].scene == self.current_scene))
     }
@@ -5198,21 +5207,31 @@ impl Engine {
                 _ => None,
             })
     }
-    /// Deactivates the running scene (ordinary scene-bound scripts stop, KN
-    /// when tasks suspend, clones are deleted; sprite/pen state persists) and
-    /// activates `target`, whose start scripts run from the next tick.
+    /// K4 only finishes activation hats on exit; other scene-bound tasks suspend
+    /// and clones/properties persist. KN retains its existing exit policy.
+    /// This does not change scheduler order or the activation dispatch phase.
     fn switch_scene(&mut self, target: usize) {
         let old = self.current_scene;
         for task in 0..self.tasks.len() {
             if self.sprites[self.tasks[task].actor].scene == old
-                && !self.tasks[task].global_start
-                && !self.tasks[task].kn_when
+                && if self.program.semantics == RuntimeSemantics::Kitten4 {
+                    matches!(
+                        self.program.scripts.get(self.tasks[task].script),
+                        Some(Script {
+                            event: ScriptEvent::K4SceneActivate,
+                            ..
+                        })
+                    )
+                } else {
+                    !self.tasks[task].global_start && !self.tasks[task].kn_when
+                }
             {
                 self.finish_task(task);
             }
         }
         for i in 0..self.sprites.len() {
-            if self.sprites[i].alive
+            if self.program.semantics != RuntimeSemantics::Kitten4
+                && self.sprites[i].alive
                 && self.sprites[i].clone_index > 0
                 && self.sprites[i].scene == old
             {

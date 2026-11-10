@@ -58,6 +58,8 @@ node --test tests/k4-oracle.test.mjs
   `get_timer_elapsed_s()` 仍直接读 `new Date()`；本工具不替换 Date，也不改写官方计时器。
   因此依赖计时器的作品不能保证重复运行轨迹相同，其差异须单独归因，不能直接判为 VM 算术错误。
 - 输出 `nekoc-k4-trace-v1`：`frames[]` 每帧含 `frame/current_scene_id/actors/variables/entity_variables`。
+  `current_scene_id` 读取舞台实际当前场景，不是切换后仍保留加载值的编辑器 store；
+  场景选择、离场脚本和自制探针见 [kitten4-scenes.md](../../docs/kitten4-scenes.md)。
   每个角色含 x、y、原始角度（度）、current_style_id、scale、scale_y（百分比）、visible。
   数值、字符串、布尔和列表保留类型；列表逐帧深拷贝。未变化的角色也逐帧输出。
   这是配套 `k4-trace` / `k4-diff` 可直接读取的契约，**不是**原有 coverage 的聚合输出。

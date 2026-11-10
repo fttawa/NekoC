@@ -232,8 +232,9 @@ export async function compileProject(page, project) {
       for (const tree of Object.values(compiled.compiled_block_map)) util.block.ast_for_each(tree, numericLiteral);
       for (const tree of Object.values(compiled.procedures)) util.block.ast_for_each(tree, numericLiteral);
       compiled.running_group_id = {};
-      if (section === "actors" && entity.scene) for (const [root, tree] of Object.entries(compiled.compiled_block_map)) {
-        if (!["start_on_click", "start_as_a_mirror"].includes(tree.type)) compiled.running_group_id[root] = entity.scene;
+      const scene = section === "scenes" ? id : entity.scene;
+      if (scene) for (const [root, tree] of Object.entries(compiled.compiled_block_map)) {
+        if (!["start_on_click", "start_as_a_mirror"].includes(tree.type)) compiled.running_group_id[root] = scene;
       }
       result.push(compiled);
     }
@@ -311,7 +312,7 @@ export async function runOracle(input, options = {}) {
         }
         // Lists are mutable in the runtime: detach each frame, or later writes
         // would retroactively change every earlier snapshot.
-        return structuredClone({ frame: frames.length + 1, current_scene_id: state.theatre_states.current_scene,
+        return structuredClone({ frame: frames.length + 1, current_scene_id: stage.core.scenes.get_current_scene(),
           actors, variables, variable_names, entity_variables });
       }
       heart.get_event_bus().runtime_manager.after_update.immediate.sub(() => frames.push(snapshot()));
