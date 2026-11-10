@@ -3,7 +3,7 @@
 //! stays the single source of truth for semantics. Instruction counts are exact.
 use super::{
     Binary, Cell, Engine, Expr, ExprOp, ListRef, Op, RuntimeSemantics, Target, Unary, ValueExpr,
-    contains_list, list_index,
+    contains_list, list_index, read_list_index,
 };
 use anyhow::anyhow;
 use cranelift_codegen::ir::{
@@ -24,6 +24,29 @@ const COLD_NEVER: u16 = u16::MAX;
 const MAX_REGION_OPS: usize = 400;
 /// Upper bound on one native run, so the scheduler still samples its clock.
 const FUEL_SLICE: usize = 1 << 16;
+
+#[derive(Default, serde::Serialize)]
+pub(super) struct Profile {
+    native_ops: u64,
+    interpreted_ops: u64,
+    delegated_ops: u64,
+    node_calls: u64,
+    regions: u64,
+    fallback_reasons: BTreeMap<String, u64>,
+    /// Static candidates within fallback instructions, not separate op counts.
+    fallback_inputs: BTreeMap<String, u64>,
+    #[serde(skip)]
+    input_cache: BTreeMap<usize, Vec<String>>,
+    helper_reasons: BTreeMap<String, u64>,
+}
+
+fn variant(value: impl std::fmt::Debug) -> String {
+    format!("{value:?}")
+        .split(['(', ' ', '{'])
+        .next()
+        .unwrap()
+        .into()
+}
 
 #[repr(C)]
 struct NativeContext {
@@ -83,6 +106,16 @@ enum Numeric {
     Constant(f64),
     Global(usize),
     Local(usize),
+    Actor(usize, usize),
+    Parameter(usize),
+    Add(usize, usize),
+}
+
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+enum Guard {
+    Slot(bool, usize),
+    Actor(usize, usize),
+    Parameter(usize),
 }
 
 impl Jit {
@@ -109,6 +142,98 @@ impl Jit {
 }
 
 impl Engine {
+    /// Opt-in counters. Native ops include delegated ops; node calls are reporter
+    /// evaluations, not instructions, and must not be added to the denominator.
+    pub fn enable_jit_profile(&mut self) {
+        self.jit_profile = Some(Profile::default());
+    }
+
+    pub fn jit_profile(&self) -> serde_json::Value {
+        serde_json::to_value(&self.jit_profile).expect("serializable JIT counters")
+    }
+
+    pub(super) fn jit_record_interpreted(&mut self, pc: usize) {
+        if self.jit_profile.is_none() {
+            return;
+        }
+        let op = self.program.ops[pc];
+        let reason = if let Some(jit) = self.jit.as_ref() {
+            if !self.jit_supported(op) {
+                format!("unsupported-or-impure/{}", variant(op))
+            } else if jit.hot[pc] == COLD_NEVER {
+                "backend-rejected".into()
+            } else if jit.regions[pc].is_some() {
+                "boxed-write-or-fuel-exit".into()
+            } else {
+                format!("cold/{}", variant(op))
+            }
+        } else {
+            "disabled-or-unavailable".into()
+        };
+        let profile = self.jit_profile.as_mut().unwrap();
+        profile.interpreted_ops += 1;
+        *profile.fallback_reasons.entry(reason).or_default() += 1;
+        if let Some(reasons) = profile.input_cache.get(&pc) {
+            for reason in reasons {
+                *profile.fallback_inputs.entry(reason.clone()).or_default() += 1;
+            }
+            return;
+        }
+        // Attribute expression limitations without evaluating reporters again or
+        // changing random draws. These are candidates, not executed leaf counts.
+        let mut pending = match op {
+            Op::Set(_, e)
+            | Op::SetLocal(_, e)
+            | Op::Change(_, e, _)
+            | Op::ChangeLocal(_, e, _)
+            | Op::ChangeActorVariable(_, e, _)
+            | Op::Branch(e, _)
+            | Op::Repeat(e, _) => vec![(false, e.end as usize - 1)],
+            Op::SetValue(_, v)
+            | Op::SetActorVariable(_, v)
+            | Op::ReturnValue(v)
+            | Op::AppendList(_, v) => vec![(true, v)],
+            Op::Call(_, args) => self.program.call_arguments[args]
+                .iter()
+                .map(|&v| (true, v))
+                .collect(),
+            _ => Vec::new(),
+        };
+        let mut seen = BTreeSet::new();
+        let mut reasons = BTreeSet::new();
+        while let Some(key) = pending.pop() {
+            if !seen.insert(key) {
+                continue;
+            }
+            if key.0 {
+                let reason = match self.program.values[key.1] {
+                    ValueExpr::ActorVariable(..) => Some("private-variable"),
+                    ValueExpr::Item(..) | ValueExpr::List(..) | ValueExpr::Find(..) => Some("list"),
+                    ValueExpr::CallReturn(..) => Some("reporter-procedure"),
+                    ValueExpr::Boolean(..)
+                    | ValueExpr::Encode64(..)
+                    | ValueExpr::Decode64(..)
+                    | ValueExpr::ParseFloat(..)
+                    | ValueExpr::IsNumber(..)
+                    | ValueExpr::ParseInt(..) => Some("restricted-conversion"),
+                    ValueExpr::Join(..) => Some("text"),
+                    ValueExpr::Compare(..) | ValueExpr::Logic(..) => Some("comparison-or-logic"),
+                    _ => None,
+                };
+                if let Some(reason) = reason {
+                    reasons.insert(reason);
+                }
+            }
+            pending.extend(self.evaluation_children(key));
+        }
+        let profile = self.jit_profile.as_mut().unwrap();
+        let reasons: Vec<String> = reasons.into_iter().map(String::from).collect();
+        for reason in &reasons {
+            *profile.fallback_inputs.entry(reason.clone()).or_default() += 1;
+        }
+        profile.input_cache.insert(pc, reasons);
+    }
+
     /// Runs native code at `pc` when available. Returns the instructions executed,
     /// or None when the interpreter must execute this op.
     #[inline]
@@ -167,6 +292,9 @@ impl Engine {
         // calls never resize slots, tasks or locals.
         let next = unsafe { code(&mut context) } as usize;
         let used = (fuel - context.fuel) as usize;
+        if let Some(profile) = self.jit_profile.as_mut() {
+            profile.native_ops += used as u64;
+        }
         self.tasks[index].pc = next;
         if let Some(error) = self.value_error.take() {
             self.jit_error = Some(anyhow::anyhow!(error));
@@ -178,7 +306,12 @@ impl Engine {
         let _timing = crate::import_perf::span("jit_compile_hot");
         let mut jit = self.jit.take().expect("jit present");
         match compile(&mut jit, self, entry) {
-            Some(region) => jit.regions[entry] = Some(region),
+            Some(region) => {
+                jit.regions[entry] = Some(region);
+                if let Some(profile) = self.jit_profile.as_mut() {
+                    profile.regions += 1;
+                }
+            }
             None => jit.hot[entry] = COLD_NEVER,
         }
         self.jit = Some(jit);
@@ -213,9 +346,6 @@ impl Engine {
                         | ValueExpr::ParseFloat(..)
                         | ValueExpr::IsNumber(..)
                         | ValueExpr::ParseInt(..)
-                        // Entity reads can report scope/clone errors; globals
-                        // retain their unchanged native indexed-slot path.
-                        | ValueExpr::ActorVariable(..)
                 )
             {
                 return false;
@@ -229,6 +359,10 @@ impl Engine {
     fn jit_delegable(&self, op: Op) -> bool {
         let pure = |e: Expr| self.jit_pure_expr(e.end as usize - 1);
         let value = |v: usize| self.jit_pure_value(v);
+        let list = |r: ListRef| match r {
+            ListRef::Expression(v) => value(v as usize),
+            _ => true,
+        };
         match op {
             Op::Move(e)
             | Op::X(e)
@@ -242,13 +376,17 @@ impl Engine {
             | Op::Size(e)
             | Op::PenProperty(_, e, _) => pure(e),
             Op::Position(x, y) => pure(x) && pure(y),
-            Op::Visible(_) | Op::Pen(_) | Op::Color(_) | Op::Clear | Op::ClearList(_) => true,
-            Op::SetValue(_, v) | Op::AppendList(_, v) | Op::ReturnValue(v) => value(v),
+            Op::Visible(_) | Op::Pen(_) | Op::Color(_) | Op::Clear => true,
+            Op::ClearList(r) => list(r),
+            Op::SetValue(_, v) | Op::ReturnValue(v) => value(v),
+            Op::AppendList(r, v) => list(r) && value(v),
+            Op::SetActorVariable(_, v) => value(v),
+            Op::ChangeActorVariable(_, e, _) => pure(e),
             Op::Return => true,
             Op::Call(_, args) => self.program.call_arguments[args].iter().all(|&v| value(v)),
-            Op::DeleteList(_, e) => e.is_none_or(pure),
-            Op::InsertList(_, e, v) => pure(e) && value(v),
-            Op::ReplaceList(_, e, v) => e.is_none_or(pure) && value(v),
+            Op::DeleteList(r, e) => list(r) && e.is_none_or(pure),
+            Op::InsertList(r, e, v) => list(r) && pure(e) && value(v),
+            Op::ReplaceList(r, e, v) => list(r) && e.is_none_or(pure) && value(v),
             _ => false,
         }
     }
@@ -283,15 +421,123 @@ impl Engine {
 
 unsafe extern "C" fn h_node(c: *mut NativeContext, pc: u64) -> f64 {
     let c = unsafe { &mut *c };
+    let engine = unsafe { &mut *c.engine };
+    if let Some(profile) = engine.jit_profile.as_mut() {
+        profile.node_calls += 1;
+        let reason = match engine.program.expressions[pc as usize] {
+            ExprOp::Value(i) | ExprOp::Truth(i) | ExprOp::TextLength(i) => {
+                variant(engine.program.values[i])
+            }
+            other => variant(other),
+        };
+        *profile
+            .helper_reasons
+            .entry(format!("reporter/{reason}"))
+            .or_default() += 1;
+    }
     unsafe { (*c.engine).node(pc as usize, c.actor) }
 }
+// Encoded ListRef: low two bits select global/local/variable/expression.
+fn list_key(list: ListRef) -> u64 {
+    let (tag, slot) = match list {
+        ListRef::Global(s) => (0, s),
+        ListRef::Local(s) => (1, s),
+        ListRef::Variable(s) => (2, s),
+        ListRef::Expression(s) => (3, s),
+    };
+    (u64::from(slot) << 2) | tag
+}
+
+fn key_list(key: u64) -> ListRef {
+    let slot = (key >> 2) as u32;
+    match key & 3 {
+        0 => ListRef::Global(slot),
+        1 => ListRef::Local(slot),
+        2 => ListRef::Variable(slot),
+        _ => ListRef::Expression(slot),
+    }
+}
+
 unsafe extern "C" fn h_list_item(c: *mut NativeContext, list: u64, at: f64) -> f64 {
     let engine = unsafe { &mut *(*c).engine };
     engine.check_list_index(at);
-    let values = engine.lists[list as usize].borrow();
-    list_index(at)
-        .and_then(|i| values.get(i))
-        .map_or(f64::NAN, Cell::number)
+    engine
+        .resolve_list(key_list(list))
+        .map_or(f64::NAN, |list| {
+            let values = list.borrow();
+            read_list_index(at, values.len(), engine.program.semantics)
+                .and_then(|i| values.get(i))
+                .map_or(f64::NAN, Cell::number)
+        })
+}
+
+unsafe extern "C" fn h_list_length(c: *mut NativeContext, list: u64) -> f64 {
+    let engine = unsafe { &mut *(*c).engine };
+    engine
+        .resolve_list(key_list(list))
+        .map_or(f64::NAN, |l| l.borrow().len() as f64)
+}
+
+/// Guards never raise errors: on missing scope or a non-number the original
+/// evaluator executes, preserving Cell types and the precise error semantics.
+unsafe extern "C" fn h_actor_is_number(c: *mut NativeContext, actor: u64, slot: u64) -> u64 {
+    let c = unsafe { &*c };
+    let engine = unsafe { &*c.engine };
+    let actor = if actor == u64::MAX {
+        c.actor
+    } else {
+        actor as usize
+    };
+    u64::from(
+        engine
+            .sprites
+            .get(actor)
+            .filter(|s| s.alive)
+            .and_then(|s| s.variables.get(&(slot as usize)))
+            .is_some_and(|v| matches!(v, Cell::Number(_))),
+    )
+}
+
+unsafe extern "C" fn h_actor_number(c: *mut NativeContext, actor: u64, slot: u64) -> f64 {
+    let c = unsafe { &*c };
+    let engine = unsafe { &mut *c.engine };
+    let actor = if actor == u64::MAX {
+        c.actor
+    } else {
+        actor as usize
+    };
+    engine.read_actor_variable(actor, slot as usize).number()
+}
+
+unsafe extern "C" fn h_set_actor_number(c: *mut NativeContext, slot: u64, value: f64) {
+    let c = unsafe { &*c };
+    unsafe { &mut *c.engine }.write_actor_variable(c.actor, slot as usize, Cell::Number(value));
+}
+
+unsafe extern "C" fn h_parameter(c: *mut NativeContext, slot: u64, guard: u64) -> f64 {
+    let c = unsafe { &*c };
+    let engine = unsafe { &*c.engine };
+    let value = engine.tasks[c.index].parameters.get(slot as usize);
+    if guard != 0 {
+        f64::from(value.is_some_and(|v| matches!(v, Cell::Number(_))))
+    } else {
+        value.map_or(f64::NAN, Cell::number)
+    }
+}
+
+unsafe extern "C" fn h_error(c: *mut NativeContext, pc: u64, next: u64) -> u64 {
+    let c = unsafe { &*c };
+    let engine = unsafe { &mut *c.engine };
+    if let Some(error) = engine.value_error.take() {
+        engine.tasks[c.index].pc = next as usize;
+        engine.jit_error = Some(anyhow!(
+            "{error} at block {}",
+            engine.program.sources[pc as usize]
+        ));
+        1
+    } else {
+        0
+    }
 }
 extern "C" fn h_mod(a: f64, b: f64) -> f64 {
     Binary::Mod.apply(a, b)
@@ -366,7 +612,7 @@ unsafe extern "C" fn h_break(c: *mut NativeContext, pop: u64) {
         task.ranges.pop();
     }
 }
-/// Delegates one op to the interpreter. 0: leave the region at this op, 1: done.
+/// 0: not executed (output limit), 1: done, 2: executed and failed.
 unsafe extern "C" fn h_exec(c: *mut NativeContext, pc: u64) -> u64 {
     let c = unsafe { &mut *c };
     let engine = unsafe { &mut *c.engine };
@@ -376,20 +622,33 @@ unsafe extern "C" fn h_exec(c: *mut NativeContext, pc: u64) -> u64 {
     let pc = pc as usize;
     engine.tasks[c.index].pc = pc + 1;
     let op = engine.program.ops[pc];
+    if let Some(profile) = engine.jit_profile.as_mut() {
+        profile.delegated_ops += 1;
+        *profile
+            .helper_reasons
+            .entry(format!("op/{}", variant(op)))
+            .or_default() += 1;
+    }
     match engine.exec(c.index, pc, op, c.actor) {
         Ok(_) => 1,
         Err(error) => {
             engine.jit_error = Some(error);
-            0
+            2
         }
     }
 }
 
-/// Runs a control-transfer op. Returns the new pc, or u64::MAX to leave at this op.
+/// Returns the new pc, MAX for an unexecuted op, MAX-1 for an executed error.
 unsafe extern "C" fn h_transfer(c: *mut NativeContext, pc: u64) -> u64 {
-    if unsafe { h_exec(c, pc) } == 0 {
-        return u64::MAX;
+    match unsafe { h_exec(c, pc) } {
+        0 => return u64::MAX,
+        2 => return u64::MAX - 1,
+        _ => {}
     }
+    unsafe { h_pc(c) }
+}
+
+unsafe extern "C" fn h_pc(c: *mut NativeContext) -> u64 {
     let c = unsafe { &*c };
     unsafe { (&(*c.engine).tasks)[c.index].pc as u64 }
 }
@@ -404,7 +663,7 @@ unsafe extern "C" fn h_replace_number(c: *mut NativeContext, list: u64, at: f64,
         }
     }
 }
-/// `Op::ReplaceList` copying a cell between global lists. 0: failed, leave the region.
+/// `Op::ReplaceList` copying a cell between global lists. 2: executed and failed.
 unsafe extern "C" fn h_replace_item(
     c: *mut NativeContext,
     target: u64,
@@ -428,7 +687,7 @@ unsafe extern "C" fn h_replace_item(
             "cyclic list at {}",
             engine.program.sources[pc as usize]
         ));
-        return 0;
+        return 2;
     }
     let mut values = engine.lists[target as usize].borrow_mut();
     if let Some(at) = list_index(at) {
@@ -449,13 +708,28 @@ unsafe extern "C" fn h_append_number(c: *mut NativeContext, list: u64, value: f6
 unsafe extern "C" fn h_assign_item(c: *mut NativeContext, target: u64, list: u64, at: f64) {
     let c = unsafe { &mut *c };
     let engine = unsafe { &mut *c.engine };
-    let cell = {
-        let values = engine.lists[list as usize].borrow();
-        list_index(at)
-            .and_then(|i| values.get(i))
-            .cloned()
-            .unwrap_or(Cell::Number(f64::NAN))
-    };
+    engine.check_list_index(at);
+    let cell = engine
+        .resolve_list(key_list(list))
+        .map_or(Cell::Null, |list| {
+            let values = list.borrow();
+            let index = read_list_index(at, values.len(), engine.program.semantics);
+            match index.and_then(|i| values.get(i)) {
+                Some(cell) => cell.clone(),
+                None => {
+                    if engine.program.semantics == RuntimeSemantics::Kitten4
+                        && engine.value_error.is_none()
+                    {
+                        engine.value_error = Some(format!(
+                            "lists_get_value_bad_index (index {:?}, length {})",
+                            index.and_then(|i| i.checked_add(1)),
+                            values.len()
+                        ));
+                    }
+                    Cell::Number(f64::NAN)
+                }
+            }
+        });
     let slot = (target >> 1) as usize;
     let target = if target & 1 == 1 {
         Target::Local(slot)
@@ -488,6 +762,57 @@ struct Gen<'a, 'b> {
 }
 
 impl Gen<'_, '_> {
+    /// Report an expression error at the instruction that evaluated it, after
+    /// that instruction's writes but before any subsequent op can run.
+    fn check_error(&mut self, pc: usize, remaining: i64) {
+        let next = self.b.ins().iconst(types::I64, pc as i64 + 1);
+        self.check_error_next(pc, remaining, next);
+    }
+
+    fn check_error_next(&mut self, pc: usize, remaining: i64, next_pc: Value) {
+        // Keep the pre-existing pure numeric loop fast path free of helper calls.
+        let expr = match self.engine.program.ops[pc] {
+            Op::Set(_, e)
+            | Op::SetLocal(_, e)
+            | Op::Change(_, e, _)
+            | Op::ChangeLocal(_, e, _)
+            | Op::Branch(e, _)
+            | Op::Repeat(e, _) => Some(e),
+            _ => None,
+        };
+        if expr.is_some_and(|e| {
+            let root = e.end as usize - 1;
+            (self.engine.program.expression_starts[root] as usize..=root).all(|i| {
+                matches!(
+                    self.engine.program.expressions[i],
+                    ExprOp::Constant(_)
+                        | ExprOp::Slot(_)
+                        | ExprOp::Local(_)
+                        | ExprOp::Binary(_)
+                        | ExprOp::Unary(_)
+                )
+            })
+        }) {
+            return;
+        }
+        let site = self.b.ins().iconst(types::I64, pc as i64);
+        let failed = self
+            .call(
+                h_error as *const () as usize,
+                &[types::I64, types::I64, types::I64],
+                Some(types::I64),
+                &[self.ctx, site, next_pc],
+            )
+            .unwrap();
+        let exit = self.b.create_block();
+        let next = self.b.create_block();
+        self.b.ins().brif(failed, exit, &[], next, &[]);
+        self.b.switch_to_block(exit);
+        // The failing instruction already executed; refund only later ops.
+        self.executed_error(remaining);
+        self.b.switch_to_block(next);
+    }
+
     fn call(
         &mut self,
         address: usize,
@@ -558,7 +883,7 @@ impl Gen<'_, '_> {
                 }
                 // Global indexed reads and other helpers use the common
                 // explicit-stack path below to preserve operand order.
-                ExprOp::ListItem(ListRef::Global(_), false) => self.expr_iterative(pc),
+                ExprOp::ListItem(_, false) => self.expr_iterative(pc),
                 _ => self.expr_leaf(pc),
             };
         }
@@ -576,7 +901,7 @@ impl Gen<'_, '_> {
                         work.extend([(at, true), (right, false), (left, false)]);
                         continue;
                     }
-                    ExprOp::Unary(_) | ExprOp::ListItem(ListRef::Global(_), false) => {
+                    ExprOp::Unary(_) | ExprOp::ListItem(_, false) => {
                         work.extend([(at, true), (at - 1, false)]);
                         continue;
                     }
@@ -593,9 +918,9 @@ impl Gen<'_, '_> {
                     let a = values.pop().unwrap();
                     self.unary(op, a)
                 }
-                ExprOp::ListItem(ListRef::Global(list), false) => {
+                ExprOp::ListItem(list, false) => {
                     let at = values.pop().unwrap();
-                    let list = self.b.ins().iconst(types::I64, list as i64);
+                    let list = self.b.ins().iconst(types::I64, list_key(list) as i64);
                     let ctx = self.ctx;
                     self.call(
                         h_list_item as *const () as usize,
@@ -616,6 +941,16 @@ impl Gen<'_, '_> {
             ExprOp::Constant(n) => self.b.ins().f64const(n),
             ExprOp::Slot(s) => self.load(self.slots, s),
             ExprOp::Local(s) => self.load(self.locals, s),
+            ExprOp::ListLength(list) => {
+                let list = self.b.ins().iconst(types::I64, list_key(list) as i64);
+                self.call(
+                    h_list_length as *const () as usize,
+                    &[types::I64, types::I64],
+                    Some(types::F64),
+                    &[self.ctx, list],
+                )
+                .unwrap()
+            }
             ExprOp::Truth(i) if self.truth_tree(i, &mut Vec::new()) => self.guarded(
                 pc,
                 |g| {
@@ -649,7 +984,7 @@ impl Gen<'_, '_> {
     }
 
     /// Classifies a value as numeric, recording which variables must be unboxed.
-    fn numeric(&self, i: usize, guards: &mut Vec<(bool, usize)>) -> Option<Numeric> {
+    fn numeric(&self, i: usize, guards: &mut Vec<Guard>) -> Option<Numeric> {
         // Deep mixed-value trees use the heap evaluator through h_node rather
         // than recursively inlining Number -> Value -> Number chains.
         if self.engine.program.deep_values.contains(&i) {
@@ -662,19 +997,32 @@ impl Gen<'_, '_> {
                 _ => None,
             },
             ValueExpr::Global(s) => {
-                guards.push((false, s));
+                guards.push(Guard::Slot(false, s));
                 Some(Numeric::Global(s))
             }
             ValueExpr::Local(s) => {
-                guards.push((true, s));
+                guards.push(Guard::Slot(true, s));
                 Some(Numeric::Local(s))
+            }
+            ValueExpr::ActorVariable(actor, slot, None) => {
+                guards.push(Guard::Actor(actor, slot));
+                Some(Numeric::Actor(actor, slot))
+            }
+            ValueExpr::Parameter(slot) => {
+                guards.push(Guard::Parameter(slot));
+                Some(Numeric::Parameter(slot))
+            }
+            ValueExpr::Kitten4Add(a, b) => {
+                self.numeric(a, guards)?;
+                self.numeric(b, guards)?;
+                Some(Numeric::Add(a, b))
             }
             _ => None,
         }
     }
 
     /// Whether the truth of this value is computable from numbers alone.
-    fn truth_tree(&self, i: usize, guards: &mut Vec<(bool, usize)>) -> bool {
+    fn truth_tree(&self, i: usize, guards: &mut Vec<Guard>) -> bool {
         let mut pending = vec![i];
         while let Some(i) = pending.pop() {
             match self.engine.program.values[i] {
@@ -706,7 +1054,38 @@ impl Gen<'_, '_> {
             Numeric::Constant(n) => self.b.ins().f64const(n),
             Numeric::Global(s) => self.load(self.slots, s),
             Numeric::Local(s) => self.load(self.locals, s),
+            Numeric::Actor(actor, slot) => {
+                let actor = self.b.ins().iconst(types::I64, actor as i64);
+                let slot = self.b.ins().iconst(types::I64, slot as i64);
+                self.call(
+                    h_actor_number as *const () as usize,
+                    &[types::I64, types::I64, types::I64],
+                    Some(types::F64),
+                    &[self.ctx, actor, slot],
+                )
+                .unwrap()
+            }
+            Numeric::Parameter(slot) => self.parameter(slot, false),
+            Numeric::Add(a, b) => {
+                let a = self.numeric(a, &mut Vec::new()).unwrap();
+                let b = self.numeric(b, &mut Vec::new()).unwrap();
+                let a = self.numeric_value(a);
+                let b = self.numeric_value(b);
+                self.b.ins().fadd(a, b)
+            }
         }
+    }
+
+    fn parameter(&mut self, slot: usize, guard: bool) -> Value {
+        let slot = self.b.ins().iconst(types::I64, slot as i64);
+        let guard = self.b.ins().iconst(types::I64, i64::from(guard));
+        self.call(
+            h_parameter as *const () as usize,
+            &[types::I64, types::I64, types::I64],
+            Some(types::F64),
+            &[self.ctx, slot, guard],
+        )
+        .unwrap()
     }
 
     fn truth_flag(&mut self, i: usize) -> Value {
@@ -728,6 +1107,24 @@ impl Gen<'_, '_> {
                     let b = self.numeric(b, &mut Vec::new()).unwrap();
                     let a = self.numeric_value(a);
                     let b = self.numeric_value(b);
+                    if self.engine.program.semantics == RuntimeSemantics::Kitten4
+                        && matches!(op, Binary::Eq | Binary::Ne)
+                    {
+                        // Official Y+p1 (lodash isEqual): NaN equals NaN in
+                        // value comparisons, unlike numeric arithmetic Eq.
+                        let equal = self.b.ins().fcmp(FloatCC::Equal, a, b);
+                        let nan_a = self.b.ins().fcmp(FloatCC::Unordered, a, a);
+                        let nan_b = self.b.ins().fcmp(FloatCC::Unordered, b, b);
+                        let both_nan = self.b.ins().band(nan_a, nan_b);
+                        let equal = self.b.ins().bor(equal, both_nan);
+                        let result = if matches!(op, Binary::Ne) {
+                            self.b.ins().bxor_imm(equal, 1)
+                        } else {
+                            equal
+                        };
+                        output.push(result);
+                        continue;
+                    }
                     let cc = match op {
                         Binary::Eq => FloatCC::Equal,
                         Binary::Ne => FloatCC::NotEqual,
@@ -765,9 +1162,36 @@ impl Gen<'_, '_> {
     }
 
     /// Branches to `slow` unless every listed variable is unboxed.
-    fn check_unboxed(&mut self, guards: &[(bool, usize)], slow: Block) {
+    fn check_unboxed(&mut self, guards: &[Guard], slow: Block) {
         let stride = std::mem::size_of::<Option<Cell>>();
-        for &(local, slot) in guards {
+        for &guard in guards {
+            let (local, slot) = match guard {
+                Guard::Slot(local, slot) => (local, slot),
+                Guard::Parameter(slot) => {
+                    let value = self.parameter(slot, true);
+                    let valid = self.truth(value);
+                    let next = self.b.create_block();
+                    self.b.ins().brif(valid, next, &[], slow, &[]);
+                    self.b.switch_to_block(next);
+                    continue;
+                }
+                Guard::Actor(actor, slot) => {
+                    let actor = self.b.ins().iconst(types::I64, actor as i64);
+                    let slot = self.b.ins().iconst(types::I64, slot as i64);
+                    let valid = self
+                        .call(
+                            h_actor_is_number as *const () as usize,
+                            &[types::I64, types::I64, types::I64],
+                            Some(types::I64),
+                            &[self.ctx, actor, slot],
+                        )
+                        .unwrap();
+                    let next = self.b.create_block();
+                    self.b.ins().brif(valid, next, &[], slow, &[]);
+                    self.b.switch_to_block(next);
+                    continue;
+                }
+            };
             let base = if local {
                 self.local_values
             } else {
@@ -954,7 +1378,34 @@ impl Gen<'_, '_> {
         self.b.switch_to_block(exit);
         self.side_exit(pc, remaining);
         self.b.switch_to_block(ok);
+        let failed = self.b.ins().icmp_imm(IntCC::Equal, next, -2);
+        let ok = self.b.create_block();
+        let error = self.b.create_block();
+        self.b.ins().brif(failed, error, &[], ok, &[]);
+        self.b.switch_to_block(error);
+        self.executed_error(remaining);
+        self.b.switch_to_block(ok);
         next
+    }
+
+    fn executed_error(&mut self, remaining: i64) {
+        let fuel = self
+            .b
+            .ins()
+            .load(types::I64, MemFlags::trusted(), self.ctx, OFF_FUEL);
+        let fuel = self.b.ins().iadd_imm(fuel, remaining - 1);
+        self.b
+            .ins()
+            .store(MemFlags::trusted(), fuel, self.ctx, OFF_FUEL);
+        let next = self
+            .call(
+                h_pc as *const () as usize,
+                &[types::I64],
+                Some(types::I64),
+                &[self.ctx],
+            )
+            .unwrap();
+        self.b.ins().return_(&[next]);
     }
 
     fn change(&mut self, base: Value, slot: usize, e: Expr, sign: f64) {
@@ -978,6 +1429,12 @@ impl Gen<'_, '_> {
         remaining: i64,
     ) {
         let next = blocks[&(pc + 1)];
+        // K4 splice/index/error rules differ from KN's rounded append path.
+        if self.engine.program.semantics == RuntimeSemantics::Kitten4 {
+            self.transfer(pc, remaining);
+            self.b.ins().jump(next, &[]);
+            return;
+        }
         if let (Some(at), ValueExpr::Item(ListRef::Global(source), Some(from))) =
             (at, self.engine.program.values[v])
         {
@@ -1003,9 +1460,14 @@ impl Gen<'_, '_> {
                 )
                 .unwrap();
             let exit = self.b.create_block();
-            self.b.ins().brif(done, next, &[], exit, &[]);
+            let success = self.b.ins().icmp_imm(IntCC::Equal, done, 1);
+            let checked = self.b.create_block();
+            self.b.ins().brif(success, checked, &[], exit, &[]);
             self.b.switch_to_block(exit);
-            self.side_exit(pc, remaining);
+            self.executed_error(remaining);
+            self.b.switch_to_block(checked);
+            self.check_error(pc, remaining);
+            self.b.ins().jump(next, &[]);
             return;
         }
         let slow = self.b.create_block();
@@ -1030,25 +1492,14 @@ impl Gen<'_, '_> {
                     &[ctx, list, number],
                 ),
             };
+            self.check_error(pc, remaining);
             self.b.ins().jump(next, &[]);
         } else {
             self.b.ins().jump(slow, &[]);
         }
         self.b.switch_to_block(slow);
-        let at = self.b.ins().iconst(types::I64, pc as i64);
-        let ctx = self.ctx;
-        let done = self
-            .call(
-                h_exec as *const () as usize,
-                &[types::I64, types::I64],
-                Some(types::I64),
-                &[ctx, at],
-            )
-            .unwrap();
-        let exit = self.b.create_block();
-        self.b.ins().brif(done, next, &[], exit, &[]);
-        self.b.switch_to_block(exit);
-        self.side_exit(pc, remaining);
+        self.transfer(pc, remaining);
+        self.b.ins().jump(next, &[]);
     }
 
     fn set_value(
@@ -1060,14 +1511,14 @@ impl Gen<'_, '_> {
         remaining: i64,
     ) {
         let next = blocks[&(pc + 1)];
-        if let ValueExpr::Item(ListRef::Global(list), Some(e)) = self.engine.program.values[v] {
+        if let ValueExpr::Item(list, Some(e)) = self.engine.program.values[v] {
             let at = self.expr(e.end as usize - 1);
             let encoded = match target {
                 Target::Global(s) => (s as i64) << 1,
                 Target::Local(s) => ((s as i64) << 1) | 1,
             };
             let encoded = self.b.ins().iconst(types::I64, encoded);
-            let list = self.b.ins().iconst(types::I64, list as i64);
+            let list = self.b.ins().iconst(types::I64, list_key(list) as i64);
             let ctx = self.ctx;
             self.call(
                 h_assign_item as *const () as usize,
@@ -1075,6 +1526,7 @@ impl Gen<'_, '_> {
                 None,
                 &[ctx, encoded, list, at],
             );
+            self.check_error(pc, remaining);
             self.b.ins().jump(next, &[]);
             return;
         }
@@ -1084,25 +1536,14 @@ impl Gen<'_, '_> {
             self.check_unboxed(&guards, slow);
             let number = self.numeric_value(value);
             self.assign_number(target, number);
+            self.check_error(pc, remaining);
             self.b.ins().jump(next, &[]);
         } else {
             self.b.ins().jump(slow, &[]);
         }
         self.b.switch_to_block(slow);
-        let at = self.b.ins().iconst(types::I64, pc as i64);
-        let ctx = self.ctx;
-        let done = self
-            .call(
-                h_exec as *const () as usize,
-                &[types::I64, types::I64],
-                Some(types::I64),
-                &[ctx, at],
-            )
-            .unwrap();
-        let exit = self.b.create_block();
-        self.b.ins().brif(done, next, &[], exit, &[]);
-        self.b.switch_to_block(exit);
-        self.side_exit(pc, remaining);
+        self.transfer(pc, remaining);
+        self.b.ins().jump(next, &[]);
     }
 
     fn op(&mut self, pc: usize, op: Op, blocks: &BTreeMap<usize, Block>, remaining: i64) {
@@ -1113,27 +1554,35 @@ impl Gen<'_, '_> {
                 let v = self.expr(e.end as usize - 1);
                 self.store(self.slots, s, v);
                 self.clear_global(s);
+                self.check_error(pc, remaining);
                 self.b.ins().jump(block(pc + 1), &[]);
             }
             Op::SetLocal(s, e) => {
                 let v = self.expr(e.end as usize - 1);
                 self.store(self.locals, s, v);
                 self.clear_local(s);
+                self.check_error(pc, remaining);
                 self.b.ins().jump(block(pc + 1), &[]);
             }
             Op::Change(s, e, sign) => {
                 self.change(self.slots, s, e, sign);
                 self.clear_global(s);
+                self.check_error(pc, remaining);
                 self.b.ins().jump(block(pc + 1), &[]);
             }
             Op::ChangeLocal(s, e, sign) => {
                 self.change(self.locals, s, e, sign);
                 self.clear_local(s);
+                self.check_error(pc, remaining);
                 self.b.ins().jump(block(pc + 1), &[]);
             }
             Op::Branch(e, target) => {
                 let v = self.expr(e.end as usize - 1);
                 let t = self.truth(v);
+                let yes = self.b.ins().iconst(types::I64, pc as i64 + 1);
+                let no = self.b.ins().iconst(types::I64, target as i64);
+                let next = self.b.ins().select(t, yes, no);
+                self.check_error_next(pc, remaining, next);
                 self.b.ins().brif(t, block(pc + 1), &[], block(target), &[]);
             }
             Op::Jump(target) => {
@@ -1149,6 +1598,10 @@ impl Gen<'_, '_> {
                         &[ctx, v],
                     )
                     .unwrap();
+                let yes = self.b.ins().iconst(types::I64, pc as i64 + 1);
+                let no = self.b.ins().iconst(types::I64, end as i64);
+                let next = self.b.ins().select(entered, yes, no);
+                self.check_error_next(pc, remaining, next);
                 self.b
                     .ins()
                     .brif(entered, block(pc + 1), &[], block(end), &[]);
@@ -1174,6 +1627,44 @@ impl Gen<'_, '_> {
                     .brif(again, block(target), &[], block(pc + 1), &[]);
             }
             Op::SetValue(target, v) => self.set_value(pc, target, v, blocks, remaining),
+            Op::SetActorVariable(slot, v) => {
+                let slow = self.b.create_block();
+                let mut guards = Vec::new();
+                if let Some(value) = self.numeric(v, &mut guards) {
+                    self.check_unboxed(&guards, slow);
+                    let number = self.numeric_value(value);
+                    let slot = self.b.ins().iconst(types::I64, slot as i64);
+                    self.call(
+                        h_set_actor_number as *const () as usize,
+                        &[types::I64, types::I64, types::F64],
+                        None,
+                        &[ctx, slot, number],
+                    );
+                    self.check_error(pc, remaining);
+                    self.b.ins().jump(block(pc + 1), &[]);
+                } else {
+                    self.b.ins().jump(slow, &[]);
+                }
+                self.b.switch_to_block(slow);
+                self.transfer(pc, remaining);
+                self.b.ins().jump(block(pc + 1), &[]);
+            }
+            Op::ChangeActorVariable(slot, e, sign) => {
+                let previous = self.numeric_value(Numeric::Actor(usize::MAX, slot));
+                let delta = self.expr(e.end as usize - 1);
+                let sign = self.b.ins().f64const(sign);
+                let delta = self.b.ins().fmul(delta, sign);
+                let number = self.b.ins().fadd(previous, delta);
+                let slot = self.b.ins().iconst(types::I64, slot as i64);
+                self.call(
+                    h_set_actor_number as *const () as usize,
+                    &[types::I64, types::I64, types::F64],
+                    None,
+                    &[ctx, slot, number],
+                );
+                self.check_error(pc, remaining);
+                self.b.ins().jump(block(pc + 1), &[]);
+            }
             Op::ReplaceList(ListRef::Global(list), Some(at), v) => {
                 self.list_write(pc, list, Some(at), v, blocks, remaining)
             }
@@ -1214,19 +1705,8 @@ impl Gen<'_, '_> {
                 self.b.ins().jump(block(target), &[]);
             }
             _ => {
-                let at = self.b.ins().iconst(types::I64, pc as i64);
-                let done = self
-                    .call(
-                        h_exec as *const () as usize,
-                        &[types::I64, types::I64],
-                        Some(types::I64),
-                        &[ctx, at],
-                    )
-                    .unwrap();
-                let exit = self.b.create_block();
-                self.b.ins().brif(done, block(pc + 1), &[], exit, &[]);
-                self.b.switch_to_block(exit);
-                self.side_exit(pc, remaining);
+                self.transfer(pc, remaining);
+                self.b.ins().jump(block(pc + 1), &[]);
             }
         }
     }
@@ -1441,6 +1921,111 @@ fn compile(jit: &mut Jit, engine: &Engine, entry: usize) -> Option<Region> {
 #[cfg(test)]
 mod tests {
     #[test]
+    fn list_expression_reporter_calls_cannot_reenter_native_code() {
+        let project = crate::studio::document::Document::blank().value().clone();
+        let mut engine = super::Engine::new(super::super::Program::compile(&project).unwrap());
+        engine.program.values = vec![super::ValueExpr::CallReturn(0, 0)];
+        let list = super::ListRef::Expression(0);
+        assert!(!engine.jit_delegable(super::Op::ClearList(list)));
+        engine.program.constants = vec![super::Cell::Number(3.0)];
+        engine.program.values.push(super::ValueExpr::Constant(0));
+        assert!(!engine.jit_delegable(super::Op::AppendList(list, 1)));
+    }
+
+    #[test]
+    fn executed_native_errors_keep_pc_and_charge_the_failed_instruction() {
+        use super::super::{Expr, ExprOp, Program, Script, ScriptEvent};
+        use super::*;
+        for delegated in [false, true] {
+            let project = crate::studio::document::Document::blank().value().clone();
+            let mut engine = Engine::new(Program::compile(&project).unwrap());
+            engine.program.actor_variable_names = vec!["missing".into()];
+            engine.program.initial = vec![0.0];
+            engine.program.initial_values = vec![None];
+            engine.program.variable_names = vec!["after".into()];
+            engine.slots = vec![0.0];
+            engine.values = vec![None];
+            engine.program.constants = vec![Cell::Text("typed".into())];
+            engine.program.values = vec![ValueExpr::Constant(0)];
+            engine.program.expressions = vec![ExprOp::Constant(1.0)];
+            engine.program.expression_starts = vec![0];
+            engine.program.ops = vec![
+                if delegated {
+                    Op::SetActorVariable(0, 0)
+                } else {
+                    Op::ChangeActorVariable(0, Expr { end: 1 }, 1.0)
+                },
+                Op::Set(0, Expr { end: 1 }),
+                Op::Halt,
+            ];
+            engine.program.sources = vec!["failed".into(), "after".into(), "halt".into()];
+            engine.jit = Jit::new(engine.program.ops.len());
+            engine.program.scripts = vec![Script {
+                hat: "error".into(),
+                actor: 1,
+                event: ScriptEvent::Start,
+                start: 0,
+            }];
+            engine.enable_jit_profile();
+            engine.start();
+            engine.jit_compile(0);
+            assert!(engine.jit.as_ref().unwrap().regions[0].is_some());
+            let used = engine.jit_run(0, 0, 1, 100).unwrap();
+            assert_eq!(used, 1, "delegated={delegated}");
+            assert_eq!(engine.tasks[0].pc, 1);
+            assert_eq!(engine.slots[0], 0.0);
+            assert_eq!(
+                engine.jit_error.take().unwrap().to_string(),
+                "entity_variable_operation_out_of_scope: missing at block failed"
+            );
+            assert_eq!(engine.jit_profile()["native_ops"], 1);
+        }
+    }
+
+    #[test]
+    fn failing_native_conditions_keep_the_interpreters_control_transfer() {
+        use super::super::{Expr, ExprOp, Program, Script, ScriptEvent};
+        use super::*;
+        for repeat in [false, true] {
+            let project = crate::studio::document::Document::blank().value().clone();
+            let mut engine = Engine::new(Program::compile(&project).unwrap());
+            engine.program.actor_variable_names = vec!["missing".into()];
+            engine.program.values = vec![ValueExpr::ActorVariable(usize::MAX, 0, None)];
+            engine.program.expressions = vec![ExprOp::Value(0)];
+            engine.program.expression_starts = vec![0];
+            engine.program.ops = vec![
+                if repeat {
+                    Op::Repeat(Expr { end: 1 }, 2)
+                } else {
+                    Op::Branch(Expr { end: 1 }, 2)
+                },
+                Op::Halt,
+                Op::Halt,
+            ];
+            engine.program.sources = vec!["condition".into(); 3];
+            engine.program.scripts = vec![Script {
+                hat: "error".into(),
+                actor: 1,
+                event: ScriptEvent::Start,
+                start: 0,
+            }];
+            engine.jit = Jit::new(3);
+            engine.start();
+            engine.jit_compile(0);
+            assert_eq!(engine.jit_run(0, 0, 1, 10), Some(1));
+            assert_eq!(engine.tasks[0].pc, 2);
+            assert!(
+                engine
+                    .jit_error
+                    .take()
+                    .unwrap()
+                    .to_string()
+                    .ends_with("at block condition")
+            );
+        }
+    }
+
+    #[test]
     fn ten_thousand_numeric_and_truth_nodes_compile_native_regions() {
         use super::super::{ExprOp, Program, Unary};
         use serde_json::json;
@@ -1605,7 +2190,7 @@ mod tests {
     }
 
     #[test]
-    fn only_private_variable_programs_disable_native_slots() {
+    fn private_variable_programs_retain_native_global_slots() {
         let mut project = crate::studio::document::Document::blank().value().clone();
         let actor = project["actors"]["actorsDict"]
             .as_object()
@@ -1631,7 +2216,7 @@ mod tests {
             "id":"private", "value":[[7]], "isGlobal":false, "currentEntityId":actor
         });
         let private = Engine::new(super::super::Program::compile(&project).unwrap());
-        assert!(private.jit.is_none());
+        assert!(private.jit.is_some());
         assert_eq!(private.program.variable_names, ["score"]);
         assert_eq!(private.slots.len(), 1);
         assert_eq!(private.program.actor_variable_names, ["private"]);

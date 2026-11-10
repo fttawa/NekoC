@@ -1,5 +1,7 @@
 # 离线 Kitten 4 oracle
 
+JIT 覆盖与本地解释器差分可用 `cargo run --bin jit-corpus -- <只读语料目录> --out dist/jit2/after.json`；逐作品回退原因、覆盖口径、无统计计时和前后报告命令见 [jit-coverage.md](../../docs/jit-coverage.md)。这不是独立官方 oracle。
+
 仅本地读取第三方 Electron 包；仓库不携带内核、内核片段或作品语料。
 只支持该包的 `player_v2` / webpack 4 接口，内核变更会显式失败，不能据此泛称所有版本官方一致。
 

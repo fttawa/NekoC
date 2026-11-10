@@ -4265,6 +4265,7 @@ pub struct Engine {
     physics: Option<Box<physics::Physics>>,
     pub program: Program,
     jit: Option<Box<jit::Jit>>,
+    jit_profile: Option<jit::Profile>,
     jit_error: Option<anyhow::Error>,
     /// Last on_bump_actor contact per (script, instance).
     bump_state: std::collections::HashMap<(usize, usize), Option<usize>>,
@@ -4594,11 +4595,9 @@ impl Engine {
     }
     pub fn new(program: Program) -> Self {
         let _timing = crate::import_perf::span("engine_init_jit");
-        // Private list references can be nested inside ListRef::Expression and
-        // reporter calls. Conservatively keep the entire private-variable program
-        // interpreted until all native helpers understand entity ownership. Purely
-        // global projects retain the exact same JIT and indexed-slot fast path.
-        let jit = if program.actor_variable_names.is_empty() && program.extension_calls.is_empty() {
+        // Extensions retain their interpreter-only safety boundary; private
+        // variables use entity-aware native helpers and no longer disable JIT.
+        let jit = if program.extension_calls.is_empty() {
             jit::Jit::new(program.ops.len())
         } else {
             None
@@ -4690,6 +4689,7 @@ impl Engine {
             restart: false,
             reporter_depth: 0,
             jit,
+            jit_profile: None,
             jit_error: None,
             order,
             current_scene,
@@ -9043,6 +9043,7 @@ impl Engine {
                     continue;
                 }
                 let op = self.program.ops[pc];
+                self.jit_record_interpreted(pc);
                 self.trace_task("block", index, Some(pc));
                 let lengths = self.trace_list_lengths();
                 self.tasks[index].pc += 1;
