@@ -278,6 +278,8 @@ pub(super) enum ValueExpr {
     Payload,
     Received(usize),
     Contains(usize, usize),
+    /// K4 String.indexOf/lastIndexOf, with 1-based UTF-16 positions.
+    TextIndex(usize, usize, bool),
     Find(ListRef, usize, bool),
     Item(ListRef, Option<super::Expr>),
     CloudItem(ListRef, Option<super::Expr>),

@@ -315,6 +315,17 @@ export function mappingStatus(root, rows) {
   }
   const lower = rustDispatch(source, "lower_block", file);
   const aliases = rustDispatch(alias, "lower_legacy_alias", aliasFile);
+  // These are explicit VM-boundary dispatches, not all strings in a module.
+  // Require the corresponding call in lower_block before counting evidence.
+  const extensions = new Map();
+  for (const [module, helper] of [["common", "lower_common"], ["devices", "lower_devices"], ["audio_aliases", "lower_audio_alias"]]) {
+    const extensionFile = `src/kitten4/${module}.rs`;
+    if (!source.includes(`${module}::${helper}(block`)) continue;
+    const extension = fs.readFileSync(path.join(root, extensionFile), "utf8");
+    for (const [type, locations] of rustDispatch(extension, helper, extensionFile)) {
+      extensions.set(type, [...(extensions.get(type) ?? []), ...locations]);
+    }
+  }
   const stubs = rustDispatch(source, "is_stub", file);
   const engineFile = "src/engine.rs", engine = fs.readFileSync(path.join(root, engineFile), "utf8");
   const physicsFile = "src/engine/physics.rs", physics = fs.readFileSync(path.join(root, physicsFile), "utf8");
@@ -332,7 +343,8 @@ export function mappingStatus(root, rows) {
     special.set(type, [location(source, file, { start: fn.start }, helper)]);
   }
   const deviceTypes = new Set(["get_running_device", "check_running_device", "username_get", "user_id_get", "connected_users_get",
-    "get_voice_volume", "enable_voice_detection", "wood_block_get", "wood_block_set", "set_camera_status", "get_orientation"]);
+    "get_voice_volume", "enable_voice_detection", "wood_block_get", "wood_block_set", "set_camera_status", "get_orientation",
+    "get_mobile_slope_value", "get_mobile_rocker_value", "mobile_vibrate", "get_camera_data", "set_camera_opcity"]);
   const partialTypes = new Set(["get_2", "get_3", "get", "self_change_effect_3", "self_change_effect", "self_change_effect_2",
     "self_set_effect_2", "self_set_effect", "self_clear_effects", "get_clone_index_property", "set_scene_transition",
     "self_set_role_camp", "get_stage_info", "self_set_draggable", "image_stamp", "stamp"]);
@@ -341,7 +353,7 @@ export function mappingStatus(root, rows) {
     return at < 0 ? [] : [location(engine, engineFile, { start: at }, literal)];
   }
   return rows.map(row => {
-    let evidence = [...(direct.get(row.type) ?? []), ...(lower.get(row.type) ?? []), ...(aliases.get(row.type) ?? []), ...(special.get(row.type) ?? [])];
+    let evidence = [...(direct.get(row.type) ?? []), ...(lower.get(row.type) ?? []), ...(aliases.get(row.type) ?? []), ...(extensions.get(row.type) ?? []), ...(special.get(row.type) ?? [])];
     if (row.type.startsWith("physics2_") && physicsEvidence.has(row.type)) {
       evidence.push(...physicsEvidence.get(row.type));
     }
@@ -353,7 +365,7 @@ export function mappingStatus(root, rows) {
     }
     const stub = stubs.has(row.type);
     if (stub) evidence.push(...stubs.get(row.type));
-    const degraded = deviceTypes.has(row.type) && (stub || evidence.length);
+    const degraded = (deviceTypes.has(row.type) || row.official.some(e => e.module === "ls7Z")) && (stub || evidence.length);
     const status = degraded ? "设备降级" : stub ? "stub" : evidence.length ? "已实现" : "缺失";
     let semantics = status === "已实现" ? "mapped-not-parity" : status === "缺失" ? "unsupported" : status === "stub" ? "no-effect" : "offline/device";
     const limitations = [];
@@ -383,7 +395,24 @@ export function mappingStatus(root, rows) {
       semantics = "partial";
       limitations.push("角色/分组/场景显隐与有限正时长并发渐变已有源码推导回归；点击状态清理、取消/删克隆、竞争渐变和非有限时长未验证；删除引用沿用通用 noop 策略（官方悬空 UUID 行为未验证）");
     }
-    if (row.official.some(e => e.module === "ls7Z")) limitations.push("官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持");
+    if (row.type === "self_shake" && evidence.length) {
+      semantics = "partial";
+      limitations.push("5 单位四方向逐更新抖动、阻塞及归位已有源码推导回归；与官方任务队列的逐帧相位/结束续接、物理刚体受力、竞争移动及取消未验证");
+    }
+    if (["play_audio", "play_audio_and_wait", "set_volume_or_rate", "change_volume_or_rate", "stop_all_audios"].includes(row.type) && evidence.length) {
+      semantics = "partial";
+      limitations.push("legacy 音频已回归：动态目标及有符号增量已纠偏；严格 ID、非有限增量、内部 lock/improvise、微信录音分支仍有限制，见 kitten4-audio-aliases.md");
+    }
+    if (row.type === "text_indexOf" && evidence.length) {
+      semantics = "partial";
+      limitations.push("FIRST/LAST 与空 needle 的 1-based UTF-16 位置已回归；原始非字符串 VALUE 的 JS TypeError 路径未对齐");
+    }
+    if (row.official.some(e => e.module === "ls7Z")) {
+      limitations.push("官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md");
+      if (["is_digital_port_status", "get_analog_port_value"].includes(row.type)) {
+        limitations.push("官方提示后返回 undefined：仅命令上下文降级；表达式上下文明确拒绝编译，不伪造 NaN/0");
+      }
+    }
     if (row.official.every(e => e.registration.startsWith("compiler:"))) limitations.push("仅编译器结构表证据，不表示存在普通 domain handler");
     if (status === "已实现") limitations.push("静态分派证据；未逐字段、错误路径、时序与官方差分验证");
     // Helpful VM anchors for special rewrites without blanket string matching.
@@ -413,6 +442,9 @@ export function markdownReport(report) {
     ...Object.entries(report.counts).map(([status, count]) => `| ${status} | ${count} |`), "",
     `已知 partial：${report.rows.filter(r => r.semantics === "partial").length} 项（不是第五种主状态）。`, "",
     "## 本次按频率补齐", "",
+    "- 第二轮：先补语料 10 次的 self_shake（保留时序/物理 partial），再按常用类别补文本、旧启动/条件/点击/弹窗入口；原始缺失项频率均为 0，未宣称有编辑器面板使用统计。详见 kitten4-second-round.md 与 tests/kitten4_catalog.rs。",
+    "- 第二轮设备项仅支持官方离线无设备语义：ls7Z 逐项显式映射，不伪装真实硬件支持；另补手机轴、震动、摄像头 motion/方向及透明度降级。见 kitten4-devices.md。视频积木不改；扫码 UI/语音/MIDI 等继续公开为缺失。",
+    "- 第二轮核对五个原本已有的 legacy audio 入口并补回归，修正动态声音输入与旧 change 的符号；只重新分类，不计作新增五项。基线也已支持 play_words_audio/play_words_audio_wait，本轮仅修复覆盖表过期 stub 分类，不计作新增 TTS。见 kitten4-audio-aliases.md。",
     "- `set_entity_show_hide` 在语料出现 64 次，是本次优先补齐的非设备 stub。角色、场景及分组目标分别解析；分组渐变并发进行、调用线程等待，不能用异步 tell 冒充。官方依据为 Tn6a/lt 的该属性与内部 f（属性定位见下表）；回归在 tests/kitten4_visibility.rs。",
     "- 其余高频缺失候选经专用 lowering 核对后为已有支持；没有把物理/云路径误报当作新实现。其后补齐 21 个零频 legacy 别名：坐标 8、渐显隐 2、缩放 2、效果 3、图层 1、造型 3、get 1、multiline_text 1。具体源码分派见 src/kitten4/aliases.rs；回归在 tests/kitten4_catalog.rs，覆盖 workspace/published、原样 roundtrip、解释器/默认 JIT。",
     "- K4 渐显隐边界从同一官方 f 推导：已显示角色的正时长渐显不等待；0 秒只切换可见性；渐隐结束恢复 alpha=1。KN 路径不变。画笔填充、计时器、介绍弹窗均未纳入本次实现。",

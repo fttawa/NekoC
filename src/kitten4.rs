@@ -11,6 +11,9 @@ use std::{cell::RefCell, rc::Rc};
 
 mod aliases;
 use aliases::lower_legacy_alias;
+mod audio_aliases;
+mod common;
+mod devices;
 
 struct SourceCache {
     source: crate::json::Json,
@@ -268,6 +271,10 @@ impl Targets<'_> {
 fn lower_missing_reference(block: &mut Value, targets: &Targets) {
     let kind = block["type"].as_str().unwrap_or_default().to_owned();
     let call = kind.starts_with("procedures_2_call");
+    // Camera target '?' is an official reporter sentinel, not a deleted UUID.
+    if kind == "kitten4::get_camera_data" {
+        return;
+    }
     let mut missing = call && targets.procedures.get(field(block, "NAME")).is_none();
     let visibility_group = kind == "kitten4::set_entity_show_hide"
         && targets.groups.get(field(block, "sprite")).is_some();
@@ -430,7 +437,6 @@ fn is_stub(kind: &str) -> bool {
             | "wood_block_set"
             | "wood_block_get"
             | "set_camera_status"
-            | "self_shake"
     )
 }
 
@@ -476,6 +482,15 @@ fn lower_block(block: &mut Value, targets: &Targets) {
         return;
     }
     if lower_legacy_alias(block, targets) {
+        return;
+    }
+    if common::lower_common(block) {
+        return;
+    }
+    if devices::lower_devices(block) {
+        return;
+    }
+    if audio_aliases::lower_audio_alias(block, targets) {
         return;
     }
     if kind.starts_with("physics2_") {
@@ -1291,8 +1306,8 @@ impl<'a> CompiledWork<'a> {
                 continue;
             }
             let socket = match kind {
-                "controls_if" if index < conditions => format!("DO{index}"),
-                "controls_if" => "ELSE".to_owned(),
+                "controls_if" | "controls_if_no_else" if index < conditions => format!("DO{index}"),
+                "controls_if" | "controls_if_no_else" => "ELSE".to_owned(),
                 _ if definition => "STACK".to_owned(),
                 _ => "DO".to_owned(),
             };
@@ -1408,7 +1423,7 @@ fn finish_roots(
         .map(|native| {
             let native = native?;
             kinds.push(match native["type"].as_str() {
-                Some("start_on_click") => Some(StartKind::Global),
+                Some("start_on_click" | "start_on_click_2") => Some(StartKind::Global),
                 Some("on_running_group_activated") => Some(StartKind::Activation),
                 _ => None,
             });

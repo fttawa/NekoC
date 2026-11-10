@@ -3,6 +3,7 @@
 //! (Kitten4播放器/resources/app/src/player/build). Offsets below are zero-based
 //! Unicode character offsets in that exact file, not byte offsets. These are
 //! source-derived assertions; no browser execution is claimed.
+//! Additional domains use factory-relative UTF-16 offsets in common.rs.
 use nekoc::{
     engine::{Engine, Frame, Program, Sprite},
     kitten4,
@@ -22,6 +23,363 @@ enum Source {
     Published,
 }
 const SOURCES: [Source; 2] = [Source::Workspace, Source::Published];
+
+#[test]
+fn second_round_text_search_uses_one_based_utf16_and_empty_needle_rules() {
+    for source in SOURCES {
+        for (text, needle, end, expected) in [
+            ("猫😀abc😀", "a", "FIRST", "4"),
+            ("猫😀abc😀", "😀", "LAST", "7"),
+            ("ababa", "aba", "LAST", "3"),
+            ("ababa", "x", "FIRST", "0"),
+            ("😀", "", "FIRST", "1"),
+            ("😀", "", "LAST", "3"),
+            ("", "abc", "FIRST", "0"),
+        ] {
+            let native = project(
+                source,
+                vec![set(
+                    "result",
+                    probe(
+                        "text_indexOf",
+                        json!({"END":end}),
+                        json!({
+                    "VALUE":block("text",json!({"TEXT":text}),json!({})),
+                    "FIND":block("text",json!({"TEXT":needle}),json!({}))}),
+                    ),
+                )],
+            );
+            let canonical = imported(&native, "kitten4_text_index");
+            for interpreted in [true, false] {
+                let (vm, _, _) = run(&canonical, interpreted);
+                assert_eq!(vm.variable_text("result"), expected);
+            }
+        }
+    }
+}
+
+#[test]
+fn second_round_implicit_text_preserves_empty_and_typed_number_conversion() {
+    for source in SOURCES {
+        for (text, lowered, expected) in [
+            ("", "text", ""),
+            ("  ", "kitten4_default_value", "0"),
+            ("0x10", "kitten4_default_value", "16"),
+            ("abc", "kitten4_default_value", "abc"),
+        ] {
+            let native = project(
+                source,
+                vec![set(
+                    "result",
+                    probe("text_implicit", json!({"TEXT":text}), json!({})),
+                )],
+            );
+            let canonical = imported(&native, lowered);
+            for interpreted in [true, false] {
+                assert_eq!(
+                    run(&canonical, interpreted).0.variable_text("result"),
+                    expected
+                );
+            }
+        }
+    }
+}
+
+#[test]
+fn second_round_text_append_uses_js_addition_not_always_join() {
+    for source in SOURCES {
+        for (initial, append, expected) in [
+            (number(12.0), number(3.0), "15"),
+            (
+                number(12.0),
+                block("text", json!({"TEXT":"3"}), json!({})),
+                "123",
+            ),
+            (
+                block("text", json!({"TEXT":"猫"}), json!({})),
+                number(3.0),
+                "猫3",
+            ),
+        ] {
+            let native = project(
+                source,
+                vec![
+                    set("result", initial),
+                    probe(
+                        "text_append",
+                        json!({"VAR":"result"}),
+                        json!({"TEXT":append}),
+                    ),
+                ],
+            );
+            let canonical = imported(&native, "variables_set");
+            for interpreted in [true, false] {
+                assert_eq!(
+                    run(&canonical, interpreted).0.variable_text("result"),
+                    expected
+                );
+            }
+        }
+    }
+}
+
+#[test]
+fn second_round_days_are_floored_from_utc_2000() {
+    for source in SOURCES {
+        let native = project(
+            source,
+            vec![set(
+                "result",
+                probe("days_after_2000", json!({}), json!({})),
+            )],
+        );
+        let canonical = imported(&native, "kitten4_days_after_2000");
+        for interpreted in [true, false] {
+            let mut vm = engine(&canonical, interpreted);
+            tick(&mut vm);
+            assert_eq!(vm.variable_text("result"), "0");
+        }
+    }
+}
+
+#[test]
+fn second_round_desktop_sensors_and_optional_camera_have_explicit_fallbacks() {
+    for source in SOURCES {
+        for (kind, fields, expected) in [
+            ("get_orientation", json!({"axis":"X"}), "0"),
+            ("get_orientation", json!({"axis":"Y"}), "0"),
+            (
+                "get_mobile_slope_value",
+                json!({"mobile":"none","coordinate":"z"}),
+                "0",
+            ),
+            (
+                "get_mobile_rocker_value",
+                json!({"mobile":"none","coordinate":"x"}),
+                "0",
+            ),
+            (
+                "get_camera_data",
+                json!({"target":"__self","action_type":"motion"}),
+                "0",
+            ),
+            (
+                "get_camera_data",
+                json!({"target":"__self","action_type":"direction"}),
+                "0",
+            ),
+            (
+                "get_camera_data",
+                json!({"target":"?","action_type":"motion"}),
+                "NaN",
+            ),
+        ] {
+            let native = project(source, vec![set("result", probe(kind, fields, json!({})))]);
+            let canonical = imported(&native, "math_number");
+            for interpreted in [true, false] {
+                assert_eq!(
+                    run(&canonical, interpreted).0.variable_text("result"),
+                    expected
+                );
+            }
+        }
+        for kind in ["mobile_vibrate", "set_camera_opcity"] {
+            let native = project(
+                source,
+                vec![probe(
+                    kind,
+                    json!({"mobile":"none"}),
+                    json!({"opcity":number(50.0)}),
+                )],
+            );
+            let canonical = imported(&native, "kitten4_noop");
+            for interpreted in [true, false] {
+                run(&canonical, interpreted);
+            }
+        }
+    }
+}
+
+#[test]
+fn second_round_start_on_click_2_is_a_global_start_not_an_ordinary_statement() {
+    for source in SOURCES {
+        let mut native = project(source, vec![set("result", number(42.0))]);
+        match source {
+            Source::Workspace => {
+                native["theatre"]["actors"][ACTOR]["block_data_json"]["blocks"]["alias-hat"]["type"] =
+                    json!("start_on_click_2")
+            }
+            Source::Published => {
+                native["compile_result"][0]["compiled_block_map"]["alias-hat"]["type"] =
+                    json!("start_on_click_2")
+            }
+        }
+        let canonical = kitten4::to_neko(&native).unwrap();
+        assert_eq!(kitten4::from_neko(&canonical).unwrap(), native);
+        for interpreted in [true, false] {
+            assert_eq!(run(&canonical, interpreted).0.variable_text("result"), "42");
+        }
+    }
+}
+
+#[test]
+fn second_round_shake_blocks_moves_in_legs_and_restores_position() {
+    for source in SOURCES {
+        let native = project(
+            source,
+            vec![probe("self_shake", json!({}), json!({"time":number(0.2)}))],
+        );
+        let canonical = imported(&native, "kitten4_shake");
+        for interpreted in [true, false] {
+            let mut vm = engine(&canonical, interpreted);
+            let first = tick(&mut vm);
+            assert_eq!(vm.variable_text("after"), "0");
+            let actor = first.sprites.iter().find(|s| s.id == ACTOR).unwrap();
+            close(actor.x, 17.0);
+            close(actor.y, -11.0);
+            let mut moved = false;
+            for _ in 0..10 {
+                let frame = tick(&mut vm);
+                if let Some(actor) = frame.sprites.iter().find(|s| s.id == ACTOR) {
+                    moved |= (actor.x - 17.0).abs() > 0.01 || (actor.y + 11.0).abs() > 0.01;
+                }
+            }
+            assert!(moved, "shake must not remain a no-effect stub");
+            let mut final_actor = None;
+            for _ in 0..10 {
+                final_actor = tick(&mut vm)
+                    .sprites
+                    .into_iter()
+                    .find(|s| s.id == ACTOR)
+                    .or(final_actor);
+            }
+            let actor = final_actor.unwrap();
+            close(actor.x, 17.0);
+            close(actor.y, -11.0);
+            assert_eq!(vm.variable_text("after"), "1");
+        }
+        for duration in [0.0, -1.0] {
+            let native = project(
+                source,
+                vec![probe(
+                    "self_shake",
+                    json!({}),
+                    json!({"time":number(duration)}),
+                )],
+            );
+            let canonical = imported(&native, "kitten4_shake");
+            for interpreted in [true, false] {
+                let mut vm = engine(&canonical, interpreted);
+                tick(&mut vm);
+                assert_eq!(vm.variable_text("after"), "1");
+            }
+        }
+    }
+}
+
+#[test]
+fn second_round_no_else_branches_and_statement_style_start_run_their_bodies() {
+    for source in SOURCES {
+        for condition in [true, false] {
+            let mut branch = probe(
+                "controls_if_no_else",
+                json!({}),
+                json!({"IF0":block("logic_boolean",json!({"BOOL":if condition {"TRUE"} else {"FALSE"}}),json!({}))}),
+            );
+            branch["statements"] = json!({"DO0":set("result",number(9.0))});
+            let native = project(source, vec![branch]);
+            let canonical = imported(&native, "controls_if");
+            for interpreted in [true, false] {
+                assert_eq!(
+                    run(&canonical, interpreted).0.variable_text("result"),
+                    if condition { "9" } else { "0" }
+                );
+            }
+        }
+        let mut native = project(source, vec![set("result", number(23.0))]);
+        match source {
+            Source::Workspace => {
+                let ws = &mut native["theatre"]["actors"][ACTOR]["block_data_json"];
+                ws["blocks"]["alias-hat"]["type"] = json!("start_on_click_2");
+                let edge = ws["connections"]["alias-hat"]
+                    .as_object_mut()
+                    .unwrap()
+                    .values_mut()
+                    .next()
+                    .unwrap();
+                *edge = json!({"type":"input","input_name":"DO","input_type":"statement"});
+            }
+            Source::Published => {
+                let hat = &mut native["compile_result"][0]["compiled_block_map"]["alias-hat"];
+                hat["type"] = json!("start_on_click_2");
+                let body = hat.as_object_mut().unwrap().remove("next_block").unwrap();
+                // Official DmFr has already moved the first child to next_block.
+                hat["next_block"] = body;
+            }
+        }
+        let canonical = kitten4::to_neko(&native).unwrap();
+        for interpreted in [true, false] {
+            assert_eq!(run(&canonical, interpreted).0.variable_text("result"), "23");
+        }
+        assert_eq!(kitten4::from_neko(&canonical).unwrap(), native);
+    }
+}
+
+#[test]
+fn second_round_self_pointer_hat_waits_for_a_real_click() {
+    for source in SOURCES {
+        let mut native = project(source, vec![set("result", number(5.0))]);
+        match source {
+            Source::Workspace => {
+                let hat = &mut native["theatre"]["actors"][ACTOR]["block_data_json"]["blocks"]["alias-hat"];
+                hat["type"] = json!("self_on_tap");
+                hat["fields"] = json!({"type":"mouse_click"});
+            }
+            Source::Published => {
+                let hat = &mut native["compile_result"][0]["compiled_block_map"]["alias-hat"];
+                hat["type"] = json!("self_on_tap");
+                hat["params"] = json!({"type":"mouse_click"});
+            }
+        }
+        let canonical = kitten4::to_neko(&native).unwrap();
+        for interpreted in [true, false] {
+            let mut vm = engine(&canonical, interpreted);
+            tick(&mut vm);
+            assert_eq!(vm.variable_text("result"), "0");
+            vm.pointer_event(ACTOR, "mouse_click", 17.0, -11.0);
+            tick(&mut vm);
+            assert_eq!(vm.variable_text("result"), "5");
+        }
+        assert_eq!(kitten4::from_neko(&canonical).unwrap(), native);
+    }
+}
+
+#[test]
+fn second_round_legacy_stage_dialog_reuses_blocking_acknowledgement() {
+    for source in SOURCES {
+        let native = project(
+            source,
+            vec![probe(
+                "show_stage_dialog",
+                json!({}),
+                json!({"text":block("text",json!({"TEXT":"Hello legacy"}),json!({}))}),
+            )],
+        );
+        let canonical = imported(&native, "create_stage_dialog");
+        for interpreted in [true, false] {
+            let mut vm = engine(&canonical, interpreted);
+            let dialog = tick(&mut vm).stage_dialog.unwrap();
+            assert_eq!(dialog.text, "Hello legacy");
+            assert_eq!(vm.variable_text("after"), "0");
+            vm.stage_dialog_click(dialog.id);
+            tick(&mut vm);
+            assert_eq!(vm.variable_text("after"), "0");
+            vm.stage_dialog_click(dialog.id);
+            tick(&mut vm);
+            assert_eq!(vm.variable_text("after"), "1");
+        }
+    }
+}
 
 fn block(kind: &str, fields: Value, inputs: Value) -> Value {
     json!({"type":kind,"fields":fields,"inputs":inputs})
@@ -49,6 +407,13 @@ fn published(node: &Value) -> Value {
     }
     let mut result = json!({"id":node["id"],"kind":"domain_block",
         "type":node["type"],"params":params,"child_block":[]});
+    if node["type"] == "controls_if_no_else" {
+        result["conditions"] = json!([published(&node["inputs"]["IF0"])]);
+        result["params"].as_object_mut().unwrap().remove("IF0");
+        result["child_block"] = json!([published(&node["statements"]["DO0"])]);
+    } else if let Some(body) = node.pointer("/statements/DO") {
+        result["child_block"] = json!([published(body)]);
+    }
     if let Some(next) = node.get("next") {
         result["next_block"] = published(next);
     }
@@ -61,6 +426,13 @@ fn identify(node: &mut Value, serial: &mut usize) {
         *serial += 1;
     }
     for child in node["inputs"]
+        .as_object_mut()
+        .into_iter()
+        .flat_map(Map::values_mut)
+    {
+        identify(child, serial);
+    }
+    for child in node["statements"]
         .as_object_mut()
         .into_iter()
         .flat_map(Map::values_mut)
@@ -87,6 +459,13 @@ fn flatten(node: &Value, blocks: &mut Map<String, Value>, edges: &mut Map<String
         connections.insert(
             child["id"].as_str().unwrap().into(),
             json!({"type":"input","input_name":name,"input_type":"value"}),
+        );
+        flatten(child, blocks, edges);
+    }
+    for (name, child) in node["statements"].as_object().into_iter().flatten() {
+        connections.insert(
+            child["id"].as_str().unwrap().into(),
+            json!({"type":"input","input_name":name,"input_type":"statement"}),
         );
         flatten(child, blocks, edges);
     }

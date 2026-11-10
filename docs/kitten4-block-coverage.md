@@ -29,15 +29,18 @@ Markdown 与同名 JSON 都是生成物；mapping 行号反映生成当时本仓
 
 | 状态 | 项数 |
 | --- | ---: |
-| 已实现 | 220 |
-| stub | 8 |
-| 缺失 | 139 |
-| 设备降级 | 10 |
+| 已实现 | 240 |
+| stub | 1 |
+| 缺失 | 46 |
+| 设备降级 | 90 |
 
-已知 partial：60 项（不是第五种主状态）。
+已知 partial：67 项（不是第五种主状态）。
 
 ## 本次按频率补齐
 
+- 第二轮：先补语料 10 次的 self_shake（保留时序/物理 partial），再按常用类别补文本、旧启动/条件/点击/弹窗入口；原始缺失项频率均为 0，未宣称有编辑器面板使用统计。详见 kitten4-second-round.md 与 tests/kitten4_catalog.rs。
+- 第二轮设备项仅支持官方离线无设备语义：ls7Z 逐项显式映射，不伪装真实硬件支持；另补手机轴、震动、摄像头 motion/方向及透明度降级。见 kitten4-devices.md。视频积木不改；扫码 UI/语音/MIDI 等继续公开为缺失。
+- 第二轮核对五个原本已有的 legacy audio 入口并补回归，修正动态声音输入与旧 change 的符号；只重新分类，不计作新增五项。基线也已支持 play_words_audio/play_words_audio_wait，本轮仅修复覆盖表过期 stub 分类，不计作新增 TTS。见 kitten4-audio-aliases.md。
 - `set_entity_show_hide` 在语料出现 64 次，是本次优先补齐的非设备 stub。角色、场景及分组目标分别解析；分组渐变并发进行、调用线程等待，不能用异步 tell 冒充。官方依据为 Tn6a/lt 的该属性与内部 f（属性定位见下表）；回归在 tests/kitten4_visibility.rs。
 - 其余高频缺失候选经专用 lowering 核对后为已有支持；没有把物理/云路径误报当作新实现。其后补齐 21 个零频 legacy 别名：坐标 8、渐显隐 2、缩放 2、效果 3、图层 1、造型 3、get 1、multiline_text 1。具体源码分派见 src/kitten4/aliases.rs；回归在 tests/kitten4_catalog.rs，覆盖 workspace/published、原样 roundtrip、解释器/默认 JIT。
 - K4 渐显隐边界从同一官方 f 推导：已显示角色的正时长渐显不等待；0 秒只切换可见性；渐隐结束恢复 alpha=1。KN 路径不变。画笔填充、计时器、介绍弹窗均未纳入本次实现。
@@ -116,299 +119,299 @@ Markdown 与同名 JSON 都是生成物；mapping 行号反映生成当时本仓
 
 | 官方 type | 官方模块@offset（注册来源） | 状态 / 语义 | 频率 | NekoC mapping 位置 / 限制 |
 | --- | --- | --- | ---: | --- |
-| `math_number` | `Qeyy@1767` (compiler:ATOMIC_BLOCKS) | 已实现<br>mapped-not-parity | 42835 | `src/kitten4.rs:2196 (translate)`<br>仅编译器结构表证据，不表示存在普通 domain handler<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `variables_get` | `oiyH@4016` (domain) | 已实现<br>mapped-not-parity | 15784 | `src/kitten4.rs:1877 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `math_arithmetic` | `Tn6a@6492` (domain)<br>`oiyH@3455` (domain) | 已实现<br>mapped-not-parity | 11268 | `src/kitten4.rs:1938 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `default_value` | `oiyH@7575` (domain) | 已实现<br>mapped-not-parity | 8701 | `src/kitten4.rs:655 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `lists_get_value` | `Tn6a@3694` (domain)<br>`oiyH@6384` (domain) | 已实现<br>mapped-not-parity | 7986 | `src/kitten4.rs:1891 (translate)`<br>`src/kitten4.rs:1897 (translate)`<br>`src/kitten4.rs:1914 (translate)`<br>`src/kitten4.rs:599 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `lists_get` | `Tn6a@2985` (domain)<br>`oiyH@5840` (domain) | 已实现<br>mapped-not-parity | 7839 | `src/kitten4.rs:1886 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `logic_compare` | `oiyH@3404` (domain) | 已实现<br>mapped-not-parity | 7254 | `src/kitten4.rs:2199 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `text` | `Qeyy@1800` (compiler:ATOMIC_BLOCKS) | 已实现<br>mapped-not-parity | 6278 | `src/kitten4.rs:2197 (translate)`<br>仅编译器结构表证据，不表示存在普通 domain handler<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `controls_if` | `Qeyy@323` (compiler:IF_BLOCKS) | 已实现<br>mapped-not-parity | 6218 | `src/kitten4.rs:2205 (translate)`<br>仅编译器结构表证据，不表示存在普通 domain handler<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `procedures_2_parameter` | `Qeyy@1295` (compiler:PROCEDURE_BLOCKS) | 已实现<br>mapped-not-parity | 6098 | `src/kitten4.rs:2231 (translate)`<br>仅编译器结构表证据，不表示存在普通 domain handler<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `variables_set` | `oiyH@4098` (domain) | 已实现<br>mapped-not-parity | 4792 | `src/kitten4.rs:1877 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `procedures_2_callnoreturn` | `Qeyy@1116` (compiler:PROCEDURE_BLOCKS) | 已实现<br>mapped-not-parity | 4384 | `src/kitten4.rs:2229 (translate)`<br>仅编译器结构表证据，不表示存在普通 domain handler<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `on_running_group_activated` | `IiH9@337` (responder) | 已实现<br>mapped-not-parity | 3770 | `src/kitten4.rs:1876 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `procedures_2_callreturn` | `Qeyy@1177` (compiler:PROCEDURE_BLOCKS) | 已实现<br>mapped-not-parity | 3084 | `src/kitten4.rs:2230 (translate)`<br>仅编译器结构表证据，不表示存在普通 domain handler<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `repeat_forever` | `Qeyy@94` (compiler:LOOP_BLOCKS) | 已实现<br>mapped-not-parity | 2888 | `src/kitten4.rs:2203 (translate)`<br>仅编译器结构表证据，不表示存在普通 domain handler<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `repeat_n_times` | `Qeyy@133` (compiler:LOOP_BLOCKS) | 已实现<br>mapped-not-parity | 2689 | `src/kitten4.rs:2202 (translate)`<br>仅编译器结构表证据，不表示存在普通 domain handler<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `text_split` | `oiyH@7332` (domain) | 已实现<br>mapped-not-parity | 2595 | `src/kitten4.rs:2201 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `logic_operation` | `oiyH@3255` (domain) | 已实现<br>mapped-not-parity | 2408 | `src/kitten4.rs:2053 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `bump` | `Tn6a@38731` (domain) | 已实现<br>mapped-not-parity | 2319 | `src/kitten4.rs:308 (lower_bump)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `wait` | `oiyH@4767` (domain) | 已实现<br>mapped-not-parity | 2190 | `src/kitten4.rs:2208 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `change_variable` | `Tn6a@6548` (domain)<br>`oiyH@4837` (domain) | 已实现<br>mapped-not-parity | 2129 | `src/kitten4.rs:1881 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `get_3` | `Tn6a@38280` (domain) | 已实现<br>partial | 2049 | `src/kitten4.rs:724 (lower_block)`<br>仅显式属性/角色局部变量；未列出的属性仍不支持<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `controller_shadow` | `Tn6a@74904` (domain) | 已实现<br>mapped-not-parity | 2039 | `src/kitten4.rs:1873 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `self_disappear` | `Tn6a@26493` (domain) | 已实现<br>mapped-not-parity | 1711 | `src/kitten4.rs:2111 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `set_costume` | `Tn6a@32109` (domain) | 已实现<br>mapped-not-parity | 1557 | `src/kitten4.rs:676 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `broadcast_input` | `Tn6a@4801` (domain) | 已实现<br>mapped-not-parity | 1538 | `src/kitten4.rs:1933 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `start_on_click` | `oiyH@3832` (domain)<br>`Qeyy@1525` (compiler:HAT_BLOCKS) | 已实现<br>mapped-not-parity | 1527 | `src/kitten4.rs:1870 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `self_appear` | `Tn6a@26450` (domain) | 已实现<br>mapped-not-parity | 1386 | `src/kitten4.rs:2111 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `get_current_costume` | `Tn6a@32507` (domain) | 已实现<br>mapped-not-parity | 1384 | `src/kitten4.rs:682 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `self_set_role_camp` | `Tn6a@14907` (domain) | 已实现<br>partial | 1336 | `src/kitten4.rs:818 (lower_block)`<br>存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `self_move_to` | `Tn6a@13348` (domain) | 已实现<br>mapped-not-parity | 1304 | `src/kitten4.rs:2215 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `text_join` | `oiyH@2755` (domain) | 已实现<br>mapped-not-parity | 1284 | `src/kitten4.rs:2200 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `self_set_effect_2` | `Tn6a@29849` (domain) | 已实现<br>partial | 1228 | `src/kitten4.rs:703 (lower_block)`<br>存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `lists_replace` | `Tn6a@3504` (domain)<br>`oiyH@6247` (domain) | 已实现<br>mapped-not-parity | 1126 | `src/kitten4.rs:1890 (translate)`<br>`src/kitten4.rs:1895 (translate)`<br>`src/kitten4.rs:1914 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `set_actor_as` | `Tn6a@51080` (domain) | 已实现<br>partial | 1051 | `src/kitten4.rs:512 (lower_block)`<br>`src/engine.rs:3537 (kitten4_legacy_)`<br>刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `set_theatre_layer` | `Tn6a@31148` (domain) | 已实现<br>mapped-not-parity | 1035 | `src/kitten4.rs:765 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `start_as_a_mirror` | `Tn6a@34572` (domain)<br>`Qeyy@533` (compiler:EVENT_BLOCKS) | 已实现<br>mapped-not-parity | 1032 | `src/kitten4.rs:796 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `check_key` | `Tn6a@41596` (domain) | 已实现<br>mapped-not-parity | 1017 | `src/kitten4.rs:683 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `self_change_scale_2` | `Tn6a@30253` (domain) | 已实现<br>mapped-not-parity | 1012 | `src/kitten4.rs:701 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `mirror` | `Tn6a@34611` (domain) | 已实现<br>mapped-not-parity | 986 | `src/kitten4.rs:795 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `sprite_on_tap` | `Tn6a@75225` (responder) | 已实现<br>mapped-not-parity | 985 | `src/kitten4.rs:691 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `lists_append` | `Tn6a@3042` (domain)<br>`oiyH@5915` (domain) | 已实现<br>mapped-not-parity | 943 | `src/kitten4.rs:1890 (translate)`<br>`src/kitten4.rs:1893 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `repeat_forever_until` | `Qeyy@172` (compiler:LOOP_BLOCKS) | 已实现<br>mapped-not-parity | 921 | `src/kitten4.rs:2204 (translate)`<br>仅编译器结构表证据，不表示存在普通 domain handler<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `self_change_coordinate` | `Tn6a@13975` (domain) | 已实现<br>mapped-not-parity | 880 | `src/kitten4.rs:2068 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `self_go_forward` | `Tn6a@11854` (domain) | 已实现<br>mapped-not-parity | 854 | `src/kitten4.rs:2214 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `self_rotate` | `Tn6a@11984` (domain) | 已实现<br>mapped-not-parity | 853 | `src/kitten4.rs:2216 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `wait_until` | `Qeyy@223` (compiler:LOOP_BLOCKS) | 已实现<br>mapped-not-parity | 840 | `src/kitten4.rs:2209 (translate)`<br>仅编译器结构表证据，不表示存在普通 domain handler<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `self_point_towards` | `Tn6a@12957` (domain) | 已实现<br>mapped-not-parity | 808 | `src/kitten4.rs:2217 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `self_listen` | `Tn6a@5084` (domain)<br>`oiyH@4515` (domain)<br>`Qeyy@500` (compiler:EVENT_BLOCKS) | 已实现<br>mapped-not-parity | 792 | `src/kitten4.rs:2211 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `procedures_2_defnoreturn` | `Qeyy@1057` (compiler:PROCEDURE_BLOCKS)<br>`Qeyy@1662` (compiler:HAT_BLOCKS) | 已实现<br>mapped-not-parity | 778 | `src/kitten4.rs:2228 (translate)`<br>仅编译器结构表证据，不表示存在普通 domain handler<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `when` | `oiyH@4730` (domain)<br>`Qeyy@715` (compiler:EVENT_BLOCKS) | 已实现<br>mapped-not-parity | 767 | `src/kitten4.rs:2210 (translate)`<br>`src/kitten4.rs:412 (lower_when)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `math_round` | `oiyH@3784` (domain) | 已实现<br>mapped-not-parity | 742 | `src/kitten4.rs:1996 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `self_change_effect_3` | `Tn6a@29909` (domain) | 已实现<br>partial | 735 | `src/kitten4.rs:518 (lower_block)`<br>`src/kitten4.rs:704 (lower_block)`<br>存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致<br>scope=7 降级为 noop（条件 stub，不是全积木 stub）<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `self_broadcast` | `Tn6a@4851` (domain)<br>`oiyH@4298` (domain) | 已实现<br>mapped-not-parity | 725 | `src/kitten4.rs:2212 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `dispose_clone` | `Tn6a@34922` (domain) | 已实现<br>mapped-not-parity | 698 | `src/kitten4.rs:797 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `random` | `Tn6a@6728` (domain)<br>`oiyH@5078` (domain) | 已实现<br>mapped-not-parity | 696 | `src/kitten4.rs:2031 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `self_gradually_show_hide` | `Tn6a@26539` (domain) | 已实现<br>mapped-not-parity | 682 | `src/kitten4.rs:809 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `lists_length` | `Tn6a@4379` (domain)<br>`oiyH@6999` (domain) | 已实现<br>mapped-not-parity | 647 | `src/kitten4.rs:1891 (translate)`<br>`src/kitten4.rs:1898 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `procedures_2_return_value` | `Qeyy@1234` (compiler:PROCEDURE_BLOCKS) | 已实现<br>mapped-not-parity | 591 | `src/kitten4.rs:2232 (translate)`<br>仅编译器结构表证据，不表示存在普通 domain handler<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `switch_to_screen` | `Tn6a@36119` (domain) | 已实现<br>mapped-not-parity | 534 | `src/kitten4.rs:816 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `get_current_scene` | `Tn6a@36069` (domain) | 已实现<br>mapped-not-parity | 533 | `src/kitten4.rs:705 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `get_audios` | `xQfl@26824` (domain) | 已实现<br>mapped-not-parity | 528 | `src/kitten4.rs:630 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `add_width_height_scale_2` | `Tn6a@30782` (domain) | 已实现<br>mapped-not-parity | 503 | `src/kitten4.rs:702 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `mouse_down` | `Tn6a@41323` (domain) | 已实现<br>mapped-not-parity | 483 | `src/kitten4.rs:790 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `on_keydown` | `Tn6a@76128` (responder) | 已实现<br>mapped-not-parity | 469 | `src/kitten4.rs:1934 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `play_audio_2` | `xQfl@26922` (domain) | 已实现<br>mapped-not-parity | 446 | `src/kitten4.rs:634 (lower_block)`<br>`src/kitten4.rs:637 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `logic_negate` | `oiyH@3308` (domain) | 已实现<br>mapped-not-parity | 435 | `src/kitten4.rs:2056 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `math_single` | `oiyH@3735` (domain) | 已实现<br>mapped-not-parity | 430 | `src/kitten4.rs:1962 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `self_set_rotation_type` | `Tn6a@14238` (domain) | 已实现<br>mapped-not-parity | 412 | `src/kitten4.rs:791 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `self_prev_next_style` | `Tn6a@32572` (domain) | 已实现<br>mapped-not-parity | 404 | `src/kitten4.rs:672 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `self_move_specify` | `Tn6a@13395` (domain) | 已实现<br>mapped-not-parity | 401 | `src/kitten4.rs:798 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `warp` | `Qeyy@1952` (compiler:SPECIAL_BLOCKS) | 已实现<br>mapped-not-parity | 377 | `src/kitten4.rs:2206 (translate)`<br>仅编译器结构表证据，不表示存在普通 domain handler<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `get_timer` | `Tn6a@41219` (domain)<br>`oiyH@5319` (domain) | 已实现<br>mapped-not-parity | 363 | `src/kitten4.rs:2134 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `math_trig` | `oiyH@3688` (domain) | 已实现<br>mapped-not-parity | 355 | `src/kitten4.rs:2017 (translate)`<br>`src/kitten4.rs:657 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `set_scale` | `Tn6a@30134` (domain) | 已实现<br>mapped-not-parity | 354 | `src/kitten4.rs:2219 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `math_number` | `Qeyy@1767` (compiler:ATOMIC_BLOCKS) | 已实现<br>mapped-not-parity | 42835 | `src/kitten4.rs:2238 (translate)`<br>仅编译器结构表证据，不表示存在普通 domain handler<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `variables_get` | `oiyH@4016` (domain) | 已实现<br>mapped-not-parity | 15784 | `src/kitten4.rs:1919 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `math_arithmetic` | `Tn6a@6492` (domain)<br>`oiyH@3455` (domain) | 已实现<br>mapped-not-parity | 11268 | `src/kitten4.rs:1980 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `default_value` | `oiyH@7575` (domain) | 已实现<br>mapped-not-parity | 8701 | `src/kitten4.rs:696 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `lists_get_value` | `Tn6a@3694` (domain)<br>`oiyH@6384` (domain) | 已实现<br>mapped-not-parity | 7986 | `src/kitten4.rs:1933 (translate)`<br>`src/kitten4.rs:1939 (translate)`<br>`src/kitten4.rs:1956 (translate)`<br>`src/kitten4.rs:615 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `lists_get` | `Tn6a@2985` (domain)<br>`oiyH@5840` (domain) | 已实现<br>mapped-not-parity | 7839 | `src/kitten4.rs:1928 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `logic_compare` | `oiyH@3404` (domain) | 已实现<br>mapped-not-parity | 7254 | `src/kitten4.rs:2241 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `text` | `Qeyy@1800` (compiler:ATOMIC_BLOCKS) | 已实现<br>mapped-not-parity | 6278 | `src/kitten4.rs:2239 (translate)`<br>仅编译器结构表证据，不表示存在普通 domain handler<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `controls_if` | `Qeyy@323` (compiler:IF_BLOCKS) | 已实现<br>mapped-not-parity | 6218 | `src/kitten4.rs:2247 (translate)`<br>仅编译器结构表证据，不表示存在普通 domain handler<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `procedures_2_parameter` | `Qeyy@1295` (compiler:PROCEDURE_BLOCKS) | 已实现<br>mapped-not-parity | 6098 | `src/kitten4.rs:2273 (translate)`<br>仅编译器结构表证据，不表示存在普通 domain handler<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `variables_set` | `oiyH@4098` (domain) | 已实现<br>mapped-not-parity | 4792 | `src/kitten4.rs:1919 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `procedures_2_callnoreturn` | `Qeyy@1116` (compiler:PROCEDURE_BLOCKS) | 已实现<br>mapped-not-parity | 4384 | `src/kitten4.rs:2271 (translate)`<br>仅编译器结构表证据，不表示存在普通 domain handler<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `on_running_group_activated` | `IiH9@337` (responder) | 已实现<br>mapped-not-parity | 3770 | `src/kitten4.rs:1918 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `procedures_2_callreturn` | `Qeyy@1177` (compiler:PROCEDURE_BLOCKS) | 已实现<br>mapped-not-parity | 3084 | `src/kitten4.rs:2272 (translate)`<br>仅编译器结构表证据，不表示存在普通 domain handler<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `repeat_forever` | `Qeyy@94` (compiler:LOOP_BLOCKS) | 已实现<br>mapped-not-parity | 2888 | `src/kitten4.rs:2245 (translate)`<br>仅编译器结构表证据，不表示存在普通 domain handler<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `repeat_n_times` | `Qeyy@133` (compiler:LOOP_BLOCKS) | 已实现<br>mapped-not-parity | 2689 | `src/kitten4.rs:2244 (translate)`<br>仅编译器结构表证据，不表示存在普通 domain handler<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `text_split` | `oiyH@7332` (domain) | 已实现<br>mapped-not-parity | 2595 | `src/kitten4.rs:2243 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `logic_operation` | `oiyH@3255` (domain) | 已实现<br>mapped-not-parity | 2408 | `src/kitten4.rs:2095 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `bump` | `Tn6a@38731` (domain) | 已实现<br>mapped-not-parity | 2319 | `src/kitten4.rs:315 (lower_bump)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `wait` | `oiyH@4767` (domain) | 已实现<br>mapped-not-parity | 2190 | `src/kitten4.rs:2250 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `change_variable` | `Tn6a@6548` (domain)<br>`oiyH@4837` (domain) | 已实现<br>mapped-not-parity | 2129 | `src/kitten4.rs:1923 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `get_3` | `Tn6a@38280` (domain) | 已实现<br>partial | 2049 | `src/kitten4.rs:765 (lower_block)`<br>仅显式属性/角色局部变量；未列出的属性仍不支持<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `controller_shadow` | `Tn6a@74904` (domain) | 已实现<br>mapped-not-parity | 2039 | `src/kitten4.rs:1915 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `self_disappear` | `Tn6a@26493` (domain) | 已实现<br>mapped-not-parity | 1711 | `src/kitten4.rs:2153 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `set_costume` | `Tn6a@32109` (domain) | 已实现<br>mapped-not-parity | 1557 | `src/kitten4.rs:717 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `broadcast_input` | `Tn6a@4801` (domain) | 已实现<br>mapped-not-parity | 1538 | `src/kitten4.rs:1975 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `start_on_click` | `oiyH@3832` (domain)<br>`Qeyy@1525` (compiler:HAT_BLOCKS) | 已实现<br>mapped-not-parity | 1527 | `src/kitten4.rs:1912 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `self_appear` | `Tn6a@26450` (domain) | 已实现<br>mapped-not-parity | 1386 | `src/kitten4.rs:2153 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `get_current_costume` | `Tn6a@32507` (domain) | 已实现<br>mapped-not-parity | 1384 | `src/kitten4.rs:723 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `self_set_role_camp` | `Tn6a@14907` (domain) | 已实现<br>partial | 1336 | `src/kitten4.rs:859 (lower_block)`<br>存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `self_move_to` | `Tn6a@13348` (domain) | 已实现<br>mapped-not-parity | 1304 | `src/kitten4.rs:2257 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `text_join` | `oiyH@2755` (domain) | 已实现<br>mapped-not-parity | 1284 | `src/kitten4.rs:2242 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `self_set_effect_2` | `Tn6a@29849` (domain) | 已实现<br>partial | 1228 | `src/kitten4.rs:744 (lower_block)`<br>存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `lists_replace` | `Tn6a@3504` (domain)<br>`oiyH@6247` (domain) | 已实现<br>mapped-not-parity | 1126 | `src/kitten4.rs:1932 (translate)`<br>`src/kitten4.rs:1937 (translate)`<br>`src/kitten4.rs:1956 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `set_actor_as` | `Tn6a@51080` (domain) | 已实现<br>partial | 1051 | `src/kitten4.rs:521 (lower_block)`<br>`src/engine.rs:3680 (kitten4_legacy_)`<br>刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `set_theatre_layer` | `Tn6a@31148` (domain) | 已实现<br>mapped-not-parity | 1035 | `src/kitten4.rs:806 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `start_as_a_mirror` | `Tn6a@34572` (domain)<br>`Qeyy@533` (compiler:EVENT_BLOCKS) | 已实现<br>mapped-not-parity | 1032 | `src/kitten4.rs:837 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `check_key` | `Tn6a@41596` (domain) | 已实现<br>mapped-not-parity | 1017 | `src/kitten4.rs:724 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `self_change_scale_2` | `Tn6a@30253` (domain) | 已实现<br>mapped-not-parity | 1012 | `src/kitten4.rs:742 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `mirror` | `Tn6a@34611` (domain) | 已实现<br>mapped-not-parity | 986 | `src/kitten4.rs:836 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `sprite_on_tap` | `Tn6a@75225` (responder) | 已实现<br>mapped-not-parity | 985 | `src/kitten4.rs:732 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `lists_append` | `Tn6a@3042` (domain)<br>`oiyH@5915` (domain) | 已实现<br>mapped-not-parity | 943 | `src/kitten4.rs:1932 (translate)`<br>`src/kitten4.rs:1935 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `repeat_forever_until` | `Qeyy@172` (compiler:LOOP_BLOCKS) | 已实现<br>mapped-not-parity | 921 | `src/kitten4.rs:2246 (translate)`<br>仅编译器结构表证据，不表示存在普通 domain handler<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `self_change_coordinate` | `Tn6a@13975` (domain) | 已实现<br>mapped-not-parity | 880 | `src/kitten4.rs:2110 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `self_go_forward` | `Tn6a@11854` (domain) | 已实现<br>mapped-not-parity | 854 | `src/kitten4.rs:2256 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `self_rotate` | `Tn6a@11984` (domain) | 已实现<br>mapped-not-parity | 853 | `src/kitten4.rs:2258 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `wait_until` | `Qeyy@223` (compiler:LOOP_BLOCKS) | 已实现<br>mapped-not-parity | 840 | `src/kitten4.rs:2251 (translate)`<br>仅编译器结构表证据，不表示存在普通 domain handler<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `self_point_towards` | `Tn6a@12957` (domain) | 已实现<br>mapped-not-parity | 808 | `src/kitten4.rs:2259 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `self_listen` | `Tn6a@5084` (domain)<br>`oiyH@4515` (domain)<br>`Qeyy@500` (compiler:EVENT_BLOCKS) | 已实现<br>mapped-not-parity | 792 | `src/kitten4.rs:2253 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `procedures_2_defnoreturn` | `Qeyy@1057` (compiler:PROCEDURE_BLOCKS)<br>`Qeyy@1662` (compiler:HAT_BLOCKS) | 已实现<br>mapped-not-parity | 778 | `src/kitten4.rs:2270 (translate)`<br>仅编译器结构表证据，不表示存在普通 domain handler<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `when` | `oiyH@4730` (domain)<br>`Qeyy@715` (compiler:EVENT_BLOCKS) | 已实现<br>mapped-not-parity | 767 | `src/kitten4.rs:2252 (translate)`<br>`src/kitten4.rs:419 (lower_when)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `math_round` | `oiyH@3784` (domain) | 已实现<br>mapped-not-parity | 742 | `src/kitten4.rs:2038 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `self_change_effect_3` | `Tn6a@29909` (domain) | 已实现<br>partial | 735 | `src/kitten4.rs:527 (lower_block)`<br>`src/kitten4.rs:745 (lower_block)`<br>存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致<br>scope=7 降级为 noop（条件 stub，不是全积木 stub）<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `self_broadcast` | `Tn6a@4851` (domain)<br>`oiyH@4298` (domain) | 已实现<br>mapped-not-parity | 725 | `src/kitten4.rs:2254 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `dispose_clone` | `Tn6a@34922` (domain) | 已实现<br>mapped-not-parity | 698 | `src/kitten4.rs:838 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `random` | `Tn6a@6728` (domain)<br>`oiyH@5078` (domain) | 已实现<br>mapped-not-parity | 696 | `src/kitten4.rs:2073 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `self_gradually_show_hide` | `Tn6a@26539` (domain) | 已实现<br>mapped-not-parity | 682 | `src/kitten4.rs:850 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `lists_length` | `Tn6a@4379` (domain)<br>`oiyH@6999` (domain) | 已实现<br>mapped-not-parity | 647 | `src/kitten4.rs:1933 (translate)`<br>`src/kitten4.rs:1940 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `procedures_2_return_value` | `Qeyy@1234` (compiler:PROCEDURE_BLOCKS) | 已实现<br>mapped-not-parity | 591 | `src/kitten4.rs:2274 (translate)`<br>仅编译器结构表证据，不表示存在普通 domain handler<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `switch_to_screen` | `Tn6a@36119` (domain) | 已实现<br>mapped-not-parity | 534 | `src/kitten4.rs:857 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `get_current_scene` | `Tn6a@36069` (domain) | 已实现<br>mapped-not-parity | 533 | `src/kitten4.rs:746 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `get_audios` | `xQfl@26824` (domain) | 已实现<br>mapped-not-parity | 528 | `src/kitten4.rs:646 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `add_width_height_scale_2` | `Tn6a@30782` (domain) | 已实现<br>mapped-not-parity | 503 | `src/kitten4.rs:743 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `mouse_down` | `Tn6a@41323` (domain) | 已实现<br>mapped-not-parity | 483 | `src/kitten4.rs:831 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `on_keydown` | `Tn6a@76128` (responder) | 已实现<br>mapped-not-parity | 469 | `src/kitten4.rs:1976 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `play_audio_2` | `xQfl@26922` (domain) | 已实现<br>mapped-not-parity | 446 | `src/kitten4.rs:650 (lower_block)`<br>`src/kitten4.rs:653 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `logic_negate` | `oiyH@3308` (domain) | 已实现<br>mapped-not-parity | 435 | `src/kitten4.rs:2098 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `math_single` | `oiyH@3735` (domain) | 已实现<br>mapped-not-parity | 430 | `src/kitten4.rs:2004 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `self_set_rotation_type` | `Tn6a@14238` (domain) | 已实现<br>mapped-not-parity | 412 | `src/kitten4.rs:832 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `self_prev_next_style` | `Tn6a@32572` (domain) | 已实现<br>mapped-not-parity | 404 | `src/kitten4.rs:713 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `self_move_specify` | `Tn6a@13395` (domain) | 已实现<br>mapped-not-parity | 401 | `src/kitten4.rs:839 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `warp` | `Qeyy@1952` (compiler:SPECIAL_BLOCKS) | 已实现<br>mapped-not-parity | 377 | `src/kitten4.rs:2248 (translate)`<br>仅编译器结构表证据，不表示存在普通 domain handler<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `get_timer` | `Tn6a@41219` (domain)<br>`oiyH@5319` (domain) | 已实现<br>mapped-not-parity | 363 | `src/kitten4.rs:2176 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `math_trig` | `oiyH@3688` (domain) | 已实现<br>mapped-not-parity | 355 | `src/kitten4.rs:2059 (translate)`<br>`src/kitten4.rs:698 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `set_scale` | `Tn6a@30134` (domain) | 已实现<br>mapped-not-parity | 354 | `src/kitten4.rs:2261 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
 | `physics2_enable_force` | `Tn6a@68974` (domain) | 已实现<br>partial | 317 | `src/engine/physics.rs:327 (parse)`<br>刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `text_select_changeable` | `Tn6a@5395` (domain) | 已实现<br>mapped-not-parity | 312 | `src/kitten4.rs:706 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `stamp` | `Tn6a@61615` (domain) | 已实现<br>partial | 308 | `src/kitten4.rs:800 (lower_block)`<br>存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `get_current_clone_index` | `Tn6a@35086` (domain) | 已实现<br>mapped-not-parity | 307 | `src/kitten4.rs:804 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `self_face_to` | `Tn6a@13008` (domain) | 已实现<br>mapped-not-parity | 306 | `src/kitten4.rs:799 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `math_modulo` | `oiyH@3629` (domain) | 已实现<br>mapped-not-parity | 299 | `src/kitten4.rs:2028 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `lists_delete` | `Tn6a@3112` (domain)<br>`oiyH@5984` (domain) | 已实现<br>mapped-not-parity | 297 | `src/kitten4.rs:1890 (translate)`<br>`src/kitten4.rs:1896 (translate)`<br>`src/kitten4.rs:1914 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `cloud_variables_get` | `TL4g@6147` (domain) | 已实现<br>partial | 296 | `src/kitten4.rs:567 (lower_block)`<br>云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `self_set_pen_color` | `Tn6a@60229` (domain) | 已实现<br>mapped-not-parity | 288 | `src/kitten4.rs:2225 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `shadow_text` | `Tn6a@5305` (domain) | 已实现<br>mapped-not-parity | 281 | `src/kitten4.rs:647 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `get_mouse_info` | `Tn6a@38144` (domain) | 已实现<br>mapped-not-parity | 279 | `src/kitten4.rs:687 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `self_set_position` | `Tn6a@13859` (domain) | 已实现<br>mapped-not-parity | 274 | `src/kitten4.rs:2068 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `set_velocity` | `Tn6a@54897` (domain) | 已实现<br>partial | 250 | `src/kitten4.rs:491 (lower_block)`<br>`src/engine.rs:3533 (kitten4_set_velocity)`<br>刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `text_length` | `oiyH@2862` (domain) | 已实现<br>mapped-not-parity | 244 | `src/kitten4.rs:2057 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `break` | `Qeyy@254` (compiler:LOOP_BLOCKS) | 已实现<br>mapped-not-parity | 232 | `src/kitten4.rs:2207 (translate)`<br>仅编译器结构表证据，不表示存在普通 domain handler<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `set_width_height_scale` | `Tn6a@30513` (domain) | 已实现<br>mapped-not-parity | 219 | `src/kitten4.rs:814 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `set_scene_transition` | `Tn6a@36848` (domain) | 已实现<br>partial | 215 | `src/kitten4.rs:820 (lower_block)`<br>存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `get_whole_audios` | `xQfl@26870` (domain) | 已实现<br>mapped-not-parity | 189 | `src/kitten4.rs:630 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `lists_index_of` | `Tn6a@4274` (domain)<br>`oiyH@6901` (domain) | 已实现<br>mapped-not-parity | 180 | `src/kitten4.rs:1891 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `text_select_changeable` | `Tn6a@5395` (domain) | 已实现<br>mapped-not-parity | 312 | `src/kitten4.rs:747 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `stamp` | `Tn6a@61615` (domain) | 已实现<br>partial | 308 | `src/kitten4.rs:841 (lower_block)`<br>存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `get_current_clone_index` | `Tn6a@35086` (domain) | 已实现<br>mapped-not-parity | 307 | `src/kitten4.rs:845 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `self_face_to` | `Tn6a@13008` (domain) | 已实现<br>mapped-not-parity | 306 | `src/kitten4.rs:840 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `math_modulo` | `oiyH@3629` (domain) | 已实现<br>mapped-not-parity | 299 | `src/kitten4.rs:2070 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `lists_delete` | `Tn6a@3112` (domain)<br>`oiyH@5984` (domain) | 已实现<br>mapped-not-parity | 297 | `src/kitten4.rs:1932 (translate)`<br>`src/kitten4.rs:1938 (translate)`<br>`src/kitten4.rs:1956 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `cloud_variables_get` | `TL4g@6147` (domain) | 已实现<br>partial | 296 | `src/kitten4.rs:583 (lower_block)`<br>云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `self_set_pen_color` | `Tn6a@60229` (domain) | 已实现<br>mapped-not-parity | 288 | `src/kitten4.rs:2267 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `shadow_text` | `Tn6a@5305` (domain) | 已实现<br>mapped-not-parity | 281 | `src/kitten4.rs:688 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `get_mouse_info` | `Tn6a@38144` (domain) | 已实现<br>mapped-not-parity | 279 | `src/kitten4.rs:728 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `self_set_position` | `Tn6a@13859` (domain) | 已实现<br>mapped-not-parity | 274 | `src/kitten4.rs:2110 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `set_velocity` | `Tn6a@54897` (domain) | 已实现<br>partial | 250 | `src/kitten4.rs:500 (lower_block)`<br>`src/engine.rs:3676 (kitten4_set_velocity)`<br>刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `text_length` | `oiyH@2862` (domain) | 已实现<br>mapped-not-parity | 244 | `src/kitten4.rs:2099 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `break` | `Qeyy@254` (compiler:LOOP_BLOCKS) | 已实现<br>mapped-not-parity | 232 | `src/kitten4.rs:2249 (translate)`<br>仅编译器结构表证据，不表示存在普通 domain handler<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `set_width_height_scale` | `Tn6a@30513` (domain) | 已实现<br>mapped-not-parity | 219 | `src/kitten4.rs:855 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `set_scene_transition` | `Tn6a@36848` (domain) | 已实现<br>partial | 215 | `src/kitten4.rs:861 (lower_block)`<br>存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `get_whole_audios` | `xQfl@26870` (domain) | 已实现<br>mapped-not-parity | 189 | `src/kitten4.rs:646 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `lists_index_of` | `Tn6a@4274` (domain)<br>`oiyH@6901` (domain) | 已实现<br>mapped-not-parity | 180 | `src/kitten4.rs:1933 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
 | `physics2_set_actor_as` | `Tn6a@69246` (domain) | 已实现<br>partial | 173 | `src/engine/physics.rs:328 (parse)`<br>刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `self_glide_to` | `Tn6a@14078` (domain) | 已实现<br>mapped-not-parity | 173 | `src/kitten4.rs:810 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `image_stamp` | `Tn6a@61472` (domain) | 已实现<br>partial | 165 | `src/kitten4.rs:801 (lower_block)`<br>存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `get_clone_index_property` | `Tn6a@35434` (domain) | 已实现<br>partial | 162 | `src/kitten4.rs:792 (lower_block)`<br>存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `lists_is_exist` | `Tn6a@4196` (domain)<br>`oiyH@6785` (domain) | 已实现<br>mapped-not-parity | 161 | `src/kitten4.rs:1891 (translate)`<br>`src/kitten4.rs:1899 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `cloud_variables_set` | `TL4g@6217` (domain) | 已实现<br>partial | 159 | `src/kitten4.rs:535 (lower_block)`<br>云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `lists_insert_value` | `Tn6a@3321` (domain)<br>`oiyH@6108` (domain) | 已实现<br>mapped-not-parity | 149 | `src/kitten4.rs:1890 (translate)`<br>`src/kitten4.rs:1894 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `get_answer` | `Tn6a@28180` (domain) | 已实现<br>mapped-not-parity | 145 | `src/kitten4.rs:805 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `stop_audio_2` | `xQfl@27433` (domain) | 已实现<br>mapped-not-parity | 143 | `src/kitten4.rs:634 (lower_block)`<br>`src/kitten4.rs:638 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `self_distance_to` | `Tn6a@37851` (domain) | 已实现<br>mapped-not-parity | 128 | `src/kitten4.rs:593 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `create_stage_dialog` | `Tn6a@27032` (domain) | 已实现<br>mapped-not-parity | 126 | `src/kitten4.rs:819 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `text_contain` | `oiyH@3159` (domain) | 已实现<br>mapped-not-parity | 124 | `src/kitten4.rs:2058 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `get_time` | `Tn6a@5700` (domain)<br>`oiyH@3890` (domain) | 已实现<br>mapped-not-parity | 116 | `src/kitten4.rs:813 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `change_cloud_variable` | `TL4g@6571` (domain) | 已实现<br>partial | 114 | `src/kitten4.rs:536 (lower_block)`<br>云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `self_glide_to` | `Tn6a@14078` (domain) | 已实现<br>mapped-not-parity | 173 | `src/kitten4.rs:851 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `image_stamp` | `Tn6a@61472` (domain) | 已实现<br>partial | 165 | `src/kitten4.rs:842 (lower_block)`<br>存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `get_clone_index_property` | `Tn6a@35434` (domain) | 已实现<br>partial | 162 | `src/kitten4.rs:833 (lower_block)`<br>存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `lists_is_exist` | `Tn6a@4196` (domain)<br>`oiyH@6785` (domain) | 已实现<br>mapped-not-parity | 161 | `src/kitten4.rs:1933 (translate)`<br>`src/kitten4.rs:1941 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `cloud_variables_set` | `TL4g@6217` (domain) | 已实现<br>partial | 159 | `src/kitten4.rs:551 (lower_block)`<br>云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `lists_insert_value` | `Tn6a@3321` (domain)<br>`oiyH@6108` (domain) | 已实现<br>mapped-not-parity | 149 | `src/kitten4.rs:1932 (translate)`<br>`src/kitten4.rs:1936 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `get_answer` | `Tn6a@28180` (domain) | 已实现<br>mapped-not-parity | 145 | `src/kitten4.rs:846 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `stop_audio_2` | `xQfl@27433` (domain) | 已实现<br>mapped-not-parity | 143 | `src/kitten4.rs:650 (lower_block)`<br>`src/kitten4.rs:654 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `self_distance_to` | `Tn6a@37851` (domain) | 已实现<br>mapped-not-parity | 128 | `src/kitten4.rs:609 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `create_stage_dialog` | `Tn6a@27032` (domain) | 已实现<br>mapped-not-parity | 126 | `src/kitten4.rs:860 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `text_contain` | `oiyH@3159` (domain) | 已实现<br>mapped-not-parity | 124 | `src/kitten4.rs:2100 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `get_time` | `Tn6a@5700` (domain)<br>`oiyH@3890` (domain) | 已实现<br>mapped-not-parity | 116 | `src/kitten4.rs:854 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `change_cloud_variable` | `TL4g@6571` (domain) | 已实现<br>partial | 114 | `src/kitten4.rs:552 (lower_block)`<br>云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
 | `cloud_lists_get_value` | `TL4g@8253` (domain) | 已实现<br>partial | 110 | `src/kitten4.rs:443 (cloud_list)`<br>云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `play_audio_and_wait_2` | `xQfl@27178` (domain) | 已实现<br>mapped-not-parity | 108 | `src/kitten4.rs:634 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `convert_type` | `Tn6a@2595` (domain) | 已实现<br>mapped-not-parity | 106 | `src/kitten4.rs:2030 (translate)`<br>`src/kitten4.rs:579 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `play_audio_and_wait_2` | `xQfl@27178` (domain) | 已实现<br>mapped-not-parity | 108 | `src/kitten4.rs:650 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `convert_type` | `Tn6a@2595` (domain) | 已实现<br>mapped-not-parity | 106 | `src/kitten4.rs:2072 (translate)`<br>`src/kitten4.rs:595 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
 | `physics2_set_texture` | `Tn6a@74142` (domain) | 已实现<br>partial | 103 | `src/engine/physics.rs:355 (parse)`<br>刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `logic_boolean` | `oiyH@3354` (domain) | 已实现<br>mapped-not-parity | 96 | `src/kitten4.rs:2198 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `self_enable_physics` | `Tn6a@50441` (domain) | 已实现<br>partial | 95 | `src/kitten4.rs:505 (lower_block)`<br>刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `stop` | `oiyH@5574` (domain) | 已实现<br>mapped-not-parity | 94 | `src/kitten4.rs:812 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `self_set_friction` | `Tn6a@53516` (domain) | 已实现<br>partial | 93 | `src/kitten4.rs:507 (lower_block)`<br>刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `self_set_boundary` | `Tn6a@52445` (domain) | 已实现<br>partial | 92 | `src/kitten4.rs:509 (lower_block)`<br>刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `self_set_restitution` | `Tn6a@53661` (domain) | 已实现<br>partial | 91 | `src/kitten4.rs:508 (lower_block)`<br>刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `clear_drawing` | `Tn6a@59647` (domain) | 已实现<br>mapped-not-parity | 90 | `src/kitten4.rs:2227 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `cloud_lists_append` | `TL4g@8036` (domain) | 已实现<br>partial | 83 | `src/kitten4.rs:537 (lower_block)`<br>云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `lists_copy` | `Tn6a@4442` (domain)<br>`oiyH@7197` (domain) | 已实现<br>mapped-not-parity | 81 | `src/kitten4.rs:1925 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `self_out_of_boundary` | `Tn6a@40491` (domain) | 已实现<br>mapped-not-parity | 80 | `src/kitten4.rs:775 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `set_layer_with_pen` | `Tn6a@62300` (domain) | 已实现<br>mapped-not-parity | 80 | `src/kitten4.rs:495 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `check_screen` | `Tn6a@41832` (domain) | 已实现<br>mapped-not-parity | 77 | `src/kitten4.rs:642 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `get_sensing_current_scene` | `Tn6a@41774` (domain) | 已实现<br>mapped-not-parity | 77 | `src/kitten4.rs:705 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `logic_boolean` | `oiyH@3354` (domain) | 已实现<br>mapped-not-parity | 96 | `src/kitten4.rs:2240 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `self_enable_physics` | `Tn6a@50441` (domain) | 已实现<br>partial | 95 | `src/kitten4.rs:514 (lower_block)`<br>刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `stop` | `oiyH@5574` (domain) | 已实现<br>mapped-not-parity | 94 | `src/kitten4.rs:853 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `self_set_friction` | `Tn6a@53516` (domain) | 已实现<br>partial | 93 | `src/kitten4.rs:516 (lower_block)`<br>刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `self_set_boundary` | `Tn6a@52445` (domain) | 已实现<br>partial | 92 | `src/kitten4.rs:518 (lower_block)`<br>刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `self_set_restitution` | `Tn6a@53661` (domain) | 已实现<br>partial | 91 | `src/kitten4.rs:517 (lower_block)`<br>刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `clear_drawing` | `Tn6a@59647` (domain) | 已实现<br>mapped-not-parity | 90 | `src/kitten4.rs:2269 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `cloud_lists_append` | `TL4g@8036` (domain) | 已实现<br>partial | 83 | `src/kitten4.rs:553 (lower_block)`<br>云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `lists_copy` | `Tn6a@4442` (domain)<br>`oiyH@7197` (domain) | 已实现<br>mapped-not-parity | 81 | `src/kitten4.rs:1967 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `self_out_of_boundary` | `Tn6a@40491` (domain) | 已实现<br>mapped-not-parity | 80 | `src/kitten4.rs:816 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `set_layer_with_pen` | `Tn6a@62300` (domain) | 已实现<br>mapped-not-parity | 80 | `src/kitten4.rs:504 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `check_screen` | `Tn6a@41832` (domain) | 已实现<br>mapped-not-parity | 77 | `src/kitten4.rs:683 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `get_sensing_current_scene` | `Tn6a@41774` (domain) | 已实现<br>mapped-not-parity | 77 | `src/kitten4.rs:746 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
 | `physics2_set_speed` | `Tn6a@72907` (domain) | 已实现<br>partial | 77 | `src/engine/physics.rs:349 (parse)`<br>刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `get_choice_or_index` | `Tn6a@29121` (domain) | 已实现<br>mapped-not-parity | 75 | `src/kitten4.rs:625 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `shadow_number` | `Tn6a@5349` (domain) | 已实现<br>mapped-not-parity | 73 | `src/kitten4.rs:647 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `math_number_property` | `oiyH@3508` (domain) | 已实现<br>mapped-not-parity | 71 | `src/kitten4.rs:2036 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `get_choice_or_index` | `Tn6a@29121` (domain) | 已实现<br>mapped-not-parity | 75 | `src/kitten4.rs:641 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `shadow_number` | `Tn6a@5349` (domain) | 已实现<br>mapped-not-parity | 73 | `src/kitten4.rs:688 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `math_number_property` | `oiyH@3508` (domain) | 已实现<br>mapped-not-parity | 71 | `src/kitten4.rs:2078 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
 | `physics2_set_boundary` | `Tn6a@70811` (domain) | 已实现<br>partial | 67 | `src/engine/physics.rs:332 (parse)`<br>刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `self_pen_up` | `Tn6a@59510` (domain) | 已实现<br>mapped-not-parity | 67 | `src/kitten4.rs:2223 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `username_get` | `TL4g@7677` (domain) | 设备降级<br>offline/device | 67 | `src/kitten4.rs:613 (lower_block)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义 |
-| `self_pen_down` | `Tn6a@59369` (domain) | 已实现<br>mapped-not-parity | 66 | `src/kitten4.rs:2222 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `self_glide_coordinate` | `Tn6a@14131` (domain) | 已实现<br>mapped-not-parity | 64 | `src/kitten4.rs:811 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `set_entity_show_hide` | `Tn6a@26701` (domain) | 已实现<br>partial | 64 | `src/kitten4.rs:466 (lower_block)`<br>`src/engine.rs:3173 (kitten4_entity_visibility)`<br>角色/分组/场景显隐与有限正时长并发渐变已有源码推导回归；点击状态清理、取消/删克隆、竞争渐变和非有限时长未验证；删除引用沿用通用 noop 策略（官方悬空 UUID 行为未验证）<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `user_id_get` | `TL4g@7803` (domain) | 设备降级<br>offline/device | 64 | `src/kitten4.rs:617 (lower_block)`<br>`src/kitten4.rs:618 (lower_block)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义 |
-| `clone` | `Tn6a@68255` (domain) | 已实现<br>mapped-not-parity | 57 | `src/kitten4.rs:665 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `self_set_pen_color_property` | `Tn6a@60406` (domain) | 已实现<br>mapped-not-parity | 51 | `src/kitten4.rs:2226 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `self_set_pen_size` | `Tn6a@59781` (domain) | 已实现<br>mapped-not-parity | 48 | `src/kitten4.rs:2224 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `ask_and_choose` | `Tn6a@28353` (domain) | 已实现<br>mapped-not-parity | 47 | `src/kitten4.rs:807 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `self_broadcast_and_wait` | `Tn6a@4963` (domain)<br>`oiyH@4402` (domain) | 已实现<br>mapped-not-parity | 44 | `src/kitten4.rs:2213 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `self_pen_up` | `Tn6a@59510` (domain) | 已实现<br>mapped-not-parity | 67 | `src/kitten4.rs:2265 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `username_get` | `TL4g@7677` (domain) | 设备降级<br>offline/device | 67 | `src/kitten4.rs:629 (lower_block)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义 |
+| `self_pen_down` | `Tn6a@59369` (domain) | 已实现<br>mapped-not-parity | 66 | `src/kitten4.rs:2264 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `self_glide_coordinate` | `Tn6a@14131` (domain) | 已实现<br>mapped-not-parity | 64 | `src/kitten4.rs:852 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `set_entity_show_hide` | `Tn6a@26701` (domain) | 已实现<br>partial | 64 | `src/kitten4.rs:466 (lower_block)`<br>`src/engine.rs:3276 (kitten4_entity_visibility)`<br>角色/分组/场景显隐与有限正时长并发渐变已有源码推导回归；点击状态清理、取消/删克隆、竞争渐变和非有限时长未验证；删除引用沿用通用 noop 策略（官方悬空 UUID 行为未验证）<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `user_id_get` | `TL4g@7803` (domain) | 设备降级<br>offline/device | 64 | `src/kitten4.rs:633 (lower_block)`<br>`src/kitten4.rs:634 (lower_block)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义 |
+| `clone` | `Tn6a@68255` (domain) | 已实现<br>mapped-not-parity | 57 | `src/kitten4.rs:706 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `self_set_pen_color_property` | `Tn6a@60406` (domain) | 已实现<br>mapped-not-parity | 51 | `src/kitten4.rs:2268 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `self_set_pen_size` | `Tn6a@59781` (domain) | 已实现<br>mapped-not-parity | 48 | `src/kitten4.rs:2266 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `ask_and_choose` | `Tn6a@28353` (domain) | 已实现<br>mapped-not-parity | 47 | `src/kitten4.rs:848 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `self_broadcast_and_wait` | `Tn6a@4963` (domain)<br>`oiyH@4402` (domain) | 已实现<br>mapped-not-parity | 44 | `src/kitten4.rs:2255 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
 | `physics2_set_force` | `Tn6a@73276` (domain) | 已实现<br>partial | 43 | `src/engine/physics.rs:350 (parse)`<br>刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `self_ask` | `Tn6a@27779` (domain) | 已实现<br>mapped-not-parity | 42 | `src/kitten4.rs:806 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `logic_empty` | `Qeyy@1890` (compiler:SPECIAL_BLOCKS) | 已实现<br>mapped-not-parity | 37 | `src/kitten4.rs:583 (lower_block)`<br>仅编译器结构表证据，不表示存在普通 domain handler<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `show_hide_variable` | `Tn6a@2782` (domain) | 已实现<br>mapped-not-parity | 37 | `src/kitten4.rs:786 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `self_rotate_around` | `Tn6a@14475` (domain) | 已实现<br>mapped-not-parity | 36 | `src/kitten4.rs:815 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `set_volume_or_rate_2` | `xQfl@30673` (domain) | 已实现<br>mapped-not-parity | 35 | `src/kitten4.rs:671 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `self_dialog` | `Tn6a@27719` (domain) | 已实现<br>mapped-not-parity | 34 | `src/kitten4.rs:2220 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `self_ask` | `Tn6a@27779` (domain) | 已实现<br>mapped-not-parity | 42 | `src/kitten4.rs:847 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `logic_empty` | `Qeyy@1890` (compiler:SPECIAL_BLOCKS) | 已实现<br>mapped-not-parity | 37 | `src/kitten4.rs:599 (lower_block)`<br>仅编译器结构表证据，不表示存在普通 domain handler<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `show_hide_variable` | `Tn6a@2782` (domain) | 已实现<br>mapped-not-parity | 37 | `src/kitten4.rs:827 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `self_rotate_around` | `Tn6a@14475` (domain) | 已实现<br>mapped-not-parity | 36 | `src/kitten4.rs:856 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `set_volume_or_rate_2` | `xQfl@30673` (domain) | 已实现<br>mapped-not-parity | 35 | `src/kitten4.rs:712 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `self_dialog` | `Tn6a@27719` (domain) | 已实现<br>mapped-not-parity | 34 | `src/kitten4.rs:2262 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
 | `physics2_forbid_bump_with` | `Tn6a@69539` (domain) | 已实现<br>partial | 33 | `src/engine/physics.rs:339 (parse)`<br>刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `set_timer_state` | `Tn6a@40885` (domain) | 已实现<br>mapped-not-parity | 33 | `src/kitten4.rs:2135 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `cloud_lists_delete` | `TL4g@8159` (domain) | 已实现<br>partial | 32 | `src/kitten4.rs:539 (lower_block)`<br>云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `get_stage_info` | `Tn6a@38640` (domain) | 已实现<br>partial | 32 | `src/kitten4.rs:794 (lower_block)`<br>存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `show_hide_list` | `Tn6a@4606` (domain) | 已实现<br>mapped-not-parity | 32 | `src/kitten4.rs:575 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `set_timer_state` | `Tn6a@40885` (domain) | 已实现<br>mapped-not-parity | 33 | `src/kitten4.rs:2177 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `cloud_lists_delete` | `TL4g@8159` (domain) | 已实现<br>partial | 32 | `src/kitten4.rs:555 (lower_block)`<br>云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `get_stage_info` | `Tn6a@38640` (domain) | 已实现<br>partial | 32 | `src/kitten4.rs:835 (lower_block)`<br>存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `show_hide_list` | `Tn6a@4606` (domain) | 已实现<br>mapped-not-parity | 32 | `src/kitten4.rs:591 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
 | `cloud_lists_length` | `TL4g@8465` (domain) | 已实现<br>partial | 28 | `src/kitten4.rs:443 (cloud_list)`<br>云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
 | `physics2_set_resilience` | `Tn6a@72029` (domain) | 已实现<br>partial | 27 | `src/engine/physics.rs:354 (parse)`<br>刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `set_pen_path` | `Tn6a@62027` (domain) | 已实现<br>mapped-not-parity | 26 | `src/kitten4.rs:558 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `cloud_lists_replace` | `TL4g@8205` (domain) | 已实现<br>partial | 24 | `src/kitten4.rs:540 (lower_block)`<br>云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `get_clone_num` | `Tn6a@35165` (domain) | 已实现<br>mapped-not-parity | 22 | `src/kitten4.rs:793 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `dispose` | `Tn6a@37175` (domain) | 已实现<br>mapped-not-parity | 20 | `src/kitten4.rs:664 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `set_pen_path` | `Tn6a@62027` (domain) | 已实现<br>mapped-not-parity | 26 | `src/kitten4.rs:574 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `cloud_lists_replace` | `TL4g@8205` (domain) | 已实现<br>partial | 24 | `src/kitten4.rs:556 (lower_block)`<br>云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `get_clone_num` | `Tn6a@35165` (domain) | 已实现<br>mapped-not-parity | 22 | `src/kitten4.rs:834 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `dispose` | `Tn6a@37175` (domain) | 已实现<br>mapped-not-parity | 20 | `src/kitten4.rs:705 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
 | `physics2_set_roughness` | `Tn6a@71736` (domain) | 已实现<br>partial | 20 | `src/engine/physics.rs:353 (parse)`<br>刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `tell` | `Qeyy@1871` (compiler:SPECIAL_BLOCKS) | 已实现<br>mapped-not-parity | 20 | `src/kitten4.rs:802 (lower_block)`<br>仅编译器结构表证据，不表示存在普通 domain handler<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `divisible_by` | `oiyH@3572` (domain) | 已实现<br>mapped-not-parity | 19 | `src/kitten4.rs:2035 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `restart` | `oiyH@5519` (domain) | 已实现<br>mapped-not-parity | 19 | `src/kitten4.rs:808 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `tell` | `Qeyy@1871` (compiler:SPECIAL_BLOCKS) | 已实现<br>mapped-not-parity | 20 | `src/kitten4.rs:843 (lower_block)`<br>仅编译器结构表证据，不表示存在普通 domain handler<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `divisible_by` | `oiyH@3572` (domain) | 已实现<br>mapped-not-parity | 19 | `src/kitten4.rs:2077 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `restart` | `oiyH@5519` (domain) | 已实现<br>mapped-not-parity | 19 | `src/kitten4.rs:849 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
 | `physics2_allow_rotate` | `Tn6a@70169` (domain) | 已实现<br>partial | 18 | `src/engine/physics.rs:331 (parse)`<br>刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `self_bounce_off_edge` | `Tn6a@12802` (domain) | 已实现<br>mapped-not-parity | 17 | `src/kitten4.rs:2218 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `self_change_pen_color_property_2` | `Tn6a@60898` (domain) | 已实现<br>mapped-not-parity | 17 | `src/kitten4.rs:2133 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `show_hide_timer` | `Tn6a@40760` (domain) | 已实现<br>mapped-not-parity | 17 | `src/kitten4.rs:2136 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `self_clear_effects` | `Tn6a@29979` (domain) | 已实现<br>partial | 16 | `src/kitten4.rs:553 (lower_block)`<br>存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `self_dialog_wait` | `Tn6a@27657` (domain) | 已实现<br>mapped-not-parity | 16 | `src/kitten4.rs:2221 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `self_flip` | `Tn6a@31914` (domain) | 已实现<br>mapped-not-parity | 16 | `src/kitten4.rs:666 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `set_fill_style` | `Tn6a@61849` (domain) | 已实现<br>mapped-not-parity | 16 | `src/kitten4.rs:566 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `continue_pause_video` | `Tn6a@49809` (domain) | stub<br>no-effect | 14 | `src/kitten4.rs:438 (is_stub)`<br>is_stub 明确列出：无效果或固定返回值；不视为完整实现 |
+| `self_bounce_off_edge` | `Tn6a@12802` (domain) | 已实现<br>mapped-not-parity | 17 | `src/kitten4.rs:2260 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `self_change_pen_color_property_2` | `Tn6a@60898` (domain) | 已实现<br>mapped-not-parity | 17 | `src/kitten4.rs:2175 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `show_hide_timer` | `Tn6a@40760` (domain) | 已实现<br>mapped-not-parity | 17 | `src/kitten4.rs:2178 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `self_clear_effects` | `Tn6a@29979` (domain) | 已实现<br>partial | 16 | `src/kitten4.rs:569 (lower_block)`<br>存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `self_dialog_wait` | `Tn6a@27657` (domain) | 已实现<br>mapped-not-parity | 16 | `src/kitten4.rs:2263 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `self_flip` | `Tn6a@31914` (domain) | 已实现<br>mapped-not-parity | 16 | `src/kitten4.rs:707 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `set_fill_style` | `Tn6a@61849` (domain) | 已实现<br>mapped-not-parity | 16 | `src/kitten4.rs:582 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `continue_pause_video` | `Tn6a@49809` (domain) | 已实现<br>mapped-not-parity | 14 | `src/kitten4.rs:544 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
 | `physics2_set_gravity` | `Tn6a@70397` (domain) | 已实现<br>partial | 14 | `src/engine/physics.rs:348 (parse)`<br>刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `show_hide_cloud_list` | `TL4g@8722` (domain) | 已实现<br>partial | 13 | `src/kitten4.rs:575 (lower_block)`<br>云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `show_hide_cloud_variable` | `TL4g@7234` (domain) | 已实现<br>partial | 13 | `src/kitten4.rs:571 (lower_block)`<br>云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `change_volume_or_rate_2` | `xQfl@30973` (domain) | 已实现<br>mapped-not-parity | 12 | `src/kitten4.rs:671 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `show_hide_cloud_list` | `TL4g@8722` (domain) | 已实现<br>partial | 13 | `src/kitten4.rs:591 (lower_block)`<br>云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `show_hide_cloud_variable` | `TL4g@7234` (domain) | 已实现<br>partial | 13 | `src/kitten4.rs:587 (lower_block)`<br>云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `change_volume_or_rate_2` | `xQfl@30973` (domain) | 已实现<br>mapped-not-parity | 12 | `src/kitten4.rs:712 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
 | `cloud_lists_is_exist` | `TL4g@8538` (domain) | 已实现<br>partial | 11 | `src/kitten4.rs:443 (cloud_list)`<br>云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `self_shake` | `Tn6a@12136` (domain) | stub<br>no-effect | 10 | `src/kitten4.rs:435 (is_stub)`<br>is_stub 明确列出：无效果或固定返回值；不视为完整实现 |
-| `show_ranking` | `TL4g@7375` (domain) | 已实现<br>partial | 10 | `src/kitten4.rs:541 (lower_block)`<br>云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `set_camera_status` | `Tn6a@63344` (domain) | 设备降级<br>offline/device | 9 | `src/kitten4.rs:432 (is_stub)`<br>is_stub 明确列出：无效果或固定返回值；不视为完整实现<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义 |
-| `backdrop_on_change` | `Tn6a@77600` (responder) | 已实现<br>mapped-not-parity | 8 | `src/kitten4.rs:666 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `check_running_device` | `Tn6a@2415` (domain) | 设备降级<br>offline/device | 7 | `src/kitten4.rs:587 (lower_block)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义 |
-| `self_set_draggable` | `Tn6a@14753` (domain) | 已实现<br>partial | 7 | `src/kitten4.rs:817 (lower_block)`<br>存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `connected_users_get` | `TL4g@7914` (domain) | 设备降级<br>offline/device | 6 | `src/kitten4.rs:617 (lower_block)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义 |
-| `enable_voice_detection` | `xQfl@30425` (domain) | 设备降级<br>offline/device | 6 | `src/kitten4.rs:428 (is_stub)`<br>is_stub 明确列出：无效果或固定返回值；不视为完整实现<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义 |
-| `play_video` | `Tn6a@49311` (domain) | stub<br>no-effect | 6 | `src/kitten4.rs:436 (is_stub)`<br>is_stub 明确列出：无效果或固定返回值；不视为完整实现 |
-| `get_running_device` | `Tn6a@2342` (domain) | 设备降级<br>offline/device | 5 | `src/kitten4.rs:621 (lower_block)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义 |
-| `calculate` | `oiyH@7051` (domain) | 已实现<br>mapped-not-parity | 4 | `src/kitten4.rs:554 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `show_hide_video` | `Tn6a@49722` (domain) | stub<br>no-effect | 4 | `src/kitten4.rs:439 (is_stub)`<br>is_stub 明确列出：无效果或固定返回值；不视为完整实现 |
-| `bump_into_color` | `Tn6a@40194` (domain) | 已实现<br>mapped-not-parity | 3 | `src/kitten4.rs:365 (lower_node)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `self_shake` | `Tn6a@12136` (domain) | 已实现<br>partial | 10 | `src/kitten4/common.rs:10 (lower_common)`<br>5 单位四方向逐更新抖动、阻塞及归位已有源码推导回归；与官方任务队列的逐帧相位/结束续接、物理刚体受力、竞争移动及取消未验证<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `show_ranking` | `TL4g@7375` (domain) | 已实现<br>partial | 10 | `src/kitten4.rs:557 (lower_block)`<br>云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `set_camera_status` | `Tn6a@63344` (domain) | 设备降级<br>offline/device | 9 | `src/kitten4.rs:439 (is_stub)`<br>is_stub 明确列出：无效果或固定返回值；不视为完整实现<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义 |
+| `backdrop_on_change` | `Tn6a@77600` (responder) | 已实现<br>mapped-not-parity | 8 | `src/kitten4.rs:707 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `check_running_device` | `Tn6a@2415` (domain) | 设备降级<br>offline/device | 7 | `src/kitten4.rs:603 (lower_block)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义 |
+| `self_set_draggable` | `Tn6a@14753` (domain) | 已实现<br>partial | 7 | `src/kitten4.rs:858 (lower_block)`<br>存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `connected_users_get` | `TL4g@7914` (domain) | 设备降级<br>offline/device | 6 | `src/kitten4.rs:633 (lower_block)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义 |
+| `enable_voice_detection` | `xQfl@30425` (domain) | 设备降级<br>offline/device | 6 | `src/kitten4.rs:435 (is_stub)`<br>is_stub 明确列出：无效果或固定返回值；不视为完整实现<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义 |
+| `play_video` | `Tn6a@49311` (domain) | 已实现<br>mapped-not-parity | 6 | `src/kitten4.rs:544 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `get_running_device` | `Tn6a@2342` (domain) | 设备降级<br>offline/device | 5 | `src/kitten4.rs:637 (lower_block)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义 |
+| `calculate` | `oiyH@7051` (domain) | 已实现<br>mapped-not-parity | 4 | `src/kitten4.rs:570 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `show_hide_video` | `Tn6a@49722` (domain) | 已实现<br>mapped-not-parity | 4 | `src/kitten4.rs:544 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `bump_into_color` | `Tn6a@40194` (domain) | 已实现<br>mapped-not-parity | 3 | `src/kitten4.rs:372 (lower_node)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
 | `cloud_lists_index_of` | `TL4g@8631` (domain) | 已实现<br>partial | 3 | `src/kitten4.rs:443 (cloud_list)`<br>云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `get_voice_volume` | `xQfl@30609` (domain) | 设备降级<br>offline/device | 3 | `src/kitten4.rs:519 (lower_block)`<br>`src/kitten4.rs:429 (is_stub)`<br>is_stub 明确列出：无效果或固定返回值；不视为完整实现<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义 |
-| `physics2_set_flexibility` | `Tn6a@74470` (domain) | stub<br>no-effect | 3 | `src/engine/physics.rs:362 (parse)`<br>`src/kitten4.rs:427 (is_stub)`<br>is_stub 明确列出：无效果或固定返回值；不视为完整实现<br>刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md |
-| `play_words_audio_wait` | `xQfl@27938` (domain) | stub<br>no-effect | 3 | `src/kitten4.rs:434 (is_stub)`<br>is_stub 明确列出：无效果或固定返回值；不视为完整实现 |
-| `on_swipe` | `Tn6a@75853` (responder) | 已实现<br>mapped-not-parity | 2 | `src/kitten4.rs:666 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `get_voice_volume` | `xQfl@30609` (domain) | 设备降级<br>offline/device | 3 | `src/kitten4.rs:528 (lower_block)`<br>`src/kitten4.rs:436 (is_stub)`<br>is_stub 明确列出：无效果或固定返回值；不视为完整实现<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义 |
+| `physics2_set_flexibility` | `Tn6a@74470` (domain) | stub<br>no-effect | 3 | `src/engine/physics.rs:362 (parse)`<br>`src/kitten4.rs:434 (is_stub)`<br>is_stub 明确列出：无效果或固定返回值；不视为完整实现<br>刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md |
+| `play_words_audio_wait` | `xQfl@27938` (domain) | 已实现<br>mapped-not-parity | 3 | `src/kitten4.rs:667 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `on_swipe` | `Tn6a@75853` (responder) | 已实现<br>mapped-not-parity | 2 | `src/kitten4.rs:707 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
 | `physics2_set_force_in_time` | `Tn6a@73636` (domain) | 已实现<br>partial | 2 | `src/engine/physics.rs:351 (parse)`<br>刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `self_change_layer` | `Tn6a@33238` (domain) | 已实现<br>mapped-not-parity | 2 | `src/kitten4.rs:594 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `self_disable_physics` | `Tn6a@50777` (domain) | 已实现<br>partial | 2 | `src/kitten4.rs:506 (lower_block)`<br>刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `sync_tell` | `Qeyy@1923` (compiler:SPECIAL_BLOCKS) | 已实现<br>mapped-not-parity | 2 | `src/kitten4.rs:803 (lower_block)`<br>仅编译器结构表证据，不表示存在普通 domain handler<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `is_ranking_show_hide` | `TL4g@7588` (domain) | 已实现<br>partial | 1 | `src/kitten4.rs:543 (lower_block)`<br>云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `play_video_until_end` | `Tn6a@49469` (domain) | stub<br>no-effect | 1 | `src/kitten4.rs:437 (is_stub)`<br>is_stub 明确列出：无效果或固定返回值；不视为完整实现 |
-| `play_words_audio` | `xQfl@27747` (domain) | stub<br>no-effect | 1 | `src/kitten4.rs:433 (is_stub)`<br>is_stub 明确列出：无效果或固定返回值；不视为完整实现 |
-| `terminate` | `oiyH@5395` (domain) | 已实现<br>mapped-not-parity | 1 | `src/kitten4.rs:667 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `wood_block_get` | `Tn6a@67346` (domain)<br>`fhSb@368` (domain) | 设备降级<br>offline/device | 1 | `src/kitten4.rs:519 (lower_block)`<br>`src/kitten4.rs:526 (lower_block)`<br>`src/kitten4.rs:431 (is_stub)`<br>is_stub 明确列出：无效果或固定返回值；不视为完整实现<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方 fhSb 玩家覆盖也返回 NaN，不执行 Python；这不是 Python 功能支持 |
-| `wood_block_set` | `Tn6a@67770` (domain)<br>`fhSb@410` (domain) | 设备降级<br>offline/device | 1 | `src/kitten4.rs:430 (is_stub)`<br>is_stub 明确列出：无效果或固定返回值；不视为完整实现<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义 |
+| `self_change_layer` | `Tn6a@33238` (domain) | 已实现<br>mapped-not-parity | 2 | `src/kitten4.rs:610 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `self_disable_physics` | `Tn6a@50777` (domain) | 已实现<br>partial | 2 | `src/kitten4.rs:515 (lower_block)`<br>刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `sync_tell` | `Qeyy@1923` (compiler:SPECIAL_BLOCKS) | 已实现<br>mapped-not-parity | 2 | `src/kitten4.rs:844 (lower_block)`<br>仅编译器结构表证据，不表示存在普通 domain handler<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `is_ranking_show_hide` | `TL4g@7588` (domain) | 已实现<br>partial | 1 | `src/kitten4.rs:559 (lower_block)`<br>云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `play_video_until_end` | `Tn6a@49469` (domain) | 已实现<br>mapped-not-parity | 1 | `src/kitten4.rs:544 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `play_words_audio` | `xQfl@27747` (domain) | 已实现<br>mapped-not-parity | 1 | `src/kitten4.rs:667 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `terminate` | `oiyH@5395` (domain) | 已实现<br>mapped-not-parity | 1 | `src/kitten4.rs:708 (lower_block)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `wood_block_get` | `Tn6a@67346` (domain)<br>`fhSb@368` (domain) | 设备降级<br>offline/device | 1 | `src/kitten4.rs:528 (lower_block)`<br>`src/kitten4.rs:535 (lower_block)`<br>`src/kitten4.rs:438 (is_stub)`<br>is_stub 明确列出：无效果或固定返回值；不视为完整实现<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方 fhSb 玩家覆盖也返回 NaN，不执行 Python；这不是 Python 功能支持 |
+| `wood_block_set` | `Tn6a@67770` (domain)<br>`fhSb@410` (domain) | 设备降级<br>offline/device | 1 | `src/kitten4.rs:437 (is_stub)`<br>is_stub 明确列出：无效果或固定返回值；不视为完整实现<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义 |
 | `add_width_height_scale` | `Tn6a@33316` (domain) | 已实现<br>mapped-not-parity | 0 | `src/kitten4/aliases.rs:39 (lower_legacy_alias)`<br>`src/kitten4/aliases.rs:44 (lower_legacy_alias)`<br>legacy alias 归一化；继承目标积木的字段、子选项与运行时限制<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `allow_rotate` | `Tn6a@51496` (domain) | 已实现<br>partial | 0 | `src/kitten4.rs:513 (lower_block)`<br>刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `allow_rotate` | `Tn6a@51496` (domain) | 已实现<br>partial | 0 | `src/kitten4.rs:522 (lower_block)`<br>刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
 | `block_on_break` | `Qeyy@676` (compiler:EVENT_BLOCKS) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>仅编译器结构表证据，不表示存在普通 domain handler |
-| `buzzer_play_midi` | `ls7Z@1778` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `buzzer_sound` | `ls7Z@637` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `car_light_on` | `ls7Z@1700` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `change_volume_or_rate` | `xQfl@32400` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
+| `buzzer_play_midi` | `ls7Z@1778` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:75 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `buzzer_sound` | `ls7Z@637` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:69 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `car_light_on` | `ls7Z@1700` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:73 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `change_volume_or_rate` | `xQfl@32400` (domain) | 已实现<br>partial | 0 | `src/kitten4.rs:674 (lower_block)`<br>`src/kitten4/audio_aliases.rs:22 (lower_audio_alias)`<br>legacy 音频已回归：动态目标及有符号增量已纠偏；严格 ID、非有限增量、内部 lock/improvise、微信录音分支仍有限制，见 kitten4-audio-aliases.md<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
 | `cloud_lists_get` | `TL4g@7958` (domain) | 已实现<br>partial | 0 | `src/kitten4.rs:443 (cloud_list)`<br>云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `cloud_lists_insert_value` | `TL4g@8107` (domain) | 已实现<br>partial | 0 | `src/kitten4.rs:538 (lower_block)`<br>云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `cloud_lists_insert_value` | `TL4g@8107` (domain) | 已实现<br>partial | 0 | `src/kitten4.rs:554 (lower_block)`<br>云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
 | `controls_if_dropdown` | `Qeyy@405` (compiler:IF_BLOCKS) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>仅编译器结构表证据，不表示存在普通 domain handler |
-| `controls_if_no_else` | `Qeyy@356` (compiler:IF_BLOCKS) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>仅编译器结构表证据，不表示存在普通 domain handler |
-| `days_after_2000` | `oiyH@4181` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
-| `dc_both_motor_speed` | `ls7Z@591` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `dc_both_motor_turn` | `ls7Z@546` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `dc_single_motor_speed` | `ls7Z@498` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `dc_single_motor_turn` | `ls7Z@451` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
+| `controls_if_no_else` | `Qeyy@356` (compiler:IF_BLOCKS) | 已实现<br>mapped-not-parity | 0 | `src/kitten4/common.rs:56 (lower_common)`<br>仅编译器结构表证据，不表示存在普通 domain handler<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `days_after_2000` | `oiyH@4181` (domain) | 已实现<br>mapped-not-parity | 0 | `src/kitten4/common.rs:41 (lower_common)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `dc_both_motor_speed` | `ls7Z@591` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:68 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `dc_both_motor_turn` | `ls7Z@546` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:67 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `dc_single_motor_speed` | `ls7Z@498` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:66 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `dc_single_motor_turn` | `ls7Z@451` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:65 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
 | `destruct` | `oiyH@5254` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
-| `dht11_get_temp_humi` | `ls7Z@1252` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `digital_show` | `ls7Z@1739` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
+| `dht11_get_temp_humi` | `ls7Z@1252` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:27 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `digital_show` | `ls7Z@1739` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:74 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
 | `display_recognition_result` | `Tn6a@65507` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
-| `fan_speed` | `ls7Z@1821` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
+| `fan_speed` | `ls7Z@1821` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:76 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
 | `get` | `Tn6a@42387` (domain) | 已实现<br>partial | 0 | `src/kitten4/aliases.rs:74 (lower_legacy_alias)`<br>legacy alias 归一化；继承目标积木的字段、子选项与运行时限制<br>仅显式属性/角色局部变量；未列出的属性仍不支持<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `get_2` | `Tn6a@42434` (domain) | 已实现<br>partial | 0 | `src/kitten4.rs:2137 (translate)`<br>仅坐标 0/1 与方向 3；其他属性走后续 lowering 或仍不支持<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `get_analog_port_value` | `ls7Z@277` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `get_camera_data` | `Tn6a@63918` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
+| `get_2` | `Tn6a@42434` (domain) | 已实现<br>partial | 0 | `src/kitten4.rs:2179 (translate)`<br>仅坐标 0/1 与方向 3；其他属性走后续 lowering 或仍不支持<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `get_analog_port_value` | `ls7Z@277` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:61 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md<br>官方提示后返回 undefined：仅命令上下文降级；表达式上下文明确拒绝编译，不伪造 NaN/0 |
+| `get_camera_data` | `Tn6a@63918` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/common.rs:80 (lower_common)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义 |
 | `get_choice` | `Tn6a@33908` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
 | `get_choice_index` | `Tn6a@33969` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
 | `get_cur_frames` | `oiyH@3936` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
-| `get_distance` | `ls7Z@2042` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `get_light_sensor_intensity` | `ls7Z@879` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `get_mobile_rocker_value` | `Tn6a@58299` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
-| `get_mobile_slope_value` | `Tn6a@58029` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
-| `get_orientation` | `Tn6a@42128` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
-| `get_physics_property` | `Tn6a@54388` (domain) | 已实现<br>partial | 0 | `src/kitten4.rs:499 (lower_block)`<br>刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `get_potentiometer_turn_angle` | `ls7Z@1426` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `get_press_intensity` | `ls7Z@1295` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
+| `get_distance` | `ls7Z@2042` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:36 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `get_light_sensor_intensity` | `ls7Z@879` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:18 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `get_mobile_rocker_value` | `Tn6a@58299` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/common.rs:69 (lower_common)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义 |
+| `get_mobile_slope_value` | `Tn6a@58029` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/common.rs:69 (lower_common)`<br>`src/kitten4/common.rs:71 (lower_common)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义 |
+| `get_orientation` | `Tn6a@42128` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/common.rs:63 (lower_common)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义 |
+| `get_physics_property` | `Tn6a@54388` (domain) | 已实现<br>partial | 0 | `src/kitten4.rs:508 (lower_block)`<br>刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `get_potentiometer_turn_angle` | `ls7Z@1426` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:31 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `get_press_intensity` | `ls7Z@1295` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:28 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
 | `get_recognition_result` | `Tn6a@66019` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
-| `get_resistance_intensity` | `ls7Z@1478` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `get_sound_intensity` | `ls7Z@800` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `get_temp_humi` | `ls7Z@2178` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
+| `get_resistance_intensity` | `ls7Z@1478` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:32 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `get_sound_intensity` | `ls7Z@800` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:16 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `get_temp_humi` | `ls7Z@2178` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:39 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
 | `get_voice_answer` | `xQfl@29026` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
-| `grayscale_sensor_get` | `ls7Z@1382` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `hcsr04_get_distance` | `ls7Z@1209` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `hide_ranking` | `TL4g@7546` (domain) | 已实现<br>partial | 0 | `src/kitten4.rs:542 (lower_block)`<br>云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `grayscale_sensor_get` | `ls7Z@1382` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:30 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `hcsr04_get_distance` | `ls7Z@1209` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:26 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `hide_ranking` | `TL4g@7546` (domain) | 已实现<br>partial | 0 | `src/kitten4.rs:558 (lower_block)`<br>云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
 | `incompatible_block` | `Tn6a@2245` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
 | `incompatible_output_block` | `Tn6a@2290` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
-| `infrared_sensor_switch` | `ls7Z@1006` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `is_button_pressed` | `ls7Z@965` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `is_digital_port_status` | `ls7Z@228` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `is_get_high_temp` | `ls7Z@1130` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `is_get_light` | `ls7Z@843` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `is_get_magnetic` | `ls7Z@1170` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `is_get_sound` | `ls7Z@764` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `is_get_sport` | `ls7Z@1094` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `is_infrared_control` | `ls7Z@2471` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `is_joystick_pressed` | `ls7Z@1614` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `is_sensor_get_line` | `ls7Z@1052` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `is_switch_on` | `ls7Z@929` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `is_touch_sensor_switch` | `ls7Z@2425` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `joystick_get_x_value` | `ls7Z@1526` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `joystick_get_y_value` | `ls7Z@1570` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `led_light` | `ls7Z@369` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `led_light_intensity` | `ls7Z@405` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `led_light_on` | `ls7Z@1661` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `microbit_clear_screen` | `ls7Z@3009` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `microbit_display_custom_lattice_image` | `ls7Z@2731` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `microbit_display_lattice_image` | `ls7Z@2674` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `microbit_display_text` | `ls7Z@2795` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `microbit_get_acceleration` | `ls7Z@3195` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `microbit_get_compass_field_strength` | `ls7Z@3396` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `microbit_get_compass_heading` | `ls7Z@3344` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `microbit_get_incline_angle` | `ls7Z@3145` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `microbit_get_light_intensity` | `ls7Z@3244` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `microbit_get_temperature` | `ls7Z@3296` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `microbit_is_incline` | `ls7Z@3102` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `microbit_is_pin_level` | `ls7Z@3455` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `microbit_is_press_key` | `ls7Z@3057` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `microbit_set_light_intensity` | `ls7Z@2843` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `microbit_set_xy_light_intensity` | `ls7Z@2898` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `microbit_turn_off_xy_light` | `ls7Z@2956` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `microbit_when_be_operated` | `ls7Z@2635` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `microbit_when_incline` | `ls7Z@2600` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `microbit_when_press_key` | `ls7Z@2563` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
+| `infrared_sensor_switch` | `ls7Z@1006` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:21 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `is_button_pressed` | `ls7Z@965` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:20 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `is_digital_port_status` | `ls7Z@228` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:60 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md<br>官方提示后返回 undefined：仅命令上下文降级；表达式上下文明确拒绝编译，不伪造 NaN/0 |
+| `is_get_high_temp` | `ls7Z@1130` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:24 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `is_get_light` | `ls7Z@843` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:17 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `is_get_magnetic` | `ls7Z@1170` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:25 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `is_get_sound` | `ls7Z@764` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:15 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `is_get_sport` | `ls7Z@1094` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:23 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `is_infrared_control` | `ls7Z@2471` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:45 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `is_joystick_pressed` | `ls7Z@1614` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:35 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `is_sensor_get_line` | `ls7Z@1052` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:22 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `is_switch_on` | `ls7Z@929` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:19 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `is_touch_sensor_switch` | `ls7Z@2425` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:44 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `joystick_get_x_value` | `ls7Z@1526` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:33 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `joystick_get_y_value` | `ls7Z@1570` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:34 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `led_light` | `ls7Z@369` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:63 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `led_light_intensity` | `ls7Z@405` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:64 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `led_light_on` | `ls7Z@1661` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:72 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `microbit_clear_screen` | `ls7Z@3009` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:87 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `microbit_display_custom_lattice_image` | `ls7Z@2731` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:82 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `microbit_display_lattice_image` | `ls7Z@2674` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:81 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `microbit_display_text` | `ls7Z@2795` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:83 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `microbit_get_acceleration` | `ls7Z@3195` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:50 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `microbit_get_compass_field_strength` | `ls7Z@3396` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:54 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `microbit_get_compass_heading` | `ls7Z@3344` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:53 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `microbit_get_incline_angle` | `ls7Z@3145` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:49 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `microbit_get_light_intensity` | `ls7Z@3244` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:51 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `microbit_get_temperature` | `ls7Z@3296` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:52 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `microbit_is_incline` | `ls7Z@3102` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:48 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `microbit_is_pin_level` | `ls7Z@3455` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:55 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `microbit_is_press_key` | `ls7Z@3057` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:47 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `microbit_set_light_intensity` | `ls7Z@2843` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:84 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `microbit_set_xy_light_intensity` | `ls7Z@2898` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:85 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `microbit_turn_off_xy_light` | `ls7Z@2956` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:86 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `microbit_when_be_operated` | `ls7Z@2635` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:88 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `microbit_when_incline` | `ls7Z@2600` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:88 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `microbit_when_press_key` | `ls7Z@2563` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:88 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
 | `midi_get` | `xQfl@28986` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
 | `midi_play_note` | `xQfl@28306` (domain)<br>`Qeyy@1409` (compiler:MIDI_BLOCKS) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
 | `midi_play_num_note` | `xQfl@28559` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
 | `midi_wait` | `xQfl@28229` (domain)<br>`Qeyy@1448` (compiler:MIDI_BLOCKS) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
-| `mobile_vibrate` | `Tn6a@58566` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
+| `mobile_vibrate` | `Tn6a@58566` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/common.rs:78 (lower_common)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义 |
 | `mouse_on_emit` | `Qeyy@639` (compiler:EVENT_BLOCKS) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>仅编译器结构表证据，不表示存在普通 domain handler |
 | `multiline_text` | `oiyH@7527` (domain) | 已实现<br>mapped-not-parity | 0 | `src/kitten4/aliases.rs:75 (lower_legacy_alias)`<br>legacy alias 归一化；继承目标积木的字段、子选项与运行时限制<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
 | `on_mobile_click_btn` | `Tn6a@58661` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
@@ -417,11 +420,11 @@ Markdown 与同名 JSON 都是生成物；mapping 行号反映生成当时本仓
 | `on_mobile_slope` | `Tn6a@76888` (responder) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
 | `on_shake` | `Tn6a@6050` (domain)<br>`Tn6a@91185` (responder) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
 | `on_tilt` | `Tn6a@6085` (domain)<br>`Tn6a@91325` (responder) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
-| `physics2_get_property` | `Tn6a@72329` (domain) | 已实现<br>partial | 0 | `src/engine.rs:2444 (physics2_get_property)`<br>刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `physics2_get_property` | `Tn6a@72329` (domain) | 已实现<br>partial | 0 | `src/engine.rs:2518 (physics2_get_property)`<br>刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
 | `physics2_set_mass` | `Tn6a@71456` (domain) | 已实现<br>partial | 0 | `src/engine/physics.rs:352 (parse)`<br>刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
 | `play_ask_record` | `xQfl@30126` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
-| `play_audio` | `xQfl@31836` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
-| `play_audio_and_wait` | `xQfl@32000` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
+| `play_audio` | `xQfl@31836` (domain) | 已实现<br>partial | 0 | `src/kitten4.rs:658 (lower_block)`<br>`src/kitten4/audio_aliases.rs:12 (lower_audio_alias)`<br>legacy 音频已回归：动态目标及有符号增量已纠偏；严格 ID、非有限增量、内部 lock/improvise、微信录音分支仍有限制，见 kitten4-audio-aliases.md<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `play_audio_and_wait` | `xQfl@32000` (domain) | 已实现<br>partial | 0 | `src/kitten4.rs:658 (lower_block)`<br>`src/kitten4/audio_aliases.rs:12 (lower_audio_alias)`<br>`src/kitten4/audio_aliases.rs:13 (lower_audio_alias)`<br>legacy 音频已回归：动态目标及有符号增量已纠偏；严格 ID、非有限增量、内部 lock/improvise、微信录音分支仍有限制，见 kitten4-audio-aliases.md<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
 | `player_position_on_change` | `Qeyy@578` (compiler:EVENT_BLOCKS) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>仅编译器结构表证据，不表示存在普通 domain handler |
 | `procedures_callnoreturn` | `Qeyy@839` (compiler:PROCEDURE_BLOCKS) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>仅编译器结构表证据，不表示存在普通 domain handler |
 | `procedures_callreturn` | `Qeyy@896` (compiler:PROCEDURE_BLOCKS) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>仅编译器结构表证据，不表示存在普通 domain handler |
@@ -429,13 +432,13 @@ Markdown 与同名 JSON 都是生成物；mapping 行号反映生成当时本仓
 | `procedures_parameter` | `Qeyy@1006` (compiler:PROCEDURE_BLOCKS) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>仅编译器结构表证据，不表示存在普通 domain handler |
 | `procedures_return_value` | `Qeyy@949` (compiler:PROCEDURE_BLOCKS) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>仅编译器结构表证据，不表示存在普通 domain handler |
 | `reset_timer` | `oiyH@5191` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
-| `rgb_light_color` | `ls7Z@1898` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `rgb_light_color_digital` | `ls7Z@1940` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
+| `rgb_light_color` | `ls7Z@1898` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:78 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `rgb_light_color_digital` | `ls7Z@1940` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:79 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
 | `self_ask_listen` | `xQfl@29180` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
 | `self_ask_record` | `xQfl@29769` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
 | `self_change_effect` | `Tn6a@33416` (domain) | 已实现<br>partial | 0 | `src/kitten4/aliases.rs:40 (lower_legacy_alias)`<br>legacy alias 归一化；继承目标积木的字段、子选项与运行时限制<br>存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
 | `self_change_effect_2` | `Tn6a@33508` (domain) | 已实现<br>partial | 0 | `src/kitten4/aliases.rs:41 (lower_legacy_alias)`<br>legacy alias 归一化；继承目标积木的字段、子选项与运行时限制<br>存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `self_change_pen_size_2` | `Tn6a@59983` (domain) | 已实现<br>mapped-not-parity | 0 | `src/kitten4.rs:2132 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `self_change_pen_size_2` | `Tn6a@59983` (domain) | 已实现<br>mapped-not-parity | 0 | `src/kitten4.rs:2174 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
 | `self_change_position` | `Tn6a@15705` (domain) | 已实现<br>mapped-not-parity | 0 | `src/kitten4/aliases.rs:28 (lower_legacy_alias)`<br>legacy alias 归一化；继承目标积木的字段、子选项与运行时限制<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
 | `self_change_scale` | `Tn6a@33077` (domain) | 已实现<br>mapped-not-parity | 0 | `src/kitten4/aliases.rs:38 (lower_legacy_alias)`<br>`src/kitten4/aliases.rs:43 (lower_legacy_alias)`<br>legacy alias 归一化；继承目标积木的字段、子选项与运行时限制<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
 | `self_change_x` | `Tn6a@15109` (domain) | 已实现<br>mapped-not-parity | 0 | `src/kitten4/aliases.rs:11 (lower_legacy_alias)`<br>legacy alias 归一化；继承目标积木的字段、子选项与运行时限制<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
@@ -446,50 +449,50 @@ Markdown 与同名 JSON 都是生成物；mapping 行号反映生成当时本仓
 | `self_gradually_appear` | `Tn6a@32818` (domain) | 已实现<br>mapped-not-parity | 0 | `src/kitten4/aliases.rs:33 (lower_legacy_alias)`<br>`src/kitten4/aliases.rs:34 (lower_legacy_alias)`<br>legacy alias 归一化；继承目标积木的字段、子选项与运行时限制<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
 | `self_gradually_disappear` | `Tn6a@32912` (domain) | 已实现<br>mapped-not-parity | 0 | `src/kitten4/aliases.rs:33 (lower_legacy_alias)`<br>legacy alias 归一化；继承目标积木的字段、子选项与运行时限制<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
 | `self_next_style` | `Tn6a@33819` (domain) | 已实现<br>mapped-not-parity | 0 | `src/kitten4/aliases.rs:55 (lower_legacy_alias)`<br>legacy alias 归一化；继承目标积木的字段、子选项与运行时限制<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `self_on_tap` | `Tn6a@77993` (responder) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
-| `self_set_density` | `Tn6a@53374` (domain) | 已实现<br>partial | 0 | `src/kitten4.rs:511 (lower_block)`<br>刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `self_on_tap` | `Tn6a@77993` (responder) | 已实现<br>mapped-not-parity | 0 | `src/kitten4/common.rs:58 (lower_common)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `self_set_density` | `Tn6a@53374` (domain) | 已实现<br>partial | 0 | `src/kitten4.rs:520 (lower_block)`<br>刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
 | `self_set_effect` | `Tn6a@33602` (domain) | 已实现<br>partial | 0 | `src/kitten4/aliases.rs:50 (lower_legacy_alias)`<br>legacy alias 归一化；继承目标积木的字段、子选项与运行时限制<br>存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `self_set_mass` | `Tn6a@53241` (domain) | 已实现<br>partial | 0 | `src/kitten4.rs:510 (lower_block)`<br>刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `self_set_mass` | `Tn6a@53241` (domain) | 已实现<br>partial | 0 | `src/kitten4.rs:519 (lower_block)`<br>刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
 | `self_set_x` | `Tn6a@15529` (domain) | 已实现<br>mapped-not-parity | 0 | `src/kitten4/aliases.rs:22 (lower_legacy_alias)`<br>legacy alias 归一化；继承目标积木的字段、子选项与运行时限制<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
 | `self_set_y` | `Tn6a@15617` (domain) | 已实现<br>mapped-not-parity | 0 | `src/kitten4/aliases.rs:22 (lower_legacy_alias)`<br>legacy alias 归一化；继承目标积木的字段、子选项与运行时限制<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
 | `self_texture` | `Tn6a@53815` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
-| `sensor_get_light_intensity` | `ls7Z@2078` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `sensor_get_sound_intensity` | `ls7Z@2128` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `servo_motor_angle` | `ls7Z@325` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `set_camera_opcity` | `Tn6a@63714` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
+| `sensor_get_light_intensity` | `ls7Z@2078` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:37 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `sensor_get_sound_intensity` | `ls7Z@2128` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:38 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `servo_motor_angle` | `ls7Z@325` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:62 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `set_camera_opcity` | `Tn6a@63714` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/common.rs:90 (lower_common)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义 |
 | `set_costume_by_id` | `Tn6a@33666` (domain) | 已实现<br>partial | 0 | `src/kitten4/aliases.rs:60 (lower_legacy_alias)`<br>legacy alias 归一化；继承目标积木的字段、子选项与运行时限制<br>仅字段 style_id literal；动态 style_id 输入保持 opaque 并明确拒绝编译（编辑器可达性未验证）<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
 | `set_costume_by_index` | `Tn6a@33756` (domain) | 已实现<br>mapped-not-parity | 0 | `src/kitten4/aliases.rs:59 (lower_legacy_alias)`<br>legacy alias 归一化；继承目标积木的字段、子选项与运行时限制<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
-| `set_digital_port_status` | `ls7Z@133` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
+| `set_digital_port_status` | `ls7Z@133` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:58 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
 | `set_force` | `Tn6a@55684` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
 | `set_force_by_vector` | `Tn6a@56058` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
 | `set_gravity` | `Tn6a@51768` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
 | `set_gravity_by_orientation` | `Tn6a@52040` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
-| `set_pwm_port_value` | `ls7Z@183` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
+| `set_pwm_port_value` | `ls7Z@183` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:59 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
 | `set_speaking_language` | `xQfl@31377` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
 | `set_top` | `Tn6a@33167` (domain) | 已实现<br>mapped-not-parity | 0 | `src/kitten4/aliases.rs:51 (lower_legacy_alias)`<br>legacy alias 归一化；继承目标积木的字段、子选项与运行时限制<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
 | `set_velocity_by_vector` | `Tn6a@55282` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
-| `set_volume_or_rate` | `xQfl@32165` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
-| `shake_sensor` | `ls7Z@676` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `shake_sensor_intensity` | `ls7Z@715` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
+| `set_volume_or_rate` | `xQfl@32165` (domain) | 已实现<br>partial | 0 | `src/kitten4.rs:674 (lower_block)`<br>`src/kitten4.rs:677 (lower_block)`<br>`src/kitten4/audio_aliases.rs:21 (lower_audio_alias)`<br>legacy 音频已回归：动态目标及有符号增量已纠偏；严格 ID、非有限增量、内部 lock/improvise、微信录音分支仍有限制，见 kitten4-audio-aliases.md<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `shake_sensor` | `ls7Z@676` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:70 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `shake_sensor_intensity` | `ls7Z@715` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:71 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
 | `shock_duration` | `Tn6a@6320` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
 | `shock_for_n_times` | `Tn6a@6119` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
-| `show_stage_dialog` | `Tn6a@33009` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
-| `soil_sensor_get_humi` | `ls7Z@1338` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `start_on_click_2` | `oiyH@3860` (domain)<br>`Qeyy@1564` (compiler:HAT_BLOCKS) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
-| `steering_angle` | `ls7Z@1857` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `stop_all_audios` | `xQfl@32686` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
-| `text_append` | `oiyH@2546` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
-| `text_implicit` | `oiyH@2668` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
-| `text_indexOf` | `oiyH@2414` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
-| `text_select` | `oiyH@2956` (domain) | 已实现<br>mapped-not-parity | 0 | `src/kitten4.rs:2059 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `show_stage_dialog` | `Tn6a@33009` (domain) | 已实现<br>mapped-not-parity | 0 | `src/kitten4/common.rs:54 (lower_common)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `soil_sensor_get_humi` | `ls7Z@1338` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:29 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `start_on_click_2` | `oiyH@3860` (domain)<br>`Qeyy@1564` (compiler:HAT_BLOCKS) | 已实现<br>mapped-not-parity | 0 | `src/kitten4/common.rs:44 (lower_common)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `steering_angle` | `ls7Z@1857` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:77 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `stop_all_audios` | `xQfl@32686` (domain) | 已实现<br>partial | 0 | `src/kitten4.rs:663 (lower_block)`<br>legacy 音频已回归：动态目标及有符号增量已纠偏；严格 ID、非有限增量、内部 lock/improvise、微信录音分支仍有限制，见 kitten4-audio-aliases.md<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `text_append` | `oiyH@2546` (domain) | 已实现<br>mapped-not-parity | 0 | `src/kitten4/common.rs:28 (lower_common)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `text_implicit` | `oiyH@2668` (domain) | 已实现<br>mapped-not-parity | 0 | `src/kitten4/common.rs:19 (lower_common)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `text_indexOf` | `oiyH@2414` (domain) | 已实现<br>partial | 0 | `src/kitten4/common.rs:12 (lower_common)`<br>FIRST/LAST 与空 needle 的 1-based UTF-16 位置已回归；原始非字符串 VALUE 的 JS TypeError 路径未对齐<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
+| `text_select` | `oiyH@2956` (domain) | 已实现<br>mapped-not-parity | 0 | `src/kitten4.rs:2101 (translate)`<br>静态分派证据；未逐字段、错误路径、时序与官方差分验证 |
 | `translate` | `Tn6a@29365` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
 | `translate_result` | `Tn6a@29544` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
 | `turn_on_the_camera` | `Tn6a@64227` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
 | `turn_on_the_qrcode_camera` | `Tn6a@64142` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
 | `voice_recognition` | `xQfl@29552` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持 |
-| `weeemake_get_double_line` | `ls7Z@2271` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `weeemake_get_potentiometer_angle` | `ls7Z@2215` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `weeemake_is_get_sport` | `ls7Z@2514` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `weeemake_joystick_get_x_value` | `ls7Z@2319` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `weeemake_joystick_get_y_value` | `ls7Z@2372` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
-| `weeemake_motor_turn_speed` | `ls7Z@1990` (domain) | 缺失<br>unsupported | 0 | 未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持<br>官方此离线包 ls7Z 本身为提示/noop/NaN；不能据此声称硬件控制已支持 |
+| `weeemake_get_double_line` | `ls7Z@2271` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:41 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `weeemake_get_potentiometer_angle` | `ls7Z@2215` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:40 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `weeemake_is_get_sport` | `ls7Z@2514` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:46 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `weeemake_joystick_get_x_value` | `ls7Z@2319` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:42 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `weeemake_joystick_get_y_value` | `ls7Z@2372` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:43 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |
+| `weeemake_motor_turn_speed` | `ls7Z@1990` (domain) | 设备降级<br>offline/device | 0 | `src/kitten4/devices.rs:80 (lower_devices)`<br>本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义<br>官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md |

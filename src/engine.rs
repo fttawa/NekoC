@@ -16,6 +16,7 @@ mod physics;
 mod stage_dialog;
 mod value;
 use k4_clock::{K4Timer, timer_policy, to_fixed2};
+mod k4_shake;
 mod video;
 mod visibility;
 pub use stage_dialog::StageDialogRequest;
@@ -215,6 +216,7 @@ enum ExprOp {
     Y,
     Direction,
     Timer,
+    DaysAfter2000,
     Distance(usize),
     Time(u8),
     Effect(usize, u8),
@@ -344,6 +346,7 @@ enum Op {
     RotateAround(usize, Expr),
     /// Starts a glide described by `glides[i]`; the next op is `AnimStep`.
     Glide(usize),
+    Shake(usize),
     /// Starts a fade (duration, show); the next op is `AnimStep`.
     Fade(Expr, bool),
     AnimStep,
@@ -415,6 +418,7 @@ struct GlideSpec {
 }
 #[derive(Clone, Debug)]
 enum Anim {
+    Shake(k4_shake::Shake),
     EntityVisibility {
         start: f64,
         duration: f64,
@@ -1794,6 +1798,11 @@ impl Compiler {
             "text_contain" => {
                 ValueExpr::Contains(self.value(input(b, "A")?)?, self.value(input(b, "B")?)?)
             }
+            "kitten4_text_index" => ValueExpr::TextIndex(
+                self.value(input(b, "VALUE")?)?,
+                self.value(input(b, "FIND")?)?,
+                field(b, "END") == "LAST",
+            ),
             "list_index_of" | "list_is_exist" => ValueExpr::Find(
                 self.list(input(b, "list")?)?,
                 self.value(input(b, "list_item_value")?)?,
@@ -2418,6 +2427,7 @@ impl Compiler {
                 }
             }
             "text"
+            | "kitten4_text_index"
             | "kitten4_default_value"
             | "text_join"
             | "text_select"
@@ -2482,6 +2492,7 @@ impl Compiler {
             "self_get_rotation" => ExprOp::Direction,
             "timer" => ExprOp::Timer,
             "get_timer" => ExprOp::BlockTimer,
+            "kitten4_days_after_2000" => ExprOp::DaysAfter2000,
             "coordinate_of_sprite" => {
                 ensure!(
                     matches!(field(b, "coordinate"), "x" | "y"),
@@ -3370,6 +3381,11 @@ impl Compiler {
                             "y" => Op::AddY(value),
                             other => bail!("unknown coordinate {other} at {}", b["id"]),
                         }
+                    }
+                    "kitten4_shake" => {
+                        let time = self.value(input(b, "time")?)?;
+                        self.emit(Op::Shake(time), b);
+                        Op::AnimStep
                     }
                     "self_glide_to"
                     | "self_glide_coordinate"
@@ -5467,6 +5483,13 @@ impl Engine {
                 Some(K4Timer::Widget) => to_fixed2(self.timer),
             },
             ExprOp::BlockTimer => self.block_timer.elapsed(self.time),
+            ExprOp::DaysAfter2000 => {
+                // oiyH@4181 parses ISO date-only 2000-01-01 as UTC, not local.
+                let now = self
+                    .virtual_epoch
+                    .map_or_else(wall_time, |epoch| epoch + self.time);
+                ((now - 946_684_800.0) / 86_400.0).floor()
+            }
             ExprOp::Mouse(y) => self.mouse[usize::from(y)],
             ExprOp::TextLength(i) => self.eval_value(i, actor).text().encode_utf16().count() as f64,
             ExprOp::Distance(target) => {
@@ -7063,6 +7086,7 @@ impl Engine {
             | ValueExpr::ParseFloat(i)
             | ValueExpr::K4Screen(i, _) => children.push((true, i)),
             ValueExpr::Contains(a, b)
+            | ValueExpr::TextIndex(a, b, _)
             | ValueExpr::Kitten4Add(a, b)
             | ValueExpr::Split(a, b)
             | ValueExpr::ParseInt(a, b)
@@ -7188,6 +7212,18 @@ impl Engine {
                     !matches!(v, Cell::Null) && !matches!(v, Cell::Number(n) if n.is_nan())
                 };
                 Cell::Bool(valid(&a) && valid(&b) && a.text().contains(&b.text()))
+            }
+            ValueExpr::TextIndex(a, b, last) => {
+                let text: Vec<u16> = self.eval_value(a, actor).text().encode_utf16().collect();
+                let needle: Vec<u16> = self.eval_value(b, actor).text().encode_utf16().collect();
+                let at = if needle.is_empty() {
+                    Some(if last { text.len() } else { 0 })
+                } else if last {
+                    text.windows(needle.len()).rposition(|part| part == needle)
+                } else {
+                    text.windows(needle.len()).position(|part| part == needle)
+                };
+                Cell::Number(at.map_or(0.0, |at| (at + 1) as f64))
             }
             ValueExpr::Find(list, value, contains) => {
                 let value = self.eval_value(value, actor);
@@ -8716,6 +8752,15 @@ impl Engine {
                 a.direction += degrees;
                 self.line(actor, old);
             }
+            Op::Shake(time) => {
+                let duration = self.eval_value(time, actor);
+                if let Cell::Number(duration) = duration
+                    && duration > 0.0
+                {
+                    self.tasks[index].anim =
+                        Some(Anim::Shake(k4_shake::Shake::new(self.time, duration)));
+                }
+            }
             Op::Glide(spec) => {
                 let GlideSpec {
                     time,
@@ -8784,6 +8829,7 @@ impl Engine {
                     return Ok(true);
                 };
                 let (start, duration) = match anim {
+                    Anim::Shake(ref shake) => (shake.start, shake.duration),
                     Anim::Glide {
                         start, duration, ..
                     }
@@ -8801,6 +8847,14 @@ impl Engine {
                 };
                 self.dirty[actor] = true;
                 match anim {
+                    Anim::Shake(mut shake) => {
+                        let delta = shake.step(self.time);
+                        let old = (self.sprites[actor].x, self.sprites[actor].y);
+                        self.sprites[actor].x += delta.0;
+                        self.sprites[actor].y += delta.1;
+                        self.line(actor, old);
+                        self.tasks[index].anim = Some(Anim::Shake(shake));
+                    }
                     Anim::EntityVisibility { targets, show, .. } => {
                         self.update_entity_visibility(&targets, show, t);
                     }

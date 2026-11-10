@@ -155,7 +155,7 @@ test("mapping regression: if/matches/aliases/cloud are implemented, precise stub
   assert.equal(by.physics2_unknown.status, "缺失");
   assert.equal(by.cloud_lists_unknown.status, "缺失");
   // Only an export-side translation mentions this KN name: not K4 import evidence.
-  assert.equal(by.get_orientation.status, "缺失");
+  assert.equal(by.get_orientation.status, "设备降级");
 });
 
 test("markdown contains full rows and audit metadata, never factory or corpus contents", () => {
@@ -168,6 +168,21 @@ test("markdown contains full rows and audit metadata, never factory or corpus co
   assert.ok(markdown.includes("UTF-16"));
   assert.ok(!markdown.includes("private_helper"));
   assert.ok(!markdown.includes("function()"));
+});
+
+test("second round scans explicit module dispatches without swallowing unrelated types", () => {
+  const types = ["text_indexOf", "text_append", "text_implicit", "days_after_2000", "start_on_click_2",
+    "controls_if_no_else", "self_on_tap", "show_stage_dialog", "self_shake", "get_camera_data",
+    "set_camera_opcity", "get_mobile_slope_value", "get_mobile_rocker_value", "mobile_vibrate", "not_a_device"];
+  const rows = mappingStatus(root, types.map(type => ({ type, official: [] })));
+  for (const row of rows.slice(0, 9)) {
+    assert.equal(row.status, "已实现", row.type);
+    assert.ok(row.mapping.some(m => m.includes("src/kitten4/common.rs")), row.type);
+  }
+  for (const row of rows.slice(9, 14)) assert.equal(row.status, "设备降级", row.type);
+  assert.equal(rows.at(-1).status, "缺失");
+  assert.equal(rows.find(row => row.type === "self_shake").semantics, "partial");
+  assert.equal(rows.find(row => row.type === "text_indexOf").semantics, "partial");
 });
 
 test("optional official-package integration: 377 types and audited complete registration tables", {
@@ -185,6 +200,12 @@ test("optional official-package integration: 377 types and audited complete regi
   assert.equal(result.audit.tables.find(t => t.module === "TL4g").count, 20);
   assert.equal(result.audit.tables.find(t => t.module === "xQfl").count, 26);
   assert.equal(result.audit.tables.filter(t => t.module === "ls7Z").reduce((sum, t) => sum + t.count, 0), 74);
+  const hardware = mappingStatus(root, result.rows.filter(row => row.official.some(e => e.module === "ls7Z")));
+  assert.equal(hardware.length, 74);
+  for (const row of hardware) {
+    assert.equal(row.status, "设备降级", row.type);
+    assert.ok(row.mapping.some(location => location.includes("src/kitten4/devices.rs")), row.type);
+  }
   const wood = result.rows.find(row => row.type === "wood_block_get");
   assert.deepEqual(wood.official.map(e => e.module), ["Tn6a", "fhSb"]);
   const modules = webpackModules(source);
