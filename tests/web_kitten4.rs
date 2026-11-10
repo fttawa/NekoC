@@ -98,6 +98,60 @@ impl Studio {
 }
 
 #[test]
+fn extension_schema_handshake_completes_through_real_private_socket() {
+    use tungstenite::{Message, client::IntoClientRequest};
+    let studio = Studio::start("samples/native-studio.bcmkn");
+    let mut project = nekoc::studio::document::Document::blank().value().clone();
+    project["variables"]["variablesDict"]["output"] =
+        json!({"id":"output","name":"output","value":0,"type":"number"});
+    project["actors"]["actorsDict"]["nekoc-default-actor"]["nekoBlockJsonList"] = json!([{
+        "type":"on_running_group_activated","next":{
+            "type":"nekoc_extension_call","fields":{"opcode":"example.json.parse","result":"output"},
+            "inputs":{"text":{"type":"text","fields":{"TEXT":"[2,true]"}}}
+        }
+    }]);
+    let payload = json!({"nekoc_extension_handshake":1,"project":project,"extensions":[nekoc::extensions::JsonParse::schema(true)]});
+    studio.json("POST", "/api/extension-check", &payload, 200);
+    assert_eq!(studio.request("GET", "/extensions.js", &Value::Null).0, 200);
+    let request = format!("ws://127.0.0.1:{}/api/player-private", studio.port)
+        .into_client_request()
+        .unwrap();
+    let stream = TcpStream::connect(("127.0.0.1", studio.port)).unwrap();
+    stream
+        .set_read_timeout(Some(Duration::from_secs(15)))
+        .unwrap();
+    let (mut socket, _) = tungstenite::client(request, stream).unwrap();
+    socket.send(Message::Text(payload.to_string())).unwrap();
+    let ready: Value = serde_json::from_str(socket.read().unwrap().to_text().unwrap()).unwrap();
+    assert_eq!(ready["ready"], true);
+    socket.send(Message::Text("{}".into())).unwrap();
+    let bytes = socket.read().unwrap().into_data();
+    let length = u32::from_le_bytes(bytes[..4].try_into().unwrap()) as usize;
+    let metadata: Value = serde_json::from_slice(&bytes[4..4 + length]).unwrap();
+    let request = &metadata["extension_requests"][0];
+    assert_eq!(request["arguments"], json!(["[2,true]"]));
+    socket
+        .send(Message::Text(
+            json!({"events":[{"kind":"extension_result","id":request["id"],"value":[2,true]}]})
+                .to_string(),
+        ))
+        .unwrap();
+    assert!(socket.read().unwrap().is_binary());
+    socket
+        .send(Message::Text(json!({"debug_snapshot":true}).to_string()))
+        .unwrap();
+    let snapshot: Value = serde_json::from_str(socket.read().unwrap().to_text().unwrap()).unwrap();
+    assert_eq!(
+        snapshot["snapshot"]["variables"]["output"],
+        json!([2.0, true])
+    );
+    socket.close(None).unwrap();
+    let mut denied = payload;
+    denied["extensions"][0]["network"] = json!(true);
+    studio.json("POST", "/api/extension-check", &denied, 400);
+}
+
+#[test]
 fn fill_delta_uses_existing_binary_envelope_and_legacy_frames_omit_extension() {
     let studio = Studio::start("samples/native-studio.bcmkn");
     let mut project = nekoc::studio::document::Document::blank().value().clone();

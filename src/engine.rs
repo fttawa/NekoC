@@ -6,6 +6,7 @@ use serde::Serialize;
 use serde_json::Value;
 mod calculate;
 mod cloud;
+mod extensions;
 mod jit;
 mod kn_helpers;
 mod physics;
@@ -378,6 +379,7 @@ enum Op {
     CloudSet(usize, usize, bool, bool),
     CloudList(usize, u8, Option<Expr>, Option<usize>),
     Ranking(Option<usize>, bool),
+    Extension(usize),
 }
 #[derive(Clone, Copy, Debug)]
 enum LayerMove {
@@ -701,6 +703,8 @@ impl RuntimeSemantics {
 
 #[derive(Debug)]
 pub struct Program {
+    extensions: crate::extensions::ExtensionRegistry,
+    extension_calls: Vec<extensions::Call>,
     cloud: Vec<cloud::Binding>,
     deep_values: BTreeSet<usize>,
     semantics: RuntimeSemantics,
@@ -803,6 +807,13 @@ impl std::ops::Deref for PreparedJson<'_> {
 
 impl PreparedProject<'_> {
     pub fn compile(&self, project: &Value) -> Result<Program> {
+        self.compile_with_extensions(project, &crate::extensions::ExtensionRegistry::new())
+    }
+    fn compile_with_extensions(
+        &self,
+        project: &Value,
+        extensions: &crate::extensions::ExtensionRegistry,
+    ) -> Result<Program> {
         crate::json::check_blocks(project, crate::json::MAX_BLOCK_DEPTH)?;
         crate::json::expanded(|| {
             let mut program = Program::compile_canonical(
@@ -810,6 +821,7 @@ impl PreparedProject<'_> {
                 self.semantics,
                 self.start_hats.clone(),
                 &self.k4_owners,
+                extensions.clone(),
             )?;
             program.linked_clone_layers = self.linked_clone_layers;
             Ok(program)
@@ -818,6 +830,13 @@ impl PreparedProject<'_> {
 }
 
 impl Program {
+    pub fn compile_with_extensions(
+        project: &Value,
+        registry: &crate::extensions::ExtensionRegistry,
+    ) -> Result<Self> {
+        let prepared = Self::prepare(project, true)?;
+        prepared.compile_with_extensions(&prepared.project, registry)
+    }
     /// Diagnostic IR, not a stable persistence format. Includes all compiled
     /// fields (also source IDs); inequality alone does not prove a semantic bug.
     pub fn oracle_program(&self) -> String {
@@ -913,6 +932,7 @@ impl Program {
         semantics: RuntimeSemantics,
         start_hats: crate::kitten4::StartHats,
         k4_owners: &[String],
+        extensions: crate::extensions::ExtensionRegistry,
     ) -> Result<Self> {
         let _timing = crate::import_perf::span("engine_compile_canonical");
         // K4 player load/start selects scenes_order[0], not the editor's saved
@@ -935,6 +955,8 @@ impl Program {
         let mut compiler = Compiler {
             start_hats,
             program: Self {
+                extensions,
+                extension_calls: vec![],
                 cloud: vec![],
                 deep_values: BTreeSet::new(),
                 semantics,
@@ -1018,6 +1040,7 @@ impl Program {
                 },
             },
             slots: BTreeMap::new(),
+            extension_globals: BTreeSet::new(),
             actor_variables: BTreeMap::new(),
             locals: BTreeMap::new(),
             lists: BTreeMap::new(),
@@ -1275,6 +1298,7 @@ impl Program {
             .position(|id| *id == scene)
             .context("current scene missing")?;
         // Pass 2: scripts, resolving actor references within the owner's scene first.
+        compiler.extension_globals = compiler.slots.keys().cloned().collect();
         for scene_index in 0..compiler.program.scenes.len() {
             let info = compiler.program.scenes[scene_index].clone();
             compiler.owner_scene = scene_index;
@@ -1396,6 +1420,7 @@ struct Compiler {
     program: Program,
     start_hats: crate::kitten4::StartHats,
     slots: BTreeMap<String, usize>,
+    extension_globals: BTreeSet<String>,
     actor_variables: BTreeMap<String, usize>,
     locals: BTreeMap<String, usize>,
     lists: BTreeMap<String, usize>,
@@ -3855,6 +3880,7 @@ impl Compiler {
                         block = b.get("next");
                         continue;
                     }
+                    "nekoc_extension_call" => self.extension_call(b)?,
                     _ => bail!("unsupported fast-VM block {kind} ({})", b["id"]),
                 };
                 self.emit(op, b);
@@ -4089,6 +4115,8 @@ pub struct AudioProperty {
 }
 #[derive(Clone, Debug, Serialize)]
 pub struct Frame {
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub extension_requests: Vec<crate::extensions::ExtensionRequest>,
     pub sequence: u64,
     pub reset: bool,
     pub sprites: Vec<Sprite>,
@@ -4139,6 +4167,7 @@ pub struct Frame {
     pub budget_yield: bool,
 }
 pub struct Engine {
+    extensions: extensions::State,
     trace_filter: Option<BTreeSet<String>>,
     trace_truncated: bool,
     warp_iterations: u32,
@@ -4467,7 +4496,7 @@ impl Engine {
         // reporter calls. Conservatively keep the entire private-variable program
         // interpreted until all native helpers understand entity ownership. Purely
         // global projects retain the exact same JIT and indexed-slot fast path.
-        let jit = if program.actor_variable_names.is_empty() {
+        let jit = if program.actor_variable_names.is_empty() && program.extension_calls.is_empty() {
             jit::Jit::new(program.ops.len())
         } else {
             None
@@ -4504,6 +4533,7 @@ impl Engine {
             .iter()
             .any(|s| matches!(s.event, ScriptEvent::Bump(..)));
         Self {
+            extensions: extensions::State::default(),
             cloud: cloud::State::default(),
             scheduler_tick: 0,
             trace_filter: None,
@@ -4584,6 +4614,7 @@ impl Engine {
         }
     }
     pub fn start(&mut self) {
+        self.extensions.clear();
         let cloud_values = self.cloud_restart_values();
         self.cloud.ranking = None;
         self.physics = None;
@@ -7435,6 +7466,7 @@ impl Engine {
             .collect();
         self.flush_cloud()?;
         Ok(Frame {
+            extension_requests: self.extension_requests(),
             sequence: self.sequence,
             reset: std::mem::take(&mut self.reset),
             sprites,
@@ -7654,6 +7686,7 @@ impl Engine {
                 let value = self.eval_value(v, actor);
                 self.assign(target, value);
             }
+            Op::Extension(call) => return self.exec_extension(index, actor, call),
             Op::Move(e) => {
                 let n = self.eval(e, actor);
                 if !n.is_finite() {
