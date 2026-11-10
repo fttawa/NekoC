@@ -14,6 +14,7 @@ use aliases::lower_legacy_alias;
 mod audio_aliases;
 mod common;
 mod devices;
+mod effects;
 mod media_devices;
 mod third;
 
@@ -223,7 +224,6 @@ fn lower_for_vm_inner(project: &Value) -> crate::json::Json {
         }
     }
     let targets = Targets {
-        variables: &project["variables"]["variablesDict"],
         actors: &project["actors"]["actorsDict"],
         scenes: &project["scenes"]["scenesDict"],
         procedures: &project["procedures"]["proceduresDict"],
@@ -238,7 +238,6 @@ fn lower_for_vm_inner(project: &Value) -> crate::json::Json {
 }
 
 struct Targets<'a> {
-    variables: &'a Value,
     actors: &'a Value,
     scenes: &'a Value,
     procedures: &'a Value,
@@ -249,6 +248,11 @@ impl Targets<'_> {
     /// Collision with an actor group is a collision with any member. A target that no
     /// longer exists can never collide.
     fn bump(&self, target: &str) -> Vec<String> {
+        // Camps resolve from live actor membership, not the serialized actor
+        // dictionary. Preserve the editor's four ids for the VM's camp target.
+        if matches!(target, "camp_red" | "camp_yellow" | "camp_blue" | "no_camp") {
+            return vec![target.to_owned()];
+        }
         if target.starts_with("__") || target.starts_with("--") {
             return vec![target.replace("__edge", "--edge")];
         }
@@ -274,7 +278,18 @@ fn lower_missing_reference(block: &mut Value, targets: &Targets) {
     let kind = block["type"].as_str().unwrap_or_default().to_owned();
     let call = kind.starts_with("procedures_2_call");
     // Camera target '?' is an official reporter sentinel, not a deleted UUID.
-    if kind == "kitten4::get_camera_data" {
+    if matches!(
+        kind.as_str(),
+        "kitten4::get_camera_data"
+            | "kitten4::get"
+            | "kitten4::get_2"
+            | "kitten4::get_3"
+            | "get_clone_index_property"
+            | "kitten4::get_clone_index_property"
+    ) {
+        // These reporters distinguish invalid strings, dangling UUIDs and
+        // missing clones themselves. Generic deleted-reference zeroing loses
+        // their native NaN/error behavior (Tn6a/get_3 and clone reporter).
         return;
     }
     let mut missing = call && targets.procedures.get(field(block, "NAME")).is_none();
@@ -485,6 +500,9 @@ fn lower_block(block: &mut Value, targets: &Targets) {
     if lower_legacy_alias(block, targets) {
         return;
     }
+    if effects::lower_effect(block) {
+        return;
+    }
     if common::lower_common(block) {
         return;
     }
@@ -500,10 +518,10 @@ fn lower_block(block: &mut Value, targets: &Targets) {
     if audio_aliases::lower_audio_alias(block, targets) {
         return;
     }
-    if kind == "get_2" {
-        // Tn6a@42434 forwards the complete get_3 protocol, not just x/y/angle.
-        block["type"] = json!(format!("{OPAQUE}get_3"));
-        lower_block(block, targets);
+    if matches!(kind.as_str(), "get" | "get_2" | "get_3") {
+        // Tn6a/get and get_2 delegate to get_3, including invalid targets,
+        // scene backgrounds, native rounding and UUID variable attributes.
+        block["type"] = json!("kitten4_property");
         return;
     }
     if kind.starts_with("physics2_") {
@@ -543,7 +561,7 @@ fn lower_block(block: &mut Value, targets: &Targets) {
         block["type"] = json!(format!("kitten4_legacy_{kind}"));
         return;
     }
-    if is_stub(&kind) || (kind == "self_change_effect_3" && field(block, "scope") == "7") {
+    if is_stub(&kind) {
         if matches!(kind.as_str(), "get_voice_volume" | "wood_block_get") {
             // Offline player: no microphone samples => 0; its player-specific
             // wood override returns NaN without evaluating the Python request.
@@ -781,51 +799,6 @@ fn lower_block(block: &mut Value, targets: &Targets) {
             );
             "text_select"
         }
-        "get_3" => match field(block, "attribute") {
-            "0" | "1" => {
-                let axis = if field(block, "attribute") == "0" {
-                    "x"
-                } else {
-                    "y"
-                };
-                put_field(block, "coordinate", axis);
-                "coordinate_of_sprite"
-            }
-            // 2 and 4 were verified against the official editor (docs/kitten4-semantics.md).
-            "2" => "style_of_sprite",
-            "4" => "kitten4_costume_name",
-            "5" | "7" | "8" | "9" | "10" | "11" | "12" | "13" | "14" | "16" | "17" => {
-                // The existing clone-property reporter also addresses the original
-                // with index 0, and preserves costume names as text (official
-                // get_clone_index_property / get_scene_or_actor_property).
-                block["inputs"]["index"] = if matches!(field(block, "sprite"), "__self" | "--self")
-                {
-                    json!({"type":"get_current_clone_index"})
-                } else {
-                    number(0.0)
-                };
-                "get_clone_index_property"
-            }
-            "3" => {
-                put_field(block, "appearance", "direction");
-                block["type"] = json!("appearance_of_sprite");
-                *block = native_heading_reporter(block.clone());
-                return;
-            }
-            attribute
-                if targets
-                    .variables
-                    .get(attribute)
-                    .is_some_and(|v| v["isGlobal"] == false) =>
-            {
-                "kitten4_actor_variable"
-            }
-            _ => {
-                // Tn6a/get_3 converts an undefined native property to NaN.
-                put_field(block, "NUM", "NaN");
-                "math_number"
-            }
-        },
         "set_theatre_layer" => {
             let layer = match field(block, "layer") {
                 "previous_level" => "prev_layer",
@@ -2286,6 +2259,11 @@ fn translate(block: &mut Value, export: bool) -> Result<bool> {
         "set_timer_state" => fields(block, &[("actions", "type")], export),
         "show_hide_timer" => fields(block, &[("state", "showHide")], export),
         "get_2" => {
+            if !export {
+                // Preserve all native branches for the dedicated K4 property
+                // lowering, including dangling UUIDs and rounded coordinates.
+                return Ok(false);
+            }
             if export {
                 let (attribute, target) = match kind.as_str() {
                     "self_get_position_x" => ("0", "--self"),

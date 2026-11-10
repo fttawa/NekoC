@@ -344,6 +344,43 @@ impl<'a> Runtime<'a> {
                 "height" => RuntimeValue::Number(self.stage_height),
                 _ => RuntimeValue::Number(self.stage_width),
             },
+            // These get_2 branches used to be translated into KN reporters on
+            // import. Keep the reference interpreter working now that import
+            // preserves the native reporter for the compiled K4 property path.
+            "kitten4::get_2" => {
+                let sprite = field_string(block, "sprite").unwrap_or("__self");
+                let sprite = if sprite == "__self" { "--self" } else { sprite };
+                let value = self
+                    .actor_for_sprite(sprite, owner_id)
+                    .map(|actor| match field_string(block, "attribute") {
+                        Some("0") => actor.x,
+                        Some("1") => actor.y,
+                        Some("3") => {
+                            let radians = (90.0 - actor.rotation) * std::f64::consts::PI / 180.0;
+                            let turn = 2.0 * std::f64::consts::PI;
+                            let absolute = radians.abs();
+                            let normalized = if absolute > turn {
+                                absolute % turn
+                            } else {
+                                absolute
+                            };
+                            let normalized = if radians < 0.0 {
+                                turn - normalized
+                            } else {
+                                normalized
+                            };
+                            let normalized = if normalized > std::f64::consts::PI {
+                                normalized - turn
+                            } else {
+                                normalized
+                            };
+                            180.0 * normalized / std::f64::consts::PI
+                        }
+                        _ => f64::NAN,
+                    })
+                    .unwrap_or(f64::NAN);
+                RuntimeValue::Number((value * 100.0 + 0.5).floor() / 100.0)
+            }
             "coordinate_of_sprite" => {
                 let sprite = field_string(block, "sprite").unwrap_or("--self");
                 let coordinate = field_string(block, "coordinate").unwrap_or("x");

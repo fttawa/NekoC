@@ -645,6 +645,18 @@ impl<'a> super::Thread<'a> {
                 }
                 self.advance(runtime, block.get("next"));
             }
+            // Preserve the reference interpreter's transparency-set support
+            // after K4 lowering stopped routing through the coercing KN block.
+            "kitten4_set_effect" if field_string(block, "scope") == Some("1") => {
+                let value = self.eval(runtime, input(block, "val"));
+                if let RuntimeValue::Number(value) = value
+                    && value.is_finite()
+                    && let Some(actor) = runtime.actors.get_mut(&self.owner_id)
+                {
+                    actor.effects.insert("1".into(), value.clamp(0.0, 100.0));
+                }
+                self.advance(runtime, block.get("next"));
+            }
             "self_set_effect" => {
                 let scope = field_string(block, "scope").unwrap_or("color").to_owned();
                 let value = self.eval(runtime, input(block, "value")).as_number();

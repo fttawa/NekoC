@@ -850,7 +850,7 @@ fn hot_official_private_clone_fixtures_match_after_restarts() {
                     (Err(x), Err(y)) => {
                         assert_eq!(x.to_string(), y.to_string());
                         assert!(file.ends_with("kitten4/actor-variables-deleted.bcm"));
-                        assert!(x.to_string().contains("clone_not_found"));
+                        assert!(x.to_string().contains("clone_entity_not_exist"));
                         finished = true;
                         break;
                     }

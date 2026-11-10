@@ -585,6 +585,7 @@ fn heading_turn_and_reporter_expressions_use_native_coordinates() {
             .unwrap();
         assert!((actor.x - 5.0 * 3.0_f64.sqrt()).abs() < 1e-9);
         assert!((actor.y - 5.0).abs() < 1e-9);
+        assert_eq!(vm.variable_text("direction"), "60");
         let snapshot = runtime::run_project(&imported, 2).unwrap();
         assert_eq!(
             serde_json::to_value(&snapshot.variables["direction"]).unwrap(),
@@ -1933,13 +1934,14 @@ fn published_unknown_selectors_keep_domain_specific_error_or_nan_behavior() {
             "attribute":"00000000-0000-4000-8000-000000000001","index":compiled_number(0.0)}),
             ),
         )]);
-        let canonical = kitten4::to_neko(&native).unwrap();
-        if kind == "get_3" {
-            // Tn6a/get_3 converts an undefined native property to NaN.
-            assert_eq!(start_published(&native).variable_text("value"), "NaN");
-        } else {
-            assert!(Program::compile(&canonical).is_err());
-        }
+        // Tn6a routes UUID attributes to O8fc/get_var_or_list, whose
+        // unknown-global default is 0; clone index 0 selects the prototype.
+        // Non-UUID unknown attributes remain NaN (official partial probes).
+        assert_eq!(
+            start_published(&native).variable_text("value"),
+            "0",
+            "{kind}"
+        );
     }
 }
 
