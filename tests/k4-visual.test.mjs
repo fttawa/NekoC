@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
-import { pixelDifference, selectedWork, distribution, visualWork } from '../tools/compat/k4-visual.mjs';
+import { pixelDifference, videoMask, mediaWaitCandidate, selectedWork, distribution, visualWork } from '../tools/compat/k4-visual.mjs';
 import { visualFixtures } from '../tools/compat/k4-visual-fixtures.mjs';
 import { readJson } from '../tools/compat/k4-oracle.mjs';
 import { spriteGeometry } from '../web/renderer.js';
@@ -19,6 +19,19 @@ test('selection excludes random and failed traces, distribution uses captured fr
   assert.ok(!selectedWork({status:'equal',randomness:{detected:true}}));assert.ok(!selectedWork({status:'unverified'}));
   assert.deepEqual(distribution([]),{count:0,exact:0,under1:0,under5:0,median:null,p90:null,max:null});
   assert.equal(distribution([{status:'captured',frames:[{changedPercent:0},{changedPercent:5}]},{status:'unverified',frames:[{changedPercent:100}]}]).max,5);
+});
+test('video comparison masks union, clipped offstage bounds, and never passes an empty region',()=>{
+  const a=new Uint8Array(10*10*4),b=a.slice();b.fill(255);
+  const mask=videoMask(10,10,[{x:1,y:1,width:2,height:2},{x:3,y:1,width:2,height:2},{x:50,y:0,width:5,height:5}]);
+  const metrics=pixelDifference(a,b,8,mask);assert.equal(metrics.maskedPixels,24);assert.equal(metrics.pixels,76);assert.equal(metrics.changedPercent,100);
+  const empty=pixelDifference(a,b,8,videoMask(10,10,[{x:-2,y:-2,width:20,height:20}]));
+  assert.equal(empty.pixels,0);assert.equal(empty.changedPercent,null);assert.equal(empty.mae,null);assert.equal(empty.rmse,null);
+  assert.throws(()=>videoMask(10,10,[{x:NaN,y:0,width:1,height:1}]));assert.throws(()=>pixelDifference(a,b,8,[]));
+});
+test('video waits conservatively flag media-dependent non-video control flow',()=>{
+  assert.ok(mediaWaitCandidate({compile_result:[{next_block:{type:'play_video_until_end'}}]}));
+  assert.ok(mediaWaitCandidate({theatre:{actors:{a:{block_data_json:{blocks:{b:{type:'play_video_until_end'}}}}}}}));
+  assert.ok(!mediaWaitCandidate({compile_result:[{type:'play_video'}]}));
 });
 test('K4 left/right boundaries use right-facing heading without changing KN policy',()=>{
   const actor={scale:100,rotation_type:1},image={width:80,height:40};

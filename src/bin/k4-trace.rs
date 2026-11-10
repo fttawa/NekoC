@@ -36,6 +36,9 @@ struct Args {
     /// Costume measurements supplied by the browser, as in the web player.
     #[arg(long, requires = "render")]
     costumes: Option<PathBuf>,
+    /// Decoded video durations; no wall-clock or network probing in the VM.
+    #[arg(long)]
+    videos: Option<PathBuf>,
 }
 
 fn main() -> Result<()> {
@@ -75,6 +78,26 @@ fn main() -> Result<()> {
     }
     let mut engine = Engine::new(program);
     engine.use_virtual_clock();
+    if let Some(file) = &args.videos {
+        let videos: serde_json::Value = serde_json::from_slice(&std::fs::read(file)?)?;
+        for video in videos.as_array().context("expected video metadata array")? {
+            engine.set_video_duration(
+                video["id"].as_str().context("missing video id")?,
+                video["duration"]
+                    .as_f64()
+                    .context("missing video duration")?,
+            );
+            if let (Some(width), Some(height)) = (video["width"].as_f64(), video["height"].as_f64())
+            {
+                engine.set_video_metadata(
+                    video["id"].as_str().unwrap(),
+                    video["duration"].as_f64().unwrap(),
+                    width,
+                    height,
+                );
+            }
+        }
+    }
     if let Some(file) = &args.costumes {
         let costumes: serde_json::Value = serde_json::from_slice(&std::fs::read(file)?)?;
         for costume in costumes.as_array().context("expected costume array")? {

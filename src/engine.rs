@@ -11,6 +11,7 @@ mod kn_helpers;
 mod physics;
 mod stage_dialog;
 mod value;
+mod video;
 pub use stage_dialog::StageDialogRequest;
 use std::{cell::RefCell, rc::Rc};
 use std::{
@@ -19,6 +20,7 @@ use std::{
 };
 pub use value::Cell;
 use value::{List, ListRef, Span, Target, ValueExpr};
+pub use video::VideoState;
 
 #[derive(Clone, Copy, Debug)]
 enum Binary {
@@ -289,6 +291,7 @@ enum Op {
     Size(Expr),
     Clear,
     Audio(usize, bool),
+    Video(usize, video::Action),
     AudioProperty(usize, usize, bool, bool, bool),
     ClearList(ListRef),
     AppendList(ListRef, usize),
@@ -701,6 +704,7 @@ impl RuntimeSemantics {
 
 #[derive(Debug)]
 pub struct Program {
+    videos: Vec<VideoState>,
     cloud: Vec<cloud::Binding>,
     deep_values: BTreeSet<usize>,
     semantics: RuntimeSemantics,
@@ -935,6 +939,7 @@ impl Program {
         let mut compiler = Compiler {
             start_hats,
             program: Self {
+                videos: video::initial(project),
                 cloud: vec![],
                 deep_values: BTreeSet::new(),
                 semantics,
@@ -3414,6 +3419,21 @@ impl Compiler {
                         Op::Draggable(matches!(field(b, "draggable"), "1" | "true" | "draggable"))
                     }
                     "image_stamp" => Op::ImageStamp,
+                    "kitten4_play_video"
+                    | "kitten4_play_video_until_end"
+                    | "kitten4_continue_pause_video"
+                    | "kitten4_show_hide_video" => {
+                        let action = match kind {
+                            "kitten4_play_video" => video::Action::Play(false),
+                            "kitten4_play_video_until_end" => video::Action::Play(true),
+                            "kitten4_continue_pause_video" => {
+                                video::Action::Resume(field(b, "option") == "continue")
+                            }
+                            _ => video::Action::Visible(field(b, "display") == "show"),
+                        };
+                        let id = self.push_constant(Cell::Text(field(b, "video").into()));
+                        Op::Video(id, action)
+                    }
                     "play_audio_and_wait" => {
                         let audio = b["inputs"]
                             .get("audio_id")
@@ -4089,6 +4109,10 @@ pub struct AudioProperty {
 }
 #[derive(Clone, Debug, Serialize)]
 pub struct Frame {
+    /// Ct.unset_brush_target can move the detached pen plane below media.
+    pub video_above_pen: bool,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub videos: Vec<VideoState>,
     pub sequence: u64,
     pub reset: bool,
     pub sprites: Vec<Sprite>,
@@ -4139,6 +4163,9 @@ pub struct Frame {
     pub budget_yield: bool,
 }
 pub struct Engine {
+    videos: Vec<VideoState>,
+    next_video_generation: u64,
+    video_above_pen: bool,
     trace_filter: Option<BTreeSet<String>>,
     trace_truncated: bool,
     warp_iterations: u32,
@@ -4505,6 +4532,9 @@ impl Engine {
             .any(|s| matches!(s.event, ScriptEvent::Bump(..)));
         Self {
             cloud: cloud::State::default(),
+            videos: program.videos.clone(),
+            next_video_generation: 1,
+            video_above_pen: false,
             scheduler_tick: 0,
             trace_filter: None,
             trace_truncated: false,
@@ -4584,6 +4614,8 @@ impl Engine {
         }
     }
     pub fn start(&mut self) {
+        self.videos.clone_from(&self.program.videos);
+        self.video_above_pen = false;
         let cloud_values = self.cloud_restart_values();
         self.cloud.ranking = None;
         self.physics = None;
@@ -5934,6 +5966,8 @@ impl Engine {
     /// and clones/properties persist. KN retains its existing exit policy.
     /// This does not change scheduler order or the activation dispatch phase.
     fn switch_scene(&mut self, target: usize) {
+        // zi reattaches the shared media container at scene child index 1.
+        self.video_above_pen = false;
         let old = self.current_scene;
         for task in 0..self.tasks.len() {
             if self.sprites[self.tasks[task].actor].scene == old
@@ -6606,6 +6640,9 @@ impl Engine {
         }
         if above {
             self.pen_layer -= 1;
+            if self.pen_layer == 0 {
+                self.video_above_pen = true;
+            }
             self.order.remove(at);
             self.order.push(actor);
         } else {
@@ -7375,6 +7412,7 @@ impl Engine {
         let mut dt = dt.clamp(0.0, 0.25);
         loop {
             let layer = self.pen_layer;
+            let video_generation = self.next_video_generation;
             exceeded = self.tick(dt, max_instructions, budget, started, &mut count)?;
             ticks += 1;
             dt = 0.0;
@@ -7386,6 +7424,7 @@ impl Engine {
                 || self.pen_layer != layer
                 || self.order_dirty
                 || self.scene_changed
+                || video_generation != self.next_video_generation
                 || !self.image_stamps.is_empty()
                 || !self.removed.is_empty()
                 || self.dirty.iter().any(|d| *d);
@@ -7435,6 +7474,8 @@ impl Engine {
             .collect();
         self.flush_cloud()?;
         Ok(Frame {
+            video_above_pen: self.video_above_pen && self.pen_layer == 0,
+            videos: self.videos.clone(),
             sequence: self.sequence,
             reset: std::mem::take(&mut self.reset),
             sprites,
@@ -8190,6 +8231,10 @@ impl Engine {
             Op::Stop(scope) => {
                 if scope == 0 {
                     self.stopped = true;
+                    for video in &mut self.videos {
+                        video.playing = false;
+                        video.played = false;
+                    }
                 }
                 for target in 0..self.tasks.len() {
                     let stop = match scope {
@@ -8593,6 +8638,13 @@ impl Engine {
                     });
                 }
             }
+            Op::Video(value, action) => {
+                let id = self.eval_value(value, actor).text();
+                self.video_action(&id, action, index);
+                if self.tasks[index].pending > 0 {
+                    return Ok(false);
+                }
+            }
             Op::AudioWait(value) => {
                 let audio = self.eval_value(value, actor);
                 let wait = self.next_audio_wait;
@@ -8687,6 +8739,7 @@ impl Engine {
         total_count: &mut usize,
     ) -> Result<bool> {
         self.scheduler_tick += 1;
+        self.tick_videos(dt);
         self.tick_stage_dialog(dt);
         // K9+f/update_dispose removes blockers at update entry. Expiration is
         // observed at the previous update's end, not guessed using a 60 Hz delta.

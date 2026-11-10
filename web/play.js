@@ -40,12 +40,12 @@ function syncControls(){
 function clearKeys(){input?.release();}
 function resetMeter(){updates=0;draws=0;sampleStart=performance.now();drawFps=0;updateFps=0;}
 function pause(message='已暂停'){
-  running=false;audio.pause();clearKeys();resetMeter();status(message);syncControls();
+  running=false;audio.pause();renderer?.pauseMedia();clearKeys();resetMeter();status(message);syncControls();
 }
 async function closeRuntime(){
   running=false;epoch++;clearKeys();connection?.close();connection=null;
   input?.reset();overlay?.reset();
-  audio.stop();
+  audio.stop();renderer?.pauseMedia();
   await inFlight;resetMeter();
 }
 function fitStage(){
@@ -79,7 +79,7 @@ async function launch(){
     epoch++;lastFrame=null;totalUpdates=0;
   }
   clearKeys();resetMeter();running=true;lastTick=performance.now();nextDue=lastTick;queueMicrotask(pump);
-  audio.resume();extension?.reportStatus('Rust 已连接');
+  audio.resume();renderer.pauseMedia(false);extension?.reportStatus('Rust 已连接');
   status('运行中');canvas.focus({preventScroll:true});syncControls();
 }
 async function action(work){
@@ -102,7 +102,7 @@ async function advance(dt){
   try{
     // Costume geometry is sent once per connection, after the renderer decoded it.
     const costumes=sendCostumes?renderer.costumeInfo(sensesColor(project)):undefined;sendCostumes=false;
-    const buffer=await connection.frame({dt,...input.take(),costumes,budget_ms:settings.budget,coalesce:settings.coalesce===1,utc_offset:-new Date().getTimezoneOffset()});
+    const buffer=await connection.frame({dt,...input.take(),costumes,videos:renderer.videoInfo(),budget_ms:settings.budget,coalesce:settings.coalesce===1,utc_offset:-new Date().getTimezoneOffset()});
     if(token!==epoch)return;
     roundtripMs=performance.now()-start;
     // Draw pen deltas now; the stage is composited once on the next display frame.

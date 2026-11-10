@@ -398,6 +398,18 @@ fn frame_bytes(vm: &mut Engine, payload: &Value) -> Result<Vec<u8>> {
             );
         }
     }
+    if let Some(videos) = payload["videos"].as_array() {
+        for video in videos.iter().take(4096) {
+            if let (Some(id), Some(duration)) = (video["id"].as_str(), video["duration"].as_f64()) {
+                vm.set_video_duration(id, duration);
+                if let (Some(width), Some(height)) =
+                    (video["width"].as_f64(), video["height"].as_f64())
+                {
+                    vm.set_video_metadata(id, duration, width, height);
+                }
+            }
+        }
+    }
     if let Some(offset) = payload["utc_offset"].as_f64() {
         vm.set_utc_offset(offset);
     }

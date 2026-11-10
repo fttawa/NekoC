@@ -1848,21 +1848,21 @@ fn published_list_and_variable_monitors_show_and_hide() {
 }
 
 #[test]
-fn published_scene_pointer_dispatches_and_explicit_stubs_continue() {
-    let stubs = [
+fn published_scene_pointer_dispatches_and_missing_videos_continue_without_stubs() {
+    let videos = [
         "play_video",
         "play_video_until_end",
         "continue_pause_video",
         "show_hide_video",
     ];
-    for stub in stubs {
+    for stub in videos {
         let native = published_script(vec![
             compiled(stub, json!({})),
             compiled_set("after", compiled_number(7.0)),
         ]);
         assert_eq!(start_published(&native).variable_text("after"), "7");
         let report = kitten4::coverage(&native, 1);
-        assert_eq!(report["stubbed"][stub], 1);
+        assert_eq!(report["stubbed"][stub], Value::Null);
         assert_eq!(report["stage"], "ran");
     }
     for (state, expected) in [("show", "false"), ("hide", "true")] {
