@@ -137,7 +137,7 @@ export class ProjectAudio {
     utterance.rate=command.kitten4?.8:clamp(speed/10,.1,10);
     utterance.pitch=command.kitten4?1:clamp(pitch/10,0,2);
     utterance.volume=command.kitten4?1:clamp(volume/10,0,1);
-    utterance.lang=/[^\u0000-\u00ff]/.test(command.text)?'zh-CN':'en-GB';
+    utterance.lang=command.kitten4&&command.language?command.language:(/[^\u0000-\u00ff]/.test(command.text)?'zh-CN':'en-GB');
     const voices=speechSynthesis.getVoices();
     if(!command.kitten4&&voices[per])utterance.voice=voices[per];
     utterance.onend=done;utterance.onerror=()=>{if(!this.speech.has(item))return;this.onError('语音合成失败');done();};

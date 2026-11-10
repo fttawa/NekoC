@@ -7,9 +7,9 @@
   "compiledOwners": 4529,
   "count": 377,
   "counts": {
-    "已实现": 240,
-    "stub": 1,
-    "缺失": 46,
+    "已实现": 287,
+    "stub": 0,
+    "缺失": 0,
     "设备降级": 90
   },
   "audit": {
@@ -304,7 +304,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2238 (translate)"
+        "src/kitten4.rs:2347 (translate)"
       ],
       "limitations": [
         "仅编译器结构表证据，不表示存在普通 domain handler",
@@ -325,7 +325,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:1919 (translate)"
+        "src/kitten4.rs:2028 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -351,7 +351,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:1980 (translate)"
+        "src/kitten4.rs:2089 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -371,7 +371,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:696 (lower_block)"
+        "src/kitten4.rs:715 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -397,10 +397,10 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:1933 (translate)",
-        "src/kitten4.rs:1939 (translate)",
-        "src/kitten4.rs:1956 (translate)",
-        "src/kitten4.rs:615 (lower_block)"
+        "src/kitten4.rs:2042 (translate)",
+        "src/kitten4.rs:2048 (translate)",
+        "src/kitten4.rs:2065 (translate)",
+        "src/kitten4.rs:634 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -426,7 +426,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:1928 (translate)"
+        "src/kitten4.rs:2037 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -446,7 +446,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2241 (translate)"
+        "src/kitten4.rs:2350 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -465,7 +465,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2239 (translate)"
+        "src/kitten4.rs:2348 (translate)"
       ],
       "limitations": [
         "仅编译器结构表证据，不表示存在普通 domain handler",
@@ -485,7 +485,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2247 (translate)"
+        "src/kitten4.rs:2356 (translate)"
       ],
       "limitations": [
         "仅编译器结构表证据，不表示存在普通 domain handler",
@@ -505,7 +505,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2273 (translate)"
+        "src/kitten4.rs:2382 (translate)"
       ],
       "limitations": [
         "仅编译器结构表证据，不表示存在普通 domain handler",
@@ -526,7 +526,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:1919 (translate)"
+        "src/kitten4.rs:2028 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -545,7 +545,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2271 (translate)"
+        "src/kitten4.rs:2380 (translate)"
       ],
       "limitations": [
         "仅编译器结构表证据，不表示存在普通 domain handler",
@@ -565,7 +565,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:1918 (translate)"
+        "src/kitten4.rs:2027 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -584,7 +584,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2272 (translate)"
+        "src/kitten4.rs:2381 (translate)"
       ],
       "limitations": [
         "仅编译器结构表证据，不表示存在普通 domain handler",
@@ -604,7 +604,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2245 (translate)"
+        "src/kitten4.rs:2354 (translate)"
       ],
       "limitations": [
         "仅编译器结构表证据，不表示存在普通 domain handler",
@@ -624,7 +624,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2244 (translate)"
+        "src/kitten4.rs:2353 (translate)"
       ],
       "limitations": [
         "仅编译器结构表证据，不表示存在普通 domain handler",
@@ -645,7 +645,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2243 (translate)"
+        "src/kitten4.rs:2352 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -665,7 +665,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2095 (translate)"
+        "src/kitten4.rs:2204 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -685,7 +685,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:315 (lower_bump)"
+        "src/kitten4.rs:317 (lower_bump)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -705,7 +705,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2250 (translate)"
+        "src/kitten4.rs:2359 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -731,7 +731,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:1923 (translate)"
+        "src/kitten4.rs:2032 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -751,10 +751,10 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:765 (lower_block)"
+        "src/kitten4.rs:784 (lower_block)"
       ],
       "limitations": [
-        "仅显式属性/角色局部变量；未列出的属性仍不支持",
+        "补齐 get_2 全属性委派与官方未知属性 NaN；普通属性/角色局部变量有回归；悬空目标、场景滤镜及非有限状态仍未逐项官方实测",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 2049
@@ -772,7 +772,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:1915 (translate)"
+        "src/kitten4.rs:2024 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -792,7 +792,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2153 (translate)"
+        "src/kitten4.rs:2262 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -812,7 +812,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:717 (lower_block)"
+        "src/kitten4.rs:736 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -832,7 +832,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:1975 (translate)"
+        "src/kitten4.rs:2084 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -857,7 +857,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:1912 (translate)"
+        "src/kitten4.rs:2021 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -877,7 +877,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2153 (translate)"
+        "src/kitten4.rs:2262 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -897,7 +897,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:723 (lower_block)"
+        "src/kitten4.rs:742 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -917,7 +917,7 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:859 (lower_block)"
+        "src/kitten4.rs:882 (lower_block)"
       ],
       "limitations": [
         "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
@@ -938,7 +938,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2257 (translate)"
+        "src/kitten4.rs:2366 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -958,7 +958,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2242 (translate)"
+        "src/kitten4.rs:2351 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -978,7 +978,7 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:744 (lower_block)"
+        "src/kitten4.rs:763 (lower_block)"
       ],
       "limitations": [
         "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
@@ -1005,9 +1005,9 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:1932 (translate)",
-        "src/kitten4.rs:1937 (translate)",
-        "src/kitten4.rs:1956 (translate)"
+        "src/kitten4.rs:2041 (translate)",
+        "src/kitten4.rs:2046 (translate)",
+        "src/kitten4.rs:2065 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1027,11 +1027,11 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:521 (lower_block)",
-        "src/engine.rs:3680 (kitten4_legacy_)"
+        "src/kitten4.rs:534 (lower_block)",
+        "src/engine.rs:3840 (kitten4_legacy_)"
       ],
       "limitations": [
-        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 1051
@@ -1049,7 +1049,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:806 (lower_block)"
+        "src/kitten4.rs:829 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1074,7 +1074,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:837 (lower_block)"
+        "src/kitten4.rs:860 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1094,7 +1094,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:724 (lower_block)"
+        "src/kitten4.rs:743 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1114,7 +1114,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:742 (lower_block)"
+        "src/kitten4.rs:761 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1134,7 +1134,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:836 (lower_block)"
+        "src/kitten4.rs:859 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1153,7 +1153,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:732 (lower_block)"
+        "src/kitten4.rs:751 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1179,8 +1179,8 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:1932 (translate)",
-        "src/kitten4.rs:1935 (translate)"
+        "src/kitten4.rs:2041 (translate)",
+        "src/kitten4.rs:2044 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1199,7 +1199,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2246 (translate)"
+        "src/kitten4.rs:2355 (translate)"
       ],
       "limitations": [
         "仅编译器结构表证据，不表示存在普通 domain handler",
@@ -1220,7 +1220,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2110 (translate)"
+        "src/kitten4.rs:2219 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1240,7 +1240,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2256 (translate)"
+        "src/kitten4.rs:2365 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1260,7 +1260,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2258 (translate)"
+        "src/kitten4.rs:2367 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1279,7 +1279,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2251 (translate)"
+        "src/kitten4.rs:2360 (translate)"
       ],
       "limitations": [
         "仅编译器结构表证据，不表示存在普通 domain handler",
@@ -1300,7 +1300,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2259 (translate)"
+        "src/kitten4.rs:2368 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1331,7 +1331,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2253 (translate)"
+        "src/kitten4.rs:2362 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1355,7 +1355,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2270 (translate)"
+        "src/kitten4.rs:2379 (translate)"
       ],
       "limitations": [
         "仅编译器结构表证据，不表示存在普通 domain handler",
@@ -1381,8 +1381,8 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2252 (translate)",
-        "src/kitten4.rs:419 (lower_when)"
+        "src/kitten4.rs:2361 (translate)",
+        "src/kitten4.rs:421 (lower_when)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1402,7 +1402,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2038 (translate)"
+        "src/kitten4.rs:2147 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1422,8 +1422,8 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:527 (lower_block)",
-        "src/kitten4.rs:745 (lower_block)"
+        "src/kitten4.rs:546 (lower_block)",
+        "src/kitten4.rs:764 (lower_block)"
       ],
       "limitations": [
         "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
@@ -1451,7 +1451,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2254 (translate)"
+        "src/kitten4.rs:2363 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1471,7 +1471,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:838 (lower_block)"
+        "src/kitten4.rs:861 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1497,7 +1497,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2073 (translate)"
+        "src/kitten4.rs:2182 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1517,7 +1517,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:850 (lower_block)"
+        "src/kitten4.rs:873 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1543,8 +1543,8 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:1933 (translate)",
-        "src/kitten4.rs:1940 (translate)"
+        "src/kitten4.rs:2042 (translate)",
+        "src/kitten4.rs:2049 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1563,7 +1563,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2274 (translate)"
+        "src/kitten4.rs:2383 (translate)"
       ],
       "limitations": [
         "仅编译器结构表证据，不表示存在普通 domain handler",
@@ -1584,7 +1584,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:857 (lower_block)"
+        "src/kitten4.rs:880 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1604,7 +1604,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:746 (lower_block)"
+        "src/kitten4.rs:765 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1624,7 +1624,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:646 (lower_block)"
+        "src/kitten4.rs:665 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1644,7 +1644,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:743 (lower_block)"
+        "src/kitten4.rs:762 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1664,7 +1664,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:831 (lower_block)"
+        "src/kitten4.rs:854 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1683,7 +1683,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:1976 (translate)"
+        "src/kitten4.rs:2085 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1703,8 +1703,8 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:650 (lower_block)",
-        "src/kitten4.rs:653 (lower_block)"
+        "src/kitten4.rs:669 (lower_block)",
+        "src/kitten4.rs:672 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1724,7 +1724,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2098 (translate)"
+        "src/kitten4.rs:2207 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1744,7 +1744,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2004 (translate)"
+        "src/kitten4.rs:2113 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1764,7 +1764,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:832 (lower_block)"
+        "src/kitten4.rs:855 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1784,7 +1784,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:713 (lower_block)"
+        "src/kitten4.rs:732 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1804,7 +1804,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:839 (lower_block)"
+        "src/kitten4.rs:862 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1823,7 +1823,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2248 (translate)"
+        "src/kitten4.rs:2357 (translate)"
       ],
       "limitations": [
         "仅编译器结构表证据，不表示存在普通 domain handler",
@@ -1850,7 +1850,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2176 (translate)"
+        "src/kitten4.rs:2285 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1870,8 +1870,8 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2059 (translate)",
-        "src/kitten4.rs:698 (lower_block)"
+        "src/kitten4.rs:2168 (translate)",
+        "src/kitten4.rs:717 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1891,7 +1891,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2261 (translate)"
+        "src/kitten4.rs:2370 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1911,10 +1911,10 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/engine/physics.rs:327 (parse)"
+        "src/engine/physics.rs:521 (parse)"
       ],
       "limitations": [
-        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 317
@@ -1932,7 +1932,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:747 (lower_block)"
+        "src/kitten4.rs:766 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1952,7 +1952,7 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:841 (lower_block)"
+        "src/kitten4.rs:864 (lower_block)"
       ],
       "limitations": [
         "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
@@ -1973,7 +1973,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:845 (lower_block)"
+        "src/kitten4.rs:868 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1993,7 +1993,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:840 (lower_block)"
+        "src/kitten4.rs:863 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2013,7 +2013,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2070 (translate)"
+        "src/kitten4.rs:2179 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2039,9 +2039,9 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:1932 (translate)",
-        "src/kitten4.rs:1938 (translate)",
-        "src/kitten4.rs:1956 (translate)"
+        "src/kitten4.rs:2041 (translate)",
+        "src/kitten4.rs:2047 (translate)",
+        "src/kitten4.rs:2065 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2061,7 +2061,7 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:583 (lower_block)"
+        "src/kitten4.rs:602 (lower_block)"
       ],
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
@@ -2082,7 +2082,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2267 (translate)"
+        "src/kitten4.rs:2376 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2102,7 +2102,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:688 (lower_block)"
+        "src/kitten4.rs:707 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2122,7 +2122,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:728 (lower_block)"
+        "src/kitten4.rs:747 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2142,7 +2142,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2110 (translate)"
+        "src/kitten4.rs:2219 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2162,11 +2162,11 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:500 (lower_block)",
-        "src/engine.rs:3676 (kitten4_set_velocity)"
+        "src/kitten4.rs:513 (lower_block)",
+        "src/engine.rs:3836 (kitten4_set_velocity)"
       ],
       "limitations": [
-        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 250
@@ -2184,7 +2184,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2099 (translate)"
+        "src/kitten4.rs:2208 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2203,7 +2203,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2249 (translate)"
+        "src/kitten4.rs:2358 (translate)"
       ],
       "limitations": [
         "仅编译器结构表证据，不表示存在普通 domain handler",
@@ -2224,7 +2224,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:855 (lower_block)"
+        "src/kitten4.rs:878 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2244,7 +2244,7 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:861 (lower_block)"
+        "src/kitten4.rs:884 (lower_block)"
       ],
       "limitations": [
         "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
@@ -2265,7 +2265,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:646 (lower_block)"
+        "src/kitten4.rs:665 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2291,7 +2291,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:1933 (translate)"
+        "src/kitten4.rs:2042 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2311,10 +2311,10 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/engine/physics.rs:328 (parse)"
+        "src/engine/physics.rs:522 (parse)"
       ],
       "limitations": [
-        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 173
@@ -2332,7 +2332,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:851 (lower_block)"
+        "src/kitten4.rs:874 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2352,7 +2352,7 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:842 (lower_block)"
+        "src/kitten4.rs:865 (lower_block)"
       ],
       "limitations": [
         "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
@@ -2373,7 +2373,7 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:833 (lower_block)"
+        "src/kitten4.rs:856 (lower_block)"
       ],
       "limitations": [
         "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
@@ -2400,8 +2400,8 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:1933 (translate)",
-        "src/kitten4.rs:1941 (translate)"
+        "src/kitten4.rs:2042 (translate)",
+        "src/kitten4.rs:2050 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2421,7 +2421,7 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:551 (lower_block)"
+        "src/kitten4.rs:570 (lower_block)"
       ],
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
@@ -2448,8 +2448,8 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:1932 (translate)",
-        "src/kitten4.rs:1936 (translate)"
+        "src/kitten4.rs:2041 (translate)",
+        "src/kitten4.rs:2045 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2469,7 +2469,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:846 (lower_block)"
+        "src/kitten4.rs:869 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2489,8 +2489,8 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:650 (lower_block)",
-        "src/kitten4.rs:654 (lower_block)"
+        "src/kitten4.rs:669 (lower_block)",
+        "src/kitten4.rs:673 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2510,7 +2510,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:609 (lower_block)"
+        "src/kitten4.rs:628 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2530,7 +2530,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:860 (lower_block)"
+        "src/kitten4.rs:883 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2550,7 +2550,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2100 (translate)"
+        "src/kitten4.rs:2209 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2576,7 +2576,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:854 (lower_block)"
+        "src/kitten4.rs:877 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2596,7 +2596,7 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:552 (lower_block)"
+        "src/kitten4.rs:571 (lower_block)"
       ],
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
@@ -2617,7 +2617,7 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:443 (cloud_list)"
+        "src/kitten4.rs:444 (cloud_list)"
       ],
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
@@ -2638,7 +2638,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:650 (lower_block)"
+        "src/kitten4.rs:669 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2658,8 +2658,8 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2072 (translate)",
-        "src/kitten4.rs:595 (lower_block)"
+        "src/kitten4.rs:2181 (translate)",
+        "src/kitten4.rs:614 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2679,10 +2679,10 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/engine/physics.rs:355 (parse)"
+        "src/engine/physics.rs:549 (parse)"
       ],
       "limitations": [
-        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 103
@@ -2700,7 +2700,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2240 (translate)"
+        "src/kitten4.rs:2349 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2720,10 +2720,10 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:514 (lower_block)"
+        "src/kitten4.rs:527 (lower_block)"
       ],
       "limitations": [
-        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 95
@@ -2741,7 +2741,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:853 (lower_block)"
+        "src/kitten4.rs:876 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2761,10 +2761,10 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:516 (lower_block)"
+        "src/kitten4.rs:529 (lower_block)"
       ],
       "limitations": [
-        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 93
@@ -2782,10 +2782,10 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:518 (lower_block)"
+        "src/kitten4.rs:531 (lower_block)"
       ],
       "limitations": [
-        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 92
@@ -2803,10 +2803,10 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:517 (lower_block)"
+        "src/kitten4.rs:530 (lower_block)"
       ],
       "limitations": [
-        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 91
@@ -2824,7 +2824,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2269 (translate)"
+        "src/kitten4.rs:2378 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2844,7 +2844,7 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:553 (lower_block)"
+        "src/kitten4.rs:572 (lower_block)"
       ],
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
@@ -2871,7 +2871,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:1967 (translate)"
+        "src/kitten4.rs:2076 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2891,7 +2891,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:816 (lower_block)"
+        "src/kitten4.rs:839 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2911,7 +2911,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:504 (lower_block)"
+        "src/kitten4.rs:517 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2931,7 +2931,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:683 (lower_block)"
+        "src/kitten4.rs:702 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2951,7 +2951,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:746 (lower_block)"
+        "src/kitten4.rs:765 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2971,10 +2971,10 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/engine/physics.rs:349 (parse)"
+        "src/engine/physics.rs:543 (parse)"
       ],
       "limitations": [
-        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 77
@@ -2992,7 +2992,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:641 (lower_block)"
+        "src/kitten4.rs:660 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3012,7 +3012,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:688 (lower_block)"
+        "src/kitten4.rs:707 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3032,7 +3032,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2078 (translate)"
+        "src/kitten4.rs:2187 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3052,10 +3052,10 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/engine/physics.rs:332 (parse)"
+        "src/engine/physics.rs:526 (parse)"
       ],
       "limitations": [
-        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 67
@@ -3073,7 +3073,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2265 (translate)"
+        "src/kitten4.rs:2374 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3093,7 +3093,7 @@
       "status": "设备降级",
       "semantics": "offline/device",
       "mapping": [
-        "src/kitten4.rs:629 (lower_block)"
+        "src/kitten4.rs:648 (lower_block)"
       ],
       "limitations": [
         "本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义"
@@ -3113,7 +3113,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2264 (translate)"
+        "src/kitten4.rs:2373 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3133,7 +3133,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:852 (lower_block)"
+        "src/kitten4.rs:875 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3153,8 +3153,8 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:466 (lower_block)",
-        "src/engine.rs:3276 (kitten4_entity_visibility)"
+        "src/kitten4.rs:467 (lower_block)",
+        "src/engine.rs:3429 (kitten4_entity_visibility)"
       ],
       "limitations": [
         "角色/分组/场景显隐与有限正时长并发渐变已有源码推导回归；点击状态清理、取消/删克隆、竞争渐变和非有限时长未验证；删除引用沿用通用 noop 策略（官方悬空 UUID 行为未验证）",
@@ -3175,8 +3175,8 @@
       "status": "设备降级",
       "semantics": "offline/device",
       "mapping": [
-        "src/kitten4.rs:633 (lower_block)",
-        "src/kitten4.rs:634 (lower_block)"
+        "src/kitten4.rs:652 (lower_block)",
+        "src/kitten4.rs:653 (lower_block)"
       ],
       "limitations": [
         "本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义"
@@ -3196,7 +3196,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:706 (lower_block)"
+        "src/kitten4.rs:725 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3216,7 +3216,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2268 (translate)"
+        "src/kitten4.rs:2377 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3236,7 +3236,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2266 (translate)"
+        "src/kitten4.rs:2375 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3256,7 +3256,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:848 (lower_block)"
+        "src/kitten4.rs:871 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3282,7 +3282,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2255 (translate)"
+        "src/kitten4.rs:2364 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3302,10 +3302,10 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/engine/physics.rs:350 (parse)"
+        "src/engine/physics.rs:544 (parse)"
       ],
       "limitations": [
-        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 43
@@ -3323,7 +3323,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:847 (lower_block)"
+        "src/kitten4.rs:870 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3342,7 +3342,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:599 (lower_block)"
+        "src/kitten4.rs:618 (lower_block)"
       ],
       "limitations": [
         "仅编译器结构表证据，不表示存在普通 domain handler",
@@ -3363,7 +3363,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:827 (lower_block)"
+        "src/kitten4.rs:850 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3383,7 +3383,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:856 (lower_block)"
+        "src/kitten4.rs:879 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3403,7 +3403,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:712 (lower_block)"
+        "src/kitten4.rs:731 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3423,7 +3423,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2262 (translate)"
+        "src/kitten4.rs:2371 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3443,10 +3443,10 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/engine/physics.rs:339 (parse)"
+        "src/engine/physics.rs:533 (parse)"
       ],
       "limitations": [
-        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 33
@@ -3464,7 +3464,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2177 (translate)"
+        "src/kitten4.rs:2286 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3484,7 +3484,7 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:555 (lower_block)"
+        "src/kitten4.rs:574 (lower_block)"
       ],
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
@@ -3505,7 +3505,7 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:835 (lower_block)"
+        "src/kitten4.rs:858 (lower_block)"
       ],
       "limitations": [
         "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
@@ -3526,7 +3526,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:591 (lower_block)"
+        "src/kitten4.rs:610 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3546,7 +3546,7 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:443 (cloud_list)"
+        "src/kitten4.rs:444 (cloud_list)"
       ],
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
@@ -3567,10 +3567,10 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/engine/physics.rs:354 (parse)"
+        "src/engine/physics.rs:548 (parse)"
       ],
       "limitations": [
-        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 27
@@ -3588,7 +3588,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:574 (lower_block)"
+        "src/kitten4.rs:593 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3608,7 +3608,7 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:556 (lower_block)"
+        "src/kitten4.rs:575 (lower_block)"
       ],
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
@@ -3629,7 +3629,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:834 (lower_block)"
+        "src/kitten4.rs:857 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3649,7 +3649,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:705 (lower_block)"
+        "src/kitten4.rs:724 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3669,10 +3669,10 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/engine/physics.rs:353 (parse)"
+        "src/engine/physics.rs:547 (parse)"
       ],
       "limitations": [
-        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 20
@@ -3689,7 +3689,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:843 (lower_block)"
+        "src/kitten4.rs:866 (lower_block)"
       ],
       "limitations": [
         "仅编译器结构表证据，不表示存在普通 domain handler",
@@ -3710,7 +3710,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2077 (translate)"
+        "src/kitten4.rs:2186 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3730,7 +3730,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:849 (lower_block)"
+        "src/kitten4.rs:872 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3750,10 +3750,10 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/engine/physics.rs:331 (parse)"
+        "src/engine/physics.rs:525 (parse)"
       ],
       "limitations": [
-        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 18
@@ -3771,7 +3771,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2260 (translate)"
+        "src/kitten4.rs:2369 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3791,7 +3791,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2175 (translate)"
+        "src/kitten4.rs:2284 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3811,7 +3811,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2178 (translate)"
+        "src/kitten4.rs:2287 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3831,7 +3831,7 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:569 (lower_block)"
+        "src/kitten4.rs:588 (lower_block)"
       ],
       "limitations": [
         "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
@@ -3852,7 +3852,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2263 (translate)"
+        "src/kitten4.rs:2372 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3872,7 +3872,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:707 (lower_block)"
+        "src/kitten4.rs:726 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3892,7 +3892,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:582 (lower_block)"
+        "src/kitten4.rs:601 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3912,7 +3912,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:544 (lower_block)"
+        "src/kitten4.rs:563 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3932,10 +3932,10 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/engine/physics.rs:348 (parse)"
+        "src/engine/physics.rs:542 (parse)"
       ],
       "limitations": [
-        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 14
@@ -3953,7 +3953,7 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:591 (lower_block)"
+        "src/kitten4.rs:610 (lower_block)"
       ],
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
@@ -3974,7 +3974,7 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:587 (lower_block)"
+        "src/kitten4.rs:606 (lower_block)"
       ],
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
@@ -3995,7 +3995,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:712 (lower_block)"
+        "src/kitten4.rs:731 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -4015,7 +4015,7 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:443 (cloud_list)"
+        "src/kitten4.rs:444 (cloud_list)"
       ],
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
@@ -4057,7 +4057,7 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:557 (lower_block)"
+        "src/kitten4.rs:576 (lower_block)"
       ],
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
@@ -4078,7 +4078,7 @@
       "status": "设备降级",
       "semantics": "offline/device",
       "mapping": [
-        "src/kitten4.rs:439 (is_stub)"
+        "src/kitten4.rs:440 (is_stub)"
       ],
       "limitations": [
         "is_stub 明确列出：无效果或固定返回值；不视为完整实现",
@@ -4098,7 +4098,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:707 (lower_block)"
+        "src/kitten4.rs:726 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -4118,7 +4118,7 @@
       "status": "设备降级",
       "semantics": "offline/device",
       "mapping": [
-        "src/kitten4.rs:603 (lower_block)"
+        "src/kitten4.rs:622 (lower_block)"
       ],
       "limitations": [
         "本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义"
@@ -4138,7 +4138,7 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:858 (lower_block)"
+        "src/kitten4.rs:881 (lower_block)"
       ],
       "limitations": [
         "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
@@ -4159,7 +4159,7 @@
       "status": "设备降级",
       "semantics": "offline/device",
       "mapping": [
-        "src/kitten4.rs:633 (lower_block)"
+        "src/kitten4.rs:652 (lower_block)"
       ],
       "limitations": [
         "本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义"
@@ -4179,7 +4179,7 @@
       "status": "设备降级",
       "semantics": "offline/device",
       "mapping": [
-        "src/kitten4.rs:435 (is_stub)"
+        "src/kitten4.rs:436 (is_stub)"
       ],
       "limitations": [
         "is_stub 明确列出：无效果或固定返回值；不视为完整实现",
@@ -4200,7 +4200,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:544 (lower_block)"
+        "src/kitten4.rs:563 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -4220,7 +4220,7 @@
       "status": "设备降级",
       "semantics": "offline/device",
       "mapping": [
-        "src/kitten4.rs:637 (lower_block)"
+        "src/kitten4.rs:656 (lower_block)"
       ],
       "limitations": [
         "本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义"
@@ -4240,7 +4240,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:570 (lower_block)"
+        "src/kitten4.rs:589 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -4260,7 +4260,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:544 (lower_block)"
+        "src/kitten4.rs:563 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -4280,7 +4280,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:372 (lower_node)"
+        "src/kitten4.rs:374 (lower_node)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -4300,7 +4300,7 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:443 (cloud_list)"
+        "src/kitten4.rs:444 (cloud_list)"
       ],
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
@@ -4321,8 +4321,8 @@
       "status": "设备降级",
       "semantics": "offline/device",
       "mapping": [
-        "src/kitten4.rs:528 (lower_block)",
-        "src/kitten4.rs:436 (is_stub)"
+        "src/kitten4.rs:547 (lower_block)",
+        "src/kitten4.rs:437 (is_stub)"
       ],
       "limitations": [
         "is_stub 明确列出：无效果或固定返回值；不视为完整实现",
@@ -4340,15 +4340,14 @@
           "table": "physics2_enable_force"
         }
       ],
-      "status": "stub",
-      "semantics": "no-effect",
+      "status": "已实现",
+      "semantics": "partial",
       "mapping": [
-        "src/engine/physics.rs:362 (parse)",
-        "src/kitten4.rs:434 (is_stub)"
+        "src/engine/physics.rs:556 (parse)"
       ],
       "limitations": [
-        "is_stub 明确列出：无效果或固定返回值；不视为完整实现",
-        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md"
+        "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 3
     },
@@ -4365,7 +4364,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:667 (lower_block)"
+        "src/kitten4.rs:686 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -4384,7 +4383,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:707 (lower_block)"
+        "src/kitten4.rs:726 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -4404,10 +4403,10 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/engine/physics.rs:351 (parse)"
+        "src/engine/physics.rs:545 (parse)"
       ],
       "limitations": [
-        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 2
@@ -4425,7 +4424,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:610 (lower_block)"
+        "src/kitten4.rs:629 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -4445,10 +4444,10 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:515 (lower_block)"
+        "src/kitten4.rs:528 (lower_block)"
       ],
       "limitations": [
-        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 2
@@ -4465,7 +4464,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:844 (lower_block)"
+        "src/kitten4.rs:867 (lower_block)"
       ],
       "limitations": [
         "仅编译器结构表证据，不表示存在普通 domain handler",
@@ -4486,7 +4485,7 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:559 (lower_block)"
+        "src/kitten4.rs:578 (lower_block)"
       ],
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
@@ -4507,7 +4506,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:544 (lower_block)"
+        "src/kitten4.rs:563 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -4527,7 +4526,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:667 (lower_block)"
+        "src/kitten4.rs:686 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -4547,7 +4546,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:708 (lower_block)"
+        "src/kitten4.rs:727 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -4573,9 +4572,9 @@
       "status": "设备降级",
       "semantics": "offline/device",
       "mapping": [
-        "src/kitten4.rs:528 (lower_block)",
-        "src/kitten4.rs:535 (lower_block)",
-        "src/kitten4.rs:438 (is_stub)"
+        "src/kitten4.rs:547 (lower_block)",
+        "src/kitten4.rs:554 (lower_block)",
+        "src/kitten4.rs:439 (is_stub)"
       ],
       "limitations": [
         "is_stub 明确列出：无效果或固定返回值；不视为完整实现",
@@ -4603,7 +4602,7 @@
       "status": "设备降级",
       "semantics": "offline/device",
       "mapping": [
-        "src/kitten4.rs:437 (is_stub)"
+        "src/kitten4.rs:438 (is_stub)"
       ],
       "limitations": [
         "is_stub 明确列出：无效果或固定返回值；不视为完整实现",
@@ -4646,10 +4645,10 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:522 (lower_block)"
+        "src/kitten4.rs:535 (lower_block)"
       ],
       "limitations": [
-        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
@@ -4663,12 +4662,15 @@
           "registration": "compiler:EVENT_BLOCKS"
         }
       ],
-      "status": "缺失",
-      "semantics": "unsupported",
-      "mapping": [],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4/third.rs:24 (lower_third)"
+      ],
       "limitations": [
-        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
-        "仅编译器结构表证据，不表示存在普通 domain handler"
+        "实现该固定官方包的抛错边界（枚举旧事件无 domain handler）；不是可工作的新增事件，不静默执行或忽略",
+        "仅编译器结构表证据，不表示存在普通 domain handler",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
     },
@@ -4748,7 +4750,7 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:674 (lower_block)",
+        "src/kitten4.rs:693 (lower_block)",
         "src/kitten4/audio_aliases.rs:22 (lower_audio_alias)"
       ],
       "limitations": [
@@ -4770,7 +4772,7 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:443 (cloud_list)"
+        "src/kitten4.rs:444 (cloud_list)"
       ],
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
@@ -4791,7 +4793,7 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:554 (lower_block)"
+        "src/kitten4.rs:573 (lower_block)"
       ],
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
@@ -4808,12 +4810,14 @@
           "registration": "compiler:IF_BLOCKS"
         }
       ],
-      "status": "缺失",
-      "semantics": "unsupported",
-      "mapping": [],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4/third.rs:30 (lower_third)"
+      ],
       "limitations": [
-        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
-        "仅编译器结构表证据，不表示存在普通 domain handler"
+        "仅编译器结构表证据，不表示存在普通 domain handler",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
     },
@@ -4951,11 +4955,13 @@
           "table": "text_indexOf"
         }
       ],
-      "status": "缺失",
-      "semantics": "unsupported",
-      "mapping": [],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4/third.rs:19 (lower_third)"
+      ],
       "limitations": [
-        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
     },
@@ -5011,11 +5017,14 @@
           "table": "set_camera_status"
         }
       ],
-      "status": "缺失",
-      "semantics": "unsupported",
-      "mapping": [],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4/media_devices.rs:12 (lower_media_devices)"
+      ],
       "limitations": [
-        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
     },
@@ -5057,7 +5066,7 @@
       ],
       "limitations": [
         "legacy alias 归一化；继承目标积木的字段、子选项与运行时限制",
-        "仅显式属性/角色局部变量；未列出的属性仍不支持",
+        "补齐 get_2 全属性委派与官方未知属性 NaN；普通属性/角色局部变量有回归；悬空目标、场景滤镜及非有限状态仍未逐项官方实测",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
@@ -5075,10 +5084,11 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:2179 (translate)"
+        "src/kitten4.rs:2288 (translate)",
+        "src/kitten4.rs:503 (lower_block)"
       ],
       "limitations": [
-        "仅坐标 0/1 与方向 3；其他属性走后续 lowering 或仍不支持",
+        "补齐 get_2 全属性委派与官方未知属性 NaN；普通属性/角色局部变量有回归；悬空目标、场景滤镜及非有限状态仍未逐项官方实测",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
@@ -5135,11 +5145,13 @@
           "table": "self_gradually_appear"
         }
       ],
-      "status": "缺失",
-      "semantics": "unsupported",
-      "mapping": [],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4/third.rs:11 (lower_third)"
+      ],
       "limitations": [
-        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
     },
@@ -5153,11 +5165,13 @@
           "table": "self_gradually_appear"
         }
       ],
-      "status": "缺失",
-      "semantics": "unsupported",
-      "mapping": [],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4/third.rs:16 (lower_third)"
+      ],
       "limitations": [
-        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
     },
@@ -5171,11 +5185,13 @@
           "table": "text_indexOf"
         }
       ],
-      "status": "缺失",
-      "semantics": "unsupported",
-      "mapping": [],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4/third.rs:17 (lower_third)"
+      ],
       "limitations": [
-        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
     },
@@ -5295,10 +5311,10 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:508 (lower_block)"
+        "src/kitten4.rs:521 (lower_block)"
       ],
       "limitations": [
-        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
@@ -5355,11 +5371,15 @@
           "table": "set_camera_status"
         }
       ],
-      "status": "缺失",
-      "semantics": "unsupported",
-      "mapping": [],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4/media_devices.rs:13 (lower_media_devices)",
+        "src/kitten4/media_devices.rs:63 (lower_media_devices)"
+      ],
       "limitations": [
-        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
     },
@@ -5436,11 +5456,15 @@
           "table": "get_audios"
         }
       ],
-      "status": "缺失",
-      "semantics": "unsupported",
-      "mapping": [],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4/media_devices.rs:14 (lower_media_devices)",
+        "src/kitten4/media_devices.rs:62 (lower_media_devices)"
+      ],
       "limitations": [
-        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
     },
@@ -5499,7 +5523,7 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:558 (lower_block)"
+        "src/kitten4.rs:577 (lower_block)"
       ],
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
@@ -5517,11 +5541,14 @@
           "table": "incompatible_block"
         }
       ],
-      "status": "缺失",
-      "semantics": "unsupported",
-      "mapping": [],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4/third.rs:22 (lower_third)"
+      ],
       "limitations": [
-        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+        "实现该固定官方包的抛错边界（枚举旧事件无 domain handler）；不是可工作的新增事件，不静默执行或忽略",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
     },
@@ -5535,11 +5562,14 @@
           "table": "incompatible_block"
         }
       ],
-      "status": "缺失",
-      "semantics": "unsupported",
-      "mapping": [],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4/third.rs:23 (lower_third)"
+      ],
       "limitations": [
-        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+        "实现该固定官方包的抛错边界（枚举旧事件无 domain handler）；不是可工作的新增事件，不静默执行或忽略",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
     },
@@ -6331,11 +6361,15 @@
           "table": "get_audios"
         }
       ],
-      "status": "缺失",
-      "semantics": "unsupported",
-      "mapping": [],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4/media_devices.rs:15 (lower_media_devices)",
+        "src/kitten4/media_devices.rs:61 (lower_media_devices)"
+      ],
       "limitations": [
-        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
     },
@@ -6354,11 +6388,14 @@
           "registration": "compiler:MIDI_BLOCKS"
         }
       ],
-      "status": "缺失",
-      "semantics": "unsupported",
-      "mapping": [],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4/media_devices.rs:16 (lower_media_devices)"
+      ],
       "limitations": [
-        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
     },
@@ -6372,11 +6409,14 @@
           "table": "get_audios"
         }
       ],
-      "status": "缺失",
-      "semantics": "unsupported",
-      "mapping": [],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4/media_devices.rs:17 (lower_media_devices)"
+      ],
       "limitations": [
-        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
     },
@@ -6395,11 +6435,14 @@
           "registration": "compiler:MIDI_BLOCKS"
         }
       ],
-      "status": "缺失",
-      "semantics": "unsupported",
-      "mapping": [],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4/media_devices.rs:18 (lower_media_devices)"
+      ],
       "limitations": [
-        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
     },
@@ -6432,12 +6475,15 @@
           "registration": "compiler:EVENT_BLOCKS"
         }
       ],
-      "status": "缺失",
-      "semantics": "unsupported",
-      "mapping": [],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4/third.rs:25 (lower_third)"
+      ],
       "limitations": [
-        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
-        "仅编译器结构表证据，不表示存在普通 domain handler"
+        "实现该固定官方包的抛错边界（枚举旧事件无 domain handler）；不是可工作的新增事件，不静默执行或忽略",
+        "仅编译器结构表证据，不表示存在普通 domain handler",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
     },
@@ -6472,11 +6518,16 @@
           "table": "get_mobile_slope_value"
         }
       ],
-      "status": "缺失",
-      "semantics": "unsupported",
-      "mapping": [],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4/media_devices.rs:19 (lower_media_devices)",
+        "src/kitten4/media_devices.rs:40 (lower_media_devices)",
+        "src/kitten4/media_devices.rs:65 (lower_media_devices)"
+      ],
       "limitations": [
-        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
     },
@@ -6489,11 +6540,14 @@
           "registration": "responder"
         }
       ],
-      "status": "缺失",
-      "semantics": "unsupported",
-      "mapping": [],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4/media_devices.rs:20 (lower_media_devices)"
+      ],
       "limitations": [
-        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
     },
@@ -6506,11 +6560,14 @@
           "registration": "responder"
         }
       ],
-      "status": "缺失",
-      "semantics": "unsupported",
-      "mapping": [],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4/media_devices.rs:21 (lower_media_devices)"
+      ],
       "limitations": [
-        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
     },
@@ -6523,11 +6580,14 @@
           "registration": "responder"
         }
       ],
-      "status": "缺失",
-      "semantics": "unsupported",
-      "mapping": [],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4/media_devices.rs:22 (lower_media_devices)"
+      ],
       "limitations": [
-        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
     },
@@ -6546,11 +6606,14 @@
           "registration": "responder"
         }
       ],
-      "status": "缺失",
-      "semantics": "unsupported",
-      "mapping": [],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4/media_devices.rs:23 (lower_media_devices)"
+      ],
       "limitations": [
-        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
     },
@@ -6569,11 +6632,14 @@
           "registration": "responder"
         }
       ],
-      "status": "缺失",
-      "semantics": "unsupported",
-      "mapping": [],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4/media_devices.rs:24 (lower_media_devices)"
+      ],
       "limitations": [
-        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
     },
@@ -6590,10 +6656,10 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/engine.rs:2518 (physics2_get_property)"
+        "src/engine.rs:2629 (physics2_get_property)"
       ],
       "limitations": [
-        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
@@ -6611,10 +6677,10 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/engine/physics.rs:352 (parse)"
+        "src/engine/physics.rs:546 (parse)"
       ],
       "limitations": [
-        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
@@ -6629,11 +6695,14 @@
           "table": "get_audios"
         }
       ],
-      "status": "缺失",
-      "semantics": "unsupported",
-      "mapping": [],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4/media_devices.rs:25 (lower_media_devices)"
+      ],
       "limitations": [
-        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
     },
@@ -6650,7 +6719,7 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:658 (lower_block)",
+        "src/kitten4.rs:677 (lower_block)",
         "src/kitten4/audio_aliases.rs:12 (lower_audio_alias)"
       ],
       "limitations": [
@@ -6672,7 +6741,7 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:658 (lower_block)",
+        "src/kitten4.rs:677 (lower_block)",
         "src/kitten4/audio_aliases.rs:12 (lower_audio_alias)",
         "src/kitten4/audio_aliases.rs:13 (lower_audio_alias)"
       ],
@@ -6691,12 +6760,15 @@
           "registration": "compiler:EVENT_BLOCKS"
         }
       ],
-      "status": "缺失",
-      "semantics": "unsupported",
-      "mapping": [],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4/third.rs:26 (lower_third)"
+      ],
       "limitations": [
-        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
-        "仅编译器结构表证据，不表示存在普通 domain handler"
+        "实现该固定官方包的抛错边界（枚举旧事件无 domain handler）；不是可工作的新增事件，不静默执行或忽略",
+        "仅编译器结构表证据，不表示存在普通 domain handler",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
     },
@@ -6709,12 +6781,14 @@
           "registration": "compiler:PROCEDURE_BLOCKS"
         }
       ],
-      "status": "缺失",
-      "semantics": "unsupported",
-      "mapping": [],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4/third.rs:68 (lower_third)"
+      ],
       "limitations": [
-        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
-        "仅编译器结构表证据，不表示存在普通 domain handler"
+        "仅编译器结构表证据，不表示存在普通 domain handler",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
     },
@@ -6727,12 +6801,14 @@
           "registration": "compiler:PROCEDURE_BLOCKS"
         }
       ],
-      "status": "缺失",
-      "semantics": "unsupported",
-      "mapping": [],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4/third.rs:69 (lower_third)"
+      ],
       "limitations": [
-        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
-        "仅编译器结构表证据，不表示存在普通 domain handler"
+        "仅编译器结构表证据，不表示存在普通 domain handler",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
     },
@@ -6750,12 +6826,14 @@
           "registration": "compiler:HAT_BLOCKS"
         }
       ],
-      "status": "缺失",
-      "semantics": "unsupported",
-      "mapping": [],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4/third.rs:67 (lower_third)"
+      ],
       "limitations": [
-        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
-        "仅编译器结构表证据，不表示存在普通 domain handler"
+        "仅编译器结构表证据，不表示存在普通 domain handler",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
     },
@@ -6768,12 +6846,14 @@
           "registration": "compiler:PROCEDURE_BLOCKS"
         }
       ],
-      "status": "缺失",
-      "semantics": "unsupported",
-      "mapping": [],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4/third.rs:70 (lower_third)"
+      ],
       "limitations": [
-        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
-        "仅编译器结构表证据，不表示存在普通 domain handler"
+        "仅编译器结构表证据，不表示存在普通 domain handler",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
     },
@@ -6786,12 +6866,14 @@
           "registration": "compiler:PROCEDURE_BLOCKS"
         }
       ],
-      "status": "缺失",
-      "semantics": "unsupported",
-      "mapping": [],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4/third.rs:71 (lower_third)"
+      ],
       "limitations": [
-        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持",
-        "仅编译器结构表证据，不表示存在普通 domain handler"
+        "仅编译器结构表证据，不表示存在普通 domain handler",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
     },
@@ -6805,11 +6887,13 @@
           "table": "text_indexOf"
         }
       ],
-      "status": "缺失",
-      "semantics": "unsupported",
-      "mapping": [],
+      "status": "已实现",
+      "semantics": "mapped-not-parity",
+      "mapping": [
+        "src/kitten4/third.rs:18 (lower_third)"
+      ],
       "limitations": [
-        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
     },
@@ -6865,11 +6949,14 @@
           "table": "get_audios"
         }
       ],
-      "status": "缺失",
-      "semantics": "unsupported",
-      "mapping": [],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4/media_devices.rs:26 (lower_media_devices)"
+      ],
       "limitations": [
-        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
     },
@@ -6883,11 +6970,14 @@
           "table": "get_audios"
         }
       ],
-      "status": "缺失",
-      "semantics": "unsupported",
-      "mapping": [],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4/media_devices.rs:27 (lower_media_devices)"
+      ],
       "limitations": [
-        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
     },
@@ -6948,7 +7038,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2174 (translate)"
+        "src/kitten4.rs:2283 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -7199,10 +7289,10 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:520 (lower_block)"
+        "src/kitten4.rs:533 (lower_block)"
       ],
       "limitations": [
-        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
@@ -7242,10 +7332,10 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:519 (lower_block)"
+        "src/kitten4.rs:532 (lower_block)"
       ],
       "limitations": [
-        "刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md",
+        "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
@@ -7302,11 +7392,14 @@
           "table": "self_enable_physics"
         }
       ],
-      "status": "缺失",
-      "semantics": "unsupported",
-      "mapping": [],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4.rs:536 (lower_block)"
+      ],
       "limitations": [
-        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+        "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
     },
@@ -7467,11 +7560,14 @@
           "table": "self_enable_physics"
         }
       ],
-      "status": "缺失",
-      "semantics": "unsupported",
-      "mapping": [],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4.rs:537 (lower_block)"
+      ],
       "limitations": [
-        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+        "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
     },
@@ -7485,11 +7581,14 @@
           "table": "self_enable_physics"
         }
       ],
-      "status": "缺失",
-      "semantics": "unsupported",
-      "mapping": [],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4.rs:538 (lower_block)"
+      ],
       "limitations": [
-        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+        "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
     },
@@ -7503,11 +7602,14 @@
           "table": "self_enable_physics"
         }
       ],
-      "status": "缺失",
-      "semantics": "unsupported",
-      "mapping": [],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4.rs:539 (lower_block)"
+      ],
       "limitations": [
-        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+        "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
     },
@@ -7521,11 +7623,14 @@
           "table": "self_enable_physics"
         }
       ],
-      "status": "缺失",
-      "semantics": "unsupported",
-      "mapping": [],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4.rs:540 (lower_block)"
+      ],
       "limitations": [
-        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+        "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
     },
@@ -7560,11 +7665,14 @@
           "table": "get_audios"
         }
       ],
-      "status": "缺失",
-      "semantics": "unsupported",
-      "mapping": [],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4/media_devices.rs:28 (lower_media_devices)"
+      ],
       "limitations": [
-        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
     },
@@ -7599,11 +7707,14 @@
           "table": "self_enable_physics"
         }
       ],
-      "status": "缺失",
-      "semantics": "unsupported",
-      "mapping": [],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4.rs:541 (lower_block)"
+      ],
       "limitations": [
-        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+        "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
     },
@@ -7620,8 +7731,8 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:674 (lower_block)",
-        "src/kitten4.rs:677 (lower_block)",
+        "src/kitten4.rs:693 (lower_block)",
+        "src/kitten4.rs:696 (lower_block)",
         "src/kitten4/audio_aliases.rs:21 (lower_audio_alias)"
       ],
       "limitations": [
@@ -7682,11 +7793,14 @@
           "table": "incompatible_block"
         }
       ],
-      "status": "缺失",
-      "semantics": "unsupported",
-      "mapping": [],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4/media_devices.rs:29 (lower_media_devices)"
+      ],
       "limitations": [
-        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
     },
@@ -7700,11 +7814,14 @@
           "table": "incompatible_block"
         }
       ],
-      "status": "缺失",
-      "semantics": "unsupported",
-      "mapping": [],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4/media_devices.rs:30 (lower_media_devices)"
+      ],
       "limitations": [
-        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
     },
@@ -7808,7 +7925,7 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:663 (lower_block)"
+        "src/kitten4.rs:682 (lower_block)"
       ],
       "limitations": [
         "legacy 音频已回归：动态目标及有符号增量已纠偏；严格 ID、非有限增量、内部 lock/improvise、微信录音分支仍有限制，见 kitten4-audio-aliases.md",
@@ -7872,7 +7989,7 @@
         "src/kitten4/common.rs:12 (lower_common)"
       ],
       "limitations": [
-        "FIRST/LAST 与空 needle 的 1-based UTF-16 位置已回归；原始非字符串 VALUE 的 JS TypeError 路径未对齐",
+        "FIRST/LAST、空 needle 的 1-based UTF-16 位置及非字符串 VALUE 的类型错误已有源码推导回归；孤立 surrogate 的精确 JS 字符串行为未覆盖",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
@@ -7890,7 +8007,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2101 (translate)"
+        "src/kitten4.rs:2210 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -7907,11 +8024,14 @@
           "table": "self_appear"
         }
       ],
-      "status": "缺失",
-      "semantics": "unsupported",
-      "mapping": [],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4/media_devices.rs:31 (lower_media_devices)"
+      ],
       "limitations": [
-        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
     },
@@ -7925,11 +8045,15 @@
           "table": "self_appear"
         }
       ],
-      "status": "缺失",
-      "semantics": "unsupported",
-      "mapping": [],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4/media_devices.rs:32 (lower_media_devices)",
+        "src/kitten4/media_devices.rs:64 (lower_media_devices)"
+      ],
       "limitations": [
-        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
     },
@@ -7943,11 +8067,14 @@
           "table": "set_camera_status"
         }
       ],
-      "status": "缺失",
-      "semantics": "unsupported",
-      "mapping": [],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4/media_devices.rs:33 (lower_media_devices)"
+      ],
       "limitations": [
-        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
     },
@@ -7961,11 +8088,14 @@
           "table": "set_camera_status"
         }
       ],
-      "status": "缺失",
-      "semantics": "unsupported",
-      "mapping": [],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4/media_devices.rs:34 (lower_media_devices)"
+      ],
       "limitations": [
-        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
     },
@@ -7979,11 +8109,14 @@
           "table": "get_audios"
         }
       ],
-      "status": "缺失",
-      "semantics": "unsupported",
-      "mapping": [],
+      "status": "已实现",
+      "semantics": "partial",
+      "mapping": [
+        "src/kitten4/media_devices.rs:35 (lower_media_devices)"
+      ],
       "limitations": [
-        "未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持"
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
     },

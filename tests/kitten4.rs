@@ -1912,7 +1912,7 @@ fn published_monitor_hide_reuses_the_shown_monitor() {
 }
 
 #[test]
-fn published_unknown_list_selectors_and_actor_variable_properties_stay_errors() {
+fn published_unknown_selectors_keep_domain_specific_error_or_nan_behavior() {
     let mut native = published_script(vec![compiled_set(
         "value",
         compiled(
@@ -1933,7 +1933,13 @@ fn published_unknown_list_selectors_and_actor_variable_properties_stay_errors() 
             "attribute":"00000000-0000-4000-8000-000000000001","index":compiled_number(0.0)}),
             ),
         )]);
-        assert!(Program::compile(&kitten4::to_neko(&native).unwrap()).is_err());
+        let canonical = kitten4::to_neko(&native).unwrap();
+        if kind == "get_3" {
+            // Tn6a/get_3 converts an undefined native property to NaN.
+            assert_eq!(start_published(&native).variable_text("value"), "NaN");
+        } else {
+            assert!(Program::compile(&canonical).is_err());
+        }
     }
 }
 

@@ -64,59 +64,59 @@
 
 | # | 类型 | 状态 | VM/编译位置 | 测试源码线索 | 限制／未验证 |
 | ---: | --- | --- | --- | --- | --- |
-| 1 | `__break__` | 有执行路径／未完整验证 | `src/engine.rs:4154` | T11 | 官方类型声明/API 伪名；编辑器实际积木为 break。此分派仅为兼容输入，非同名积木支持 |
-| 2 | `_array_literal` | 有执行路径／未完整验证 | `src/engine.rs:1819`<br>`src/engine.rs:2510` | T11 | 官方 Object.values 与 items0… 已核实；NekoC 保留输入顺序/类型，完整参数绑定差分未验证 |
-| 3 | `_break_statement` | 有执行路径／未完整验证 | `src/engine.rs:4154` | T11 | 官方注册/JS 转换已验证；KN 原生播放中的嵌套退出与调度差分未验证 |
-| 4 | `_continue_statement` | 有执行路径／未完整验证 | `src/engine.rs:4162` | T11 | 官方注册/JS 转换已验证；KN 原生播放中的作用域与调度差分未验证 |
-| 5 | `_execute` | 有执行路径／未完整验证 | `src/engine.rs:3190` | T11 | 官方域函数空体；NekoC 先求值 action 再丢弃结果，完整官方输入求值管线差分未验证 |
-| 6 | `_object_get` | 有执行路径／未完整验证 | `src/engine.rs:1821`<br>`src/engine.rs:2510` | T13 | KN 共享引用对象；属性缺失保留 undefined，完整 JS 原型链及特殊键未验证 |
-| 7 | `_object_literal` | 有执行路径／未完整验证 | `src/engine.rs:1820`<br>`src/engine.rs:2510` | T13 | KN 共享引用对象；官方字面量/属性读写有限样例有证据，完整 JS 原型链及全部 JSON 边界未验证 |
-| 8 | `_object_set` | 有执行路径／未完整验证 | `src/engine.rs:1822`<br>`src/engine.rs:2510`<br>`src/engine.rs:3191` | T13 | KN 共享引用对象；赋值返回值及副作用有限样例有证据，完整 JS 原型链未验证 |
-| 9 | `_return_statement` | 有执行路径／未完整验证 | `src/engine.rs:3860` | T11 | 官方注册/JS 转换已验证；NekoC 复用过程返回，KN 原生播放差分未验证 |
-| 10 | `_variable_get` | 有执行路径／未完整验证 | `src/engine.rs:1959`<br>`src/engine.rs:2510` | T11, T12 | 有路径；完整语义未验证 |
-| 11 | `_variable_set` | 有执行路径／未完整验证 | `src/engine.rs:3285` | T11, T12 | 有路径；完整语义未验证 |
-| 12 | `add_width_height_scale` | 有执行路径／未完整验证 | `src/engine.rs:3444` | T15 | 有路径；完整语义未验证 |
+| 1 | `__break__` | 有执行路径／未完整验证 | `src/engine.rs:4226` | T11 | 官方类型声明/API 伪名；编辑器实际积木为 break。此分派仅为兼容输入，非同名积木支持 |
+| 2 | `_array_literal` | 有执行路径／未完整验证 | `src/engine.rs:1826`<br>`src/engine.rs:2526` | T11 | 官方 Object.values 与 items0… 已核实；NekoC 保留输入顺序/类型，完整参数绑定差分未验证 |
+| 3 | `_break_statement` | 有执行路径／未完整验证 | `src/engine.rs:4226` | T11 | 官方注册/JS 转换已验证；KN 原生播放中的嵌套退出与调度差分未验证 |
+| 4 | `_continue_statement` | 有执行路径／未完整验证 | `src/engine.rs:4234` | T11 | 官方注册/JS 转换已验证；KN 原生播放中的作用域与调度差分未验证 |
+| 5 | `_execute` | 有执行路径／未完整验证 | `src/engine.rs:3230` | T11 | 官方域函数空体；NekoC 先求值 action 再丢弃结果，完整官方输入求值管线差分未验证 |
+| 6 | `_object_get` | 有执行路径／未完整验证 | `src/engine.rs:1828`<br>`src/engine.rs:2526` | T13 | KN 共享引用对象；属性缺失保留 undefined，完整 JS 原型链及特殊键未验证 |
+| 7 | `_object_literal` | 有执行路径／未完整验证 | `src/engine.rs:1827`<br>`src/engine.rs:2526` | T13 | KN 共享引用对象；官方字面量/属性读写有限样例有证据，完整 JS 原型链及全部 JSON 边界未验证 |
+| 8 | `_object_set` | 有执行路径／未完整验证 | `src/engine.rs:1829`<br>`src/engine.rs:2526`<br>`src/engine.rs:3231` | T13 | KN 共享引用对象；赋值返回值及副作用有限样例有证据，完整 JS 原型链未验证 |
+| 9 | `_return_statement` | 有执行路径／未完整验证 | `src/engine.rs:3932` | T11 | 官方注册/JS 转换已验证；NekoC 复用过程返回，KN 原生播放差分未验证 |
+| 10 | `_variable_get` | 有执行路径／未完整验证 | `src/engine.rs:1975`<br>`src/engine.rs:2526` | T11, T12 | 有路径；完整语义未验证 |
+| 11 | `_variable_set` | 有执行路径／未完整验证 | `src/engine.rs:3325` | T11, T12 | 有路径；完整语义未验证 |
+| 12 | `add_width_height_scale` | 有执行路径／未完整验证 | `src/engine.rs:3484` | T15 | 有路径；完整语义未验证 |
 | 13 | `ai_chat_answer` | 缺失 | — | T14 | 缺少 AI/识别/账户/网络服务及对应执行路径；不是 stub 支持 |
 | 14 | `ai_chat_ask` | 缺失 | — | T14 | 缺少 AI/识别/账户/网络服务及对应执行路径；不是 stub 支持 |
 | 15 | `ai_text_actor` | 缺失 | — | 未定位 | 缺少 AI/识别/账户/网络服务及对应执行路径；不是 stub 支持 |
 | 16 | `ai_text_photo` | 缺失 | — | 未定位 | 缺少 AI/识别/账户/网络服务及对应执行路径；不是 stub 支持 |
 | 17 | `ai_text_result` | 缺失 | — | T14 | 缺少 AI/识别/账户/网络服务及对应执行路径；不是 stub 支持 |
 | 18 | `ai_text_result_check` | 缺失 | — | T14 | 缺少 AI/识别/账户/网络服务及对应执行路径；不是 stub 支持 |
-| 19 | `appearance_of_sprite` | 部分语义 | `src/engine.rs:2596` | T5, T15 | width/height/scale 均映射 ExprOp::Scale；不能代表独立宽高百分比 |
-| 20 | `ask_and_choose` | 有执行路径／未完整验证 | `src/engine.rs:3771` | T3, T5, T15 | 有路径；完整语义未验证 |
-| 21 | `atob` | 有执行路径／未完整验证 | `src/engine.rs:1963`<br>`src/engine.rs:2510` | T9, T12 | 有路径；完整语义未验证 |
-| 22 | `btoa` | 有执行路径／未完整验证 | `src/engine.rs:1964`<br>`src/engine.rs:2510` | T9, T12 | 有路径；完整语义未验证 |
-| 23 | `bump_into` | 有执行路径／未完整验证 | `src/engine.rs:2610` | T5, T15 | 有路径；完整语义未验证 |
-| 24 | `bump_into_body_part` | 部分语义 | `src/engine.rs:1789`<br>`src/engine.rs:2446` | T14, T15 | 仅无检测结果时 false；检测后端未实现 |
-| 25 | `bump_into_color` | 有执行路径／未完整验证 | `src/engine.rs:2630` | T5, T15 | 有路径；完整语义未验证 |
-| 26 | `calculate` | 有执行路径／未完整验证 | `src/engine.rs:1816`<br>`src/engine.rs:2510` | T4, T11 | 复用现有官方来源公式求值器；KN 官方域函数有限样例已测，全公式语言与异常集未验证 |
+| 19 | `appearance_of_sprite` | 部分语义 | `src/engine.rs:2620` | T5, T15 | width/height/scale 均映射 ExprOp::Scale；不能代表独立宽高百分比 |
+| 20 | `ask_and_choose` | 有执行路径／未完整验证 | `src/engine.rs:3811` | T3, T5, T15 | 有路径；完整语义未验证 |
+| 21 | `atob` | 有执行路径／未完整验证 | `src/engine.rs:1979`<br>`src/engine.rs:2526` | T9, T12 | 有路径；完整语义未验证 |
+| 22 | `btoa` | 有执行路径／未完整验证 | `src/engine.rs:1980`<br>`src/engine.rs:2526` | T9, T12 | 有路径；完整语义未验证 |
+| 23 | `bump_into` | 有执行路径／未完整验证 | `src/engine.rs:2634` | T5, T15 | 有路径；完整语义未验证 |
+| 24 | `bump_into_body_part` | 部分语义 | `src/engine.rs:1796`<br>`src/engine.rs:2462` | T14, T15 | 仅无检测结果时 false；检测后端未实现 |
+| 25 | `bump_into_color` | 有执行路径／未完整验证 | `src/engine.rs:2654` | T5, T15 | 有路径；完整语义未验证 |
+| 26 | `calculate` | 有执行路径／未完整验证 | `src/engine.rs:1823`<br>`src/engine.rs:2526` | T4, T11 | 复用现有官方来源公式求值器；KN 官方域函数有限样例已测，全公式语言与异常集未验证 |
 | 27 | `catbit_button_is_pressed` | 缺失 | — | 未定位 | 缺少硬件/连接后端或对应计算实现；不是 stub 支持 |
 | 28 | `catbit_button_when` | 缺失 | — | 未定位 | 缺少硬件/连接后端或对应计算实现；不是 stub 支持 |
 | 29 | `catbit_usb_button_when` | 缺失 | — | 未定位 | 缺少硬件/连接后端或对应计算实现；不是 stub 支持 |
 | 30 | `change_robot2_master_motor_power` | 缺失 | — | 未定位 | 缺少硬件/连接后端或对应计算实现；不是 stub 支持 |
 | 31 | `change_robot_master_motor_power` | 缺失 | — | 未定位 | 缺少硬件/连接后端或对应计算实现；不是 stub 支持 |
-| 32 | `change_script_variables` | 有执行路径／未完整验证 | `src/engine.rs:3242` | T11 | 官方代码 API，非注册积木；官方 JS→XML 存在赋值转换异常，本地兼容别名未模拟该缺陷 |
-| 33 | `change_variables` | 有执行路径／未完整验证 | `src/engine.rs:3242` | T1, T4, T5, T9, T11, T13, T15 | 有路径；完整语义未验证 |
+| 32 | `change_script_variables` | 有执行路径／未完整验证 | `src/engine.rs:3282` | T11 | 官方代码 API，非注册积木；官方 JS→XML 存在赋值转换异常，本地兼容别名未模拟该缺陷 |
+| 33 | `change_variables` | 有执行路径／未完整验证 | `src/engine.rs:3282` | T1, T4, T5, T9, T11, T13, T15 | 有路径；完整语义未验证 |
 | 34 | `check_emotion` | 缺失 | — | 未定位 | 缺少 AI/识别/账户/网络服务及对应执行路径；不是 stub 支持 |
 | 35 | `check_face_shape` | 缺失 | — | 未定位 | 缺少 AI/识别/账户/网络服务及对应执行路径；不是 stub 支持 |
 | 36 | `check_gender` | 缺失 | — | T14 | 缺少 AI/识别/账户/网络服务及对应执行路径；不是 stub 支持 |
-| 37 | `check_key` | 有执行路径／未完整验证 | `src/engine.rs:2550` | T5, T15 | 有路径；完整语义未验证 |
-| 38 | `check_tilt_direction_of_face` | 部分语义 | `src/engine.rs:1789`<br>`src/engine.rs:2446` | T14 | 仅无检测结果时 false；检测后端未实现 |
-| 39 | `clearInterval` | 部分语义 | `src/engine.rs:3157` | T10 | 取消尚未派发的定时器；浏览器 timer ID 数值不保证相同 |
-| 40 | `clearTimeout` | 部分语义 | `src/engine.rs:3157` | T10 | 取消尚未派发的定时器；浏览器 timer ID 数值不保证相同 |
-| 41 | `clear_all_effects` | 有执行路径／未完整验证 | `src/engine.rs:3440` | T15 | 有路径；完整语义未验证 |
-| 42 | `clear_drawing` | 有执行路径／未完整验证 | `src/engine.rs:3924` | T5, T15 | 有路径；完整语义未验证 |
-| 43 | `close_self_dialog` | 有执行路径／未完整验证 | `src/engine.rs:3616` | T15 | 有路径；完整语义未验证 |
-| 44 | `console_log` | 有执行路径／未完整验证 | `src/engine.rs:4059` | T2, T4, T5, T10, T11, T12, T14, T15 | 有路径；完整语义未验证 |
-| 45 | `controls_while` | 有执行路径／未完整验证 | `src/engine.rs:4096` | T9, T11 | 官方注册/JS 转换已验证；NekoC 前测循环有回归，KN 原生播放调度差分未验证 |
-| 46 | `convert_type` | 部分语义 | `src/engine.rs:2113`<br>`src/engine.rs:2510` | T4, T5, T15 | KN 只允许 number/string，其他转换报错；未验证全部强制转换边界 |
-| 47 | `coordinate_of_sprite` | 有执行路径／未完整验证 | `src/engine.rs:2583` | T5, T15 | 有路径；完整语义未验证 |
-| 48 | `create_stage_dialog` | 有执行路径／未完整验证 | `src/engine.rs:3590`<br>`src/engine.rs:3598` | T15 | 有路径；完整语义未验证 |
-| 49 | `delete_list_item` | 有执行路径／未完整验证 | `src/engine.rs:3930` | T5, T15 | 有路径；完整语义未验证 |
-| 50 | `dispose_clone` | 有执行路径／未完整验证 | `src/engine.rs:3817` | T1, T5, T15 | 有路径；完整语义未验证 |
-| 51 | `distance_to` | 有执行路径／未完整验证 | `src/engine.rs:2608` | T15 | 有路径；完整语义未验证 |
-| 52 | `divisible_by` | 有执行路径／未完整验证 | `src/engine.rs:2712` | T5, T15 | 有路径；完整语义未验证 |
-| 53 | `effect_of_sprite` | 有执行路径／未完整验证 | `src/engine.rs:2690` | T15 | 有路径；完整语义未验证 |
+| 37 | `check_key` | 有执行路径／未完整验证 | `src/engine.rs:2574` | T5, T15 | 有路径；完整语义未验证 |
+| 38 | `check_tilt_direction_of_face` | 部分语义 | `src/engine.rs:1796`<br>`src/engine.rs:2462` | T14 | 仅无检测结果时 false；检测后端未实现 |
+| 39 | `clearInterval` | 部分语义 | `src/engine.rs:3197` | T10 | 取消尚未派发的定时器；浏览器 timer ID 数值不保证相同 |
+| 40 | `clearTimeout` | 部分语义 | `src/engine.rs:3197` | T10 | 取消尚未派发的定时器；浏览器 timer ID 数值不保证相同 |
+| 41 | `clear_all_effects` | 有执行路径／未完整验证 | `src/engine.rs:3480` | T15 | 有路径；完整语义未验证 |
+| 42 | `clear_drawing` | 有执行路径／未完整验证 | `src/engine.rs:3996` | T5, T15 | 有路径；完整语义未验证 |
+| 43 | `close_self_dialog` | 有执行路径／未完整验证 | `src/engine.rs:3656` | T15 | 有路径；完整语义未验证 |
+| 44 | `console_log` | 有执行路径／未完整验证 | `src/engine.rs:4131` | T2, T4, T5, T10, T11, T12, T14, T15 | 有路径；完整语义未验证 |
+| 45 | `controls_while` | 有执行路径／未完整验证 | `src/engine.rs:4168` | T9, T11 | 官方注册/JS 转换已验证；NekoC 前测循环有回归，KN 原生播放调度差分未验证 |
+| 46 | `convert_type` | 部分语义 | `src/engine.rs:2129`<br>`src/engine.rs:2526` | T4, T5, T15 | KN 只允许 number/string，其他转换报错；未验证全部强制转换边界 |
+| 47 | `coordinate_of_sprite` | 有执行路径／未完整验证 | `src/engine.rs:2607` | T5, T15 | 有路径；完整语义未验证 |
+| 48 | `create_stage_dialog` | 有执行路径／未完整验证 | `src/engine.rs:3630`<br>`src/engine.rs:3638` | T15 | 有路径；完整语义未验证 |
+| 49 | `delete_list_item` | 有执行路径／未完整验证 | `src/engine.rs:4002` | T5, T15 | 有路径；完整语义未验证 |
+| 50 | `dispose_clone` | 有执行路径／未完整验证 | `src/engine.rs:3889` | T1, T5, T15 | 有路径；完整语义未验证 |
+| 51 | `distance_to` | 有执行路径／未完整验证 | `src/engine.rs:2632` | T15 | 有路径；完整语义未验证 |
+| 52 | `divisible_by` | 有执行路径／未完整验证 | `src/engine.rs:2736` | T5, T15 | 有路径；完整语义未验证 |
+| 53 | `effect_of_sprite` | 有执行路径／未完整验证 | `src/engine.rs:2714` | T15 | 有路径；完整语义未验证 |
 | 54 | `enable_face_detect_by_actor` | 缺失 | — | 未定位 | 缺少 AI/识别/账户/网络服务及对应执行路径；不是 stub 支持 |
 | 55 | `enable_face_detect_by_photo` | 缺失 | — | 未定位 | 缺少 AI/识别/账户/网络服务及对应执行路径；不是 stub 支持 |
 | 56 | `enable_object_detect_by_actor` | 缺失 | — | 未定位 | 缺少 AI/识别/账户/网络服务及对应执行路径；不是 stub 支持 |
@@ -124,63 +124,63 @@
 | 58 | `evaluate_actor_style` | 缺失 | — | 未定位 | 缺少 AI/识别/账户/网络服务及对应执行路径；不是 stub 支持 |
 | 59 | `evaluate_camera` | 缺失 | — | T14 | 缺少 AI/识别/账户/网络服务及对应执行路径；不是 stub 支持 |
 | 60 | `evaluate_photo` | 缺失 | — | 未定位 | 缺少 AI/识别/账户/网络服务及对应执行路径；不是 stub 支持 |
-| 61 | `face_to_body_part` | 部分语义 | `src/engine.rs:3167` | T14, T15 | 仅无检测结果时不修改方向；检测后端未实现 |
-| 62 | `get_answer` | 有执行路径／未完整验证 | `src/engine.rs:2026`<br>`src/engine.rs:2538` | T5, T15 | 有路径；完整语义未验证 |
-| 63 | `get_appearance_of_part` | 部分语义 | `src/engine.rs:1789`<br>`src/engine.rs:2446` | T14, T15 | 仅无检测结果时 NaN；检测后端未实现 |
-| 64 | `get_choice_and_index` | 有执行路径／未完整验证 | `src/engine.rs:2049`<br>`src/engine.rs:2538` | T5, T15 | 有路径；完整语义未验证 |
-| 65 | `get_clone_index_property` | 部分语义 | `src/engine.rs:2050`<br>`src/engine.rs:2664` | T1, T4, T15 | KN 仅部分属性码和角色变量；其他属性显式报错 |
-| 66 | `get_clone_num` | 有执行路径／未完整验证 | `src/engine.rs:2609` | T5, T15 | 有路径；完整语义未验证 |
-| 67 | `get_current_clone_index` | 有执行路径／未完整验证 | `src/engine.rs:2663` | T1, T5, T15 | 有路径；完整语义未验证 |
+| 61 | `face_to_body_part` | 部分语义 | `src/engine.rs:3207` | T14, T15 | 仅无检测结果时不修改方向；检测后端未实现 |
+| 62 | `get_answer` | 有执行路径／未完整验证 | `src/engine.rs:2042`<br>`src/engine.rs:2562` | T5, T15 | 有路径；完整语义未验证 |
+| 63 | `get_appearance_of_part` | 部分语义 | `src/engine.rs:1796`<br>`src/engine.rs:2462` | T14, T15 | 仅无检测结果时 NaN；检测后端未实现 |
+| 64 | `get_choice_and_index` | 有执行路径／未完整验证 | `src/engine.rs:2065`<br>`src/engine.rs:2562` | T5, T15 | 有路径；完整语义未验证 |
+| 65 | `get_clone_index_property` | 部分语义 | `src/engine.rs:2066`<br>`src/engine.rs:2688` | T1, T4, T15 | KN 仅部分属性码和角色变量；其他属性显式报错 |
+| 66 | `get_clone_num` | 有执行路径／未完整验证 | `src/engine.rs:2633` | T5, T15 | 有路径；完整语义未验证 |
+| 67 | `get_current_clone_index` | 有执行路径／未完整验证 | `src/engine.rs:2687` | T1, T5, T15 | 有路径；完整语义未验证 |
 | 68 | `get_evaluate_class_accuracy` | 缺失 | — | 未定位 | 缺少 AI/识别/账户/网络服务及对应执行路径；不是 stub 支持 |
 | 69 | `get_evaluate_class_name` | 缺失 | — | 未定位 | 缺少 AI/识别/账户/网络服务及对应执行路径；不是 stub 支持 |
 | 70 | `get_face_detection_result` | 缺失 | — | T14 | 缺少 AI/识别/账户/网络服务及对应执行路径；不是 stub 支持 |
-| 71 | `get_mouse_info` | 有执行路径／未完整验证 | `src/engine.rs:2486` | T5, T15 | 有路径；完整语义未验证 |
+| 71 | `get_mouse_info` | 有执行路径／未完整验证 | `src/engine.rs:2502` | T5, T15 | 有路径；完整语义未验证 |
 | 72 | `get_object_detection_result` | 缺失 | — | 未定位 | 缺少 AI/识别/账户/网络服务及对应执行路径；不是 stub 支持 |
-| 73 | `get_orientation` | 固定值占位 | `src/engine.rs:2595` | T5, T14, T15 | 官方 desktop 无设备分支实测为 numeric 0；仍未接入移动端设备倾斜，固定值不算传感器支持 |
-| 74 | `get_play_audio` | 有执行路径／未完整验证 | `src/engine.rs:1901` | T5 | 有路径；完整语义未验证 |
-| 75 | `get_position_of_body_part` | 部分语义 | `src/engine.rs:1789`<br>`src/engine.rs:2446` | T14 | 仅无检测结果时 NaN；检测后端未实现 |
+| 73 | `get_orientation` | 固定值占位 | `src/engine.rs:2619` | T5, T14, T15 | 官方 desktop 无设备分支实测为 numeric 0；仍未接入移动端设备倾斜，固定值不算传感器支持 |
+| 74 | `get_play_audio` | 有执行路径／未完整验证 | `src/engine.rs:1917` | T5 | 有路径；完整语义未验证 |
+| 75 | `get_position_of_body_part` | 部分语义 | `src/engine.rs:1796`<br>`src/engine.rs:2462` | T14 | 仅无检测结果时 NaN；检测后端未实现 |
 | 76 | `get_robot2_master_motor_power` | 缺失 | — | 未定位 | 缺少硬件/连接后端或对应计算实现；不是 stub 支持 |
 | 77 | `get_robot_master_infrared_sensor_distance` | 缺失 | — | 未定位 | 缺少硬件/连接后端或对应计算实现；不是 stub 支持 |
 | 78 | `get_robot_master_motor_power` | 缺失 | — | 未定位 | 缺少硬件/连接后端或对应计算实现；不是 stub 支持 |
 | 79 | `get_sprite_property` | 缺失 | — | 未定位 | 没有对应可执行分派；连到事件体/表达式时不支持（导入或游离忽略不算支持） |
-| 80 | `get_stage_info` | 有执行路径／未完整验证 | `src/engine.rs:2668` | T5, T15 | 有路径；完整语义未验证 |
-| 81 | `get_tilt_angle_of_face` | 部分语义 | `src/engine.rs:1789`<br>`src/engine.rs:2446` | T14, T15 | 仅无检测结果时 NaN；检测后端未实现 |
-| 82 | `get_time` | 有执行路径／未完整验证 | `src/engine.rs:2104`<br>`src/engine.rs:2676` | T15 | 有路径；完整语义未验证 |
-| 83 | `get_timer` | 有执行路径／未完整验证 | `src/engine.rs:2581` | T4, T11 | 独立 block timer；官方用墙钟，NekoC 用 VM 仿真时间，暂停/节流和精度一致性未验证 |
-| 84 | `get_voice_answer` | 部分语义 | `src/engine.rs:1789`<br>`src/engine.rs:2446` | T14 | 仅未开始识别的初始空文本；麦克风、权限与识别后端未实现 |
+| 80 | `get_stage_info` | 有执行路径／未完整验证 | `src/engine.rs:2692` | T5, T15 | 有路径；完整语义未验证 |
+| 81 | `get_tilt_angle_of_face` | 部分语义 | `src/engine.rs:1796`<br>`src/engine.rs:2462` | T14, T15 | 仅无检测结果时 NaN；检测后端未实现 |
+| 82 | `get_time` | 有执行路径／未完整验证 | `src/engine.rs:2120`<br>`src/engine.rs:2700` | T15 | 有路径；完整语义未验证 |
+| 83 | `get_timer` | 有执行路径／未完整验证 | `src/engine.rs:2605` | T4, T11 | 独立 block timer；官方用墙钟，NekoC 用 VM 仿真时间，暂停/节流和精度一致性未验证 |
+| 84 | `get_voice_answer` | 部分语义 | `src/engine.rs:1796`<br>`src/engine.rs:2462` | T14 | 仅未开始识别的初始空文本；麦克风、权限与识别后端未实现 |
 | 85 | `get_voice_volume` | 缺失 | — | T14 | 缺少 AI/识别/账户/网络服务及对应执行路径；不是 stub 支持 |
 | 86 | `global_animation` | 缺失 | — | T15 | 没有对应可执行分派；连到事件体/表达式时不支持（导入或游离忽略不算支持） |
-| 87 | `image_stamp` | 有执行路径／未完整验证 | `src/engine.rs:3671` | T5, T15 | 有路径；完整语义未验证 |
-| 88 | `isFinite` | 有执行路径／未完整验证 | `src/engine.rs:1977`<br>`src/engine.rs:2510` | T9, T12 | 有路径；完整语义未验证 |
-| 89 | `isNaN` | 有执行路径／未完整验证 | `src/engine.rs:1976`<br>`src/engine.rs:2510` | T9, T12 | 有路径；完整语义未验证 |
-| 90 | `list_append` | 有执行路径／未完整验证 | `src/engine.rs:3939` | T1, T5, T9, T11, T13, T15 | 有路径；完整语义未验证 |
-| 91 | `list_copy` | 有执行路径／未完整验证 | `src/engine.rs:3957` | T5, T15 | 有路径；完整语义未验证 |
-| 92 | `list_get` | 有执行路径／未完整验证 | `src/engine.rs:1978` | T15 | 有路径；完整语义未验证 |
-| 93 | `list_index_of` | 有执行路径／未完整验证 | `src/engine.rs:1873`<br>`src/engine.rs:2510` | T5, T15 | 有路径；完整语义未验证 |
-| 94 | `list_insert_value` | 有执行路径／未完整验证 | `src/engine.rs:3943` | T5, T15 | 有路径；完整语义未验证 |
-| 95 | `list_is_exist` | 有执行路径／未完整验证 | `src/engine.rs:1873`<br>`src/engine.rs:2510` | T5, T15 | 有路径；完整语义未验证 |
-| 96 | `list_item` | 有执行路径／未完整验证 | `src/engine.rs:1988`<br>`src/engine.rs:2569`<br>`src/engine.rs:2572` | T1, T5, T9, T15, T17 | 有路径；完整语义未验证 |
-| 97 | `list_length` | 有执行路径／未完整验证 | `src/engine.rs:2566` | T5, T9, T11, T15 | 有路径；完整语义未验证 |
-| 98 | `logic_boolean` | 有执行路径／未完整验证 | `src/engine.rs:1908`<br>`src/engine.rs:2468` | T4, T5, T9, T11, T15 | 有路径；完整语义未验证 |
-| 99 | `logic_compare` | 有执行路径／未完整验证 | `src/engine.rs:1925`<br>`src/engine.rs:2538` | T1, T5, T9, T11, T14, T15 | 有路径；完整语义未验证 |
-| 100 | `logic_negate` | 有执行路径／未完整验证 | `src/engine.rs:1914`<br>`src/engine.rs:2538` | T4, T5, T15 | 有路径；完整语义未验证 |
-| 101 | `logic_operation` | 有执行路径／未完整验证 | `src/engine.rs:1920`<br>`src/engine.rs:2538` | T5, T15 | 有路径；完整语义未验证 |
-| 102 | `logic_ternary` | 有执行路径／未完整验证 | `src/engine.rs:1915`<br>`src/engine.rs:2538` | T9 | 有路径；完整语义未验证 |
-| 103 | `logic_to_boolean` | 有执行路径／未完整验证 | `src/engine.rs:1961`<br>`src/engine.rs:2510` | T9, T12 | 有路径；完整语义未验证 |
-| 104 | `math_add_assign` | 有执行路径／未完整验证 | `src/engine.rs:3290` | T12 | 有路径；完整语义未验证 |
-| 105 | `math_arithmetic` | 有执行路径／未完整验证 | `src/engine.rs:1810`<br>`src/engine.rs:2734` | T1, T4, T5, T9, T12, T13, T14, T15, T16 | 有路径；完整语义未验证 |
-| 106 | `math_decrement` | 有执行路径／未完整验证 | `src/engine.rs:3290` | T12 | 有路径；完整语义未验证 |
-| 107 | `math_div_assign` | 有执行路径／未完整验证 | `src/engine.rs:3290` | T12 | 有路径；完整语义未验证 |
-| 108 | `math_function` | 有执行路径／未完整验证 | `src/engine.rs:2782` | T5, T15 | 有路径；完整语义未验证 |
-| 109 | `math_increment` | 有执行路径／未完整验证 | `src/engine.rs:3290` | T12 | 有路径；完整语义未验证 |
-| 110 | `math_mod_assign` | 有执行路径／未完整验证 | `src/engine.rs:3290` | T12 | 有路径；完整语义未验证 |
-| 111 | `math_modulo` | 有执行路径／未完整验证 | `src/engine.rs:2734` | T15 | 有路径；完整语义未验证 |
-| 112 | `math_mul_assign` | 有执行路径／未完整验证 | `src/engine.rs:3290` | T12 | 有路径；完整语义未验证 |
-| 113 | `math_number_property` | 有执行路径／未完整验证 | `src/engine.rs:1844`<br>`src/engine.rs:2713` | T4, T5, T15 | 有路径；完整语义未验证 |
-| 114 | `math_round` | 有执行路径／未完整验证 | `src/engine.rs:2782` | T5, T15 | 有路径；完整语义未验证 |
-| 115 | `math_sub_assign` | 有执行路径／未完整验证 | `src/engine.rs:3290` | T12 | 有路径；完整语义未验证 |
-| 116 | `math_trig` | 有执行路径／未完整验证 | `src/engine.rs:2782` | T5, T15 | 有路径；完整语义未验证 |
-| 117 | `math_trig_rad` | 有执行路径／未完整验证 | `src/engine.rs:2767` | T5 | 有路径；完整语义未验证 |
+| 87 | `image_stamp` | 有执行路径／未完整验证 | `src/engine.rs:3711` | T5, T15 | 有路径；完整语义未验证 |
+| 88 | `isFinite` | 有执行路径／未完整验证 | `src/engine.rs:1993`<br>`src/engine.rs:2526` | T9, T12 | 有路径；完整语义未验证 |
+| 89 | `isNaN` | 有执行路径／未完整验证 | `src/engine.rs:1992`<br>`src/engine.rs:2526` | T9, T12 | 有路径；完整语义未验证 |
+| 90 | `list_append` | 有执行路径／未完整验证 | `src/engine.rs:4011` | T1, T5, T9, T11, T13, T15 | 有路径；完整语义未验证 |
+| 91 | `list_copy` | 有执行路径／未完整验证 | `src/engine.rs:4029` | T5, T15 | 有路径；完整语义未验证 |
+| 92 | `list_get` | 有执行路径／未完整验证 | `src/engine.rs:1994` | T15 | 有路径；完整语义未验证 |
+| 93 | `list_index_of` | 有执行路径／未完整验证 | `src/engine.rs:1889`<br>`src/engine.rs:2526` | T5, T15 | 有路径；完整语义未验证 |
+| 94 | `list_insert_value` | 有执行路径／未完整验证 | `src/engine.rs:4015` | T5, T15 | 有路径；完整语义未验证 |
+| 95 | `list_is_exist` | 有执行路径／未完整验证 | `src/engine.rs:1889`<br>`src/engine.rs:2526` | T5, T15 | 有路径；完整语义未验证 |
+| 96 | `list_item` | 有执行路径／未完整验证 | `src/engine.rs:2004`<br>`src/engine.rs:2593`<br>`src/engine.rs:2596` | T1, T5, T9, T15, T17 | 有路径；完整语义未验证 |
+| 97 | `list_length` | 有执行路径／未完整验证 | `src/engine.rs:2590` | T5, T9, T11, T15 | 有路径；完整语义未验证 |
+| 98 | `logic_boolean` | 有执行路径／未完整验证 | `src/engine.rs:1924`<br>`src/engine.rs:2484` | T4, T5, T9, T11, T15 | 有路径；完整语义未验证 |
+| 99 | `logic_compare` | 有执行路径／未完整验证 | `src/engine.rs:1941`<br>`src/engine.rs:2562` | T1, T5, T9, T11, T14, T15 | 有路径；完整语义未验证 |
+| 100 | `logic_negate` | 有执行路径／未完整验证 | `src/engine.rs:1930`<br>`src/engine.rs:2562` | T4, T5, T15 | 有路径；完整语义未验证 |
+| 101 | `logic_operation` | 有执行路径／未完整验证 | `src/engine.rs:1936`<br>`src/engine.rs:2562` | T5, T15 | 有路径；完整语义未验证 |
+| 102 | `logic_ternary` | 有执行路径／未完整验证 | `src/engine.rs:1931`<br>`src/engine.rs:2562` | T9 | 有路径；完整语义未验证 |
+| 103 | `logic_to_boolean` | 有执行路径／未完整验证 | `src/engine.rs:1977`<br>`src/engine.rs:2526` | T9, T12 | 有路径；完整语义未验证 |
+| 104 | `math_add_assign` | 有执行路径／未完整验证 | `src/engine.rs:3330` | T12 | 有路径；完整语义未验证 |
+| 105 | `math_arithmetic` | 有执行路径／未完整验证 | `src/engine.rs:1817`<br>`src/engine.rs:2758` | T1, T4, T5, T9, T12, T13, T14, T15, T16 | 有路径；完整语义未验证 |
+| 106 | `math_decrement` | 有执行路径／未完整验证 | `src/engine.rs:3330` | T12 | 有路径；完整语义未验证 |
+| 107 | `math_div_assign` | 有执行路径／未完整验证 | `src/engine.rs:3330` | T12 | 有路径；完整语义未验证 |
+| 108 | `math_function` | 有执行路径／未完整验证 | `src/engine.rs:2806` | T5, T15 | 有路径；完整语义未验证 |
+| 109 | `math_increment` | 有执行路径／未完整验证 | `src/engine.rs:3330` | T12 | 有路径；完整语义未验证 |
+| 110 | `math_mod_assign` | 有执行路径／未完整验证 | `src/engine.rs:3330` | T12 | 有路径；完整语义未验证 |
+| 111 | `math_modulo` | 有执行路径／未完整验证 | `src/engine.rs:2758` | T15 | 有路径；完整语义未验证 |
+| 112 | `math_mul_assign` | 有执行路径／未完整验证 | `src/engine.rs:3330` | T12 | 有路径；完整语义未验证 |
+| 113 | `math_number_property` | 有执行路径／未完整验证 | `src/engine.rs:1851`<br>`src/engine.rs:2737` | T4, T5, T15 | 有路径；完整语义未验证 |
+| 114 | `math_round` | 有执行路径／未完整验证 | `src/engine.rs:2806` | T5, T15 | 有路径；完整语义未验证 |
+| 115 | `math_sub_assign` | 有执行路径／未完整验证 | `src/engine.rs:3330` | T12 | 有路径；完整语义未验证 |
+| 116 | `math_trig` | 有执行路径／未完整验证 | `src/engine.rs:2806` | T5, T15 | 有路径；完整语义未验证 |
+| 117 | `math_trig_rad` | 有执行路径／未完整验证 | `src/engine.rs:2791` | T5 | 有路径；完整语义未验证 |
 | 118 | `microbit_accelerometer` | 缺失 | — | 未定位 | 缺少硬件/连接后端或对应计算实现；不是 stub 支持 |
 | 119 | `microbit_button_is_pressed` | 缺失 | — | 未定位 | 缺少硬件/连接后端或对应计算实现；不是 stub 支持 |
 | 120 | `microbit_button_when` | 缺失 | — | 未定位 | 缺少硬件/连接后端或对应计算实现；不是 stub 支持 |
@@ -219,151 +219,151 @@
 | 153 | `microbit_sound_level` | 缺失 | — | 未定位 | 缺少硬件/连接后端或对应计算实现；不是 stub 支持 |
 | 154 | `microbit_stop` | 缺失 | — | 未定位 | 缺少硬件/连接后端或对应计算实现；不是 stub 支持 |
 | 155 | `microbit_temperature` | 缺失 | — | T14 | 缺少硬件/连接后端或对应计算实现；不是 stub 支持 |
-| 156 | `mirror` | 有执行路径／未完整验证 | `src/engine.rs:3558` | T1, T5, T9, T15 | 有路径；完整语义未验证 |
-| 157 | `mouse_down` | 部分语义 | `src/engine.rs:2695` | T8, T15 | 只读取 mouse_event_type/type，忽略 catalog 的 sprite 目标字段 |
-| 158 | `move_to_body_part` | 部分语义 | `src/engine.rs:3167` | T14 | 仅无检测结果时不修改位置；检测后端未实现 |
+| 156 | `mirror` | 有执行路径／未完整验证 | `src/engine.rs:3598` | T1, T5, T9, T15 | 有路径；完整语义未验证 |
+| 157 | `mouse_down` | 部分语义 | `src/engine.rs:2719` | T8, T15 | 只读取 mouse_event_type/type，忽略 catalog 的 sprite 目标字段 |
+| 158 | `move_to_body_part` | 部分语义 | `src/engine.rs:3207` | T14 | 仅无检测结果时不修改位置；检测后端未实现 |
 | 159 | `new_conversation` | 缺失 | — | T14 | 缺少 AI/识别/账户/网络服务及对应执行路径；不是 stub 支持 |
-| 160 | `on_bump_actor` | 有执行路径／未完整验证 | `src/engine.rs:2888` | T5, T15 | 有路径；完整语义未验证 |
-| 161 | `on_bump_actor_value` | 有执行路径／未完整验证 | `src/engine.rs:2032`<br>`src/engine.rs:2664` | T5, T15 | 有路径；完整语义未验证 |
-| 162 | `on_keydown` | 有执行路径／未完整验证 | `src/engine.rs:2880` | T2, T3, T5, T15 | 有路径；完整语义未验证 |
-| 163 | `on_running_group_activated` | 有执行路径／未完整验证 | `src/engine.rs:2854` | T1, T2, T3, T4, T5, T6, T7, T9, T10, T11, T12, T14, T15, T16, T17, T18 | 有路径；完整语义未验证 |
-| 164 | `on_swipe` | 有执行路径／未完整验证 | `src/engine.rs:2870` | T5 | 有路径；完整语义未验证 |
+| 160 | `on_bump_actor` | 有执行路径／未完整验证 | `src/engine.rs:2925` | T5, T15 | 有路径；完整语义未验证 |
+| 161 | `on_bump_actor_value` | 有执行路径／未完整验证 | `src/engine.rs:2048`<br>`src/engine.rs:2688` | T5, T15 | 有路径；完整语义未验证 |
+| 162 | `on_keydown` | 有执行路径／未完整验证 | `src/engine.rs:2917` | T2, T3, T5, T15 | 有路径；完整语义未验证 |
+| 163 | `on_running_group_activated` | 有执行路径／未完整验证 | `src/engine.rs:2878` | T1, T2, T3, T4, T5, T6, T7, T9, T10, T11, T12, T14, T15, T16, T17, T18 | 有路径；完整语义未验证 |
+| 164 | `on_swipe` | 有执行路径／未完整验证 | `src/engine.rs:2907` | T5 | 有路径；完整语义未验证 |
 | 165 | `open_close_webcam` | 缺失 | — | 未定位 | 缺少摄像头后端及对应执行路径；不是 stub 支持 |
 | 166 | `open_hide_camera` | 缺失 | — | 未定位 | 缺少摄像头后端及对应执行路径；不是 stub 支持 |
-| 167 | `out_of_boundary` | 有执行路径／未完整验证 | `src/engine.rs:2646` | T5, T15 | 有路径；完整语义未验证 |
-| 168 | `parseFloat` | 有执行路径／未完整验证 | `src/engine.rs:1965`<br>`src/engine.rs:2510` | T9, T12 | 有路径；完整语义未验证 |
-| 169 | `parseInt` | 有执行路径／未完整验证 | `src/engine.rs:1966`<br>`src/engine.rs:2510` | T9, T12 | 有路径；完整语义未验证 |
-| 170 | `play_audio` | 有执行路径／未完整验证 | `src/engine.rs:3925` | T2, T3, T5, T15 | 有路径；完整语义未验证 |
-| 171 | `play_audio_and_wait` | 有执行路径／未完整验证 | `src/engine.rs:3687` | T2, T5 | 有路径；完整语义未验证 |
-| 172 | `play_word_audio_wait` | 有执行路径／未完整验证 | `src/engine.rs:3696` | T2 | 有路径；完整语义未验证 |
-| 173 | `play_words_audio` | 有执行路径／未完整验证 | `src/engine.rs:3696` | 未定位 | 有路径；完整语义未验证 |
+| 167 | `out_of_boundary` | 有执行路径／未完整验证 | `src/engine.rs:2670` | T5, T15 | 有路径；完整语义未验证 |
+| 168 | `parseFloat` | 有执行路径／未完整验证 | `src/engine.rs:1981`<br>`src/engine.rs:2526` | T9, T12 | 有路径；完整语义未验证 |
+| 169 | `parseInt` | 有执行路径／未完整验证 | `src/engine.rs:1982`<br>`src/engine.rs:2526` | T9, T12 | 有路径；完整语义未验证 |
+| 170 | `play_audio` | 有执行路径／未完整验证 | `src/engine.rs:3997` | T2, T3, T5, T15 | 有路径；完整语义未验证 |
+| 171 | `play_audio_and_wait` | 有执行路径／未完整验证 | `src/engine.rs:3727` | T2, T5 | 有路径；完整语义未验证 |
+| 172 | `play_word_audio_wait` | 有执行路径／未完整验证 | `src/engine.rs:3736` | T2 | 有路径；完整语义未验证 |
+| 173 | `play_words_audio` | 有执行路径／未完整验证 | `src/engine.rs:3736` | 未定位 | 有路径；完整语义未验证 |
 | 174 | `procedures_2_actor_param` | 缺失 | — | 未定位 | 没有对应可执行分派；连到事件体/表达式时不支持（导入或游离忽略不算支持） |
-| 175 | `procedures_2_defnoreturn` | 元数据 | `src/engine.rs:1119 (compiler metadata)` | T5, T9, T11 | 非独立指令；由过程/循环编译消费 |
-| 176 | `random_num` | 有执行路径／未完整验证 | `src/engine.rs:2495` | T4, T5, T15 | 有路径；完整语义未验证 |
-| 177 | `received_broadcast` | 有执行路径／未完整验证 | `src/engine.rs:1864`<br>`src/engine.rs:2510` | T5, T15 | 有路径；完整语义未验证 |
-| 178 | `recognize_body_part` | 部分语义 | `src/engine.rs:1789`<br>`src/engine.rs:2446` | T14 | 仅无检测结果时 false；检测后端未实现 |
-| 179 | `recognize_gesture` | 部分语义 | `src/engine.rs:1789`<br>`src/engine.rs:2446` | T14 | 仅无检测结果时 false；检测后端未实现 |
-| 180 | `repeat_forever` | 有执行路径／未完整验证 | `src/engine.rs:4096` | T5, T11, T15, T18 | 有路径；完整语义未验证 |
-| 181 | `repeat_forever_until` | 有执行路径／未完整验证 | `src/engine.rs:4096` | T5, T15 | 有路径；完整语义未验证 |
-| 182 | `repeat_n_times` | 有执行路径／未完整验证 | `src/engine.rs:4096` | T1, T4, T5, T9, T10, T11, T12, T13, T15, T18 | 有路径；完整语义未验证 |
-| 183 | `replace_list_item` | 有执行路径／未完整验证 | `src/engine.rs:3948` | T5, T9, T15 | 有路径；完整语义未验证 |
-| 184 | `reset_timer` | 有执行路径／未完整验证 | `src/engine.rs:3192` | T11 | 只重置独立 block timer，不改变舞台计时器；官方墙钟与 VM 仿真时钟差异未验证 |
-| 185 | `restart` | 有执行路径／未完整验证 | `src/engine.rs:3557` | T5, T9, T15 | 有路径；完整语义未验证 |
-| 186 | `script_variables` | 有执行路径／未完整验证 | `src/engine.rs:3177` | T5, T9, T11, T15 | 有路径；完整语义未验证 |
-| 187 | `script_variables_set` | 有执行路径／未完整验证 | `src/engine.rs:3196` | T11 | 官方代码 API，非注册积木；原生作品用 variables_set + 脚本变量 JSON。兼容别名参照 HateNeko |
-| 188 | `script_variables_value` | 有执行路径／未完整验证 | `src/engine.rs:1957`<br>`src/engine.rs:2485` | T5, T9, T11, T15 | 有路径；完整语义未验证 |
-| 189 | `self_appear` | 有执行路径／未完整验证 | `src/engine.rs:3388` | T5, T15 | 有路径；完整语义未验证 |
-| 190 | `self_appear_animation` | 有执行路径／未完整验证 | `src/engine.rs:3635` | T5, T15 | 有路径；完整语义未验证 |
-| 191 | `self_ask` | 有执行路径／未完整验证 | `src/engine.rs:3770` | T5, T15 | 有路径；完整语义未验证 |
-| 192 | `self_bounce_off_edge` | 有执行路径／未完整验证 | `src/engine.rs:3617` | T5, T15, T16 | 有路径；完整语义未验证 |
-| 193 | `self_broadcast` | 有执行路径／未完整验证 | `src/engine.rs:4018` | T5, T15 | 有路径；完整语义未验证 |
-| 194 | `self_broadcast_and_wait` | 有执行路径／未完整验证 | `src/engine.rs:4018` | T5, T15 | 有路径；完整语义未验证 |
-| 195 | `self_broadcast_with_param` | 有执行路径／未完整验证 | `src/engine.rs:4018` | T5, T15 | 有路径；完整语义未验证 |
-| 196 | `self_change_coordinate_x` | 有执行路径／未完整验证 | `src/engine.rs:3373` | T5, T15 | 有路径；完整语义未验证 |
-| 197 | `self_change_coordinate_y` | 有执行路径／未完整验证 | `src/engine.rs:3373` | T15 | 有路径；完整语义未验证 |
-| 198 | `self_change_effect` | 有执行路径／未完整验证 | `src/engine.rs:3421` | T5, T15 | 有路径；完整语义未验证 |
-| 199 | `self_change_pen_color_property` | 有执行路径／未完整验证 | `src/engine.rs:3968` | T5, T15 | 有路径；完整语义未验证 |
-| 200 | `self_change_pen_size` | 有执行路径／未完整验证 | `src/engine.rs:3458` | T15 | 有路径；完整语义未验证 |
-| 201 | `self_change_scale` | 有执行路径／未完整验证 | `src/engine.rs:3441` | T5, T15 | 有路径；完整语义未验证 |
-| 202 | `self_dialog` | 有执行路径／未完整验证 | `src/engine.rs:3598` | T5, T15 | 有路径；完整语义未验证 |
-| 203 | `self_dialog_wait` | 部分语义 | `src/engine.rs:3598` | T15 | 只有 Op::Dialog，timed 分支仅匹配 self_dialog；没有显式等待/关闭 |
-| 204 | `self_face_to` | 有执行路径／未完整验证 | `src/engine.rs:3467` | T5, T15 | 有路径；完整语义未验证 |
-| 205 | `self_face_to_sprite` | 有执行路径／未完整验证 | `src/engine.rs:3467` | T15 | 有路径；完整语义未验证 |
-| 206 | `self_glide_coordinate_x` | 有执行路径／未完整验证 | `src/engine.rs:3503` | T15 | 有路径；完整语义未验证 |
-| 207 | `self_glide_coordinate_y` | 有执行路径／未完整验证 | `src/engine.rs:3503` | T15 | 有路径；完整语义未验证 |
-| 208 | `self_glide_to` | 有执行路径／未完整验证 | `src/engine.rs:3503` | T5, T15 | 有路径；完整语义未验证 |
-| 209 | `self_go_forward` | 有执行路径／未完整验证 | `src/engine.rs:3367` | T5, T15, T18 | 有路径；完整语义未验证 |
-| 210 | `self_gradually_show_hide` | 有执行路径／未完整验证 | `src/engine.rs:3542` | T5, T15 | 有路径；完整语义未验证 |
-| 211 | `self_listen` | 有执行路径／未完整验证 | `src/engine.rs:2850` | T5, T15 | 有路径；完整语义未验证 |
-| 212 | `self_listen_value` | 有执行路径／未完整验证 | `src/engine.rs:1858`<br>`src/engine.rs:2510` | T5, T15 | 有路径；完整语义未验证 |
-| 213 | `self_listen_with_param` | 有执行路径／未完整验证 | `src/engine.rs:2850` | T5, T15 | 有路径；完整语义未验证 |
-| 214 | `self_move_specify` | 有执行路径／未完整验证 | `src/engine.rs:3470` | T15 | 有路径；完整语义未验证 |
-| 215 | `self_move_specify_sprite` | 有执行路径／未完整验证 | `src/engine.rs:3470` | T15 | 有路径；完整语义未验证 |
-| 216 | `self_move_to` | 有执行路径／未完整验证 | `src/engine.rs:3368` | T5, T6, T15 | 有路径；完整语义未验证 |
-| 217 | `self_pen_down` | 有执行路径／未完整验证 | `src/engine.rs:3920` | T4, T5, T15 | 有路径；完整语义未验证 |
-| 218 | `self_pen_up` | 有执行路径／未完整验证 | `src/engine.rs:3921` | T5, T15 | 有路径；完整语义未验证 |
-| 219 | `self_point_towards` | 有执行路径／未完整验证 | `src/engine.rs:3386` | T5, T15 | 有路径；完整语义未验证 |
-| 220 | `self_prev_next_style` | 有执行路径／未完整验证 | `src/engine.rs:3414` | T5, T15 | 有路径；完整语义未验证 |
-| 221 | `self_rotate` | 有执行路径／未完整验证 | `src/engine.rs:3385` | T15 | 有路径；完整语义未验证 |
-| 222 | `self_rotate_around` | 有执行路径／未完整验证 | `src/engine.rs:3478` | T5, T15 | 有路径；完整语义未验证 |
-| 223 | `self_set_draggable` | 有执行路径／未完整验证 | `src/engine.rs:3668` | T5, T15 | 有路径；完整语义未验证 |
-| 224 | `self_set_effect` | 有执行路径／未完整验证 | `src/engine.rs:3421` | T5, T15 | 有路径；完整语义未验证 |
-| 225 | `self_set_pen_color` | 有执行路径／未完整验证 | `src/engine.rs:4000` | T5, T15 | 有路径；完整语义未验证 |
-| 226 | `self_set_pen_color_property` | 有执行路径／未完整验证 | `src/engine.rs:3968` | T5, T15 | 有路径；完整语义未验证 |
-| 227 | `self_set_pen_size` | 有执行路径／未完整验证 | `src/engine.rs:3999` | T5, T15 | 有路径；完整语义未验证 |
-| 228 | `self_set_position_x` | 有执行路径／未完整验证 | `src/engine.rs:3369` | T4, T5, T7, T9, T15 | 有路径；完整语义未验证 |
-| 229 | `self_set_position_y` | 有执行路径／未完整验证 | `src/engine.rs:3370` | T5, T15 | 有路径；完整语义未验证 |
-| 230 | `self_set_role_camp` | 有执行路径／未完整验证 | `src/engine.rs:3618` | T5, T15 | 有路径；完整语义未验证 |
-| 231 | `self_set_rotation_type` | 有执行路径／未完整验证 | `src/engine.rs:3461` | T5, T15 | 有路径；完整语义未验证 |
-| 232 | `self_stress_animation` | 有执行路径／未完整验证 | `src/engine.rs:3623` | T5, T15 | 有路径；完整语义未验证 |
-| 233 | `self_text_effect_color` | 有执行路径／未完整验证 | `src/engine.rs:3662` | T5, T15 | 有路径；完整语义未验证 |
-| 234 | `self_text_effect_size` | 有执行路径／未完整验证 | `src/engine.rs:3661` | T5, T15 | 有路径；完整语义未验证 |
-| 235 | `self_text_effect_text` | 有执行路径／未完整验证 | `src/engine.rs:3660` | T5, T15 | 有路径；完整语义未验证 |
-| 236 | `setInterval` | 部分语义 | `src/engine.rs:3152` | T10 | 按官方 0.27.4 原生实测丢弃 callback statement，只调度空回调；通用 JS function 回调未实现，墙钟精度未验证 |
-| 237 | `setTimeout` | 部分语义 | `src/engine.rs:3152` | T10, T14 | 按官方 0.27.4 原生实测丢弃 callback statement，只调度空回调；通用 JS function 回调未实现，墙钟精度未验证 |
+| 175 | `procedures_2_defnoreturn` | 元数据 | `src/engine.rs:1126 (compiler metadata)` | T5, T9, T11 | 非独立指令；由过程/循环编译消费 |
+| 176 | `random_num` | 有执行路径／未完整验证 | `src/engine.rs:2511` | T4, T5, T15 | 有路径；完整语义未验证 |
+| 177 | `received_broadcast` | 有执行路径／未完整验证 | `src/engine.rs:1880`<br>`src/engine.rs:2526` | T5, T15 | 有路径；完整语义未验证 |
+| 178 | `recognize_body_part` | 部分语义 | `src/engine.rs:1796`<br>`src/engine.rs:2462` | T14 | 仅无检测结果时 false；检测后端未实现 |
+| 179 | `recognize_gesture` | 部分语义 | `src/engine.rs:1796`<br>`src/engine.rs:2462` | T14 | 仅无检测结果时 false；检测后端未实现 |
+| 180 | `repeat_forever` | 有执行路径／未完整验证 | `src/engine.rs:4168` | T5, T11, T15, T18 | 有路径；完整语义未验证 |
+| 181 | `repeat_forever_until` | 有执行路径／未完整验证 | `src/engine.rs:4168` | T5, T15 | 有路径；完整语义未验证 |
+| 182 | `repeat_n_times` | 有执行路径／未完整验证 | `src/engine.rs:4168` | T1, T4, T5, T9, T10, T11, T12, T13, T15, T18 | 有路径；完整语义未验证 |
+| 183 | `replace_list_item` | 有执行路径／未完整验证 | `src/engine.rs:4020` | T5, T9, T15 | 有路径；完整语义未验证 |
+| 184 | `reset_timer` | 有执行路径／未完整验证 | `src/engine.rs:3232` | T11 | 只重置独立 block timer，不改变舞台计时器；官方墙钟与 VM 仿真时钟差异未验证 |
+| 185 | `restart` | 有执行路径／未完整验证 | `src/engine.rs:3597` | T5, T9, T15 | 有路径；完整语义未验证 |
+| 186 | `script_variables` | 有执行路径／未完整验证 | `src/engine.rs:3217` | T5, T9, T11, T15 | 有路径；完整语义未验证 |
+| 187 | `script_variables_set` | 有执行路径／未完整验证 | `src/engine.rs:3236` | T11 | 官方代码 API，非注册积木；原生作品用 variables_set + 脚本变量 JSON。兼容别名参照 HateNeko |
+| 188 | `script_variables_value` | 有执行路径／未完整验证 | `src/engine.rs:1973`<br>`src/engine.rs:2501` | T5, T9, T11, T15 | 有路径；完整语义未验证 |
+| 189 | `self_appear` | 有执行路径／未完整验证 | `src/engine.rs:3428` | T5, T15 | 有路径；完整语义未验证 |
+| 190 | `self_appear_animation` | 有执行路径／未完整验证 | `src/engine.rs:3675` | T5, T15 | 有路径；完整语义未验证 |
+| 191 | `self_ask` | 有执行路径／未完整验证 | `src/engine.rs:3810` | T5, T15 | 有路径；完整语义未验证 |
+| 192 | `self_bounce_off_edge` | 有执行路径／未完整验证 | `src/engine.rs:3657` | T5, T15, T16 | 有路径；完整语义未验证 |
+| 193 | `self_broadcast` | 有执行路径／未完整验证 | `src/engine.rs:4090` | T5, T15 | 有路径；完整语义未验证 |
+| 194 | `self_broadcast_and_wait` | 有执行路径／未完整验证 | `src/engine.rs:4090` | T5, T15 | 有路径；完整语义未验证 |
+| 195 | `self_broadcast_with_param` | 有执行路径／未完整验证 | `src/engine.rs:4090` | T5, T15 | 有路径；完整语义未验证 |
+| 196 | `self_change_coordinate_x` | 有执行路径／未完整验证 | `src/engine.rs:3413` | T5, T15 | 有路径；完整语义未验证 |
+| 197 | `self_change_coordinate_y` | 有执行路径／未完整验证 | `src/engine.rs:3413` | T15 | 有路径；完整语义未验证 |
+| 198 | `self_change_effect` | 有执行路径／未完整验证 | `src/engine.rs:3461` | T5, T15 | 有路径；完整语义未验证 |
+| 199 | `self_change_pen_color_property` | 有执行路径／未完整验证 | `src/engine.rs:4040` | T5, T15 | 有路径；完整语义未验证 |
+| 200 | `self_change_pen_size` | 有执行路径／未完整验证 | `src/engine.rs:3498` | T15 | 有路径；完整语义未验证 |
+| 201 | `self_change_scale` | 有执行路径／未完整验证 | `src/engine.rs:3481` | T5, T15 | 有路径；完整语义未验证 |
+| 202 | `self_dialog` | 有执行路径／未完整验证 | `src/engine.rs:3638` | T5, T15 | 有路径；完整语义未验证 |
+| 203 | `self_dialog_wait` | 部分语义 | `src/engine.rs:3638` | T15 | 只有 Op::Dialog，timed 分支仅匹配 self_dialog；没有显式等待/关闭 |
+| 204 | `self_face_to` | 有执行路径／未完整验证 | `src/engine.rs:3507` | T5, T15 | 有路径；完整语义未验证 |
+| 205 | `self_face_to_sprite` | 有执行路径／未完整验证 | `src/engine.rs:3507` | T15 | 有路径；完整语义未验证 |
+| 206 | `self_glide_coordinate_x` | 有执行路径／未完整验证 | `src/engine.rs:3543` | T15 | 有路径；完整语义未验证 |
+| 207 | `self_glide_coordinate_y` | 有执行路径／未完整验证 | `src/engine.rs:3543` | T15 | 有路径；完整语义未验证 |
+| 208 | `self_glide_to` | 有执行路径／未完整验证 | `src/engine.rs:3543` | T5, T15 | 有路径；完整语义未验证 |
+| 209 | `self_go_forward` | 有执行路径／未完整验证 | `src/engine.rs:3407` | T5, T15, T18 | 有路径；完整语义未验证 |
+| 210 | `self_gradually_show_hide` | 有执行路径／未完整验证 | `src/engine.rs:3582` | T5, T15 | 有路径；完整语义未验证 |
+| 211 | `self_listen` | 有执行路径／未完整验证 | `src/engine.rs:2874` | T5, T15 | 有路径；完整语义未验证 |
+| 212 | `self_listen_value` | 有执行路径／未完整验证 | `src/engine.rs:1874`<br>`src/engine.rs:2526` | T5, T15 | 有路径；完整语义未验证 |
+| 213 | `self_listen_with_param` | 有执行路径／未完整验证 | `src/engine.rs:2874` | T5, T15 | 有路径；完整语义未验证 |
+| 214 | `self_move_specify` | 有执行路径／未完整验证 | `src/engine.rs:3510` | T15 | 有路径；完整语义未验证 |
+| 215 | `self_move_specify_sprite` | 有执行路径／未完整验证 | `src/engine.rs:3510` | T15 | 有路径；完整语义未验证 |
+| 216 | `self_move_to` | 有执行路径／未完整验证 | `src/engine.rs:3408` | T5, T6, T15 | 有路径；完整语义未验证 |
+| 217 | `self_pen_down` | 有执行路径／未完整验证 | `src/engine.rs:3992` | T4, T5, T15 | 有路径；完整语义未验证 |
+| 218 | `self_pen_up` | 有执行路径／未完整验证 | `src/engine.rs:3993` | T5, T15 | 有路径；完整语义未验证 |
+| 219 | `self_point_towards` | 有执行路径／未完整验证 | `src/engine.rs:3426` | T5, T15 | 有路径；完整语义未验证 |
+| 220 | `self_prev_next_style` | 有执行路径／未完整验证 | `src/engine.rs:3454` | T5, T15 | 有路径；完整语义未验证 |
+| 221 | `self_rotate` | 有执行路径／未完整验证 | `src/engine.rs:3425` | T15 | 有路径；完整语义未验证 |
+| 222 | `self_rotate_around` | 有执行路径／未完整验证 | `src/engine.rs:3518` | T5, T15 | 有路径；完整语义未验证 |
+| 223 | `self_set_draggable` | 有执行路径／未完整验证 | `src/engine.rs:3708` | T5, T15 | 有路径；完整语义未验证 |
+| 224 | `self_set_effect` | 有执行路径／未完整验证 | `src/engine.rs:3461` | T5, T15 | 有路径；完整语义未验证 |
+| 225 | `self_set_pen_color` | 有执行路径／未完整验证 | `src/engine.rs:4072` | T5, T15 | 有路径；完整语义未验证 |
+| 226 | `self_set_pen_color_property` | 有执行路径／未完整验证 | `src/engine.rs:4040` | T5, T15 | 有路径；完整语义未验证 |
+| 227 | `self_set_pen_size` | 有执行路径／未完整验证 | `src/engine.rs:4071` | T5, T15 | 有路径；完整语义未验证 |
+| 228 | `self_set_position_x` | 有执行路径／未完整验证 | `src/engine.rs:3409` | T4, T5, T7, T9, T15 | 有路径；完整语义未验证 |
+| 229 | `self_set_position_y` | 有执行路径／未完整验证 | `src/engine.rs:3410` | T5, T15 | 有路径；完整语义未验证 |
+| 230 | `self_set_role_camp` | 有执行路径／未完整验证 | `src/engine.rs:3658` | T5, T15 | 有路径；完整语义未验证 |
+| 231 | `self_set_rotation_type` | 有执行路径／未完整验证 | `src/engine.rs:3501` | T5, T15 | 有路径；完整语义未验证 |
+| 232 | `self_stress_animation` | 有执行路径／未完整验证 | `src/engine.rs:3663` | T5, T15 | 有路径；完整语义未验证 |
+| 233 | `self_text_effect_color` | 有执行路径／未完整验证 | `src/engine.rs:3702` | T5, T15 | 有路径；完整语义未验证 |
+| 234 | `self_text_effect_size` | 有执行路径／未完整验证 | `src/engine.rs:3701` | T5, T15 | 有路径；完整语义未验证 |
+| 235 | `self_text_effect_text` | 有执行路径／未完整验证 | `src/engine.rs:3700` | T5, T15 | 有路径；完整语义未验证 |
+| 236 | `setInterval` | 部分语义 | `src/engine.rs:3192` | T10 | 按官方 0.27.4 原生实测丢弃 callback statement，只调度空回调；通用 JS function 回调未实现，墙钟精度未验证 |
+| 237 | `setTimeout` | 部分语义 | `src/engine.rs:3192` | T10, T14 | 按官方 0.27.4 原生实测丢弃 callback statement，只调度空回调；通用 JS function 回调未实现，墙钟精度未验证 |
 | 238 | `set_camera_alpha` | 缺失 | — | 未定位 | 缺少摄像头后端及对应执行路径；不是 stub 支持 |
-| 239 | `set_pen_layer` | 有执行路径／未完整验证 | `src/engine.rs:3885` | T5, T15 | 有路径；完整语义未验证 |
+| 239 | `set_pen_layer` | 有执行路径／未完整验证 | `src/engine.rs:3957` | T5, T15 | 有路径；完整语义未验证 |
 | 240 | `set_robot2_master_motor_power_rotation` | 缺失 | — | 未定位 | 缺少硬件/连接后端或对应计算实现；不是 stub 支持 |
 | 241 | `set_robot2_master_motor_power_rotation_duration` | 缺失 | — | 未定位 | 缺少硬件/连接后端或对应计算实现；不是 stub 支持 |
 | 242 | `set_robot_master_light_color` | 缺失 | — | 未定位 | 缺少硬件/连接后端或对应计算实现；不是 stub 支持 |
 | 243 | `set_robot_master_light_color_duration` | 缺失 | — | 未定位 | 缺少硬件/连接后端或对应计算实现；不是 stub 支持 |
 | 244 | `set_robot_master_motor_power_rotation` | 缺失 | — | 未定位 | 缺少硬件/连接后端或对应计算实现；不是 stub 支持 |
 | 245 | `set_robot_master_motor_power_rotation_duration` | 缺失 | — | 未定位 | 缺少硬件/连接后端或对应计算实现；不是 stub 支持 |
-| 246 | `set_scale` | 有执行路径／未完整验证 | `src/engine.rs:3387` | T5, T15 | 有路径；完整语义未验证 |
-| 247 | `set_screen_transition` | 有执行路径／未完整验证 | `src/engine.rs:3573` | T5, T15 | 有路径；完整语义未验证 |
-| 248 | `set_sprite_style` | 有执行路径／未完整验证 | `src/engine.rs:3413` | T5, T15 | 有路径；完整语义未验证 |
+| 246 | `set_scale` | 有执行路径／未完整验证 | `src/engine.rs:3427` | T5, T15 | 有路径；完整语义未验证 |
+| 247 | `set_screen_transition` | 有执行路径／未完整验证 | `src/engine.rs:3613` | T5, T15 | 有路径；完整语义未验证 |
+| 248 | `set_sprite_style` | 有执行路径／未完整验证 | `src/engine.rs:3453` | T5, T15 | 有路径；完整语义未验证 |
 | 249 | `set_system_preset` | 缺失 | — | 未定位 | 没有对应可执行分派；连到事件体/表达式时不支持（导入或游离忽略不算支持） |
-| 250 | `set_timer_state` | 有执行路径／未完整验证 | `src/engine.rs:3962` | T5, T11, T15 | 有路径；完整语义未验证 |
-| 251 | `set_top_bottom_layer` | 有执行路径／未完整验证 | `src/engine.rs:3819` | T5, T15 | 有路径；完整语义未验证 |
+| 250 | `set_timer_state` | 有执行路径／未完整验证 | `src/engine.rs:4034` | T5, T11, T15 | 有路径；完整语义未验证 |
+| 251 | `set_top_bottom_layer` | 有执行路径／未完整验证 | `src/engine.rs:3891` | T5, T15 | 有路径；完整语义未验证 |
 | 252 | `set_webcam_alpha` | 缺失 | — | 未定位 | 缺少摄像头后端及对应执行路径；不是 stub 支持 |
-| 253 | `set_width_height_scale` | 有执行路径／未完整验证 | `src/engine.rs:3444` | T5, T15 | 有路径；完整语义未验证 |
-| 254 | `show_hide_list` | 有执行路径／未完整验证 | `src/engine.rs:3716` | T15 | 有路径；完整语义未验证 |
+| 253 | `set_width_height_scale` | 有执行路径／未完整验证 | `src/engine.rs:3484` | T5, T15 | 有路径；完整语义未验证 |
+| 254 | `show_hide_list` | 有执行路径／未完整验证 | `src/engine.rs:3756` | T15 | 有路径；完整语义未验证 |
 | 255 | `show_hide_ranking` | 缺失 | — | 未定位 | 缺少 AI/识别/账户/网络服务及对应执行路径；不是 stub 支持 |
-| 256 | `show_hide_timer` | 有执行路径／未完整验证 | `src/engine.rs:3961` | T5, T15 | 有路径；完整语义未验证 |
-| 257 | `show_hide_variables` | 有执行路径／未完整验证 | `src/engine.rs:3716` | T4, T5, T15 | 有路径；完整语义未验证 |
-| 258 | `sound_color` | 有执行路径／未完整验证 | `src/engine.rs:3699` | T2 | 有路径；完整语义未验证 |
-| 259 | `sprite_on_tap` | 有执行路径／未完整验证 | `src/engine.rs:2903` | T5, T15 | 有路径；完整语义未验证 |
-| 260 | `stamp` | 有执行路径／未完整验证 | `src/engine.rs:3989` | T5, T15 | 有路径；完整语义未验证 |
-| 261 | `start_as_a_mirror` | 有执行路径／未完整验证 | `src/engine.rs:2869` | T1, T5, T9 | 有路径；完整语义未验证 |
-| 262 | `start_on_click` | 有执行路径／未完整验证 | `src/engine.rs:2854` | T4, T5, T7, T15, T19 | 有路径；完整语义未验证 |
-| 263 | `stop` | 有执行路径／未完整验证 | `src/engine.rs:4029` | T2, T5, T6, T9, T10, T11, T15 | 有路径；完整语义未验证 |
-| 264 | `stop_audio` | 有执行路径／未完整验证 | `src/engine.rs:3925` | T2, T5, T15 | 有路径；完整语义未验证 |
+| 256 | `show_hide_timer` | 有执行路径／未完整验证 | `src/engine.rs:4033` | T5, T15 | 有路径；完整语义未验证 |
+| 257 | `show_hide_variables` | 有执行路径／未完整验证 | `src/engine.rs:3756` | T4, T5, T15 | 有路径；完整语义未验证 |
+| 258 | `sound_color` | 有执行路径／未完整验证 | `src/engine.rs:3739` | T2 | 有路径；完整语义未验证 |
+| 259 | `sprite_on_tap` | 有执行路径／未完整验证 | `src/engine.rs:2940` | T5, T15 | 有路径；完整语义未验证 |
+| 260 | `stamp` | 有执行路径／未完整验证 | `src/engine.rs:4061` | T5, T15 | 有路径；完整语义未验证 |
+| 261 | `start_as_a_mirror` | 有执行路径／未完整验证 | `src/engine.rs:2893` | T1, T5, T9 | 有路径；完整语义未验证 |
+| 262 | `start_on_click` | 有执行路径／未完整验证 | `src/engine.rs:2878` | T4, T5, T7, T15, T19 | 有路径；完整语义未验证 |
+| 263 | `stop` | 有执行路径／未完整验证 | `src/engine.rs:4101` | T2, T5, T6, T9, T10, T11, T15 | 有路径；完整语义未验证 |
+| 264 | `stop_audio` | 有执行路径／未完整验证 | `src/engine.rs:3997` | T2, T5, T15 | 有路径；完整语义未验证 |
 | 265 | `stop_robot2_master_motor` | 缺失 | — | 未定位 | 缺少硬件/连接后端或对应计算实现；不是 stub 支持 |
 | 266 | `stop_robot_master_light` | 缺失 | — | 未定位 | 缺少硬件/连接后端或对应计算实现；不是 stub 支持 |
 | 267 | `stop_robot_master_motor` | 缺失 | — | 未定位 | 缺少硬件/连接后端或对应计算实现；不是 stub 支持 |
-| 268 | `style_of_sprite` | 有执行路径／未完整验证 | `src/engine.rs:2604` | T15 | 有路径；完整语义未验证 |
-| 269 | `switch_to_screen` | 有执行路径／未完整验证 | `src/engine.rs:3564` | T5, T15 | 有路径；完整语义未验证 |
-| 270 | `sync_tell` | 有执行路径／未完整验证 | `src/engine.rs:3872` | T1, T5, T9, T15 | 有路径；完整语义未验证 |
-| 271 | `tell` | 有执行路径／未完整验证 | `src/engine.rs:3872` | T15 | 有路径；完整语义未验证 |
-| 272 | `temporary_list` | 有执行路径／未完整验证 | `src/engine.rs:1996` | T5, T9, T15 | 有路径；完整语义未验证 |
-| 273 | `text_contain` | 有执行路径／未完整验证 | `src/engine.rs:1865`<br>`src/engine.rs:2510` | T5, T15 | 有路径；完整语义未验证 |
-| 274 | `text_join` | 有执行路径／未完整验证 | `src/engine.rs:1996`<br>`src/engine.rs:2510` | T5, T15 | 有路径；完整语义未验证 |
-| 275 | `text_length` | 有执行路径／未完整验证 | `src/engine.rs:2494` | T5, T15 | 有路径；完整语义未验证 |
-| 276 | `text_select` | 有执行路径／未完整验证 | `src/engine.rs:2085`<br>`src/engine.rs:2510` | T5, T15, T16 | 有路径；完整语义未验证 |
-| 277 | `text_split` | 有执行路径／未完整验证 | `src/engine.rs:1904` | T5, T15 | 有路径；完整语义未验证 |
-| 278 | `timer` | 有执行路径／未完整验证 | `src/engine.rs:2580` | T5, T11, T15 | 有路径；完整语义未验证 |
+| 268 | `style_of_sprite` | 有执行路径／未完整验证 | `src/engine.rs:2628` | T15 | 有路径；完整语义未验证 |
+| 269 | `switch_to_screen` | 有执行路径／未完整验证 | `src/engine.rs:3604` | T5, T15 | 有路径；完整语义未验证 |
+| 270 | `sync_tell` | 有执行路径／未完整验证 | `src/engine.rs:3944` | T1, T5, T9, T15 | 有路径；完整语义未验证 |
+| 271 | `tell` | 有执行路径／未完整验证 | `src/engine.rs:3944` | T15 | 有路径；完整语义未验证 |
+| 272 | `temporary_list` | 有执行路径／未完整验证 | `src/engine.rs:2012` | T5, T9, T15 | 有路径；完整语义未验证 |
+| 273 | `text_contain` | 有执行路径／未完整验证 | `src/engine.rs:1881`<br>`src/engine.rs:2526` | T5, T15 | 有路径；完整语义未验证 |
+| 274 | `text_join` | 有执行路径／未完整验证 | `src/engine.rs:2012`<br>`src/engine.rs:2526` | T5, T15 | 有路径；完整语义未验证 |
+| 275 | `text_length` | 有执行路径／未完整验证 | `src/engine.rs:2510` | T5, T15 | 有路径；完整语义未验证 |
+| 276 | `text_select` | 有执行路径／未完整验证 | `src/engine.rs:2101`<br>`src/engine.rs:2526` | T5, T15, T16 | 有路径；完整语义未验证 |
+| 277 | `text_split` | 有执行路径／未完整验证 | `src/engine.rs:1920` | T5, T15 | 有路径；完整语义未验证 |
+| 278 | `timer` | 有执行路径／未完整验证 | `src/engine.rs:2604` | T5, T11, T15 | 有路径；完整语义未验证 |
 | 279 | `translate` | 缺失 | — | 未定位 | 缺少 AI/识别/账户/网络服务及对应执行路径；不是 stub 支持 |
 | 280 | `translate_result` | 缺失 | — | T14 | 缺少 AI/识别/账户/网络服务及对应执行路径；不是 stub 支持 |
-| 281 | `traverse_number` | 有执行路径／未完整验证 | `src/engine.rs:4123` | T5, T9, T11, T15 | 有路径；完整语义未验证 |
-| 282 | `traverse_number_param` | 元数据 | `src/engine.rs:1656 (compiler metadata)` | T5, T9, T11, T15 | 非独立指令；由过程/循环编译消费 |
-| 283 | `traverse_number_value` | 有执行路径／未完整验证 | `src/engine.rs:2559` | T3, T5, T15 | 有路径；完整语义未验证 |
+| 281 | `traverse_number` | 有执行路径／未完整验证 | `src/engine.rs:4195` | T5, T9, T11, T15 | 有路径；完整语义未验证 |
+| 282 | `traverse_number_param` | 元数据 | `src/engine.rs:1663 (compiler metadata)` | T5, T9, T11, T15 | 非独立指令；由过程/循环编译消费 |
+| 283 | `traverse_number_value` | 有执行路径／未完整验证 | `src/engine.rs:2583` | T3, T5, T15 | 有路径；完整语义未验证 |
 | 284 | `update_ranking` | 缺失 | — | T14 | 缺少 AI/识别/账户/网络服务及对应执行路径；不是 stub 支持 |
-| 285 | `user_id_get` | 部分语义 | `src/engine.rs:1789`<br>`src/engine.rs:2446` | T14 | 仅无账户后端 profile：官方未登录返回字符串 0；已登录用户未实现 |
+| 285 | `user_id_get` | 部分语义 | `src/engine.rs:1796`<br>`src/engine.rs:2462` | T14 | 仅无账户后端 profile：官方未登录返回字符串 0；已登录用户未实现 |
 | 286 | `user_info_of_th` | 缺失 | — | 未定位 | 缺少 AI/识别/账户/网络服务及对应执行路径；不是 stub 支持 |
 | 287 | `user_ranking_info` | 缺失 | — | T14 | 缺少 AI/识别/账户/网络服务及对应执行路径；不是 stub 支持 |
-| 288 | `username_get` | 部分语义 | `src/engine.rs:1789`<br>`src/engine.rs:2446` | T14 | 仅无账户后端 profile：官方未登录文本；已登录用户未实现 |
-| 289 | `variables_get` | 有执行路径／未完整验证 | `src/engine.rs:1937`<br>`src/engine.rs:2471` | T1, T4, T5, T6, T9, T11, T12, T13, T15 | 有路径；完整语义未验证 |
-| 290 | `variables_set` | 有执行路径／未完整验证 | `src/engine.rs:3196` | T1, T3, T4, T5, T9, T12, T13, T15, T16, T17 | 有路径；完整语义未验证 |
+| 288 | `username_get` | 部分语义 | `src/engine.rs:1796`<br>`src/engine.rs:2462` | T14 | 仅无账户后端 profile：官方未登录文本；已登录用户未实现 |
+| 289 | `variables_get` | 有执行路径／未完整验证 | `src/engine.rs:1953`<br>`src/engine.rs:2487` | T1, T4, T5, T6, T9, T11, T12, T13, T15 | 有路径；完整语义未验证 |
+| 290 | `variables_set` | 有执行路径／未完整验证 | `src/engine.rs:3236` | T1, T3, T4, T5, T9, T12, T13, T15, T16, T17 | 有路径；完整语义未验证 |
 | 291 | `voice_recognition` | 缺失 | — | T14 | 缺少 AI/识别/账户/网络服务及对应执行路径；不是 stub 支持 |
-| 292 | `wait` | 有执行路径／未完整验证 | `src/engine.rs:4016` | T1, T5, T9, T11, T15, T16 | 有路径；完整语义未验证 |
-| 293 | `wait_until` | 有执行路径／未完整验证 | `src/engine.rs:4017` | T5, T15 | 有路径；完整语义未验证 |
+| 292 | `wait` | 有执行路径／未完整验证 | `src/engine.rs:4088` | T1, T5, T9, T11, T15, T16 | 有路径；完整语义未验证 |
+| 293 | `wait_until` | 有执行路径／未完整验证 | `src/engine.rs:4089` | T5, T15 | 有路径；完整语义未验证 |
 | 294 | `wand_button_is_pressed` | 缺失 | — | 未定位 | 缺少硬件/连接后端或对应计算实现；不是 stub 支持 |
 | 295 | `wand_coordinate` | 缺失 | — | 未定位 | 缺少硬件/连接后端或对应计算实现；不是 stub 支持 |
 | 296 | `wand_direction_when` | 缺失 | — | 未定位 | 缺少硬件/连接后端或对应计算实现；不是 stub 支持 |
 | 297 | `wand_reset_position` | 缺失 | — | 未定位 | 缺少硬件/连接后端或对应计算实现；不是 stub 支持 |
 | 298 | `wand_rotation` | 缺失 | — | 未定位 | 缺少硬件/连接后端或对应计算实现；不是 stub 支持 |
-| 299 | `warp` | 有执行路径／未完整验证 | `src/engine.rs:4081` | T1, T4, T5, T9, T10, T11, T12, T13, T15, T18 | 有路径；完整语义未验证 |
-| 300 | `when` | 有执行路径／未完整验证 | `src/engine.rs:2847`<br>`src/engine.rs:3863` | T5, T15 | 有路径；完整语义未验证 |
+| 299 | `warp` | 有执行路径／未完整验证 | `src/engine.rs:4153` | T1, T4, T5, T9, T10, T11, T12, T13, T15, T18 | 有路径；完整语义未验证 |
+| 300 | `when` | 有执行路径／未完整验证 | `src/engine.rs:2871`<br>`src/engine.rs:3935` | T5, T15 | 有路径；完整语义未验证 |
 
 ## 复现与更新
 

@@ -8,6 +8,7 @@ struct Cells {
     ids: BTreeMap<(bool, usize), usize>,
     pending: Vec<Cell>,
     costumes: BTreeMap<usize, usize>,
+    midi: BTreeMap<usize, usize>,
 }
 
 fn number(n: f64) -> Value {
@@ -34,6 +35,11 @@ impl Cells {
                     .entry(Rc::as_ptr(t) as *const () as usize)
                     .or_insert(next);
                 json!(["costume", id, t.as_ref()])
+            }
+            Cell::Midi(value) => {
+                let next = self.midi.len();
+                let id = *self.midi.entry(Rc::as_ptr(value) as usize).or_insert(next);
+                json!(["midi", id, self.cell(value)])
             }
             Cell::List(list) => {
                 let address = (false, Rc::as_ptr(list) as usize);
@@ -216,5 +222,17 @@ mod tests {
         );
         list.borrow_mut().clear();
         object.borrow_mut().clear();
+    }
+
+    #[test]
+    fn midi_observations_keep_object_identity_and_typed_payload() {
+        let mut cells = Cells::default();
+        let a = Cell::Midi(Rc::new(Cell::Number(3.0)));
+        let b = Cell::Midi(Rc::new(Cell::Number(3.0)));
+        let first = cells.cell(&a);
+        assert_eq!(first, cells.cell(&a.clone()));
+        assert_ne!(first, cells.cell(&b));
+        assert_eq!(first[0], "midi");
+        assert_eq!(first[2][0], "number");
     }
 }

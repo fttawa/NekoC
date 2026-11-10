@@ -213,7 +213,7 @@ impl Engine {
         };
         let value = if change {
             let previous = self.global_value(slot);
-            if matches!(previous, Cell::List(_) | Cell::Costume(_)) {
+            if matches!(previous, Cell::List(_) | Cell::Costume(_) | Cell::Midi(_)) {
                 return;
             }
             if decrease {

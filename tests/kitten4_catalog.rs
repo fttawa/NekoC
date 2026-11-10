@@ -25,6 +25,297 @@ enum Source {
 const SOURCES: [Source; 2] = [Source::Workspace, Source::Published];
 
 #[test]
+fn third_round_choice_aliases_frames_and_reset_timer() {
+    for source in SOURCES {
+        for (kind, expected) in [("get_cur_frames", "0")] {
+            let native = project(
+                source,
+                vec![set("result", probe(kind, json!({}), json!({})))],
+            );
+            let canonical = kitten4::to_neko(&native).unwrap();
+            assert_eq!(kitten4::from_neko(&canonical).unwrap(), native);
+            for interpreted in [true, false] {
+                assert_eq!(
+                    run(&canonical, interpreted).0.variable_text("result"),
+                    expected
+                );
+            }
+        }
+        let native = project(
+            source,
+            vec![
+                block("reset_timer", json!({}), json!({})),
+                set("result", probe("get_timer", json!({}), json!({}))),
+            ],
+        );
+        let canonical = kitten4::to_neko(&native).unwrap();
+        for interpreted in [true, false] {
+            assert_eq!(run(&canonical, interpreted).0.variable_text("result"), "0");
+        }
+    }
+}
+
+#[test]
+fn third_round_legacy_choice_wrappers_retain_official_undefined_return() {
+    for source in SOURCES {
+        for kind in ["get_choice", "get_choice_index"] {
+            for interpreted in [true, false] {
+                let native = project(source, vec![probe(kind, json!({}), json!({}))]);
+                let canonical = kitten4::to_neko(&native).unwrap();
+                assert_eq!(run(&canonical, interpreted).0.variable_text("after"), "1");
+                let native = project(
+                    source,
+                    vec![set("result", probe(kind, json!({}), json!({})))],
+                );
+                let canonical = kitten4::to_neko(&native).unwrap();
+                let mut vm = engine(&canonical, interpreted);
+                let error = vm
+                    .advance(1.0 / 60.0, 100_000, Duration::from_secs(1))
+                    .unwrap_err();
+                assert!(format!("{error:#}").contains("returned undefined"));
+            }
+        }
+    }
+}
+
+#[test]
+fn third_round_frames_count_updates_and_restart_resets() {
+    for source in SOURCES {
+        let mut loop_block = block("repeat_forever", json!({}), json!({}));
+        loop_block["statements"] =
+            json!({"DO":set("result", probe("get_cur_frames",json!({}),json!({})))});
+        let canonical = kitten4::to_neko(&project(source, vec![loop_block])).unwrap();
+        for interpreted in [true, false] {
+            let mut vm = engine(&canonical, interpreted);
+            for frame in 0..4 {
+                tick(&mut vm);
+                assert_eq!(vm.variable_text("result"), frame.to_string());
+            }
+            vm.start();
+            tick(&mut vm);
+            assert_eq!(vm.variable_text("result"), "0");
+        }
+    }
+}
+
+#[test]
+fn third_round_official_throwing_domains_do_not_run_next_or_body() {
+    for source in SOURCES {
+        for kind in [
+            "incompatible_block",
+            "incompatible_output_block",
+            "block_on_break",
+            "mouse_on_emit",
+            "player_position_on_change",
+        ] {
+            let native = project(source, vec![probe(kind, json!({}), json!({}))]);
+            let canonical = kitten4::to_neko(&native).unwrap();
+            for interpreted in [true, false] {
+                let mut vm = engine(&canonical, interpreted);
+                let error = vm
+                    .advance(1.0 / 60.0, 100_000, Duration::from_secs(1))
+                    .unwrap_err();
+                assert!(format!("{error:#}").contains(kind));
+                assert_eq!(vm.variable_text("after"), "0");
+            }
+        }
+    }
+}
+
+#[test]
+fn third_round_dropdown_evaluates_domain_not_nonempty_name() {
+    for source in SOURCES {
+        let mut conditional = probe(
+            "controls_if_dropdown",
+            json!({"IF0":"logic_boolean","BOOL":"FALSE"}),
+            json!({}),
+        );
+        conditional["statements"] =
+            json!({"DO0":set("result",number(1.0)),"ELSE":set("result",number(2.0))});
+        let mut native = project(source, vec![conditional]);
+        if matches!(source, Source::Published) {
+            let c =
+                &mut native["compile_result"][0]["compiled_block_map"]["alias-hat"]["next_block"];
+            c["if_dropdown_conditions"] = json!(["logic_boolean"]);
+            c["child_block"] = json!([
+                {"id":"dropdown-yes","type":"variables_set","params":{"VAR":"result","VALUE":{"id":"one","type":"math_number","params":{"NUM":1}}}},
+                {"id":"dropdown-no","type":"variables_set","params":{"VAR":"result","VALUE":{"id":"two","type":"math_number","params":{"NUM":2}}}}
+            ]);
+        }
+        let canonical = kitten4::to_neko(&native).unwrap();
+        for interpreted in [true, false] {
+            assert_eq!(run(&canonical, interpreted).0.variable_text("result"), "2");
+        }
+    }
+}
+
+#[test]
+fn third_round_get_alias_covers_scale_effects_and_unknown_returns_nan() {
+    for source in SOURCES {
+        for kind in ["get_2", "get_3", "get"] {
+            for (attribute, expected) in [
+                ("5", "125"),
+                ("9", "100"),
+                ("14", "0"),
+                ("16", "125"),
+                ("17", "125"),
+                ("6", "NaN"),
+                ("15", "NaN"),
+            ] {
+                let native = project(
+                    source,
+                    vec![set(
+                        "result",
+                        probe(
+                            kind,
+                            json!({"sprite":"__self","attribute":attribute}),
+                            json!({}),
+                        ),
+                    )],
+                );
+                let canonical = kitten4::to_neko(&native).unwrap();
+                for interpreted in [true, false] {
+                    assert_eq!(
+                        run(&canonical, interpreted).0.variable_text("result"),
+                        expected,
+                        "{kind}/{attribute}"
+                    );
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn third_round_error_reporters_propagate_before_following_statements() {
+    for source in SOURCES {
+        let native = project(
+            source,
+            vec![set(
+                "result",
+                probe("incompatible_output_block", json!({}), json!({})),
+            )],
+        );
+        let canonical = kitten4::to_neko(&native).unwrap();
+        for interpreted in [true, false] {
+            let mut vm = engine(&canonical, interpreted);
+            let error = vm
+                .advance(1.0 / 60.0, 100_000, Duration::from_secs(1))
+                .unwrap_err();
+            assert!(format!("{error:#}").contains("incompatible_output_block"));
+            assert_eq!(vm.variable_text("after"), "0");
+        }
+    }
+}
+
+#[test]
+fn third_round_destruct_stops_current_entity() {
+    for source in SOURCES {
+        let native = project(source, vec![probe("destruct", json!({}), json!({}))]);
+        let canonical = kitten4::to_neko(&native).unwrap();
+        for interpreted in [true, false] {
+            let mut vm = engine(&canonical, interpreted);
+            tick(&mut vm);
+            assert_eq!(vm.variable_text("after"), "0");
+        }
+    }
+}
+
+#[test]
+fn third_round_old_procedures_use_named_arguments_in_both_sources() {
+    for source in SOURCES {
+        for returns in [true, false] {
+            let mut call = block(
+                if returns {
+                    "procedures_callreturn"
+                } else {
+                    "procedures_callnoreturn"
+                },
+                json!({"NAME":"legacy"}),
+                json!({"ARG0":number(37.0)}),
+            );
+            call["mutation"] = json!("<mutation name=\"legacy\"><arg name=\"value\"/></mutation>");
+            let mut native = project(
+                source,
+                vec![if returns { set("result", call) } else { call }],
+            );
+            let mut definition = block(
+                "procedures_defnoreturn",
+                json!({"NAME":"legacy"}),
+                json!({}),
+            );
+            definition["mutation"] = json!("<mutation><arg name=\"value\"/></mutation>");
+            definition["statements"] = json!({"STACK":block("procedures_return_value",json!({}),json!({"VALUE":block("procedures_parameter",json!({"param_name":"value"}),json!({}))}))});
+            if !returns {
+                definition["statements"]["STACK"] = set(
+                    "result",
+                    block(
+                        "procedures_parameter",
+                        json!({"param_name":"value"}),
+                        json!({}),
+                    ),
+                );
+            }
+            let mut serial = 100;
+            identify(&mut definition, &mut serial);
+            if matches!(source, Source::Workspace) {
+                let ws = &mut native["theatre"]["actors"][ACTOR]["block_data_json"];
+                let mut blocks = ws["blocks"].as_object().unwrap().clone();
+                let mut connections = ws["connections"].as_object().unwrap().clone();
+                flatten(&definition, &mut blocks, &mut connections);
+                ws["blocks"] = json!(blocks);
+                ws["connections"] = json!(connections);
+            } else {
+                let mut def = published(&definition);
+                def["procedure_name"] = json!("legacy");
+                def["params"] = json!({"value":true});
+                def["child_block"] = json!([published(&definition["statements"]["STACK"])]);
+                native["compile_result"][0]["procedures"]["legacy"] = def;
+                let statement = &mut native["compile_result"][0]["compiled_block_map"]["alias-hat"]
+                    ["next_block"];
+                let call = if returns {
+                    &mut statement["params"]["VALUE"]
+                } else {
+                    statement
+                };
+                call["procedure_name"] = json!("legacy");
+                call["params"] = json!({"value":{"id":"legacy-argument","type":"math_number","params":{"NUM":37}}});
+            }
+            let canonical = kitten4::to_neko(&native).unwrap();
+            assert_eq!(kitten4::from_neko(&canonical).unwrap(), native);
+            for interpreted in [true, false] {
+                assert_eq!(run(&canonical, interpreted).0.variable_text("result"), "37");
+            }
+        }
+    }
+}
+
+#[test]
+fn third_round_text_index_preserves_official_type_error() {
+    for source in SOURCES {
+        let native = project(
+            source,
+            vec![set(
+                "result",
+                probe(
+                    "text_indexOf",
+                    json!({"END":"FIRST"}),
+                    json!({"VALUE":number(12.0),"FIND":number(2.0)}),
+                ),
+            )],
+        );
+        let canonical = kitten4::to_neko(&native).unwrap();
+        for interpreted in [true, false] {
+            let mut vm = engine(&canonical, interpreted);
+            let error = vm
+                .advance(1.0 / 60.0, 100_000, Duration::from_secs(1))
+                .unwrap_err();
+            assert!(format!("{error:#}").contains("requires a string VALUE"));
+        }
+    }
+}
+
+#[test]
 fn second_round_text_search_uses_one_based_utf16_and_empty_needle_rules() {
     for source in SOURCES {
         for (text, needle, end, expected) in [

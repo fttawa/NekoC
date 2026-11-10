@@ -256,6 +256,7 @@ fn stringify(value: &Cell, active: &mut Vec<(bool, usize)>) -> std::result::Resu
             "{{\"style_id\":{}}}",
             serde_json::to_string(id.as_ref()).map_err(|_| ())?
         ),
+        Cell::Midi(id) => format!("{{\"id\":{}}}", stringify(id, active)?),
         Cell::List(items) => {
             let mut out = String::from("[");
             for (i, item) in items.borrow().iter().enumerate() {

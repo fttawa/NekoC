@@ -143,13 +143,14 @@ test("mapping regression: if/matches/aliases/cloud are implemented, precise stub
   const by = Object.fromEntries(rows.map(row => [row.type, row]));
   for (const type of types.slice(0, 12)) assert.equal(by[type].status, "已实现", type);
   assert.match(by.self_change_x.mapping[0], /src\/kitten4\/aliases\.rs:\d+/);
-  assert.equal(by.get_choice.status, "缺失");
+  assert.equal(by.get_choice.status, "已实现");
   assert.equal(by.play_video.status, "已实现");
   assert.equal(by.set_camera_status.status, "设备降级");
   assert.equal(by.wood_block_get.status, "设备降级");
   assert.equal(by.self_change_effect_3.status, "已实现");
   assert.equal(by.self_change_effect_3.semantics, "partial");
-  assert.equal(by.physics2_set_flexibility.status, "stub");
+  assert.equal(by.physics2_set_flexibility.status, "已实现");
+  assert.equal(by.physics2_set_flexibility.semantics, "partial");
   assert.equal(by.physics2_set_speed.status, "已实现");
   assert.equal(by.physics2_get_property.status, "已实现");
   assert.equal(by.physics2_unknown.status, "缺失");
@@ -183,6 +184,26 @@ test("second round scans explicit module dispatches without swallowing unrelated
   assert.equal(rows.at(-1).status, "缺失");
   assert.equal(rows.find(row => row.type === "self_shake").semantics, "partial");
   assert.equal(rows.find(row => row.type === "text_indexOf").semantics, "partial");
+});
+
+test("third round explicitly maps all formerly missing types and preserves partial boundaries", () => {
+  const types = `block_on_break controls_if_dropdown destruct display_recognition_result get_choice
+    get_choice_index get_cur_frames get_recognition_result get_voice_answer incompatible_block
+    incompatible_output_block midi_get midi_play_note midi_play_num_note midi_wait mouse_on_emit
+    on_mobile_click_btn on_mobile_shake on_mobile_slide on_mobile_slope on_shake on_tilt play_ask_record
+    player_position_on_change procedures_callnoreturn procedures_callreturn procedures_defnoreturn
+    procedures_parameter procedures_return_value reset_timer self_ask_listen self_ask_record self_texture
+    set_force set_force_by_vector set_gravity set_gravity_by_orientation set_speaking_language
+    set_velocity_by_vector shock_duration shock_for_n_times translate translate_result turn_on_the_camera
+    turn_on_the_qrcode_camera voice_recognition physics2_set_flexibility`.split(/\s+/);
+  assert.equal(types.length, 47);
+  const rows = mappingStatus(root, types.map(type => ({ type, official: [] })));
+  for (const row of rows) assert.equal(row.status, "已实现", row.type);
+  for (const type of ["voice_recognition", "self_texture", "physics2_set_flexibility", "translate_result"]) {
+    assert.equal(rows.find(r => r.type === type).semantics, "partial", type);
+  }
+  const unknown = mappingStatus(root, [{type:"midi_unknown",official:[]},{type:"procedures_unknown",official:[]}]);
+  for (const row of unknown) assert.equal(row.status,"缺失");
 });
 
 test("optional official-package integration: 377 types and audited complete registration tables", {

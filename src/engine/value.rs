@@ -21,6 +21,8 @@ pub enum Cell {
     Object(Object),
     /// Missing JS object property; distinct from JSON null and numeric NaN.
     Undefined,
+    /// K4 midi_get returns a fresh {id: value}, not a numeric piano key.
+    Midi(Rc<Cell>),
 }
 impl Cell {
     /// Strict equality search, with the needle tag dispatched once rather than
@@ -87,7 +89,11 @@ impl Cell {
             Self::Bool(v) => u8::from(*v) as f64,
             Self::Null => 0.0,
             Self::Text(s) => crate::js_number::parse(s),
-            Self::List(_) | Self::Costume(_) | Self::Object(_) | Self::Undefined => f64::NAN,
+            Self::List(_)
+            | Self::Costume(_)
+            | Self::Object(_)
+            | Self::Undefined
+            | Self::Midi(_) => f64::NAN,
         }
     }
     pub fn text(&self) -> String {
@@ -103,7 +109,7 @@ impl Cell {
             Self::Bool(v) => v.to_string(),
             Self::Text(s) => s.to_string(),
             Self::Null => String::new(),
-            Self::Costume(_) | Self::Object(_) => "[object Object]".into(),
+            Self::Costume(_) | Self::Object(_) | Self::Midi(_) => "[object Object]".into(),
             Self::Undefined => "undefined".into(),
             Self::List(v) => {
                 let pointer = Rc::as_ptr(v) as usize;
@@ -138,7 +144,7 @@ impl Cell {
             Self::Bool(v) => out.push_str(if *v { "true" } else { "false" }),
             Self::Text(s) => out.push_str(s),
             Self::Null => {}
-            Self::Costume(_) | Self::Object(_) => out.push_str("[object Object]"),
+            Self::Costume(_) | Self::Object(_) | Self::Midi(_) => out.push_str("[object Object]"),
             Self::Undefined => out.push_str("undefined"),
             Self::List(_) => out.push_str(&self.text_with_js_nonfinite(js_nonfinite)),
         }
@@ -148,7 +154,7 @@ impl Cell {
             Self::Number(n) => super::truth(*n),
             Self::Bool(b) => *b,
             Self::Text(s) => !s.is_empty(),
-            Self::List(_) | Self::Costume(_) | Self::Object(_) => true,
+            Self::List(_) | Self::Costume(_) | Self::Object(_) | Self::Midi(_) => true,
             Self::Null | Self::Undefined => false,
         }
     }
@@ -157,6 +163,7 @@ impl Cell {
             let key = match value {
                 Cell::List(v) => (false, Rc::as_ptr(v) as usize),
                 Cell::Object(v) => (true, Rc::as_ptr(v) as usize),
+                Cell::Midi(id) => return Cell::Midi(Rc::new(copy(id, seen))),
                 _ => return value.clone(),
             };
             if let Some(value) = seen.get(&key) {
@@ -196,6 +203,7 @@ impl Cell {
             (Self::List(a), Self::List(b)) => Rc::ptr_eq(a, b),
             (Self::Costume(a), Self::Costume(b)) => Rc::ptr_eq(a, b),
             (Self::Object(a), Self::Object(b)) => Rc::ptr_eq(a, b),
+            (Self::Midi(a), Self::Midi(b)) => Rc::ptr_eq(a, b),
             _ => false,
         }
     }
@@ -267,6 +275,10 @@ impl Cell {
                         };
                         work.push(Some((value.clone(), other.clone())));
                     }
+                    true
+                }
+                (Self::Midi(a), Self::Midi(b)) => {
+                    work.push(Some(((**a).clone(), (**b).clone())));
                     true
                 }
                 _ => a.equals(&b),
@@ -369,6 +381,12 @@ impl Serialize for Cell {
                 map.serialize_entry("style_id", id.as_ref())?;
                 map.end()
             }
+            Self::Midi(id) => {
+                use serde::ser::SerializeMap;
+                let mut map = s.serialize_map(Some(1))?;
+                map.serialize_entry("id", id.as_ref())?;
+                map.end()
+            }
         }
     }
 }
@@ -394,6 +412,10 @@ pub(super) struct Span {
 }
 #[derive(Clone, Copy, Debug)]
 pub(super) enum ValueExpr {
+    K4Frames,
+    K4DomainError(usize),
+    K4LegacyChoice,
+    K4Media(super::k4_media::Reporter),
     Kitten4Add(usize, usize),
     Ranking(bool),
     Calculate(usize),

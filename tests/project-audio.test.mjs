@@ -179,6 +179,18 @@ test('speech interleaves with audio by before_audio and maps offline properties'
   first.onend();first.onend();second.onend();last.onend();assert.deepEqual(done,['s1','s2','s3']);
 });
 
+test('K4 speech consumes explicit language while old frames and KN keep text fallback',t=>{
+  const {audio,synthesizer}=setup(t);audio.resume();
+  audio.apply({speech_commands:[
+    {text:'hello',kitten4:true,language:'ja'},
+    {text:'中文',kitten4:true,language:'en-UK'},
+    {text:'bonjour',kitten4:true,language:'fr'},
+    {text:'中文',kitten4:true},
+    {text:'hello',language:'ja'},
+  ]});
+  assert.deepEqual(synthesizer.utterances.map(u=>u.lang),['ja','en-UK','fr','zh-CN','en-GB']);
+});
+
 test('speech queues while paused, resumes once, clamps config and completes empty/error/unsupported',t=>{
   const {audio,synthesizer,done,errors}=setup(t);
   audio.apply({speech_commands:[{text:'queued',wait:'queued',config:[20,-10,50,50]},{text:'',wait:'empty'}]});

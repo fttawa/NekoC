@@ -225,7 +225,7 @@ fn cell_json(cell: &Cell, depth: usize, remaining: &mut usize) -> Result<Value> 
             Value::String(s.to_string())
         }
         Cell::Null => Value::Null,
-        Cell::Costume(_) => bail!("extension costume objects are not supported"),
+        Cell::Costume(_) | Cell::Midi(_) => bail!("extension objects are not supported"),
         Cell::Object(_) | Cell::Undefined => {
             bail!("extension KN object/undefined arguments are not supported")
         }

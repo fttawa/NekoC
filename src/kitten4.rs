@@ -14,6 +14,8 @@ use aliases::lower_legacy_alias;
 mod audio_aliases;
 mod common;
 mod devices;
+mod media_devices;
+mod third;
 
 struct SourceCache {
     source: crate::json::Json,
@@ -431,8 +433,7 @@ fn lower_when(block: &mut Value) {
 fn is_stub(kind: &str) -> bool {
     matches!(
         kind,
-        "physics2_set_flexibility"
-            | "enable_voice_detection"
+        "enable_voice_detection"
             | "get_voice_volume"
             | "wood_block_set"
             | "wood_block_get"
@@ -487,10 +488,22 @@ fn lower_block(block: &mut Value, targets: &Targets) {
     if common::lower_common(block) {
         return;
     }
+    if third::lower_third(block, targets) {
+        return;
+    }
+    if media_devices::lower_media_devices(block) {
+        return;
+    }
     if devices::lower_devices(block) {
         return;
     }
     if audio_aliases::lower_audio_alias(block, targets) {
+        return;
+    }
+    if kind == "get_2" {
+        // Tn6a@42434 forwards the complete get_3 protocol, not just x/y/angle.
+        block["type"] = json!(format!("{OPAQUE}get_3"));
+        lower_block(block, targets);
         return;
     }
     if kind.starts_with("physics2_") {
@@ -520,6 +533,12 @@ fn lower_block(block: &mut Value, targets: &Targets) {
             | "self_set_density"
             | "set_actor_as"
             | "allow_rotate"
+            | "self_texture"
+            | "set_force"
+            | "set_force_by_vector"
+            | "set_gravity"
+            | "set_gravity_by_orientation"
+            | "set_velocity_by_vector"
     ) {
         block["type"] = json!(format!("kitten4_legacy_{kind}"));
         return;
@@ -775,7 +794,7 @@ fn lower_block(block: &mut Value, targets: &Targets) {
             // 2 and 4 were verified against the official editor (docs/kitten4-semantics.md).
             "2" => "style_of_sprite",
             "4" => "kitten4_costume_name",
-            "5" | "7" | "8" | "9" | "10" | "11" | "12" | "13" | "16" | "17" => {
+            "5" | "7" | "8" | "9" | "10" | "11" | "12" | "13" | "14" | "16" | "17" => {
                 // The existing clone-property reporter also addresses the original
                 // with index 0, and preserves costume names as text (official
                 // get_clone_index_property / get_scene_or_actor_property).
@@ -801,7 +820,11 @@ fn lower_block(block: &mut Value, targets: &Targets) {
             {
                 "kitten4_actor_variable"
             }
-            _ => return,
+            _ => {
+                // Tn6a/get_3 converts an undefined native property to NaN.
+                put_field(block, "NUM", "NaN");
+                "math_number"
+            }
         },
         "set_theatre_layer" => {
             let layer = match field(block, "layer") {
@@ -934,6 +957,21 @@ fn from_neko_inner(value: &Value) -> Result<Value> {
     if let Some(source) = source {
         ensure!(is_kitten4(source), "invalid _nekocKitten4.source");
         let baseline = source_baseline(source)?;
+        if value
+            .as_object()
+            .unwrap()
+            .iter()
+            .filter(|(key, _)| key.as_str() != METADATA)
+            .count()
+            == baseline.as_object().unwrap().len()
+            && baseline.as_object().unwrap().iter().all(|(key, original)| {
+                value
+                    .get(key)
+                    .is_some_and(|edited| same_json(edited, original))
+            })
+        {
+            return Ok(crate::json::clone_value(source));
+        }
         if is_published(source) {
             // No workspace to write edits into: only an unchanged work can be exported.
             // Check the complete canonical snapshot, not just executable owners:
@@ -1113,6 +1151,7 @@ fn import_owners(
 /// produced (`compile_result`). Its `params` use the same names as native fields and
 /// inputs, so it can be rebuilt into the nested form the importer already understands.
 struct CompiledWork<'a> {
+    source: &'a Value,
     entities: Vec<&'a Value>,
     parameters: BTreeMap<&'a str, Vec<&'a str>>,
 }
@@ -1137,6 +1176,7 @@ impl<'a> CompiledWork<'a> {
             parameters.insert(name.as_str(), names);
         }
         Self {
+            source,
             entities,
             parameters,
         }
@@ -1152,6 +1192,46 @@ impl<'a> CompiledWork<'a> {
 
     fn procedures(&self) -> Result<Map<String, Value>> {
         let mut result = Map::new();
+        // Old Blockly definitions can live only in a workspace (no cached AST).
+        // DmFr/json_procedure_definition_to_json reads mutation argument names.
+        for owner in ["actors", "scenes"].into_iter().flat_map(|section| {
+            self.source["theatre"][section]
+                .as_object()
+                .into_iter()
+                .flat_map(Map::values)
+        }) {
+            let Some(workspace) = owner.get("block_data_json") else {
+                continue;
+            };
+            if !workspace["blocks"].as_object().is_some_and(|blocks| {
+                blocks
+                    .values()
+                    .any(|b| b["type"] == "procedures_defnoreturn")
+            }) {
+                continue;
+            }
+            let roots = import_workspace_with_starts(workspace)?.0;
+            for definition in roots
+                .into_iter()
+                .filter(|b| b["type"] == "procedures_2_defnoreturn")
+            {
+                let Some(original) = workspace["blocks"]
+                    .get(definition["id"].as_str().unwrap_or_default())
+                    .filter(|b| b["type"] == "procedures_defnoreturn")
+                else {
+                    continue;
+                };
+                let name = field(original, "NAME");
+                let params: Vec<Value> = third::mutation_names(original)
+                    .into_iter()
+                    .map(|param| json!({"id":param,"name":param,"type":"String"}))
+                    .collect();
+                result.insert(
+                    name.to_owned(),
+                    json!({"id":name,"name":name,"params":params,"nekoBlockJsonList":[definition]}),
+                );
+            }
+        }
         for (name, definition) in self
             .entities
             .iter()
@@ -1242,7 +1322,7 @@ impl<'a> CompiledWork<'a> {
         } else {
             kind
         };
-        let definition = kind.starts_with("procedures_2_def");
+        let definition = kind.starts_with("procedures_2_def") || kind == "procedures_defnoreturn";
         let (mut fields, mut inputs, mut statements) = (Map::new(), Map::new(), Map::new());
         if !definition {
             for (name, value) in node["params"].as_object().into_iter().flatten() {
@@ -1261,7 +1341,10 @@ impl<'a> CompiledWork<'a> {
         }
         if matches!(
             kind,
-            "procedures_2_callnoreturn" | "procedures_2_callreturn"
+            "procedures_2_callnoreturn"
+                | "procedures_2_callreturn"
+                | "procedures_callnoreturn"
+                | "procedures_callreturn"
         ) {
             let name = node["procedure_name"].as_str().unwrap_or_default();
             fields.insert("NAME".into(), json!(name));
@@ -1273,13 +1356,31 @@ impl<'a> CompiledWork<'a> {
                     .or_insert_with(|| json!({"type": "math_number", "fields": {"NUM": "0"}}));
             }
         }
-        if kind == "procedures_2_return_value" && !inputs.contains_key("VALUE") {
+        if matches!(
+            kind,
+            "procedures_2_return_value" | "procedures_return_value"
+        ) && !inputs.contains_key("VALUE")
+        {
             inputs.insert(
                 "VALUE".into(),
                 json!({"type": "text", "fields": {"TEXT": ""}}),
             );
         }
-        let conditions = node["conditions"].as_array().map_or(0, Vec::len);
+        let conditions = if kind == "controls_if_dropdown" {
+            for (index, condition) in node["if_dropdown_conditions"]
+                .as_array()
+                .into_iter()
+                .flatten()
+                .enumerate()
+            {
+                fields.insert(format!("IF{index}"), condition.clone());
+            }
+            node["if_dropdown_conditions"]
+                .as_array()
+                .map_or(0, Vec::len)
+        } else {
+            node["conditions"].as_array().map_or(0, Vec::len)
+        };
         for (index, condition) in node["conditions"]
             .as_array()
             .into_iter()
@@ -1306,8 +1407,12 @@ impl<'a> CompiledWork<'a> {
                 continue;
             }
             let socket = match kind {
-                "controls_if" | "controls_if_no_else" if index < conditions => format!("DO{index}"),
-                "controls_if" | "controls_if_no_else" => "ELSE".to_owned(),
+                "controls_if" | "controls_if_no_else" | "controls_if_dropdown"
+                    if index < conditions =>
+                {
+                    format!("DO{index}")
+                }
+                "controls_if" | "controls_if_no_else" | "controls_if_dropdown" => "ELSE".to_owned(),
                 _ if definition => "STACK".to_owned(),
                 _ => "DO".to_owned(),
             };
@@ -1322,7 +1427,10 @@ impl<'a> CompiledWork<'a> {
         let mut block = json!({"type": kind});
         if matches!(
             kind,
-            "procedures_2_callnoreturn" | "procedures_2_callreturn"
+            "procedures_2_callnoreturn"
+                | "procedures_2_callreturn"
+                | "procedures_callnoreturn"
+                | "procedures_callreturn"
         ) {
             let name = node["procedure_name"].as_str().unwrap_or_default();
             let name = name
@@ -1615,6 +1723,7 @@ fn import_block(block: Value, depth: usize) -> Result<Value> {
 }
 
 fn import_one(mut result: crate::json::Json, _depth: usize) -> Result<crate::json::Json> {
+    third::normalize_procedure(&mut result);
     let kind = result["type"]
         .as_str()
         .context("Kitten 4 block is missing type")?

@@ -20,7 +20,9 @@ mod physics;
 mod stage_dialog;
 mod value;
 use k4_clock::{K4Timer, timer_policy, to_fixed2};
+mod k4_media;
 mod k4_shake;
+pub use k4_media::{MediaOutput, MediaRequest, RequestKind};
 mod video;
 mod visibility;
 pub use stage_dialog::StageDialogRequest;
@@ -405,6 +407,10 @@ enum Op {
     /// Native KN 0.27.4 drops the callback statement before calling the domain.
     KnTimer(usize, bool),
     KnClearTimer(usize),
+    K4Media(k4_media::Command),
+    K4DomainError(usize),
+    LegacyPhysicsVector(physics::Command, usize, usize),
+    K4LegacyChoice,
 }
 #[derive(Clone, Copy, Debug)]
 enum LayerMove {
@@ -667,6 +673,7 @@ struct Script {
 
 #[derive(Clone, Debug)]
 enum ScriptEvent {
+    K4Media(k4_media::Event),
     Start,
     /// KN level-triggered root; one persistent, scene-suspended task per hat.
     KnWhen,
@@ -1855,6 +1862,15 @@ impl Compiler {
                 }
             }
             "broadcast_input" => self.constant(Cell::Text(field(b, "message").into())),
+            "kitten4_frames" => ValueExpr::K4Frames,
+            "kitten4_legacy_choice" => ValueExpr::K4LegacyChoice,
+            kind if kind.starts_with("kitten4_media_") => {
+                ValueExpr::K4Media(self.k4_media_reporter(b)?)
+            }
+            "kitten4_domain_error" => {
+                let message = self.push_constant(Cell::Text(field(b, "error_type").into()));
+                ValueExpr::K4DomainError(message)
+            }
             "self_listen_value" => ValueExpr::Payload,
             "procedures_2_parameter" => {
                 ValueExpr::Parameter(*self.parameters.get(field(b, "param_name")).with_context(
@@ -2062,8 +2078,8 @@ impl Compiler {
                     "1" | "y" => 1,
                     "2" => 2,
                     "4" => 4,
-                    attribute @ ("3" | "5" | "7" | "8" | "9" | "10" | "11" | "12" | "13" | "16"
-                    | "17")
+                    attribute @ ("3" | "5" | "7" | "8" | "9" | "10" | "11" | "12" | "13" | "14"
+                    | "16" | "17")
                         if self.program.semantics == RuntimeSemantics::Kitten4 =>
                     {
                         attribute.parse::<u8>()?
@@ -2508,6 +2524,14 @@ impl Compiler {
                 }
             }
             "text"
+            | "kitten4_frames"
+            | "kitten4_domain_error"
+            | "kitten4_legacy_choice"
+            | "kitten4_media_midi_get"
+            | "kitten4_media_get_voice_answer"
+            | "kitten4_media_get_recognition_result"
+            | "kitten4_media_translate_result"
+            | "kitten4_media_on_mobile_click_btn"
             | "kitten4_text_index"
             | "kitten4_default_value"
             | "text_join"
@@ -2867,6 +2891,19 @@ impl Compiler {
                     }
                 }
                 "start_as_a_mirror" | "start_as_clone" => ScriptEvent::CloneStart,
+                "kitten4_media_on_mobile_slide"
+                | "kitten4_media_on_mobile_slope"
+                | "kitten4_media_on_mobile_shake"
+                | "kitten4_media_on_shake"
+                | "kitten4_media_on_tilt" => ScriptEvent::K4Media(self.k4_media_event(root)?),
+                "procedures_2_defnoreturn"
+                    if self.program.semantics == RuntimeSemantics::Kitten4 =>
+                {
+                    continue;
+                }
+                "kitten4_domain_error" if self.program.semantics == RuntimeSemantics::Kitten4 => {
+                    ScriptEvent::Start
+                }
                 "on_swipe" => {
                     let direction = field(root, "type");
                     ensure!(
@@ -2968,7 +3005,9 @@ impl Compiler {
                 });
                 continue;
             }
-            let body = if matches!(event, ScriptEvent::Broadcast(_, _)) {
+            let body = if kind == "kitten4_domain_error" {
+                Some(root)
+            } else if matches!(event, ScriptEvent::Broadcast(_, _)) {
                 root["statements"].get("DO")
             } else if matches!(event, ScriptEvent::Pointer(..))
                 && self.program.semantics == RuntimeSemantics::Kitten4
@@ -2977,6 +3016,7 @@ impl Compiler {
             } else if matches!(
                 event,
                 ScriptEvent::CloneStart
+                    | ScriptEvent::K4Media(_)
                     | ScriptEvent::Swipe(_)
                     | ScriptEvent::Bump(..)
                     | ScriptEvent::Pointer(..)
@@ -3786,6 +3826,13 @@ impl Compiler {
                         block = b.get("next");
                         continue;
                     }
+                    "kitten4_domain_error" => Op::K4DomainError(
+                        self.push_constant(Cell::Text(field(b, "error_type").into())),
+                    ),
+                    "kitten4_legacy_choice" => Op::K4LegacyChoice,
+                    kind if kind.starts_with("kitten4_media_") => {
+                        Op::K4Media(self.k4_media_command(b)?)
+                    }
                     "kitten4_set_velocity" => Op::PhysicsVelocity(
                         self.value(input(b, "value")?)?,
                         self.value(input(b, "dir")?)?,
@@ -3793,14 +3840,39 @@ impl Compiler {
                     kind if kind.starts_with("kitten4_legacy_") => {
                         let command = physics::Command::parse_legacy(kind, b)?;
                         let zero = serde_json::json!({"type":"math_number","fields":{"NUM":0}});
+                        if matches!(
+                            command,
+                            physics::Command::LegacyForce
+                                | physics::Command::LegacyGravity
+                                | physics::Command::LegacyForceVector
+                                | physics::Command::LegacyVelocityVector
+                        ) {
+                            let keys = if matches!(
+                                command,
+                                physics::Command::LegacyForce | physics::Command::LegacyGravity
+                            ) {
+                                ["value", "dir"]
+                            } else {
+                                ["x_axis", "y_axis"]
+                            };
+                            let a = self.value(input(b, keys[0])?)?;
+                            let d = self.value(input(b, keys[1])?)?;
+                            self.emit(Op::LegacyPhysicsVector(command, a, d), b);
+                            block = b.get("next");
+                            continue;
+                        }
                         let value = self.value(
-                            ["friction", "restitution", "mass", "density"]
+                            ["friction", "restitution", "mass", "density", "value"]
                                 .iter()
                                 .find_map(|key| b["inputs"].get(*key))
                                 .unwrap_or(&zero),
                         )?;
                         Op::LegacyPhysics(command, value)
                     }
+                    "physics2_set_flexibility" => Op::LegacyPhysics(
+                        physics::Command::Flexibility,
+                        self.value(input(b, "value")?)?,
+                    ),
                     kind if kind.starts_with("physics2_") => {
                         let command = physics::Command::parse(kind, b, |id| self.actor_target(id))?;
                         let zero = serde_json::json!({"type":"math_number","fields":{"NUM":0}});
@@ -4402,6 +4474,8 @@ pub struct AudioProperty {
 pub struct SpeechCommand {
     pub before_audio: usize,
     pub text: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub language: Option<String>,
     pub config: [f64; 4],
     pub kitten4: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -4479,6 +4553,8 @@ pub struct Engine {
     warp_iterations: u32,
     cloud: cloud::State,
     scheduler_tick: u64,
+    k4_frames: u64,
+    k4_media: k4_media::State,
     oracle_events: Option<Vec<Value>>,
     evaluation_cache: Vec<BTreeMap<(bool, usize), VecDeque<Cell>>>,
     physics: Option<Box<physics::Physics>>,
@@ -4882,6 +4958,8 @@ impl Engine {
             next_video_generation: 1,
             video_above_pen: false,
             scheduler_tick: 0,
+            k4_frames: 0,
+            k4_media: k4_media::State::default(),
             trace_filter: None,
             trace_truncated: false,
             warp_iterations: 0,
@@ -5043,6 +5121,8 @@ impl Engine {
         self.stopped = false;
         self.initialize_legacy_physics();
         self.time = 0.0;
+        self.k4_frames = 0;
+        self.k4_media.reset();
         self.timer = 0.0;
         // The Kitten 4 stage timer stays at 0 until a timer block starts it.
         self.timer_running = self.program.k4_timer.is_none();
@@ -7194,6 +7274,9 @@ impl Engine {
             _ => None,
         };
         match self.program.values[key.1] {
+            ValueExpr::K4Media(reporter) => {
+                children.extend(reporter.children().into_iter().map(|i| (true, i)))
+            }
             ValueExpr::Number(e)
             | ValueExpr::CloneProperty(_, e, _)
             | ValueExpr::ActorVariable(_, _, Some(e)) => children.push(expression(e)),
@@ -7294,9 +7377,13 @@ impl Engine {
                 // either operand is not a number (see docs/kitten4-run-errors.md).
                 let a = self.eval_value(a, actor);
                 let b = self.eval_value(b, actor);
-                if matches!(a, Cell::Text(_) | Cell::List(_) | Cell::Costume(_))
-                    || matches!(b, Cell::Text(_) | Cell::List(_) | Cell::Costume(_))
-                {
+                if matches!(
+                    a,
+                    Cell::Text(_) | Cell::List(_) | Cell::Costume(_) | Cell::Midi(_)
+                ) || matches!(
+                    b,
+                    Cell::Text(_) | Cell::List(_) | Cell::Costume(_) | Cell::Midi(_)
+                ) {
                     Cell::concat(&a, &b)
                 } else {
                     Cell::Number(a.number() + b.number())
@@ -7369,8 +7456,14 @@ impl Engine {
                 Cell::Bool(valid(&a) && valid(&b) && a.text().contains(&b.text()))
             }
             ValueExpr::TextIndex(a, b, last) => {
-                let text: Vec<u16> = self.eval_value(a, actor).text().encode_utf16().collect();
-                let needle: Vec<u16> = self.eval_value(b, actor).text().encode_utf16().collect();
+                let value = self.eval_value(a, actor);
+                let needle = self.eval_value(b, actor);
+                let Cell::Text(value) = value else {
+                    self.value_error = Some("K4 text_indexOf requires a string VALUE".into());
+                    return Cell::Null;
+                };
+                let text: Vec<u16> = value.encode_utf16().collect();
+                let needle: Vec<u16> = needle.text().encode_utf16().collect();
                 let at = if needle.is_empty() {
                     Some(if last { text.len() } else { 0 })
                 } else if last {
@@ -7684,6 +7777,10 @@ impl Engine {
                             }),
                             9 => Cell::Number(a.effects[2] + 100.0),
                             7 | 10..=13 => Cell::Number(a.effects[(attribute - 7) as usize]),
+                            // ASCII scope=7 is still an explicit unsupported
+                            // effect; retain its default instead of indexing
+                            // past the seven supported effect slots.
+                            14 => Cell::Number(0.0),
                             _ => {
                                 let id = a.style.as_deref().unwrap_or("");
                                 let name =
@@ -7720,6 +7817,24 @@ impl Engine {
                         }
                     }),
                 }
+            }
+            ValueExpr::K4Frames => Cell::Number(self.k4_frames as f64),
+            ValueExpr::K4LegacyChoice => {
+                self.value_error = Some(
+                    if self.sprites[actor].stage {
+                        "K4 choice used in scene"
+                    } else {
+                        "K4 legacy choice returned undefined"
+                    }
+                    .into(),
+                );
+                Cell::Null
+            }
+            ValueExpr::K4Media(reporter) => self.eval_k4_media(reporter, actor),
+            ValueExpr::K4DomainError(message) => {
+                let message = self.eval_value(message, actor).text();
+                self.value_error = Some(format!("K4 domain error: {message}"));
+                Cell::Null
             }
             ValueExpr::Answer => self.answer.clone(),
             ValueExpr::SceneId => {
@@ -8060,11 +8175,16 @@ impl Engine {
                         .clone()
                         .unwrap_or(Cell::Number(self.tasks[index].locals[i])),
                 };
-                if !matches!(previous, Cell::List(_) | Cell::Costume(_) | Cell::Null) {
+                if !matches!(
+                    previous,
+                    Cell::List(_) | Cell::Costume(_) | Cell::Midi(_) | Cell::Null
+                ) {
                     let result = if !decrease
                         && (matches!(previous, Cell::Text(_))
-                            || matches!(value, Cell::Text(_) | Cell::List(_) | Cell::Costume(_)))
-                    {
+                            || matches!(
+                                value,
+                                Cell::Text(_) | Cell::List(_) | Cell::Costume(_) | Cell::Midi(_)
+                            )) {
                         Cell::concat(&previous, &value)
                     } else {
                         Cell::Number(if decrease {
@@ -8097,7 +8217,12 @@ impl Engine {
             }
             Op::LegacyPhysics(command, value) => {
                 let value = self.eval_value(value, actor);
-                let number = if matches!(command, physics::Command::LegacyMass) {
+                let number = if matches!(
+                    command,
+                    physics::Command::LegacyMass
+                        | physics::Command::LegacyGravityOrientation
+                        | physics::Command::Flexibility
+                ) {
                     match value {
                         Cell::Number(n) => n,
                         _ => f64::NAN,
@@ -8106,6 +8231,21 @@ impl Engine {
                     value.number()
                 };
                 self.physics_command(actor, command, [number, 0.0, 0.0])?;
+            }
+            Op::K4Media(command) => {
+                return self.exec_k4_media(index, actor, command);
+            }
+            Op::LegacyPhysicsVector(command, value, dir) => {
+                let number = |v| match v {
+                    Cell::Number(n) => n,
+                    _ => f64::NAN,
+                };
+                let values = [
+                    number(self.eval_value(value, actor)),
+                    number(self.eval_value(dir, actor)),
+                    0.0,
+                ];
+                self.physics_command(actor, command, values)?;
             }
             Op::PhysicsVelocity(value, dir) => {
                 let number = |v| match v {
@@ -8402,6 +8542,11 @@ impl Engine {
                     self.timer_origin_ms = self.clock_ms - self.timer * 1000.0;
                 }
             }
+            Op::K4DomainError(message) => {
+                let message = self.eval_value(message, actor).text();
+                bail!("K4 domain error: {message}");
+            }
+            Op::K4LegacyChoice => ensure!(!self.sprites[actor].stage, "K4 choice used in scene"),
             Op::TimerVisible(visible) => self.timer_visible = visible,
             Op::ResetBlockTimer => self.block_timer.reset(self.time),
             Op::Execute(value) => {
@@ -8700,6 +8845,8 @@ impl Engine {
                 });
                 self.speech_commands.push(SpeechCommand {
                     before_audio: self.audio_commands.len(),
+                    language: (self.program.semantics == RuntimeSemantics::Kitten4)
+                        .then(|| self.k4_speech_language(&text).to_owned()),
                     text,
                     config: self.speech_config,
                     kitten4: self.program.semantics == RuntimeSemantics::Kitten4,
@@ -9483,8 +9630,10 @@ impl Engine {
         self.pointer_clicked = false;
         self.pointer_released = false;
         self.input_clicks.clear();
+        self.k4_media.clear_frame();
         self.input_targets
             .retain(|_, state| state != "mouse_up" && !state.is_empty());
+        self.k4_frames += 1;
         if std::mem::take(&mut self.restart) {
             self.start();
         }

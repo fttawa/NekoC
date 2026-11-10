@@ -98,6 +98,7 @@ fn none_tag() -> Option<u8> {
         Cell::Costume("".into()),
         Cell::Object(Default::default()),
         Cell::Undefined,
+        Cell::Midi(std::rc::Rc::new(Cell::Number(0.0))),
     ];
     samples
         .into_iter()

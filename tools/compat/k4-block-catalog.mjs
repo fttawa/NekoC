@@ -318,7 +318,7 @@ export function mappingStatus(root, rows) {
   // These are explicit VM-boundary dispatches, not all strings in a module.
   // Require the corresponding call in lower_block before counting evidence.
   const extensions = new Map();
-  for (const [module, helper] of [["common", "lower_common"], ["devices", "lower_devices"], ["audio_aliases", "lower_audio_alias"]]) {
+  for (const [module, helper] of [["common", "lower_common"], ["devices", "lower_devices"], ["audio_aliases", "lower_audio_alias"], ["third", "lower_third"], ["media_devices", "lower_media_devices"]]) {
     const extensionFile = `src/kitten4/${module}.rs`;
     if (!source.includes(`${module}::${helper}(block`)) continue;
     const extension = fs.readFileSync(path.join(root, extensionFile), "utf8");
@@ -345,9 +345,11 @@ export function mappingStatus(root, rows) {
   const deviceTypes = new Set(["get_running_device", "check_running_device", "username_get", "user_id_get", "connected_users_get",
     "get_voice_volume", "enable_voice_detection", "wood_block_get", "wood_block_set", "set_camera_status", "get_orientation",
     "get_mobile_slope_value", "get_mobile_rocker_value", "mobile_vibrate", "get_camera_data", "set_camera_opcity"]);
-  const partialTypes = new Set(["get_2", "get_3", "get", "self_change_effect_3", "self_change_effect", "self_change_effect_2",
+  const partialTypes = new Set(["self_change_effect_3", "self_change_effect", "self_change_effect_2",
     "self_set_effect_2", "self_set_effect", "self_clear_effects", "get_clone_index_property", "set_scene_transition",
     "self_set_role_camp", "get_stage_info", "self_set_draggable", "image_stamp", "stamp"]);
+  const thirdMedia = rustDispatch(fs.readFileSync(path.join(root, "src/kitten4/media_devices.rs"), "utf8"), "lower_media_devices");
+  const thirdPhysics = new Set(["self_texture", "set_force", "set_force_by_vector", "set_gravity", "set_gravity_by_orientation", "set_velocity_by_vector"]);
   function engineAt(literal) {
     const at = engine.indexOf(`"${literal}"`);
     return at < 0 ? [] : [location(engine, engineFile, { start: at }, literal)];
@@ -375,9 +377,9 @@ export function mappingStatus(root, rows) {
     if (aliases.has(row.type)) limitations.push("legacy alias 归一化；继承目标积木的字段、子选项与运行时限制");
     const cloud = /cloud_|ranking/.test(row.type);
     if (cloud && evidence.length) { semantics = "partial"; limitations.push("云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致"); }
-    if ((row.type.startsWith("physics2_") || /^(?:self_(?:enable_physics|disable_physics|set_friction|set_restitution|set_boundary|set_mass|set_density)|set_actor_as|allow_rotate|get_physics_property|set_velocity)$/.test(row.type)) && evidence.length) {
+    if ((thirdPhysics.has(row.type) || row.type.startsWith("physics2_") || /^(?:self_(?:enable_physics|disable_physics|set_friction|set_restitution|set_boundary|set_mass|set_density)|set_actor_as|allow_rotate|get_physics_property|set_velocity)$/.test(row.type)) && evidence.length) {
       if (!stub) semantics = "partial";
-      limitations.push("刚体兼容层：求解器/轮廓与官方不同；软体/弹性并未实现，见 kitten4-physics.md");
+      limitations.push("刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md");
     }
     if (partialTypes.has(row.type) && evidence.length) {
       if (status === "已实现") semantics = "partial";
@@ -405,7 +407,18 @@ export function mappingStatus(root, rows) {
     }
     if (row.type === "text_indexOf" && evidence.length) {
       semantics = "partial";
-      limitations.push("FIRST/LAST 与空 needle 的 1-based UTF-16 位置已回归；原始非字符串 VALUE 的 JS TypeError 路径未对齐");
+      limitations.push("FIRST/LAST、空 needle 的 1-based UTF-16 位置及非字符串 VALUE 的类型错误已有源码推导回归；孤立 surrogate 的精确 JS 字符串行为未覆盖");
+    }
+    if (thirdMedia.has(row.type) && evidence.length) {
+      semantics = "partial";
+      limitations.push("媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md");
+    }
+    if (["block_on_break", "mouse_on_emit", "player_position_on_change", "incompatible_block", "incompatible_output_block"].includes(row.type) && evidence.length) {
+      limitations.push("实现该固定官方包的抛错边界（枚举旧事件无 domain handler）；不是可工作的新增事件，不静默执行或忽略");
+    }
+    if (["get", "get_2", "get_3"].includes(row.type) && evidence.length) {
+      semantics = "partial";
+      limitations.push("补齐 get_2 全属性委派与官方未知属性 NaN；普通属性/角色局部变量有回归；悬空目标、场景滤镜及非有限状态仍未逐项官方实测");
     }
     if (row.official.some(e => e.module === "ls7Z")) {
       limitations.push("官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md");
@@ -429,7 +442,7 @@ export function markdownReport(report) {
     `- 枚举 **${report.count}** 个唯一 block type；注册域、responder 与编译器结构表取并集；重复注册保留每一处证据。`,
     "- 官方定位为 webpack **模块 factory `function` 开头起算的 0-based JavaScript UTF-16 字符 offset**（不是字节或整包偏移）。domain 指属性名，responder 指 id 属性，compiler 指枚举成员名。",
     "- 状态“已实现”仅表示有显式导入/执行映射，不表示语义全等；`mapped-not-parity` 仍未逐字段核对。`partial` 是已知子选项、云后端、渲染或物理差异；stub 为明确无效果，设备降级为本地固定值/无设备语义；缺失不因官方也有 noop 而冒充支持。",
-    "- `is_stub` 严格限制在该函数的 kind 分派；`physics2_set_flexibility` 虽先经 physics2 通路仍按显式 stub/物理软体限制标注。`scope=7` 等条件分支不把整个积木误标为 stub。未设置 K4_PLAYER_DIR 的普通 JS 单测不需要官方包、外部内核或 Cargo；设置后另启只读集成校验。",
+    "- `is_stub` 严格限制在该函数的 kind 分派；flexibility 已实现硬体 strength adapter，但软体粒子仍为 partial。`scope=7` 等条件分支不把整个积木误标为 stub。未设置 K4_PLAYER_DIR 的普通 JS 单测不需要官方包、外部内核或 Cargo；设置后另启只读集成校验。",
     `- 频率来自只读语料 \`${report.corpus}\` 的 ${report.files} 个 .bcm 文件，${report.workspaceOwners} 个 owner 用 workspace，${report.compiledOwners} 个 owner 用 compiled_block_map 回退。每个 owner workspace 优先（包括空 workspace），不双计 compile AST、procedure 视图、shadow 备份或 mutation。频率为出现次数，不是作品数；0 不代表不存在。`,
     "- 文档和 JSON 只包含类型、位置、频率及本仓库限制；不含官方源码片段、作品内容、标题、作者或资源。", "",
     "## 复现", "", "设置 `K4_PLAYER_DIR` 为本地官方 app 目录，然后运行（只读官方包与语料）：", "",
@@ -442,8 +455,10 @@ export function markdownReport(report) {
     ...Object.entries(report.counts).map(([status, count]) => `| ${status} | ${count} |`), "",
     `已知 partial：${report.rows.filter(r => r.semantics === "partial").length} 项（不是第五种主状态）。`, "",
     "## 本次按频率补齐", "",
+    "- 第三轮：剩余 46 个类型逐项增加执行映射或固定官方错误边界，最后一个 flexibility stub 实现硬体 adapter；媒体/设备通过明确 host 请求、完成结果和事件 API，不伪装真实设备可用。源码定位、原创回归与未接 viewer 限制见 kitten4-third-round.md、kitten4-third-media.md、kitten4-third-physics.md。",
+    "- 高频 partial 优先核对 get_3（2049 次）与其 get/get_2 别名：修复完整属性委派和未知属性 NaN；物理质量/惯量与非法参数的 body 分配边界也有加强。仍保留 partial，不以映射清零声称全语义清零。以下第二轮内容为历史记录。",
     "- 第二轮：先补语料 10 次的 self_shake（保留时序/物理 partial），再按常用类别补文本、旧启动/条件/点击/弹窗入口；原始缺失项频率均为 0，未宣称有编辑器面板使用统计。详见 kitten4-second-round.md 与 tests/kitten4_catalog.rs。",
-    "- 第二轮设备项仅支持官方离线无设备语义：ls7Z 逐项显式映射，不伪装真实硬件支持；另补手机轴、震动、摄像头 motion/方向及透明度降级。见 kitten4-devices.md。视频积木不改；扫码 UI/语音/MIDI 等继续公开为缺失。",
+    "- 第二轮设备项仅支持官方离线无设备语义：ls7Z 逐项显式映射，不伪装真实硬件支持；另补手机轴、震动、摄像头 motion/方向及透明度降级。见 kitten4-devices.md。扫码/语音/MIDI 的第三轮 host 语义见上。",
     "- 第二轮核对五个原本已有的 legacy audio 入口并补回归，修正动态声音输入与旧 change 的符号；只重新分类，不计作新增五项。基线也已支持 play_words_audio/play_words_audio_wait，本轮仅修复覆盖表过期 stub 分类，不计作新增 TTS。见 kitten4-audio-aliases.md。",
     "- `set_entity_show_hide` 在语料出现 64 次，是本次优先补齐的非设备 stub。角色、场景及分组目标分别解析；分组渐变并发进行、调用线程等待，不能用异步 tell 冒充。官方依据为 Tn6a/lt 的该属性与内部 f（属性定位见下表）；回归在 tests/kitten4_visibility.rs。",
     "- 其余高频缺失候选经专用 lowering 核对后为已有支持；没有把物理/云路径误报当作新实现。其后补齐 21 个零频 legacy 别名：坐标 8、渐显隐 2、缩放 2、效果 3、图层 1、造型 3、get 1、multiline_text 1。具体源码分派见 src/kitten4/aliases.rs；回归在 tests/kitten4_catalog.rs，覆盖 workspace/published、原样 roundtrip、解释器/默认 JIT。",

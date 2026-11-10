@@ -88,6 +88,17 @@ mod tests {
     }
 
     #[test]
+    fn invalid_modern_speed_and_gravity_do_not_allocate_but_scenes_still_error() {
+        for c in [Command::Speed, Command::Gravity] {
+            let mut e = engine();
+            command(&mut e, 1, c, [f64::NAN, 0.0, 0.0]);
+            command(&mut e, 1, c, [1.0, f64::INFINITY, 0.0]);
+            assert!(e.physics.is_none());
+            assert!(e.physics_command(0, c, [f64::NAN, 0.0, 0.0]).is_err());
+        }
+    }
+
+    #[test]
     fn sensor_static_hidden_and_repeated_enable_preserve_velocity() {
         let mut e = engine();
         command(&mut e, 1, Command::Gravity, [0.0; 3]);
@@ -188,6 +199,12 @@ pub(super) enum Command {
     Gravity,
     Speed,
     LegacyVelocity,
+    LegacyVelocityVector,
+    LegacyForce,
+    LegacyForceVector,
+    LegacyGravity,
+    LegacyGravityOrientation,
+    LegacyTexture(u8),
     LegacyEnable(bool),
     LegacyCollidable(bool),
     LegacyRotate(bool),
@@ -218,6 +235,17 @@ impl Command {
             "self_set_restitution" => Self::LegacyRestitution,
             "self_set_mass" => Self::LegacyMass,
             "self_set_density" => Self::LegacyDensity,
+            "set_velocity_by_vector" => Self::LegacyVelocityVector,
+            "set_force" => Self::LegacyForce,
+            "set_force_by_vector" => Self::LegacyForceVector,
+            "set_gravity" => Self::LegacyGravity,
+            "set_gravity_by_orientation" => Self::LegacyGravityOrientation,
+            "self_texture" => Self::LegacyTexture(match field(b, "texture_type") {
+                "elastic" => 0,
+                "iron" => 1,
+                "wood" => 2,
+                _ => 3,
+            }),
             "self_set_boundary" => Self::LegacyBoundary(match field(b, "physics_bound_type") {
                 "not_bound" => 0,
                 "all_bounds" => 15,
@@ -306,12 +334,178 @@ mod legacy_tests {
         e.start();
         assert!(e.physics.is_none());
     }
+
+    #[test]
+    fn remaining_legacy_body_commands_are_lazy_and_finite_checks_precede_scene_errors() {
+        for c in [
+            Command::LegacyVelocityVector,
+            Command::LegacyForce,
+            Command::LegacyForceVector,
+        ] {
+            let mut e = engine();
+            command(&mut e, 1, c, [12.0, 0.0, 0.0]);
+            assert!(e.physics.is_none(), "{c:?} allocated a body");
+            command(&mut e, 0, c, [f64::NAN, 0.0, 0.0]);
+            assert!(e.physics_command(0, c, [1.0, 0.0, 0.0]).is_err());
+        }
+        let mut e = engine();
+        command(&mut e, 1, Command::LegacyTexture(1), [0.0; 3]);
+        assert!(e.physics.is_none());
+        assert!(
+            e.physics_command(0, Command::LegacyTexture(1), [0.0; 3])
+                .is_err()
+        );
+    }
+
+    #[test]
+    fn vector_velocity_limits_each_axis_not_the_magnitude_and_static_body_ignores_it() {
+        let mut e = engine();
+        command(&mut e, 1, Command::Gravity, [0.0; 3]);
+        command(
+            &mut e,
+            1,
+            Command::LegacyVelocityVector,
+            [20000.0, -20000.0, 0.0],
+        );
+        let w = &e.physics.as_ref().unwrap().worlds[&0];
+        let b = &w.actors[&1];
+        assert_eq!(*w.bodies[b.handle].linvel(), vector![100000.0, -100000.0]);
+        command(&mut e, 1, Command::LegacyEnable(false), [0.0; 3]);
+        command(&mut e, 1, Command::LegacyVelocityVector, [3.0, 4.0, 0.0]);
+        command(&mut e, 1, Command::LegacyEnable(true), [0.0; 3]);
+        assert_eq!(e.physics_property(1, Property::Speed), 0.0);
+    }
+
+    #[test]
+    fn legacy_force_sums_components_and_is_cleared_after_exactly_one_fixed_tick() {
+        let mut e = engine();
+        command(&mut e, 1, Command::Gravity, [0.0; 3]);
+        command(&mut e, 1, Command::Mass, [2.0, 0.0, 0.0]);
+        command(&mut e, 1, Command::LegacyForce, [12.0, 0.0, 0.0]);
+        command(&mut e, 1, Command::LegacyForceVector, [0.0, -12.0, 0.0]);
+        e.step_physics(STEP);
+        let w = &e.physics.as_ref().unwrap().worlds[&0];
+        let velocity = *w.bodies[w.actors[&1].handle].linvel();
+        assert!((velocity.x - 1.0).abs() < 1e-9);
+        assert!((velocity.y + 1.0).abs() < 1e-9);
+        e.step_physics(STEP * 3.0);
+        let w = &e.physics.as_ref().unwrap().worlds[&0];
+        assert_eq!(*w.bodies[w.actors[&1].handle].linvel(), velocity);
+    }
+
+    #[test]
+    fn texture_presets_set_density_and_recompute_mass_without_changing_velocity() {
+        let mut e = engine();
+        command(&mut e, 1, Command::Gravity, [0.0; 3]);
+        command(&mut e, 1, Command::LegacyVelocityVector, [3.0, 4.0, 0.0]);
+        let w = &e.physics.as_ref().unwrap().worlds[&0];
+        let original_mass = w.bodies[w.actors[&1].handle].mass();
+        for (preset, density, friction, restitution) in [
+            (0, 1.0, 0.1, 1.0),
+            (1, 8.0, 0.2, 0.1),
+            (2, 0.8, 0.4, 0.2),
+            (3, 1.0, 0.1, 0.5),
+        ] {
+            command(&mut e, 1, Command::LegacyTexture(preset), [0.0; 3]);
+            assert_eq!(e.physics_property(1, Property::Density), density);
+            assert_eq!(e.physics_property(1, Property::Friction), friction);
+            assert_eq!(e.physics_property(1, Property::Restitution), restitution);
+            assert_eq!(e.physics_property(1, Property::Speed), 5.0);
+            assert!((e.physics_property(1, Property::Mass) - original_mass * density).abs() < 0.02);
+        }
+    }
+
+    #[test]
+    fn global_gravity_and_orientation_use_all_existing_worlds_without_creating_bodies() {
+        let mut e = engine();
+        command(&mut e, 1, Command::LegacyGravity, [2.0, -90.0, 0.0]);
+        assert!(e.physics.is_none());
+        command(&mut e, 1, Command::Gravity, [0.0; 3]);
+        e.physics
+            .as_mut()
+            .unwrap()
+            .worlds
+            .insert(2, World::default());
+        command(&mut e, 1, Command::LegacyGravity, [3.0, 90.0, 0.0]);
+        for w in e.physics.as_ref().unwrap().worlds.values() {
+            assert!((w.gravity.y - 30.0).abs() < 1e-9);
+        }
+        // Unlike other physics blocks orientation is valid on a scene.
+        command(
+            &mut e,
+            0,
+            Command::LegacyGravityOrientation,
+            [2.0, 0.0, 0.0],
+        );
+        for w in e.physics.as_ref().unwrap().worlds.values() {
+            assert_eq!(w.gravity, Vector::zeros());
+        }
+        e.set_physics_device_orientation(10.0, -4.0, true);
+        for w in e.physics.as_ref().unwrap().worlds.values() {
+            assert_eq!(w.gravity, vector![-4.0, -10.0]);
+        }
+        // A neutral event does not overwrite the last gravity in the source.
+        e.set_physics_device_orientation(0.0, 0.0, true);
+        assert_eq!(
+            e.physics.as_ref().unwrap().worlds[&0].gravity,
+            vector![-4.0, -10.0]
+        );
+        e.set_physics_device_orientation(10.0, -4.0, false);
+        assert_eq!(
+            e.physics.as_ref().unwrap().worlds[&0].gravity,
+            vector![-10.0, 4.0]
+        );
+        // An invalid manual command still detaches the previous listener.
+        command(&mut e, 0, Command::LegacyGravity, [f64::NAN, 0.0, 0.0]);
+        e.set_physics_device_orientation(40.0, 40.0, true);
+        assert_eq!(
+            e.physics.as_ref().unwrap().worlds[&0].gravity,
+            vector![-10.0, 4.0]
+        );
+        command(
+            &mut e,
+            1,
+            Command::LegacyGravityOrientation,
+            [2.0, 0.0, 0.0],
+        );
+        e.start();
+        assert!(e.physics.is_none());
+    }
+
+    #[test]
+    fn rigid_flexibility_changes_reporter_only_and_clone_copies_strength() {
+        let mut e = engine();
+        command(&mut e, 1, Command::Gravity, [0.0; 3]);
+        let mass = e.physics_property(1, Property::Mass);
+        for (input, expected) in [(27.4, 27.0), (-50.0, 1.0), (f64::INFINITY, 100.0)] {
+            command(&mut e, 1, Command::Flexibility, [input, 0.0, 0.0]);
+            assert_eq!(e.physics_property(1, Property::Flexibility), expected);
+            assert_eq!(e.physics_property(1, Property::Mass), mass);
+            assert_eq!(e.physics_property(1, Property::Restitution), 0.0);
+        }
+        command(&mut e, 1, Command::Flexibility, [f64::NAN, 0.0, 0.0]);
+        assert_eq!(e.physics_property(1, Property::Flexibility), 100.0);
+        e.program.legacy_physics_scenes.insert(0);
+        e.sprites.push(e.sprites[1].clone());
+        e.clone_legacy_physics_body(1, 2);
+        // The official constructor uses strength || 1, including when cloning
+        // a strength-zero source (flexibility 100).
+        assert_eq!(e.physics_property(2, Property::Flexibility), 80.0);
+        command(&mut e, 1, Command::Hard, [0.0; 3]);
+        assert_eq!(e.physics_property(1, Property::Flexibility), 100.0);
+    }
 }
 impl Command {
     fn legacy(self) -> bool {
         matches!(
             self,
             Self::LegacyVelocity
+                | Self::LegacyVelocityVector
+                | Self::LegacyForce
+                | Self::LegacyForceVector
+                | Self::LegacyGravity
+                | Self::LegacyGravityOrientation
+                | Self::LegacyTexture(_)
                 | Self::LegacyEnable(_)
                 | Self::LegacyCollidable(_)
                 | Self::LegacyRotate(_)
@@ -374,6 +568,9 @@ struct Body {
     shape: (Option<String>, f64, f64),
     forces: Vec<(u64, Vector<f64>)>,
     saved_velocity: Vector<f64>,
+    // Official adapter keeps this on rigid actors too. It only changes the
+    // particle group when an elastic body actually exists (not implemented).
+    strength: f64,
 }
 #[derive(Default)]
 struct Filters(BTreeSet<(usize, usize)>);
@@ -436,6 +633,7 @@ impl Default for World {
 #[derive(Default)]
 pub(super) struct Physics {
     worlds: BTreeMap<usize, World>,
+    orientation_gravity: Option<f64>,
 }
 
 fn geometry(engine: &Engine, actor: usize) -> SharedShape {
@@ -523,6 +721,7 @@ impl Engine {
             collider.density(),
             collider.friction(),
             collider.restitution(),
+            body.strength,
         );
         self.ensure_physics_body(clone);
         self.physics_command(clone, Command::Forceable(false), [0.0; 3])
@@ -536,7 +735,8 @@ impl Engine {
             .worlds
             .get_mut(&self.sprites[clone].scene)
             .unwrap();
-        let b = &w.actors[&clone];
+        let b = w.actors.get_mut(&clone).unwrap();
+        b.strength = if material.3 == 0.0 { 1.0 } else { material.3 };
         let c = &mut w.colliders[b.collider];
         c.set_density(material.0);
         c.set_friction(material.1);
@@ -610,6 +810,7 @@ impl Engine {
                 shape: signature(a),
                 forces: vec![],
                 saved_velocity: Vector::zeros(),
+                strength: 2.5,
             },
         );
     }
@@ -622,15 +823,60 @@ impl Engine {
         // Offline official player_v2/Bt.set_velocity: finite Numbers only,
         // no lazy body/world creation, unlike physics2_set_speed.
         let legacy = command.legacy();
-        if matches!(command, Command::LegacyVelocity)
-            && (!values[0].is_finite() || !values[1].is_finite())
+        if matches!(
+            command,
+            Command::LegacyVelocity
+                | Command::LegacyVelocityVector
+                | Command::LegacyForce
+                | Command::LegacyForceVector
+        ) && (!values[0].is_finite() || !values[1].is_finite())
         {
+            return Ok(None);
+        }
+        // Orientation gravity has no entity lookup in Bt. With no browser
+        // sensor events it stays zero, not the previous world gravity.
+        if matches!(command, Command::LegacyGravityOrientation) {
+            if values[0].is_finite() {
+                let p = self.physics.get_or_insert_with(Default::default);
+                p.orientation_gravity = Some(values[0].clamp(-10000.0, 10000.0));
+                for world in p.worlds.values_mut() {
+                    world.gravity = Vector::zeros();
+                }
+            }
+            return Ok(None);
+        }
+        if matches!(command, Command::LegacyGravity) {
+            // Even an invalid manual gravity command removes the listener.
+            if let Some(p) = self.physics.as_mut() {
+                p.orientation_gravity = None;
+            }
+            if !values[0].is_finite() || !values[1].is_finite() {
+                return Ok(None);
+            }
+            ensure!(
+                !self.sprites[actor].stage,
+                "Kitten 4 physics blocks cannot run on a scene"
+            );
+            if let Some(p) = self.physics.as_mut() {
+                let r = values[1].to_radians();
+                let magnitude = values[0].clamp(-10000.0, 10000.0) * 10.0;
+                for world in p.worlds.values_mut() {
+                    world.gravity = vector![magnitude * r.cos(), magnitude * r.sin()];
+                }
+            }
             return Ok(None);
         }
         ensure!(
             !self.sprites[actor].stage,
             "Kitten 4 physics blocks cannot run on a scene"
         );
+        // Modern gravity/speed validate before their lazy world/body helper.
+        // A scene still errors first, unlike the old finite-first commands.
+        if matches!(command, Command::Gravity | Command::Speed)
+            && (values[0].is_nan() || !values[1].is_finite())
+        {
+            return Ok(None);
+        }
         if let Command::LegacyBoundary(mask) = command {
             let actors: Vec<_> = self
                 .physics
@@ -687,10 +933,10 @@ impl Engine {
             Command::LegacyMass => Command::Mass,
             other => other,
         };
-        // LiquidFun particle groups have no equivalent in this rigid solver: a
-        // soft actor keeps running as a rigid body so the work does not stop.
-        // `coverage` lists physics2_set_flexibility as a stub.
-        if matches!(command, Command::Soft | Command::Flexibility) {
+        // Soft remains a documented rigid fallback, not a particle simulation.
+        // Flexibility below implements the official rigid-adapter metadata and
+        // reporter only; changing it must not fake a deformation or restitution.
+        if matches!(command, Command::Soft) {
             return Ok(None);
         }
         let scene = self.sprites[actor].scene;
@@ -747,6 +993,39 @@ impl Engine {
                     state.saved_velocity = vector(10000.0);
                     body.set_linvel(state.saved_velocity, true)
                 }
+            }
+            Command::LegacyVelocityVector => {
+                if state.forceable {
+                    state.saved_velocity = vector![
+                        value.clamp(-10000.0, 10000.0) * 10.0,
+                        dir.clamp(-10000.0, 10000.0) * 10.0
+                    ];
+                    body.set_linvel(state.saved_velocity, true);
+                }
+            }
+            Command::LegacyForce => body.add_force(vector(10000.0), true),
+            Command::LegacyForceVector => body.add_force(
+                vector![
+                    value.clamp(-10000.0, 10000.0) * 10.0,
+                    dir.clamp(-10000.0, 10000.0) * 10.0
+                ],
+                true,
+            ),
+            Command::LegacyTexture(texture) => {
+                let (restitution, friction, density) = match texture {
+                    0 => (1.0, 0.1, 1.0),
+                    1 => (0.1, 0.2, 8.0),
+                    2 => (0.2, 0.4, 0.8),
+                    _ => (0.5, 0.1, 1.0),
+                };
+                let collider = &mut world.colliders[state.collider];
+                collider.set_restitution(restitution);
+                collider.set_friction(friction);
+                collider.set_density(density * 0.1);
+                body.recompute_mass_properties_from_colliders(&world.colliders);
+            }
+            Command::Flexibility if !value.is_nan() => {
+                state.strength = (100.0 - value.clamp(1.0, 100.0)) / 100.0 * 5.0;
             }
             Command::Force if dir.is_finite() => body.add_force(
                 if value.is_nan() {
@@ -879,7 +1158,9 @@ impl Engine {
             Property::Mass => body.mass(),
             Property::Friction => w.colliders[b.collider].friction(),
             Property::Restitution => w.colliders[b.collider].restitution(),
-            Property::Flexibility => 50.0,
+            Property::Flexibility => {
+                (100.0 - (b.strength / 5.0 * 100.0 + 0.5).floor()).clamp(1.0, 100.0)
+            }
             Property::Density => w.colliders[b.collider].density() / 0.1,
         };
         (value * 100.0 + 0.5).floor() / 100.0
@@ -919,6 +1200,10 @@ impl Engine {
                 }
                 if b.shape != signature(a) {
                     w.colliders[b.collider].set_shape(geometry(self, actor));
+                    // A rebuilt silhouette changes area and inertia even when
+                    // its density is unchanged. Do not leave the old mass on
+                    // the rigid body until an unrelated material command.
+                    body.recompute_mass_properties_from_colliders(&w.colliders);
                     b.shape = signature(a);
                 }
                 w.colliders[b.collider].set_sensor(b.forceable && !b.collidable);
@@ -974,6 +1259,30 @@ impl Engine {
             }
         }
         self.physics = Some(physics);
+    }
+    /// Feed a real deviceorientation event to the legacy gravity listener.
+    /// No synthetic events are generated in headless execution. `portrait`
+    /// corresponds to the orientation captured when the official domain loads.
+    pub fn set_physics_device_orientation(&mut self, beta: f64, gamma: f64, portrait: bool) {
+        let Some(p) = self.physics.as_mut() else {
+            return;
+        };
+        let Some(value) = p.orientation_gravity else {
+            return;
+        };
+        let beta = if beta.is_finite() { beta } else { 0.0 };
+        let gamma = if gamma.is_finite() { gamma } else { 0.0 };
+        if beta == 0.0 && gamma == 0.0 {
+            return;
+        }
+        let (x, y) = if portrait {
+            (gamma, -beta)
+        } else {
+            (-beta, -gamma)
+        };
+        for world in p.worlds.values_mut() {
+            world.gravity = vector![value * x * 0.05 * 10.0, value * y * 0.05 * 10.0];
+        }
     }
     pub(super) fn remove_physics_body(&mut self, actor: usize) {
         let Some(p) = self.physics.as_mut() else {
