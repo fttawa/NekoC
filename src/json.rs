@@ -1,16 +1,17 @@
 //! Resource-bounded project JSON, including stack-safe ownership operations.
-use anyhow::{Result, ensure};
-use serde::{Deserialize, Serialize};
+use anyhow::{Context, Result, ensure};
+use serde::Serialize;
 use serde_json::Value;
 use std::ops::{Deref, DerefMut};
 
-// 64 MiB matches the web import limit. 4096 containers accommodates a 2000-block
-// next chain plus project/socket wrappers, without accepting arbitrary depth.
+// A block socket uses two JSON containers. Leave room for 10,000 sockets and
+// project wrappers, while keeping byte/token/path resource budgets independent.
 pub const MAX_BYTES: usize = 64 * 1024 * 1024;
-pub const MAX_DEPTH: usize = 4096;
+pub const MAX_DEPTH: usize = 32_768;
+pub const MAX_BLOCK_DEPTH: usize = 10_000;
 // Flat workspace graphs can describe paths deeper than their JSON document.
 // Bound those independently before materializing a nested Value.
-pub const MAX_BLOCK_PATH: usize = 4000;
+pub const MAX_BLOCK_PATH: usize = 20_000;
 // A comma/colon starts another element/member. Counting them conservatively
 // bounds wide trees too (64 MiB of tiny numbers can otherwise allocate GBs).
 // Largest regression corpus work uses 1,566,138 tokens; allow its canonical
@@ -87,9 +88,8 @@ pub fn discard(value: Value) {
 
 // A bounded fallback for serde's error cleanup and legacy Value operations.
 // These run on a temporary stack, never by changing the caller/test thread size.
-// 64 MiB provides 16 KiB/container at the 4096-container input limit. Besides
-// cleanup it covers recursive Clone/Drop in existing json! conversions. Avoid
-// repeated reservations when one protected operation calls another.
+// Retained for legacy diagnostic/json! conversions. Parsing and ownership of
+// deep project trees use explicit stacks; this is not their depth mechanism.
 pub(crate) fn expanded<T>(f: impl FnOnce() -> T) -> T {
     thread_local! { static ACTIVE: std::cell::Cell<bool> = const { std::cell::Cell::new(false) }; }
     struct Reset;
@@ -225,6 +225,7 @@ pub fn from_slice(bytes: &[u8]) -> Result<Json> {
     // Scan before deserializing: bound even malformed JSON, and ignore brackets
     // in strings (including escaped quotes). Syntax is still checked by serde.
     let (mut depth, mut quoted, mut escaped) = (0usize, false, false);
+    let mut deepest = 0;
     let mut tokens = 0;
     for (offset, &byte) in bytes.iter().enumerate() {
         if quoted {
@@ -247,6 +248,7 @@ pub fn from_slice(bytes: &[u8]) -> Result<Json> {
                 b'"' => quoted = true,
                 b'[' | b'{' => {
                     depth += 1;
+                    deepest = deepest.max(depth);
                     ensure!(
                         depth <= MAX_DEPTH,
                         "project JSON nesting exceeds {MAX_DEPTH} at byte {offset}"
@@ -257,15 +259,137 @@ pub fn from_slice(bytes: &[u8]) -> Result<Json> {
             }
         }
     }
-    expanded(|| {
-        let mut de = serde_json::Deserializer::from_slice(bytes);
-        de.disable_recursion_limit();
-        let value = Json::new(Value::deserialize(serde_stacker::Deserializer::new(
-            &mut de,
-        ))?);
-        de.end()?;
-        Ok(value)
-    })
+    // Ordinary documents keep serde's optimized container path. Its bounded
+    // recursion is safe here; only deep documents need the explicit heap stack.
+    if deepest <= 64 {
+        Ok(Json::new(serde_json::from_slice(bytes)?))
+    } else {
+        parse_iterative(bytes)
+    }
+}
+
+// Serde still validates scalar spelling/UTF-8/numbers. Container syntax and
+// ownership live on this heap stack, including cleanup of malformed input.
+fn parse_iterative(bytes: &[u8]) -> Result<Json> {
+    enum Frame {
+        Array(Vec<Value>, bool),
+        Object(serde_json::Map<String, Value>, Option<String>, bool),
+    }
+    impl Drop for Frame {
+        fn drop(&mut self) {
+            match self {
+                Self::Array(items, _) => discard(Value::Array(std::mem::take(items))),
+                Self::Object(items, _, _) => discard(Value::Object(std::mem::take(items))),
+            }
+        }
+    }
+    let mut stack: Vec<Frame> = Vec::new();
+    let mut root = Json::default();
+    let mut complete = false;
+    let mut at = 0;
+    loop {
+        while bytes.get(at).is_some_and(u8::is_ascii_whitespace) {
+            // JSON permits only these four whitespace bytes.
+            ensure!(
+                matches!(bytes[at], b' ' | b'\r' | b'\n' | b'\t'),
+                "invalid JSON whitespace at byte {at}"
+            );
+            at += 1;
+        }
+        let byte = bytes.get(at).copied();
+        let mut closed = None;
+        match stack.last_mut() {
+            Some(Frame::Array(items, after)) if *after => match byte {
+                Some(b',') => {
+                    *after = false;
+                    at += 1;
+                    continue;
+                }
+                Some(b']') => closed = Some(Value::Array(std::mem::take(items))),
+                _ => anyhow::bail!("expected ',' or ']' at byte {at}"),
+            },
+            Some(Frame::Array(items, false)) if items.is_empty() && byte == Some(b']') => {
+                closed = Some(Value::Array(Vec::new()));
+            }
+            Some(Frame::Object(items, key, after)) if key.is_none() => {
+                if *after {
+                    match byte {
+                        Some(b',') => {
+                            *after = false;
+                            at += 1;
+                            continue;
+                        }
+                        Some(b'}') => closed = Some(Value::Object(std::mem::take(items))),
+                        _ => anyhow::bail!("expected ',' or '}}' at byte {at}"),
+                    }
+                } else if items.is_empty() && byte == Some(b'}') {
+                    closed = Some(Value::Object(serde_json::Map::new()));
+                } else {
+                    ensure!(byte == Some(b'"'), "expected object key at byte {at}");
+                    let mut stream =
+                        serde_json::Deserializer::from_slice(&bytes[at..]).into_iter::<String>();
+                    *key = Some(stream.next().context("missing object key")??);
+                    at += stream.byte_offset();
+                    while bytes
+                        .get(at)
+                        .is_some_and(|b| matches!(b, b' ' | b'\r' | b'\n' | b'\t'))
+                    {
+                        at += 1;
+                    }
+                    ensure!(bytes.get(at) == Some(&b':'), "expected ':' at byte {at}");
+                    at += 1;
+                    continue;
+                }
+            }
+            None if complete => {
+                ensure!(byte.is_none(), "trailing characters at byte {at}");
+                return Ok(root);
+            }
+            _ => {}
+        }
+        let value = if let Some(value) = closed {
+            stack.pop();
+            at += 1;
+            value
+        } else {
+            match byte {
+                Some(b'[') => {
+                    stack.push(Frame::Array(Vec::new(), false));
+                    at += 1;
+                    continue;
+                }
+                Some(b'{') => {
+                    stack.push(Frame::Object(serde_json::Map::new(), None, false));
+                    at += 1;
+                    continue;
+                }
+                Some(b'"' | b'-' | b'0'..=b'9' | b't' | b'f' | b'n') => {
+                    let mut stream =
+                        serde_json::Deserializer::from_slice(&bytes[at..]).into_iter::<Value>();
+                    let value = stream.next().context("missing JSON value")??;
+                    at += stream.byte_offset();
+                    value
+                }
+                _ => anyhow::bail!("expected JSON value at byte {at}"),
+            }
+        };
+        match stack.last_mut() {
+            Some(Frame::Array(items, after)) => {
+                items.push(value);
+                *after = true;
+            }
+            Some(Frame::Object(items, key, after)) => {
+                if let Some(old) = items.insert(key.take().unwrap(), value) {
+                    discard(old);
+                }
+                *after = true;
+            }
+            None => {
+                root = Json::new(value);
+                complete = true;
+            }
+        }
+    }
 }
 
 pub fn to_vec(value: &impl Serialize) -> Result<Vec<u8>> {
