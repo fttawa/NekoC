@@ -5,6 +5,23 @@ import os from "node:os";
 import path from "node:path";
 import { parseArgs, runtimeProject, runOracle, readJson, saveJson, allowedAsset, projectAssetUrls } from "../tools/compat/k4-oracle.mjs";
 import { firstDifference, sameValue, executableTrees, mismatchingBlockTypes, compareWork, projectCapabilities, markdown } from "../tools/compat/k4-diff.mjs";
+import { cloudFixtures } from "../tools/compat/k4-cloud-fixtures.mjs";
+
+test("cloud probes are reproducible repository-owned fixtures", async () => {
+  for (const [name, project] of Object.entries(await cloudFixtures())) {
+    assert.deepEqual(await readJson(`tests/fixtures/kitten4/cloud-${name}.bcm`), project);
+  }
+});
+
+test("anonymous cloud traces reproduce recorded official evidence", { skip: !process.env.K4_ORACLE_INTEGRATION }, async () => {
+  const evidence = await readJson("docs/kitten4-cloud-evidence.json");
+  for (const [name, expected] of Object.entries(evidence.cases)) {
+    const trace = await runOracle(await readJson(`tests/fixtures/kitten4/cloud-${name}.bcm`), { frames: 3, blocks: true });
+    assert.deepEqual(trace.frames.map(f => f.variables), expected.variables, name);
+    assert.deepEqual(trace.errors, []);
+    assert.ok(trace.diagnostics.externalRequests.every(r => r.action === "blocked"));
+  }
+});
 
 const trace = (actor = {}, variables = {}) => ({ schema: "nekoc-k4-trace-v1", frames: [{ frame: 1,
   current_scene_id: "s", actors: { a: { x: 1, y: 2, rotation: 0, scale: 100, scale_y: 100, visible: true, current_style_id: "c", ...actor } },

@@ -116,6 +116,8 @@ const MAX_FRAME_REQUEST_BYTES: usize = 32 * 1024 * 1024;
 #[derive(Parser)]
 #[command(about = "NekoC Web Studio — Rust bytecode VM + incremental WebGL2 renderer")]
 struct Args {
+    #[command(flatten)]
+    cloud: nekoc::cloud::CloudOptions,
     input: Option<PathBuf>,
     #[arg(long, default_value_t = 4173)]
     port: u16,
@@ -471,7 +473,7 @@ fn frame_bytes(vm: &mut Engine, payload: &Value) -> Result<Vec<u8>> {
     vm.recycle_lines(frame.lines);
     Ok(bytes)
 }
-fn player_socket(request: Request, project: Option<Json>) -> Result<()> {
+fn player_socket(request: Request, project: Option<Json>, cloud: CloudSession) -> Result<()> {
     let key = request
         .headers()
         .iter()
@@ -512,6 +514,7 @@ fn player_socket(request: Request, project: Option<Json>) -> Result<()> {
             let program = Program::compile(&project)?;
             let stats = program.stats();
             let mut vm = Engine::new(program);
+            cloud.attach(&mut vm)?;
             vm.start();
             socket.send(Message::Text(
                 json!({"ready":true,"stats":stats}).to_string(),
@@ -716,9 +719,39 @@ fn main() -> Result<()> {
         println!("{}", output.display());
         return Ok(());
     }
-    serve(initial, args.port)
+    serve_with_cloud(initial, args.port, CloudSession::new(args.cloud))
 }
+#[derive(Clone, Default)]
+struct CloudSession {
+    options: nekoc::cloud::CloudOptions,
+    backend: Option<std::sync::Arc<dyn nekoc::cloud::CloudBackend>>,
+}
+impl CloudSession {
+    fn new(options: nekoc::cloud::CloudOptions) -> Self {
+        Self {
+            backend: options.backend(),
+            options,
+        }
+    }
+    fn attach(&self, engine: &mut Engine) -> Result<()> {
+        if let Some(backend) = &self.backend {
+            engine.set_cloud_backend(
+                backend.clone(),
+                self.options
+                    .cloud_namespace
+                    .clone()
+                    .context("missing local cloud namespace")?,
+                self.options.cloud_user.clone(),
+            )?;
+        }
+        Ok(())
+    }
+}
+#[cfg(feature = "desktop")]
 fn serve(initial: Json, port: u16) -> Result<()> {
+    serve_with_cloud(initial, port, CloudSession::default())
+}
+fn serve_with_cloud(initial: Json, port: u16, cloud: CloudSession) -> Result<()> {
     let mut imports = ImportCache::default();
     let mut project = imports.import(initial)?.project.clone();
     let server =
@@ -781,7 +814,7 @@ fn serve(initial: Json, port: u16) -> Result<()> {
                     h.field.equiv("Upgrade") && h.value.as_str().eq_ignore_ascii_case("websocket")
                 }) {
                     let snapshot = (url == "/api/player").then(|| project.clone());
-                    if let Err(error) = player_socket(request, snapshot) {
+                    if let Err(error) = player_socket(request, snapshot, cloud.clone()) {
                         eprintln!("player socket: {error:#}");
                     }
                 } else {
@@ -909,6 +942,7 @@ fn serve(initial: Json, port: u16) -> Result<()> {
                     let stats = compiled.stats();
                     if url == "/api/start" {
                         let mut vm = Engine::new(compiled);
+                        cloud.attach(&mut vm)?;
                         vm.start();
                         engine = Some(vm);
                     }
@@ -943,6 +977,38 @@ fn serve(initial: Json, port: u16) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn host_cloud_profile_is_shared_by_sessions_but_not_selected_by_payload() {
+        let cloud = CloudSession::new(nekoc::cloud::CloudOptions {
+            cloud_memory: true,
+            cloud_namespace: Some("web-test".into()),
+            cloud_user: "alice".into(),
+            ..Default::default()
+        });
+        let make = |text: &str| {
+            let source = nekoc::json::from_str(text).unwrap();
+            Engine::new(Program::compile(&nekoc::kitten4::to_neko(&source).unwrap()).unwrap())
+        };
+        let mut writer = make(include_str!(
+            "../../tests/fixtures/kitten4/cloud-writes.bcm"
+        ));
+        cloud.attach(&mut writer).unwrap();
+        writer.start();
+        frame_bytes(
+            &mut writer,
+            &json!({"cloud_file":"not-authorized.json","cloud_namespace":"other"}),
+        )
+        .unwrap();
+        let mut reader = make(include_str!(
+            "../../tests/fixtures/kitten4/cloud-defaults.bcm"
+        ));
+        cloud.clone().attach(&mut reader).unwrap();
+        reader.start();
+        frame_bytes(&mut reader, &json!({})).unwrap();
+        assert_eq!(reader.variable_text("public"), "room/message");
+        assert_eq!(reader.variable_text("private"), "7");
+    }
 
     #[test]
     fn frame_registers_pivot_with_costume_mask() {

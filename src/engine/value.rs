@@ -141,6 +141,7 @@ pub(super) struct Span {
 #[derive(Clone, Copy, Debug)]
 pub(super) enum ValueExpr {
     Kitten4Add(usize, usize),
+    Ranking(bool),
     Calculate(usize),
     Whole(usize),
     Number(super::Expr),

@@ -5,6 +5,7 @@ use anyhow::{Context, Result, bail, ensure};
 use serde::Serialize;
 use serde_json::Value;
 mod calculate;
+mod cloud;
 mod jit;
 mod kn_helpers;
 mod physics;
@@ -367,6 +368,9 @@ enum Op {
     /// Legacy K4 velocity checks actual Number values, not coerced strings.
     PhysicsVelocity(usize, usize),
     LegacyPhysics(physics::Command, usize),
+    CloudSet(usize, usize, bool, bool),
+    CloudList(usize, u8, Option<Expr>, Option<usize>),
+    Ranking(Option<usize>, bool),
 }
 #[derive(Clone, Copy, Debug)]
 enum LayerMove {
@@ -690,6 +694,7 @@ impl RuntimeSemantics {
 
 #[derive(Debug)]
 pub struct Program {
+    cloud: Vec<cloud::Binding>,
     semantics: RuntimeSemantics,
     ops: Vec<Op>,
     legacy_physics_scenes: BTreeSet<usize>,
@@ -906,6 +911,7 @@ impl Program {
         let mut compiler = Compiler {
             start_hats,
             program: Self {
+                cloud: vec![],
                 semantics,
                 ops: vec![],
                 legacy_physics_scenes: BTreeSet::new(),
@@ -1046,6 +1052,14 @@ impl Program {
             .and_then(Value::as_object)
         {
             for (id, var) in vars {
+                if semantics == RuntimeSemantics::Kitten4 && var["cloud"].is_object() {
+                    compiler.program.cloud.push(cloud::Binding {
+                        id: id.clone(),
+                        remote: var["cloud"]["cvid"].as_str().unwrap_or(id).to_owned(),
+                        private: var["cloud"]["type"] == "private",
+                        list: var["type"] == "list",
+                    });
+                }
                 let value = var.get("value").unwrap_or(&Value::Null);
                 if var["isGlobal"] == false
                     || (var["isGlobal"].is_null()
@@ -1702,6 +1716,7 @@ impl Compiler {
             "isNaN" => ValueExpr::IsNumber(self.value(input(b, "value")?)?, false),
             "isFinite" => ValueExpr::IsNumber(self.value(input(b, "value")?)?, true),
             "pure_list_get" | "list_get" => ValueExpr::List(self.list(b)?),
+            "kitten4_is_ranking_show_hide" => ValueExpr::Ranking(field(b, "VAL") == "show"),
             "kitten4_cloud_list_item" => ValueExpr::CloudItem(
                 self.list(input(b, "list")?)?,
                 if field(b, "item") == "last" {
@@ -2178,6 +2193,7 @@ impl Compiler {
             ),
             "list_length" => ExprOp::ListLength(self.list(input(b, "list")?)?),
             "kitten4_cloud_list_item" => ExprOp::Value(self.value(b)?),
+            "kitten4_is_ranking_show_hide" => ExprOp::Value(self.value(b)?),
             "list_item" if self.program.semantics == RuntimeSemantics::Kitten4 => {
                 ExprOp::Value(self.value(b)?)
             }
@@ -2807,6 +2823,66 @@ impl Compiler {
                     };
                     Op::AssignLocal(self.code_local(field(b, "VAR")), value, op)
                 }
+                "kitten4_cloud_variables_set" | "kitten4_change_cloud_variable" => {
+                    let change = kind == "kitten4_change_cloud_variable";
+                    let id = field(b, if change { "valname" } else { "VAR" });
+                    let binding = self
+                        .program
+                        .cloud
+                        .iter()
+                        .position(|v| v.id == id)
+                        .unwrap_or(usize::MAX);
+                    let value = self.value(input(b, if change { "n" } else { "VALUE" })?)?;
+                    Op::CloudSet(binding, value, change, field(b, "method") == "decrease")
+                }
+                "kitten4_cloud_lists_append"
+                | "kitten4_cloud_lists_insert_value"
+                | "kitten4_cloud_lists_delete"
+                | "kitten4_cloud_lists_replace" => {
+                    let binding = self
+                        .program
+                        .cloud
+                        .iter()
+                        .position(|v| v.id == field(b, "VAR"))
+                        .unwrap_or(usize::MAX);
+                    let action = match kind {
+                        "kitten4_cloud_lists_append" => {
+                            if field(b, "POS") == "last" {
+                                0
+                            } else {
+                                1
+                            }
+                        }
+                        "kitten4_cloud_lists_insert_value" => 2,
+                        "kitten4_cloud_lists_delete" => {
+                            if field(b, "TYPE") == "all" {
+                                5
+                            } else {
+                                3
+                            }
+                        }
+                        _ => 4,
+                    };
+                    let at = if matches!(action, 0 | 1 | 5) || field(b, "TYPE") == "last" {
+                        None
+                    } else {
+                        Some(self.arg(b, "INDEX")?)
+                    };
+                    let value = if matches!(action, 3 | 5) {
+                        None
+                    } else {
+                        Some(self.value(input(b, "VALUE")?)?)
+                    };
+                    Op::CloudList(binding, action, at, value)
+                }
+                "kitten4_show_ranking" => Op::Ranking(
+                    self.program
+                        .cloud
+                        .iter()
+                        .position(|v| v.id == field(b, "VAR")),
+                    true,
+                ),
+                "kitten4_hide_ranking" => Op::Ranking(None, false),
                 "self_go_forward" => Op::Move(self.arg(b, "steps")?),
                 "self_move_to" => Op::Position(self.arg(b, "x")?, self.arg(b, "y")?),
                 "self_set_position_x" => Op::X(self.arg(b, "value")?),
@@ -3822,6 +3898,7 @@ pub struct Engine {
     trace_filter: Option<BTreeSet<String>>,
     trace_truncated: bool,
     warp_iterations: u32,
+    cloud: cloud::State,
     scheduler_tick: u64,
     oracle_events: Option<Vec<Value>>,
     physics: Option<Box<physics::Physics>>,
@@ -4070,6 +4147,7 @@ impl Engine {
             "scene":self.program.scenes[self.current_scene].id,
             "actors":actors, "variables":variables, "lists":lists,
             "costume_turn":self.program.costume_turn,
+            "ranking_variable":self.cloud.ranking.map(|i| &self.program.cloud[i].id),
         })
     }
     pub fn numeric_lists(&self) -> Vec<Vec<f64>> {
@@ -4153,6 +4231,7 @@ impl Engine {
             .iter()
             .any(|s| matches!(s.event, ScriptEvent::Bump(..)));
         Self {
+            cloud: cloud::State::default(),
             scheduler_tick: 0,
             trace_filter: None,
             trace_truncated: false,
@@ -4228,6 +4307,8 @@ impl Engine {
         }
     }
     pub fn start(&mut self) {
+        let cloud_values = self.cloud_restart_values();
+        self.cloud.ranking = None;
         self.physics = None;
         self.slots.clone_from(&self.program.initial);
         self.lists = self
@@ -4242,6 +4323,7 @@ impl Engine {
             .iter()
             .map(|v| v.as_ref().map(Cell::deep_clone))
             .collect();
+        self.restore_cloud(cloud_values);
         self.pressed.clear();
         self.released.clear();
         self.mouse = [0.0; 2];
@@ -6237,6 +6319,7 @@ impl Engine {
                         .unwrap_or(Cell::Text("".into()))
                 })
             }
+            ValueExpr::Ranking(show) => Cell::Bool(show == self.cloud.ranking.is_some()),
             ValueExpr::Item(r, e) => {
                 let at = e.map(|e| self.eval(e, actor));
                 if let Some(at) = at {
@@ -6714,6 +6797,7 @@ impl Engine {
                 })
             })
             .collect();
+        self.flush_cloud()?;
         Ok(Frame {
             sequence: self.sequence,
             reset: std::mem::take(&mut self.reset),
@@ -6831,6 +6915,20 @@ impl Engine {
             Op::WarpIteration => {
                 if self.warp_iteration_yields() {
                     return Ok(false);
+                }
+            }
+            Op::CloudSet(binding, value, change, decrease) => {
+                let value = self.eval_value(value, actor);
+                self.cloud_set(binding, value, change, decrease);
+            }
+            Op::CloudList(binding, action, at, value) => {
+                let at = at.map(|e| self.eval(e, actor));
+                let value = value.map(|v| self.eval_value(v, actor));
+                self.cloud_list(binding, action, at, value);
+            }
+            Op::Ranking(binding, show) => {
+                if !show || (binding.is_some() && self.cloud.ranking.is_none()) {
+                    self.cloud.ranking = binding;
                 }
             }
             Op::LegacyPhysics(command, value) => {

@@ -7,6 +7,8 @@ use std::{path::PathBuf, time::Duration};
 
 #[derive(Parser)]
 struct Args {
+    #[command(flatten)]
+    cloud: nekoc::cloud::CloudOptions,
     input: PathBuf,
     #[arg(long, default_value_t = 60)]
     frames: u32,
@@ -66,6 +68,13 @@ fn main() -> Result<()> {
         return Ok(());
     }
     let mut engine = Engine::new(program);
+    if let Some(backend) = args.cloud.backend() {
+        engine.set_cloud_backend(
+            backend,
+            args.cloud.cloud_namespace.clone().unwrap(),
+            args.cloud.cloud_user.clone(),
+        )?;
+    }
     if args.blocks {
         engine.trace_blocks();
         if !args.block_filter.is_empty() {

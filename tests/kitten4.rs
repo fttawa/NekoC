@@ -1461,7 +1461,7 @@ fn published_cloud_list_reads_have_their_own_empty_and_truncation_semantics() {
         for text in ["a", "b", "c"] {
             blocks.push(compiled(
                 "cloud_lists_append",
-                json!({"VAR":"cloud-items","VALUE":compiled("text",json!({"TEXT":text}))}),
+                json!({"VAR":"cloud-items","POS":"last","VALUE":compiled("text",json!({"TEXT":text}))}),
             ));
         }
         blocks.push(compiled_set(
@@ -1823,8 +1823,6 @@ fn published_list_and_variable_monitors_show_and_hide() {
 #[test]
 fn published_scene_pointer_dispatches_and_explicit_stubs_continue() {
     let stubs = [
-        "show_ranking",
-        "hide_ranking",
         "play_video",
         "play_video_until_end",
         "continue_pause_video",
@@ -1848,7 +1846,7 @@ fn published_scene_pointer_dispatches_and_explicit_stubs_continue() {
         assert_eq!(start_published(&native).variable_text("ranking"), expected);
         assert_eq!(
             kitten4::coverage(&native, 1)["stubbed"]["is_ranking_show_hide"],
-            1
+            Value::Null
         );
     }
     let mut native = published_script(vec![compiled_set("clicked", compiled_number(1.0))]);
