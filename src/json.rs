@@ -283,14 +283,23 @@ pub(crate) fn ordered_equal(left: &Value, right: &Value) -> bool {
 /// Restore KN's historical key order without recursing through deep blocks.
 /// K4 retains insertion order and must never pass through this normalization.
 pub(crate) fn sort_objects(value: &mut Value) {
-    let mut pending = vec![value];
-    while let Some(value) = pending.pop() {
+    let mut pending = vec![(value, false)];
+    while let Some((value, keep_order)) = pending.pop() {
         match value {
             Value::Object(object) => {
-                object.sort_keys();
-                pending.extend(object.values_mut());
+                // KN code-view arrays use Object.values(args), so their socket
+                // order is observable. All other maps retain legacy ordering.
+                let array = object.get("type").and_then(Value::as_str) == Some("_array_literal");
+                if !keep_order {
+                    object.sort_keys();
+                }
+                pending.extend(
+                    object
+                        .iter_mut()
+                        .map(|(key, value)| (value, array && key == "inputs")),
+                );
             }
-            Value::Array(items) => pending.extend(items),
+            Value::Array(items) => pending.extend(items.iter_mut().map(|v| (v, false))),
             _ => {}
         }
     }
