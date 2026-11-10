@@ -5,6 +5,7 @@ pub mod cloud;
 pub mod decompile;
 pub mod diff;
 pub mod engine;
+pub mod extensions;
 pub mod import_bench;
 pub mod import_perf;
 pub mod inspect;

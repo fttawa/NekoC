@@ -1,5 +1,6 @@
 import {StageRenderer,decodeFrame,sensesColor} from './renderer.js';
 import {PlayerConnection} from './player.js';
+import {playerExtensions} from './extensions.js';
 import {ProjectAudio} from './audio.js';
 import {StageInput} from './input.js';
 import {StageOverlay} from './overlay.js';
@@ -61,7 +62,11 @@ async function install(report){
   await renderer.load(project);renderer.render();fitStage();
   audio.load(project);
   $('#stage-box').classList.add('loaded');$('#welcome').hidden=true;
-  playable=report.fast_runtime_ready;
+   playable=report.fast_runtime_ready;
+   if(playerExtensions.schemas().length){
+     await api('extension-check',{project,extensions:playerExtensions.schemas()});
+     playable=true;
+   }
   if(playable)status('就绪 · 点击开始游玩');
   else{
     const issues=report.script_diagnostics||[];

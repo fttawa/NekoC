@@ -422,6 +422,19 @@ fn frame_bytes(vm: &mut Engine, payload: &Value) -> Result<Vec<u8>> {
                         vm.audio_finished(id);
                     }
                 }
+                Some("extension_result") => {
+                    if let Some(id) = event["id"].as_u64() {
+                        let result = if let Some(error) = event["error"].as_str() {
+                            Err(error.to_owned())
+                        } else {
+                            Ok(event
+                                .get("value")
+                                .context("extension result missing value")?
+                                .clone())
+                        };
+                        vm.complete_extension(id, result)?;
+                    }
+                }
                 Some("drag") => {
                     if let (Some(target), Some(x), Some(y)) = (
                         event["target"].as_str(),
@@ -502,12 +515,23 @@ fn player_socket(request: Request, project: Option<Json>, cloud: CloudSession) -
         let mut socket = WebSocket::from_raw_socket(stream, Role::Server, Some(config));
         let result = (|| -> Result<()> {
             // Private players supply their own snapshot on this connection; no global import race.
+            let mut registry = nekoc::extensions::ExtensionRegistry::new();
             let project = if let Some(project) = project {
                 project
             } else {
                 let message = socket.read()?;
                 ensure!(message.is_text(), "expected project JSON handshake");
-                let project = nekoc::json::from_str(message.to_text()?)?;
+                let mut project = nekoc::json::from_str(message.to_text()?)?;
+                if project["nekoc_extension_handshake"] == 1 {
+                    let schemas: Vec<nekoc::extensions::BlockSchema> =
+                        serde_json::from_value(project["extensions"].clone())?;
+                    ensure!(schemas.len() <= 256, "too many remote extensions");
+                    // No network opt-in on the wire: project data cannot grant capabilities.
+                    for schema in schemas {
+                        registry.register_remote(schema)?;
+                    }
+                    project = nekoc::json::Json::new(project["project"].take());
+                }
                 check_project_shape(&project)?;
                 project
             };
@@ -517,7 +541,7 @@ fn player_socket(request: Request, project: Option<Json>, cloud: CloudSession) -
                 config.max_message_size = Some(MAX_FRAME_REQUEST_BYTES);
                 config.max_frame_size = Some(MAX_FRAME_REQUEST_BYTES);
             });
-            let program = Program::compile(&project)?;
+            let program = Program::compile_with_extensions(&project, &registry)?;
             let stats = program.stats();
             let mut vm = Engine::new(program);
             cloud.attach(&mut vm)?;
@@ -862,6 +886,10 @@ fn serve_with_cloud(initial: Json, port: u16, cloud: CloudSession) -> Result<()>
                     "text/javascript",
                     include_bytes!("../../web/player.js").as_slice(),
                 )),
+                "/extensions.js" => Some((
+                    "text/javascript",
+                    include_bytes!("../../web/extensions.js").as_slice(),
+                )),
                 "/audio.js" => Some((
                     "text/javascript",
                     include_bytes!("../../web/audio.js").as_slice(),
@@ -943,6 +971,19 @@ fn serve_with_cloud(initial: Json, port: u16, cloud: CloudSession) -> Result<()>
                     json!({"project":packed,"report":report})
                 }
                 "/api/validate" => nekoc::validate::build_report(&project)?,
+                "/api/extension-check" => {
+                    check_project_shape(&payload["project"])?;
+                    let schemas: Vec<nekoc::extensions::BlockSchema> =
+                        serde_json::from_value(payload["extensions"].clone())?;
+                    ensure!(schemas.len() <= 256, "too many remote extensions");
+                    let mut registry = nekoc::extensions::ExtensionRegistry::new();
+                    for schema in schemas {
+                        registry.register_remote(schema)?;
+                    }
+                    let compiled =
+                        Program::compile_with_extensions(&payload["project"], &registry)?;
+                    json!({"ok":true,"stats":compiled.stats()})
+                }
                 "/api/compile" | "/api/start" => {
                     let compiled = Program::compile(&project)?;
                     let stats = compiled.stats();
