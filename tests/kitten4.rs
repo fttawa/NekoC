@@ -1655,7 +1655,8 @@ fn published_stage_device_empty_logic_and_distance_reporters() {
         ("tablet", "false"),
         ("empty", "false"),
         ("distance", "5"),
-        ("mouse", "5"),
+        // Official mouse data is NaN until a pointer event: Math.hypot(NaN) = NaN.
+        ("mouse", "NaN"),
     ] {
         assert_eq!(engine.variable_text(id), expected, "{id}");
     }

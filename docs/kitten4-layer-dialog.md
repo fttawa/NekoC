@@ -64,7 +64,7 @@ cargo test --test kitten4_layer_dialog
 - VM 没有操作系统字体测量，分页暂以 ASCII 半宽/其他全宽估计；比例字体、emoji、换行、连字符的精确分页边界未验证。
   官方用 PIXI 实测文字宽度，不能把该估计称为完整官方拆页实现。
 - 打印进度用 VM 时间而非官方 ticker/wall clock；阻塞、补全与确认语义有实测，逐字时刻不宣称一致。
-- DOM 弹窗不在 `k4-visual` 的 canvas 截图内（与变量 DOM 面板同类）；该工具会记录双方弹窗状态，
-  但像素差异仍包含缺少的官方 canvas UI，不能以 UI 像素残差否定/证明线程语义。
+- 后续 `oc/k4fix` 已把 DOM 弹窗纳入 `k4-visual` 的 1:1 舞台容器截图；本轮历史结果原为
+  canvas-only，不能与新结果混淆。新实测与像素残差见 [kitten4-fixes.md](kitten4-fixes.md)。
 - 跨场景/被销毁目标与其它翻译/语音弹窗的全队列互操作尚未穷举；ask/介绍弹窗和基础 FIFO 有回归。
 - 本轮优先解决层序和介绍弹窗；按钮尺寸与填充画笔问题不据推测修改。

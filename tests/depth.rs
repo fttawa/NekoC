@@ -171,7 +171,8 @@ fn ten_thousand_nested_inputs_import_compile_and_run() {
                 .find(|s| s.id == "nekoc-pen-actor")
                 .unwrap()
                 .x,
-            9999.0 + 1.0 / 60.0
+            // The K4 stage timer is idle (0) until a timer block starts it.
+            9999.0
         );
     }
     assert!(json::equal(

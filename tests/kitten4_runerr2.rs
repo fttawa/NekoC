@@ -113,9 +113,11 @@ fn virtual_timer_uses_dt_not_real_delays() {
         std::thread::sleep(Duration::from_millis(3));
         vm.advance(1.0 / 60.0, 2_000_000, Duration::ZERO).unwrap();
         let result = vm.oracle_snapshot(frame)["variables"]["result"].clone();
-        assert_eq!(result[2], 1.0 / 60.0);
+        // Since 4.1.1 the reporter reads the stage timer widget, which stays at 0
+        // until a timer block starts it (official probe: docs/kitten4-fixes.md).
+        assert_eq!(result[2], 0.0);
         if frame == 3 {
-            assert_eq!(result[3], 3.0 / 60.0);
+            assert_eq!(result[3], 0.0);
         }
     }
 }

@@ -54,9 +54,11 @@ node --test tests/k4-oracle.test.mjs
   播放器 domain `random` 实际调用 `Math.random`，所以运行前将它指向另一个按参数固定种子的
   **内核自带 PCG** 实例。两个 PRNG 都用明确的 seed/inc 高低位；不是对积木结果硬编码。
   NekoC PRNG 算法不同，相同 seed 不保证跨内核随机序列一致。
-- 注意：以上 `Clock` 只固定调度/任务时钟。该包 `get_timer` 经 RuntimeManager 的
-  `get_timer_elapsed_s()` 仍直接读 `new Date()`；本工具不替换 Date，也不改写官方计时器。
-  因此依赖计时器的作品不能保证重复运行轨迹相同，其差异须单独归因，不能直接判为 VM 算术错误。
+- 注意：以上 `Clock` 只固定调度/任务时钟。4.1.1 之前的 `get_timer` 读 RuntimeManager
+  的 `new Date()`；新版读需显式启动、16 ms 采样的组件计时器。默认仍是墙钟。
+  `--virtual-time` 用整毫秒虚拟 Date，并在每个 update 前执行一次 16 ms interval；这是诊断替换，
+  不代表浏览器实际 interval 相位。`k4-visual` 自动启用它以匹配 NekoC 的离线时钟。
+  版本边界、实测和限制见 [kitten4-fixes.md](../../docs/kitten4-fixes.md)。
 - 输出 `nekoc-k4-trace-v1`：`frames[]` 每帧含 `frame/current_scene_id/actors/variables/entity_variables`。
   云变量和云列表也纳入 `variables`，启动经过播放器云初始化入口；匿名/断网规则与本地后端见 [kitten4-cloud.md](../../docs/kitten4-cloud.md)。
   `current_scene_id` 读取舞台实际当前场景，不是切换后仍保留加载值的编辑器 store；
@@ -129,12 +131,15 @@ node --test tests/k4-visual.test.mjs
 
 - 画面来自 **真实** `k4-trace --render` VM 帧增量（包括画笔、印章、克隆和图层顺序），
   交给同一份 `web/renderer.js`；不是把 oracle 位置重画成 NekoC。
+  内置 CLI 另传 `--render-only`，省略重复的全变量 trace，避免大列表的帧输出超过 Node 字符串上限；
+  实际 Frame 与绘图增量不变。自定义 `--nekoc` 兼容旧二进制，不自动追加该新参数。
 - 浏览器先解码素材，再把尺寸/中心/alpha mask/RGB 通过 `--costumes` 送入 VM，和 web 播放器一样。
   第一次无测量运行只用于取得 canonical project，不作为画面。仅此诊断 CLI 接受 `mask_bytes/rgb_bytes` 数组。
 - 官方使用原始画布 backing pixels，在每个指定 update 后触发 `Ct.on_tick` 上传待刷新的画笔纹理，
   再调用官方 `get_screenshot` 同款 `renderer.render(app.stage)`。不增加 VM update，不推进 transition/ticker 时钟。
   `app.render()` 在 ticker 运行时会跳过，不能拿它作截图触发器。
-- 画布尺寸必须相同；不截图 CSS 缩放后的页面，不自动 resize 掩盖尺寸差异。两侧透明像素先合成白底。
+- 画布尺寸必须相同；无浮层时读取画布 backing pixels；有 NekoC 浮层时对原尺寸舞台容器截图，
+  不自动 resize 掩盖尺寸差异。两侧透明像素先合成白底。
   默认 RGB 通道容差 8/255，任一通道超差计为一个差异像素；另报全部 RGB 的 MAE、RMSE、PSNR。
   PSNR 为 JSON null 表示零均方误差（无限值），不是未测。此工具不计算 SSIM。
 - 输出 JSON、Markdown、每作品每帧双方 PNG、绘图状态及官方资源 SHA-256；CLI 强制输出位于本 worktree 的 `dist/`。
@@ -142,8 +147,8 @@ node --test tests/k4-visual.test.mjs
   差异率不设全语料兼容性通过阈值，`captured` 仅表示完成采样，不表示像素相同。
 - 每作品默认 90 秒 watchdog 避免 domain block 卡住无限等待；素材仍沿用原 oracle 的匿名 CDN 白名单策略，
   仅成功素材响应可在本次内存缓存中复用，不缓存错误、不放宽网络权限。
-- **不是完整 UI 对比**：官方的变量面板/对话框在画布中，NekoC 的 `StageOverlay` 在 DOM 中。
-  纯画布差异会如实包含它们；不要把此结果宣称为页面级视觉一致。
+- NekoC 的真实 `StageOverlay`（气泡、变量面板、介绍弹窗）参与截图；帧的 `overlay: true`
+  标出 1:1 容器截图。不包含播放器外壳 UI；VM 未输出的初始变量监视框仍不会凭空补画。
 - `--renderer-source dist/renderer-before.js --nekoc dist/k4-trace-before.exe` 可复验旧版本基线。
   两者须配套保存，保持同一固定帧、素材和 oracle 采样方式。
 
@@ -151,4 +156,5 @@ node --test tests/k4-visual.test.mjs
 
 克隆层序链、移层与阻塞介绍弹窗的原创夹具、官方观测和回归见
 [kitten4-layer-dialog.md](../../docs/kitten4-layer-dialog.md)。`k4-visual` 的 state JSON
-额外记录官方弹窗是否可见/打印中；画布对比不包含 NekoC DOM 弹窗。
+额外记录官方弹窗是否可见/打印中；本轮已把 NekoC DOM 弹窗纳入对比，见
+[四项修复记录](../../docs/kitten4-fixes.md)。

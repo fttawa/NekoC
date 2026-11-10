@@ -7,10 +7,12 @@ use serde_json::Value;
 mod calculate;
 mod cloud;
 mod jit;
+mod k4_clock;
 mod kn_helpers;
 mod physics;
 mod stage_dialog;
 mod value;
+use k4_clock::{K4Timer, timer_policy, to_fixed2};
 pub use stage_dialog::StageDialogRequest;
 use std::{cell::RefCell, rc::Rc};
 use std::{
@@ -248,7 +250,7 @@ enum PenProperty {
     Brightness,
     Alpha,
 }
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum TimerState {
     Start,
     Stop,
@@ -758,6 +760,8 @@ pub struct Program {
     pub costume_turn: f64,
     /// Since 4.1.0, clones form an insertion chain above their original.
     linked_clone_layers: bool,
+    /// Kitten 4 `get_timer` source; `None` keeps the Kitten N timer.
+    k4_timer: Option<K4Timer>,
 }
 
 #[derive(Debug, Serialize)]
@@ -778,6 +782,7 @@ pub(crate) struct PreparedProject<'a> {
     start_hats: crate::kitten4::StartHats,
     k4_owners: Vec<String>,
     linked_clone_layers: bool,
+    k4_timer: Option<K4Timer>,
 }
 
 pub(crate) enum PreparedJson<'a> {
@@ -812,6 +817,7 @@ impl PreparedProject<'_> {
                 &self.k4_owners,
             )?;
             program.linked_clone_layers = self.linked_clone_layers;
+            program.k4_timer = self.k4_timer;
             Ok(program)
         })
     }
@@ -860,16 +866,23 @@ impl Program {
             crate::kitten4::StartHats::new()
         };
         let source = &project["_nekocKitten4"]["source"];
-        let linked_clone_layers = semantics == RuntimeSemantics::Kitten4
-            && source["application_version"]
-                .as_str()
-                .and_then(|v| {
-                    v.split('.')
-                        .map(str::parse::<u32>)
-                        .collect::<std::result::Result<Vec<_>, _>>()
-                        .ok()
-                })
-                .is_none_or(|v| v.len() != 3 || v.as_slice() >= [4, 1, 0].as_slice());
+        let version = source["application_version"]
+            .as_str()
+            .and_then(|v| {
+                v.split('.')
+                    .map(str::parse::<u32>)
+                    .collect::<std::result::Result<Vec<_>, _>>()
+                    .ok()
+            })
+            .filter(|v| v.len() == 3);
+        let since = |boundary: [u32; 3]| {
+            version
+                .as_ref()
+                .is_none_or(|v| v.as_slice() >= boundary.as_slice())
+        };
+        let linked_clone_layers = semantics == RuntimeSemantics::Kitten4 && since([4, 1, 0]);
+        let k4_timer = (semantics == RuntimeSemantics::Kitten4)
+            .then(|| timer_policy(source["application_version"].as_str()));
         let k4_owners = if let Some(compiled) = source["compile_result"].as_array() {
             compiled
                 .iter()
@@ -906,6 +919,7 @@ impl Program {
             start_hats,
             k4_owners,
             linked_clone_layers,
+            k4_timer,
         })
     }
     fn compile_canonical(
@@ -1011,6 +1025,7 @@ impl Program {
                 initial_scene: 0,
                 uses_color: false,
                 linked_clone_layers: false,
+                k4_timer: None,
                 costume_turn: if semantics == RuntimeSemantics::Kitten4 {
                     90.0
                 } else {
@@ -4178,6 +4193,10 @@ pub struct Engine {
     virtual_epoch: Option<f64>,
     timer: f64,
     timer_running: bool,
+    /// Kitten 4 only: the millisecond clock scripts see during this update, and
+    /// the clock value the running stage timer counts from.
+    clock_ms: f64,
+    timer_origin_ms: f64,
     timer_visible: bool,
     current_task: usize,
     sequence: u64,
@@ -4551,6 +4570,8 @@ impl Engine {
             virtual_epoch: None,
             timer: 0.0,
             timer_running: true,
+            clock_ms: 0.0,
+            timer_origin_ms: 0.0,
             timer_visible: false,
             current_task: 0,
             sequence: 0,
@@ -4614,7 +4635,13 @@ impl Engine {
         self.restore_cloud(cloud_values);
         self.pressed.clear();
         self.released.clear();
-        self.mouse = [0.0; 2];
+        // Kitten 4 has no mouse position until the first pointer event: touching
+        // the mouse is false and the coordinate reporters are NaN.
+        self.mouse = if self.program.semantics == RuntimeSemantics::Kitten4 {
+            [f64::NAN; 2]
+        } else {
+            [0.0; 2]
+        };
         self.pen_layer = 0;
         self.timer_visible = false;
         self.sprites.clone_from(&self.program.sprites);
@@ -4655,7 +4682,10 @@ impl Engine {
         self.initialize_legacy_physics();
         self.time = 0.0;
         self.timer = 0.0;
-        self.timer_running = true;
+        // The Kitten 4 stage timer stays at 0 until a timer block starts it.
+        self.timer_running = self.program.k4_timer.is_none();
+        self.clock_ms = 0.0;
+        self.timer_origin_ms = 0.0;
         self.clear = true;
         self.lines.clear();
         self.text_stamps.clear();
@@ -5195,7 +5225,11 @@ impl Engine {
             ExprOp::X => self.sprites[actor].x,
             ExprOp::Y => self.sprites[actor].y,
             ExprOp::Direction => self.sprites[actor].direction,
-            ExprOp::Timer => self.timer,
+            ExprOp::Timer => match self.program.k4_timer {
+                None => self.timer,
+                Some(K4Timer::RunClock) => self.clock_ms / 1000.0,
+                Some(K4Timer::Widget) => to_fixed2(self.timer),
+            },
             ExprOp::Mouse(y) => self.mouse[usize::from(y)],
             ExprOp::TextLength(i) => self.eval_value(i, actor).text().encode_utf16().count() as f64,
             ExprOp::Distance(target) => {
@@ -7878,14 +7912,18 @@ impl Engine {
                     self.sprites[actor].set_pen_property(property, value, change);
                 }
             }
-            Op::Timer(state) => match state {
-                TimerState::Start => self.timer_running = true,
-                TimerState::Stop => self.timer_running = false,
-                TimerState::Reset => {
-                    self.timer = 0.0;
-                    self.timer_running = true;
+            Op::Timer(state) => {
+                match state {
+                    TimerState::Start => {}
+                    TimerState::Stop => self.timer_running = false,
+                    TimerState::Reset => self.timer = 0.0,
                 }
-            },
+                if state != TimerState::Stop {
+                    self.timer_running = true;
+                    // The widget resumes from its shown value at the current clock.
+                    self.timer_origin_ms = self.clock_ms - self.timer * 1000.0;
+                }
+            }
             Op::TimerVisible(visible) => self.timer_visible = visible,
             Op::ClearList(list) => {
                 if let Some(list) = self.resolve_list(list) {
@@ -8714,10 +8752,17 @@ impl Engine {
                 task.wait_finished = false;
             }
         }
-        self.time += dt;
-        if self.timer_running {
+        if self.program.k4_timer.is_some() {
+            // Official scripts read Date.now() during the update: whole milliseconds
+            // elapsed before this update. The widget samples it once per frame.
+            self.clock_ms = (self.time * 1000.0 + 1e-6).floor();
+            if self.timer_running {
+                self.timer = (self.clock_ms - self.timer_origin_ms) / 1000.0;
+            }
+        } else if self.timer_running {
             self.timer += dt;
         }
+        self.time += dt;
         self.received.clear();
         self.clone_counts.clear();
         self.step_physics(dt);

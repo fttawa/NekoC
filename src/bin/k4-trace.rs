@@ -33,6 +33,10 @@ struct Args {
     /// Include the canonical project and actual web renderer frame deltas.
     #[arg(long)]
     render: bool,
+    /// Omit duplicate full variable snapshots in render output (large lists can
+    /// otherwise exceed the browser harness's maximum JSON string size).
+    #[arg(long, requires = "render", conflicts_with = "blocks")]
+    render_only: bool,
     /// Costume measurements supplied by the browser, as in the web player.
     #[arg(long, requires = "render")]
     costumes: Option<PathBuf>,
@@ -171,7 +175,9 @@ fn main() -> Result<()> {
             !update.budget_yield,
             "frame {frame} exceeded execution budget"
         );
-        frames.push(engine.oracle_snapshot(frame));
+        if !args.render_only {
+            frames.push(engine.oracle_snapshot(frame));
+        }
         if args.render {
             render_frames.push(json!({"frame": update, "lines": update.lines}));
         }

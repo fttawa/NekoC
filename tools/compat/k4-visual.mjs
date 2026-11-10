@@ -22,8 +22,30 @@ export function distribution(works){
     median:values.length?values[Math.floor((values.length-1)*.5)]:null,p90:values.length?values[Math.floor((values.length-1)*.9)]:null,max:values.at(-1)??null};
 }
 // Both sides are sampled synchronously after explicit render, before the browser
-// can discard a non-preserved WebGL drawing buffer. No CSS screenshots/rescaling.
+// can discard a non-preserved WebGL drawing buffer. DOM overlays use a 1:1
+// container screenshot; neither path rescales stage pixels.
 async function capture(page,official){
+  if(!official)await page.evaluate(()=>{
+    if(window.assetErrors.length)throw Error(window.assetErrors.join('\n'));
+  });
+  // NekoC draws bubbles, monitors and the stage dialog as DOM over the canvas
+  // (web/overlay.js); the official player draws them into its canvas. Composite
+  // the real overlay via a 1:1 element screenshot so both sides show the same layers.
+  const overlay=!official&&await page.evaluate(()=>
+    [...document.querySelectorAll('.neko-overlay > :not(.neko-monitors), .neko-monitor')]
+      .some(e=>e.getClientRects().length));
+  if(overlay){
+    await page.evaluate(()=>{window.renderer.dirty=true;window.renderer.render();});
+    const png=(await page.locator('#box').screenshot({animations:'disabled',caret:'hide',scale:'css'})).toString('base64');
+    return page.evaluate(async png=>{
+      const image=new Image();image.src='data:image/png;base64,'+png;await image.decode();
+      const canvas=document.createElement('canvas');canvas.width=image.width;canvas.height=image.height;
+      const ctx=canvas.getContext('2d');ctx.fillStyle='white';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(image,0,0);
+      const rgba=ctx.getImageData(0,0,canvas.width,canvas.height).data;
+      let bytes='';for(let i=0;i<rgba.length;i+=8192)bytes+=String.fromCharCode(...rgba.subarray(i,i+8192));
+      return {width:canvas.width,height:canvas.height,png,rgba:btoa(bytes),overlay:true};
+    },png);
+  }
   return page.evaluate(official=>{
     let source;
     if(official){const stage=window.__k4OracleRequire('a1xw').a();
@@ -44,7 +66,7 @@ export async function visualWork(input,options){
   options={wallTimeoutMs:90000,...options};
   const artifact=path.join(options.artifactsDir,path.basename(input));await mkdir(artifact,{recursive:true});
   const exe=options.nekoc||path.join(root,'target/debug/k4-trace'+(process.platform==='win32'?'.exe':''));
-  const args=[path.resolve(input),'--render','--frames',String(Math.max(...options.captureFrames)),'--seed',String(options.seed??1)];
+  const args=[path.resolve(input),'--render',...(!options.nekoc?['--render-only']:[]),'--frames',String(Math.max(...options.captureFrames)),'--seed',String(options.seed??1)];
   let rendered,nekoPage;
   const frames=[];
   try{
@@ -53,15 +75,23 @@ export async function visualWork(input,options){
     // them. Keep diagnostic PNGs but do not mix them into a pixel distribution.
     const dynamicMedia=Object.values(inputProject.theatre?.videos||{}).some(v=>v.visible!==false);
     rendered=JSON.parse(await command(exe,args));
-    const official=await runOracle(inputProject,{...options,frames:Math.max(...options.captureFrames),
+    // k4-trace runs on the virtual clock; give the official side the same one so
+    // timer-driven works are sampled at the same script time on both sides.
+    const official=await runOracle(inputProject,{...options,virtualTime:true,frames:Math.max(...options.captureFrames),
       beforeStart:async(page)=>{
         nekoPage=await page.context().newPage();
-        await nekoPage.route('**/nekoc-visual',route=>route.fulfill({contentType:'text/html',body:'<!doctype html><canvas id="stage"></canvas>'}));
+        const {width,height}=rendered.project.stageSize;
+        await nekoPage.setViewportSize({width,height});
+        await nekoPage.route('**/nekoc-visual',route=>route.fulfill({contentType:'text/html',
+          body:`<!doctype html><style>html,body{margin:0}#box{position:relative;width:${width}px;height:${height}px;overflow:hidden}#stage{display:block;width:100%;height:100%}</style><div id="box"><canvas id="stage"></canvas></div>`}));
+        await nekoPage.route('**/nekoc-overlay.js',async route=>route.fulfill({contentType:'application/javascript',body:await readFile(path.join(root,'web/overlay.js'),'utf8')}));
         await nekoPage.route('**/nekoc-renderer.js',async route=>route.fulfill({contentType:'application/javascript',body:await readFile(options.rendererSource||path.join(root,'web/renderer.js'),'utf8')}));
         await nekoPage.goto(new URL('/nekoc-visual',page.url()).href);
         await nekoPage.evaluate(async project=>{
           const {StageRenderer}=await import('/nekoc-renderer.js');
+          const {StageOverlay}=await import('/nekoc-overlay.js');
           window.renderer=new StageRenderer(document.querySelector('canvas'));window.renderer.resolutionScale=1;
+          window.overlay=new StageOverlay(document.getElementById('box'),window.renderer,()=>{});
           window.assetErrors=[];window.renderer.onError=e=>window.assetErrors.push(e);await window.renderer.load(project);
           if(window.assetErrors.length)throw Error(window.assetErrors.join('\n'));
         },rendered.project);
@@ -72,7 +102,7 @@ export async function visualWork(input,options){
       },
       onFrame:async(page,frame)=>{
         const delta=rendered.frames[frame-1];
-        await nekoPage.evaluate(({frame,lines})=>window.renderer.apply(frame,new Float32Array(lines)),delta);
+        await nekoPage.evaluate(({frame,lines})=>{window.renderer.apply(frame,new Float32Array(lines));window.overlay.apply(frame);window.overlay.update();},delta);
         if(!options.captureFrames.includes(frame))return;
         const [a,b]=await Promise.all([capture(nekoPage,false),capture(page,true)]);
         if(a.width!==b.width||a.height!==b.height)throw Error(`Canvas size mismatch: NekoC ${a.width}x${a.height}, official ${b.width}x${b.height}`);
@@ -85,7 +115,8 @@ export async function visualWork(input,options){
             stageDialog:dialog?{visible:dialog.visible,printing:dialog.is_printing,text:dialog.content.text,name:dialog.target_name.text}:null};
         });
         await saveJson(path.join(artifact,`${frame}-state.json`),{nekoc:delta.frame,official:officialState});
-        frames.push({frame,width:a.width,height:a.height,...metrics});
+        await nekoPage.evaluate(()=>{if(window.assetErrors.length)throw Error(window.assetErrors.join('\n'));});
+        frames.push({frame,width:a.width,height:a.height,overlay:!!a.overlay,...metrics});
       }});
     await saveJson(path.join(artifact,'diagnostics.json'),official.diagnostics);
     return {file:input,status:dynamicMedia?'unverified':'captured',...(dynamicMedia?{error:'visible video: media clock is not controlled; diagnostic screenshots only'}:{}),frames,artifacts:artifact,kernelAssets:official.diagnostics.assets};

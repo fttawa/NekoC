@@ -306,7 +306,7 @@ export async function runOracle(input, options = {}) {
     "rAF held during load; official Start performs update 1, then one rAF batch per update",
     "native deterministic scheduler/PCG config; native Clock fixed to 1000/60 ms",
     "Math.random redirected at Start to a separate seeded native PCG instance",
-    options.virtualTime ? "diagnostic virtual Date: UTC 2000-01-01 + update count / 60 (not native wall-clock behavior)" :
+    options.virtualTime ? "diagnostic virtual Date: UTC 2000-01-01 + update count / 60; 16 ms intervals fire once before each update (not native wall-clock behavior)" :
       "get_timer uses native Date wall clock, not deterministic Clock; timer-dependent traces are not cross-run deterministic",
   ];
   if (options.randomSource === "nekoc") kernel.diagnostics.instrumentation.push(
@@ -332,7 +332,8 @@ export async function runOracle(input, options = {}) {
     if (options.virtualTime) await kernel.page.evaluate(() => {
       const NativeDate = Date;
       const manager = window.__k4OracleContainer.get(window.__k4OracleBinding.RuntimeManager);
-      const now = () => 946684800000 + manager.frames * 1000 / 60;
+      // Date.now(), like new Date().valueOf(), returns whole milliseconds.
+      const now = () => 946684800000 + Math.floor(manager.frames * 1000 / 60);
       window.Date = class extends NativeDate {
         constructor(...args) { super(...(args.length ? args : [now()])); }
         static now() { return now(); }
@@ -344,6 +345,19 @@ export async function runOracle(input, options = {}) {
         getMinutes() { return this.getUTCMinutes(); }
         getSeconds() { return this.getUTCSeconds(); }
       };
+      // The stage timer widget samples Date.now() from a 16 ms setInterval, i.e.
+      // about once per frame on a real display. Fire those callbacks exactly once
+      // before every update so the sampled value is a function of the update count.
+      const nativeSet = window.setInterval.bind(window), nativeClear = window.clearInterval.bind(window);
+      const ticks = new Map();
+      let nextTick = -1;
+      window.setInterval = (callback, delay, ...args) => {
+        if (delay !== 16 || typeof callback !== "function") return nativeSet(callback, delay, ...args);
+        ticks.set(nextTick, () => callback(...args));
+        return nextTick--;
+      };
+      window.clearInterval = id => { if (!ticks.delete(id)) nativeClear(id); };
+      window.__k4OracleTick = () => { for (const tick of [...ticks.values()]) tick(); };
     });
     await kernel.page.evaluate(({ seed, blocks, randomSource, blockFilter, variableFilter, measurePerformance, warmup }) => {
       const req = window.__k4OracleRequire;
@@ -516,7 +530,7 @@ export async function runOracle(input, options = {}) {
       // exactly one official scheduler update; never use wall-clock sleeps as frames.
       for (let frame = 1; frame < (options.frames ?? 60); frame++) {
         if (await kernel.page.evaluate(() => window.__k4OracleRequire("ALsR").a.get_state().run_states.is_error)) break;
-        await kernel.page.evaluate(timestamp => window.__k4OracleFrame(timestamp), frame * 1000 / 60);
+        await kernel.page.evaluate(timestamp => { window.__k4OracleTick?.(); return window.__k4OracleFrame(timestamp); }, frame * 1000 / 60);
         if (options.onFrame) await options.onFrame(kernel.page, frame + 1);
       }
     }
