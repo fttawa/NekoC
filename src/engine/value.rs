@@ -140,6 +140,8 @@ pub(super) struct Span {
 }
 #[derive(Clone, Copy, Debug)]
 pub(super) enum ValueExpr {
+    Calculate(usize),
+    Whole(usize),
     Number(super::Expr),
     /// Index into `Program::constants`.
     Constant(usize),

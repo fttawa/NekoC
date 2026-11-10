@@ -4,6 +4,7 @@
 use anyhow::{Context, Result, bail, ensure};
 use serde::Serialize;
 use serde_json::Value;
+mod calculate;
 mod jit;
 mod kn_helpers;
 mod physics;
@@ -213,6 +214,7 @@ enum ExprOp {
     /// bump_into_color: (subject actor | camp target, 0xRRGGBB)
     TouchingColor(usize, u32),
     PhysicsProperty(physics::Property),
+    LegacyPhysicsProperty(usize, physics::Property),
     Binary(Binary),
     Unary(Unary),
 }
@@ -362,6 +364,7 @@ enum Op {
     ChangeActorVariable(usize, Expr, f64),
     /// Legacy K4 velocity checks actual Number values, not coerced strings.
     PhysicsVelocity(usize, usize),
+    LegacyPhysics(physics::Command, usize),
 }
 #[derive(Clone, Copy, Debug)]
 enum LayerMove {
@@ -686,6 +689,8 @@ impl RuntimeSemantics {
 pub struct Program {
     semantics: RuntimeSemantics,
     ops: Vec<Op>,
+    legacy_physics_scenes: BTreeSet<usize>,
+    has_modern_physics: bool,
     expressions: Vec<ExprOp>,
     /// For each postfix position, the first position of the subtree rooted there.
     /// A binary node at `p` has its right operand at `p - 1` and its left operand at
@@ -871,6 +876,8 @@ impl Program {
             program: Self {
                 semantics,
                 ops: vec![],
+                legacy_physics_scenes: BTreeSet::new(),
+                has_modern_physics: false,
                 expressions: vec![],
                 expression_starts: vec![],
                 sources: vec![],
@@ -1515,6 +1522,13 @@ impl Compiler {
     }
     fn value(&mut self, b: &Value) -> Result<usize> {
         let value = match b["type"].as_str().unwrap_or("") {
+            "kitten4_calculate" => ValueExpr::Calculate(self.value(input(b, "input")?)?),
+            "math_number_property"
+                if self.program.semantics == RuntimeSemantics::Kitten4
+                    && matches!(field(b, "type"), "integer" | "whole") =>
+            {
+                ValueExpr::Whole(self.value(input(b, "num")?)?)
+            }
             "math_number" if self.program.semantics == RuntimeSemantics::KnCurrent => {
                 if let Some(text) = kn_preserved_number_text(b) {
                     self.constant(Cell::Text(text.into()))
@@ -2084,6 +2098,7 @@ impl Compiler {
             | "current_scene_id"
             | "kitten4_costume_literal"
             | "kitten4_costume_name"
+            | "kitten4_calculate"
             | "kitten4_check_screen"
             | "get_choice_and_index" => ExprOp::Value(self.value(b)?),
             "check_key" => {
@@ -2244,6 +2259,10 @@ impl Compiler {
                     other => bail!("unsupported mouse state {other}"),
                 },
             ),
+            "kitten4_legacy_property" => ExprOp::LegacyPhysicsProperty(
+                self.actor_target(field(b, "sprite"))?,
+                physics::Property::parse(field(b, "attribute"))?,
+            ),
             "divisible_by" => {
                 let (a, d) = if b["inputs"].get("NUMBER_TO_CHECK").is_some() {
                     ("NUMBER_TO_CHECK", "DIVISOR")
@@ -2255,6 +2274,13 @@ impl Compiler {
                 ExprOp::Binary(Binary::Divisible)
             }
             "math_number_property" => {
+                if self.program.semantics == RuntimeSemantics::Kitten4
+                    && matches!(field(b, "type"), "integer" | "whole")
+                {
+                    let value = self.value(b)?;
+                    self.program.expressions.push(ExprOp::Value(value));
+                    return Ok(());
+                }
                 let key = if b["inputs"].get("NUMBER_TO_CHECK").is_some() {
                     "NUMBER_TO_CHECK"
                 } else {
@@ -2270,7 +2296,7 @@ impl Compiler {
                     "even" => Unary::Even,
                     "odd" => Unary::Odd,
                     "prime" => Unary::Prime,
-                    "whole" => Unary::Whole,
+                    "whole" | "integer" => Unary::Whole,
                     "positive" => Unary::Positive,
                     "negative" => Unary::Negative,
                     other => bail!("unsupported number property {other}"),
@@ -2365,6 +2391,28 @@ impl Compiler {
         Ok(())
     }
     fn scripts(&mut self, owner: &Value, actor: usize) -> Result<()> {
+        if self.program.semantics == RuntimeSemantics::Kitten4 {
+            let mut pending = vec![owner];
+            while let Some(value) = pending.pop() {
+                match value {
+                    Value::Object(object) => {
+                        if let Some(kind) = object.get("type").and_then(Value::as_str) {
+                            if kind == "kitten4_legacy_self_enable_physics" {
+                                self.program
+                                    .legacy_physics_scenes
+                                    .insert(self.program.sprites[actor].scene);
+                            }
+                            if kind.starts_with("physics2_") {
+                                self.program.has_modern_physics = true;
+                            }
+                        }
+                        pending.extend(object.values());
+                    }
+                    Value::Array(items) => pending.extend(items),
+                    _ => {}
+                }
+            }
+        }
         for root in owner["nekoBlockJsonList"].as_array().into_iter().flatten() {
             let kind = root["type"].as_str().unwrap_or("");
             let event = match kind {
@@ -2454,6 +2502,8 @@ impl Compiler {
                 // Loose workspace stacks/reporters are not executable scripts. Unknown
                 // event hats must still be diagnosed, not silently discarded.
                 _ if root["is_output"] == true
+                    || (kind == "kitten4_noop"
+                        && self.program.semantics == RuntimeSemantics::Kitten4)
                     || matches!(
                         kind,
                         "variables_set"
@@ -3030,6 +3080,17 @@ impl Compiler {
                     self.value(input(b, "value")?)?,
                     self.value(input(b, "dir")?)?,
                 ),
+                kind if kind.starts_with("kitten4_legacy_") => {
+                    let command = physics::Command::parse_legacy(kind, b)?;
+                    let zero = serde_json::json!({"type":"math_number","fields":{"NUM":0}});
+                    let value = self.value(
+                        ["friction", "restitution", "mass", "density"]
+                            .iter()
+                            .find_map(|key| b["inputs"].get(*key))
+                            .unwrap_or(&zero),
+                    )?;
+                    Op::LegacyPhysics(command, value)
+                }
                 kind if kind.starts_with("physics2_") => {
                     let command = physics::Command::parse(kind, b, |id| self.actor_target(id))?;
                     let zero = serde_json::json!({"type":"math_number","fields":{"NUM":0}});
@@ -4042,6 +4103,7 @@ impl Engine {
         self.received.clear();
         self.value_error = None;
         self.stopped = false;
+        self.initialize_legacy_physics();
         self.time = 0.0;
         self.timer = 0.0;
         self.timer_running = true;
@@ -4502,6 +4564,8 @@ impl Engine {
                 let a = &self.sprites[if target == usize::MAX { actor } else { target }];
                 if scope == 1 {
                     (1.0 - a.opacity) * 100.0
+                } else if scope == 2 && self.program.semantics == RuntimeSemantics::Kitten4 {
+                    a.effects[2] + 100.0
                 } else {
                     a.effects[scope as usize]
                 }
@@ -4516,6 +4580,10 @@ impl Engine {
             }
             ExprOp::CloneIndex => self.sprites[actor].clone_index as f64,
             ExprOp::PhysicsProperty(property) => self.physics_property(actor, property),
+            ExprOp::LegacyPhysicsProperty(target, property) => self.legacy_physics_property(
+                if target == usize::MAX { actor } else { target },
+                property,
+            ),
             ExprOp::Touching(subject, other) => {
                 // `--self` as the other side means the running actor, whatever the subject.
                 let other = if other == usize::MAX { actor } else { other };
@@ -5717,6 +5785,9 @@ impl Engine {
             self.sprites.len() - 1
         };
         self.dirty[index] = true;
+        if self.program.semantics == RuntimeSemantics::Kitten4 {
+            self.clone_legacy_physics_body(source, index);
+        }
         self.clones += 1;
         // A clone starts directly behind its source.
         let at = self.order.iter().position(|&i| i == source).unwrap_or(0);
@@ -5862,6 +5933,30 @@ impl Engine {
     fn eval_value(&mut self, i: usize, actor: usize) -> Cell {
         // Only strings/list references are cloned; numeric expressions stay unboxed.
         match self.program.values[i] {
+            ValueExpr::Whole(input) => {
+                let input = self.eval_value(input, actor);
+                Cell::Bool(matches!(input,Cell::Number(n) if n==n.floor()))
+            }
+            ValueExpr::Calculate(input) => {
+                let input = self.eval_value(input, actor);
+                match input {
+                    Cell::Text(text) => match calculate::evaluate(&text) {
+                        Ok(value) => value,
+                        Err(()) => {
+                            self.value_error
+                                .get_or_insert_with(|| "block_bad_math_expression".into());
+                            Cell::Number(f64::NAN)
+                        }
+                    },
+                    _ => {
+                        // The official lexer iterates input.length: numbers do
+                        // not get string-coerced and fail at postfix evaluation.
+                        self.value_error
+                            .get_or_insert_with(|| "block_bad_math_expression".into());
+                        Cell::Number(f64::NAN)
+                    }
+                }
+            }
             ValueExpr::Number(e) => Cell::Number(self.eval(e, actor)),
             ValueExpr::Constant(v) => self.program.constants[v].clone(),
             ValueExpr::Global(i) => self.global_value(i),
@@ -6164,7 +6259,8 @@ impl Engine {
                             } else {
                                 100.0
                             }),
-                            7 | 9..=13 => Cell::Number(a.effects[(attribute - 7) as usize]),
+                            9 => Cell::Number(a.effects[2] + 100.0),
+                            7 | 10..=13 => Cell::Number(a.effects[(attribute - 7) as usize]),
                             _ => {
                                 let id = a.style.as_deref().unwrap_or("");
                                 let name =
@@ -6482,6 +6578,18 @@ impl Engine {
             self.dirty[actor] = true;
         }
         match op {
+            Op::LegacyPhysics(command, value) => {
+                let value = self.eval_value(value, actor);
+                let number = if matches!(command, physics::Command::LegacyMass) {
+                    match value {
+                        Cell::Number(n) => n,
+                        _ => f64::NAN,
+                    }
+                } else {
+                    value.number()
+                };
+                self.physics_command(actor, command, [number, 0.0, 0.0])?;
+            }
             Op::PhysicsVelocity(value, dir) => {
                 let number = |v| match v {
                     Cell::Number(n) => n,
@@ -7163,7 +7271,14 @@ impl Engine {
                         a.opacity = 1.0 - ghost.clamp(0.0, 100.0) / 100.0;
                     } else {
                         let slot = &mut a.effects[scope as usize];
-                        let next = if change { *slot + v } else { v };
+                        let next = if change {
+                            *slot + v
+                        } else if scope == 2 && self.program.semantics == RuntimeSemantics::Kitten4
+                        {
+                            v - 100.0
+                        } else {
+                            v
+                        };
                         *slot = match scope {
                             2 => next.clamp(-100.0, 100.0),
                             6 => next.clamp(0.0, 100.0),

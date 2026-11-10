@@ -20,6 +20,7 @@ pub(super) enum Property {
     Friction,
     Restitution,
     Flexibility,
+    Density,
 }
 impl Property {
     pub fn parse(value: &str) -> Result<Self> {
@@ -30,6 +31,7 @@ impl Property {
             "friction" => Self::Friction,
             "restitution" => Self::Restitution,
             "flexibility" => Self::Flexibility,
+            "density" => Self::Density,
             _ => bail!("unknown physics property {value}"),
         })
     }
@@ -186,6 +188,14 @@ pub(super) enum Command {
     Gravity,
     Speed,
     LegacyVelocity,
+    LegacyEnable(bool),
+    LegacyCollidable(bool),
+    LegacyRotate(bool),
+    LegacyBoundary(u8),
+    LegacyFriction,
+    LegacyRestitution,
+    LegacyMass,
+    LegacyDensity,
     Force,
     TimedForce,
     Mass,
@@ -196,6 +206,122 @@ pub(super) enum Command {
     Flexibility,
 }
 impl Command {
+    pub fn parse_legacy(kind: &str, b: &Value) -> Result<Self> {
+        Ok(match kind.trim_start_matches("kitten4_legacy_") {
+            "self_enable_physics" => Self::LegacyEnable(true),
+            "self_disable_physics" => Self::LegacyEnable(false),
+            "set_actor_as" => {
+                Self::LegacyCollidable(field(b, "physics_body_type") == "attend_physics_world")
+            }
+            "allow_rotate" => Self::LegacyRotate(field(b, "allow") != "0"),
+            "self_set_friction" => Self::LegacyFriction,
+            "self_set_restitution" => Self::LegacyRestitution,
+            "self_set_mass" => Self::LegacyMass,
+            "self_set_density" => Self::LegacyDensity,
+            "self_set_boundary" => Self::LegacyBoundary(match field(b, "physics_bound_type") {
+                "not_bound" => 0,
+                "all_bounds" => 15,
+                "bottom_bound" => 2,
+                "left_right_bottom_bounds" => 14,
+                other => bail!("unknown legacy physics boundary {other}"),
+            }),
+            _ => bail!("unsupported legacy physics block {kind}"),
+        })
+    }
+}
+
+#[cfg(test)]
+mod legacy_tests {
+    use super::*;
+    use crate::{engine::Program, studio::document::Document};
+    fn engine() -> Engine {
+        let p = Document::blank();
+        let mut e = Engine::new(Program::compile(p.value()).unwrap());
+        e.start();
+        e
+    }
+    fn command(e: &mut Engine, actor: usize, c: Command, values: [f64; 3]) {
+        e.physics_command(actor, c, values).unwrap();
+    }
+    #[test]
+    fn legacy_setters_do_not_allocate_and_disable_clears_velocity() {
+        let mut e = engine();
+        for c in [
+            Command::LegacyEnable(true),
+            Command::LegacyFriction,
+            Command::LegacyRestitution,
+            Command::LegacyBoundary(15),
+        ] {
+            command(&mut e, 1, c, [0.8, 0.0, 0.0]);
+            assert!(e.physics.is_none());
+            assert!(e.physics_command(0, c, [0.8, 0.0, 0.0]).is_err());
+        }
+        command(&mut e, 1, Command::Gravity, [0.0; 3]);
+        command(&mut e, 1, Command::LegacyFriction, [2.0, 0.0, 0.0]);
+        command(&mut e, 1, Command::LegacyRestitution, [-1.0, 0.0, 0.0]);
+        assert_eq!(e.physics_property(1, Property::Friction), 1.0);
+        assert_eq!(e.physics_property(1, Property::Restitution), 0.0);
+        command(&mut e, 1, Command::LegacyVelocity, [2.0, 0.0, 0.0]);
+        command(&mut e, 1, Command::LegacyEnable(false), [0.0; 3]);
+        assert_eq!(e.physics_property(1, Property::Speed), 0.0);
+        command(&mut e, 1, Command::LegacyVelocity, [3.0, 0.0, 0.0]);
+        command(&mut e, 1, Command::LegacyEnable(true), [0.0; 3]);
+        assert_eq!(e.physics_property(1, Property::Speed), 0.0);
+        command(&mut e, 1, Command::LegacyBoundary(14), [0.0; 3]);
+        assert_eq!(e.physics.as_ref().unwrap().worlds[&0].edges.len(), 3);
+        command(&mut e, 1, Command::LegacyBoundary(0), [0.0; 3]);
+        assert!(e.physics.as_ref().unwrap().worlds[&0].edges.is_empty());
+    }
+
+    #[test]
+    fn legacy_start_scan_creates_static_bodies_and_modern_blocks_suppress_it() {
+        let p = Document::blank();
+        let mut program = Program::compile(p.value()).unwrap();
+        program.legacy_physics_scenes.insert(0);
+        let mut e = Engine::new(program);
+        e.start();
+        let w = &e.physics.as_ref().unwrap().worlds[&0];
+        let b = &w.actors[&1];
+        assert!(!b.forceable && b.collidable);
+        assert!(w.bodies[b.handle].is_fixed());
+        command(&mut e, 1, Command::LegacyEnable(true), [0.0; 3]);
+        assert!(e.physics.as_ref().unwrap().worlds[&0].actors[&1].forceable);
+        e.start();
+        assert!(!e.physics.as_ref().unwrap().worlds[&0].actors[&1].forceable);
+        command(&mut e, 1, Command::LegacyFriction, [0.7, 0.0, 0.0]);
+        command(&mut e, 1, Command::LegacyEnable(true), [0.0; 3]);
+        command(&mut e, 1, Command::LegacyVelocity, [2.0, 0.0, 0.0]);
+        // clone_sprite calls this hook only for native K4; this internal
+        // synthetic Program supplies the same provenance for the body test.
+        e.sprites.push(e.sprites[1].clone());
+        e.clone_legacy_physics_body(1, 2);
+        let w = &e.physics.as_ref().unwrap().worlds[&0];
+        let b = &w.actors[&2];
+        assert!(!b.forceable && !b.collidable);
+        assert_eq!(w.colliders[b.collider].friction(), 0.7);
+        assert_eq!(e.legacy_physics_property(2, Property::Speed), 0.0);
+        e.remove_physics_body(2);
+        assert_eq!(e.legacy_physics_property(2, Property::Friction), 0.0);
+        e.program.has_modern_physics = true;
+        e.start();
+        assert!(e.physics.is_none());
+    }
+}
+impl Command {
+    fn legacy(self) -> bool {
+        matches!(
+            self,
+            Self::LegacyVelocity
+                | Self::LegacyEnable(_)
+                | Self::LegacyCollidable(_)
+                | Self::LegacyRotate(_)
+                | Self::LegacyBoundary(_)
+                | Self::LegacyFriction
+                | Self::LegacyRestitution
+                | Self::LegacyMass
+                | Self::LegacyDensity
+        )
+    }
     pub fn parse(kind: &str, b: &Value, target: impl Fn(&str) -> Result<usize>) -> Result<Self> {
         Ok(match kind {
             "physics2_enable_force" => Self::Forceable(field(b, "is_enable") == "true"),
@@ -371,6 +497,71 @@ fn signature(sprite: &Sprite) -> (Option<String>, f64, f64) {
     )
 }
 impl Engine {
+    pub(super) fn clone_legacy_physics_body(&mut self, source: usize, clone: usize) {
+        // player_v2 Vt.generate_clone_actor creates a non-forceable,
+        // non-collidable body with the source material, NOT its velocity.
+        if !self
+            .program
+            .legacy_physics_scenes
+            .contains(&self.sprites[source].scene)
+            || self.program.has_modern_physics
+        {
+            return;
+        }
+        let Some(world) = self
+            .physics
+            .as_ref()
+            .and_then(|p| p.worlds.get(&self.sprites[source].scene))
+        else {
+            return;
+        };
+        let Some(body) = world.actors.get(&source) else {
+            return;
+        };
+        let collider = &world.colliders[body.collider];
+        let material = (
+            collider.density(),
+            collider.friction(),
+            collider.restitution(),
+        );
+        self.ensure_physics_body(clone);
+        self.physics_command(clone, Command::Forceable(false), [0.0; 3])
+            .unwrap();
+        self.physics_command(clone, Command::Collidable(false), [0.0; 3])
+            .unwrap();
+        let w = self
+            .physics
+            .as_mut()
+            .unwrap()
+            .worlds
+            .get_mut(&self.sprites[clone].scene)
+            .unwrap();
+        let b = &w.actors[&clone];
+        let c = &mut w.colliders[b.collider];
+        c.set_density(material.0);
+        c.set_friction(material.1);
+        c.set_restitution(material.2);
+        w.bodies[b.handle].recompute_mass_properties_from_colliders(&w.colliders);
+    }
+    pub(super) fn initialize_legacy_physics(&mut self) {
+        // Offline player_v2 load_physics_model: only self_enable_physics
+        // requests old worlds, and ANY physics2 block suppresses that path.
+        if self.program.has_modern_physics {
+            return;
+        }
+        for actor in 0..self.sprites.len() {
+            if !self.sprites[actor].stage
+                && self
+                    .program
+                    .legacy_physics_scenes
+                    .contains(&self.sprites[actor].scene)
+            {
+                self.ensure_physics_body(actor);
+                self.physics_command(actor, Command::Forceable(false), [0.0; 3])
+                    .unwrap();
+            }
+        }
+    }
     fn ensure_physics_body(&mut self, actor: usize) {
         let scene = self.sprites[actor].scene;
         if self
@@ -430,14 +621,29 @@ impl Engine {
     ) -> Result<Option<f64>> {
         // Offline official player_v2/Bt.set_velocity: finite Numbers only,
         // no lazy body/world creation, unlike physics2_set_speed.
-        let legacy = matches!(command, Command::LegacyVelocity);
-        if legacy && (!values[0].is_finite() || !values[1].is_finite()) {
+        let legacy = command.legacy();
+        if matches!(command, Command::LegacyVelocity)
+            && (!values[0].is_finite() || !values[1].is_finite())
+        {
             return Ok(None);
         }
         ensure!(
             !self.sprites[actor].stage,
             "Kitten 4 physics blocks cannot run on a scene"
         );
+        if let Command::LegacyBoundary(mask) = command {
+            let actors: Vec<_> = self
+                .physics
+                .as_ref()
+                .into_iter()
+                .flat_map(|p| p.worlds.values())
+                .filter_map(|w| w.actors.keys().next().copied())
+                .collect();
+            for actor in actors {
+                self.physics_command(actor, Command::Boundary(mask), values)?;
+            }
+            return Ok(None);
+        }
         if legacy
             && !self
                 .physics
@@ -448,6 +654,39 @@ impl Engine {
             return Ok(None);
         }
         self.ensure_physics_body(actor);
+        let command = match command {
+            Command::LegacyEnable(enabled) => {
+                if enabled {
+                    self.physics_command(actor, Command::Collidable(true), values)?;
+                } else {
+                    let w = self
+                        .physics
+                        .as_mut()
+                        .unwrap()
+                        .worlds
+                        .get_mut(&self.sprites[actor].scene)
+                        .unwrap();
+                    let b = w.actors.get_mut(&actor).unwrap();
+                    b.saved_velocity = Vector::zeros();
+                    w.bodies[b.handle].set_linvel(Vector::zeros(), true);
+                }
+                Command::Forceable(enabled)
+            }
+            Command::LegacyCollidable(enabled) => {
+                // is_enabled is forceable || collidable in the old adapter.
+                let w = &self.physics.as_ref().unwrap().worlds[&self.sprites[actor].scene];
+                let b = &w.actors[&actor];
+                if enabled != (self.sprites[actor].visible && (b.forceable || enabled)) {
+                    self.physics_command(actor, Command::Forceable(false), values)?;
+                }
+                Command::Collidable(enabled)
+            }
+            Command::LegacyRotate(enabled) => Command::Rotate(enabled),
+            Command::LegacyFriction => Command::Friction,
+            Command::LegacyRestitution => Command::Restitution,
+            Command::LegacyMass => Command::Mass,
+            other => other,
+        };
         // LiquidFun particle groups have no equivalent in this rigid solver: a
         // soft actor keeps running as a rigid body so the work does not stop.
         // `coverage` lists physics2_set_flexibility as a stub.
@@ -504,8 +743,10 @@ impl Engine {
                 body.set_linvel(state.saved_velocity, true)
             }
             Command::LegacyVelocity => {
-                state.saved_velocity = vector(10000.0);
-                body.set_linvel(state.saved_velocity, true)
+                if state.forceable {
+                    state.saved_velocity = vector(10000.0);
+                    body.set_linvel(state.saved_velocity, true)
+                }
             }
             Command::Force if dir.is_finite() => body.add_force(
                 if value.is_nan() {
@@ -535,6 +776,10 @@ impl Engine {
             }
             Command::Mass if !value.is_nan() && value > 0.0 => {
                 world.colliders[state.collider].set_mass(value.min(10000.0));
+                body.recompute_mass_properties_from_colliders(&world.colliders);
+            }
+            Command::LegacyDensity if value.is_finite() && value >= 0.0 => {
+                world.colliders[state.collider].set_density(value * 0.1);
                 body.recompute_mass_properties_from_colliders(&world.colliders);
             }
             Command::Filter(target, enabled) => {
@@ -635,8 +880,20 @@ impl Engine {
             Property::Friction => w.colliders[b.collider].friction(),
             Property::Restitution => w.colliders[b.collider].restitution(),
             Property::Flexibility => 50.0,
+            Property::Density => w.colliders[b.collider].density() / 0.1,
         };
         (value * 100.0 + 0.5).floor() / 100.0
+    }
+    pub(super) fn legacy_physics_property(&mut self, actor: usize, property: Property) -> f64 {
+        if !self
+            .physics
+            .as_ref()
+            .and_then(|p| p.worlds.get(&self.sprites[actor].scene))
+            .is_some_and(|w| w.actors.contains_key(&actor))
+        {
+            return 0.0;
+        }
+        self.physics_property(actor, property)
     }
     pub(super) fn step_physics(&mut self, dt: f64) {
         if self.stopped || dt <= 0.0 || self.physics.is_none() {

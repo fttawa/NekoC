@@ -428,8 +428,9 @@ fn is_stub(kind: &str) -> bool {
             | "get_voice_volume"
             | "wood_block_set"
             | "wood_block_get"
-            | "set_actor_as"
+            | "set_camera_status"
             | "play_words_audio"
+            | "play_words_audio_wait"
             | "set_layer_with_pen"
             | "set_entity_show_hide"
             | "self_shake"
@@ -474,6 +475,25 @@ fn lower_block(block: &mut Value, targets: &Targets) {
         block["type"] = json!("kitten4_set_velocity");
         return;
     }
+    if kind == "get_physics_property" {
+        block["type"] = json!("kitten4_legacy_property");
+        return;
+    }
+    if matches!(
+        kind.as_str(),
+        "self_enable_physics"
+            | "self_disable_physics"
+            | "self_set_friction"
+            | "self_set_restitution"
+            | "self_set_boundary"
+            | "self_set_mass"
+            | "self_set_density"
+            | "set_actor_as"
+            | "allow_rotate"
+    ) {
+        block["type"] = json!(format!("kitten4_legacy_{kind}"));
+        return;
+    }
     if is_stub(&kind) || (kind == "self_change_effect_3" && field(block, "scope") == "7") {
         if matches!(kind.as_str(), "get_voice_volume" | "wood_block_get") {
             // Offline player: no microphone samples => 0; its player-specific
@@ -498,6 +518,11 @@ fn lower_block(block: &mut Value, targets: &Targets) {
         return;
     }
     let renamed = match kind.as_str() {
+        "self_clear_effects" => "clear_all_effects",
+        "calculate" => {
+            block["type"] = json!("kitten4_calculate");
+            return;
+        }
         "set_pen_path" => {
             block["type"] = json!(match field(block, "point") {
                 "start_point" => "pen_begin_path",
@@ -751,6 +776,7 @@ fn lower_block(block: &mut Value, targets: &Targets) {
         | "stamp"
         | "image_stamp"
         | "tell"
+        | "sync_tell"
         | "get_current_clone_index"
         | "get_answer"
         | "self_ask"

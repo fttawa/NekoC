@@ -791,7 +791,7 @@ fn published_fixture() -> Value {
 // Synthetic compile_result fixtures only: never embed downloaded corpus works.
 #[test]
 fn published_second_round_stubs_are_explicit_and_nonblocking() {
-    for kind in ["set_actor_as", "play_words_audio"] {
+    for kind in ["play_words_audio", "play_words_audio_wait"] {
         let native = published_script(vec![
             compiled(
                 kind,
@@ -802,6 +802,154 @@ fn published_second_round_stubs_are_explicit_and_nonblocking() {
         assert!(kitten4::coverage(&native, 1)["stubbed"].get(kind).is_some());
         assert_eq!(start_published(&native).variable_text("after"), "1");
     }
+}
+
+#[test]
+fn fourth_round_calculate_clear_effects_and_camera_keep_native_source() {
+    for jit in [false, true] {
+        let mut native = published_script(vec![
+            compiled(
+                "self_set_effect_2",
+                json!({"scope":"1","val":compiled_number(75.0)}),
+            ),
+            compiled(
+                "self_set_effect_2",
+                json!({"scope":"0","val":compiled_number(40.0)}),
+            ),
+            compiled("self_clear_effects", json!({})),
+            compiled_set(
+                "ghost",
+                compiled("get_3", json!({"sprite":"__self","attribute":"8"})),
+            ),
+            compiled_set(
+                "hue",
+                compiled("get_3", json!({"sprite":"__self","attribute":"7"})),
+            ),
+            compiled_set(
+                "light",
+                compiled("get_3", json!({"sprite":"__self","attribute":"9"})),
+            ),
+            compiled("set_camera_status", json!({"status":"true"})),
+            compiled("set_camera_status", json!({"status":"false"})),
+            compiled_set(
+                "math",
+                compiled(
+                    "calculate",
+                    json!({"input":compiled("text",json!({"TEXT":"sin(30)+2^3^2"}))}),
+                ),
+            ),
+            compiled_set("after", compiled_number(1.0)),
+        ]);
+        native["theatre"]["actors"]["nekoc-pen-actor"]["visible"] = json!(true);
+        let canonical = kitten4::to_neko(&native).unwrap();
+        assert_eq!(kitten4::from_neko(&canonical).unwrap(), native);
+        let mut e = Engine::new(Program::compile(&canonical).unwrap());
+        if !jit {
+            e.disable_jit();
+        }
+        e.start();
+        e.advance(1.0 / 60.0, 100_000, Duration::from_secs(1))
+            .unwrap();
+        for (key, value) in [
+            ("ghost", "0"),
+            ("hue", "0"),
+            ("light", "100"),
+            ("math", "64.5"),
+            ("after", "1"),
+        ] {
+            assert_eq!(e.variable_text(key), value, "{key}");
+        }
+        let report = kitten4::coverage(&native, 1);
+        assert_eq!(report["stage"], "ran");
+        assert_eq!(report["stubbed"]["set_camera_status"], 2);
+    }
+}
+
+#[test]
+fn fourth_round_bad_calculate_stops_before_the_next_statement() {
+    for input in [
+        compiled("text", json!({"TEXT":"1+"})),
+        compiled_number(12.0),
+    ] {
+        let native = published_script(vec![
+            compiled_set("math", compiled("calculate", json!({"input":input}))),
+            compiled_set("after", compiled_number(1.0)),
+        ]);
+        let canonical = kitten4::to_neko(&native).unwrap();
+        let mut e = Engine::new(Program::compile(&canonical).unwrap());
+        e.start();
+        let error = e
+            .advance(1.0 / 60.0, 100_000, Duration::from_secs(1))
+            .unwrap_err();
+        assert!(
+            error.to_string().contains("block_bad_math_expression"),
+            "{error}"
+        );
+        assert_eq!(e.variable_text("after"), "0");
+    }
+}
+
+#[test]
+fn fourth_round_whole_number_property_accepts_translated_integer_menu() {
+    for (n, expected) in [(2.0, "true"), (2.5, "false"), (-3.0, "true")] {
+        let native = published_script(vec![compiled_set(
+            "whole",
+            compiled(
+                "math_number_property",
+                json!({"PROPERTY":"WHOLE","NUMBER_TO_CHECK":compiled_number(n)}),
+            ),
+        )]);
+        assert_eq!(start_published(&native).variable_text("whole"), expected);
+    }
+}
+
+#[test]
+fn fourth_round_legacy_physics_published_ast_and_disconnected_missing_target_hats() {
+    let mut native = published_script(vec![
+        compiled(
+            "self_set_friction",
+            json!({"friction":compiled("text",json!({"TEXT":"0.7"}))}),
+        ),
+        compiled(
+            "self_set_restitution",
+            json!({"restitution":compiled_number(0.6)}),
+        ),
+        compiled(
+            "self_set_boundary",
+            json!({"physics_bound_type":"all_bounds"}),
+        ),
+        compiled("self_enable_physics", json!({})),
+        compiled_set(
+            "friction",
+            compiled(
+                "get_physics_property",
+                json!({"sprite":"__self","attribute":"friction"}),
+            ),
+        ),
+        compiled_set(
+            "bounce",
+            compiled(
+                "get_physics_property",
+                json!({"sprite":"__self","attribute":"restitution"}),
+            ),
+        ),
+        compiled(
+            "set_velocity",
+            json!({"value":compiled_number(2.0),"dir":compiled_number(0.0)}),
+        ),
+        compiled_set("after", compiled_number(1.0)),
+    ]);
+    native["compile_result"][0]["compiled_block_map"]["missing"] = json!({"id":"missing","type":"sprite_on_tap","kind":"responder_block","params":{"actor":"deleted","type":"mouse_click"},"child_block":[]});
+    let canonical = kitten4::to_neko(&native).unwrap();
+    assert_eq!(kitten4::from_neko(&canonical).unwrap(), native);
+    let mut e = Engine::new(Program::compile(&canonical).unwrap());
+    e.start();
+    e.advance(1.0 / 60.0, 100_000, Duration::from_secs(1))
+        .unwrap();
+    assert_eq!(e.variable_text("after"), "1");
+    assert_eq!(e.variable_text("friction"), "0.7");
+    assert_eq!(e.variable_text("bounce"), "0.6");
+    assert_eq!(kitten4::coverage(&native, 60)["stage"], "ran");
 }
 
 #[test]
@@ -1548,7 +1696,7 @@ fn published_get_3_and_clone_properties_keep_costume_names_and_axes() {
         ("5", "100"),
         ("7", "0"),
         ("8", "0"),
-        ("9", "0"),
+        ("9", "100"),
         ("10", "0"),
         ("11", "0"),
         ("12", "0"),

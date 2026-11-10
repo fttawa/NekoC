@@ -124,3 +124,48 @@ VM 的第一失败实际是前面的列表读取越界（分别为第 426 项／
 - `devices.bcm`：open → 读音量 → close → Wood set → Wood get → done；第 60 帧音量为 0、Wood trace 为 null、done=1，`pageErrors=[]`。与本地 60 帧 trace 的 `firstDifference=null`。null 只能结合上述源码证明为 NaN，不能独立证明其类型。
 - `legacy-speed.bcm`：将自有 speed 夹具的两个 speed setter 改为旧 `set_velocity`，删掉发布 AST 后由离线内核重编译。done=1，但速度和位移都为 0；本地第 1 帧 `initialSpeed=99`，官方为 0，是实际差异，**不能用这次结果证明已有刚体速度与官方一致**。有刚体时的限幅、方向等依赖源码证据和本地回归，离线物理初始化/加载问题仍未验证。
 - 三个第三方作品均解除本任务指定积木的首个编译阻塞，但 60 帧 coverage 的前后 stage 仍为 `compile → compile`：172151013 后续首错是 `set_camera_status`，214725822 是 `self_set_friction`，235277933 是 `self_clear_effects`。未改写语料以隐藏这些错误，不能称为三个作品运行通过。
+
+## 第四轮（blocks4）：清除特效、字符串计算、摄像头和旧物理
+
+仍只读使用上节同一 SHA-256 的 `player_v2.2d180c468559fbd29528.js.orig`。
+下表偏移为从 0 开始的 JavaScript 字符串偏移；源码没有复制入库，没有参考或移植 HateNeko。
+
+| 偏移 / 符号 | 依据与实现 |
+| --- | --- |
+| 605981 `self_clear_effects`、796653 `disable_effects` | 先清透明度，再禁用滤镜并重置参数；亮度默认 100，其余已支持特效默认 0。映射现有 ClearEffects；VM 内亮度仍以相对 100 的偏移存储，避免清除后画面变白；K4 属性报告换回绝对亮度。KN 路径不改。ASCII 本身仍未实现。 |
+| 1650236 `calculate`、1123xxx `f7Mu`、325333 `Ecnz`、753xxx `ZKJj` / `ZPYa` | 独立安全 lexer/postfix evaluator，不执行 JS。角度制三角函数、隐式乘法、空格合并数字、补右括号、左结合幂、排列组合、阶乘、Sigma/Pi；有限结果保留 15 位小数，正结果超过 1e15 返回**文本** Infinity，NaN 保持数值 NaN。语法/类型错误为 `block_bad_math_expression`，不是返回 0。保留源码里 tanh 调用不存在方法、Sigma 的符号左幂分支等怪异行为。 |
+| 639346 `set_camera_status`、638xxx helper `l` | `test_camera` 拒绝时显示 camera_device_error 并返回，不抛积木错误。VM 无摄像头，按该分支立即继续，明确列为 stub；不弹提示、不采集画面，不保留实际权限检查耗时。 |
+| 626443 `self_enable_physics` / `self_disable_physics` | 仅操作已有 body；enable 开碰撞和受力，disable 设静态并清速度。复用 Rapier，不把旧 enable 错当作会惰性创建的新物理指令。 |
+| 1019905 `load_physics_model`、1724xxx `nt` / `et` | 启动扫描 self_enable_physics；没有任何新物理积木时，对相应场景所有原角色建立 collidable=true、forceable=false、density=.1 的静态 body。含新物理积木时禁用此旧加载路径。重启重新建立，普通工程仍不分配 world。 |
+| 629518 摩擦、629663 弹性、665493 `set_physics_property` | 摩擦/弹性按全局 isFinite 的数值转换后夹紧 [0,1]，质量仅接受 Number 且 >0；只改已有 body，场景上执行报错。也接入质量、密度、allow_rotate、set_actor_as，set_actor_as 不再是 stub。负密度不送入 Rapier（风险边界见下）。 |
+| 628xxx `self_set_boundary` | 同时修改所有已有 world 的上/下/左/右边界；支持无、全、下、左右下，不凭空建立 world。 |
+| 630xxx `get_physics_property`、663770 `generate_clone_actor` | 旧属性读取不创建 body，无 body 返回 0；旧物理克隆继承材质，初始不碰撞、不受力、不继承速度。 |
+| 1771431 `play_words_audio_wait`、1768xxx helper `m` | 继续推进 172151013 时遇到。没有 TTS 后端，和现有 play_words_audio 一样明确 stub；无输出且立即继续，**不等于官方成功播放后的等待语义**。源码的在线 TTS 请求失败分支不取播放锁。 |
+| 467xxx `compile_sync_tell` | 继续推进 326380741 时遇到；接入现有同步 tell VM，而非 noop。 |
+| 1644388 `WHOLE` | 继续推进 235277933 时遇到；修正已有 WHOLE → integer 菜单与编译器的断接。K4 用严格 Number === floor(Number) 并保留 Boolean 返回类型。 |
+
+另外，失效目标帽子已由既有 lowering 转成 `kitten4_noop`；现在允许此类根节点保持休眠，不误报 unsupported root。没有放宽未知帽子或可执行体中的未知积木检查。
+
+### 本轮实测与验证边界
+
+- 手写探针（不含第三方语料），由 `tools/compat/k4-oracle.mjs` 跑离线官方内核 60 帧：清除特效后 ghost=0、hue=0、light=100；`sin(30)+2^3^2` 为 64.5。旧物理探针 speed=2、friction=.7、bounce=.6，disable 后 speed=0、done=1。
+- 上述旧物理探针的本地/官方 60 帧变量逐帧比较没有差异；这只是立即设置/读取/禁用的最小探针，不验证运动求解器完整轨迹。
+- 使用官方注册的 `set_camera_status` 域函数，显式将浏览器 getUserMedia 替换为拒绝的 `NotFoundError`，open/close 均完成且不抛错。这是**模拟无设备分支**，不是实体设备测试。默认浏览器权限检查可能挂起：未替换 API 的 60 帧探针 done=0；VM 立即降级不能声称逐帧时序一致。
+- 直接运行同一官方 bundle 的数学模块，核对 `2^3^2=64`、`-2^2=-4`、`sin30=.5`、`2(3+4)=14`、`(1+2=3`、`2 3=23`、`Sigma(1,3,n^2)=6`、`1/0` 为文本 Infinity，以及 tanh/非整数阶乘/游离 n 报错。
+- 回归在 `tests/kitten4.rs`、`src/engine/physics.rs`、`src/engine/calculate.rs`；包括发布 AST 往返、解释器/JIT、后续语句、错误停止、惰性分配、静态初始化、材质、边界、克隆和重启。
+- 对只读原作品 214725822 额外执行官方 oracle（60 帧、seed=1、允许声明素材），等待运行采样超时（45000ms）；未得到可比较轨迹，不能确认该云数据错误在官方上的对应阶段。
+- 计算器设置 64 KiB 输入、512 lexer token 和 100000 求值预算，超限显式报错；不宣称覆盖数学库全部畸形表达式、Array 类型输入和 JS 舍入边界。
+- 旧加载扫描目前基于实体规范树；仅存在于全局过程定义而不在实体树中的物理开关、旧新物理混合工程、跨场景克隆、负密度及完整 Box2D/Rapier 轨迹一致性仍**未验证**。不提供软体或逐像素碰撞一致性。
+
+### 五个作品和全语料 stage（60 帧）
+
+| 作品 | 修改前 | 修改后 |
+| --- | --- | --- |
+| 172151013 | compile：set_camera_status | ran（含设备/TTS 降级） |
+| 214725822 | compile：self_set_friction | run：lists_get_value_bad_index，第 2 项、长度 1 |
+| 235277933 | compile：self_clear_effects | ran |
+| 303779283 | compile：calculate | ran |
+| 326380741 | compile：self_clear_effects | ran |
+
+53 个作品：修改前 ran=45、compile=5、run=3；最终全量检查后的首轮 ran=48、compile=0、run=5，复跑 ran=49、compile=0、run=4。335327306 在 ran/run 间波动，单独复跑也出现 `lists_get_value_bad_index` 第 2 项／长度 1；作品包含 random/get_timer，具体波动根因**未验证**，不将较好一轮当成稳定通过。五个目标作品 stage 在这些运行中相同。
+214725822 的首错是云变量 `52fab237-f323-4cd2-8fc0-38d6d189e576` 按 `/` 分割后取第二项；无云后端的本地初始值只有一项。没有伪造云内容、改写作品或吞列表错误。其余三个 run 作品仍为 267573240、305999424、332140513。`ran` 仅指本地 VM 在此帧数内不报错，**不代表作品与官方一致**。
