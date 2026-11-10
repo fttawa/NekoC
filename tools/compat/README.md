@@ -64,6 +64,8 @@ node --test tests/k4-oracle.test.mjs
   数值、字符串、布尔和列表保留类型；列表逐帧深拷贝。未变化的角色也逐帧输出。
   这是配套 `k4-trace` / `k4-diff` 可直接读取的契约，**不是**原有 coverage 的聚合输出。
 - `cargo run --bin k4-trace -- input.bcm --frames 60` 使用真实 fast VM。
+  `--seed <u64>`（默认 1）固定随机输入，错误追踪也记录 seed；
+  `nekoc coverage <文件...> --frames 60 --seed <u64>` 固定 coverage 的种子，省略仍用时钟。
   `--compiled` 删除内存副本里的 workspace 强制官方 AST 路径；`--lowered` 输出 VM 输入树；
   `--program` 输出完整 Program 的诊断文本，包括操作、表达式、脚本、常量和源 ID，非稳定存储格式。
 - 比较容差 `1e-6`；角色按 ID、字段按固定顺序比较，记录首次差异。
@@ -81,6 +83,13 @@ node --test tests/k4-oracle.test.mjs
 有工作区时另存 `official.bcm4` 和双方 VM 程序；仅发布 AST 的作品不生成或复制另一份作品。
 报告 JSON 和 Markdown 含跳过原因。不同/未验证/不支持时返回非零，空语料或缺目录不是通过。
 构建内存紧张时先设置 `$env:CARGO_BUILD_JOBS='1'`；不要同时开启多个 Cargo 构建。
+
+专项根因诊断：双方 `--blocks --block-filter id,id` 保留任务边界并限制积木事件；
+官方另记录指定 domain block 的输入/输出。双方事件上限 500000，`traceTruncated` 表示已截断。
+oracle `--random-source nekoc` 仅在 random 积木调用内注入 NekoC xorshift64 抽样，
+排除 UUID/绘图等其他随机调用；这是同输入诊断，不是官方默认随机序列的证明。
+默认 `pcg` 不变；随机位置/朝向目标不受此选项覆盖。
+详细证据、夹具和多 seed coverage 命令见 [kitten4-run-errors.md](../../docs/kitten4-run-errors.md)。
 
 ## 联网、安全与未验证范围
 

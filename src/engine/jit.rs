@@ -219,6 +219,7 @@ impl Engine {
             | ValueExpr::Not(a) => self.jit_pure_value(a),
             ValueExpr::Find(_, a, _) => self.jit_pure_value(a),
             ValueExpr::Contains(a, b)
+            | ValueExpr::Kitten4Add(a, b)
             | ValueExpr::Split(a, b)
             | ValueExpr::Compare(a, b, _)
             | ValueExpr::Logic(a, b, _) => self.jit_pure_value(a) && self.jit_pure_value(b),
@@ -262,6 +263,13 @@ impl Engine {
 
     /// Whether native code can run `op` without leaving the VM's control flow.
     fn jit_supported(&self, op: Op) -> bool {
+        // Keep K4's per-interpreter suspension boundaries in exec. Native regions
+        // stop before them; arithmetic/body regions can still become hot/native.
+        if self.program.semantics == RuntimeSemantics::Kitten4
+            && matches!(op, Op::Next(..) | Op::RangeNext(..) | Op::WarpIteration)
+        {
+            return false;
+        }
         let pure = |e: Expr| self.jit_pure_expr(e.end as usize - 1);
         match op {
             Op::Set(_, e)
@@ -1360,6 +1368,34 @@ fn compile(jit: &mut Jit, engine: &Engine, entry: usize) -> Option<Region> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn k4_warp_body_is_native_but_suspends_at_the_official_boundary() {
+        let source = crate::json::from_str(include_str!(
+            "../../tests/fixtures/kitten4/runerr-warp-10002.bcm"
+        ))
+        .unwrap();
+        let project = crate::kitten4::to_neko(&source).unwrap();
+        let mut engine = Engine::new(super::super::Program::compile(&project).unwrap());
+        engine.start();
+        engine
+            .advance(1.0 / 60.0, 2_000_000, std::time::Duration::from_secs(5))
+            .unwrap();
+        assert!(
+            engine
+                .jit
+                .as_ref()
+                .unwrap()
+                .regions
+                .iter()
+                .any(Option::is_some)
+        );
+        assert_eq!(engine.oracle_snapshot(1)["variables"]["log"], 10002.0);
+        engine
+            .advance(1.0 / 60.0, 2_000_000, std::time::Duration::from_secs(5))
+            .unwrap();
+        assert_eq!(engine.oracle_snapshot(2)["variables"]["log"], -1.0);
+    }
 
     #[test]
     fn only_private_variable_programs_disable_native_slots() {

@@ -102,6 +102,9 @@ enum Command {
         /// Frames to run after a successful compile
         #[arg(long, default_value_t = 120)]
         frames: u32,
+        /// Fixed PRNG seed (omitted: use the clock).
+        #[arg(long)]
+        seed: Option<u64>,
     },
     /// Measure import phases (use a release build).
     BenchImport {
@@ -486,10 +489,14 @@ fn main() -> Result<()> {
                 snapshot,
             })?;
         }
-        Command::Coverage { inputs, frames } => {
+        Command::Coverage {
+            inputs,
+            frames,
+            seed,
+        } => {
             for input in inputs {
                 let project = nekoc::project::load_project(&input)?;
-                let report = nekoc::kitten4::coverage(&project.value, frames);
+                let report = nekoc::kitten4::coverage_with_seed(&project.value, frames, seed);
                 println!("{}", serde_json::json!({"file": input, "report": report}));
             }
         }

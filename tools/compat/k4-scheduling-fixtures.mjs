@@ -23,7 +23,7 @@ const repeat = (id, n, body) => b(id, "repeat_n_times", {}, { times: num(n) }, {
 const broadcast = (id, waiting = false) => b(id, waiting ? "self_broadcast_and_wait" : "self_broadcast", {}, { message: text("m") });
 const listener = body => b("listen", "self_listen", {}, { message: text("m") }, { DO: body });
 
-function workspace(roots, schema) {
+export function workspace(roots, schema) {
   let serial = 0;
   const blocks = {}, connections = {};
   function insert(node, parent = null) {

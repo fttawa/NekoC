@@ -23,6 +23,9 @@ struct Args {
     program: bool,
     #[arg(long)]
     blocks: bool,
+    /// Record only these source block IDs (task boundaries are always retained).
+    #[arg(long, value_delimiter = ',', requires = "blocks")]
+    block_filter: Vec<String>,
     #[arg(long)]
     interpreter: bool,
 }
@@ -65,6 +68,9 @@ fn main() -> Result<()> {
     let mut engine = Engine::new(program);
     if args.blocks {
         engine.trace_blocks();
+        if !args.block_filter.is_empty() {
+            engine.trace_block_filter(args.block_filter);
+        }
     } else if args.interpreter {
         engine.disable_jit();
     }
@@ -77,7 +83,8 @@ fn main() -> Result<()> {
             Err(error) if args.blocks => {
                 println!(
                     "{}",
-                    json!({"schema":"nekoc-k4-trace-v1", "frames":frames,
+                    json!({"schema":"nekoc-k4-trace-v1", "fps":60, "seed":args.seed, "frames":frames,
+                    "traceTruncated":engine.oracle_trace_truncated(),
                     "events":engine.take_oracle_events(), "error":format!("{error:#}"),
                     "failedFrame":engine.oracle_snapshot(frame)})
                 );
@@ -94,6 +101,7 @@ fn main() -> Result<()> {
     println!(
         "{}",
         json!({"schema":"nekoc-k4-trace-v1", "fps":60, "seed":args.seed, "frames":frames,
+            "traceTruncated":engine.oracle_trace_truncated(),
             "events":engine.take_oracle_events()})
     );
     Ok(())

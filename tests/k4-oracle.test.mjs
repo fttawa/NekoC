@@ -14,6 +14,8 @@ test("k4 oracle options reject malformed values and default to msedge", () => {
   assert.equal(parseArgs([]).channel, "msedge");
   assert.equal(parseArgs(["compile", "--input", "a.bcm"]).command, "compile");
   assert.equal(parseArgs(["run", "--blocks"]).blocks, true);
+  assert.equal(parseArgs(["run", "--random-source", "nekoc", "--block-filter", "a,b"]).randomSource, "nekoc");
+  assert.throws(() => parseArgs(["run", "--random-source", "invalid"]));
   for (const args of [["run", "--frames", "NaN"], ["run", "--seed", "-1"], ["run", "--seed", "4294967296"], ["run", "--input"], ["what"]]) assert.throws(() => parseArgs(args));
 });
 

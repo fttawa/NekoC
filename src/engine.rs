@@ -251,11 +251,13 @@ enum TimerState {
 
 #[derive(Clone, Copy, Debug)]
 enum Op {
+    WarpIteration,
     Set(usize, Expr),
     SetValue(Target, usize),
     SetLocal(usize, Expr),
     ChangeLocal(usize, Expr, f64),
     Change(usize, Expr, f64),
+    Kitten4Change(Target, usize, bool),
     /// Code-view compound assignment; always interpreted (including hot loops).
     AssignLocal(usize, Option<usize>, Binary),
     Move(Expr),
@@ -1563,6 +1565,12 @@ impl Compiler {
     }
     fn value(&mut self, b: &Value) -> Result<usize> {
         let value = match b["type"].as_str().unwrap_or("") {
+            "math_arithmetic"
+                if self.program.semantics == RuntimeSemantics::Kitten4
+                    && field(b, "type") == "add" =>
+            {
+                ValueExpr::Kitten4Add(self.value(input(b, "A")?)?, self.value(input(b, "B")?)?)
+            }
             "kitten4_calculate" => ValueExpr::Calculate(self.value(input(b, "input")?)?),
             "math_number_property"
                 if self.program.semantics == RuntimeSemantics::Kitten4
@@ -2354,6 +2362,12 @@ impl Compiler {
                 })
             }
             "math_arithmetic" | "math_modulo" => {
+                if kind == "math_arithmetic"
+                    && self.program.semantics == RuntimeSemantics::Kitten4
+                    && field(b, "type") == "add"
+                {
+                    return self.expression_value(b);
+                }
                 self.expression(input(b, "A")?, depth + 1)?;
                 self.expression(input(b, "B")?, depth + 1)?;
                 let name = if kind == "logic_compare" {
@@ -2717,9 +2731,12 @@ impl Compiler {
                                 | "timer"
                                 | "traverse_number_value"
                         )
-                    ) && !(self.program.semantics == RuntimeSemantics::KnCurrent
-                        && value["type"] == "math_number"
-                        && kn_preserved_number_text(value).is_some())
+                    ) && !(self.program.semantics == RuntimeSemantics::Kitten4
+                        && value["type"] == "math_arithmetic"
+                        && field(value, "type") == "add")
+                        && !(self.program.semantics == RuntimeSemantics::KnCurrent
+                            && value["type"] == "math_number"
+                            && kn_preserved_number_text(value).is_some())
                     {
                         let expr = self.expr(value)?;
                         match target {
@@ -2748,6 +2765,15 @@ impl Compiler {
                         b["id"]
                     );
                     let target = self.target(field(b, "variable"));
+                    if self.program.semantics == RuntimeSemantics::Kitten4 {
+                        let value = self.value(input(b, "value")?)?;
+                        self.emit(
+                            Op::Kitten4Change(target, value, field(b, "method") == "decrease"),
+                            b,
+                        );
+                        block = b.get("next");
+                        continue;
+                    }
                     let expr = self.arg(b, "value")?;
                     let sign = if field(b, "method") == "decrease" {
                         -1.0
@@ -3455,6 +3481,8 @@ impl Compiler {
                     } else {
                         if !warped {
                             self.emit(Op::Yield, b);
+                        } else if self.program.semantics == RuntimeSemantics::Kitten4 {
+                            self.emit(Op::WarpIteration, b);
                         }
                         self.emit(Op::Jump(begin), b);
                     }
@@ -3791,6 +3819,9 @@ pub struct Frame {
     pub budget_yield: bool,
 }
 pub struct Engine {
+    trace_filter: Option<BTreeSet<String>>,
+    trace_truncated: bool,
+    warp_iterations: u32,
     scheduler_tick: u64,
     oracle_events: Option<Vec<Value>>,
     physics: Option<Box<physics::Physics>>,
@@ -3880,8 +3911,29 @@ impl Engine {
             .map(std::mem::take)
             .unwrap_or_default()
     }
+    pub fn trace_block_filter(&mut self, blocks: impl IntoIterator<Item = String>) {
+        self.trace_filter = Some(blocks.into_iter().collect());
+    }
+    pub fn oracle_trace_truncated(&self) -> bool {
+        self.trace_truncated
+    }
     fn trace_task(&mut self, event: &str, index: usize, block: Option<usize>) {
         if self.oracle_events.is_none() {
+            return;
+        }
+        if matches!(event, "block" | "list")
+            && self.trace_filter.as_ref().is_some_and(|filter| {
+                block.is_none_or(|pc| !filter.contains(&self.program.sources[pc]))
+            })
+        {
+            return;
+        }
+        if self
+            .oracle_events
+            .as_ref()
+            .is_some_and(|events| events.len() >= 500_000)
+        {
+            self.trace_truncated = true;
             return;
         }
         let task = &self.tasks[index];
@@ -3904,8 +3956,18 @@ impl Engine {
         if let Some(lengths) = lengths {
             for (list, before) in lengths.into_iter().enumerate() {
                 let after = self.lists[list].borrow().len();
-                if before != after {
+                if before != after && !self.trace_truncated {
+                    if self
+                        .trace_filter
+                        .as_ref()
+                        .is_some_and(|filter| !filter.contains(&self.program.sources[pc]))
+                    {
+                        continue;
+                    }
                     self.trace_task("list", index, Some(pc));
+                    if self.trace_truncated {
+                        break;
+                    }
                     let entry = self.oracle_events.as_mut().unwrap().last_mut().unwrap();
                     entry["list"] = serde_json::json!(self.program.list_names[list]);
                     entry["before"] = serde_json::json!(before);
@@ -4092,6 +4154,9 @@ impl Engine {
             .any(|s| matches!(s.event, ScriptEvent::Bump(..)));
         Self {
             scheduler_tick: 0,
+            trace_filter: None,
+            trace_truncated: false,
+            warp_iterations: 0,
             oracle_events: None,
             physics: None,
             pen_rasters: vec![None; program.scenes.len()],
@@ -4767,8 +4832,14 @@ impl Engine {
             ExprOp::Random => {
                 let right = pc - 1;
                 let left = self.program.expression_starts[right] as usize - 1;
-                let a = (self.node(left, actor) + 0.5).floor();
-                let b = (self.node(right, actor) + 0.5).floor();
+                let a = self.node(left, actor);
+                let b = self.node(right, actor);
+                // Tn6a/random does not round fractional endpoints (unlike KN).
+                let (a, b) = if self.program.semantics == RuntimeSemantics::Kitten4 {
+                    (a, b)
+                } else {
+                    ((a + 0.5).floor(), (b + 0.5).floor())
+                };
                 self.random_state ^= self.random_state << 13;
                 self.random_state ^= self.random_state >> 7;
                 self.random_state ^= self.random_state << 17;
@@ -6062,6 +6133,19 @@ impl Engine {
     fn eval_value(&mut self, i: usize, actor: usize) -> Cell {
         // Only strings/list references are cloned; numeric expressions stay unboxed.
         match self.program.values[i] {
+            ValueExpr::Kitten4Add(a, b) => {
+                // Offline player's math_arithmetic uses JS + whenever
+                // either operand is not a number (see docs/kitten4-run-errors.md).
+                let a = self.eval_value(a, actor);
+                let b = self.eval_value(b, actor);
+                if matches!(a, Cell::Text(_) | Cell::List(_) | Cell::Costume(_))
+                    || matches!(b, Cell::Text(_) | Cell::List(_) | Cell::Costume(_))
+                {
+                    Cell::Text(format!("{}{}", a.text(), b.text()).into())
+                } else {
+                    Cell::Number(a.number() + b.number())
+                }
+            }
             ValueExpr::Whole(input) => {
                 let input = self.eval_value(input, actor);
                 Cell::Bool(matches!(input,Cell::Number(n) if n==n.floor()))
@@ -6664,6 +6748,16 @@ impl Engine {
             budget_yield: exceeded,
         })
     }
+    fn warp_iteration_yields(&mut self) -> bool {
+        if self.program.semantics != RuntimeSemantics::Kitten4 || self.reporter_depth != 0 {
+            return false;
+        }
+        // Lcae/OptiRunner.step_iteration_yield tests > before incrementing.
+        let yielding = self.warp_iterations > 10_000;
+        self.warp_iterations += 1;
+        yielding
+    }
+
     /// Executes one instruction of task `index`. Returns false when the task yields
     /// (or finishes) for this tick.
     #[inline(always)]
@@ -6707,6 +6801,38 @@ impl Engine {
             self.dirty[actor] = true;
         }
         match op {
+            Op::Kitten4Change(target, value, decrease) => {
+                // Tn6a/change_variable evaluates n first, then f(previous,n,op).
+                let value = self.eval_value(value, actor);
+                let previous = match target {
+                    Target::Global(i) => self.values[i]
+                        .clone()
+                        .unwrap_or(Cell::Number(self.slots[i])),
+                    Target::Local(i) => self.tasks[index].local_values[i]
+                        .clone()
+                        .unwrap_or(Cell::Number(self.tasks[index].locals[i])),
+                };
+                if !matches!(previous, Cell::List(_) | Cell::Costume(_) | Cell::Null) {
+                    let result = if !decrease
+                        && (matches!(previous, Cell::Text(_))
+                            || matches!(value, Cell::Text(_) | Cell::List(_) | Cell::Costume(_)))
+                    {
+                        Cell::Text(format!("{}{}", previous.text(), value.text()).into())
+                    } else {
+                        Cell::Number(if decrease {
+                            previous.number() - value.number()
+                        } else {
+                            previous.number() + value.number()
+                        })
+                    };
+                    self.assign(target, result);
+                }
+            }
+            Op::WarpIteration => {
+                if self.warp_iteration_yields() {
+                    return Ok(false);
+                }
+            }
             Op::LegacyPhysics(command, value) => {
                 let value = self.eval_value(value, actor);
                 let number = if matches!(command, physics::Command::LegacyMass) {
@@ -7182,6 +7308,9 @@ impl Engine {
                         return Ok(false);
                     }
                 }
+                if !yielding && self.warp_iteration_yields() {
+                    return Ok(false);
+                }
             }
             Op::Range(spec, end) => {
                 let RangeSpec { from, to, by } = self.program.ranges[spec];
@@ -7248,6 +7377,9 @@ impl Engine {
                     if yielding && self.program.semantics == RuntimeSemantics::Kitten4 {
                         return Ok(false);
                     }
+                }
+                if !yielding && self.warp_iteration_yields() {
+                    return Ok(false);
                 }
             }
             Op::Break(target, pop) => {
@@ -7857,6 +7989,7 @@ impl Engine {
             let actor = self.tasks[index].actor;
             self.trace_task("resume", index, None);
             self.current_task = index;
+            self.warp_iterations = 0;
             let mut clock_due = false;
             let mut since_clock = 0usize;
             loop {

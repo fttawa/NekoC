@@ -11,7 +11,8 @@ export function parseArgs(argv) {
   const args = { command: "run", frames: 60, seed: 1, channel: "msedge", timeoutMs: 45000 };
   if (argv[0] && !argv[0].startsWith("--")) args.command = argv.shift();
   const keys = { "--input": "input", "--out": "out", "--player-dir": "playerDir", "--channel": "channel",
-    "--frames": "frames", "--seed": "seed", "--timeout-ms": "timeoutMs", "--diagnostics": "diagnostics" };
+     "--frames": "frames", "--seed": "seed", "--timeout-ms": "timeoutMs", "--diagnostics": "diagnostics",
+     "--random-source": "randomSource", "--block-filter": "blockFilter" };
   for (let i = 0; i < argv.length; i++) {
     if (argv[i] === "--allow-assets") { args.allowAssets = true; continue; }
     if (argv[i] === "--blocks") { args.blocks = true; continue; }
@@ -25,6 +26,7 @@ export function parseArgs(argv) {
     if (!Number.isSafeInteger(args[key]) || args[key] < (key === "timeoutMs" ? 1 : 0)) throw new Error(`Invalid ${key}`);
   }
   if (args.seed > 0xffffffff) throw new Error("seed must fit uint32");
+  if (args.randomSource && !["pcg", "nekoc"].includes(args.randomSource)) throw new Error("Invalid random-source");
   if (!["run", "compile"].includes(args.command)) throw new Error(`Unknown command: ${args.command}`);
   return args;
 }
@@ -258,6 +260,8 @@ export async function runOracle(input, options = {}) {
     "Math.random redirected at Start to a separate seeded native PCG instance",
     "get_timer uses native Date wall clock, not deterministic Clock; timer-dependent traces are not cross-run deterministic",
   ];
+  if (options.randomSource === "nekoc") kernel.diagnostics.instrumentation.push(
+    "random block calls only: xorshift64 override matches NekoC draws; incidental Math.random stays on native PCG");
   try {
     kernel.diagnostics.phase = "compile";
     if (needsCompile) project.compile_result = await compileProject(kernel.page, project);
@@ -270,7 +274,7 @@ export async function runOracle(input, options = {}) {
       return state.cloud_states.loading_state === "load_done" && state.theatre_states.scenes[scene] && req("a1xw").a().get_scene_by_id(scene);
     }, project.theatre.scenes_order?.[0] || Object.keys(project.theatre.scenes)[0], { timeout: options.timeoutMs || 45000, polling: 20 });
     kernel.diagnostics.phase = "trace";
-    await kernel.page.evaluate(({ seed, blocks }) => {
+    await kernel.page.evaluate(({ seed, blocks, randomSource, blockFilter }) => {
       const req = window.__k4OracleRequire;
       const heart = req("KmiX").b();
       const prngSeed = { seed_high: 0, seed_low: seed, inc_high: 0, inc_low: 1 };
@@ -279,6 +283,13 @@ export async function runOracle(input, options = {}) {
       // Redirect that source to a separately seeded instance of the native PCG.
       const factory = window.__k4OracleContainer.get(window.__k4OracleBinding.PRNGFactory);
       const random = factory.create(prngSeed);
+      let state = BigInt(seed) | 1n;
+      const next = randomSource === "nekoc" ? () => {
+        state = BigInt.asUintN(64, state ^ (state << 13n));
+        state ^= state >> 7n;
+        state = BigInt.asUintN(64, state ^ (state << 17n));
+        return Number(state >> 11n) / 2 ** 53;
+      } : () => random.random();
       Math.random = () => random.random();
       // Clock was constructed during boot, before deterministic config was set.
       const clock = window.__k4OracleContainer.get(window.__k4OracleBinding.Clock);
@@ -287,10 +298,13 @@ export async function runOracle(input, options = {}) {
       const errors = [], frames = [];
       const events = [];
       let traceTruncated = false;
-      if (blocks) {
+      const filter = blockFilter ? new Set(blockFilter.split(",")) : null;
+      if (blocks || randomSource === "nekoc") {
         const manager = window.__k4OracleContainer.get(window.__k4OracleBinding.RuntimeManager);
         let current = null;
         const emit = (event, runner, extra = {}) => {
+          if (!blocks) return;
+          if (filter && event === "block" && !filter.has(extra.block)) return;
           if (events.length >= 500000) { traceTruncated = true; return; }
           const identities = runner?.original_identities;
           events.push({ frame: manager.frames + 1, event,
@@ -302,7 +316,9 @@ export async function runOracle(input, options = {}) {
           // procedures. Freeze the script identity, not the current call frame.
           const identity = { ...runner.original_identities };
           const record = (event, extra = {}) => emit(event, { original_identities: identity }, extra);
-          record("start", { priorities: runner.metadata.priorities });
+          record("start", { priorities: runner.metadata.priorities,
+            limits: { warpIterations: runner.max_warp_iterations_per_interpreter_step,
+              procedureCalls: runner.max_procedure_calls_per_interpreter_step, deterministic: runner.deterministic_mode } });
           const step = runner.step;
           runner.step = function () {
             current = { original_identities: identity };
@@ -318,6 +334,24 @@ export async function runOracle(input, options = {}) {
           runner.step_outputs.before_expression = function (...args) {
             record("block", { block: args[0] });
             return before(...args);
+          };
+          const call = runner.step_input_outputs.call_domain_function;
+          runner.step_input_outputs.call_domain_function = function (slot, index, block, params, entity) {
+            const observed = filter?.has(block);
+            if (observed) record("input", { block, type: runner.domain_function_types[index], params: structuredClone(params) });
+            // Share only the random BLOCK input stream. UUIDs, rendering and
+            // other incidental Math.random calls must not consume VM draws.
+            const randomBlock = randomSource === "nekoc" && runner.domain_function_types[index] === "random";
+            const mathRandom = Math.random, managerRandom = manager.get_random_number;
+            let result;
+            try {
+              if (randomBlock) { Math.random = next; manager.get_random_number = next; }
+              result = call.call(this, slot, index, block, params, entity);
+            } finally {
+              Math.random = mathRandom; manager.get_random_number = managerRandom;
+            }
+            if (observed) record("output", { block, value: structuredClone(runner.current_frame.dynamic_data[slot]) });
+            return result;
           };
         }
         for (const runner of Object.values(manager.interpreters)) instrument(runner);
@@ -369,7 +403,7 @@ export async function runOracle(input, options = {}) {
       }
       heart.get_event_bus().runtime_manager.after_update.immediate.sub(() => frames.push(snapshot()));
       window.__k4Oracle = { frames, errors, heart, events, get traceTruncated() { return traceTruncated; } };
-    }, { seed: options.seed ?? 1, blocks: !!options.blocks });
+    }, { seed: options.seed ?? 1, blocks: !!options.blocks, randomSource: options.randomSource, blockFilter: options.blockFilter });
     if ((options.frames ?? 60) > 0) {
       await kernel.page.evaluate(() => window.__k4OracleRequire("vxpV").m());
       await kernel.page.waitForFunction(() => window.__k4Oracle.frames.length > 0 || window.__k4Oracle.errors.length > 0,
@@ -388,7 +422,7 @@ export async function runOracle(input, options = {}) {
     }
     kernel.diagnostics.phase = "done";
     return { schema: "nekoc-k4-trace-v1", fps: 60, seed: options.seed ?? 1,
-      random: "official PCG (not the NekoC PRNG)", ...result, diagnostics: kernel.diagnostics };
+      random: options.randomSource === "nekoc" ? "NekoC xorshift64 (diagnostic override)" : "official PCG (not the NekoC PRNG)", ...result, diagnostics: kernel.diagnostics };
   } catch (error) {
     kernel.diagnostics.partialTrace = await kernel.page.evaluate(() => window.__k4Oracle && ({
       frames: window.__k4Oracle.frames, errors: window.__k4Oracle.errors, events: window.__k4Oracle.events,
@@ -402,7 +436,7 @@ export async function runOracle(input, options = {}) {
 async function main() {
   const options = parseArgs(process.argv.slice(2));
   if (options.help || !options.input) {
-    console.log("Usage: node tools/compat/k4-oracle.mjs run|compile --input work.bcm [--out output.json] [--player-dir app] [--frames 60] [--seed 1] [--channel msedge] [--allow-assets] [--diagnostics log.json]");
+    console.log("Usage: node tools/compat/k4-oracle.mjs run|compile --input work.bcm [--out output.json] [--player-dir app] [--frames 60] [--seed 1] [--channel msedge] [--allow-assets] [--blocks] [--block-filter id,id] [--random-source pcg|nekoc] [--diagnostics log.json]");
     if (!options.help) process.exitCode = 2;
     return;
   }

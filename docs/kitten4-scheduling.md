@@ -43,7 +43,7 @@ node tools/compat/k4-oracle.mjs run --input <外部作品.bcm> --frames 3 --bloc
 - NekoC list 事件只记录全局列表长度变化；相同长度替换、仅实体列表与临时列表变化不全。官方记录原生 list notification（含长度相同的通知）。两者都不是完整的列表写日志。
 - 官方积木事件最多 500000 条，超出后只设置 `traceTruncated`，不抛异常、不干预作品执行。截断后的“没有看到某积木”不能证明它未执行。
 - `--blocks` 强制解释器，不代表 JIT 行为；`--interpreter` 可在不生成海量事件时单独对照。异常保留已完成帧、events、error，并附失败时快照 `failedFrame`。
-- 官方 PCG 与 NekoC 的随机序列不同；相同 seed 不等于相同抽样。随机作品的轨迹差异必须标“未验证”，不能宣称调度不一致。coverage 默认使用时钟种子，也不是可复现的随机序列对照。
+- 官方 PCG 与 NekoC 的随机序列不同；相同 seed 不等于相同抽样。随机作品的轨迹差异必须标“未验证”，不能宣称调度不一致。coverage 默认使用时钟种子；现在可用 `--seed <u64>` 固定。专项诊断可用 oracle `--random-source nekoc` 仅替换随机积木的抽样输入，见 [运行错误记录](kitten4-run-errors.md)，不是官方默认 PRNG。
 - `advance_with` 是 NekoC 的多 pass 扩展，不是官方一帧一 update 模式；没有官方逐项对照，不声称兼容。
 
 ## 五个原越界作品
@@ -66,4 +66,4 @@ node tools/compat/k4-oracle.mjs run --input <外部作品.bcm> --frames 3 --bloc
 
 NekoC 当前只有全帧的指令/墙钟预算，没有完整重现上述**每解释器**上限。尤其很大的 warp 初始化可能过早越过其他线程应获得执行机会的位置。此项尚无可提交的独立最小实测与 JIT 实现，不宣称已经对齐，也不把它当成两个剩余作品错误的已证实根因。
 
-`305999424` 修正默认参数类型后不再首先失败于 `xeM3wrVyL1eRfXmDXORq`，而在 `N9k3sQ5kpqHqqlImQIA6` 从空的“树木模版”列表取随机项时失败；仍未修复整作。
+`305999424` 修正默认参数类型后不再首先失败于 `xeM3wrVyL1eRfXmDXORq`，而在 `N9k3sQ5kpqHqqlImQIA6` 从空的“树木模版”列表取随机项时失败。后续专项修复与新的证据见 [运行错误记录](kitten4-run-errors.md)；本页上表保留调度任务当时的观察，不作为最新状态。

@@ -14,6 +14,7 @@ fn trace_has_every_actor_and_typed_values_on_unchanged_frames() {
         .clone();
     let trace: Value = serde_json::from_slice(&output).unwrap();
     assert_eq!(trace["schema"], "nekoc-k4-trace-v1");
+    assert_eq!(trace["seed"], 7);
     assert_eq!(trace["frames"].as_array().unwrap().len(), 60);
     let first = &trace["frames"][0];
     assert_eq!(first["frame"], 1);
@@ -22,6 +23,46 @@ fn trace_has_every_actor_and_typed_values_on_unchanged_frames() {
     let last = &trace["frames"][59];
     assert!(last["actors"]["nekoc-default-actor"].is_object());
     assert_eq!(last["variables"]["kn-var-ready"], 1.0);
+}
+
+#[test]
+fn trace_and_coverage_fixed_seed_repeat_random_results() {
+    let input =
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/kitten4/runerr-random.bcm");
+    let trace = || {
+        let output = Command::new(assert_cmd::cargo::cargo_bin!("k4-trace"))
+            .arg(&input)
+            .args(["--frames", "3", "--seed", "6"])
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        serde_json::from_slice::<Value>(&output).unwrap()
+    };
+    assert_eq!(trace(), trace());
+    let coverage = || {
+        let output = Command::new(assert_cmd::cargo::cargo_bin!("nekoc"))
+            .arg("coverage")
+            .arg(&input)
+            .args(["--frames", "3", "--seed", "6"])
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        serde_json::from_slice::<Value>(&output).unwrap()
+    };
+    let report = coverage();
+    assert_eq!(report["report"]["seed"], 6);
+    assert_eq!(report["report"]["stage"], "ran");
+    assert_eq!(report, coverage());
+    Command::new(assert_cmd::cargo::cargo_bin!("nekoc"))
+        .arg("coverage")
+        .arg(input)
+        .args(["--seed", "not-a-seed"])
+        .assert()
+        .failure();
 }
 
 #[test]
