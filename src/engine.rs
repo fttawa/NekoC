@@ -11,6 +11,7 @@ mod input;
 mod jit;
 mod jit_observation;
 mod k4_clock;
+mod kn_appearance;
 mod kn_async;
 mod kn_catalog;
 mod kn_helpers;
@@ -227,6 +228,7 @@ enum ExprOp {
     Time(u8),
     Effect(usize, u8),
     MouseDown(u8),
+    KnMouseDown(Option<usize>, u8),
     CloneCount(usize),
     CloneIndex,
     /// (subject, other actor | TARGET_MOUSE | TARGET_EDGE)
@@ -240,6 +242,8 @@ enum ExprOp {
     BlockTimer,
     Binary(Binary),
     Unary(Unary),
+    KnProperty(usize, kn_appearance::Property),
+    KnActorParameter(usize, kn_appearance::Property),
 }
 #[derive(Clone, Copy, Debug)]
 struct Expr {
@@ -1432,7 +1436,9 @@ impl Program {
                 compiler.parameters = compiler.procedure_params[&(index / 2 * 2)]
                     .iter()
                     .enumerate()
-                    .map(|(i, param)| (param.name.clone(), i))
+                    .flat_map(|(i, param)| {
+                        [(param.name.clone(), i), (format!("\0{}", param.id), i)]
+                    })
                     .collect();
                 compiler.program.procedure_entries[index] = compiler.program.ops.len();
                 compiler.chain(definition["statements"].get("STACK"), index % 2 == 1)?;
@@ -1795,6 +1801,13 @@ impl Compiler {
         let value = match b["type"].as_str().unwrap_or("") {
             "username_get"
             | "user_id_get"
+            | "ai_chat_answer"
+            | "ai_text_result"
+            | "get_face_detection_result"
+            | "get_object_detection_result"
+            | "check_gender"
+            | "check_emotion"
+            | "check_face_shape"
             | "get_voice_answer"
             | "recognize_body_part"
             | "recognize_gesture"
@@ -1819,6 +1832,22 @@ impl Compiler {
                     && field(b, "type") == "add" =>
             {
                 ValueExpr::Kitten4Add(self.value(input(b, "A")?)?, self.value(input(b, "B")?)?)
+            }
+            "ai_text_result_check" if self.program.semantics == RuntimeSemantics::KnCurrent => {
+                ensure!(
+                    matches!(field(b, "options"), "include" | "exclude"),
+                    "unsupported OCR result check option"
+                );
+                ValueExpr::OfflineOcrCheck(self.value(input(b, "text")?)?)
+            }
+            "microbit_math_map" if self.program.semantics == RuntimeSemantics::KnCurrent => {
+                ValueExpr::OfflineMicrobitMap([
+                    self.value(input(b, "value")?)?,
+                    self.value(input(b, "fromStart")?)?,
+                    self.value(input(b, "fromEnd")?)?,
+                    self.value(input(b, "toStart")?)?,
+                    self.value(input(b, "toEnd")?)?,
+                ])
             }
             "kitten4_calculate" | "calculate" => {
                 ValueExpr::Calculate(self.value(input(b, "input")?)?)
@@ -1923,6 +1952,12 @@ impl Compiler {
             ),
             "logic_boolean" => {
                 self.constant(Cell::Bool(field(b, "BOOL").eq_ignore_ascii_case("true")))
+            }
+            "mouse_down" if self.program.semantics == RuntimeSemantics::KnCurrent => {
+                let expression = self.expr(b)?;
+                let value = self.program.values.len();
+                self.program.values.push(ValueExpr::Number(expression));
+                ValueExpr::Boolean(value)
             }
             "logic_empty" if self.program.semantics == RuntimeSemantics::KnCurrent => {
                 self.constant(Cell::Bool(false))
@@ -2074,6 +2109,12 @@ impl Compiler {
                     return Ok(value);
                 }
                 let attribute = match field(b, "attribute") {
+                    "scale" | "width" if self.program.semantics == RuntimeSemantics::KnCurrent => {
+                        32
+                    }
+                    "height" if self.program.semantics == RuntimeSemantics::KnCurrent => 33,
+                    "direction" if self.program.semantics == RuntimeSemantics::KnCurrent => 34,
+                    "style_index" if self.program.semantics == RuntimeSemantics::KnCurrent => 35,
                     "0" | "x" => 0,
                     "1" | "y" => 1,
                     "2" => 2,
@@ -2196,6 +2237,18 @@ impl Compiler {
     }
     fn kn_procedure_argument(&mut self, b: &Value, param: &ProcedureParam) -> Result<usize> {
         let connected = b["inputs"].get(&param.id);
+        if param.kind == "Actor" {
+            ensure!(
+                connected.is_none() && b["shadows"].get(&param.id).is_none(),
+                "KN Actor parameter {} requires a dropdown field, not an input",
+                param.id
+            );
+            let selected = b["fields"]
+                .get(&param.id)
+                .and_then(Value::as_str)
+                .with_context(|| format!("KN Actor parameter {} requires a field", param.id))?;
+            return Ok(self.push_constant(Cell::Text(selected.into())));
+        }
         if param.kind == "Custom" {
             ensure!(
                 connected.is_none(),
@@ -2461,6 +2514,15 @@ impl Compiler {
         let op = match kind {
             "username_get"
             | "user_id_get"
+            | "ai_chat_answer"
+            | "ai_text_result"
+            | "ai_text_result_check"
+            | "microbit_math_map"
+            | "get_face_detection_result"
+            | "get_object_detection_result"
+            | "check_gender"
+            | "check_emotion"
+            | "check_face_shape"
             | "get_voice_answer"
             | "recognize_body_part"
             | "recognize_gesture"
@@ -2619,12 +2681,20 @@ impl Compiler {
             "get_orientation" => ExprOp::Constant(0.0),
             "appearance_of_sprite" => {
                 let target = self.actor_target(field(b, "sprite"))?;
-                match field(b, "appearance") {
-                    "direction" => ExprOp::Orientation(target),
-                    "scale" | "width" | "height" => ExprOp::Scale(target),
-                    other => bail!("unsupported appearance reporter {other}"),
+                if self.program.semantics == RuntimeSemantics::KnCurrent {
+                    ExprOp::KnProperty(
+                        target,
+                        kn_appearance::Property::appearance(field(b, "appearance"))?,
+                    )
+                } else {
+                    match field(b, "appearance") {
+                        "direction" => ExprOp::Orientation(target),
+                        "scale" | "width" | "height" => ExprOp::Scale(target),
+                        other => bail!("unsupported appearance reporter {other}"),
+                    }
                 }
             }
+            "procedures_2_actor_param" => self.kn_actor_parameter(b)?,
             "style_of_sprite" => ExprOp::Costume(self.actor_target(field(b, "sprite"))?),
             "physics2_get_property" => {
                 ExprOp::PhysicsProperty(physics::Property::parse(field(b, "property"))?)
@@ -2716,8 +2786,8 @@ impl Compiler {
                     .with_context(|| format!("unsupported effect at {}", b["id"]))?;
                 ExprOp::Effect(self.actor_target(field(b, "sprite"))?, scope)
             }
-            "mouse_down" => ExprOp::MouseDown(
-                match b["fields"]
+            "mouse_down" => {
+                let state = match b["fields"]
                     .get("mouse_event_type")
                     .or_else(|| b["fields"].get("type"))
                     .and_then(Value::as_str)
@@ -2727,8 +2797,17 @@ impl Compiler {
                     "click" => 1,
                     "up" => 2,
                     other => bail!("unsupported mouse state {other}"),
-                },
-            ),
+                };
+                if self.program.semantics == RuntimeSemantics::KnCurrent {
+                    let target = match field(b, "sprite") {
+                        "" | "--screen" => None,
+                        id => Some(self.actor_target(id)?),
+                    };
+                    ExprOp::KnMouseDown(target, state)
+                } else {
+                    ExprOp::MouseDown(state)
+                }
+            }
             "kitten4_legacy_property" => ExprOp::LegacyPhysicsProperty(
                 self.actor_target(field(b, "sprite"))?,
                 physics::Property::parse(field(b, "attribute"))?,
@@ -5664,6 +5743,13 @@ impl Engine {
                 let target = if target == usize::MAX { actor } else { target };
                 self.sprites[target].scale
             }
+            ExprOp::KnProperty(target, property) => {
+                let target = if target == usize::MAX { actor } else { target };
+                self.kn_property(target, actor, property)
+            }
+            ExprOp::KnActorParameter(parameter, property) => {
+                self.kn_actor_parameter_property(parameter, actor, property)
+            }
             ExprOp::Costume(target) => {
                 let target = if target == usize::MAX { actor } else { target };
                 let sprite = &self.sprites[target];
@@ -5789,6 +5875,9 @@ impl Engine {
                 1 => self.pointer_clicked,
                 _ => self.pointer_released,
             }) as f64,
+            ExprOp::KnMouseDown(target, state) => {
+                u8::from(self.kn_pointer_state(actor, target, state)) as f64
+            }
             ExprOp::Random => {
                 let right = pc - 1;
                 let left = self.program.expression_starts[right] as usize - 1;
@@ -7277,10 +7366,14 @@ impl Engine {
             ValueExpr::K4Media(reporter) => {
                 children.extend(reporter.children().into_iter().map(|i| (true, i)))
             }
+            ValueExpr::OfflineMicrobitMap(args) => {
+                children.extend(args.map(|i| (true, i)));
+            }
             ValueExpr::Number(e)
             | ValueExpr::CloneProperty(_, e, _)
             | ValueExpr::ActorVariable(_, _, Some(e)) => children.push(expression(e)),
             ValueExpr::Received(i)
+            | ValueExpr::OfflineOcrCheck(i)
             | ValueExpr::ObjectKeys(i)
             | ValueExpr::JsonParse(i)
             | ValueExpr::JsonStringify(i)
@@ -7414,6 +7507,21 @@ impl Engine {
                 }
             }
             ValueExpr::Number(e) => Cell::Number(self.eval(e, actor)),
+            ValueExpr::OfflineOcrCheck(i) => {
+                // KN evaluates the query even when the OCR cache is absent.
+                // No producer is supported in this explicit offline profile.
+                let _ = self.eval_value(i, actor);
+                Cell::Bool(false)
+            }
+            ValueExpr::OfflineMicrobitMap(args) => {
+                // Official extension checks connectivity before its formula.
+                // Socket evaluation still precedes the domain function call.
+                // Evidence: docs/kn-microbit-map.md.
+                for i in args {
+                    let _ = self.eval_value(i, actor);
+                }
+                Cell::Number(f64::NAN)
+            }
             ValueExpr::Constant(v) => self.program.constants[v].clone(),
             ValueExpr::Global(i) => self.global_value(i),
             ValueExpr::ActorVariable(target, slot, index) => {
@@ -7749,6 +7857,16 @@ impl Engine {
                     Some(i) => {
                         let a = &self.sprites[i];
                         match attribute {
+                            32..=35 => Cell::Number(self.kn_property(
+                                i,
+                                actor,
+                                match attribute {
+                                    32 => kn_appearance::Property::Width,
+                                    33 => kn_appearance::Property::Height,
+                                    34 => kn_appearance::Property::Direction,
+                                    _ => kn_appearance::Property::Style,
+                                },
+                            )),
                             0 | 1 => {
                                 let coordinate = if attribute == 0 { a.x } else { a.y };
                                 Cell::Number(
@@ -8388,6 +8506,9 @@ impl Engine {
             Op::Scale(e) => {
                 let value = self.eval(e, actor);
                 let a = &mut self.sprites[actor];
+                if a.stage && self.program.semantics == RuntimeSemantics::KnCurrent {
+                    return Ok(true);
+                }
                 if self.program.semantics == RuntimeSemantics::Kitten4 {
                     if value.is_finite() {
                         a.scale = value.max(0.0);
@@ -8399,6 +8520,11 @@ impl Engine {
                 {
                     // Official KN keeps a NaN size but ignores ±Infinity (docs/nonfinite.md).
                     a.scale = value;
+                    if self.program.semantics == RuntimeSemantics::KnCurrent {
+                        a.scale = value.clamp(1.0, 9999.0);
+                        a.size_x = 100.0;
+                        a.size_y = 100.0;
+                    }
                 }
             }
             Op::Visible(v) => self.sprites[actor].visible = v,
@@ -8993,11 +9119,18 @@ impl Engine {
             Op::ChangeScale(e) => {
                 let value = self.eval(e, actor);
                 let a = &mut self.sprites[actor];
+                if a.stage && self.program.semantics == RuntimeSemantics::KnCurrent {
+                    return Ok(true);
+                }
                 if !value.is_finite() {
                     // Official setters ignore non-finite input (docs/nonfinite.md).
                 } else if self.program.semantics == RuntimeSemantics::Kitten4 {
                     a.size_x = (a.size_x * a.scale / 100.0 + value).max(0.0);
                     a.size_y = (a.size_y * a.scale / 100.0 + value).max(0.0);
+                    a.scale = 100.0;
+                } else if self.program.semantics == RuntimeSemantics::KnCurrent {
+                    a.size_x = (a.scale * a.size_x / 100.0 + value).clamp(1.0, 9999.0);
+                    a.size_y = (a.scale * a.size_y / 100.0 + value).clamp(1.0, 9999.0);
                     a.scale = 100.0;
                 } else {
                     a.scale += value;
@@ -9009,6 +9142,12 @@ impl Engine {
                     return Ok(true);
                 }
                 let a = &mut self.sprites[actor];
+                if self.program.semantics == RuntimeSemantics::KnCurrent {
+                    if !a.stage {
+                        kn_appearance::set_axis(a, height, v, add);
+                    }
+                    return Ok(true);
+                }
                 if self.program.semantics == RuntimeSemantics::Kitten4 {
                     // K4 axes are absolute percentages, not multipliers on the
                     // uniform size. Preserve the other axis when normalizing.
@@ -9270,9 +9409,15 @@ impl Engine {
                 self.clone_sprite(source, Some(position))?;
             }
             Op::Dialog(text, think) => {
-                let text = self.eval_value(text, actor).text();
-                self.sprites[actor].dialog = (!text.is_empty()).then_some(Dialog { text, think });
-                self.dirty[actor] = true;
+                let value = self.eval_value(text, actor);
+                if self.program.semantics == RuntimeSemantics::KnCurrent {
+                    self.kn_dialog(actor, value, think);
+                } else {
+                    let text = value.text();
+                    self.sprites[actor].dialog =
+                        (!text.is_empty()).then_some(Dialog { text, think });
+                    self.dirty[actor] = true;
+                }
             }
             Op::StageDialog(text, target) => {
                 let text = self.eval_value(text, actor).text();

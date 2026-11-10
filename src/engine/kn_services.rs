@@ -1,8 +1,10 @@
 //! Explicit KN desktop/offline capability profile, not a service implementation.
 //!
-//! Official 0.27.4 source and live-call evidence: docs/kn-async-services.md.
+//! Official 0.27.4 evidence: docs/kn-async-services.md and kn-offline-round3.md.
 //! Only use this profile while no account, microphone recognition or body
-//! detector backend is installed. Do not route AI/network commands through it.
+//! detector backend is installed. AI/OCR/detection reporters below require empty
+//! result caches; they do not implement requests. Never route network commands
+//! or model-loading classifier reporters through this profile.
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub(super) enum OfflineValue {
@@ -22,6 +24,15 @@ pub(super) fn reporter(block_type: &str) -> Option<OfflineValue> {
         // Despite its declared Number output, official runtime returns a string.
         "user_id_get" => Text("0"),
         "get_voice_answer" => Text(""),
+        "ai_chat_answer" => Text(""),
+        // These are pure reads of absent result caches. In particular the three
+        // predicate-shaped face blocks return Number(NaN), not Boolean(false).
+        "ai_text_result"
+        | "get_face_detection_result"
+        | "get_object_detection_result"
+        | "check_gender"
+        | "check_emotion"
+        | "check_face_shape" => Number(f64::NAN),
         "recognize_body_part"
         | "recognize_gesture"
         | "bump_into_body_part"

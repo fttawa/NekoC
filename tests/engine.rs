@@ -1683,7 +1683,12 @@ fn effects_size_and_fade_update_sprite_state() {
     let a = &f.sprites[1];
     assert_eq!(a.effects[2], 100.0);
     assert!((a.opacity - 0.6).abs() < 1e-9);
-    assert_eq!((a.size_y, a.scale, a.rotation_type), (50.0, 80.0, 1));
+    // KN changes the two actual percentages independently (official source:
+    // docs/kn-appearance-dialog.md), not a uniform multiplier on height 50.
+    assert_eq!(
+        (a.size_x, a.size_y, a.scale, a.rotation_type),
+        (80.0, 30.0, 100.0, 1)
+    );
     let f = vm.advance(0.25, 1000, Duration::from_secs(1)).unwrap();
     assert!((f.sprites[0].opacity - 0.3).abs() < 1e-9);
     let f = vm.advance(0.25, 1000, Duration::from_secs(1)).unwrap();

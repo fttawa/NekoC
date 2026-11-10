@@ -48,13 +48,14 @@ test("snapshot is exactly 300 unique names with mutually exclusive conservative 
     assert.ok(row.vm.length > 0, type);
     assert.equal(row.status, "部分语义", type);
   }
-  for (const type of ["username_get", "user_id_get", "get_voice_answer", "recognize_body_part", "get_position_of_body_part", "move_to_body_part"]) {
+  for (const type of ["username_get", "user_id_get", "get_voice_answer", "recognize_body_part", "get_position_of_body_part", "move_to_body_part",
+    "ai_chat_answer", "ai_text_result", "ai_text_result_check", "get_face_detection_result", "get_object_detection_result", "check_gender", "check_emotion", "check_face_shape", "microbit_math_map"]) {
     const row = result.rows.find(row => row.type === type);
     assert.ok(row.vm.length > 0, type);
     assert.equal(row.status, "部分语义", type);
     assert.match(row.risk, /未实现/, type);
   }
-  for (const type of ["microbit_math_map", "ai_chat_ask", "get_voice_volume", "update_ranking"]) {
+  for (const type of ["ai_chat_ask", "get_voice_volume", "update_ranking"]) {
     assert.equal(result.rows.find(row => row.type === type).status, "缺失", type);
   }
   assert.equal(result.rows.find(row => row.type === "get_orientation").status, "固定值占位");

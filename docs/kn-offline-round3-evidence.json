@@ -1,0 +1,1411 @@
+{
+  "schema": "nekoc-kn-offline-round3-v1",
+  "checkedAt": "2026-11-10T16:53:51.353Z",
+  "editorUrl": "https://kn.codemao.cn/editor",
+  "method": "Fresh headless Edge official editor, webpack loader exposed; official registry calls with args objects; passive runtime cache-read wrapper forwards to original getter; seeded authored values written through official runtime setter and cleared after reading. No service implementation replaced.",
+  "bundles": [
+    {
+      "name": "base.f158ddbf.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/base.f158ddbf.js",
+      "bytes": 949823,
+      "sha256": "724251e202e9dac074241e6296f3bbf3773c420141516764c8434dd17eb113e7"
+    },
+    {
+      "name": "crc_libs.8196dbd1.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+      "bytes": 1297643,
+      "sha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7"
+    },
+    {
+      "name": "main.8ccf2442.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+      "bytes": 5594327,
+      "sha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165"
+    },
+    {
+      "name": "main-vendors.07f7dd7e.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main-vendors.07f7dd7e.js",
+      "bytes": 6460489,
+      "sha256": "38183ab8a9620f33fef75f1bd1f90ee26b492e7b6ded8b6b065fc052e7948f68"
+    },
+    {
+      "name": "5851.a37eb285.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/5851.a37eb285.chunk.js",
+      "bytes": 181408,
+      "sha256": "79f96472792b16fb60cb13ee65fe2a64f16b224a8848c591308cad0d02baced5"
+    },
+    {
+      "name": "6062.1ef86232.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/6062.1ef86232.chunk.js",
+      "bytes": 5199,
+      "sha256": "362c82cbd0f2c6a05349ab05e2e6517cf40783429421424ef21b0b1e34978704"
+    },
+    {
+      "name": "4984.26063c69.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/4984.26063c69.chunk.js",
+      "bytes": 13538,
+      "sha256": "afda963988a73b83d4be21b2584d22ceb4a774502016fdce1c9c5d92569920c2"
+    },
+    {
+      "name": "4023.4ec8fceb.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/4023.4ec8fceb.chunk.js",
+      "bytes": 18773,
+      "sha256": "e0b2892d66f6aa6e798b42d5573313fd41a0e1682d4d3a1c00a595bfb8ac40fb"
+    },
+    {
+      "name": "catui2.c678ccd3.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/catui2.c678ccd3.chunk.js",
+      "bytes": 36077,
+      "sha256": "731eec8687c6bf701cae14a35a72f3bd08e35a6f36d7ef15bfb3a7330fcd3efb"
+    },
+    {
+      "name": "2704.ec059467.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/2704.ec059467.chunk.js",
+      "bytes": 34835,
+      "sha256": "99a86c599cbda9180918819dc5b25b20cb83e1e2c1205ab47eb61f0b05b806b3"
+    },
+    {
+      "name": "6729.cc22670b.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/6729.cc22670b.chunk.js",
+      "bytes": 109,
+      "sha256": "76619f79ea51dfcd0c0ea4572f14d224829ee6ebe6f05d7443474a04f5dcd721"
+    },
+    {
+      "name": "2455.fff7df4c.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/2455.fff7df4c.chunk.js",
+      "bytes": 64310,
+      "sha256": "ef75b9497e0c59df11906a787139390ff5f7cb1092fa71eccb0de343adc08c9f"
+    },
+    {
+      "name": "2121.88168974.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/2121.88168974.chunk.js",
+      "bytes": 95951,
+      "sha256": "ba8237837aab054dcdc620b0878dfa53c6c41887ddb92765a9df8b86dead4dc3"
+    },
+    {
+      "name": "stage_animation.871fede4.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/stage_animation.871fede4.chunk.js",
+      "bytes": 202201,
+      "sha256": "ab9d29b8b3dbcda99ec3be20754901fc80b4266325a57ab2eb14f8d2ae741656"
+    },
+    {
+      "name": "8178.8c1ca691.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/8178.8c1ca691.chunk.js",
+      "bytes": 10683,
+      "sha256": "fbc439dc045b654365926c3b49b8622f270cba0fc86ed4e102e0e550d659eab5"
+    }
+  ],
+  "pageErrors": [],
+  "limitations": [
+    "Isolated fresh desktop Edge; no login, camera, microphone or hardware supplied.",
+    "Direct registry calls, not a complete native project. No AI request or model loading invoked.",
+    "Seeded cache observations validate function arguments only; they are not backend support."
+  ],
+  "editor": {
+    "version": "0.27.4",
+    "availability": {
+      "ai_chat_answer": {
+        "registered": true,
+        "domainIndex": 228,
+        "output": true,
+        "inputs": [
+          {
+            "name": "",
+            "type": 5,
+            "fields": [
+              {
+                "value": ""
+              },
+              {
+                "value": "获得 AI 回答"
+              }
+            ]
+          }
+        ]
+      },
+      "ai_text_result": {
+        "registered": true,
+        "domainIndex": 249,
+        "output": true,
+        "inputs": [
+          {
+            "name": "",
+            "type": 5,
+            "fields": [
+              {
+                "value": "文本 识别结果"
+              }
+            ]
+          }
+        ]
+      },
+      "ai_text_result_check": {
+        "registered": true,
+        "domainIndex": 250,
+        "output": true,
+        "inputs": [
+          {
+            "name": "text",
+            "type": 1,
+            "fields": [
+              {
+                "value": "识别结果"
+              },
+              {
+                "name": "options",
+                "value": "include"
+              }
+            ]
+          }
+        ]
+      },
+      "translate_result": {
+        "registered": true,
+        "domainIndex": 141,
+        "output": true,
+        "inputs": [
+          {
+            "name": "text",
+            "type": 1,
+            "fields": []
+          },
+          {
+            "name": "",
+            "type": 5,
+            "fields": [
+              {
+                "value": "的"
+              },
+              {
+                "name": "language",
+                "value": "en"
+              },
+              {
+                "value": "翻译"
+              }
+            ]
+          }
+        ]
+      },
+      "get_face_detection_result": {
+        "registered": true,
+        "domainIndex": 220,
+        "output": true,
+        "inputs": [
+          {
+            "name": "",
+            "type": 5,
+            "fields": [
+              {
+                "value": "面部"
+              },
+              {
+                "name": "type",
+                "value": "age"
+              },
+              {
+                "value": "结果"
+              }
+            ]
+          }
+        ]
+      },
+      "get_object_detection_result": {
+        "registered": true,
+        "domainIndex": 226,
+        "output": true,
+        "inputs": [
+          {
+            "name": "",
+            "type": 5,
+            "fields": [
+              {
+                "value": "物体 识别结果"
+              }
+            ]
+          }
+        ]
+      },
+      "check_gender": {
+        "registered": true,
+        "domainIndex": 222,
+        "output": true,
+        "inputs": [
+          {
+            "name": "",
+            "type": 5,
+            "fields": [
+              {
+                "value": "性别为"
+              },
+              {
+                "name": "gender",
+                "value": "male"
+              }
+            ]
+          }
+        ]
+      },
+      "check_emotion": {
+        "registered": true,
+        "domainIndex": 221,
+        "output": true,
+        "inputs": [
+          {
+            "name": "",
+            "type": 5,
+            "fields": [
+              {
+                "value": "情绪为"
+              },
+              {
+                "name": "emotion",
+                "value": "happy"
+              }
+            ]
+          }
+        ]
+      },
+      "check_face_shape": {
+        "registered": true,
+        "domainIndex": 223,
+        "output": true,
+        "inputs": [
+          {
+            "name": "",
+            "type": 5,
+            "fields": [
+              {
+                "value": "脸型为"
+              },
+              {
+                "name": "face_shape",
+                "value": "square"
+              }
+            ]
+          }
+        ]
+      },
+      "get_evaluate_class_name": {
+        "registered": true,
+        "domainIndex": 235,
+        "output": true,
+        "inputs": [
+          {
+            "name": "",
+            "type": 5,
+            "fields": [
+              {
+                "name": "model_id",
+                "value": "?"
+              },
+              {
+                "value": "的 分类结果"
+              }
+            ]
+          }
+        ]
+      },
+      "get_evaluate_class_accuracy": {
+        "registered": true,
+        "domainIndex": 236,
+        "output": true,
+        "inputs": [
+          {
+            "name": "",
+            "type": 5,
+            "fields": [
+              {
+                "name": "model_id",
+                "value": "?"
+              },
+              {
+                "value": "的 分类置信度"
+              }
+            ]
+          }
+        ]
+      },
+      "user_info_of_th": {
+        "registered": true,
+        "domainIndex": 242,
+        "output": true,
+        "inputs": [
+          {
+            "name": "order",
+            "type": 1,
+            "fields": [
+              {
+                "name": "ranking",
+                "value": "?"
+              },
+              {
+                "value": "第"
+              }
+            ]
+          },
+          {
+            "name": "",
+            "type": 5,
+            "fields": [
+              {
+                "value": "名用户的"
+              },
+              {
+                "name": "type",
+                "value": "username"
+              }
+            ]
+          }
+        ]
+      },
+      "user_ranking_info": {
+        "registered": true,
+        "domainIndex": 241,
+        "output": true,
+        "inputs": [
+          {
+            "name": "",
+            "type": 5,
+            "fields": [
+              {
+                "value": "用户在"
+              },
+              {
+                "name": "ranking",
+                "value": "?"
+              },
+              {
+                "value": "的"
+              },
+              {
+                "name": "type",
+                "value": "rank"
+              }
+            ]
+          }
+        ]
+      },
+      "open_hide_camera": {
+        "registered": true,
+        "domainIndex": 207,
+        "output": false,
+        "inputs": [
+          {
+            "name": "",
+            "type": 5,
+            "fields": [
+              {
+                "name": "camera_status",
+                "value": "turn_on"
+              },
+              {
+                "value": "摄像头"
+              }
+            ]
+          }
+        ]
+      },
+      "open_close_webcam": {
+        "registered": true,
+        "domainIndex": 237,
+        "output": false,
+        "inputs": [
+          {
+            "name": "",
+            "type": 5,
+            "fields": [
+              {
+                "name": "camera_status",
+                "value": "turn_on"
+              },
+              {
+                "value": "摄像头"
+              }
+            ]
+          }
+        ]
+      },
+      "set_camera_alpha": {
+        "registered": true,
+        "domainIndex": 208,
+        "output": false,
+        "inputs": [
+          {
+            "name": "camera_alpha",
+            "type": 1,
+            "fields": [
+              {
+                "value": "设置 不透明度为"
+              }
+            ]
+          }
+        ]
+      },
+      "set_webcam_alpha": {
+        "registered": true,
+        "domainIndex": 238,
+        "output": false,
+        "inputs": [
+          {
+            "name": "camera_alpha",
+            "type": 1,
+            "fields": [
+              {
+                "value": "设置 不透明度为"
+              }
+            ]
+          }
+        ]
+      },
+      "get_voice_volume": {
+        "registered": true,
+        "domainIndex": 127,
+        "output": true,
+        "inputs": [
+          {
+            "name": "",
+            "type": 5,
+            "fields": [
+              {
+                "value": "麦克风音量"
+              }
+            ]
+          }
+        ]
+      },
+      "microbit_temperature": {
+        "registered": false,
+        "domainIndex": null,
+        "error": "Error: Unknown block type microbit_temperature."
+      },
+      "microbit_button_is_pressed": {
+        "registered": false,
+        "domainIndex": null,
+        "error": "Error: Unknown block type microbit_button_is_pressed."
+      },
+      "catbit_button_is_pressed": {
+        "registered": false,
+        "domainIndex": null,
+        "error": "Error: Unknown block type catbit_button_is_pressed."
+      },
+      "wand_coordinate": {
+        "registered": false,
+        "domainIndex": null,
+        "error": "Error: Unknown block type wand_coordinate."
+      },
+      "get_robot_master_motor_power": {
+        "registered": false,
+        "domainIndex": null,
+        "error": "Error: Unknown block type get_robot_master_motor_power."
+      }
+    },
+    "calls": [
+      {
+        "name": "ai_chat_answer",
+        "args": {},
+        "phase": "initial",
+        "promise": false,
+        "cacheReads": [
+          "_ai_chat_answer_"
+        ],
+        "result": {
+          "type": "string",
+          "value": ""
+        }
+      },
+      {
+        "name": "ai_text_result",
+        "args": {},
+        "phase": "initial",
+        "promise": true,
+        "cacheReads": [
+          "ai_text_result"
+        ],
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        }
+      },
+      {
+        "name": "get_object_detection_result",
+        "args": {},
+        "phase": "initial",
+        "promise": false,
+        "cacheReads": [
+          "_neko_cognitive_object_result_"
+        ],
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        }
+      },
+      {
+        "name": "check_gender",
+        "args": {
+          "gender": "male"
+        },
+        "phase": "initial",
+        "promise": false,
+        "cacheReads": [
+          "_neko_cognitive_face_result_"
+        ],
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        }
+      },
+      {
+        "name": "check_emotion",
+        "args": {
+          "emotion": "happy"
+        },
+        "phase": "initial",
+        "promise": false,
+        "cacheReads": [
+          "_neko_cognitive_face_result_"
+        ],
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        }
+      },
+      {
+        "name": "check_face_shape",
+        "args": {
+          "face_shape": "square"
+        },
+        "phase": "initial",
+        "promise": false,
+        "cacheReads": [
+          "_neko_cognitive_face_result_"
+        ],
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        }
+      },
+      {
+        "name": "user_info_of_th",
+        "args": {
+          "ranking": "?",
+          "type": "username",
+          "order": 1
+        },
+        "phase": "initial",
+        "promise": true,
+        "cacheReads": [],
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        }
+      },
+      {
+        "name": "user_ranking_info",
+        "args": {
+          "ranking": "?",
+          "type": "rank"
+        },
+        "phase": "initial",
+        "promise": true,
+        "cacheReads": [],
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        }
+      },
+      {
+        "name": "get_face_detection_result",
+        "args": {
+          "type": "age"
+        },
+        "phase": "initial",
+        "promise": false,
+        "cacheReads": [
+          "_neko_cognitive_face_result_"
+        ],
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        }
+      },
+      {
+        "name": "get_face_detection_result",
+        "args": {
+          "type": "emotion"
+        },
+        "phase": "initial",
+        "promise": false,
+        "cacheReads": [
+          "_neko_cognitive_face_result_"
+        ],
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        }
+      },
+      {
+        "name": "get_face_detection_result",
+        "args": {
+          "type": "gender"
+        },
+        "phase": "initial",
+        "promise": false,
+        "cacheReads": [
+          "_neko_cognitive_face_result_"
+        ],
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        }
+      },
+      {
+        "name": "get_face_detection_result",
+        "args": {
+          "type": "faceShape"
+        },
+        "phase": "initial",
+        "promise": false,
+        "cacheReads": [
+          "_neko_cognitive_face_result_"
+        ],
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        }
+      },
+      {
+        "name": "get_face_detection_result",
+        "args": {
+          "type": "not-a-field"
+        },
+        "phase": "initial",
+        "promise": false,
+        "cacheReads": [
+          "_neko_cognitive_face_result_"
+        ],
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        }
+      },
+      {
+        "name": "ai_text_result_check",
+        "args": {
+          "options": "include",
+          "text": ""
+        },
+        "phase": "initial",
+        "promise": true,
+        "cacheReads": [
+          "ai_text_result"
+        ],
+        "result": {
+          "type": "boolean",
+          "value": false
+        }
+      },
+      {
+        "name": "ai_text_result_check",
+        "args": {
+          "options": "include",
+          "text": "cat"
+        },
+        "phase": "initial",
+        "promise": true,
+        "cacheReads": [
+          "ai_text_result"
+        ],
+        "result": {
+          "type": "boolean",
+          "value": false
+        }
+      },
+      {
+        "name": "ai_text_result_check",
+        "args": {
+          "options": "include",
+          "text": 123
+        },
+        "phase": "initial",
+        "promise": true,
+        "cacheReads": [
+          "ai_text_result"
+        ],
+        "result": {
+          "type": "boolean",
+          "value": false
+        }
+      },
+      {
+        "name": "ai_text_result_check",
+        "args": {
+          "options": "exclude",
+          "text": ""
+        },
+        "phase": "initial",
+        "promise": true,
+        "cacheReads": [
+          "ai_text_result"
+        ],
+        "result": {
+          "type": "boolean",
+          "value": false
+        }
+      },
+      {
+        "name": "ai_text_result_check",
+        "args": {
+          "options": "exclude",
+          "text": "cat"
+        },
+        "phase": "initial",
+        "promise": true,
+        "cacheReads": [
+          "ai_text_result"
+        ],
+        "result": {
+          "type": "boolean",
+          "value": false
+        }
+      },
+      {
+        "name": "ai_text_result_check",
+        "args": {
+          "options": "exclude",
+          "text": 123
+        },
+        "phase": "initial",
+        "promise": true,
+        "cacheReads": [
+          "ai_text_result"
+        ],
+        "result": {
+          "type": "boolean",
+          "value": false
+        }
+      },
+      {
+        "name": "translate_result",
+        "args": {
+          "text": "",
+          "language": "en"
+        },
+        "phase": "initial",
+        "promise": true,
+        "cacheReads": [],
+        "result": {
+          "type": "string",
+          "value": ""
+        }
+      },
+      {
+        "name": "translate_result",
+        "args": {
+          "text": " ",
+          "language": "en"
+        },
+        "phase": "initial",
+        "promise": true,
+        "cacheReads": [],
+        "result": {
+          "type": "string",
+          "value": ""
+        }
+      },
+      {
+        "name": "translate_result",
+        "args": {
+          "text": "\t\n",
+          "language": "en"
+        },
+        "phase": "initial",
+        "promise": true,
+        "cacheReads": [],
+        "result": {
+          "type": "string",
+          "value": ""
+        }
+      },
+      {
+        "name": "user_ranking_info",
+        "args": {
+          "ranking": "probe-missing-ranking",
+          "type": "rank"
+        },
+        "phase": "initial",
+        "promise": true,
+        "cacheReads": [],
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        }
+      },
+      {
+        "name": "user_info_of_th",
+        "args": {
+          "ranking": "probe-missing-ranking",
+          "type": "username",
+          "order": 1
+        },
+        "phase": "initial",
+        "promise": true,
+        "cacheReads": [],
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        }
+      },
+      {
+        "name": "ai_chat_answer",
+        "args": {},
+        "phase": "seeded",
+        "promise": false,
+        "cacheReads": [
+          "_ai_chat_answer_"
+        ],
+        "result": {
+          "type": "string",
+          "value": "probe chat"
+        }
+      },
+      {
+        "name": "ai_text_result",
+        "args": {},
+        "phase": "seeded",
+        "promise": true,
+        "cacheReads": [
+          "ai_text_result"
+        ],
+        "result": {
+          "type": "string",
+          "value": "cat"
+        }
+      },
+      {
+        "name": "ai_text_result_check",
+        "args": {
+          "options": "include",
+          "text": "cat"
+        },
+        "phase": "seeded",
+        "promise": true,
+        "cacheReads": [
+          "ai_text_result"
+        ],
+        "result": {
+          "type": "boolean",
+          "value": true
+        }
+      },
+      {
+        "name": "ai_text_result_check",
+        "args": {
+          "options": "include",
+          "text": "dog"
+        },
+        "phase": "seeded",
+        "promise": true,
+        "cacheReads": [
+          "ai_text_result"
+        ],
+        "result": {
+          "type": "boolean",
+          "value": false
+        }
+      },
+      {
+        "name": "ai_text_result_check",
+        "args": {
+          "options": "include",
+          "text": ""
+        },
+        "phase": "seeded",
+        "promise": true,
+        "cacheReads": [
+          "ai_text_result"
+        ],
+        "result": {
+          "type": "boolean",
+          "value": true
+        }
+      },
+      {
+        "name": "ai_text_result_check",
+        "args": {
+          "options": "exclude",
+          "text": "cat"
+        },
+        "phase": "seeded",
+        "promise": true,
+        "cacheReads": [
+          "ai_text_result"
+        ],
+        "result": {
+          "type": "boolean",
+          "value": false
+        }
+      },
+      {
+        "name": "ai_text_result_check",
+        "args": {
+          "options": "exclude",
+          "text": "dog"
+        },
+        "phase": "seeded",
+        "promise": true,
+        "cacheReads": [
+          "ai_text_result"
+        ],
+        "result": {
+          "type": "boolean",
+          "value": true
+        }
+      },
+      {
+        "name": "ai_text_result_check",
+        "args": {
+          "options": "exclude",
+          "text": ""
+        },
+        "phase": "seeded",
+        "promise": true,
+        "cacheReads": [
+          "ai_text_result"
+        ],
+        "result": {
+          "type": "boolean",
+          "value": false
+        }
+      },
+      {
+        "name": "ai_text_result",
+        "args": {},
+        "phase": "seeded-empty",
+        "promise": true,
+        "cacheReads": [
+          "ai_text_result"
+        ],
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        }
+      },
+      {
+        "name": "ai_text_result_check",
+        "args": {
+          "options": "include",
+          "text": ""
+        },
+        "phase": "seeded-empty",
+        "promise": true,
+        "cacheReads": [
+          "ai_text_result"
+        ],
+        "result": {
+          "type": "boolean",
+          "value": true
+        }
+      },
+      {
+        "name": "ai_text_result_check",
+        "args": {
+          "options": "exclude",
+          "text": ""
+        },
+        "phase": "seeded-empty",
+        "promise": true,
+        "cacheReads": [
+          "ai_text_result"
+        ],
+        "result": {
+          "type": "boolean",
+          "value": false
+        }
+      },
+      {
+        "name": "ai_text_result",
+        "args": {},
+        "phase": "seeded-NaN",
+        "promise": true,
+        "cacheReads": [
+          "ai_text_result"
+        ],
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        }
+      },
+      {
+        "name": "ai_text_result_check",
+        "args": {
+          "options": "include",
+          "text": ""
+        },
+        "phase": "seeded-NaN",
+        "promise": true,
+        "cacheReads": [
+          "ai_text_result"
+        ],
+        "result": {
+          "type": "boolean",
+          "value": false
+        }
+      },
+      {
+        "name": "ai_text_result_check",
+        "args": {
+          "options": "exclude",
+          "text": ""
+        },
+        "phase": "seeded-NaN",
+        "promise": true,
+        "cacheReads": [
+          "ai_text_result"
+        ],
+        "result": {
+          "type": "boolean",
+          "value": false
+        }
+      },
+      {
+        "name": "get_face_detection_result",
+        "args": {
+          "type": "age"
+        },
+        "phase": "seeded",
+        "promise": false,
+        "cacheReads": [
+          "_neko_cognitive_face_result_"
+        ],
+        "result": {
+          "type": "number",
+          "value": 12
+        }
+      },
+      {
+        "name": "get_face_detection_result",
+        "args": {
+          "type": "gender"
+        },
+        "phase": "seeded",
+        "promise": false,
+        "cacheReads": [
+          "_neko_cognitive_face_result_"
+        ],
+        "result": {
+          "type": "string",
+          "value": "男生"
+        }
+      },
+      {
+        "name": "get_face_detection_result",
+        "args": {
+          "type": "emotion"
+        },
+        "phase": "seeded",
+        "promise": false,
+        "cacheReads": [
+          "_neko_cognitive_face_result_"
+        ],
+        "result": {
+          "type": "string",
+          "value": "高兴"
+        }
+      },
+      {
+        "name": "get_face_detection_result",
+        "args": {
+          "type": "faceShape"
+        },
+        "phase": "seeded",
+        "promise": false,
+        "cacheReads": [
+          "_neko_cognitive_face_result_"
+        ],
+        "result": {
+          "type": "string",
+          "value": "方脸"
+        }
+      },
+      {
+        "name": "check_gender",
+        "args": {
+          "gender": "male"
+        },
+        "phase": "seeded",
+        "promise": false,
+        "cacheReads": [
+          "_neko_cognitive_face_result_"
+        ],
+        "result": {
+          "type": "boolean",
+          "value": true
+        }
+      },
+      {
+        "name": "check_emotion",
+        "args": {
+          "emotion": "happy"
+        },
+        "phase": "seeded",
+        "promise": false,
+        "cacheReads": [
+          "_neko_cognitive_face_result_"
+        ],
+        "result": {
+          "type": "boolean",
+          "value": true
+        }
+      },
+      {
+        "name": "check_face_shape",
+        "args": {
+          "face_shape": "square"
+        },
+        "phase": "seeded",
+        "promise": false,
+        "cacheReads": [
+          "_neko_cognitive_face_result_"
+        ],
+        "result": {
+          "type": "boolean",
+          "value": true
+        }
+      },
+      {
+        "name": "get_object_detection_result",
+        "args": {},
+        "phase": "seeded",
+        "promise": false,
+        "cacheReads": [
+          "_neko_cognitive_object_result_"
+        ],
+        "result": {
+          "type": "string",
+          "value": "probe object"
+        }
+      }
+    ],
+    "matchingRegistry": [
+      [
+        "math_number_with_tudao3_slider",
+        161
+      ],
+      [
+        "microbit_led_plot_number_shadow",
+        167
+      ],
+      [
+        "microbit_beats_shadow",
+        168
+      ],
+      [
+        "microbit_note_shadow",
+        169
+      ],
+      [
+        "microbit_pin_digital_number_shadow",
+        170
+      ]
+    ]
+  },
+  "sourceLocations": [
+    {
+      "symbol": "ai_chat_answer",
+      "bundle": "main.8ccf2442.js",
+      "bundleUrl": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1681731,
+      "excerptCharacters": 500,
+      "excerptSha256": "4cf6c005270773ad7436194a754b4e22375987ebe4ed13cd62510ea28b519623"
+    },
+    {
+      "symbol": "ai_text_result",
+      "bundle": "main.8ccf2442.js",
+      "bundleUrl": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 5280063,
+      "excerptCharacters": 500,
+      "excerptSha256": "510d2e4b6c60e53301cca838586820a2c18754da6d8ed29c39a8b92263a5ae1c"
+    },
+    {
+      "symbol": "ai_text_result_check",
+      "bundle": "main.8ccf2442.js",
+      "bundleUrl": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 5280190,
+      "excerptCharacters": 500,
+      "excerptSha256": "325c4afbcaf7efc5a4d970dc6a5e130ab1e27c27fce83f6752d424684a0eb8ec"
+    },
+    {
+      "symbol": "ocr_argument_adapter",
+      "bundle": "main.8ccf2442.js",
+      "bundleUrl": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 5319963,
+      "excerptCharacters": 1300,
+      "excerptSha256": "731e60ffb50c4346aab3058e09317d02d6ba79e405a3bfa39aa4a7f21c008854"
+    },
+    {
+      "symbol": "ocr_auth_scope",
+      "bundle": "main.8ccf2442.js",
+      "bundleUrl": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 5277166,
+      "excerptCharacters": 500,
+      "excerptSha256": "8ea0ac01b60526ec45587d4dcb0abb15fbc37e6c282dbbca56fd668b06b591c9"
+    },
+    {
+      "symbol": "get_face_detection_result",
+      "bundle": "main.8ccf2442.js",
+      "bundleUrl": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1677266,
+      "excerptCharacters": 500,
+      "excerptSha256": "74a16a91c5cc1d8bb9252d3f16a90fa05a3a7d668a756fc06e9ef46881e0ed5f"
+    },
+    {
+      "symbol": "get_object_detection_result",
+      "bundle": "main.8ccf2442.js",
+      "bundleUrl": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1680231,
+      "excerptCharacters": 500,
+      "excerptSha256": "cb17cae37e29dbc27d8d64098204ff1f776ea751f92bb27ed19842dfaf8a3211"
+    },
+    {
+      "symbol": "check_gender",
+      "bundle": "main.8ccf2442.js",
+      "bundleUrl": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1677718,
+      "excerptCharacters": 500,
+      "excerptSha256": "5353a3d2a7aeecbde905f5889913c1d8f398f6fe0db2a2d3f38ab76c93aa8590"
+    },
+    {
+      "symbol": "check_emotion",
+      "bundle": "main.8ccf2442.js",
+      "bundleUrl": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1677544,
+      "excerptCharacters": 500,
+      "excerptSha256": "35c1110a02bd1a487bc3d5bfe007ecff1b0ef09185c21f4edba717ebb045afe9"
+    },
+    {
+      "symbol": "check_face_shape",
+      "bundle": "main.8ccf2442.js",
+      "bundleUrl": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1677889,
+      "excerptCharacters": 500,
+      "excerptSha256": "26e0040789735947837afad915bbb824e965649e4903cbe77e43c6faf778e27c"
+    },
+    {
+      "symbol": "translate_result",
+      "bundle": "main.8ccf2442.js",
+      "bundleUrl": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1568646,
+      "excerptCharacters": 800,
+      "excerptSha256": "8461c70e1dce14701253ab7307efbd3fc7cc55515d9bcbc271a001f85d95904e"
+    },
+    {
+      "symbol": "get_evaluate_class_name",
+      "bundle": "main.8ccf2442.js",
+      "bundleUrl": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1689530,
+      "excerptCharacters": 2400,
+      "excerptSha256": "a32739aa4c57e359c0c59deebd9ae4533456e65597979bf468a7ed1de09c7ccb"
+    },
+    {
+      "symbol": "get_evaluate_class_accuracy",
+      "bundle": "main.8ccf2442.js",
+      "bundleUrl": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1691671,
+      "excerptCharacters": 2400,
+      "excerptSha256": "399640f541a2c50f78eea4eccf831854dbfa860669b54c9f6b62c3fed8bb0245"
+    },
+    {
+      "symbol": "user_ranking_info",
+      "bundle": "main.8ccf2442.js",
+      "bundleUrl": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1699438,
+      "excerptCharacters": 1600,
+      "excerptSha256": "038dc504e4f60a3de90b9e4bfe457cd1c8f175c650bc0c135482f1b487b6af9f"
+    },
+    {
+      "symbol": "user_info_of_th",
+      "bundle": "main.8ccf2442.js",
+      "bundleUrl": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1700796,
+      "excerptCharacters": 1800,
+      "excerptSha256": "bbf312bb0e9fa162f414b8c412e39bf5beb668942a9636667ed141f145ec53dc"
+    },
+    {
+      "symbol": "open_hide_camera",
+      "bundle": "main.8ccf2442.js",
+      "bundleUrl": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1669074,
+      "excerptCharacters": 2300,
+      "excerptSha256": "4397fcf0c50021091b4b29b35745b5c6794e4517d8bc2466041cded406902fa3"
+    },
+    {
+      "symbol": "open_close_webcam",
+      "bundle": "main.8ccf2442.js",
+      "bundleUrl": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1693796,
+      "excerptCharacters": 2300,
+      "excerptSha256": "6b01daed71ba1a21bfb9674150cc174a22048d004d6c7edf12346f577063e3fb"
+    },
+    {
+      "symbol": "set_camera_alpha",
+      "bundle": "main.8ccf2442.js",
+      "bundleUrl": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1670712,
+      "excerptCharacters": 800,
+      "excerptSha256": "bf03380e26170e541b9b0bd347705e3f9dd45b546839eba08c2ce0a497afd359"
+    },
+    {
+      "symbol": "set_webcam_alpha",
+      "bundle": "main.8ccf2442.js",
+      "bundleUrl": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1695192,
+      "excerptCharacters": 800,
+      "excerptSha256": "3f66216f6a3017f983b8383ebf29dfe91ff1daae539b9dcf0697abb8559114e8"
+    },
+    {
+      "symbol": "get_voice_volume",
+      "bundle": "main.8ccf2442.js",
+      "bundleUrl": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1578597,
+      "excerptCharacters": 1600,
+      "excerptSha256": "bdd3866033200f21d11801803cf97a037b21dbc4d5981b1dad62b4a0c0ec4d9b"
+    },
+    {
+      "symbol": "hardware_common",
+      "bundle": "main.8ccf2442.js",
+      "bundleUrl": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 2178339,
+      "excerptCharacters": 1200,
+      "excerptSha256": "86441ea3df7b8a565965a37f46f6aa2503f451b1a03dd6fa8eddbfce489fd6d4"
+    }
+  ],
+  "checks": {
+    "sourceAnchorsFound": true,
+    "noUncaughtPageErrors": true,
+    "initialCachesTyped": true,
+    "seededAdapterWorks": true
+  },
+  "ok": true
+}

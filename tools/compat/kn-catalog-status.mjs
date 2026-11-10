@@ -36,11 +36,11 @@ function filesUnder(root, suffix) {
 export const statuses = ["有执行路径／未完整验证", "部分语义", "固定值占位", "元数据", "缺失"];
 
 const risks = {
-  appearance_of_sprite: "width/height/scale 均映射 ExprOp::Scale；不能代表独立宽高百分比",
+  appearance_of_sprite: "已实现独立横纵百分比与官方两位舍入；文本 costume 特殊缩放及全部错误路径未验证",
   get_orientation: "官方 desktop 无设备分支实测为 numeric 0；仍未接入移动端设备倾斜，固定值不算传感器支持",
-  mouse_down: "只读取 mouse_event_type/type，忽略 catalog 的 sprite 目标字段",
-  self_dialog_wait: "只有 Op::Dialog，timed 分支仅匹配 self_dialog；没有显式等待/关闭",
-  get_clone_index_property: "KN 仅部分属性码和角色变量；其他属性显式报错",
+  mouse_down: "已区分屏幕/当前实例/命名角色及克隆并保留布尔类型；非法目标编译期拒绝，完整事件顺序未验证",
+  self_dialog_wait: "官方实际为无限时非阻塞气泡；已补可见性/空文本/截断，跨场景及并发 timed 气泡取消未验证",
+  get_clone_index_property: "已补命名宽高/方向/造型属性；历史数字属性码与特效重叠及其他属性未完整验证",
   convert_type: "KN 只允许 number/string，其他转换报错；未验证全部强制转换边界",
   setTimeout: "按官方 0.27.4 原生实测丢弃 callback statement，只调度空回调；通用 JS function 回调未实现，墙钟精度未验证",
   setInterval: "按官方 0.27.4 原生实测丢弃 callback statement，只调度空回调；通用 JS function 回调未实现，墙钟精度未验证",
@@ -58,6 +58,15 @@ const risks = {
   get_tilt_angle_of_face: "仅无检测结果时 NaN；检测后端未实现",
   move_to_body_part: "仅无检测结果时不修改位置；检测后端未实现",
   face_to_body_part: "仅无检测结果时不修改方向；检测后端未实现",
+  ai_chat_answer: "仅未启动聊天后端、结果缓存为空时的空文本；聊天请求与真实答案未实现",
+  ai_text_result: "仅 OCR 缓存为空时的 numeric NaN；OCR 获取与真实结果未实现",
+  ai_text_result_check: "仅 OCR 缓存为空时求值 text 后返回 boolean false；OCR 获取与有效缓存未实现",
+  get_face_detection_result: "仅人脸缓存为空时 NaN；字段对应的真实检测结果未实现",
+  get_object_detection_result: "仅物体缓存为空时 NaN；检测后端未实现",
+  check_gender: "仅人脸缓存为空时 numeric NaN，不是 false；检测后端未实现",
+  check_emotion: "仅人脸缓存为空时 numeric NaN，不是 false；检测后端未实现",
+  check_face_shape: "仅人脸缓存为空时 numeric NaN，不是 false；检测后端未实现",
+  microbit_math_map: "仅无 microbit 连接时求值五个输入后 NaN；官方映射公式本身也检查连接，真实设备分支未实现",
 };
 const limitations = {
   __break__: "官方类型声明/API 伪名；编辑器实际积木为 break。此分派仅为兼容输入，非同名积木支持",
@@ -75,6 +84,7 @@ const limitations = {
   _object_literal: "KN 共享引用对象；官方字面量/属性读写有限样例有证据，完整 JS 原型链及全部 JSON 边界未验证",
   _object_get: "KN 共享引用对象；属性缺失保留 undefined，完整 JS 原型链及特殊键未验证",
   _object_set: "KN 共享引用对象；赋值返回值及副作用有限样例有证据，完整 JS 原型链未验证",
+  procedures_2_actor_param: "按 mutation 参数 ID 与 Actor 字段实参读属性；clone_index 显式拒绝，完整过程作用域与错误差分未验证",
 };
 
 function primaryDispatch(engine) {
@@ -166,6 +176,7 @@ export function inventory(root, reference, engineSource) {
 }
 
 function missingReason(type) {
+  if (type === "get_sprite_property") return "官方未注册同名积木；这是转换到 coordinate/style/appearance/effect 等积木的代码 API，不伪造 VM 入口";
   if (/microbit_|catbit_|wand_|robot/.test(type)) return "缺少硬件/连接后端或对应计算实现；不是 stub 支持";
   if (/ranking|user_id|user_info|username|translate|conversation|ai_|voice|evaluate|detect|face|body_part|gesture|emotion|gender|appearance_of_part/.test(type)) return "缺少 AI/识别/账户/网络服务及对应执行路径；不是 stub 支持";
   if (/camera|webcam/.test(type)) return "缺少摄像头后端及对应执行路径；不是 stub 支持";
@@ -193,6 +204,7 @@ export function coverageMarkdown(result) {
     "- HateNeko **仅是实现参考和清单来源，非官方语义证据**。官方来源、下载哈希和小段定位见 [kncat-official-evidence.md](kncat-official-evidence.md)。",
     "- 最新集成基线另有 [kn-semantics.md](kn-semantics.md) 的官方 KN 原创夹具实测，覆盖有限调度、列表读取与转换样例；它不把本表升级成全类型/全字段认证。",
     "- 第二轮对象、定时器及离线服务降级的证据和未验证范围见 [kn-objects.md](kn-objects.md)、[kn-async-services.md](kn-async-services.md)、[kn-timers.md](kn-timers.md)；无设备降级路径不代表真实设备、AI 或账户后端。",
+    "- 第三轮常用外观/对白与鼠标目标的修复见 [kn-appearance-dialog.md](kn-appearance-dialog.md)、[kn-pointer.md](kn-pointer.md)；新增 AI/OCR/检测查询仅是 [kn-offline-round3.md](kn-offline-round3.md) 的官方空缓存分支，不实现获取命令或实际后端。microbit map 的无连接 NaN 分支见 [kn-microbit-map.md](kn-microbit-map.md)，不能把它当作无条件数学映射。",
     "- 官方 bundle：`https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js`；SHA-256 `58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165`。`_execute` byte 2962264 是空函数；`_array_literal` byte 2962446 使用 `Object.values`。空函数不等于输入不求值，执行管线仍需单独验证。",
     "- 导入层 `src/bcmkn_compiler.rs::build_nested_block` 泛型保留 type/fields，再按连接重建 inputs/statements/next；这只能说明能装配/读取，不能证明 VM 支持。`tests/kn_gap.rs::workspace_compiler_preserves_unknown_types_without_claiming_vm_support` 专门覆盖此区别。",
     "- 实现定位只扫描 value_one、expression_one、scripts、chain 的类型分派，排除注释、字段选项、expression_inputs 遍历提示和游离根忽略名单。元数据单独列出。此静态审计不能证明每条 guard 在 KN 模式均可达，也不能替代运行测试。",

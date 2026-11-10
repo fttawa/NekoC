@@ -2,6 +2,32 @@
 use super::*;
 
 impl Engine {
+    /// Official KN 0.27.4 mouseDown uses global actions for --screen,
+    /// the current instance for --self, and original + clones for named actors.
+    /// Source identity and byte anchor: docs/kn-pointer.md.
+    pub(super) fn kn_pointer_state(&self, actor: usize, target: Option<usize>, state: u8) -> bool {
+        let Some(target) = target else {
+            return match state {
+                0 => self.pointer_down,
+                1 => self.pointer_clicked,
+                _ => self.pointer_released,
+            };
+        };
+        let own_instance = target == usize::MAX;
+        let target = if own_instance { actor } else { target };
+        let id = self.sprites[target].id.as_str();
+        let matches =
+            |hit: &str| hit == id || !own_instance && self.pointer_target_matches(id, hit);
+        if state == 1 {
+            self.input_clicks.iter().any(|hit| matches(hit))
+        } else {
+            let expected = if state == 0 { "mouse_down" } else { "mouse_up" };
+            self.input_targets
+                .iter()
+                .any(|(hit, value)| value == expected && matches(hit))
+        }
+    }
+
     /// Move by a pointer delta, preserving the grabbed offset.
     pub fn drag_by(&mut self, id: &str, dx: f64, dy: f64) {
         if let Some(sprite) = self.sprites.iter().find(|a| a.id == id) {

@@ -11,6 +11,7 @@ fn unavailable_profile_preserves_typed_account_and_device_results() {
     );
     assert_eq!(reporter("user_id_get"), Some(OfflineValue::Text("0")));
     assert_eq!(reporter("get_voice_answer"), Some(OfflineValue::Text("")));
+    assert_eq!(reporter("ai_chat_answer"), Some(OfflineValue::Text("")));
     assert_eq!(reporter("get_orientation"), Some(OfflineValue::Number(0.0)));
     for name in [
         "recognize_body_part",
@@ -24,6 +25,12 @@ fn unavailable_profile_preserves_typed_account_and_device_results() {
         "get_position_of_body_part",
         "get_appearance_of_part",
         "get_tilt_angle_of_face",
+        "ai_text_result",
+        "get_face_detection_result",
+        "get_object_detection_result",
+        "check_gender",
+        "check_emotion",
+        "check_face_shape",
     ] {
         assert!(
             matches!(reporter(name), Some(OfflineValue::Number(n)) if n.is_nan()),
@@ -40,12 +47,8 @@ fn network_ai_permission_and_unknown_blocks_are_not_blanket_stubs() {
         "get_voice_volume",
         "voice_recognition",
         "ai_chat_ask",
-        "ai_chat_answer",
         "new_conversation",
-        "ai_text_result",
         "ai_text_result_check",
-        "get_face_detection_result",
-        "check_gender",
         "translate_result",
         "evaluate_camera",
         "user_ranking_info",
@@ -82,6 +85,13 @@ fn native_reporters_keep_types_inside_comparisons_numeric_inputs_and_commands() 
         "get_position_of_body_part",
         "get_appearance_of_part",
         "get_tilt_angle_of_face",
+        "ai_chat_answer",
+        "ai_text_result",
+        "get_face_detection_result",
+        "get_object_detection_result",
+        "check_gender",
+        "check_emotion",
+        "check_face_shape",
     ] {
         blocks.push(log(reporter(name)));
     }
@@ -125,12 +135,80 @@ fn native_reporters_keep_types_inside_comparisons_numeric_inputs_and_commands() 
                 "NaN",
                 "NaN",
                 "NaN",
+                "",
+                "NaN",
+                "NaN",
+                "NaN",
+                "NaN",
+                "NaN",
+                "NaN",
                 "false",
                 "NaN",
                 "continued"
             ]
         );
     }
+}
+
+#[test]
+fn offline_ocr_check_evaluates_query_and_preserves_boolean_type() {
+    use nekoc::{
+        engine::{Engine, Program},
+        studio::document::Document,
+    };
+    use serde_json::{Value, json};
+    use std::time::Duration;
+    let num = |n| json!({"type":"math_number","fields":{"NUM":n}});
+    let query = |n| {
+        json!({"type":"_object_set","inputs":{
+            "obj":{"type":"variables_get","fields":{"variable":"obj"}},
+            "key":{"type":"text","fields":{"TEXT":"calls"}},"value":num(n)
+        }})
+    };
+    let mut p = Document::blank().value().clone();
+    p["variables"]["variablesDict"]["obj"] =
+        json!({"id":"obj","name":"obj","type":"variable","value":{}});
+    p["variables"]["variableIds"] = json!(["obj"]);
+    let blocks: Vec<Value> = ["include", "exclude"].into_iter().enumerate().flat_map(|(i, option)| {
+        vec![
+            json!({"type":"console_log","inputs":{"console_log":{"type":"ai_text_result_check","fields":{"options":option},"inputs":{"text":query(i+1)}}}}),
+            json!({"type":"console_log","inputs":{"console_log":{"type":"_object_get","inputs":{"obj":{"type":"variables_get","fields":{"variable":"obj"}},"key":{"type":"text","fields":{"TEXT":"calls"}}}}}}),
+        ]
+    }).collect();
+    let chain = blocks
+        .into_iter()
+        .rev()
+        .reduce(|next, mut head| {
+            head["next"] = next;
+            head
+        })
+        .unwrap();
+    p["actors"]["actorsDict"]["nekoc-default-actor"]["nekoBlockJsonList"] = json!([
+        {"type":"on_running_group_activated","next":{"type":"repeat_n_times","inputs":{"times":num(80)},"statements":{"DO":chain}}}
+    ]);
+    for jit in [false, true] {
+        let mut vm = Engine::new(Program::compile(&p).unwrap());
+        if !jit {
+            vm.disable_jit();
+        }
+        vm.start();
+        let mut logs = Vec::new();
+        for _ in 0..100 {
+            logs.extend(
+                vm.advance(1.0 / 60.0, 100_000, Duration::from_secs(1))
+                    .unwrap()
+                    .logs,
+            );
+        }
+        assert_eq!(logs, ["false", "1", "false", "2"].repeat(80));
+    }
+    p["actors"]["actorsDict"]["nekoc-default-actor"]["nekoBlockJsonList"] = json!([
+        {"type":"on_running_group_activated","next":{"type":"console_log","inputs":{"console_log":{"type":"ai_text_result_check","fields":{"options":"include"},"inputs":{"text":{"type":"unknown-query"}}}}}}
+    ]);
+    assert!(
+        Program::compile(&p).is_err(),
+        "query errors must not be swallowed"
+    );
 }
 
 #[test]
