@@ -108,5 +108,43 @@ oracle `--random-source nekoc` 仅在 random 积木调用内注入 NekoC xorshif
 本工具不覆盖音视频实际时钟、云端结果、网络传感器、物理引擎确定性或浏览器外独立时钟。
 原生变量局部作用域/克隆变量读取已经导出，但 NekoC `entity_variables` 目前为空；复杂局部变量/克隆作品仍需专项验证。
 非有限数按 JSON 的 null 序列化，不能据此验证 NaN/Infinity；页面 errors 和启动失败另存诊断。
-不提供截图一致性或绘图像素比较。外部 `_k4probe.json` 是带实体工作区的作品探针，不是完整积木规范，
+逐帧截图/像素比较使用下节的独立工具。外部 `_k4probe.json` 是带实体工作区的作品探针，不是完整积木规范，
 也不是独立官方证据；未复制或用于本次测试数据。
+
+## 固定帧画布像素对比
+
+```powershell
+$env:CARGO_PROFILE_DEV_DEBUG = '0'
+$env:CARGO_PROFILE_TEST_DEBUG = '0'
+$env:CARGO_INCREMENTAL = '0'
+node tools/compat/k4-visual.mjs --corpus 'E:\nekoc\dist\kitten4-corpus' --frames 1,30,60 --allow-assets --out dist/k4-visual/report.json
+# 可复用 k4-diff JSON 的 works 分类；只纳入非随机 equal/different
+node tools/compat/k4-visual.mjs --classification dist/k4-oracle/summary.json --allow-assets --out dist/k4-visual/report.json
+# 仓库自有夹具，不需要任何 CDN
+node tools/compat/k4-visual.mjs --input tests/fixtures/kitten4/visual-stamp.bcm --out dist/k4-visual/stamp.json
+$env:K4_VISUAL_BROWSER = '1'     # Canvas/WebGL 像素回归，无第三方内核
+$env:K4_VISUAL_INTEGRATION = '1' # 自有夹具逐帧对照外部内核
+node --test tests/k4-visual.test.mjs
+```
+
+- 画面来自 **真实** `k4-trace --render` VM 帧增量（包括画笔、印章、克隆和图层顺序），
+  交给同一份 `web/renderer.js`；不是把 oracle 位置重画成 NekoC。
+- 浏览器先解码素材，再把尺寸/中心/alpha mask/RGB 通过 `--costumes` 送入 VM，和 web 播放器一样。
+  第一次无测量运行只用于取得 canonical project，不作为画面。仅此诊断 CLI 接受 `mask_bytes/rgb_bytes` 数组。
+- 官方使用原始画布 backing pixels，在每个指定 update 后触发 `Ct.on_tick` 上传待刷新的画笔纹理，
+  再调用官方 `get_screenshot` 同款 `renderer.render(app.stage)`。不增加 VM update，不推进 transition/ticker 时钟。
+  `app.render()` 在 ticker 运行时会跳过，不能拿它作截图触发器。
+- 画布尺寸必须相同；不截图 CSS 缩放后的页面，不自动 resize 掩盖尺寸差异。两侧透明像素先合成白底。
+  默认 RGB 通道容差 8/255，任一通道超差计为一个差异像素；另报全部 RGB 的 MAE、RMSE、PSNR。
+  PSNR 为 JSON null 表示零均方误差（无限值），不是未测。此工具不计算 SSIM。
+- 输出 JSON、Markdown、每作品每帧双方 PNG、绘图状态及官方资源 SHA-256；CLI 强制输出位于本 worktree 的 `dist/`。
+  单作品失败记为 `unverified`，不能算通过；空语料、零有效截图、任何采样失败返回非零。
+  差异率不设全语料兼容性通过阈值，`captured` 仅表示完成采样，不表示像素相同。
+- 每作品默认 90 秒 watchdog 避免 domain block 卡住无限等待；素材仍沿用原 oracle 的匿名 CDN 白名单策略，
+  仅成功素材响应可在本次内存缓存中复用，不缓存错误、不放宽网络权限。
+- **不是完整 UI 对比**：官方的变量面板/对话框在画布中，NekoC 的 `StageOverlay` 在 DOM 中。
+  纯画布差异会如实包含它们；不要把此结果宣称为页面级视觉一致。
+- `--renderer-source dist/renderer-before.js --nekoc dist/k4-trace-before.exe` 可复验旧版本基线。
+  两者须配套保存，保持同一固定帧、素材和 oracle 采样方式。
+
+发现、官方源码定位、分布与未完成项见 [kitten4-visual.md](../../docs/kitten4-visual.md)。
