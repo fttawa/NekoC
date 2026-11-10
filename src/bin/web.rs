@@ -251,8 +251,9 @@ fn check_block_shape(block: &Value, depth: usize) -> Result<()> {
     let mut pending = vec![(block, depth)];
     while let Some((block, depth)) = pending.pop() {
         ensure!(
-            depth <= 64,
-            "block nesting exceeds 64 at block {} ({})",
+            depth <= nekoc::json::MAX_BLOCK_DEPTH,
+            "block nesting exceeds {} at block {} ({})",
+            nekoc::json::MAX_BLOCK_DEPTH,
             block["id"],
             block["type"]
         );

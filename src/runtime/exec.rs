@@ -918,29 +918,29 @@ impl<'a> super::Thread<'a> {
         Ok(())
     }
 
-    pub(super) fn advance(&mut self, runtime: &Runtime<'a>, next: Option<&'a Value>) {
-        if let Some(next) = next {
-            self.current = Some(next);
-        } else if self
-            .continuations
-            .last()
-            .is_some_and(|(depth, _, _)| *depth == self.loops.len())
-        {
-            let (_, continuation, warped) = self.continuations.pop().unwrap();
-            self.warped = warped;
-            self.advance(runtime, continuation);
-        } else if let Some(next_loop) = self.next_loop_iteration(runtime) {
-            self.advance(runtime, next_loop);
-        } else if let Some(frame) = self.procedure_frames.pop() {
-            self.procedure_values = frame.procedure_values;
-            self.warped = frame.warped;
-            if let Some(after) = frame.after {
-                self.current = Some(after);
+    pub(super) fn advance(&mut self, runtime: &Runtime<'a>, mut next: Option<&'a Value>) {
+        loop {
+            if let Some(next) = next {
+                self.current = Some(next);
+                return;
+            } else if self
+                .continuations
+                .last()
+                .is_some_and(|(depth, _, _)| *depth == self.loops.len())
+            {
+                let (_, continuation, warped) = self.continuations.pop().unwrap();
+                self.warped = warped;
+                next = continuation;
+            } else if let Some(next_loop) = self.next_loop_iteration(runtime) {
+                next = next_loop;
+            } else if let Some(frame) = self.procedure_frames.pop() {
+                self.procedure_values = frame.procedure_values;
+                self.warped = frame.warped;
+                next = frame.after;
             } else {
-                self.advance(runtime, None);
+                self.done = true;
+                return;
             }
-        } else {
-            self.done = true;
         }
     }
 

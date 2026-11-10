@@ -49,9 +49,8 @@ pub(crate) fn validate_source(source: &Value) -> Result<()> {
 const METADATA: &str = "_nekocKitten4";
 const OPAQUE: &str = "kitten4::";
 const ANGLE: &str = "_nekocKitten4Angle";
-// Inputs/statement bodies, not next links. Keeps recursive translators and VM
-// compiler frames bounded on default-size worker/test stacks.
-const MAX_DEPTH: usize = 64;
+// Inputs/statement bodies, not next links; shared with the canonical compiler.
+const MAX_DEPTH: usize = crate::json::MAX_BLOCK_DEPTH;
 
 fn check_depth(block: &Value, depth: usize) -> Result<()> {
     ensure!(
@@ -61,29 +60,6 @@ fn check_depth(block: &Value, depth: usize) -> Result<()> {
         block["type"]
     );
     Ok(())
-}
-
-fn without_next(block: &Value) -> Value {
-    Value::Object(
-        block
-            .as_object()
-            .into_iter()
-            .flatten()
-            .filter(|(key, _)| key.as_str() != "next")
-            .map(|(key, value)| (key.clone(), crate::json::clone_value(value)))
-            .collect(),
-    )
-}
-
-fn join_chain(nodes: Vec<Value>) -> Value {
-    let mut tail = None;
-    for mut node in nodes.into_iter().rev() {
-        if let Some(next) = tail {
-            node["next"] = next;
-        }
-        tail = Some(node);
-    }
-    tail.unwrap_or(Value::Null)
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -892,11 +868,11 @@ fn from_neko_inner(value: &Value) -> Result<Value> {
                 unchanged,
                 "published Kitten 4 work has no block workspace, so edits cannot be exported"
             );
-            return Ok(source.clone());
+            return Ok(crate::json::clone_value(source));
         }
         let old = export_project(&baseline, Some(source))?;
         let new = export_project(value, Some(source))?;
-        let mut result = source.clone();
+        let mut result = crate::json::clone_value(source);
         apply_changes(&mut result, &old, &new);
         Ok(result)
     } else {
@@ -1121,17 +1097,53 @@ impl<'a> CompiledWork<'a> {
     }
 
     fn native(&self, node: &Value, depth: usize) -> Result<Value> {
-        let mut nodes = Vec::new();
-        let mut current = Some(node);
-        while let Some(node) = current {
-            nodes.push(self.native_one(node, depth)?);
-            current = node.get("next_block").filter(|v| !v.is_null());
+        let mut work = vec![(node, depth, false)];
+        let mut output = BTreeMap::new();
+        while let Some((node, depth, exit)) = work.pop() {
+            let address = node as *const Value as usize;
+            if exit {
+                let next = node
+                    .get("next_block")
+                    .filter(|v| !v.is_null())
+                    .map(|v| output.remove(&(v as *const Value as usize)).unwrap());
+                let mut result = crate::json::Json::new(self.native_one(node, &mut output)?);
+                if let Some(next) = next {
+                    result["next"] = crate::json::Json::into_value(next);
+                }
+                output.insert(address, result);
+                continue;
+            }
+            check_depth(node, depth)?;
+            work.push((node, depth, true));
+            if let Some(next) = node.get("next_block").filter(|v| !v.is_null()) {
+                work.push((next, depth, false));
+            }
+            for child in node["params"]
+                .as_object()
+                .into_iter()
+                .flat_map(|p| p.values())
+                .filter(|v| v.is_object())
+                .chain(
+                    ["conditions", "child_block"]
+                        .into_iter()
+                        .flat_map(|k| node[k].as_array().into_iter().flatten())
+                        .filter(|v| !v.is_null()),
+                )
+            {
+                work.push((child, depth + 1, false));
+            }
         }
-        Ok(join_chain(nodes))
+        Ok(output
+            .remove(&(node as *const Value as usize))
+            .unwrap()
+            .into_value())
     }
 
-    fn native_one(&self, node: &Value, depth: usize) -> Result<Value> {
-        check_depth(node, depth)?;
+    fn native_one(
+        &self,
+        node: &Value,
+        output: &mut BTreeMap<usize, crate::json::Json>,
+    ) -> Result<Value> {
         let kind = node["type"]
             .as_str()
             .context("compiled block has no type")?;
@@ -1146,7 +1158,13 @@ impl<'a> CompiledWork<'a> {
         if !definition {
             for (name, value) in node["params"].as_object().into_iter().flatten() {
                 if value.is_object() {
-                    inputs.insert(name.clone(), self.native(value, depth + 1)?);
+                    inputs.insert(
+                        name.clone(),
+                        output
+                            .remove(&(value as *const Value as usize))
+                            .unwrap()
+                            .into_value(),
+                    );
                 } else if !value.is_null() {
                     fields.insert(name.clone(), value.clone());
                 }
@@ -1180,7 +1198,13 @@ impl<'a> CompiledWork<'a> {
             .enumerate()
         {
             if !condition.is_null() {
-                inputs.insert(format!("IF{index}"), self.native(condition, depth + 1)?);
+                inputs.insert(
+                    format!("IF{index}"),
+                    output
+                        .remove(&(condition as *const Value as usize))
+                        .unwrap()
+                        .into_value(),
+                );
             }
         }
         for (index, child) in node["child_block"]
@@ -1198,7 +1222,13 @@ impl<'a> CompiledWork<'a> {
                 _ if definition => "STACK".to_owned(),
                 _ => "DO".to_owned(),
             };
-            statements.insert(socket, self.native(child, depth + 1)?);
+            statements.insert(
+                socket,
+                output
+                    .remove(&(child as *const Value as usize))
+                    .unwrap()
+                    .into_value(),
+            );
         }
         let mut block = json!({"type": kind});
         if matches!(
@@ -1379,14 +1409,26 @@ fn nest(
     connections: &Map<String, Value>,
     depth: usize,
 ) -> Result<Value> {
-    let mut nodes = Vec::new();
-    let mut current = Some(id);
-    while let Some(id) = current {
+    let mut work = vec![(id, depth, false)];
+    let mut output: BTreeMap<&str, crate::json::Json> = BTreeMap::new();
+    while let Some((id, depth, exit)) = work.pop() {
         ensure!(
             depth <= MAX_DEPTH,
             "Kitten 4 block nesting exceeds {MAX_DEPTH} at block {id}"
         );
-        current = None;
+        if !exit {
+            work.push((id, depth, true));
+            if let Some(children) = connections.get(id).and_then(Value::as_object) {
+                work.extend(children.iter().rev().map(|(child, edge)| {
+                    (
+                        child.as_str(),
+                        depth + usize::from(edge["type"] != "next"),
+                        false,
+                    )
+                }));
+            }
+            continue;
+        }
         let mut result = blocks[id]
             .as_object()
             .cloned()
@@ -1402,9 +1444,12 @@ fn nest(
         if let Some(children) = connections.get(id).and_then(Value::as_object) {
             for (child, connection) in children {
                 if connection["type"] == "next" {
-                    current = Some(child);
+                    result.insert(
+                        "next".into(),
+                        output.remove(child.as_str()).unwrap().into_value(),
+                    );
                 } else {
-                    let nested = nest(child, blocks, connections, depth + 1)?;
+                    let nested = output.remove(child.as_str()).unwrap().into_value();
                     let container = if connection["input_type"] == "statement" {
                         "statements"
                     } else {
@@ -1422,58 +1467,81 @@ fn nest(
                 }
             }
         }
-        nodes.push(Value::Object(result));
+        output.insert(id, Value::Object(result).into());
     }
-    Ok(join_chain(nodes))
+    Ok(output.remove(id).unwrap().into_value())
 }
 
 fn import_block(block: Value, depth: usize) -> Result<Value> {
-    let mut nodes = Vec::new();
-    let mut current = crate::json::Json::new(block);
-    loop {
-        check_depth(&current, depth)?;
-        ensure!(
-            current["type"] != "on_keydown"
-                || current.get("next").is_none()
-                || current.pointer("/statements/DO").is_none(),
-            "native event has both next and DO bodies at block {}",
-            current["id"]
-        );
-        let next = current
-            .as_object_mut()
-            .and_then(|o| o.remove("next"))
-            .map(crate::json::Json::new);
-        // next links do not consume input/statement nesting depth.
-        nodes.push(import_one(current, depth)?);
-        if let Some(next) = next {
-            current = next;
-        } else {
-            break;
-        }
+    enum Work {
+        Enter(crate::json::Json, usize),
+        Exit(crate::json::Json, Vec<(String, String)>, bool),
     }
-    let mut tail: Option<crate::json::Json> = None;
-    for mut node in nodes.into_iter().rev() {
-        if let Some(next) = tail {
-            node["next"] = next.into_value();
-        }
-        tail = Some(node);
-    }
-    Ok(tail.unwrap_or_default().into_value())
-}
-
-fn import_one(mut result: crate::json::Json, depth: usize) -> Result<crate::json::Json> {
-    for key in ["inputs", "statements"] {
-        if let Some(children) = result.get_mut(key).and_then(Value::as_object_mut) {
-            for child in children.values_mut() {
-                *child = import_block(child.take(), depth + 1)?;
+    let mut work = vec![Work::Enter(block.into(), depth)];
+    let mut output: Vec<crate::json::Json> = Vec::new();
+    while let Some(item) = work.pop() {
+        match item {
+            Work::Enter(mut node, depth) => {
+                check_depth(&node, depth)?;
+                ensure!(
+                    node["type"] != "on_keydown"
+                        || node.get("next").is_none()
+                        || node.pointer("/statements/DO").is_none(),
+                    "native event has both next and DO bodies at block {}",
+                    node["id"]
+                );
+                let next = node.as_object_mut().and_then(|o| o.remove("next"));
+                let mut children = Vec::new();
+                let mut sockets = Vec::new();
+                for key in ["inputs", "statements"] {
+                    if let Some(values) = node.get_mut(key).and_then(Value::as_object_mut) {
+                        for (name, child) in values {
+                            sockets.push((key.to_owned(), name.clone()));
+                            children.push(Work::Enter(child.take().into(), depth + 1));
+                        }
+                    }
+                }
+                let has_next = next.is_some();
+                if let Some(next) = next {
+                    children.push(Work::Enter(next.into(), depth));
+                }
+                work.push(Work::Exit(node, sockets, has_next));
+                work.extend(children.into_iter().rev());
+            }
+            Work::Exit(mut node, sockets, has_next) => {
+                let next = has_next.then(|| output.pop().unwrap());
+                let start = output.len() - sockets.len();
+                for ((key, name), child) in sockets.into_iter().zip(output.drain(start..)) {
+                    node[&key][&name] = child.into_value();
+                }
+                let mut node = import_one(node, 0)?;
+                if let Some(next) = next {
+                    node["next"] = next.into_value();
+                }
+                output.push(node);
             }
         }
     }
+    Ok(output.pop().unwrap().into_value())
+}
+
+fn import_one(mut result: crate::json::Json, _depth: usize) -> Result<crate::json::Json> {
     let kind = result["type"]
         .as_str()
         .context("Kitten 4 block is missing type")?
         .to_owned();
     let heading_reporter = kind == "get_2" && field(&result, "attribute") == "3";
+    // Translation only renames direct input sockets. Keep their payloads out of
+    // the transactional rollback copy: cloning every descendant at each ancestor
+    // would make a deep expression quadratic in both time and allocation.
+    let mut payloads = Vec::new();
+    if let Some(children) = result.get_mut("inputs").and_then(Value::as_object_mut) {
+        for child in children.values_mut() {
+            let index = payloads.len();
+            payloads.push(crate::json::Json::new(child.take()));
+            *child = json!({"_nekocSocket":index});
+        }
+    }
     // Roll back unsupported translation exactly as before, but keep the large
     // next/statement subtrees out of this local transactional copy. Translators
     // only rename direct sockets (on_keydown moves its body).
@@ -1501,6 +1569,13 @@ fn import_one(mut result: crate::json::Json, depth: usize) -> Result<crate::json
             result = original;
         }
         result["type"] = json!(format!("{OPAQUE}{kind}"));
+    }
+    if let Some(children) = result.get_mut("inputs").and_then(Value::as_object_mut) {
+        for child in children.values_mut() {
+            if let Some(index) = child["_nekocSocket"].as_u64() {
+                *child = payloads[index as usize].take();
+            }
+        }
     }
     match kind.as_str() {
         "self_point_towards" | "self_rotate" => {
@@ -2312,103 +2387,137 @@ fn export_owners(
 }
 
 fn export_block(block: &Value, originals: Option<&Value>, depth: usize) -> Result<Value> {
-    let mut nodes = Vec::new();
-    let mut current = Some(block);
-    while let Some(block) = current {
-        nodes.push(export_block_mode(block, originals, depth, true)?);
-        current = block.get("next");
+    enum Work {
+        Enter(crate::json::Json, usize),
+        Exit(
+            crate::json::Json,
+            Vec<(String, String)>,
+            bool,
+            Option<f64>,
+            bool,
+        ),
     }
-    let mut tail = None;
-    for mut node in nodes.into_iter().rev() {
-        if let Some(next) = tail {
-            node["next"] = next;
-            if node["type"] == "on_keydown" {
-                event_body(&mut node, true)?;
+    let mut work = vec![Work::Enter(crate::json::clone_value(block).into(), depth)];
+    let mut output: Vec<crate::json::Json> = Vec::new();
+    while let Some(item) = work.pop() {
+        match item {
+            Work::Enter(mut result, depth) => {
+                check_depth(&result, depth)?;
+                ensure!(result.is_object(), "canonical block must be an object");
+                let convert_reporter = if let Some(reporter) = original_heading_reporter(&result) {
+                    let reporter = crate::json::clone_value(reporter);
+                    result = reporter.into();
+                    false
+                } else {
+                    true
+                };
+                let next = result.as_object_mut().unwrap().remove("next");
+                // Event translation moves next into a statement socket. Attach it only
+                // after converting the individual chain node, in export_block.
+                let kind = result["type"]
+                    .as_str()
+                    .context("canonical block missing type")?
+                    .to_owned();
+                let angle_offset = match kind.as_str() {
+                    "self_point_towards" => Some(90.0),
+                    "self_rotate" => Some(0.0),
+                    _ => None,
+                };
+                let mut restore_input = false;
+                if let Some(offset) = angle_offset
+                    && let Some(input) = result.pointer("/inputs/degrees")
+                    && let Some(original) = original_angle_input(input, "input", offset)
+                {
+                    let original = crate::json::clone_value(original);
+                    crate::json::discard(std::mem::replace(
+                        &mut result["inputs"]["degrees"],
+                        original,
+                    ));
+                    restore_input = true;
+                }
+                if let Some(native) = kind.strip_prefix(OPAQUE) {
+                    let original = result["id"].as_str().and_then(|id| {
+                        originals
+                            .and_then(|g| g.get("blocks"))
+                            .and_then(|b| b.get(id))
+                    });
+                    ensure!(
+                        original.is_some_and(|b| b["type"].as_str() == Some(native)),
+                        "cannot export unsupported new KN block {kind} ({})",
+                        result["id"]
+                    );
+                    result["type"] = json!(native);
+                } else {
+                    ensure!(
+                        translate(&mut result, true)
+                            .with_context(|| format!("block {kind} ({})", result["id"]))?,
+                        "unsupported new KN block {kind} ({}) for Kitten 4 export",
+                        result["id"]
+                    );
+                }
+                let mut sockets = Vec::new();
+                let mut children = Vec::new();
+                for key in ["inputs", "statements"] {
+                    if let Some(children) = result.get_mut(key) {
+                        for (name, child) in children
+                            .as_object_mut()
+                            .with_context(|| format!("block {kind} {key} must be an object"))?
+                            .iter_mut()
+                        {
+                            sockets.push((key.to_owned(), name.clone()));
+                            // Collected below to keep ownership cleanup stack-safe.
+                            let _ = child;
+                        }
+                    }
+                }
+                for (key, name) in &sockets {
+                    children.push(Work::Enter(result[key][name].take().into(), depth + 1));
+                }
+                let has_next = next.is_some();
+                if let Some(next) = next {
+                    children.push(Work::Enter(next.into(), depth));
+                }
+                work.push(Work::Exit(
+                    result,
+                    sockets,
+                    has_next,
+                    angle_offset.filter(|_| !restore_input),
+                    convert_reporter
+                        && matches!(kind.as_str(), "get_orientation" | "self_get_rotation"),
+                ));
+                work.extend(children.into_iter().rev());
+            }
+            Work::Exit(mut result, sockets, has_next, angle_offset, convert_reporter) => {
+                let next = has_next.then(|| output.pop().unwrap());
+                let start = output.len() - sockets.len();
+                for ((key, name), child) in sockets.into_iter().zip(output.drain(start..)) {
+                    result[&key][&name] = child.into_value();
+                }
+                remove(&mut result, ANGLE);
+                if let Some(offset) = angle_offset {
+                    let input = result
+                        .pointer_mut("/inputs/degrees")
+                        .map(Value::take)
+                        .unwrap_or(json!({"type":"math_number","fields":{"NUM":0}}));
+                    if !result.get("inputs").is_some_and(Value::is_object) {
+                        result["inputs"] = json!({});
+                    }
+                    result["inputs"]["degrees"] = angle_expression(input, offset, true, None);
+                }
+                if convert_reporter {
+                    result = angle_expression(result.into_value(), 90.0, true, None).into();
+                }
+                if let Some(next) = next {
+                    result["next"] = next.into_value();
+                    if result["type"] == "on_keydown" {
+                        event_body(&mut result, true)?;
+                    }
+                }
+                output.push(result);
             }
         }
-        tail = Some(node);
     }
-    Ok(tail.unwrap_or(Value::Null))
-}
-
-fn export_block_mode(
-    block: &Value,
-    originals: Option<&Value>,
-    depth: usize,
-    convert_reporter: bool,
-) -> Result<Value> {
-    check_depth(block, depth)?;
-    ensure!(block.is_object(), "canonical block must be an object");
-    if let Some(reporter) = original_heading_reporter(block) {
-        return export_block_mode(reporter, originals, depth + 1, false);
-    }
-    let mut result = without_next(block);
-    // Event translation moves next into a statement socket. Attach it only
-    // after converting the individual chain node, in export_block.
-    let kind = block["type"]
-        .as_str()
-        .context("canonical block missing type")?;
-    let angle_offset = match kind {
-        "self_point_towards" => Some(90.0),
-        "self_rotate" => Some(0.0),
-        _ => None,
-    };
-    let mut restore_input = false;
-    if let Some(offset) = angle_offset
-        && let Some(input) = block.pointer("/inputs/degrees")
-        && let Some(original) = original_angle_input(input, "input", offset)
-    {
-        result["inputs"]["degrees"] = original.clone();
-        restore_input = true;
-    }
-    if let Some(native) = kind.strip_prefix(OPAQUE) {
-        let original = block["id"].as_str().and_then(|id| {
-            originals
-                .and_then(|g| g.get("blocks"))
-                .and_then(|b| b.get(id))
-        });
-        ensure!(
-            original.is_some_and(|b| b["type"].as_str() == Some(native)),
-            "cannot export unsupported new KN block {kind} ({})",
-            block["id"]
-        );
-        result["type"] = json!(native);
-    } else {
-        ensure!(
-            translate(&mut result, true)
-                .with_context(|| format!("block {kind} ({})", block["id"]))?,
-            "unsupported new KN block {kind} ({}) for Kitten 4 export",
-            block["id"]
-        );
-    }
-    for key in ["inputs", "statements"] {
-        if let Some(children) = result.get_mut(key) {
-            for child in children
-                .as_object_mut()
-                .with_context(|| format!("block {kind} {key} must be an object"))?
-                .values_mut()
-            {
-                *child = export_block(child, originals, depth + 1)?;
-            }
-        }
-    }
-    remove(&mut result, ANGLE);
-    if let Some(offset) = angle_offset
-        && !restore_input
-    {
-        let input = result
-            .pointer("/inputs/degrees")
-            .cloned()
-            .unwrap_or(json!({"type":"math_number","fields":{"NUM":0}}));
-        if !result.get("inputs").is_some_and(Value::is_object) {
-            result["inputs"] = json!({});
-        }
-        result["inputs"]["degrees"] = angle_expression(input, offset, true, None);
-    }
-    if convert_reporter && matches!(kind, "get_orientation" | "self_get_rotation") {
-        result = angle_expression(result, 90.0, true, None);
-    }
-    Ok(result)
+    Ok(output.pop().unwrap().into_value())
 }
 
 struct Graph {
@@ -2478,11 +2587,9 @@ impl Graph {
         Ok(())
     }
     fn flatten(&mut self, block: &Value, parent: Option<&str>, depth: usize) -> Result<String> {
-        // Keep statement recursion bounded, but walk next links without frames.
-        let mut current = Some(block);
-        let mut parent = parent.map(str::to_owned);
+        let mut pending = vec![(block, parent.map(str::to_owned), depth, None)];
         let mut first = None;
-        while let Some(block) = current {
+        while let Some((block, parent, depth, edge)) = pending.pop() {
             check_depth(block, depth)?;
             let id = if let Some(id) = block["id"].as_str() {
                 id.to_owned()
@@ -2499,10 +2606,17 @@ impl Graph {
                 !self.blocks.contains_key(&id),
                 "duplicate canonical block id {id}"
             );
-            let mut flat = without_next(block);
-            for key in ["next", "inputs", "statements", "shield"] {
-                remove(&mut flat, key);
-            }
+            let mut flat = Value::Object(
+                block
+                    .as_object()
+                    .context("block must be an object")?
+                    .iter()
+                    .filter(|(key, _)| {
+                        !matches!(key.as_str(), "next" | "inputs" | "statements" | "shield")
+                    })
+                    .map(|(key, value)| (key.clone(), crate::json::clone_value(value)))
+                    .collect(),
+            );
             flat["id"] = json!(id);
             flat["parent_id"] = json!(parent);
             for (key, default) in [
@@ -2525,8 +2639,7 @@ impl Graph {
                 flat.as_object_mut().unwrap().entry(key).or_insert(default);
             }
             self.blocks.insert(id.clone(), flat);
-            let mut edges = Map::new();
-            if first.is_some()
+            if let Some(edge) = edge
                 && let Some(parent) = &parent
             {
                 self.connections
@@ -2534,19 +2647,25 @@ impl Graph {
                     .or_insert(json!({}))
                     .as_object_mut()
                     .unwrap()
-                    .insert(id.clone(), json!({"type":"next"}));
+                    .insert(id.clone(), edge);
             }
             if first.is_none() {
                 first = Some(id.clone());
             }
-            for (key, input_type) in [("inputs", "value"), ("statements", "statement")] {
+            if let Some(next) = block.get("next") {
+                pending.push((next, Some(id.clone()), depth, Some(json!({"type":"next"}))));
+            }
+            // Preserve the previous preorder (inputs, statements, next), which
+            // determines generated IDs when a node has no explicit ID.
+            for (key, input_type) in [("statements", "statement"), ("inputs", "value")] {
                 if let Some(children) = block.get(key).and_then(Value::as_object) {
-                    for (name, child) in children {
-                        let child = self.flatten(child, Some(&id), depth + 1)?;
-                        edges.insert(
+                    for (name, child) in children.iter().rev() {
+                        pending.push((
                             child,
-                            json!({"type":"input","input_name":name,"input_type":input_type}),
-                        );
+                            Some(id.clone()),
+                            depth + 1,
+                            Some(json!({"type":"input","input_name":name,"input_type":input_type})),
+                        ));
                     }
                 }
             }
@@ -2554,10 +2673,7 @@ impl Graph {
                 .entry(id.clone())
                 .or_insert(json!({}))
                 .as_object_mut()
-                .unwrap()
-                .extend(edges);
-            parent = Some(id);
-            current = block.get("next");
+                .unwrap();
         }
         Ok(first.unwrap())
     }
