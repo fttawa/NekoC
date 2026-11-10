@@ -4,6 +4,8 @@ pub mod bcmkn_compiler;
 pub mod decompile;
 pub mod diff;
 pub mod engine;
+pub mod import_bench;
+pub mod import_perf;
 pub mod inspect;
 pub mod ir;
 mod js_number;

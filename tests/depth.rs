@@ -75,6 +75,14 @@ fn two_thousand_next_blocks_import_compile_run_export_and_drop() {
     let (_, report) = nekoc::bcmkn::import(echoed).unwrap();
     assert_eq!(report["fast_runtime_ready"], true);
     assert_eq!(kitten4::coverage(&source, 1)["stage"], "ran");
+    // Replace a populated deep source cache, including its Rc canonical owner.
+    let shallow = nekoc::json::from_str(include_str!("../samples/kitten4-demo.bcm")).unwrap();
+    kitten4::to_neko(&shallow).unwrap();
+    // A failed import must safely clean moved subtrees and retain the old cache.
+    let mut invalid = source.clone();
+    invalid["compile_result"][0]["compiled_block_map"]["hat"]["type"] = json!(false);
+    assert!(kitten4::to_neko(&invalid).is_err());
+    assert!(kitten4::to_neko(&source).is_ok());
     let bench = std::process::Command::new(env!("CARGO_BIN_EXE_bench-player"))
         .args([
             dir.path().join("deep.bcm").to_str().unwrap(),
@@ -87,6 +95,20 @@ fn two_thousand_next_blocks_import_compile_run_export_and_drop() {
         bench.status.success(),
         "{}",
         String::from_utf8_lossy(&bench.stderr)
+    );
+    let import_bench = std::process::Command::new(env!("CARGO_BIN_EXE_bench-import"))
+        .args([
+            dir.path().join("deep.bcm").to_str().unwrap(),
+            "--snapshot",
+            "--frames",
+            "1",
+        ])
+        .output()
+        .unwrap();
+    assert!(
+        import_bench.status.success(),
+        "{}",
+        String::from_utf8_lossy(&import_bench.stderr)
     );
 }
 

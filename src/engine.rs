@@ -661,7 +661,7 @@ impl RuntimeSemantics {
         // stricter metadata schema (published sources need no workspace). The
         // canonical project may have been edited, so do not compare it to this
         // fresh import or require an export round-trip to succeed.
-        crate::kitten4::to_neko(source)
+        crate::kitten4::validate_source(source)
             .context("malformed _nekocKitten4 provenance: source cannot be imported")?;
         Ok(Self::Kitten4)
     }
@@ -730,6 +730,45 @@ pub struct CompileStats {
     pub lists: usize,
     pub scripts: usize,
 }
+
+/// A diagnostic pass can reuse provenance validation and lowering across roots.
+/// This never changes the caller's canonical document or its runtime semantics.
+pub(crate) struct PreparedProject<'a> {
+    pub project: PreparedJson<'a>,
+    semantics: RuntimeSemantics,
+    start_hats: crate::kitten4::StartHats,
+}
+
+pub(crate) enum PreparedJson<'a> {
+    Borrowed(&'a Value),
+    Owned(crate::json::Json),
+}
+
+impl AsRef<Value> for PreparedJson<'_> {
+    fn as_ref(&self) -> &Value {
+        match self {
+            Self::Borrowed(value) => value,
+            Self::Owned(value) => value,
+        }
+    }
+}
+
+impl std::ops::Deref for PreparedJson<'_> {
+    type Target = Value;
+    fn deref(&self) -> &Value {
+        self.as_ref()
+    }
+}
+
+impl PreparedProject<'_> {
+    pub fn compile(&self, project: &Value) -> Result<Program> {
+        crate::json::check_blocks(project, 64)?;
+        crate::json::expanded(|| {
+            Program::compile_canonical(project, self.semantics, self.start_hats.clone())
+        })
+    }
+}
+
 impl Program {
     /// Diagnostic IR, not a stable persistence format. Includes all compiled
     /// fields (also source IDs); inequality alone does not prove a semantic bug.
@@ -758,10 +797,13 @@ impl Program {
         Self::compile_project(project, false)
     }
     fn compile_project(project: &Value, unpack: bool) -> Result<Self> {
-        crate::json::check_blocks(project, 64)?;
-        crate::json::expanded(|| Self::compile_project_inner(project, unpack))
+        let _timing = crate::import_perf::span("engine_compile_total");
+        let prepared = Self::prepare(project, unpack)?;
+        prepared.compile(&prepared.project)
     }
-    fn compile_project_inner(project: &Value, unpack: bool) -> Result<Self> {
+    pub(crate) fn prepare(project: &Value, unpack: bool) -> Result<PreparedProject<'_>> {
+        let _timing = crate::import_perf::span("engine_prepare");
+        crate::json::check_blocks(project, 64)?;
         let semantics = RuntimeSemantics::from_project(project)?;
         let start_hats = if semantics == RuntimeSemantics::Kitten4 {
             crate::kitten4::start_hats(&project["_nekocKitten4"]["source"])
@@ -769,27 +811,28 @@ impl Program {
         } else {
             crate::kitten4::StartHats::new()
         };
-        let unpacked;
         let project = if unpack && crate::pack::is_packed(project) {
-            unpacked = crate::pack::unpack(project)?;
-            &unpacked
+            PreparedJson::Owned(crate::pack::unpack(project)?)
         } else {
-            project
+            PreparedJson::Borrowed(project)
         };
-        let lowered;
         let project = if semantics == RuntimeSemantics::Kitten4 {
-            lowered = crate::kitten4::lower_for_vm(project);
-            &lowered
+            PreparedJson::Owned(crate::kitten4::lower_for_vm(&project))
         } else {
             project
         };
-        Self::compile_canonical(project, semantics, start_hats)
+        Ok(PreparedProject {
+            project,
+            semantics,
+            start_hats,
+        })
     }
     fn compile_canonical(
         project: &Value,
         semantics: RuntimeSemantics,
         start_hats: crate::kitten4::StartHats,
     ) -> Result<Self> {
+        let _timing = crate::import_perf::span("engine_compile_canonical");
         let scene = project
             .pointer("/scenes/currentSceneId")
             .and_then(Value::as_str)
@@ -3647,6 +3690,7 @@ impl Engine {
         self.jit = None;
     }
     pub fn new(program: Program) -> Self {
+        let _timing = crate::import_perf::span("engine_init_jit");
         let jit = jit::Jit::new(program.ops.len());
         let slots = program.initial.clone();
         let lists = program
