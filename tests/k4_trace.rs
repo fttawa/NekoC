@@ -3,6 +3,43 @@ use serde_json::{Value, json};
 use std::{fs, path::Path};
 
 #[test]
+fn render_trace_keeps_real_pen_deltas_and_validates_browser_masks() {
+    let dir = tempfile::tempdir().unwrap();
+    let costumes = dir.path().join("costumes.json");
+    fs::write(&costumes, "[]").unwrap();
+    let input = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/kitten4/visual-pen.bcm");
+    let output = Command::new(assert_cmd::cargo::cargo_bin!("k4-trace"))
+        .arg(&input)
+        .args(["--render", "--frames", "2", "--costumes"])
+        .arg(&costumes)
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let value: Value = serde_json::from_slice(&output).unwrap();
+    assert_eq!(value["schema"], "nekoc-k4-render-v1");
+    assert!(value["project"]["actors"]["actorsDict"].is_object());
+    assert_eq!(value["frames"].as_array().unwrap().len(), 2);
+    assert!(!value["frames"][0]["lines"].as_array().unwrap().is_empty());
+    assert!(value["frames"][1]["lines"].as_array().unwrap().is_empty());
+    assert_eq!(value["trace"]["frames"][1]["frame"], 2);
+    fs::write(
+        &costumes,
+        json!([{"id":"c","width":80,"height":40,
+        "mask_width":1,"mask_height":1,"mask_bytes":[256]}])
+        .to_string(),
+    )
+    .unwrap();
+    Command::new(assert_cmd::cargo::cargo_bin!("k4-trace"))
+        .arg(&input)
+        .args(["--render", "--frames", "1", "--costumes"])
+        .arg(&costumes)
+        .assert()
+        .failure();
+}
+
+#[test]
 fn trace_has_every_actor_and_typed_values_on_unchanged_frames() {
     let input = Path::new(env!("CARGO_MANIFEST_DIR")).join("samples/kitten4-demo.bcm");
     let output = Command::new(assert_cmd::cargo::cargo_bin!("k4-trace"))

@@ -30,6 +30,12 @@ struct Args {
     block_filter: Vec<String>,
     #[arg(long)]
     interpreter: bool,
+    /// Include the canonical project and actual web renderer frame deltas.
+    #[arg(long)]
+    render: bool,
+    /// Costume measurements supplied by the browser, as in the web player.
+    #[arg(long, requires = "render")]
+    costumes: Option<PathBuf>,
 }
 
 fn main() -> Result<()> {
@@ -68,6 +74,64 @@ fn main() -> Result<()> {
         return Ok(());
     }
     let mut engine = Engine::new(program);
+    if let Some(file) = &args.costumes {
+        let costumes: serde_json::Value = serde_json::from_slice(&std::fs::read(file)?)?;
+        for costume in costumes.as_array().context("expected costume array")? {
+            let mask = match (
+                costume["mask_width"].as_u64(),
+                costume["mask_height"].as_u64(),
+                costume["mask_bytes"].as_array(),
+            ) {
+                (Some(w), Some(h), Some(bytes)) => {
+                    ensure!(w > 0 && h > 0 && w <= 128 && h <= 128, "invalid mask size");
+                    let bits = bytes
+                        .iter()
+                        .map(|v| {
+                            v.as_u64()
+                                .filter(|n| *n <= 255)
+                                .map(|n| n as u8)
+                                .context("invalid mask byte")
+                        })
+                        .collect::<Result<Vec<_>>>()?;
+                    ensure!(
+                        bits.len() as u64 == (w * h).div_ceil(8),
+                        "invalid mask length"
+                    );
+                    Some((w as usize, h as usize, bits))
+                }
+                _ => None,
+            };
+            let rgb = costume["rgb_bytes"]
+                .as_array()
+                .map(|bytes| {
+                    bytes
+                        .iter()
+                        .map(|v| {
+                            v.as_u64()
+                                .filter(|n| *n <= 255)
+                                .map(|n| n as u8)
+                                .context("invalid RGB byte")
+                        })
+                        .collect::<Result<Vec<_>>>()
+                })
+                .transpose()?;
+            if let (Some(rgb), Some((w, h, _))) = (&rgb, &mask) {
+                ensure!(rgb.len() == w * h * 3, "invalid RGB length");
+            }
+            engine.set_costume(
+                costume["id"].as_str().context("missing costume id")?,
+                nekoc::engine::Costume {
+                    width: costume["width"].as_f64().context("missing width")?,
+                    height: costume["height"].as_f64().context("missing height")?,
+                    center_point: nekoc::engine::Costume::center_point_from_json(
+                        &costume["centerPoint"],
+                    ),
+                    mask,
+                    rgb,
+                },
+            );
+        }
+    }
     if let Some(backend) = args.cloud.backend() {
         engine.set_cloud_backend(
             backend,
@@ -86,6 +150,7 @@ fn main() -> Result<()> {
     engine.set_random_seed(args.seed);
     engine.start();
     let mut frames = Vec::new();
+    let mut render_frames = Vec::new();
     for frame in 1..=args.frames {
         let update = match engine.advance(1.0 / 60.0, 2_000_000, Duration::from_secs(5)) {
             Ok(update) => update,
@@ -106,6 +171,17 @@ fn main() -> Result<()> {
             "frame {frame} exceeded execution budget"
         );
         frames.push(engine.oracle_snapshot(frame));
+        if args.render {
+            render_frames.push(json!({"frame": update, "lines": update.lines}));
+        }
+    }
+    if args.render {
+        println!(
+            "{}",
+            json!({"schema":"nekoc-k4-render-v1", "project":project,
+            "frames":render_frames, "trace":{"schema":"nekoc-k4-trace-v1", "frames":frames}})
+        );
+        return Ok(());
     }
     println!(
         "{}",

@@ -7,6 +7,17 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadPlaywright } from "../probe-kitten4.mjs";
 
+// Optional per-run media cache shared by official and NekoC pages. Entries are
+// populated only after the same CDN/method checks as an uncached request.
+async function fetchAsset(url, cache) {
+  if (cache?.has(url)) return cache.get(url);
+  const response = await fetch(url, { redirect: "error", signal: AbortSignal.timeout(15000) });
+  const asset = { status: response.status, contentType: response.headers.get("content-type") || "application/octet-stream",
+    body: Buffer.from(await response.arrayBuffer()) };
+  if (response.ok) cache?.set(url, asset);
+  return asset;
+}
+
 export function parseArgs(argv) {
   const args = { command: "run", frames: 60, seed: 1, channel: "msedge", timeoutMs: 45000 };
   if (argv[0] && !argv[0].startsWith("--")) args.command = argv.shift();
@@ -148,9 +159,13 @@ export async function openKernel(options, input) {
   });
   await new Promise((resolve, reject) => { server.once("error", reject); server.listen(0, "127.0.0.1", resolve); });
   origin = `http://127.0.0.1:${server.address().port}`;
-  let browser;
+  let browser, bootWatchdog;
   try {
     browser = await loadPlaywright().chromium.launch({ headless: true, channel: options.channel || "msedge" });
+    if (options.wallTimeoutMs) bootWatchdog = setTimeout(() => {
+      diagnostics.watchdog = `kernel boot exceeded ${options.wallTimeoutMs} ms`;
+      void browser.close().catch(() => {});
+    }, options.wallTimeoutMs);
     const context = await browser.newContext({ viewport: { width: 1280, height: 720 }, serviceWorkers: "block" });
     // Fresh anonymous context; deny ALL external traffic, including cloud data/telemetry.
     await context.route("**/*", async route => {
@@ -163,9 +178,9 @@ export async function openKernel(options, input) {
       if (asset) {
         try {
           // Node fetch forwards no browser cookies, authorization or referrer. No redirects.
-          const response = await fetch(url, { redirect: "error", signal: AbortSignal.timeout(15000) });
-          entry.status = response.status;
-          return route.fulfill({ status: response.status, contentType: response.headers.get("content-type") || "application/octet-stream", body: Buffer.from(await response.arrayBuffer()) });
+          const asset = await fetchAsset(url.href, options.assetCache);
+          entry.status = asset.status;
+          return route.fulfill(asset);
         } catch (error) { entry.error = error.message; }
       }
       return route.abort("blockedbyclient");
@@ -212,8 +227,10 @@ export async function openKernel(options, input) {
       diagnostics.phase = "container-ready";
     }
     await load(served);
+    clearTimeout(bootWatchdog);
     return { page, diagnostics, load, close: async () => { await browser.close(); await new Promise(resolve => server.close(resolve)); } };
   } catch (error) {
+    clearTimeout(bootWatchdog);
     if (browser) await browser.close();
     await new Promise(resolve => server.close(resolve));
     error.diagnostics = diagnostics;
@@ -255,6 +272,12 @@ export async function runOracle(input, options = {}) {
   const bootstrap = structuredClone(project); bootstrap.compile_result = [];
   const needsCompile = options.command === "compile" || !Array.isArray(project.compile_result);
   const kernel = await openKernel(options, needsCompile ? bootstrap : project);
+  // A domain block can hang inside page.evaluate, whose timeout is otherwise
+  // unbounded. Visual batches opt into a whole-work watchdog and close the page.
+  const watchdog = options.wallTimeoutMs ? setTimeout(() => {
+    kernel.diagnostics.watchdog = `work exceeded ${options.wallTimeoutMs} ms`;
+    void kernel.page.context().close().catch(() => {});
+  }, options.wallTimeoutMs) : null;
   kernel.diagnostics.adaptations = adaptations;
   kernel.diagnostics.instrumentation = [
     "external .orig bundle retains the wrapper's DI exposure; not independently authenticated upstream",
@@ -277,6 +300,7 @@ export async function runOracle(input, options = {}) {
       return state.cloud_states.loading_state === "load_done" && state.theatre_states.scenes[scene] && req("a1xw").a().get_scene_by_id(scene);
     }, project.theatre.scenes_order?.[0] || Object.keys(project.theatre.scenes)[0], { timeout: options.timeoutMs || 45000, polling: 20 });
     kernel.diagnostics.phase = "trace";
+    if (options.beforeStart) await options.beforeStart(kernel.page, project);
     await kernel.page.evaluate(({ seed, blocks, randomSource, blockFilter }) => {
       const req = window.__k4OracleRequire;
       const heart = req("KmiX").b();
@@ -426,11 +450,13 @@ export async function runOracle(input, options = {}) {
       await kernel.page.evaluate(() => window.__k4OracleRequire("vxpV").n());
       await kernel.page.waitForFunction(() => window.__k4Oracle.frames.length > 0 || window.__k4Oracle.errors.length > 0 || window.__k4OracleRequire("ALsR").a.get_state().run_states.is_error,
         null, { timeout: options.timeoutMs || 45000, polling: 20 });
+      if (options.onFrame) await options.onFrame(kernel.page, 1);
       // Start emits the first update synchronously. Each subsequent rAF batch is
       // exactly one official scheduler update; never use wall-clock sleeps as frames.
       for (let frame = 1; frame < (options.frames ?? 60); frame++) {
         if (await kernel.page.evaluate(() => window.__k4OracleRequire("ALsR").a.get_state().run_states.is_error)) break;
         await kernel.page.evaluate(timestamp => window.__k4OracleFrame(timestamp), frame * 1000 / 60);
+        if (options.onFrame) await options.onFrame(kernel.page, frame + 1);
       }
     }
     const result = await kernel.page.evaluate(() => ({ frames: window.__k4Oracle.frames, errors: window.__k4Oracle.errors,
@@ -450,7 +476,7 @@ export async function runOracle(input, options = {}) {
     kernel.diagnostics.lastState = await kernel.page.evaluate(() => window.__k4OracleRequire("ALsR").a.get_state()).catch(() => null);
     error.diagnostics = kernel.diagnostics;
     throw error;
-  } finally { await kernel.close(); }
+  } finally { clearTimeout(watchdog); await kernel.close(); }
 }
 
 async function main() {

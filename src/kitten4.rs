@@ -1034,6 +1034,7 @@ fn import_owners(
             rename(&mut result, "workspace_offset", "workspaceScrollXy");
             rename(&mut result, "screen_name", "screenName");
             rename(&mut result, "lock", "locked");
+            rename(&mut result, "rotation_type", "rotationType");
             if kind == "scene" {
                 rename(&mut result, "actors", "actorIds");
             }
@@ -2307,6 +2308,7 @@ fn export_owners(
         remove(&mut result,"nekoBlockJsonList"); remove(&mut result,"comments");
         rename(&mut result,"currentStyleId","current_style_id"); rename(&mut result,"workspaceScrollXy","workspace_offset");
         rename(&mut result,"screenName","screen_name"); rename(&mut result,"locked","lock");
+        rename(&mut result,"rotationType","rotation_type");
         if kind=="scene" {rename(&mut result,"actorIds","actors");}
         if let Some(position)=result.get("position").cloned() {
             result["x"]=position["x"].clone();result["y"]=position["y"].clone();remove(&mut result,"position");

@@ -16,6 +16,32 @@ fn canonical_blank() -> Value {
 }
 
 #[test]
+fn initial_rotation_policy_is_imported_and_roundtrips() {
+    let mut native = fixture();
+    native["theatre"]["actors"]["nekoc-pen-actor"]["rotation_type"] = json!(2);
+    let canonical = kitten4::to_neko(&native).unwrap();
+    assert_eq!(
+        canonical["actors"]["actorsDict"]["nekoc-pen-actor"]["rotationType"],
+        2
+    );
+    let mut vm = Engine::new(Program::compile(&canonical).unwrap());
+    vm.start();
+    let frame = vm
+        .advance(1.0 / 60.0, 2_000_000, Duration::from_secs(5))
+        .unwrap();
+    assert_eq!(
+        frame
+            .sprites
+            .iter()
+            .find(|a| a.id == "nekoc-pen-actor")
+            .unwrap()
+            .rotation_type,
+        2
+    );
+    assert_eq!(kitten4::from_neko(&canonical).unwrap(), native);
+}
+
+#[test]
 fn rotate_center_is_an_unscaled_image_centre_offset_without_axis_conversion() {
     let mut native = fixture();
     let styles = native["theatre"]["styles"].as_object_mut().unwrap();

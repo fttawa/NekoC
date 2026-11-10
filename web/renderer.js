@@ -24,10 +24,11 @@ void main(){uv=corner();vec2 p=(uv-.5)*dimensions;float c=cos(angle),s=sin(angle
 // Sprite effects by native scope: fxA = (color, brightness, pixelate, ripple),
 // fxB = (twist, grayscale). Textures are premultiplied; colour effects unpremultiply.
 const TEXTURE_FRAGMENT = `#version 300 es
-precision highp float;uniform sampler2D image;uniform vec4 tint;uniform vec4 fxA;uniform vec2 fxB;uniform vec2 texSize;in vec2 uv;out vec4 outColor;
+precision highp float;uniform sampler2D image;uniform vec4 tint;uniform vec4 fxA;uniform vec2 fxB;uniform vec2 texSize;uniform vec2 repeatUV;in vec2 uv;out vec4 outColor;
 vec3 hsv(vec3 c){vec4 K=vec4(0.,-1./3.,2./3.,-1.);vec4 p=mix(vec4(c.bg,K.wz),vec4(c.gb,K.xy),step(c.b,c.g));vec4 q=mix(vec4(p.xyw,c.r),vec4(c.r,p.yzx),step(p.x,c.r));float d=q.x-min(q.w,q.y);return vec3(abs(q.z+(q.w-q.y)/(6.*d+1e-10)),d/(q.x+1e-10),q.x);}
 vec3 rgb(vec3 c){vec3 p=abs(fract(c.xxx+vec3(1.,2./3.,1./3.))*6.-3.);return c.z*mix(vec3(1.),clamp(p-1.,0.,1.),c.y);}
 void main(){vec2 p=uv;
+if(repeatUV.x>0.)p=fract((p-.5)*repeatUV+.5);
 if(fxB.x!=0.){vec2 d=p-.5;float r=length(d)*2.;float a=radians(fxB.x)*max(0.,1.-r);float s=sin(a),c=cos(a);p=.5+mat2(c,-s,s,c)*d;}
 if(fxA.w!=0.){p+=vec2(sin(p.y*25.),sin(p.x*25.))*fxA.w/2000.;}
 if(abs(fxA.z)>=1.){vec2 cell=max(vec2(1.),vec2(abs(fxA.z)/10.+1.));vec2 n=texSize/cell;p=(floor(p*n)+.5)/n;}
@@ -60,7 +61,7 @@ export class StageRenderer {
     if (!gl) throw Error('需要支持 WebGL 2 的浏览器。');
     this.gl = gl; this.pen = program(gl, PEN_VERTEX, PEN_FRAGMENT); this.texture = program(gl, TEXTURE_VERTEX, TEXTURE_FRAGMENT);
     this.penSize = gl.getUniformLocation(this.pen, 'stageSize');
-    this.uniform = Object.fromEntries(['stageSize', 'position', 'dimensions', 'angle', 'image', 'tint', 'fxA', 'fxB', 'texSize'].map(k => [k, gl.getUniformLocation(this.texture, k)]));
+    this.uniform = Object.fromEntries(['stageSize', 'position', 'dimensions', 'angle', 'image', 'tint', 'fxA', 'fxB', 'texSize', 'repeatUV'].map(k => [k, gl.getUniformLocation(this.texture, k)]));
     this.vao = gl.createVertexArray(); this.buffer = gl.createBuffer(); this.bufferCapacity = 0;
     gl.bindVertexArray(this.vao); gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
     for (const [location, count, offset] of [[0,4,0], [1,1,16], [2,4,20]]) {
@@ -78,6 +79,7 @@ export class StageRenderer {
 
   async load(project) {
     const generation = ++this.generation;
+    this.kitten4 = Object.hasOwn(project,'_nekocKitten4');
     const gl = this.gl;
     for(const query of this.gpuQueries)gl.deleteQuery(query);
     this.gpuQueries=[];this.stats.gpuMs=null;
@@ -100,10 +102,11 @@ export class StageRenderer {
     this.usePenSurface(project.scenes?.currentSceneId);
     const scene = project.scenes?.scenesDict?.[project.scenes.currentSceneId];
     this.backdrop = scene?.currentStyleId;
+    this.backgroundState = null;
     this.sceneId=project.scenes?.currentSceneId;this.actorOrder=[...(scene?.actorIds||[])].reverse();this.penLayer=0;
     this.sprites = (scene?.actorIds || []).map(id => {
       const a = project.actors.actorsDict[id];
-      return { id, name:a.name, style:a.currentStyleId, x:a.position?.x||0,y:a.position?.y||0,direction:(a.rotation||0)*180/Math.PI,scale:a.scale??100,visible:a.visible!==false,opacity:1 };
+      return { id, name:a.name, style:a.currentStyleId, x:a.position?.x||0,y:a.position?.y||0,direction:(a.rotation||0)*180/Math.PI-(this.kitten4?90:0),scale:a.scale??100,rotation_type:a.rotationType??0,visible:a.visible!==false,opacity:1 };
     });
     this.spriteIndices=new Map(this.sprites.map((a,i)=>[a.id,i]));
     this.dirty = true;
@@ -129,7 +132,7 @@ export class StageRenderer {
         const ctx=hit.getContext('2d',{willReadFrequently:true});ctx.drawImage(image,0,0);
         const rgba=ctx.getImageData(0,0,hit.width,hit.height).data,alpha=new Uint8Array(hit.width*hit.height);
         for(let i=0;i<alpha.length;i++)alpha[i]=rgba[i*4+3];
-        this.images.set(id,{texture,width:image.naturalWidth,height:image.naturalHeight,centerPoint,alpha,rgb:cellColors(rgba,hit.width,hit.height)});
+        this.images.set(id,{texture,width:image.naturalWidth,height:image.naturalHeight,centerPoint,adaptive:style.adaptive!==false,alpha,rgb:cellColors(rgba,hit.width,hit.height)});
         this.stats.textureBytes += image.naturalWidth * image.naturalHeight * 4;
         this.dirty = true;
       } catch(error) { this.onError?.(`素材 ${style.name || id}: ${error.message}`); }
@@ -158,6 +161,7 @@ export class StageRenderer {
     this.usePenSurface(sceneId);this.sceneId=sceneId;
     this.sprites=[];this.spriteIndices.clear();this.actorOrder=[];
     this.backdrop=this.scenes?.[sceneId]?.currentStyleId;this.dirty=true;
+    this.backgroundState=null;
     if(transition&&this.canvas.animate&&!matchMedia('(prefers-reduced-motion: reduce)').matches){
       const offset={left:'100%',right:'-100%',up:'0 100%',down:'0 -100%'}[transition.direction]||'0 0';
       const frames=/fade|distort|distrot/i.test(transition.kind)?[{opacity:0},{opacity:1}]:[{translate:offset},{translate:'0 0'}];
@@ -270,7 +274,7 @@ export class StageRenderer {
     if(frame.removed?.length){const gone=new Set(frame.removed);this.sprites=this.sprites.filter(a=>!gone.has(a.id));this.spriteIndices=new Map(this.sprites.map((a,i)=>[a.id,i]));changed=true;}
     if(Array.isArray(frame.order)){this.actorOrder=frame.order;changed=true;}
     for(const a of frame.sprites){
-      if(a.id===this.sceneId){changed ||= a.style!==this.backdrop;this.backdrop=a.style;continue;}
+      if(a.id===this.sceneId){changed ||= a.style!==this.backdrop||JSON.stringify(a)!==JSON.stringify(this.backgroundState);this.backdrop=a.style;this.backgroundState=a;continue;}
       const index=this.spriteIndices.get(a.id),old=index===undefined?null:this.sprites[index];
       changed ||= !old||['style','x','y','direction','scale','visible','opacity','size_x','size_y','rotation_type'].some(k=>a[k]!==old[k])||String(a.effects)!==String(old.effects);
       if(index===undefined){this.spriteIndices.set(a.id,this.sprites.length);this.sprites.push(a);}else this.sprites[index]=a;
@@ -380,7 +384,7 @@ export class StageRenderer {
 
   drawImageStamp(stamp){
     const image=this.images.get(stamp.style);if(!image)return;
-    const {x,y,width,height,angle}=actorGeometry(stamp,image);
+    const {x,y,width,height,angle}=actorGeometry(stamp,image,this.kitten4);
     this.drawTexture(image.texture,x,y,width,height,angle,[1,1,1,stamp.opacity??1],stamp.effects,[image.width,image.height]);
   }
 
@@ -404,19 +408,46 @@ export class StageRenderer {
 
   drawTextStamp(stamp){
     if(!stamp.text)return;
+    if(this.kitten4)return this.drawK4TextStamp(stamp);
     const item=this.textTexture(stamp.text,stamp.size);
     const offset=stamp.align==='right'?item.advance:stamp.align==='center'?item.advance/2:0;
-    // Official text stamps rotate by the negative actor rotation, around the anchor.
+    // Keep the legacy KN stamp orientation policy.
     const angle=-stamp.direction*Math.PI/180,c=Math.cos(angle),s=Math.sin(angle),dx=item.dx-offset,dy=item.dy;
     this.drawTexture(item.texture,stamp.x+dx*c+dy*s,stamp.y-dx*s+dy*c,item.width,item.height,angle,stamp.color);
   }
 
-  drawTexture(texture,x,y,width,height,angle=0,tint=[1,1,1,1],effects=null,texSize=null) {
+  drawK4TextStamp(stamp){
+    // Rt.draw_text_stamp rasterizes AFTER rotating the Canvas context. Rotating
+    // a pre-rasterized glyph texture instead applies a second interpolation and
+    // changes small/CJK glyphs. Upload just the resulting pixel-aligned bounds.
+    const canvas=this.stampCanvas??=document.createElement('canvas'),ctx=canvas.getContext('2d');
+    const font=`bold ${stamp.size}px Arial, "Microsoft YaHei"`,angle=stamp.direction*Math.PI/180;
+    ctx.font=font;ctx.textBaseline='middle';ctx.textAlign=stamp.align;
+    const m=ctx.measureText(stamp.text),c=Math.cos(angle),s=Math.sin(angle);
+    const sx=this.canvas.width/this.width,sy=this.canvas.height/this.height;
+    const ox=this.width/2+stamp.x,oy=this.height/2-stamp.y;
+    const corners=[[-m.actualBoundingBoxLeft,-m.actualBoundingBoxAscent],[m.actualBoundingBoxRight,-m.actualBoundingBoxAscent],[-m.actualBoundingBoxLeft,m.actualBoundingBoxDescent],[m.actualBoundingBoxRight,m.actualBoundingBoxDescent]];
+    const xs=corners.map(([x,y])=>(ox+c*x-s*y)*sx),ys=corners.map(([x,y])=>(oy+s*x+c*y)*sy);
+    const left=Math.max(0,Math.floor(Math.min(...xs))-2),right=Math.min(this.canvas.width,Math.ceil(Math.max(...xs))+2);
+    const top=Math.max(0,Math.floor(Math.min(...ys))-2),bottom=Math.min(this.canvas.height,Math.ceil(Math.max(...ys))+2);
+    if(right<=left||bottom<=top)return;
+    canvas.width=right-left;canvas.height=bottom-top;
+    ctx.setTransform(sx,0,0,sy,-left,-top);ctx.translate(ox,oy);ctx.rotate(angle);
+    ctx.font=font;ctx.textBaseline='middle';ctx.textAlign=stamp.align;
+    ctx.fillStyle=`rgb(${stamp.color.slice(0,3).map(v=>Math.round(v*255)).join(',')})`;ctx.globalAlpha=stamp.color[3];ctx.fillText(stamp.text,0,0);
+    const gl=this.gl,texture=this.stampTexture??=this.makeTexture(1,1);
+    gl.bindTexture(gl.TEXTURE_2D,texture);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,true);
+    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,canvas);
+    this.drawTexture(texture,(left+right)/2/sx-this.width/2,this.height/2-(top+bottom)/2/sy,canvas.width/sx,canvas.height/sy);
+  }
+
+  drawTexture(texture,x,y,width,height,angle=0,tint=[1,1,1,1],effects=null,texSize=null,repeatUV=null) {
     const gl=this.gl,u=this.uniform,e=effects||NO_EFFECTS;
     gl.useProgram(this.texture); gl.uniform2f(u.stageSize,this.width,this.height); gl.uniform2f(u.position,x,y);
     gl.uniform2f(u.dimensions,width,height); gl.uniform1f(u.angle,angle); gl.uniform1i(u.image,0);
     gl.uniform4fv(u.tint,tint);gl.uniform4f(u.fxA,e[0],e[2],e[3],e[4]);gl.uniform2f(u.fxB,e[5],e[6]);
     gl.uniform2f(u.texSize,texSize?.[0]||Math.abs(width)||1,texSize?.[1]||Math.abs(height)||1);
+    gl.uniform2f(u.repeatUV,repeatUV?.[0]||0,repeatUV?.[1]||0);
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,texture); gl.drawArrays(gl.TRIANGLES,0,6); this.stats.drawCalls++;
   }
 
@@ -426,14 +457,23 @@ export class StageRenderer {
     gl.bindFramebuffer(gl.FRAMEBUFFER,null); gl.viewport(0,0,this.canvas.width,this.canvas.height);
     gl.clearColor(1,1,1,1); gl.clear(gl.COLOR_BUFFER_BIT);
     const backdrop=this.images.get(this.backdrop);
-    if(backdrop)this.drawTexture(backdrop.texture,0,0,this.width,this.height);
+    if(backdrop){
+      // K4 St.update_adaptive_scale uses COVER, not independent x/y stretch.
+      const scale=this.kitten4&&backdrop.adaptive?Math.max(this.width/backdrop.width,this.height/backdrop.height):null;
+      if(this.kitten4){
+        // Background is a stage-sized TilingSprite; scale changes its tile
+        // transform, not the stage rectangle (It.set_scale / St).
+        const a=this.backgroundState,base=scale??1,sx=base*(a?.scale??100)/100*(a?.size_x??100)/100,sy=base*(a?.scale??100)/100*(a?.size_y??100)/100;
+        if(sx&&sy)this.drawTexture(backdrop.texture,0,0,this.width,this.height,0,[1,1,1,a?.opacity??1],a?.effects,null,[this.width/(backdrop.width*sx),this.height/(backdrop.height*sy)]);
+      }else this.drawTexture(backdrop.texture,0,0,this.width,this.height);
+    }
     const layer=Math.min(this.penLayer,this.actorOrder.length);
     for(let i=0;i<=this.actorOrder.length;i++) {
       if(i===layer)this.drawTexture(this.penTexture,0,0,this.width,this.height);
       const a=this.sprites[this.spriteIndices.get(this.actorOrder[i])];if(!a)continue;
       if(!a.visible)continue;
       const image=this.spriteImage(a);
-      if(image){const {x,y,width,height,angle}=actorGeometry(a,image);
+      if(image){const {x,y,width,height,angle}=actorGeometry(a,image,this.kitten4);
         this.drawTexture(image.texture,x,y,width,height,angle,[1,1,1,a.opacity??1],a.effects,[image.width,image.height]);}
     }
     this.dirty=false; if(resetStats)this.stats.submitMs=performance.now()-started;
@@ -444,7 +484,7 @@ export class StageRenderer {
       const a=this.sprites[this.spriteIndices.get(this.actorOrder[i])];
       if(!a?.visible||!a.scale||(a.opacity??1)<=0)continue;
       const image=this.spriteImage(a);if(!image)continue;
-      const {x:cx,y:cy,width,height,angle}=actorGeometry(a,image);if(!width||!height||![cx,cy,width,height,angle].every(Number.isFinite))continue;
+      const {x:cx,y:cy,width,height,angle}=actorGeometry(a,image,this.kitten4);if(!width||!height||![cx,cy,width,height,angle].every(Number.isFinite))continue;
       const c=Math.cos(angle),s=Math.sin(angle),dx=x-cx,dy=y-cy;
       const px=Math.floor((c*dx-s*dy)*image.width/width+image.width/2),py=Math.floor(image.height/2-(s*dx+c*dy)*image.height/height);
       if(px>=0&&px<image.width&&py>=0&&py<image.height&&image.alpha[py*image.width+px]>0)return a.id;
@@ -467,18 +507,20 @@ function cellColors(rgba,width,height){
 export function sensesColor(project){return JSON.stringify(project?.actors||{}).includes('"bump_into_color"')||JSON.stringify(project?.scenes||{}).includes('"bump_into_color"');}
 // Drawn size and angle: width/height percentages on top of scale, rotation type
 // 0 free, 1 left-right flip (negative width), 2 upright.
-export function spriteGeometry(a,image){
+export function spriteGeometry(a,image,kitten4=false){
   const scale=a.scale/100;let width=image.width*scale*(a.size_x??100)/100,height=image.height*scale*(a.size_y??100)/100,angle=a.direction*Math.PI/180;
   if(a.rotation_type===2)angle=0;
-  else if(a.rotation_type===1){const d=((a.direction%360)+540)%360-180;angle=0;if(d<0)width=-width;}
+  // K4 Lt.set_rotation: heading is CCW from right, flips at [90,270).
+  // Wire direction has already subtracted the K4 costume turn (90 degrees).
+  else if(a.rotation_type===1){const d=((a.direction%360)+540)%360-180;angle=0;if(kitten4?(d<=-90||d>90):d<0)width=-width;}
   return {width,height,angle};
 }
 
 // Texture centre after the existing draw-angle/rotation-type policy. Pivot is
 // relative to the image centre in unscaled pixels (x right, y down), not actor
 // position, CSS pixels or the collision mask grid. Text images have no pivot.
-function actorGeometry(a,image){
-  const geometry=spriteGeometry(a,image),{width,height,angle}=geometry;
+function actorGeometry(a,image,kitten4=false){
+  const geometry=spriteGeometry(a,image,kitten4),{width,height,angle}=geometry;
   const px=image.centerPoint?.x??0,py=image.centerPoint?.y??0;
   const dx=-px*width/image.width,dy=py*height/image.height,c=Math.cos(angle),s=Math.sin(angle);
   return {...geometry,x:a.x+c*dx+s*dy,y:a.y-s*dx+c*dy};
