@@ -65,6 +65,31 @@ export function runtimeProject(input) {
   return { project, adaptations };
 }
 
+// Published CDN images often have extensionless base64 keys; the player appends
+// imageView2 transformations. Permit only declared media on the existing CDN
+// allowlist, never arbitrary extensionless API endpoints.
+export function projectAssetUrls(project) {
+  const urls = new Set();
+  for (const entries of [project.theatre?.styles, project.theatre?.videos, project.audio]) {
+    for (const item of Object.values(entries || {})) for (const key of ["url", "cdn_url"]) {
+      if (typeof item[key] === "string") {
+        try { urls.add(new URL(item[key]).href); } catch { /* Inline/local assets need no external permission. */ }
+      }
+    }
+  }
+  return urls;
+}
+
+export function allowedAsset(url, declared) {
+  if (url.protocol !== "https:") return false;
+  // Legacy and new media CDNs are allowed only for project-declared media.
+  const declaredOnly = ["static.codemao.cn", "creation.bcmcdn.com"].includes(url.hostname);
+  if (!declaredOnly && !["kn-cdn.codemao.cn", "cdn-community.codemao.cn", "creation.codemao.cn"].includes(url.hostname)) return false;
+  if (!declaredOnly && /\.(?:json|png|jpe?g|svg|webp|gif|mp3|wav|ogg|mp4|woff2?|ttf)$/i.test(url.pathname)) return true;
+  const base = new URL(url); base.search = "";
+  return declared.has(url.href) || declared.has(base.href);
+}
+
 export async function openKernel(options, input) {
   const directory = options.playerDir || process.env.K4_PLAYER_DIR;
   if (!directory) throw new Error("Set K4_PLAYER_DIR or --player-dir to the external app directory");
@@ -75,14 +100,17 @@ export async function openKernel(options, input) {
   // Read resource names only; never reuse the wrapper's scripts or HTML.
   const assets = [...pageSource.matchAll(/(?:src|href)=["'](\/kn\/build\/[^"']+)["']/g)].map(m => m[1]);
   if (!assets.some(url => /player_v2.*\.js$/.test(url))) throw new Error("Cannot discover player_v2 entry");
-  const diagnostics = { assets: [], externalRequests: [], missingLocal: [], pageErrors: [], console: [], adaptations: [] };
+  const diagnostics = { assets: [], localRequests: [], externalRequests: [], failedRequests: [], missingLocal: [], pageErrors: [], console: [], adaptations: [] };
   let served = structuredClone(input);
+  let declaredAssets = projectAssetUrls(served);
   let origin;
   const tokenPath = "/new/abcdef0123456789";
   const server = createServer(async (req, res) => {
     try {
       const url = new URL(req.url, origin);
-      const send = (status, type, body) => { res.writeHead(status, { "Content-Type": type, "Cache-Control": "no-store" }); res.end(body); };
+      const entry = { url: req.url, method: req.method, destination: req.headers["sec-fetch-dest"] || "" };
+      diagnostics.localRequests.push(entry);
+      const send = (status, type, body) => { entry.status = status; res.writeHead(status, { "Content-Type": type, "Cache-Control": "no-store" }); res.end(body); };
       if (req.method !== "GET" && req.method !== "HEAD") return send(405, "text/plain", "read only");
       if (url.pathname === tokenPath) {
         if (req.headers["sec-fetch-dest"] !== "document") return send(200, "application/json", JSON.stringify(served));
@@ -126,9 +154,7 @@ export async function openKernel(options, input) {
       const request = route.request();
       const url = new URL(request.url());
       if (url.origin === origin || ["data:", "blob:"].includes(url.protocol)) return route.continue();
-      const asset = options.allowAssets && request.method() === "GET" && url.protocol === "https:" &&
-        /\.(?:json|png|jpe?g|svg|webp|gif|mp3|wav|ogg|mp4|woff2?|ttf)$/i.test(url.pathname) &&
-        ["kn-cdn.codemao.cn", "cdn-community.codemao.cn", "creation.codemao.cn"].includes(url.hostname);
+      const asset = options.allowAssets && request.method() === "GET" && allowedAsset(url, declaredAssets);
       const entry = { url: url.href, method: request.method(), resourceType: request.resourceType(), action: asset ? "asset-fetch" : "blocked" };
       diagnostics.externalRequests.push(entry);
       if (asset) {
@@ -147,6 +173,7 @@ export async function openKernel(options, input) {
     });
     const page = await context.newPage();
     page.on("pageerror", e => diagnostics.pageErrors.push(e.message));
+    page.on("requestfailed", request => diagnostics.failedRequests.push({ url: request.url(), error: request.failure()?.errorText }));
     page.on("console", m => { if (diagnostics.console.length < 200) diagnostics.console.push({ type: m.type(), text: m.text() }); });
     await page.addInitScript(() => {
       // Hold rAF until the harness explicitly advances a frame; boot uses real timers.
@@ -161,9 +188,12 @@ export async function openKernel(options, input) {
     const timeout = options.timeoutMs || 45000;
     async function load(project) {
       served = project;
+      declaredAssets = projectAssetUrls(project);
+      diagnostics.phase = "document";
       await page.goto(origin + tokenPath, { waitUntil: "load", timeout });
       // The supplied .orig exposes its DI container. Wait for the application's
       // own initialization; creating the heart early races saga/store setup.
+      diagnostics.phase = "container";
       await page.waitForFunction(() => window.__k4c && window.__k4b, null, { timeout, polling: 20 });
       await page.evaluate(async () => {
         if (!window.webpackJsonp?.push) throw new Error("Missing webpack runtime");
@@ -173,6 +203,7 @@ export async function openKernel(options, input) {
         window.__k4OracleContainer = req("KmiX").b().container;
         window.__k4OracleBinding = req("dET1").BINDING;
       });
+      diagnostics.phase = "container-ready";
     }
     await load(served);
     return { page, diagnostics, load, close: async () => { await browser.close(); await new Promise(resolve => server.close(resolve)); } };
@@ -212,25 +243,31 @@ export async function compileProject(page, project) {
 
 export async function runOracle(input, options = {}) {
   const { project, adaptations } = runtimeProject(input);
-  // Boot with empty ASTs, then reload with native compilation before running.
+  // Published works already contain the official AST: load them directly. Only
+  // editable works need an empty-AST bootstrap to access the native compiler.
   const bootstrap = structuredClone(project); bootstrap.compile_result = [];
-  const kernel = await openKernel(options, bootstrap);
+  const needsCompile = options.command === "compile" || !Array.isArray(project.compile_result);
+  const kernel = await openKernel(options, needsCompile ? bootstrap : project);
   kernel.diagnostics.adaptations = adaptations;
   kernel.diagnostics.instrumentation = [
     "external .orig bundle retains the wrapper's DI exposure; not independently authenticated upstream",
     "rAF held during load; official Start performs update 1, then one rAF batch per update",
     "native deterministic scheduler/PCG config; native Clock fixed to 1000/60 ms",
     "Math.random redirected at Start to a separate seeded native PCG instance",
+    "get_timer uses native Date wall clock, not deterministic Clock; timer-dependent traces are not cross-run deterministic",
   ];
   try {
-    if (options.command === "compile" || !project.compile_result) project.compile_result = await compileProject(kernel.page, project);
+    kernel.diagnostics.phase = "compile";
+    if (needsCompile) project.compile_result = await compileProject(kernel.page, project);
     if (options.command === "compile") return { project, diagnostics: kernel.diagnostics };
-    await kernel.load(project);
+    if (needsCompile) await kernel.load(project);
+    kernel.diagnostics.phase = "project-assets";
     await kernel.page.waitForFunction(scene => {
       const req = window.__k4OracleRequire;
       const state = req("ALsR").a.get_state();
       return state.cloud_states.loading_state === "load_done" && state.theatre_states.scenes[scene] && req("a1xw").a().get_scene_by_id(scene);
     }, project.theatre.scenes_order?.[0] || Object.keys(project.theatre.scenes)[0], { timeout: options.timeoutMs || 45000, polling: 20 });
+    kernel.diagnostics.phase = "trace";
     await kernel.page.evaluate(({ seed }) => {
       const req = window.__k4OracleRequire;
       const heart = req("KmiX").b();
@@ -292,6 +329,7 @@ export async function runOracle(input, options = {}) {
     }
     const result = await kernel.page.evaluate(() => ({ frames: window.__k4Oracle.frames, errors: window.__k4Oracle.errors }));
     if (result.errors.length || result.frames.length !== (options.frames ?? 60)) throw new Error(`Official runtime failed: ${JSON.stringify({ errors: result.errors, frames: result.frames.length })}`);
+    kernel.diagnostics.phase = "done";
     return { schema: "nekoc-k4-trace-v1", fps: 60, seed: options.seed ?? 1,
       random: "official PCG (not the NekoC PRNG)", ...result, diagnostics: kernel.diagnostics };
   } catch (error) {

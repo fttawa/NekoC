@@ -1,7 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { parseArgs, runtimeProject, runOracle, readJson } from "../tools/compat/k4-oracle.mjs";
-import { firstDifference, sameValue, executableTrees, mismatchingBlockTypes } from "../tools/compat/k4-diff.mjs";
+import { mkdtemp, rm } from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
+import { parseArgs, runtimeProject, runOracle, readJson, saveJson, allowedAsset, projectAssetUrls } from "../tools/compat/k4-oracle.mjs";
+import { firstDifference, sameValue, executableTrees, mismatchingBlockTypes, compareWork, projectCapabilities, markdown } from "../tools/compat/k4-diff.mjs";
 
 const trace = (actor = {}, variables = {}) => ({ schema: "nekoc-k4-trace-v1", frames: [{ frame: 1,
   current_scene_id: "s", actors: { a: { x: 1, y: 2, rotation: 0, scale: 100, scale_y: 100, visible: true, current_style_id: "c", ...actor } },
@@ -47,6 +50,87 @@ test("compiler comparison ignores UI metadata, attributes changed source blocks"
   assert.deepEqual(mismatchingBlockTypes(a, b, source).blockTypes, ["math_number"]);
 });
 
+test("declared extensionless media is allowed only on approved HTTPS CDNs", () => {
+  const declared = projectAssetUrls({ theatre: { styles: { s: { url: "https://creation.codemao.cn/445/kitten/base64=" } } } });
+  assert.ok(allowedAsset(new URL("https://creation.codemao.cn/445/kitten/base64=?imageView2/0/format/webp"), declared));
+  assert.ok(allowedAsset(new URL("https://kn-cdn.codemao.cn/kitten/image.png"), declared));
+  for (const url of ["https://creation.codemao.cn/api/unknown", "http://creation.codemao.cn/445/kitten/base64=", "https://evil.example/image.png", "https://collection.codemao.cn/report/kitten"]) {
+    assert.equal(allowedAsset(new URL(url), declared), false);
+  }
+  for (const host of ["static.codemao.cn", "creation.bcmcdn.com"]) {
+    const url = `https://${host}/kitten/image-key`;
+    assert.ok(allowedAsset(new URL(url + "?imageView2/0/format/webp"), new Set([url])));
+    assert.equal(allowedAsset(new URL(`https://${host}/api/unknown.json`), declared), false);
+  }
+});
+
+test("published projects skip compilation and retain original AST; random differences stay unverified", async () => {
+  const directory = await mkdtemp(path.join(os.tmpdir(), "k4-oracle-test-"));
+  try {
+    const project = await readJson("samples/kitten4-demo.bcm");
+    for (const section of ["scenes", "actors"]) for (const entity of Object.values(project.theatre[section])) delete entity.block_data_json;
+    project.compile_result = [{ id: "a", compiled_block_map: {}, procedures: {} }];
+    const input = path.join(directory, "published.bcm");
+    const options = { artifactsDir: path.join(directory, "artifacts"), frames: 1 };
+    const calls = [];
+    const dependencies = {
+      native: async (file, extra = []) => extra.includes("--lowered") ? {} : trace(),
+      runOracle: async (received, opts) => { calls.push(opts.command); assert.deepEqual(received.compile_result, project.compile_result); return trace(); },
+    };
+    await saveJson(input, project);
+    const equal = await compareWork(input, options, dependencies);
+    assert.equal(equal.status, "equal");
+    assert.equal(equal.compile.status, "skipped");
+    assert.deepEqual(calls, ["run"]);
+    assert.match(markdown({ frames: 1, tolerance: 1e-6, works: [equal] }), /跳过（仅发布 AST）/);
+    project.compile_result[0].compiled_block_map.rng = { id: "rng", type: "random" };
+    assert.deepEqual(projectCapabilities(project), { compiledOnly: true, randomBlocks: ["random"] });
+    await saveJson(input, project);
+    dependencies.runOracle = async () => trace({ x: 42 });
+    const random = await compareWork(input, options, dependencies);
+    assert.equal(random.status, "unverified");
+    assert.equal(random.firstDifference.field, "x");
+    assert.equal(random.randomness.detected, true);
+    delete project.compile_result[0].compiled_block_map.rng;
+    await saveJson(input, project);
+    const different = await compareWork(input, options, dependencies);
+    assert.equal(different.status, "different");
+    assert.equal(different.firstDifference.official, 42);
+    const unsupported = await compareWork(input, options, { ...dependencies, native: async () => { throw new Error("unsupported block"); } });
+    assert.equal(unsupported.status, "nekoc-unsupported");
+    const failed = await compareWork(input, options, { ...dependencies, runOracle: async () => {
+      throw Object.assign(new Error("load failed"), { diagnostics: { phase: "container", pageErrors: ["probe"] } });
+    } });
+    assert.equal(failed.status, "unverified");
+    assert.equal((await readJson(path.join(failed.artifacts, "failure.json"))).phase, "container");
+    project.theatre.actors[Object.keys(project.theatre.actors)[0]].block_data_json = { blocks: {} };
+    assert.equal(projectCapabilities(project).compiledOnly, false);
+    delete project.compile_result;
+    assert.equal(projectCapabilities(project).compiledOnly, false);
+    project.theatre.actors[Object.keys(project.theatre.actors)[0]].block_data_json.blocks = {
+      face: { type: "self_face_to", fields: { sprite: "__random" } },
+      move: { type: "self_move_specify", fields: { target: "__random" } },
+    };
+    assert.deepEqual(projectCapabilities(project).randomBlocks, ["self_face_to", "self_move_specify"]);
+    const malformed = await compareWork(path.join(directory, "missing.bcm"), options, dependencies);
+    assert.equal(malformed.status, "unverified");
+    project.theatre.actors[Object.keys(project.theatre.actors)[0]].block_data_json = { blocks: {} };
+    await saveJson(input, project);
+    const workspaceCalls = [];
+    const workspace = await compareWork(input, options, {
+      native: async (file, extra = []) => extra.includes("--program") ? { program: "same" } : extra.includes("--lowered") ? {} : trace(),
+      runOracle: async (received, opts) => {
+        workspaceCalls.push(opts.command);
+        return opts.command === "compile" ? { project: { ...received, compile_result: [] } } : trace();
+      },
+    });
+    assert.equal(workspace.status, "equal");
+    assert.equal(workspace.compile.status, "compared");
+    assert.equal(workspace.compile.programEqual, true);
+    assert.deepEqual(workspaceCalls, ["compile", "run"]);
+  } finally { await rm(directory, { recursive: true, force: true }); }
+});
+
 // Opt-in only: no proprietary assets, browser, or network required by test:tools.
 test("offline native compiler and fixed-step traces are repeatable", { skip: !process.env.K4_ORACLE_INTEGRATION }, async () => {
   const project = await readJson("samples/kitten4-demo.bcm");
@@ -59,6 +143,13 @@ test("offline native compiler and fixed-step traces are repeatable", { skip: !pr
   assert.equal(a.frames[59].variables["kn-var-ready"], 1);
   assert.ok(a.diagnostics.assets.some(asset => asset.source.endsWith(".orig")));
   assert.ok(a.diagnostics.externalRequests.every(request => request.action === "blocked"));
+  // Repository-owned sample only; no published third-party work in this test.
+  const published = structuredClone(compiled.project);
+  for (const section of ["scenes", "actors"]) for (const entity of Object.values(published.theatre[section])) delete entity.block_data_json;
+  const c = await runOracle(published, options);
+  assert.deepEqual(c.frames, a.frames);
+  assert.equal(c.diagnostics.localRequests.filter(request => request.url === "/new/abcdef0123456789" && request.destination === "document").length, 1);
+  assert.ok(c.diagnostics.localRequests.some(request => request.url === "/new/abcdef0123456789" && request.destination !== "document" && request.status === 200));
 });
 
 test("official PCG random probe repeats with seed and advances on each frame", { skip: !process.env.K4_ORACLE_INTEGRATION }, async () => {
