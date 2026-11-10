@@ -1,6 +1,7 @@
-//! Cranelift tier for hot bytecode. Numeric work runs as machine code; everything
-//! that can suspend, spawn or switch tasks side-exits to the interpreter, which
-//! stays the single source of truth for semantics. Instruction counts are exact.
+//! Cranelift tier for hot bytecode. Numeric work runs as machine code; typed
+//! helpers preserve Cells and procedure frames. Scheduling boundaries return a
+//! yield flag to tick; reporters that can re-enter the VM remain interpreted.
+//! Instruction counts are exact.
 use super::{
     Binary, Cell, Engine, Expr, ExprOp, ListRef, Op, RuntimeSemantics, Target, Unary, ValueExpr,
     contains_list, list_index, read_list_index,
@@ -17,6 +18,9 @@ use cranelift_frontend::{FunctionBuilder, FunctionBuilderContext};
 use cranelift_jit::{JITBuilder, JITModule};
 use cranelift_module::{Linkage, Module, default_libcall_names};
 use std::collections::{BTreeMap, BTreeSet};
+
+mod runtime;
+use runtime::{h_append_cell, h_boundary, h_call, h_reentrant, h_return};
 
 /// Interpreted executions of one pc before it is compiled.
 const HOT_THRESHOLD: u16 = 500;
@@ -215,7 +219,7 @@ impl Engine {
                     | ValueExpr::Decode64(..)
                     | ValueExpr::ParseFloat(..)
                     | ValueExpr::IsNumber(..)
-                    | ValueExpr::ParseInt(..) => Some("restricted-conversion"),
+                    | ValueExpr::ParseInt(..) => Some("conversion"),
                     ValueExpr::Join(..) => Some("text"),
                     ValueExpr::Compare(..) | ValueExpr::Logic(..) => Some("comparison-or-logic"),
                     _ => None,
@@ -260,6 +264,10 @@ impl Engine {
     }
 
     fn jit_run(&mut self, index: usize, pc: usize, actor: usize, left: usize) -> Option<usize> {
+        self.jit_yield = false;
+        if self.output_limit_reached() {
+            return None;
+        }
         let region = self.jit.as_ref()?.regions[pc].as_ref()?;
         let code = region.code;
         let locals = &self.tasks[index].local_values;
@@ -288,8 +296,9 @@ impl Engine {
             values,
             local_values,
         };
-        // SAFETY: the region was generated for this program, and the helpers it
-        // calls never resize slots, tasks or locals.
+        // SAFETY: ordinary helpers do not invalidate cached numeric pointers.
+        // Reentrant helpers may invalidate them, but are terminal: no generated
+        // instruction after that call reads anything except NativeContext fuel.
         let next = unsafe { code(&mut context) } as usize;
         let used = (fuel - context.fuel) as usize;
         if let Some(profile) = self.jit_profile.as_mut() {
@@ -297,7 +306,11 @@ impl Engine {
         }
         self.tasks[index].pc = next;
         if let Some(error) = self.value_error.take() {
-            self.jit_error = Some(anyhow::anyhow!(error));
+            // An explicit instruction error (e.g. cyclic append or stack limit)
+            // takes precedence over a pending evaluator error, just as in exec.
+            if self.jit_error.is_none() {
+                self.jit_error = Some(anyhow::anyhow!(error));
+            }
         }
         (used > 0 || self.jit_error.is_some()).then_some(used)
     }
@@ -335,19 +348,14 @@ impl Engine {
 
     fn jit_pure_tree(&self, root: (bool, usize)) -> bool {
         let mut pending = vec![root];
+        let mut seen = BTreeSet::new();
         while let Some(key) = pending.pop() {
-            if key.0
-                && matches!(
-                    self.program.values[key.1],
-                    ValueExpr::CallReturn(..)
-                        | ValueExpr::Boolean(..)
-                        | ValueExpr::Encode64(..)
-                        | ValueExpr::Decode64(..)
-                        | ValueExpr::ParseFloat(..)
-                        | ValueExpr::IsNumber(..)
-                        | ValueExpr::ParseInt(..)
-                )
-            {
+            if !seen.insert(key) {
+                continue;
+            }
+            // Conversions themselves do not schedule. Traverse their children
+            // too: only a reporter procedure can invalidate native pointers.
+            if key.0 && matches!(self.program.values[key.1], ValueExpr::CallReturn(..)) {
                 return false;
             }
             pending.extend(self.evaluation_children(key));
@@ -378,7 +386,7 @@ impl Engine {
             Op::Position(x, y) => pure(x) && pure(y),
             Op::Visible(_) | Op::Pen(_) | Op::Color(_) | Op::Clear => true,
             Op::ClearList(r) => list(r),
-            Op::SetValue(_, v) | Op::ReturnValue(v) => value(v),
+            Op::SetValue(_, v) | Op::ReturnValue(v) | Op::Kitten4Change(_, v, _) => value(v),
             Op::AppendList(r, v) => list(r) && value(v),
             Op::SetActorVariable(_, v) => value(v),
             Op::ChangeActorVariable(_, e, _) => pure(e),
@@ -393,12 +401,8 @@ impl Engine {
 
     /// Whether native code can run `op` without leaving the VM's control flow.
     fn jit_supported(&self, op: Op) -> bool {
-        // Keep K4's per-interpreter suspension boundaries in exec. Native regions
-        // stop before them; arithmetic/body regions can still become hot/native.
-        if self.program.semantics == RuntimeSemantics::Kitten4
-            && matches!(op, Op::Next(..) | Op::RangeNext(..) | Op::WarpIteration)
-        {
-            return false;
+        if self.jit_reentrant(op) {
+            return true;
         }
         let pure = |e: Expr| self.jit_pure_expr(e.end as usize - 1);
         match op {
@@ -413,8 +417,28 @@ impl Engine {
                 pure(range.from) && pure(range.to) && pure(range.by)
             }
             Op::Jump(_) | Op::Break(..) => true,
-            Op::Next(_, yielding) | Op::RangeNext(_, yielding) => !yielding,
+            Op::Next(..) | Op::RangeNext(..) | Op::WarpIteration => true,
             other => self.jit_delegable(other),
+        }
+    }
+
+    /// Instructions with reporter-procedure operands require a tail gateway,
+    /// never the normal numeric lowering. Keep this whitelist narrow: adding a
+    /// scheduling opcode here also requires preserving exec's continuation flag.
+    fn jit_reentrant(&self, op: Op) -> bool {
+        match op {
+            Op::Call(_, args) => self.program.call_arguments[args]
+                .iter()
+                .any(|&v| !self.jit_pure_value(v)),
+            Op::Branch(e, _) => !self.jit_pure_expr(e.end as usize - 1),
+            Op::AppendList(list, v) => {
+                !self.jit_pure_value(v)
+                    || matches!(list, ListRef::Expression(v) if !self.jit_pure_value(v as usize))
+            }
+            Op::SetValue(_, v) | Op::ReturnValue(v) | Op::Kitten4Change(_, v, _) => {
+                !self.jit_pure_value(v)
+            }
+            _ => false,
         }
     }
 }
@@ -569,40 +593,6 @@ unsafe extern "C" fn h_repeat(c: *mut NativeContext, n: f64) -> u64 {
     unsafe { (&mut (*c.engine).tasks)[c.index].loops.push(n) };
     1
 }
-/// 0: side exit, 1: run the body again, 2: loop finished.
-unsafe extern "C" fn h_next(c: *mut NativeContext) -> u64 {
-    let c = unsafe { &mut *c };
-    let loops = unsafe { &mut (&mut (*c.engine).tasks)[c.index].loops };
-    let Some(left) = loops.last_mut() else {
-        return 0;
-    };
-    *left -= 1;
-    if *left > 0 {
-        1
-    } else {
-        loops.pop();
-        2
-    }
-}
-/// 0: side exit (the interpreter reports the error), 1: again, 2: finished.
-unsafe extern "C" fn h_range_next(c: *mut NativeContext) -> u64 {
-    let c = unsafe { &mut *c };
-    let ranges = unsafe { &mut (&mut (*c.engine).tasks)[c.index].ranges };
-    let Some(range) = ranges.last_mut() else {
-        return 0;
-    };
-    let next = range.value + range.step;
-    if next == range.value {
-        return 0;
-    }
-    range.value = next;
-    if (range.step > 0.0 && next <= range.end) || (range.step < 0.0 && next >= range.end) {
-        1
-    } else {
-        ranges.pop();
-        2
-    }
-}
 unsafe extern "C" fn h_break(c: *mut NativeContext, pop: u64) {
     let c = unsafe { &mut *c };
     let task = unsafe { &mut (&mut (*c.engine).tasks)[c.index] };
@@ -644,6 +634,11 @@ unsafe extern "C" fn h_transfer(c: *mut NativeContext, pc: u64) -> u64 {
         0 => return u64::MAX,
         2 => return u64::MAX - 1,
         _ => {}
+    }
+    // A drawing/audio helper may just have filled the output budget. Do not
+    // execute subsequent inlined instructions before tick observes that limit.
+    if unsafe { (*(*c).engine).output_limit_reached() } {
+        return u64::MAX - 2;
     }
     unsafe { h_pc(c) }
 }
@@ -699,10 +694,10 @@ unsafe extern "C" fn h_replace_item(
     1
 }
 unsafe extern "C" fn h_append_number(c: *mut NativeContext, list: u64, value: f64) {
-    let engine = unsafe { &*(*c).engine };
-    engine.lists[list as usize]
-        .borrow_mut()
-        .push(Cell::Number(value));
+    let engine = unsafe { &mut *(*c).engine };
+    if let Some(list) = engine.resolve_list(key_list(list)) {
+        list.borrow_mut().push(Cell::Number(value));
+    }
 }
 /// `target = list[at]` without the generic dispatch: bit 0 of `target` selects locals.
 unsafe extern "C" fn h_assign_item(c: *mut NativeContext, target: u64, list: u64, at: f64) {
@@ -1359,13 +1354,18 @@ impl Gen<'_, '_> {
         }
     }
 
-    /// Calls h_transfer; a failed transfer leaves the region, returns the new pc otherwise.
+    /// Calls the generic delegated helper.
     fn transfer(&mut self, pc: usize, remaining: i64) -> Value {
+        self.transfer_with(h_transfer as *const () as usize, pc, remaining)
+    }
+
+    /// Dedicated instruction helpers share MAX / MAX-1 exit sentinels.
+    fn transfer_with(&mut self, helper: usize, pc: usize, remaining: i64) -> Value {
         let at = self.b.ins().iconst(types::I64, pc as i64);
         let ctx = self.ctx;
         let next = self
             .call(
-                h_transfer as *const () as usize,
+                helper,
                 &[types::I64, types::I64],
                 Some(types::I64),
                 &[ctx, at],
@@ -1383,6 +1383,14 @@ impl Gen<'_, '_> {
         let error = self.b.create_block();
         self.b.ins().brif(failed, error, &[], ok, &[]);
         self.b.switch_to_block(error);
+        self.executed_error(remaining);
+        self.b.switch_to_block(ok);
+        let yielded = self.b.ins().icmp_imm(IntCC::Equal, next, -3);
+        let ok = self.b.create_block();
+        let exit = self.b.create_block();
+        self.b.ins().brif(yielded, exit, &[], ok, &[]);
+        self.b.switch_to_block(exit);
+        // The boundary ran, but nothing after it may run in this scheduler pass.
         self.executed_error(remaining);
         self.b.switch_to_block(ok);
         next
@@ -1418,12 +1426,81 @@ impl Gen<'_, '_> {
         self.store(base, slot, sum);
     }
 
-    /// Writes a number to a global list directly; anything else takes `h_exec`.
+    fn kitten4_change(
+        &mut self,
+        pc: usize,
+        target: Target,
+        value: usize,
+        decrease: bool,
+        blocks: &BTreeMap<usize, Block>,
+        remaining: i64,
+    ) {
+        let slow = self.b.create_block();
+        let (local, slot) = match target {
+            Target::Global(s) => (false, s),
+            Target::Local(s) => (true, s),
+        };
+        let mut guards = vec![Guard::Slot(local, slot)];
+        if let Some(value) = self.numeric(value, &mut guards) {
+            self.check_unboxed(&guards, slow);
+            // K4 evaluates the increment before reading the previous value.
+            let delta = self.numeric_value(value);
+            let base = if local { self.locals } else { self.slots };
+            let old = self.load(base, slot);
+            let number = if decrease {
+                self.b.ins().fsub(old, delta)
+            } else {
+                self.b.ins().fadd(old, delta)
+            };
+            self.store(base, slot, number);
+            self.check_error(pc, remaining);
+            self.b.ins().jump(blocks[&(pc + 1)], &[]);
+        } else {
+            self.b.ins().jump(slow, &[]);
+        }
+        self.b.switch_to_block(slow);
+        // The original typed operation owns concatenation, coercion, and no-op
+        // writes to List/Costume/Null. Never replace it with numeric coercion.
+        self.transfer(pc, remaining);
+        self.b.ins().jump(blocks[&(pc + 1)], &[]);
+    }
+
+    fn append_list(
+        &mut self,
+        pc: usize,
+        list: ListRef,
+        value: usize,
+        blocks: &BTreeMap<usize, Block>,
+        remaining: i64,
+    ) {
+        let slow = self.b.create_block();
+        let mut guards = Vec::new();
+        if let Some(value) = self.numeric(value, &mut guards) {
+            self.check_unboxed(&guards, slow);
+            let number = self.numeric_value(value);
+            let list = self.b.ins().iconst(types::I64, list_key(list) as i64);
+            self.call(
+                h_append_number as *const () as usize,
+                &[types::I64, types::I64, types::F64],
+                None,
+                &[self.ctx, list, number],
+            );
+            self.check_error(pc, remaining);
+            self.b.ins().jump(blocks[&(pc + 1)], &[]);
+        } else {
+            self.b.ins().jump(slow, &[]);
+        }
+        self.b.switch_to_block(slow);
+        self.transfer_with(h_append_cell as *const () as usize, pc, remaining);
+        self.b.ins().jump(blocks[&(pc + 1)], &[]);
+    }
+
+    /// Replaces a number in a KN global list; other replacement rules use exec.
     fn list_write(
         &mut self,
         pc: usize,
         list: u32,
-        at: Option<Expr>,
+        at: Expr,
         v: usize,
         blocks: &BTreeMap<usize, Block>,
         remaining: i64,
@@ -1435,8 +1512,7 @@ impl Gen<'_, '_> {
             self.b.ins().jump(next, &[]);
             return;
         }
-        if let (Some(at), ValueExpr::Item(ListRef::Global(source), Some(from))) =
-            (at, self.engine.program.values[v])
+        if let ValueExpr::Item(ListRef::Global(source), Some(from)) = self.engine.program.values[v]
         {
             let at = self.expr(at.end as usize - 1);
             let from = self.expr(from.end as usize - 1);
@@ -1474,24 +1550,16 @@ impl Gen<'_, '_> {
         let mut guards = Vec::new();
         if let Some(value) = self.numeric(v, &mut guards) {
             self.check_unboxed(&guards, slow);
-            let at = at.map(|e| self.expr(e.end as usize - 1));
+            let at = self.expr(at.end as usize - 1);
             let number = self.numeric_value(value);
             let list = self.b.ins().iconst(types::I64, list as i64);
             let ctx = self.ctx;
-            match at {
-                Some(at) => self.call(
-                    h_replace_number as *const () as usize,
-                    &[types::I64, types::I64, types::F64, types::F64],
-                    None,
-                    &[ctx, list, at, number],
-                ),
-                None => self.call(
-                    h_append_number as *const () as usize,
-                    &[types::I64, types::I64, types::F64],
-                    None,
-                    &[ctx, list, number],
-                ),
-            };
+            self.call(
+                h_replace_number as *const () as usize,
+                &[types::I64, types::I64, types::F64, types::F64],
+                None,
+                &[ctx, list, at, number],
+            );
             self.check_error(pc, remaining);
             self.b.ins().jump(next, &[]);
         } else {
@@ -1547,6 +1615,28 @@ impl Gen<'_, '_> {
     }
 
     fn op(&mut self, pc: usize, op: Op, blocks: &BTreeMap<usize, Block>, remaining: i64) {
+        if self.engine.jit_reentrant(op) {
+            let helper = match op {
+                Op::Call(..) => h_call as *const () as usize,
+                Op::AppendList(..) => h_append_cell as *const () as usize,
+                Op::ReturnValue(..) => h_return as *const () as usize,
+                _ => h_reentrant as *const () as usize,
+            };
+            let next = self.transfer_with(helper, pc, remaining);
+            // No cached slots/locals/boxed pointers may be used after this call.
+            // Only context fuel is live across a reporter that can spawn tasks,
+            // box variables, stop scripts, or change scenes.
+            let fuel = self
+                .b
+                .ins()
+                .load(types::I64, MemFlags::trusted(), self.ctx, OFF_FUEL);
+            let refunded = self.b.ins().iadd_imm(fuel, remaining - 1);
+            self.b
+                .ins()
+                .store(MemFlags::trusted(), refunded, self.ctx, OFF_FUEL);
+            self.b.ins().return_(&[next]);
+            return;
+        }
         let ctx = self.ctx;
         let block = |at: usize| blocks[&at];
         match op {
@@ -1607,26 +1697,20 @@ impl Gen<'_, '_> {
                     .brif(entered, block(pc + 1), &[], block(end), &[]);
             }
             Op::Next(target, _) | Op::RangeNext(target, _) => {
-                let helper = if matches!(op, Op::Next(..)) {
-                    h_next as *const () as usize
-                } else {
-                    h_range_next as *const () as usize
-                };
-                let state = self
-                    .call(helper, &[types::I64], Some(types::I64), &[ctx])
-                    .unwrap();
-                let check = self.b.create_block();
-                let exit = self.b.create_block();
-                self.b.ins().brif(state, check, &[], exit, &[]);
-                self.b.switch_to_block(exit);
-                self.side_exit(pc, remaining);
-                self.b.switch_to_block(check);
-                let again = self.b.ins().icmp_imm(IntCC::Equal, state, 1);
+                let next = self.transfer_with(h_boundary as *const () as usize, pc, remaining);
+                let again = self.b.ins().icmp_imm(IntCC::Equal, next, target as i64);
                 self.b
                     .ins()
                     .brif(again, block(target), &[], block(pc + 1), &[]);
             }
+            Op::WarpIteration => {
+                self.transfer_with(h_boundary as *const () as usize, pc, remaining);
+                self.b.ins().jump(block(pc + 1), &[]);
+            }
             Op::SetValue(target, v) => self.set_value(pc, target, v, blocks, remaining),
+            Op::Kitten4Change(target, v, decrease) => {
+                self.kitten4_change(pc, target, v, decrease, blocks, remaining)
+            }
             Op::SetActorVariable(slot, v) => {
                 let slow = self.b.create_block();
                 let mut guards = Vec::new();
@@ -1666,11 +1750,9 @@ impl Gen<'_, '_> {
                 self.b.ins().jump(block(pc + 1), &[]);
             }
             Op::ReplaceList(ListRef::Global(list), Some(at), v) => {
-                self.list_write(pc, list, Some(at), v, blocks, remaining)
+                self.list_write(pc, list, at, v, blocks, remaining)
             }
-            Op::AppendList(ListRef::Global(list), v) => {
-                self.list_write(pc, list, None, v, blocks, remaining)
-            }
+            Op::AppendList(list, v) => self.append_list(pc, list, v, blocks, remaining),
             Op::Range(_, end) => {
                 let next = self.transfer(pc, remaining);
                 let skipped = self.b.ins().icmp_imm(IntCC::Equal, next, end as i64);
@@ -1679,12 +1761,12 @@ impl Gen<'_, '_> {
                     .brif(skipped, block(end), &[], block(pc + 1), &[]);
             }
             Op::Call(procedure, _) => {
-                self.transfer(pc, remaining);
+                self.transfer_with(h_call as *const () as usize, pc, remaining);
                 let target = self.engine.program.procedure_entries[procedure];
                 self.b.ins().jump(block(target), &[]);
             }
             Op::Return | Op::ReturnValue(_) => {
-                let next = self.transfer(pc, remaining);
+                let next = self.transfer_with(h_return as *const () as usize, pc, remaining);
                 // Direct jumps for call sites in this region; others re-enter.
                 for &site in self.returns {
                     let hit = self.b.ins().icmp_imm(IntCC::Equal, next, site as i64);
@@ -1758,6 +1840,12 @@ fn build_region(engine: &Engine, entry: usize, conv: CallConv) -> Option<BuiltRe
             continue;
         }
         region.insert(pc);
+        if engine.jit_reentrant(ops[pc]) {
+            // Tail evaluation can invalidate every pointer. Do not explore its
+            // successors or treat its typed writes as boxing exemptions for an
+            // earlier numeric write's entry guard.
+            continue;
+        }
         match ops[pc] {
             Op::Set(s, _) | Op::Change(s, _, _) => {
                 written_slots.insert(s);
@@ -1765,10 +1853,10 @@ fn build_region(engine: &Engine, entry: usize, conv: CallConv) -> Option<BuiltRe
             Op::SetLocal(s, _) | Op::ChangeLocal(s, _, _) => {
                 written_locals.insert(s);
             }
-            Op::SetValue(Target::Global(s), _) => {
+            Op::SetValue(Target::Global(s), _) | Op::Kitten4Change(Target::Global(s), _, _) => {
                 boxed_slots.insert(s);
             }
-            Op::SetValue(Target::Local(s), _) => {
+            Op::SetValue(Target::Local(s), _) | Op::Kitten4Change(Target::Local(s), _, _) => {
                 boxed_locals.insert(s);
             }
             _ => {}
@@ -1852,7 +1940,8 @@ fn build_region(engine: &Engine, entry: usize, conv: CallConv) -> Option<BuiltRe
             g.b.switch_to_block(blocks[&pc]);
             // This op plus the rest of its chunk: charged at a leader, refunded on exit.
             let mut last = pc;
-            while is_straight(ops[last])
+            while !engine.jit_reentrant(ops[last])
+                && is_straight(ops[last])
                 && region.contains(&(last + 1))
                 && !leaders.contains(&(last + 1))
             {
@@ -1917,6 +2006,10 @@ fn compile(jit: &mut Jit, engine: &Engine, entry: usize) -> Option<Region> {
         written_locals,
     })
 }
+
+#[cfg(test)]
+#[path = "jit/native_tests.rs"]
+mod native_tests;
 
 #[cfg(test)]
 mod tests {

@@ -20,15 +20,21 @@ struct Args {
     /// Measure without profiling overhead (compare with a saved baseline binary).
     #[arg(long)]
     timing_only: bool,
+    /// Per-frame VM budget, identical for the interpreter and native tier.
+    #[arg(long, default_value_t = 2_000_000)]
+    instructions: usize,
 }
 
 fn normalized(bytes: &[u8]) -> Result<(Value, Vec<u8>)> {
-    let size = u32::from_le_bytes(bytes[..4].try_into()?) as usize;
-    let mut meta: Value = serde_json::from_slice(&bytes[4..4 + size])?;
+    let header = bytes.get(..4).context("missing frame length")?;
+    let size = u32::from_le_bytes(header.try_into()?) as usize;
+    let payload = bytes.get(4..).context("missing frame payload")?;
+    let mut meta: Value =
+        serde_json::from_slice(payload.get(..size).context("short frame metadata")?)?;
     for key in ["execute_us", "budget_yield"] {
         meta.as_object_mut().context("frame object")?.remove(key);
     }
-    Ok((meta, bytes[4 + size..].to_vec()))
+    Ok((meta, payload[size..].to_vec()))
 }
 
 fn measure(project: &Value, args: &Args) -> Result<Value> {
@@ -50,15 +56,16 @@ fn measure(project: &Value, args: &Args) -> Result<Value> {
     let mut difference = None;
     for frame in 1..=args.frames {
         let started = Instant::now();
-        let a = reference.advance(1.0 / 60.0, 2_000_000, Duration::from_secs(5));
+        let a = reference.advance(1.0 / 60.0, args.instructions, Duration::from_secs(5));
         reference_us += started.elapsed().as_micros();
         let started = Instant::now();
-        let b = native.advance(1.0 / 60.0, 2_000_000, Duration::from_secs(5));
+        let b = native.advance(1.0 / 60.0, args.instructions, Duration::from_secs(5));
         native_us += started.elapsed().as_micros();
         match (a, b) {
             (Ok(a), Ok(b)) => {
                 if normalized(&encode_frame(&a)?)? != normalized(&encode_frame(&b)?)?
                     || reference.debug_snapshot() != native.debug_snapshot()
+                    || reference.jit_debug_snapshot() != native.jit_debug_snapshot()
                     || a.budget_yield != b.budget_yield
                 {
                     difference = Some(format!("frame {frame}"));
@@ -72,6 +79,7 @@ fn measure(project: &Value, args: &Args) -> Result<Value> {
                 error = Some(format!("{a:#}"));
                 if a.to_string() != b.to_string()
                     || reference.debug_snapshot() != native.debug_snapshot()
+                    || reference.jit_debug_snapshot() != native.jit_debug_snapshot()
                 {
                     difference = Some(format!("error frame {frame}: {a:#} <> {b:#}"));
                 }
@@ -91,6 +99,10 @@ fn measure(project: &Value, args: &Args) -> Result<Value> {
 
 fn main() -> Result<()> {
     let args = Args::parse();
+    anyhow::ensure!(
+        args.frames > 0 && args.instructions > 0,
+        "frames and instructions must be positive"
+    );
     let mut files = std::fs::read_dir(&args.corpus)?
         .map(|e| Ok(e?.path()))
         .collect::<Result<Vec<_>>>()?;
@@ -121,12 +133,36 @@ fn main() -> Result<()> {
     std::fs::write(
         &args.out,
         serde_json::to_vec_pretty(&json!({
-            "frames":args.frames,"seed":args.seed,"works":works
+            "frames":args.frames,"seed":args.seed,"instructions":args.instructions,
+            "build":if cfg!(debug_assertions) {"debug"} else {"release"},
+            "arch":std::env::consts::ARCH,"os":std::env::consts::OS,"works":works
         }))?,
     )?;
     anyhow::ensure!(
-        works.iter().all(|w| w["report"]["difference"].is_null()),
-        "JIT differences found"
+        works
+            .iter()
+            .all(|w| w["report"]["difference"].is_null()
+                && w["report"]["load_compile_error"].is_null()),
+        "JIT differences or load/compile errors found"
     );
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn normalization_ignores_only_wall_clock_fields_and_keeps_drawing_bytes() {
+        let meta = br#"{"execute_us":12,"budget_yield":true,"instructions":9}"#;
+        let mut bytes = (meta.len() as u32).to_le_bytes().to_vec();
+        bytes.extend(meta);
+        bytes.extend([0, 1, 255]);
+        assert_eq!(
+            normalized(&bytes).unwrap(),
+            (json!({"instructions":9}), vec![0, 1, 255])
+        );
+        assert!(normalized(&[]).is_err());
+        assert!(normalized(&100u32.to_le_bytes()).is_err());
+    }
 }

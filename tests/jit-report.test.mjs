@@ -20,9 +20,10 @@ test("JIT report uses exact coverage denominators and tolerates old fallback_inp
   assert.match(report, /50\.00% → 50\.00%/);
   assert.match(report, /\| 100 \| 70 \| -30 \| -30\.00%/);
   assert.match(report, /\| fallback_inputs \| 未采集 \| 未采集 \|/);
-  assert.match(report, /debug \/ 60 帧 \/ seed 1/);
+  assert.match(report, /构建 before\/after = 未记录（须调用方确认）/);
   assert.match(report, /不是官方运行时一致性验证/);
   assert.match(report, /统计开销/);
+  assert.match(report, /不包含 call_reporter 同步解释/);
   assert.match(report, /\| 已完成帧合计 \| 60 \| 60 \|/);
 });
 
@@ -47,6 +48,20 @@ test("invalid timing sources fail instead of silently mixing data", () => {
   assert.throws(() => renderComparison(fixture(), fixture(), {
     timingAfter: [{ frames: 60, seed: 1, works: [] }],
   }), /作品集合/);
+});
+
+test("release metadata is reported and incompatible benchmark settings are rejected", () => {
+  const release = { ...fixture(), build: "release", arch: "x86_64", os: "windows", instructions: 2000000 };
+  const report = renderComparison(release, release);
+  assert.match(report, /构建 before\/after = release\/release/);
+  assert.match(report, /x86_64-windows\/x86_64-windows/);
+  assert.match(report, /指令预算 before\/after = 2000000\/2000000/);
+  for (const [key, value] of [["build", "debug"], ["arch", "aarch64"], ["instructions", 100]]) {
+    assert.throws(() => renderComparison(release, { ...release, [key]: value }), new RegExp(key));
+    assert.throws(() => renderComparison(release, release, {
+      timingBefore: [{ ...release, [key]: value }],
+    }), new RegExp(key));
+  }
 });
 
 test("null fields, zero ops, missing works and missing profiles stay unknown", () => {

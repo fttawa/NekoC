@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const COUNTERS = ["native_ops", "interpreted_ops", "delegated_ops", "node_calls", "regions"];
 const REASONS = ["fallback_reasons", "helper_reasons", "fallback_inputs"];
-const USAGE = "node tools/compat/jit-report.mjs before.json after.json --out dist/jit2/comparison.md [--timing-before a.json,b.json] [--timing-after c.json]";
+const USAGE = "node tools/compat/jit-report.mjs before.json after.json --out dist/jit3/comparison.md [--timing-before a.json,b.json] [--timing-after c.json]";
 const number = value => typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : null;
 const text = value => String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;")
   .replaceAll(">", "&gt;").replaceAll("|", "&#124;").replaceAll("`", "&#96;").replace(/[\r\n]+/g, " ");
@@ -73,7 +73,7 @@ function corpus(data, label) {
 }
 
 function sameSettings(a, b, label) {
-  for (const key of ["frames", "seed"]) {
+  for (const key of ["frames", "seed", "instructions", "build", "arch", "os"]) {
     if (a[key] != null && b[key] != null && a[key] !== b[key]) throw new Error(`${label}: ${key} 不一致`);
   }
 }
@@ -178,11 +178,12 @@ export function renderComparison(before, after, options = {}) {
   const ga = aggregate(a, ta), gb = aggregate(b, tb);
   const ids = [...new Set([...a.works.keys(), ...b.works.keys()])].sort((x, y) => x.localeCompare(y, "en", { numeric: true }));
   const lines = ["# JIT corpus 前后对比", "",
-    `- 运行口径：debug 构建（由调用方确认；JSON 不记录构建模式）；帧数 before/after = ${fmt(number(before.frames))}/${fmt(number(after.frames))}，seed before/after = ${fmt(number(before.seed))}/${fmt(number(after.seed))}。目标口径为 debug / 60 帧 / seed 1。`,
+    `- 运行口径：构建 before/after = ${text(before.build ?? "未记录（须调用方确认）")}/${text(after.build ?? "未记录（须调用方确认）")}；平台 before/after = ${text(before.arch ?? "未记录")}-${text(before.os ?? "未记录")}/${text(after.arch ?? "未记录")}-${text(after.os ?? "未记录")}；帧数 before/after = ${fmt(number(before.frames))}/${fmt(number(after.frames))}，seed before/after = ${fmt(number(before.seed))}/${fmt(number(after.seed))}；逐帧指令预算 before/after = ${fmt(number(before.instructions))}/${fmt(number(after.instructions))}。`,
     "- 仅比较本引擎解释器与 JIT 的逐帧结果/快照；**不是官方运行时一致性验证**，也不代表作品在任意输入/更长运行中均正确。",
     `- 耗时来源：before ${ta.length ? `无 profile timing_only，${ta.length} 轮逐作品中位数` : "profile JSON（含统计开销）"}；after ${tb.length ? `无 profile timing_only，${tb.length} 轮逐作品中位数` : "profile JSON（含统计开销）"}。统计计数始终来自 before/after profile JSON。`,
-    "- 统计开销（包括 fallback 输入归因）、JIT 编译、debug 构建和系统调度噪声均会影响耗时；计时仅包括 advance，不含作品加载/程序编译与结果比较。单轮或不同统计模式不能作为可靠加速结论；建议同环境无 profile 多轮中位数。",
+    "- 统计开销（包括 fallback 输入归因）、JIT 编译、构建模式和系统调度噪声均会影响耗时；计时仅包括 advance，不含作品加载/程序编译与结果比较。单轮或不同统计模式不能作为可靠加速结论；建议同环境 release、无 profile、前后交替多轮中位数。",
     "- region 覆盖率 = native_ops / (native_ops + interpreted_ops)。非通用委托比例 = (native_ops - delegated_ops) / 同一分母；native_ops 已含 delegated_ops，不能重复相加。该比例不是纯机器码比例，仍可能调用专用 reporter helper。node_calls 是 reporter 求值次数，不计入指令分母；regions 是已编译 region 数，不是执行次数。",
+    "- 分母仅统计调度器层指令，不包含 call_reporter 同步解释的过程本体内部指令。reentrant gateway 的外层指令进入 region 不代表 reporter 本体已经 native；native/reentrant-* 也是对应 native/* 的子集，不重复相加。",
     "- Δ = after − before（负耗时差表示更快）。总耗时为逐作品所选耗时/中位数之和，不是整轮总耗时的中位数。缺失字段、零分母记为 —；fallback_inputs 旧版未提供时记为未采集，绝不视作零。",
     "- 只输出作品 ID、计数与内部原因名；error 仅显示是否存在及前后是否相同，不输出可能含作品文本的原始错误。", "", "## 全局总计", "",
     "| 指标 | before | after |", "| --- | ---: | ---: |",

@@ -318,6 +318,15 @@ fn private_project(body: Value, initial: Value, k4: bool) -> Value {
 /// Run beyond the heat threshold, compare full entity cells as well as frames,
 /// then restart with the same compiled regions to catch stale entity/list handles.
 fn compare_hot(project: &Value, error: Option<&str>) -> Engine {
+    compare_hot_budget(project, error, 100_000, 1000)
+}
+
+fn compare_hot_budget(
+    project: &Value,
+    error: Option<&str>,
+    instructions: usize,
+    frames: usize,
+) -> Engine {
     let mut a = engine(project, false);
     let mut b = engine(project, true);
     b.enable_jit_profile();
@@ -326,9 +335,14 @@ fn compare_hot(project: &Value, error: Option<&str>) -> Engine {
         b.start();
         let mut failed = false;
         let mut finished = false;
-        for frame in 0..1000 {
-            let x = a.advance(1.0 / 60.0, 100_000, Duration::from_secs(5));
-            let y = b.advance(1.0 / 60.0, 100_000, Duration::from_secs(5));
+        for frame in 0..frames {
+            let x = a.advance(1.0 / 60.0, instructions, Duration::from_secs(5));
+            let y = b.advance(1.0 / 60.0, instructions, Duration::from_secs(5));
+            assert_eq!(
+                a.jit_debug_snapshot(),
+                b.jit_debug_snapshot(),
+                "precise state: restart {restart} frame {frame}"
+            );
             assert_eq!(
                 a.debug_snapshot(),
                 b.debug_snapshot(),
@@ -352,7 +366,8 @@ fn compare_hot(project: &Value, error: Option<&str>) -> Engine {
                 (Err(x), Err(y)) => {
                     assert_eq!(x.to_string(), y.to_string());
                     assert!(
-                        x.to_string().contains(error.expect("unexpected error")),
+                        x.to_string()
+                            .contains(error.unwrap_or_else(|| panic!("unexpected error: {x:#}"))),
                         "{x:#}"
                     );
                     failed = true;
@@ -848,5 +863,989 @@ fn hot_official_private_clone_fixtures_match_after_restarts() {
             b.jit_profile()["native_ops"].as_u64().unwrap() > 0,
             "{file}"
         );
+    }
+}
+
+fn text(value: &str) -> Value {
+    serde_json::json!({"type":"text","fields":{"TEXT":value}})
+}
+
+fn arithmetic(op: &str, a: Value, b: Value) -> Value {
+    serde_json::json!({"type":"math_arithmetic","fields":{"type":op},"inputs":{"A":a,"B":b}})
+}
+
+fn parameter(id: &str) -> Value {
+    serde_json::json!({"type":"procedures_2_parameter","fields":{"param_name":id},
+        "mutation":format!("<mutation id=\"{id}\"/>")})
+}
+
+fn call(id: &str, args: &[(&str, Value)]) -> Value {
+    let inputs: serde_json::Map<String, Value> = args
+        .iter()
+        .map(|(id, value)| ((*id).into(), value.clone()))
+        .collect();
+    serde_json::json!({"type":"procedures_2_callnoreturn",
+        "mutation":format!("<mutation def_id=\"{id}\"/>"),"inputs":inputs})
+}
+
+fn procedure(params: &[(&str, &str)], body: Value) -> Value {
+    let mut inputs = serde_json::Map::new();
+    let mut mutation = String::from("<mutation>");
+    for &(id, kind) in params {
+        mutation.push_str(&format!("<arg type=\"{kind}\" name=\"{id}\" id=\"{id}\"/>"));
+        inputs.insert(
+            id.into(),
+            serde_json::json!({
+                "type":"procedures_2_stable_parameter","id":id,"fields":{"param_name":id}
+            }),
+        );
+    }
+    mutation.push_str("</mutation>");
+    serde_json::json!({
+        "params":params.iter().map(|(id, kind)| serde_json::json!({"id":id,"name":id,"type":kind})).collect::<Vec<_>>(),
+        "nekoBlockJsonList":[{"type":"procedures_2_defnoreturn","mutation":mutation,
+            "inputs":inputs,"statements":{"STACK":body}}]
+    })
+}
+
+fn changed(id: &str, value: Value, decrease: bool) -> Value {
+    serde_json::json!({"type":"change_variables","fields":{
+        "variable":id,"method":if decrease { "decrease" } else { "increase" }
+    },"inputs":{"value":value}})
+}
+
+fn branch(condition: Value, body: Value) -> Value {
+    serde_json::json!({"type":"controls_if","inputs":{"IF0":condition},"statements":{"DO0":body}})
+}
+
+fn assert_native_helper(vm: &Engine, reason: &str) {
+    let profile = vm.jit_profile();
+    let independent = reason.strip_prefix("op/").map(|op| format!("native/{op}"));
+    assert!(
+        profile["helper_reasons"][reason].as_u64().unwrap_or(0) > 0
+            || independent.as_ref().is_some_and(|reason| {
+                profile["helper_reasons"][reason].as_u64().unwrap_or(0) > 0
+            }),
+        "expected native helper {reason}: {profile}"
+    );
+}
+
+#[test]
+fn hot_conversion_results_preserve_nan_negative_zero_and_number_predicate_types() {
+    use nekoc::engine::Cell;
+    use serde_json::json;
+    for k4 in [false, true] {
+        let body = chain(vec![
+            call(
+                "capture",
+                &[(
+                    "value",
+                    json!({"type":"parseInt","fields":{"radix":"10"},"inputs":{"str":text("-0tail")}}),
+                )],
+            ),
+            set("negative_zero", get("out")),
+            call(
+                "capture",
+                &[(
+                    "value",
+                    json!({"type":"parseFloat","inputs":{"str":text("not-a-number")}}),
+                )],
+            ),
+            set("nan", get("out")),
+            call(
+                "capture",
+                &[(
+                    "value",
+                    json!({"type":"isFinite","inputs":{"value":text("12")}}),
+                )],
+            ),
+            set("compared", get("out")),
+            call(
+                "capture",
+                &[(
+                    "value",
+                    json!({"type":"isFinite","inputs":{"value":num(12.0)}}),
+                )],
+            ),
+            set("typed_compared", get("out")),
+            call(
+                "capture",
+                &[(
+                    "value",
+                    json!({"type":"logic_to_boolean","inputs":{"VALUE":num(0.0)}}),
+                )],
+            ),
+            set("after", get("out")),
+        ]);
+        let mut p = private_project(body, json!(0), k4);
+        for id in ["negative_zero", "nan"] {
+            p["variables"]["variablesDict"][id] = json!({"id":id,"value":0,"isGlobal":true});
+        }
+        p["procedures"]["proceduresDict"]["capture"] =
+            procedure(&[("value", "Number")], set("out", parameter("value")));
+        let vm = compare_hot(&p, None);
+        assert!(
+            matches!(vm.variable_value("negative_zero"),Cell::Number(n) if n == 0.0 && n.is_sign_negative())
+        );
+        assert!(matches!(vm.variable_value("nan"),Cell::Number(n) if n.is_nan()));
+        assert_eq!(vm.variable_text("compared"), "false");
+        assert_eq!(vm.variable_text("typed_compared"), "true");
+        assert_eq!(vm.variable_text("after"), "false");
+        assert_native_helper(&vm, "op/Call");
+    }
+}
+
+#[test]
+fn hot_call_arguments_and_branches_accept_non_scheduling_conversions() {
+    use serde_json::json;
+    // These are the compiler's actual socket names; parseInt's radix is a
+    // dropdown field, not an expression input. Read from cells to avoid folding.
+    let conversions = [
+        (
+            "bool",
+            "Boolean",
+            json!({"type":"logic_to_boolean","inputs":{"VALUE":get("source")}}),
+            "true",
+            "Boolean",
+        ),
+        (
+            "integer",
+            "Number",
+            json!({"type":"parseInt","fields":{"radix":"16"},"inputs":{"str":get("source")}}),
+            "18",
+            "ParseInt",
+        ),
+        (
+            "float",
+            "Number",
+            json!({"type":"parseFloat","inputs":{"str":get("source")}}),
+            "12",
+            "ParseFloat",
+        ),
+        (
+            "finite",
+            "Boolean",
+            json!({"type":"isFinite","inputs":{"value":get("source")}}),
+            "false",
+            "IsNumber",
+        ),
+        (
+            "nan",
+            "Boolean",
+            json!({"type":"isNaN","inputs":{"value":arithmetic("divide",num(0.0),num(0.0))}}),
+            "true",
+            "IsNumber",
+        ),
+        (
+            "encoded",
+            "String",
+            json!({"type":"btoa","inputs":{"data":get("source")}}),
+            "MTI=",
+            "Encode64",
+        ),
+        (
+            "decoded",
+            "String",
+            json!({"type":"atob","inputs":{"encoded":get("base64")}}),
+            "12",
+            "Decode64",
+        ),
+    ];
+    for k4 in [false, true] {
+        for (id, kind, conversion, expected, reporter) in &conversions {
+            let body = chain(vec![
+                call("capture", &[("value", conversion.clone())]),
+                branch(conversion.clone(), changed("tick", num(1.0), false)),
+            ]);
+            let mut p = private_project(body, json!(0), k4);
+            p["variables"]["variablesDict"]["source"] =
+                json!({"id":"source","value":"12","isGlobal":true});
+            p["variables"]["variablesDict"]["base64"] =
+                json!({"id":"base64","value":"MTI=","isGlobal":true});
+            p["procedures"]["proceduresDict"]["capture"] =
+                procedure(&[("value", kind)], set("out", parameter("value")));
+            let vm = compare_hot(&p, None);
+            assert_eq!(vm.variable_text("out"), *expected, "{id} k4={k4}");
+            assert_eq!(
+                vm.variable_text("tick"),
+                if *expected == "false" { "0" } else { "900" },
+                "{id} k4={k4}"
+            );
+            // The only call site contains the conversion; unrelated numeric
+            // loop ops becoming native is not enough to satisfy this assertion.
+            assert_native_helper(&vm, "op/Call");
+            assert_native_helper(&vm, &format!("reporter/{reporter}"));
+        }
+    }
+}
+
+#[test]
+fn hot_recursive_calls_restore_typed_parameters_and_loop_stacks() {
+    use serde_json::json;
+    for k4 in [false, true] {
+        let recurse = call(
+            "recurse",
+            &[
+                ("depth", arithmetic("minus", parameter("depth"), num(1.0))),
+                ("payload", parameter("payload")),
+                ("flag", parameter("flag")),
+            ],
+        );
+        let body = chain(vec![
+            call(
+                "recurse",
+                &[
+                    ("depth", num(3.0)),
+                    ("payload", get("typed")),
+                    (
+                        "flag",
+                        json!({"type":"logic_boolean","fields":{"BOOL":"TRUE"}}),
+                    ),
+                ],
+            ),
+            changed("after", num(1.0), false),
+        ]);
+        let mut p = private_project(body, json!(0), k4);
+        p["variables"]["variablesDict"]["typed"] =
+            json!({"id":"typed","value":["12",true,[7]],"isGlobal":true});
+        p["procedures"]["proceduresDict"]["leaf"] = procedure(
+            &[
+                ("depth", "Number"),
+                ("payload", "String"),
+                ("flag", "Boolean"),
+            ],
+            chain(vec![
+                set("out", parameter("payload")),
+                set("compared", parameter("flag")),
+            ]),
+        );
+        p["procedures"]["proceduresDict"]["recurse"] = procedure(
+            &[
+                ("depth", "Number"),
+                ("payload", "String"),
+                ("flag", "Boolean"),
+            ],
+            chain(vec![
+                branch(
+                    json!({"type":"logic_compare","fields":{"OP":"GT"},"inputs":{"A":parameter("depth"),"B":num(0.0)}}),
+                    recurse,
+                ),
+                // Return from inside a loop must discard this frame's loop,
+                // without truncating either the caller's loop or parameters.
+                json!({"type":"repeat_n_times","inputs":{"times":num(2.0)},"statements":{"DO":{
+                    "type":"traverse_number","inputs":{
+                        "value":{"type":"traverse_number_param","fields":{"TEXT":"inner-index"}},
+                        "from":num(1.0),"to":num(2.0),"by":num(1.0)
+                    },"statements":{"DO":chain(vec![
+                    call("leaf", &[("depth",text("shadow")),("payload",text("inner")),("flag",json!({"type":"logic_boolean","fields":{"BOOL":"FALSE"}}))]),
+                    set("out",parameter("payload")),
+                    set("compared",parameter("flag")),
+                    changed("numeric",parameter("depth"),false),
+                    changed("tick",num(1.0),false),
+                    json!({"type":"procedures_2_return_value","mutation":"<mutation items=\"1\"/>",
+                        "inputs":{"VALUE":parameter("payload")},"shadows":{"VALUE":num(0.0)}}),
+                    set("typed_compared",num(99.0)),
+                ])}}}}),
+                set("typed_compared", num(100.0)),
+            ]),
+        );
+        let vm = compare_hot_budget(&p, None, 37, 10_000);
+        assert_eq!(vm.variable_text("out"), "12,true,7");
+        assert_eq!(vm.variable_text("compared"), "true");
+        assert_eq!(vm.variable_text("numeric"), "5400");
+        assert_eq!(vm.variable_text("tick"), "3600");
+        assert_eq!(vm.variable_text("after"), "900");
+        assert_eq!(vm.variable_text("typed_compared"), "0");
+        assert_native_helper(&vm, "op/Call");
+        assert_native_helper(&vm, "op/Return");
+        assert_native_helper(&vm, "op/ReturnValue");
+    }
+}
+
+#[test]
+fn hot_k4_change_guards_keep_text_add_decrease_nan_and_negative_zero() {
+    use nekoc::engine::Cell;
+    use serde_json::json;
+    let body = chain(vec![
+        set("out", num(10.0)),
+        call("increase", &[("delta", num(2.0))]),
+        set("numeric", get("out")),
+        call("increase", &[("delta", text("3"))]),
+        set("compared", get("out")),
+        call("increase", &[("delta", num(0.0))]),
+        changed("out", text("30"), true),
+        set("after", get("out")),
+        call("increase", &[("delta", num(1.0))]),
+        set("typed_compared", arithmetic("add", text("x"), get("out"))),
+        set("nan", arithmetic("divide", num(0.0), num(0.0))),
+        changed("nan", num(1.0), false),
+        set(
+            "negative_zero",
+            arithmetic(
+                "divide",
+                num(-1.0),
+                arithmetic("divide", num(1.0), num(0.0)),
+            ),
+        ),
+        changed("negative_zero", num(0.0), true),
+        set(
+            "reciprocal",
+            arithmetic("divide", num(1.0), get("negative_zero")),
+        ),
+    ]);
+    let mut p = private_project(body, json!(0), true);
+    // Re-enter exactly the same Kitten4Change PC with number -> text -> number
+    // operands and previous-cell types. Separate statically typed PCs cannot
+    // exercise stale guards at a hot change site.
+    p["procedures"]["proceduresDict"]["increase"] = procedure(
+        &[("delta", "Number")],
+        changed("out", parameter("delta"), false),
+    );
+    for id in ["nan", "negative_zero", "reciprocal"] {
+        p["variables"]["variablesDict"][id] = json!({"id":id,"value":0,"isGlobal":true});
+    }
+    let vm = compare_hot(&p, None);
+    assert_eq!(vm.variable_text("numeric"), "12");
+    assert_eq!(vm.variable_text("compared"), "123");
+    assert_eq!(vm.variable_text("after"), "1200");
+    assert_eq!(vm.variable_text("out"), "1201");
+    assert_eq!(vm.variable_text("typed_compared"), "x1201");
+    assert!(matches!(vm.variable_value("nan"),Cell::Number(n) if n.is_nan()));
+    assert!(
+        matches!(vm.variable_value("negative_zero"),Cell::Number(n) if n == 0.0 && n.is_sign_negative())
+    );
+    assert!(matches!(vm.variable_value("reciprocal"),Cell::Number(n) if n == f64::NEG_INFINITY));
+    assert_native_helper(&vm, "op/Kitten4Change");
+    // This is the new guarded path itself, not merely the surrounding loop.
+    let profile = vm.jit_profile();
+    assert_eq!(
+        profile["fallback_reasons"]["unsupported-or-impure/Kitten4Change"]
+            .as_u64()
+            .unwrap_or(0),
+        0,
+        "{profile}"
+    );
+}
+
+fn append(list: Value, value: Value) -> Value {
+    serde_json::json!({"type":"list_append","inputs":{"list":list,"list_item_value":value}})
+}
+
+fn item(list: Value, index: f64) -> Value {
+    serde_json::json!({"type":"list_item","fields":{"item":"any"},
+        "inputs":{"list":list,"list_index":num(index)}})
+}
+
+#[test]
+fn hot_append_global_private_variable_and_expression_refs_keep_typed_aliases() {
+    use serde_json::json;
+    for k4 in [false, true] {
+        for reference in [
+            "global",
+            "private",
+            "variable",
+            "local",
+            "expression",
+            "parameter",
+        ] {
+            let global = json!({"type":"pure_list_get","fields":{"list":"items"}});
+            let target = match reference {
+                "global" => global.clone(),
+                "private" => get("private"),
+                "variable" => get("alias"),
+                "local" => json!({"type":"script_variables_value","fields":{"TEXT":"local-alias"}}),
+                "expression" => item(get("private"), 1.0),
+                "parameter" => parameter("target"),
+                _ => unreachable!(),
+            };
+            let mut p = private_project(set("out", num(0.0)), json!([[]]), k4);
+            p["variables"]["variablesDict"]["items"] =
+                json!({"id":"items","type":"list","value":[],"isGlobal":true});
+            p["variables"]["variablesDict"]["alias"] =
+                json!({"id":"alias","value":0,"isGlobal":true});
+            p["variables"]["variablesDict"]["typed"] =
+                json!({"id":"typed","value":["12",true,[7]],"isGlobal":true});
+            let typed = item(get("typed"), 1.0);
+            let write = chain(vec![
+                append(target.clone(), typed),
+                append(target.clone(), item(get("typed"), 2.0)),
+                append(target.clone(), item(get("typed"), 3.0)),
+                // Copy a list handle, not its current contents. Mutation through
+                // this alias must be observed by the original reference too.
+                set(
+                    "out",
+                    json!({"type":"list_length","inputs":{"list":target}}),
+                ),
+            ]);
+            let hot_body = if reference == "parameter" {
+                p["procedures"]["proceduresDict"]["append"] =
+                    procedure(&[("target", "String")], write);
+                call("append", &[("target", global.clone())])
+            } else {
+                write
+            };
+            p["actors"]["actorsDict"]["nekoc-default-actor"]["nekoBlockJsonList"][0]["next"] =
+                chain(vec![
+                    set("alias", global.clone()),
+                    json!({"type":"script_variables","inputs":{"PARAMS0":{"type":"script_variables_param","fields":{"TEXT":"local-alias"}}}}),
+                    json!({"type":"variables_set","fields":{"variable":json!({"name":"local-alias","type":"NEKO_SCRIPT_VARIABLE_TYPE-test"}).to_string()},"inputs":{"value":global.clone()}}),
+                    json!({"type":"warp","statements":{"DO":{"type":"repeat_n_times","inputs":{"times":num(900.0)},"statements":{"DO":hot_body}}}}),
+                    append(item(get("typed"), 3.0), text("tail")),
+                ]);
+            let vm = compare_hot(&p, None);
+            assert_eq!(
+                vm.variable_text("out"),
+                if reference == "private" {
+                    "2701"
+                } else {
+                    "2700"
+                },
+                "{reference} k4={k4}"
+            );
+            let snapshot = vm.debug_snapshot();
+            let values = match reference {
+                "private" => &snapshot["actors"]["nekoc-default-actor"]["variables"]["private"],
+                "expression" => {
+                    &snapshot["actors"]["nekoc-default-actor"]["variables"]["private"][0]
+                }
+                _ => &snapshot["lists"]["items"],
+            }
+            .as_array()
+            .unwrap();
+            let start = usize::from(reference == "private");
+            assert_eq!(values.len(), 2700 + start);
+            for triple in values[start..].chunks_exact(3) {
+                assert_eq!(triple, &[json!("12"), json!(true), json!([7.0, "tail"])]);
+            }
+            assert_native_helper(&vm, "op/AppendList");
+        }
+    }
+}
+
+#[test]
+fn hot_append_rejects_direct_and_nested_cycles_before_mutation() {
+    use serde_json::json;
+    for k4 in [false, true] {
+        for nested in [false, true] {
+            for private in [false, true] {
+                let list = if private {
+                    get("private")
+                } else {
+                    json!({"type":"pure_list_get","fields":{"list":"items"}})
+                };
+                let cycle = if nested {
+                    json!({"type":"temporary_list","mutation":"<mutation items=\"1\"/>","inputs":{"ITEM0":list.clone()}})
+                } else {
+                    list.clone()
+                };
+                let value = json!({"type":"logic_ternary","inputs":{
+                    "condition":{"type":"logic_compare","fields":{"OP":"GT"},"inputs":{"A":get("tick"),"B":num(850.0)}},
+                    "ifTrue":cycle,"ifFalse":text("ok")
+                }});
+                let mut write = append(list, value);
+                write["id"] = json!("hot-cycle");
+                let mut p = private_project(
+                    chain(vec![
+                        changed("tick", num(1.0), false),
+                        write,
+                        set("after", get("tick")),
+                    ]),
+                    json!([]),
+                    k4,
+                );
+                p["variables"]["variablesDict"]["items"] =
+                    json!({"id":"items","type":"list","value":[],"isGlobal":true});
+                let vm = compare_hot(&p, Some("cyclic list at hot-cycle"));
+                assert_eq!(vm.variable_text("tick"), "851");
+                assert_eq!(vm.variable_text("after"), "850");
+                let snapshot = vm.debug_snapshot();
+                let values = if private {
+                    &snapshot["actors"]["nekoc-default-actor"]["variables"]["private"]
+                } else {
+                    &snapshot["lists"]["items"]
+                };
+                assert_eq!(values.as_array().unwrap().len(), 850);
+                assert!(values.as_array().unwrap().iter().all(|value| value == "ok"));
+                assert_native_helper(&vm, "op/AppendList");
+            }
+        }
+    }
+}
+
+#[test]
+fn hot_append_evaluates_value_before_expression_target_even_on_error() {
+    use serde_json::json;
+    for k4 in [false, true] {
+        for error in [false, true] {
+            let mut p = private_project(set("out", num(0.0)), json!([]), k4);
+            p["variables"]["variablesDict"]["items"] =
+                json!({"id":"items","type":"list","value":[],"isGlobal":true});
+            let global = json!({"type":"pure_list_get","fields":{"list":"items"}});
+            // Reporter calls are reentrant: the native gateway must terminate
+            // its region and reacquire task/slot pointers after evaluation.
+            let mut value = call("value", &[]);
+            value["type"] = json!("procedures_2_callreturn");
+            let mut target = call("target", &[]);
+            target["type"] = json!("procedures_2_callreturn");
+            let return_value = |expr: Value| {
+                json!({"type":"procedures_2_return_value",
+                "mutation":"<mutation items=\"1\"/>","inputs":{"VALUE":expr},"shadows":{"VALUE":num(0.0)}})
+            };
+            p["procedures"]["proceduresDict"]["value"] = procedure(
+                &[],
+                chain(vec![
+                    changed("tick", num(1.0), false),
+                    return_value(text("v")),
+                ]),
+            );
+            let resolved = if error {
+                // Resolve an out-of-scope private list only after value ran.
+                get("private")
+            } else {
+                global.clone()
+            };
+            p["procedures"]["proceduresDict"]["target"] = procedure(
+                &[],
+                chain(vec![set("numeric", get("tick")), return_value(resolved)]),
+            );
+            let mut other = p["actors"]["actorsDict"]["nekoc-default-actor"].clone();
+            other["id"] = json!("other");
+            other["nekoBlockJsonList"] = json!([]);
+            p["actors"]["actorsDict"]["other"] = other;
+            p["scenes"]["scenesDict"]["nekoc-scene-main"]["actorIds"]
+                .as_array_mut()
+                .unwrap()
+                .push(json!("other"));
+            let hot = json!({"type":"warp","statements":{"DO":{"type":"repeat_n_times","inputs":{"times":num(900.0)},"statements":{"DO":chain(vec![
+                append(global.clone(),text("warm")),changed("after",num(1.0),false),
+            ])}}}});
+            let mut write = append(target, value);
+            write["id"] = json!("ordered-append");
+            p["procedures"]["proceduresDict"]["write"] = procedure(&[], write);
+            p["actors"]["actorsDict"]["nekoc-default-actor"]["nekoBlockJsonList"][0]["next"] =
+                chain(vec![
+                    hot,
+                    json!({"type":"warp","statements":{"DO":{"type":"repeat_n_times","inputs":{"times":num(900.0)},"statements":{"DO":call("write",&[])}}}}),
+                    if error {
+                        json!({"type":"sync_tell","fields":{"sprite":"other"},"statements":{"DO":call("write",&[])}})
+                    } else {
+                        set("out", num(1.0))
+                    },
+                    set("out", num(1.0)),
+                ]);
+            let vm = compare_hot(
+                &p,
+                error.then_some("entity_variable_operation_out_of_scope"),
+            );
+            assert_eq!(vm.variable_text("tick"), if error { "901" } else { "900" });
+            assert_eq!(
+                vm.variable_text("numeric"),
+                if error { "901" } else { "900" }
+            );
+            assert_eq!(vm.variable_text("after"), "900");
+            assert_eq!(vm.variable_text("out"), if error { "0" } else { "1" });
+            assert_eq!(
+                vm.debug_snapshot()["lists"]["items"]
+                    .as_array()
+                    .unwrap()
+                    .len(),
+                if error { 900 } else { 1800 }
+            );
+            assert_native_helper(&vm, "op/AppendList");
+            assert_native_helper(&vm, "native/reentrant-AppendList");
+        }
+    }
+}
+
+#[test]
+fn hot_k4_yielding_next_keeps_the_final_iteration_in_a_separate_frame() {
+    use serde_json::json;
+    let mut p = private_project(changed("tick", num(1.0), false), json!(0), true);
+    p["actors"]["actorsDict"]["nekoc-default-actor"]["nekoBlockJsonList"][0]["next"] = chain(vec![
+        json!({"type":"repeat_n_times","inputs":{"times":num(900.0)},"statements":{"DO":changed("tick",num(1.0),false)}}),
+        set("after", get("tick")),
+    ]);
+    let vm = compare_hot_budget(&p, None, 100_000, 1100);
+    assert_eq!(vm.variable_text("tick"), "900");
+    assert_eq!(vm.variable_text("after"), "900");
+    assert_native_helper(&vm, "op/Next");
+    // Explicitly observe the final Next boundary after native warmup. The
+    // differential helper already compared every frame and both starts.
+    let mut vm = vm;
+    vm.start();
+    for frame in 0..900 {
+        vm.advance(1.0 / 60.0, 100_000, Duration::from_secs(5))
+            .unwrap();
+        assert_eq!(vm.variable_text("tick"), (frame + 1).to_string());
+        assert_eq!(vm.variable_text("after"), "0");
+        assert_eq!(vm.active_tasks(), 1);
+    }
+    vm.advance(1.0 / 60.0, 100_000, Duration::from_secs(5))
+        .unwrap();
+    assert_eq!(vm.variable_text("after"), "900");
+    assert_eq!(vm.active_tasks(), 0);
+}
+
+#[test]
+fn hot_k4_warp_iteration_and_instruction_budgets_match_each_frame() {
+    use serde_json::json;
+    for instructions in [7, 100_000] {
+        let mut p = private_project(changed("tick", num(1.0), false), json!(0), true);
+        // More than K4's 10,000 warp iterations; a large instruction budget
+        // must still suspend at the K4 boundary, not run the whole loop at once.
+        p["actors"]["actorsDict"]["nekoc-default-actor"]["nekoBlockJsonList"][0]["next"] = chain(
+            vec![
+                json!({"type":"warp","statements":{"DO":{"type":"repeat_n_times","inputs":{"times":num(10_010.0)},"statements":{"DO":changed("tick",num(1.0),false)}}}}),
+                set("after", get("tick")),
+            ],
+        );
+        let vm = compare_hot_budget(&p, None, instructions, 6000);
+        assert_eq!(vm.variable_text("tick"), "10010");
+        assert_eq!(vm.variable_text("after"), "10010");
+        assert_native_helper(&vm, "op/Next");
+        if instructions == 100_000 {
+            let mut vm = vm;
+            vm.start();
+            let frame = vm
+                .advance(1.0 / 60.0, instructions, Duration::from_secs(5))
+                .unwrap();
+            assert!(!frame.budget_yield);
+            assert_eq!(vm.variable_text("tick"), "10002");
+            assert_eq!(vm.variable_text("after"), "0");
+            assert_eq!(vm.active_tasks(), 1);
+        }
+    }
+}
+
+#[test]
+fn hot_k4_range_next_final_yield_and_warp_iteration_boundaries_match() {
+    use serde_json::json;
+    for kind in ["range", "while"] {
+        for warped in [false, true] {
+            let count = if warped { 10_010.0 } else { 900.0 };
+            let body = changed("tick", num(1.0), false);
+            let iteration = if kind == "range" {
+                json!({"type":"traverse_number","inputs":{
+                    "value":{"type":"traverse_number_param","fields":{"TEXT":"index"}},
+                    "from":num(1.0),"to":num(count),"by":num(1.0)
+                },"statements":{"DO":body}})
+            } else {
+                json!({"type":"controls_while","inputs":{"BOOL":{
+                    "type":"logic_compare","fields":{"OP":"LT"},"inputs":{"A":get("tick"),"B":num(count)}
+                }},"statements":{"DO":body}})
+            };
+            let iteration = if warped {
+                json!({"type":"warp","statements":{"DO":iteration}})
+            } else {
+                iteration
+            };
+            let mut p = private_project(body, json!(0), true);
+            p["actors"]["actorsDict"]["nekoc-default-actor"]["nekoBlockJsonList"][0]["next"] =
+                chain(vec![iteration, set("after", get("tick"))]);
+            let vm = compare_hot_budget(&p, None, 100_000, 1100);
+            assert_eq!(vm.variable_text("tick"), count.to_string());
+            assert_eq!(vm.variable_text("after"), count.to_string());
+            if kind == "range" {
+                assert_native_helper(&vm, "op/RangeNext");
+            } else if warped {
+                assert_native_helper(&vm, "op/WarpIteration");
+            }
+            let mut vm = vm;
+            vm.start();
+            if warped {
+                let frame = vm
+                    .advance(1.0 / 60.0, 100_000, Duration::from_secs(5))
+                    .unwrap();
+                assert!(!frame.budget_yield);
+                assert_eq!(vm.variable_text("tick"), "10002", "{kind}");
+                assert_eq!(vm.variable_text("after"), "0");
+            } else {
+                for _ in 0..900 {
+                    vm.advance(1.0 / 60.0, 100_000, Duration::from_secs(5))
+                        .unwrap();
+                }
+                assert_eq!(vm.variable_text("tick"), "900");
+                assert_eq!(vm.variable_text("after"), "0");
+                assert_eq!(vm.active_tasks(), 1);
+            }
+        }
+    }
+}
+
+fn reporter(id: &str, args: &[(&str, Value)]) -> Value {
+    let mut block = call(id, args);
+    block["type"] = serde_json::json!("procedures_2_callreturn");
+    block
+}
+
+fn returned(value: Value) -> Value {
+    serde_json::json!({"type":"procedures_2_return_value","mutation":"<mutation items=\"1\"/>",
+        "inputs":{"VALUE":value},"shadows":{"VALUE":num(0.0)}})
+}
+
+fn local_set(id: &str, value: Value) -> Value {
+    set(
+        &serde_json::json!({"name":id,"type":"NEKO_SCRIPT_VARIABLE_TYPE-test"}).to_string(),
+        value,
+    )
+}
+
+#[test]
+fn hot_reentrant_reporters_reacquire_cells_parameters_and_aliases_after_clone_growth() {
+    use serde_json::json;
+    for k4 in [false, true] {
+        for site in ["Call", "Branch", "AppendValue", "AppendTarget"] {
+            let a = json!({"type":"pure_list_get","fields":{"list":"items-a"}});
+            let b = json!({"type":"pure_list_get","fields":{"list":"items-b"}});
+            let eval = reporter("mutate", &[("payload", text("reporter-shadow"))]);
+            let operation = match site {
+                "Call" => call("capture", &[("first", eval), ("second", get("alias"))]),
+                "Branch" => branch(eval, changed("numeric", num(1.0), false)),
+                "AppendValue" => append(get("alias"), eval),
+                "AppendTarget" => append(eval, text("appended")),
+                _ => unreachable!(),
+            };
+            let body = call("driver", &[("payload", get("typed"))]);
+            let mut p = private_project(body, json!(0), k4);
+            for id in ["items-a", "items-b"] {
+                p["variables"]["variablesDict"][id] =
+                    json!({"id":id,"type":"list","value":[],"isGlobal":true});
+            }
+            for id in [
+                "alias",
+                "target",
+                "local_after",
+                "clones",
+                "captured",
+                "captured_alias",
+            ] {
+                p["variables"]["variablesDict"][id] = json!({"id":id,"value":0,"isGlobal":true});
+            }
+            p["variables"]["variablesDict"]["typed"] =
+                json!({"id":"typed","value":["caller",true,[7]],"isGlobal":true});
+            p["procedures"]["proceduresDict"]["capture"] = procedure(
+                &[("first", "String"), ("second", "String")],
+                chain(vec![
+                    set("captured", parameter("first")),
+                    set("captured_alias", parameter("second")),
+                ]),
+            );
+            p["procedures"]["proceduresDict"]["driver"] = procedure(
+                &[("payload", "String")],
+                chain(vec![
+                    changed("tick", num(1.0), false),
+                    set("target", num(12.0)),
+                    set("alias", a.clone()),
+                    local_set("scratch", num(1.0)),
+                    operation,
+                    // These must use fresh pointers, restored caller parameters,
+                    // and the cells/aliases modified by the nested reporter.
+                    local_set(
+                        "scratch",
+                        arithmetic(
+                            "add",
+                            json!({"type":"script_variables_value","fields":{"TEXT":"scratch"}}),
+                            num(2.0),
+                        ),
+                    ),
+                    set(
+                        "local_after",
+                        json!({"type":"script_variables_value","fields":{"TEXT":"scratch"}}),
+                    ),
+                    set("out", parameter("payload")),
+                    set("compared", get("target")),
+                    append(get("alias"), text("after")),
+                    set("after", get("tick")),
+                ]),
+            );
+            let value = if site == "Branch" {
+                json!({"type":"logic_boolean","fields":{"BOOL":"TRUE"}})
+            } else if site == "AppendTarget" {
+                get("alias")
+            } else {
+                parameter("payload")
+            };
+            p["procedures"]["proceduresDict"]["mutate"] = procedure(
+                &[("payload", "String")],
+                chain(vec![
+                    set("target", text("changed-by-reporter")),
+                    set("alias", b.clone()),
+                    local_set("scratch", num(40.0)),
+                    // Clone hats enqueue new tasks synchronously. Grow far past
+                    // the small initial task capacity only AFTER the site heats.
+                    branch(
+                        json!({"type":"logic_compare","fields":{"OP":"EQ"},"inputs":{"A":get("tick"),"B":num(851.0)}}),
+                        json!({"type":"repeat_n_times","inputs":{"times":num(40.0)},"statements":{"DO":{
+                            "type":"mirror","fields":{"sprite":"--self"}
+                        }}}),
+                    ),
+                    returned(value),
+                ]),
+            );
+            let hot =
+                p["actors"]["actorsDict"]["nekoc-default-actor"]["nekoBlockJsonList"][0]["next"]
+                    .clone();
+            p["actors"]["actorsDict"]["nekoc-default-actor"]["nekoBlockJsonList"] = json!([
+                {"type":"on_running_group_activated","next":chain(vec![
+                    json!({"type":"script_variables","inputs":{"PARAMS0":{"type":"script_variables_param","fields":{"TEXT":"scratch"}}}}),hot
+                ])},
+                {"type":"start_as_a_mirror","statements":{"DO":changed("clones",num(1.0),false)}}
+            ]);
+            let vm = compare_hot_budget(&p, None, 73, 10_000);
+            assert_eq!(vm.variable_text("out"), "caller,true,7", "{site} k4={k4}");
+            assert_eq!(vm.variable_text("compared"), "changed-by-reporter");
+            assert_eq!(vm.variable_text("local_after"), "42");
+            assert_eq!(vm.variable_text("after"), "900");
+            assert_eq!(vm.variable_text("clones"), "40");
+            let snapshot = vm.debug_snapshot();
+            assert_eq!(snapshot["lists"]["items-a"], json!([]));
+            let values = snapshot["lists"]["items-b"].as_array().unwrap();
+            assert_eq!(
+                values.len(),
+                if site.starts_with("Append") {
+                    1800
+                } else {
+                    900
+                }
+            );
+            if site == "AppendValue" {
+                for pair in values.chunks_exact(2) {
+                    assert_eq!(pair, &[json!("reporter-shadow"), json!("after")]);
+                }
+            } else if site == "AppendTarget" {
+                for pair in values.chunks_exact(2) {
+                    assert_eq!(pair, &[json!("appended"), json!("after")]);
+                }
+            } else if site == "Branch" {
+                assert_eq!(vm.variable_text("numeric"), "900");
+            }
+            if site == "Call" {
+                assert_eq!(vm.variable_text("captured"), "reporter-shadow");
+                assert_eq!(
+                    snapshot["variables"]["captured_alias"],
+                    snapshot["lists"]["items-b"]
+                );
+            }
+            let op = if site.starts_with("Append") {
+                "AppendList"
+            } else {
+                site
+            };
+            assert_native_helper(&vm, &format!("native/reentrant-{op}"));
+        }
+    }
+}
+
+#[test]
+fn hot_reentrant_reporter_errors_done_and_restart_stop_at_the_same_boundary() {
+    use serde_json::json;
+    for k4 in [false, true] {
+        for site in ["Call", "Branch", "AppendValue", "AppendTarget"] {
+            for ending in ["error", "done", "restart"] {
+                let list = json!({"type":"pure_list_get","fields":{"list":"items"}});
+                let eval = reporter("boundary", &[]);
+                let operation = match site {
+                    "Call" => call("capture", &[("value", eval)]),
+                    "Branch" => branch(eval, set("numeric", get("tick"))),
+                    "AppendValue" => append(list.clone(), eval),
+                    "AppendTarget" => append(eval, text("value")),
+                    _ => unreachable!(),
+                };
+                let mut p = private_project(
+                    chain(vec![
+                        changed("tick", num(1.0), false),
+                        operation,
+                        set("after", get("tick")),
+                    ]),
+                    json!(0),
+                    k4,
+                );
+                p["variables"]["variablesDict"]["items"] =
+                    json!({"id":"items","type":"list","value":[],"isGlobal":true});
+                p["procedures"]["proceduresDict"]["capture"] =
+                    procedure(&[("value", "String")], set("numeric", parameter("value")));
+                let terminal = match ending {
+                    "error" => {
+                        // Self-append always fails in both KN/K4; it does not
+                        // depend on their intentionally different index policy.
+                        let mut block = append(list.clone(), list.clone());
+                        block["id"] = json!("reporter-cycle");
+                        block
+                    }
+                    "done" => json!({"type":"stop","fields":{"scope":"0"}}),
+                    "restart" => json!({"type":"restart"}),
+                    _ => unreachable!(),
+                };
+                p["procedures"]["proceduresDict"]["boundary"] = procedure(
+                    &[],
+                    chain(vec![
+                        branch(
+                            json!({"type":"logic_compare","fields":{"OP":"GT"},"inputs":{"A":get("tick"),"B":num(850.0)}}),
+                            terminal,
+                        ),
+                        returned(if site == "AppendTarget" {
+                            list
+                        } else {
+                            text("ok")
+                        }),
+                    ]),
+                );
+                let op = if site.starts_with("Append") {
+                    "AppendList"
+                } else {
+                    site
+                };
+                if ending == "restart" {
+                    // A real restart is intentionally non-terminating. Bound
+                    // observations instead of asking compare_hot to finish;
+                    // hot counters/regions survive start and runtime restarts.
+                    let mut a = engine(&p, false);
+                    let mut b = engine(&p, true);
+                    b.enable_jit_profile();
+                    for start in 0..2 {
+                        a.start();
+                        b.start();
+                        for frame in 0..3 {
+                            let x = a
+                                .advance(1.0 / 60.0, 100_000, Duration::from_secs(5))
+                                .unwrap();
+                            let y = b
+                                .advance(1.0 / 60.0, 100_000, Duration::from_secs(5))
+                                .unwrap();
+                            assert_eq!(
+                                a.jit_debug_snapshot(),
+                                b.jit_debug_snapshot(),
+                                "{site} k4={k4}, start={start}, frame={frame}"
+                            );
+                            assert_eq!(a.debug_snapshot(), b.debug_snapshot());
+                            assert_eq!(
+                                normalized(&encode_frame(&x).unwrap()),
+                                normalized(&encode_frame(&y).unwrap())
+                            );
+                            assert_eq!(x.budget_yield, y.budget_yield);
+                            a.recycle_lines(x.lines);
+                            b.recycle_lines(y.lines);
+                        }
+                    }
+                    assert_native_helper(&b, &format!("native/reentrant-{op}"));
+                } else {
+                    let expected_error = if ending == "error" {
+                        Some("cyclic list at reporter-cycle")
+                    } else if site == "AppendTarget" {
+                        // stop-all ends the reporter before ReturnValue, so it
+                        // produces Null. The outer instruction still resolves
+                        // that target: resolve_list rejects it in both KN/K4,
+                        // even though the enclosing task has already stopped.
+                        Some("list operation received a non-list value")
+                    } else {
+                        None
+                    };
+                    let vm = compare_hot(&p, expected_error);
+                    assert_eq!(vm.variable_text("tick"), "851");
+                    assert_eq!(vm.variable_text("after"), "850");
+                    assert_native_helper(&vm, &format!("native/reentrant-{op}"));
+                }
+            }
+        }
     }
 }

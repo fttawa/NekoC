@@ -9,6 +9,7 @@ mod cloud;
 mod extensions;
 mod input;
 mod jit;
+mod jit_observation;
 mod k4_clock;
 mod kn_catalog;
 mod kn_helpers;
@@ -4373,6 +4374,8 @@ pub struct Engine {
     jit: Option<Box<jit::Jit>>,
     jit_profile: Option<jit::Profile>,
     jit_error: Option<anyhow::Error>,
+    /// A native boundary already executed and must yield this scheduler pass.
+    jit_yield: bool,
     /// Last on_bump_actor contact per (script, instance).
     bump_state: std::collections::HashMap<(usize, usize), Option<usize>>,
     has_bump_scripts: bool,
@@ -4818,6 +4821,7 @@ impl Engine {
             jit,
             jit_profile: None,
             jit_error: None,
+            jit_yield: false,
             order,
             current_scene,
             scene_orders,
@@ -9213,6 +9217,14 @@ impl Engine {
                     count += used;
                     if let Some(error) = self.jit_error.take() {
                         return Err(error);
+                    }
+                    if std::mem::take(&mut self.jit_yield) {
+                        break;
+                    }
+                    // Match the interpreted post-exec check. Restart is handled
+                    // at the next ready-task boundary, not after every op.
+                    if self.tasks[index].done {
+                        break;
                     }
                     since_clock += used;
                     if since_clock >= 8192 {
