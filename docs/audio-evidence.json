@@ -1,0 +1,216 @@
+{
+  "schema": "nekoc-audio-official-evidence-v1",
+  "audit_date": "2026-11-10",
+  "method": "read-only static inspection of user-designated official bundles and their vendor dependencies",
+  "offset_convention": "zero-based UTF-16 code units after UTF-8 decoding; module_start points to the first character of the module key, without the preceding comma",
+  "contains_third_party_source_snippets": false,
+  "excluded_as_official_evidence": ["HateNeko"],
+  "official_runtime_executed": false,
+  "cargo_executed": false,
+  "sources": [
+    {
+      "id": "k4-player",
+      "path": "E:/nekoc-wt/_ref/k4player/Kitten4播放器/resources/app/src/player/build/player_v2.2d180c468559fbd29528.js.orig",
+      "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160",
+      "byte_length": 1855324,
+      "utf16_length": 1851805,
+      "modules": [
+        {
+          "id": "xQfl",
+          "module_start": 1743488,
+          "symbols": [
+            {"symbol": "PC resource Howl loader rt", "offset": 1760392},
+            {"symbol": "PC resource stop helper at", "offset": 1760743},
+            {"symbol": "resource rate setter ct", "offset": 1761149},
+            {"symbol": "resource volume setter ut", "offset": 1761441},
+            {"symbol": "AudioPlayer.play", "offset": 1762174},
+            {"symbol": "AudioPlayer.reset_sound", "offset": 1764668},
+            {"symbol": "audio domain factory jt", "offset": 1767853},
+            {"symbol": "thread lock acquisition helper _", "offset": 1768057},
+            {"symbol": "thread lock release helper p", "offset": 1768110},
+            {"symbol": "playback helper f", "offset": 1768168},
+            {"symbol": "TTS helper m", "offset": 1768729},
+            {"symbol": "resource resolver g", "offset": 1769978},
+            {"symbol": "play_audio_2", "offset": 1770415},
+            {"symbol": "play_audio_and_wait_2", "offset": 1770671},
+            {"symbol": "stop_audio_2", "offset": 1770926},
+            {"symbol": "set_volume_or_rate_2", "offset": 1774166},
+            {"symbol": "change_volume_or_rate_2", "offset": 1774466},
+            {"symbol": "volume/rate clamp It", "offset": 1776372}
+          ],
+          "dependencies": [{"local_binding": "U", "module_id": "HlzF", "source": "k4-vendor", "binding_offset": 1758629}]
+        },
+        {
+          "id": "vxpV",
+          "module_start": 1722015,
+          "symbols": [
+            {"symbol": "runtime cleanup pt", "offset": 1727466},
+            {"symbol": "reset_sound call from cleanup", "offset": 1727695},
+            {"symbol": "startup calls cleanup pt", "offset": 1725240}
+          ]
+        },
+        {
+          "id": "TZwQ",
+          "module_start": 573985,
+          "symbols": [{"symbol": "inject_audio_runtime_data implementation w", "offset": 574994}]
+        }
+      ]
+    },
+    {
+      "id": "k4-vendor",
+      "path": "E:/nekoc-wt/_ref/k4player/Kitten4播放器/resources/app/src/player/build/vendors.d00f4bd454a6352e9d71.js",
+      "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867",
+      "byte_length": 390714,
+      "utf16_length": 389648,
+      "modules": [
+        {
+          "id": "HlzF",
+          "module_start": 39640,
+          "symbols": [
+            {"symbol": "Howl.play", "offset": 48170},
+            {"symbol": "Howl.volume", "offset": 53009},
+            {"symbol": "Howl.rate", "offset": 55528},
+            {"symbol": "Howl._inactiveSound", "offset": 60451},
+            {"symbol": "Howl._getSoundIds", "offset": 60926}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kn-main",
+      "path": "D:/AppData/Local/Temp/opencode/pickcat-corpus-20261107/now-official/resources/5a9f920b6d21d76ccc6148ea8fc73c8aefbe53f4d1ab933388b97fcbff2bd0e6.js",
+      "sha256": "5a9f920b6d21d76ccc6148ea8fc73c8aefbe53f4d1ab933388b97fcbff2bd0e6",
+      "byte_length": 5594369,
+      "utf16_length": 5594369,
+      "modules": [
+        {
+          "id": "46501",
+          "module_start": 1583952,
+          "symbols": [
+            {"symbol": "getAudioDomainFunctions", "offset": 1634555},
+            {"symbol": "playAudio registration", "offset": 1636555},
+            {"symbol": "playAudioAndWait registration", "offset": 1637064},
+            {"symbol": "stopAudio registration", "offset": 1637708},
+            {"symbol": "stopAudio comparison to le.si", "offset": 1638107},
+            {"symbol": "soundColor registration", "offset": 1638460},
+            {"symbol": "sound_color_speed mutation attribute match", "offset": 1638853},
+            {"symbol": "soundColor live block setConfig", "offset": 1639861},
+            {"symbol": "soundColor serialized block setConfig", "offset": 1640451},
+            {"symbol": "playWordsAudio registration", "offset": 1640784},
+            {"symbol": "playWordAudioWait registration", "offset": 1641633}
+          ],
+          "dependencies": [
+            {"local_binding": "w", "module_id": "73968", "binding_offset": 1584360},
+            {"local_binding": "le", "module_id": "90667", "binding_offset": 1601134, "note": "binding is a comma expression; do not use a similarly named variable from another module"},
+            {"local_binding": "Qe", "module_id": "47693", "binding_offset": 1605160},
+            {"local_binding": "We", "module_id": "50865", "binding_offset": 1605184}
+          ]
+        },
+        {
+          "id": "73968",
+          "module_start": 638576,
+          "exports": ["B0", "rj"],
+          "finding": "B0 initializes a wrapper around an injected audio core; wrapper delegates play/stop/stopAll, and stopAll emits STOP_ALL_AUDIO before core.stopAll"
+        },
+        {
+          "id": "17028",
+          "module_start": 3554778,
+          "symbols": [
+            {"symbol": "Web audio core aw", "offset": 5243647},
+            {"symbol": "Web core addAudio", "offset": 5243960},
+            {"symbol": "Web core onend callback", "offset": 5245134},
+            {"symbol": "Web core onstop callback", "offset": 5245285},
+            {"symbol": "Web core play", "offset": 5245521},
+            {"symbol": "Web core stopLater", "offset": 5245883},
+            {"symbol": "Web core stop", "offset": 5246388},
+            {"symbol": "Web core stopAll", "offset": 5246835},
+            {"symbol": "Native audio core ow", "offset": 5247557},
+            {"symbol": "B0.initAudio native/Web core selection", "offset": 5255459}
+          ],
+          "dependencies": [{"local_binding": "iw", "module_id": "1845", "source": "kn-vendor", "binding_offset": 5243636}]
+        },
+        {
+          "id": "90667",
+          "module_start": 1712979,
+          "symbols": [
+            {"symbol": "export si getter", "offset": 1713369},
+            {"symbol": "stop-all token local I", "offset": 1714395}
+          ],
+          "resolved_constants": {"si": "all_audio"}
+        },
+        {
+          "id": "47693",
+          "module_start": 1736664,
+          "resolved_constants": {"O.PLAY_ING": 0, "O.PLAY_END": 1, "O.PLAY_FAIL": 2, "O.PLAY_TIMEOUT": 3}
+        },
+        {
+          "id": "50865",
+          "module_start": 1860262,
+          "symbols": [
+            {"symbol": "config convertValue method key", "offset": 1860460},
+            {"symbol": "config setConfig method name", "offset": 1860541},
+            {"symbol": "config getConfig method name", "offset": 1860797},
+            {"symbol": "config resetConfig method name", "offset": 1860863}
+          ],
+          "semantics": {"scope": "singleton global TTS config", "ui_spd_pit_vol_conversion": "clamp(value, 5, 20) - 5", "default_config": {"vol": 9}}
+        },
+        {
+          "id": "35296",
+          "module_start": 364609,
+          "symbols": [{"symbol": "online text2audio service reads singleton getConfig", "offset": 365733}],
+          "service_path": "/public-api/baidu-openapi/text2audio",
+          "finding": "String text requests use global TTS config; audio domain requests supplier huoshan"
+        }
+      ]
+    },
+    {
+      "id": "kn-vendor",
+      "path": "D:/AppData/Local/Temp/opencode/pickcat-corpus-20261107/now-official/resources/38183ab8a9620f33fef75f1bd1f90ee26b492e7b6ded8b6b065fc052e7948f68.js",
+      "sha256": "38183ab8a9620f33fef75f1bd1f90ee26b492e7b6ded8b6b065fc052e7948f68",
+      "byte_length": 6460489,
+      "utf16_length": 6460489,
+      "modules": [
+        {
+          "id": "1845",
+          "module_start": 1216916,
+          "symbols": [
+            {"symbol": "Howl.play", "offset": 1225697},
+            {"symbol": "Howl._inactiveSound", "offset": 1238107},
+            {"symbol": "Howl._getSoundIds", "offset": 1238555}
+          ]
+        }
+      ]
+    }
+  ],
+  "findings": [
+    {"id": "k4-blocking", "status": "static_verified", "sources": ["k4-player"], "summary_zh": "等待播放取得 thread lock，通过结束、停止或错误回调释放，不是固定时长积木。"},
+    {"id": "k4-overlap", "status": "static_verified", "sources": ["k4-player", "k4-vendor"], "summary_zh": "共享资源 Howl 的无 ID play 不先停止旧播放；活跃播放不被当作空闲 Sound，允许重叠。"},
+    {"id": "k4-resource-properties", "status": "static_verified", "sources": ["k4-player", "k4-vendor"], "summary_zh": "音量及速率按资源共享；积木百分数除以100，volume夹到[0,1]，rate夹到[0.05,4]，运行清理恢复项目初值。"},
+    {"id": "kn-web-overlap", "status": "static_verified_not_runtime_tested", "sources": ["kn-main", "kn-vendor"], "summary_zh": "Web core 每次新建 Howl 并遍历同 ID 既有 Howl 调用 play，非 restart；存在数量保护及共享注册表清理边缘行为。"},
+    {"id": "kn-web-stop-end", "status": "static_verified_not_runtime_tested", "sources": ["kn-main"], "summary_zh": "Web onstop 回报 PLAY_END、progress 0，onend 回报 PLAY_END、progress 1；等待版监听 PLAY_END/FAIL/TIMEOUT。"},
+    {"id": "kn-stop-all-token", "status": "static_verified", "sources": ["kn-main"], "value": "all_audio", "summary_zh": "domain 比较 le.si；46501内 le 依赖90667，si导出I，I为all_audio。"},
+    {"id": "kn-tts-global", "status": "static_verified", "sources": ["kn-main"], "summary_zh": "soundColor mutation配置全局TTS singleton；spd/pit/vol先夹[5,20]再减5；在线TTS服务读取该配置；普通音频积木未传这些属性。"},
+    {"id": "clone-private-volume", "status": "unsupported_by_audited_official_evidence", "sources": ["k4-player", "k4-vendor", "kn-main"], "summary_zh": "未发现克隆独立音量依据；K4资源共享，KN普通音频入口无音量参数，TTS配置全局。不可声明已证明官方克隆独立。"}
+  ],
+  "implementation_boundary": {
+    "files_observed_read_only": ["src/audio.rs", "src/engine.rs", "web/audio.js", "tests/audio.rs"],
+    "headless": "Explicit resource.duration seconds or inline PCM WAV-oriented RIFF metadata; deterministic simulation time, no network/decoder; unknown media finite next-tick fallback pending final main-agent confirmation.",
+    "web": "Independent active per-play voices, resource-shared volume/rate, explicit completion acknowledgements; not a byte-for-byte replication of official Web core edge cases.",
+    "tts": "Offline speechSynthesis mapping is an approximation, not official voice-ID, parameter-scale, acoustic or duration parity."
+  },
+  "conflicts_for_main_agent": [
+    {"id": "kn-all-audio-token", "observed_at_audit": "src/audio.rs and web/audio.js accepted all/--all-- but not all_audio", "required_followup": "Add KN official all_audio token or document unresolved incompatibility; do not treat aliases as evidence."},
+    {"id": "clone-private-volume", "required_followup": "Treat clone-specific volume as an explicit extension if required, not as verified official semantics."},
+    {"id": "kn-overlap-details", "required_followup": "Do not claim exact KN Web parity for duplicate old-Howl play calls, >10 guard, or registry deletion races."},
+    {"id": "tts-scale", "required_followup": "Keep raw UI/mutation values separate from official remote config conversion and offline Web Speech approximations."}
+  ],
+  "unverified": [
+    "Official player runtime playback, audible output and multi-thread callback order",
+    "KN native host audio restart/overlap and stop callbacks",
+    "Official online TTS authentication, provider voice IDs, synthesis output and parameter effects",
+    "KN Web loading-stop races and same-ID registry cleanup during overlap",
+    "Cross-platform pitch/volume and autoplay behavior",
+    "Official universal resource.duration field unit/schema beyond NekoC seconds convention",
+    "Final main-agent implementation/tests and unknown-media fallback adjustment"
+  ]
+}

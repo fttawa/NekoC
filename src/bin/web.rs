@@ -544,6 +544,7 @@ fn player_socket(request: Request, project: Option<Json>, cloud: CloudSession) -
             let program = Program::compile_with_extensions(&project, &registry)?;
             let stats = program.stats();
             let mut vm = Engine::new(program);
+            vm.use_browser_audio();
             cloud.attach(&mut vm)?;
             vm.start();
             socket.send(Message::Text(
@@ -989,6 +990,7 @@ fn serve_with_cloud(initial: Json, port: u16, cloud: CloudSession) -> Result<()>
                     let stats = compiled.stats();
                     if url == "/api/start" {
                         let mut vm = Engine::new(compiled);
+                        vm.use_browser_audio();
                         cloud.attach(&mut vm)?;
                         vm.start();
                         engine = Some(vm);

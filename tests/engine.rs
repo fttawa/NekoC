@@ -2047,6 +2047,7 @@ fn monitors_image_stamps_audio_waits_swipes_and_drags() {
         .unwrap()
         .push(json!({"type":"on_swipe","fields":{"type":"left"},"statements":{"DO":log_value(json!({"type":"text","fields":{"TEXT":"swiped"}}))}}));
     let mut vm = Engine::new(Program::compile(&p).unwrap());
+    vm.use_browser_audio();
     vm.start();
     let f = frame(&mut vm);
     assert_eq!(
