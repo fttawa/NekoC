@@ -360,6 +360,8 @@ enum Op {
     // Append private ops so existing global/JIT opcode discriminants stay stable.
     SetActorVariable(usize, usize),
     ChangeActorVariable(usize, Expr, f64),
+    /// Legacy K4 velocity checks actual Number values, not coerced strings.
+    PhysicsVelocity(usize, usize),
 }
 #[derive(Clone, Copy, Debug)]
 enum LayerMove {
@@ -3016,6 +3018,10 @@ impl Compiler {
                     block = b.get("next");
                     continue;
                 }
+                "kitten4_set_velocity" => Op::PhysicsVelocity(
+                    self.value(input(b, "value")?)?,
+                    self.value(input(b, "dir")?)?,
+                ),
                 kind if kind.starts_with("physics2_") => {
                     let command = physics::Command::parse(kind, b, |id| self.actor_target(id))?;
                     let zero = serde_json::json!({"type":"math_number","fields":{"NUM":0}});
@@ -6457,6 +6463,18 @@ impl Engine {
             self.dirty[actor] = true;
         }
         match op {
+            Op::PhysicsVelocity(value, dir) => {
+                let number = |v| match v {
+                    Cell::Number(n) => n,
+                    _ => f64::NAN,
+                };
+                let values = [
+                    number(self.eval_value(value, actor)),
+                    number(self.eval_value(dir, actor)),
+                    0.0,
+                ];
+                self.physics_command(actor, physics::Command::LegacyVelocity, values)?;
+            }
             Op::Physics(command, a, dir, time) => {
                 let values = [
                     self.eval(a, actor),

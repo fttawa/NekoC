@@ -92,3 +92,35 @@ node tools/semantics-kitten4-blocks2.mjs --out tests/fixtures/kitten4/blocks2-of
 VM 的第一失败实际是前面的列表读取越界（分别为第 426 项／长度 425、空列表读取），原先被外层“非列表”错误覆盖。官方与 VM 的初始化列表长度不同，涉及初始化与渲染／广播执行顺序；根积木排序试验也未定位根因。本轮没有修改全局 JSON 顺序或调度器来猜测修复，也没有将非列表强转空列表或吞异常。这两个作品仍属于**未完成兼容**，不能以新映射已接通宣称运行一致。
 
 其余排除项仍为角色私有变量、非有限数值传播、物理、分裂；未参考或移植 HateNeko。
+
+## 第三轮（blocks3）：语音检测、旧速度和 Wood
+
+本轮依据任务指定的只读离线播放器，而非将其他版本编辑器当作完全相同的内核：
+
+- 外部相对路径：`src/player/build/player_v2.2d180c468559fbd29528.js.orig`。
+- SHA-256：`0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160`。
+- 以下仍为从 0 开始的 JavaScript 字符串字符偏移。源码没有复制进仓库；该离线包保留 DI 暴露点，未独立认证与线上发布物逐字相同。
+
+| 偏移 / 可搜索符号 | 官方源码行为 | 本地处理 |
+| --- | --- | --- |
+| 1773918 `enable_voice_detection:function`；1756894 `function L(t)`；1758323 `function B()` | open 启动音量采样，close 释放采样；不获取线程锁。`getUserMedia` 的无设备/拒绝权限仅提示，不抛运行时积木错误 | 无麦克风后端，open/close 不阻塞、不采集、不弹权限框，明确记入 stub；未实现官方提示 UI |
+| 1773918 后的 `get_voice_volume:function`；1767830 `At="__voice__volume__"` | 任意数据里的采样值，不存在时返回 0 | 无设备初始状态固定返回数值 0，记入 stub；不是模拟真实音量，也未验证曾成功采样后断设备的旧值保留 |
+| 630899 `set_velocity:function`；582945 `function k(t)`；586238 `U=10` | value 和 dir 必须为有限 Number；value 夹紧 ±10000；右侧起逆时针角度；向量乘 10；只找已有 world/body，不创建；有限参数在场景上执行报物理错误 | 单独的旧速度指令，复用现有 Rapier 刚体；保留严格类型、限幅、方向、单位、不创建和场景错误顺序，不错误映射到限幅 ±12 的 `physics2_set_speed` |
+| 643772 `wood_block_set`；641000 附近 `get_wood_loader`、`wood_not_running`、`Ct="https://localhost:8964"` | 通用域函数本来请求本地 Python/Wood 服务并在线程锁内等待，失败可抛 wood_not_running | 不声称实现此服务 |
+| 1131893 附近 `wood_block_get:function(){return b(),NaN}` / `wood_block_set:function(){b()}`；1135xxx 初始化中的 `x()` | **播放器初始化会覆盖通用 Wood 域函数**：提示 `wood/wood_running_notification`，setter 立即继续，getter 返回 NaN；不请求 Wood 服务 | 按任务给定播放器的实际覆盖处理，set 为非阻塞 stub，get 为数值 NaN stub；没有提示 UI、Python 执行或存档效果 |
+
+本轮新增 `get_voice_volume` 和 `wood_block_get` 是配套 reporter：避免只接受 setter 后错误伪造其结果。所有映射只作用于 VM 输入副本，原生工作区及发布 AST 的往返不变，coverage 仍列出设备和 Wood stub。不参考或移植 HateNeko。
+
+### 回归及边界
+
+`tests/kitten4.rs` 使用手写最小发布 AST 和工作区，覆盖三种目标积木的导入/往返、stub 分类、后续脚本继续、音量 0、Wood 数值 NaN、旧速度 ±10000 与新速度 ±12 的区别、负速度与方向、字符串/NaN/Infinity 不修改速度、无已有刚体不创建，以及 JIT/解释器。`src/engine/physics.rs` 内部测试补充惰性分配、场景错误顺序和实际向上位移。
+
+旧格式作品的**加载期物理模型创建**、`self_enable_physics/self_disable_physics`、旧摩擦/弹性/边界和现有 `set_actor_as` stub 未在本轮扩展；仅调用旧速度而没有现有刚体时不会凭空启动物理。Rapier 与官方求解器、轮廓的差异仍见 `docs/kitten4-physics.md`，不保证整作品逐帧一致。NaN 的 JSON trace 会序列化成 null，回归通过 VM 文本 `NaN` 检查，不据 trace 的 null 声称是空值。
+
+### 本次离线播放器观测（60 帧，seed=1，Edge）
+
+用 `tools/compat/k4-oracle.mjs` 对仓库自有 `physics-speed.bcm` 的临时变体和手写设备工作区运行，输入、输出只保留在忽略目录 `dist/blocks3/`：
+
+- `devices.bcm`：open → 读音量 → close → Wood set → Wood get → done；第 60 帧音量为 0、Wood trace 为 null、done=1，`pageErrors=[]`。与本地 60 帧 trace 的 `firstDifference=null`。null 只能结合上述源码证明为 NaN，不能独立证明其类型。
+- `legacy-speed.bcm`：将自有 speed 夹具的两个 speed setter 改为旧 `set_velocity`，删掉发布 AST 后由离线内核重编译。done=1，但速度和位移都为 0；本地第 1 帧 `initialSpeed=99`，官方为 0，是实际差异，**不能用这次结果证明已有刚体速度与官方一致**。有刚体时的限幅、方向等依赖源码证据和本地回归，离线物理初始化/加载问题仍未验证。
+- 三个第三方作品均解除本任务指定积木的首个编译阻塞，但 60 帧 coverage 的前后 stage 仍为 `compile → compile`：172151013 后续首错是 `set_camera_status`，214725822 是 `self_set_friction`，235277933 是 `self_clear_effects`。未改写语料以隐藏这些错误，不能称为三个作品运行通过。

@@ -424,6 +424,10 @@ fn is_stub(kind: &str) -> bool {
     matches!(
         kind,
         "physics2_set_flexibility"
+            | "enable_voice_detection"
+            | "get_voice_volume"
+            | "wood_block_set"
+            | "wood_block_get"
             | "set_actor_as"
             | "play_words_audio"
             | "set_layer_with_pen"
@@ -466,8 +470,21 @@ fn lower_block(block: &mut Value, targets: &Targets) {
         block["type"] = json!(kind);
         return;
     }
+    if kind == "set_velocity" {
+        block["type"] = json!("kitten4_set_velocity");
+        return;
+    }
     if is_stub(&kind) || (kind == "self_change_effect_3" && field(block, "scope") == "7") {
-        if kind == "is_ranking_show_hide" {
+        if matches!(kind.as_str(), "get_voice_volume" | "wood_block_get") {
+            // Offline player: no microphone samples => 0; its player-specific
+            // wood override returns NaN without evaluating the Python request.
+            block["type"] = json!("math_number");
+            put_field(
+                block,
+                "NUM",
+                if kind == "wood_block_get" { "NaN" } else { "0" },
+            );
+        } else if kind == "is_ranking_show_hide" {
             let hidden = field(block, "VAL") == "hide";
             block["type"] = json!("logic_boolean");
             put_field(block, "BOOL", if hidden { "TRUE" } else { "FALSE" });
