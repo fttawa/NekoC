@@ -288,7 +288,18 @@ fn private_initial_types_and_named_list_operations_preserve_cells() {
         let mut vm = Engine::new(Program::compile(&project).unwrap());
         vm.start();
         run(&mut vm, 2).unwrap();
-        assert_eq!(vm.debug_snapshot()["variables"]["original"], initial);
+        // Private storage keeps its Cell type; the KN UserVariable global
+        // destination applies its source-backed nullish fallback to numeric 0.
+        assert_eq!(
+            vm.debug_snapshot()["actors"][ACTOR]["variables"][PRIVATE],
+            initial
+        );
+        let expected = if initial.is_null() {
+            json!(0.0)
+        } else {
+            initial
+        };
+        assert_eq!(vm.debug_snapshot()["variables"]["original"], expected);
     }
 
     let mut project = fixture(false, false);

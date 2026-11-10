@@ -35,7 +35,26 @@ test("snapshot is exactly 300 unique names with mutually exclusive conservative 
     assert.ok(row.compiler.includes("build_nested_block"));
     assert.ok(row.risk.length > 0);
   }
-  for (const type of ["microbit_math_map", "ai_chat_ask", "user_id_get", "setTimeout", "_object_set"]) {
+  // New paths must keep their explicit limitations, rather than being promoted
+  // to a parity claim. Truly unsupported types are checked independently below.
+  for (const type of ["_object_literal", "_object_get", "_object_set"]) {
+    const row = result.rows.find(row => row.type === type);
+    assert.ok(row.vm.length > 0, type);
+    assert.match(row.risk, /未验证/, type);
+  }
+  // A future service backend must not turn offline fallback into full support.
+  for (const type of ["setTimeout", "setInterval", "clearTimeout", "clearInterval"]) {
+    const row = result.rows.find(row => row.type === type);
+    assert.ok(row.vm.length > 0, type);
+    assert.equal(row.status, "部分语义", type);
+  }
+  for (const type of ["username_get", "user_id_get", "get_voice_answer", "recognize_body_part", "get_position_of_body_part", "move_to_body_part"]) {
+    const row = result.rows.find(row => row.type === type);
+    assert.ok(row.vm.length > 0, type);
+    assert.equal(row.status, "部分语义", type);
+    assert.match(row.risk, /未实现/, type);
+  }
+  for (const type of ["microbit_math_map", "ai_chat_ask", "get_voice_volume", "update_ranking"]) {
     assert.equal(result.rows.find(row => row.type === type).status, "缺失", type);
   }
   assert.equal(result.rows.find(row => row.type === "get_orientation").status, "固定值占位");

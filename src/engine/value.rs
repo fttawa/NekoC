@@ -1,10 +1,11 @@
 //! Non-numeric values live beside numeric slots, keeping arithmetic unboxed.
-use anyhow::{Result, bail};
+use anyhow::Result;
 use serde::{Serialize, Serializer};
 use serde_json::Value;
 use std::{cell::RefCell, rc::Rc};
 
 pub type List = Rc<RefCell<Vec<Cell>>>;
+pub type Object = Rc<RefCell<Vec<(String, Cell)>>>;
 // repr(u8): native code tests the tag byte of `Option<Cell>`; see jit::none_tag.
 #[derive(Clone, Debug)]
 #[repr(u8)]
@@ -16,6 +17,10 @@ pub enum Cell {
     Null,
     /// Official K4 costume dropdown value: a fresh {style_id: string} object.
     Costume(Rc<str>),
+    /// KN object properties preserve insertion order and reference identity.
+    Object(Object),
+    /// Missing JS object property; distinct from JSON null and numeric NaN.
+    Undefined,
 }
 impl Cell {
     /// Strict equality search, with the needle tag dispatched once rather than
@@ -69,7 +74,11 @@ impl Cell {
             Value::Array(v) => Self::List(Rc::new(RefCell::new(
                 v.iter().map(Self::from_json).collect::<Result<_>>()?,
             ))),
-            Value::Object(_) => bail!("object values are not supported by fast VM"),
+            Value::Object(v) => Self::Object(Rc::new(RefCell::new(
+                v.iter()
+                    .map(|(k, v)| Ok((k.clone(), Self::from_json(v)?)))
+                    .collect::<Result<_>>()?,
+            ))),
         })
     }
     pub fn number(&self) -> f64 {
@@ -78,7 +87,7 @@ impl Cell {
             Self::Bool(v) => u8::from(*v) as f64,
             Self::Null => 0.0,
             Self::Text(s) => crate::js_number::parse(s),
-            Self::List(_) | Self::Costume(_) => f64::NAN,
+            Self::List(_) | Self::Costume(_) | Self::Object(_) | Self::Undefined => f64::NAN,
         }
     }
     pub fn text(&self) -> String {
@@ -86,18 +95,37 @@ impl Cell {
     }
     /// Both official products use JS String(number), including exponent notation.
     pub fn text_with_js_nonfinite(&self, _js_nonfinite: bool) -> String {
+        self.text_guarded(&mut Vec::new())
+    }
+    fn text_guarded(&self, active: &mut Vec<usize>) -> String {
         match self {
             Self::Number(n) => crate::js_number::text(*n),
             Self::Bool(v) => v.to_string(),
             Self::Text(s) => s.to_string(),
             Self::Null => String::new(),
-            Self::Costume(_) => "[object Object]".into(),
-            Self::List(v) => v
-                .borrow()
-                .iter()
-                .map(Cell::text)
-                .collect::<Vec<_>>()
-                .join(","),
+            Self::Costume(_) | Self::Object(_) => "[object Object]".into(),
+            Self::Undefined => "undefined".into(),
+            Self::List(v) => {
+                let pointer = Rc::as_ptr(v) as usize;
+                if active.contains(&pointer) || active.len() >= 128 {
+                    return String::new();
+                }
+                active.push(pointer);
+                let text = v
+                    .borrow()
+                    .iter()
+                    .map(|v| {
+                        if matches!(v, Self::Undefined | Self::Null) {
+                            String::new()
+                        } else {
+                            v.text_guarded(active)
+                        }
+                    })
+                    .collect::<Vec<_>>()
+                    .join(",");
+                active.pop();
+                text
+            }
         }
     }
     /// Appends `text()` without an intermediate allocation for scalar values.
@@ -110,7 +138,8 @@ impl Cell {
             Self::Bool(v) => out.push_str(if *v { "true" } else { "false" }),
             Self::Text(s) => out.push_str(s),
             Self::Null => {}
-            Self::Costume(_) => out.push_str("[object Object]"),
+            Self::Costume(_) | Self::Object(_) => out.push_str("[object Object]"),
+            Self::Undefined => out.push_str("undefined"),
             Self::List(_) => out.push_str(&self.text_with_js_nonfinite(js_nonfinite)),
         }
     }
@@ -119,17 +148,43 @@ impl Cell {
             Self::Number(n) => super::truth(*n),
             Self::Bool(b) => *b,
             Self::Text(s) => !s.is_empty(),
-            Self::List(_) | Self::Costume(_) => true,
-            Self::Null => false,
+            Self::List(_) | Self::Costume(_) | Self::Object(_) => true,
+            Self::Null | Self::Undefined => false,
         }
     }
     pub fn deep_clone(&self) -> Self {
-        match self {
-            Self::List(v) => Self::List(Rc::new(RefCell::new(
-                v.borrow().iter().map(Self::deep_clone).collect(),
-            ))),
-            _ => self.clone(),
+        fn copy(value: &Cell, seen: &mut std::collections::BTreeMap<(bool, usize), Cell>) -> Cell {
+            let key = match value {
+                Cell::List(v) => (false, Rc::as_ptr(v) as usize),
+                Cell::Object(v) => (true, Rc::as_ptr(v) as usize),
+                _ => return value.clone(),
+            };
+            if let Some(value) = seen.get(&key) {
+                return value.clone();
+            }
+            match value {
+                Cell::List(v) => {
+                    let out = Rc::new(RefCell::new(Vec::new()));
+                    let cell = Cell::List(out.clone());
+                    seen.insert(key, cell.clone());
+                    *out.borrow_mut() = v.borrow().iter().map(|v| copy(v, seen)).collect();
+                    cell
+                }
+                Cell::Object(v) => {
+                    let out = Rc::new(RefCell::new(Vec::new()));
+                    let cell = Cell::Object(out.clone());
+                    seen.insert(key, cell.clone());
+                    *out.borrow_mut() = v
+                        .borrow()
+                        .iter()
+                        .map(|(k, v)| (k.clone(), copy(v, seen)))
+                        .collect();
+                    cell
+                }
+                _ => unreachable!(),
+            }
         }
+        copy(self, &mut Default::default())
     }
     pub fn equals(&self, other: &Self) -> bool {
         match (self, other) {
@@ -137,8 +192,10 @@ impl Cell {
             (Self::Bool(a), Self::Bool(b)) => a == b,
             (Self::Text(a), Self::Text(b)) => a == b,
             (Self::Null, Self::Null) => true,
+            (Self::Undefined, Self::Undefined) => true,
             (Self::List(a), Self::List(b)) => Rc::ptr_eq(a, b),
             (Self::Costume(a), Self::Costume(b)) => Rc::ptr_eq(a, b),
+            (Self::Object(a), Self::Object(b)) => Rc::ptr_eq(a, b),
             _ => false,
         }
     }
@@ -160,7 +217,7 @@ impl Cell {
                     if Rc::ptr_eq(a, b) {
                         continue;
                     }
-                    let pointers = (Rc::as_ptr(a), Rc::as_ptr(b));
+                    let pointers = (Rc::as_ptr(a) as usize, Rc::as_ptr(b) as usize);
                     if let Some(previous) = active
                         .iter()
                         .find(|&&(a, b)| a == pointers.0 || b == pointers.1)
@@ -184,6 +241,34 @@ impl Cell {
                     true
                 }
                 (Self::Costume(a), Self::Costume(b)) => a == b,
+                (Self::Object(a), Self::Object(b)) => {
+                    if Rc::ptr_eq(a, b) {
+                        continue;
+                    }
+                    let pointers = (Rc::as_ptr(a) as usize, Rc::as_ptr(b) as usize);
+                    if let Some(previous) = active
+                        .iter()
+                        .find(|&&(a, b)| a == pointers.0 || b == pointers.1)
+                    {
+                        if *previous != pointers {
+                            return false;
+                        }
+                        continue;
+                    }
+                    let (a, b) = (a.borrow(), b.borrow());
+                    if a.len() != b.len() {
+                        return false;
+                    }
+                    active.push(pointers);
+                    work.push(None);
+                    for (key, value) in a.iter() {
+                        let Some((_, other)) = b.iter().find(|(k, _)| k == key) else {
+                            return false;
+                        };
+                        work.push(Some((value.clone(), other.clone())));
+                    }
+                    true
+                }
                 _ => a.equals(&b),
             };
             if !equal {
@@ -227,12 +312,57 @@ mod equality_tests {
 }
 impl Serialize for Cell {
     fn serialize<S: Serializer>(&self, s: S) -> Result<S::Ok, S::Error> {
+        thread_local! {
+            static ACTIVE: RefCell<Vec<(bool, usize)>> = const { RefCell::new(Vec::new()) };
+        }
+        struct Guard;
+        impl Drop for Guard {
+            fn drop(&mut self) {
+                ACTIVE.with(|a| {
+                    a.borrow_mut().pop();
+                });
+            }
+        }
+        let key = match self {
+            Self::List(v) => Some((false, Rc::as_ptr(v) as usize)),
+            Self::Object(v) => Some((true, Rc::as_ptr(v) as usize)),
+            _ => None,
+        };
+        let _guard = if let Some(key) = key {
+            let entered = ACTIVE.with(|a| {
+                let mut a = a.borrow_mut();
+                if a.contains(&key) || a.len() >= 128 {
+                    false
+                } else {
+                    a.push(key);
+                    true
+                }
+            });
+            if !entered {
+                return Err(serde::ser::Error::custom(
+                    "cyclic or excessively deep Cell value",
+                ));
+            }
+            Some(Guard)
+        } else {
+            None
+        };
         match self {
             Self::Number(v) => v.serialize(s),
             Self::Bool(v) => v.serialize(s),
             Self::Text(v) => v.as_ref().serialize(s),
             Self::List(v) => v.borrow().serialize(s),
             Self::Null => s.serialize_none(),
+            Self::Undefined => s.serialize_none(),
+            Self::Object(v) => {
+                use serde::ser::SerializeMap;
+                let v = v.borrow();
+                let mut map = s.serialize_map(Some(v.len()))?;
+                for (key, value) in v.iter() {
+                    map.serialize_entry(key, value)?;
+                }
+                map.end()
+            }
             Self::Costume(id) => {
                 use serde::ser::SerializeMap;
                 let mut map = s.serialize_map(Some(1))?;
@@ -318,6 +448,12 @@ pub(super) enum ValueExpr {
     BumpProperty(u8),
     /// Entity target (MAX = self), private slot, optional clone ordinal.
     ActorVariable(usize, usize, Option<super::Expr>),
+    ObjectLiteral(Span),
+    ObjectGet(usize, usize),
+    ObjectSet(usize, usize, usize),
+    ObjectKeys(usize),
+    JsonParse(usize),
+    JsonStringify(usize),
 }
 
 #[cfg(test)]

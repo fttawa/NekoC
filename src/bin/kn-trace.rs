@@ -10,6 +10,14 @@ fn encode(value: &Cell) -> Value {
             json!({"$number": if n.is_nan() { "NaN" } else if *n > 0.0 { "Infinity" } else { "-Infinity" }})
         }
         Cell::List(items) => Value::Array(items.borrow().iter().map(encode).collect()),
+        Cell::Object(props) => Value::Object(
+            props
+                .borrow()
+                .iter()
+                .map(|(k, v)| (k.clone(), encode(v)))
+                .collect(),
+        ),
+        Cell::Undefined => json!({"$undefined":true}),
         _ => serde_json::to_value(value).expect("scalar serialization"),
     }
 }

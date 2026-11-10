@@ -59,8 +59,10 @@ export function fixtures() {
 
 // Preserve non-finite numbers distinctly from JSON null and the string "NaN".
 export function encodeValue(value) {
+  if (value === undefined) return { $undefined: true };
   if (typeof value === "number" && !Number.isFinite(value)) return { $number: String(value) };
   if (Array.isArray(value)) return value.map(encodeValue);
+  if (value && typeof value === "object") return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, encodeValue(v)]));
   return value;
 }
 
@@ -114,7 +116,7 @@ async function probe(page, source, result) {
   await page.waitForTimeout(150);
   result.variables = await page.evaluate(() => {
     const req = window.__nekocRequire, manager = req(26921).cG.get_instance().getHeart().core.get_runtime_manager();
-    const encode = value => typeof value === "number" && !Number.isFinite(value) ? { $number: String(value) } : Array.isArray(value) ? value.map(encode) : value;
+    const encode = value => value === undefined ? { $undefined: true } : typeof value === "number" && !Number.isFinite(value) ? { $number: String(value) } : Array.isArray(value) ? value.map(encode) : value && typeof value === "object" ? Object.fromEntries(Object.entries(value).map(([k, v]) => [k, encode(v)])) : value;
     return Object.fromEntries(Object.entries(req(91107).BcmInstance.variablesDict).map(([id, v]) => [id, encode(manager.get_variable(id, undefined, v.currentEntityId))]));
   });
   result.scripts = await page.evaluate(() => [...document.scripts].map(s => s.src).filter(Boolean));
@@ -122,9 +124,12 @@ async function probe(page, source, result) {
 
 async function main() {
   const cases = fixtures();
+  if (process.argv.includes("objects")) cases.objects = JSON.parse(await readFile(path.join(directory, "objects.bcmkn"), "utf8"));
+  if (process.argv.includes("object-json")) cases["object-json"] = JSON.parse(await readFile(path.join(directory, "object-json.bcmkn"), "utf8"));
   if (process.argv.includes("--generate")) {
     await mkdir(directory, { recursive: true });
-    for (const [name, p] of Object.entries(cases)) await writeFile(path.join(directory, `${name}.bcmkn`), JSON.stringify(p, null, 2) + "\n");
+    const selected = process.argv.includes("--case") ? process.argv[process.argv.indexOf("--case") + 1] : null;
+    for (const [name, p] of Object.entries(cases)) if (!selected || selected === name) await writeFile(path.join(directory, `${name}.bcmkn`), JSON.stringify(p, null, 2) + "\n");
     return;
   }
   const option = name => process.argv.includes(name) ? process.argv[process.argv.indexOf(name) + 1] : undefined;

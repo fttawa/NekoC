@@ -1,0 +1,54 @@
+{
+  "officialUrl":"https://kn.codemao.cn/editor",
+  "verifiedAt":"2026-11-10T15:33:20.359Z",
+  "browserVersion":"157.0.4341.42",
+  "ok":true,
+  "cases":{
+    "object-json":{
+      "fixture":"tests/fixtures/kn-semantics/object-json.bcmkn",
+      "sha256":"a9e3af12bb0989d71cf978cdc40f428cf81cd41a2391d0001200a37fba399f2c",
+      "pageErrors":[],
+      "runtimeBundle":{"url":"https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js","sha256":"462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7"},
+      "mainBundle":{"url":"https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js","sha256":"58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165"},
+      "variables":{"done":1,"obj":{"1":3,"2":2,"z":1,"a":[true,null,"猫"]},"keys":["1","2","z","a"],"json":"{\"1\":3,\"2\":2,\"z\":1,\"a\":[true,null,\"猫\"]}","bad":0,"scalarKeys":[]},
+      "nekoc":{"variables":{"bad":0,"done":1,"json":"{\"1\":3,\"2\":2,\"z\":1,\"a\":[true,null,\"猫\"]}","keys":["1","2","z","a"],"obj":{"1":3,"2":2,"z":1,"a":[true,null,"猫"]},"scalarKeys":[]}},
+      "equal":true
+    },
+    "objects":{
+      "fixture":"tests/fixtures/kn-semantics/objects.bcmkn",
+      "sha256":"44879ad1dc5511252d79600abc419cb7909ba089f4be6ae8dd5b2acd4768d963",
+      "pageErrors":[],
+      "runtimeBundle":{"url":"https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js","sha256":"462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7"},
+      "mainBundle":{"url":"https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js","sha256":"58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165"},
+      "variables":{"trace":"","done":1,"obj":{"2":"numeric","a":9,"nested":{"x":4}},"alias":{"2":"numeric","a":9,"nested":{"x":4}},"read":9,"joined":"[object Object]","missing":0,"missingText":"","same":true,"fresh":true,"emptyStop":{"a":1},"nonstring":{"b":2},"duplicate":{"a":2},"items":[{"2":"numeric","a":9,"nested":{"x":4}}]},
+      "nekoc":{"variables":{"alias":{"2":"numeric","a":9,"nested":{"x":4}},"done":1,"duplicate":{"a":2},"emptyStop":{"a":1},"fresh":true,"items":[{"2":"numeric","a":9,"nested":{"x":4}}],"joined":"[object Object]","missing":0,"missingText":"","nonstring":{"b":2},"obj":{"2":"numeric","a":9,"nested":{"x":4}},"read":9,"same":true,"trace":""}},
+      "equal":true
+    }
+  },
+  "editorCompat":{
+    "editorUrl":"https://kn.codemao.cn/editor","checkedAt":"2026-11-10T15:33:20.364Z","ok":true,
+    "bundleUrl":"https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+    "projects":[{"input":"tests/fixtures/kn-semantics/objects.bcmkn","sha256":"44879ad1dc5511252d79600abc419cb7909ba089f4be6ae8dd5b2acd4768d963","editorVersion":"0.27.4","projectVersion":"0.27.4","blockCount":74,"issues":[],"pageErrors":[],"ok":true},{"input":"tests/fixtures/kn-semantics/object-json.bcmkn","sha256":"a9e3af12bb0989d71cf978cdc40f428cf81cd41a2391d0001200a37fba399f2c","editorVersion":"0.27.4","projectVersion":"0.27.4","blockCount":18,"issues":[],"pageErrors":[],"ok":true,"checkedAt":"2026-11-10T15:40:32.331Z"}]
+  },
+  "availability":{
+    "registered":["_object_literal","_object_get","_object_set","Object.keys","Object.values","Object.entries","Object.assign","Object.hasOwnProperty","Object.toString","JSON.parse","JSON.stringify"],
+    "notRegistered":["_object_delete","_object_keys","Object.delete","typeof","type_of","_typeof","delete"],
+    "unsupportedUnaryConversions":["typeof","delete"],
+    "conversionObservations":[
+      {"code":"Object.keys({a: 1});","types":["_execute","Object.keys","_object_literal"],"errors":[],"warnings":[]},
+      {"code":"JSON.parse('{}');","types":["_execute","JSON.parse"],"errors":[],"warnings":[]},
+      {"code":"JSON.stringify({a: 1});","types":["_execute","JSON.stringify","_object_literal"],"errors":[],"warnings":[]},
+      {"code":"delete a.x;","types":["text"],"errors":[],"warnings":["不支持的一元运算符: delete"]},
+      {"code":"typeof a;","types":["text"],"errors":[],"warnings":["不支持的一元运算符: typeof"]}
+    ],
+    "domainObservations":[
+      {"name":"_object_literal","args":{"key0":"a","value0":1,"key1":"","value1":2,"key2":"b","value2":3},"value":{"a":1}},
+      {"name":"_object_literal","args":{"key0":12,"value0":1,"key1":"b","value1":2},"value":{"b":2}},
+      {"name":"_object_get","args":{"obj":{"a":1},"key":"missing"},"value":{"$undefined":true}},
+      {"name":"_object_set","args":{"obj":12,"key":"b","value":2},"value":{"b":2}},
+      {"name":"Object.keys","args":{"obj":{"1":3,"2":2,"z":1,"a":4}},"value":["1","2","z","a"]},
+      {"name":"JSON.parse","args":{"text":"bad"},"value":null}
+    ],
+    "source":"dist/kn-objects/oracle.json"
+  }
+}

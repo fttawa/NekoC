@@ -5,8 +5,8 @@ use std::{collections::BTreeMap, rc::Rc};
 
 #[derive(Default)]
 struct Cells {
-    ids: BTreeMap<usize, usize>,
-    pending: Vec<super::List>,
+    ids: BTreeMap<(bool, usize), usize>,
+    pending: Vec<Cell>,
     costumes: BTreeMap<usize, usize>,
 }
 
@@ -26,6 +26,7 @@ impl Cells {
             Cell::Bool(b) => json!(["boolean", b]),
             Cell::Text(t) => json!(["text", t.as_ref()]),
             Cell::Null => json!(["null"]),
+            Cell::Undefined => json!(["undefined"]),
             Cell::Costume(t) => {
                 let next = self.costumes.len();
                 let id = *self
@@ -35,16 +36,28 @@ impl Cells {
                 json!(["costume", id, t.as_ref()])
             }
             Cell::List(list) => {
-                let address = Rc::as_ptr(list) as usize;
+                let address = (false, Rc::as_ptr(list) as usize);
                 let id = if let Some(&id) = self.ids.get(&address) {
                     id
                 } else {
                     let id = self.pending.len();
                     self.ids.insert(address, id);
-                    self.pending.push(list.clone());
+                    self.pending.push(cell.clone());
                     id
                 };
                 json!(["list", id])
+            }
+            Cell::Object(object) => {
+                let address = (true, Rc::as_ptr(object) as usize);
+                let id = if let Some(&id) = self.ids.get(&address) {
+                    id
+                } else {
+                    let id = self.pending.len();
+                    self.ids.insert(address, id);
+                    self.pending.push(cell.clone());
+                    id
+                };
+                json!(["object", id])
             }
         }
     }
@@ -54,10 +67,21 @@ impl Cells {
         // Breadth-first traversal is stack-safe and preserves shared identities,
         // including cycles should a failed operation ever leave one behind.
         while graph.len() < self.pending.len() {
-            let list = self.pending[graph.len()].clone();
-            graph.push(Value::Array(
-                list.borrow().iter().map(|c| self.cell(c)).collect(),
-            ));
+            let node = self.pending[graph.len()].clone();
+            graph.push(match node {
+                Cell::List(list) => {
+                    Value::Array(list.borrow().iter().map(|c| self.cell(c)).collect())
+                }
+                Cell::Object(object) => {
+                    let entries: Vec<_> = object
+                        .borrow()
+                        .iter()
+                        .map(|(key, value)| json!([key, self.cell(value)]))
+                        .collect();
+                    json!({"object": entries})
+                }
+                _ => unreachable!("only graph containers are queued"),
+            });
         }
         graph
     }
@@ -160,5 +184,37 @@ mod tests {
         engine.lists[1] = separate;
         assert_ne!(before, engine.jit_debug_snapshot());
         assert_eq!(before["lists"], json!([["list", 0], ["list", 0]]));
+    }
+
+    #[test]
+    fn object_observations_keep_undefined_and_mixed_cycles() {
+        let mut cells = Cells::default();
+        let object: super::super::value::Object = Default::default();
+        let list: super::super::List = Default::default();
+        object
+            .borrow_mut()
+            .push(("list".into(), Cell::List(list.clone())));
+        object
+            .borrow_mut()
+            .push(("missing".into(), Cell::Undefined));
+        list.borrow_mut().push(Cell::Object(object.clone()));
+        assert_ne!(cells.cell(&Cell::Undefined), cells.cell(&Cell::Null));
+        assert_eq!(
+            cells.cell(&Cell::Object(object.clone())),
+            json!(["object", 0])
+        );
+        assert_eq!(
+            cells.cell(&Cell::Object(object.clone())),
+            json!(["object", 0])
+        );
+        assert_eq!(
+            cells.graph(),
+            vec![
+                json!({"object": [["list", ["list", 1]], ["missing", ["undefined"]]]}),
+                json!([["object", 0]]),
+            ]
+        );
+        list.borrow_mut().clear();
+        object.borrow_mut().clear();
     }
 }

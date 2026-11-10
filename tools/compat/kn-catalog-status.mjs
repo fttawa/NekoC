@@ -37,11 +37,27 @@ export const statuses = ["有执行路径／未完整验证", "部分语义", "�
 
 const risks = {
   appearance_of_sprite: "width/height/scale 均映射 ExprOp::Scale；不能代表独立宽高百分比",
-  get_orientation: "ExprOp::Constant(0.0)，未接入设备倾斜；固定值不算传感器支持",
+  get_orientation: "官方 desktop 无设备分支实测为 numeric 0；仍未接入移动端设备倾斜，固定值不算传感器支持",
   mouse_down: "只读取 mouse_event_type/type，忽略 catalog 的 sprite 目标字段",
   self_dialog_wait: "只有 Op::Dialog，timed 分支仅匹配 self_dialog；没有显式等待/关闭",
   get_clone_index_property: "KN 仅部分属性码和角色变量；其他属性显式报错",
   convert_type: "KN 只允许 number/string，其他转换报错；未验证全部强制转换边界",
+  setTimeout: "按官方 0.27.4 原生实测丢弃 callback statement，只调度空回调；通用 JS function 回调未实现，墙钟精度未验证",
+  setInterval: "按官方 0.27.4 原生实测丢弃 callback statement，只调度空回调；通用 JS function 回调未实现，墙钟精度未验证",
+  clearTimeout: "取消尚未派发的定时器；浏览器 timer ID 数值不保证相同",
+  clearInterval: "取消尚未派发的定时器；浏览器 timer ID 数值不保证相同",
+  username_get: "仅无账户后端 profile：官方未登录文本；已登录用户未实现",
+  user_id_get: "仅无账户后端 profile：官方未登录返回字符串 0；已登录用户未实现",
+  get_voice_answer: "仅未开始识别的初始空文本；麦克风、权限与识别后端未实现",
+  recognize_body_part: "仅无检测结果时 false；检测后端未实现",
+  recognize_gesture: "仅无检测结果时 false；检测后端未实现",
+  bump_into_body_part: "仅无检测结果时 false；检测后端未实现",
+  check_tilt_direction_of_face: "仅无检测结果时 false；检测后端未实现",
+  get_position_of_body_part: "仅无检测结果时 NaN；检测后端未实现",
+  get_appearance_of_part: "仅无检测结果时 NaN；检测后端未实现",
+  get_tilt_angle_of_face: "仅无检测结果时 NaN；检测后端未实现",
+  move_to_body_part: "仅无检测结果时不修改位置；检测后端未实现",
+  face_to_body_part: "仅无检测结果时不修改方向；检测后端未实现",
 };
 const limitations = {
   __break__: "官方类型声明/API 伪名；编辑器实际积木为 break。此分派仅为兼容输入，非同名积木支持",
@@ -56,6 +72,9 @@ const limitations = {
   _execute: "官方域函数空体；NekoC 先求值 action 再丢弃结果，完整官方输入求值管线差分未验证",
   _array_literal: "官方 Object.values 与 items0… 已核实；NekoC 保留输入顺序/类型，完整参数绑定差分未验证",
   calculate: "复用现有官方来源公式求值器；KN 官方域函数有限样例已测，全公式语言与异常集未验证",
+  _object_literal: "KN 共享引用对象；官方字面量/属性读写有限样例有证据，完整 JS 原型链及全部 JSON 边界未验证",
+  _object_get: "KN 共享引用对象；属性缺失保留 undefined，完整 JS 原型链及特殊键未验证",
+  _object_set: "KN 共享引用对象；赋值返回值及副作用有限样例有证据，完整 JS 原型链未验证",
 };
 
 function primaryDispatch(engine) {
@@ -173,6 +192,7 @@ export function coverageMarkdown(result) {
     `- 清单文件 SHA-256：\`${catalogSha256}\`。本地名称快照在 [kn-catalog-manifest.mjs](../tools/compat/kn-catalog-manifest.mjs)，传外部路径运行时会校验哈希和全量集合。`,
     "- HateNeko **仅是实现参考和清单来源，非官方语义证据**。官方来源、下载哈希和小段定位见 [kncat-official-evidence.md](kncat-official-evidence.md)。",
     "- 最新集成基线另有 [kn-semantics.md](kn-semantics.md) 的官方 KN 原创夹具实测，覆盖有限调度、列表读取与转换样例；它不把本表升级成全类型/全字段认证。",
+    "- 第二轮对象、定时器及离线服务降级的证据和未验证范围见 [kn-objects.md](kn-objects.md)、[kn-async-services.md](kn-async-services.md)、[kn-timers.md](kn-timers.md)；无设备降级路径不代表真实设备、AI 或账户后端。",
     "- 官方 bundle：`https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js`；SHA-256 `58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165`。`_execute` byte 2962264 是空函数；`_array_literal` byte 2962446 使用 `Object.values`。空函数不等于输入不求值，执行管线仍需单独验证。",
     "- 导入层 `src/bcmkn_compiler.rs::build_nested_block` 泛型保留 type/fields，再按连接重建 inputs/statements/next；这只能说明能装配/读取，不能证明 VM 支持。`tests/kn_gap.rs::workspace_compiler_preserves_unknown_types_without_claiming_vm_support` 专门覆盖此区别。",
     "- 实现定位只扫描 value_one、expression_one、scripts、chain 的类型分派，排除注释、字段选项、expression_inputs 遍历提示和游离根忽略名单。元数据单独列出。此静态审计不能证明每条 guard 在 KN 模式均可达，也不能替代运行测试。",
@@ -184,7 +204,7 @@ export function coverageMarkdown(result) {
     "- `tests/kn_catalog.rs` 覆盖 while 前测/重测、内层 break、continue 的 repeat/range/while 与 warp、脚本变量、返回及输入副作用、数组键顺序/类型、公式、独立计时器；部分测试请求 JIT 开关，不表示每个分支都实际进入热 JIT。",
     "- `tests/kn_gap.rs` 有 16 个前序代码视图类型的执行、数值/Latin-1 边界、严格 Number 谓词、热循环侧退出及未知类型导入/拒绝测试。",
     "- 下表 `Tn` **仅表示测试源码直接引用该类型名**（动态构造、辅助函数或间接覆盖可能未计；同样可能只是错误测试），不表示所有字段/子选项已测。`未定位` 也不等于没有任何测试。已过滤 Kitten4 专属与 `kitten_n_compat.rs`；余下文件可能包含旧 runtime/导入层测试，源码引用仍不能直接当作 engine 行为证据。",
-    "- 未完成：300 项分别构造原生工程编译/执行、每个 dropdown/socket 与 malformed input、官方编辑器差分、跨平台硬件/AI/网络后端、渲染和音频最终输出的全量验证。没有新增/交付 `.bcmkn` 作品，因此本报告不声称编辑器检查通过。", "",
+    "- 未完成：300 项分别构造原生工程编译/执行、每个 dropdown/socket 与 malformed input、官方编辑器差分、跨平台硬件/AI/网络后端、渲染和音频最终输出的全量验证。原创 KN 夹具的编辑器检查以对应证据文档和带 SHA-256 的记录为准，不能推广到全部积木。", "",
     ...testIds.map(file => `- **${testRef(file)}**：[${file}](../${file})（源码引用，执行状态见上文）`),
     "", "## 全量逐项表（300 行）", "",
     "所有行的导入层均为上文 `build_nested_block` 泛型路径；只在“VM/编译位置”列有路径时才有进一步实现证据。行号随源码演化变化，可用下述命令重新生成。", "",

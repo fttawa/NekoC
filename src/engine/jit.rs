@@ -96,6 +96,8 @@ fn none_tag() -> Option<u8> {
         Cell::List(Default::default()),
         Cell::Null,
         Cell::Costume("".into()),
+        Cell::Object(Default::default()),
+        Cell::Undefined,
     ];
     samples
         .into_iter()
@@ -214,6 +216,12 @@ impl Engine {
                     ValueExpr::ActorVariable(..) => Some("private-variable"),
                     ValueExpr::Item(..) | ValueExpr::List(..) | ValueExpr::Find(..) => Some("list"),
                     ValueExpr::CallReturn(..) => Some("reporter-procedure"),
+                    ValueExpr::ObjectLiteral(..)
+                    | ValueExpr::ObjectGet(..)
+                    | ValueExpr::ObjectSet(..)
+                    | ValueExpr::ObjectKeys(..)
+                    | ValueExpr::JsonParse(..)
+                    | ValueExpr::JsonStringify(..) => Some("object"),
                     ValueExpr::Boolean(..)
                     | ValueExpr::Encode64(..)
                     | ValueExpr::Decode64(..)
@@ -353,9 +361,20 @@ impl Engine {
             if !seen.insert(key) {
                 continue;
             }
-            // Conversions themselves do not schedule. Traverse their children
-            // too: only a reporter procedure can invalidate native pointers.
-            if key.0 && matches!(self.program.values[key.1], ValueExpr::CallReturn(..)) {
+            // Conversions do not schedule, but object/JSON operations remain
+            // interpreter-only. Reporter procedures can invalidate native pointers.
+            if key.0
+                && matches!(
+                    self.program.values[key.1],
+                    ValueExpr::CallReturn(..)
+                        | ValueExpr::ObjectLiteral(..)
+                        | ValueExpr::ObjectGet(..)
+                        | ValueExpr::ObjectSet(..)
+                        | ValueExpr::ObjectKeys(..)
+                        | ValueExpr::JsonParse(..)
+                        | ValueExpr::JsonStringify(..)
+                )
+            {
                 return false;
             }
             pending.extend(self.evaluation_children(key));

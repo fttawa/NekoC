@@ -226,6 +226,9 @@ fn cell_json(cell: &Cell, depth: usize, remaining: &mut usize) -> Result<Value> 
         }
         Cell::Null => Value::Null,
         Cell::Costume(_) => bail!("extension costume objects are not supported"),
+        Cell::Object(_) | Cell::Undefined => {
+            bail!("extension KN object/undefined arguments are not supported")
+        }
         Cell::List(list) => {
             let list = list.borrow();
             ensure!(list.len() <= 4096, "extension list exceeds 4096 items");

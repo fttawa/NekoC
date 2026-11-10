@@ -11,8 +11,11 @@ mod input;
 mod jit;
 mod jit_observation;
 mod k4_clock;
+mod kn_async;
 mod kn_catalog;
 mod kn_helpers;
+mod kn_objects;
+mod kn_services;
 mod physics;
 mod stage_dialog;
 mod value;
@@ -399,6 +402,9 @@ enum Op {
     ResetBlockTimer,
     /// Evaluate a code-view action exactly once and discard its result.
     Execute(usize),
+    /// Native KN 0.27.4 drops the callback statement before calling the domain.
+    KnTimer(usize, bool),
+    KnClearTimer(usize),
 }
 #[derive(Clone, Copy, Debug)]
 enum LayerMove {
@@ -1156,6 +1162,18 @@ impl Program {
                     });
                 }
                 let value = var.get("value").unwrap_or(&Value::Null);
+                if semantics == RuntimeSemantics::Kitten4 {
+                    let mut pending = vec![value];
+                    while let Some(value) = pending.pop() {
+                        ensure!(
+                            !value.is_object(),
+                            "object values are not supported by K4 fast VM"
+                        );
+                        if let Some(items) = value.as_array() {
+                            pending.extend(items);
+                        }
+                    }
+                }
                 if var["isGlobal"] == false
                     || (var["isGlobal"].is_null()
                         && var["currentEntityId"]
@@ -1703,6 +1721,9 @@ impl Compiler {
             Some(
                 "_compiled_value"
                 | "_array_literal"
+                | "_object_get"
+                | "Object.keys"
+                | "JSON.parse"
                 | "_variable_get"
                 | "text_split"
                 | "temporary_list"
@@ -1765,6 +1786,27 @@ impl Compiler {
             return Ok(index);
         }
         let value = match b["type"].as_str().unwrap_or("") {
+            "username_get"
+            | "user_id_get"
+            | "get_voice_answer"
+            | "recognize_body_part"
+            | "recognize_gesture"
+            | "bump_into_body_part"
+            | "check_tilt_direction_of_face"
+            | "get_position_of_body_part"
+            | "get_appearance_of_part"
+            | "get_tilt_angle_of_face"
+                if self.program.semantics == RuntimeSemantics::KnCurrent =>
+            {
+                // This VM has no KN account/recognition backend. Preserve only
+                // the source-backed unavailable profile, never cached AI data.
+                let value = kn_services::reporter(b["type"].as_str().unwrap()).unwrap();
+                self.constant(match value {
+                    kn_services::OfflineValue::Number(n) => Cell::Number(n),
+                    kn_services::OfflineValue::Boolean(v) => Cell::Bool(v),
+                    kn_services::OfflineValue::Text(s) => Cell::Text(s.into()),
+                })
+            }
             "math_arithmetic"
                 if self.program.semantics == RuntimeSemantics::Kitten4
                     && field(b, "type") == "add" =>
@@ -1775,6 +1817,30 @@ impl Compiler {
                 ValueExpr::Calculate(self.value(input(b, "input")?)?)
             }
             "_array_literal" => self.array_literal(b)?,
+            "_object_literal" => self.object_literal(b)?,
+            "_object_get" => self.object_access(b, false)?,
+            "_object_set" => self.object_access(b, true)?,
+            "Object.keys" => {
+                ensure!(
+                    self.program.semantics == RuntimeSemantics::KnCurrent,
+                    "object blocks require KN semantics"
+                );
+                ValueExpr::ObjectKeys(self.value(input(b, "obj")?)?)
+            }
+            "JSON.parse" => {
+                ensure!(
+                    self.program.semantics == RuntimeSemantics::KnCurrent,
+                    "JSON blocks require KN semantics"
+                );
+                ValueExpr::JsonParse(self.value(input(b, "text")?)?)
+            }
+            "JSON.stringify" => {
+                ensure!(
+                    self.program.semantics == RuntimeSemantics::KnCurrent,
+                    "JSON blocks require KN semantics"
+                );
+                ValueExpr::JsonStringify(self.value(input(b, "value")?)?)
+            }
             "math_number_property"
                 if self.program.semantics == RuntimeSemantics::Kitten4
                     && matches!(field(b, "type"), "integer" | "whole") =>
@@ -2377,6 +2443,20 @@ impl Compiler {
             kind
         };
         let op = match kind {
+            "username_get"
+            | "user_id_get"
+            | "get_voice_answer"
+            | "recognize_body_part"
+            | "recognize_gesture"
+            | "bump_into_body_part"
+            | "check_tilt_direction_of_face"
+            | "get_position_of_body_part"
+            | "get_appearance_of_part"
+            | "get_tilt_angle_of_face"
+                if self.program.semantics == RuntimeSemantics::KnCurrent =>
+            {
+                return self.expression_value(b);
+            }
             "math_number" => {
                 let value = b["fields"].get("NUM").or_else(|| b["fields"].get("TEXT"));
                 ExprOp::Constant(
@@ -2440,6 +2520,12 @@ impl Compiler {
             | "parseInt"
             | "parseFloat"
             | "_array_literal"
+            | "_object_literal"
+            | "_object_get"
+            | "_object_set"
+            | "Object.keys"
+            | "JSON.parse"
+            | "JSON.stringify"
             | "calculate"
             | "isNaN"
             | "isFinite"
@@ -3063,6 +3149,31 @@ impl Compiler {
                 );
                 let kind = b["type"].as_str().unwrap_or("");
                 let op = match kind {
+                    "setTimeout" | "setInterval"
+                        if self.program.semantics == RuntimeSemantics::KnCurrent =>
+                    {
+                        Op::KnTimer(self.value(input(b, "delay")?)?, kind == "setInterval")
+                    }
+                    "clearTimeout" | "clearInterval"
+                        if self.program.semantics == RuntimeSemantics::KnCurrent =>
+                    {
+                        let socket = if kind == "clearTimeout" {
+                            "timeoutId"
+                        } else {
+                            "intervalId"
+                        };
+                        Op::KnClearTimer(self.value(input(b, socket)?)?)
+                    }
+                    "move_to_body_part" | "face_to_body_part"
+                        if self.program.semantics == RuntimeSemantics::KnCurrent =>
+                    {
+                        ensure!(
+                            kn_services::no_detection_command(kind),
+                            "unsupported offline command"
+                        );
+                        let value = self.push_constant(Cell::Null);
+                        Op::Execute(value)
+                    }
                     "script_variables" => {
                         for name in crate::runtime::helpers::script_variable_names(b) {
                             let local = self.local(name);
@@ -3077,6 +3188,7 @@ impl Compiler {
                     // main.8ccf2442.js:2962264 has an empty domain body; the
                     // action input is still evaluated before discarding it.
                     "_execute" => Op::Execute(self.value(input(b, "action")?)?),
+                    "_object_set" => Op::Execute(self.value(b)?),
                     "reset_timer" => Op::ResetBlockTimer,
                     // script_variables_set is an API alias, not an official
                     // registered type. Preserve it as an explicit compatibility
@@ -4404,6 +4516,7 @@ pub struct Engine {
     virtual_epoch: Option<f64>,
     timer: f64,
     block_timer: kn_catalog::BlockTimer,
+    kn_timers: kn_async::Timers<()>,
     timer_running: bool,
     /// Kitten 4 only: the millisecond clock scripts see during this update, and
     /// the clock value the running stage timer counts from.
@@ -4590,7 +4703,7 @@ impl Engine {
     }
 
     pub fn active_tasks(&self) -> usize {
-        self.tasks.iter().filter(|t| self.task_active(t)).count()
+        self.tasks.iter().filter(|t| self.task_active(t)).count() + self.kn_timers.len()
     }
     /// Scene-bound K4 tasks and KN when tasks suspend outside their scene.
     /// K4 global Start remains runnable regardless of its owner's scene.
@@ -4803,6 +4916,7 @@ impl Engine {
             virtual_epoch: None,
             timer: 0.0,
             block_timer: kn_catalog::BlockTimer::default(),
+            kn_timers: kn_async::Timers::default(),
             timer_running: true,
             clock_ms: 0.0,
             timer_origin_ms: 0.0,
@@ -4922,6 +5036,7 @@ impl Engine {
         self.answer = Cell::Text("".into());
         self.choice = (0.0, Cell::Text("".into()));
         self.tasks.clear();
+        self.kn_timers.clear();
         self.next_task_id = 0;
         self.received.clear();
         self.value_error = None;
@@ -6960,6 +7075,11 @@ impl Engine {
     #[inline]
     fn global_value(&self, i: usize) -> Cell {
         match &self.values[i] {
+            Some(Cell::Undefined | Cell::Null)
+                if self.program.semantics == RuntimeSemantics::KnCurrent =>
+            {
+                Cell::Number(0.0)
+            }
             Some(value) => value.clone(),
             None => Cell::Number(self.slots[i]),
         }
@@ -7078,6 +7198,9 @@ impl Engine {
             | ValueExpr::CloneProperty(_, e, _)
             | ValueExpr::ActorVariable(_, _, Some(e)) => children.push(expression(e)),
             ValueExpr::Received(i)
+            | ValueExpr::ObjectKeys(i)
+            | ValueExpr::JsonParse(i)
+            | ValueExpr::JsonStringify(i)
             | ValueExpr::Whole(i)
             | ValueExpr::Calculate(i)
             | ValueExpr::Convert(i, _)
@@ -7096,6 +7219,8 @@ impl Engine {
             | ValueExpr::ParseInt(a, b)
             | ValueExpr::Compare(a, b, _)
             | ValueExpr::Logic(a, b, _) => children.extend([(true, a), (true, b)]),
+            ValueExpr::ObjectGet(a, b) => children.extend([(true, a), (true, b)]),
+            ValueExpr::ObjectSet(a, b, c) => children.extend([(true, a), (true, b), (true, c)]),
             ValueExpr::Ternary(c, a, b) => children.extend([(true, c), (true, a), (true, b)]),
             ValueExpr::List(r) => children.extend(list(r)),
             ValueExpr::Find(r, i, _) => {
@@ -7106,10 +7231,12 @@ impl Engine {
                 children.extend(e.map(expression));
                 children.extend(list(r));
             }
-            ValueExpr::Join(span) | ValueExpr::Temporary(span) => children.extend(
-                (span.start..span.start + span.len)
-                    .map(|i| (true, self.program.value_args[i as usize])),
-            ),
+            ValueExpr::Join(span) | ValueExpr::Temporary(span) | ValueExpr::ObjectLiteral(span) => {
+                children.extend(
+                    (span.start..span.start + span.len)
+                        .map(|i| (true, self.program.value_args[i as usize])),
+                )
+            }
             ValueExpr::Select(i, a, b) => {
                 children.extend([(true, i), expression(a)]);
                 if !self.program.single_text_selects.contains(&key.1) {
@@ -7138,6 +7265,30 @@ impl Engine {
         }
         // Only strings/list references are cloned; numeric expressions stay unboxed.
         match self.program.values[i] {
+            ValueExpr::ObjectLiteral(span) => self.eval_object_literal(span, actor),
+            ValueExpr::ObjectKeys(object) => {
+                let object = self.eval_value(object, actor);
+                self.eval_object_keys(object)
+            }
+            ValueExpr::JsonParse(value) => {
+                let value = self.eval_value(value, actor);
+                self.eval_json_parse(value)
+            }
+            ValueExpr::JsonStringify(value) => {
+                let value = self.eval_value(value, actor);
+                self.eval_json_stringify(value)
+            }
+            ValueExpr::ObjectGet(object, key) => {
+                let object = self.eval_value(object, actor);
+                let key = self.eval_value(key, actor);
+                self.eval_object_get(object, key)
+            }
+            ValueExpr::ObjectSet(object, key, value) => {
+                let object = self.eval_value(object, actor);
+                let key = self.eval_value(key, actor);
+                let value = self.eval_value(value, actor);
+                self.eval_object_set(object, key, value)
+            }
             ValueExpr::Kitten4Add(a, b) => {
                 // Offline player's math_arithmetic uses JS + whenever
                 // either operand is not a number (see docs/kitten4-run-errors.md).
@@ -7309,23 +7460,44 @@ impl Engine {
                     // second reporter. A list must stringify before that reporter
                     // can mutate it (the general join path's evaluation order).
                     let a = self.eval_value(self.program.value_args[parts.start as usize], actor);
-                    if matches!(a, Cell::Text(_)) {
+                    if matches!(a, Cell::Text(_))
+                        && self.program.semantics != RuntimeSemantics::KnCurrent
+                    {
                         let b = self
                             .eval_value(self.program.value_args[parts.start as usize + 1], actor);
                         return Cell::concat(&a, &b);
                     }
-                    let mut text = a.text();
-                    self.eval_value(self.program.value_args[parts.start as usize + 1], actor)
-                        .append_text(&mut text);
+                    let stopped = self.program.semantics == RuntimeSemantics::KnCurrent
+                        && matches!(a, Cell::Undefined);
+                    let mut text = if stopped { String::new() } else { a.text() };
+                    let b =
+                        self.eval_value(self.program.value_args[parts.start as usize + 1], actor);
+                    if stopped {
+                        return Cell::Text("".into());
+                    }
+                    if self.program.semantics != RuntimeSemantics::KnCurrent
+                        || !matches!(b, Cell::Undefined)
+                    {
+                        b.append_text(&mut text);
+                    }
                     return Cell::Text(text.into());
                 }
                 let mut text = String::new();
+                let mut stopped = false;
                 for k in parts.start..parts.start + parts.len {
                     let part = self.program.value_args[k as usize];
-                    self.eval_value(part, actor).append_text_with_js_nonfinite(
-                        &mut text,
-                        self.program.semantics == RuntimeSemantics::KnCurrent,
-                    );
+                    let value = self.eval_value(part, actor);
+                    if self.program.semantics == RuntimeSemantics::KnCurrent
+                        && matches!(value, Cell::Undefined)
+                    {
+                        stopped = true;
+                    }
+                    if !stopped {
+                        value.append_text_with_js_nonfinite(
+                            &mut text,
+                            self.program.semantics == RuntimeSemantics::KnCurrent,
+                        );
+                    }
                 }
                 Cell::Text(text.into())
             }
@@ -7579,7 +7751,9 @@ impl Engine {
                 let a = self.eval_value(a, actor);
                 let b = self.eval_value(b, actor);
                 let equal = || {
-                    if self.program.semantics == RuntimeSemantics::Kitten4 {
+                    if self.program.semantics == RuntimeSemantics::Kitten4
+                        || matches!((&a, &b), (Cell::Object(_), Cell::Object(_)))
+                    {
                         a.k4_equals(&b)
                     } else {
                         a.equals(&b)
@@ -7607,6 +7781,16 @@ impl Engine {
         }
     }
     fn assign(&mut self, target: Target, value: Cell) {
+        // KN UserVariable.get_var_or_list restores undefined globals to 0.
+        // Keep the numeric mirror consistent for ExprOp::Slot/JIT helper reads.
+        let value = if self.program.semantics == RuntimeSemantics::KnCurrent
+            && matches!(target, Target::Global(_))
+            && matches!(value, Cell::Undefined | Cell::Null)
+        {
+            Cell::Number(0.0)
+        } else {
+            value
+        };
         let (number, dynamic) = match target {
             Target::Global(i) => (&mut self.slots[i], &mut self.values[i]),
             Target::Local(i) => {
@@ -8583,6 +8767,7 @@ impl Engine {
             Op::Stop(scope) => {
                 if scope == 0 {
                     self.stopped = true;
+                    self.kn_timers.clear();
                     let audio = Cell::Text("all".into());
                     self.audio.stop(&audio);
                     self.audio_commands.push(AudioCommand {
@@ -8611,6 +8796,19 @@ impl Engine {
                 if self.tasks[index].done {
                     return Ok(false);
                 }
+            }
+            Op::KnTimer(delay, repeat) => {
+                let milliseconds = self.eval_value(delay, actor).number();
+                ensure!(
+                    self.kn_timers
+                        .insert(self.time, self.scheduler_tick, milliseconds, repeat, ())
+                        .is_some(),
+                    "KN timer limit exceeded"
+                );
+            }
+            Op::KnClearTimer(value) => {
+                let id = self.eval_value(value, actor).number();
+                self.kn_timers.cancel(id);
             }
             Op::Call(procedure, args) => {
                 let count = self.program.call_arguments[args].len();
@@ -9163,6 +9361,7 @@ impl Engine {
             self.timer += dt;
         }
         self.time += dt;
+        self.tick_kn_timers();
         self.received.clear();
         self.clone_counts.clear();
         self.step_physics(dt);

@@ -4,7 +4,9 @@ use serde_json::json;
 #[test]
 fn repeated_shared_failures_are_grouped_without_losing_script_counts() {
     let mut p = Document::blank().value().clone();
-    p["variables"]["variablesDict"]["bad"] = json!({"value":{"unsupported":true}});
+    // KN now supports object scalar values. Keep this a genuinely invalid
+    // shared initializer rather than relying on the former object-model gap.
+    p["variables"]["variablesDict"]["bad"] = json!({"type":"list","value":{"not":"an array"}});
     p["actors"]["actorsDict"]["nekoc-default-actor"]["nekoBlockJsonList"] = json!([
         {"type":"on_running_group_activated","id":"one"},
         {"type":"on_keydown","id":"two","fields":{"key":"32"}},
