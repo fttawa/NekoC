@@ -5,6 +5,7 @@ import { readFile, realpath, mkdir, writeFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { execFileSync } from "node:child_process";
 import { loadPlaywright } from "../probe-kitten4.mjs";
 
 export function parseArgs(argv) {
@@ -150,7 +151,8 @@ export async function openKernel(options, input) {
   origin = `http://127.0.0.1:${server.address().port}`;
   let browser;
   try {
-    browser = await loadPlaywright().chromium.launch({ headless: true, channel: options.channel || "msedge" });
+    browser = await loadPlaywright().chromium.launch({ headless: true, channel: options.channel || "msedge",
+      ...(options.measurePerformance ? { args: ["--enable-precise-memory-info"] } : {}) });
     const context = await browser.newContext({ viewport: { width: 1280, height: 720 }, serviceWorkers: "block" });
     // Fresh anonymous context; deny ALL external traffic, including cloud data/telemetry.
     await context.route("**/*", async route => {
@@ -212,7 +214,26 @@ export async function openKernel(options, input) {
       diagnostics.phase = "container-ready";
     }
     await load(served);
-    return { page, diagnostics, load, close: async () => { await browser.close(); await new Promise(resolve => server.close(resolve)); } };
+    async function rendererMemory() {
+      const session = await browser.newBrowserCDPSession();
+      try {
+        const { processInfo } = await session.send("SystemInfo.getProcessInfo");
+        const ids = processInfo.filter(p => p.type === "renderer").map(p => Number(p.id));
+        if (!ids.length || ids.some(id => !Number.isSafeInteger(id) || id <= 0)) throw new Error("Missing renderer PIDs");
+        if (process.platform === "win32") {
+          // Only validated numeric CDP PIDs enter the shell, never input paths.
+          const script = `Get-Process -Id ${ids.join(",")} -ErrorAction Stop | ForEach-Object { [pscustomobject]@{ pid=$_.Id; peak_rss_bytes=$_.PeakWorkingSet64 } } | ConvertTo-Json -Compress`;
+          const result = JSON.parse(execFileSync("powershell.exe", ["-NoProfile", "-NonInteractive", "-Command", script], { encoding: "utf8", timeout: 10000 }));
+          return { renderers: Array.isArray(result) ? result : [result] };
+        }
+        return { renderers: await Promise.all(ids.map(async pid => {
+          const status = await readFile(`/proc/${pid}/status`, "utf8");
+          const match = status.match(/^VmHWM:\s+(\d+) kB$/m);
+          return { pid, peak_rss_bytes: match ? Number(match[1]) * 1024 : null };
+        })) };
+      } finally { await session.detach(); }
+    }
+    return { page, diagnostics, load, rendererMemory, browserVersion: browser.version(), close: async () => { await browser.close(); await new Promise(resolve => server.close(resolve)); } };
   } catch (error) {
     if (browser) await browser.close();
     await new Promise(resolve => server.close(resolve));
@@ -266,10 +287,14 @@ export async function runOracle(input, options = {}) {
   if (options.randomSource === "nekoc") kernel.diagnostics.instrumentation.push(
     "random block calls only: xorshift64 override matches NekoC draws; incidental Math.random stays on native PCG");
   try {
+    let previousNavigationMs = 0;
     kernel.diagnostics.phase = "compile";
     if (needsCompile) project.compile_result = await compileProject(kernel.page, project);
     if (options.command === "compile") return { project, diagnostics: kernel.diagnostics };
-    if (needsCompile) await kernel.load(project);
+    if (needsCompile) {
+      if (options.measurePerformance) previousNavigationMs = await kernel.page.evaluate(() => performance.now());
+      await kernel.load(project);
+    }
     kernel.diagnostics.phase = "project-assets";
     await kernel.page.waitForFunction(scene => {
       const req = window.__k4OracleRequire;
@@ -277,7 +302,8 @@ export async function runOracle(input, options = {}) {
       return state.cloud_states.loading_state === "load_done" && state.theatre_states.scenes[scene] && req("a1xw").a().get_scene_by_id(scene);
     }, project.theatre.scenes_order?.[0] || Object.keys(project.theatre.scenes)[0], { timeout: options.timeoutMs || 45000, polling: 20 });
     kernel.diagnostics.phase = "trace";
-    await kernel.page.evaluate(({ seed, blocks, randomSource, blockFilter }) => {
+    const importMs = options.measurePerformance ? previousNavigationMs + await kernel.page.evaluate(() => performance.now()) : 0;
+    await kernel.page.evaluate(({ seed, blocks, randomSource, blockFilter, measurePerformance, warmup }) => {
       const req = window.__k4OracleRequire;
       const heart = req("KmiX").b();
       const prngSeed = { seed_high: 0, seed_low: seed, inc_high: 0, inc_low: 1 };
@@ -417,9 +443,23 @@ export async function runOracle(input, options = {}) {
         return structuredClone({ frame: frames.length + 1, current_scene_id: stage.core.scenes.get_current_scene(),
           actors, variables, variable_names, entity_variables });
       }
-      heart.get_event_bus().runtime_manager.after_update.immediate.sub(() => frames.push(snapshot()));
-      window.__k4Oracle = { frames, errors, heart, events, get traceTruncated() { return traceTruncated; } };
-    }, { seed: options.seed ?? 1, blocks: !!options.blocks, randomSource: options.randomSource, blockFilter: options.blockFilter });
+      const timings = [], heaps = [];
+      if (measurePerformance) {
+        if (typeof runtime.update !== "function") throw new Error("Missing RuntimeManager.update performance boundary");
+        const update = runtime.update;
+        runtime.update = function (...args) {
+          const start = performance.now();
+          try { return update.apply(this, args); }
+          finally {
+            timings.push(performance.now() - start);
+            if (performance.memory) heaps.push(performance.memory.usedJSHeapSize);
+          }
+        };
+      }
+      heart.get_event_bus().runtime_manager.after_update.immediate.sub(() => frames.push(measurePerformance ? { frame: frames.length + 1 } : snapshot()));
+      window.__k4Oracle = { frames, errors, heart, events, snapshot, timings, heaps, warmup, get traceTruncated() { return traceTruncated; } };
+    }, { seed: options.seed ?? 1, blocks: !!options.blocks, randomSource: options.randomSource, blockFilter: options.blockFilter,
+      measurePerformance: !!options.measurePerformance, warmup: options.warmup ?? 0 });
     if ((options.frames ?? 60) > 0) {
       // Use the player's Start entry, including anonymous/cloud initialization,
       // rather than bypassing it with the lower-level run function (m).
@@ -435,6 +475,16 @@ export async function runOracle(input, options = {}) {
     }
     const result = await kernel.page.evaluate(() => ({ frames: window.__k4Oracle.frames, errors: window.__k4Oracle.errors,
       events: window.__k4Oracle.events, traceTruncated: window.__k4Oracle.traceTruncated }));
+    if (options.measurePerformance) result.performance = await kernel.page.evaluate(importMs => {
+      const p = window.__k4Oracle;
+      return { import_ms: importMs, frame_ms: p.timings.slice(p.warmup), warmup_ms: p.timings.slice(0, p.warmup),
+        sampled_js_heap_peak_bytes: p.heaps.length ? Math.max(...p.heaps) : null,
+        final_state: p.snapshot() };
+    }, importMs);
+    if (options.measurePerformance) {
+      result.performance.browser_version = kernel.browserVersion;
+      result.performance.renderer_memory = await kernel.rendererMemory().catch(error => ({ error: error.message }));
+    }
     if (await kernel.page.evaluate(() => window.__k4OracleRequire("ALsR").a.get_state().run_states.is_error)) result.errors.push("official player run_states.is_error");
     if (result.errors.length || result.frames.length !== (options.frames ?? 60)) {
       kernel.diagnostics.partialTrace = result;
