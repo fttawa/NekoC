@@ -14,14 +14,18 @@ mod k4_clock;
 mod k4_drawing;
 mod k4_effects;
 mod k4_properties;
+mod kn_ai;
 mod kn_appearance;
 mod kn_async;
+mod kn_capture;
 mod kn_catalog;
 mod kn_conversion;
 mod kn_hardware;
 mod kn_helpers;
 mod kn_objects;
+mod kn_panel;
 mod kn_services;
+pub use kn_panel::{GlobalAnimationRequest, PanelNotice};
 mod physics;
 mod stage_dialog;
 mod value;
@@ -422,6 +426,7 @@ enum Op {
     K4DomainError(usize),
     LegacyPhysicsVector(physics::Command, usize, usize),
     K4LegacyChoice,
+    KnPanel(kn_panel::Command),
 }
 #[derive(Clone, Copy, Debug)]
 enum LayerMove {
@@ -1826,6 +1831,15 @@ impl Compiler {
             return Ok(index);
         }
         let value = match b["type"].as_str().unwrap_or("") {
+            "translate_result"
+            | "user_ranking_info"
+            | "user_info_of_th"
+            | "get_evaluate_class_name"
+            | "get_evaluate_class_accuracy"
+                if self.program.semantics == RuntimeSemantics::KnCurrent =>
+            {
+                ValueExpr::KnPanel(self.kn_panel_reporter(b)?)
+            }
             "microbit_button_is_pressed"
             | "microbit_logo_is_pressed"
             | "microbit_is_gesture"
@@ -1967,6 +1981,11 @@ impl Compiler {
                 self.value(input(b, "list_item_value")?)?,
                 b["type"] == "list_is_exist",
             ),
+            "limit_length_text" | "multiline_text"
+                if self.program.semantics == RuntimeSemantics::KnCurrent =>
+            {
+                self.constant(Cell::Text(field(b, "TEXT").into()))
+            }
             "text" => self.constant(Cell::Text(field(b, "TEXT").into())),
             "kitten4_default_value" => {
                 let text = field(b, "TEXT");
@@ -2571,6 +2590,23 @@ impl Compiler {
             kind
         };
         let op = match kind {
+            "camera_alpha_slider" if self.program.semantics == RuntimeSemantics::KnCurrent => {
+                ExprOp::Constant(
+                    b["fields"]
+                        .get("NUM")
+                        .and_then(number)
+                        .context("invalid KN camera alpha shadow")?,
+                )
+            }
+            "translate_result"
+            | "user_ranking_info"
+            | "user_info_of_th"
+            | "get_evaluate_class_name"
+            | "get_evaluate_class_accuracy"
+                if self.program.semantics == RuntimeSemantics::KnCurrent =>
+            {
+                return self.expression_value(b);
+            }
             "username_get"
             | "user_id_get"
             | "ai_chat_answer"
@@ -3344,6 +3380,31 @@ impl Compiler {
                 );
                 let kind = b["type"].as_str().unwrap_or("");
                 let op = match kind {
+                    "translate"
+                    | "show_hide_ranking"
+                    | "update_ranking"
+                    | "global_animation"
+                    | "set_camera_alpha"
+                    | "set_webcam_alpha"
+                    | "open_hide_camera"
+                    | "open_close_webcam"
+                    | "voice_recognition"
+                    | "ai_chat_ask"
+                    | "new_conversation"
+                    | "set_system_preset"
+                    | "ai_text_actor"
+                    | "ai_text_photo"
+                    | "enable_face_detect_by_actor"
+                    | "enable_face_detect_by_photo"
+                    | "enable_object_detect_by_actor"
+                    | "enable_object_detect_by_photo"
+                    | "evaluate_actor_style"
+                    | "evaluate_camera"
+                    | "evaluate_photo"
+                        if self.program.semantics == RuntimeSemantics::KnCurrent =>
+                    {
+                        Op::KnPanel(self.kn_panel_command(b)?)
+                    }
                     "setTimeout" | "setInterval"
                         if self.program.semantics == RuntimeSemantics::KnCurrent =>
                     {
@@ -4754,6 +4815,7 @@ pub struct Engine {
     scheduler_tick: u64,
     k4_frames: u64,
     k4_media: k4_media::State,
+    kn_panel: kn_panel::State,
     oracle_events: Option<Vec<Value>>,
     evaluation_cache: Vec<BTreeMap<(bool, usize), VecDeque<Cell>>>,
     physics: Option<Box<physics::Physics>>,
@@ -5159,6 +5221,7 @@ impl Engine {
             scheduler_tick: 0,
             k4_frames: 0,
             k4_media: k4_media::State::default(),
+            kn_panel: kn_panel::State::default(),
             trace_filter: None,
             trace_truncated: false,
             warp_iterations: 0,
@@ -5322,6 +5385,7 @@ impl Engine {
         self.time = 0.0;
         self.k4_frames = 0;
         self.k4_media.reset();
+        self.kn_panel.reset();
         self.timer = 0.0;
         // The Kitten 4 stage timer stays at 0 until a timer block starts it.
         self.timer_running = self.program.k4_timer.is_none();
@@ -7487,6 +7551,9 @@ impl Engine {
             _ => None,
         };
         match self.program.values[key.1] {
+            ValueExpr::KnPanel(reporter) => {
+                children.extend(reporter.children().into_iter().map(|i| (true, i)))
+            }
             ValueExpr::K4Property(property) => {
                 children.extend(property.index.map(|i| (true, i)));
             }
@@ -8111,6 +8178,7 @@ impl Engine {
                 Cell::Null
             }
             ValueExpr::K4Media(reporter) => self.eval_k4_media(reporter, actor),
+            ValueExpr::KnPanel(reporter) => self.eval_kn_panel(reporter, actor),
             ValueExpr::K4Property(property) => self.eval_k4_property(property, actor),
             ValueExpr::K4DomainError(message) => {
                 let message = self.eval_value(message, actor).text();
@@ -8539,6 +8607,9 @@ impl Engine {
             }
             Op::K4Media(command) => {
                 return self.exec_k4_media(index, actor, command);
+            }
+            Op::KnPanel(command) => {
+                return self.exec_kn_panel(index, actor, command);
             }
             Op::LegacyPhysicsVector(command, value, dir) => {
                 let number = |v| match v {

@@ -416,6 +416,7 @@ pub(super) enum ValueExpr {
     K4DomainError(usize),
     K4LegacyChoice,
     K4Media(super::k4_media::Reporter),
+    KnPanel(super::kn_panel::Reporter),
     /// Evaluate the query, then return the official absent-OCR-cache result.
     OfflineOcrCheck(usize),
     /// Five evaluated sockets, then official disconnected-microbit NaN.

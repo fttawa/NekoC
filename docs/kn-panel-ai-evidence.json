@@ -1,0 +1,825 @@
+{
+  "schema": "nekoc-kn-panel-ai-v1",
+  "checkedAt": "2026-11-10T18:58:41.644Z",
+  "editorUrl": "https://kn.codemao.cn/editor",
+  "bundles": [
+    {
+      "name": "base.f158ddbf.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/base.f158ddbf.js",
+      "sha256": "724251e202e9dac074241e6296f3bbf3773c420141516764c8434dd17eb113e7",
+      "bytes": 949823
+    },
+    {
+      "name": "crc_libs.8196dbd1.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+      "sha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7",
+      "bytes": 1297643
+    },
+    {
+      "name": "main.8ccf2442.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+      "sha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "bytes": 5594327
+    },
+    {
+      "name": "main-vendors.07f7dd7e.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main-vendors.07f7dd7e.js",
+      "sha256": "38183ab8a9620f33fef75f1bd1f90ee26b492e7b6ded8b6b065fc052e7948f68",
+      "bytes": 6460489
+    },
+    {
+      "name": "6062.1ef86232.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/6062.1ef86232.chunk.js",
+      "sha256": "362c82cbd0f2c6a05349ab05e2e6517cf40783429421424ef21b0b1e34978704",
+      "bytes": 5199
+    },
+    {
+      "name": "5851.a37eb285.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/5851.a37eb285.chunk.js",
+      "sha256": "79f96472792b16fb60cb13ee65fe2a64f16b224a8848c591308cad0d02baced5",
+      "bytes": 181408
+    },
+    {
+      "name": "4984.26063c69.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/4984.26063c69.chunk.js",
+      "sha256": "afda963988a73b83d4be21b2584d22ceb4a774502016fdce1c9c5d92569920c2",
+      "bytes": 13538
+    },
+    {
+      "name": "4023.4ec8fceb.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/4023.4ec8fceb.chunk.js",
+      "sha256": "e0b2892d66f6aa6e798b42d5573313fd41a0e1682d4d3a1c00a595bfb8ac40fb",
+      "bytes": 18773
+    },
+    {
+      "name": "2704.ec059467.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/2704.ec059467.chunk.js",
+      "sha256": "99a86c599cbda9180918819dc5b25b20cb83e1e2c1205ab47eb61f0b05b806b3",
+      "bytes": 34835
+    },
+    {
+      "name": "catui2.c678ccd3.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/catui2.c678ccd3.chunk.js",
+      "sha256": "731eec8687c6bf701cae14a35a72f3bd08e35a6f36d7ef15bfb3a7330fcd3efb",
+      "bytes": 36077
+    },
+    {
+      "name": "6729.cc22670b.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/6729.cc22670b.chunk.js",
+      "sha256": "76619f79ea51dfcd0c0ea4572f14d224829ee6ebe6f05d7443474a04f5dcd721",
+      "bytes": 109
+    },
+    {
+      "name": "2121.88168974.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/2121.88168974.chunk.js",
+      "sha256": "ba8237837aab054dcdc620b0878dfa53c6c41887ddb92765a9df8b86dead4dc3",
+      "bytes": 95951
+    },
+    {
+      "name": "2455.fff7df4c.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/2455.fff7df4c.chunk.js",
+      "sha256": "ef75b9497e0c59df11906a787139390ff5f7cb1092fa71eccb0de343adc08c9f",
+      "bytes": 64310
+    },
+    {
+      "name": "8178.8c1ca691.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/8178.8c1ca691.chunk.js",
+      "sha256": "fbc439dc045b654365926c3b49b8622f270cba0fc86ed4e102e0e550d659eab5",
+      "bytes": 10683
+    },
+    {
+      "name": "stage_animation.871fede4.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/stage_animation.871fede4.chunk.js",
+      "sha256": "ab9d29b8b3dbcda99ec3be20754901fc80b4266325a57ab2eb14f8d2ae741656",
+      "bytes": 202201
+    }
+  ],
+  "pageErrors": [],
+  "method": "Fresh anonymous Edge; expose webpack loader without replacing official domain functions. Read real blocks/registry. After initialization abort every HTTP request and WebSocket. Call chat/OCR only with browser offline; cognitive only anonymous; classifier offline with '?' and an authored non-model identifier. No AI backend/model/photo request is permitted.",
+  "limitations": [
+    "Direct registry calls, not native project execution.",
+    "Offline/anonymous/missing-model branches only; no logged-in AI, camera, prediction or model initialization.",
+    "Registry function hashes describe registry wrappers, not the underlying domain bodies; source locations are the independent body evidence.",
+    "Third-party source is only in ignored dist; tracked evidence contains metadata/hashes, not function bodies."
+  ],
+  "definitions": [
+    {
+      "type": "ai_chat_ask",
+      "domainIndex": 227,
+      "output": false,
+      "outputCheck": null,
+      "previous": true,
+      "next": true,
+      "inputs": [
+        {
+          "name": "text",
+          "type": 1,
+          "fields": []
+        }
+      ],
+      "runtimeFunctionSha256": "0b57ab05538ff09a83dc6159fb7e5e46c4188ee02fe567ce5e1a1ef6823d6e30"
+    },
+    {
+      "type": "new_conversation",
+      "domainIndex": 230,
+      "output": false,
+      "outputCheck": null,
+      "previous": true,
+      "next": true,
+      "inputs": [
+        {
+          "name": "",
+          "type": 5,
+          "fields": []
+        }
+      ],
+      "runtimeFunctionSha256": "0b57ab05538ff09a83dc6159fb7e5e46c4188ee02fe567ce5e1a1ef6823d6e30"
+    },
+    {
+      "type": "set_system_preset",
+      "domainIndex": 229,
+      "output": false,
+      "outputCheck": null,
+      "previous": true,
+      "next": true,
+      "inputs": [
+        {
+          "name": "text",
+          "type": 1,
+          "fields": []
+        }
+      ],
+      "runtimeFunctionSha256": "0b57ab05538ff09a83dc6159fb7e5e46c4188ee02fe567ce5e1a1ef6823d6e30"
+    },
+    {
+      "type": "ai_text_actor",
+      "domainIndex": 247,
+      "output": false,
+      "outputCheck": null,
+      "previous": true,
+      "next": true,
+      "inputs": [
+        {
+          "name": "",
+          "type": 5,
+          "fields": [
+            {
+              "name": "sprite",
+              "value": "--self"
+            }
+          ]
+        }
+      ],
+      "runtimeFunctionSha256": "0b57ab05538ff09a83dc6159fb7e5e46c4188ee02fe567ce5e1a1ef6823d6e30"
+    },
+    {
+      "type": "ai_text_photo",
+      "domainIndex": 248,
+      "output": false,
+      "outputCheck": null,
+      "previous": true,
+      "next": true,
+      "inputs": [
+        {
+          "name": "",
+          "type": 5,
+          "fields": []
+        }
+      ],
+      "runtimeFunctionSha256": "0b57ab05538ff09a83dc6159fb7e5e46c4188ee02fe567ce5e1a1ef6823d6e30"
+    },
+    {
+      "type": "enable_face_detect_by_actor",
+      "domainIndex": 218,
+      "output": false,
+      "outputCheck": null,
+      "previous": true,
+      "next": true,
+      "inputs": [
+        {
+          "name": "",
+          "type": 5,
+          "fields": [
+            {
+              "name": "sprite",
+              "value": "--self"
+            }
+          ]
+        }
+      ],
+      "runtimeFunctionSha256": "0b57ab05538ff09a83dc6159fb7e5e46c4188ee02fe567ce5e1a1ef6823d6e30"
+    },
+    {
+      "type": "enable_face_detect_by_photo",
+      "domainIndex": 219,
+      "output": false,
+      "outputCheck": null,
+      "previous": true,
+      "next": true,
+      "inputs": [
+        {
+          "name": "",
+          "type": 5,
+          "fields": []
+        }
+      ],
+      "runtimeFunctionSha256": "0b57ab05538ff09a83dc6159fb7e5e46c4188ee02fe567ce5e1a1ef6823d6e30"
+    },
+    {
+      "type": "enable_object_detect_by_actor",
+      "domainIndex": 224,
+      "output": false,
+      "outputCheck": null,
+      "previous": true,
+      "next": true,
+      "inputs": [
+        {
+          "name": "",
+          "type": 5,
+          "fields": [
+            {
+              "name": "sprite",
+              "value": "--self"
+            }
+          ]
+        }
+      ],
+      "runtimeFunctionSha256": "0b57ab05538ff09a83dc6159fb7e5e46c4188ee02fe567ce5e1a1ef6823d6e30"
+    },
+    {
+      "type": "enable_object_detect_by_photo",
+      "domainIndex": 225,
+      "output": false,
+      "outputCheck": null,
+      "previous": true,
+      "next": true,
+      "inputs": [
+        {
+          "name": "",
+          "type": 5,
+          "fields": []
+        }
+      ],
+      "runtimeFunctionSha256": "0b57ab05538ff09a83dc6159fb7e5e46c4188ee02fe567ce5e1a1ef6823d6e30"
+    },
+    {
+      "type": "evaluate_actor_style",
+      "domainIndex": 232,
+      "output": false,
+      "outputCheck": null,
+      "previous": true,
+      "next": true,
+      "inputs": [
+        {
+          "name": "",
+          "type": 5,
+          "fields": [
+            {
+              "name": "model_id",
+              "value": "?"
+            },
+            {
+              "name": "sprite",
+              "value": "--self"
+            }
+          ]
+        }
+      ],
+      "runtimeFunctionSha256": "0b57ab05538ff09a83dc6159fb7e5e46c4188ee02fe567ce5e1a1ef6823d6e30"
+    },
+    {
+      "type": "evaluate_camera",
+      "domainIndex": 234,
+      "output": false,
+      "outputCheck": null,
+      "previous": true,
+      "next": true,
+      "inputs": [
+        {
+          "name": "",
+          "type": 5,
+          "fields": [
+            {
+              "name": "model_id",
+              "value": "?"
+            }
+          ]
+        }
+      ],
+      "runtimeFunctionSha256": "0b57ab05538ff09a83dc6159fb7e5e46c4188ee02fe567ce5e1a1ef6823d6e30"
+    },
+    {
+      "type": "evaluate_photo",
+      "domainIndex": 233,
+      "output": false,
+      "outputCheck": null,
+      "previous": true,
+      "next": true,
+      "inputs": [
+        {
+          "name": "",
+          "type": 5,
+          "fields": [
+            {
+              "name": "model_id",
+              "value": "?"
+            }
+          ]
+        }
+      ],
+      "runtimeFunctionSha256": "0b57ab05538ff09a83dc6159fb7e5e46c4188ee02fe567ce5e1a1ef6823d6e30"
+    },
+    {
+      "type": "get_evaluate_class_accuracy",
+      "domainIndex": 236,
+      "output": true,
+      "outputCheck": [
+        "Number"
+      ],
+      "previous": false,
+      "next": false,
+      "inputs": [
+        {
+          "name": "",
+          "type": 5,
+          "fields": [
+            {
+              "name": "model_id",
+              "value": "?"
+            }
+          ]
+        }
+      ],
+      "runtimeFunctionSha256": "0b57ab05538ff09a83dc6159fb7e5e46c4188ee02fe567ce5e1a1ef6823d6e30"
+    },
+    {
+      "type": "get_evaluate_class_name",
+      "domainIndex": 235,
+      "output": true,
+      "outputCheck": [
+        "String"
+      ],
+      "previous": false,
+      "next": false,
+      "inputs": [
+        {
+          "name": "",
+          "type": 5,
+          "fields": [
+            {
+              "name": "model_id",
+              "value": "?"
+            }
+          ]
+        }
+      ],
+      "runtimeFunctionSha256": "0b57ab05538ff09a83dc6159fb7e5e46c4188ee02fe567ce5e1a1ef6823d6e30"
+    }
+  ],
+  "blockedRequests": [
+    "https://creation.codemao.cn/396/c364f36a8dcf42d1a6acbe26c7eb6aaa.png",
+    "https://creation.codemao.cn/396/8bc3a5b92e934d7287e63f1684b61de6.jpg",
+    "https://creation-retry.bcmcdn.com/396/c364f36a8dcf42d1a6acbe26c7eb6aaa.png",
+    "https://shence-data.codemao.cn/sa.gif?project=production",
+    "https://creation-retry.bcmcdn.com/396/8bc3a5b92e934d7287e63f1684b61de6.jpg",
+    "https://shence-data.codemao.cn/sa.gif?project=production",
+    "https://shence-data.codemao.cn/sa.gif?project=production",
+    "https://shence-data.codemao.cn/sa.gif?project=production",
+    "https://shence-data.codemao.cn/sa.gif?project=production",
+    "https://kn.codemao.cn/icon.ico"
+  ],
+  "offline": {
+    "version": "0.27.4",
+    "navigatorOnline": false,
+    "calls": [
+      {
+        "type": "ai_chat_ask",
+        "args": {
+          "text": "authored offline probe"
+        },
+        "promise": true,
+        "result": {
+          "type": "undefined"
+        },
+        "reads": [],
+        "writes": [
+          {
+            "key": "_ai_chat_answer_",
+            "value": {
+              "type": "string",
+              "value": ""
+            }
+          }
+        ]
+      },
+      {
+        "type": "set_system_preset",
+        "args": {
+          "text": "authored offline probe"
+        },
+        "promise": true,
+        "result": {
+          "type": "undefined"
+        },
+        "reads": [],
+        "writes": []
+      },
+      {
+        "type": "new_conversation",
+        "args": {},
+        "promise": true,
+        "result": {
+          "type": "undefined"
+        },
+        "reads": [],
+        "writes": []
+      },
+      {
+        "type": "ai_text_actor",
+        "args": {
+          "sprite": "--self"
+        },
+        "promise": true,
+        "result": {
+          "type": "undefined"
+        },
+        "reads": [],
+        "writes": [
+          {
+            "key": "ai_text_result",
+            "value": {
+              "type": "number",
+              "value": "NaN"
+            }
+          }
+        ]
+      },
+      {
+        "type": "ai_text_photo",
+        "args": {
+          "sprite": "--self"
+        },
+        "promise": true,
+        "result": {
+          "type": "undefined"
+        },
+        "reads": [],
+        "writes": [
+          {
+            "key": "ai_text_result",
+            "value": {
+              "type": "number",
+              "value": "NaN"
+            }
+          }
+        ]
+      },
+      {
+        "type": "enable_face_detect_by_actor",
+        "args": {
+          "sprite": "--self"
+        },
+        "promise": true,
+        "result": {
+          "type": "undefined"
+        },
+        "reads": [],
+        "writes": []
+      },
+      {
+        "type": "enable_face_detect_by_photo",
+        "args": {
+          "sprite": "--self"
+        },
+        "promise": true,
+        "result": {
+          "type": "undefined"
+        },
+        "reads": [],
+        "writes": []
+      },
+      {
+        "type": "enable_object_detect_by_actor",
+        "args": {
+          "sprite": "--self"
+        },
+        "promise": true,
+        "result": {
+          "type": "undefined"
+        },
+        "reads": [],
+        "writes": []
+      },
+      {
+        "type": "enable_object_detect_by_photo",
+        "args": {
+          "sprite": "--self"
+        },
+        "promise": true,
+        "result": {
+          "type": "undefined"
+        },
+        "reads": [],
+        "writes": []
+      },
+      {
+        "type": "evaluate_actor_style",
+        "args": {
+          "model_id": "?",
+          "sprite": "--self",
+          "index": 1
+        },
+        "promise": true,
+        "result": {
+          "type": "undefined"
+        },
+        "reads": [],
+        "writes": []
+      },
+      {
+        "type": "evaluate_camera",
+        "args": {
+          "model_id": "?",
+          "sprite": "--self",
+          "index": 1
+        },
+        "promise": true,
+        "result": {
+          "type": "undefined"
+        },
+        "reads": [],
+        "writes": []
+      },
+      {
+        "type": "evaluate_photo",
+        "args": {
+          "model_id": "?",
+          "sprite": "--self",
+          "index": 1
+        },
+        "promise": true,
+        "result": {
+          "type": "undefined"
+        },
+        "reads": [],
+        "writes": []
+      },
+      {
+        "type": "get_evaluate_class_accuracy",
+        "args": {
+          "model_id": "?",
+          "sprite": "--self",
+          "index": 1
+        },
+        "promise": true,
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        },
+        "reads": [],
+        "writes": []
+      },
+      {
+        "type": "get_evaluate_class_name",
+        "args": {
+          "model_id": "?",
+          "sprite": "--self",
+          "index": 1
+        },
+        "promise": true,
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        },
+        "reads": [],
+        "writes": []
+      },
+      {
+        "type": "evaluate_actor_style",
+        "args": {
+          "model_id": "authored-offline-model",
+          "sprite": "--self",
+          "index": 1
+        },
+        "promise": true,
+        "result": {
+          "type": "undefined"
+        },
+        "reads": [],
+        "writes": []
+      },
+      {
+        "type": "evaluate_camera",
+        "args": {
+          "model_id": "authored-offline-model",
+          "sprite": "--self",
+          "index": 1
+        },
+        "promise": true,
+        "result": {
+          "type": "undefined"
+        },
+        "reads": [],
+        "writes": []
+      },
+      {
+        "type": "evaluate_photo",
+        "args": {
+          "model_id": "authored-offline-model",
+          "sprite": "--self",
+          "index": 1
+        },
+        "promise": true,
+        "result": {
+          "type": "undefined"
+        },
+        "reads": [],
+        "writes": []
+      },
+      {
+        "type": "get_evaluate_class_accuracy",
+        "args": {
+          "model_id": "authored-offline-model",
+          "sprite": "--self",
+          "index": 1
+        },
+        "promise": true,
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        },
+        "reads": [],
+        "writes": []
+      },
+      {
+        "type": "get_evaluate_class_name",
+        "args": {
+          "model_id": "authored-offline-model",
+          "sprite": "--self",
+          "index": 1
+        },
+        "promise": true,
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        },
+        "reads": [],
+        "writes": []
+      }
+    ]
+  },
+  "locations": [
+    {
+      "symbol": "chat_guard",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1601837,
+      "excerptCharacters": 600,
+      "excerptSha256": "de8282f53ec00cf3f98415bc99b4436cee32b453c6e24df659c38127618a5aed"
+    },
+    {
+      "symbol": "cognitive_guard",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1607093,
+      "excerptCharacters": 600,
+      "excerptSha256": "a6d979754c5a11b1a9a0acd973099a8178932c4c4fbc5dd78e35ddc570b79ba3"
+    },
+    {
+      "symbol": "ai_chat_ask",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1680805,
+      "excerptCharacters": 600,
+      "excerptSha256": "91ba16fb657f536cbc73fec625b80c33171dc2c691a7d3fde72f7e82f5f031a2"
+    },
+    {
+      "symbol": "new_conversation",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1682653,
+      "excerptCharacters": 600,
+      "excerptSha256": "09d705bf332492c097a54e7528cb3467f15b89f710c12211db37e902393773b7"
+    },
+    {
+      "symbol": "set_system_preset",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1681813,
+      "excerptCharacters": 600,
+      "excerptSha256": "ddcc7b8587c0a0603d6bd898ee1029a7481dd8e41d80a502609d1f5aefdd68b8"
+    },
+    {
+      "symbol": "ai_text_actor",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 5277509,
+      "excerptCharacters": 600,
+      "excerptSha256": "c44527ba5588edb01c7198cd4b41d67c078ffd56d5058540e3501cce757bfa20"
+    },
+    {
+      "symbol": "ai_text_photo",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 5278928,
+      "excerptCharacters": 600,
+      "excerptSha256": "490d8f0d44dc311f83f8601a3076015acad05dab20b59f6624cd04f3cc136c18"
+    },
+    {
+      "symbol": "enable_face_detect_by_actor",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1675077,
+      "excerptCharacters": 600,
+      "excerptSha256": "f76032cec317e5be4a446e968b8cf68cc9530dc9aa9b6e8e36989056e182774f"
+    },
+    {
+      "symbol": "enable_face_detect_by_photo",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1676481,
+      "excerptCharacters": 600,
+      "excerptSha256": "ba6de8ed761c3681ba78ca29db94942694383da191f6bbfb0f50b28aa1b80b22"
+    },
+    {
+      "symbol": "enable_object_detect_by_actor",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1678066,
+      "excerptCharacters": 600,
+      "excerptSha256": "02e233a2ea75afaa3000897ee98340531e883baa91cd1b7a102e3573d63caa88"
+    },
+    {
+      "symbol": "enable_object_detect_by_photo",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1679438,
+      "excerptCharacters": 600,
+      "excerptSha256": "f55093aa0c89d0dd383f8d18ff9b5266bbbed776fd2d5ec53a609cdebc0a8304"
+    },
+    {
+      "symbol": "evaluate_actor_style",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1683759,
+      "excerptCharacters": 600,
+      "excerptSha256": "6f062d9a15bba13de469618fe9391e61970b247cad4d5b7a31722ea4e43e45e4"
+    },
+    {
+      "symbol": "evaluate_camera",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1687942,
+      "excerptCharacters": 600,
+      "excerptSha256": "fa4fd26a5f52e2ebde8ce03aa694d253009c92c7a75a46fd2259e383663a876a"
+    },
+    {
+      "symbol": "evaluate_photo",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1686279,
+      "excerptCharacters": 600,
+      "excerptSha256": "6141abaa1217dcebb23e36ffca9a0a35db4b51327feed72c8f86d75365d14c7b"
+    },
+    {
+      "symbol": "get_evaluate_class_accuracy",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1691671,
+      "excerptCharacters": 600,
+      "excerptSha256": "37d021f5f7a439d74a2587c3772e3bb026c2df86264a346387437c7c67af9708"
+    },
+    {
+      "symbol": "get_evaluate_class_name",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1689530,
+      "excerptCharacters": 600,
+      "excerptSha256": "2fbcabfeec6ff50a8ba8838daaa0083f0439a3e3b675a4449b735158d24048ea"
+    },
+    {
+      "symbol": "classifier_definitions",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 777174,
+      "excerptCharacters": 600,
+      "excerptSha256": "e2f23152e9e4a8008685a88766b721d742213758777c7cc9cd91125affaa1088"
+    },
+    {
+      "symbol": "classifier_mutator",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1362172,
+      "excerptCharacters": 600,
+      "excerptSha256": "3e2238ae831cf794198e97621a068579daa485423c8c682d7d7cbce9d7380c05"
+    }
+  ],
+  "checks": {
+    "allDefinitions": true,
+    "allOfflineCalls": true,
+    "noDomainErrors": true,
+    "sourcesLocated": true,
+    "noPageErrors": true
+  },
+  "ok": true
+}

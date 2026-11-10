@@ -1,0 +1,1242 @@
+{
+  "schema": "nekoc-kn-panel-capture-v1",
+  "checkedAt": "2026-11-10T18:54:33.297Z",
+  "officialUrl": "https://kn.codemao.cn/editor",
+  "bundles": [
+    {
+      "name": "base.f158ddbf.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/base.f158ddbf.js",
+      "sha256": "724251e202e9dac074241e6296f3bbf3773c420141516764c8434dd17eb113e7",
+      "bytes": 949823
+    },
+    {
+      "name": "crc_libs.8196dbd1.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+      "sha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7",
+      "bytes": 1297643
+    },
+    {
+      "name": "main.8ccf2442.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+      "sha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "bytes": 5594327
+    },
+    {
+      "name": "main-vendors.07f7dd7e.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main-vendors.07f7dd7e.js",
+      "sha256": "38183ab8a9620f33fef75f1bd1f90ee26b492e7b6ded8b6b065fc052e7948f68",
+      "bytes": 6460489
+    },
+    {
+      "name": "6062.1ef86232.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/6062.1ef86232.chunk.js",
+      "sha256": "362c82cbd0f2c6a05349ab05e2e6517cf40783429421424ef21b0b1e34978704",
+      "bytes": 5199
+    },
+    {
+      "name": "5851.a37eb285.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/5851.a37eb285.chunk.js",
+      "sha256": "79f96472792b16fb60cb13ee65fe2a64f16b224a8848c591308cad0d02baced5",
+      "bytes": 181408
+    },
+    {
+      "name": "4984.26063c69.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/4984.26063c69.chunk.js",
+      "sha256": "afda963988a73b83d4be21b2584d22ceb4a774502016fdce1c9c5d92569920c2",
+      "bytes": 13538
+    },
+    {
+      "name": "2704.ec059467.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/2704.ec059467.chunk.js",
+      "sha256": "99a86c599cbda9180918819dc5b25b20cb83e1e2c1205ab47eb61f0b05b806b3",
+      "bytes": 34835
+    },
+    {
+      "name": "4023.4ec8fceb.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/4023.4ec8fceb.chunk.js",
+      "sha256": "e0b2892d66f6aa6e798b42d5573313fd41a0e1682d4d3a1c00a595bfb8ac40fb",
+      "bytes": 18773
+    },
+    {
+      "name": "catui2.c678ccd3.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/catui2.c678ccd3.chunk.js",
+      "sha256": "731eec8687c6bf701cae14a35a72f3bd08e35a6f36d7ef15bfb3a7330fcd3efb",
+      "bytes": 36077
+    },
+    {
+      "name": "2455.fff7df4c.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/2455.fff7df4c.chunk.js",
+      "sha256": "ef75b9497e0c59df11906a787139390ff5f7cb1092fa71eccb0de343adc08c9f",
+      "bytes": 64310
+    },
+    {
+      "name": "2121.88168974.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/2121.88168974.chunk.js",
+      "sha256": "ba8237837aab054dcdc620b0878dfa53c6c41887ddb92765a9df8b86dead4dc3",
+      "bytes": 95951
+    },
+    {
+      "name": "6729.cc22670b.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/6729.cc22670b.chunk.js",
+      "sha256": "76619f79ea51dfcd0c0ea4572f14d224829ee6ebe6f05d7443474a04f5dcd721",
+      "bytes": 109
+    },
+    {
+      "name": "8178.8c1ca691.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/8178.8c1ca691.chunk.js",
+      "sha256": "fbc439dc045b654365926c3b49b8622f270cba0fc86ed4e102e0e550d659eab5",
+      "bytes": 10683
+    },
+    {
+      "name": "stage_animation.871fede4.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/stage_animation.871fede4.chunk.js",
+      "sha256": "ab9d29b8b3dbcda99ec3be20754901fc80b4266325a57ab2eb14f8d2ae741656",
+      "bytes": 202201
+    }
+  ],
+  "pageErrors": [],
+  "method": "Fresh unauthenticated headless Edge. Registry functions unchanged. Camera alpha/close called without opening a stream; passive rawCamera.set_alpha wrapper records then forwards to the original. Runtime recordEnable=false is an explicitly selected official branch, not a simulated permission result. No capture-opening command or permission grant.",
+  "limitations": [
+    "Direct registry calls, not native project scheduling evidence.",
+    "No real capture, recognition backend, permission-denial or authenticated branch verified.",
+    "Prior ordinary get_voice_volume pending observation is not reclassified as zero or NaN."
+  ],
+  "editor": {
+    "version": "0.27.4",
+    "initial": {
+      "cameraStatus": "turn_off",
+      "rawCameraPresent": true,
+      "recordEnable": true,
+      "loginVisible": false
+    },
+    "availability": {
+      "open_close_webcam": {
+        "domainIndex": 237,
+        "output": false,
+        "previous": true,
+        "next": true,
+        "inputs": [
+          {
+            "name": "",
+            "type": 5,
+            "fields": [
+              {
+                "name": "camera_status",
+                "value": "turn_on",
+                "options": [
+                  [
+                    "开启",
+                    "turn_on"
+                  ],
+                  [
+                    "关闭",
+                    "turn_off"
+                  ]
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "open_hide_camera": {
+        "domainIndex": 207,
+        "output": false,
+        "previous": true,
+        "next": true,
+        "inputs": [
+          {
+            "name": "",
+            "type": 5,
+            "fields": [
+              {
+                "name": "camera_status",
+                "value": "turn_on",
+                "options": [
+                  [
+                    "开启",
+                    "turn_on"
+                  ],
+                  [
+                    "关闭",
+                    "turn_off"
+                  ]
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "set_camera_alpha": {
+        "domainIndex": 208,
+        "output": false,
+        "previous": true,
+        "next": true,
+        "inputs": [
+          {
+            "name": "camera_alpha",
+            "type": 1,
+            "fields": []
+          }
+        ]
+      },
+      "set_webcam_alpha": {
+        "domainIndex": 238,
+        "output": false,
+        "previous": true,
+        "next": true,
+        "inputs": [
+          {
+            "name": "camera_alpha",
+            "type": 1,
+            "fields": []
+          }
+        ]
+      },
+      "get_voice_volume": {
+        "domainIndex": 127,
+        "output": true,
+        "previous": false,
+        "next": false,
+        "inputs": [
+          {
+            "name": "",
+            "type": 5,
+            "fields": []
+          }
+        ]
+      },
+      "voice_recognition": {
+        "domainIndex": 150,
+        "output": false,
+        "previous": true,
+        "next": true,
+        "inputs": [
+          {
+            "name": "",
+            "type": 5,
+            "fields": [
+              {
+                "name": "type",
+                "value": "zh",
+                "options": [
+                  [
+                    "中文",
+                    "zh"
+                  ],
+                  [
+                    "英文",
+                    "en"
+                  ]
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "calls": [
+      {
+        "name": "set_camera_alpha",
+        "args": {
+          "camera_alpha": {
+            "type": "number",
+            "value": -10
+          }
+        },
+        "branch": "camera-never-opened",
+        "before": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "after": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "alphaWrites": [
+          0
+        ],
+        "promise": true,
+        "order": [
+          "returned",
+          "after-register",
+          "settled"
+        ],
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "set_camera_alpha",
+        "args": {
+          "camera_alpha": {
+            "type": "number",
+            "value": 0
+          }
+        },
+        "branch": "camera-never-opened",
+        "before": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "after": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "alphaWrites": [
+          0
+        ],
+        "promise": true,
+        "order": [
+          "returned",
+          "after-register",
+          "settled"
+        ],
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "set_camera_alpha",
+        "args": {
+          "camera_alpha": {
+            "type": "number",
+            "value": 37.5
+          }
+        },
+        "branch": "camera-never-opened",
+        "before": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "after": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "alphaWrites": [
+          0.375
+        ],
+        "promise": true,
+        "order": [
+          "returned",
+          "after-register",
+          "settled"
+        ],
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "set_camera_alpha",
+        "args": {
+          "camera_alpha": {
+            "type": "number",
+            "value": 100
+          }
+        },
+        "branch": "camera-never-opened",
+        "before": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "after": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "alphaWrites": [
+          1
+        ],
+        "promise": true,
+        "order": [
+          "returned",
+          "after-register",
+          "settled"
+        ],
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "set_camera_alpha",
+        "args": {
+          "camera_alpha": {
+            "type": "number",
+            "value": 150
+          }
+        },
+        "branch": "camera-never-opened",
+        "before": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "after": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "alphaWrites": [
+          1
+        ],
+        "promise": true,
+        "order": [
+          "returned",
+          "after-register",
+          "settled"
+        ],
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "set_camera_alpha",
+        "args": {
+          "camera_alpha": {
+            "type": "number",
+            "value": "Infinity"
+          }
+        },
+        "branch": "camera-never-opened",
+        "before": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "after": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "alphaWrites": [
+          1
+        ],
+        "promise": true,
+        "order": [
+          "returned",
+          "after-register",
+          "settled"
+        ],
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "set_camera_alpha",
+        "args": {
+          "camera_alpha": {
+            "type": "number",
+            "value": "-Infinity"
+          }
+        },
+        "branch": "camera-never-opened",
+        "before": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "after": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "alphaWrites": [
+          0
+        ],
+        "promise": true,
+        "order": [
+          "returned",
+          "after-register",
+          "settled"
+        ],
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "set_camera_alpha",
+        "args": {
+          "camera_alpha": {
+            "type": "number",
+            "value": "NaN"
+          }
+        },
+        "branch": "camera-never-opened",
+        "before": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "after": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "alphaWrites": [],
+        "promise": true,
+        "order": [
+          "returned",
+          "after-register",
+          "settled"
+        ],
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "set_camera_alpha",
+        "args": {
+          "camera_alpha": {
+            "type": "string",
+            "value": "25"
+          }
+        },
+        "branch": "camera-never-opened",
+        "before": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "after": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "alphaWrites": [],
+        "promise": true,
+        "order": [
+          "returned",
+          "after-register",
+          "settled"
+        ],
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "set_camera_alpha",
+        "args": {
+          "camera_alpha": {
+            "type": "boolean",
+            "value": true
+          }
+        },
+        "branch": "camera-never-opened",
+        "before": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "after": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "alphaWrites": [],
+        "promise": true,
+        "order": [
+          "returned",
+          "after-register",
+          "settled"
+        ],
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "set_camera_alpha",
+        "args": {
+          "camera_alpha": {
+            "type": "object",
+            "value": null
+          }
+        },
+        "branch": "camera-never-opened",
+        "before": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "after": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "alphaWrites": [],
+        "promise": true,
+        "order": [
+          "returned",
+          "after-register",
+          "settled"
+        ],
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "set_webcam_alpha",
+        "args": {
+          "camera_alpha": {
+            "type": "number",
+            "value": -10
+          }
+        },
+        "branch": "camera-never-opened",
+        "before": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "after": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "alphaWrites": [
+          0
+        ],
+        "promise": true,
+        "order": [
+          "returned",
+          "after-register",
+          "settled"
+        ],
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "set_webcam_alpha",
+        "args": {
+          "camera_alpha": {
+            "type": "number",
+            "value": 0
+          }
+        },
+        "branch": "camera-never-opened",
+        "before": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "after": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "alphaWrites": [
+          0
+        ],
+        "promise": true,
+        "order": [
+          "returned",
+          "after-register",
+          "settled"
+        ],
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "set_webcam_alpha",
+        "args": {
+          "camera_alpha": {
+            "type": "number",
+            "value": 37.5
+          }
+        },
+        "branch": "camera-never-opened",
+        "before": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "after": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "alphaWrites": [
+          0.375
+        ],
+        "promise": true,
+        "order": [
+          "returned",
+          "after-register",
+          "settled"
+        ],
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "set_webcam_alpha",
+        "args": {
+          "camera_alpha": {
+            "type": "number",
+            "value": 100
+          }
+        },
+        "branch": "camera-never-opened",
+        "before": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "after": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "alphaWrites": [
+          1
+        ],
+        "promise": true,
+        "order": [
+          "returned",
+          "after-register",
+          "settled"
+        ],
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "set_webcam_alpha",
+        "args": {
+          "camera_alpha": {
+            "type": "number",
+            "value": 150
+          }
+        },
+        "branch": "camera-never-opened",
+        "before": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "after": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "alphaWrites": [
+          1
+        ],
+        "promise": true,
+        "order": [
+          "returned",
+          "after-register",
+          "settled"
+        ],
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "set_webcam_alpha",
+        "args": {
+          "camera_alpha": {
+            "type": "number",
+            "value": "Infinity"
+          }
+        },
+        "branch": "camera-never-opened",
+        "before": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "after": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "alphaWrites": [
+          1
+        ],
+        "promise": true,
+        "order": [
+          "returned",
+          "after-register",
+          "settled"
+        ],
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "set_webcam_alpha",
+        "args": {
+          "camera_alpha": {
+            "type": "number",
+            "value": "-Infinity"
+          }
+        },
+        "branch": "camera-never-opened",
+        "before": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "after": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "alphaWrites": [
+          0
+        ],
+        "promise": true,
+        "order": [
+          "returned",
+          "after-register",
+          "settled"
+        ],
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "set_webcam_alpha",
+        "args": {
+          "camera_alpha": {
+            "type": "number",
+            "value": "NaN"
+          }
+        },
+        "branch": "camera-never-opened",
+        "before": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "after": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "alphaWrites": [],
+        "promise": true,
+        "order": [
+          "returned",
+          "after-register",
+          "settled"
+        ],
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "set_webcam_alpha",
+        "args": {
+          "camera_alpha": {
+            "type": "string",
+            "value": "25"
+          }
+        },
+        "branch": "camera-never-opened",
+        "before": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "after": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "alphaWrites": [],
+        "promise": true,
+        "order": [
+          "returned",
+          "after-register",
+          "settled"
+        ],
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "set_webcam_alpha",
+        "args": {
+          "camera_alpha": {
+            "type": "boolean",
+            "value": true
+          }
+        },
+        "branch": "camera-never-opened",
+        "before": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "after": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "alphaWrites": [],
+        "promise": true,
+        "order": [
+          "returned",
+          "after-register",
+          "settled"
+        ],
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "set_webcam_alpha",
+        "args": {
+          "camera_alpha": {
+            "type": "object",
+            "value": null
+          }
+        },
+        "branch": "camera-never-opened",
+        "before": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "after": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "alphaWrites": [],
+        "promise": true,
+        "order": [
+          "returned",
+          "after-register",
+          "settled"
+        ],
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "open_hide_camera",
+        "args": {
+          "camera_status": {
+            "type": "string",
+            "value": "turn_off"
+          }
+        },
+        "branch": "camera-already-off",
+        "before": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "after": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "alphaWrites": [],
+        "promise": true,
+        "order": [
+          "returned",
+          "after-register",
+          "settled"
+        ],
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "open_close_webcam",
+        "args": {
+          "camera_status": {
+            "type": "string",
+            "value": "turn_off"
+          }
+        },
+        "branch": "camera-already-off",
+        "before": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "after": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "alphaWrites": [],
+        "promise": true,
+        "order": [
+          "returned",
+          "after-register",
+          "settled"
+        ],
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "get_voice_volume",
+        "args": {},
+        "branch": "record-disabled",
+        "before": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": false,
+          "loginVisible": false
+        },
+        "after": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": false,
+          "loginVisible": false
+        },
+        "alphaWrites": [],
+        "promise": true,
+        "order": [
+          "returned",
+          "after-register",
+          "settled"
+        ],
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        }
+      },
+      {
+        "name": "voice_recognition",
+        "args": {
+          "type": {
+            "type": "string",
+            "value": "zh"
+          }
+        },
+        "branch": "record-disabled",
+        "before": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": false,
+          "loginVisible": false
+        },
+        "after": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": false,
+          "loginVisible": false
+        },
+        "alphaWrites": [],
+        "promise": true,
+        "order": [
+          "returned",
+          "after-register",
+          "settled"
+        ],
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "voice_recognition",
+        "args": {
+          "type": {
+            "type": "string",
+            "value": "zh"
+          }
+        },
+        "branch": "unauthenticated",
+        "before": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": false
+        },
+        "after": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": true
+        },
+        "alphaWrites": [],
+        "promise": true,
+        "order": [
+          "returned",
+          "after-register",
+          "settled"
+        ],
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "voice_recognition",
+        "args": {
+          "type": {
+            "type": "string",
+            "value": "en"
+          }
+        },
+        "branch": "unauthenticated",
+        "before": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": true
+        },
+        "after": {
+          "cameraStatus": "turn_off",
+          "rawCameraPresent": true,
+          "recordEnable": true,
+          "loginVisible": true
+        },
+        "alphaWrites": [],
+        "promise": true,
+        "order": [
+          "returned",
+          "after-register",
+          "settled"
+        ],
+        "result": {
+          "type": "undefined"
+        }
+      }
+    ],
+    "runtimeRecordSetter": false,
+    "final": {
+      "cameraStatus": "turn_off",
+      "rawCameraPresent": true,
+      "recordEnable": true,
+      "loginVisible": true
+    }
+  },
+  "sourceLocations": [
+    {
+      "symbol": "open_hide_camera",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1669074,
+      "characters": 1638,
+      "excerptSha256": "d97a58f609b0bbca8767991f544e13ef34f5b3d2bda6ac1a381af3f3e4d5bcac"
+    },
+    {
+      "symbol": "open_close_webcam",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1693796,
+      "characters": 1396,
+      "excerptSha256": "b7de1c643c21168e37ddb6e41d93ec9dbf60fcd77adfb67e4750ff5c0ca3e00e"
+    },
+    {
+      "symbol": "set_camera_alpha",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1670712,
+      "characters": 614,
+      "excerptSha256": "54c4edbd6993d8e201c5a084faffcc8227399ef817a5f06ebd8191fd20be4c22"
+    },
+    {
+      "symbol": "set_webcam_alpha",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1695192,
+      "characters": 614,
+      "excerptSha256": "467db02161b0126900f5a6dcb19c5e74153f304c4dda8fe327c4de2f59170a57"
+    },
+    {
+      "symbol": "get_voice_volume",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1578597,
+      "characters": 1267,
+      "excerptSha256": "3893f887f3c68e982d633e6e17a836c30f6b5c4f01fcb95411f8d58667ee1142"
+    },
+    {
+      "symbol": "voice_recognition",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1642591,
+      "characters": 3242,
+      "excerptSha256": "f0acf18928d2074b83b05e9b321311a14ca22063817f6661a405d11d97871748"
+    },
+    {
+      "symbol": "camera_initial_alpha",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1522464,
+      "characters": 2500,
+      "excerptSha256": "ef412d4d5cc22c7a316df041aab8278b8baad3db00de579f7edae9b3224bf8c5"
+    },
+    {
+      "symbol": "camera_alpha_setter",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1533237,
+      "characters": 150,
+      "excerptSha256": "68b414e5f476e488f65a1dd7b9c338ee6152e5456048ebc10a422a0ebe3f770f"
+    },
+    {
+      "symbol": "camera_close",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1532744,
+      "characters": 900,
+      "excerptSha256": "4163c9a035e7c36d524b0f15566cd67e861f34a00469d609132b0fd2066f9df0"
+    }
+  ],
+  "ok": true
+}

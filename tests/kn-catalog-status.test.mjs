@@ -58,7 +58,7 @@ test("snapshot is exactly 300 unique names with mutually exclusive conservative 
     assert.equal(row.status, "部分语义", type);
     assert.match(row.risk, /未实现/, type);
   }
-  for (const type of ["ai_chat_ask", "get_voice_volume", "update_ranking"]) {
+  for (const type of ["get_voice_volume"]) {
     assert.equal(result.rows.find(row => row.type === type).status, "缺失", type);
   }
   assert.equal(result.rows.find(row => row.type === "get_orientation").status, "固定值占位");
@@ -79,22 +79,48 @@ test("official panel evidence remains separate from VM support or retirement cla
     ["wand_coordinate","hardware-extension-config-not-installed"]]) {
     const row = result.rows.find(r => r.type === type);
     assert.equal(row.officialCategory, category);
-    assert.equal(row.status, "缺失");
-    assert.deepEqual(row.vm, []);
+    if (["global_animation", "set_system_preset"].includes(type)) {
+      assert.equal(row.status, "部分语义");
+      assert.ok(row.vm.length > 0);
+    } else {
+      assert.equal(row.status, "缺失");
+      assert.deepEqual(row.vm, []);
+    }
   }
   assert.match(coverageMarkdown(result), /两者均0/);
+});
+
+test("round five panel additions stay partial and ordinary microphone volume stays missing", () => {
+  const result = inventory(root);
+  const added = ["ai_chat_ask", "ai_text_actor", "ai_text_photo", "enable_face_detect_by_actor",
+    "enable_face_detect_by_photo", "enable_object_detect_by_actor", "enable_object_detect_by_photo",
+    "evaluate_actor_style", "evaluate_camera", "evaluate_photo", "get_evaluate_class_accuracy",
+    "get_evaluate_class_name", "global_animation", "new_conversation", "open_close_webcam",
+    "open_hide_camera", "set_camera_alpha", "set_system_preset", "set_webcam_alpha",
+    "show_hide_ranking", "translate", "translate_result", "update_ranking", "user_info_of_th",
+    "user_ranking_info", "voice_recognition"];
+  assert.equal(added.length, 26);
+  for (const type of added) {
+    const row = result.rows.find(r => r.type === type);
+    assert.equal(row.status, "部分语义", type);
+    assert.match(row.risk, /仅/, type);
+    assert.match(row.officialCategory, /^panel-(default|configurable-default-hidden)$/);
+  }
+  const visibleMissing = result.rows.filter(row => row.status === "缺失" &&
+    ["panel-default", "panel-configurable-default-hidden"].includes(row.officialCategory));
+  assert.deepEqual(visibleMissing.map(row => row.type), ["get_voice_volume"]);
 });
 
 test("field arms and traversal-only type mentions never become VM evidence", () => {
   let source = fs.readFileSync(new URL("../src/engine.rs", import.meta.url), "utf8");
   source = source.replace('"random_num" | "math_arithmetic" | "math_modulo" | "math_arithmetic_power" =>',
-    '"ai_chat_ask" | "math_arithmetic" | "math_modulo" | "math_arithmetic_power" =>');
+     '"get_voice_volume" | "math_arithmetic" | "math_modulo" | "math_arithmetic_power" =>');
   source = source.replace('"width" => ExprOp::Constant(self.program.width)',
-    '"ai_chat_ask" => ExprOp::Constant(self.program.width)');
+     '"get_voice_volume" => ExprOp::Constant(self.program.width)');
   assert.ok(source.includes('"set_scale" => Op::Scale'), "fixture needs actual scale dispatch");
   source = source.replace('"set_scale" => Op::Scale', '"future_scale" => Op::Scale');
   const result = inventory(root, undefined, source);
-  assert.equal(result.rows.find(row => row.type === "ai_chat_ask").status, "缺失");
+  assert.equal(result.rows.find(row => row.type === "get_voice_volume").status, "缺失");
   assert.equal(result.rows.find(row => row.type === "set_scale").status, "缺失", "dormant root ignore is not support");
 });
 

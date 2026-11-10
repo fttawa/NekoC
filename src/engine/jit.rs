@@ -368,6 +368,7 @@ impl Engine {
                 && matches!(
                     self.program.values[key.1],
                     ValueExpr::CallReturn(..)
+                        | ValueExpr::KnPanel(..)
                         | ValueExpr::OfflineOcrCheck(..)
                         | ValueExpr::OfflineMicrobitMap(..)
                         | ValueExpr::OfflineMicrobitLed(..)
