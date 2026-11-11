@@ -31,10 +31,12 @@ export class StageOverlay {
     this.stageDialog = null;
   }
   reset() {
+    const restore=this.root.contains(document.activeElement);
     for (const bubble of this.bubbles.values()) bubble.remove();
     this.bubbles.clear(); this.monitors.replaceChildren(); this.monitorKey = '';
     this.ask?.remove(); this.ask = null; this.askId = null;
     this.stageDialog?.remove(); this.stageDialog = null;
+    if(restore)this.renderer.canvas?.focus({preventScroll:true});
   }
   apply(frame) {
     const monitors = frame.monitors || [], key = JSON.stringify(monitors);
@@ -57,8 +59,9 @@ export class StageOverlay {
       delete this.stageDialog.dataset.sent;
       return;
     }
+    const restore=this.stageDialog?.contains(document.activeElement);
     this.stageDialog?.remove(); this.stageDialog = null;
-    if (!dialog) return;
+    if (!dialog) {if(restore)this.renderer.canvas?.focus({preventScroll:true});return;}
     const panel = document.createElement('div'); panel.className = 'neko-stage-dialog';
     panel.dataset.id = String(dialog.id);
     panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-label', dialog.name || '舞台对话');
@@ -80,17 +83,28 @@ export class StageOverlay {
       this.onAnswer({ kind: 'stage_dialog_click', id: dialog.id });
     };
     panel.append(preview, name, text, next); this.root.append(panel); this.stageDialog = panel;
+    this.focusControl(next);
+  }
+  focusControl(control){
+    queueMicrotask(()=>{
+      if(!control?.isConnected||document.querySelector('dialog[open]'))return;
+      const active=document.activeElement;
+      if(active===document.body||active===this.renderer.canvas||this.root.contains(active))control.focus({preventScroll:true});
+    });
   }
   showAsk(ask) {
+    const restore=this.ask?.contains(document.activeElement);
     this.ask?.remove(); this.ask = null; this.askId = ask?.id ?? null;
-    if (!ask) return;
+    if (!ask) {if(restore)this.renderer.canvas?.focus({preventScroll:true});return;}
     const panel = document.createElement('div'); panel.className = 'neko-ask';
+    panel.setAttribute('role','group');panel.setAttribute('aria-label',ask.question||'回答问题');
     const question = document.createElement('p'); question.textContent = ask.question; panel.append(question);
     const send = (text, choice) => { if (this.askId !== ask.id) return; this.onAnswer({ kind: 'answer', id: ask.id, text, ...(choice ? { choice } : {}) }); panel.remove(); this.ask = null; };
     if (ask.choices) {
       const list = document.createElement('div'); list.className = 'choices';
       ask.choices.forEach((label, i) => { const button = document.createElement('button'); button.type = 'button'; button.textContent = label || `选项 ${i + 1}`; button.onclick = () => send(label, i + 1); list.append(button); });
       panel.append(list);
+      this.focusControl(list.querySelector('button'));
     } else {
       // No form submission: sandboxed forum iframes lack allow-forms and would block it.
       const form = document.createElement('div'), input = document.createElement('input'), ok = document.createElement('button');
@@ -105,7 +119,7 @@ export class StageOverlay {
         addEventListener('keyup', up => { if (up.key === 'Enter') up.stopImmediatePropagation(); }, { capture: true, once: true });
         send(input.value);
       });
-      form.append(input, ok); panel.append(form); queueMicrotask(() => input.focus({ preventScroll: true }));
+      form.append(input, ok); panel.append(form); this.focusControl(input);
     }
     this.ask = panel; this.root.append(panel);
   }

@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="zh-CN">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="dark"><title>Neko · 纯播放器</title><link rel="stylesheet" href="/play.css"></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="color-scheme" content="dark"><title>Neko · 纯播放器</title><link rel="stylesheet" href="/play.css"></head>
 <body>
 <main id="player-shell">
   <header class="tile brand-tile">
@@ -15,6 +15,7 @@
     <div id="welcome" class="welcome"><span class="eyebrow">READY WHEN YOU ARE</span><h2>把作品带到大屏幕。</h2><p>导入 .bcmkn / .bcm，或直接拖到这里</p></div>
     <div id="drop-hint" aria-hidden="true"><span>松开，开始游玩</span><small>.bcmkn / .bcm</small></div>
     <div id="notice" role="alert" hidden><span id="notice-text"></span><button id="dismiss" aria-label="关闭提示">×</button></div>
+    <div id="loading" role="status" hidden><label id="load-label" for="load-progress">正在读取作品…</label><progress id="load-progress" max="1"></progress></div>
   </section>
 
   <section class="tile fps-tile" title="每秒实际收到并有画面变化的更新；包含作品分步绘制，不等于完整作品帧数。">
@@ -27,6 +28,7 @@
     <div class="play-controls"><button id="toggle" class="primary" disabled>▶ 开始游玩</button><button id="restart" disabled title="从头开始">↻ 重玩</button><button id="fullscreen" title="全屏游玩" aria-label="全屏游玩">⛶ <span>全屏</span></button></div>
     <span id="status" role="status">选择作品，开始游玩</span>
     <span class="keyboard-hint">点击画面后用键盘游玩</span>
+    <button id="coverage" disabled aria-haspopup="dialog">兼容性 / coverage 报告</button>
   </section>
 
   <section class="tile timings-tile" aria-label="性能数据">
@@ -45,6 +47,13 @@
       <div class="setting"><label for="coalesce">合并无画面更新</label><select id="coalesce"><option value="0" selected>关闭 · 官方节奏</option><option value="1">开启 · 实验</option></select><small>一次更新内连续执行没有画面变化的轮次（时间不前进）。分步绘制的作品更流畅，但只改变量的循环会跑得更快。</small></div>
     </div>
   </section>
+<dialog id="coverage-dialog" aria-labelledby="report-title">
+  <h2 id="report-title">兼容性 / coverage 报告</h2>
+  <p>以下是当前作品的导入静态诊断和素材失败记录，不代表运行 coverage 或官方一致性。</p>
+  <p>完整运行覆盖率：在本地终端执行 <code>cargo run -- coverage "作品路径" --frames 60 --seed 1</code>。仅对可信作品运行；结果不保证所有输入均兼容。</p>
+  <pre id="report-content" tabindex="0" aria-label="导入诊断 JSON"></pre>
+  <div class="report-actions"><button id="report-download">下载诊断 JSON</button><button id="report-close" autofocus>关闭报告</button></div>
+</dialog>
 </main>
 <script type="module" src="/play.js"></script>
 </body>

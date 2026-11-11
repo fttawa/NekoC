@@ -91,7 +91,7 @@ export class StageRenderer {
     canvas.addEventListener('webglcontextlost', event => { event.preventDefault(); this.lost = true; this.onError?.('GPU 上下文丢失，请重新加载项目。'); });
   }
 
-  async load(project) {
+  async load(project, onProgress=()=>{}) {
     const generation = ++this.generation;
     this.loadController?.abort();this.loadController=new AbortController();const {signal}=this.loadController;
     for(const item of this.videos.values()){item.element.onseeked=null;item.element.onloadeddata=null;item.element.onerror=null;item.element.pause();item.element.removeAttribute('src');item.element.load();this.gl.deleteTexture(item.texture);}
@@ -130,9 +130,13 @@ export class StageRenderer {
     // Costumes of every scene are decoded up front so scene switches are instant.
     const actors=project.actors?.actorsDict||{};
     const ids = [...new Set(Object.values(this.scenes).flatMap(sc=>[sc.currentStyleId,...(sc.styles||[]),...(sc.actorIds||[]).flatMap(id=>[actors[id]?.currentStyleId,...(actors[id]?.styles||[])])]).filter(Boolean))];
+    const videos=this.skipVideos?[]:Object.entries(project.videos?.videosDict||{});
+    const total=ids.length+videos.length;let completed=0;
+    const progress=()=>{if(generation===this.generation)onProgress({completed,total});};progress();
     await Promise.all(ids.map(async id => {
-      const style = project.styles?.stylesDict?.[id]; if (!style?.url) return;
+      const style = project.styles?.stylesDict?.[id];
       try {
+        if(!style?.url)throw Error('缺少素材地址');
         const centerPoint={x:style.centerPoint?.x??0,y:style.centerPoint?.y??0};
         if(![centerPoint.x,centerPoint.y].every(n=>typeof n==='number'&&Number.isFinite(n)))throw Error('无效造型中心');
         const image = new Image(); image.crossOrigin = 'anonymous'; image.src = style.url;
@@ -151,14 +155,14 @@ export class StageRenderer {
         this.images.set(id,{texture,src:image.src,width:image.naturalWidth,height:image.naturalHeight,centerPoint,adaptive:style.adaptive!==false,alpha,rgb:cellColors(rgba,hit.width,hit.height)});
         this.stats.textureBytes += image.naturalWidth * image.naturalHeight * 4;
         this.dirty = true;
-      } catch(error) { if(generation===this.generation)this.onError?.(`素材 ${style.name || id}: ${error.message}`); }
+      } catch(error) { if(generation===this.generation)this.onError?.(`素材 ${style?.name || id}: ${error.message}`); }
+      finally{completed++;progress();}
     }));
     if(generation!==this.generation)return;
     // K4 ki/add_playable: successful decode uses native dimensions * scale;
     // saved width/height are fallback display dimensions, not multiplied again.
     // Video origin is the centre and y points upwards.
-    await Promise.all(Object.entries(project.videos?.videosDict||{}).map(async([id,state])=>{
-      if(this.skipVideos)return;
+    await Promise.all(videos.map(async([id,state])=>{
       const element=document.createElement('video');element.crossOrigin='anonymous';element.preload='auto';element.playsInline=true;
       const item={element,texture:this.makeTexture(1,1),state:{...state,id,playing:false,position:0,generation:0}};this.videos.set(id,item);
       element.onseeked=()=>{if(generation===this.generation&&this.videos.get(id)===item)this.dirty=true;};
@@ -172,6 +176,7 @@ export class StageRenderer {
         item.state.width=item.displayWidth;item.state.height=item.displayHeight;
         this.dirty=true;
       }catch(error){if(generation===this.generation){element.onseeked=null;element.pause();element.removeAttribute('src');element.load();this.gl.deleteTexture(item.texture);this.videos.delete(id);this.onError?.(`视频 ${id}: ${error.message}`);}}
+      finally{completed++;progress();}
     }));
   }
 
