@@ -105,3 +105,48 @@ node tools/bench/hateneko.mjs --ref E:/nekoc-wt/_ref/hateneko --love D:/Tools/lo
   只从原始样本重新计算观察投影/中位数并生成紧凑证据，不修改原始计时。
 
 完整实测、限制及优化前后见 [docs/performance.md](../../docs/performance.md)。
+
+## 同类项目 / kitten2scratch → TurboWarp
+
+第三方代码仅 clone 到当前 worktree 的忽略目录 `dist/peers/`。先审查源码，
+不运行第三方 exe，不运行 npm 生命周期脚本，不修改转换器或 VM：
+
+```powershell
+git clone https://github.com/CodeManTeam/kitten2scratch.git dist/peers/kitten2scratch
+git -C dist/peers/kitten2scratch checkout 3b2dc03044e958b8052e947eebae09f2ec24ed5c
+git clone https://github.com/TurboWarp/scratch-vm.git dist/peers/scratch-vm
+git -C dist/peers/scratch-vm checkout 0cb82afe62506f3d9f2ff849c95593f0473b5d2c
+npm --prefix dist/peers/kitten2scratch ci --ignore-scripts --no-audit --no-fund
+npm --prefix dist/peers/scratch-vm ci --ignore-scripts --omit=dev --no-audit --no-fund
+# 环境变量同本文开头；先构建本仓库 release perf-bench
+node tools/bench/peers.mjs --prepare
+node tools/bench/peers-evidence.mjs dist/bench/peers/results.json docs/performance-peers-evidence.json
+```
+
+- `--prepare` 先复用官方 K4 编译和本仓库 KN 生成器，七份 KN 全部执行官方编辑器检查，
+  然后运行测量；再次测量不传该选项可复用已准备输入。不会使用第三方语料。
+  `--prepare-only` 只准备并写入输入 hash manifest；复用时要求输入未变且素材仅内联 data URL，
+  拒绝 CDN、本地资源路径和输出树内已有 symlink/junction。不要并发修改输出目录（检查不是原子沙箱）。
+- 固定预热 10、测量 60（可 `--frames 120`）、三次独立 N/T 进程，按 NT/TN/NT 交替；
+  原始数组、预热、完整变量/角色、输入/SB3/binary/vendor/harness hashes 均写入 `dist/bench/peers/`。
+- Node 无头加载真实 TurboWarp VM，`enabled=true, warpTimer=false, turboMode=false`，不启动屏幕刷新循环；
+  手动 `_step`，显式设置 `currentStepTime=1000/60`，保留其墙钟工作预算，不伪造单帧批次数。
+  不装 renderer/audio/storage，素材警告留在每次 stderr 日志；因此不是可视播放器性能测试，画笔尤其不可比。
+- 转换 CLI 与 VM 均预载 `peers-offline.cjs` 禁止 HTTP/HTTPS、fetch、Socket、WebSocket；
+  这仅防止已审查自有输入意外联网，**不是恶意 Node 代码的安全沙箱**。
+  只接受内建/pen 扩展，禁止外部 extensionURLs。未知/有损积木、编译失败、状态/工作量不同均不出速度比。
+- 预热和测量不强制 GC。导入不含进程启动；转换墙钟含 CLI 启动，单次记录，不能算导入速度比。
+  N 帧为 `Engine::advance`；T 帧为完整 `_step`，未执行渲染但含其调度循环与墙钟预算。
+  T 峰值是 Node 进程 `resourceUsage().maxRSS`，不等于浏览器 renderer 内存。
+- 当前转换器丢失 warp 语义，因此所有行均判“不可比”，套件完成后**预期退出 1**。
+  不能把这个诊断退出码当成本仓库测试失败，也不能把 `status=ok` 当语义兼容。
+  数值相对/绝对容差 1e-9，严格区分文本/数字/列表；相同终值不是等工作量证明。
+- `compiled_threads`/`interpreted_threads` 是每帧线程观察次数之和（包括预热、重复观察同一线程），
+  不是唯一线程数量、编译覆盖率或批次完成量。静态 opcode 分类也不是源积木全支持证明：
+  转换器可把未知源积木降级成合法 opcode；具体结论以保留的终态差异和 warp 源码为准。
+  vendor commit 固定校验，lockfile 留 hash，但未独立认证已安装 node_modules 全树完整性。
+- Windows 每次启动前复用 `assertIdle` 检查 cargo/rustc/perf-bench/love 等竞争进程；
+  检查不是系统独占锁，其他 Node/浏览器或检查后启动的任务仍可能干扰，不据此承诺绝对速度。
+- 如机器用户 npm 配置的 `allow-scripts` 导致 Git 依赖准备报 `EALLOWSCRIPTS`，
+  可把 `NPM_CONFIG_USERCONFIG` 指向本 worktree `dist/peers/` 内仅含注释的空配置，
+  同时设置 `NPM_CONFIG_IGNORE_SCRIPTS=true` 后重试；不要改全局配置或启用脚本绕过。

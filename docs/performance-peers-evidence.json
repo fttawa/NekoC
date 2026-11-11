@@ -1,0 +1,2849 @@
+{
+  "schema": "nekoc-peers-v1",
+  "date": "2026-11-11T16:17:13.390Z",
+  "options": {
+    "out": "E:\\nekoc-wt\\peerbench\\dist\\bench\\peers",
+    "frames": 60,
+    "warmup": 10,
+    "repeats": 3
+  },
+  "revision": "d8fd0907a8867656a80a36051aee48b50d7928d0",
+  "host": {
+    "cpu": "Intel(R) Core(TM) i7-14650HX",
+    "logical_cpus": 24,
+    "platform": "win32",
+    "node": "v24.12.0"
+  },
+  "binary_sha256": "73675489b63709950d47318b1c0c571f2b144331484506bc1ff216691e73528e",
+  "harness_sha256": "bdc6f55d2931ea47f0ba6685f218bd1dfcefdaefe5dbd428d4e79a256af57260",
+  "offline_sha256": "c0803d2a5897043d912c99148e1355f5271ff1dad9bf83ad5983bc1c48cd1d09",
+  "mode": "Node/headless/manual-step/no-renderer/no-audio/no-storage; wall-clock budget; no async event-loop turn between steps",
+  "compiled_threads_definition": "sum of per-frame thread observations including warmup; not unique threads or execution coverage",
+  "dependency_integrity": "lockfile and vendor commits recorded; installed node_modules full-tree integrity not independently verified",
+  "vendors": {
+    "kitten2scratch": {
+      "commit": "3b2dc03044e958b8052e947eebae09f2ec24ed5c",
+      "lock_sha256": "3655e0aa72d6b63f276209569e28a10f3f27241fd54278d116f021034de3d4af"
+    },
+    "scratch-vm": {
+      "commit": "0cb82afe62506f3d9f2ff849c95593f0473b5d2c",
+      "lock_sha256": "0eef27f7619c817d2d6cb85b5002255e49433bab8348b8cd312b447620d7595d"
+    }
+  },
+  "source_sha256": "07f2bd4d2ddf70405e37111add35842672860ad7060f7d4fffbb22925ef0e761",
+  "exporter_sha256": "9d43afad8b7d404db99bc16b1c18390c3b4424dfaa6071903001aac6e98952a5",
+  "comparison_sha256": "bdc6f55d2931ea47f0ba6685f218bd1dfcefdaefe5dbd428d4e79a256af57260",
+  "coverage": "14 distinct inputs × 3 paired records; failures retained; not equal-work certification",
+  "works": [
+    {
+      "format": "k4",
+      "name": "numeric",
+      "input_sha256": "3e0b0d244b31468c9944260862307b2e36d827723d2712142ae05bc907aed2d3",
+      "sb3_sha256": "576d9c0cd5b619b05ddde644431305f7e8f202eb9fd4d0b060f8356063dacfe2",
+      "inspection": {
+        "blocks": 29,
+        "unsupported": [
+          "motion_align_scene"
+        ]
+      },
+      "convert_wall_ms": 171.52890000000002,
+      "metrics": {
+        "nekoc": {
+          "import_ms": 1.9449999999999998,
+          "start_ms": 0.0189,
+          "mean_ms": 0.039106666666666644,
+          "p95_ms": 0.0396,
+          "peak_rss_bytes": 8400896
+        },
+        "turbowarp": {
+          "import_ms": 77.74390000000002,
+          "start_ms": 13.198399999999992,
+          "mean_ms": 12.996626666666666,
+          "p95_ms": 13.01240000000007,
+          "peak_rss_bytes": 76697600
+        }
+      },
+      "runs": [
+        {
+          "repeat": 0,
+          "order": [
+            "nekoc",
+            "turbowarp"
+          ],
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "import_ms": 2.0385999999999997,
+              "start_ms": 0.0326,
+              "mean_ms": 0.040108333333333315,
+              "p95_ms": 0.0405,
+              "peak_rss_bytes": 8409088,
+              "variables": {
+                "depth": 0,
+                "log": 998.9999999999424,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1
+            },
+            "turbowarp": {
+              "status": "ok",
+              "import_ms": 93.31540000000001,
+              "start_ms": 16.4914,
+              "mean_ms": 12.996168333333335,
+              "p95_ms": 13.010700000000043,
+              "peak_rss_bytes": 76697600,
+              "variables": {
+                "log": 998.9999999999424,
+                "depth": 0,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1,
+              "errors": [],
+              "compiled_threads": 71,
+              "interpreted_threads": 0,
+              "current_step_time_ms": 16.666666666666668,
+              "unknown_opcodes": [],
+              "stderr_sha256": "057f1c05a308ca2d23e31529e6f61d56f42c3fad626fcf640b12154b046978e7"
+            }
+          },
+          "comparison": {
+            "variables_equal": true,
+            "status": "不可比",
+            "reason": "lossy warp placeholder / unsupported opcode / compile failure / no compiled thread"
+          }
+        },
+        {
+          "repeat": 1,
+          "order": [
+            "turbowarp",
+            "nekoc"
+          ],
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "import_ms": 1.9449999999999998,
+              "start_ms": 0.0187,
+              "mean_ms": 0.03613833333333335,
+              "p95_ms": 0.0388,
+              "peak_rss_bytes": 8364032,
+              "variables": {
+                "depth": 0,
+                "log": 998.9999999999424,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1
+            },
+            "turbowarp": {
+              "status": "ok",
+              "import_ms": 77.74390000000002,
+              "start_ms": 13.080699999999979,
+              "mean_ms": 12.996920000000008,
+              "p95_ms": 13.012699999999995,
+              "peak_rss_bytes": 76849152,
+              "variables": {
+                "log": 998.9999999999424,
+                "depth": 0,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1,
+              "errors": [],
+              "compiled_threads": 71,
+              "interpreted_threads": 0,
+              "current_step_time_ms": 16.666666666666668,
+              "unknown_opcodes": [],
+              "stderr_sha256": "057f1c05a308ca2d23e31529e6f61d56f42c3fad626fcf640b12154b046978e7"
+            }
+          },
+          "comparison": {
+            "variables_equal": true,
+            "status": "不可比",
+            "reason": "lossy warp placeholder / unsupported opcode / compile failure / no compiled thread"
+          }
+        },
+        {
+          "repeat": 2,
+          "order": [
+            "nekoc",
+            "turbowarp"
+          ],
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "import_ms": 1.7787,
+              "start_ms": 0.0189,
+              "mean_ms": 0.039106666666666644,
+              "p95_ms": 0.0396,
+              "peak_rss_bytes": 8400896,
+              "variables": {
+                "depth": 0,
+                "log": 998.9999999999424,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1
+            },
+            "turbowarp": {
+              "status": "ok",
+              "import_ms": 76.43979999999999,
+              "start_ms": 13.198399999999992,
+              "mean_ms": 12.996626666666666,
+              "p95_ms": 13.01240000000007,
+              "peak_rss_bytes": 76570624,
+              "variables": {
+                "log": 998.9999999999424,
+                "depth": 0,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1,
+              "errors": [],
+              "compiled_threads": 71,
+              "interpreted_threads": 0,
+              "current_step_time_ms": 16.666666666666668,
+              "unknown_opcodes": [],
+              "stderr_sha256": "057f1c05a308ca2d23e31529e6f61d56f42c3fad626fcf640b12154b046978e7"
+            }
+          },
+          "comparison": {
+            "variables_equal": true,
+            "status": "不可比",
+            "reason": "lossy warp placeholder / unsupported opcode / compile failure / no compiled thread"
+          }
+        }
+      ]
+    },
+    {
+      "format": "k4",
+      "name": "list",
+      "input_sha256": "bfe73e057e6f2f186373fbde5e162f440db2ecdc56e4fbd14c794ac48f37307c",
+      "sb3_sha256": "ae219798444db4c1e1b1c1351eac81ef0bc6ed0c9dad82b3ccb095796a23234d",
+      "inspection": {
+        "blocks": 36,
+        "unsupported": [
+          "motion_align_scene"
+        ]
+      },
+      "convert_wall_ms": 178.58579999999893,
+      "metrics": {
+        "nekoc": {
+          "import_ms": 1.975,
+          "start_ms": 0.0173,
+          "mean_ms": 0.2292566666666666,
+          "p95_ms": 0.24889999999999998,
+          "peak_rss_bytes": 8658944
+        },
+        "turbowarp": {
+          "import_ms": 77.61439999999999,
+          "start_ms": 14.576599999999985,
+          "mean_ms": 12.997553333333332,
+          "p95_ms": 13.029300000000148,
+          "peak_rss_bytes": 69681152
+        }
+      },
+      "runs": [
+        {
+          "repeat": 0,
+          "order": [
+            "nekoc",
+            "turbowarp"
+          ],
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "import_ms": 1.8925999999999998,
+              "start_ms": 0.017499999999999998,
+              "mean_ms": 0.2292566666666666,
+              "p95_ms": 0.24889999999999998,
+              "peak_rss_bytes": 8617984,
+              "variables": {
+                "depth": 0,
+                "log": 1,
+                "result": {
+                  "type": "list",
+                  "length": 1000,
+                  "sha256": "2d95b582a41ce2d9b9197d52bc0de3b041234c65895f8e0e384965427064d34b"
+                }
+              },
+              "actor_count": 1
+            },
+            "turbowarp": {
+              "status": "ok",
+              "import_ms": 86.73429999999999,
+              "start_ms": 13.033299999999997,
+              "mean_ms": 12.997553333333332,
+              "p95_ms": 13.030399999999986,
+              "peak_rss_bytes": 69943296,
+              "variables": {
+                "log": 1,
+                "depth": 0,
+                "result": {
+                  "type": "list",
+                  "length": 73434,
+                  "sha256": "d3ad6a0ba47e8704f07b1d4f85865e3b31a8cf685326db224c8c462da644b71f"
+                }
+              },
+              "actor_count": 1,
+              "errors": [],
+              "compiled_threads": 71,
+              "interpreted_threads": 0,
+              "current_step_time_ms": 16.666666666666668,
+              "unknown_opcodes": [],
+              "stderr_sha256": "e817a12b58d8bfa45801f9baec0ded8a5c46b83ae110a7bbd350880b97b2957b"
+            }
+          },
+          "comparison": {
+            "variables_equal": false,
+            "status": "不可比",
+            "reason": "final variable/type/list mismatch"
+          }
+        },
+        {
+          "repeat": 1,
+          "order": [
+            "turbowarp",
+            "nekoc"
+          ],
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "import_ms": 2.0868,
+              "start_ms": 0.0165,
+              "mean_ms": 0.23382833333333333,
+              "p95_ms": 0.2525,
+              "peak_rss_bytes": 8667136,
+              "variables": {
+                "depth": 0,
+                "log": 1,
+                "result": {
+                  "type": "list",
+                  "length": 1000,
+                  "sha256": "2d95b582a41ce2d9b9197d52bc0de3b041234c65895f8e0e384965427064d34b"
+                }
+              },
+              "actor_count": 1
+            },
+            "turbowarp": {
+              "status": "ok",
+              "import_ms": 77.32550000000003,
+              "start_ms": 14.576599999999985,
+              "mean_ms": 12.99797166666666,
+              "p95_ms": 13.029300000000148,
+              "peak_rss_bytes": 69607424,
+              "variables": {
+                "log": 1,
+                "depth": 0,
+                "result": {
+                  "type": "list",
+                  "length": 73622,
+                  "sha256": "2c949eef8887728a3bd260842514b56b74c37eb2d0ec450350efebd61b615ce2"
+                }
+              },
+              "actor_count": 1,
+              "errors": [],
+              "compiled_threads": 71,
+              "interpreted_threads": 0,
+              "current_step_time_ms": 16.666666666666668,
+              "unknown_opcodes": [],
+              "stderr_sha256": "e817a12b58d8bfa45801f9baec0ded8a5c46b83ae110a7bbd350880b97b2957b"
+            }
+          },
+          "comparison": {
+            "variables_equal": false,
+            "status": "不可比",
+            "reason": "final variable/type/list mismatch"
+          }
+        },
+        {
+          "repeat": 2,
+          "order": [
+            "nekoc",
+            "turbowarp"
+          ],
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "import_ms": 1.975,
+              "start_ms": 0.0173,
+              "mean_ms": 0.22694333333333327,
+              "p95_ms": 0.24000000000000002,
+              "peak_rss_bytes": 8658944,
+              "variables": {
+                "depth": 0,
+                "log": 1,
+                "result": {
+                  "type": "list",
+                  "length": 1000,
+                  "sha256": "2d95b582a41ce2d9b9197d52bc0de3b041234c65895f8e0e384965427064d34b"
+                }
+              },
+              "actor_count": 1
+            },
+            "turbowarp": {
+              "status": "ok",
+              "import_ms": 77.61439999999999,
+              "start_ms": 15.090599999999995,
+              "mean_ms": 12.996986666666666,
+              "p95_ms": 13.024400000000014,
+              "peak_rss_bytes": 69681152,
+              "variables": {
+                "log": 1,
+                "depth": 0,
+                "result": {
+                  "type": "list",
+                  "length": 72960,
+                  "sha256": "2b6983351181a3f76abff72737c8bc436addeda82c1ca09445150a887073021c"
+                }
+              },
+              "actor_count": 1,
+              "errors": [],
+              "compiled_threads": 71,
+              "interpreted_threads": 0,
+              "current_step_time_ms": 16.666666666666668,
+              "unknown_opcodes": [],
+              "stderr_sha256": "e817a12b58d8bfa45801f9baec0ded8a5c46b83ae110a7bbd350880b97b2957b"
+            }
+          },
+          "comparison": {
+            "variables_equal": false,
+            "status": "不可比",
+            "reason": "final variable/type/list mismatch"
+          }
+        }
+      ]
+    },
+    {
+      "format": "k4",
+      "name": "string",
+      "input_sha256": "975bf046127c3a80cd991d4afd01e7cd1f423af32380d5998b21c4f3c3d3ed98",
+      "sb3_sha256": "cf5fb908b69d7f6577e6b67d5b3917c46318743d5d51059a627c3b9c0ea2aada",
+      "inspection": {
+        "blocks": 30,
+        "unsupported": [
+          "motion_align_scene"
+        ]
+      },
+      "convert_wall_ms": 165.92799999999988,
+      "metrics": {
+        "nekoc": {
+          "import_ms": 1.8344,
+          "start_ms": 0.0177,
+          "mean_ms": 0.15495666666666666,
+          "p95_ms": 0.161,
+          "peak_rss_bytes": 8372224
+        },
+        "turbowarp": {
+          "import_ms": 77.5839,
+          "start_ms": 14.140500000000031,
+          "mean_ms": 12.996625000000003,
+          "p95_ms": 13.016899999999964,
+          "peak_rss_bytes": 77168640
+        }
+      },
+      "runs": [
+        {
+          "repeat": 0,
+          "order": [
+            "nekoc",
+            "turbowarp"
+          ],
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "import_ms": 1.7773999999999999,
+              "start_ms": 0.0176,
+              "mean_ms": 0.14702666666666664,
+              "p95_ms": 0.1578,
+              "peak_rss_bytes": 8409088,
+              "variables": {
+                "depth": 0,
+                "log": {
+                  "type": "string",
+                  "length": 16000,
+                  "sha256": "4bed322d925dc7d7ef9f2e9280c7a3086234ec32ede33cbc41f264b5b5feefd7"
+                },
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1
+            },
+            "turbowarp": {
+              "status": "ok",
+              "import_ms": 78.16389999999998,
+              "start_ms": 14.140500000000031,
+              "mean_ms": 12.996625000000003,
+              "p95_ms": 13.016899999999964,
+              "peak_rss_bytes": 77176832,
+              "variables": {
+                "log": "00",
+                "depth": 0,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1,
+              "errors": [],
+              "compiled_threads": 71,
+              "interpreted_threads": 0,
+              "current_step_time_ms": 16.666666666666668,
+              "unknown_opcodes": [],
+              "stderr_sha256": "12b7216f21b897f02cbeb07116d34c9865e2da139e36a813d2717dbbd605d949"
+            }
+          },
+          "comparison": {
+            "variables_equal": false,
+            "status": "不可比",
+            "reason": "final variable/type/list mismatch"
+          }
+        },
+        {
+          "repeat": 1,
+          "order": [
+            "turbowarp",
+            "nekoc"
+          ],
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "import_ms": 1.8344,
+              "start_ms": 0.0177,
+              "mean_ms": 0.15780333333333335,
+              "p95_ms": 0.1786,
+              "peak_rss_bytes": 8372224,
+              "variables": {
+                "depth": 0,
+                "log": {
+                  "type": "string",
+                  "length": 16000,
+                  "sha256": "4bed322d925dc7d7ef9f2e9280c7a3086234ec32ede33cbc41f264b5b5feefd7"
+                },
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1
+            },
+            "turbowarp": {
+              "status": "ok",
+              "import_ms": 75.4195,
+              "start_ms": 14.377800000000036,
+              "mean_ms": 12.99662,
+              "p95_ms": 13.01130000000012,
+              "peak_rss_bytes": 77168640,
+              "variables": {
+                "log": "00",
+                "depth": 0,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1,
+              "errors": [],
+              "compiled_threads": 71,
+              "interpreted_threads": 0,
+              "current_step_time_ms": 16.666666666666668,
+              "unknown_opcodes": [],
+              "stderr_sha256": "12b7216f21b897f02cbeb07116d34c9865e2da139e36a813d2717dbbd605d949"
+            }
+          },
+          "comparison": {
+            "variables_equal": false,
+            "status": "不可比",
+            "reason": "final variable/type/list mismatch"
+          }
+        },
+        {
+          "repeat": 2,
+          "order": [
+            "nekoc",
+            "turbowarp"
+          ],
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "import_ms": 1.8657000000000001,
+              "start_ms": 0.017900000000000003,
+              "mean_ms": 0.15495666666666666,
+              "p95_ms": 0.161,
+              "peak_rss_bytes": 8364032,
+              "variables": {
+                "depth": 0,
+                "log": {
+                  "type": "string",
+                  "length": 16000,
+                  "sha256": "4bed322d925dc7d7ef9f2e9280c7a3086234ec32ede33cbc41f264b5b5feefd7"
+                },
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1
+            },
+            "turbowarp": {
+              "status": "ok",
+              "import_ms": 77.5839,
+              "start_ms": 13.347800000000007,
+              "mean_ms": 12.997113333333344,
+              "p95_ms": 13.02959999999996,
+              "peak_rss_bytes": 76705792,
+              "variables": {
+                "log": "00",
+                "depth": 0,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1,
+              "errors": [],
+              "compiled_threads": 71,
+              "interpreted_threads": 0,
+              "current_step_time_ms": 16.666666666666668,
+              "unknown_opcodes": [],
+              "stderr_sha256": "12b7216f21b897f02cbeb07116d34c9865e2da139e36a813d2717dbbd605d949"
+            }
+          },
+          "comparison": {
+            "variables_equal": false,
+            "status": "不可比",
+            "reason": "final variable/type/list mismatch"
+          }
+        }
+      ]
+    },
+    {
+      "format": "k4",
+      "name": "clones",
+      "input_sha256": "53cb1f5ea9eb6b0a2b2bb1b520304742bf2a9c331c278ee6405e51e62a5ca93b",
+      "sb3_sha256": "135105875336b4753ff6fb50ba14c69d688b58d3f8d1f0b96801e0656b98d912",
+      "inspection": {
+        "blocks": 25,
+        "unsupported": [
+          "motion_align_scene"
+        ]
+      },
+      "convert_wall_ms": 164.0519000000022,
+      "metrics": {
+        "nekoc": {
+          "import_ms": 1.7224,
+          "start_ms": 0.0176,
+          "mean_ms": 0.2214866666666667,
+          "p95_ms": 0.2943,
+          "peak_rss_bytes": 8982528
+        },
+        "turbowarp": {
+          "import_ms": 77.80660000000003,
+          "start_ms": 12.827200000000005,
+          "mean_ms": 12.997011666666658,
+          "p95_ms": 13.017200000000003,
+          "peak_rss_bytes": 77197312
+        }
+      },
+      "runs": [
+        {
+          "repeat": 0,
+          "order": [
+            "nekoc",
+            "turbowarp"
+          ],
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "import_ms": 1.7224,
+              "start_ms": 0.0176,
+              "mean_ms": 0.2214966666666667,
+              "p95_ms": 0.2943,
+              "peak_rss_bytes": 8990720,
+              "variables": {
+                "depth": 0,
+                "log": 0,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 201
+            },
+            "turbowarp": {
+              "status": "ok",
+              "import_ms": 77.80660000000003,
+              "start_ms": 12.59699999999998,
+              "mean_ms": 12.997119999999995,
+              "p95_ms": 13.017200000000003,
+              "peak_rss_bytes": 77127680,
+              "variables": {
+                "log": 0,
+                "depth": 0,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1,
+              "errors": [],
+              "compiled_threads": 71,
+              "interpreted_threads": 0,
+              "current_step_time_ms": 16.666666666666668,
+              "unknown_opcodes": [],
+              "stderr_sha256": "057f1c05a308ca2d23e31529e6f61d56f42c3fad626fcf640b12154b046978e7"
+            }
+          },
+          "comparison": {
+            "variables_equal": true,
+            "status": "不可比",
+            "reason": "lossy warp placeholder / unsupported opcode / compile failure / no compiled thread"
+          }
+        },
+        {
+          "repeat": 1,
+          "order": [
+            "turbowarp",
+            "nekoc"
+          ],
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "import_ms": 1.8058,
+              "start_ms": 0.0183,
+              "mean_ms": 0.2214866666666667,
+              "p95_ms": 0.2563,
+              "peak_rss_bytes": 8921088,
+              "variables": {
+                "depth": 0,
+                "log": 0,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 201
+            },
+            "turbowarp": {
+              "status": "ok",
+              "import_ms": 75.4587,
+              "start_ms": 13.133399999999995,
+              "mean_ms": 12.997011666666658,
+              "p95_ms": 13.017100000000028,
+              "peak_rss_bytes": 77197312,
+              "variables": {
+                "log": 0,
+                "depth": 0,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1,
+              "errors": [],
+              "compiled_threads": 71,
+              "interpreted_threads": 0,
+              "current_step_time_ms": 16.666666666666668,
+              "unknown_opcodes": [],
+              "stderr_sha256": "057f1c05a308ca2d23e31529e6f61d56f42c3fad626fcf640b12154b046978e7"
+            }
+          },
+          "comparison": {
+            "variables_equal": true,
+            "status": "不可比",
+            "reason": "lossy warp placeholder / unsupported opcode / compile failure / no compiled thread"
+          }
+        },
+        {
+          "repeat": 2,
+          "order": [
+            "nekoc",
+            "turbowarp"
+          ],
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "import_ms": 1.6897,
+              "start_ms": 0.016900000000000002,
+              "mean_ms": 0.21976166666666666,
+              "p95_ms": 0.3074,
+              "peak_rss_bytes": 8982528,
+              "variables": {
+                "depth": 0,
+                "log": 0,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 201
+            },
+            "turbowarp": {
+              "status": "ok",
+              "import_ms": 79.60709999999997,
+              "start_ms": 12.827200000000005,
+              "mean_ms": 12.997009999999982,
+              "p95_ms": 13.030599999999936,
+              "peak_rss_bytes": 77447168,
+              "variables": {
+                "log": 0,
+                "depth": 0,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1,
+              "errors": [],
+              "compiled_threads": 71,
+              "interpreted_threads": 0,
+              "current_step_time_ms": 16.666666666666668,
+              "unknown_opcodes": [],
+              "stderr_sha256": "057f1c05a308ca2d23e31529e6f61d56f42c3fad626fcf640b12154b046978e7"
+            }
+          },
+          "comparison": {
+            "variables_equal": true,
+            "status": "不可比",
+            "reason": "lossy warp placeholder / unsupported opcode / compile failure / no compiled thread"
+          }
+        }
+      ]
+    },
+    {
+      "format": "k4",
+      "name": "broadcast",
+      "input_sha256": "6f5506974cddb58290d61bca847d5b4940c62d5e85f2e788bf0a1e113df95144",
+      "sb3_sha256": "ef5dee9dbca64520643266fd89faac493929eaa715ee03aba621041a0069d4da",
+      "inspection": {
+        "blocks": 119,
+        "unsupported": [
+          "motion_align_scene"
+        ]
+      },
+      "convert_wall_ms": 170.8234999999986,
+      "metrics": {
+        "nekoc": {
+          "import_ms": 2.7783,
+          "start_ms": 0.0184,
+          "mean_ms": 0.1964033333333333,
+          "p95_ms": 0.216,
+          "peak_rss_bytes": 11022336
+        },
+        "turbowarp": {
+          "import_ms": 80.46600000000001,
+          "start_ms": 13.234700000000032,
+          "mean_ms": 12.996413333333324,
+          "p95_ms": 13.020600000000059,
+          "peak_rss_bytes": 78225408
+        }
+      },
+      "runs": [
+        {
+          "repeat": 0,
+          "order": [
+            "nekoc",
+            "turbowarp"
+          ],
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "import_ms": 2.7783,
+              "start_ms": 0.0184,
+              "mean_ms": 0.19846000000000003,
+              "p95_ms": 0.2132,
+              "peak_rss_bytes": 11010048,
+              "variables": {
+                "depth": 0,
+                "log": 82800,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1
+            },
+            "turbowarp": {
+              "status": "ok",
+              "import_ms": 80.46600000000001,
+              "start_ms": 13.234700000000032,
+              "mean_ms": 12.996413333333324,
+              "p95_ms": 13.039199999999937,
+              "peak_rss_bytes": 78872576,
+              "variables": {
+                "log": 0,
+                "depth": 0,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1,
+              "errors": [],
+              "compiled_threads": 71,
+              "interpreted_threads": 0,
+              "current_step_time_ms": 16.666666666666668,
+              "unknown_opcodes": [],
+              "stderr_sha256": "057f1c05a308ca2d23e31529e6f61d56f42c3fad626fcf640b12154b046978e7"
+            }
+          },
+          "comparison": {
+            "variables_equal": false,
+            "status": "不可比",
+            "reason": "final variable/type/list mismatch"
+          }
+        },
+        {
+          "repeat": 1,
+          "order": [
+            "turbowarp",
+            "nekoc"
+          ],
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "import_ms": 2.8911000000000002,
+              "start_ms": 0.0191,
+              "mean_ms": 0.1964033333333333,
+              "p95_ms": 0.216,
+              "peak_rss_bytes": 11022336,
+              "variables": {
+                "depth": 0,
+                "log": 82800,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1
+            },
+            "turbowarp": {
+              "status": "ok",
+              "import_ms": 79.25470000000001,
+              "start_ms": 13.009799999999984,
+              "mean_ms": 12.99641166666668,
+              "p95_ms": 13.009999999999991,
+              "peak_rss_bytes": 78225408,
+              "variables": {
+                "log": 0,
+                "depth": 0,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1,
+              "errors": [],
+              "compiled_threads": 71,
+              "interpreted_threads": 0,
+              "current_step_time_ms": 16.666666666666668,
+              "unknown_opcodes": [],
+              "stderr_sha256": "057f1c05a308ca2d23e31529e6f61d56f42c3fad626fcf640b12154b046978e7"
+            }
+          },
+          "comparison": {
+            "variables_equal": false,
+            "status": "不可比",
+            "reason": "final variable/type/list mismatch"
+          }
+        },
+        {
+          "repeat": 2,
+          "order": [
+            "nekoc",
+            "turbowarp"
+          ],
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "import_ms": 2.7704,
+              "start_ms": 0.0165,
+              "mean_ms": 0.19175666666666663,
+              "p95_ms": 0.22240000000000001,
+              "peak_rss_bytes": 11030528,
+              "variables": {
+                "depth": 0,
+                "log": 82800,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1
+            },
+            "turbowarp": {
+              "status": "ok",
+              "import_ms": 82.4822,
+              "start_ms": 13.388700000000028,
+              "mean_ms": 12.996930000000011,
+              "p95_ms": 13.020600000000059,
+              "peak_rss_bytes": 78069760,
+              "variables": {
+                "log": 0,
+                "depth": 0,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1,
+              "errors": [],
+              "compiled_threads": 71,
+              "interpreted_threads": 0,
+              "current_step_time_ms": 16.666666666666668,
+              "unknown_opcodes": [],
+              "stderr_sha256": "057f1c05a308ca2d23e31529e6f61d56f42c3fad626fcf640b12154b046978e7"
+            }
+          },
+          "comparison": {
+            "variables_equal": false,
+            "status": "不可比",
+            "reason": "final variable/type/list mismatch"
+          }
+        }
+      ]
+    },
+    {
+      "format": "k4",
+      "name": "recursion",
+      "input_sha256": "68ed04948193702ee49ad2002f691028b1257878a859dc88b3cc389815128b67",
+      "sb3_sha256": "6f3dbbf9fe546483e0a3638b81c99f6ed0e82cc4cc5f2646bfacbb1be577b393",
+      "inspection": {
+        "blocks": 77,
+        "unsupported": [
+          "motion_align_scene"
+        ]
+      },
+      "convert_wall_ms": 168.89940000000206,
+      "metrics": {
+        "nekoc": {
+          "import_ms": 2.1099,
+          "start_ms": 0.016399999999999998,
+          "mean_ms": 0.03847166666666668,
+          "p95_ms": 0.0239,
+          "peak_rss_bytes": 9302016
+        },
+        "turbowarp": {
+          "import_ms": 78.20740000000004,
+          "start_ms": 14.24739999999997,
+          "mean_ms": 12.996555000000003,
+          "p95_ms": 13.016899999999964,
+          "peak_rss_bytes": 77758464
+        }
+      },
+      "runs": [
+        {
+          "repeat": 0,
+          "order": [
+            "nekoc",
+            "turbowarp"
+          ],
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "import_ms": 1.9193,
+              "start_ms": 0.0165,
+              "mean_ms": 0.03847166666666668,
+              "p95_ms": 0.027100000000000003,
+              "peak_rss_bytes": 9297920,
+              "variables": {
+                "depth": 0,
+                "log": 56000,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1
+            },
+            "turbowarp": {
+              "status": "ok",
+              "import_ms": 78.20740000000004,
+              "start_ms": 13.695500000000038,
+              "mean_ms": 12.996555000000003,
+              "p95_ms": 13.016899999999964,
+              "peak_rss_bytes": 77656064,
+              "variables": {
+                "log": 11536375,
+                "depth": 0,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1,
+              "errors": [],
+              "compiled_threads": 71,
+              "interpreted_threads": 0,
+              "current_step_time_ms": 16.666666666666668,
+              "unknown_opcodes": [],
+              "stderr_sha256": "057f1c05a308ca2d23e31529e6f61d56f42c3fad626fcf640b12154b046978e7"
+            }
+          },
+          "comparison": {
+            "variables_equal": false,
+            "status": "不可比",
+            "reason": "final variable/type/list mismatch"
+          }
+        },
+        {
+          "repeat": 1,
+          "order": [
+            "turbowarp",
+            "nekoc"
+          ],
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "import_ms": 2.1099,
+              "start_ms": 0.016399999999999998,
+              "mean_ms": 0.03629,
+              "p95_ms": 0.0239,
+              "peak_rss_bytes": 9302016,
+              "variables": {
+                "depth": 0,
+                "log": 56000,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1
+            },
+            "turbowarp": {
+              "status": "ok",
+              "import_ms": 78.042,
+              "start_ms": 14.24739999999997,
+              "mean_ms": 12.996880000000004,
+              "p95_ms": 13.009000000000015,
+              "peak_rss_bytes": 78180352,
+              "variables": {
+                "log": 11317248,
+                "depth": 0,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1,
+              "errors": [],
+              "compiled_threads": 71,
+              "interpreted_threads": 0,
+              "current_step_time_ms": 16.666666666666668,
+              "unknown_opcodes": [],
+              "stderr_sha256": "057f1c05a308ca2d23e31529e6f61d56f42c3fad626fcf640b12154b046978e7"
+            }
+          },
+          "comparison": {
+            "variables_equal": false,
+            "status": "不可比",
+            "reason": "final variable/type/list mismatch"
+          }
+        },
+        {
+          "repeat": 2,
+          "order": [
+            "nekoc",
+            "turbowarp"
+          ],
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "import_ms": 2.3432,
+              "start_ms": 0.0163,
+              "mean_ms": 0.039029999999999995,
+              "p95_ms": 0.0234,
+              "peak_rss_bytes": 9314304,
+              "variables": {
+                "depth": 0,
+                "log": 56000,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1
+            },
+            "turbowarp": {
+              "status": "ok",
+              "import_ms": 79.70219999999998,
+              "start_ms": 14.810100000000034,
+              "mean_ms": 12.996361666666662,
+              "p95_ms": 13.049099999999953,
+              "peak_rss_bytes": 77758464,
+              "variables": {
+                "log": 11436029,
+                "depth": 0,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1,
+              "errors": [],
+              "compiled_threads": 71,
+              "interpreted_threads": 0,
+              "current_step_time_ms": 16.666666666666668,
+              "unknown_opcodes": [],
+              "stderr_sha256": "057f1c05a308ca2d23e31529e6f61d56f42c3fad626fcf640b12154b046978e7"
+            }
+          },
+          "comparison": {
+            "variables_equal": false,
+            "status": "不可比",
+            "reason": "final variable/type/list mismatch"
+          }
+        }
+      ]
+    },
+    {
+      "format": "k4",
+      "name": "pen",
+      "input_sha256": "be116aa92710dc61c5a65f65f672d829ef89853db17b6178101938fdac92d282",
+      "sb3_sha256": "61678769eb5bcd4fabdb2275ed0513bfc0e6a8d82deebe74d1bac8e40796a880",
+      "inspection": {
+        "blocks": 32,
+        "unsupported": [
+          "motion_align_scene"
+        ]
+      },
+      "convert_wall_ms": 164.96889999999985,
+      "metrics": {
+        "nekoc": {
+          "import_ms": 1.8027,
+          "start_ms": 0.0165,
+          "mean_ms": 0.08305333333333337,
+          "p95_ms": 0.0992,
+          "peak_rss_bytes": 8949760
+        },
+        "turbowarp": {
+          "import_ms": 83.84639999999999,
+          "start_ms": 13.201700000000017,
+          "mean_ms": 12.997034999999999,
+          "p95_ms": 13.018500000000131,
+          "peak_rss_bytes": 77553664
+        }
+      },
+      "runs": [
+        {
+          "repeat": 0,
+          "order": [
+            "nekoc",
+            "turbowarp"
+          ],
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "import_ms": 1.8027,
+              "start_ms": 0.0177,
+              "mean_ms": 0.08166333333333338,
+              "p95_ms": 0.0882,
+              "peak_rss_bytes": 8957952,
+              "variables": {
+                "depth": 0,
+                "log": 280000,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1
+            },
+            "turbowarp": {
+              "status": "ok",
+              "import_ms": 83.84639999999999,
+              "start_ms": 13.201700000000017,
+              "mean_ms": 12.997300000000001,
+              "p95_ms": 13.018500000000131,
+              "peak_rss_bytes": 77398016,
+              "variables": {
+                "log": 14920673,
+                "depth": 0,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1,
+              "errors": [],
+              "compiled_threads": 71,
+              "interpreted_threads": 0,
+              "current_step_time_ms": 16.666666666666668,
+              "unknown_opcodes": [],
+              "stderr_sha256": "057f1c05a308ca2d23e31529e6f61d56f42c3fad626fcf640b12154b046978e7"
+            }
+          },
+          "comparison": {
+            "variables_equal": false,
+            "status": "不可比",
+            "reason": "final variable/type/list mismatch"
+          }
+        },
+        {
+          "repeat": 1,
+          "order": [
+            "turbowarp",
+            "nekoc"
+          ],
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "import_ms": 1.7822,
+              "start_ms": 0.016399999999999998,
+              "mean_ms": 0.08621999999999999,
+              "p95_ms": 0.1036,
+              "peak_rss_bytes": 8949760,
+              "variables": {
+                "depth": 0,
+                "log": 280000,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1
+            },
+            "turbowarp": {
+              "status": "ok",
+              "import_ms": 82.1603,
+              "start_ms": 13.967899999999986,
+              "mean_ms": 12.997034999999999,
+              "p95_ms": 13.015800000000013,
+              "peak_rss_bytes": 77996032,
+              "variables": {
+                "log": 15426586,
+                "depth": 0,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1,
+              "errors": [],
+              "compiled_threads": 71,
+              "interpreted_threads": 0,
+              "current_step_time_ms": 16.666666666666668,
+              "unknown_opcodes": [],
+              "stderr_sha256": "057f1c05a308ca2d23e31529e6f61d56f42c3fad626fcf640b12154b046978e7"
+            }
+          },
+          "comparison": {
+            "variables_equal": false,
+            "status": "不可比",
+            "reason": "final variable/type/list mismatch"
+          }
+        },
+        {
+          "repeat": 2,
+          "order": [
+            "nekoc",
+            "turbowarp"
+          ],
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "import_ms": 1.9622,
+              "start_ms": 0.0165,
+              "mean_ms": 0.08305333333333337,
+              "p95_ms": 0.0992,
+              "peak_rss_bytes": 8945664,
+              "variables": {
+                "depth": 0,
+                "log": 280000,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1
+            },
+            "turbowarp": {
+              "status": "ok",
+              "import_ms": 84.49249999999998,
+              "start_ms": 13.108799999999974,
+              "mean_ms": 12.996504999999988,
+              "p95_ms": 13.039099999999962,
+              "peak_rss_bytes": 77553664,
+              "variables": {
+                "log": 15345138,
+                "depth": 0,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1,
+              "errors": [],
+              "compiled_threads": 71,
+              "interpreted_threads": 0,
+              "current_step_time_ms": 16.666666666666668,
+              "unknown_opcodes": [],
+              "stderr_sha256": "057f1c05a308ca2d23e31529e6f61d56f42c3fad626fcf640b12154b046978e7"
+            }
+          },
+          "comparison": {
+            "variables_equal": false,
+            "status": "不可比",
+            "reason": "final variable/type/list mismatch"
+          }
+        }
+      ]
+    },
+    {
+      "format": "kn",
+      "name": "numeric",
+      "input_sha256": "f00a2779ff75eedd1e74d2a9bda50045e3fd14710111d1e404e15295d9807b54",
+      "sb3_sha256": "dafa89f25860db0013a9c9f713e8f7a79acc1275703c2a2a29d4aeaa395e4d9f",
+      "inspection": {
+        "blocks": 25,
+        "unsupported": [
+          "motion_align_scene"
+        ]
+      },
+      "convert_wall_ms": 159.6067000000039,
+      "metrics": {
+        "nekoc": {
+          "import_ms": 0.7168,
+          "start_ms": 0.017900000000000003,
+          "mean_ms": 0.02681500000000001,
+          "p95_ms": 0.0339,
+          "peak_rss_bytes": 7335936
+        },
+        "turbowarp": {
+          "import_ms": 77.16870000000003,
+          "start_ms": 12.692900000000009,
+          "mean_ms": 12.996673333333336,
+          "p95_ms": 13.018500000000017,
+          "peak_rss_bytes": 76615680
+        }
+      },
+      "runs": [
+        {
+          "repeat": 0,
+          "order": [
+            "nekoc",
+            "turbowarp"
+          ],
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "import_ms": 0.7168,
+              "start_ms": 0.017900000000000003,
+              "mean_ms": 0.02681500000000001,
+              "p95_ms": 0.0301,
+              "peak_rss_bytes": 7303168,
+              "variables": {
+                "depth": 0,
+                "log": 998.9999999999424,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1
+            },
+            "turbowarp": {
+              "status": "ok",
+              "import_ms": 77.30829999999997,
+              "start_ms": 12.692900000000009,
+              "mean_ms": 12.998063333333329,
+              "p95_ms": 13.010899999999992,
+              "peak_rss_bytes": 76877824,
+              "variables": {
+                "log": 0,
+                "depth": 0,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1,
+              "errors": [],
+              "compiled_threads": 71,
+              "interpreted_threads": 0,
+              "current_step_time_ms": 16.666666666666668,
+              "unknown_opcodes": [],
+              "stderr_sha256": "53c0627192f2aa3e75e97e69b204ec4ac79eb8d932c2a9eb4a94095b5a1dcef8"
+            }
+          },
+          "comparison": {
+            "variables_equal": false,
+            "status": "不可比",
+            "reason": "final variable/type/list mismatch"
+          }
+        },
+        {
+          "repeat": 1,
+          "order": [
+            "turbowarp",
+            "nekoc"
+          ],
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "import_ms": 0.821,
+              "start_ms": 0.017,
+              "mean_ms": 0.029153333333333347,
+              "p95_ms": 0.0339,
+              "peak_rss_bytes": 7335936,
+              "variables": {
+                "depth": 0,
+                "log": 998.9999999999424,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1
+            },
+            "turbowarp": {
+              "status": "ok",
+              "import_ms": 77.16870000000003,
+              "start_ms": 12.517600000000016,
+              "mean_ms": 12.996673333333336,
+              "p95_ms": 13.030300000000011,
+              "peak_rss_bytes": 76615680,
+              "variables": {
+                "log": 0,
+                "depth": 0,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1,
+              "errors": [],
+              "compiled_threads": 71,
+              "interpreted_threads": 0,
+              "current_step_time_ms": 16.666666666666668,
+              "unknown_opcodes": [],
+              "stderr_sha256": "53c0627192f2aa3e75e97e69b204ec4ac79eb8d932c2a9eb4a94095b5a1dcef8"
+            }
+          },
+          "comparison": {
+            "variables_equal": false,
+            "status": "不可比",
+            "reason": "final variable/type/list mismatch"
+          }
+        },
+        {
+          "repeat": 2,
+          "order": [
+            "nekoc",
+            "turbowarp"
+          ],
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "import_ms": 0.6974,
+              "start_ms": 0.0184,
+              "mean_ms": 0.026288333333333327,
+              "p95_ms": 0.0387,
+              "peak_rss_bytes": 7340032,
+              "variables": {
+                "depth": 0,
+                "log": 998.9999999999424,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1
+            },
+            "turbowarp": {
+              "status": "ok",
+              "import_ms": 76.64959999999999,
+              "start_ms": 13.401100000000042,
+              "mean_ms": 12.996299999999998,
+              "p95_ms": 13.018500000000017,
+              "peak_rss_bytes": 76529664,
+              "variables": {
+                "log": 0,
+                "depth": 0,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1,
+              "errors": [],
+              "compiled_threads": 71,
+              "interpreted_threads": 0,
+              "current_step_time_ms": 16.666666666666668,
+              "unknown_opcodes": [],
+              "stderr_sha256": "53c0627192f2aa3e75e97e69b204ec4ac79eb8d932c2a9eb4a94095b5a1dcef8"
+            }
+          },
+          "comparison": {
+            "variables_equal": false,
+            "status": "不可比",
+            "reason": "final variable/type/list mismatch"
+          }
+        }
+      ]
+    },
+    {
+      "format": "kn",
+      "name": "list",
+      "input_sha256": "9c6cf54bbc555256e5f1bea1a9d53799d6a75282a68111d49942ce9e10ae5387",
+      "sb3_sha256": "1ead88a6ea21d1cc1b8218c44204a1de4a34fbdda342005c6ec3b5e8de5afbb0",
+      "inspection": {
+        "blocks": 31,
+        "unsupported": [
+          "motion_align_scene"
+        ]
+      },
+      "convert_wall_ms": 163.49270000000251,
+      "metrics": {
+        "nekoc": {
+          "import_ms": 0.7655,
+          "start_ms": 0.0161,
+          "mean_ms": 0.23393666666666665,
+          "p95_ms": 0.2535,
+          "peak_rss_bytes": 7585792
+        },
+        "turbowarp": {
+          "import_ms": 77.83409999999998,
+          "start_ms": 13.278399999999976,
+          "mean_ms": 12.996121666666664,
+          "p95_ms": 13.011099999999942,
+          "peak_rss_bytes": 77017088
+        }
+      },
+      "runs": [
+        {
+          "repeat": 0,
+          "order": [
+            "nekoc",
+            "turbowarp"
+          ],
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "import_ms": 0.7655,
+              "start_ms": 0.0156,
+              "mean_ms": 0.23393666666666665,
+              "p95_ms": 0.3043,
+              "peak_rss_bytes": 7585792,
+              "variables": {
+                "depth": 0,
+                "log": 1,
+                "result": {
+                  "type": "list",
+                  "length": 1000,
+                  "sha256": "2d95b582a41ce2d9b9197d52bc0de3b041234c65895f8e0e384965427064d34b"
+                }
+              },
+              "actor_count": 1
+            },
+            "turbowarp": {
+              "status": "ok",
+              "import_ms": 77.7843,
+              "start_ms": 13.278399999999976,
+              "mean_ms": 12.996121666666664,
+              "p95_ms": 13.011300000000006,
+              "peak_rss_bytes": 77066240,
+              "variables": {
+                "log": 0,
+                "depth": 0,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1,
+              "errors": [],
+              "compiled_threads": 71,
+              "interpreted_threads": 0,
+              "current_step_time_ms": 16.666666666666668,
+              "unknown_opcodes": [],
+              "stderr_sha256": "53c0627192f2aa3e75e97e69b204ec4ac79eb8d932c2a9eb4a94095b5a1dcef8"
+            }
+          },
+          "comparison": {
+            "variables_equal": false,
+            "status": "不可比",
+            "reason": "final variable/type/list mismatch"
+          }
+        },
+        {
+          "repeat": 1,
+          "order": [
+            "turbowarp",
+            "nekoc"
+          ],
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "import_ms": 0.8180999999999999,
+              "start_ms": 0.0276,
+              "mean_ms": 0.2342416666666668,
+              "p95_ms": 0.24810000000000001,
+              "peak_rss_bytes": 7581696,
+              "variables": {
+                "depth": 0,
+                "log": 1,
+                "result": {
+                  "type": "list",
+                  "length": 1000,
+                  "sha256": "2d95b582a41ce2d9b9197d52bc0de3b041234c65895f8e0e384965427064d34b"
+                }
+              },
+              "actor_count": 1
+            },
+            "turbowarp": {
+              "status": "ok",
+              "import_ms": 78.24010000000001,
+              "start_ms": 12.593899999999962,
+              "mean_ms": 12.996778333333323,
+              "p95_ms": 13.006500000000074,
+              "peak_rss_bytes": 77017088,
+              "variables": {
+                "log": 0,
+                "depth": 0,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1,
+              "errors": [],
+              "compiled_threads": 71,
+              "interpreted_threads": 0,
+              "current_step_time_ms": 16.666666666666668,
+              "unknown_opcodes": [],
+              "stderr_sha256": "53c0627192f2aa3e75e97e69b204ec4ac79eb8d932c2a9eb4a94095b5a1dcef8"
+            }
+          },
+          "comparison": {
+            "variables_equal": false,
+            "status": "不可比",
+            "reason": "final variable/type/list mismatch"
+          }
+        },
+        {
+          "repeat": 2,
+          "order": [
+            "nekoc",
+            "turbowarp"
+          ],
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "import_ms": 0.7594000000000001,
+              "start_ms": 0.0161,
+              "mean_ms": 0.2240316666666666,
+              "p95_ms": 0.2535,
+              "peak_rss_bytes": 7593984,
+              "variables": {
+                "depth": 0,
+                "log": 1,
+                "result": {
+                  "type": "list",
+                  "length": 1000,
+                  "sha256": "2d95b582a41ce2d9b9197d52bc0de3b041234c65895f8e0e384965427064d34b"
+                }
+              },
+              "actor_count": 1
+            },
+            "turbowarp": {
+              "status": "ok",
+              "import_ms": 77.83409999999998,
+              "start_ms": 13.389900000000011,
+              "mean_ms": 12.995945,
+              "p95_ms": 13.011099999999942,
+              "peak_rss_bytes": 76910592,
+              "variables": {
+                "log": 0,
+                "depth": 0,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1,
+              "errors": [],
+              "compiled_threads": 71,
+              "interpreted_threads": 0,
+              "current_step_time_ms": 16.666666666666668,
+              "unknown_opcodes": [],
+              "stderr_sha256": "53c0627192f2aa3e75e97e69b204ec4ac79eb8d932c2a9eb4a94095b5a1dcef8"
+            }
+          },
+          "comparison": {
+            "variables_equal": false,
+            "status": "不可比",
+            "reason": "final variable/type/list mismatch"
+          }
+        }
+      ]
+    },
+    {
+      "format": "kn",
+      "name": "string",
+      "input_sha256": "fd121e7a188faf85d93ba932ebd8cba75f1bd2d74de66a453ee5139beb70b8d3",
+      "sb3_sha256": "ba49169949d74f5bf50d6c9fbb579f2fff1aec9f0405a0f26a63ac32cf60432b",
+      "inspection": {
+        "blocks": 25,
+        "unsupported": [
+          "motion_align_scene"
+        ]
+      },
+      "convert_wall_ms": 174.2841000000044,
+      "metrics": {
+        "nekoc": {
+          "import_ms": 0.7437,
+          "start_ms": 0.0166,
+          "mean_ms": 0.16196166666666667,
+          "p95_ms": 0.19349999999999998,
+          "peak_rss_bytes": 7434240
+        },
+        "turbowarp": {
+          "import_ms": 88.54699999999997,
+          "start_ms": 13.324200000000019,
+          "mean_ms": 12.996461666666672,
+          "p95_ms": 13.01559999999995,
+          "peak_rss_bytes": 76914688
+        }
+      },
+      "runs": [
+        {
+          "repeat": 0,
+          "order": [
+            "nekoc",
+            "turbowarp"
+          ],
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "import_ms": 0.7781,
+              "start_ms": 0.0166,
+              "mean_ms": 0.17797333333333334,
+              "p95_ms": 0.2571,
+              "peak_rss_bytes": 7434240,
+              "variables": {
+                "depth": 0,
+                "log": {
+                  "type": "string",
+                  "length": 16000,
+                  "sha256": "4bed322d925dc7d7ef9f2e9280c7a3086234ec32ede33cbc41f264b5b5feefd7"
+                },
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1
+            },
+            "turbowarp": {
+              "status": "ok",
+              "import_ms": 93.85499999999999,
+              "start_ms": 23.044099999999958,
+              "mean_ms": 12.995141666666662,
+              "p95_ms": 13.037800000000004,
+              "peak_rss_bytes": 77557760,
+              "variables": {
+                "log": 0,
+                "depth": 0,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1,
+              "errors": [],
+              "compiled_threads": 71,
+              "interpreted_threads": 0,
+              "current_step_time_ms": 16.666666666666668,
+              "unknown_opcodes": [],
+              "stderr_sha256": "53c0627192f2aa3e75e97e69b204ec4ac79eb8d932c2a9eb4a94095b5a1dcef8"
+            }
+          },
+          "comparison": {
+            "variables_equal": false,
+            "status": "不可比",
+            "reason": "final variable/type/list mismatch"
+          }
+        },
+        {
+          "repeat": 1,
+          "order": [
+            "turbowarp",
+            "nekoc"
+          ],
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "import_ms": 0.7134,
+              "start_ms": 0.017499999999999998,
+              "mean_ms": 0.16196166666666667,
+              "p95_ms": 0.19349999999999998,
+              "peak_rss_bytes": 7430144,
+              "variables": {
+                "depth": 0,
+                "log": {
+                  "type": "string",
+                  "length": 16000,
+                  "sha256": "4bed322d925dc7d7ef9f2e9280c7a3086234ec32ede33cbc41f264b5b5feefd7"
+                },
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1
+            },
+            "turbowarp": {
+              "status": "ok",
+              "import_ms": 76.4614,
+              "start_ms": 12.303600000000017,
+              "mean_ms": 12.99690833333333,
+              "p95_ms": 13.01559999999995,
+              "peak_rss_bytes": 76914688,
+              "variables": {
+                "log": 0,
+                "depth": 0,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1,
+              "errors": [],
+              "compiled_threads": 71,
+              "interpreted_threads": 0,
+              "current_step_time_ms": 16.666666666666668,
+              "unknown_opcodes": [],
+              "stderr_sha256": "53c0627192f2aa3e75e97e69b204ec4ac79eb8d932c2a9eb4a94095b5a1dcef8"
+            }
+          },
+          "comparison": {
+            "variables_equal": false,
+            "status": "不可比",
+            "reason": "final variable/type/list mismatch"
+          }
+        },
+        {
+          "repeat": 2,
+          "order": [
+            "nekoc",
+            "turbowarp"
+          ],
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "import_ms": 0.7437,
+              "start_ms": 0.0165,
+              "mean_ms": 0.16041833333333336,
+              "p95_ms": 0.1641,
+              "peak_rss_bytes": 7458816,
+              "variables": {
+                "depth": 0,
+                "log": {
+                  "type": "string",
+                  "length": 16000,
+                  "sha256": "4bed322d925dc7d7ef9f2e9280c7a3086234ec32ede33cbc41f264b5b5feefd7"
+                },
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1
+            },
+            "turbowarp": {
+              "status": "ok",
+              "import_ms": 88.54699999999997,
+              "start_ms": 13.324200000000019,
+              "mean_ms": 12.996461666666672,
+              "p95_ms": 13.007599999999911,
+              "peak_rss_bytes": 76898304,
+              "variables": {
+                "log": 0,
+                "depth": 0,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1,
+              "errors": [],
+              "compiled_threads": 71,
+              "interpreted_threads": 0,
+              "current_step_time_ms": 16.666666666666668,
+              "unknown_opcodes": [],
+              "stderr_sha256": "53c0627192f2aa3e75e97e69b204ec4ac79eb8d932c2a9eb4a94095b5a1dcef8"
+            }
+          },
+          "comparison": {
+            "variables_equal": false,
+            "status": "不可比",
+            "reason": "final variable/type/list mismatch"
+          }
+        }
+      ]
+    },
+    {
+      "format": "kn",
+      "name": "clones",
+      "input_sha256": "5749bf64af9266e61ddb5bdb68d510a85d5bc057e981b03138e21be4d8ad67ef",
+      "sb3_sha256": "9f9aff4155ea703a76f1452754959e95552355d3e4d1be8afc301058ad2e1186",
+      "inspection": {
+        "blocks": 22,
+        "unsupported": [
+          "motion_align_scene"
+        ]
+      },
+      "convert_wall_ms": 161.98970000000554,
+      "metrics": {
+        "nekoc": {
+          "import_ms": 0.7642,
+          "start_ms": 0.017,
+          "mean_ms": 0.12973,
+          "p95_ms": 0.1627,
+          "peak_rss_bytes": 7471104
+        },
+        "turbowarp": {
+          "import_ms": 79.40289999999999,
+          "start_ms": 13.32929999999999,
+          "mean_ms": 12.996638333333342,
+          "p95_ms": 13.019799999999918,
+          "peak_rss_bytes": 77017088
+        }
+      },
+      "runs": [
+        {
+          "repeat": 0,
+          "order": [
+            "nekoc",
+            "turbowarp"
+          ],
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "import_ms": 0.6673,
+              "start_ms": 0.017,
+              "mean_ms": 0.13566833333333334,
+              "p95_ms": 0.1729,
+              "peak_rss_bytes": 7471104,
+              "variables": {
+                "depth": 0,
+                "log": 0,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1
+            },
+            "turbowarp": {
+              "status": "ok",
+              "import_ms": 82.21460000000002,
+              "start_ms": 12.733099999999979,
+              "mean_ms": 12.996638333333342,
+              "p95_ms": 13.027599999999893,
+              "peak_rss_bytes": 76832768,
+              "variables": {
+                "log": 0,
+                "depth": 0,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1,
+              "errors": [],
+              "compiled_threads": 71,
+              "interpreted_threads": 0,
+              "current_step_time_ms": 16.666666666666668,
+              "unknown_opcodes": [],
+              "stderr_sha256": "53c0627192f2aa3e75e97e69b204ec4ac79eb8d932c2a9eb4a94095b5a1dcef8"
+            }
+          },
+          "comparison": {
+            "variables_equal": true,
+            "status": "不可比",
+            "reason": "lossy warp placeholder / unsupported opcode / compile failure / no compiled thread"
+          }
+        },
+        {
+          "repeat": 1,
+          "order": [
+            "turbowarp",
+            "nekoc"
+          ],
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "import_ms": 0.7642,
+              "start_ms": 0.0168,
+              "mean_ms": 0.12973,
+              "p95_ms": 0.1627,
+              "peak_rss_bytes": 7503872,
+              "variables": {
+                "depth": 0,
+                "log": 0,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1
+            },
+            "turbowarp": {
+              "status": "ok",
+              "import_ms": 74.69559999999998,
+              "start_ms": 13.32929999999999,
+              "mean_ms": 12.996478333333338,
+              "p95_ms": 13.014499999999998,
+              "peak_rss_bytes": 77455360,
+              "variables": {
+                "log": 0,
+                "depth": 0,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1,
+              "errors": [],
+              "compiled_threads": 71,
+              "interpreted_threads": 0,
+              "current_step_time_ms": 16.666666666666668,
+              "unknown_opcodes": [],
+              "stderr_sha256": "53c0627192f2aa3e75e97e69b204ec4ac79eb8d932c2a9eb4a94095b5a1dcef8"
+            }
+          },
+          "comparison": {
+            "variables_equal": true,
+            "status": "不可比",
+            "reason": "lossy warp placeholder / unsupported opcode / compile failure / no compiled thread"
+          }
+        },
+        {
+          "repeat": 2,
+          "order": [
+            "nekoc",
+            "turbowarp"
+          ],
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "import_ms": 0.8926999999999999,
+              "start_ms": 0.0172,
+              "mean_ms": 0.12182,
+              "p95_ms": 0.1522,
+              "peak_rss_bytes": 7467008,
+              "variables": {
+                "depth": 0,
+                "log": 0,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1
+            },
+            "turbowarp": {
+              "status": "ok",
+              "import_ms": 79.40289999999999,
+              "start_ms": 13.654100000000028,
+              "mean_ms": 12.996923333333326,
+              "p95_ms": 13.019799999999918,
+              "peak_rss_bytes": 77017088,
+              "variables": {
+                "log": 0,
+                "depth": 0,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1,
+              "errors": [],
+              "compiled_threads": 71,
+              "interpreted_threads": 0,
+              "current_step_time_ms": 16.666666666666668,
+              "unknown_opcodes": [],
+              "stderr_sha256": "53c0627192f2aa3e75e97e69b204ec4ac79eb8d932c2a9eb4a94095b5a1dcef8"
+            }
+          },
+          "comparison": {
+            "variables_equal": true,
+            "status": "不可比",
+            "reason": "lossy warp placeholder / unsupported opcode / compile failure / no compiled thread"
+          }
+        }
+      ]
+    },
+    {
+      "format": "kn",
+      "name": "broadcast",
+      "input_sha256": "a31b315960edd340608910ef1b63a57f22b76168953ceb3a05f176ad412ea80f",
+      "sb3_sha256": "cec4f9b82b962482beaa030154a2afb2d88b527ce295e4f981ddd6b6aca7c5e1",
+      "inspection": {
+        "blocks": 33,
+        "unsupported": [
+          "motion_align_scene"
+        ]
+      },
+      "convert_wall_ms": 173.85109999999986,
+      "metrics": {
+        "nekoc": {
+          "import_ms": 1.1065,
+          "start_ms": 0.0173,
+          "mean_ms": 0.15922666666666666,
+          "p95_ms": 0.1912,
+          "peak_rss_bytes": 8736768
+        },
+        "turbowarp": {
+          "import_ms": 76.35909999999998,
+          "start_ms": 12.78789999999998,
+          "mean_ms": 12.996618333333334,
+          "p95_ms": 13.015099999999961,
+          "peak_rss_bytes": 77086720
+        }
+      },
+      "runs": [
+        {
+          "repeat": 0,
+          "order": [
+            "nekoc",
+            "turbowarp"
+          ],
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "import_ms": 1.01,
+              "start_ms": 0.0173,
+              "mean_ms": 0.15661666666666665,
+              "p95_ms": 0.16449999999999998,
+              "peak_rss_bytes": 8695808,
+              "variables": {
+                "depth": 0,
+                "log": 84000,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1
+            },
+            "turbowarp": {
+              "status": "ok",
+              "import_ms": 75.97689999999997,
+              "start_ms": 13.100199999999973,
+              "mean_ms": 12.996618333333334,
+              "p95_ms": 13.01949999999988,
+              "peak_rss_bytes": 77086720,
+              "variables": {
+                "log": 0,
+                "depth": 0,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1,
+              "errors": [],
+              "compiled_threads": 71,
+              "interpreted_threads": 0,
+              "current_step_time_ms": 16.666666666666668,
+              "unknown_opcodes": [],
+              "stderr_sha256": "53c0627192f2aa3e75e97e69b204ec4ac79eb8d932c2a9eb4a94095b5a1dcef8"
+            }
+          },
+          "comparison": {
+            "variables_equal": false,
+            "status": "不可比",
+            "reason": "final variable/type/list mismatch"
+          }
+        },
+        {
+          "repeat": 1,
+          "order": [
+            "turbowarp",
+            "nekoc"
+          ],
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "import_ms": 1.1164,
+              "start_ms": 0.016900000000000002,
+              "mean_ms": 0.169995,
+              "p95_ms": 0.1912,
+              "peak_rss_bytes": 8740864,
+              "variables": {
+                "depth": 0,
+                "log": 84000,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1
+            },
+            "turbowarp": {
+              "status": "ok",
+              "import_ms": 77.70429999999999,
+              "start_ms": 12.716200000000015,
+              "mean_ms": 12.996668333333334,
+              "p95_ms": 13.015099999999961,
+              "peak_rss_bytes": 77115392,
+              "variables": {
+                "log": 0,
+                "depth": 0,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1,
+              "errors": [],
+              "compiled_threads": 71,
+              "interpreted_threads": 0,
+              "current_step_time_ms": 16.666666666666668,
+              "unknown_opcodes": [],
+              "stderr_sha256": "53c0627192f2aa3e75e97e69b204ec4ac79eb8d932c2a9eb4a94095b5a1dcef8"
+            }
+          },
+          "comparison": {
+            "variables_equal": false,
+            "status": "不可比",
+            "reason": "final variable/type/list mismatch"
+          }
+        },
+        {
+          "repeat": 2,
+          "order": [
+            "nekoc",
+            "turbowarp"
+          ],
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "import_ms": 1.1065,
+              "start_ms": 0.0173,
+              "mean_ms": 0.15922666666666666,
+              "p95_ms": 0.1963,
+              "peak_rss_bytes": 8736768,
+              "variables": {
+                "depth": 0,
+                "log": 84000,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1
+            },
+            "turbowarp": {
+              "status": "ok",
+              "import_ms": 76.35909999999998,
+              "start_ms": 12.78789999999998,
+              "mean_ms": 12.996158333333328,
+              "p95_ms": 13.013500000000022,
+              "peak_rss_bytes": 76652544,
+              "variables": {
+                "log": 0,
+                "depth": 0,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1,
+              "errors": [],
+              "compiled_threads": 71,
+              "interpreted_threads": 0,
+              "current_step_time_ms": 16.666666666666668,
+              "unknown_opcodes": [],
+              "stderr_sha256": "53c0627192f2aa3e75e97e69b204ec4ac79eb8d932c2a9eb4a94095b5a1dcef8"
+            }
+          },
+          "comparison": {
+            "variables_equal": false,
+            "status": "不可比",
+            "reason": "final variable/type/list mismatch"
+          }
+        }
+      ]
+    },
+    {
+      "format": "kn",
+      "name": "recursion",
+      "input_sha256": "4ac07cd722b7a60dd671c6a116ca53cb6aac912936de1353f75b6cfc0786ee7e",
+      "sb3_sha256": "d3ec8f85eb0f7682f31859b26f7bfde57816215ada519ad2016540da9502ec54",
+      "inspection": {
+        "blocks": 22,
+        "unsupported": [
+          "motion_align_scene"
+        ]
+      },
+      "convert_wall_ms": 189.63219999999274,
+      "metrics": {
+        "nekoc": {
+          "import_ms": 0.9036,
+          "start_ms": 0.0168,
+          "mean_ms": 0.029839999999999978,
+          "p95_ms": 0.019700000000000002,
+          "peak_rss_bytes": 8077312
+        },
+        "turbowarp": {
+          "import_ms": 76.42930000000001,
+          "start_ms": 12.949000000000012,
+          "mean_ms": 12.996591666666653,
+          "p95_ms": 13.008300000000077,
+          "peak_rss_bytes": 76926976
+        }
+      },
+      "runs": [
+        {
+          "repeat": 0,
+          "order": [
+            "nekoc",
+            "turbowarp"
+          ],
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "import_ms": 0.8308,
+              "start_ms": 0.0176,
+              "mean_ms": 0.02908166666666673,
+              "p95_ms": 0.0196,
+              "peak_rss_bytes": 8077312,
+              "variables": {
+                "depth": 0,
+                "log": 56000,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1
+            },
+            "turbowarp": {
+              "status": "ok",
+              "import_ms": 76.43650000000002,
+              "start_ms": 15.298000000000002,
+              "mean_ms": 12.996695000000008,
+              "p95_ms": 13.008300000000077,
+              "peak_rss_bytes": 77033472,
+              "variables": {
+                "log": 0,
+                "depth": 0,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1,
+              "errors": [],
+              "compiled_threads": 71,
+              "interpreted_threads": 0,
+              "current_step_time_ms": 16.666666666666668,
+              "unknown_opcodes": [],
+              "stderr_sha256": "53c0627192f2aa3e75e97e69b204ec4ac79eb8d932c2a9eb4a94095b5a1dcef8"
+            }
+          },
+          "comparison": {
+            "variables_equal": false,
+            "status": "不可比",
+            "reason": "final variable/type/list mismatch"
+          }
+        },
+        {
+          "repeat": 1,
+          "order": [
+            "turbowarp",
+            "nekoc"
+          ],
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "import_ms": 0.9569,
+              "start_ms": 0.0168,
+              "mean_ms": 0.0323983333333333,
+              "p95_ms": 0.022699999999999998,
+              "peak_rss_bytes": 8085504,
+              "variables": {
+                "depth": 0,
+                "log": 56000,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1
+            },
+            "turbowarp": {
+              "status": "ok",
+              "import_ms": 75.6978,
+              "start_ms": 12.544399999999996,
+              "mean_ms": 12.996591666666653,
+              "p95_ms": 13.011099999999942,
+              "peak_rss_bytes": 76926976,
+              "variables": {
+                "log": 0,
+                "depth": 0,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1,
+              "errors": [],
+              "compiled_threads": 71,
+              "interpreted_threads": 0,
+              "current_step_time_ms": 16.666666666666668,
+              "unknown_opcodes": [],
+              "stderr_sha256": "53c0627192f2aa3e75e97e69b204ec4ac79eb8d932c2a9eb4a94095b5a1dcef8"
+            }
+          },
+          "comparison": {
+            "variables_equal": false,
+            "status": "不可比",
+            "reason": "final variable/type/list mismatch"
+          }
+        },
+        {
+          "repeat": 2,
+          "order": [
+            "nekoc",
+            "turbowarp"
+          ],
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "import_ms": 0.9036,
+              "start_ms": 0.0159,
+              "mean_ms": 0.029839999999999978,
+              "p95_ms": 0.019700000000000002,
+              "peak_rss_bytes": 8069120,
+              "variables": {
+                "depth": 0,
+                "log": 56000,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1
+            },
+            "turbowarp": {
+              "status": "ok",
+              "import_ms": 76.42930000000001,
+              "start_ms": 12.949000000000012,
+              "mean_ms": 12.995644999999993,
+              "p95_ms": 13.006100000000004,
+              "peak_rss_bytes": 76808192,
+              "variables": {
+                "log": 0,
+                "depth": 0,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1,
+              "errors": [],
+              "compiled_threads": 71,
+              "interpreted_threads": 0,
+              "current_step_time_ms": 16.666666666666668,
+              "unknown_opcodes": [],
+              "stderr_sha256": "53c0627192f2aa3e75e97e69b204ec4ac79eb8d932c2a9eb4a94095b5a1dcef8"
+            }
+          },
+          "comparison": {
+            "variables_equal": false,
+            "status": "不可比",
+            "reason": "final variable/type/list mismatch"
+          }
+        }
+      ]
+    },
+    {
+      "format": "kn",
+      "name": "pen",
+      "input_sha256": "18e692cb3716029246cbf8ab9ce847933b1cfd0e9dc9e2e2be5d52d01d67a7a8",
+      "sb3_sha256": "2843e48d2856c31aaed8d23643f6bcddf4149f710aba6c663e81939e34f52e20",
+      "inspection": {
+        "blocks": 27,
+        "unsupported": [
+          "motion_align_scene"
+        ]
+      },
+      "convert_wall_ms": 166.453600000008,
+      "metrics": {
+        "nekoc": {
+          "import_ms": 0.7378,
+          "start_ms": 0.016900000000000002,
+          "mean_ms": 0.07180833333333335,
+          "p95_ms": 0.079,
+          "peak_rss_bytes": 7712768
+        },
+        "turbowarp": {
+          "import_ms": 83.58249999999998,
+          "start_ms": 12.885199999999998,
+          "mean_ms": 12.99655333333333,
+          "p95_ms": 13.011300000000006,
+          "peak_rss_bytes": 77193216
+        }
+      },
+      "runs": [
+        {
+          "repeat": 0,
+          "order": [
+            "nekoc",
+            "turbowarp"
+          ],
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "import_ms": 0.7378,
+              "start_ms": 0.016900000000000002,
+              "mean_ms": 0.06878666666666669,
+              "p95_ms": 0.0737,
+              "peak_rss_bytes": 7708672,
+              "variables": {
+                "depth": 0,
+                "log": 280000,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1
+            },
+            "turbowarp": {
+              "status": "ok",
+              "import_ms": 87.75650000000002,
+              "start_ms": 12.220199999999977,
+              "mean_ms": 12.996616666666657,
+              "p95_ms": 13.011300000000006,
+              "peak_rss_bytes": 77160448,
+              "variables": {
+                "log": 0,
+                "depth": 0,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1,
+              "errors": [],
+              "compiled_threads": 71,
+              "interpreted_threads": 0,
+              "current_step_time_ms": 16.666666666666668,
+              "unknown_opcodes": [],
+              "stderr_sha256": "53c0627192f2aa3e75e97e69b204ec4ac79eb8d932c2a9eb4a94095b5a1dcef8"
+            }
+          },
+          "comparison": {
+            "variables_equal": false,
+            "status": "不可比",
+            "reason": "final variable/type/list mismatch"
+          }
+        },
+        {
+          "repeat": 1,
+          "order": [
+            "turbowarp",
+            "nekoc"
+          ],
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "import_ms": 0.7276,
+              "start_ms": 0.0156,
+              "mean_ms": 0.07180833333333335,
+              "p95_ms": 0.079,
+              "peak_rss_bytes": 7733248,
+              "variables": {
+                "depth": 0,
+                "log": 280000,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1
+            },
+            "turbowarp": {
+              "status": "ok",
+              "import_ms": 83.58249999999998,
+              "start_ms": 12.885199999999998,
+              "mean_ms": 12.996468333333347,
+              "p95_ms": 13.00890000000004,
+              "peak_rss_bytes": 77352960,
+              "variables": {
+                "log": 0,
+                "depth": 0,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1,
+              "errors": [],
+              "compiled_threads": 71,
+              "interpreted_threads": 0,
+              "current_step_time_ms": 16.666666666666668,
+              "unknown_opcodes": [],
+              "stderr_sha256": "53c0627192f2aa3e75e97e69b204ec4ac79eb8d932c2a9eb4a94095b5a1dcef8"
+            }
+          },
+          "comparison": {
+            "variables_equal": false,
+            "status": "不可比",
+            "reason": "final variable/type/list mismatch"
+          }
+        },
+        {
+          "repeat": 2,
+          "order": [
+            "nekoc",
+            "turbowarp"
+          ],
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "import_ms": 0.7585,
+              "start_ms": 0.0171,
+              "mean_ms": 0.07437,
+              "p95_ms": 0.0968,
+              "peak_rss_bytes": 7712768,
+              "variables": {
+                "depth": 0,
+                "log": 280000,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1
+            },
+            "turbowarp": {
+              "status": "ok",
+              "import_ms": 82.42370000000003,
+              "start_ms": 12.96890000000002,
+              "mean_ms": 12.99655333333333,
+              "p95_ms": 13.012399999999957,
+              "peak_rss_bytes": 77193216,
+              "variables": {
+                "log": 0,
+                "depth": 0,
+                "result": {
+                  "type": "list",
+                  "length": 0,
+                  "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                }
+              },
+              "actor_count": 1,
+              "errors": [],
+              "compiled_threads": 71,
+              "interpreted_threads": 0,
+              "current_step_time_ms": 16.666666666666668,
+              "unknown_opcodes": [],
+              "stderr_sha256": "53c0627192f2aa3e75e97e69b204ec4ac79eb8d932c2a9eb4a94095b5a1dcef8"
+            }
+          },
+          "comparison": {
+            "variables_equal": false,
+            "status": "不可比",
+            "reason": "final variable/type/list mismatch"
+          }
+        }
+      ]
+    }
+  ]
+}
