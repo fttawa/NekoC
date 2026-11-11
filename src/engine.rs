@@ -2868,10 +2868,21 @@ impl Compiler {
                     matches!(field(b, "coordinate"), "x" | "y"),
                     "unknown coordinate reporter"
                 );
-                ExprOp::Coordinate(
-                    self.actor_target(field(b, "sprite"))?,
-                    field(b, "coordinate") == "y",
-                )
+                let target = self.actor_target(field(b, "sprite"))?;
+                if self.program.semantics == RuntimeSemantics::KnCurrent {
+                    // Official KN native getters share the rounded property
+                    // path used by clone/API getters; see partial2 evidence.
+                    ExprOp::KnProperty(
+                        target,
+                        if field(b, "coordinate") == "y" {
+                            kn_appearance::Property::Y
+                        } else {
+                            kn_appearance::Property::X
+                        },
+                    )
+                } else {
+                    ExprOp::Coordinate(target, field(b, "coordinate") == "y")
+                }
             }
             // Native get_orientation is device tilt, not sprite rotation.
             // Like the official desktop runtime, this player reports zero.
@@ -2895,6 +2906,15 @@ impl Compiler {
             "style_of_sprite" => ExprOp::Costume(self.actor_target(field(b, "sprite"))?),
             "physics2_get_property" => {
                 ExprOp::PhysicsProperty(physics::Property::parse(field(b, "property"))?)
+            }
+            "distance_to"
+                if self.program.semantics == RuntimeSemantics::KnCurrent
+                    && field(b, "sprite") == "--self" =>
+            {
+                // Unlike appearance getters, the official distance domain does
+                // not resolve this placeholder (editor normalizes it to '?').
+                // Keep its observed NaN rather than inventing distance zero.
+                ExprOp::Constant(f64::NAN)
             }
             "distance_to" => ExprOp::Distance(self.point_target(field(b, "sprite"))?),
             "get_clone_num" => ExprOp::CloneCount(self.actor_target(field(b, "sprite"))?),
@@ -2992,7 +3012,12 @@ impl Compiler {
             "effect_of_sprite" => {
                 let scope = effect_scope(field(b, "effect"))
                     .with_context(|| format!("unsupported effect at {}", b["id"]))?;
-                ExprOp::Effect(self.actor_target(field(b, "sprite"))?, scope)
+                let target = self.actor_target(field(b, "sprite"))?;
+                if self.program.semantics == RuntimeSemantics::KnCurrent {
+                    ExprOp::KnProperty(target, kn_appearance::Property::Effect(scope))
+                } else {
+                    ExprOp::Effect(target, scope)
+                }
             }
             "mouse_down" => {
                 let name = b["fields"]

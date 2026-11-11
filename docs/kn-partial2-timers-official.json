@@ -1,0 +1,352 @@
+{
+  "officialUrl": "https://kn.codemao.cn/editor",
+  "verifiedAt": "2026-11-11T18:34:52.448Z",
+  "nekocBinary": {
+    "path": "E:\\nekoc-wt\\knpartial2\\target\\debug\\kn-trace.exe",
+    "sha256": "fd88de1b3d380bb5a9ba1a287ad7f292cc5b2eb7e2b22d58f142d088cc050f39"
+  },
+  "cases": {
+    "main": {
+      "fixture": "tests/fixtures/kn-semantics/partial2-timers-main.bcmkn",
+      "sha256": "8c9cb1779ed53d6ce1d67c0c62788445ddca7092570fe2b2c863497bacd20209",
+      "pageErrors": [],
+      "runtimeBundle": {
+        "url": "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+        "sha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7"
+      },
+      "mainBundle": {
+        "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+        "sha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165"
+      },
+      "variables": {
+        "before": 1,
+        "after": 1,
+        "callback_hits": 0,
+        "done": 1,
+        "text_delay": "25",
+        "text_id": "999999999"
+      },
+      "scripts": [
+        "https://creation.bcmcdn.com/neko/web/release/static/js/base.f158ddbf.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/main-vendors.07f7dd7e.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js"
+      ],
+      "nekoc": {
+        "variables": {
+          "after": 1,
+          "before": 1,
+          "callback_hits": 0,
+          "done": 1,
+          "text_delay": "25",
+          "text_id": "999999999"
+        }
+      },
+      "equal": true,
+      "nativeObservation": {
+        "calls": [
+          {
+            "type": "setTimeout",
+            "keys": [
+              "delay"
+            ],
+            "callbackType": "undefined",
+            "delay": 0,
+            "result": 158
+          },
+          {
+            "type": "setTimeout",
+            "keys": [
+              "delay"
+            ],
+            "callbackType": "undefined",
+            "delay": 20,
+            "result": 159
+          },
+          {
+            "type": "setTimeout",
+            "keys": [
+              "delay"
+            ],
+            "callbackType": "undefined",
+            "delay": 150,
+            "result": 160
+          },
+          {
+            "type": "setTimeout",
+            "keys": [
+              "delay"
+            ],
+            "callbackType": "undefined",
+            "delay": "25",
+            "result": 161
+          },
+          {
+            "type": "setInterval",
+            "keys": [
+              "delay"
+            ],
+            "callbackType": "undefined",
+            "delay": 0,
+            "result": 162
+          },
+          {
+            "type": "setInterval",
+            "keys": [
+              "delay"
+            ],
+            "callbackType": "undefined",
+            "delay": 20,
+            "result": 163
+          },
+          {
+            "type": "setInterval",
+            "keys": [
+              "delay"
+            ],
+            "callbackType": "undefined",
+            "delay": 150,
+            "result": 164
+          },
+          {
+            "type": "setInterval",
+            "keys": [
+              "delay"
+            ],
+            "callbackType": "undefined",
+            "delay": "25",
+            "result": 165
+          }
+        ],
+        "callbackHits": 0
+      }
+    },
+    "clear": {
+      "fixture": "tests/fixtures/kn-semantics/partial2-timers-clear.bcmkn",
+      "sha256": "f5a46bca2d3acad52e2dd4a716fbccf8a74f46cf73631e0ca260da9cc60cbb5f",
+      "pageErrors": [],
+      "runtimeBundle": {
+        "url": "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+        "sha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7"
+      },
+      "mainBundle": {
+        "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+        "sha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165"
+      },
+      "variables": {
+        "before": 1,
+        "after": 1,
+        "callback_hits": 0,
+        "done": 1,
+        "text_delay": "25",
+        "text_id": "999999999"
+      },
+      "scripts": [
+        "https://creation.bcmcdn.com/neko/web/release/static/js/base.f158ddbf.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/main-vendors.07f7dd7e.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js"
+      ],
+      "nekoc": {
+        "variables": {
+          "after": 1,
+          "before": 1,
+          "callback_hits": 0,
+          "done": 1,
+          "text_delay": "25",
+          "text_id": "999999999"
+        }
+      },
+      "equal": true,
+      "nativeObservation": {
+        "calls": [
+          {
+            "type": "setTimeout",
+            "keys": [
+              "delay"
+            ],
+            "callbackType": "undefined",
+            "delay": 20,
+            "result": 124
+          },
+          {
+            "type": "setInterval",
+            "keys": [
+              "delay"
+            ],
+            "callbackType": "undefined",
+            "delay": 20,
+            "result": 125
+          },
+          {
+            "type": "clearTimeout",
+            "keys": [
+              "timeoutId"
+            ],
+            "callbackType": "undefined",
+            "timeoutId": 0,
+            "result": {
+              "$undefined": true
+            }
+          },
+          {
+            "type": "clearTimeout",
+            "keys": [
+              "timeoutId"
+            ],
+            "callbackType": "undefined",
+            "timeoutId": 999999999,
+            "result": {
+              "$undefined": true
+            }
+          },
+          {
+            "type": "clearTimeout",
+            "keys": [
+              "timeoutId"
+            ],
+            "callbackType": "undefined",
+            "timeoutId": "999999999",
+            "result": {
+              "$undefined": true
+            }
+          },
+          {
+            "type": "clearInterval",
+            "keys": [
+              "intervalId"
+            ],
+            "callbackType": "undefined",
+            "intervalId": 0,
+            "result": {
+              "$undefined": true
+            }
+          },
+          {
+            "type": "clearInterval",
+            "keys": [
+              "intervalId"
+            ],
+            "callbackType": "undefined",
+            "intervalId": 999999999,
+            "result": {
+              "$undefined": true
+            }
+          },
+          {
+            "type": "clearInterval",
+            "keys": [
+              "intervalId"
+            ],
+            "callbackType": "undefined",
+            "intervalId": "999999999",
+            "result": {
+              "$undefined": true
+            }
+          }
+        ],
+        "callbackHits": 0
+      }
+    }
+  },
+  "browserVersion": "157.0.4341.46",
+  "domain": {
+    "editorVersion": "0.27.4",
+    "rows": [
+      {
+        "label": "functions-fire",
+        "timeoutId": 136,
+        "intervalId": 137,
+        "timeout": 1,
+        "intervalBeforeClear": 8,
+        "intervalAfterClear": 8,
+        "clearResult": {
+          "$undefined": true
+        }
+      },
+      {
+        "label": "timeout-clearTimeout",
+        "register": "setTimeout",
+        "cancel": "clearTimeout",
+        "socket": "timeoutId",
+        "id": 140,
+        "fired": 0,
+        "clearResult": {
+          "$undefined": true
+        }
+      },
+      {
+        "label": "interval-clearInterval",
+        "register": "setInterval",
+        "cancel": "clearInterval",
+        "socket": "intervalId",
+        "id": 142,
+        "fired": 0,
+        "clearResult": {
+          "$undefined": true
+        }
+      },
+      {
+        "label": "timeout-clearInterval",
+        "register": "setTimeout",
+        "cancel": "clearInterval",
+        "socket": "intervalId",
+        "id": 144,
+        "fired": 0,
+        "clearResult": {
+          "$undefined": true
+        }
+      },
+      {
+        "label": "interval-clearTimeout",
+        "register": "setInterval",
+        "cancel": "clearTimeout",
+        "socket": "timeoutId",
+        "id": 146,
+        "fired": 0,
+        "clearResult": {
+          "$undefined": true
+        }
+      },
+      {
+        "label": "setTimeout-text-not-eval",
+        "id": 148,
+        "executed": false
+      },
+      {
+        "label": "setInterval-text-not-eval",
+        "id": 150,
+        "executed": false
+      }
+    ]
+  },
+  "ok": true,
+  "editorCompat": {
+    "editorUrl": "https://kn.codemao.cn/editor",
+    "checkedAt": "2026-11-11T18:32:20.048Z",
+    "projects": [
+      {
+        "input": "tests/fixtures/kn-semantics/partial2-timers-main.bcmkn",
+        "sha256": "8c9cb1779ed53d6ce1d67c0c62788445ddca7092570fe2b2c863497bacd20209",
+        "editorVersion": "0.27.4",
+        "projectVersion": "0.27.4",
+        "blockCount": 41,
+        "issues": [],
+        "pageErrors": [],
+        "ok": true
+      },
+      {
+        "input": "tests/fixtures/kn-semantics/partial2-timers-clear.bcmkn",
+        "sha256": "f5a46bca2d3acad52e2dd4a716fbccf8a74f46cf73631e0ca260da9cc60cbb5f",
+        "editorVersion": "0.27.4",
+        "projectVersion": "0.27.4",
+        "blockCount": 29,
+        "issues": [],
+        "pageErrors": [],
+        "ok": true
+      }
+    ],
+    "bundleUrl": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+    "ok": true
+  }
+}

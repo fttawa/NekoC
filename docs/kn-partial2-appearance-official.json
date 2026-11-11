@@ -1,0 +1,651 @@
+{
+  "officialUrl": "https://kn.codemao.cn/editor",
+  "verifiedAt": "2026-11-11T18:44:22.641Z",
+  "cases": {
+    "talk": {
+      "fixture": "tests/fixtures/kn-semantics/partial2-appearance-talk.bcmkn",
+      "sha256": "f16ca4d497a619bc5d4ef703baf07c31dfd6c921e20667fc2e76685eb32cd5da",
+      "pageErrors": [],
+      "runtimeBundle": {
+        "url": "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+        "sha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7"
+      },
+      "mainBundle": {
+        "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+        "sha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165"
+      },
+      "variables": {
+        "done": 1,
+        "after_dialog": 1,
+        "self_x": 1.23,
+        "self_y": -2.35,
+        "self_style_index": 1,
+        "self_scale": 123.46,
+        "self_width": 123.46,
+        "self_height": 56.79,
+        "self_direction": 25.71,
+        "self_color": 349.88,
+        "self_opacity": 12.34,
+        "self_brightness": 12.35,
+        "self_pixelate": 12.35,
+        "self_ripple": 12.35,
+        "self_distortion": 12.35,
+        "self_grayscale": 12.35,
+        "actor_x": 1.23,
+        "actor_y": -2.35,
+        "actor_style_index": 1,
+        "actor_scale": 123.46,
+        "actor_width": 123.46,
+        "actor_height": 56.79,
+        "actor_direction": 25.71,
+        "actor_color": 349.88,
+        "actor_opacity": 12.34,
+        "actor_brightness": 12.35,
+        "actor_pixelate": 12.35,
+        "actor_ripple": 12.35,
+        "actor_distortion": 12.35,
+        "actor_grayscale": 12.35,
+        "actor_distance": 0
+      },
+      "scripts": [
+        "https://creation.bcmcdn.com/neko/web/release/static/js/base.f158ddbf.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/main-vendors.07f7dd7e.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js"
+      ],
+      "inspection": {
+        "version": "0.27.4",
+        "dialog": {
+          "present": true,
+          "type": "saying",
+          "text": "original talk text"
+        },
+        "dialogCalls": [
+          {
+            "label": "empty",
+            "input": "",
+            "resultType": "undefined",
+            "dialog": {
+              "present": true,
+              "type": "saying",
+              "text": ""
+            }
+          },
+          {
+            "label": "number",
+            "input": 42,
+            "resultType": "undefined",
+            "dialog": {
+              "present": true,
+              "type": "saying",
+              "text": "42"
+            }
+          },
+          {
+            "label": "boolean",
+            "input": true,
+            "resultType": "undefined",
+            "dialog": {
+              "present": true,
+              "type": "saying",
+              "text": "true"
+            }
+          },
+          {
+            "label": "list",
+            "input": [
+              1,
+              "a b"
+            ],
+            "resultType": "undefined",
+            "dialog": {
+              "present": true,
+              "type": "saying",
+              "text": "1,a b"
+            }
+          },
+          {
+            "label": "object",
+            "input": {
+              "a": 1
+            },
+            "resultType": "undefined",
+            "dialog": {
+              "present": true,
+              "type": "saying",
+              "text": "[object Object]"
+            }
+          }
+        ],
+        "conversions": [
+          {
+            "attribute": "x",
+            "type": "coordinate_of_sprite",
+            "fields": {
+              "sprite": "--self",
+              "coordinate": "x"
+            },
+            "errors": [],
+            "warnings": []
+          },
+          {
+            "attribute": "y",
+            "type": "coordinate_of_sprite",
+            "fields": {
+              "sprite": "--self",
+              "coordinate": "y"
+            },
+            "errors": [],
+            "warnings": []
+          },
+          {
+            "attribute": "style_index",
+            "type": "style_of_sprite",
+            "fields": {
+              "sprite": "--self"
+            },
+            "errors": [],
+            "warnings": []
+          },
+          {
+            "attribute": "scale",
+            "type": "appearance_of_sprite",
+            "fields": {
+              "sprite": "--self",
+              "appearance": "scale"
+            },
+            "errors": [],
+            "warnings": []
+          },
+          {
+            "attribute": "width",
+            "type": "appearance_of_sprite",
+            "fields": {
+              "sprite": "--self",
+              "appearance": "width"
+            },
+            "errors": [],
+            "warnings": []
+          },
+          {
+            "attribute": "height",
+            "type": "appearance_of_sprite",
+            "fields": {
+              "sprite": "--self",
+              "appearance": "height"
+            },
+            "errors": [],
+            "warnings": []
+          },
+          {
+            "attribute": "direction",
+            "type": "appearance_of_sprite",
+            "fields": {
+              "sprite": "--self",
+              "appearance": "direction"
+            },
+            "errors": [],
+            "warnings": []
+          },
+          {
+            "attribute": "color",
+            "type": "effect_of_sprite",
+            "fields": {
+              "sprite": "--self",
+              "effect": "0"
+            },
+            "errors": [],
+            "warnings": []
+          },
+          {
+            "attribute": "opacity",
+            "type": "effect_of_sprite",
+            "fields": {
+              "sprite": "--self",
+              "effect": "1"
+            },
+            "errors": [],
+            "warnings": []
+          },
+          {
+            "attribute": "brightness",
+            "type": "effect_of_sprite",
+            "fields": {
+              "sprite": "--self",
+              "effect": "2"
+            },
+            "errors": [],
+            "warnings": []
+          },
+          {
+            "attribute": "pixelate",
+            "type": "effect_of_sprite",
+            "fields": {
+              "sprite": "--self",
+              "effect": "3"
+            },
+            "errors": [],
+            "warnings": []
+          },
+          {
+            "attribute": "ripple",
+            "type": "effect_of_sprite",
+            "fields": {
+              "sprite": "--self",
+              "effect": "4"
+            },
+            "errors": [],
+            "warnings": []
+          },
+          {
+            "attribute": "distortion",
+            "type": "effect_of_sprite",
+            "fields": {
+              "sprite": "--self",
+              "effect": "5"
+            },
+            "errors": [],
+            "warnings": []
+          },
+          {
+            "attribute": "grayscale",
+            "type": "effect_of_sprite",
+            "fields": {
+              "sprite": "--self",
+              "effect": "6"
+            },
+            "errors": [],
+            "warnings": []
+          },
+          {
+            "attribute": "distance",
+            "type": "distance_to",
+            "fields": {
+              "sprite": "--self"
+            },
+            "errors": [],
+            "warnings": []
+          }
+        ],
+        "registeredAlias": false,
+        "invalidSelfDistance": {
+          "$number": "NaN"
+        },
+        "afterDialog": 1
+      },
+      "nekoc": {
+        "variables": {
+          "actor_brightness": 12.35,
+          "actor_color": 349.88,
+          "actor_direction": 25.71,
+          "actor_distance": 0,
+          "actor_distortion": 12.35,
+          "actor_grayscale": 12.35,
+          "actor_height": 56.79,
+          "actor_opacity": 12.34,
+          "actor_pixelate": 12.35,
+          "actor_ripple": 12.35,
+          "actor_scale": 123.46,
+          "actor_style_index": 1,
+          "actor_width": 123.46,
+          "actor_x": 1.23,
+          "actor_y": -2.35,
+          "after_dialog": 1,
+          "done": 1,
+          "self_brightness": 12.35,
+          "self_color": 349.88,
+          "self_direction": 25.71,
+          "self_distortion": 12.35,
+          "self_grayscale": 12.35,
+          "self_height": 56.79,
+          "self_opacity": 12.34,
+          "self_pixelate": 12.35,
+          "self_ripple": 12.35,
+          "self_scale": 123.46,
+          "self_style_index": 1,
+          "self_width": 123.46,
+          "self_x": 1.23,
+          "self_y": -2.35
+        }
+      },
+      "equal": true
+    },
+    "think": {
+      "fixture": "tests/fixtures/kn-semantics/partial2-appearance-think.bcmkn",
+      "sha256": "5fda4655c4d2751870609df2df92601fc487be67cf1dadde005921a03002a2ab",
+      "pageErrors": [],
+      "runtimeBundle": {
+        "url": "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+        "sha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7"
+      },
+      "mainBundle": {
+        "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+        "sha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165"
+      },
+      "variables": {
+        "done": 1,
+        "after_dialog": 1,
+        "self_x": 1.23,
+        "self_y": -2.35,
+        "self_style_index": 1,
+        "self_scale": 123.46,
+        "self_width": 123.46,
+        "self_height": 56.79,
+        "self_direction": 25.71,
+        "self_color": 349.88,
+        "self_opacity": 12.34,
+        "self_brightness": 12.35,
+        "self_pixelate": 12.35,
+        "self_ripple": 12.35,
+        "self_distortion": 12.35,
+        "self_grayscale": 12.35,
+        "actor_x": 1.23,
+        "actor_y": -2.35,
+        "actor_style_index": 1,
+        "actor_scale": 123.46,
+        "actor_width": 123.46,
+        "actor_height": 56.79,
+        "actor_direction": 25.71,
+        "actor_color": 349.88,
+        "actor_opacity": 12.34,
+        "actor_brightness": 12.35,
+        "actor_pixelate": 12.35,
+        "actor_ripple": 12.35,
+        "actor_distortion": 12.35,
+        "actor_grayscale": 12.35,
+        "actor_distance": 0
+      },
+      "scripts": [
+        "https://creation.bcmcdn.com/neko/web/release/static/js/base.f158ddbf.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/main-vendors.07f7dd7e.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js"
+      ],
+      "inspection": {
+        "version": "0.27.4",
+        "dialog": {
+          "present": true,
+          "type": "thinking",
+          "text": "界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界界..."
+        },
+        "dialogCalls": [
+          {
+            "label": "empty",
+            "input": "",
+            "resultType": "undefined",
+            "dialog": {
+              "present": true,
+              "type": "saying",
+              "text": ""
+            }
+          },
+          {
+            "label": "number",
+            "input": 42,
+            "resultType": "undefined",
+            "dialog": {
+              "present": true,
+              "type": "saying",
+              "text": "42"
+            }
+          },
+          {
+            "label": "boolean",
+            "input": true,
+            "resultType": "undefined",
+            "dialog": {
+              "present": true,
+              "type": "saying",
+              "text": "true"
+            }
+          },
+          {
+            "label": "list",
+            "input": [
+              1,
+              "a b"
+            ],
+            "resultType": "undefined",
+            "dialog": {
+              "present": true,
+              "type": "saying",
+              "text": "1,a b"
+            }
+          },
+          {
+            "label": "object",
+            "input": {
+              "a": 1
+            },
+            "resultType": "undefined",
+            "dialog": {
+              "present": true,
+              "type": "saying",
+              "text": "[object Object]"
+            }
+          }
+        ],
+        "conversions": [
+          {
+            "attribute": "x",
+            "type": "coordinate_of_sprite",
+            "fields": {
+              "sprite": "--self",
+              "coordinate": "x"
+            },
+            "errors": [],
+            "warnings": []
+          },
+          {
+            "attribute": "y",
+            "type": "coordinate_of_sprite",
+            "fields": {
+              "sprite": "--self",
+              "coordinate": "y"
+            },
+            "errors": [],
+            "warnings": []
+          },
+          {
+            "attribute": "style_index",
+            "type": "style_of_sprite",
+            "fields": {
+              "sprite": "--self"
+            },
+            "errors": [],
+            "warnings": []
+          },
+          {
+            "attribute": "scale",
+            "type": "appearance_of_sprite",
+            "fields": {
+              "sprite": "--self",
+              "appearance": "scale"
+            },
+            "errors": [],
+            "warnings": []
+          },
+          {
+            "attribute": "width",
+            "type": "appearance_of_sprite",
+            "fields": {
+              "sprite": "--self",
+              "appearance": "width"
+            },
+            "errors": [],
+            "warnings": []
+          },
+          {
+            "attribute": "height",
+            "type": "appearance_of_sprite",
+            "fields": {
+              "sprite": "--self",
+              "appearance": "height"
+            },
+            "errors": [],
+            "warnings": []
+          },
+          {
+            "attribute": "direction",
+            "type": "appearance_of_sprite",
+            "fields": {
+              "sprite": "--self",
+              "appearance": "direction"
+            },
+            "errors": [],
+            "warnings": []
+          },
+          {
+            "attribute": "color",
+            "type": "effect_of_sprite",
+            "fields": {
+              "sprite": "--self",
+              "effect": "0"
+            },
+            "errors": [],
+            "warnings": []
+          },
+          {
+            "attribute": "opacity",
+            "type": "effect_of_sprite",
+            "fields": {
+              "sprite": "--self",
+              "effect": "1"
+            },
+            "errors": [],
+            "warnings": []
+          },
+          {
+            "attribute": "brightness",
+            "type": "effect_of_sprite",
+            "fields": {
+              "sprite": "--self",
+              "effect": "2"
+            },
+            "errors": [],
+            "warnings": []
+          },
+          {
+            "attribute": "pixelate",
+            "type": "effect_of_sprite",
+            "fields": {
+              "sprite": "--self",
+              "effect": "3"
+            },
+            "errors": [],
+            "warnings": []
+          },
+          {
+            "attribute": "ripple",
+            "type": "effect_of_sprite",
+            "fields": {
+              "sprite": "--self",
+              "effect": "4"
+            },
+            "errors": [],
+            "warnings": []
+          },
+          {
+            "attribute": "distortion",
+            "type": "effect_of_sprite",
+            "fields": {
+              "sprite": "--self",
+              "effect": "5"
+            },
+            "errors": [],
+            "warnings": []
+          },
+          {
+            "attribute": "grayscale",
+            "type": "effect_of_sprite",
+            "fields": {
+              "sprite": "--self",
+              "effect": "6"
+            },
+            "errors": [],
+            "warnings": []
+          },
+          {
+            "attribute": "distance",
+            "type": "distance_to",
+            "fields": {
+              "sprite": "--self"
+            },
+            "errors": [],
+            "warnings": []
+          }
+        ],
+        "registeredAlias": false,
+        "invalidSelfDistance": {
+          "$number": "NaN"
+        },
+        "afterDialog": 1
+      },
+      "nekoc": {
+        "variables": {
+          "actor_brightness": 12.35,
+          "actor_color": 349.88,
+          "actor_direction": 25.71,
+          "actor_distance": 0,
+          "actor_distortion": 12.35,
+          "actor_grayscale": 12.35,
+          "actor_height": 56.79,
+          "actor_opacity": 12.34,
+          "actor_pixelate": 12.35,
+          "actor_ripple": 12.35,
+          "actor_scale": 123.46,
+          "actor_style_index": 1,
+          "actor_width": 123.46,
+          "actor_x": 1.23,
+          "actor_y": -2.35,
+          "after_dialog": 1,
+          "done": 1,
+          "self_brightness": 12.35,
+          "self_color": 349.88,
+          "self_direction": 25.71,
+          "self_distortion": 12.35,
+          "self_grayscale": 12.35,
+          "self_height": 56.79,
+          "self_opacity": 12.34,
+          "self_pixelate": 12.35,
+          "self_ripple": 12.35,
+          "self_scale": 123.46,
+          "self_style_index": 1,
+          "self_width": 123.46,
+          "self_x": 1.23,
+          "self_y": -2.35
+        }
+      },
+      "equal": true
+    }
+  },
+  "browserVersion": "157.0.4341.46",
+  "editorCompat": {
+    "editorUrl": "https://kn.codemao.cn/editor",
+    "checkedAt": "2026-11-11T18:41:55.466Z",
+    "projects": [
+      {
+        "input": "tests/fixtures/kn-semantics/partial2-appearance-talk.bcmkn",
+        "sha256": "f16ca4d497a619bc5d4ef703baf07c31dfd6c921e20667fc2e76685eb32cd5da",
+        "editorVersion": "0.27.4",
+        "projectVersion": "0.27.4",
+        "blockCount": 89,
+        "issues": [],
+        "pageErrors": [],
+        "ok": true
+      },
+      {
+        "input": "tests/fixtures/kn-semantics/partial2-appearance-think.bcmkn",
+        "sha256": "5fda4655c4d2751870609df2df92601fc487be67cf1dadde005921a03002a2ab",
+        "editorVersion": "0.27.4",
+        "projectVersion": "0.27.4",
+        "blockCount": 89,
+        "issues": [],
+        "pageErrors": [],
+        "ok": true
+      }
+    ],
+    "bundleUrl": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+    "ok": true
+  }
+}

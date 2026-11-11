@@ -4,6 +4,11 @@
 
 > 后续更新：本地规范 JSON 现在接受 `get_sprite_property` 作为官方代码 API 的显式别名，严格按官方转换插件映射原生 reporter，见 [kn-local.md](kn-local.md)。本文旧的“不新增同名积木支持/拒绝回归”是当时交付状态，不再是当前本地编译契约；它仍不是官方注册积木。
 
+> partial 第二轮补充[完整原创工程配对及编辑器检查](kn-partial2-appearance.md)，
+> 并修复普通 coordinate/effect reporter 及代码API别名读回未走KN舍入getter的问题。
+> 外观、无限时气泡、属性API三个类型按普通主路径改为有执行路径／未完整验证，
+> 文本造型、错误UI、复杂生命周期等边界仍单列未验证，不是完整兼容认证。
+
 仅依据官方源码及官方编辑器局部调用，不使用 HateNeko。主会话已实际运行专项 Rust 回归 **8/8 通过**；最终全量门禁结果见 `OC-REPORT`。本子任务未启动 Cargo，没有生成 `.bcmkn`。
 
 ## 版本身份与复现

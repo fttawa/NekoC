@@ -1,0 +1,417 @@
+{
+  "projectName": "NekoC KN semantics partial2-timers clear",
+  "version": "0.27.4",
+  "toolType": "KN",
+  "stageSize": {
+    "width": 900,
+    "height": 562
+  },
+  "scenes": {
+    "currentSceneId": "nekoc-scene-main",
+    "sortList": [
+      "nekoc-scene-main"
+    ],
+    "scenesDict": {
+      "nekoc-scene-main": {
+        "id": "nekoc-scene-main",
+        "name": "Background",
+        "screenName": "Main",
+        "styles": [
+          "nekoc-background"
+        ],
+        "currentStyleId": "nekoc-background",
+        "actorIds": [
+          "20000000-0000-4000-8000-000000000001"
+        ],
+        "visible": true,
+        "editable": true,
+        "workspaceScrollXy": {
+          "x": 100,
+          "y": 50
+        },
+        "nekoBlockJsonList": [],
+        "comments": {}
+      }
+    }
+  },
+  "actors": {
+    "actorsDict": {
+      "20000000-0000-4000-8000-000000000001": {
+        "id": "20000000-0000-4000-8000-000000000001",
+        "name": "Sprite",
+        "styles": [
+          "nekoc-costume"
+        ],
+        "currentStyleId": "nekoc-costume",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": 100,
+        "rotation": 0,
+        "visible": true,
+        "locked": false,
+        "editable": true,
+        "deletable": true,
+        "workspaceScrollXy": {
+          "x": 100,
+          "y": 50
+        },
+        "nekoBlockJsonList": [
+          {
+            "id": "knp2t-42",
+            "type": "on_running_group_activated",
+            "fields": {},
+            "inputs": {},
+            "next": {
+              "id": "knp2t-44",
+              "type": "variables_set",
+              "fields": {
+                "variable": "before"
+              },
+              "inputs": {
+                "value": {
+                  "id": "knp2t-43",
+                  "type": "math_number",
+                  "fields": {
+                    "NUM": "1"
+                  },
+                  "inputs": {}
+                }
+              },
+              "next": {
+                "id": "knp2t-48",
+                "type": "setTimeout",
+                "fields": {},
+                "inputs": {
+                  "delay": {
+                    "id": "knp2t-45",
+                    "type": "math_number",
+                    "fields": {
+                      "NUM": "20"
+                    },
+                    "inputs": {}
+                  },
+                  "callback": {
+                    "id": "knp2t-47",
+                    "type": "variables_set",
+                    "fields": {
+                      "variable": "callback_hits"
+                    },
+                    "inputs": {
+                      "value": {
+                        "id": "knp2t-46",
+                        "type": "math_number",
+                        "fields": {
+                          "NUM": "1"
+                        },
+                        "inputs": {}
+                      }
+                    }
+                  }
+                },
+                "next": {
+                  "id": "knp2t-52",
+                  "type": "setInterval",
+                  "fields": {},
+                  "inputs": {
+                    "delay": {
+                      "id": "knp2t-49",
+                      "type": "math_number",
+                      "fields": {
+                        "NUM": "20"
+                      },
+                      "inputs": {}
+                    },
+                    "callback": {
+                      "id": "knp2t-51",
+                      "type": "variables_set",
+                      "fields": {
+                        "variable": "callback_hits"
+                      },
+                      "inputs": {
+                        "value": {
+                          "id": "knp2t-50",
+                          "type": "math_number",
+                          "fields": {
+                            "NUM": "1"
+                          },
+                          "inputs": {}
+                        }
+                      }
+                    }
+                  },
+                  "next": {
+                    "id": "knp2t-54",
+                    "type": "clearTimeout",
+                    "fields": {},
+                    "inputs": {
+                      "timeoutId": {
+                        "id": "knp2t-53",
+                        "type": "math_number",
+                        "fields": {
+                          "NUM": "0"
+                        },
+                        "inputs": {}
+                      }
+                    },
+                    "next": {
+                      "id": "knp2t-56",
+                      "type": "clearTimeout",
+                      "fields": {},
+                      "inputs": {
+                        "timeoutId": {
+                          "id": "knp2t-55",
+                          "type": "math_number",
+                          "fields": {
+                            "NUM": "999999999"
+                          },
+                          "inputs": {}
+                        }
+                      },
+                      "next": {
+                        "id": "knp2t-58",
+                        "type": "clearTimeout",
+                        "fields": {},
+                        "inputs": {
+                          "timeoutId": {
+                            "id": "knp2t-57",
+                            "type": "variables_get",
+                            "fields": {
+                              "variable": "text_id"
+                            },
+                            "inputs": {}
+                          }
+                        },
+                        "next": {
+                          "id": "knp2t-60",
+                          "type": "clearInterval",
+                          "fields": {},
+                          "inputs": {
+                            "intervalId": {
+                              "id": "knp2t-59",
+                              "type": "math_number",
+                              "fields": {
+                                "NUM": "0"
+                              },
+                              "inputs": {}
+                            }
+                          },
+                          "next": {
+                            "id": "knp2t-62",
+                            "type": "clearInterval",
+                            "fields": {},
+                            "inputs": {
+                              "intervalId": {
+                                "id": "knp2t-61",
+                                "type": "math_number",
+                                "fields": {
+                                  "NUM": "999999999"
+                                },
+                                "inputs": {}
+                              }
+                            },
+                            "next": {
+                              "id": "knp2t-64",
+                              "type": "clearInterval",
+                              "fields": {},
+                              "inputs": {
+                                "intervalId": {
+                                  "id": "knp2t-63",
+                                  "type": "variables_get",
+                                  "fields": {
+                                    "variable": "text_id"
+                                  },
+                                  "inputs": {}
+                                }
+                              },
+                              "next": {
+                                "id": "knp2t-66",
+                                "type": "variables_set",
+                                "fields": {
+                                  "variable": "after"
+                                },
+                                "inputs": {
+                                  "value": {
+                                    "id": "knp2t-65",
+                                    "type": "math_number",
+                                    "fields": {
+                                      "NUM": "1"
+                                    },
+                                    "inputs": {}
+                                  }
+                                },
+                                "next": {
+                                  "id": "knp2t-68",
+                                  "type": "wait",
+                                  "fields": {},
+                                  "inputs": {
+                                    "time": {
+                                      "id": "knp2t-67",
+                                      "type": "math_number",
+                                      "fields": {
+                                        "NUM": "0.35"
+                                      },
+                                      "inputs": {}
+                                    }
+                                  },
+                                  "next": {
+                                    "id": "knp2t-70",
+                                    "type": "variables_set",
+                                    "fields": {
+                                      "variable": "done"
+                                    },
+                                    "inputs": {
+                                      "value": {
+                                        "id": "knp2t-69",
+                                        "type": "math_number",
+                                        "fields": {
+                                          "NUM": "1"
+                                        },
+                                        "inputs": {}
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "comments": {},
+        "sceneId": "nekoc-scene-main"
+      }
+    }
+  },
+  "styles": {
+    "stylesDict": {
+      "nekoc-background": {
+        "id": "nekoc-background",
+        "name": "Background",
+        "url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='562'%3E%3Crect width='900' height='562' fill='white'/%3E%3C/svg%3E"
+      },
+      "nekoc-costume": {
+        "id": "nekoc-costume",
+        "name": "Sprite",
+        "url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Ccircle cx='20' cy='20' r='18' fill='rgb(96,143,238)'/%3E%3C/svg%3E",
+        "centerPoint": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    }
+  },
+  "variables": {
+    "variablesDict": {
+      "before": {
+        "id": "before",
+        "name": "before",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "after": {
+        "id": "after",
+        "name": "after",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "callback_hits": {
+        "id": "callback_hits",
+        "name": "callback_hits",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "done": {
+        "id": "done",
+        "name": "done",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "text_delay": {
+        "id": "text_delay",
+        "name": "text_delay",
+        "value": "25",
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "text_id": {
+        "id": "text_id",
+        "name": "text_id",
+        "value": "999999999",
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    }
+  },
+  "broadcasts": {
+    "broadcastsDict": {
+      "nekoc-scene-main": []
+    }
+  },
+  "procedures": {
+    "proceduresDict": {}
+  },
+  "audios": {
+    "audiosDict": {},
+    "sortList": [],
+    "currentAudioId": ""
+  },
+  "hidden_toolbox": {
+    "toolbox": [],
+    "blocks": [],
+    "forcibleShowBlocks": [],
+    "isCombine": false
+  },
+  "courseMaterials": {
+    "courseMaterialsDict": {},
+    "sortList": []
+  },
+  "previewUrl": ""
+}

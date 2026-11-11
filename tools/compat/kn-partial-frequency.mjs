@@ -175,6 +175,7 @@ export function priorityMarkdown(result) {
     "- input-kn.bcmkn 有 sprite_on_tap 的 fields.type=mouse_down；这不是 mouse_down 积木。对所有 JSON 对象泛型递归会多计 1 次，本工具夹具 mouse_down 正确为 0。",
     "- 空模板也在文件分母中；未按作品家族自动去重。逐文件频率和节点根类型可在 JSON 中复核。", "",
     "## 非硬件可修建议（历史候选，不自动认定当前仍有缺陷）", "",
+    "第二轮主路径分类与逐项服务跳过清单见 [kn-partial2.md](kn-partial2.md)；本页固定历史117项的频率，不随覆盖升级重写分母。", "",
     "1. **convert_type**：优先完整原生工程差分、数组/对象字符串化及 UTF-16 边界；已有 63 条官方带类型观测，不重复声称缺失基础转换。候选 `src/engine/kn_conversion.rs::convert`、`src/engine/value.rs`、`tests/kn_conversion.rs`、`tools/compat/kn-conversion-probe.mjs`；见 `docs/kn-conversion.md`。本轮并行修复后先核对新证据。",
     "2. **mouse_down**：局部验证非法目标的错误时机（历史编译拒绝 vs 官方诊断后 false）、拖出抬起/场景切换/克隆删除。候选 `src/engine.rs` 的 mouse_down 分派、`src/engine/input.rs::kn_pointer_state`/`pointer_target_matches`、`tests/kn_pointer.rs`；见 `docs/kn-pointer.md`。",
     "3. **get_clone_index_property**：补属性码、严格索引类型与失效目标矩阵；不要按私有变量频率推导所有属性需求。候选 `src/engine/kn_appearance.rs::kn_clone_property`/`eval_kn_clone_property`/`kn_property`、`tests/kn_appearance_dialog.rs`；本轮已修复的数字码和索引缺口见 `docs/kn-partial.md`，剩余边界按新证据记录。",

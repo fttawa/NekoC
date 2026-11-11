@@ -44,11 +44,12 @@ test("snapshot is exactly 300 unique names with mutually exclusive conservative 
     assert.ok(row.vm.length > 0, type);
     assert.match(row.risk, /未验证/, type);
   }
-  // A future service backend must not turn offline fallback into full support.
+  // Native timer main paths are paired; this is not a JS closure parity claim.
   for (const type of ["setTimeout", "setInterval", "clearTimeout", "clearInterval"]) {
     const row = result.rows.find(row => row.type === type);
     assert.ok(row.vm.length > 0, type);
-    assert.equal(row.status, "部分语义", type);
+    assert.equal(row.status, "有执行路径／未完整验证", type);
+    assert.match(row.risk, /kn-partial2-timers/);
   }
   for (const type of ["username_get", "user_id_get", "get_voice_answer", "recognize_body_part", "get_position_of_body_part", "move_to_body_part",
     "ai_chat_answer", "ai_text_result", "ai_text_result_check", "get_face_detection_result", "get_object_detection_result", "check_gender", "check_emotion", "check_face_shape", "microbit_math_map",
@@ -63,7 +64,9 @@ test("snapshot is exactly 300 unique names with mutually exclusive conservative 
   }
   assert.equal(result.rows.find(row => row.type === "get_orientation").status, "固定值占位");
   for (const type of ["appearance_of_sprite", "self_dialog_wait"]) {
-    assert.equal(result.rows.find(row => row.type === type).status, "部分语义", type);
+    const row = result.rows.find(row => row.type === type);
+    assert.equal(row.status, "有执行路径／未完整验证", type);
+    assert.match(row.risk, /kn-partial2-appearance/);
   }
   for (const type of ["mouse_down", "get_clone_index_property"]) {
     const row = result.rows.find(row => row.type === type);
@@ -71,7 +74,7 @@ test("snapshot is exactly 300 unique names with mutually exclusive conservative 
     assert.match(row.risk, /kn-partial\.md/);
     assert.match(row.risk, /未验证/);
   }
-  assert.equal(result.counts["部分语义"], 115);
+  assert.equal(result.counts["部分语义"], 107);
   for (const type of ["procedures_2_defnoreturn", "traverse_number_param"]) {
     assert.equal(result.rows.find(row => row.type === type).status, "元数据", type);
   }
@@ -86,7 +89,7 @@ test("official panel evidence remains separate from VM support or retirement cla
     ["wand_coordinate","hardware-extension-config-not-installed"]]) {
     const row = result.rows.find(r => r.type === type);
     assert.equal(row.officialCategory, category);
-    assert.equal(row.status, "部分语义");
+    assert.equal(row.status, type === "get_sprite_property" ? "有执行路径／未完整验证" : "部分语义");
     assert.ok(row.vm.length > 0);
   }
   assert.match(coverageMarkdown(result), /两者均0/);
@@ -128,7 +131,7 @@ test("registered names absent from audited panels have no remaining dispatch gap
     assert.ok(row.tests.length > 0, `${row.type}: expected an existing regression reference`);
   }
   const alias = result.rows.find(row => row.type === "get_sprite_property");
-  assert.equal(alias.status, "部分语义");
+  assert.equal(alias.status, "有执行路径／未完整验证");
   assert.equal(alias.officialCategory, "code-api-alias-not-block");
   assert.match(alias.risk, /非|未注册|没有同名注册/);
 });

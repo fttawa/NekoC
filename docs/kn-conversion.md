@@ -1,5 +1,9 @@
 # KN 第四轮：类型转换边界
 
+> 后续更新：深层/循环列表及普通对象的原生工程证据见 [kn-partial-conversion.md](kn-partial-conversion.md)。
+> [partial第二轮](kn-partial2-timers.md)按常见主路径将 `convert_type` 升级为“有执行路径／未完整验证”；
+> callable原型、Symbol、稀疏数组等仍单列未验证，历史末段的partial状态不是当前分类。
+
 ## 官方证据
 
 匿名官方 KN 编辑器 **0.27.4**，调用其已注册、未改函数体的 `convert_type` 域函数，21 类输入 × number/string/boolean 共 **63 次**。结果和发布包 URL、SHA-256、时间见 [kn-conversion-evidence.json](kn-conversion-evidence.json)。原始 `main.8ccf2442.js` UTF-8 字节 **1633578** 起的 `convertType` 分支使用 lodash.toNumber，失败回退 JS String；布尔值转 number 专门回退 String。string/boolean 分支分别为 JS String/Boolean。

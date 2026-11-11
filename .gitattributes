@@ -1,0 +1,3 @@
+# Official observations bind these original fixtures to their exact byte hash.
+# Keep them stable on core.autocrlf=true checkouts without normalizing evidence.
+tests/fixtures/kn-semantics/partial2-*.bcmkn text eol=lf

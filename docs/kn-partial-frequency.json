@@ -69,6 +69,22 @@
     {
       "file": "tests/fixtures/kn-semantics/partial-clone.bcmkn",
       "reason": "not-in-task-baseline-corpus"
+    },
+    {
+      "file": "tests/fixtures/kn-semantics/partial2-appearance-talk.bcmkn",
+      "reason": "not-in-task-baseline-corpus"
+    },
+    {
+      "file": "tests/fixtures/kn-semantics/partial2-appearance-think.bcmkn",
+      "reason": "not-in-task-baseline-corpus"
+    },
+    {
+      "file": "tests/fixtures/kn-semantics/partial2-timers-clear.bcmkn",
+      "reason": "not-in-task-baseline-corpus"
+    },
+    {
+      "file": "tests/fixtures/kn-semantics/partial2-timers-main.bcmkn",
+      "reason": "not-in-task-baseline-corpus"
     }
   ],
   "files": [
