@@ -13,7 +13,10 @@ for(const [target,abi] of targets){
   if(wanted.length&&!wanted.includes(abi))continue;
   const linker=path.join(bin,`${target}26-clang${process.platform==='win32'?'.cmd':''}`);
   if(!existsSync(linker))throw Error(`NDK linker not found: ${linker}`);
-  const env={...process.env,CARGO_TARGET_DIR:'target/android',[`CARGO_TARGET_${target.toUpperCase().replaceAll('-','_')}_LINKER`]:linker};
+  // C dependencies (psm for deep recursion) need the NDK compiler as well as the linker.
+  const cc=target.replaceAll('-','_');
+  const env={...process.env,CARGO_TARGET_DIR:'target/android',[`CARGO_TARGET_${target.toUpperCase().replaceAll('-','_')}_LINKER`]:linker,
+    [`CC_${cc}`]:linker,[`AR_${cc}`]:path.join(bin,`llvm-ar${process.platform==='win32'?'.exe':''}`)};
   execFileSync('cargo',['build','--release','--bin','web','--target',target],{stdio:'inherit',env});
   const dir=`android/app/src/main/jniLibs/${abi}`;mkdirSync(dir,{recursive:true});
   // Only files named lib*.so are extracted to the executable native library directory.
