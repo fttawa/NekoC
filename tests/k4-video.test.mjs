@@ -34,7 +34,8 @@ test('renderer decodes video, uses centre/scale once, composites below actors, p
   skip:!process.env.K4_VISUAL_BROWSER,
 },async()=>{
   const source=await readFile('web/renderer.js','utf8');
-  const server=createServer((req,res)=>{res.setHeader('Content-Type',req.url==='/renderer.js'?'application/javascript':'text/html');res.end(req.url==='/renderer.js'?source:'<!doctype html><canvas></canvas>');});
+  const penSource=await readFile('web/pen-k4.js','utf8');
+  const server=createServer((req,res)=>{const script=req.url==='/renderer.js'?source:req.url==='/pen-k4.js'?penSource:null;res.setHeader('Content-Type',script?'application/javascript':'text/html');res.end(script??'<!doctype html><canvas></canvas>');});
   await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));let browser;
   try{
     browser=await loadPlaywright().chromium.launch({headless:true,channel:'msedge'});const page=await browser.newPage();await page.goto(`http://127.0.0.1:${server.address().port}`);
@@ -77,7 +78,8 @@ test('superseded image/video loads settle promptly without stale media injection
   skip:!process.env.K4_VISUAL_BROWSER,
 },async()=>{
   const source=await readFile('web/renderer.js','utf8');
-  const server=createServer((req,res)=>{res.setHeader('Content-Type',req.url==='/renderer.js'?'application/javascript':'text/html');res.end(req.url==='/renderer.js'?source:'<!doctype html><canvas></canvas>');});
+  const penSource=await readFile('web/pen-k4.js','utf8');
+  const server=createServer((req,res)=>{const script=req.url==='/renderer.js'?source:req.url==='/pen-k4.js'?penSource:null;res.setHeader('Content-Type',script?'application/javascript':'text/html');res.end(script??'<!doctype html><canvas></canvas>');});
   await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));let browser;
   try{
     browser=await loadPlaywright().chromium.launch({headless:true,channel:'msedge'});const page=await browser.newPage();await page.goto(`http://127.0.0.1:${server.address().port}`);

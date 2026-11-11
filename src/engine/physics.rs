@@ -6,6 +6,9 @@ use rapier2d_f64::prelude::*;
 use serde_json::Value;
 use std::collections::{BTreeMap, BTreeSet};
 
+#[path = "physics_shape.rs"]
+mod shape;
+
 const STEP: f64 = 1.0 / 60.0;
 const PIXELS: f64 = 10.0;
 const HOOKS: ActiveHooks = ActiveHooks::FILTER_CONTACT_PAIRS
@@ -81,6 +84,8 @@ mod tests {
         command(&mut e, 1, Command::LegacyVelocity, [2.0, 90.0, 0.0]);
         let y = e.sprites[1].y;
         e.step_physics(STEP);
+        assert_eq!(e.sprites[1].y, y); // actor ticker precedes world integration
+        e.step_physics(STEP);
         assert!((e.sprites[1].y - y - 200.0 * STEP).abs() < 0.001);
         assert_eq!(e.physics_property(1, Property::Speed), 2.0);
         command(&mut e, 1, Command::LegacyVelocity, [20000.0, 0.0, 0.0]);
@@ -107,17 +112,23 @@ mod tests {
         command(&mut e, 1, Command::Forceable(true), [0.0; 3]);
         let x = e.sprites[1].x;
         e.step_physics(STEP);
+        assert_eq!(e.sprites[1].x, x);
+        e.step_physics(STEP);
         assert!(e.sprites[1].x > x);
         command(&mut e, 1, Command::Forceable(false), [0.0; 3]);
         let x = e.sprites[1].x;
         e.step_physics(STEP);
-        assert_eq!(e.sprites[1].x, x);
+        assert_eq!(e.sprites[1].x, x); // disabled adapters do not publish
         assert_eq!(e.physics_property(1, Property::Speed), 2.0);
+        let x = e.sprites[1].x;
+        e.step_physics(STEP);
+        assert_eq!(e.sprites[1].x, x);
         command(&mut e, 1, Command::Forceable(true), [0.0; 3]);
         e.sprites[1].visible = false;
         e.step_physics(STEP);
         assert_eq!(e.sprites[1].x, x);
         e.sprites[1].visible = true;
+        e.step_physics(STEP);
         e.step_physics(STEP);
         assert!(e.sprites[1].x > x);
     }
@@ -398,6 +409,7 @@ mod legacy_tests {
         let mut e = engine();
         command(&mut e, 1, Command::Gravity, [0.0; 3]);
         command(&mut e, 1, Command::Mass, [2.0, 0.0, 0.0]);
+        e.step_physics(STEP); // initialize newly registered world ticker
         command(&mut e, 1, Command::LegacyForce, [12.0, 0.0, 0.0]);
         command(&mut e, 1, Command::LegacyForceVector, [0.0, -12.0, 0.0]);
         e.step_physics(STEP);
@@ -625,6 +637,9 @@ struct World {
     gravity: Vector<f64>,
     filters: Filters,
     remainder: f64,
+    // A newly registered world ticker does not integrate in its registration
+    // batch. The first subsequent actor/body synchronization initializes it.
+    initialized: bool,
 }
 impl Default for World {
     fn default() -> Self {
@@ -643,6 +658,7 @@ impl Default for World {
             gravity: vector![0.0, -100.0],
             filters: Filters::default(),
             remainder: 0.0,
+            initialized: false,
         }
     }
 }
@@ -663,7 +679,10 @@ fn geometry(engine: &Engine, actor: usize) -> SharedShape {
     let sy = sprite.scale * sprite.size_y / 10000.0 / PIXELS;
     // Keep disconnected/concave silhouettes as a compound of opaque mask runs;
     // without a decoded mask the documented fallback is the costume rectangle.
-    if let Some((mw, mh, mask)) = costume.and_then(|c| c.mask.as_ref()) {
+    if let Some(mask_data @ (mw, mh, mask)) = costume.and_then(|c| c.mask.as_ref()) {
+        if let Some(shape) = shape::convex_mask(w, h, mask_data, sx, sy) {
+            return shape;
+        }
         let mut shapes = Vec::new();
         for y in 0..*mh {
             let mut x = 0;
@@ -1159,7 +1178,9 @@ impl Engine {
                         };
                         let collider = ColliderBuilder::cuboid(1000.0, 1000.0)
                             .translation(vector![x, y])
-                            .friction(0.1)
+                            // a1xw/Qt.create_edges uses the Box2D FixtureDef
+                            // default, unlike actor bodies' explicit 0.1.
+                            .friction(0.2)
                             .user_data(key as u128)
                             .active_hooks(HOOKS)
                             .build();
@@ -1241,15 +1262,20 @@ impl Engine {
                 {
                     body.set_position(position, true);
                 }
-                if b.shape != signature(a) {
+                let new_signature = signature(a);
+                if b.shape != new_signature {
                     w.colliders[b.collider].set_shape(geometry(self, actor));
                     // A rebuilt silhouette changes area and inertia even when
                     // its density is unchanged. Do not leave the old mass on
                     // the rigid body until an unrelated material command.
                     body.recompute_mass_properties_from_colliders(&w.colliders);
-                    b.shape = signature(a);
+                    b.shape = new_signature;
                 }
                 w.colliders[b.collider].set_sensor(b.forceable && !b.collidable);
+            }
+            if !w.initialized {
+                w.initialized = true;
+                continue;
             }
             w.remainder += dt;
             while w.remainder + 1e-10 >= STEP {
@@ -1261,9 +1287,34 @@ impl Engine {
                         }
                     }
                     b.forces.retain(|(ticks, _)| *ticks > 0);
+                    let body = &mut w.bodies[b.handle];
+                    if body.is_enabled() && body.is_dynamic() && !body.is_sleeping() {
+                        // Pcni/Island.Solve integrates forces once, then caps
+                        // translation to 2 physics units (20px), rotation pi/2.
+                        // Preintegrate before Rapier's substeps so free fall is
+                        // semi-implicit Euler, not four fractional gravity steps.
+                        let acceleration = w.gravity * body.gravity_scale()
+                            + body
+                                .user_force()
+                                .component_mul(&body.mass_properties().effective_inv_mass);
+                        let mut velocity = *body.linvel() + acceleration * STEP;
+                        let limit = 2.0 / STEP;
+                        if velocity.norm_squared() > limit * limit {
+                            velocity *= limit / velocity.norm();
+                        }
+                        body.set_linvel(velocity, false);
+                        body.set_angvel(
+                            body.angvel().clamp(
+                                -std::f64::consts::FRAC_PI_2 / STEP,
+                                std::f64::consts::FRAC_PI_2 / STEP,
+                            ),
+                            false,
+                        );
+                        body.reset_forces(false);
+                    }
                 }
                 w.pipeline.step(
-                    &w.gravity,
+                    &Vector::zeros(),
                     &IntegrationParameters {
                         dt: STEP,
                         ..Default::default()
@@ -1293,7 +1344,7 @@ impl Engine {
                 let a = &mut self.sprites[actor];
                 let (x, y) = (body.translation().x * PIXELS, body.translation().y * PIXELS);
                 let direction = 90.0 - body.rotation().angle().to_degrees();
-                if a.x != x || a.y != y || a.direction != direction {
+                if (a.x, a.y, a.direction) != (x, y, direction) {
                     a.x = x;
                     a.y = y;
                     a.direction = direction;

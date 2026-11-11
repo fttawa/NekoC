@@ -104,6 +104,11 @@ K4 partial 第二轮的 41 份仓库原创离线探针与保留边界：
 [文本搜索/媒体默认值](../../docs/kitten4-partial-text-2.md)。
 有限分支实测不等于完整兼容；这些类型仍保留 partial。
 
+第三轮固定帧证据与边界：[物理轨迹](../../docs/kitten4-physics-trajectory-3.md)、
+[场景过渡](../../docs/kitten4-partial-transition-3.md)、
+[画笔/填充/混合印章](../../docs/kitten4-partial-pen-3.md)。仍保留相关 partial，
+尤其不能把少量像素样例或无接触轨迹对齐当作完整求解器/滤镜兼容。
+
 ## 联网、安全与未验证范围
 
 默认外部 HTTP、WebSocket、Service Worker 均禁用；记录所有外部请求的方法、URL、类型和动作。

@@ -1030,7 +1030,7 @@
       "semantics": "partial",
       "mapping": [
         "src/kitten4.rs:557 (lower_block)",
-        "src/engine.rs:3977 (kitten4_legacy_)"
+        "src/engine.rs:4074 (kitten4_legacy_)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
@@ -1913,11 +1913,12 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/engine/physics.rs:538 (parse)"
+        "src/engine/physics.rs:550 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "第二轮 7 份原创物理夹具/210 帧官方实测：旧 exit 即时 static 清速、新 forceable/ticker 延迟和禁用动态体保速已修正；不声明跨求解器等价，见 kitten4-physics-partial.md",
+        "第三轮 11 份原创夹具/660 帧官方轨迹：首次世界初始化、自由落体积分、20px/tick 向量限速、边界摩擦与全不透明矩形轮廓已修正；接触仍有误差，复杂轮廓/软体未对齐，见 kitten4-physics-trajectory-3.md",
         "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
       ],
       "occurrences": 317
@@ -1960,6 +1961,7 @@
       "limitations": [
         "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
         "第二轮 18 份原创夹具官方实测：严格尺寸/10000 上限、场景错误、原图无角色滤镜/alpha、目的矩形 floor、过渡别名与任意 direction 已补齐；字体/像素、颜色 raster 与真实过渡动画仍有限制，见 kitten4-partial-drawing.md",
+        "第三轮 11 份原创画笔夹具：起点圆盘/闭合线、半透明叠色、零坐标重复落笔、填充与印章交错已实测；复杂字体/纹理和跨帧量化仍未验证，见 kitten4-partial-pen-3.md",
         "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
       ],
       "occurrences": 308
@@ -2168,11 +2170,12 @@
       "semantics": "partial",
       "mapping": [
         "src/kitten4.rs:536 (lower_block)",
-        "src/engine.rs:3973 (kitten4_set_velocity)"
+        "src/engine.rs:4070 (kitten4_set_velocity)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "第二轮 7 份原创物理夹具/210 帧官方实测：旧 exit 即时 static 清速、新 forceable/ticker 延迟和禁用动态体保速已修正；不声明跨求解器等价，见 kitten4-physics-partial.md",
+        "第三轮 11 份原创夹具/660 帧官方轨迹：首次世界初始化、自由落体积分、20px/tick 向量限速、边界摩擦与全不透明矩形轮廓已修正；接触仍有误差，复杂轮廓/软体未对齐，见 kitten4-physics-trajectory-3.md",
         "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
       ],
       "occurrences": 250
@@ -2255,6 +2258,7 @@
       "limitations": [
         "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
         "第二轮 18 份原创夹具官方实测：严格尺寸/10000 上限、场景错误、原图无角色滤镜/alpha、目的矩形 floor、过渡别名与任意 direction 已补齐；字体/像素、颜色 raster 与真实过渡动画仍有限制，见 kitten4-partial-drawing.md",
+        "第三轮 12 份原创夹具/780 帧：slide/bounce/fade 位置与 alpha、非法名称显示已回归；distort 截图扭曲与完成回调调度未对齐，见 kitten4-partial-transition-3.md",
         "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
       ],
       "occurrences": 215
@@ -2318,7 +2322,7 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/engine/physics.rs:539 (parse)"
+        "src/engine/physics.rs:551 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
@@ -2365,6 +2369,7 @@
       "limitations": [
         "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
         "第二轮 18 份原创夹具官方实测：严格尺寸/10000 上限、场景错误、原图无角色滤镜/alpha、目的矩形 floor、过渡别名与任意 direction 已补齐；字体/像素、颜色 raster 与真实过渡动画仍有限制，见 kitten4-partial-drawing.md",
+        "第三轮 11 份原创画笔夹具：起点圆盘/闭合线、半透明叠色、零坐标重复落笔、填充与印章交错已实测；复杂字体/纹理和跨帧量化仍未验证，见 kitten4-partial-pen-3.md",
         "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
       ],
       "occurrences": 165
@@ -2692,7 +2697,7 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/engine/physics.rs:566 (parse)"
+        "src/engine/physics.rs:578 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
@@ -2985,11 +2990,12 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/engine/physics.rs:560 (parse)"
+        "src/engine/physics.rs:572 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "第二轮 7 份原创物理夹具/210 帧官方实测：旧 exit 即时 static 清速、新 forceable/ticker 延迟和禁用动态体保速已修正；不声明跨求解器等价，见 kitten4-physics-partial.md",
+        "第三轮 11 份原创夹具/660 帧官方轨迹：首次世界初始化、自由落体积分、20px/tick 向量限速、边界摩擦与全不透明矩形轮廓已修正；接触仍有误差，复杂轮廓/软体未对齐，见 kitten4-physics-trajectory-3.md",
         "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
       ],
       "occurrences": 77
@@ -3067,10 +3073,11 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/engine/physics.rs:543 (parse)"
+        "src/engine/physics.rs:555 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
+        "第三轮 11 份原创夹具/660 帧官方轨迹：首次世界初始化、自由落体积分、20px/tick 向量限速、边界摩擦与全不透明矩形轮廓已修正；接触仍有误差，复杂轮廓/软体未对齐，见 kitten4-physics-trajectory-3.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 67
@@ -3169,7 +3176,7 @@
       "semantics": "partial",
       "mapping": [
         "src/kitten4.rs:487 (lower_block)",
-        "src/engine.rs:3548 (kitten4_entity_visibility)"
+        "src/engine.rs:3645 (kitten4_entity_visibility)"
       ],
       "limitations": [
         "角色/分组/场景显隐与有限正时长并发渐变已有源码推导回归；点击状态清理、取消/删克隆、竞争渐变和非有限时长未验证；删除引用沿用通用 noop 策略（官方悬空 UUID 行为未验证）",
@@ -3317,10 +3324,11 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/engine/physics.rs:561 (parse)"
+        "src/engine/physics.rs:573 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
+        "第三轮 11 份原创夹具/660 帧官方轨迹：首次世界初始化、自由落体积分、20px/tick 向量限速、边界摩擦与全不透明矩形轮廓已修正；接触仍有误差，复杂轮廓/软体未对齐，见 kitten4-physics-trajectory-3.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 43
@@ -3458,7 +3466,7 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/engine/physics.rs:550 (parse)"
+        "src/engine/physics.rs:562 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
@@ -3583,10 +3591,11 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/engine/physics.rs:565 (parse)"
+        "src/engine/physics.rs:577 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
+        "第三轮 11 份原创夹具/660 帧官方轨迹：首次世界初始化、自由落体积分、20px/tick 向量限速、边界摩擦与全不透明矩形轮廓已修正；接触仍有误差，复杂轮廓/软体未对齐，见 kitten4-physics-trajectory-3.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 27
@@ -3686,10 +3695,11 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/engine/physics.rs:564 (parse)"
+        "src/engine/physics.rs:576 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
+        "第三轮 11 份原创夹具/660 帧官方轨迹：首次世界初始化、自由落体积分、20px/tick 向量限速、边界摩擦与全不透明矩形轮廓已修正；接触仍有误差，复杂轮廓/软体未对齐，见 kitten4-physics-trajectory-3.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 20
@@ -3767,7 +3777,7 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/engine/physics.rs:542 (parse)"
+        "src/engine/physics.rs:554 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
@@ -3950,10 +3960,11 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/engine/physics.rs:559 (parse)"
+        "src/engine/physics.rs:571 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
+        "第三轮 11 份原创夹具/660 帧官方轨迹：首次世界初始化、自由落体积分、20px/tick 向量限速、边界摩擦与全不透明矩形轮廓已修正；接触仍有误差，复杂轮廓/软体未对齐，见 kitten4-physics-trajectory-3.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 14
@@ -4365,7 +4376,7 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/engine/physics.rs:573 (parse)"
+        "src/engine/physics.rs:585 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
@@ -4425,7 +4436,7 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/engine/physics.rs:562 (parse)"
+        "src/engine/physics.rs:574 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
@@ -6686,7 +6697,7 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/engine.rs:2728 (physics2_get_property)"
+        "src/engine.rs:2800 (physics2_get_property)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
@@ -6707,10 +6718,11 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/engine/physics.rs:563 (parse)"
+        "src/engine/physics.rs:575 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
+        "第三轮 11 份原创夹具/660 帧官方轨迹：首次世界初始化、自由落体积分、20px/tick 向量限速、边界摩擦与全不透明矩形轮廓已修正；接触仍有误差，复杂轮廓/软体未对齐，见 kitten4-physics-trajectory-3.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0
@@ -7747,6 +7759,7 @@
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
+        "第三轮 11 份原创夹具/660 帧官方轨迹：首次世界初始化、自由落体积分、20px/tick 向量限速、边界摩擦与全不透明矩形轮廓已修正；接触仍有误差，复杂轮廓/软体未对齐，见 kitten4-physics-trajectory-3.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 0

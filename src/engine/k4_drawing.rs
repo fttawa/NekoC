@@ -24,6 +24,30 @@ pub(super) fn transition_kind(kind: &str, direction: &str) -> String {
 }
 
 impl Engine {
+    /// Rt.set_pen_down tests both stored coordinates for JS truthiness. With
+    /// either coordinate zero a repeated pen-down draws another dot; away from
+    /// the axes it is idempotent. A down brush's stored origin is its position.
+    pub(super) fn k4_pen_down_draws(&self, actor: usize) -> bool {
+        let a = &self.sprites[actor];
+        !a.pen || a.x == 0.0 || a.y == 0.0 || a.x.is_nan() || a.y.is_nan()
+    }
+
+    /// Rt draws a filled origin disk and then a closed two-point stroke. Both
+    /// composite independently, including alpha; a zero-length path has no
+    /// Canvas stroke. The sensing raster remains pixel-centre (not AA) based.
+    pub(super) fn raster_k4_line(
+        &mut self,
+        from: (f64, f64),
+        to: (f64, f64),
+        size: f64,
+        color: [f32; 4],
+    ) {
+        self.raster_line(from, from, size, color);
+        if from != to {
+            self.raster_line(from, to, size, color);
+        }
+    }
+
     pub(super) fn raster_k4_stamp(&mut self, actor: usize) {
         if self.sprites[actor].text.is_some() {
             return;
@@ -110,6 +134,43 @@ mod tests {
     use crate::{engine::Program, kitten4};
     use serde_json::Value;
     use std::time::Duration;
+
+    #[test]
+    fn k4_origin_disk_composites_separately_and_zero_path_has_no_stroke() {
+        let native: Value = serde_json::from_str(include_str!(
+            "../../tests/fixtures/kitten4/partial-pen-3-alpha-endpoints.bcm"
+        ))
+        .unwrap();
+        let mut engine =
+            Engine::new(Program::compile(&kitten4::to_neko(&native).unwrap()).unwrap());
+        let color = [0.0, 0.0, 0.0, 0.5];
+        engine.raster_k4_line((-120.0, 30.0), (-120.0, 30.0), 20.0, color);
+        engine.raster_k4_line((-120.0, 30.0), (-20.0, 30.0), 20.0, color);
+        let raster = engine.pen_rasters[engine.current_scene].as_ref().unwrap();
+        // Canvas quantizes premultiplied alpha slightly differently (223/127);
+        // this pixel-centre sensing raster intentionally rounds to 224/128.
+        assert_eq!(raster[((360 - 30) * 960 + 480 - 120) * 4 + 3], 224);
+        assert_eq!(raster[((360 - 30) * 960 + 480 - 70) * 4 + 3], 128);
+    }
+
+    #[test]
+    fn k4_repeated_pen_down_only_redraws_when_an_origin_coordinate_is_falsy() {
+        let native: Value = serde_json::from_str(include_str!(
+            "../../tests/fixtures/kitten4/partial-pen-3-repeated-down-nonzero.bcm"
+        ))
+        .unwrap();
+        let mut engine =
+            Engine::new(Program::compile(&kitten4::to_neko(&native).unwrap()).unwrap());
+        let actor = engine.sprites.iter().position(|a| !a.stage).unwrap();
+        assert!(engine.k4_pen_down_draws(actor));
+        engine.sprites[actor].pen = true;
+        assert!(!engine.k4_pen_down_draws(actor));
+        engine.sprites[actor].x = 0.0;
+        assert!(engine.k4_pen_down_draws(actor));
+        engine.sprites[actor].x = -120.0;
+        engine.sprites[actor].y = 0.0;
+        assert!(engine.k4_pen_down_draws(actor));
+    }
 
     #[test]
     fn hidden_transparent_sprite_still_stamps_raw_pixels_into_color_raster() {
