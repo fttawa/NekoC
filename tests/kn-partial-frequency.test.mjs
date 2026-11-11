@@ -93,7 +93,9 @@ test("reports retain dormant caveats, full zero rows and deterministic generated
   assert.match(markdown, /PENCRAFT/);
   assert.match(markdown, /fields.type=mouse_down/);
   for (const row of result.rows.filter(r => !r.occurrences)) assert.ok(markdown.includes(`\`${row.type}\``));
-  assert.equal(fs.readFileSync(new URL("../docs/kn-partial-priority.md", import.meta.url), "utf8"), markdown);
+  // Checkouts with core.autocrlf=true store the generated report with CRLF.
+  const saved_markdown = fs.readFileSync(new URL("../docs/kn-partial-priority.md", import.meta.url), "utf8");
+  assert.equal(saved_markdown.replace(/\r\n/g, "\n"), markdown.replace(/\r\n/g, "\n"));
   const saved = JSON.parse(fs.readFileSync(new URL("../docs/kn-partial-frequency.json", import.meta.url), "utf8"));
   // Staging new round probes may change the explicit exclusion ledger, but never
   // frequencies. No test needs to create a file or mutate the Git index.
