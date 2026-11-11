@@ -369,4 +369,4 @@ NekoC/
 
 ## 友情链接
 
-- [HateNeko](https://github.com/SquCircle/HateNeko)：把 Kitten N 作品编译成 LÖVE（Love2D）程序的编译器与运行时。项目已停止更新，感谢作者和贡献者们一直以来的付出。
+- [HateNeko](https://github.com/SquCircle/HateNeko)：把 Kitten N 作品编译成 LÖVE（Love2D）程序的编译器与运行时。
