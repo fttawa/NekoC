@@ -35,9 +35,24 @@ node --test tests/k4-oracle.test.mjs
 静态资源限定于外部 build 目录的直接文件，拒绝路径穿越。
 端口随机分配，结束或失败均关闭浏览器和服务。不要给第三方服务传账号凭据。
 
-默认要求外部包保留 `player_v2*.js.orig`，**不回退到含调度优化的 `.js`**。
+默认要求外部包保留 `player_v2*.js.orig`，**不回退到含调度、数值及其他本地修改的 `.js`**。
 `.orig` 本身仍有包装器的 DI 暴露点；这里的“官方”意为此离线包中的官方运行时，
-没有独立认证它等于线上发布物。每次结果记录资源 SHA-256，便于复验。
+其与线上发布物的关系限于[本次在线/离线取证](../../docs/compatibility/k4-online-vs-offline.md)：
+指定主包除 DI 暴露外字节一致，三份公开作品的受控状态一致；不是当前在线编辑器全集或网络/墙钟行为认证。
+每次结果记录资源 SHA-256，便于复验。
+
+在线来源取证（所有下载与轨迹仅写本 worktree `dist/k4online/`）：
+
+```powershell
+node tools/compat/k4-online.mjs collect
+node tools/compat/k4-online-trace.mjs 186831447 E:/nekoc/dist/kitten4-corpus
+node tools/compat/k4-online.mjs compare "$env:K4_PLAYER_DIR" dist/k4online/186831447.pair.json
+```
+
+在线适配器使用真实官方播放页，不替换脚本、作品或配置；仅放行官方域名 HTTPS GET/HEAD，
+不登录、不提交表单，不转发 Cookie/Authorization，阻断 POST、第三方追踪和 WebSocket。
+作品 canonical JSON hash 必须匹配本地输入才采样。使用与离线 oracle 相同的状态采样与显式
+60 Hz/PCG/虚拟 Date 控制；它验证受控 update，不验证原生联网或真实播放速率。
 
 ## 编译、帧和比较约定
 

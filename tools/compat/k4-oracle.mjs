@@ -306,7 +306,9 @@ export async function runOracle(input, options = {}) {
   // editable works need an empty-AST bootstrap to access the native compiler.
   const bootstrap = structuredClone(project); bootstrap.compile_result = [];
   const needsCompile = options.command === "compile" || !Array.isArray(project.compile_result);
-  const kernel = await openKernel(options, needsCompile ? bootstrap : project);
+  // An explicit adapter can supply a live anonymous official page while reusing
+  // the exact same sampling code. Default remains the fail-closed local oracle.
+  const kernel = await (options.openKernel || openKernel)(options, needsCompile ? bootstrap : project);
   // A domain block can hang inside page.evaluate, whose timeout is otherwise
   // unbounded. Visual batches opt into a whole-work watchdog and close the page.
   const watchdog = options.wallTimeoutMs ? setTimeout(() => {
@@ -315,7 +317,7 @@ export async function runOracle(input, options = {}) {
   }, options.wallTimeoutMs) : null;
   kernel.diagnostics.adaptations = adaptations;
   kernel.diagnostics.instrumentation = [
-    "external .orig bundle retains the wrapper's DI exposure; not independently authenticated upstream",
+    ...(kernel.instrumentation || ["external .orig bundle retains the wrapper's DI exposure; not independently authenticated upstream"]),
     "rAF held during load; official Start performs update 1, then one rAF batch per update",
     "native deterministic scheduler/PCG config; native Clock fixed to 1000/60 ms",
     "Math.random redirected at Start to a separate seeded native PCG instance",

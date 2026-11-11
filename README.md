@@ -365,7 +365,7 @@ NekoC/
 - ✅ 场景测试、监视模式、优化器、source map
 - ✅ 覆盖面较广的 TS 语法：递归、数组和字符串方法、`try/catch` 等，见[实测支持情况](docs/ts-support-audit.md)
 - ✅ 带类型定义的 Self API
-- ✅ Kitten 4 播放器：按官方离线内核逐帧对齐调度、场景、克隆、私有/云变量、声音、视频、物理和画笔；积木无缺失、无 stub
+- ✅ Kitten 4 播放器：以指定 hash 的官方离线内核核对调度、场景、克隆、变量、媒体、物理和画笔；审计清单映射入口无缺失、无 stub，但设备降级、partial 和未验证语义仍存在。[在线/离线取证](docs/compatibility/k4-online-vs-offline.md)仅证明指定发布物及三份作品的受控状态一致，不代表完整线上兼容
 - ✅ 扩展接口 v1（Rust / JS）
 
 ## 仓库约定

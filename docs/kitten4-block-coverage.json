@@ -1,6 +1,7 @@
 {
   "bundle": "src/player/build/player_v2.2d180c468559fbd29528.js.orig",
   "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160",
+  "sourceScope": "指定官方离线主 chunk；非在线编辑器全集。在线发布物关系见 docs/compatibility/k4-online-vs-offline.md",
   "corpus": "E:/nekoc/dist/kitten4-corpus",
   "files": 53,
   "workspaceOwners": 0,
@@ -1028,7 +1029,7 @@
       "semantics": "partial",
       "mapping": [
         "src/kitten4.rs:559 (lower_block)",
-        "src/engine.rs:4136 (kitten4_legacy_)"
+        "src/engine.rs:4250 (kitten4_legacy_)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
@@ -2168,7 +2169,7 @@
       "semantics": "partial",
       "mapping": [
         "src/kitten4.rs:538 (lower_block)",
-        "src/engine.rs:4132 (kitten4_set_velocity)"
+        "src/engine.rs:4246 (kitten4_set_velocity)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
@@ -3174,7 +3175,7 @@
       "semantics": "partial",
       "mapping": [
         "src/kitten4.rs:489 (lower_block)",
-        "src/engine.rs:3710 (kitten4_entity_visibility)"
+        "src/engine.rs:3824 (kitten4_entity_visibility)"
       ],
       "limitations": [
         "第五轮17份原创夹具408官方帧：渐变尾部update相位、竞争alpha斜率叠加、取消调用方冻结、隐藏清理held指针、零/负/NaN/Infinity时长已实测；逐帧/像素结果见 kitten4-partial-visibility-5.md。克隆删除仍有一帧生命周期差异，场景/悬空UUID/非60Hz与完整手势边界保留partial",
@@ -6695,7 +6696,7 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/engine.rs:2856 (physics2_get_property)"
+        "src/engine.rs:2896 (physics2_get_property)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
