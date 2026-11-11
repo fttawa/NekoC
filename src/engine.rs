@@ -1845,6 +1845,14 @@ impl Compiler {
             | "microbit_is_gesture"
             | "microbit_pin_digital_read"
             | "microbit_pin_analog_read"
+            | "microbit_get_volume"
+            | "catbit_button_is_pressed"
+            | "wand_button_is_pressed"
+            | "wand_coordinate"
+            | "wand_rotation"
+            | "get_robot_master_motor_power"
+            | "get_robot_master_infrared_sensor_distance"
+            | "get_robot2_master_motor_power"
                 if self.program.semantics == RuntimeSemantics::KnCurrent =>
             {
                 let spec = kn_hardware::reporter(b["type"].as_str().unwrap()).unwrap();
@@ -1852,6 +1860,7 @@ impl Compiler {
                 self.constant(match spec.result {
                     kn_hardware::DisconnectedValue::BooleanFalse => Cell::Bool(false),
                     kn_hardware::DisconnectedValue::NumberNaN => Cell::Number(f64::NAN),
+                    kn_hardware::DisconnectedValue::Undefined => Cell::Undefined,
                 })
             }
             "microbit_led_is_plot" if self.program.semantics == RuntimeSemantics::KnCurrent => {
@@ -2619,6 +2628,14 @@ impl Compiler {
             | "microbit_led_is_plot"
             | "microbit_pin_digital_read"
             | "microbit_pin_analog_read"
+            | "microbit_get_volume"
+            | "catbit_button_is_pressed"
+            | "wand_button_is_pressed"
+            | "wand_coordinate"
+            | "wand_rotation"
+            | "get_robot_master_motor_power"
+            | "get_robot_master_infrared_sensor_distance"
+            | "get_robot2_master_motor_power"
             | "get_face_detection_result"
             | "get_object_detection_result"
             | "check_gender"
@@ -3380,6 +3397,15 @@ impl Compiler {
                 );
                 let kind = b["type"].as_str().unwrap_or("");
                 let op = match kind {
+                    "microbit_set_bpm" | "microbit_change_bpm"
+                        if self.program.semantics == RuntimeSemantics::KnCurrent =>
+                    {
+                        let sockets = kn_hardware::command(kind).unwrap();
+                        debug_assert_eq!(sockets.len(), 1);
+                        // The actual disconnected domain returns synchronously
+                        // before reading parameters. Do not elide its input.
+                        Op::Execute(self.value(input(b, sockets[0])?)?)
+                    }
                     "translate"
                     | "show_hide_ranking"
                     | "update_ranking"

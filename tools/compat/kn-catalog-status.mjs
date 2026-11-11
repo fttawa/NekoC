@@ -107,6 +107,16 @@ const risks = {
   microbit_led_is_plot: "仅无microbit连接时顺序求值x/y后boolean false；真实LED查询未实现",
   microbit_pin_digital_read: "仅无microbit连接时numeric NaN；真实数字引脚未实现",
   microbit_pin_analog_read: "仅无microbit连接时numeric NaN；真实模拟引脚未实现",
+  microbit_get_volume: "仅空硬件 Map 时同步 undefined，不是音量 0/NaN；真实设备与未连接提示 UI 未实现",
+  microbit_set_bpm: "仅空硬件 Map 时同步早退并求值 bpm；真实设备节拍与未连接提示 UI 未实现",
+  microbit_change_bpm: "仅空硬件 Map 时同步早退并求值 offset；真实设备节拍与未连接提示 UI 未实现",
+  catbit_button_is_pressed: "仅空硬件 Map 时同步 boolean false；真实按键与未连接提示 UI 未实现",
+  wand_button_is_pressed: "仅空硬件 Map 时同步 boolean false；真实按键与未连接提示 UI 未实现",
+  wand_coordinate: "仅空硬件 Map 时同步 numeric NaN；真实坐标与未连接提示 UI 未实现",
+  wand_rotation: "仅空硬件 Map 时同步 numeric NaN；真实旋转与未连接提示 UI 未实现",
+  get_robot_master_motor_power: "仅空硬件 Map 时同步 numeric NaN；真实电机与未连接提示 UI 未实现",
+  get_robot_master_infrared_sensor_distance: "仅空硬件 Map 时同步 numeric NaN；真实红外与未连接提示 UI 未实现",
+  get_robot2_master_motor_power: "仅空硬件 Map 时同步 numeric NaN；真实电机与未连接提示 UI 未实现",
 };
 const limitations = {
   __break__: "官方类型声明/API 伪名；编辑器实际积木为 break。此分派仅为兼容输入，非同名积木支持",
@@ -157,6 +167,18 @@ export function inventory(root, reference, engineSource) {
   const panelRows = Object.entries(panel.typeGroups).flatMap(([category, types]) =>
     types.map(type => [type, category]));
   const panelCategories = new Map(panelRows);
+  // Exact measured remaining-hardware sets, not a prefix-based compatibility
+  // fallback. Promise settlement and event metadata are not VM execution paths.
+  const micro = JSON.parse(fs.readFileSync(path.join(root, "docs/kn-hardware-remaining-evidence.json"), "utf8"));
+  const other = JSON.parse(fs.readFileSync(path.join(root, "docs/kn-other-hardware-evidence.json"), "utf8"));
+  const hardwareLimits = new Map([
+    ...micro.blocks.filter(b => b.inCatalog && b.classification.startsWith("unsupported-")).map(b =>
+      [b.name, b.kind === "event" ? "官方事件规格仍存在；缺少原生派发/调度证据，保留缺失；空 Map 自然通知无来源，不认证全局不可达" :
+        "官方无连接仍返回 Promise；原生 await/调度未验证，保留缺失，不折叠成同步常量或 no-op"]),
+    ...other.editor.panels.filter(b => b.kind !== "reporter").map(b =>
+      [b.name, b.kind === "event" ? "官方事件规格仍存在；缺少原生派发/调度证据，保留缺失，不认证全局不可达" :
+        "官方无连接仍返回 Promise；原生 await/调度未验证，保留缺失，不折叠成同步 no-op"]),
+  ]);
   if (panel.catalogSha256 !== catalogSha256 || panelRows.length !== catalogTypes.length ||
       panelCategories.size !== catalogTypes.length ||
       catalogTypes.some(type => !officialCategories[panelCategories.get(type)])) {
@@ -212,7 +234,7 @@ export function inventory(root, reference, engineSource) {
     const status = !vm.length ? "缺失" : metadata ? "元数据" : type === "get_orientation" ? "固定值占位" : risks[type] ? "部分语义" : statuses[0];
     const tests = testSources.filter(([, source]) => source.includes(`"${type}"`))
       .map(([file]) => path.relative(root, file).replaceAll("\\", "/"));
-    return { type, status, risk: risks[type] ?? limitations[type] ?? (vm.length ? "显式路径仅证明会编译；全部字段、选项、错误与官方行为尚未逐项验证" : missingReason(type)),
+    return { type, status, risk: risks[type] ?? limitations[type] ?? (vm.length ? "显式路径仅证明会编译；全部字段、选项、错误与官方行为尚未逐项验证" : hardwareLimits.get(type) ?? missingReason(type)),
       occurrences: frequencies.get(type) ?? 0, event: eventTypes.has(type), tests,
       vm, compiler: "src/bcmkn_compiler.rs::build_nested_block (generic field-preserving import)",
       reference: referenceFunctions, officialCategory: panelCategories.get(type),
@@ -260,6 +282,7 @@ export function coverageMarkdown(result) {
     "- 第四轮6个新增microbit同步查询只覆盖 [kn-hardware.md](kn-hardware.md) 的官方无连接分支；37条官方局部调用含已有map，不代表真实硬件或完整原生工程调度支持。",
     "- 第四轮已逐项核对300名称的官方面板/注册/扩展配置，见 [kn-panel-audit.md](kn-panel-audit.md) 和 [kn-panel-evidence.json](kn-panel-evidence.json)。普通默认配置142、可配置默认隐藏52、嵌套动态1、已注册但本次面板未列出41、硬件扩展定义60、官方代码API/声明别名4；本轮没有足够证据认证任何名称为“非官方/已下线”（两者均0）。这套分类独立于VM状态：缺失包含1个非同名积木API，不把它伪造为可执行入口，也不拿面板分类减少VM缺失计数。",
     "- 第五轮只处理上述两类面板可达缺失项；官方取证与严格离线/宿主边界见 [kn-panel-services.md](kn-panel-services.md)、[kn-panel-capture.md](kn-panel-capture.md)、[kn-panel-ai.md](kn-panel-ai.md)。新增分派统一保留部分语义，不把无后端早退当作成功请求；默认音量仍缺失。",
+    "- 第六轮逐项核实原53个硬件缺失项，新增10个同步无连接路径（8 reporter、2 command），均仅空硬件 Map 的部分语义；43个 Promise/事件项仍缺失，不伪装同步执行。官方403次局部调用、127个源码锚点及41个非面板注册项的可达性复核见 [kn-hardware-remaining.md](kn-hardware-remaining.md)、[kn-other-hardware.md](kn-other-hardware.md)，实现边界见 [kn-hardware-round6.md](kn-hardware-round6.md)。41项都有现有执行/元数据路径，36项可由官方代码视图生成；其余5项可构造，不标不可达。`get_sprite_property`仍只作为代码API别名，不创建同名VM入口。",
     "- 官方 bundle：`https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js`；SHA-256 `58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165`。`_execute` byte 2962264 是空函数；`_array_literal` byte 2962446 使用 `Object.values`。空函数不等于输入不求值，执行管线仍需单独验证。",
     "- 导入层 `src/bcmkn_compiler.rs::build_nested_block` 泛型保留 type/fields，再按连接重建 inputs/statements/next；这只能说明能装配/读取，不能证明 VM 支持。`tests/kn_gap.rs::workspace_compiler_preserves_unknown_types_without_claiming_vm_support` 专门覆盖此区别。",
     "- 实现定位只扫描 value_one、expression_one、scripts、chain 的类型分派，排除注释、字段选项、expression_inputs 遍历提示和游离根忽略名单。元数据单独列出。此静态审计不能证明每条 guard 在 KN 模式均可达，也不能替代运行测试。",

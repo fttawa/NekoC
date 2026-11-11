@@ -1,0 +1,5927 @@
+{
+  "schema": "nekoc-kn-other-hardware-v1",
+  "checkedAt": "2026-11-11T01:38:49.424Z",
+  "editorUrl": "https://kn.codemao.cn/editor",
+  "method": "Fresh anonymous official Edge; expose webpack loader, load five actual lazy extension modules without installing or connecting hardware, call unchanged official domain factories and event predicates, inspect official panels and registration, convert authored code using official code-view converter. Read local VM branch names without changing Rust.",
+  "limitations": [
+    "Empty hardware map only; connected devices and installed-but-disconnected cores were not measured.",
+    "Direct domain calls are not native project execution. Promise fulfillment does not establish native scheduling; all commands remain deferred.",
+    "Event specs and isolated predicates are not live event-dispatch tests. No device events were injected into a running project.",
+    "Panel argument order is not a proof of child-expression VM evaluation order. Domain property reads do not authorize input elision.",
+    "A local exact-name VM branch proves a path exists, not semantic completeness. Registration and code conversion do not prove playback behavior.",
+    "The 41 registered types are existing VM paths, not new missing features; negative converter results do not establish unreachability."
+  ],
+  "bundles": [
+    {
+      "name": "crc_libs.8196dbd1.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+      "bytes": 1297643,
+      "sha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7"
+    },
+    {
+      "name": "base.f158ddbf.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/base.f158ddbf.js",
+      "bytes": 949823,
+      "sha256": "724251e202e9dac074241e6296f3bbf3773c420141516764c8434dd17eb113e7"
+    },
+    {
+      "name": "main.8ccf2442.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+      "bytes": 5594327,
+      "sha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165"
+    },
+    {
+      "name": "main-vendors.07f7dd7e.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main-vendors.07f7dd7e.js",
+      "bytes": 6460489,
+      "sha256": "38183ab8a9620f33fef75f1bd1f90ee26b492e7b6ded8b6b065fc052e7948f68"
+    },
+    {
+      "name": "5851.a37eb285.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/5851.a37eb285.chunk.js",
+      "bytes": 181408,
+      "sha256": "79f96472792b16fb60cb13ee65fe2a64f16b224a8848c591308cad0d02baced5"
+    },
+    {
+      "name": "6062.1ef86232.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/6062.1ef86232.chunk.js",
+      "bytes": 5199,
+      "sha256": "362c82cbd0f2c6a05349ab05e2e6517cf40783429421424ef21b0b1e34978704"
+    },
+    {
+      "name": "4984.26063c69.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/4984.26063c69.chunk.js",
+      "bytes": 13538,
+      "sha256": "afda963988a73b83d4be21b2584d22ceb4a774502016fdce1c9c5d92569920c2"
+    },
+    {
+      "name": "catui2.c678ccd3.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/catui2.c678ccd3.chunk.js",
+      "bytes": 36077,
+      "sha256": "731eec8687c6bf701cae14a35a72f3bd08e35a6f36d7ef15bfb3a7330fcd3efb"
+    },
+    {
+      "name": "4023.4ec8fceb.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/4023.4ec8fceb.chunk.js",
+      "bytes": 18773,
+      "sha256": "e0b2892d66f6aa6e798b42d5573313fd41a0e1682d4d3a1c00a595bfb8ac40fb"
+    },
+    {
+      "name": "2704.ec059467.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/2704.ec059467.chunk.js",
+      "bytes": 34835,
+      "sha256": "99a86c599cbda9180918819dc5b25b20cb83e1e2c1205ab47eb61f0b05b806b3"
+    },
+    {
+      "name": "6729.cc22670b.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/6729.cc22670b.chunk.js",
+      "bytes": 109,
+      "sha256": "76619f79ea51dfcd0c0ea4572f14d224829ee6ebe6f05d7443474a04f5dcd721"
+    },
+    {
+      "name": "2455.fff7df4c.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/2455.fff7df4c.chunk.js",
+      "bytes": 64310,
+      "sha256": "ef75b9497e0c59df11906a787139390ff5f7cb1092fa71eccb0de343adc08c9f"
+    },
+    {
+      "name": "2121.88168974.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/2121.88168974.chunk.js",
+      "bytes": 95951,
+      "sha256": "ba8237837aab054dcdc620b0878dfa53c6c41887ddb92765a9df8b86dead4dc3"
+    },
+    {
+      "name": "9183.d5310631.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/9183.d5310631.chunk.js",
+      "bytes": 8519,
+      "sha256": "e581ab9da42b0cd3748484c88b511609902c11be0f89b3362105192bf504ec05"
+    },
+    {
+      "name": "5337.9c55d0e3.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/5337.9c55d0e3.chunk.js",
+      "bytes": 340604,
+      "sha256": "bd1ab2378ab30b25f75836f66c864faff358bddec80eeb93853655ca9214321b"
+    },
+    {
+      "name": "entry_hardware.481194e4.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/entry_hardware.481194e4.chunk.js",
+      "bytes": 681355,
+      "sha256": "7259df6bc25c81905028a569ca5e99fba5091ca4fbddd29c2ec92ac15c75842d"
+    },
+    {
+      "name": "8178.8c1ca691.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/8178.8c1ca691.chunk.js",
+      "bytes": 10683,
+      "sha256": "fbc439dc045b654365926c3b49b8622f270cba0fc86ed4e102e0e550d659eab5"
+    },
+    {
+      "name": "stage_animation.871fede4.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/stage_animation.871fede4.chunk.js",
+      "bytes": 202201,
+      "sha256": "ab9d29b8b3dbcda99ec3be20754901fc80b4266325a57ab2eb14f8d2ae741656"
+    },
+    {
+      "name": "6042.3ac13c56.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/6042.3ac13c56.chunk.js",
+      "bytes": 5106,
+      "sha256": "81f8c2b9ec5a79707aa0c84383401a2e47572854c8908f9a644395fb0e90bcff"
+    },
+    {
+      "name": "1766.d598a979.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/1766.d598a979.chunk.js",
+      "bytes": 8238,
+      "sha256": "4c566a25a274be2d4ba0beeb31a7a01ca674c7a033bdff4e756a76415d2217c0"
+    },
+    {
+      "name": "7952.ccda8e65.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/7952.ccda8e65.chunk.js",
+      "bytes": 8636,
+      "sha256": "d1a494cb7d7a089ae2411620478d725764ad246ee07ec969e10031d5ffae84f4"
+    },
+    {
+      "name": "8362.1474cbe1.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/8362.1474cbe1.chunk.js",
+      "bytes": 8272,
+      "sha256": "3a11b25ae94e59c2e3b4ed2bfc6d7163110ed5d96bedc3ad50bfd2b40228a8fd"
+    }
+  ],
+  "pageErrors": [],
+  "editor": {
+    "version": "0.27.4",
+    "hardwareIds": [],
+    "panels": [
+      {
+        "name": "catbit_button_is_pressed",
+        "kind": "reporter",
+        "output": "Boolean",
+        "inputs": [],
+        "argumentOrder": [
+          "key"
+        ],
+        "defaults": {
+          "key": "0"
+        },
+        "fields": [
+          {
+            "name": "key",
+            "type": "field_neko_dropdown",
+            "options": [
+              "0",
+              "1",
+              "2",
+              "3",
+              "4",
+              "5",
+              "6",
+              "7"
+            ]
+          }
+        ],
+        "implementationBoundary": "synchronous-disconnected-reporter-candidate"
+      },
+      {
+        "name": "catbit_button_when",
+        "kind": "event",
+        "output": null,
+        "inputs": [],
+        "argumentOrder": [
+          "type",
+          "key"
+        ],
+        "defaults": {
+          "type": "click",
+          "key": "0"
+        },
+        "fields": [
+          {
+            "name": "type",
+            "type": "field_neko_dropdown",
+            "options": [
+              "click",
+              "pressed",
+              "released"
+            ]
+          },
+          {
+            "name": "key",
+            "type": "field_neko_dropdown",
+            "options": [
+              "0",
+              "1",
+              "2",
+              "3",
+              "4",
+              "5",
+              "6",
+              "7"
+            ]
+          }
+        ],
+        "implementationBoundary": "defer-event-dispatch-unproven"
+      },
+      {
+        "name": "catbit_usb_button_when",
+        "kind": "event",
+        "output": null,
+        "inputs": [],
+        "argumentOrder": [
+          "type",
+          "key"
+        ],
+        "defaults": {
+          "type": "click",
+          "key": "0"
+        },
+        "fields": [
+          {
+            "name": "type",
+            "type": "field_neko_dropdown",
+            "options": [
+              "click",
+              "pressed",
+              "released"
+            ]
+          },
+          {
+            "name": "key",
+            "type": "field_neko_dropdown",
+            "options": [
+              "0",
+              "1",
+              "2",
+              "3",
+              "4",
+              "5",
+              "6",
+              "7"
+            ]
+          }
+        ],
+        "implementationBoundary": "defer-event-dispatch-unproven"
+      },
+      {
+        "name": "change_robot2_master_motor_power",
+        "kind": "command",
+        "output": null,
+        "inputs": [
+          "n"
+        ],
+        "argumentOrder": [
+          "method",
+          "n"
+        ],
+        "defaults": {
+          "method": "1",
+          "n": "1"
+        },
+        "fields": [
+          {
+            "name": "method",
+            "type": "field_neko_dropdown",
+            "options": [
+              "1",
+              "-1"
+            ]
+          }
+        ],
+        "implementationBoundary": "defer-promise-scheduler-unproven"
+      },
+      {
+        "name": "change_robot_master_motor_power",
+        "kind": "command",
+        "output": null,
+        "inputs": [
+          "n"
+        ],
+        "argumentOrder": [
+          "motor",
+          "method",
+          "n"
+        ],
+        "defaults": {
+          "motor": "0",
+          "method": "1",
+          "n": "1"
+        },
+        "fields": [
+          {
+            "name": "motor",
+            "type": "field_neko_dropdown",
+            "options": [
+              "0",
+              "1",
+              "all"
+            ]
+          },
+          {
+            "name": "method",
+            "type": "field_neko_dropdown",
+            "options": [
+              "1",
+              "-1"
+            ]
+          }
+        ],
+        "implementationBoundary": "defer-promise-scheduler-unproven"
+      },
+      {
+        "name": "get_robot2_master_motor_power",
+        "kind": "reporter",
+        "output": "Number",
+        "inputs": [],
+        "argumentOrder": [],
+        "defaults": {},
+        "fields": [],
+        "implementationBoundary": "synchronous-disconnected-reporter-candidate"
+      },
+      {
+        "name": "get_robot_master_infrared_sensor_distance",
+        "kind": "reporter",
+        "output": "Number",
+        "inputs": [],
+        "argumentOrder": [
+          "num"
+        ],
+        "defaults": {
+          "num": "0"
+        },
+        "fields": [
+          {
+            "name": "num",
+            "type": "field_neko_dropdown",
+            "options": [
+              "0",
+              "1"
+            ]
+          }
+        ],
+        "implementationBoundary": "synchronous-disconnected-reporter-candidate"
+      },
+      {
+        "name": "get_robot_master_motor_power",
+        "kind": "reporter",
+        "output": "Number",
+        "inputs": [],
+        "argumentOrder": [
+          "motor"
+        ],
+        "defaults": {
+          "motor": "0"
+        },
+        "fields": [
+          {
+            "name": "motor",
+            "type": "field_neko_dropdown",
+            "options": [
+              "0",
+              "1"
+            ]
+          }
+        ],
+        "implementationBoundary": "synchronous-disconnected-reporter-candidate"
+      },
+      {
+        "name": "set_robot2_master_motor_power_rotation",
+        "kind": "command",
+        "output": null,
+        "inputs": [
+          "power"
+        ],
+        "argumentOrder": [
+          "power",
+          "direction"
+        ],
+        "defaults": {
+          "power": "1",
+          "direction": "1"
+        },
+        "fields": [
+          {
+            "name": "direction",
+            "type": "field_neko_dropdown",
+            "options": [
+              "1",
+              "-1"
+            ]
+          }
+        ],
+        "implementationBoundary": "defer-promise-scheduler-unproven"
+      },
+      {
+        "name": "set_robot2_master_motor_power_rotation_duration",
+        "kind": "command",
+        "output": null,
+        "inputs": [
+          "power",
+          "times"
+        ],
+        "argumentOrder": [
+          "power",
+          "direction",
+          "times"
+        ],
+        "defaults": {
+          "power": "1",
+          "direction": "1",
+          "times": "2"
+        },
+        "fields": [
+          {
+            "name": "direction",
+            "type": "field_neko_dropdown",
+            "options": [
+              "1",
+              "-1"
+            ]
+          }
+        ],
+        "implementationBoundary": "defer-promise-scheduler-unproven"
+      },
+      {
+        "name": "set_robot_master_light_color",
+        "kind": "command",
+        "output": null,
+        "inputs": [],
+        "argumentOrder": [
+          "light",
+          "color"
+        ],
+        "defaults": {
+          "light": "0",
+          "color": "#FAC530"
+        },
+        "fields": [
+          {
+            "name": "light",
+            "type": "field_neko_dropdown",
+            "options": [
+              "0",
+              "1",
+              "all"
+            ]
+          },
+          {
+            "name": "color",
+            "type": "field_colour"
+          }
+        ],
+        "implementationBoundary": "defer-promise-scheduler-unproven"
+      },
+      {
+        "name": "set_robot_master_light_color_duration",
+        "kind": "command",
+        "output": null,
+        "inputs": [
+          "times"
+        ],
+        "argumentOrder": [
+          "light",
+          "color",
+          "times"
+        ],
+        "defaults": {
+          "light": "0",
+          "color": "#FAC530",
+          "times": "2"
+        },
+        "fields": [
+          {
+            "name": "light",
+            "type": "field_neko_dropdown",
+            "options": [
+              "0",
+              "1",
+              "all"
+            ]
+          },
+          {
+            "name": "color",
+            "type": "field_colour"
+          }
+        ],
+        "implementationBoundary": "defer-promise-scheduler-unproven"
+      },
+      {
+        "name": "set_robot_master_motor_power_rotation",
+        "kind": "command",
+        "output": null,
+        "inputs": [
+          "power"
+        ],
+        "argumentOrder": [
+          "motor",
+          "power",
+          "direction"
+        ],
+        "defaults": {
+          "motor": "0",
+          "power": "6",
+          "direction": "1"
+        },
+        "fields": [
+          {
+            "name": "motor",
+            "type": "field_neko_dropdown",
+            "options": [
+              "0",
+              "1",
+              "all"
+            ]
+          },
+          {
+            "name": "direction",
+            "type": "field_neko_dropdown",
+            "options": [
+              "1",
+              "-1"
+            ]
+          }
+        ],
+        "implementationBoundary": "defer-promise-scheduler-unproven"
+      },
+      {
+        "name": "set_robot_master_motor_power_rotation_duration",
+        "kind": "command",
+        "output": null,
+        "inputs": [
+          "power",
+          "times"
+        ],
+        "argumentOrder": [
+          "motor",
+          "power",
+          "direction",
+          "times"
+        ],
+        "defaults": {
+          "motor": "0",
+          "power": "6",
+          "direction": "1",
+          "times": "2"
+        },
+        "fields": [
+          {
+            "name": "motor",
+            "type": "field_neko_dropdown",
+            "options": [
+              "0",
+              "1",
+              "all"
+            ]
+          },
+          {
+            "name": "direction",
+            "type": "field_neko_dropdown",
+            "options": [
+              "1",
+              "-1"
+            ]
+          }
+        ],
+        "implementationBoundary": "defer-promise-scheduler-unproven"
+      },
+      {
+        "name": "stop_robot2_master_motor",
+        "kind": "command",
+        "output": null,
+        "inputs": [],
+        "argumentOrder": [],
+        "defaults": {},
+        "fields": [],
+        "implementationBoundary": "defer-promise-scheduler-unproven"
+      },
+      {
+        "name": "stop_robot_master_light",
+        "kind": "command",
+        "output": null,
+        "inputs": [],
+        "argumentOrder": [
+          "light"
+        ],
+        "defaults": {
+          "light": "0"
+        },
+        "fields": [
+          {
+            "name": "light",
+            "type": "field_neko_dropdown",
+            "options": [
+              "0",
+              "1",
+              "all"
+            ]
+          }
+        ],
+        "implementationBoundary": "defer-promise-scheduler-unproven"
+      },
+      {
+        "name": "stop_robot_master_motor",
+        "kind": "command",
+        "output": null,
+        "inputs": [],
+        "argumentOrder": [
+          "motor"
+        ],
+        "defaults": {
+          "motor": "0"
+        },
+        "fields": [
+          {
+            "name": "motor",
+            "type": "field_neko_dropdown",
+            "options": [
+              "0",
+              "1",
+              "all"
+            ]
+          }
+        ],
+        "implementationBoundary": "defer-promise-scheduler-unproven"
+      },
+      {
+        "name": "wand_button_is_pressed",
+        "kind": "reporter",
+        "output": "Boolean",
+        "inputs": [],
+        "argumentOrder": [
+          "key"
+        ],
+        "defaults": {
+          "key": "down"
+        },
+        "fields": [
+          {
+            "name": "key",
+            "type": "field_neko_dropdown",
+            "options": [
+              "click",
+              "down",
+              "up"
+            ]
+          }
+        ],
+        "implementationBoundary": "synchronous-disconnected-reporter-candidate"
+      },
+      {
+        "name": "wand_coordinate",
+        "kind": "reporter",
+        "output": "Number",
+        "inputs": [],
+        "argumentOrder": [
+          "key"
+        ],
+        "defaults": {
+          "key": "x"
+        },
+        "fields": [
+          {
+            "name": "key",
+            "type": "field_neko_dropdown",
+            "options": [
+              "x",
+              "y"
+            ]
+          }
+        ],
+        "implementationBoundary": "synchronous-disconnected-reporter-candidate"
+      },
+      {
+        "name": "wand_direction_when",
+        "kind": "event",
+        "output": null,
+        "inputs": [],
+        "argumentOrder": [
+          "key"
+        ],
+        "defaults": {
+          "key": "Up"
+        },
+        "fields": [
+          {
+            "name": "key",
+            "type": "field_neko_dropdown",
+            "options": [
+              "Up",
+              "Down",
+              "Left",
+              "Right"
+            ]
+          }
+        ],
+        "implementationBoundary": "defer-event-dispatch-unproven"
+      },
+      {
+        "name": "wand_reset_position",
+        "kind": "command",
+        "output": null,
+        "inputs": [],
+        "argumentOrder": [],
+        "defaults": {},
+        "fields": [],
+        "implementationBoundary": "defer-promise-scheduler-unproven"
+      },
+      {
+        "name": "wand_rotation",
+        "kind": "reporter",
+        "output": "Number",
+        "inputs": [],
+        "argumentOrder": [
+          "key"
+        ],
+        "defaults": {
+          "key": "yaw"
+        },
+        "fields": [
+          {
+            "name": "key",
+            "type": "field_neko_dropdown",
+            "options": [
+              "yaw",
+              "pitch",
+              "roll"
+            ]
+          }
+        ],
+        "implementationBoundary": "synchronous-disconnected-reporter-candidate"
+      }
+    ],
+    "cases": [
+      {
+        "name": "catbit_button_is_pressed",
+        "label": "panel defaults",
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "boolean",
+          "value": false
+        },
+        "args": {
+          "key": "0"
+        }
+      },
+      {
+        "name": "catbit_button_is_pressed",
+        "label": "invalid",
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "boolean",
+          "value": false
+        },
+        "args": {
+          "key": "not-a-number"
+        }
+      },
+      {
+        "name": "catbit_button_is_pressed",
+        "label": "empty",
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "boolean",
+          "value": false
+        },
+        "args": {
+          "key": ""
+        }
+      },
+      {
+        "name": "catbit_button_is_pressed",
+        "label": "menu key=0",
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "boolean",
+          "value": false
+        },
+        "args": {
+          "key": "0"
+        }
+      },
+      {
+        "name": "catbit_button_is_pressed",
+        "label": "menu key=1",
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "boolean",
+          "value": false
+        },
+        "args": {
+          "key": "1"
+        }
+      },
+      {
+        "name": "catbit_button_is_pressed",
+        "label": "menu key=2",
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "boolean",
+          "value": false
+        },
+        "args": {
+          "key": "2"
+        }
+      },
+      {
+        "name": "catbit_button_is_pressed",
+        "label": "menu key=3",
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "boolean",
+          "value": false
+        },
+        "args": {
+          "key": "3"
+        }
+      },
+      {
+        "name": "catbit_button_is_pressed",
+        "label": "menu key=4",
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "boolean",
+          "value": false
+        },
+        "args": {
+          "key": "4"
+        }
+      },
+      {
+        "name": "catbit_button_is_pressed",
+        "label": "menu key=5",
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "boolean",
+          "value": false
+        },
+        "args": {
+          "key": "5"
+        }
+      },
+      {
+        "name": "catbit_button_is_pressed",
+        "label": "menu key=6",
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "boolean",
+          "value": false
+        },
+        "args": {
+          "key": "6"
+        }
+      },
+      {
+        "name": "catbit_button_is_pressed",
+        "label": "menu key=7",
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "boolean",
+          "value": false
+        },
+        "args": {
+          "key": "7"
+        }
+      },
+      {
+        "name": "catbit_button_is_pressed",
+        "label": "argument access",
+        "argumentReads": [
+          "key"
+        ],
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "boolean",
+          "value": false
+        }
+      },
+      {
+        "name": "catbit_button_is_pressed",
+        "label": "throwing getters",
+        "argumentReads": [
+          "key"
+        ],
+        "boundary": "synchronous-throw",
+        "error": "Error: probe getter key"
+      },
+      {
+        "name": "catbit_button_is_pressed",
+        "label": "null arguments",
+        "boundary": "synchronous-throw",
+        "error": "TypeError: Cannot read properties of null (reading 'key')"
+      },
+      {
+        "name": "change_robot2_master_motor_power",
+        "label": "panel defaults",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "method": "1",
+          "n": "1"
+        }
+      },
+      {
+        "name": "change_robot2_master_motor_power",
+        "label": "invalid",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "method": "not-a-number",
+          "n": "not-a-number"
+        }
+      },
+      {
+        "name": "change_robot2_master_motor_power",
+        "label": "empty",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "method": "",
+          "n": ""
+        }
+      },
+      {
+        "name": "change_robot2_master_motor_power",
+        "label": "menu method=1",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "method": "1",
+          "n": "1"
+        }
+      },
+      {
+        "name": "change_robot2_master_motor_power",
+        "label": "menu method=-1",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "method": "-1",
+          "n": "1"
+        }
+      },
+      {
+        "name": "change_robot2_master_motor_power",
+        "label": "argument access",
+        "argumentReads": [],
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "change_robot2_master_motor_power",
+        "label": "throwing getters",
+        "argumentReads": [],
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "change_robot2_master_motor_power",
+        "label": "null arguments",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "change_robot_master_motor_power",
+        "label": "panel defaults",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "motor": "0",
+          "method": "1",
+          "n": "1"
+        }
+      },
+      {
+        "name": "change_robot_master_motor_power",
+        "label": "invalid",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "motor": "not-a-number",
+          "method": "not-a-number",
+          "n": "not-a-number"
+        }
+      },
+      {
+        "name": "change_robot_master_motor_power",
+        "label": "empty",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "motor": "",
+          "method": "",
+          "n": ""
+        }
+      },
+      {
+        "name": "change_robot_master_motor_power",
+        "label": "menu motor=0",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "motor": "0",
+          "method": "1",
+          "n": "1"
+        }
+      },
+      {
+        "name": "change_robot_master_motor_power",
+        "label": "menu motor=1",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "motor": "1",
+          "method": "1",
+          "n": "1"
+        }
+      },
+      {
+        "name": "change_robot_master_motor_power",
+        "label": "menu motor=all",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "motor": "all",
+          "method": "1",
+          "n": "1"
+        }
+      },
+      {
+        "name": "change_robot_master_motor_power",
+        "label": "menu method=1",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "motor": "0",
+          "method": "1",
+          "n": "1"
+        }
+      },
+      {
+        "name": "change_robot_master_motor_power",
+        "label": "menu method=-1",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "motor": "0",
+          "method": "-1",
+          "n": "1"
+        }
+      },
+      {
+        "name": "change_robot_master_motor_power",
+        "label": "argument access",
+        "argumentReads": [],
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "change_robot_master_motor_power",
+        "label": "throwing getters",
+        "argumentReads": [],
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "change_robot_master_motor_power",
+        "label": "null arguments",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "get_robot2_master_motor_power",
+        "label": "panel defaults",
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        },
+        "args": {}
+      },
+      {
+        "name": "get_robot2_master_motor_power",
+        "label": "invalid",
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        },
+        "args": {}
+      },
+      {
+        "name": "get_robot2_master_motor_power",
+        "label": "empty",
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        },
+        "args": {}
+      },
+      {
+        "name": "get_robot2_master_motor_power",
+        "label": "argument access",
+        "argumentReads": [],
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        }
+      },
+      {
+        "name": "get_robot2_master_motor_power",
+        "label": "throwing getters",
+        "argumentReads": [],
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        }
+      },
+      {
+        "name": "get_robot2_master_motor_power",
+        "label": "null arguments",
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        }
+      },
+      {
+        "name": "get_robot_master_infrared_sensor_distance",
+        "label": "panel defaults",
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        },
+        "args": {
+          "num": "0"
+        }
+      },
+      {
+        "name": "get_robot_master_infrared_sensor_distance",
+        "label": "invalid",
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        },
+        "args": {
+          "num": "not-a-number"
+        }
+      },
+      {
+        "name": "get_robot_master_infrared_sensor_distance",
+        "label": "empty",
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        },
+        "args": {
+          "num": ""
+        }
+      },
+      {
+        "name": "get_robot_master_infrared_sensor_distance",
+        "label": "menu num=0",
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        },
+        "args": {
+          "num": "0"
+        }
+      },
+      {
+        "name": "get_robot_master_infrared_sensor_distance",
+        "label": "menu num=1",
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        },
+        "args": {
+          "num": "1"
+        }
+      },
+      {
+        "name": "get_robot_master_infrared_sensor_distance",
+        "label": "argument access",
+        "argumentReads": [],
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        }
+      },
+      {
+        "name": "get_robot_master_infrared_sensor_distance",
+        "label": "throwing getters",
+        "argumentReads": [],
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        }
+      },
+      {
+        "name": "get_robot_master_infrared_sensor_distance",
+        "label": "null arguments",
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        }
+      },
+      {
+        "name": "get_robot_master_motor_power",
+        "label": "panel defaults",
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        },
+        "args": {
+          "motor": "0"
+        }
+      },
+      {
+        "name": "get_robot_master_motor_power",
+        "label": "invalid",
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        },
+        "args": {
+          "motor": "not-a-number"
+        }
+      },
+      {
+        "name": "get_robot_master_motor_power",
+        "label": "empty",
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        },
+        "args": {
+          "motor": ""
+        }
+      },
+      {
+        "name": "get_robot_master_motor_power",
+        "label": "menu motor=0",
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        },
+        "args": {
+          "motor": "0"
+        }
+      },
+      {
+        "name": "get_robot_master_motor_power",
+        "label": "menu motor=1",
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        },
+        "args": {
+          "motor": "1"
+        }
+      },
+      {
+        "name": "get_robot_master_motor_power",
+        "label": "argument access",
+        "argumentReads": [],
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        }
+      },
+      {
+        "name": "get_robot_master_motor_power",
+        "label": "throwing getters",
+        "argumentReads": [],
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        }
+      },
+      {
+        "name": "get_robot_master_motor_power",
+        "label": "null arguments",
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        }
+      },
+      {
+        "name": "set_robot2_master_motor_power_rotation",
+        "label": "panel defaults",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "power": "1",
+          "direction": "1"
+        }
+      },
+      {
+        "name": "set_robot2_master_motor_power_rotation",
+        "label": "invalid",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "power": "not-a-number",
+          "direction": "not-a-number"
+        }
+      },
+      {
+        "name": "set_robot2_master_motor_power_rotation",
+        "label": "empty",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "power": "",
+          "direction": ""
+        }
+      },
+      {
+        "name": "set_robot2_master_motor_power_rotation",
+        "label": "menu direction=1",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "power": "1",
+          "direction": "1"
+        }
+      },
+      {
+        "name": "set_robot2_master_motor_power_rotation",
+        "label": "menu direction=-1",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "power": "1",
+          "direction": "-1"
+        }
+      },
+      {
+        "name": "set_robot2_master_motor_power_rotation",
+        "label": "argument access",
+        "argumentReads": [],
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "set_robot2_master_motor_power_rotation",
+        "label": "throwing getters",
+        "argumentReads": [],
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "set_robot2_master_motor_power_rotation",
+        "label": "null arguments",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "set_robot2_master_motor_power_rotation_duration",
+        "label": "panel defaults",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "power": "1",
+          "direction": "1",
+          "times": "2"
+        }
+      },
+      {
+        "name": "set_robot2_master_motor_power_rotation_duration",
+        "label": "invalid",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "power": "not-a-number",
+          "direction": "not-a-number",
+          "times": "not-a-number"
+        }
+      },
+      {
+        "name": "set_robot2_master_motor_power_rotation_duration",
+        "label": "empty",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "power": "",
+          "direction": "",
+          "times": ""
+        }
+      },
+      {
+        "name": "set_robot2_master_motor_power_rotation_duration",
+        "label": "menu direction=1",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "power": "1",
+          "direction": "1",
+          "times": "2"
+        }
+      },
+      {
+        "name": "set_robot2_master_motor_power_rotation_duration",
+        "label": "menu direction=-1",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "power": "1",
+          "direction": "-1",
+          "times": "2"
+        }
+      },
+      {
+        "name": "set_robot2_master_motor_power_rotation_duration",
+        "label": "argument access",
+        "argumentReads": [],
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "set_robot2_master_motor_power_rotation_duration",
+        "label": "throwing getters",
+        "argumentReads": [],
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "set_robot2_master_motor_power_rotation_duration",
+        "label": "null arguments",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "set_robot_master_light_color",
+        "label": "panel defaults",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "light": "0",
+          "color": "#FAC530"
+        }
+      },
+      {
+        "name": "set_robot_master_light_color",
+        "label": "invalid",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "light": "not-a-number",
+          "color": "not-a-number"
+        }
+      },
+      {
+        "name": "set_robot_master_light_color",
+        "label": "empty",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "light": "",
+          "color": ""
+        }
+      },
+      {
+        "name": "set_robot_master_light_color",
+        "label": "menu light=0",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "light": "0",
+          "color": "#FAC530"
+        }
+      },
+      {
+        "name": "set_robot_master_light_color",
+        "label": "menu light=1",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "light": "1",
+          "color": "#FAC530"
+        }
+      },
+      {
+        "name": "set_robot_master_light_color",
+        "label": "menu light=all",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "light": "all",
+          "color": "#FAC530"
+        }
+      },
+      {
+        "name": "set_robot_master_light_color",
+        "label": "argument access",
+        "argumentReads": [],
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "set_robot_master_light_color",
+        "label": "throwing getters",
+        "argumentReads": [],
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "set_robot_master_light_color",
+        "label": "null arguments",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "set_robot_master_light_color_duration",
+        "label": "panel defaults",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "light": "0",
+          "color": "#FAC530",
+          "times": "2"
+        }
+      },
+      {
+        "name": "set_robot_master_light_color_duration",
+        "label": "invalid",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "light": "not-a-number",
+          "color": "not-a-number",
+          "times": "not-a-number"
+        }
+      },
+      {
+        "name": "set_robot_master_light_color_duration",
+        "label": "empty",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "light": "",
+          "color": "",
+          "times": ""
+        }
+      },
+      {
+        "name": "set_robot_master_light_color_duration",
+        "label": "menu light=0",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "light": "0",
+          "color": "#FAC530",
+          "times": "2"
+        }
+      },
+      {
+        "name": "set_robot_master_light_color_duration",
+        "label": "menu light=1",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "light": "1",
+          "color": "#FAC530",
+          "times": "2"
+        }
+      },
+      {
+        "name": "set_robot_master_light_color_duration",
+        "label": "menu light=all",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "light": "all",
+          "color": "#FAC530",
+          "times": "2"
+        }
+      },
+      {
+        "name": "set_robot_master_light_color_duration",
+        "label": "argument access",
+        "argumentReads": [],
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "set_robot_master_light_color_duration",
+        "label": "throwing getters",
+        "argumentReads": [],
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "set_robot_master_light_color_duration",
+        "label": "null arguments",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "set_robot_master_motor_power_rotation",
+        "label": "panel defaults",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "motor": "0",
+          "power": "6",
+          "direction": "1"
+        }
+      },
+      {
+        "name": "set_robot_master_motor_power_rotation",
+        "label": "invalid",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "motor": "not-a-number",
+          "power": "not-a-number",
+          "direction": "not-a-number"
+        }
+      },
+      {
+        "name": "set_robot_master_motor_power_rotation",
+        "label": "empty",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "motor": "",
+          "power": "",
+          "direction": ""
+        }
+      },
+      {
+        "name": "set_robot_master_motor_power_rotation",
+        "label": "menu motor=0",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "motor": "0",
+          "power": "6",
+          "direction": "1"
+        }
+      },
+      {
+        "name": "set_robot_master_motor_power_rotation",
+        "label": "menu motor=1",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "motor": "1",
+          "power": "6",
+          "direction": "1"
+        }
+      },
+      {
+        "name": "set_robot_master_motor_power_rotation",
+        "label": "menu motor=all",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "motor": "all",
+          "power": "6",
+          "direction": "1"
+        }
+      },
+      {
+        "name": "set_robot_master_motor_power_rotation",
+        "label": "menu direction=1",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "motor": "0",
+          "power": "6",
+          "direction": "1"
+        }
+      },
+      {
+        "name": "set_robot_master_motor_power_rotation",
+        "label": "menu direction=-1",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "motor": "0",
+          "power": "6",
+          "direction": "-1"
+        }
+      },
+      {
+        "name": "set_robot_master_motor_power_rotation",
+        "label": "argument access",
+        "argumentReads": [],
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "set_robot_master_motor_power_rotation",
+        "label": "throwing getters",
+        "argumentReads": [],
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "set_robot_master_motor_power_rotation",
+        "label": "null arguments",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "set_robot_master_motor_power_rotation_duration",
+        "label": "panel defaults",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "motor": "0",
+          "power": "6",
+          "direction": "1",
+          "times": "2"
+        }
+      },
+      {
+        "name": "set_robot_master_motor_power_rotation_duration",
+        "label": "invalid",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "motor": "not-a-number",
+          "power": "not-a-number",
+          "direction": "not-a-number",
+          "times": "not-a-number"
+        }
+      },
+      {
+        "name": "set_robot_master_motor_power_rotation_duration",
+        "label": "empty",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "motor": "",
+          "power": "",
+          "direction": "",
+          "times": ""
+        }
+      },
+      {
+        "name": "set_robot_master_motor_power_rotation_duration",
+        "label": "menu motor=0",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "motor": "0",
+          "power": "6",
+          "direction": "1",
+          "times": "2"
+        }
+      },
+      {
+        "name": "set_robot_master_motor_power_rotation_duration",
+        "label": "menu motor=1",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "motor": "1",
+          "power": "6",
+          "direction": "1",
+          "times": "2"
+        }
+      },
+      {
+        "name": "set_robot_master_motor_power_rotation_duration",
+        "label": "menu motor=all",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "motor": "all",
+          "power": "6",
+          "direction": "1",
+          "times": "2"
+        }
+      },
+      {
+        "name": "set_robot_master_motor_power_rotation_duration",
+        "label": "menu direction=1",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "motor": "0",
+          "power": "6",
+          "direction": "1",
+          "times": "2"
+        }
+      },
+      {
+        "name": "set_robot_master_motor_power_rotation_duration",
+        "label": "menu direction=-1",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "motor": "0",
+          "power": "6",
+          "direction": "-1",
+          "times": "2"
+        }
+      },
+      {
+        "name": "set_robot_master_motor_power_rotation_duration",
+        "label": "argument access",
+        "argumentReads": [],
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "set_robot_master_motor_power_rotation_duration",
+        "label": "throwing getters",
+        "argumentReads": [],
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "set_robot_master_motor_power_rotation_duration",
+        "label": "null arguments",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "stop_robot2_master_motor",
+        "label": "panel defaults",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {}
+      },
+      {
+        "name": "stop_robot2_master_motor",
+        "label": "invalid",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {}
+      },
+      {
+        "name": "stop_robot2_master_motor",
+        "label": "empty",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {}
+      },
+      {
+        "name": "stop_robot2_master_motor",
+        "label": "argument access",
+        "argumentReads": [],
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "stop_robot2_master_motor",
+        "label": "throwing getters",
+        "argumentReads": [],
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "stop_robot2_master_motor",
+        "label": "null arguments",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "stop_robot_master_light",
+        "label": "panel defaults",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "light": "0"
+        }
+      },
+      {
+        "name": "stop_robot_master_light",
+        "label": "invalid",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "light": "not-a-number"
+        }
+      },
+      {
+        "name": "stop_robot_master_light",
+        "label": "empty",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "light": ""
+        }
+      },
+      {
+        "name": "stop_robot_master_light",
+        "label": "menu light=0",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "light": "0"
+        }
+      },
+      {
+        "name": "stop_robot_master_light",
+        "label": "menu light=1",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "light": "1"
+        }
+      },
+      {
+        "name": "stop_robot_master_light",
+        "label": "menu light=all",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "light": "all"
+        }
+      },
+      {
+        "name": "stop_robot_master_light",
+        "label": "argument access",
+        "argumentReads": [],
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "stop_robot_master_light",
+        "label": "throwing getters",
+        "argumentReads": [],
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "stop_robot_master_light",
+        "label": "null arguments",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "stop_robot_master_motor",
+        "label": "panel defaults",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "motor": "0"
+        }
+      },
+      {
+        "name": "stop_robot_master_motor",
+        "label": "invalid",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "motor": "not-a-number"
+        }
+      },
+      {
+        "name": "stop_robot_master_motor",
+        "label": "empty",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "motor": ""
+        }
+      },
+      {
+        "name": "stop_robot_master_motor",
+        "label": "menu motor=0",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "motor": "0"
+        }
+      },
+      {
+        "name": "stop_robot_master_motor",
+        "label": "menu motor=1",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "motor": "1"
+        }
+      },
+      {
+        "name": "stop_robot_master_motor",
+        "label": "menu motor=all",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {
+          "motor": "all"
+        }
+      },
+      {
+        "name": "stop_robot_master_motor",
+        "label": "argument access",
+        "argumentReads": [],
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "stop_robot_master_motor",
+        "label": "throwing getters",
+        "argumentReads": [],
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "stop_robot_master_motor",
+        "label": "null arguments",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "wand_button_is_pressed",
+        "label": "panel defaults",
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "boolean",
+          "value": false
+        },
+        "args": {
+          "key": "down"
+        }
+      },
+      {
+        "name": "wand_button_is_pressed",
+        "label": "invalid",
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "boolean",
+          "value": false
+        },
+        "args": {
+          "key": "not-a-number"
+        }
+      },
+      {
+        "name": "wand_button_is_pressed",
+        "label": "empty",
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "boolean",
+          "value": false
+        },
+        "args": {
+          "key": ""
+        }
+      },
+      {
+        "name": "wand_button_is_pressed",
+        "label": "menu key=click",
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "boolean",
+          "value": false
+        },
+        "args": {
+          "key": "click"
+        }
+      },
+      {
+        "name": "wand_button_is_pressed",
+        "label": "menu key=down",
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "boolean",
+          "value": false
+        },
+        "args": {
+          "key": "down"
+        }
+      },
+      {
+        "name": "wand_button_is_pressed",
+        "label": "menu key=up",
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "boolean",
+          "value": false
+        },
+        "args": {
+          "key": "up"
+        }
+      },
+      {
+        "name": "wand_button_is_pressed",
+        "label": "argument access",
+        "argumentReads": [
+          "key"
+        ],
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "boolean",
+          "value": false
+        }
+      },
+      {
+        "name": "wand_button_is_pressed",
+        "label": "throwing getters",
+        "argumentReads": [
+          "key"
+        ],
+        "boundary": "synchronous-throw",
+        "error": "Error: probe getter key"
+      },
+      {
+        "name": "wand_button_is_pressed",
+        "label": "null arguments",
+        "boundary": "synchronous-throw",
+        "error": "TypeError: Cannot read properties of null (reading 'key')"
+      },
+      {
+        "name": "wand_coordinate",
+        "label": "panel defaults",
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        },
+        "args": {
+          "key": "x"
+        }
+      },
+      {
+        "name": "wand_coordinate",
+        "label": "invalid",
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        },
+        "args": {
+          "key": "not-a-number"
+        }
+      },
+      {
+        "name": "wand_coordinate",
+        "label": "empty",
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        },
+        "args": {
+          "key": ""
+        }
+      },
+      {
+        "name": "wand_coordinate",
+        "label": "menu key=x",
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        },
+        "args": {
+          "key": "x"
+        }
+      },
+      {
+        "name": "wand_coordinate",
+        "label": "menu key=y",
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        },
+        "args": {
+          "key": "y"
+        }
+      },
+      {
+        "name": "wand_coordinate",
+        "label": "argument access",
+        "argumentReads": [
+          "key"
+        ],
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        }
+      },
+      {
+        "name": "wand_coordinate",
+        "label": "throwing getters",
+        "argumentReads": [
+          "key"
+        ],
+        "boundary": "synchronous-throw",
+        "error": "Error: probe getter key"
+      },
+      {
+        "name": "wand_coordinate",
+        "label": "null arguments",
+        "boundary": "synchronous-throw",
+        "error": "TypeError: Cannot read properties of null (reading 'key')"
+      },
+      {
+        "name": "wand_reset_position",
+        "label": "panel defaults",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {}
+      },
+      {
+        "name": "wand_reset_position",
+        "label": "invalid",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {}
+      },
+      {
+        "name": "wand_reset_position",
+        "label": "empty",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        },
+        "args": {}
+      },
+      {
+        "name": "wand_reset_position",
+        "label": "argument access",
+        "argumentReads": [],
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "wand_reset_position",
+        "label": "throwing getters",
+        "argumentReads": [],
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "wand_reset_position",
+        "label": "null arguments",
+        "promise": true,
+        "boundary": "promise-fulfilled",
+        "result": {
+          "type": "undefined"
+        }
+      },
+      {
+        "name": "wand_rotation",
+        "label": "panel defaults",
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        },
+        "args": {
+          "key": "yaw"
+        }
+      },
+      {
+        "name": "wand_rotation",
+        "label": "invalid",
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        },
+        "args": {
+          "key": "not-a-number"
+        }
+      },
+      {
+        "name": "wand_rotation",
+        "label": "empty",
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        },
+        "args": {
+          "key": ""
+        }
+      },
+      {
+        "name": "wand_rotation",
+        "label": "menu key=yaw",
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        },
+        "args": {
+          "key": "yaw"
+        }
+      },
+      {
+        "name": "wand_rotation",
+        "label": "menu key=pitch",
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        },
+        "args": {
+          "key": "pitch"
+        }
+      },
+      {
+        "name": "wand_rotation",
+        "label": "menu key=roll",
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        },
+        "args": {
+          "key": "roll"
+        }
+      },
+      {
+        "name": "wand_rotation",
+        "label": "argument access",
+        "argumentReads": [
+          "key"
+        ],
+        "promise": false,
+        "boundary": "synchronous-return",
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        }
+      },
+      {
+        "name": "wand_rotation",
+        "label": "throwing getters",
+        "argumentReads": [
+          "key"
+        ],
+        "boundary": "synchronous-throw",
+        "error": "Error: probe getter key"
+      },
+      {
+        "name": "wand_rotation",
+        "label": "null arguments",
+        "boundary": "synchronous-throw",
+        "error": "TypeError: Cannot read properties of null (reading 'key')"
+      }
+    ],
+    "events": [
+      {
+        "name": "catbit_button_when",
+        "moduleId": 60548,
+        "entitySpecific": false,
+        "responderType": "dynamic",
+        "async": false,
+        "filterArguments": {
+          "value": "type",
+          "sub_type": "key"
+        },
+        "statefulness": {
+          "default_value": "",
+          "automatic_transitions": "one_frame",
+          "use_sub_type": true
+        },
+        "hasTriggerFunction": true,
+        "calls": [
+          {
+            "actionData": {
+              "type": "undefined"
+            },
+            "result": {
+              "type": "boolean",
+              "value": false
+            }
+          },
+          {
+            "actionData": {
+              "type": "object",
+              "value": []
+            },
+            "result": {
+              "type": "boolean",
+              "value": false
+            }
+          },
+          {
+            "actionData": {
+              "type": "object",
+              "value": [
+                {
+                  "id": "catbit_button_when",
+                  "sub_type": "0",
+                  "value": "click"
+                }
+              ]
+            },
+            "result": {
+              "type": "boolean",
+              "value": true
+            }
+          },
+          {
+            "actionData": {
+              "type": "object",
+              "value": [
+                {
+                  "id": "unrelated",
+                  "sub_type": "0",
+                  "value": "click"
+                }
+              ]
+            },
+            "result": {
+              "type": "boolean",
+              "value": false
+            }
+          }
+        ]
+      },
+      {
+        "name": "catbit_usb_button_when",
+        "moduleId": 81794,
+        "entitySpecific": false,
+        "responderType": "dynamic",
+        "async": false,
+        "filterArguments": {
+          "value": "type",
+          "sub_type": "key"
+        },
+        "statefulness": {
+          "default_value": "",
+          "automatic_transitions": "one_frame",
+          "use_sub_type": true
+        },
+        "hasTriggerFunction": true,
+        "calls": [
+          {
+            "actionData": {
+              "type": "undefined"
+            },
+            "result": {
+              "type": "boolean",
+              "value": false
+            }
+          },
+          {
+            "actionData": {
+              "type": "object",
+              "value": []
+            },
+            "result": {
+              "type": "boolean",
+              "value": false
+            }
+          },
+          {
+            "actionData": {
+              "type": "object",
+              "value": [
+                {
+                  "id": "catbit_usb_button_when",
+                  "sub_type": "0",
+                  "value": "click"
+                }
+              ]
+            },
+            "result": {
+              "type": "boolean",
+              "value": true
+            }
+          },
+          {
+            "actionData": {
+              "type": "object",
+              "value": [
+                {
+                  "id": "unrelated",
+                  "sub_type": "0",
+                  "value": "click"
+                }
+              ]
+            },
+            "result": {
+              "type": "boolean",
+              "value": false
+            }
+          }
+        ]
+      },
+      {
+        "name": "wand_direction_when",
+        "moduleId": 18541,
+        "entitySpecific": false,
+        "responderType": "action",
+        "async": false,
+        "filterArguments": {
+          "value": "key",
+          "sub_type": "none"
+        },
+        "statefulness": null,
+        "hasTriggerFunction": false,
+        "calls": []
+      }
+    ],
+    "registeredAudit": {
+      "rows": [
+        {
+          "name": "_array_literal",
+          "definitionRegistered": true,
+          "domainIndex": 423,
+          "declarationPresent": true,
+          "declarations": [
+            {
+              "key": "_array_literal",
+              "type": "_array_literal",
+              "kind": "function",
+              "params": [
+                {
+                  "name": "items",
+                  "type": "rest"
+                }
+              ],
+              "returnType": "String"
+            }
+          ],
+          "conversions": [
+            {
+              "code": "let audit = [1, 2]; audit[0] = 3; console_log(audit[0]);",
+              "errorCount": 0
+            }
+          ],
+          "constructed": true,
+          "inputs": [
+            {
+              "name": "items",
+              "fields": []
+            }
+          ],
+          "referenceModule": 65191
+        },
+        {
+          "name": "_break_statement",
+          "definitionRegistered": true,
+          "domainIndex": null,
+          "declarationPresent": true,
+          "declarations": [
+            {
+              "key": "_break_statement",
+              "type": "_break_statement",
+              "kind": "function",
+              "params": [],
+              "returnType": "void"
+            }
+          ],
+          "conversions": [
+            {
+              "code": "while (true) { if (true) break; continue; }",
+              "errorCount": 0
+            }
+          ],
+          "constructed": true,
+          "inputs": [
+            {
+              "name": "",
+              "fields": []
+            }
+          ],
+          "referenceModule": 96733
+        },
+        {
+          "name": "_continue_statement",
+          "definitionRegistered": true,
+          "domainIndex": null,
+          "declarationPresent": true,
+          "declarations": [
+            {
+              "key": "_continue_statement",
+              "type": "_continue_statement",
+              "kind": "function",
+              "params": [],
+              "returnType": "void"
+            }
+          ],
+          "conversions": [
+            {
+              "code": "while (true) { if (true) break; continue; }",
+              "errorCount": 0
+            }
+          ],
+          "constructed": true,
+          "inputs": [
+            {
+              "name": "",
+              "fields": []
+            }
+          ],
+          "referenceModule": 96733
+        },
+        {
+          "name": "_execute",
+          "definitionRegistered": true,
+          "domainIndex": 420,
+          "declarationPresent": true,
+          "declarations": [
+            {
+              "key": "_execute",
+              "type": "_execute",
+              "kind": "function",
+              "params": [
+                {
+                  "name": "action",
+                  "type": "Any"
+                }
+              ],
+              "returnType": "void"
+            }
+          ],
+          "conversions": [
+            {
+              "code": "get_sprite_property('--self', 'x');",
+              "errorCount": 0
+            },
+            {
+              "code": "get_sprite_property('--self', 'size');",
+              "errorCount": 1
+            },
+            {
+              "code": "get_sprite_property('--self', 'color');",
+              "errorCount": 0
+            },
+            {
+              "code": "script_variables_get('audit');",
+              "errorCount": 0
+            },
+            {
+              "code": "atob(1);",
+              "errorCount": 0
+            },
+            {
+              "code": "btoa(1);",
+              "errorCount": 0
+            },
+            {
+              "code": "isFinite(1);",
+              "errorCount": 0
+            },
+            {
+              "code": "isNaN(1);",
+              "errorCount": 0
+            },
+            {
+              "code": "logic_to_boolean(1);",
+              "errorCount": 0
+            },
+            {
+              "code": "parseFloat(1);",
+              "errorCount": 0
+            },
+            {
+              "code": "parseInt(1);",
+              "errorCount": 0
+            },
+            {
+              "code": "math_trig_rad('sin', 1);",
+              "errorCount": 0
+            }
+          ],
+          "constructed": true,
+          "inputs": [
+            {
+              "name": "action",
+              "fields": []
+            }
+          ],
+          "referenceModule": 65191
+        },
+        {
+          "name": "_object_get",
+          "definitionRegistered": true,
+          "domainIndex": 406,
+          "declarationPresent": true,
+          "declarations": [
+            {
+              "key": "_object_get",
+              "type": "_object_get",
+              "kind": "function",
+              "params": [
+                {
+                  "name": "obj",
+                  "type": "Any"
+                },
+                {
+                  "name": "key",
+                  "type": "Any"
+                }
+              ],
+              "returnType": "Any"
+            }
+          ],
+          "conversions": [
+            {
+              "code": "let audit = [1, 2]; audit[0] = 3; console_log(audit[0]);",
+              "errorCount": 0
+            },
+            {
+              "code": "let audit = { x: 1 }; audit.x = 2; console_log(audit.x);",
+              "errorCount": 0
+            }
+          ],
+          "constructed": true,
+          "inputs": [
+            {
+              "name": "obj",
+              "fields": []
+            },
+            {
+              "name": "key",
+              "fields": []
+            },
+            {
+              "name": "",
+              "fields": []
+            }
+          ],
+          "referenceModule": 65191
+        },
+        {
+          "name": "_object_literal",
+          "definitionRegistered": true,
+          "domainIndex": 424,
+          "declarationPresent": true,
+          "declarations": [
+            {
+              "key": "_object_literal",
+              "type": "_object_literal",
+              "kind": "function",
+              "params": [
+                {
+                  "name": "items",
+                  "type": "rest"
+                }
+              ],
+              "returnType": "Any"
+            }
+          ],
+          "conversions": [
+            {
+              "code": "let audit = { x: 1 }; audit.x = 2; console_log(audit.x);",
+              "errorCount": 0
+            }
+          ],
+          "constructed": true,
+          "inputs": [
+            {
+              "name": "items",
+              "fields": []
+            }
+          ],
+          "referenceModule": 65191
+        },
+        {
+          "name": "_object_set",
+          "definitionRegistered": true,
+          "domainIndex": 407,
+          "declarationPresent": true,
+          "declarations": [
+            {
+              "key": "_object_set",
+              "type": "_object_set",
+              "kind": "function",
+              "params": [
+                {
+                  "name": "obj",
+                  "type": "Any"
+                },
+                {
+                  "name": "key",
+                  "type": "Any"
+                },
+                {
+                  "name": "value",
+                  "type": "Any"
+                }
+              ],
+              "returnType": "void"
+            }
+          ],
+          "conversions": [
+            {
+              "code": "let audit = [1, 2]; audit[0] = 3; console_log(audit[0]);",
+              "errorCount": 0
+            },
+            {
+              "code": "let audit = { x: 1 }; audit.x = 2; console_log(audit.x);",
+              "errorCount": 0
+            }
+          ],
+          "constructed": true,
+          "inputs": [
+            {
+              "name": "obj",
+              "fields": []
+            },
+            {
+              "name": "key",
+              "fields": []
+            },
+            {
+              "name": "value",
+              "fields": []
+            }
+          ],
+          "referenceModule": 65191
+        },
+        {
+          "name": "_return_statement",
+          "definitionRegistered": true,
+          "domainIndex": null,
+          "declarationPresent": true,
+          "declarations": [
+            {
+              "key": "_return_statement",
+              "type": "_return_statement",
+              "kind": "function",
+              "params": [
+                {
+                  "name": "VALUE",
+                  "type": "Any"
+                }
+              ],
+              "returnType": "Any"
+            }
+          ],
+          "conversions": [],
+          "constructed": true,
+          "inputs": [
+            {
+              "name": "VALUE",
+              "fields": []
+            }
+          ],
+          "referenceModule": 58890
+        },
+        {
+          "name": "_variable_get",
+          "definitionRegistered": true,
+          "domainIndex": 252,
+          "declarationPresent": true,
+          "declarations": [
+            {
+              "key": "_variable_get",
+              "type": "_variable_get",
+              "kind": "function",
+              "params": [
+                {
+                  "name": "VAR",
+                  "type": "field"
+                }
+              ],
+              "returnType": "Any"
+            }
+          ],
+          "conversions": [
+            {
+              "code": "let audit = [1, 2]; audit[0] = 3; console_log(audit[0]);",
+              "errorCount": 0
+            },
+            {
+              "code": "let audit = { x: 1 }; audit.x = 2; console_log(audit.x);",
+              "errorCount": 0
+            }
+          ],
+          "constructed": true,
+          "inputs": [
+            {
+              "name": "",
+              "fields": [
+                {
+                  "name": "VAR"
+                }
+              ]
+            }
+          ],
+          "referenceModule": 65191
+        },
+        {
+          "name": "_variable_set",
+          "definitionRegistered": true,
+          "domainIndex": 251,
+          "declarationPresent": true,
+          "declarations": [
+            {
+              "key": "_variable_set",
+              "type": "_variable_set",
+              "kind": "function",
+              "params": [
+                {
+                  "name": "VAR",
+                  "type": "field"
+                },
+                {
+                  "name": "VALUE",
+                  "type": "Any"
+                }
+              ],
+              "returnType": "void"
+            }
+          ],
+          "conversions": [
+            {
+              "code": "let audit = [1, 2]; audit[0] = 3; console_log(audit[0]);",
+              "errorCount": 0
+            },
+            {
+              "code": "let audit = { x: 1 }; audit.x = 2; console_log(audit.x);",
+              "errorCount": 0
+            },
+            {
+              "code": "let audit = 1; audit++; audit--; audit += 2; audit -= 2; audit *= 2; audit /= 2; audit %= 2;",
+              "errorCount": 0
+            }
+          ],
+          "constructed": true,
+          "inputs": [
+            {
+              "name": "VALUE",
+              "fields": [
+                {
+                  "name": "VAR"
+                }
+              ]
+            }
+          ],
+          "referenceModule": 52459
+        },
+        {
+          "name": "atob",
+          "definitionRegistered": true,
+          "domainIndex": 341,
+          "declarationPresent": true,
+          "declarations": [
+            {
+              "key": "atob",
+              "type": "atob",
+              "kind": "function",
+              "params": [
+                {
+                  "name": "encoded",
+                  "type": "String"
+                }
+              ],
+              "returnType": "String"
+            }
+          ],
+          "conversions": [
+            {
+              "code": "atob(1);",
+              "errorCount": 0
+            }
+          ],
+          "constructed": true,
+          "inputs": [
+            {
+              "name": "encoded",
+              "fields": []
+            },
+            {
+              "name": "",
+              "fields": []
+            }
+          ],
+          "referenceModule": 58091
+        },
+        {
+          "name": "btoa",
+          "definitionRegistered": true,
+          "domainIndex": 340,
+          "declarationPresent": true,
+          "declarations": [
+            {
+              "key": "btoa",
+              "type": "btoa",
+              "kind": "function",
+              "params": [
+                {
+                  "name": "data",
+                  "type": "String"
+                }
+              ],
+              "returnType": "String"
+            }
+          ],
+          "conversions": [
+            {
+              "code": "btoa(1);",
+              "errorCount": 0
+            }
+          ],
+          "constructed": true,
+          "inputs": [
+            {
+              "name": "data",
+              "fields": []
+            },
+            {
+              "name": "",
+              "fields": []
+            }
+          ],
+          "referenceModule": 9151
+        },
+        {
+          "name": "calculate",
+          "definitionRegistered": true,
+          "domainIndex": 47,
+          "declarationPresent": false,
+          "declarations": [],
+          "conversions": [],
+          "constructed": true,
+          "inputs": [
+            {
+              "name": "input",
+              "fields": []
+            }
+          ],
+          "referenceModule": 87409
+        },
+        {
+          "name": "clearInterval",
+          "definitionRegistered": true,
+          "domainIndex": 343,
+          "declarationPresent": true,
+          "declarations": [
+            {
+              "key": "clearInterval",
+              "type": "clearInterval",
+              "kind": "function",
+              "params": [
+                {
+                  "name": "intervalId",
+                  "type": "Number"
+                }
+              ],
+              "returnType": "void"
+            }
+          ],
+          "conversions": [
+            {
+              "code": "clearInterval(1);",
+              "errorCount": 0
+            }
+          ],
+          "constructed": true,
+          "inputs": [
+            {
+              "name": "intervalId",
+              "fields": []
+            }
+          ],
+          "referenceModule": 26537
+        },
+        {
+          "name": "clearTimeout",
+          "definitionRegistered": true,
+          "domainIndex": 339,
+          "declarationPresent": true,
+          "declarations": [
+            {
+              "key": "clearTimeout",
+              "type": "clearTimeout",
+              "kind": "function",
+              "params": [
+                {
+                  "name": "timeoutId",
+                  "type": "Number"
+                }
+              ],
+              "returnType": "void"
+            }
+          ],
+          "conversions": [
+            {
+              "code": "clearTimeout(1);",
+              "errorCount": 0
+            }
+          ],
+          "constructed": true,
+          "inputs": [
+            {
+              "name": "timeoutId",
+              "fields": []
+            }
+          ],
+          "referenceModule": 75314
+        },
+        {
+          "name": "controls_while",
+          "definitionRegistered": true,
+          "domainIndex": null,
+          "declarationPresent": true,
+          "declarations": [
+            {
+              "key": "controls_while",
+              "type": "controls_while",
+              "kind": "function",
+              "params": [
+                {
+                  "name": "BOOL",
+                  "type": "Boolean"
+                },
+                {
+                  "name": "DO",
+                  "type": "Callable"
+                }
+              ],
+              "returnType": "void"
+            }
+          ],
+          "conversions": [
+            {
+              "code": "while (true) { if (true) break; continue; }",
+              "errorCount": 0
+            }
+          ],
+          "constructed": true,
+          "inputs": [
+            {
+              "name": "BOOL",
+              "fields": []
+            },
+            {
+              "name": "",
+              "fields": []
+            },
+            {
+              "name": "DO",
+              "fields": []
+            }
+          ],
+          "referenceModule": 96733
+        },
+        {
+          "name": "get_timer",
+          "definitionRegistered": true,
+          "domainIndex": 34,
+          "declarationPresent": false,
+          "declarations": [],
+          "conversions": [],
+          "constructed": true,
+          "inputs": [
+            {
+              "name": "",
+              "fields": []
+            }
+          ],
+          "referenceModule": 96901
+        },
+        {
+          "name": "isFinite",
+          "definitionRegistered": true,
+          "domainIndex": 337,
+          "declarationPresent": true,
+          "declarations": [
+            {
+              "key": "isFinite",
+              "type": "isFinite",
+              "kind": "function",
+              "params": [
+                {
+                  "name": "value",
+                  "type": "Any"
+                }
+              ],
+              "returnType": "Boolean"
+            }
+          ],
+          "conversions": [
+            {
+              "code": "isFinite(1);",
+              "errorCount": 0
+            }
+          ],
+          "constructed": true,
+          "inputs": [
+            {
+              "name": "value",
+              "fields": []
+            },
+            {
+              "name": "",
+              "fields": []
+            }
+          ],
+          "referenceModule": 89385
+        },
+        {
+          "name": "isNaN",
+          "definitionRegistered": true,
+          "domainIndex": 336,
+          "declarationPresent": true,
+          "declarations": [
+            {
+              "key": "isNaN",
+              "type": "isNaN",
+              "kind": "function",
+              "params": [
+                {
+                  "name": "value",
+                  "type": "Any"
+                }
+              ],
+              "returnType": "Boolean"
+            }
+          ],
+          "conversions": [
+            {
+              "code": "isNaN(1);",
+              "errorCount": 0
+            }
+          ],
+          "constructed": true,
+          "inputs": [
+            {
+              "name": "value",
+              "fields": []
+            },
+            {
+              "name": "",
+              "fields": []
+            }
+          ],
+          "referenceModule": 16187
+        },
+        {
+          "name": "logic_ternary",
+          "definitionRegistered": true,
+          "domainIndex": 418,
+          "declarationPresent": true,
+          "declarations": [
+            {
+              "key": "logic_ternary",
+              "type": "logic_ternary",
+              "kind": "function",
+              "params": [
+                {
+                  "name": "condition",
+                  "type": "Boolean"
+                },
+                {
+                  "name": "ifTrue",
+                  "type": "Any"
+                },
+                {
+                  "name": "ifFalse",
+                  "type": "Any"
+                }
+              ],
+              "returnType": "Any"
+            }
+          ],
+          "conversions": [
+            {
+              "code": "console_log(true ? 1 : 2);",
+              "errorCount": 0
+            }
+          ],
+          "constructed": true,
+          "inputs": [
+            {
+              "name": "condition",
+              "fields": []
+            },
+            {
+              "name": "ifTrue",
+              "fields": []
+            },
+            {
+              "name": "ifFalse",
+              "fields": []
+            }
+          ],
+          "referenceModule": 65191
+        },
+        {
+          "name": "logic_to_boolean",
+          "definitionRegistered": true,
+          "domainIndex": 419,
+          "declarationPresent": true,
+          "declarations": [
+            {
+              "key": "logic_to_boolean",
+              "type": "logic_to_boolean",
+              "kind": "function",
+              "params": [
+                {
+                  "name": "VALUE",
+                  "type": "Any"
+                }
+              ],
+              "returnType": "Boolean"
+            }
+          ],
+          "conversions": [
+            {
+              "code": "logic_to_boolean(1);",
+              "errorCount": 0
+            }
+          ],
+          "constructed": true,
+          "inputs": [
+            {
+              "name": "VALUE",
+              "fields": []
+            }
+          ],
+          "referenceModule": 65191
+        },
+        {
+          "name": "math_add_assign",
+          "definitionRegistered": true,
+          "domainIndex": 253,
+          "declarationPresent": true,
+          "declarations": [
+            {
+              "key": "math_add_assign",
+              "type": "math_add_assign",
+              "kind": "function",
+              "params": [
+                {
+                  "name": "VAR",
+                  "type": "field"
+                },
+                {
+                  "name": "value",
+                  "type": "Number"
+                }
+              ],
+              "returnType": "void"
+            }
+          ],
+          "conversions": [
+            {
+              "code": "let audit = 1; audit++; audit--; audit += 2; audit -= 2; audit *= 2; audit /= 2; audit %= 2;",
+              "errorCount": 0
+            }
+          ],
+          "constructed": true,
+          "inputs": [
+            {
+              "name": "value",
+              "fields": [
+                {
+                  "name": "VAR"
+                }
+              ]
+            }
+          ],
+          "referenceModule": 65191
+        },
+        {
+          "name": "math_decrement",
+          "definitionRegistered": true,
+          "domainIndex": 255,
+          "declarationPresent": true,
+          "declarations": [
+            {
+              "key": "math_decrement",
+              "type": "math_decrement",
+              "kind": "function",
+              "params": [
+                {
+                  "name": "VAR",
+                  "type": "field"
+                }
+              ],
+              "returnType": "void"
+            }
+          ],
+          "conversions": [
+            {
+              "code": "let audit = 1; audit++; audit--; audit += 2; audit -= 2; audit *= 2; audit /= 2; audit %= 2;",
+              "errorCount": 0
+            }
+          ],
+          "constructed": true,
+          "inputs": [
+            {
+              "name": "",
+              "fields": [
+                {
+                  "name": "VAR"
+                }
+              ]
+            }
+          ],
+          "referenceModule": 65191
+        },
+        {
+          "name": "math_div_assign",
+          "definitionRegistered": true,
+          "domainIndex": 258,
+          "declarationPresent": true,
+          "declarations": [
+            {
+              "key": "math_div_assign",
+              "type": "math_div_assign",
+              "kind": "function",
+              "params": [
+                {
+                  "name": "VAR",
+                  "type": "field"
+                },
+                {
+                  "name": "value",
+                  "type": "Number"
+                }
+              ],
+              "returnType": "void"
+            }
+          ],
+          "conversions": [
+            {
+              "code": "let audit = 1; audit++; audit--; audit += 2; audit -= 2; audit *= 2; audit /= 2; audit %= 2;",
+              "errorCount": 0
+            }
+          ],
+          "constructed": true,
+          "inputs": [
+            {
+              "name": "value",
+              "fields": [
+                {
+                  "name": "VAR"
+                }
+              ]
+            }
+          ],
+          "referenceModule": 65191
+        },
+        {
+          "name": "math_increment",
+          "definitionRegistered": true,
+          "domainIndex": 254,
+          "declarationPresent": true,
+          "declarations": [
+            {
+              "key": "math_increment",
+              "type": "math_increment",
+              "kind": "function",
+              "params": [
+                {
+                  "name": "VAR",
+                  "type": "field"
+                }
+              ],
+              "returnType": "void"
+            }
+          ],
+          "conversions": [
+            {
+              "code": "let audit = 1; audit++; audit--; audit += 2; audit -= 2; audit *= 2; audit /= 2; audit %= 2;",
+              "errorCount": 0
+            }
+          ],
+          "constructed": true,
+          "inputs": [
+            {
+              "name": "",
+              "fields": [
+                {
+                  "name": "VAR"
+                }
+              ]
+            }
+          ],
+          "referenceModule": 65191
+        },
+        {
+          "name": "math_mod_assign",
+          "definitionRegistered": true,
+          "domainIndex": 259,
+          "declarationPresent": true,
+          "declarations": [
+            {
+              "key": "math_mod_assign",
+              "type": "math_mod_assign",
+              "kind": "function",
+              "params": [
+                {
+                  "name": "VAR",
+                  "type": "field"
+                },
+                {
+                  "name": "value",
+                  "type": "Number"
+                }
+              ],
+              "returnType": "void"
+            }
+          ],
+          "conversions": [
+            {
+              "code": "let audit = 1; audit++; audit--; audit += 2; audit -= 2; audit *= 2; audit /= 2; audit %= 2;",
+              "errorCount": 0
+            }
+          ],
+          "constructed": true,
+          "inputs": [
+            {
+              "name": "value",
+              "fields": [
+                {
+                  "name": "VAR"
+                }
+              ]
+            },
+            {
+              "name": "",
+              "fields": []
+            }
+          ],
+          "referenceModule": 65191
+        },
+        {
+          "name": "math_mul_assign",
+          "definitionRegistered": true,
+          "domainIndex": 257,
+          "declarationPresent": true,
+          "declarations": [
+            {
+              "key": "math_mul_assign",
+              "type": "math_mul_assign",
+              "kind": "function",
+              "params": [
+                {
+                  "name": "VAR",
+                  "type": "field"
+                },
+                {
+                  "name": "value",
+                  "type": "Number"
+                }
+              ],
+              "returnType": "void"
+            }
+          ],
+          "conversions": [
+            {
+              "code": "let audit = 1; audit++; audit--; audit += 2; audit -= 2; audit *= 2; audit /= 2; audit %= 2;",
+              "errorCount": 0
+            }
+          ],
+          "constructed": true,
+          "inputs": [
+            {
+              "name": "value",
+              "fields": [
+                {
+                  "name": "VAR"
+                }
+              ]
+            }
+          ],
+          "referenceModule": 65191
+        },
+        {
+          "name": "math_sub_assign",
+          "definitionRegistered": true,
+          "domainIndex": 256,
+          "declarationPresent": true,
+          "declarations": [
+            {
+              "key": "math_sub_assign",
+              "type": "math_sub_assign",
+              "kind": "function",
+              "params": [
+                {
+                  "name": "VAR",
+                  "type": "field"
+                },
+                {
+                  "name": "value",
+                  "type": "Number"
+                }
+              ],
+              "returnType": "void"
+            }
+          ],
+          "conversions": [
+            {
+              "code": "let audit = 1; audit++; audit--; audit += 2; audit -= 2; audit *= 2; audit /= 2; audit %= 2;",
+              "errorCount": 0
+            }
+          ],
+          "constructed": true,
+          "inputs": [
+            {
+              "name": "value",
+              "fields": [
+                {
+                  "name": "VAR"
+                }
+              ]
+            }
+          ],
+          "referenceModule": 65191
+        },
+        {
+          "name": "math_trig_rad",
+          "definitionRegistered": true,
+          "domainIndex": 305,
+          "declarationPresent": true,
+          "declarations": [
+            {
+              "key": "math_trig_rad",
+              "type": "math_trig_rad",
+              "kind": "function",
+              "params": [
+                {
+                  "name": "type",
+                  "type": "field"
+                },
+                {
+                  "name": "num",
+                  "type": "Number"
+                }
+              ],
+              "returnType": "Number"
+            }
+          ],
+          "conversions": [
+            {
+              "code": "math_trig_rad('sin', 1);",
+              "errorCount": 0
+            }
+          ],
+          "constructed": true,
+          "inputs": [
+            {
+              "name": "num",
+              "fields": [
+                {
+                  "name": "type"
+                }
+              ]
+            },
+            {
+              "name": "",
+              "fields": []
+            }
+          ],
+          "referenceModule": 70615
+        },
+        {
+          "name": "on_bump_actor_value",
+          "definitionRegistered": true,
+          "domainIndex": 55,
+          "declarationPresent": true,
+          "declarations": [
+            {
+              "key": "on_bump_actor_value",
+              "type": "on_bump_actor_value",
+              "callee": "get_target_sprite_property",
+              "kind": "function",
+              "params": [
+                {
+                  "name": "attribute",
+                  "type": "field"
+                }
+              ],
+              "returnType": "Number"
+            },
+            {
+              "key": "get_target_sprite_property",
+              "type": "on_bump_actor_value",
+              "callee": "get_target_sprite_property",
+              "kind": "function",
+              "params": [
+                {
+                  "name": "attribute",
+                  "type": "field"
+                }
+              ],
+              "returnType": "Number"
+            }
+          ],
+          "conversions": [
+            {
+              "code": "on_collision_with_sprite('enter', '--any', value => { console_log(value); });",
+              "errorCount": 0
+            }
+          ],
+          "constructed": true,
+          "inputs": [
+            {
+              "name": "",
+              "fields": [
+                {
+                  "name": "TEXT"
+                },
+                {
+                  "name": "attribute"
+                }
+              ]
+            }
+          ],
+          "referenceModule": 41417
+        },
+        {
+          "name": "parseFloat",
+          "definitionRegistered": true,
+          "domainIndex": 335,
+          "declarationPresent": true,
+          "declarations": [
+            {
+              "key": "parseFloat",
+              "type": "parseFloat",
+              "kind": "function",
+              "params": [
+                {
+                  "name": "str",
+                  "type": "String"
+                }
+              ],
+              "returnType": "Number"
+            }
+          ],
+          "conversions": [
+            {
+              "code": "parseFloat(1);",
+              "errorCount": 0
+            }
+          ],
+          "constructed": true,
+          "inputs": [
+            {
+              "name": "str",
+              "fields": []
+            },
+            {
+              "name": "",
+              "fields": []
+            }
+          ],
+          "referenceModule": 74093
+        },
+        {
+          "name": "parseInt",
+          "definitionRegistered": true,
+          "domainIndex": 334,
+          "declarationPresent": true,
+          "declarations": [
+            {
+              "key": "parseInt",
+              "type": "parseInt",
+              "kind": "function",
+              "params": [
+                {
+                  "name": "str",
+                  "type": "String"
+                },
+                {
+                  "name": "radix",
+                  "type": "field"
+                }
+              ],
+              "returnType": "Number"
+            }
+          ],
+          "conversions": [
+            {
+              "code": "parseInt(1);",
+              "errorCount": 0
+            }
+          ],
+          "constructed": true,
+          "inputs": [
+            {
+              "name": "str",
+              "fields": []
+            },
+            {
+              "name": "",
+              "fields": [
+                {
+                  "name": "radix"
+                }
+              ]
+            }
+          ],
+          "referenceModule": 69765
+        },
+        {
+          "name": "procedures_2_defnoreturn",
+          "definitionRegistered": true,
+          "domainIndex": null,
+          "declarationPresent": false,
+          "declarations": [],
+          "conversions": [
+            {
+              "code": "function audit() { return 4; }",
+              "errorCount": 0
+            }
+          ],
+          "constructed": true,
+          "inputs": [
+            {
+              "name": "PROCEDURES_2_DEFNORETURN_DEFINE",
+              "fields": [
+                {
+                  "name": "NAME"
+                }
+              ]
+            },
+            {
+              "name": "STACK",
+              "fields": []
+            }
+          ],
+          "referenceModule": 54580
+        },
+        {
+          "name": "reset_timer",
+          "definitionRegistered": true,
+          "domainIndex": 32,
+          "declarationPresent": false,
+          "declarations": [],
+          "conversions": [],
+          "constructed": true,
+          "inputs": [
+            {
+              "name": "",
+              "fields": []
+            }
+          ],
+          "referenceModule": 96901
+        },
+        {
+          "name": "script_variables_value",
+          "definitionRegistered": true,
+          "domainIndex": 156,
+          "declarationPresent": true,
+          "declarations": [
+            {
+              "key": "script_variables_value",
+              "type": "script_variables_value",
+              "callee": "script_variables_get",
+              "kind": "function",
+              "params": [
+                {
+                  "name": "TEXT",
+                  "type": "field"
+                }
+              ],
+              "returnType": "Any"
+            },
+            {
+              "key": "script_variables_get",
+              "type": "script_variables_value",
+              "callee": "script_variables_get",
+              "kind": "function",
+              "params": [
+                {
+                  "name": "TEXT",
+                  "type": "field"
+                }
+              ],
+              "returnType": "Any"
+            }
+          ],
+          "conversions": [
+            {
+              "code": "script_variables_get('audit');",
+              "errorCount": 0
+            }
+          ],
+          "constructed": true,
+          "inputs": [
+            {
+              "name": "",
+              "fields": [
+                {
+                  "name": "TEXT"
+                }
+              ]
+            }
+          ],
+          "referenceModule": 26912
+        },
+        {
+          "name": "self_listen_value",
+          "definitionRegistered": true,
+          "domainIndex": 59,
+          "declarationPresent": false,
+          "declarations": [],
+          "conversions": [
+            {
+              "code": "on_broadcast_received_with_content('audit', value => { console_log(value); });",
+              "errorCount": 0
+            }
+          ],
+          "constructed": true,
+          "inputs": [
+            {
+              "name": "",
+              "fields": [
+                {
+                  "name": "TEXT"
+                }
+              ]
+            }
+          ],
+          "referenceModule": 41417
+        },
+        {
+          "name": "setInterval",
+          "definitionRegistered": true,
+          "domainIndex": 342,
+          "declarationPresent": true,
+          "declarations": [
+            {
+              "key": "setInterval",
+              "type": "setInterval",
+              "kind": "function",
+              "params": [
+                {
+                  "name": "callback",
+                  "type": "Callable"
+                },
+                {
+                  "name": "delay",
+                  "type": "Number"
+                }
+              ],
+              "returnType": "void"
+            }
+          ],
+          "conversions": [
+            {
+              "code": "setInterval(() => { console_log(1); }, 10);",
+              "errorCount": 0
+            },
+            {
+              "code": "setInterval(1);",
+              "errorCount": 0
+            }
+          ],
+          "constructed": true,
+          "inputs": [
+            {
+              "name": "",
+              "fields": []
+            },
+            {
+              "name": "callback",
+              "fields": []
+            },
+            {
+              "name": "",
+              "fields": []
+            },
+            {
+              "name": "delay",
+              "fields": []
+            }
+          ],
+          "referenceModule": 26537
+        },
+        {
+          "name": "setTimeout",
+          "definitionRegistered": true,
+          "domainIndex": 338,
+          "declarationPresent": true,
+          "declarations": [
+            {
+              "key": "setTimeout",
+              "type": "setTimeout",
+              "kind": "function",
+              "params": [
+                {
+                  "name": "callback",
+                  "type": "Callable"
+                },
+                {
+                  "name": "delay",
+                  "type": "Number"
+                }
+              ],
+              "returnType": "void"
+            }
+          ],
+          "conversions": [
+            {
+              "code": "setTimeout(() => { console_log(1); }, 10);",
+              "errorCount": 0
+            },
+            {
+              "code": "setTimeout(1);",
+              "errorCount": 0
+            }
+          ],
+          "constructed": true,
+          "inputs": [
+            {
+              "name": "",
+              "fields": []
+            },
+            {
+              "name": "callback",
+              "fields": []
+            },
+            {
+              "name": "",
+              "fields": []
+            },
+            {
+              "name": "delay",
+              "fields": []
+            }
+          ],
+          "referenceModule": 43380
+        },
+        {
+          "name": "start_on_click",
+          "definitionRegistered": true,
+          "domainIndex": 18,
+          "declarationPresent": false,
+          "declarations": [],
+          "conversions": [],
+          "constructed": true,
+          "inputs": [
+            {
+              "name": "",
+              "fields": []
+            }
+          ],
+          "referenceModule": 79224
+        },
+        {
+          "name": "traverse_number_param",
+          "definitionRegistered": true,
+          "domainIndex": 52,
+          "declarationPresent": true,
+          "declarations": [
+            {
+              "key": "traverse_number_param",
+              "type": "traverse_number_param",
+              "kind": "helper",
+              "params": [],
+              "returnType": "String"
+            }
+          ],
+          "conversions": [
+            {
+              "code": "repeat_for_range(1, 3, 1, value => { console_log(value); });",
+              "errorCount": 0
+            }
+          ],
+          "constructed": true,
+          "inputs": [
+            {
+              "name": "",
+              "fields": [
+                {
+                  "name": "TEXT"
+                }
+              ]
+            }
+          ],
+          "referenceModule": 8833
+        },
+        {
+          "name": "traverse_number_value",
+          "definitionRegistered": true,
+          "domainIndex": 53,
+          "declarationPresent": false,
+          "declarations": [],
+          "conversions": [
+            {
+              "code": "repeat_for_range(1, 3, 1, value => { console_log(value); });",
+              "errorCount": 0
+            }
+          ],
+          "constructed": true,
+          "inputs": [
+            {
+              "name": "",
+              "fields": [
+                {
+                  "name": "TEXT"
+                }
+              ]
+            }
+          ],
+          "referenceModule": 79224
+        },
+        {
+          "name": "get_sprite_property",
+          "definitionRegistered": false,
+          "domainIndex": null,
+          "declarationPresent": true,
+          "declarations": [
+            {
+              "key": "get_sprite_property",
+              "type": "get_sprite_property",
+              "kind": "function",
+              "params": [
+                {
+                  "name": "sprite",
+                  "type": "field"
+                },
+                {
+                  "name": "attribute",
+                  "type": "field"
+                }
+              ],
+              "returnType": "Number"
+            }
+          ],
+          "conversions": [
+            {
+              "code": "get_sprite_property('--self', 'size');",
+              "errorCount": 1
+            }
+          ],
+          "constructed": false,
+          "error": "Error: Error: Unknown block type get_sprite_property."
+        }
+      ],
+      "conversions": [
+        {
+          "code": "let audit = [1, 2]; audit[0] = 3; console_log(audit[0]);",
+          "types": [
+            "_variable_set",
+            "math_number",
+            "_array_literal",
+            "_object_set",
+            "text",
+            "_variable_get",
+            "console_log",
+            "_object_get"
+          ],
+          "errors": [],
+          "warnings": []
+        },
+        {
+          "code": "let audit = { x: 1 }; audit.x = 2; console_log(audit.x);",
+          "types": [
+            "_variable_set",
+            "math_number",
+            "_object_literal",
+            "text",
+            "_object_set",
+            "_variable_get",
+            "console_log",
+            "_object_get"
+          ],
+          "errors": [],
+          "warnings": []
+        },
+        {
+          "code": "let audit = 1; audit++; audit--; audit += 2; audit -= 2; audit *= 2; audit /= 2; audit %= 2;",
+          "types": [
+            "_variable_set",
+            "math_number",
+            "math_increment",
+            "math_decrement",
+            "math_add_assign",
+            "math_sub_assign",
+            "math_mul_assign",
+            "math_div_assign",
+            "math_mod_assign"
+          ],
+          "errors": [],
+          "warnings": []
+        },
+        {
+          "code": "while (true) { if (true) break; continue; }",
+          "types": [
+            "controls_while",
+            "logic_boolean",
+            "controls_if",
+            "_break_statement",
+            "_continue_statement"
+          ],
+          "errors": [],
+          "warnings": []
+        },
+        {
+          "code": "function audit() { return 4; }",
+          "types": [
+            "procedures_2_defnoreturn",
+            "procedures_2_return_value",
+            "math_number"
+          ],
+          "errors": [],
+          "warnings": []
+        },
+        {
+          "code": "console_log(true ? 1 : 2);",
+          "types": [
+            "console_log",
+            "math_number",
+            "logic_ternary",
+            "logic_boolean"
+          ],
+          "errors": [],
+          "warnings": []
+        },
+        {
+          "code": "console_log(!!1);",
+          "types": [],
+          "errors": [
+            "插件 \"logic-negate-js-to-xml-plugin\" 执行异常: Cannot set properties of undefined (setting 'value')",
+            "插件 \"logic-negate-js-to-xml-plugin\" 执行异常: Cannot set properties of undefined (setting 'value')",
+            "插件 \"logic-negate-js-to-xml-plugin\" 执行异常: Cannot set properties of undefined (setting 'value')",
+            "转换节点失败: Cannot set properties of undefined (setting 'value')"
+          ],
+          "warnings": []
+        },
+        {
+          "code": "on_collision_with_sprite('enter', '--any', value => { console_log(value); });",
+          "types": [
+            "on_bump_actor",
+            "math_number",
+            "on_bump_actor_param",
+            "console_log",
+            "on_bump_actor_value"
+          ],
+          "errors": [],
+          "warnings": []
+        },
+        {
+          "code": "on_broadcast_received_with_content('audit', value => { console_log(value); });",
+          "types": [
+            "self_listen_with_param",
+            "broadcast_input",
+            "math_number",
+            "self_listen_param",
+            "console_log",
+            "self_listen_value"
+          ],
+          "errors": [],
+          "warnings": []
+        },
+        {
+          "code": "repeat_for_range(1, 3, 1, value => { console_log(value); });",
+          "types": [
+            "traverse_number",
+            "math_number",
+            "traverse_number_param",
+            "console_log",
+            "traverse_number_value"
+          ],
+          "errors": [],
+          "warnings": []
+        },
+        {
+          "code": "get_sprite_property('--self', 'x');",
+          "types": [
+            "_execute",
+            "math_number",
+            "coordinate_of_sprite"
+          ],
+          "errors": [],
+          "warnings": []
+        },
+        {
+          "code": "get_sprite_property('--self', 'size');",
+          "types": [
+            "_execute",
+            "math_number",
+            "get_sprite_property"
+          ],
+          "errors": [
+            "插件 \"get-sprite-property-js-to-xml-plugin\" 执行错误: get-sprite-property-js-to-xml-plugin failed to execute: 暂不支持的属性值: size"
+          ],
+          "warnings": []
+        },
+        {
+          "code": "get_sprite_property('--self', 'color');",
+          "types": [
+            "_execute",
+            "math_number",
+            "effect_of_sprite"
+          ],
+          "errors": [],
+          "warnings": []
+        },
+        {
+          "code": "script_variables_get('audit');",
+          "types": [
+            "_execute",
+            "math_number",
+            "script_variables_value"
+          ],
+          "errors": [],
+          "warnings": []
+        },
+        {
+          "code": "setTimeout(() => { console_log(1); }, 10);",
+          "types": [
+            "setTimeout",
+            "console_log",
+            "math_number"
+          ],
+          "errors": [],
+          "warnings": []
+        },
+        {
+          "code": "setInterval(() => { console_log(1); }, 10);",
+          "types": [
+            "setInterval",
+            "console_log",
+            "math_number"
+          ],
+          "errors": [],
+          "warnings": []
+        },
+        {
+          "code": "atob(1);",
+          "types": [
+            "_execute",
+            "math_number",
+            "atob",
+            "text"
+          ],
+          "errors": [],
+          "warnings": []
+        },
+        {
+          "code": "btoa(1);",
+          "types": [
+            "_execute",
+            "math_number",
+            "btoa",
+            "text"
+          ],
+          "errors": [],
+          "warnings": []
+        },
+        {
+          "code": "calculate(1);",
+          "types": [
+            "function_call_noreturn",
+            "text",
+            "math_number"
+          ],
+          "errors": [],
+          "warnings": []
+        },
+        {
+          "code": "clearInterval(1);",
+          "types": [
+            "clearInterval",
+            "math_number"
+          ],
+          "errors": [],
+          "warnings": []
+        },
+        {
+          "code": "clearTimeout(1);",
+          "types": [
+            "clearTimeout",
+            "math_number"
+          ],
+          "errors": [],
+          "warnings": []
+        },
+        {
+          "code": "controls_while(1);",
+          "types": [],
+          "errors": [
+            "转换节点失败: Cannot set properties of undefined (setting 'value')"
+          ],
+          "warnings": []
+        },
+        {
+          "code": "get_timer(1);",
+          "types": [
+            "function_call_noreturn",
+            "text",
+            "math_number"
+          ],
+          "errors": [],
+          "warnings": []
+        },
+        {
+          "code": "isFinite(1);",
+          "types": [
+            "_execute",
+            "math_number",
+            "isFinite"
+          ],
+          "errors": [],
+          "warnings": []
+        },
+        {
+          "code": "isNaN(1);",
+          "types": [
+            "_execute",
+            "math_number",
+            "isNaN"
+          ],
+          "errors": [],
+          "warnings": []
+        },
+        {
+          "code": "logic_ternary(1);",
+          "types": [],
+          "errors": [
+            "转换节点失败: Cannot set properties of undefined (setting 'value')"
+          ],
+          "warnings": []
+        },
+        {
+          "code": "logic_to_boolean(1);",
+          "types": [
+            "_execute",
+            "math_number",
+            "logic_to_boolean"
+          ],
+          "errors": [],
+          "warnings": []
+        },
+        {
+          "code": "parseFloat(1);",
+          "types": [
+            "_execute",
+            "math_number",
+            "parseFloat",
+            "text"
+          ],
+          "errors": [],
+          "warnings": []
+        },
+        {
+          "code": "parseInt(1);",
+          "types": [
+            "_execute",
+            "math_number",
+            "parseInt",
+            "text"
+          ],
+          "errors": [],
+          "warnings": []
+        },
+        {
+          "code": "procedures_2_defnoreturn(1);",
+          "types": [
+            "function_call_noreturn",
+            "text",
+            "math_number"
+          ],
+          "errors": [],
+          "warnings": []
+        },
+        {
+          "code": "reset_timer(1);",
+          "types": [
+            "function_call_noreturn",
+            "text",
+            "math_number"
+          ],
+          "errors": [],
+          "warnings": []
+        },
+        {
+          "code": "setInterval(1);",
+          "types": [
+            "setInterval"
+          ],
+          "errors": [],
+          "warnings": []
+        },
+        {
+          "code": "setTimeout(1);",
+          "types": [
+            "setTimeout"
+          ],
+          "errors": [],
+          "warnings": []
+        },
+        {
+          "code": "start_on_click(1);",
+          "types": [
+            "function_call_noreturn",
+            "text",
+            "math_number"
+          ],
+          "errors": [],
+          "warnings": []
+        },
+        {
+          "code": "math_trig_rad('sin', 1);",
+          "types": [
+            "_execute",
+            "math_number",
+            "math_trig_rad"
+          ],
+          "errors": [],
+          "warnings": []
+        }
+      ],
+      "baseConversions": [
+        {
+          "code": "function audit() { return 4; }",
+          "types": [
+            "procedures_2_defnoreturn",
+            "procedures_2_return_value",
+            "math_number"
+          ],
+          "errors": [],
+          "warnings": []
+        }
+      ]
+    }
+  },
+  "sourceLocations": [
+    {
+      "symbol": "catbit_button_is_pressed",
+      "bundle": "entry_hardware.481194e4.chunk.js",
+      "bundleSha256": "7259df6bc25c81905028a569ca5e99fba5091ca4fbddd29c2ec92ac15c75842d",
+      "byteOffset": 14475,
+      "excerptCharacters": 103,
+      "excerptSha256": "19050ebc9c9615f387005a514af909987b783a8fd1cc77edd4b1f0b95db9d56c"
+    },
+    {
+      "symbol": "change_robot2_master_motor_power",
+      "bundle": "entry_hardware.481194e4.chunk.js",
+      "bundleSha256": "7259df6bc25c81905028a569ca5e99fba5091ca4fbddd29c2ec92ac15c75842d",
+      "byteOffset": 266213,
+      "excerptCharacters": 595,
+      "excerptSha256": "79169fea731ec2cf3044057ffdd8c50d53a7c41106d629ac1a1c09a5d4d3d767"
+    },
+    {
+      "symbol": "change_robot_master_motor_power",
+      "bundle": "entry_hardware.481194e4.chunk.js",
+      "bundleSha256": "7259df6bc25c81905028a569ca5e99fba5091ca4fbddd29c2ec92ac15c75842d",
+      "byteOffset": 251760,
+      "excerptCharacters": 607,
+      "excerptSha256": "a40de0b07e21586b6a9f249eb375485289e0d8ba2b2d9694deead329c5fe0b66"
+    },
+    {
+      "symbol": "get_robot2_master_motor_power",
+      "bundle": "entry_hardware.481194e4.chunk.js",
+      "bundleSha256": "7259df6bc25c81905028a569ca5e99fba5091ca4fbddd29c2ec92ac15c75842d",
+      "byteOffset": 267169,
+      "excerptCharacters": 182,
+      "excerptSha256": "84494dbb504f3b81c0109775e7ac4b46d9056642b708ab21c7477109cbe09986"
+    },
+    {
+      "symbol": "get_robot_master_infrared_sensor_distance",
+      "bundle": "entry_hardware.481194e4.chunk.js",
+      "bundleSha256": "7259df6bc25c81905028a569ca5e99fba5091ca4fbddd29c2ec92ac15c75842d",
+      "byteOffset": 252906,
+      "excerptCharacters": 117,
+      "excerptSha256": "57b7b354be478bdcec9810ad9ad0d96cc230b37815a886df10cacdae82877b8f"
+    },
+    {
+      "symbol": "get_robot_master_motor_power",
+      "bundle": "entry_hardware.481194e4.chunk.js",
+      "bundleSha256": "7259df6bc25c81905028a569ca5e99fba5091ca4fbddd29c2ec92ac15c75842d",
+      "byteOffset": 252750,
+      "excerptCharacters": 113,
+      "excerptSha256": "12456a173f8364e54b81a8e7af63b9025996e06d9070f32eb815261634d3e4ba"
+    },
+    {
+      "symbol": "set_robot2_master_motor_power_rotation",
+      "bundle": "entry_hardware.481194e4.chunk.js",
+      "bundleSha256": "7259df6bc25c81905028a569ca5e99fba5091ca4fbddd29c2ec92ac15c75842d",
+      "byteOffset": 264558,
+      "excerptCharacters": 634,
+      "excerptSha256": "b773074a2ef8494c4ef545f9395c686765602beb2e1d63b8408c38ad429ed79b"
+    },
+    {
+      "symbol": "set_robot2_master_motor_power_rotation_duration",
+      "bundle": "entry_hardware.481194e4.chunk.js",
+      "bundleSha256": "7259df6bc25c81905028a569ca5e99fba5091ca4fbddd29c2ec92ac15c75842d",
+      "byteOffset": 265241,
+      "excerptCharacters": 938,
+      "excerptSha256": "2ecd9ffab3d7632dc3663f7024c3620eb5cbec3f39f8994ff3c458350e8bdb68"
+    },
+    {
+      "symbol": "set_robot_master_light_color",
+      "bundle": "entry_hardware.481194e4.chunk.js",
+      "bundleSha256": "7259df6bc25c81905028a569ca5e99fba5091ca4fbddd29c2ec92ac15c75842d",
+      "byteOffset": 248262,
+      "excerptCharacters": 558,
+      "excerptSha256": "e2d22e7c615e7a0c25ea511448fbac12d463e429f54248ea8c911ff42dc5fbbb"
+    },
+    {
+      "symbol": "set_robot_master_light_color_duration",
+      "bundle": "entry_hardware.481194e4.chunk.js",
+      "bundleSha256": "7259df6bc25c81905028a569ca5e99fba5091ca4fbddd29c2ec92ac15c75842d",
+      "byteOffset": 248859,
+      "excerptCharacters": 845,
+      "excerptSha256": "a8a6bbe42ed3b068661240552f6a8cfd618f9ae286238254b9b7080307acb6ca"
+    },
+    {
+      "symbol": "set_robot_master_motor_power_rotation",
+      "bundle": "entry_hardware.481194e4.chunk.js",
+      "bundleSha256": "7259df6bc25c81905028a569ca5e99fba5091ca4fbddd29c2ec92ac15c75842d",
+      "byteOffset": 250102,
+      "excerptCharacters": 637,
+      "excerptSha256": "9d30e8fdca52c3b7d8721f712c84446db057259ad54d4ba44387d465fba5cc7f"
+    },
+    {
+      "symbol": "set_robot_master_motor_power_rotation_duration",
+      "bundle": "entry_hardware.481194e4.chunk.js",
+      "bundleSha256": "7259df6bc25c81905028a569ca5e99fba5091ca4fbddd29c2ec92ac15c75842d",
+      "byteOffset": 250787,
+      "excerptCharacters": 940,
+      "excerptSha256": "f526175c231fd7fb181032fb27bb97d41ccc7b08ee995ac7b09ddfe4879e48e8"
+    },
+    {
+      "symbol": "stop_robot2_master_motor",
+      "bundle": "entry_hardware.481194e4.chunk.js",
+      "bundleSha256": "7259df6bc25c81905028a569ca5e99fba5091ca4fbddd29c2ec92ac15c75842d",
+      "byteOffset": 266834,
+      "excerptCharacters": 304,
+      "excerptSha256": "39b23cdd7489ddee861ff9cc78362d4b1db2e5f829cba0bb4399794904e841be"
+    },
+    {
+      "symbol": "stop_robot_master_light",
+      "bundle": "entry_hardware.481194e4.chunk.js",
+      "bundleSha256": "7259df6bc25c81905028a569ca5e99fba5091ca4fbddd29c2ec92ac15c75842d",
+      "byteOffset": 249729,
+      "excerptCharacters": 334,
+      "excerptSha256": "c9cd17dc59238ea3c85c74fb5a67c869f73a9a43ddbba049faab4c91c1fb8c45"
+    },
+    {
+      "symbol": "stop_robot_master_motor",
+      "bundle": "entry_hardware.481194e4.chunk.js",
+      "bundleSha256": "7259df6bc25c81905028a569ca5e99fba5091ca4fbddd29c2ec92ac15c75842d",
+      "byteOffset": 252392,
+      "excerptCharacters": 328,
+      "excerptSha256": "23c1969933cd41cec9062513306ba289196c4f9a1db1bd56f13df33e71bb51c2"
+    },
+    {
+      "symbol": "wand_button_is_pressed",
+      "bundle": "entry_hardware.481194e4.chunk.js",
+      "bundleSha256": "7259df6bc25c81905028a569ca5e99fba5091ca4fbddd29c2ec92ac15c75842d",
+      "byteOffset": 581794,
+      "excerptCharacters": 232,
+      "excerptSha256": "77a558218b048046bf75fffaa8861b264abc39dc69501f4b5c4a0383adfc3caf"
+    },
+    {
+      "symbol": "wand_coordinate",
+      "bundle": "entry_hardware.481194e4.chunk.js",
+      "bundleSha256": "7259df6bc25c81905028a569ca5e99fba5091ca4fbddd29c2ec92ac15c75842d",
+      "byteOffset": 581535,
+      "excerptCharacters": 96,
+      "excerptSha256": "9ef86c870056a1f20e97fb133f1509d88bde884cdadb80e97d9ea30bdfd34c70"
+    },
+    {
+      "symbol": "wand_reset_position",
+      "bundle": "main-vendors.07f7dd7e.js",
+      "bundleSha256": "38183ab8a9620f33fef75f1bd1f90ee26b492e7b6ded8b6b065fc052e7948f68",
+      "byteOffset": 4165671,
+      "excerptCharacters": 173,
+      "excerptSha256": "09a25cffbad55cbf1d9bfa1f7cba965e212b7a8a1c9818b7af32209d53e6a4dc"
+    },
+    {
+      "symbol": "wand_rotation",
+      "bundle": "entry_hardware.481194e4.chunk.js",
+      "bundleSha256": "7259df6bc25c81905028a569ca5e99fba5091ca4fbddd29c2ec92ac15c75842d",
+      "byteOffset": 581662,
+      "excerptCharacters": 94,
+      "excerptSha256": "f1be035baa3057b1359b41d87d655e0ec0c9db5ccdda1b8eac3af3169d788573"
+    },
+    {
+      "symbol": "event-factory-60548",
+      "moduleId": 60548,
+      "bundle": "entry_hardware.481194e4.chunk.js",
+      "bundleSha256": "7259df6bc25c81905028a569ca5e99fba5091ca4fbddd29c2ec92ac15c75842d",
+      "byteOffset": 14583,
+      "excerptCharacters": 557,
+      "excerptSha256": "7c2912396665494dc68a20fba8f8216872b77d9acdb92a3c11eb76bc27fc773e"
+    },
+    {
+      "symbol": "event-factory-81794",
+      "moduleId": 81794,
+      "bundle": "entry_hardware.481194e4.chunk.js",
+      "bundleSha256": "7259df6bc25c81905028a569ca5e99fba5091ca4fbddd29c2ec92ac15c75842d",
+      "byteOffset": 26379,
+      "excerptCharacters": 569,
+      "excerptSha256": "63a53f33960cee870157890c2638318f0ccee48bf66941b19a28fb93af7773b4"
+    },
+    {
+      "symbol": "event-factory-18541",
+      "moduleId": 18541,
+      "bundle": "entry_hardware.481194e4.chunk.js",
+      "bundleSha256": "7259df6bc25c81905028a569ca5e99fba5091ca4fbddd29c2ec92ac15c75842d",
+      "byteOffset": 582348,
+      "excerptCharacters": 842,
+      "excerptSha256": "37352f16f5489b920b4e0ab007d41a9a52de39d47ff6767f84b91ae60dcb2d53"
+    },
+    {
+      "symbol": "registered-reference-_array_literal",
+      "moduleId": 65191,
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 2944719,
+      "excerptCharacters": 46897,
+      "excerptSha256": "b33cc220b501188848aac27bef061bca22eb9eff17b9d1311e3c7423bc5fd58f"
+    },
+    {
+      "symbol": "registered-reference-_break_statement",
+      "moduleId": 96733,
+      "bundle": "main-vendors.07f7dd7e.js",
+      "bundleSha256": "38183ab8a9620f33fef75f1bd1f90ee26b492e7b6ded8b6b065fc052e7948f68",
+      "byteOffset": 6032817,
+      "excerptCharacters": 169088,
+      "excerptSha256": "84dbd55b7afa766db208f40d4efd0b0af839e1d9f981d1ebb5ce813601f8a688"
+    },
+    {
+      "symbol": "registered-reference-_continue_statement",
+      "moduleId": 96733,
+      "bundle": "main-vendors.07f7dd7e.js",
+      "bundleSha256": "38183ab8a9620f33fef75f1bd1f90ee26b492e7b6ded8b6b065fc052e7948f68",
+      "byteOffset": 6032817,
+      "excerptCharacters": 169088,
+      "excerptSha256": "84dbd55b7afa766db208f40d4efd0b0af839e1d9f981d1ebb5ce813601f8a688"
+    },
+    {
+      "symbol": "registered-reference-_execute",
+      "moduleId": 65191,
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 2944719,
+      "excerptCharacters": 46897,
+      "excerptSha256": "b33cc220b501188848aac27bef061bca22eb9eff17b9d1311e3c7423bc5fd58f"
+    },
+    {
+      "symbol": "registered-reference-_object_get",
+      "moduleId": 65191,
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 2944719,
+      "excerptCharacters": 46897,
+      "excerptSha256": "b33cc220b501188848aac27bef061bca22eb9eff17b9d1311e3c7423bc5fd58f"
+    },
+    {
+      "symbol": "registered-reference-_object_literal",
+      "moduleId": 65191,
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 2944719,
+      "excerptCharacters": 46897,
+      "excerptSha256": "b33cc220b501188848aac27bef061bca22eb9eff17b9d1311e3c7423bc5fd58f"
+    },
+    {
+      "symbol": "registered-reference-_object_set",
+      "moduleId": 65191,
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 2944719,
+      "excerptCharacters": 46897,
+      "excerptSha256": "b33cc220b501188848aac27bef061bca22eb9eff17b9d1311e3c7423bc5fd58f"
+    },
+    {
+      "symbol": "registered-reference-_return_statement",
+      "moduleId": 58890,
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 2776597,
+      "excerptCharacters": 144437,
+      "excerptSha256": "e053b7424eec5852fff794e48904573ce1b69dca6f5070450cd5413405296a6e"
+    },
+    {
+      "symbol": "registered-reference-_variable_get",
+      "moduleId": 65191,
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 2944719,
+      "excerptCharacters": 46897,
+      "excerptSha256": "b33cc220b501188848aac27bef061bca22eb9eff17b9d1311e3c7423bc5fd58f"
+    },
+    {
+      "symbol": "registered-reference-_variable_set",
+      "moduleId": 52459,
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 3081311,
+      "excerptCharacters": 30004,
+      "excerptSha256": "b6ba9cd21990d136eabdd56984221669902aaccd452d26cdbad82f5aa9bae9ac"
+    },
+    {
+      "symbol": "registered-reference-atob",
+      "moduleId": 58091,
+      "bundle": "main-vendors.07f7dd7e.js",
+      "bundleSha256": "38183ab8a9620f33fef75f1bd1f90ee26b492e7b6ded8b6b065fc052e7948f68",
+      "byteOffset": 903106,
+      "excerptCharacters": 360,
+      "excerptSha256": "4de0af1e941ff2b44ad79830e3f8e9d188a2e12d48196a28bb3f1648e1a058ea"
+    },
+    {
+      "symbol": "registered-reference-btoa",
+      "moduleId": 9151,
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 5351824,
+      "excerptCharacters": 1559,
+      "excerptSha256": "c48117a08ab12a6356ad52afb36633683d8c65260331f560c5abd98130baa2a5"
+    },
+    {
+      "symbol": "registered-reference-calculate",
+      "moduleId": 87409,
+      "bundle": "crc_libs.8196dbd1.js",
+      "bundleSha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7",
+      "byteOffset": 691452,
+      "excerptCharacters": 6281,
+      "excerptSha256": "d4e6bb47be1442c1e36a62db88d9fd44454a09197bc9944d301898a0304675aa"
+    },
+    {
+      "symbol": "registered-reference-clearInterval",
+      "moduleId": 26537,
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 2148059,
+      "excerptCharacters": 638,
+      "excerptSha256": "769226e704a3416023b00bd10fe7c4b95588012a05c38776e72f67cda1750234"
+    },
+    {
+      "symbol": "registered-reference-clearTimeout",
+      "moduleId": 75314,
+      "bundle": "main-vendors.07f7dd7e.js",
+      "bundleSha256": "38183ab8a9620f33fef75f1bd1f90ee26b492e7b6ded8b6b065fc052e7948f68",
+      "byteOffset": 2036157,
+      "excerptCharacters": 567,
+      "excerptSha256": "9d4bfb927667632532b2487470990d40b87951b62e744e492a31aedd479abeb8"
+    },
+    {
+      "symbol": "registered-reference-controls_while",
+      "moduleId": 96733,
+      "bundle": "main-vendors.07f7dd7e.js",
+      "bundleSha256": "38183ab8a9620f33fef75f1bd1f90ee26b492e7b6ded8b6b065fc052e7948f68",
+      "byteOffset": 6032817,
+      "excerptCharacters": 169088,
+      "excerptSha256": "84dbd55b7afa766db208f40d4efd0b0af839e1d9f981d1ebb5ce813601f8a688"
+    },
+    {
+      "symbol": "registered-reference-get_timer",
+      "moduleId": 96901,
+      "bundle": "crc_libs.8196dbd1.js",
+      "bundleSha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7",
+      "byteOffset": 41562,
+      "excerptCharacters": 978,
+      "excerptSha256": "26852a59f6d12e1c18c3fab7f7c8b0c10461d85f765346c1fbc4c5747346e1c4"
+    },
+    {
+      "symbol": "registered-reference-isFinite",
+      "moduleId": 89385,
+      "bundle": "base.f158ddbf.js",
+      "bundleSha256": "724251e202e9dac074241e6296f3bbf3773c420141516764c8434dd17eb113e7",
+      "byteOffset": 937451,
+      "excerptCharacters": 109,
+      "excerptSha256": "22a4e094a0e6233b4392894331e6d088cfce57bbcdd7e99d919e17c988f88b02"
+    },
+    {
+      "symbol": "registered-reference-isNaN",
+      "moduleId": 16187,
+      "bundle": "base.f158ddbf.js",
+      "bundleSha256": "724251e202e9dac074241e6296f3bbf3773c420141516764c8434dd17eb113e7",
+      "byteOffset": 162215,
+      "excerptCharacters": 171,
+      "excerptSha256": "8eb30d37e941940fbed153ef1365a6a1427317def0a3a849d33fdb4d24bc6c25"
+    },
+    {
+      "symbol": "registered-reference-logic_ternary",
+      "moduleId": 65191,
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 2944719,
+      "excerptCharacters": 46897,
+      "excerptSha256": "b33cc220b501188848aac27bef061bca22eb9eff17b9d1311e3c7423bc5fd58f"
+    },
+    {
+      "symbol": "registered-reference-logic_to_boolean",
+      "moduleId": 65191,
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 2944719,
+      "excerptCharacters": 46897,
+      "excerptSha256": "b33cc220b501188848aac27bef061bca22eb9eff17b9d1311e3c7423bc5fd58f"
+    },
+    {
+      "symbol": "registered-reference-math_add_assign",
+      "moduleId": 65191,
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 2944719,
+      "excerptCharacters": 46897,
+      "excerptSha256": "b33cc220b501188848aac27bef061bca22eb9eff17b9d1311e3c7423bc5fd58f"
+    },
+    {
+      "symbol": "registered-reference-math_decrement",
+      "moduleId": 65191,
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 2944719,
+      "excerptCharacters": 46897,
+      "excerptSha256": "b33cc220b501188848aac27bef061bca22eb9eff17b9d1311e3c7423bc5fd58f"
+    },
+    {
+      "symbol": "registered-reference-math_div_assign",
+      "moduleId": 65191,
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 2944719,
+      "excerptCharacters": 46897,
+      "excerptSha256": "b33cc220b501188848aac27bef061bca22eb9eff17b9d1311e3c7423bc5fd58f"
+    },
+    {
+      "symbol": "registered-reference-math_increment",
+      "moduleId": 65191,
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 2944719,
+      "excerptCharacters": 46897,
+      "excerptSha256": "b33cc220b501188848aac27bef061bca22eb9eff17b9d1311e3c7423bc5fd58f"
+    },
+    {
+      "symbol": "registered-reference-math_mod_assign",
+      "moduleId": 65191,
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 2944719,
+      "excerptCharacters": 46897,
+      "excerptSha256": "b33cc220b501188848aac27bef061bca22eb9eff17b9d1311e3c7423bc5fd58f"
+    },
+    {
+      "symbol": "registered-reference-math_mul_assign",
+      "moduleId": 65191,
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 2944719,
+      "excerptCharacters": 46897,
+      "excerptSha256": "b33cc220b501188848aac27bef061bca22eb9eff17b9d1311e3c7423bc5fd58f"
+    },
+    {
+      "symbol": "registered-reference-math_sub_assign",
+      "moduleId": 65191,
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 2944719,
+      "excerptCharacters": 46897,
+      "excerptSha256": "b33cc220b501188848aac27bef061bca22eb9eff17b9d1311e3c7423bc5fd58f"
+    },
+    {
+      "symbol": "registered-reference-math_trig_rad",
+      "moduleId": 70615,
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 2763797,
+      "excerptCharacters": 10956,
+      "excerptSha256": "be199e4b506d974190453436fd28d68d3c78d60d8360f3101d824ca5c7c9dd3e"
+    },
+    {
+      "symbol": "registered-reference-on_bump_actor_value",
+      "moduleId": 41417,
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 2755202,
+      "excerptCharacters": 3142,
+      "excerptSha256": "e845ee25d27f662be364a52d1b4533f949b1e11a1bc863a63c77c6a9a7e228f8"
+    },
+    {
+      "symbol": "registered-reference-parseFloat",
+      "moduleId": 74093,
+      "bundle": "main-vendors.07f7dd7e.js",
+      "bundleSha256": "38183ab8a9620f33fef75f1bd1f90ee26b492e7b6ded8b6b065fc052e7948f68",
+      "byteOffset": 1021708,
+      "excerptCharacters": 99,
+      "excerptSha256": "fdf9e8eb4ffc04eccd5c8fefa46b11176bf2b6291226549ee8883e914b098d0c"
+    },
+    {
+      "symbol": "registered-reference-parseInt",
+      "moduleId": 69765,
+      "bundle": "main-vendors.07f7dd7e.js",
+      "bundleSha256": "38183ab8a9620f33fef75f1bd1f90ee26b492e7b6ded8b6b065fc052e7948f68",
+      "byteOffset": 1021808,
+      "excerptCharacters": 95,
+      "excerptSha256": "92cf4623f843fbe19c819b37b088bb51561dcc335512caae147adff1da4a659c"
+    },
+    {
+      "symbol": "registered-reference-procedures_2_defnoreturn",
+      "moduleId": 54580,
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 2758345,
+      "excerptCharacters": 385,
+      "excerptSha256": "10c5367ac2bd7b75c4d2a7898fbe5a449b93367afa606229fff0b3923cd314b6"
+    },
+    {
+      "symbol": "registered-reference-reset_timer",
+      "moduleId": 96901,
+      "bundle": "crc_libs.8196dbd1.js",
+      "bundleSha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7",
+      "byteOffset": 41562,
+      "excerptCharacters": 978,
+      "excerptSha256": "26852a59f6d12e1c18c3fab7f7c8b0c10461d85f765346c1fbc4c5747346e1c4"
+    },
+    {
+      "symbol": "registered-reference-script_variables_value",
+      "moduleId": 26912,
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 961338,
+      "excerptCharacters": 10921,
+      "excerptSha256": "d0aa40a0a27125109bb92fa8c18d3c98f9544cbe961ebcab24cc4d2a3a183cbf"
+    },
+    {
+      "symbol": "registered-reference-self_listen_value",
+      "moduleId": 41417,
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 2755202,
+      "excerptCharacters": 3142,
+      "excerptSha256": "e845ee25d27f662be364a52d1b4533f949b1e11a1bc863a63c77c6a9a7e228f8"
+    },
+    {
+      "symbol": "registered-reference-setInterval",
+      "moduleId": 26537,
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 2148059,
+      "excerptCharacters": 638,
+      "excerptSha256": "769226e704a3416023b00bd10fe7c4b95588012a05c38776e72f67cda1750234"
+    },
+    {
+      "symbol": "registered-reference-setTimeout",
+      "moduleId": 43380,
+      "bundle": "5337.9c55d0e3.chunk.js",
+      "bundleSha256": "bd1ab2378ab30b25f75836f66c864faff358bddec80eeb93853655ca9214321b",
+      "byteOffset": 331019,
+      "excerptCharacters": 381,
+      "excerptSha256": "64cdfa5c263335bafe38ce2523f96fe85f6b8b93afccc9d756f267964895e1d3"
+    },
+    {
+      "symbol": "registered-reference-start_on_click",
+      "moduleId": 79224,
+      "bundle": "crc_libs.8196dbd1.js",
+      "bundleSha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7",
+      "byteOffset": 839841,
+      "excerptCharacters": 2370,
+      "excerptSha256": "3705f87abd881f74a70c8c71b3d7e34feceb263a6ac4ee28b0356f0cea07bd9d"
+    },
+    {
+      "symbol": "registered-reference-traverse_number_param",
+      "moduleId": 8833,
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 3118611,
+      "excerptCharacters": 3916,
+      "excerptSha256": "d90a46b4e3a2f70b8603798b73bf3fe8385324f74df6ac5abe971ace9e38cd5a"
+    },
+    {
+      "symbol": "registered-reference-traverse_number_value",
+      "moduleId": 79224,
+      "bundle": "crc_libs.8196dbd1.js",
+      "bundleSha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7",
+      "byteOffset": 839841,
+      "excerptCharacters": 2370,
+      "excerptSha256": "3705f87abd881f74a70c8c71b3d7e34feceb263a6ac4ee28b0356f0cea07bd9d"
+    },
+    {
+      "symbol": "module-91136",
+      "moduleId": 91136,
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 5466282,
+      "excerptCharacters": 2646,
+      "excerptSha256": "add77463e1b77988cd74cf78431f7f7b10f44d9b5b501305cefa90e7cce6d2e5"
+    },
+    {
+      "symbol": "module-62392",
+      "moduleId": 62392,
+      "bundle": "entry_hardware.481194e4.chunk.js",
+      "bundleSha256": "7259df6bc25c81905028a569ca5e99fba5091ca4fbddd29c2ec92ac15c75842d",
+      "byteOffset": 14328,
+      "excerptCharacters": 254,
+      "excerptSha256": "7d24ae2f5acafe2b5b534792d5e6ae4348a0a6b83bb49ec85b381de72e758c1f"
+    },
+    {
+      "symbol": "module-53026",
+      "moduleId": 53026,
+      "bundle": "entry_hardware.481194e4.chunk.js",
+      "bundleSha256": "7259df6bc25c81905028a569ca5e99fba5091ca4fbddd29c2ec92ac15c75842d",
+      "byteOffset": 581361,
+      "excerptCharacters": 986,
+      "excerptSha256": "fc3c624e253e6be3725fd73b02fa5891dc6cf6a82255dc089eba229766450562"
+    },
+    {
+      "symbol": "module-47872",
+      "moduleId": 47872,
+      "bundle": "entry_hardware.481194e4.chunk.js",
+      "bundleSha256": "7259df6bc25c81905028a569ca5e99fba5091ca4fbddd29c2ec92ac15c75842d",
+      "byteOffset": 248016,
+      "excerptCharacters": 5010,
+      "excerptSha256": "81ac151507717968556289e37e1d8f59a2d7b2fc1d77ffa47b8655bc7d47850e"
+    },
+    {
+      "symbol": "module-84622",
+      "moduleId": 84622,
+      "bundle": "entry_hardware.481194e4.chunk.js",
+      "bundleSha256": "7259df6bc25c81905028a569ca5e99fba5091ca4fbddd29c2ec92ac15c75842d",
+      "byteOffset": 264303,
+      "excerptCharacters": 3051,
+      "excerptSha256": "6bdd18207731c7d98c4d7ba9bdb0e386c158d00ddfc0709dad637745679094b6"
+    },
+    {
+      "symbol": "module-87282",
+      "moduleId": 87282,
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 2177108,
+      "excerptCharacters": 2057,
+      "excerptSha256": "69763a4a4e70d1d244c12f8900d08e2bf6798577590f9e928c53250b38dfa86b"
+    },
+    {
+      "symbol": "module-58890",
+      "moduleId": 58890,
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 2776597,
+      "excerptCharacters": 144437,
+      "excerptSha256": "e053b7424eec5852fff794e48904573ce1b69dca6f5070450cd5413405296a6e"
+    },
+    {
+      "symbol": "module-96733",
+      "moduleId": 96733,
+      "bundle": "main-vendors.07f7dd7e.js",
+      "bundleSha256": "38183ab8a9620f33fef75f1bd1f90ee26b492e7b6ded8b6b065fc052e7948f68",
+      "byteOffset": 6032817,
+      "excerptCharacters": 169088,
+      "excerptSha256": "84dbd55b7afa766db208f40d4efd0b0af839e1d9f981d1ebb5ce813601f8a688"
+    },
+    {
+      "symbol": "module-83710",
+      "moduleId": 83710,
+      "bundle": "9183.d5310631.chunk.js",
+      "bundleSha256": "e581ab9da42b0cd3748484c88b511609902c11be0f89b3362105192bf504ec05",
+      "byteOffset": 3309,
+      "excerptCharacters": 341,
+      "excerptSha256": "9d7f8bdf7d68aa8c0b359025533d840b30b6f41adab813aaeedd5b73ef8a3ad4"
+    },
+    {
+      "symbol": "module-49403",
+      "moduleId": 49403,
+      "bundle": "6042.3ac13c56.chunk.js",
+      "bundleSha256": "81f8c2b9ec5a79707aa0c84383401a2e47572854c8908f9a644395fb0e90bcff",
+      "byteOffset": 87,
+      "excerptCharacters": 344,
+      "excerptSha256": "3835c5e0347ec124c89a54e94c1bc5d051c2cdb8ef7ca6bf75d2a36190372cb1"
+    },
+    {
+      "symbol": "module-11038",
+      "moduleId": 11038,
+      "bundle": "1766.d598a979.chunk.js",
+      "bundleSha256": "4c566a25a274be2d4ba0beeb31a7a01ca674c7a033bdff4e756a76415d2217c0",
+      "byteOffset": 4331,
+      "excerptCharacters": 322,
+      "excerptSha256": "8582136d97a951428ee54103433187a689441d4af386338d5cbaf0564dc42802"
+    },
+    {
+      "symbol": "module-40130",
+      "moduleId": 40130,
+      "bundle": "7952.ccda8e65.chunk.js",
+      "bundleSha256": "d1a494cb7d7a089ae2411620478d725764ad246ee07ec969e10031d5ffae84f4",
+      "byteOffset": 3308,
+      "excerptCharacters": 577,
+      "excerptSha256": "0fedc543e02324371cd73b064ac4a052a000a4225482a8a9b43d97ebcdb732b3"
+    },
+    {
+      "symbol": "module-8892",
+      "moduleId": 8892,
+      "bundle": "8362.1474cbe1.chunk.js",
+      "bundleSha256": "3a11b25ae94e59c2e3b4ed2bfc6d7163110ed5d96bedc3ad50bfd2b40228a8fd",
+      "byteOffset": 3309,
+      "excerptCharacters": 317,
+      "excerptSha256": "79ef402d2542de9aba047fa1aca8f0e15eabe9a48a5105adac78ae9e0eae9fbb"
+    }
+  ],
+  "vmAudit": {
+    "path": "src/engine.rs",
+    "sha256": "b9dc032811b7adc70e7652cc3cbf25546e144e287762682122797ab310f4a659",
+    "rows": [
+      {
+        "name": "_array_literal",
+        "explicitNameLines": [
+          1768,
+          1918,
+          2712
+        ],
+        "conclusion": "existing-explicit-vm-path-not-new-missing-feature"
+      },
+      {
+        "name": "_break_statement",
+        "explicitNameLines": [
+          4498
+        ],
+        "conclusion": "existing-explicit-vm-path-not-new-missing-feature"
+      },
+      {
+        "name": "_continue_statement",
+        "explicitNameLines": [
+          4506
+        ],
+        "conclusion": "existing-explicit-vm-path-not-new-missing-feature"
+      },
+      {
+        "name": "_execute",
+        "explicitNameLines": [
+          3458
+        ],
+        "conclusion": "existing-explicit-vm-path-not-new-missing-feature"
+      },
+      {
+        "name": "_object_get",
+        "explicitNameLines": [
+          1769,
+          1920,
+          2714
+        ],
+        "conclusion": "existing-explicit-vm-path-not-new-missing-feature"
+      },
+      {
+        "name": "_object_literal",
+        "explicitNameLines": [
+          1919,
+          2713
+        ],
+        "conclusion": "existing-explicit-vm-path-not-new-missing-feature"
+      },
+      {
+        "name": "_object_set",
+        "explicitNameLines": [
+          1921,
+          2715,
+          3459
+        ],
+        "conclusion": "existing-explicit-vm-path-not-new-missing-feature"
+      },
+      {
+        "name": "_return_statement",
+        "explicitNameLines": [
+          4178
+        ],
+        "conclusion": "existing-explicit-vm-path-not-new-missing-feature"
+      },
+      {
+        "name": "_variable_get",
+        "explicitNameLines": [
+          1772,
+          2078,
+          2706
+        ],
+        "conclusion": "existing-explicit-vm-path-not-new-missing-feature"
+      },
+      {
+        "name": "_variable_set",
+        "explicitNameLines": [
+          3553
+        ],
+        "conclusion": "existing-explicit-vm-path-not-new-missing-feature"
+      },
+      {
+        "name": "atob",
+        "explicitNameLines": [
+          2082,
+          2708
+        ],
+        "conclusion": "existing-explicit-vm-path-not-new-missing-feature"
+      },
+      {
+        "name": "btoa",
+        "explicitNameLines": [
+          2083,
+          2709
+        ],
+        "conclusion": "existing-explicit-vm-path-not-new-missing-feature"
+      },
+      {
+        "name": "calculate",
+        "explicitNameLines": [
+          1915,
+          2719
+        ],
+        "conclusion": "existing-explicit-vm-path-not-new-missing-feature"
+      },
+      {
+        "name": "clearInterval",
+        "explicitNameLines": [
+          3425
+        ],
+        "conclusion": "existing-explicit-vm-path-not-new-missing-feature"
+      },
+      {
+        "name": "clearTimeout",
+        "explicitNameLines": [
+          3425,
+          3428
+        ],
+        "conclusion": "existing-explicit-vm-path-not-new-missing-feature"
+      },
+      {
+        "name": "controls_while",
+        "explicitNameLines": [
+          3343,
+          4443,
+          4453
+        ],
+        "conclusion": "existing-explicit-vm-path-not-new-missing-feature"
+      },
+      {
+        "name": "get_timer",
+        "explicitNameLines": [
+          2771
+        ],
+        "conclusion": "existing-explicit-vm-path-not-new-missing-feature"
+      },
+      {
+        "name": "isFinite",
+        "explicitNameLines": [
+          2096,
+          2721
+        ],
+        "conclusion": "existing-explicit-vm-path-not-new-missing-feature"
+      },
+      {
+        "name": "isNaN",
+        "explicitNameLines": [
+          2095,
+          2720
+        ],
+        "conclusion": "existing-explicit-vm-path-not-new-missing-feature"
+      },
+      {
+        "name": "logic_ternary",
+        "explicitNameLines": [
+          1778,
+          2034,
+          2731
+        ],
+        "conclusion": "existing-explicit-vm-path-not-new-missing-feature"
+      },
+      {
+        "name": "logic_to_boolean",
+        "explicitNameLines": [
+          2080,
+          2707
+        ],
+        "conclusion": "existing-explicit-vm-path-not-new-missing-feature"
+      },
+      {
+        "name": "math_add_assign",
+        "explicitNameLines": [
+          3558
+        ],
+        "conclusion": "existing-explicit-vm-path-not-new-missing-feature"
+      },
+      {
+        "name": "math_decrement",
+        "explicitNameLines": [
+          3560,
+          3562,
+          3568
+        ],
+        "conclusion": "existing-explicit-vm-path-not-new-missing-feature"
+      },
+      {
+        "name": "math_div_assign",
+        "explicitNameLines": [
+          3559,
+          3564
+        ],
+        "conclusion": "existing-explicit-vm-path-not-new-missing-feature"
+      },
+      {
+        "name": "math_increment",
+        "explicitNameLines": [
+          3559,
+          3568
+        ],
+        "conclusion": "existing-explicit-vm-path-not-new-missing-feature"
+      },
+      {
+        "name": "math_mod_assign",
+        "explicitNameLines": [
+          3559,
+          3565
+        ],
+        "conclusion": "existing-explicit-vm-path-not-new-missing-feature"
+      },
+      {
+        "name": "math_mul_assign",
+        "explicitNameLines": [
+          3558,
+          3563
+        ],
+        "conclusion": "existing-explicit-vm-path-not-new-missing-feature"
+      },
+      {
+        "name": "math_sub_assign",
+        "explicitNameLines": [
+          3558,
+          3562
+        ],
+        "conclusion": "existing-explicit-vm-path-not-new-missing-feature"
+      },
+      {
+        "name": "math_trig_rad",
+        "explicitNameLines": [
+          2571,
+          2985,
+          2986
+        ],
+        "conclusion": "existing-explicit-vm-path-not-new-missing-feature"
+      },
+      {
+        "name": "on_bump_actor_value",
+        "explicitNameLines": [
+          2152,
+          2866
+        ],
+        "conclusion": "existing-explicit-vm-path-not-new-missing-feature"
+      },
+      {
+        "name": "parseFloat",
+        "explicitNameLines": [
+          2084,
+          2711
+        ],
+        "conclusion": "existing-explicit-vm-path-not-new-missing-feature"
+      },
+      {
+        "name": "parseInt",
+        "explicitNameLines": [
+          2085,
+          2710
+        ],
+        "conclusion": "existing-explicit-vm-path-not-new-missing-feature"
+      },
+      {
+        "name": "procedures_2_defnoreturn",
+        "explicitNameLines": [
+          1142,
+          3093
+        ],
+        "conclusion": "existing-explicit-vm-path-not-new-missing-feature"
+      },
+      {
+        "name": "reset_timer",
+        "explicitNameLines": [
+          3460
+        ],
+        "conclusion": "existing-explicit-vm-path-not-new-missing-feature"
+      },
+      {
+        "name": "script_variables_value",
+        "explicitNameLines": [
+          1756,
+          2076,
+          2667
+        ],
+        "conclusion": "existing-explicit-vm-path-not-new-missing-feature"
+      },
+      {
+        "name": "self_listen_value",
+        "explicitNameLines": [
+          1779,
+          1966,
+          2722
+        ],
+        "conclusion": "existing-explicit-vm-path-not-new-missing-feature"
+      },
+      {
+        "name": "setInterval",
+        "explicitNameLines": [
+          3420,
+          3423
+        ],
+        "conclusion": "existing-explicit-vm-path-not-new-missing-feature"
+      },
+      {
+        "name": "setTimeout",
+        "explicitNameLines": [
+          3420
+        ],
+        "conclusion": "existing-explicit-vm-path-not-new-missing-feature"
+      },
+      {
+        "name": "start_on_click",
+        "explicitNameLines": [
+          3072
+        ],
+        "conclusion": "existing-explicit-vm-path-not-new-missing-feature"
+      },
+      {
+        "name": "traverse_number_param",
+        "explicitNameLines": [
+          1701,
+          4470
+        ],
+        "conclusion": "existing-explicit-vm-path-not-new-missing-feature"
+      },
+      {
+        "name": "traverse_number_value",
+        "explicitNameLines": [
+          2749,
+          3172,
+          3492,
+          4412
+        ],
+        "conclusion": "existing-explicit-vm-path-not-new-missing-feature"
+      }
+    ]
+  },
+  "checks": {
+    "noHardware": true,
+    "all22Panels": true,
+    "sevenSynchronousReporters": true,
+    "twelvePromiseCommands": true,
+    "threeEventSpecs": true,
+    "all41RegisteredAndExistingVmPaths": true,
+    "apiAliasNotRegistered": true,
+    "sourceAnchorsFound": true,
+    "noPageErrors": true
+  },
+  "ok": true
+}

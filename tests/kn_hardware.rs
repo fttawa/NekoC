@@ -59,6 +59,7 @@ fn run(p: &Value, jit: bool) -> Vec<String> {
 
 #[test]
 fn profile_is_an_exact_typed_allowlist_with_actual_panel_inputs() {
+    assert_eq!(kn_hardware::command("microbit_future_command"), None);
     for name in [
         "microbit_button_is_pressed",
         "microbit_logo_is_pressed",
@@ -90,12 +91,9 @@ fn profile_is_an_exact_typed_allowlist_with_actual_panel_inputs() {
         "microbit_magnetometer",
         "microbit_compass_heading",
         "microbit_rotation",
-        "microbit_get_volume",     // Actual undefined return, not numeric NaN.
         "microbit_pin_is_pressed", // Domain exists, absent from measured panel.
         "microbit_led_plot",
         "microbit_button_when",
-        "catbit_button_is_pressed",
-        "get_robot_master_motor_power",
         "unknown",
     ] {
         assert_eq!(reporter(name), None, "{name}");
@@ -122,6 +120,7 @@ fn profile_matches_every_tracked_official_panel_and_typed_observation() {
         let expected = match spec.result {
             DisconnectedValue::BooleanFalse => json!({"type":"boolean","value":false}),
             DisconnectedValue::NumberNaN => json!({"type":"number","value":"NaN"}),
+            DisconnectedValue::Undefined => json!({"type":"undefined"}),
         };
         assert_eq!(entry["result"], expected, "{name}");
     }

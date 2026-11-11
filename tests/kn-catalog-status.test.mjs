@@ -79,7 +79,7 @@ test("official panel evidence remains separate from VM support or retirement cla
     ["wand_coordinate","hardware-extension-config-not-installed"]]) {
     const row = result.rows.find(r => r.type === type);
     assert.equal(row.officialCategory, category);
-    if (["global_animation", "set_system_preset"].includes(type)) {
+    if (["global_animation", "set_system_preset", "wand_coordinate"].includes(type)) {
       assert.equal(row.status, "部分语义");
       assert.ok(row.vm.length > 0);
     } else {
@@ -109,6 +109,45 @@ test("round five panel additions stay partial and ordinary microphone volume sta
   const visibleMissing = result.rows.filter(row => row.status === "缺失" &&
     ["panel-default", "panel-configurable-default-hidden"].includes(row.officialCategory));
   assert.deepEqual(visibleMissing.map(row => row.type), ["get_voice_volume"]);
+});
+
+test("registered names absent from audited panels have no remaining dispatch gap", () => {
+  const result = inventory(root);
+  const registered = result.rows.filter(row =>
+    row.officialCategory === "registered-not-in-audited-panels");
+  assert.equal(registered.length, 41);
+  for (const row of registered) {
+    assert.notEqual(row.status, "缺失", row.type);
+    assert.ok(row.vm.length > 0, row.type);
+    // Absence from one panel audit is not proof of global unreachability, and
+    // dispatch evidence is not proof of full official runtime compatibility.
+    assert.notEqual(row.status, "完整语义支持", row.type);
+    assert.ok(row.panelEvidence.endsWith("kn-panel-evidence.json"), row.type);
+    assert.ok(row.tests.length > 0, `${row.type}: expected an existing regression reference`);
+  }
+  const alias = result.rows.find(row => row.type === "get_sprite_property");
+  assert.equal(alias.status, "缺失");
+  assert.equal(alias.officialCategory, "code-api-alias-not-block");
+  assert.match(alias.risk, /非|未注册/);
+});
+
+test("round six adds only ten synchronous branches and retains all 43 asynchronous/event gaps", () => {
+  const result = inventory(root);
+  const additions = ["microbit_get_volume", "microbit_set_bpm", "microbit_change_bpm",
+    "catbit_button_is_pressed", "wand_button_is_pressed", "wand_coordinate", "wand_rotation",
+    "get_robot_master_motor_power", "get_robot_master_infrared_sensor_distance", "get_robot2_master_motor_power"];
+  for (const type of additions) {
+    const row = result.rows.find(r => r.type === type);
+    assert.equal(row.status, "部分语义", type);
+    assert.match(row.risk, /仅空硬件 Map/, type);
+    assert.match(row.risk, /未实现/, type);
+  }
+  const missingHardware = result.rows.filter(r => r.status === "缺失" &&
+    r.officialCategory === "hardware-extension-config-not-installed");
+  assert.equal(missingHardware.length, 43);
+  for (const row of missingHardware) assert.match(row.risk, /Promise|事件规格/, row.type);
+  assert.deepEqual(result.rows.filter(r => r.status === "缺失" && !missingHardware.includes(r))
+    .map(r => r.type), ["get_sprite_property", "get_voice_volume"]);
 });
 
 test("field arms and traversal-only type mentions never become VM evidence", () => {
