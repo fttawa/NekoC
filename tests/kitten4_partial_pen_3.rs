@@ -47,7 +47,7 @@ fn pen_line_deltas_match_official_origin_disks_including_repeated_down_on_axes()
                 .advance(1.0 / 60.0, 100_000, Duration::from_secs(1))
                 .unwrap();
             assert_eq!(frame.lines.len() / 9, arcs.len(), "{name}");
-            for (line, arc) in frame.lines.chunks_exact(9).zip(&arcs) {
+            for (line, arc) in frame.lines.as_chunks::<9>().0.iter().zip(&arcs) {
                 assert!(
                     (f64::from(line[0]) - (arc["args"][0].as_f64().unwrap() - 480.0)).abs() < 1e-5,
                     "{name}"

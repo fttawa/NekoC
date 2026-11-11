@@ -1374,7 +1374,7 @@ fn hot_append_global_private_variable_and_expression_refs_keep_typed_aliases() {
             .unwrap();
             let start = usize::from(reference == "private");
             assert_eq!(values.len(), 2700 + start);
-            for triple in values[start..].chunks_exact(3) {
+            for triple in values[start..].as_chunks::<3>().0 {
                 assert_eq!(triple, &[json!("12"), json!(true), json!([7.0, "tail"])]);
             }
             assert_native_helper(&vm, "op/AppendList");
@@ -1769,11 +1769,11 @@ fn hot_reentrant_reporters_reacquire_cells_parameters_and_aliases_after_clone_gr
                 }
             );
             if site == "AppendValue" {
-                for pair in values.chunks_exact(2) {
+                for pair in values.as_chunks::<2>().0 {
                     assert_eq!(pair, &[json!("reporter-shadow"), json!("after")]);
                 }
             } else if site == "AppendTarget" {
-                for pair in values.chunks_exact(2) {
+                for pair in values.as_chunks::<2>().0 {
                     assert_eq!(pair, &[json!("appended"), json!("after")]);
                 }
             } else if site == "Branch" {
