@@ -8,6 +8,7 @@ import crypto from "node:crypto";
 import ts from "typescript";
 import { drawingMainPaths, physicsMainPaths, propertyMainPaths, serviceTypes } from "./k4-partial-6-scope.mjs";
 import { round7MainPaths } from "./k4-partial-7-scope.mjs";
+import { round8MainPaths } from "./k4-partial-8-scope.mjs";
 
 export function webpackModules(source) {
   let modules;
@@ -503,6 +504,18 @@ export function mappingStatus(root, rows) {
       unverifiedBoundaries = [round7.boundary];
       limitations.push(`第七轮主路径：${round7.scope}；见 ${round7.evidence}。边界不计作完整语义认证`);
     }
+    const round8=round8MainPaths.get(row.type);
+    if(round8&&evidence.length&&!stub){
+      semantics='main-path-verified';unverifiedBoundaries=[round8.boundary];
+      // Earlier negative results remain in historical documents, not as stale
+      // claims that those exact trajectories still fail in the current VM.
+      for(let i=limitations.length-1;i>=0;i--)if(/已知接触求解器差异|已知差异：Rapier与LiquidFun/.test(limitations[i]))limitations.splice(i,1);
+      limitations.push(`第八轮主路径：${round8.scope}；见 ${round8.evidence}。${round8.boundary}`);
+    }
+    if(['self_set_effect_2','self_change_effect_3','self_set_effect','self_change_effect','self_change_effect_2'].includes(row.type)){
+      limitations.push('第八轮真实VM 34件262对全画布，RGB容差0/1/8分列；ASCII独立/场景及场景/舞台外twist已修复；ripple素材条件未验证、ASCII组合仍有负例，setter仍partial。见 kitten4-partial-effects-8.md');
+    }
+    if(row.type==='self_shake')limitations.push('第八轮修复帧尾归位和下一update续接，零时钟原点六件240帧双VM全变量/x/y一致；官方原点改变浮点严格阈值，保留partial。见 kitten4-shake-8.md');
     // Helpful VM anchors for special rewrites without blanket string matching.
     const target = { set_actor_as: "kitten4_legacy_", set_velocity: "kitten4_set_velocity", set_entity_show_hide: "kitten4_entity_visibility" }[row.type];
     if (target && evidence.length) evidence.push(...engineAt(target));

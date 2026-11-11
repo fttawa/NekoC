@@ -987,7 +987,8 @@
       "limitations": [
         "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
         "8 种 scope、严格 number、别名增减、纹理尺寸 clamp、场景及小数 reporter 经 11 份原创夹具/1794 状态观察实测；ASCII 状态已支持但像素渲染、ELASTIC 与 iOS 仍未验证，见 kitten4-partial-effects.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "第八轮真实VM 34件262对全画布，RGB容差0/1/8分列；ASCII独立/场景及场景/舞台外twist已修复；ripple素材条件未验证、ASCII组合仍有负例，setter仍partial。见 kitten4-partial-effects-8.md"
       ],
       "occurrences": 1228
     },
@@ -1039,12 +1040,11 @@
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "第二轮 7 份原创物理夹具/210 帧官方实测：旧 exit 即时 static 清速、新 forceable/ticker 延迟和禁用动态体保速已修正；不声明跨求解器等价，见 kitten4-physics-partial.md",
         "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
-        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证"
+        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "unverifiedBoundaries": [
-        "未验证边界：复杂轮廓、软体、拖拽/设备输入、多场景与非60Hz组合；允许旋转只验证自由刚体开关，不证明碰撞角冲量相同",
-        "已知差异：Rapier与LiquidFun接触求解器不等价，既有bounce最大位置误差2.797382832px、friction为0.703993056px；不是已验证的完整物理兼容",
-        "未验证边界：精确60Hz等待截止点存在浮点相位差，.04秒控制夹具不覆盖该边界"
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 1051
     },
@@ -1439,7 +1439,8 @@
       "limitations": [
         "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
         "8 种 scope、严格 number、别名增减、纹理尺寸 clamp、场景及小数 reporter 经 11 份原创夹具/1794 状态观察实测；ASCII 状态已支持但像素渲染、ELASTIC 与 iOS 仍未验证，见 kitten4-partial-effects.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "第八轮真实VM 34件262对全画布，RGB容差0/1/8分列；ASCII独立/场景及场景/舞台外twist已修复；ripple素材条件未验证、ASCII组合仍有负例，setter仍partial。见 kitten4-partial-effects-8.md"
       ],
       "occurrences": 735
     },
@@ -1922,17 +1923,18 @@
       "status": "已实现",
       "semantics": "main-path-verified",
       "mapping": [
-        "src/engine/physics.rs:592 (parse)"
+        "src/engine/physics.rs:712 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "第二轮 7 份原创物理夹具/210 帧官方实测：旧 exit 即时 static 清速、新 forceable/ticker 延迟和禁用动态体保速已修正；不声明跨求解器等价，见 kitten4-physics-partial.md",
         "第三轮 11 份原创夹具/660 帧官方轨迹：首次世界初始化、自由落体积分、20px/tick 向量限速、边界摩擦与全不透明矩形轮廓已修正；接触仍有误差，复杂轮廓/软体未对齐，见 kitten4-physics-trajectory-3.md",
         "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
-        "第七轮主路径：动态禁用/恢复、static同批速度写入忽略、双false保速；第六轮漏积分输入原样严格重放；见 kitten4-partial-physics-7.md。边界不计作完整语义认证"
+        "第七轮主路径：动态禁用/恢复、static同批速度写入忽略、双false保速；第六轮漏积分输入原样严格重放；见 kitten4-partial-physics-7.md。边界不计作完整语义认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "unverifiedBoundaries": [
-        "未验证：软体/复杂轮廓、拖拽、角冲量、多场景与非60Hz；已知接触求解器差异仍在，bounce 2.797382832px、friction .703993056px；本轮边界接触最大1.815104166666856px，不是完整轨迹等价"
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 317
     },
@@ -2195,12 +2197,11 @@
         "第二轮 7 份原创物理夹具/210 帧官方实测：旧 exit 即时 static 清速、新 forceable/ticker 延迟和禁用动态体保速已修正；不声明跨求解器等价，见 kitten4-physics-partial.md",
         "第三轮 11 份原创夹具/660 帧官方轨迹：首次世界初始化、自由落体积分、20px/tick 向量限速、边界摩擦与全不透明矩形轮廓已修正；接触仍有误差，复杂轮廓/软体未对齐，见 kitten4-physics-trajectory-3.md",
         "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
-        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证"
+        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "unverifiedBoundaries": [
-        "未验证边界：复杂轮廓、软体、拖拽/设备输入、多场景与非60Hz组合；允许旋转只验证自由刚体开关，不证明碰撞角冲量相同",
-        "已知差异：Rapier与LiquidFun接触求解器不等价，既有bounce最大位置误差2.797382832px、friction为0.703993056px；不是已验证的完整物理兼容",
-        "未验证边界：精确60Hz等待截止点存在浮点相位差，.04秒控制夹具不覆盖该边界"
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 250
     },
@@ -2346,16 +2347,17 @@
       "status": "已实现",
       "semantics": "main-path-verified",
       "mapping": [
-        "src/engine/physics.rs:593 (parse)"
+        "src/engine/physics.rs:713 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "第二轮 7 份原创物理夹具/210 帧官方实测：旧 exit 即时 static 清速、新 forceable/ticker 延迟和禁用动态体保速已修正；不声明跨求解器等价，见 kitten4-physics-partial.md",
         "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
-        "第七轮主路径：collidable开关、sensor自由运动、双false禁用/恢复；不附带旧版清速；见 kitten4-partial-physics-7.md。边界不计作完整语义认证"
+        "第七轮主路径：collidable开关、sensor自由运动、双false禁用/恢复；不附带旧版清速；见 kitten4-partial-physics-7.md。边界不计作完整语义认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "unverifiedBoundaries": [
-        "未验证：软体/复杂轮廓、拖拽、角冲量、多场景与非60Hz；已知接触求解器差异仍在，bounce 2.797382832px、friction .703993056px；本轮边界接触最大1.815104166666856px，不是完整轨迹等价"
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 173
     },
@@ -2736,7 +2738,7 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/engine/physics.rs:620 (parse)"
+        "src/engine/physics.rs:740 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
@@ -2782,12 +2784,11 @@
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
-        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证"
+        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "unverifiedBoundaries": [
-        "未验证边界：复杂轮廓、软体、拖拽/设备输入、多场景与非60Hz组合；允许旋转只验证自由刚体开关，不证明碰撞角冲量相同",
-        "已知差异：Rapier与LiquidFun接触求解器不等价，既有bounce最大位置误差2.797382832px、friction为0.703993056px；不是已验证的完整物理兼容",
-        "未验证边界：精确60Hz等待截止点存在浮点相位差，.04秒控制夹具不覆盖该边界"
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 95
     },
@@ -2829,12 +2830,11 @@
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
-        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证"
+        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "unverifiedBoundaries": [
-        "未验证边界：复杂轮廓、软体、拖拽/设备输入、多场景与非60Hz组合；允许旋转只验证自由刚体开关，不证明碰撞角冲量相同",
-        "已知差异：Rapier与LiquidFun接触求解器不等价，既有bounce最大位置误差2.797382832px、friction为0.703993056px；不是已验证的完整物理兼容",
-        "未验证边界：精确60Hz等待截止点存在浮点相位差，.04秒控制夹具不覆盖该边界"
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 93
     },
@@ -2849,13 +2849,17 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
         "src/kitten4.rs:556 (lower_block)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第八轮主路径：四菜单边界存在/移除控制；单个锁旋转刚体的四边正面/非弹性/斜入射/低速接触，双VM各2520帧，每坐标<0.15px；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
+      ],
+      "unverifiedBoundaries": [
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 92
     },
@@ -2877,12 +2881,11 @@
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
-        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证"
+        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "unverifiedBoundaries": [
-        "未验证边界：复杂轮廓、软体、拖拽/设备输入、多场景与非60Hz组合；允许旋转只验证自由刚体开关，不证明碰撞角冲量相同",
-        "已知差异：Rapier与LiquidFun接触求解器不等价，既有bounce最大位置误差2.797382832px、friction为0.703993056px；不是已验证的完整物理兼容",
-        "未验证边界：精确60Hz等待截止点存在浮点相位差，.04秒控制夹具不覆盖该边界"
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 91
     },
@@ -3048,19 +3051,18 @@
       "status": "已实现",
       "semantics": "main-path-verified",
       "mapping": [
-        "src/engine/physics.rs:614 (parse)"
+        "src/engine/physics.rs:734 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "第二轮 7 份原创物理夹具/210 帧官方实测：旧 exit 即时 static 清速、新 forceable/ticker 延迟和禁用动态体保速已修正；不声明跨求解器等价，见 kitten4-physics-partial.md",
         "第三轮 11 份原创夹具/660 帧官方轨迹：首次世界初始化、自由落体积分、20px/tick 向量限速、边界摩擦与全不透明矩形轮廓已修正；接触仍有误差，复杂轮廓/软体未对齐，见 kitten4-physics-trajectory-3.md",
         "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
-        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证"
+        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "unverifiedBoundaries": [
-        "未验证边界：复杂轮廓、软体、拖拽/设备输入、多场景与非60Hz组合；允许旋转只验证自由刚体开关，不证明碰撞角冲量相同",
-        "已知差异：Rapier与LiquidFun接触求解器不等价，既有bounce最大位置误差2.797382832px、friction为0.703993056px；不是已验证的完整物理兼容",
-        "未验证边界：精确60Hz等待截止点存在浮点相位差，.04秒控制夹具不覆盖该边界"
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 77
     },
@@ -3135,14 +3137,18 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
-        "src/engine/physics.rs:597 (parse)"
+        "src/engine/physics.rs:717 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "第三轮 11 份原创夹具/660 帧官方轨迹：首次世界初始化、自由落体积分、20px/tick 向量限速、边界摩擦与全不透明矩形轮廓已修正；接触仍有误差，复杂轮廓/软体未对齐，见 kitten4-physics-trajectory-3.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第八轮主路径：四菜单边界存在/移除控制；单个锁旋转刚体的四边正面/非弹性/斜入射/低速接触，双VM各2520帧，每坐标<0.15px；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
+      ],
+      "unverifiedBoundaries": [
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 67
     },
@@ -3392,18 +3398,17 @@
       "status": "已实现",
       "semantics": "main-path-verified",
       "mapping": [
-        "src/engine/physics.rs:615 (parse)"
+        "src/engine/physics.rs:735 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "第三轮 11 份原创夹具/660 帧官方轨迹：首次世界初始化、自由落体积分、20px/tick 向量限速、边界摩擦与全不透明矩形轮廓已修正；接触仍有误差，复杂轮廓/软体未对齐，见 kitten4-physics-trajectory-3.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
-        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证"
+        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "unverifiedBoundaries": [
-        "未验证边界：复杂轮廓、软体、拖拽/设备输入、多场景与非60Hz组合；允许旋转只验证自由刚体开关，不证明碰撞角冲量相同",
-        "已知差异：Rapier与LiquidFun接触求解器不等价，既有bounce最大位置误差2.797382832px、friction为0.703993056px；不是已验证的完整物理兼容",
-        "未验证边界：精确60Hz等待截止点存在浮点相位差，.04秒控制夹具不覆盖该边界"
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 43
     },
@@ -3540,15 +3545,16 @@
       "status": "已实现",
       "semantics": "main-path-verified",
       "mapping": [
-        "src/engine/physics.rs:604 (parse)"
+        "src/engine/physics.rs:724 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
-        "第七轮主路径：指定右边缘/独立角色禁碰穿越与恢复允许调用；不认证恢复接触冲量/克隆组；见 kitten4-partial-physics-7.md。边界不计作完整语义认证"
+        "第七轮主路径：指定右边缘/独立角色禁碰穿越与恢复允许调用；不认证恢复接触冲量/克隆组；见 kitten4-partial-physics-7.md。边界不计作完整语义认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "unverifiedBoundaries": [
-        "未验证：软体/复杂轮廓、拖拽、角冲量、多场景与非60Hz；已知接触求解器差异仍在，bounce 2.797382832px、friction .703993056px；本轮边界接触最大1.815104166666856px，不是完整轨迹等价"
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 33
     },
@@ -3671,18 +3677,17 @@
       "status": "已实现",
       "semantics": "main-path-verified",
       "mapping": [
-        "src/engine/physics.rs:619 (parse)"
+        "src/engine/physics.rs:739 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "第三轮 11 份原创夹具/660 帧官方轨迹：首次世界初始化、自由落体积分、20px/tick 向量限速、边界摩擦与全不透明矩形轮廓已修正；接触仍有误差，复杂轮廓/软体未对齐，见 kitten4-physics-trajectory-3.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
-        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证"
+        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "unverifiedBoundaries": [
-        "未验证边界：复杂轮廓、软体、拖拽/设备输入、多场景与非60Hz组合；允许旋转只验证自由刚体开关，不证明碰撞角冲量相同",
-        "已知差异：Rapier与LiquidFun接触求解器不等价，既有bounce最大位置误差2.797382832px、friction为0.703993056px；不是已验证的完整物理兼容",
-        "未验证边界：精确60Hz等待截止点存在浮点相位差，.04秒控制夹具不覆盖该边界"
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 27
     },
@@ -3782,18 +3787,17 @@
       "status": "已实现",
       "semantics": "main-path-verified",
       "mapping": [
-        "src/engine/physics.rs:618 (parse)"
+        "src/engine/physics.rs:738 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "第三轮 11 份原创夹具/660 帧官方轨迹：首次世界初始化、自由落体积分、20px/tick 向量限速、边界摩擦与全不透明矩形轮廓已修正；接触仍有误差，复杂轮廓/软体未对齐，见 kitten4-physics-trajectory-3.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
-        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证"
+        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "unverifiedBoundaries": [
-        "未验证边界：复杂轮廓、软体、拖拽/设备输入、多场景与非60Hz组合；允许旋转只验证自由刚体开关，不证明碰撞角冲量相同",
-        "已知差异：Rapier与LiquidFun接触求解器不等价，既有bounce最大位置误差2.797382832px、friction为0.703993056px；不是已验证的完整物理兼容",
-        "未验证边界：精确60Hz等待截止点存在浮点相位差，.04秒控制夹具不覆盖该边界"
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 20
     },
@@ -3870,17 +3874,16 @@
       "status": "已实现",
       "semantics": "main-path-verified",
       "mapping": [
-        "src/engine/physics.rs:596 (parse)"
+        "src/engine/physics.rs:716 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
-        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证"
+        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "unverifiedBoundaries": [
-        "未验证边界：复杂轮廓、软体、拖拽/设备输入、多场景与非60Hz组合；允许旋转只验证自由刚体开关，不证明碰撞角冲量相同",
-        "已知差异：Rapier与LiquidFun接触求解器不等价，既有bounce最大位置误差2.797382832px、friction为0.703993056px；不是已验证的完整物理兼容",
-        "未验证边界：精确60Hz等待截止点存在浮点相位差，.04秒控制夹具不覆盖该边界"
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 18
     },
@@ -4063,18 +4066,17 @@
       "status": "已实现",
       "semantics": "main-path-verified",
       "mapping": [
-        "src/engine/physics.rs:613 (parse)"
+        "src/engine/physics.rs:733 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "第三轮 11 份原创夹具/660 帧官方轨迹：首次世界初始化、自由落体积分、20px/tick 向量限速、边界摩擦与全不透明矩形轮廓已修正；接触仍有误差，复杂轮廓/软体未对齐，见 kitten4-physics-trajectory-3.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
-        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证"
+        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "unverifiedBoundaries": [
-        "未验证边界：复杂轮廓、软体、拖拽/设备输入、多场景与非60Hz组合；允许旋转只验证自由刚体开关，不证明碰撞角冲量相同",
-        "已知差异：Rapier与LiquidFun接触求解器不等价，既有bounce最大位置误差2.797382832px、friction为0.703993056px；不是已验证的完整物理兼容",
-        "未验证边界：精确60Hz等待截止点存在浮点相位差，.04秒控制夹具不覆盖该边界"
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 14
     },
@@ -4184,7 +4186,8 @@
       ],
       "limitations": [
         "5 单位四方向逐更新抖动、阻塞及归位已有源码推导回归；与官方任务队列的逐帧相位/结束续接、物理刚体受力、竞争移动及取消未验证",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第八轮修复帧尾归位和下一update续接，零时钟原点六件240帧双VM全变量/x/y一致；官方原点改变浮点严格阈值，保留partial。见 kitten4-shake-8.md"
       ],
       "occurrences": 10
     },
@@ -4490,7 +4493,7 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/engine/physics.rs:627 (parse)"
+        "src/engine/physics.rs:747 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
@@ -4550,15 +4553,16 @@
       "status": "已实现",
       "semantics": "main-path-verified",
       "mapping": [
-        "src/engine/physics.rs:616 (parse)"
+        "src/engine/physics.rs:736 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
-        "第七轮主路径：新建/运行中world、1秒非零力、正负角度、0/负整数阻塞、小数忽略和完成续接；见 kitten4-partial-physics-7.md。边界不计作完整语义认证"
+        "第七轮主路径：新建/运行中world、1秒非零力、正负角度、0/负整数阻塞、小数忽略和完成续接；见 kitten4-partial-physics-7.md。边界不计作完整语义认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "unverifiedBoundaries": [
-        "未验证：软体/复杂轮廓、拖拽、角冲量、多场景与非60Hz；已知接触求解器差异仍在，bounce 2.797382832px、friction .703993056px；本轮边界接触最大1.815104166666856px，不是完整轨迹等价"
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 2
     },
@@ -4600,12 +4604,11 @@
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
-        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证"
+        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "unverifiedBoundaries": [
-        "未验证边界：复杂轮廓、软体、拖拽/设备输入、多场景与非60Hz组合；允许旋转只验证自由刚体开关，不证明碰撞角冲量相同",
-        "已知差异：Rapier与LiquidFun接触求解器不等价，既有bounce最大位置误差2.797382832px、friction为0.703993056px；不是已验证的完整物理兼容",
-        "未验证边界：精确60Hz等待截止点存在浮点相位差，.04秒控制夹具不覆盖该边界"
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 2
     },
@@ -4809,12 +4812,11 @@
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
-        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证"
+        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "unverifiedBoundaries": [
-        "未验证边界：复杂轮廓、软体、拖拽/设备输入、多场景与非60Hz组合；允许旋转只验证自由刚体开关，不证明碰撞角冲量相同",
-        "已知差异：Rapier与LiquidFun接触求解器不等价，既有bounce最大位置误差2.797382832px、friction为0.703993056px；不是已验证的完整物理兼容",
-        "未验证边界：精确60Hz等待截止点存在浮点相位差，.04秒控制夹具不覆盖该边界"
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 0
     },
@@ -5495,10 +5497,11 @@
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
-        "第七轮主路径：五个合法菜单、材质/密度改变、动态与静态质量、运动与零速；见 kitten4-partial-physics-7.md。边界不计作完整语义认证"
+        "第七轮主路径：五个合法菜单、材质/密度改变、动态与静态质量、运动与零速；见 kitten4-partial-physics-7.md。边界不计作完整语义认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "unverifiedBoundaries": [
-        "未验证：软体/复杂轮廓、拖拽、角冲量、多场景与非60Hz；已知接触求解器差异仍在，bounce 2.797382832px、friction .703993056px；本轮边界接触最大1.815104166666856px，不是完整轨迹等价"
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 0
     },
@@ -6867,10 +6870,11 @@
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
-        "第七轮主路径：六个合法菜单、方向/零速/static质量/硬体柔软度元数据；不代表软体认证；见 kitten4-partial-physics-7.md。边界不计作完整语义认证"
+        "第七轮主路径：六个合法菜单、方向/零速/static质量/硬体柔软度元数据；不代表软体认证；见 kitten4-partial-physics-7.md。边界不计作完整语义认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "unverifiedBoundaries": [
-        "未验证：软体/复杂轮廓、拖拽、角冲量、多场景与非60Hz；已知接触求解器差异仍在，bounce 2.797382832px、friction .703993056px；本轮边界接触最大1.815104166666856px，不是完整轨迹等价"
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 0
     },
@@ -6887,18 +6891,17 @@
       "status": "已实现",
       "semantics": "main-path-verified",
       "mapping": [
-        "src/engine/physics.rs:617 (parse)"
+        "src/engine/physics.rs:737 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "第三轮 11 份原创夹具/660 帧官方轨迹：首次世界初始化、自由落体积分、20px/tick 向量限速、边界摩擦与全不透明矩形轮廓已修正；接触仍有误差，复杂轮廓/软体未对齐，见 kitten4-physics-trajectory-3.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
-        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证"
+        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "unverifiedBoundaries": [
-        "未验证边界：复杂轮廓、软体、拖拽/设备输入、多场景与非60Hz组合；允许旋转只验证自由刚体开关，不证明碰撞角冲量相同",
-        "已知差异：Rapier与LiquidFun接触求解器不等价，既有bounce最大位置误差2.797382832px、friction为0.703993056px；不是已验证的完整物理兼容",
-        "未验证边界：精确60Hz等待截止点存在浮点相位差，.04秒控制夹具不覆盖该边界"
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 0
     },
@@ -7220,7 +7223,8 @@
         "legacy alias 归一化；继承目标积木的字段、子选项与运行时限制",
         "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
         "8 种 scope、严格 number、别名增减、纹理尺寸 clamp、场景及小数 reporter 经 11 份原创夹具/1794 状态观察实测；ASCII 状态已支持但像素渲染、ELASTIC 与 iOS 仍未验证，见 kitten4-partial-effects.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "第八轮真实VM 34件262对全画布，RGB容差0/1/8分列；ASCII独立/场景及场景/舞台外twist已修复；ripple素材条件未验证、ASCII组合仍有负例，setter仍partial。见 kitten4-partial-effects-8.md"
       ],
       "occurrences": 0
     },
@@ -7243,7 +7247,8 @@
         "legacy alias 归一化；继承目标积木的字段、子选项与运行时限制",
         "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
         "8 种 scope、严格 number、别名增减、纹理尺寸 clamp、场景及小数 reporter 经 11 份原创夹具/1794 状态观察实测；ASCII 状态已支持但像素渲染、ELASTIC 与 iOS 仍未验证，见 kitten4-partial-effects.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "第八轮真实VM 34件262对全画布，RGB容差0/1/8分列；ASCII独立/场景及场景/舞台外twist已修复；ripple素材条件未验证、ASCII组合仍有负例，setter仍partial。见 kitten4-partial-effects-8.md"
       ],
       "occurrences": 0
     },
@@ -7516,10 +7521,11 @@
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
-        "第七轮主路径：有限非负2.5/0/.125/1、质量重算、两位reporter舍入、匀速保持；见 kitten4-partial-physics-7.md。边界不计作完整语义认证"
+        "第七轮主路径：有限非负2.5/0/.125/1、质量重算、两位reporter舍入、匀速保持；见 kitten4-partial-physics-7.md。边界不计作完整语义认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "unverifiedBoundaries": [
-        "未验证：软体/复杂轮廓、拖拽、角冲量、多场景与非60Hz；已知接触求解器差异仍在，bounce 2.797382832px、friction .703993056px；本轮边界接触最大1.815104166666856px，不是完整轨迹等价"
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 0
     },
@@ -7542,7 +7548,8 @@
         "legacy alias 归一化；继承目标积木的字段、子选项与运行时限制",
         "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
         "8 种 scope、严格 number、别名增减、纹理尺寸 clamp、场景及小数 reporter 经 11 份原创夹具/1794 状态观察实测；ASCII 状态已支持但像素渲染、ELASTIC 与 iOS 仍未验证，见 kitten4-partial-effects.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "第八轮真实VM 34件262对全画布，RGB容差0/1/8分列；ASCII独立/场景及场景/舞台外twist已修复；ripple素材条件未验证、ASCII组合仍有负例，setter仍partial。见 kitten4-partial-effects-8.md"
       ],
       "occurrences": 0
     },
@@ -7564,12 +7571,11 @@
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
-        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证"
+        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "unverifiedBoundaries": [
-        "未验证边界：复杂轮廓、软体、拖拽/设备输入、多场景与非60Hz组合；允许旋转只验证自由刚体开关，不证明碰撞角冲量相同",
-        "已知差异：Rapier与LiquidFun接触求解器不等价，既有bounce最大位置误差2.797382832px、friction为0.703993056px；不是已验证的完整物理兼容",
-        "未验证边界：精确60Hz等待截止点存在浮点相位差，.04秒控制夹具不覆盖该边界"
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 0
     },
@@ -7633,10 +7639,11 @@
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
-        "第七轮主路径：origin/iron/wood/elastic四种旧刚体材质预设及属性联动、速度保持；不是现代soft模拟；见 kitten4-partial-physics-7.md。边界不计作完整语义认证"
+        "第七轮主路径：origin/iron/wood/elastic四种旧刚体材质预设及属性联动、速度保持；不是现代soft模拟；见 kitten4-partial-physics-7.md。边界不计作完整语义认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "unverifiedBoundaries": [
-        "未验证：软体/复杂轮廓、拖拽、角冲量、多场景与非60Hz；已知接触求解器差异仍在，bounce 2.797382832px、friction .703993056px；本轮边界接触最大1.815104166666856px，不是完整轨迹等价"
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 0
     },
@@ -7809,12 +7816,11 @@
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
-        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证"
+        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "unverifiedBoundaries": [
-        "未验证边界：复杂轮廓、软体、拖拽/设备输入、多场景与非60Hz组合；允许旋转只验证自由刚体开关，不证明碰撞角冲量相同",
-        "已知差异：Rapier与LiquidFun接触求解器不等价，既有bounce最大位置误差2.797382832px、friction为0.703993056px；不是已验证的完整物理兼容",
-        "未验证边界：精确60Hz等待截止点存在浮点相位差，.04秒控制夹具不覆盖该边界"
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 0
     },
@@ -7836,12 +7842,11 @@
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
-        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证"
+        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "unverifiedBoundaries": [
-        "未验证边界：复杂轮廓、软体、拖拽/设备输入、多场景与非60Hz组合；允许旋转只验证自由刚体开关，不证明碰撞角冲量相同",
-        "已知差异：Rapier与LiquidFun接触求解器不等价，既有bounce最大位置误差2.797382832px、friction为0.703993056px；不是已验证的完整物理兼容",
-        "未验证边界：精确60Hz等待截止点存在浮点相位差，.04秒控制夹具不覆盖该边界"
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 0
     },
@@ -7863,12 +7868,11 @@
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
-        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证"
+        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "unverifiedBoundaries": [
-        "未验证边界：复杂轮廓、软体、拖拽/设备输入、多场景与非60Hz组合；允许旋转只验证自由刚体开关，不证明碰撞角冲量相同",
-        "已知差异：Rapier与LiquidFun接触求解器不等价，既有bounce最大位置误差2.797382832px、friction为0.703993056px；不是已验证的完整物理兼容",
-        "未验证边界：精确60Hz等待截止点存在浮点相位差，.04秒控制夹具不覆盖该边界"
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 0
     },
@@ -7977,12 +7981,11 @@
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "第三轮 11 份原创夹具/660 帧官方轨迹：首次世界初始化、自由落体积分、20px/tick 向量限速、边界摩擦与全不透明矩形轮廓已修正；接触仍有误差，复杂轮廓/软体未对齐，见 kitten4-physics-trajectory-3.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
-        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证"
+        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "unverifiedBoundaries": [
-        "未验证边界：复杂轮廓、软体、拖拽/设备输入、多场景与非60Hz组合；允许旋转只验证自由刚体开关，不证明碰撞角冲量相同",
-        "已知差异：Rapier与LiquidFun接触求解器不等价，既有bounce最大位置误差2.797382832px、friction为0.703993056px；不是已验证的完整物理兼容",
-        "未验证边界：精确60Hz等待截止点存在浮点相位差，.04秒控制夹具不覆盖该边界"
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 0
     },

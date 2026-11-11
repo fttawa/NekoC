@@ -1,0 +1,1591 @@
+{
+  "schema": "nekoc-k4-partial-effects-8-pixels-v1",
+  "scope": "real NekoC VM vs official VM; full canvas, no masks; tolerance 0 AND 8 measured separately",
+  "cases": {
+    "spatial-offstage": {
+      "sha256": "ba4214a1bb454d820ef48c1f6936853aa618b6ea3bfde7b4e3c25d01643b10ec",
+      "rendererLfSha256": "647dfbf1693cb0cce7fd8128ef366900e4c84b0c99adf1ab3a46545c4279b0d0",
+      "file": "tests/fixtures/kitten4/partial-effects-8-spatial-offstage.bcm",
+      "status": "captured",
+      "audioMetadata": true,
+      "frames": [
+        {
+          "frame": 1,
+          "width": 960,
+          "height": 720,
+          "overlay": false,
+          "videoBounds": {
+            "nekoc": [],
+            "official": []
+          },
+          "scope": "canvas",
+          "pixels": 691200,
+          "maskedPixels": 0,
+          "changedPixels": 1299,
+          "changedPercent": 0.18793402777777776,
+          "mae": 0.0006264467592592592,
+          "rmse": 0.025028918459639025,
+          "psnr": 80.16196193985381,
+          "tolerance": 0,
+          "additionalTolerances": {
+            "1": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 0,
+              "changedPercent": 0,
+              "mae": 0.0006264467592592592,
+              "rmse": 0.025028918459639025,
+              "psnr": 80.16196193985381,
+              "tolerance": 1
+            },
+            "8": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 0,
+              "changedPercent": 0,
+              "mae": 0.0006264467592592592,
+              "rmse": 0.025028918459639025,
+              "psnr": 80.16196193985381,
+              "tolerance": 8
+            }
+          }
+        },
+        {
+          "frame": 2,
+          "width": 960,
+          "height": 720,
+          "overlay": false,
+          "videoBounds": {
+            "nekoc": [],
+            "official": []
+          },
+          "scope": "canvas",
+          "pixels": 691200,
+          "maskedPixels": 0,
+          "changedPixels": 1299,
+          "changedPercent": 0.18793402777777776,
+          "mae": 0.0006264467592592592,
+          "rmse": 0.025028918459639025,
+          "psnr": 80.16196193985381,
+          "tolerance": 0,
+          "additionalTolerances": {
+            "1": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 0,
+              "changedPercent": 0,
+              "mae": 0.0006264467592592592,
+              "rmse": 0.025028918459639025,
+              "psnr": 80.16196193985381,
+              "tolerance": 1
+            },
+            "8": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 0,
+              "changedPercent": 0,
+              "mae": 0.0006264467592592592,
+              "rmse": 0.025028918459639025,
+              "psnr": 80.16196193985381,
+              "tolerance": 8
+            }
+          }
+        },
+        {
+          "frame": 3,
+          "width": 960,
+          "height": 720,
+          "overlay": false,
+          "videoBounds": {
+            "nekoc": [],
+            "official": []
+          },
+          "scope": "canvas",
+          "pixels": 691200,
+          "maskedPixels": 0,
+          "changedPixels": 5026,
+          "changedPercent": 0.7271412037037037,
+          "mae": 0.3723099922839506,
+          "rmse": 6.150089549433356,
+          "psnr": 32.35317481986468,
+          "tolerance": 0,
+          "additionalTolerances": {
+            "1": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 3810,
+              "changedPercent": 0.5512152777777778,
+              "mae": 0.3723099922839506,
+              "rmse": 6.150089549433356,
+              "psnr": 32.35317481986468,
+              "tolerance": 1
+            },
+            "8": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 3795,
+              "changedPercent": 0.5490451388888888,
+              "mae": 0.3723099922839506,
+              "rmse": 6.150089549433356,
+              "psnr": 32.35317481986468,
+              "tolerance": 8
+            }
+          }
+        },
+        {
+          "frame": 4,
+          "width": 960,
+          "height": 720,
+          "overlay": false,
+          "videoBounds": {
+            "nekoc": [],
+            "official": []
+          },
+          "scope": "canvas",
+          "pixels": 691200,
+          "maskedPixels": 0,
+          "changedPixels": 5026,
+          "changedPercent": 0.7271412037037037,
+          "mae": 0.3723099922839506,
+          "rmse": 6.150089549433356,
+          "psnr": 32.35317481986468,
+          "tolerance": 0,
+          "additionalTolerances": {
+            "1": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 3810,
+              "changedPercent": 0.5512152777777778,
+              "mae": 0.3723099922839506,
+              "rmse": 6.150089549433356,
+              "psnr": 32.35317481986468,
+              "tolerance": 1
+            },
+            "8": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 3795,
+              "changedPercent": 0.5490451388888888,
+              "mae": 0.3723099922839506,
+              "rmse": 6.150089549433356,
+              "psnr": 32.35317481986468,
+              "tolerance": 8
+            }
+          }
+        },
+        {
+          "frame": 5,
+          "width": 960,
+          "height": 720,
+          "overlay": false,
+          "videoBounds": {
+            "nekoc": [],
+            "official": []
+          },
+          "scope": "canvas",
+          "pixels": 691200,
+          "maskedPixels": 0,
+          "changedPixels": 1034,
+          "changedPercent": 0.1495949074074074,
+          "mae": 0.0004986496913580246,
+          "rmse": 0.022330465542796565,
+          "psnr": 81.15284806300487,
+          "tolerance": 0,
+          "additionalTolerances": {
+            "1": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 0,
+              "changedPercent": 0,
+              "mae": 0.0004986496913580246,
+              "rmse": 0.022330465542796565,
+              "psnr": 81.15284806300487,
+              "tolerance": 1
+            },
+            "8": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 0,
+              "changedPercent": 0,
+              "mae": 0.0004986496913580246,
+              "rmse": 0.022330465542796565,
+              "psnr": 81.15284806300487,
+              "tolerance": 8
+            }
+          }
+        },
+        {
+          "frame": 6,
+          "width": 960,
+          "height": 720,
+          "overlay": false,
+          "videoBounds": {
+            "nekoc": [],
+            "official": []
+          },
+          "scope": "canvas",
+          "pixels": 691200,
+          "maskedPixels": 0,
+          "changedPixels": 1034,
+          "changedPercent": 0.1495949074074074,
+          "mae": 0.0004986496913580246,
+          "rmse": 0.022330465542796565,
+          "psnr": 81.15284806300487,
+          "tolerance": 0,
+          "additionalTolerances": {
+            "1": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 0,
+              "changedPercent": 0,
+              "mae": 0.0004986496913580246,
+              "rmse": 0.022330465542796565,
+              "psnr": 81.15284806300487,
+              "tolerance": 1
+            },
+            "8": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 0,
+              "changedPercent": 0,
+              "mae": 0.0004986496913580246,
+              "rmse": 0.022330465542796565,
+              "psnr": 81.15284806300487,
+              "tolerance": 8
+            }
+          }
+        }
+      ],
+      "artifacts": "dist\\partial-effects-8\\baseline\\partial-effects-8-spatial-offstage.bcm",
+      "kernelAssets": [
+        {
+          "name": "player_v2__3ffeebbd0c789e8d9422.css",
+          "source": "player_v2__3ffeebbd0c789e8d9422.css",
+          "sha256": "39e8e70b124b604831773893cdc95931cdee3eaea52c6dd69f33f5781d48b45a"
+        },
+        {
+          "name": "runtime.f42f527f119e09010b85.js",
+          "source": "runtime.f42f527f119e09010b85.js",
+          "sha256": "4164d67795238f64d035f473418236038ae475ae36032a967cba16ede263735f"
+        },
+        {
+          "name": "player_v2.2d180c468559fbd29528.js",
+          "source": "player_v2.2d180c468559fbd29528.js.orig",
+          "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160"
+        },
+        {
+          "name": "vendors.d00f4bd454a6352e9d71.js",
+          "source": "vendors.d00f4bd454a6352e9d71.js",
+          "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
+        },
+        {
+          "name": "9.c396696e9dc71e25b012.js",
+          "source": "9.c396696e9dc71e25b012.js",
+          "sha256": "5758343310c47596d56e954aa05fa76a546080c8bf4fefd41cac0042794d6195"
+        },
+        {
+          "name": "14.c95e6f2ddd61fb701d0e.js",
+          "source": "14.c95e6f2ddd61fb701d0e.js",
+          "sha256": "d3ce91c9113463db4c0988210caeb1be2ddc508499d5c53a8e73a13b5f440175"
+        },
+        {
+          "name": "11.477512e6f03fd2f6f3c5.js",
+          "source": "11.477512e6f03fd2f6f3c5.js",
+          "sha256": "e81bfe3462cc3e79a70ba016ddee2a372a31480d3f52964952e1d21f3a490f91"
+        }
+      ]
+    },
+    "scene-spatial": {
+      "sha256": "8a6a15036abe663bc5d4e184722b73ef14f4072d266741d17c656c8c8a9af90a",
+      "rendererLfSha256": "647dfbf1693cb0cce7fd8128ef366900e4c84b0c99adf1ab3a46545c4279b0d0",
+      "file": "tests/fixtures/kitten4/partial-effects-8-scene-spatial.bcm",
+      "status": "captured",
+      "audioMetadata": true,
+      "frames": [
+        {
+          "frame": 1,
+          "width": 960,
+          "height": 720,
+          "overlay": false,
+          "videoBounds": {
+            "nekoc": [],
+            "official": []
+          },
+          "scope": "canvas",
+          "pixels": 691200,
+          "maskedPixels": 0,
+          "changedPixels": 69012,
+          "changedPercent": 9.984375,
+          "mae": 0.03328125,
+          "rmse": 0.1824314939915803,
+          "psnr": 62.9088073141306,
+          "tolerance": 0,
+          "additionalTolerances": {
+            "1": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 0,
+              "changedPercent": 0,
+              "mae": 0.03328125,
+              "rmse": 0.1824314939915803,
+              "psnr": 62.9088073141306,
+              "tolerance": 1
+            },
+            "8": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 0,
+              "changedPercent": 0,
+              "mae": 0.03328125,
+              "rmse": 0.1824314939915803,
+              "psnr": 62.9088073141306,
+              "tolerance": 8
+            }
+          }
+        },
+        {
+          "frame": 2,
+          "width": 960,
+          "height": 720,
+          "overlay": false,
+          "videoBounds": {
+            "nekoc": [],
+            "official": []
+          },
+          "scope": "canvas",
+          "pixels": 691200,
+          "maskedPixels": 0,
+          "changedPixels": 69012,
+          "changedPercent": 9.984375,
+          "mae": 0.03328125,
+          "rmse": 0.1824314939915803,
+          "psnr": 62.9088073141306,
+          "tolerance": 0,
+          "additionalTolerances": {
+            "1": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 0,
+              "changedPercent": 0,
+              "mae": 0.03328125,
+              "rmse": 0.1824314939915803,
+              "psnr": 62.9088073141306,
+              "tolerance": 1
+            },
+            "8": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 0,
+              "changedPercent": 0,
+              "mae": 0.03328125,
+              "rmse": 0.1824314939915803,
+              "psnr": 62.9088073141306,
+              "tolerance": 8
+            }
+          }
+        },
+        {
+          "frame": 3,
+          "width": 960,
+          "height": 720,
+          "overlay": false,
+          "videoBounds": {
+            "nekoc": [],
+            "official": []
+          },
+          "scope": "canvas",
+          "pixels": 691200,
+          "maskedPixels": 0,
+          "changedPixels": 137918,
+          "changedPercent": 19.953414351851855,
+          "mae": 16.80274787808642,
+          "rmse": 51.161313311381775,
+          "psnr": 13.951969922818302,
+          "tolerance": 0,
+          "additionalTolerances": {
+            "1": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 86168,
+              "changedPercent": 12.466435185185185,
+              "mae": 16.80274787808642,
+              "rmse": 51.161313311381775,
+              "psnr": 13.951969922818302,
+              "tolerance": 1
+            },
+            "8": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 86021,
+              "changedPercent": 12.445167824074074,
+              "mae": 16.80274787808642,
+              "rmse": 51.161313311381775,
+              "psnr": 13.951969922818302,
+              "tolerance": 8
+            }
+          }
+        },
+        {
+          "frame": 4,
+          "width": 960,
+          "height": 720,
+          "overlay": false,
+          "videoBounds": {
+            "nekoc": [],
+            "official": []
+          },
+          "scope": "canvas",
+          "pixels": 691200,
+          "maskedPixels": 0,
+          "changedPixels": 137918,
+          "changedPercent": 19.953414351851855,
+          "mae": 16.80274787808642,
+          "rmse": 51.161313311381775,
+          "psnr": 13.951969922818302,
+          "tolerance": 0,
+          "additionalTolerances": {
+            "1": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 86168,
+              "changedPercent": 12.466435185185185,
+              "mae": 16.80274787808642,
+              "rmse": 51.161313311381775,
+              "psnr": 13.951969922818302,
+              "tolerance": 1
+            },
+            "8": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 86021,
+              "changedPercent": 12.445167824074074,
+              "mae": 16.80274787808642,
+              "rmse": 51.161313311381775,
+              "psnr": 13.951969922818302,
+              "tolerance": 8
+            }
+          }
+        },
+        {
+          "frame": 5,
+          "width": 960,
+          "height": 720,
+          "overlay": false,
+          "videoBounds": {
+            "nekoc": [],
+            "official": []
+          },
+          "scope": "canvas",
+          "pixels": 691200,
+          "maskedPixels": 0,
+          "changedPixels": 72433,
+          "changedPercent": 10.479311342592593,
+          "mae": 0.03493103780864198,
+          "rmse": 0.18689846925173564,
+          "psnr": 62.69868872056173,
+          "tolerance": 0,
+          "additionalTolerances": {
+            "1": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 0,
+              "changedPercent": 0,
+              "mae": 0.03493103780864198,
+              "rmse": 0.18689846925173564,
+              "psnr": 62.69868872056173,
+              "tolerance": 1
+            },
+            "8": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 0,
+              "changedPercent": 0,
+              "mae": 0.03493103780864198,
+              "rmse": 0.18689846925173564,
+              "psnr": 62.69868872056173,
+              "tolerance": 8
+            }
+          }
+        },
+        {
+          "frame": 6,
+          "width": 960,
+          "height": 720,
+          "overlay": false,
+          "videoBounds": {
+            "nekoc": [],
+            "official": []
+          },
+          "scope": "canvas",
+          "pixels": 691200,
+          "maskedPixels": 0,
+          "changedPixels": 72433,
+          "changedPercent": 10.479311342592593,
+          "mae": 0.03493103780864198,
+          "rmse": 0.18689846925173564,
+          "psnr": 62.69868872056173,
+          "tolerance": 0,
+          "additionalTolerances": {
+            "1": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 0,
+              "changedPercent": 0,
+              "mae": 0.03493103780864198,
+              "rmse": 0.18689846925173564,
+              "psnr": 62.69868872056173,
+              "tolerance": 1
+            },
+            "8": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 0,
+              "changedPercent": 0,
+              "mae": 0.03493103780864198,
+              "rmse": 0.18689846925173564,
+              "psnr": 62.69868872056173,
+              "tolerance": 8
+            }
+          }
+        }
+      ],
+      "artifacts": "dist\\partial-effects-8\\baseline\\partial-effects-8-scene-spatial.bcm",
+      "kernelAssets": [
+        {
+          "name": "player_v2__3ffeebbd0c789e8d9422.css",
+          "source": "player_v2__3ffeebbd0c789e8d9422.css",
+          "sha256": "39e8e70b124b604831773893cdc95931cdee3eaea52c6dd69f33f5781d48b45a"
+        },
+        {
+          "name": "runtime.f42f527f119e09010b85.js",
+          "source": "runtime.f42f527f119e09010b85.js",
+          "sha256": "4164d67795238f64d035f473418236038ae475ae36032a967cba16ede263735f"
+        },
+        {
+          "name": "vendors.d00f4bd454a6352e9d71.js",
+          "source": "vendors.d00f4bd454a6352e9d71.js",
+          "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
+        },
+        {
+          "name": "player_v2.2d180c468559fbd29528.js",
+          "source": "player_v2.2d180c468559fbd29528.js.orig",
+          "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160"
+        },
+        {
+          "name": "9.c396696e9dc71e25b012.js",
+          "source": "9.c396696e9dc71e25b012.js",
+          "sha256": "5758343310c47596d56e954aa05fa76a546080c8bf4fefd41cac0042794d6195"
+        },
+        {
+          "name": "14.c95e6f2ddd61fb701d0e.js",
+          "source": "14.c95e6f2ddd61fb701d0e.js",
+          "sha256": "d3ce91c9113463db4c0988210caeb1be2ddc508499d5c53a8e73a13b5f440175"
+        },
+        {
+          "name": "11.477512e6f03fd2f6f3c5.js",
+          "source": "11.477512e6f03fd2f6f3c5.js",
+          "sha256": "e81bfe3462cc3e79a70ba016ddee2a372a31480d3f52964952e1d21f3a490f91"
+        }
+      ]
+    },
+    "self_set_effect_2-ascii": {
+      "sha256": "aaf6924d1d6317fdf46bc89b4c9b751cd80abf553e795fd6d52788da2f8c872f",
+      "rendererLfSha256": "647dfbf1693cb0cce7fd8128ef366900e4c84b0c99adf1ab3a46545c4279b0d0",
+      "file": "tests/fixtures/kitten4/partial-effects-8-self_set_effect_2-ascii.bcm",
+      "status": "captured",
+      "audioMetadata": true,
+      "frames": [
+        {
+          "frame": 1,
+          "width": 960,
+          "height": 720,
+          "overlay": false,
+          "videoBounds": {
+            "nekoc": [],
+            "official": []
+          },
+          "scope": "canvas",
+          "pixels": 691200,
+          "maskedPixels": 0,
+          "changedPixels": 23512,
+          "changedPercent": 3.4016203703703702,
+          "mae": 3.38711612654321,
+          "rmse": 22.037776099787898,
+          "psnr": 21.267448280874632,
+          "tolerance": 0,
+          "additionalTolerances": {
+            "1": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 23488,
+              "changedPercent": 3.398148148148148,
+              "mae": 3.38711612654321,
+              "rmse": 22.037776099787898,
+              "psnr": 21.267448280874632,
+              "tolerance": 1
+            },
+            "8": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 23487,
+              "changedPercent": 3.398003472222222,
+              "mae": 3.38711612654321,
+              "rmse": 22.037776099787898,
+              "psnr": 21.267448280874632,
+              "tolerance": 8
+            }
+          }
+        },
+        {
+          "frame": 2,
+          "width": 960,
+          "height": 720,
+          "overlay": false,
+          "videoBounds": {
+            "nekoc": [],
+            "official": []
+          },
+          "scope": "canvas",
+          "pixels": 691200,
+          "maskedPixels": 0,
+          "changedPixels": 23512,
+          "changedPercent": 3.4016203703703702,
+          "mae": 3.38711612654321,
+          "rmse": 22.037776099787898,
+          "psnr": 21.267448280874632,
+          "tolerance": 0,
+          "additionalTolerances": {
+            "1": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 23488,
+              "changedPercent": 3.398148148148148,
+              "mae": 3.38711612654321,
+              "rmse": 22.037776099787898,
+              "psnr": 21.267448280874632,
+              "tolerance": 1
+            },
+            "8": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 23487,
+              "changedPercent": 3.398003472222222,
+              "mae": 3.38711612654321,
+              "rmse": 22.037776099787898,
+              "psnr": 21.267448280874632,
+              "tolerance": 8
+            }
+          }
+        },
+        {
+          "frame": 3,
+          "width": 960,
+          "height": 720,
+          "overlay": false,
+          "videoBounds": {
+            "nekoc": [],
+            "official": []
+          },
+          "scope": "canvas",
+          "pixels": 691200,
+          "maskedPixels": 0,
+          "changedPixels": 24550,
+          "changedPercent": 3.551793981481482,
+          "mae": 3.602013888888889,
+          "rmse": 22.707652533967376,
+          "psnr": 21.007358805604504,
+          "tolerance": 0,
+          "additionalTolerances": {
+            "1": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 24543,
+              "changedPercent": 3.55078125,
+              "mae": 3.602013888888889,
+              "rmse": 22.707652533967376,
+              "psnr": 21.007358805604504,
+              "tolerance": 1
+            },
+            "8": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 24542,
+              "changedPercent": 3.550636574074074,
+              "mae": 3.602013888888889,
+              "rmse": 22.707652533967376,
+              "psnr": 21.007358805604504,
+              "tolerance": 8
+            }
+          }
+        },
+        {
+          "frame": 4,
+          "width": 960,
+          "height": 720,
+          "overlay": false,
+          "videoBounds": {
+            "nekoc": [],
+            "official": []
+          },
+          "scope": "canvas",
+          "pixels": 691200,
+          "maskedPixels": 0,
+          "changedPixels": 24550,
+          "changedPercent": 3.551793981481482,
+          "mae": 3.602013888888889,
+          "rmse": 22.707652533967376,
+          "psnr": 21.007358805604504,
+          "tolerance": 0,
+          "additionalTolerances": {
+            "1": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 24543,
+              "changedPercent": 3.55078125,
+              "mae": 3.602013888888889,
+              "rmse": 22.707652533967376,
+              "psnr": 21.007358805604504,
+              "tolerance": 1
+            },
+            "8": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 24542,
+              "changedPercent": 3.550636574074074,
+              "mae": 3.602013888888889,
+              "rmse": 22.707652533967376,
+              "psnr": 21.007358805604504,
+              "tolerance": 8
+            }
+          }
+        },
+        {
+          "frame": 5,
+          "width": 960,
+          "height": 720,
+          "overlay": false,
+          "videoBounds": {
+            "nekoc": [],
+            "official": []
+          },
+          "scope": "canvas",
+          "pixels": 691200,
+          "maskedPixels": 0,
+          "changedPixels": 1034,
+          "changedPercent": 0.1495949074074074,
+          "mae": 0.0004986496913580246,
+          "rmse": 0.022330465542796565,
+          "psnr": 81.15284806300487,
+          "tolerance": 0,
+          "additionalTolerances": {
+            "1": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 0,
+              "changedPercent": 0,
+              "mae": 0.0004986496913580246,
+              "rmse": 0.022330465542796565,
+              "psnr": 81.15284806300487,
+              "tolerance": 1
+            },
+            "8": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 0,
+              "changedPercent": 0,
+              "mae": 0.0004986496913580246,
+              "rmse": 0.022330465542796565,
+              "psnr": 81.15284806300487,
+              "tolerance": 8
+            }
+          }
+        },
+        {
+          "frame": 6,
+          "width": 960,
+          "height": 720,
+          "overlay": false,
+          "videoBounds": {
+            "nekoc": [],
+            "official": []
+          },
+          "scope": "canvas",
+          "pixels": 691200,
+          "maskedPixels": 0,
+          "changedPixels": 1034,
+          "changedPercent": 0.1495949074074074,
+          "mae": 0.0004986496913580246,
+          "rmse": 0.022330465542796565,
+          "psnr": 81.15284806300487,
+          "tolerance": 0,
+          "additionalTolerances": {
+            "1": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 0,
+              "changedPercent": 0,
+              "mae": 0.0004986496913580246,
+              "rmse": 0.022330465542796565,
+              "psnr": 81.15284806300487,
+              "tolerance": 1
+            },
+            "8": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 0,
+              "changedPercent": 0,
+              "mae": 0.0004986496913580246,
+              "rmse": 0.022330465542796565,
+              "psnr": 81.15284806300487,
+              "tolerance": 8
+            }
+          }
+        }
+      ],
+      "artifacts": "dist\\partial-effects-8\\baseline\\partial-effects-8-self_set_effect_2-ascii.bcm",
+      "kernelAssets": [
+        {
+          "name": "player_v2__3ffeebbd0c789e8d9422.css",
+          "source": "player_v2__3ffeebbd0c789e8d9422.css",
+          "sha256": "39e8e70b124b604831773893cdc95931cdee3eaea52c6dd69f33f5781d48b45a"
+        },
+        {
+          "name": "runtime.f42f527f119e09010b85.js",
+          "source": "runtime.f42f527f119e09010b85.js",
+          "sha256": "4164d67795238f64d035f473418236038ae475ae36032a967cba16ede263735f"
+        },
+        {
+          "name": "vendors.d00f4bd454a6352e9d71.js",
+          "source": "vendors.d00f4bd454a6352e9d71.js",
+          "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
+        },
+        {
+          "name": "player_v2.2d180c468559fbd29528.js",
+          "source": "player_v2.2d180c468559fbd29528.js.orig",
+          "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160"
+        },
+        {
+          "name": "9.c396696e9dc71e25b012.js",
+          "source": "9.c396696e9dc71e25b012.js",
+          "sha256": "5758343310c47596d56e954aa05fa76a546080c8bf4fefd41cac0042794d6195"
+        },
+        {
+          "name": "14.c95e6f2ddd61fb701d0e.js",
+          "source": "14.c95e6f2ddd61fb701d0e.js",
+          "sha256": "d3ce91c9113463db4c0988210caeb1be2ddc508499d5c53a8e73a13b5f440175"
+        },
+        {
+          "name": "11.477512e6f03fd2f6f3c5.js",
+          "source": "11.477512e6f03fd2f6f3c5.js",
+          "sha256": "e81bfe3462cc3e79a70ba016ddee2a372a31480d3f52964952e1d21f3a490f91"
+        }
+      ]
+    },
+    "all-no-ripple": {
+      "sha256": "2f376a635a52b5b35bf800a3eb4086e5a7eaf176705ebbbc3d38bdbe95ab5713",
+      "rendererLfSha256": "647dfbf1693cb0cce7fd8128ef366900e4c84b0c99adf1ab3a46545c4279b0d0",
+      "file": "tests/fixtures/kitten4/partial-effects-8-all-no-ripple.bcm",
+      "status": "captured",
+      "audioMetadata": true,
+      "frames": [
+        {
+          "frame": 1,
+          "width": 960,
+          "height": 720,
+          "overlay": false,
+          "videoBounds": {
+            "nekoc": [],
+            "official": []
+          },
+          "scope": "canvas",
+          "pixels": 691200,
+          "maskedPixels": 0,
+          "changedPixels": 4018,
+          "changedPercent": 0.5813078703703703,
+          "mae": 0.0036588541666666666,
+          "rmse": 0.06067155683384081,
+          "psnr": 72.47110082676812,
+          "tolerance": 0,
+          "additionalTolerances": {
+            "1": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 23,
+              "changedPercent": 0.0033275462962962963,
+              "mae": 0.0036588541666666666,
+              "rmse": 0.06067155683384081,
+              "psnr": 72.47110082676812,
+              "tolerance": 1
+            },
+            "8": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 0,
+              "changedPercent": 0,
+              "mae": 0.0036588541666666666,
+              "rmse": 0.06067155683384081,
+              "psnr": 72.47110082676812,
+              "tolerance": 8
+            }
+          }
+        },
+        {
+          "frame": 2,
+          "width": 960,
+          "height": 720,
+          "overlay": false,
+          "videoBounds": {
+            "nekoc": [],
+            "official": []
+          },
+          "scope": "canvas",
+          "pixels": 691200,
+          "maskedPixels": 0,
+          "changedPixels": 4018,
+          "changedPercent": 0.5813078703703703,
+          "mae": 0.0036588541666666666,
+          "rmse": 0.06067155683384081,
+          "psnr": 72.47110082676812,
+          "tolerance": 0,
+          "additionalTolerances": {
+            "1": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 23,
+              "changedPercent": 0.0033275462962962963,
+              "mae": 0.0036588541666666666,
+              "rmse": 0.06067155683384081,
+              "psnr": 72.47110082676812,
+              "tolerance": 1
+            },
+            "8": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 0,
+              "changedPercent": 0,
+              "mae": 0.0036588541666666666,
+              "rmse": 0.06067155683384081,
+              "psnr": 72.47110082676812,
+              "tolerance": 8
+            }
+          }
+        },
+        {
+          "frame": 3,
+          "width": 960,
+          "height": 720,
+          "overlay": false,
+          "videoBounds": {
+            "nekoc": [],
+            "official": []
+          },
+          "scope": "canvas",
+          "pixels": 691200,
+          "maskedPixels": 0,
+          "changedPixels": 25339,
+          "changedPercent": 3.665943287037037,
+          "mae": 0.0366748649691358,
+          "rmse": 0.19269926154823366,
+          "psnr": 62.433202601106295,
+          "tolerance": 0,
+          "additionalTolerances": {
+            "1": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 351,
+              "changedPercent": 0.05078125,
+              "mae": 0.0366748649691358,
+              "rmse": 0.19269926154823366,
+              "psnr": 62.433202601106295,
+              "tolerance": 1
+            },
+            "8": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 0,
+              "changedPercent": 0,
+              "mae": 0.0366748649691358,
+              "rmse": 0.19269926154823366,
+              "psnr": 62.433202601106295,
+              "tolerance": 8
+            }
+          }
+        },
+        {
+          "frame": 4,
+          "width": 960,
+          "height": 720,
+          "overlay": false,
+          "videoBounds": {
+            "nekoc": [],
+            "official": []
+          },
+          "scope": "canvas",
+          "pixels": 691200,
+          "maskedPixels": 0,
+          "changedPixels": 25339,
+          "changedPercent": 3.665943287037037,
+          "mae": 0.0366748649691358,
+          "rmse": 0.19269926154823366,
+          "psnr": 62.433202601106295,
+          "tolerance": 0,
+          "additionalTolerances": {
+            "1": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 351,
+              "changedPercent": 0.05078125,
+              "mae": 0.0366748649691358,
+              "rmse": 0.19269926154823366,
+              "psnr": 62.433202601106295,
+              "tolerance": 1
+            },
+            "8": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 0,
+              "changedPercent": 0,
+              "mae": 0.0366748649691358,
+              "rmse": 0.19269926154823366,
+              "psnr": 62.433202601106295,
+              "tolerance": 8
+            }
+          }
+        },
+        {
+          "frame": 5,
+          "width": 960,
+          "height": 720,
+          "overlay": false,
+          "videoBounds": {
+            "nekoc": [],
+            "official": []
+          },
+          "scope": "canvas",
+          "pixels": 691200,
+          "maskedPixels": 0,
+          "changedPixels": 1312,
+          "changedPercent": 0.18981481481481483,
+          "mae": 0.0014052854938271604,
+          "rmse": 0.03918537772129412,
+          "psnr": 76.26832285992778,
+          "tolerance": 0,
+          "additionalTolerances": {
+            "1": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 110,
+              "changedPercent": 0.015914351851851853,
+              "mae": 0.0014052854938271604,
+              "rmse": 0.03918537772129412,
+              "psnr": 76.26832285992778,
+              "tolerance": 1
+            },
+            "8": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 0,
+              "changedPercent": 0,
+              "mae": 0.0014052854938271604,
+              "rmse": 0.03918537772129412,
+              "psnr": 76.26832285992778,
+              "tolerance": 8
+            }
+          }
+        },
+        {
+          "frame": 6,
+          "width": 960,
+          "height": 720,
+          "overlay": false,
+          "videoBounds": {
+            "nekoc": [],
+            "official": []
+          },
+          "scope": "canvas",
+          "pixels": 691200,
+          "maskedPixels": 0,
+          "changedPixels": 1312,
+          "changedPercent": 0.18981481481481483,
+          "mae": 0.0014052854938271604,
+          "rmse": 0.03918537772129412,
+          "psnr": 76.26832285992778,
+          "tolerance": 0,
+          "additionalTolerances": {
+            "1": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 110,
+              "changedPercent": 0.015914351851851853,
+              "mae": 0.0014052854938271604,
+              "rmse": 0.03918537772129412,
+              "psnr": 76.26832285992778,
+              "tolerance": 1
+            },
+            "8": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 0,
+              "changedPercent": 0,
+              "mae": 0.0014052854938271604,
+              "rmse": 0.03918537772129412,
+              "psnr": 76.26832285992778,
+              "tolerance": 8
+            }
+          }
+        },
+        {
+          "frame": 7,
+          "width": 960,
+          "height": 720,
+          "overlay": false,
+          "videoBounds": {
+            "nekoc": [],
+            "official": []
+          },
+          "scope": "canvas",
+          "pixels": 691200,
+          "maskedPixels": 0,
+          "changedPixels": 1863,
+          "changedPercent": 0.26953125,
+          "mae": 0.0014366319444444444,
+          "rmse": 0.03790292791387553,
+          "psnr": 76.55734841843366,
+          "tolerance": 0,
+          "additionalTolerances": {
+            "1": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 0,
+              "changedPercent": 0,
+              "mae": 0.0014366319444444444,
+              "rmse": 0.03790292791387553,
+              "psnr": 76.55734841843366,
+              "tolerance": 1
+            },
+            "8": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 0,
+              "changedPercent": 0,
+              "mae": 0.0014366319444444444,
+              "rmse": 0.03790292791387553,
+              "psnr": 76.55734841843366,
+              "tolerance": 8
+            }
+          }
+        },
+        {
+          "frame": 8,
+          "width": 960,
+          "height": 720,
+          "overlay": false,
+          "videoBounds": {
+            "nekoc": [],
+            "official": []
+          },
+          "scope": "canvas",
+          "pixels": 691200,
+          "maskedPixels": 0,
+          "changedPixels": 1863,
+          "changedPercent": 0.26953125,
+          "mae": 0.0014366319444444444,
+          "rmse": 0.03790292791387553,
+          "psnr": 76.55734841843366,
+          "tolerance": 0,
+          "additionalTolerances": {
+            "1": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 0,
+              "changedPercent": 0,
+              "mae": 0.0014366319444444444,
+              "rmse": 0.03790292791387553,
+              "psnr": 76.55734841843366,
+              "tolerance": 1
+            },
+            "8": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 0,
+              "changedPercent": 0,
+              "mae": 0.0014366319444444444,
+              "rmse": 0.03790292791387553,
+              "psnr": 76.55734841843366,
+              "tolerance": 8
+            }
+          }
+        },
+        {
+          "frame": 9,
+          "width": 960,
+          "height": 720,
+          "overlay": false,
+          "videoBounds": {
+            "nekoc": [],
+            "official": []
+          },
+          "scope": "canvas",
+          "pixels": 691200,
+          "maskedPixels": 0,
+          "changedPixels": 2715,
+          "changedPercent": 0.3927951388888889,
+          "mae": 0.002037037037037037,
+          "rmse": 0.045133546692422,
+          "psnr": 75.04081435532653,
+          "tolerance": 0,
+          "additionalTolerances": {
+            "1": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 0,
+              "changedPercent": 0,
+              "mae": 0.002037037037037037,
+              "rmse": 0.045133546692422,
+              "psnr": 75.04081435532653,
+              "tolerance": 1
+            },
+            "8": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 0,
+              "changedPercent": 0,
+              "mae": 0.002037037037037037,
+              "rmse": 0.045133546692422,
+              "psnr": 75.04081435532653,
+              "tolerance": 8
+            }
+          }
+        },
+        {
+          "frame": 10,
+          "width": 960,
+          "height": 720,
+          "overlay": false,
+          "videoBounds": {
+            "nekoc": [],
+            "official": []
+          },
+          "scope": "canvas",
+          "pixels": 691200,
+          "maskedPixels": 0,
+          "changedPixels": 2715,
+          "changedPercent": 0.3927951388888889,
+          "mae": 0.002037037037037037,
+          "rmse": 0.045133546692422,
+          "psnr": 75.04081435532653,
+          "tolerance": 0,
+          "additionalTolerances": {
+            "1": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 0,
+              "changedPercent": 0,
+              "mae": 0.002037037037037037,
+              "rmse": 0.045133546692422,
+              "psnr": 75.04081435532653,
+              "tolerance": 1
+            },
+            "8": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 0,
+              "changedPercent": 0,
+              "mae": 0.002037037037037037,
+              "rmse": 0.045133546692422,
+              "psnr": 75.04081435532653,
+              "tolerance": 8
+            }
+          }
+        },
+        {
+          "frame": 11,
+          "width": 960,
+          "height": 720,
+          "overlay": false,
+          "videoBounds": {
+            "nekoc": [],
+            "official": []
+          },
+          "scope": "canvas",
+          "pixels": 691200,
+          "maskedPixels": 0,
+          "changedPixels": 2616,
+          "changedPercent": 0.3784722222222222,
+          "mae": 0.001939621913580247,
+          "rmse": 0.04405208757542696,
+          "psnr": 75.25147373010539,
+          "tolerance": 0,
+          "additionalTolerances": {
+            "1": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 1,
+              "changedPercent": 0.00014467592592592592,
+              "mae": 0.001939621913580247,
+              "rmse": 0.04405208757542696,
+              "psnr": 75.25147373010539,
+              "tolerance": 1
+            },
+            "8": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 0,
+              "changedPercent": 0,
+              "mae": 0.001939621913580247,
+              "rmse": 0.04405208757542696,
+              "psnr": 75.25147373010539,
+              "tolerance": 8
+            }
+          }
+        },
+        {
+          "frame": 12,
+          "width": 960,
+          "height": 720,
+          "overlay": false,
+          "videoBounds": {
+            "nekoc": [],
+            "official": []
+          },
+          "scope": "canvas",
+          "pixels": 691200,
+          "maskedPixels": 0,
+          "changedPixels": 2616,
+          "changedPercent": 0.3784722222222222,
+          "mae": 0.001939621913580247,
+          "rmse": 0.04405208757542696,
+          "psnr": 75.25147373010539,
+          "tolerance": 0,
+          "additionalTolerances": {
+            "1": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 1,
+              "changedPercent": 0.00014467592592592592,
+              "mae": 0.001939621913580247,
+              "rmse": 0.04405208757542696,
+              "psnr": 75.25147373010539,
+              "tolerance": 1
+            },
+            "8": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 0,
+              "changedPercent": 0,
+              "mae": 0.001939621913580247,
+              "rmse": 0.04405208757542696,
+              "psnr": 75.25147373010539,
+              "tolerance": 8
+            }
+          }
+        },
+        {
+          "frame": 13,
+          "width": 960,
+          "height": 720,
+          "overlay": false,
+          "videoBounds": {
+            "nekoc": [],
+            "official": []
+          },
+          "scope": "canvas",
+          "pixels": 691200,
+          "maskedPixels": 0,
+          "changedPixels": 25421,
+          "changedPercent": 3.6778067129629632,
+          "mae": 0.9162003279320987,
+          "rmse": 6.245213174620273,
+          "psnr": 32.21985826454432,
+          "tolerance": 0,
+          "additionalTolerances": {
+            "1": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 25329,
+              "changedPercent": 3.6644965277777777,
+              "mae": 0.9162003279320987,
+              "rmse": 6.245213174620273,
+              "psnr": 32.21985826454432,
+              "tolerance": 1
+            },
+            "8": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 23646,
+              "changedPercent": 3.421006944444444,
+              "mae": 0.9162003279320987,
+              "rmse": 6.245213174620273,
+              "psnr": 32.21985826454432,
+              "tolerance": 8
+            }
+          }
+        },
+        {
+          "frame": 14,
+          "width": 960,
+          "height": 720,
+          "overlay": false,
+          "videoBounds": {
+            "nekoc": [],
+            "official": []
+          },
+          "scope": "canvas",
+          "pixels": 691200,
+          "maskedPixels": 0,
+          "changedPixels": 25421,
+          "changedPercent": 3.6778067129629632,
+          "mae": 0.9162003279320987,
+          "rmse": 6.245213174620273,
+          "psnr": 32.21985826454432,
+          "tolerance": 0,
+          "additionalTolerances": {
+            "1": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 25329,
+              "changedPercent": 3.6644965277777777,
+              "mae": 0.9162003279320987,
+              "rmse": 6.245213174620273,
+              "psnr": 32.21985826454432,
+              "tolerance": 1
+            },
+            "8": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 23646,
+              "changedPercent": 3.421006944444444,
+              "mae": 0.9162003279320987,
+              "rmse": 6.245213174620273,
+              "psnr": 32.21985826454432,
+              "tolerance": 8
+            }
+          }
+        },
+        {
+          "frame": 15,
+          "width": 960,
+          "height": 720,
+          "overlay": false,
+          "videoBounds": {
+            "nekoc": [],
+            "official": []
+          },
+          "scope": "canvas",
+          "pixels": 691200,
+          "maskedPixels": 0,
+          "changedPixels": 1034,
+          "changedPercent": 0.1495949074074074,
+          "mae": 0.0004986496913580246,
+          "rmse": 0.022330465542796565,
+          "psnr": 81.15284806300487,
+          "tolerance": 0,
+          "additionalTolerances": {
+            "1": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 0,
+              "changedPercent": 0,
+              "mae": 0.0004986496913580246,
+              "rmse": 0.022330465542796565,
+              "psnr": 81.15284806300487,
+              "tolerance": 1
+            },
+            "8": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 0,
+              "changedPercent": 0,
+              "mae": 0.0004986496913580246,
+              "rmse": 0.022330465542796565,
+              "psnr": 81.15284806300487,
+              "tolerance": 8
+            }
+          }
+        },
+        {
+          "frame": 16,
+          "width": 960,
+          "height": 720,
+          "overlay": false,
+          "videoBounds": {
+            "nekoc": [],
+            "official": []
+          },
+          "scope": "canvas",
+          "pixels": 691200,
+          "maskedPixels": 0,
+          "changedPixels": 1034,
+          "changedPercent": 0.1495949074074074,
+          "mae": 0.0004986496913580246,
+          "rmse": 0.022330465542796565,
+          "psnr": 81.15284806300487,
+          "tolerance": 0,
+          "additionalTolerances": {
+            "1": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 0,
+              "changedPercent": 0,
+              "mae": 0.0004986496913580246,
+              "rmse": 0.022330465542796565,
+              "psnr": 81.15284806300487,
+              "tolerance": 1
+            },
+            "8": {
+              "pixels": 691200,
+              "maskedPixels": 0,
+              "changedPixels": 0,
+              "changedPercent": 0,
+              "mae": 0.0004986496913580246,
+              "rmse": 0.022330465542796565,
+              "psnr": 81.15284806300487,
+              "tolerance": 8
+            }
+          }
+        }
+      ],
+      "artifacts": "dist\\partial-effects-8\\baseline\\partial-effects-8-all-no-ripple.bcm",
+      "kernelAssets": [
+        {
+          "name": "player_v2__3ffeebbd0c789e8d9422.css",
+          "source": "player_v2__3ffeebbd0c789e8d9422.css",
+          "sha256": "39e8e70b124b604831773893cdc95931cdee3eaea52c6dd69f33f5781d48b45a"
+        },
+        {
+          "name": "runtime.f42f527f119e09010b85.js",
+          "source": "runtime.f42f527f119e09010b85.js",
+          "sha256": "4164d67795238f64d035f473418236038ae475ae36032a967cba16ede263735f"
+        },
+        {
+          "name": "player_v2.2d180c468559fbd29528.js",
+          "source": "player_v2.2d180c468559fbd29528.js.orig",
+          "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160"
+        },
+        {
+          "name": "vendors.d00f4bd454a6352e9d71.js",
+          "source": "vendors.d00f4bd454a6352e9d71.js",
+          "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
+        },
+        {
+          "name": "9.c396696e9dc71e25b012.js",
+          "source": "9.c396696e9dc71e25b012.js",
+          "sha256": "5758343310c47596d56e954aa05fa76a546080c8bf4fefd41cac0042794d6195"
+        },
+        {
+          "name": "14.c95e6f2ddd61fb701d0e.js",
+          "source": "14.c95e6f2ddd61fb701d0e.js",
+          "sha256": "d3ce91c9113463db4c0988210caeb1be2ddc508499d5c53a8e73a13b5f440175"
+        },
+        {
+          "name": "11.477512e6f03fd2f6f3c5.js",
+          "source": "11.477512e6f03fd2f6f3c5.js",
+          "sha256": "e81bfe3462cc3e79a70ba016ddee2a372a31480d3f52964952e1d21f3a490f91"
+        }
+      ]
+    }
+  },
+  "executableSha256": "42e5554c1107516825daa396bc0be78e7c23325de3809e2c051e7a7b2dc9a184",
+  "rendererLfSha256": "647dfbf1693cb0cce7fd8128ef366900e4c84b0c99adf1ab3a46545c4279b0d0",
+  "baselineCommit": "6aaa205310752503b1850f640703608302195489"
+}

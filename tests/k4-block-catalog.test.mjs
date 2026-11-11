@@ -238,12 +238,19 @@ test("second partial round records scoped evidence without clearing unresolved p
 test("third partial round retains solver, distort and stamp boundaries despite measured improvements", () => {
   const types = ["physics2_set_gravity", "physics2_set_speed", "set_velocity", "set_velocity_by_vector",
     "physics2_set_force", "physics2_set_mass", "physics2_set_roughness", "physics2_set_resilience",
-    "physics2_set_boundary", "stamp", "image_stamp", "set_scene_transition"];
+    "stamp", "image_stamp", "set_scene_transition"];
   for (const row of mappingStatus(root, types.map(type => ({ type, official: [] })))) {
     assert.equal(row.status, "已实现", row.type);
     assert.equal(row.semantics, currentSemantics(row.type), row.type);
     assert.ok(row.limitations.some(text => text.includes("第三轮") && text.includes("原创")), row.type);
   }
+});
+
+test("eighth round upgrades only measured boundary paths", () => {
+  const row = mappingStatus(root, [{ type: "physics2_set_boundary", official: [] }])[0];
+  assert.equal(row.status, "已实现");
+  assert.equal(row.semantics, "main-path-verified");
+  assert.ok(row.limitations.some(text => text.includes("第八轮") && text.includes("0.118503")));
 });
 
 test("fifth property round records measured fixes without erasing platform and deletion boundaries", () => {

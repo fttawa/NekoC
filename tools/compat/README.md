@@ -150,6 +150,12 @@ K4 partial 第二轮的 41 份仓库原创离线探针与保留边界：
 [纯数据/等待](../../docs/kitten4-partial-data-7.md)补MIDI和文本逐帧证据并保留抖动负例；
 [滤镜专项](../../docs/kitten4-partial-effects-7.md)区分算法修复、像素事实和未认证分支。
 
+第八轮：[范围与升级](../../docs/kitten4-partial-8.md)、
+[单刚体舞台边缘亚像素轨迹](../../docs/kitten4-partial-physics-8.md)、
+[ASCII与空间滤镜输入面](../../docs/kitten4-partial-effects-8.md)、
+[shake帧尾与原点边界](../../docs/kitten4-shake-8.md)。仅boundary两项新增主路径认证；
+滤镜组合/ripple与shake原点相关负例仍公开，不冒充全等。
+
 ## 联网、安全与未验证范围
 
 默认外部 HTTP、WebSocket、Service Worker 均禁用；记录所有外部请求的方法、URL、类型和动作。

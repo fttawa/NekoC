@@ -11,6 +11,12 @@ mod shape;
 
 const STEP: f64 = 1.0 / 60.0;
 const PIXELS: f64 = 10.0;
+// Official configuration observations, not a vendor solver implementation:
+// two polygon skins of .01, linear slop .005, restitution threshold 1.
+const LINEAR_SLOP: f64 = 0.005;
+const EDGE_SKIN: f64 = 0.02;
+const EDGE_GAP: f64 = EDGE_SKIN - LINEAR_SLOP;
+const EDGE_SWEEP_GAP: f64 = EDGE_SKIN - 3.0 * LINEAR_SLOP;
 const HOOKS: ActiveHooks = ActiveHooks::FILTER_CONTACT_PAIRS
     .union(ActiveHooks::FILTER_INTERSECTION_PAIR)
     .union(ActiveHooks::MODIFY_SOLVER_CONTACTS);
@@ -240,6 +246,120 @@ mod tests {
         command(&mut e, other, Command::Filter(1, true), [0.0; 3]);
         e.step_physics(STEP);
         assert_eq!(e.physics_touching(1, other), Some(true));
+    }
+
+    #[test]
+    fn plane_contact_path_is_not_used_for_rotating_sensor_or_multiple_actors() {
+        for mode in 0..3 {
+            let mut e = engine();
+            command(&mut e, 1, Command::Gravity, [0.0; 3]);
+            command(&mut e, 1, Command::Boundary(15), [0.0; 3]);
+            match mode {
+                0 => command(&mut e, 1, Command::Rotate(true), [0.0; 3]),
+                1 => command(&mut e, 1, Command::Collidable(false), [0.0; 3]),
+                _ => {
+                    e.clone_sprite(1, None).unwrap();
+                    let clone = e.sprites.len() - 1;
+                    command(&mut e, clone, Command::Gravity, [0.0; 3]);
+                }
+            }
+            e.step_physics(STEP);
+            e.step_physics(STEP);
+            let world = &e.physics.as_ref().unwrap().worlds[&0];
+            assert!(world.filters.1.is_empty(), "mode={mode}");
+        }
+    }
+
+    #[test]
+    fn sleeping_body_does_not_enter_plane_contact_path() {
+        let mut e = engine();
+        command(&mut e, 1, Command::Gravity, [0.0; 3]);
+        command(&mut e, 1, Command::Boundary(15), [0.0; 3]);
+        let world = e.physics.as_mut().unwrap().worlds.get_mut(&0).unwrap();
+        let handle = world.actors[&1].handle;
+        world.bodies[handle].sleep();
+        let position = *world.bodies[handle].translation();
+        world.filters.1.insert(1);
+        world
+            .edge_contacts
+            .insert((1, super::super::TARGET_EDGE_SIDE));
+
+        assert!(world.edge_step().is_none());
+        assert!(world.filters.1.is_empty());
+        assert!(world.edge_contacts.is_empty());
+        assert!(world.bodies[handle].is_sleeping());
+        assert_eq!(*world.bodies[handle].translation(), position);
+        assert_eq!(*world.bodies[handle].linvel(), Vector::zeros());
+    }
+
+    #[test]
+    fn pipeline_sleep_is_not_overwritten_by_plane_solution() {
+        let mut e = engine();
+        command(&mut e, 1, Command::Gravity, [0.0; 3]);
+        command(&mut e, 1, Command::Boundary(15), [0.0; 3]);
+        e.step_physics(STEP); // initialize the world without integration
+        let world = e.physics.as_mut().unwrap().worlds.get_mut(&0).unwrap();
+        let handle = world.actors[&1].handle;
+        let position = *world.bodies[handle].translation();
+        world.bodies[handle].set_linvel(vector![0.001, 0.0], true);
+        world.bodies[handle].activation_mut().time_until_sleep = 0.0;
+        assert!(!world.bodies[handle].is_sleeping());
+        assert!(world.edge_step().is_some());
+
+        for _ in 0..2 {
+            e.step_physics(STEP);
+            let world = &e.physics.as_ref().unwrap().worlds[&0];
+            assert!(world.bodies[handle].is_sleeping());
+            assert_eq!(*world.bodies[handle].linvel(), Vector::zeros());
+            assert_eq!(*world.bodies[handle].translation(), position);
+            assert_eq!(
+                (e.sprites[1].x, e.sprites[1].y),
+                (position.x * PIXELS, position.y * PIXELS)
+            );
+        }
+    }
+
+    #[test]
+    fn deep_or_outside_boundary_faces_fall_back_to_rapier() {
+        for side in 0..4 {
+            let mut e = engine();
+            command(&mut e, 1, Command::Gravity, [0.0; 3]);
+            command(&mut e, 1, Command::Boundary(1 << side), [0.0; 3]);
+            let world = e.physics.as_mut().unwrap().worlds.get_mut(&0).unwrap();
+            let handle = world.actors[&1].handle;
+            let collider = world.actors[&1].collider;
+            let edge = world.edges[&(super::super::TARGET_EDGE_SIDE - side)];
+            let boundary = world.colliders[edge].compute_aabb();
+            let aabb = world.colliders[collider]
+                .shape()
+                .compute_aabb(world.bodies[handle].position());
+            let (normal, gap) = match side {
+                0 => (vector![0.0, -1.0], boundary.mins.y - aabb.maxs.y),
+                1 => (vector![0.0, 1.0], aabb.mins.y - boundary.maxs.y),
+                2 => (vector![1.0, 0.0], aabb.mins.x - boundary.maxs.x),
+                _ => (vector![-1.0, 0.0], boundary.mins.x - aabb.maxs.x),
+            };
+            let near = *world.bodies[handle].translation() + normal * (EDGE_GAP - gap);
+            world.bodies[handle].set_translation(near, true);
+            assert!(world.edge_step().is_some(), "shallow contact side={side}");
+
+            let tangent = vector![-normal.y, normal.x];
+            let tangent_extent = if side < 2 {
+                boundary.maxs.x - boundary.mins.x
+            } else {
+                boundary.maxs.y - boundary.mins.y
+            };
+            for position in [
+                near - normal * (EDGE_GAP + EDGE_SKIN * 2.0),
+                boundary.center().coords,
+                near + tangent * tangent_extent,
+            ] {
+                world.bodies[handle].set_translation(position, true);
+                assert!(world.edge_step().is_none(), "outside face side={side}");
+                assert!(world.filters.1.is_empty());
+                assert!(world.edge_contacts.is_empty());
+            }
+        }
     }
 }
 #[derive(Clone, Copy, Debug)]
@@ -643,7 +763,7 @@ struct Body {
     strength: f64,
 }
 #[derive(Default)]
-struct Filters(BTreeSet<(usize, usize)>);
+struct Filters(BTreeSet<(usize, usize)>, BTreeSet<usize>);
 impl PhysicsHooks for Filters {
     fn modify_solver_contacts(&self, context: &mut ContactModificationContext<'_>) {
         // Box2D mixes friction geometrically; Rapier's Multiply rule alone
@@ -657,6 +777,11 @@ impl PhysicsHooks for Filters {
     fn filter_contact_pair(&self, context: &PairFilterContext<'_>) -> Option<SolverFlags> {
         let a = context.colliders[context.collider1].user_data as usize;
         let b = context.colliders[context.collider2].user_data as usize;
+        if (self.1.contains(&a) && b >= super::TARGET_EDGE_SIDE - 3)
+            || (self.1.contains(&b) && a >= super::TARGET_EDGE_SIDE - 3)
+        {
+            return None;
+        }
         (!self.0.contains(&(a, b)) && !self.0.contains(&(b, a)))
             .then_some(SolverFlags::COMPUTE_IMPULSES)
     }
@@ -682,6 +807,7 @@ struct World {
     // A newly registered world ticker does not integrate in its registration
     // batch. The first subsequent actor/body synchronization initializes it.
     initialized: bool,
+    edge_contacts: BTreeSet<(usize, usize)>,
 }
 impl Default for World {
     fn default() -> Self {
@@ -701,10 +827,129 @@ impl Default for World {
             filters: Filters::default(),
             remainder: 0.0,
             initialized: false,
+            edge_contacts: BTreeSet::new(),
         }
     }
 }
 impl World {
+    /// Analytic plane contacts for one nonrotating convex actor. No manifold,
+    /// angular impulse, island or third-party solver code is reproduced here.
+    /// General actor/actor and rotating contacts remain Rapier's responsibility.
+    fn edge_step(&mut self) -> Option<(RigidBodyHandle, Vector<f64>, Vector<f64>)> {
+        self.filters.1.clear();
+        self.edge_contacts.clear();
+        if self.actors.len() != 1 || self.edges.is_empty() {
+            return None;
+        }
+        let (&actor, state) = self.actors.first_key_value()?;
+        let body = &self.bodies[state.handle];
+        let collider = &self.colliders[state.collider];
+        if state.rotate
+            || !body.is_dynamic()
+            || !body.is_enabled()
+            || body.is_sleeping()
+            || collider.is_sensor()
+            || collider.shape().as_compound().is_some()
+        {
+            return None;
+        }
+        let mut position = *body.translation();
+        let mut velocity = *body.linvel();
+        let aabb = collider.shape().compute_aabb(body.position());
+        let mut planes = Vec::new();
+        for (&edge, &handle) in &self.edges {
+            if self.filters.0.contains(&(actor, edge)) || self.filters.0.contains(&(edge, actor)) {
+                continue;
+            }
+            let side = super::TARGET_EDGE_SIDE - edge;
+            let boundary = self.colliders[handle].compute_aabb();
+            let (normal, gap) = match side {
+                0 => (vector![0.0, -1.0], boundary.mins.y - aabb.maxs.y),
+                1 => (vector![0.0, 1.0], aabb.mins.y - boundary.maxs.y),
+                2 => (vector![1.0, 0.0], aabb.mins.x - boundary.maxs.x),
+                _ => (vector![-1.0, 0.0], boundary.mins.x - aabb.maxs.x),
+            };
+            // A plane represents only the stage-facing side of a finite box.
+            // Allow shallow skin penetration, but leave deep/exterior overlaps
+            // and any sweep near its side faces/corners to Rapier. Use actual
+            // box extents, not a stage-size-dependent coordinate cutoff.
+            let (tangent_min, tangent_max, face_min, face_max, travel) = if side < 2 {
+                (
+                    aabb.mins.x,
+                    aabb.maxs.x,
+                    boundary.mins.x,
+                    boundary.maxs.x,
+                    velocity.x.abs() * STEP,
+                )
+            } else {
+                (
+                    aabb.mins.y,
+                    aabb.maxs.y,
+                    boundary.mins.y,
+                    boundary.maxs.y,
+                    velocity.y.abs() * STEP,
+                )
+            };
+            if gap < -EDGE_SKIN
+                || tangent_min - travel <= face_min + EDGE_SKIN
+                || tangent_max + travel >= face_max - EDGE_SKIN
+            {
+                return None;
+            }
+            planes.push((edge, normal, gap));
+        }
+        self.filters.1.insert(actor);
+        let origin = position;
+        let friction = (collider.friction() * 0.2).sqrt();
+        let restitution = collider.restitution();
+        let resolve = |velocity: &mut Vector<f64>, normal: Vector<f64>| {
+            let inward = velocity.dot(&normal);
+            if inward >= 0.0 {
+                return;
+            }
+            let rebound = if inward < -1.0 { restitution } else { 0.0 };
+            let impulse = -inward * (1.0 + rebound);
+            *velocity += normal * impulse;
+            let tangent = vector![-normal.y, normal.x];
+            let slide = velocity.dot(&tangent);
+            *velocity -= tangent * slide.clamp(-friction * impulse, friction * impulse);
+        };
+        // Already-near planes solve velocity before translation; positional
+        // relaxation is independent of velocity, so resting bodies do not gain
+        // spurious bounce energy from depenetration.
+        for &(edge, normal, gap) in &planes {
+            if gap <= EDGE_SKIN + 1e-10 {
+                resolve(&mut velocity, normal);
+                position += normal * ((EDGE_GAP - gap).max(0.0) * 0.2).min(0.2);
+                self.edge_contacts.insert((actor, edge));
+            }
+        }
+        let mut remaining = STEP;
+        // At most four axes can be hit. Splitting at the earliest plane keeps
+        // pre-impact tangential travel instead of applying friction a tick late.
+        for _ in 0..4 {
+            let mut earliest = None;
+            for &(edge, normal, gap) in &planes {
+                let current_gap = gap + (position - origin).dot(&normal);
+                let inward = velocity.dot(&normal);
+                if current_gap > EDGE_SKIN && inward < 0.0 {
+                    let time = (current_gap - EDGE_SWEEP_GAP) / -inward;
+                    if time <= remaining && earliest.is_none_or(|(best, _, _)| time < best) {
+                        earliest = Some((time, edge, normal));
+                    }
+                }
+            }
+            let Some((time, edge, normal)) = earliest else {
+                break;
+            };
+            position += velocity * time + normal * (EDGE_GAP - EDGE_SWEEP_GAP);
+            remaining -= time;
+            resolve(&mut velocity, normal);
+            self.edge_contacts.insert((actor, edge));
+        }
+        position += velocity * remaining;
+        Some((state.handle, position, velocity))
+    }
     fn synchronize_body_types(&mut self) {
         for b in self.actors.values() {
             let body = &mut self.bodies[b.handle];
@@ -1371,6 +1616,7 @@ impl Engine {
                         body.reset_forces(false);
                     }
                 }
+                let edge_solution = w.edge_step();
                 w.pipeline.step(
                     &Vector::zeros(),
                     &IntegrationParameters {
@@ -1389,6 +1635,15 @@ impl Engine {
                     &w.filters,
                     &(),
                 );
+                if let Some((handle, position, velocity)) = edge_solution {
+                    // The pipeline may have put this body to sleep and cleared
+                    // its velocity. Do not resurrect a pre-sleep solution: the
+                    // next tick must observe the same stationary sleeping body.
+                    if !w.bodies[handle].is_sleeping() {
+                        w.bodies[handle].set_translation(position, false);
+                        w.bodies[handle].set_linvel(velocity, false);
+                    }
+                }
                 for b in w.actors.values_mut() {
                     w.bodies[b.handle].reset_forces(false);
                     // An actor-ticker force becomes visible to the next world
@@ -1488,6 +1743,14 @@ impl Engine {
             .worlds
             .get(&self.sprites[actor].scene)?;
         let a = w.actors.get(&actor)?;
+        if w.filters.1.contains(&actor) {
+            if other == super::TARGET_EDGE {
+                return Some(w.edge_contacts.iter().any(|&(id, _)| id == actor));
+            }
+            if w.edges.contains_key(&other) {
+                return Some(w.edge_contacts.contains(&(actor, other)));
+            }
+        }
         let hit = |c| {
             w.narrow
                 .contact_pair(a.collider, c)

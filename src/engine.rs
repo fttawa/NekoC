@@ -5032,6 +5032,7 @@ pub struct Engine {
     cloud: cloud::State,
     scheduler_tick: u64,
     k4_frames: u64,
+    k4_shake_clock: k4_shake::Clock,
     k4_media: k4_media::State,
     kn_panel: kn_panel::State,
     kn_local: kn_local::State,
@@ -5492,6 +5493,7 @@ impl Engine {
             video_above_pen: false,
             scheduler_tick: 0,
             k4_frames: 0,
+            k4_shake_clock: k4_shake::Clock::default(),
             k4_media: k4_media::State::default(),
             kn_panel: kn_panel::State::default(),
             kn_local: kn_local::State::default(),
@@ -5662,6 +5664,7 @@ impl Engine {
         self.initialize_legacy_physics();
         self.time = 0.0;
         self.k4_frames = 0;
+        self.k4_shake_clock = k4_shake::Clock::default();
         self.k4_media.reset();
         self.kn_panel.reset();
         self.timer = 0.0;
@@ -9849,8 +9852,10 @@ impl Engine {
                 if let Cell::Number(duration) = duration
                     && duration > 0.0
                 {
-                    self.tasks[index].anim =
-                        Some(Anim::Shake(k4_shake::Shake::new(self.time, duration)));
+                    self.tasks[index].anim = Some(Anim::Shake(k4_shake::Shake::new(
+                        self.k4_shake_clock.now(),
+                        duration,
+                    )));
                 }
             }
             Op::Glide(spec) => {
@@ -9917,6 +9922,10 @@ impl Engine {
                 self.start_entity_visibility(index, actor, targets, duration, show);
             }
             Op::AnimStep => {
+                if matches!(self.tasks[index].anim, Some(Anim::Shake(_))) {
+                    self.tasks[index].pc = pc;
+                    return Ok(false);
+                }
                 if self.entity_visibility_blocked(index) {
                     self.tasks[index].pc = pc;
                     return Ok(false);
@@ -9925,7 +9934,7 @@ impl Engine {
                     return Ok(true);
                 };
                 let (start, duration) = match anim {
-                    Anim::Shake(ref shake) => (shake.start, shake.duration),
+                    Anim::Shake(_) => unreachable!("shake advances at frame end"),
                     Anim::Glide {
                         start, duration, ..
                     }
@@ -9943,14 +9952,7 @@ impl Engine {
                 };
                 self.dirty[actor] = true;
                 match anim {
-                    Anim::Shake(mut shake) => {
-                        let delta = shake.step(self.time);
-                        let old = (self.sprites[actor].x, self.sprites[actor].y);
-                        self.sprites[actor].x += delta.0;
-                        self.sprites[actor].y += delta.1;
-                        self.line(actor, old);
-                        self.tasks[index].anim = Some(Anim::Shake(shake));
-                    }
+                    Anim::Shake(_) => unreachable!("shake advances at frame end"),
                     Anim::EntityVisibility { targets, show, .. } => {
                         self.update_entity_visibility(&targets, show, t);
                     }
@@ -10264,6 +10266,7 @@ impl Engine {
         total_count: &mut usize,
     ) -> Result<bool> {
         self.scheduler_tick += 1;
+        self.k4_shake_clock.tick(dt);
         self.dispose_requested_entities();
         for id in self.audio.tick(dt) {
             self.audio_finished(id);
@@ -10398,6 +10401,7 @@ impl Engine {
                 task.wait_finished = true;
             }
         }
+        self.tick_k4_shake();
         self.tick_entity_visibility(dt);
         // Rebase the round-robin cursor when finished tasks are compacted. Wait
         // dependencies use stable IDs, never indices into this compacted vector.

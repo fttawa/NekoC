@@ -163,7 +163,9 @@ export async function visualWork(input,options){
         if(!options.captureFrames.includes(frame))return;
         const [a,b]=await Promise.all([capture(nekoPage,false),capture(page,true)]);
         if(a.width!==b.width||a.height!==b.height)throw Error(`Canvas size mismatch: NekoC ${a.width}x${a.height}, official ${b.width}x${b.height}`);
-        const metrics=pixelDifference(Buffer.from(a.rgba,'base64'),Buffer.from(b.rgba,'base64'),options.pixelTolerance??8,videoMask(a.width,a.height,[...a.videoBounds,...b.videoBounds]));
+        const rgbaA=Buffer.from(a.rgba,'base64'),rgbaB=Buffer.from(b.rgba,'base64'),mask=videoMask(a.width,a.height,[...a.videoBounds,...b.videoBounds]);
+        const metrics=pixelDifference(rgbaA,rgbaB,options.pixelTolerance??8,mask);
+        if(options.additionalPixelTolerances)metrics.additionalTolerances=Object.fromEntries(options.additionalPixelTolerances.map(t=>[t,pixelDifference(rgbaA,rgbaB,t,mask)]));
         for(const [name,image]of [['nekoc',a],['official',b]])await writeFile(path.join(artifact,`${frame}-${name}.png`),Buffer.from(image.png,'base64'));
         const officialState=await page.evaluate(()=>{
           const stage=window.__k4OracleRequire('a1xw').a(),scene=stage.get_scene_by_id(stage.core.scenes.get_current_scene());

@@ -63,7 +63,7 @@ fn data_and_midi_wait_match_every_official_frame() {
 }
 
 #[test]
-fn shake_negative_probe_preserves_unresolved_task_phase_evidence() {
+fn shake_negative_probe_preserves_origin_threshold_gap_but_fixes_end_resume() {
     let evidence: Value =
         serde_json::from_str(include_str!("../docs/kitten4-partial-data-7-evidence.json")).unwrap();
     let source: Value = serde_json::from_str(
@@ -81,9 +81,20 @@ fn shake_negative_probe_preserves_unresolved_task_phase_evidence() {
             vm.advance(1.0 / 60.0, 100_000, Duration::from_secs(5))
                 .unwrap();
             let snapshot = vm.oracle_snapshot(frame);
+            if frame == 4 {
+                let id = "20000000-0000-4000-8000-000000000001";
+                // The old oracle used an arbitrary 1024ms origin. Its strict
+                // 50ms comparison differs from the VM's zero-origin clock.
+                assert_eq!(snapshot["actors"][id]["x"].as_f64(), Some(0.0));
+                assert_eq!(case["actors"][3][id]["x"].as_f64(), Some(5.0));
+            }
             if frame == 10 {
-                assert_eq!(snapshot["variables"]["phase"].as_f64(), Some(2.0));
+                assert_eq!(snapshot["variables"]["phase"].as_f64(), Some(1.0));
                 assert_eq!(case["variables"][9]["phase"].as_f64(), Some(1.0));
+            }
+            if frame == 11 {
+                assert_eq!(snapshot["variables"]["phase"].as_f64(), Some(2.0));
+                assert_eq!(case["variables"][10]["phase"].as_f64(), Some(2.0));
             }
         }
     }

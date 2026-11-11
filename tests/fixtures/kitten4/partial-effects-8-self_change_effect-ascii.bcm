@@ -1,0 +1,552 @@
+{
+  "hidden_toolbox": {
+    "toolbox": [],
+    "blocks": []
+  },
+  "work_source_label": 1,
+  "version": 25,
+  "application_version": "4.11.20",
+  "work_type": "KITTEN",
+  "size": {
+    "width": 960,
+    "height": 720
+  },
+  "type": 1,
+  "project_name": "NekoC effects 8 self_change_effect-ascii",
+  "theatre": {
+    "current_entity": "20000000-0000-4000-8000-000000000001",
+    "current_scene": "10000000-0000-4000-8000-000000000001",
+    "scenes_order": [
+      "10000000-0000-4000-8000-000000000001"
+    ],
+    "scenes": {
+      "10000000-0000-4000-8000-000000000001": {
+        "id": "10000000-0000-4000-8000-000000000001",
+        "name": "Background A",
+        "styles": [
+          "background"
+        ],
+        "current_style_id": "background",
+        "x": 0,
+        "y": 0,
+        "scale": 100,
+        "rotation": 0,
+        "rotation_type": 0,
+        "draggable": false,
+        "visible": true,
+        "workspace_offset": {
+          "x": 40,
+          "y": 40
+        },
+        "block_data_json": {
+          "blocks": {},
+          "connections": {},
+          "comments": {}
+        },
+        "actors": [
+          "20000000-0000-4000-8000-000000000001"
+        ],
+        "screen_name": "Scene A",
+        "group_order": [
+          "group"
+        ]
+      }
+    },
+    "actors": {
+      "20000000-0000-4000-8000-000000000001": {
+        "id": "20000000-0000-4000-8000-000000000001",
+        "name": "Probe",
+        "styles": [
+          "costume-a"
+        ],
+        "current_style_id": "costume-a",
+        "x": 13,
+        "y": -7,
+        "scale": 200,
+        "rotation": 0,
+        "rotation_type": 0,
+        "draggable": false,
+        "visible": true,
+        "workspace_offset": {
+          "x": 40,
+          "y": 40
+        },
+        "block_data_json": {
+          "blocks": {
+            "start8": {
+              "type": "start_on_click",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "start8",
+              "parent_id": null,
+              "location": [
+                0,
+                0
+              ]
+            },
+            "fx8-0": {
+              "type": "self_change_effect",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "steps": ""
+              },
+              "fields": {
+                "scope": "7",
+                "increase": "increase"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "fx8-0",
+              "parent_id": "start8",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-1": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "8"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-1",
+              "parent_id": "fx8-0",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "hold8-0": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "hold8-0",
+              "parent_id": "fx8-0",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-2": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-2",
+              "parent_id": "hold8-0",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "fx8-1": {
+              "type": "self_change_effect",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "steps": ""
+              },
+              "fields": {
+                "scope": "7",
+                "increase": "increase"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "fx8-1",
+              "parent_id": "hold8-0",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-3": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "4"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-3",
+              "parent_id": "fx8-1",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "hold8-1": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "hold8-1",
+              "parent_id": "fx8-1",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-4": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-4",
+              "parent_id": "hold8-1",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clear8": {
+              "type": "self_clear_effects",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "clear8",
+              "parent_id": "hold8-1",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "hold-clear8": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "hold-clear8",
+              "parent_id": "clear8",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-5": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-5",
+              "parent_id": "hold-clear8",
+              "location": [
+                0,
+                0
+              ]
+            }
+          },
+          "connections": {
+            "start8": {
+              "fx8-0": {
+                "type": "next"
+              }
+            },
+            "fx8-0": {
+              "generated-1": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "steps"
+              },
+              "hold8-0": {
+                "type": "next"
+              }
+            },
+            "generated-1": {},
+            "hold8-0": {
+              "generated-2": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              },
+              "fx8-1": {
+                "type": "next"
+              }
+            },
+            "generated-2": {},
+            "fx8-1": {
+              "generated-3": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "steps"
+              },
+              "hold8-1": {
+                "type": "next"
+              }
+            },
+            "generated-3": {},
+            "hold8-1": {
+              "generated-4": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              },
+              "clear8": {
+                "type": "next"
+              }
+            },
+            "generated-4": {},
+            "clear8": {
+              "hold-clear8": {
+                "type": "next"
+              }
+            },
+            "hold-clear8": {
+              "generated-5": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              }
+            },
+            "generated-5": {}
+          },
+          "comments": {}
+        },
+        "scene": "10000000-0000-4000-8000-000000000001",
+        "lock": false,
+        "editable_in_tuition_mode": true,
+        "user_change_r_c": false
+      }
+    },
+    "groups": {
+      "group": {
+        "id": "group",
+        "name": "",
+        "is_fold": false,
+        "is_group": false,
+        "actors": [
+          "20000000-0000-4000-8000-000000000001"
+        ],
+        "scene": "10000000-0000-4000-8000-000000000001",
+        "visible": true
+      }
+    },
+    "styles": {
+      "background": {
+        "id": "background",
+        "name": "background",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NjAiIGhlaWdodD0iNzIwIj48cmVjdCB3aWR0aD0iOTYwIiBoZWlnaHQ9IjcyMCIgZmlsbD0iI2Q4ZTdmMCIvPjwvc3ZnPg==",
+        "rotate_center": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "costume-a": {
+        "id": "costume-a",
+        "name": "asymmetric",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NiIgaGVpZ2h0PSI3MiI+PHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjgiIGhlaWdodD0iMTIiIGZpbGw9IiNkOTNkNTQiIG9wYWNpdHk9IjAuNDUiLz48cmVjdCB4PSIxMiIgeT0iMCIgd2lkdGg9IjEyIiBoZWlnaHQ9IjEyIiBmaWxsPSIjMzk3NmM4IiBvcGFjaXR5PSIxIi8+PHJlY3QgeD0iMjQiIHk9IjAiIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgZmlsbD0iI2U3YjMyYSIgb3BhY2l0eT0iMSIvPjxyZWN0IHg9IjM2IiB5PSIwIiB3aWR0aD0iMTIiIGhlaWdodD0iMTIiIGZpbGw9IiMyMzg5NjMiIG9wYWNpdHk9IjEiLz48cmVjdCB4PSI0OCIgeT0iMCIgd2lkdGg9IjEyIiBoZWlnaHQ9IjEyIiBmaWxsPSIjZDkzZDU0IiBvcGFjaXR5PSIxIi8+PHJlY3QgeD0iNjAiIHk9IjAiIHdpZHRoPSI4IiBoZWlnaHQ9IjEyIiBmaWxsPSIjMzk3NmM4IiBvcGFjaXR5PSIxIi8+PHJlY3QgeD0iNzIiIHk9IjAiIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgZmlsbD0iI2U3YjMyYSIgb3BhY2l0eT0iMSIvPjxyZWN0IHg9Ijg0IiB5PSIwIiB3aWR0aD0iMTIiIGhlaWdodD0iMTIiIGZpbGw9IiMyMzg5NjMiIG9wYWNpdHk9IjAuNDUiLz48cmVjdCB4PSIwIiB5PSIxMiIgd2lkdGg9IjEyIiBoZWlnaHQ9IjEyIiBmaWxsPSIjZDkzZDU0IiBvcGFjaXR5PSIxIi8+PHJlY3QgeD0iMTIiIHk9IjEyIiB3aWR0aD0iMTIiIGhlaWdodD0iMTIiIGZpbGw9IiMzOTc2YzgiIG9wYWNpdHk9IjEiLz48cmVjdCB4PSIyNCIgeT0iMTIiIHdpZHRoPSI4IiBoZWlnaHQ9IjEyIiBmaWxsPSIjZTdiMzJhIiBvcGFjaXR5PSIxIi8+PHJlY3QgeD0iMzYiIHk9IjEyIiB3aWR0aD0iMTIiIGhlaWdodD0iMTIiIGZpbGw9IiMyMzg5NjMiIG9wYWNpdHk9IjEiLz48cmVjdCB4PSI0OCIgeT0iMTIiIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgZmlsbD0iI2Q5M2Q1NCIgb3BhY2l0eT0iMSIvPjxyZWN0IHg9IjYwIiB5PSIxMiIgd2lkdGg9IjEyIiBoZWlnaHQ9IjEyIiBmaWxsPSIjMzk3NmM4IiBvcGFjaXR5PSIxIi8+PHJlY3QgeD0iNzIiIHk9IjEyIiB3aWR0aD0iMTIiIGhlaWdodD0iMTIiIGZpbGw9IiNlN2IzMmEiIG9wYWNpdHk9IjAuNDUiLz48cmVjdCB4PSI4NCIgeT0iMTIiIHdpZHRoPSI4IiBoZWlnaHQ9IjEyIiBmaWxsPSIjMjM4OTYzIiBvcGFjaXR5PSIxIi8+PHJlY3QgeD0iMCIgeT0iMjQiIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgZmlsbD0iI2Q5M2Q1NCIgb3BhY2l0eT0iMSIvPjxyZWN0IHg9IjEyIiB5PSIyNCIgd2lkdGg9IjEyIiBoZWlnaHQ9IjEyIiBmaWxsPSIjMzk3NmM4IiBvcGFjaXR5PSIxIi8+PHJlY3QgeD0iMjQiIHk9IjI0IiB3aWR0aD0iMTIiIGhlaWdodD0iMTIiIGZpbGw9IiNlN2IzMmEiIG9wYWNpdHk9IjEiLz48cmVjdCB4PSIzNiIgeT0iMjQiIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgZmlsbD0iIzIzODk2MyIgb3BhY2l0eT0iMSIvPjxyZWN0IHg9IjQ4IiB5PSIyNCIgd2lkdGg9IjgiIGhlaWdodD0iMTIiIGZpbGw9IiNkOTNkNTQiIG9wYWNpdHk9IjEiLz48cmVjdCB4PSI2MCIgeT0iMjQiIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgZmlsbD0iIzM5NzZjOCIgb3BhY2l0eT0iMC40NSIvPjxyZWN0IHg9IjcyIiB5PSIyNCIgd2lkdGg9IjEyIiBoZWlnaHQ9IjEyIiBmaWxsPSIjZTdiMzJhIiBvcGFjaXR5PSIxIi8+PHJlY3QgeD0iODQiIHk9IjI0IiB3aWR0aD0iMTIiIGhlaWdodD0iMTIiIGZpbGw9IiMyMzg5NjMiIG9wYWNpdHk9IjEiLz48cmVjdCB4PSIwIiB5PSIzNiIgd2lkdGg9IjEyIiBoZWlnaHQ9IjEyIiBmaWxsPSIjZDkzZDU0IiBvcGFjaXR5PSIxIi8+PHJlY3QgeD0iMTIiIHk9IjM2IiB3aWR0aD0iOCIgaGVpZ2h0PSIxMiIgZmlsbD0iIzM5NzZjOCIgb3BhY2l0eT0iMSIvPjxyZWN0IHg9IjI0IiB5PSIzNiIgd2lkdGg9IjEyIiBoZWlnaHQ9IjEyIiBmaWxsPSIjZTdiMzJhIiBvcGFjaXR5PSIxIi8+PHJlY3QgeD0iMzYiIHk9IjM2IiB3aWR0aD0iMTIiIGhlaWdodD0iMTIiIGZpbGw9IiMyMzg5NjMiIG9wYWNpdHk9IjEiLz48cmVjdCB4PSI0OCIgeT0iMzYiIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgZmlsbD0iI2Q5M2Q1NCIgb3BhY2l0eT0iMC40NSIvPjxyZWN0IHg9IjYwIiB5PSIzNiIgd2lkdGg9IjEyIiBoZWlnaHQ9IjEyIiBmaWxsPSIjMzk3NmM4IiBvcGFjaXR5PSIxIi8+PHJlY3QgeD0iNzIiIHk9IjM2IiB3aWR0aD0iOCIgaGVpZ2h0PSIxMiIgZmlsbD0iI2U3YjMyYSIgb3BhY2l0eT0iMSIvPjxyZWN0IHg9Ijg0IiB5PSIzNiIgd2lkdGg9IjEyIiBoZWlnaHQ9IjEyIiBmaWxsPSIjMjM4OTYzIiBvcGFjaXR5PSIxIi8+PHJlY3QgeD0iMCIgeT0iNDgiIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgZmlsbD0iI2Q5M2Q1NCIgb3BhY2l0eT0iMSIvPjxyZWN0IHg9IjEyIiB5PSI0OCIgd2lkdGg9IjEyIiBoZWlnaHQ9IjEyIiBmaWxsPSIjMzk3NmM4IiBvcGFjaXR5PSIxIi8+PHJlY3QgeD0iMjQiIHk9IjQ4IiB3aWR0aD0iMTIiIGhlaWdodD0iMTIiIGZpbGw9IiNlN2IzMmEiIG9wYWNpdHk9IjEiLz48cmVjdCB4PSIzNiIgeT0iNDgiIHdpZHRoPSI4IiBoZWlnaHQ9IjEyIiBmaWxsPSIjMjM4OTYzIiBvcGFjaXR5PSIwLjQ1Ii8+PHJlY3QgeD0iNDgiIHk9IjQ4IiB3aWR0aD0iMTIiIGhlaWdodD0iMTIiIGZpbGw9IiNkOTNkNTQiIG9wYWNpdHk9IjEiLz48cmVjdCB4PSI2MCIgeT0iNDgiIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgZmlsbD0iIzM5NzZjOCIgb3BhY2l0eT0iMSIvPjxyZWN0IHg9IjcyIiB5PSI0OCIgd2lkdGg9IjEyIiBoZWlnaHQ9IjEyIiBmaWxsPSIjZTdiMzJhIiBvcGFjaXR5PSIxIi8+PHJlY3QgeD0iODQiIHk9IjQ4IiB3aWR0aD0iMTIiIGhlaWdodD0iMTIiIGZpbGw9IiMyMzg5NjMiIG9wYWNpdHk9IjEiLz48cmVjdCB4PSIwIiB5PSI2MCIgd2lkdGg9IjgiIGhlaWdodD0iMTIiIGZpbGw9IiNkOTNkNTQiIG9wYWNpdHk9IjEiLz48cmVjdCB4PSIxMiIgeT0iNjAiIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgZmlsbD0iIzM5NzZjOCIgb3BhY2l0eT0iMSIvPjxyZWN0IHg9IjI0IiB5PSI2MCIgd2lkdGg9IjEyIiBoZWlnaHQ9IjEyIiBmaWxsPSIjZTdiMzJhIiBvcGFjaXR5PSIwLjQ1Ii8+PHJlY3QgeD0iMzYiIHk9IjYwIiB3aWR0aD0iMTIiIGhlaWdodD0iMTIiIGZpbGw9IiMyMzg5NjMiIG9wYWNpdHk9IjEiLz48cmVjdCB4PSI0OCIgeT0iNjAiIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgZmlsbD0iI2Q5M2Q1NCIgb3BhY2l0eT0iMSIvPjxyZWN0IHg9IjYwIiB5PSI2MCIgd2lkdGg9IjgiIGhlaWdodD0iMTIiIGZpbGw9IiMzOTc2YzgiIG9wYWNpdHk9IjEiLz48cmVjdCB4PSI3MiIgeT0iNjAiIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgZmlsbD0iI2U3YjMyYSIgb3BhY2l0eT0iMSIvPjxyZWN0IHg9Ijg0IiB5PSI2MCIgd2lkdGg9IjEyIiBoZWlnaHQ9IjEyIiBmaWxsPSIjMjM4OTYzIiBvcGFjaXR5PSIxIi8+PHJlY3QgeD0iOSIgeT0iMTciIHdpZHRoPSIxMSIgaGVpZ2h0PSIyOSIgZmlsbD0iI2ZmZiIvPjxyZWN0IHg9IjcxIiB5PSI0IiB3aWR0aD0iNyIgaGVpZ2h0PSI1NyIgZmlsbD0iIzE0MjgzNiIvPjwvc3ZnPg==",
+        "rotate_center": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    },
+    "videos": {},
+    "timer": {}
+  },
+  "variables": {},
+  "variable_order": [],
+  "cloud_variables": {},
+  "audio": {},
+  "audio_order": [],
+  "midimusic": [],
+  "midi_order": [],
+  "matrix": {},
+  "models": {},
+  "toolbox": {
+    "current_type": "event",
+    "pen": false
+  },
+  "toolbox_order": [
+    "event",
+    "control",
+    "action",
+    "appearance",
+    "sensing",
+    "operator",
+    "data"
+  ],
+  "last_toolbox_order": [],
+  "hardware_type": "",
+  "is_partial": false,
+  "ai_lab": {},
+  "broadcasts": {},
+  "painter": {
+    "color": []
+  }
+}

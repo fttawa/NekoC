@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import test from 'node:test';
 import { baseline, serviceTypes, physicsMainPaths, propertyMainPaths, drawingMainPaths } from '../tools/compat/k4-partial-6-scope.mjs';
 import { remainingRound7, round7MainPaths, scope7Markdown } from '../tools/compat/k4-partial-7-scope.mjs';
+import { round8MainPaths } from '../tools/compat/k4-partial-8-scope.mjs';
 
 test('round 7 accounts for all 28 remaining A types and only promotes measured main paths', () => {
   const report = JSON.parse(fs.readFileSync('docs/kitten4-block-coverage.json', 'utf8'));
@@ -20,7 +21,7 @@ test('round 7 accounts for all 28 remaining A types and only promotes measured m
   }
   for (const type of remainingRound7) {
     const row = rows.get(type);
-    assert.equal(row.semantics, round7MainPaths.has(type) ? 'main-path-verified' : 'partial', type);
+    assert.equal(row.semantics, round7MainPaths.has(type)||round8MainPaths.has(type) ? 'main-path-verified' : 'partial', type);
     if (round7MainPaths.has(type)) {
       assert.ok(!previous.has(type));
       assert.ok(!serviceTypes.has(type));
@@ -28,8 +29,10 @@ test('round 7 accounts for all 28 remaining A types and only promotes measured m
       assert.ok(fs.existsSync(`docs/${round7MainPaths.get(type).evidence}`));
     }
   }
-  for (const type of ['physics2_set_texture', 'physics2_set_flexibility', 'self_set_boundary', 'physics2_set_boundary', 'self_shake', 'set_scene_transition']) {
+  for (const type of ['physics2_set_texture', 'physics2_set_flexibility', 'self_shake', 'set_scene_transition']) {
     assert.equal(rows.get(type).semantics, 'partial', type);
   }
-  assert.equal(fs.readFileSync('docs/kitten4-partial-7.md', 'utf8').replaceAll('\r\n', '\n'), scope7Markdown(report));
+  const historical=structuredClone(report);
+  for(const row of historical.rows)if(['self_set_boundary','physics2_set_boundary'].includes(row.type))row.semantics='partial';
+  assert.equal(fs.readFileSync('docs/kitten4-partial-7.md', 'utf8').replaceAll('\r\n', '\n'), scope7Markdown(historical));
 });

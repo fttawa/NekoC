@@ -21,9 +21,9 @@ test('round 7 fixtures are original editable workspaces and pin all five effect 
   for(const type of effectTypes){assert.ok(fixtures[type]);assert.ok(fixtures[`${type}-pixelate`]);}
 });
 
-test('real VM fixed-frame evidence binds current renderer and retains full unmasked failure records',async()=>{
+test('historical round-7 VM evidence binds the round-8 baseline and retains full unmasked failure records',async()=>{
   const report=await read('docs/kitten4-partial-effects-7-pixels.json');
-  assert.equal(report.rendererLfSha256,hash((await readFile('web/renderer.js','utf8')).replace(/\r\n/g,'\n')));
+  assert.equal(report.rendererLfSha256,(await read('docs/kitten4-partial-effects-8-baseline.json')).rendererLfSha256);
   assert.match(report.executableSha256,/^[0-9a-f]{64}$/);
   for(const [name,spec]of Object.entries(fixtures)){
     const record=report.cases[name];assert.equal(record.status,'captured',record.error);
@@ -43,7 +43,7 @@ test('real VM fixed-frame evidence binds current renderer and retains full unmas
 test('shader isolation retains native observations, pass geometry and offline diagnostics, without substituting for VM evidence',async()=>{
   const report=await read('docs/kitten4-partial-effects-7-renderer.json');
   assert.match(report.scope,/NOT NekoC VM evidence/);
-  assert.equal(report.rendererLfSha256,hash((await readFile('web/renderer.js','utf8')).replace(/\r\n/g,'\n')));
+  assert.equal(report.rendererLfSha256,(await read('docs/kitten4-partial-effects-8-baseline.json')).rendererLfSha256);
   for(const [name,record]of Object.entries(report.cases)){
     assert.equal(record.observations.length,fixtures[name].frames);assert.deepEqual(record.errors,[],name);
     assert.ok(record.events.some(e=>e.block==='start'),name+' real VM execution');
@@ -95,16 +95,22 @@ test('WebGL filter passes restore target/viewport, reuse bounded surfaces, and l
       const gl=r.gl,target=r.makeSurface(160,120),image=r.images.get('c');
       const draw=effects=>r.drawTexture(image.texture,0,0,64,48,0,[1,1,1,.65],effects,[64,48]);
       gl.bindFramebuffer(gl.FRAMEBUFFER,target.framebuffer);gl.viewport(2,3,151,111);
+      gl.scissor(1,2,150,110);
       r.kitten4=false;draw([65,0,30,9,0,40,60]);const knBytes=r.stats.k4FilterBytes;
       r.kitten4=true;draw([65,0,30,9,0,40,60]);
-      const restored=gl.getParameter(gl.FRAMEBUFFER_BINDING)===target.framebuffer,viewport=[...gl.getParameter(gl.VIEWPORT)];
+      const restored=gl.getParameter(gl.FRAMEBUFFER_BINDING)===target.framebuffer,viewport=[...gl.getParameter(gl.VIEWPORT)],scissor=[...gl.getParameter(gl.SCISSOR_BOX)],scissorEnabled=gl.isEnabled(gl.SCISSOR_TEST);
       const first=[...r.k4FilterCache.values()][0].surfaces[0].texture;
       draw([65,0,30,9,0,40,60]);const reused=[...r.k4FilterCache.values()][0].surfaces[0].texture===first;
       for(let i=0;i<8;i++)r.drawTexture(image.texture,0,0,40+i,30+i,0,[1,1,1,1],[0,0,0,9,0,40,0],[64,48]);
+      gl.enable(gl.SCISSOR_TEST);gl.scissor(5,6,140,100);
+      draw([0,0,0,0,0,0,0,8]);
+      const enabledScissorRestored=gl.isEnabled(gl.SCISSOR_TEST)&&[...gl.getParameter(gl.SCISSOR_BOX)].join(',')==='5,6,140,100';
+      gl.disable(gl.SCISSOR_TEST);
       const entries=r.k4FilterCache.size,bytes=r.stats.k4FilterBytes,error=gl.getError();
-      await r.load(project);return {restored,viewport,reused,entries,bytes,error,knBytes,resetBytes:r.stats.k4FilterBytes};
+      await r.load(project);return {restored,viewport,scissor,scissorEnabled,enabledScissorRestored,reused,entries,bytes,error,knBytes,resetBytes:r.stats.k4FilterBytes};
     });
     assert.equal(result.knBytes,0);assert.equal(result.restored,true);assert.deepEqual(result.viewport,[2,3,151,111]);assert.equal(result.reused,true);
+    assert.deepEqual(result.scissor,[1,2,150,110]);assert.equal(result.scissorEnabled,false);assert.equal(result.enabledScissorRestored,true);
     assert.ok(result.entries<=4);assert.ok(result.bytes>0&&result.bytes<=32*1024*1024);assert.equal(result.error,0);assert.equal(result.resetBytes,0);
   }finally{await browser?.close();await new Promise(resolve=>server.close(resolve));}
 });
