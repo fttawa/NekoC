@@ -251,7 +251,7 @@
 | 172 | `play_word_audio_wait` | 有执行路径／未完整验证 | 普通面板配置／默认未隐藏 | `src/engine.rs:3970` | T2 | 有路径；完整语义未验证 |
 | 173 | `play_words_audio` | 有执行路径／未完整验证 | 普通面板配置／默认未隐藏 | `src/engine.rs:3970` | 未定位 | 有路径；完整语义未验证 |
 | 174 | `procedures_2_actor_param` | 有执行路径／未完整验证 | 普通面板配置／默认未隐藏 | `src/engine.rs:2798` | T10 | 按 mutation 参数 ID 与 Actor 字段实参读属性；clone_index 显式拒绝，完整过程作用域与错误差分未验证 |
-| 175 | `procedures_2_defnoreturn` | 元数据 | 已注册／本次面板未列出 | `src/engine.rs:1142 (compiler metadata)` | T5, T9, T10, T12 | 非独立指令；由过程/循环编译消费 |
+| 175 | `procedures_2_defnoreturn` | 元数据 | 已注册／本次面板未列出 | `src/engine.rs:1146 (compiler metadata)` | T5, T9, T10, T12 | 非独立指令；由过程/循环编译消费 |
 | 176 | `random_num` | 有执行路径／未完整验证 | 普通面板配置／默认未隐藏 | `src/engine.rs:2674` | T4, T5, T23 | 有路径；完整语义未验证 |
 | 177 | `received_broadcast` | 有执行路径／未完整验证 | 普通面板配置／默认未隐藏 | `src/engine.rs:1970`<br>`src/engine.rs:2689` | T5, T23 | 有路径；完整语义未验证 |
 | 178 | `recognize_body_part` | 部分语义 | 可配置面板／默认隐藏 | `src/engine.rs:1863`<br>`src/engine.rs:2610` | T18 | 仅无检测结果时 false；检测后端未实现 |
@@ -358,7 +358,7 @@
 | 279 | `translate` | 部分语义 | 普通面板配置／默认未隐藏 | `src/engine.rs:3383` | T21 | 仅离线传输失败/空白提前返回；成功翻译与对话框未实现，Promise 相位未验证 |
 | 280 | `translate_result` | 部分语义 | 普通面板配置／默认未隐藏 | `src/engine.rs:1834`<br>`src/engine.rs:2601` | T18, T19, T21 | 仅离线失败/空白返回空文本并求值输入；成功翻译后端未实现，Promise 相位未验证 |
 | 281 | `traverse_number` | 有执行路径／未完整验证 | 普通面板配置／默认未隐藏 | `src/engine.rs:4455` | T5, T9, T12, T23 | 有路径；完整语义未验证 |
-| 282 | `traverse_number_param` | 元数据 | 已注册／本次面板未列出 | `src/engine.rs:1701 (compiler metadata)` | T5, T9, T12, T23 | 非独立指令；由过程/循环编译消费 |
+| 282 | `traverse_number_param` | 元数据 | 已注册／本次面板未列出 | `src/engine.rs:1708 (compiler metadata)` | T5, T9, T12, T23 | 非独立指令；由过程/循环编译消费 |
 | 283 | `traverse_number_value` | 有执行路径／未完整验证 | 已注册／本次面板未列出 | `src/engine.rs:2746` | T3, T5, T23 | 有路径；完整语义未验证 |
 | 284 | `update_ranking` | 部分语义 | 可配置面板／默认隐藏 | `src/engine.rs:3383` | T18, T21 | 仅本地未发布作品的无榜单提前返回；真实分数提交/持久化未实现 |
 | 285 | `user_id_get` | 部分语义 | 可配置面板／默认隐藏 | `src/engine.rs:1863`<br>`src/engine.rs:2610` | T18 | 仅无账户后端 profile：官方未登录返回字符串 0；已登录用户未实现 |

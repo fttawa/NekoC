@@ -24,7 +24,7 @@ void main(){uv=corner();vec2 p=(uv-.5)*dimensions;float c=cos(angle),s=sin(angle
 // Sprite effects by native scope: fxA = (color, brightness, pixelate, ripple),
 // fxB = (twist, grayscale). Textures are premultiplied; colour effects unpremultiply.
 const TEXTURE_FRAGMENT = `#version 300 es
-precision highp float;uniform sampler2D image;uniform vec4 tint;uniform vec4 fxA;uniform vec2 fxB;uniform vec2 texSize;uniform vec2 repeatUV;in vec2 uv;out vec4 outColor;
+precision highp float;uniform sampler2D image;uniform vec4 tint;uniform vec4 fxA;uniform vec2 fxB;uniform vec2 texSize;uniform vec2 repeatUV;uniform bool kitten4;in vec2 uv;out vec4 outColor;
 vec3 hsv(vec3 c){vec4 K=vec4(0.,-1./3.,2./3.,-1.);vec4 p=mix(vec4(c.bg,K.wz),vec4(c.gb,K.xy),step(c.b,c.g));vec4 q=mix(vec4(p.xyw,c.r),vec4(c.r,p.yzx),step(p.x,c.r));float d=q.x-min(q.w,q.y);return vec3(abs(q.z+(q.w-q.y)/(6.*d+1e-10)),d/(q.x+1e-10),q.x);}
 vec3 rgb(vec3 c){vec3 p=abs(fract(c.xxx+vec3(1.,2./3.,1./3.))*6.-3.);return c.z*mix(vec3(1.),clamp(p-1.,0.,1.),c.y);}
 void main(){vec2 p=uv;
@@ -33,11 +33,20 @@ if(fxB.x!=0.){vec2 d=p-.5;float r=length(d)*2.;float a=radians(fxB.x)*max(0.,1.-
 if(fxA.w!=0.){p+=vec2(sin(p.y*25.),sin(p.x*25.))*fxA.w/2000.;}
 if(abs(fxA.z)>=1.){vec2 cell=max(vec2(1.),vec2(abs(fxA.z)/10.+1.));vec2 n=texSize/cell;p=(floor(p*n)+.5)/n;}
 vec4 c=(p.x<0.||p.y<0.||p.x>1.||p.y>1.)?vec4(0.):texture(image,p);
+// K4 jt uses PIXI colour matrices, ordered hue -> brightness -> saturate.
+// Each pass clamps/quantizes its premultiplied RGBA8 intermediate, not RGB.
+// See docs/kitten4-visual3.md. KN retains its existing HSV/weighted-gray policy.
+if(kitten4&&c.a>0.){vec3 r=c.rgb/c.a;
+if(fxA.x!=0.){float a=radians(fxA.x),co=cos(a),si=sin(a)/sqrt(3.),v=(1.-co)/3.;r=vec3(dot(r,vec3(co+v,v-si,v+si)),dot(r,vec3(v+si,co+v,v-si)),dot(r,vec3(v-si,v+si,co+v)));r=floor(clamp(r*c.a,0.,1.)*255.+.5)/255./c.a;}
+if(fxA.y!=0.)r=floor(clamp((r+clamp(fxA.y/100.,-1.,1.))*c.a,0.,1.)*255.+.5)/255./c.a;
+if(fxB.y>0.)r=mix(r,vec3((r.r+r.g+r.b)/3.),clamp(fxB.y/100.,0.,1.));
+c.rgb=r*c.a;
+}else{
 if(c.a>0.&&(fxA.x!=0.||fxB.y>0.)){vec3 r=c.rgb/c.a;
 if(fxA.x!=0.){vec3 h=hsv(r);h.x=fract(h.x+fxA.x/200.);r=rgb(h);}
 if(fxB.y>0.){r=mix(r,vec3(dot(r,vec3(.299,.587,.114))),clamp(fxB.y/100.,0.,1.));}
 c.rgb=r*c.a;}
-if(fxA.y!=0.){c.rgb=clamp(c.rgb+fxA.y/100.*c.a,0.,c.a);}
+if(fxA.y!=0.){c.rgb=clamp(c.rgb+fxA.y/100.*c.a,0.,c.a);}}
 outColor=c*vec4(tint.rgb*tint.a,tint.a);}`;
 
 function program(gl, vertex, fragment) {
@@ -74,7 +83,7 @@ export class StageRenderer {
     if (!gl) throw Error('需要支持 WebGL 2 的浏览器。');
     this.gl = gl; this.pen = program(gl, PEN_VERTEX, PEN_FRAGMENT); this.texture = program(gl, TEXTURE_VERTEX, TEXTURE_FRAGMENT);
     this.penSize = gl.getUniformLocation(this.pen, 'stageSize');
-    this.uniform = Object.fromEntries(['stageSize', 'position', 'dimensions', 'angle', 'image', 'tint', 'fxA', 'fxB', 'texSize', 'repeatUV'].map(k => [k, gl.getUniformLocation(this.texture, k)]));
+    this.uniform = Object.fromEntries(['stageSize', 'position', 'dimensions', 'angle', 'image', 'tint', 'fxA', 'fxB', 'texSize', 'repeatUV', 'kitten4'].map(k => [k, gl.getUniformLocation(this.texture, k)]));
     this.vao = gl.createVertexArray(); this.buffer = gl.createBuffer(); this.bufferCapacity = 0;
     gl.bindVertexArray(this.vao); gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
     for (const [location, count, offset] of [[0,4,0], [1,1,16], [2,4,20]]) {
@@ -97,6 +106,8 @@ export class StageRenderer {
     for(const item of this.videos.values()){item.element.onseeked=null;item.element.onloadeddata=null;item.element.onerror=null;item.element.pause();item.element.removeAttribute('src');item.element.load();this.gl.deleteTexture(item.texture);}
     this.videos=new Map();this.mediaPaused=false;
     this.kitten4 = Object.hasOwn(project,'_nekocKitten4');
+    this.monitorDeclarations=project.variables?.variablesDict||{};
+    this.monitorOwners={...project.scenes?.scenesDict,...project.actors?.actorsDict};
     const gl = this.gl;
     for(const query of this.gpuQueries)gl.deleteQuery(query);
     this.gpuQueries=[];this.stats.gpuMs=null;
@@ -445,6 +456,32 @@ export class StageRenderer {
   }
   spriteImage(a){return a.text?this.spriteTextImage(a.text):this.images.get(a.style);}
 
+  // K4 $n/ti: saved positions are top-left anchors in stage coordinates, not
+  // a flex list. Original Canvas drawing of the common scalar skin; no vendor
+  // textures or fonts bundled. Icon/list skins retain the generic DOM fallback.
+  monitorCanvas(monitor){
+    const state=this.monitorDeclarations?.[monitor.id];
+    if(!this.kitten4||monitor.list||!state||state.theme!=='common')return null;
+    const canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');
+    const font='18px "NotoSansCJKsc-Medium", "NotoSansCJKsc"';ctx.font=font;
+    const prefix=state.current_entity?`${this.monitorOwners?.[state.current_entity]?.name||''}·`:'';
+    const prefixWidth=prefix?Math.ceil(ctx.measureText(prefix).width):0,nameWidth=Math.ceil(ctx.measureText(monitor.name).width),valueWidth=monitor.value?Math.ceil(ctx.measureText(monitor.value).width):6;
+    const width=prefixWidth+nameWidth+valueWidth+50,height=52;
+    canvas.width=width;canvas.height=height;ctx.font=font;
+    const rounded=(x,y,w,h,r,color)=>{ctx.fillStyle=color;ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill();};
+    rounded(0,0,width,height,11,'#ffad48');
+    rounded(prefixWidth+nameWidth+20,10,valueWidth+20,32,11,'#fff');
+    ctx.fillStyle='#523939';ctx.fillText(prefix,10,33);
+    ctx.fillStyle='#fff';ctx.fillText(monitor.name,10+prefixWidth,33);
+    ctx.fillStyle='#000';ctx.fillText(monitor.value,30+prefixWidth+nameWidth,33);
+    const scale=Number.isFinite(state.scale)?state.scale:1;
+    const position=state.position||{x:10-this.width/2,y:this.height/2-10};
+    canvas.className='neko-monitor k4-common';
+    canvas.style.cssText=`position:absolute;display:block;border:0;border-radius:0;background:transparent;max-width:none;left:calc(${this.width/2+position.x} * var(--neko-unit));top:calc(${this.height/2-position.y} * var(--neko-unit));width:calc(${width*scale} * var(--neko-unit));height:calc(${height*scale} * var(--neko-unit))`;
+    canvas.setAttribute('aria-label',`${prefix}${monitor.name}: ${monitor.value}`);
+    return canvas;
+  }
+
   drawImageStamp(stamp){
     const image=this.images.get(stamp.style);if(!image)return;
     const {x,y,width,height,angle}=this.kitten4?k4ImageStampGeometry(stamp,image):actorGeometry(stamp,image,false);
@@ -508,6 +545,7 @@ export class StageRenderer {
     const gl=this.gl,u=this.uniform,e=effects||NO_EFFECTS;
     gl.useProgram(this.texture); gl.uniform2f(u.stageSize,this.width,this.height); gl.uniform2f(u.position,x,y);
     gl.uniform2f(u.dimensions,width,height); gl.uniform1f(u.angle,angle); gl.uniform1i(u.image,0);
+    gl.uniform1i(u.kitten4,this.kitten4?1:0);
     gl.uniform4fv(u.tint,tint);gl.uniform4f(u.fxA,e[0],e[2],e[3],e[4]);gl.uniform2f(u.fxB,e[5],e[6]);
     gl.uniform2f(u.texSize,texSize?.[0]||Math.abs(width)||1,texSize?.[1]||Math.abs(height)||1);
     gl.uniform2f(u.repeatUV,repeatUV?.[0]||0,repeatUV?.[1]||0);

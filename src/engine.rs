@@ -13,6 +13,7 @@ mod jit_observation;
 mod k4_clock;
 mod k4_drawing;
 mod k4_effects;
+mod k4_monitors;
 mod k4_properties;
 mod kn_ai;
 mod kn_appearance;
@@ -801,6 +802,8 @@ pub struct Program {
     display_names: BTreeMap<String, String>,
     /// Monitor targets: variable slot or list index with its id.
     monitor_targets: Vec<(String, bool, usize)>,
+    /// Saved K4 declaration visibility, restored before Start scripts run.
+    initial_monitors: Vec<bool>,
     /// Private monitor index -> (declaring original entity, private slot).
     actor_monitors: BTreeMap<usize, (usize, usize)>,
     pub list_names: Vec<String>,
@@ -1086,6 +1089,7 @@ impl Program {
                     .map(|(id, v)| (id.clone(), v["name"].as_str().unwrap_or(id).to_owned()))
                     .collect(),
                 monitor_targets: vec![],
+                initial_monitors: vec![],
                 actor_monitors: BTreeMap::new(),
                 style_names: project
                     .pointer("/styles/stylesDict")
@@ -1404,6 +1408,9 @@ impl Program {
             .position(|id| *id == scene)
             .context("current scene missing")?;
         // Pass 2: scripts, resolving actor references within the owner's scene first.
+        if semantics == RuntimeSemantics::Kitten4 {
+            compiler.k4_initial_monitors(project)?;
+        }
         compiler.extension_globals = compiler.slots.keys().cloned().collect();
         for scene_index in 0..compiler.program.scenes.len() {
             let info = compiler.program.scenes[scene_index].clone();
@@ -5370,7 +5377,7 @@ impl Engine {
         self.asks.clear();
         self.stage_dialogs.clear();
         self.image_stamps.clear();
-        self.monitors.clear();
+        self.monitors.clone_from(&self.program.initial_monitors);
         self.audio_waits.clear();
         self.audio.reset(&self.program.audio_resources);
         self.answer = Cell::Text("".into());
@@ -6197,19 +6204,15 @@ impl Engine {
                 self.sprites[owner]
                     .variables
                     .get(&slot)
-                    .map_or_else(String::new, Cell::text)
+                    .map_or_else(String::new, |value| {
+                        if *list && let Cell::List(items) = value {
+                            return k4_monitors::list_text(&items.borrow());
+                        }
+                        value.text()
+                    })
             } else if *list {
                 let items = self.lists[*target].borrow();
-                let mut text = items
-                    .iter()
-                    .take(100)
-                    .map(Cell::text)
-                    .collect::<Vec<_>>()
-                    .join("\n");
-                if items.len() > 100 {
-                    text.push_str("\n…");
-                }
-                text
+                k4_monitors::list_text(&items)
             } else {
                 self.global_value(*target).text()
             };

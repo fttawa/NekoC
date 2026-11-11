@@ -28,10 +28,31 @@ export function videoMask(width,height,rectangles){
   }return mask;
 }
 export function selectedWork(w){return ['equal','different'].includes(w.status)&&!w.randomness?.detected;}
+// Rank works, not individual frames; keep failed captures separate rather than
+// interpreting a missing image as zero difference. Ties are reproducible.
+export function rankWorks(works){
+  return works.filter(w=>w.status==='captured').map(w=>{
+    const values=(w.frames||[]).map(f=>f.changedPercent).filter(Number.isFinite);
+    return {file:w.file,max:values.length?Math.max(...values):null,mean:values.length?values.reduce((a,b)=>a+b,0)/values.length:null};
+  }).filter(w=>w.max!==null).sort((a,b)=>b.max-a.max||b.mean-a.mean||a.file.localeCompare(b.file));
+}
 export function mediaWaitCandidate(project){
   const stack=[project.compile_result,...Object.values(project.theatre?.actors||{}).map(a=>a.block_data_json),...Object.values(project.theatre?.scenes||{}).map(s=>s.block_data_json)];
   while(stack.length){const node=stack.pop();if(!node||typeof node!=='object')continue;if(node.type==='play_video_until_end')return true;stack.push(...Object.values(node));}
   return false;
+}
+export function audioWaitCandidate(project){
+  const stack=[project.compile_result,...Object.values(project.theatre?.actors||{}).map(a=>a.block_data_json),...Object.values(project.theatre?.scenes||{}).map(s=>s.block_data_json)];
+  while(stack.length){const node=stack.pop();if(!node||typeof node!=='object')continue;if(['play_audio_and_wait','play_audio_and_wait_2'].includes(node.type))return true;stack.push(...Object.values(node));}
+  return false;
+}
+export function audioWaitIssue(project,audios,frames){
+  if(!audioWaitCandidate(project))return null;
+  if(!audios.length||audios.some(a=>!a.loaded||!Number.isFinite(a.duration)||a.duration<=0))return 'audio wait has unavailable decoded duration';
+  // Natural end callbacks still follow the browser media clock, not virtual Date.
+  // Do not claim end-boundary agreement from a duration-only trace.
+  if(audios.some(a=>a.duration/(Number.isFinite(a.rate)&&a.rate>0?a.rate:1)<=frames/60))return 'audio completion falls within sampled virtual window: official media clock is uncontrolled';
+  return null;
 }
 export function distribution(works){
   const values=works.filter(w=>w.status==='captured').flatMap(w=>(w.frames||[]).filter(f=>Number.isFinite(f.changedPercent)).map(f=>f.changedPercent)).sort((a,b)=>a-b);
@@ -88,7 +109,8 @@ export async function visualWork(input,options){
   const artifact=path.join(options.artifactsDir,path.basename(input));await mkdir(artifact,{recursive:true});
   const exe=options.nekoc||path.join(root,'target/debug/k4-trace'+(process.platform==='win32'?'.exe':''));
   const args=[path.resolve(input),'--render',...(!options.nekoc?['--render-only']:[]),'--frames',String(Math.max(...options.captureFrames)),'--seed',String(options.seed??1)];
-  let rendered,nekoPage;
+  const audioMetadata=options.audioMetadata??!options.nekoc;
+  let rendered,nekoPage,audioIssue=null;
   const frames=[];
   try{
     const inputProject=await readJson(input);
@@ -101,13 +123,22 @@ export async function visualWork(input,options){
           const stage=window.__k4OracleRequire('a1xw').a();
           return (stage.core.components.get_playable_manager()?.get_all_videos()||[]).map(v=>({id:v.get_id(),duration:v.get_video_element_from_base_texture()?.duration,...v.get_size()}));
         });
-        await saveJson(path.join(artifact,'videos.json'),videos);
+         await saveJson(path.join(artifact,'videos.json'),videos);
+         const audios=await page.evaluate(()=>{
+           const req=window.__k4OracleRequire,player=req('xQfl').a.AudioPlayer;
+           return Object.values(req('ALsR').a.get_state().audio_state||{}).map(audio=>{
+             const howl=player.get_howl(audio.id),loaded=howl?.state()==='loaded',duration=loaded?howl.duration():null;
+             return {id:audio.id,loaded,duration:Number.isFinite(duration)&&duration>0?duration:null,rate:audio.playback_rate};
+           });
+         });
+         await saveJson(path.join(artifact,'audio-metadata.json'),audios);
+         if(audioMetadata)audioIssue=audioWaitIssue(inputProject,audios,Math.max(...options.captureFrames));
         nekoPage=await page.context().newPage();
         const {width,height}=rendered.project.stageSize;
         await nekoPage.setViewportSize({width,height});
         await nekoPage.route('**/nekoc-visual',route=>route.fulfill({contentType:'text/html',
           body:`<!doctype html><style>html,body{margin:0}#box{position:relative;width:${width}px;height:${height}px;overflow:hidden}#stage{display:block;width:100%;height:100%}</style><div id="box"><canvas id="stage"></canvas></div>`}));
-        await nekoPage.route('**/nekoc-overlay.js',async route=>route.fulfill({contentType:'application/javascript',body:await readFile(path.join(root,'web/overlay.js'),'utf8')}));
+        await nekoPage.route('**/nekoc-overlay.js',async route=>route.fulfill({contentType:'application/javascript',body:await readFile(options.overlaySource||path.join(root,'web/overlay.js'),'utf8')}));
         await nekoPage.route('**/nekoc-renderer.js',async route=>route.fulfill({contentType:'application/javascript',body:await readFile(options.rendererSource||path.join(root,'web/renderer.js'),'utf8')}));
         await nekoPage.goto(new URL('/nekoc-visual',page.url()).href);
         await nekoPage.evaluate(async project=>{
@@ -122,7 +153,8 @@ export async function visualWork(input,options){
           mask_bytes:[...atob(c.mask)].map(x=>x.charCodeAt(0)),rgb_bytes:[...atob(c.rgb)].map(x=>x.charCodeAt(0))})));
         const file=path.join(artifact,'costumes.json');await saveJson(file,costumes);
         const videoFile=path.join(artifact,'video-metadata.json');await saveJson(videoFile,videos.filter(v=>Number.isFinite(v.duration)));
-        rendered=JSON.parse(await command(exe,[...args,'--costumes',path.resolve(file),'--videos',path.resolve(videoFile)]));
+         const audioFile=path.join(artifact,'audio-durations.json');await saveJson(audioFile,audios.filter(a=>a.loaded&&Number.isFinite(a.duration)&&a.duration>0).map(({id,duration})=>({id,duration})));
+         rendered=JSON.parse(await command(exe,[...args,'--costumes',path.resolve(file),'--videos',path.resolve(videoFile),...(audioMetadata?['--audios',path.resolve(audioFile)]:[])]));
       },
       onFrame:async(page,frame)=>{
         const delta=rendered.frames[frame-1];
@@ -146,22 +178,24 @@ export async function visualWork(input,options){
     await saveJson(path.join(artifact,'diagnostics.json'),official.diagnostics);
     const empty=frames.some(f=>!f.pixels);
     const wait=mediaWaitCandidate(inputProject);
-    const error=empty?'video mask leaves no comparable pixels':wait?'video completion can affect non-video control flow: official media clock is uncontrolled':null;
-    return {file:input,status:error?'unverified':'captured',...(error?{error}:{}),frames,artifacts:artifact,kernelAssets:official.diagnostics.assets};
+     const error=empty?'video mask leaves no comparable pixels':wait?'video completion can affect non-video control flow: official media clock is uncontrolled':audioIssue;
+     return {file:input,status:error?'unverified':'captured',...(error?{error}:{}),audioMetadata,frames,artifacts:artifact,kernelAssets:official.diagnostics.assets};
   }catch(error){if(error.diagnostics)await saveJson(path.join(artifact,'failure.json'),error.diagnostics);return {file:input,status:'unverified',error:error.message,frames,artifacts:artifact};}
 }
 export function markdown(report){
   return '# K4 固定帧像素对比\n\n'+
     `帧 ${report.captureFrames.join('/')}；RGB 单通道容差 ${report.pixelTolerance}/255，任一通道超差计为差异像素；MAE/RMSE 使用未遮罩区域全部 RGB 通道。逐帧排除双方视频矩形并集和 1 像素边缘，不验证视频及其覆盖内容；零有效像素不算通过。透明区域合成白底，不缩放画布。只纳入非随机 equal/different；不同 VM 状态仍可能导致画面不同，不能全部归因渲染器。\n\n分布：\`${JSON.stringify(report.distribution)}\`\n\n`+
+    '按作品最大差异降序（并列按均值）：\n\n|作品|最大差异 %|平均差异 %|\n|---|---|---|\n'+rankWorks(report.works).map(w=>`|${path.basename(w.file)}|${w.max.toFixed(4)}|${w.mean.toFixed(4)}|`).join('\n')+'\n\n'+
     '|作品|状态|帧|差异像素 %|MAE|排除视频像素|\n|---|---|---|---|---|---|\n'+report.works.flatMap(w=>w.frames?.length?w.frames.map(f=>`|${path.basename(w.file)}|${w.status}|${f.frame}|${f.changedPercent?.toFixed(4)??'无可比较区域'}|${f.mae?.toFixed(4)??'—'}|${f.maskedPixels||0}|`):[`|${path.basename(w.file)}|${w.status}|—|${String(w.error||w.reason||'').replaceAll('|','\\|')}|—|—|`]).join('\n')+'\n';
 }
 async function main(){
   const options={captureFrames:[1,30,60],seed:1,pixelTolerance:8,channel:'msedge',wallTimeoutMs:90000,corpus:'E:/nekoc/dist/kitten4-corpus',artifactsDir:'dist/k4-visual/frames',out:'dist/k4-visual/report.json',assetCache:new Map()};
-  const keys={'--input':'input','--corpus':'corpus','--classification':'classification','--out':'out','--artifacts-dir':'artifactsDir','--frames':'captureFrames','--seed':'seed','--pixel-tolerance':'pixelTolerance','--channel':'channel','--player-dir':'playerDir','--nekoc':'nekoc','--renderer-source':'rendererSource'};
+  const keys={'--input':'input','--corpus':'corpus','--classification':'classification','--out':'out','--artifacts-dir':'artifactsDir','--frames':'captureFrames','--seed':'seed','--pixel-tolerance':'pixelTolerance','--channel':'channel','--player-dir':'playerDir','--nekoc':'nekoc','--renderer-source':'rendererSource','--overlay-source':'overlaySource'};
   const argv=process.argv.slice(2);
   for(let i=0;i<argv.length;i++){
-    if(argv[i]==='--help'){console.log('node tools/compat/k4-visual.mjs [--input own.bcm | --corpus directory] [--classification k4-diff.json] [--frames 1,30,60] [--allow-assets] [--out dist/k4-visual/report.json]');return;}
-    if(argv[i]==='--allow-assets'){options.allowAssets=true;continue;}
+    if(argv[i]==='--help'){console.log('node tools/compat/k4-visual.mjs [--input own.bcm | --corpus directory] [--classification k4-diff.json] [--frames 1,30,60] [--allow-assets] [--nekoc legacy-exe [--audio-metadata]] [--out dist/k4-visual/report.json]');return;}
+     if(argv[i]==='--allow-assets'){options.allowAssets=true;continue;}
+     if(argv[i]==='--audio-metadata'){options.audioMetadata=true;continue;}
     const key=keys[argv[i]];if(!key||!argv[i+1])throw Error(`Invalid option: ${argv[i]}`);options[key]=argv[++i];
   }
   options.captureFrames=String(options.captureFrames).split(',').map(Number);
@@ -182,11 +216,11 @@ async function main(){
     if(!classification){const project=await readJson(file);if(projectCapabilities(project).randomBlocks.length){report.works.push({file,status:'excluded',reason:'random candidate'});continue;}
       classification=await compareWork(file,{...options,frames:Math.max(...options.captureFrames),artifactsDir:path.join(options.artifactsDir,'classification')});}
     await saveJson(path.join(options.artifactsDir,'classification',path.basename(file),'result.json'),classification);
-    const result=selectedWork(classification)?await visualWork(file,options):{file,status:'excluded',reason:classification.status,error:classification.error};
-    report.works.push({...result,classification:classification.status});report.distribution=distribution(report.works);
+    const result=selectedWork(classification)?await visualWork(file,options):{file,status:classification.randomness?.detected?'excluded':'unverified',reason:classification.status,error:classification.error};
+    report.works.push({...result,classification:classification.status});report.distribution=distribution(report.works);report.ranking=rankWorks(report.works);
     await saveJson(options.out,report);await writeFile(options.out+'.md',markdown(report));
   }
-  report.distribution=distribution(report.works);await saveJson(options.out,report);await writeFile(options.out+'.md',markdown(report));
+  report.distribution=distribution(report.works);report.ranking=rankWorks(report.works);await saveJson(options.out,report);await writeFile(options.out+'.md',markdown(report));
   if(!report.distribution.count||report.works.some(w=>w.status==='unverified'))process.exitCode=1;
 }
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url))main().catch(e=>{console.error(e);process.exitCode=1;});

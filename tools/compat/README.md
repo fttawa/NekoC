@@ -144,7 +144,11 @@ node --test tests/k4-visual.test.mjs
   内置 CLI 另传 `--render-only`，省略重复的全变量 trace，避免大列表的帧输出超过 Node 字符串上限；
   实际 Frame 与绘图增量不变。自定义 `--nekoc` 兼容旧二进制，不自动追加该新参数。
 - 浏览器先解码素材，再把尺寸/中心/alpha mask/RGB 通过 `--costumes` 送入 VM，和 web 播放器一样。
-  第一次无测量运行只用于取得 canonical project，不作为画面。仅此诊断 CLI 接受 `mask_bytes/rgb_bytes` 数组。
+   第一次无测量运行只用于取得 canonical project，不作为画面。仅此诊断 CLI 接受 `mask_bytes/rgb_bytes` 数组。
+- 默认 trace 另接收官方已解码音频时长 `--audios`，只覆盖内存 canonical 资源，不写回原作品；
+  完整测量保存在 `audio-metadata.json`。自定义 `--nekoc` 为兼容旧二进制，须显式加 `--audio-metadata` 才启用。
+  音频等待缺少解码时长，或可能在采样虚拟窗口内自然结束时，保守记为 `unverified`；
+  本工具不证明自然结束回调与虚拟时钟的边界一致，详见 [音频等待](../../docs/kitten4-visual-audio-waits.md)。
 - 官方使用原始画布 backing pixels，在每个指定 update 后触发 `Ct.on_tick` 上传待刷新的画笔纹理，
   再调用官方 `get_screenshot` 同款 `renderer.render(app.stage)`。不增加 VM update，不推进 transition/ticker 时钟。
   `app.render()` 在 ticker 运行时会跳过，不能拿它作截图触发器。
@@ -158,8 +162,8 @@ node --test tests/k4-visual.test.mjs
 - 每作品默认 90 秒 watchdog 避免 domain block 卡住无限等待；素材仍沿用原 oracle 的匿名 CDN 白名单策略，
   仅成功素材响应可在本次内存缓存中复用，不缓存错误、不放宽网络权限。
 - NekoC 的真实 `StageOverlay`（气泡、变量面板、介绍弹窗）参与截图；帧的 `overlay: true`
-  标出 1:1 容器截图。不包含播放器外壳 UI；VM 未输出的初始变量监视框仍不会凭空补画。
-- `--renderer-source dist/renderer-before.js --nekoc dist/k4-trace-before.exe` 可复验旧版本基线。
+   标出 1:1 容器截图。不包含播放器外壳 UI；K4 保存为可见的初始监视框由 VM 输出，common 标量皮肤按保存位置绘制，其他皮肤仍有未验证边界。
+- `--renderer-source dist/renderer-before.js --overlay-source dist/overlay-before.js --nekoc dist/k4-trace-before.exe` 可复验旧版本基线。
   两者须配套保存，保持同一固定帧、素材和 oracle 采样方式。
 
 含视频作品逐帧排除双方可见视频矩形的并集（含 1 像素边缘），指标只统计剩余区域；
@@ -167,6 +171,7 @@ node --test tests/k4-visual.test.mjs
 不会以零像素宣称通过。视频语义、元数据 CLI、官方证据和回归命令见 [kitten4-video.md](../../docs/kitten4-video.md)。
 
 发现、官方源码定位、分布与未完成项见 [kitten4-visual.md](../../docs/kitten4-visual.md)。
+第三轮按最大差异排名、RGB 矩阵特效修复和配对分布工具见 [kitten4-visual3.md](../../docs/kitten4-visual3.md)。
 
 克隆层序链、移层与阻塞介绍弹窗的原创夹具、官方观测和回归见
 [kitten4-layer-dialog.md](../../docs/kitten4-layer-dialog.md)。`k4-visual` 的 state JSON

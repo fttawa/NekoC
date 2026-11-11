@@ -1,0 +1,1174 @@
+{
+  "schema": "nekoc-k4-initial-monitors-v1",
+  "cases": {
+    "idle": {
+      "sha256": "0be784a79fb46316022c56e1a9a35b79c030d0d5e7baf50a9ecbafadd0b2cd3e",
+      "initial": [
+        {
+          "id": "z-score",
+          "exists": true,
+          "visible": true
+        },
+        {
+          "id": "a-text",
+          "exists": true,
+          "visible": true
+        },
+        {
+          "id": "m-items",
+          "exists": true,
+          "visible": true
+        },
+        {
+          "id": "private-score",
+          "exists": true,
+          "visible": true
+        },
+        {
+          "id": "private-items",
+          "exists": true,
+          "visible": true
+        },
+        {
+          "id": "stage-score",
+          "exists": true,
+          "visible": true
+        },
+        {
+          "id": "inactive-score",
+          "exists": true,
+          "visible": true
+        },
+        {
+          "id": "hidden",
+          "exists": true,
+          "visible": false
+        },
+        {
+          "id": "unspecified",
+          "exists": true
+        }
+      ],
+      "widgets": [
+        [
+          {
+            "id": "z-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "a-text",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "m-items",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "private-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "private-items",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "stage-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "inactive-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "hidden",
+            "exists": true,
+            "visible": false
+          },
+          {
+            "id": "unspecified",
+            "exists": true
+          }
+        ],
+        [
+          {
+            "id": "z-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "a-text",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "m-items",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "private-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "private-items",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "stage-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "inactive-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "hidden",
+            "exists": true,
+            "visible": false
+          },
+          {
+            "id": "unspecified",
+            "exists": true
+          }
+        ],
+        [
+          {
+            "id": "z-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "a-text",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "m-items",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "private-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "private-items",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "stage-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "inactive-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "hidden",
+            "exists": true,
+            "visible": false
+          },
+          {
+            "id": "unspecified",
+            "exists": true
+          }
+        ],
+        [
+          {
+            "id": "z-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "a-text",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "m-items",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "private-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "private-items",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "stage-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "inactive-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "hidden",
+            "exists": true,
+            "visible": false
+          },
+          {
+            "id": "unspecified",
+            "exists": true
+          }
+        ],
+        [
+          {
+            "id": "z-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "a-text",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "m-items",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "private-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "private-items",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "stage-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "inactive-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "hidden",
+            "exists": true,
+            "visible": false
+          },
+          {
+            "id": "unspecified",
+            "exists": true
+          }
+        ],
+        [
+          {
+            "id": "z-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "a-text",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "m-items",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "private-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "private-items",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "stage-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "inactive-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "hidden",
+            "exists": true,
+            "visible": false
+          },
+          {
+            "id": "unspecified",
+            "exists": true
+          }
+        ],
+        [
+          {
+            "id": "z-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "a-text",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "m-items",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "private-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "private-items",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "stage-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "inactive-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "hidden",
+            "exists": true,
+            "visible": false
+          },
+          {
+            "id": "unspecified",
+            "exists": true
+          }
+        ],
+        [
+          {
+            "id": "z-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "a-text",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "m-items",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "private-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "private-items",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "stage-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "inactive-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "hidden",
+            "exists": true,
+            "visible": false
+          },
+          {
+            "id": "unspecified",
+            "exists": true
+          }
+        ]
+      ],
+      "variables": [
+        {
+          "z-score": 17,
+          "a-text": "initial text",
+          "m-items": [
+            "alpha",
+            23,
+            true
+          ],
+          "private-score": 31,
+          "private-items": [
+            "local",
+            9
+          ],
+          "stage-score": 45,
+          "inactive-score": 57,
+          "hidden": 68,
+          "unspecified": 79
+        },
+        {
+          "z-score": 17,
+          "a-text": "initial text",
+          "m-items": [
+            "alpha",
+            23,
+            true
+          ],
+          "private-score": 31,
+          "private-items": [
+            "local",
+            9
+          ],
+          "stage-score": 45,
+          "inactive-score": 57,
+          "hidden": 68,
+          "unspecified": 79
+        },
+        {
+          "z-score": 17,
+          "a-text": "initial text",
+          "m-items": [
+            "alpha",
+            23,
+            true
+          ],
+          "private-score": 31,
+          "private-items": [
+            "local",
+            9
+          ],
+          "stage-score": 45,
+          "inactive-score": 57,
+          "hidden": 68,
+          "unspecified": 79
+        },
+        {
+          "z-score": 17,
+          "a-text": "initial text",
+          "m-items": [
+            "alpha",
+            23,
+            true
+          ],
+          "private-score": 31,
+          "private-items": [
+            "local",
+            9
+          ],
+          "stage-score": 45,
+          "inactive-score": 57,
+          "hidden": 68,
+          "unspecified": 79
+        },
+        {
+          "z-score": 17,
+          "a-text": "initial text",
+          "m-items": [
+            "alpha",
+            23,
+            true
+          ],
+          "private-score": 31,
+          "private-items": [
+            "local",
+            9
+          ],
+          "stage-score": 45,
+          "inactive-score": 57,
+          "hidden": 68,
+          "unspecified": 79
+        },
+        {
+          "z-score": 17,
+          "a-text": "initial text",
+          "m-items": [
+            "alpha",
+            23,
+            true
+          ],
+          "private-score": 31,
+          "private-items": [
+            "local",
+            9
+          ],
+          "stage-score": 45,
+          "inactive-score": 57,
+          "hidden": 68,
+          "unspecified": 79
+        },
+        {
+          "z-score": 17,
+          "a-text": "initial text",
+          "m-items": [
+            "alpha",
+            23,
+            true
+          ],
+          "private-score": 31,
+          "private-items": [
+            "local",
+            9
+          ],
+          "stage-score": 45,
+          "inactive-score": 57,
+          "hidden": 68,
+          "unspecified": 79
+        },
+        {
+          "z-score": 17,
+          "a-text": "initial text",
+          "m-items": [
+            "alpha",
+            23,
+            true
+          ],
+          "private-score": 31,
+          "private-items": [
+            "local",
+            9
+          ],
+          "stage-score": 45,
+          "inactive-score": 57,
+          "hidden": 68,
+          "unspecified": 79
+        }
+      ],
+      "errors": []
+    },
+    "dynamic": {
+      "sha256": "dc3193c0155ecbe85c6ca5ea1b5f0133d0c90bae107bb3d7151b892ad24aa77a",
+      "initial": [
+        {
+          "id": "z-score",
+          "exists": true,
+          "visible": true
+        },
+        {
+          "id": "a-text",
+          "exists": true,
+          "visible": true
+        },
+        {
+          "id": "m-items",
+          "exists": true,
+          "visible": true
+        },
+        {
+          "id": "private-score",
+          "exists": true,
+          "visible": true
+        },
+        {
+          "id": "private-items",
+          "exists": true,
+          "visible": true
+        },
+        {
+          "id": "stage-score",
+          "exists": true,
+          "visible": true
+        },
+        {
+          "id": "inactive-score",
+          "exists": true,
+          "visible": true
+        },
+        {
+          "id": "hidden",
+          "exists": true,
+          "visible": false
+        },
+        {
+          "id": "unspecified",
+          "exists": true
+        }
+      ],
+      "widgets": [
+        [
+          {
+            "id": "z-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "a-text",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "m-items",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "private-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "private-items",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "stage-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "inactive-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "hidden",
+            "exists": true,
+            "visible": false
+          },
+          {
+            "id": "unspecified",
+            "exists": true
+          }
+        ],
+        [
+          {
+            "id": "z-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "a-text",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "m-items",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "private-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "private-items",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "stage-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "inactive-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "hidden",
+            "exists": true,
+            "visible": false
+          },
+          {
+            "id": "unspecified",
+            "exists": true
+          }
+        ],
+        [
+          {
+            "id": "z-score",
+            "exists": true,
+            "visible": false
+          },
+          {
+            "id": "a-text",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "m-items",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "private-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "private-items",
+            "exists": true,
+            "visible": false
+          },
+          {
+            "id": "stage-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "inactive-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "hidden",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "unspecified",
+            "exists": true
+          }
+        ],
+        [
+          {
+            "id": "z-score",
+            "exists": true,
+            "visible": false
+          },
+          {
+            "id": "a-text",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "m-items",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "private-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "private-items",
+            "exists": true,
+            "visible": false
+          },
+          {
+            "id": "stage-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "inactive-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "hidden",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "unspecified",
+            "exists": true
+          }
+        ],
+        [
+          {
+            "id": "z-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "a-text",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "m-items",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "private-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "private-items",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "stage-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "inactive-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "hidden",
+            "exists": true,
+            "visible": false
+          },
+          {
+            "id": "unspecified",
+            "exists": true
+          }
+        ],
+        [
+          {
+            "id": "z-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "a-text",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "m-items",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "private-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "private-items",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "stage-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "inactive-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "hidden",
+            "exists": true,
+            "visible": false
+          },
+          {
+            "id": "unspecified",
+            "exists": true
+          }
+        ],
+        [
+          {
+            "id": "z-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "a-text",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "m-items",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "private-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "private-items",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "stage-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "inactive-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "hidden",
+            "exists": true,
+            "visible": false
+          },
+          {
+            "id": "unspecified",
+            "exists": true
+          }
+        ],
+        [
+          {
+            "id": "z-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "a-text",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "m-items",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "private-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "private-items",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "stage-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "inactive-score",
+            "exists": true,
+            "visible": true
+          },
+          {
+            "id": "hidden",
+            "exists": true,
+            "visible": false
+          },
+          {
+            "id": "unspecified",
+            "exists": true
+          }
+        ]
+      ],
+      "variables": [
+        {
+          "z-score": 17,
+          "a-text": "initial text",
+          "m-items": [
+            "alpha",
+            23,
+            true
+          ],
+          "private-score": 31,
+          "private-items": [
+            "local",
+            9
+          ],
+          "stage-score": 45,
+          "inactive-score": 57,
+          "hidden": 68,
+          "unspecified": 79
+        },
+        {
+          "z-score": 17,
+          "a-text": "initial text",
+          "m-items": [
+            "alpha",
+            23,
+            true
+          ],
+          "private-score": 31,
+          "private-items": [
+            "local",
+            9
+          ],
+          "stage-score": 45,
+          "inactive-score": 57,
+          "hidden": 68,
+          "unspecified": 79
+        },
+        {
+          "z-score": 17,
+          "a-text": 88,
+          "m-items": [
+            "alpha",
+            23,
+            true
+          ],
+          "private-score": 99,
+          "private-items": [
+            "local",
+            9
+          ],
+          "stage-score": 45,
+          "inactive-score": 57,
+          "hidden": 68,
+          "unspecified": 79
+        },
+        {
+          "z-score": 17,
+          "a-text": 88,
+          "m-items": [
+            "alpha",
+            23,
+            true
+          ],
+          "private-score": 99,
+          "private-items": [
+            "local",
+            9
+          ],
+          "stage-score": 45,
+          "inactive-score": 57,
+          "hidden": 68,
+          "unspecified": 79
+        },
+        {
+          "z-score": 17,
+          "a-text": 88,
+          "m-items": [
+            "alpha",
+            23,
+            true
+          ],
+          "private-score": 99,
+          "private-items": [
+            "local",
+            9
+          ],
+          "stage-score": 45,
+          "inactive-score": 57,
+          "hidden": 68,
+          "unspecified": 79
+        },
+        {
+          "z-score": 17,
+          "a-text": 88,
+          "m-items": [
+            "alpha",
+            23,
+            true
+          ],
+          "private-score": 99,
+          "private-items": [
+            "local",
+            9
+          ],
+          "stage-score": 45,
+          "inactive-score": 57,
+          "hidden": 68,
+          "unspecified": 79
+        },
+        {
+          "z-score": 17,
+          "a-text": 88,
+          "m-items": [
+            "alpha",
+            23,
+            true
+          ],
+          "private-score": 99,
+          "private-items": [
+            "local",
+            9
+          ],
+          "stage-score": 45,
+          "inactive-score": 57,
+          "hidden": 68,
+          "unspecified": 79
+        },
+        {
+          "z-score": 17,
+          "a-text": 88,
+          "m-items": [
+            "alpha",
+            23,
+            true
+          ],
+          "private-score": 99,
+          "private-items": [
+            "local",
+            9
+          ],
+          "stage-score": 45,
+          "inactive-score": 57,
+          "hidden": 68,
+          "unspecified": 79
+        }
+      ],
+      "errors": []
+    }
+  },
+  "assets": [
+    {
+      "name": "player_v2__3ffeebbd0c789e8d9422.css",
+      "source": "player_v2__3ffeebbd0c789e8d9422.css",
+      "sha256": "39e8e70b124b604831773893cdc95931cdee3eaea52c6dd69f33f5781d48b45a"
+    },
+    {
+      "name": "player_v2.2d180c468559fbd29528.js",
+      "source": "player_v2.2d180c468559fbd29528.js.orig",
+      "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160"
+    },
+    {
+      "name": "runtime.f42f527f119e09010b85.js",
+      "source": "runtime.f42f527f119e09010b85.js",
+      "sha256": "4164d67795238f64d035f473418236038ae475ae36032a967cba16ede263735f"
+    },
+    {
+      "name": "vendors.d00f4bd454a6352e9d71.js",
+      "source": "vendors.d00f4bd454a6352e9d71.js",
+      "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
+    },
+    {
+      "name": "9.c396696e9dc71e25b012.js",
+      "source": "9.c396696e9dc71e25b012.js",
+      "sha256": "5758343310c47596d56e954aa05fa76a546080c8bf4fefd41cac0042794d6195"
+    },
+    {
+      "name": "14.c95e6f2ddd61fb701d0e.js",
+      "source": "14.c95e6f2ddd61fb701d0e.js",
+      "sha256": "d3ce91c9113463db4c0988210caeb1be2ddc508499d5c53a8e73a13b5f440175"
+    },
+    {
+      "name": "11.477512e6f03fd2f6f3c5.js",
+      "source": "11.477512e6f03fd2f6f3c5.js",
+      "sha256": "e81bfe3462cc3e79a70ba016ddee2a372a31480d3f52964952e1d21f3a490f91"
+    }
+  ]
+}
