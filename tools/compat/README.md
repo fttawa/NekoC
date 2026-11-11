@@ -109,6 +109,11 @@ K4 partial 第二轮的 41 份仓库原创离线探针与保留边界：
 [画笔/填充/混合印章](../../docs/kitten4-partial-pen-3.md)。仍保留相关 partial，
 尤其不能把少量像素样例或无接触轨迹对齐当作完整求解器/滤镜兼容。
 
+第四轮按只读语料频率×成本优先处理任意字符串阵营：
+[180 帧逐帧证据](../../docs/kitten4-partial-camp-4.md)，包括自定义阵营双向碰撞、
+克隆与初始 group 的加载行为。另有
+[legacy 动态造型 ID 专项](../../docs/kitten4-partial-costume-4.md)，独立记录正常与错误边界。
+
 ## 联网、安全与未验证范围
 
 默认外部 HTTP、WebSocket、Service Worker 均禁用；记录所有外部请求的方法、URL、类型和动作。

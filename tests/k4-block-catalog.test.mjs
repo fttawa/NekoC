@@ -177,7 +177,7 @@ test("partial work removes only measured block-body limits and retains renderer 
   const rows = mappingStatus(root, types.map(type => ({ type, official: [] })));
   for (const row of rows) {
     assert.equal(row.status, "已实现", row.type);
-    assert.equal(row.semantics, types.slice(0, 2).includes(row.type) ? "offline-oracle-verified" : "partial", row.type);
+    assert.equal(row.semantics, types.slice(0, 3).includes(row.type) ? "offline-oracle-verified" : "partial", row.type);
     assert.ok(!row.limitations.some(s => s.includes("scope=7 降级为 noop")));
   }
 });

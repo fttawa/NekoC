@@ -26,11 +26,14 @@ mod kn_helpers;
 mod kn_objects;
 mod kn_panel;
 mod kn_services;
+mod legacy_costume;
 pub use kn_panel::{GlobalAnimationRequest, PanelNotice};
 mod physics;
+mod role_camp;
 mod stage_dialog;
 mod value;
 use k4_clock::{K4Timer, timer_policy, to_fixed2};
+use role_camp::{RoleCamp, is_camp_target};
 mod k4_media;
 mod k4_shake;
 pub use k4_media::{MediaOutput, MediaRequest, RequestKind};
@@ -395,8 +398,10 @@ enum Op {
     /// Question value and optional choice values (`value_args` span).
     Ask(usize, Option<Span>),
     Layer(LayerMove),
-    /// self_set_role_camp: 0 none, 1 red, 2 yellow (shown green), 3 blue.
-    Camp(u8),
+    /// self_set_role_camp: index of the group string in Program::strings.
+    Camp(usize),
+    /// Legacy K4 style_id command; not a name/index selection.
+    LegacyCostume(usize),
     /// Emphasis animation (0 shake, 1 scale, 2 bounce); the next op is `TimelineStep`.
     Emphasis(u8),
     /// Appear (true) / disappear transition (kind, direction); next op `TimelineStep`.
@@ -510,9 +515,9 @@ pub struct Sprite {
     pub text: Option<SpriteText>,
     #[serde(skip)]
     styles: Vec<String>,
-    /// 0 no camp, 1 red, 2 yellow/green, 3 blue.
+    /// Standard KN camp or the exact K4 group string; copied on clone.
     #[serde(skip)]
-    camp: u8,
+    camp: RoleCamp,
     /// Text size and RGB colour kept even while no text is shown.
     #[serde(skip)]
     text_style: (f64, u32),
@@ -1299,7 +1304,7 @@ impl Program {
                 draggable: false,
                 text: None,
                 styles: owner_styles(scene_value),
-                camp: 0,
+                camp: RoleCamp::Standard(0),
                 text_style: (36.0, 0),
                 text_scale: None,
                 origin: stage,
@@ -1348,11 +1353,19 @@ impl Program {
                     draggable: actor["draggable"].as_bool().unwrap_or(false),
                     text: None,
                     styles: owner_styles(actor),
-                    camp: actor["group"]
-                        .as_str()
-                        .or_else(|| actor["camp"].as_str())
-                        .and_then(camp_code)
-                        .unwrap_or(0),
+                    // The K4 project loader does not restore a serialized actor
+                    // group; only the runtime setter assigns one (camp-4 probes).
+                    camp: if kitten4 {
+                        RoleCamp::Unset
+                    } else {
+                        RoleCamp::new(
+                            actor["group"]
+                                .as_str()
+                                .or_else(|| actor["camp"].as_str())
+                                .unwrap_or("no_camp"),
+                            compiler.program.semantics,
+                        )
+                    },
                     text_style: (36.0, 0),
                     text_scale: None,
                     origin: index,
@@ -2853,13 +2866,13 @@ impl Compiler {
                     .unwrap_or("");
                 let other = match other {
                     "--mouse" | "__mouse" | "--pointer" | "__pointer" => TARGET_MOUSE,
-                    id => match edge_target(id).or_else(|| camp_target(id)) {
+                    id => match edge_target(id).or_else(|| self.role_camp_target(id)) {
                         Some(target) => target,
                         None => self.actor_target(id)?,
                     },
                 };
                 let subject = field(b, "sprite");
-                let subject = match camp_target(subject) {
+                let subject = match self.role_camp_target(subject) {
                     Some(camp) => camp,
                     None => self.actor_target(subject)?,
                 };
@@ -2867,7 +2880,7 @@ impl Compiler {
             }
             "bump_into_color" => {
                 let subject = field(b, "sprite");
-                let subject = match camp_target(subject) {
+                let subject = match self.role_camp_target(subject) {
                     Some(camp) => camp,
                     None => self.actor_target(subject)?,
                 };
@@ -3719,6 +3732,7 @@ impl Compiler {
                         Op::AnimStep
                     }
                     "set_sprite_style" => Op::Style(self.value(input(b, "style_id")?)?),
+                    "kitten4_legacy_costume" => self.legacy_costume(b)?,
                     "self_prev_next_style" => {
                         ensure!(
                             matches!(field(b, "prev_next"), "next" | "prev"),
@@ -3930,17 +3944,13 @@ impl Compiler {
                     "close_self_dialog" => Op::CloseDialog,
                     "self_bounce_off_edge" => Op::Bounce,
                     "self_set_role_camp" => {
-                        // camp_green is a KN compatibility alias, not the K4
-                        // editor's green option (whose stored id is camp_yellow).
-                        ensure!(
-                            self.program.semantics != RuntimeSemantics::Kitten4
-                                || field(b, "role_camp") != "camp_green",
-                            "unsupported Kitten 4 camp camp_green at {}",
-                            b["id"]
-                        );
-                        Op::Camp(camp_code(field(b, "role_camp")).with_context(|| {
-                            format!("unknown camp {} at {}", field(b, "role_camp"), b["id"])
-                        })?)
+                        let id = field(b, "role_camp");
+                        if self.program.semantics != RuntimeSemantics::Kitten4 {
+                            ensure!(camp_code(id).is_some(), "unknown camp {id} at {}", b["id"]);
+                        }
+                        let index = self.program.strings.len();
+                        self.program.strings.push(id.into());
+                        Op::Camp(index)
                     }
                     "self_stress_animation" => {
                         self.emit(
@@ -5175,6 +5185,14 @@ impl Engine {
             .position(|n| n == id)
             .map_or(Cell::Null, |i| Cell::List(self.lists[i].clone()))
     }
+    /// Current group of a live actor, including clones (not scenes).
+    pub fn actor_group(&self, id: &str) -> Option<&str> {
+        self.sprites
+            .iter()
+            .find(|a| a.alive && !a.stage && a.id == id)
+            .and_then(|a| a.camp.id())
+    }
+
     /// Current text of a global scalar variable by id.
     pub fn variable_text(&self, id: &str) -> String {
         self.program
@@ -6058,9 +6076,8 @@ impl Engine {
                 let other = if other == usize::MAX { actor } else { other };
                 let hit = if subject == usize::MAX {
                     self.touching(actor, other)
-                } else if (TARGET_CAMP - 3..=TARGET_CAMP).contains(&subject) {
-                    let camp = (TARGET_CAMP - subject) as u8;
-                    let members: Vec<usize> = self.camp_members(camp).collect();
+                } else if is_camp_target(subject) {
+                    let members: Vec<usize> = self.camp_members(subject).collect();
                     members.into_iter().any(|i| self.touching(i, other))
                 } else {
                     // An actor subject includes its clones (official getActorIdsFromOption).
@@ -6076,9 +6093,8 @@ impl Engine {
             ExprOp::TouchingColor(subject, color) => {
                 let hit = if subject == usize::MAX {
                     self.touching_color(actor, color)
-                } else if (TARGET_CAMP - 3..=TARGET_CAMP).contains(&subject) {
-                    let members: Vec<usize> =
-                        self.camp_members((TARGET_CAMP - subject) as u8).collect();
+                } else if is_camp_target(subject) {
+                    let members: Vec<usize> = self.camp_members(subject).collect();
                     members.into_iter().any(|i| self.touching_color(i, color))
                 } else {
                     let origin = self.sprites[subject].origin;
@@ -6361,11 +6377,9 @@ impl Engine {
                     _ => r >= w,
                 }
             }
-            camp if (TARGET_CAMP - 3..=TARGET_CAMP).contains(&camp) => {
-                let camp = (TARGET_CAMP - camp) as u8;
-                self.camp_members(camp)
-                    .any(|j| j != subject && self.sprites[j].visible && self.overlap(subject, j))
-            }
+            camp if is_camp_target(camp) => self
+                .camp_members(camp)
+                .any(|j| j != subject && self.sprites[j].visible && self.overlap(subject, j)),
             other => {
                 let origin = self.sprites[if other == usize::MAX { subject } else { other }].origin;
                 (0..self.sprites.len()).any(|j| {
@@ -7103,10 +7117,15 @@ impl Engine {
     }
     /// Sprites selected by a collision subject/target: one actor with its clones,
     /// or every live actor of a camp in the active scene.
-    fn camp_members(&self, camp: u8) -> impl Iterator<Item = usize> + '_ {
+    fn camp_members(&self, target: usize) -> impl Iterator<Item = usize> + '_ {
         (0..self.sprites.len()).filter(move |&i| {
             let a = &self.sprites[i];
-            a.alive && !a.stage && a.camp == camp && a.scene == self.current_scene
+            let member = if target >= TARGET_CAMP - 3 {
+                a.camp.is_standard((TARGET_CAMP - target) as u8)
+            } else {
+                a.camp.id() == Some(self.program.strings[TARGET_CAMP - 4 - target].as_str())
+            };
+            a.alive && !a.stage && member && a.scene == self.current_scene
         })
     }
     /// on_bump_actor: compare each instance's contact with the previous check and
@@ -8209,7 +8228,7 @@ impl Engine {
                             .iter()
                             .position(|id| Some(id) == a.style.as_ref())
                             .map_or(0.0, |i| (i + 1) as f64),
-                        3 => f64::from(a.camp),
+                        3 => a.camp.number(),
                         4 => f64::from(a.clone_index),
                         5..=7 => a.scale,
                         8 => a.direction,
@@ -8867,6 +8886,7 @@ impl Engine {
                 }
             }
             Op::Visible(v) => self.sprites[actor].visible = v,
+            Op::LegacyCostume(value) => self.set_legacy_costume(actor, value, pc)?,
             Op::Style(value) => {
                 let value = self.eval_value(value, actor);
                 let styles = &self.sprites[actor].styles;
@@ -9805,7 +9825,8 @@ impl Engine {
                     "K4 domain error: use_actor_blocks_in_scene at block {}",
                     self.program.sources[pc]
                 );
-                self.sprites[actor].camp = camp;
+                self.sprites[actor].camp =
+                    RoleCamp::new(&self.program.strings[camp], self.program.semantics);
             }
             Op::Emphasis(_) | Op::Transition(..) => {
                 if !self.sprites[actor].stage {

@@ -126,7 +126,7 @@ impl Engine {
                 if s.stage {
                     f64::NAN
                 } else {
-                    s.camp as f64
+                    s.camp.number()
                 }
             }
             Property::Distance => {

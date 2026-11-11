@@ -347,7 +347,7 @@ export function mappingStatus(root, rows) {
     "get_mobile_slope_value", "get_mobile_rocker_value", "mobile_vibrate", "get_camera_data", "set_camera_opcity"]);
   const partialTypes = new Set(["self_change_effect_3", "self_change_effect", "self_change_effect_2",
     "self_set_effect_2", "self_set_effect", "self_clear_effects", "get_clone_index_property", "set_scene_transition",
-    "self_set_role_camp", "image_stamp", "stamp"]);
+    "image_stamp", "stamp"]);
   const thirdMedia = rustDispatch(fs.readFileSync(path.join(root, "src/kitten4/media_devices.rs"), "utf8"), "lower_media_devices");
   const thirdPhysics = new Set(["self_texture", "set_force", "set_force_by_vector", "set_gravity", "set_gravity_by_orientation", "set_velocity_by_vector"]);
   function engineAt(literal) {
@@ -413,12 +413,13 @@ export function mappingStatus(root, rows) {
       limitations.push("固定离线包积木本体分支已有原创夹具实测及双 VM 回归；舞台尺寸/严格 draggable 字段、克隆继承与场景错误见 kitten4-partial-misc.md；不扩大为浏览器手势或物理引擎完全一致");
     }
     if (row.type === "self_set_role_camp" && evidence.length) {
-      limitations.push("四个编辑器阵营、克隆继承与场景错误已有官方实测；官方任意 group 字符串仍受本地四值表示限制并显式拒绝，见 kitten4-partial-misc.md");
+      semantics = "offline-oracle-verified";
+      limitations.push("第四轮任意字符串（含 camp_green/空串/Unicode）、四阵营动态碰撞、克隆独立继承及重启逐帧对齐；初始 group 被官方加载器忽略，场景错误沿用既有官方证据；见 kitten4-partial-camp-4.md。不扩大为物理碰撞求解器全等");
     }
     if (row.type === "wood_block_get") limitations.push("官方 fhSb 玩家覆盖也返回 NaN，不执行 Python；这不是 Python 功能支持");
     if (row.type === "set_costume_by_id") {
       semantics = "partial";
-      limitations.push("仅字段 style_id literal；动态 style_id 输入保持 opaque 并明确拒绝编译（编辑器可达性未验证）");
+      limitations.push("第四轮独立动态 ID 命令：字段优先、动态文本/数组键、角色与场景全局纹理及错误尾部已有25份原创官方探针；显式 null、复杂对象/数组、资源加载与平台重建仍未验证，保留 partial，见 kitten4-partial-costume-4.md");
     }
     if (row.type === "set_entity_show_hide") {
       semantics = "partial";
@@ -464,7 +465,7 @@ export function mappingStatus(root, rows) {
       const probed = ["get", "get_2", "get_3", "get_clone_index_property", "self_set_role_camp",
         "self_change_effect_3", "self_change_effect", "self_change_effect_2", "self_set_effect_2", "self_set_effect", "self_clear_effects",
         "stamp", "image_stamp", "set_scene_transition", "set_actor_as", "physics2_enable_force", "set_velocity", "physics2_set_actor_as", "physics2_set_speed",
-        "text_indexOf", "get_voice_answer", "get_recognition_result", "midi_get", "translate_result",
+        "text_indexOf", "set_costume_by_id", "get_voice_answer", "get_recognition_result", "midi_get", "translate_result",
         ...(cloud ? [row.type] : [])];
       limitations.push(probed.includes(row.type) ? "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致" :
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证");
@@ -497,6 +498,7 @@ export function markdownReport(report) {
     ...Object.entries(report.counts).map(([status, count]) => `| ${status} | ${count} |`), "",
     `已知 partial：${report.rows.filter(r => r.semantics === "partial").length} 项（不是第五种主状态）。`, "",
     "## 本次按频率补齐", "",
+    "- 第四轮按只读语料频率×成本优先补齐 self_set_role_camp（1336 次）：任意字符串不再受四值表示限制，180 帧官方原创夹具及双 VM 回归见 kitten4-partial-camp-4.md；其他高频物理/滤镜/属性项保留未解决边界。",
     "- partial 专项：实际基线为 98 项（任务说明约 67 项已过时）。先核对高频属性、效果、阵营与舞台/拖拽；本轮证据及明确未完成范围见 kitten4-partial-properties.md、kitten4-partial-effects.md、kitten4-partial-misc.md。未完成官方实测的项保留 partial，不以仅有执行映射冒充完成。",
     "- partial 第二轮从 96 项继续按语料高频核对物理、云、印章与场景过渡，另核验文本搜索与媒体默认 reporter；41 份原创夹具经官方离线实测及回归，修复与保留边界见 kitten4-physics-partial.md、kitten4-partial-cloud-2.md、kitten4-partial-drawing.md、kitten4-partial-text-2.md。物理求解器、在线云、字体/图像像素和真实过渡动画仍不完整，保留 partial。",
     "- 第三轮：剩余 46 个类型逐项增加执行映射或固定官方错误边界，最后一个 flexibility stub 实现硬体 adapter；媒体/设备通过明确 host 请求、完成结果和事件 API，不伪装真实设备可用。源码定位、原创回归与未接 viewer 限制见 kitten4-third-round.md、kitten4-third-media.md、kitten4-third-physics.md。",

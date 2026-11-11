@@ -58,18 +58,10 @@ pub(super) fn lower_legacy_alias(block: &mut Value, targets: &Targets) -> bool {
         }
         "set_costume_by_index" => "set_costume",
         "set_costume_by_id" => {
-            if block["inputs"].get("style_id").is_some() {
-                // The current costume literal is static. Preserve an unsupported
-                // dynamic legacy ID rather than silently selecting an empty ID.
-                return false;
-            }
-            // Official alias constructs {style_id}, not a numeric index.
-            if !block["inputs"].is_object() {
-                block["inputs"] = json!({});
-            }
-            block["inputs"]["index"] = json!({"type":"kitten4_costume_literal",
-                "fields":{"style_id":field(block,"style_id")}});
-            "set_costume"
+            // Preserve the typed dynamic input and field priority. The legacy
+            // ID command has different actor/scene rules from name/index style.
+            block["type"] = json!("kitten4_legacy_costume");
+            return true;
         }
         "get" => "get_3",
         "multiline_text" => "text",
