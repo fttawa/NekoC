@@ -1,5 +1,7 @@
 # KN 摄像头与语音：离线子集及接线边界
 
+> 后续更新：`get_voice_volume` 已新增显式本地宿主采样路径，见 [kn-local.md](kn-local.md)。下文“默认 unsupported”描述原 capture 子集的历史交付范围，不能再作为当前编译拒绝契约；官方 Promise/权限证据及 record-disabled 边界仍有效。
+
 ## 交付状态
 
 新增自足辅助模块 `src/engine/kn_capture.rs`，主会话已通过 `kn_panel` 模块接入 KN 指令分派。五个命令仅覆盖下述离线子集，**音量 reporter 默认仍 unsupported**，不能把 coverage 标成完整支持。`tests/kn_panel_capture.rs` 锁定 helper，`tests/kn_panel_services.rs` 另测实际 VM 输入副作用、共享 alpha、命令续行和拒绝开启/音量。

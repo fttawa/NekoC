@@ -18,11 +18,13 @@ mod k4_properties;
 mod kn_ai;
 mod kn_appearance;
 mod kn_async;
+mod kn_await;
 mod kn_capture;
 mod kn_catalog;
 mod kn_conversion;
 mod kn_hardware;
 mod kn_helpers;
+mod kn_local;
 mod kn_objects;
 mod kn_panel;
 mod kn_services;
@@ -258,6 +260,7 @@ enum ExprOp {
     Unary(Unary),
     KnProperty(usize, kn_appearance::Property),
     KnActorParameter(usize, kn_appearance::Property),
+    KnVoiceVolume,
 }
 #[derive(Clone, Copy, Debug)]
 struct Expr {
@@ -292,6 +295,7 @@ enum TimerState {
 
 #[derive(Clone, Copy, Debug)]
 enum Op {
+    KnAwaitVoice,
     WarpIteration,
     Set(usize, Expr),
     SetValue(Target, usize),
@@ -696,6 +700,9 @@ struct Script {
 
 #[derive(Clone, Debug)]
 enum ScriptEvent {
+    /// No device backend is installed; retain and validate the body, but never
+    /// dispatch a natural hardware event in the disconnected profile.
+    KnDisconnectedHardware,
     K4Media(k4_media::Event),
     Start,
     /// KN level-triggered root; one persistent, scene-suspended task per hat.
@@ -1831,6 +1838,9 @@ impl Compiler {
     }
     #[inline]
     fn value(&mut self, b: &Value) -> Result<usize> {
+        if let Some(value) = self.kn_await_value(b)? {
+            return Ok(value);
+        }
         if !self.compile_work && self.compile_depth >= 32 {
             return self.deep_value(b);
         }
@@ -1874,6 +1884,13 @@ impl Compiler {
             | "get_robot_master_motor_power"
             | "get_robot_master_infrared_sensor_distance"
             | "get_robot2_master_motor_power"
+            | "microbit_accelerometer"
+            | "microbit_compass_heading"
+            | "microbit_light_level"
+            | "microbit_magnetometer"
+            | "microbit_rotation"
+            | "microbit_sound_level"
+            | "microbit_temperature"
                 if self.program.semantics == RuntimeSemantics::KnCurrent =>
             {
                 let spec = kn_hardware::reporter(b["type"].as_str().unwrap()).unwrap();
@@ -2469,6 +2486,12 @@ impl Compiler {
     }
     #[inline]
     fn expr(&mut self, block: &Value) -> Result<Expr> {
+        if let Some(value) = self.kn_await_value(block)? {
+            self.program.expressions.push(ExprOp::Value(value));
+            return Ok(Expr {
+                end: self.program.expressions.len() as u32,
+            });
+        }
         if !self.compile_work && self.compile_depth >= 32 {
             let value = self.deep_value(block)?;
             self.program.expressions.push(ExprOp::Value(value));
@@ -2676,6 +2699,13 @@ impl Compiler {
             | "get_robot_master_motor_power"
             | "get_robot_master_infrared_sensor_distance"
             | "get_robot2_master_motor_power"
+            | "microbit_accelerometer"
+            | "microbit_compass_heading"
+            | "microbit_light_level"
+            | "microbit_magnetometer"
+            | "microbit_rotation"
+            | "microbit_sound_level"
+            | "microbit_temperature"
             | "get_face_detection_result"
             | "get_object_detection_result"
             | "check_gender"
@@ -2824,6 +2854,12 @@ impl Compiler {
             "timer" => ExprOp::Timer,
             "get_timer" => ExprOp::BlockTimer,
             "kitten4_days_after_2000" => ExprOp::DaysAfter2000,
+            "get_voice_volume" if self.program.semantics == RuntimeSemantics::KnCurrent => {
+                ExprOp::KnVoiceVolume
+            }
+            "get_sprite_property" if self.program.semantics == RuntimeSemantics::KnCurrent => {
+                self.kn_sprite_property(b)?
+            }
             "coordinate_of_sprite" => {
                 ensure!(
                     matches!(field(b, "coordinate"), "x" | "y"),
@@ -3116,6 +3152,16 @@ impl Compiler {
         for root in owner["nekoBlockJsonList"].as_array().into_iter().flatten() {
             let kind = root["type"].as_str().unwrap_or("");
             let event = match kind {
+                "microbit_button_when"
+                | "microbit_logo_when"
+                | "microbit_pin_when"
+                | "catbit_button_when"
+                | "catbit_usb_button_when"
+                | "wand_direction_when"
+                    if self.program.semantics == RuntimeSemantics::KnCurrent =>
+                {
+                    ScriptEvent::KnDisconnectedHardware
+                }
                 "when" if self.program.semantics == RuntimeSemantics::KnCurrent => {
                     ScriptEvent::KnWhen
                 }
@@ -3238,7 +3284,16 @@ impl Compiler {
             let start = self.program.ops.len();
             if matches!(event, ScriptEvent::KnWhen) {
                 let condition = self.condition(input(root, "condition")?)?;
-                self.emit(Op::WaitUntil(condition), root);
+                if self.program.ops.len() == start {
+                    self.emit(Op::WaitUntil(condition), root);
+                } else {
+                    let gate = self.emit(Op::Branch(condition, 0), root);
+                    let body = self.emit(Op::Jump(0), root);
+                    self.program.ops[gate] = Op::Branch(condition, self.program.ops.len());
+                    self.emit(Op::Yield, root);
+                    self.emit(Op::Jump(start), root);
+                    self.program.ops[body] = Op::Jump(self.program.ops.len());
+                }
                 self.chain(root["statements"].get("DO"), false)
                     .with_context(|| format!("owner {}", owner["name"]))?;
                 // Both false checks and completed bodies yield. The same task
@@ -3263,7 +3318,8 @@ impl Compiler {
                 root["statements"].get("DO").or(root.get("next"))
             } else if matches!(
                 event,
-                ScriptEvent::CloneStart
+                ScriptEvent::KnDisconnectedHardware
+                    | ScriptEvent::CloneStart
                     | ScriptEvent::K4Media(_)
                     | ScriptEvent::Swipe(_)
                     | ScriptEvent::Bump(..)
@@ -3392,12 +3448,18 @@ impl Compiler {
                         self.program.ops[begin] = Op::Repeat(n, end);
                     }
                     if kind == "repeat_forever_until" {
-                        self.program.ops[begin + 1] = Op::Jump(end);
+                        let gate = (begin..end)
+                            .find(|&pc| matches!(self.program.ops[pc], Op::Branch(..)))
+                            .unwrap();
+                        self.program.ops[gate + 1] = Op::Jump(end);
                     }
-                    if kind == "controls_while"
-                        && let Op::Branch(condition, _) = self.program.ops[begin]
-                    {
-                        self.program.ops[begin] = Op::Branch(condition, end);
+                    if kind == "controls_while" {
+                        let gate = (begin..end)
+                            .find(|&pc| matches!(self.program.ops[pc], Op::Branch(..)))
+                            .unwrap();
+                        if let Op::Branch(condition, _) = self.program.ops[gate] {
+                            self.program.ops[gate] = Op::Branch(condition, end);
+                        }
                     }
                     for pc in self.loops.pop().unwrap() {
                         self.program.ops[pc] = if matches!(self.program.ops[pc], Op::Jump(_)) {
@@ -3437,6 +3499,46 @@ impl Compiler {
                 );
                 let kind = b["type"].as_str().unwrap_or("");
                 let op = match kind {
+                    "microbit_led_clear"
+                    | "microbit_led_plot"
+                    | "microbit_led_plot_graph"
+                    | "microbit_led_show_custom"
+                    | "microbit_led_show_icon"
+                    | "microbit_led_show_number"
+                    | "microbit_led_show_text"
+                    | "microbit_led_toggle"
+                    | "microbit_led_unplot"
+                    | "microbit_pause_by_beats"
+                    | "microbit_pin_analog_write"
+                    | "microbit_pin_digital_write"
+                    | "microbit_pin_set_touch_mode"
+                    | "microbit_play_melody"
+                    | "microbit_play_tone_by_beats"
+                    | "microbit_servo_set_angle_270"
+                    | "microbit_set_volume"
+                    | "microbit_stop"
+                    | "wand_reset_position"
+                    | "set_robot_master_light_color"
+                    | "set_robot_master_light_color_duration"
+                    | "stop_robot_master_light"
+                    | "set_robot_master_motor_power_rotation"
+                    | "set_robot_master_motor_power_rotation_duration"
+                    | "change_robot_master_motor_power"
+                    | "stop_robot_master_motor"
+                    | "set_robot2_master_motor_power_rotation"
+                    | "set_robot2_master_motor_power_rotation_duration"
+                    | "change_robot2_master_motor_power"
+                    | "stop_robot2_master_motor"
+                        if self.program.semantics == RuntimeSemantics::KnCurrent =>
+                    {
+                        for socket in kn_hardware::async_command(kind).unwrap() {
+                            let value = self.value(input(b, socket)?)?;
+                            self.emit(Op::Execute(value), b);
+                        }
+                        // Preserve the Promise boundary even though its guard
+                        // has no device work or wall-clock duration to await.
+                        Op::Yield
+                    }
                     "microbit_set_bpm" | "microbit_change_bpm"
                         if self.program.semantics == RuntimeSemantics::KnCurrent =>
                     {
@@ -4409,7 +4511,22 @@ impl Compiler {
                         }
                     }
                     "wait" => Op::Wait(self.arg(b, "time")?),
-                    "wait_until" => Op::WaitUntil(self.condition(input(b, "condition")?)?),
+                    "wait_until" => {
+                        let begin = self.program.ops.len();
+                        let condition = self.condition(input(b, "condition")?)?;
+                        if self.program.ops.len() == begin {
+                            Op::WaitUntil(condition)
+                        } else {
+                            let gate = self.emit(Op::Branch(condition, 0), b);
+                            let done = self.emit(Op::Jump(0), b);
+                            self.program.ops[gate] = Op::Branch(condition, self.program.ops.len());
+                            self.emit(Op::Yield, b);
+                            self.emit(Op::Jump(begin), b);
+                            self.program.ops[done] = Op::Jump(self.program.ops.len());
+                            block = b.get("next");
+                            continue;
+                        }
+                    }
                     "self_broadcast" | "self_broadcast_with_param" | "self_broadcast_and_wait" => {
                         Op::Broadcast(
                             self.value(input(b, "message")?)?,
@@ -4492,14 +4609,14 @@ impl Compiler {
                     | "repeat_forever"
                     | "repeat_forever_until"
                     | "controls_while" => {
-                        let begin = self.program.ops.len();
+                        let mut begin = self.program.ops.len();
                         if kind == "repeat_n_times" {
                             let n = self.arg(b, "times")?;
-                            self.emit(Op::Repeat(n, 0), b);
+                            begin = self.emit(Op::Repeat(n, 0), b);
                         } else if kind == "repeat_forever_until" {
                             let c = self.condition(input(b, "condition")?)?;
-                            let gate = self.emit(Op::Branch(c, begin + 2), b);
-                            debug_assert_eq!(gate, begin);
+                            let gate = self.program.ops.len();
+                            self.emit(Op::Branch(c, gate + 2), b);
                             self.emit(Op::Jump(0), b);
                         } else if kind == "controls_while" {
                             // Official main-vendors.07f7dd7e.js:6183639 converts
@@ -4880,6 +4997,7 @@ pub struct Engine {
     k4_frames: u64,
     k4_media: k4_media::State,
     kn_panel: kn_panel::State,
+    kn_local: kn_local::State,
     oracle_events: Option<Vec<Value>>,
     evaluation_cache: Vec<BTreeMap<(bool, usize), VecDeque<Cell>>>,
     physics: Option<Box<physics::Physics>>,
@@ -5294,6 +5412,7 @@ impl Engine {
             k4_frames: 0,
             k4_media: k4_media::State::default(),
             kn_panel: kn_panel::State::default(),
+            kn_local: kn_local::State::default(),
             trace_filter: None,
             trace_truncated: false,
             warp_iterations: 0,
@@ -5382,6 +5501,7 @@ impl Engine {
     }
     pub fn start(&mut self) {
         self.extensions.clear();
+        self.kn_local = kn_local::State::default();
         self.videos.clone_from(&self.program.videos);
         self.video_above_pen = false;
         let cloud_values = self.cloud_restart_values();
@@ -6007,6 +6127,7 @@ impl Engine {
             ExprOp::KnActorParameter(parameter, property) => {
                 self.kn_actor_parameter_property(parameter, actor, property)
             }
+            ExprOp::KnVoiceVolume => self.kn_voice_volume(),
             ExprOp::Costume(target) => {
                 let target = if target == usize::MAX { actor } else { target };
                 let sprite = &self.sprites[target];
@@ -9050,6 +9171,12 @@ impl Engine {
             Op::ResetBlockTimer => self.block_timer.reset(self.time),
             Op::Execute(value) => {
                 self.eval_value(value, actor);
+            }
+            Op::KnAwaitVoice => {
+                if !self.kn_voice_resolved() {
+                    self.tasks[index].pc = pc;
+                    return Ok(false);
+                }
             }
             Op::ClearList(list) => {
                 if let Some(list) = self.resolve_list(list) {

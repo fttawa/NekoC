@@ -345,6 +345,18 @@ fn frame_budget(payload: &Value) -> Duration {
 }
 
 fn frame_bytes(vm: &mut Engine, payload: &Value) -> Result<Vec<u8>> {
+    if let Some(microphone) = payload.get("kn_microphone") {
+        match microphone["status"].as_str() {
+            Some("ready") => vm.set_kn_voice_volume(Some(
+                microphone["value"]
+                    .as_f64()
+                    .context("ready KN microphone sample requires a number")?,
+            ))?,
+            Some("pending") => vm.set_kn_voice_pending(),
+            Some("denied" | "unavailable") => vm.set_kn_voice_volume(Some(0.0))?,
+            _ => bail!("invalid KN microphone status"),
+        }
+    }
     if let Some(pressed) = payload["pressed"].as_array() {
         vm.set_pressed_keys(
             pressed
@@ -910,6 +922,10 @@ fn serve_with_cloud(initial: Json, port: u16, cloud: CloudSession) -> Result<()>
                 "/extensions.js" => Some((
                     "text/javascript",
                     include_bytes!("../../web/extensions.js").as_slice(),
+                )),
+                "/kn-microphone.js" => Some((
+                    "text/javascript",
+                    include_bytes!("../../web/kn-microphone.js").as_slice(),
                 )),
                 "/audio.js" => Some((
                     "text/javascript",

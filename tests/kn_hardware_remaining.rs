@@ -244,7 +244,7 @@ fn synchronous_bpm_commands_evaluate_once_continue_and_do_not_change_volume() {
 }
 
 #[test]
-fn every_unproven_promise_command_reporter_and_event_remains_rejected() {
+fn every_remaining_hardware_type_has_a_disconnected_execution_path() {
     let micro: Value =
         serde_json::from_str(include_str!("../docs/kn-hardware-remaining-evidence.json")).unwrap();
     let other: Value =
@@ -254,18 +254,22 @@ fn every_unproven_promise_command_reporter_and_event_remains_rejected() {
         .unwrap()
         .iter()
         .chain(other["editor"]["panels"].as_array().unwrap());
-    let mut rejected = 0;
+    let mut supported = 0;
     for entry in entries {
         let name = entry["name"].as_str().unwrap();
-        if profile::reporter(name).is_some()
+        if REPORTERS.iter().any(|(n, _)| *n == name)
             || profile::command(name).is_some()
             || entry["inCatalog"] == false
         {
             continue;
         }
-        assert_eq!(profile::reporter(name), None, "{name}");
         assert_eq!(profile::command(name), None, "{name}");
-        let block = json!({"type":name});
+        let mut block = json!({"type":name});
+        if let Some(sockets) = profile::async_command(name) {
+            for socket in sockets {
+                block["inputs"][*socket] = num(1);
+            }
+        }
         let p = match entry["kind"].as_str().unwrap() {
             "reporter" => project(vec![log(block)], false),
             "event" => {
@@ -279,17 +283,19 @@ fn every_unproven_promise_command_reporter_and_event_remains_rejected() {
             "command" => project(vec![block], false),
             kind => panic!("unexpected {kind}"),
         };
-        let error = Program::compile(&p)
-            .err()
-            .unwrap_or_else(|| panic!("accepted {name}"));
-        assert!(format!("{error:#}").contains(name), "{name}: {error:#}");
-        assert!(
-            format!("{error:#}").contains("unsupported"),
-            "{name}: {error:#}"
-        );
-        rejected += 1;
+        let expected = if entry["kind"] == "reporter" {
+            vec!["NaN"]
+        } else if entry["kind"] == "event" {
+            vec!["ordinary start"]
+        } else {
+            vec![]
+        };
+        for jit in [false, true] {
+            assert_eq!(run(&p, jit), expected, "{name}");
+        }
+        supported += 1;
     }
-    assert_eq!(rejected, 43);
+    assert_eq!(supported, 43);
     assert!(profile::reporter("microbit_future").is_none());
     assert!(profile::command("set_robot_future").is_none());
 }

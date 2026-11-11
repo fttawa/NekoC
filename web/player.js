@@ -1,12 +1,14 @@
 // Bounded request/response over one connection; no queued frame history.
 import {playerExtensions} from './extensions.js';
+import {KnMicrophone,needsMicrophone} from './kn-microphone.js';
 export class PlayerConnection {
-  constructor(extensions=playerExtensions){this.extensions=extensions;this.extensionSession=null;this.socket=null;this.pending=null;this.ready=false;this.openReject=null;this.timer=null;}
+  constructor(extensions=playerExtensions){this.extensions=extensions;this.extensionSession=null;this.socket=null;this.pending=null;this.ready=false;this.openReject=null;this.timer=null;this.microphone=null;}
   async open(project=null,base=location.origin){
     this.close();
     const schemas=this.extensions.schemas();
     if(schemas.length&&!project)throw Error('Extensions require a private player project snapshot');
     this.extensionSession=this.extensions.session();
+    if(project&&needsMicrophone(project)){this.microphone=new KnMicrophone();void this.microphone.start();}
     const url=new URL(project?'/api/player-private':'/api/player',base);
     url.protocol=url.protocol==='https:'?'wss:':'ws:';
     const socket=new WebSocket(url);
@@ -48,13 +50,15 @@ export class PlayerConnection {
         // Backend accepts at most 256 events. Preserve input order and requeue excess results.
         const available=Math.max(0,256-events.length),sent=results.splice(0,available);
         if(results.length)this.extensionSession.results.unshift(...results);
-        this.socket.send(JSON.stringify(sent.length?{...payload,events:[...events,...sent]}:payload));
+        const input=this.microphone&&!payload.debug_snapshot?{...payload,kn_microphone:this.microphone.snapshot()}:payload;
+        this.socket.send(JSON.stringify(sent.length?{...input,events:[...events,...sent]}:input));
       }catch(error){this.fail(error);}
     });
   }
   // Read-only request on this VM's loopback, same-origin protected socket.
   snapshot(){return this.frame({debug_snapshot:true});}
   fail(error){
+    this.microphone?.close();this.microphone=null;
     this.extensionSession?.close();this.extensionSession=null;
     this.ready=false;clearTimeout(this.timer);this.openReject?.(error);this.openReject=null;
     this.pending?.reject(error);this.pending=null;

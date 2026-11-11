@@ -59,6 +59,7 @@ fn run(p: &Value, jit: bool) -> Vec<String> {
 
 #[test]
 fn profile_is_an_exact_typed_allowlist_with_actual_panel_inputs() {
+    assert!(kn_hardware::async_command("microbit_future_command").is_none());
     assert_eq!(kn_hardware::command("microbit_future_command"), None);
     for name in [
         "microbit_button_is_pressed",
@@ -84,13 +85,6 @@ fn profile_is_an_exact_typed_allowlist_with_actual_panel_inputs() {
         ["value", "fromStart", "fromEnd", "toStart", "toEnd"]
     );
     for name in [
-        "microbit_temperature", // Actual async reporter: scheduling not measured here.
-        "microbit_light_level",
-        "microbit_sound_level",
-        "microbit_accelerometer",
-        "microbit_magnetometer",
-        "microbit_compass_heading",
-        "microbit_rotation",
         "microbit_pin_is_pressed", // Domain exists, absent from measured panel.
         "microbit_led_plot",
         "microbit_button_when",
