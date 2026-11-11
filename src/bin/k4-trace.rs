@@ -46,6 +46,10 @@ struct Args {
     /// Decoded video durations; no wall-clock or network probing in the VM.
     #[arg(long)]
     videos: Option<PathBuf>,
+    /// Browser-decoded audio durations in seconds: [{"id": ..., "duration": ...}].
+    /// Applied only to the in-memory canonical project, never to the input file.
+    #[arg(long)]
+    audios: Option<PathBuf>,
 }
 
 fn main() -> Result<()> {
@@ -82,7 +86,30 @@ fn main() -> Result<()> {
             }
         }
     }
-    let project = kitten4::to_neko(&source)?;
+    let mut project = kitten4::to_neko(&source)?;
+    if let Some(file) = &args.audios {
+        let audios: serde_json::Value = serde_json::from_slice(&std::fs::read(file)?)?;
+        let entries = audios.as_array().context("expected audio metadata array")?;
+        let mut seen = std::collections::BTreeSet::new();
+        for audio in entries {
+            let id = audio["id"].as_str().context("missing audio id")?;
+            ensure!(!id.is_empty(), "empty audio id");
+            ensure!(seen.insert(id), "duplicate audio metadata id {id}");
+            let duration = audio["duration"]
+                .as_f64()
+                .filter(|n| n.is_finite() && *n > 0.0)
+                .context("audio duration must be positive finite seconds")?;
+            let resource = project
+                .pointer_mut("/audios/audiosDict")
+                .and_then(serde_json::Value::as_object_mut)
+                .and_then(|dict| dict.get_mut(id))
+                .with_context(|| format!("unknown audio metadata id {id}"))?;
+            let resource = resource
+                .as_object_mut()
+                .with_context(|| format!("audio resource {id} must be an object"))?;
+            resource.insert("duration".into(), json!(duration));
+        }
+    }
     if args.lowered {
         println!(
             "{}",

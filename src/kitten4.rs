@@ -219,6 +219,7 @@ fn lower_for_vm_inner(project: &Value) -> crate::json::Json {
                 "id": id, "name": variable["name"],
                 "type": if list { "list" } else { "variable" },
                 "value": if list { json!([]) } else { json!(0) },
+                "visible": variable["visible"],
                 "cloud": variable,
             });
         }

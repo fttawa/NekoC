@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
-import { pixelDifference, videoMask, mediaWaitCandidate, selectedWork, distribution, visualWork } from '../tools/compat/k4-visual.mjs';
+import { pixelDifference, videoMask, mediaWaitCandidate, audioWaitCandidate, audioWaitIssue, selectedWork, distribution, rankWorks, visualWork } from '../tools/compat/k4-visual.mjs';
 import { visualFixtures } from '../tools/compat/k4-visual-fixtures.mjs';
 import { readJson } from '../tools/compat/k4-oracle.mjs';
 import { spriteGeometry } from '../web/renderer.js';
@@ -28,10 +28,29 @@ test('video comparison masks union, clipped offstage bounds, and never passes an
   assert.equal(empty.pixels,0);assert.equal(empty.changedPercent,null);assert.equal(empty.mae,null);assert.equal(empty.rmse,null);
   assert.throws(()=>videoMask(10,10,[{x:NaN,y:0,width:1,height:1}]));assert.throws(()=>pixelDifference(a,b,8,[]));
 });
+test('visual ranking sorts maxima then means without treating missing captures as equal',()=>{
+  const works=[{file:'b',status:'captured',frames:[{changedPercent:2},{changedPercent:10}]},
+    {file:'a',status:'captured',frames:[{changedPercent:8},{changedPercent:10}]},
+    {file:'failed',status:'unverified',frames:[{changedPercent:100}]},
+    {file:'empty',status:'captured',frames:[{changedPercent:null}]}];
+  assert.deepEqual(rankWorks(works),[{file:'a',max:10,mean:9},{file:'b',max:10,mean:6}]);
+  assert.equal(works[0].file,'b');
+});
 test('video waits conservatively flag media-dependent non-video control flow',()=>{
   assert.ok(mediaWaitCandidate({compile_result:[{next_block:{type:'play_video_until_end'}}]}));
   assert.ok(mediaWaitCandidate({theatre:{actors:{a:{block_data_json:{blocks:{b:{type:'play_video_until_end'}}}}}}}));
   assert.ok(!mediaWaitCandidate({compile_result:[{type:'play_video'}]}));
+});
+test('audio waits require decoded duration and do not certify natural completion boundaries',()=>{
+  const project={compile_result:[{type:'play_audio_and_wait_2'}]};
+  assert.ok(audioWaitCandidate(project));
+  assert.ok(audioWaitCandidate({theatre:{scenes:{s:{block_data_json:{type:'play_audio_and_wait'}}}}}));
+  assert.equal(audioWaitIssue({compile_result:[{type:'play_audio_2'}]},[],60),null);
+  assert.match(audioWaitIssue(project,[],60),/unavailable/);
+  assert.match(audioWaitIssue(project,[{loaded:false,duration:null}],60),/unavailable/);
+  assert.match(audioWaitIssue(project,[{loaded:true,duration:.5,rate:1}],60),/uncontrolled/);
+  assert.equal(audioWaitIssue(project,[{loaded:true,duration:.5,rate:.1}],60),null);
+  assert.equal(audioWaitIssue(project,[{loaded:true,duration:15.018666666666666}],60),null);
 });
 test('K4 left/right boundaries use right-facing heading without changing KN policy',()=>{
   const actor={scale:100,rotation_type:1},image={width:80,height:40};
