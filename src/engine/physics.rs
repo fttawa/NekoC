@@ -104,6 +104,48 @@ mod tests {
     }
 
     #[test]
+    fn modern_forceable_transition_keeps_last_world_step_before_actor_type_sync() {
+        let mut e = engine();
+        command(&mut e, 1, Command::Gravity, [0.0; 3]);
+        command(&mut e, 1, Command::Speed, [2.0, 0.0, 0.0]);
+        e.step_physics(STEP); // world ticker registration
+        e.step_physics(STEP);
+        let x = e.sprites[1].x;
+        command(&mut e, 1, Command::Forceable(false), [0.0; 3]);
+        assert_eq!(e.physics_property(1, Property::Speed), 2.0);
+        e.step_physics(STEP);
+        assert!((e.sprites[1].x - x - 100.0 / 30.0).abs() < 1e-9);
+        assert_eq!(e.physics_property(1, Property::Speed), 0.0);
+        assert_eq!(e.physics_property(1, Property::Mass), 0.0);
+        let x = e.sprites[1].x;
+        e.step_physics(STEP);
+        assert_eq!(e.sprites[1].x, x);
+        command(&mut e, 1, Command::Forceable(true), [0.0; 3]);
+        command(&mut e, 1, Command::Speed, [3.0, 0.0, 0.0]);
+        e.step_physics(STEP); // static integration, then dynamic type
+        assert_eq!(e.sprites[1].x, x);
+        assert_eq!(e.physics_property(1, Property::Speed), 0.0);
+    }
+
+    #[test]
+    fn timed_force_is_queued_by_actor_ticker_for_the_following_world_step() {
+        let mut e = engine();
+        command(&mut e, 1, Command::Gravity, [0.0; 3]);
+        command(&mut e, 1, Command::Mass, [2.0, 0.0, 0.0]);
+        e.step_physics(STEP);
+        let wait = e
+            .physics_command(1, Command::TimedForce, [12.0, 0.0, 1.0])
+            .unwrap();
+        assert!((wait.unwrap() - 61.0 * STEP).abs() < 1e-9);
+        let x = e.sprites[1].x;
+        e.step_physics(STEP);
+        assert_eq!(e.sprites[1].x, x);
+        e.step_physics(STEP);
+        assert!((e.sprites[1].x - x - 1.0 / 6.0).abs() < 1e-9);
+        assert_eq!(e.physics_property(1, Property::Speed), 0.1);
+    }
+
+    #[test]
     fn disabled_sensor_and_hidden_dynamic_body_preserve_velocity() {
         let mut e = engine();
         command(&mut e, 1, Command::Gravity, [0.0; 3]);
@@ -662,6 +704,28 @@ impl Default for World {
         }
     }
 }
+impl World {
+    fn synchronize_body_types(&mut self) {
+        for b in self.actors.values() {
+            let body = &mut self.bodies[b.handle];
+            if !body.is_enabled() {
+                continue;
+            }
+            let kind = if b.forceable {
+                RigidBodyType::Dynamic
+            } else {
+                RigidBodyType::Fixed
+            };
+            if body.body_type() != kind {
+                if !b.forceable {
+                    body.set_linvel(Vector::zeros(), true);
+                }
+                body.set_body_type(kind, true);
+            }
+            self.colliders[b.collider].set_sensor(b.forceable && !b.collidable);
+        }
+    }
+}
 #[derive(Default)]
 pub(super) struct Physics {
     worlds: BTreeMap<usize, World>,
@@ -1106,7 +1170,11 @@ impl Engine {
                         vector(10000.0)
                     },
                 ));
-                return Ok(Some(ticks.saturating_add(1) as f64 * STEP));
+                // The actor force ticker follows world integration. A world
+                // registered by this same command batch adds one initialization
+                // update before the callback countdown can begin.
+                let registration = u64::from(!world.initialized);
+                return Ok(Some(ticks.saturating_add(1 + registration) as f64 * STEP));
             }
             Command::Friction if value.is_finite() => {
                 world.colliders[state.collider].set_friction(value.clamp(0.0, 1.0))
@@ -1244,19 +1312,6 @@ impl Engine {
                 let a = &self.sprites[actor];
                 let body = &mut w.bodies[b.handle];
                 body.set_enabled(a.alive && a.visible && (b.forceable || b.collidable));
-                if body.is_enabled() {
-                    let kind = if b.forceable {
-                        RigidBodyType::Dynamic
-                    } else {
-                        RigidBodyType::Fixed
-                    };
-                    if body.body_type() != kind {
-                        if !b.forceable {
-                            body.set_linvel(Vector::zeros(), true);
-                        }
-                        body.set_body_type(kind, true);
-                    }
-                }
                 let position = Isometry::new(
                     vector![a.x / PIXELS, a.y / PIXELS],
                     (90.0 - a.direction).to_radians(),
@@ -1275,7 +1330,6 @@ impl Engine {
                     body.recompute_mass_properties_from_colliders(&w.colliders);
                     b.shape = new_signature;
                 }
-                w.colliders[b.collider].set_sensor(b.forceable && !b.collidable);
             }
             if !w.initialized {
                 // Legacy worlds are preallocated by Start, before the first
@@ -1285,18 +1339,12 @@ impl Engine {
                 w.initialized = self.program.has_modern_physics
                     || !self.program.legacy_physics_scenes.contains(&scene)
                     || self.time > STEP + 1e-10;
+                w.synchronize_body_types();
                 continue;
             }
             w.remainder += dt;
             while w.remainder + 1e-10 >= STEP {
                 for b in w.actors.values_mut() {
-                    for (ticks, force) in &mut b.forces {
-                        if *ticks > 0 {
-                            w.bodies[b.handle].add_force(*force, true);
-                            *ticks -= 1;
-                        }
-                    }
-                    b.forces.retain(|(ticks, _)| *ticks > 0);
                     let body = &mut w.bodies[b.handle];
                     if body.is_enabled() && body.is_dynamic() && !body.is_sleeping() {
                         // Pcni/Island.Solve integrates forces once, then caps
@@ -1341,11 +1389,27 @@ impl Engine {
                     &w.filters,
                     &(),
                 );
-                for b in w.actors.values() {
+                for b in w.actors.values_mut() {
                     w.bodies[b.handle].reset_forces(false);
+                    // An actor-ticker force becomes visible to the next world
+                    // step, unlike the immediate single-shot force command.
+                    // Official probes: partial-physics-7 timed-one/timed-late.
+                    for (ticks, force) in &mut b.forces {
+                        if *ticks > 0 {
+                            w.bodies[b.handle].add_force(*force, true);
+                            *ticks -= 1;
+                        }
+                    }
+                    b.forces.retain(|(ticks, _)| *ticks > 0);
                 }
                 w.remainder -= STEP;
             }
+            // The world ticker integrates before the actor ticker applies the
+            // adapter's forceable/collidable flags. Applying the type earlier
+            // loses one last integration on disable, and starts one too early
+            // on enable. Original official probes: partial-physics-7 forceable
+            // and the unchanged partial-physics-6 membership replay.
+            w.synchronize_body_types();
             for (&actor, b) in &w.actors {
                 let body = &w.bodies[b.handle];
                 if !body.is_enabled() {

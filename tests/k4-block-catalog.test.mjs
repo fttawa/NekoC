@@ -8,8 +8,9 @@ import { fileURLToPath } from "node:url";
 import { corpusFrequency, mappingStatus, markdownReport, officialInventory, rustDispatch,
   rustFunction, webpackModules } from "../tools/compat/k4-block-catalog.mjs";
 import { drawingMainPaths, physicsMainPaths, propertyMainPaths, serviceTypes } from "../tools/compat/k4-partial-6-scope.mjs";
+import { round7MainPaths } from "../tools/compat/k4-partial-7-scope.mjs";
 
-const currentSemantics = type => physicsMainPaths.has(type) || propertyMainPaths.has(type) || drawingMainPaths.has(type) ? "main-path-verified" : "partial";
+const currentSemantics = type => physicsMainPaths.has(type) || propertyMainPaths.has(type) || drawingMainPaths.has(type) || round7MainPaths.has(type) ? "main-path-verified" : "partial";
 const currentStatus = type => serviceTypes.has(type) ? "设备降级" : "已实现";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -198,7 +199,7 @@ test("second round scans explicit module dispatches without swallowing unrelated
   for (const row of rows.slice(9, 14)) assert.equal(row.status, "设备降级", row.type);
   assert.equal(rows.at(-1).status, "缺失");
   assert.equal(rows.find(row => row.type === "self_shake").semantics, "partial");
-  assert.equal(rows.find(row => row.type === "text_indexOf").semantics, "partial");
+  assert.equal(rows.find(row => row.type === "text_indexOf").semantics, currentSemantics("text_indexOf"));
 });
 
 test("third round explicitly maps all formerly missing types and preserves partial boundaries", () => {
@@ -215,7 +216,7 @@ test("third round explicitly maps all formerly missing types and preserves parti
   const rows = mappingStatus(root, types.map(type => ({ type, official: [] })));
   for (const row of rows) assert.equal(row.status, currentStatus(row.type), row.type);
   for (const type of ["voice_recognition", "self_texture", "physics2_set_flexibility", "translate_result"]) {
-    assert.equal(rows.find(r => r.type === type).semantics, "partial", type);
+    assert.equal(rows.find(r => r.type === type).semantics, currentSemantics(type), type);
   }
   const unknown = mappingStatus(root, [{type:"midi_unknown",official:[]},{type:"procedures_unknown",official:[]}]);
   for (const row of unknown) assert.equal(row.status,"缺失");
@@ -255,11 +256,12 @@ test("fifth property round records measured fixes without erasing platform and d
   }
 });
 
-test('fifth visibility round retains clone-disposal and scene limits despite measured timing fixes', () => {
+test('seventh visibility round closes clone-disposal gap and retains scene limits', () => {
   const [row] = mappingStatus(root, [{ type: 'set_entity_show_hide', official: [] }]);
-  assert.equal(row.semantics, 'partial');
+  assert.equal(row.semantics, 'main-path-verified');
   assert.ok(row.limitations.some(text => text.includes('408官方帧') && text.includes('kitten4-partial-visibility-5.md')));
-  assert.ok(row.limitations.some(text => text.includes('生命周期差异')));
+  assert.ok(row.limitations.some(text => text.includes('第七轮') && text.includes('kitten4-partial-lifecycle-7.md')));
+  assert.ok(row.unverifiedBoundaries.some(text => text.includes('场景隐藏')));
 });
 
 test("optional official-package integration: 377 types and audited complete registration tables", {

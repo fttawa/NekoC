@@ -8,7 +8,7 @@ use sha2::{Digest, Sha256};
 use std::{fs, time::Duration};
 
 #[test]
-fn command_paths_compare_each_update_and_keep_modern_membership_difference_bounded() {
+fn command_paths_compare_each_update_including_fixed_modern_membership() {
     let report: Value =
         serde_json::from_slice(&fs::read("docs/kitten4-partial-physics-6-evidence.json").unwrap())
             .unwrap();
@@ -48,14 +48,9 @@ fn command_paths_compare_each_update_and_keep_modern_membership_difference_bound
                 for axis in ["x", "y", "rotation"] {
                     let expected = frame["actor"][axis].as_f64().unwrap();
                     let actual = actor[axis].as_f64().unwrap();
-                    // The forceable=false ticker transition still loses one
-                    // integration step; retain partial and a bounded regression,
-                    // rather than declaring these membership controls equal.
-                    let tolerance = if name == "modern-membership" {
-                        5.01
-                    } else {
-                        1e-7
-                    };
+                    // Round 7 closes the missing integration step; do not keep
+                    // the former 5.01px membership exception after the repair.
+                    let tolerance = 1e-7;
                     assert!(
                         (actual - expected).abs() < tolerance,
                         "{name} interpreted={interpreted} frame={} {axis}: {actual} != {expected}",

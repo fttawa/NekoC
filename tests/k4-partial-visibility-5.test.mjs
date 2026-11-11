@@ -52,5 +52,5 @@ test('visibility pixel observations retain complete frames and bind source bytes
   }
   const differences = pixels.works.flatMap(work => work.frames.filter(f => f.changedPixels > 0)
     .map(frame => [work.name, frame.frame, frame.changedPixels]));
-  assert.deepEqual(differences, [['delete-caller-clone', 8, 1600]], 'documented clone disposal gap must remain visible');
+  assert.deepEqual(differences, [], 'round 7 must close the clone disposal gap without masking frame 8');
 });

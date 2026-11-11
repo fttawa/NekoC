@@ -1,0 +1,1899 @@
+{
+  "schema": "nekoc-k4-partial-data-7-v1",
+  "fps": 60,
+  "seed": 1,
+  "clockOriginMs": 1024,
+  "cases": {
+    "midi-data": {
+      "sha256": "ab6960df7e68e004e80639ffae1a94faee43e544015504609a1615255ff45a6a",
+      "variables": [
+        {
+          "phase": 1,
+          "result": {
+            "id": "0"
+          },
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": {
+            "id": "0"
+          },
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": {
+            "id": "0"
+          },
+          "same": true,
+          "string": "[object Object]"
+        },
+        {
+          "phase": 1,
+          "result": {
+            "id": "0"
+          },
+          "same": true,
+          "string": "[object Object]"
+        },
+        {
+          "phase": 2,
+          "result": {
+            "id": "39"
+          },
+          "same": true,
+          "string": "[object Object]"
+        },
+        {
+          "phase": 2,
+          "result": {
+            "id": "39"
+          },
+          "same": true,
+          "string": "[object Object]"
+        },
+        {
+          "phase": 2,
+          "result": {
+            "id": "39"
+          },
+          "same": true,
+          "string": "[object Object]"
+        },
+        {
+          "phase": 2,
+          "result": {
+            "id": "39"
+          },
+          "same": true,
+          "string": "[object Object]"
+        },
+        {
+          "phase": 3,
+          "result": {
+            "id": "60"
+          },
+          "same": true,
+          "string": "[object Object]"
+        },
+        {
+          "phase": 3,
+          "result": {
+            "id": "60"
+          },
+          "same": true,
+          "string": "[object Object]"
+        },
+        {
+          "phase": 3,
+          "result": {
+            "id": "60"
+          },
+          "same": true,
+          "string": "[object Object]"
+        },
+        {
+          "phase": 3,
+          "result": {
+            "id": "60"
+          },
+          "same": true,
+          "string": "[object Object]"
+        },
+        {
+          "phase": 4,
+          "result": {
+            "id": "87"
+          },
+          "same": true,
+          "string": "[object Object]"
+        },
+        {
+          "phase": 4,
+          "result": {
+            "id": "87"
+          },
+          "same": true,
+          "string": "[object Object]"
+        },
+        {
+          "phase": 4,
+          "result": {
+            "id": "87"
+          },
+          "same": true,
+          "string": "[object Object]"
+        },
+        {
+          "phase": 4,
+          "result": {
+            "id": "87"
+          },
+          "same": true,
+          "string": "[object Object]"
+        },
+        {
+          "phase": 4,
+          "result": {
+            "id": "87"
+          },
+          "same": true,
+          "string": "[object Object]"
+        },
+        {
+          "phase": 4,
+          "result": {
+            "id": "87"
+          },
+          "same": true,
+          "string": "[object Object]"
+        },
+        {
+          "phase": 4,
+          "result": {
+            "id": "87"
+          },
+          "same": true,
+          "string": "[object Object]"
+        },
+        {
+          "phase": 4,
+          "result": {
+            "id": "87"
+          },
+          "same": true,
+          "string": "[object Object]"
+        },
+        {
+          "phase": 4,
+          "result": {
+            "id": "87"
+          },
+          "same": true,
+          "string": "[object Object]"
+        },
+        {
+          "phase": 4,
+          "result": {
+            "id": "87"
+          },
+          "same": true,
+          "string": "[object Object]"
+        },
+        {
+          "phase": 4,
+          "result": {
+            "id": "87"
+          },
+          "same": true,
+          "string": "[object Object]"
+        },
+        {
+          "phase": 4,
+          "result": {
+            "id": "87"
+          },
+          "same": true,
+          "string": "[object Object]"
+        }
+      ],
+      "errors": [],
+      "pageErrors": [],
+      "externalAllowed": 0
+    },
+    "midi-wait-short": {
+      "sha256": "fb53a276526de9c07ba8bc9664a4c1c6bee2330ec28dc3ccf9a5b3eb57338c01",
+      "variables": [
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        }
+      ],
+      "errors": [],
+      "pageErrors": [],
+      "externalAllowed": 0
+    },
+    "midi-wait-zero": {
+      "sha256": "51cedd8062de56f067c2fbebbb31f19b7b9656c0d219ca83bd928978b0228ff4",
+      "variables": [
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        }
+      ],
+      "errors": [],
+      "pageErrors": [],
+      "externalAllowed": 0
+    },
+    "midi-wait-negative": {
+      "sha256": "da1f7485bc70f7e40e98d9af2cdb9dedbaff147efdb9f82ef1d26fa655b29918",
+      "variables": [
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        }
+      ],
+      "errors": [],
+      "pageErrors": [],
+      "externalAllowed": 0
+    },
+    "midi-wait-string": {
+      "sha256": "9ff941f2f75056f80e12327c5d1afc56272d0dfa6ac10906cc519fe6642dd23c",
+      "variables": [
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 3,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        }
+      ],
+      "errors": [],
+      "pageErrors": [],
+      "externalAllowed": 0
+    },
+    "shake-0.14": {
+      "sha256": "d2597a46a3de3d91b2ff9398b6b4946c8b2692e773900cac8f4aad4378504794",
+      "variables": [
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        }
+      ],
+      "actors": [
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 5,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 5,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 5,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 5,
+            "y": 5
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 5,
+            "y": 5
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 5
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 0
+          }
+        }
+      ],
+      "errors": [],
+      "pageErrors": [],
+      "externalAllowed": 0
+    },
+    "shake-0.23": {
+      "sha256": "a32013bec3c4b022f02251969efbb0ab56f09e20ed6e8a0308c637d0e1d7c656",
+      "variables": [
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        }
+      ],
+      "actors": [
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 5,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 5,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 5,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 5,
+            "y": 5
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 5,
+            "y": 5
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 5
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 5
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 5
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 5,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 0
+          }
+        }
+      ],
+      "errors": [],
+      "pageErrors": [],
+      "externalAllowed": 0
+    },
+    "shake-0.4": {
+      "sha256": "4ec746907d5de4b513ee23baaefd40e13462cd2cad7e6a1b130fd3e1a6ed5dd3",
+      "variables": [
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": "unexecuted",
+          "same": "unexecuted",
+          "string": "unexecuted"
+        }
+      ],
+      "actors": [
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 5,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 5,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 5,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 5,
+            "y": 5
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 5,
+            "y": 5
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 5
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 5
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 5
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 5,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 5,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 5,
+            "y": 5
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 5,
+            "y": 5
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 5,
+            "y": 5
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 5
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 5
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": {
+            "x": 5,
+            "y": 0
+          }
+        }
+      ],
+      "errors": [],
+      "pageErrors": [],
+      "externalAllowed": 0
+    },
+    "search": {
+      "sha256": "1c314e2de7fb97d2e24c2c7995334c4e96197c850e70046036b9c7ff2607343a",
+      "variables": [
+        {
+          "phase": 1,
+          "result": 4,
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": 4,
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": 1,
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": 1,
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": 1,
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 1,
+          "result": 1,
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": 6,
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": 6,
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": 3,
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": 3,
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": 3,
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": 3,
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": 3,
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": 3,
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": 3,
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": 3,
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": 3,
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": 3,
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": 3,
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": 3,
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": 3,
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": 3,
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": 3,
+          "same": "unexecuted",
+          "string": "unexecuted"
+        },
+        {
+          "phase": 2,
+          "result": 3,
+          "same": "unexecuted",
+          "string": "unexecuted"
+        }
+      ],
+      "errors": [],
+      "pageErrors": [],
+      "externalAllowed": 0
+    }
+  },
+  "assets": [
+    {
+      "name": "player_v2__3ffeebbd0c789e8d9422.css",
+      "source": "player_v2__3ffeebbd0c789e8d9422.css",
+      "sha256": "39e8e70b124b604831773893cdc95931cdee3eaea52c6dd69f33f5781d48b45a"
+    },
+    {
+      "name": "runtime.f42f527f119e09010b85.js",
+      "source": "runtime.f42f527f119e09010b85.js",
+      "sha256": "4164d67795238f64d035f473418236038ae475ae36032a967cba16ede263735f"
+    },
+    {
+      "name": "player_v2.2d180c468559fbd29528.js",
+      "source": "player_v2.2d180c468559fbd29528.js.orig",
+      "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160"
+    },
+    {
+      "name": "vendors.d00f4bd454a6352e9d71.js",
+      "source": "vendors.d00f4bd454a6352e9d71.js",
+      "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
+    },
+    {
+      "name": "9.c396696e9dc71e25b012.js",
+      "source": "9.c396696e9dc71e25b012.js",
+      "sha256": "5758343310c47596d56e954aa05fa76a546080c8bf4fefd41cac0042794d6195"
+    },
+    {
+      "name": "14.c95e6f2ddd61fb701d0e.js",
+      "source": "14.c95e6f2ddd61fb701d0e.js",
+      "sha256": "d3ce91c9113463db4c0988210caeb1be2ddc508499d5c53a8e73a13b5f440175"
+    },
+    {
+      "name": "11.477512e6f03fd2f6f3c5.js",
+      "source": "11.477512e6f03fd2f6f3c5.js",
+      "sha256": "e81bfe3462cc3e79a70ba016ddee2a372a31480d3f52964952e1d21f3a490f91"
+    }
+  ]
+}

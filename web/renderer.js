@@ -83,6 +83,10 @@ if(fxB.x!=0.){vec2 d=p-.5;float r=length(d)*2.;float a=radians(fxB.x)*max(0.,1.-
 if(fxA.w!=0.){p+=vec2(sin(p.y*25.),sin(p.x*25.))*fxA.w/2000.;}
 if(abs(fxA.z)>=1.){vec2 cell=max(vec2(1.),vec2(abs(fxA.z)/10.+1.));vec2 n=texSize/cell;p=(floor(p*n)+.5)/n;}
 vec4 c=(p.x<0.||p.y<0.||p.x>1.||p.y>1.)?vec4(0.):texture(image,p);
+// K4 applies world alpha when rasterizing the filter's input, before its
+// colour matrices. Matrix outputs may legitimately exceed the alpha channel.
+float alpha=tint.a;
+if(kitten4&&(fxA.x!=0.||fxA.y!=0.||fxB.y>0.)){c=floor(c*alpha*255.+.5)/255.;alpha=1.;}
 // K4 jt uses PIXI colour matrices, ordered hue -> brightness -> saturate.
 // Each pass clamps/quantizes its premultiplied RGBA8 intermediate, not RGB.
 // See docs/kitten4-visual3.md. KN retains its existing HSV/weighted-gray policy.
@@ -97,7 +101,21 @@ if(fxA.x!=0.){vec3 h=hsv(r);h.x=fract(h.x+fxA.x/200.);r=rgb(h);}
 if(fxB.y>0.){r=mix(r,vec3(dot(r,vec3(.299,.587,.114))),clamp(fxB.y/100.,0.,1.));}
 c.rgb=r*c.a;}
 if(fxA.y!=0.){c.rgb=clamp(c.rgb+fxA.y/100.*c.a,0.,c.a);}}
-outColor=c*vec4(tint.rgb*tint.a,tint.a);}`;
+outColor=c*vec4(tint.rgb*alpha,alpha);}`;
+
+// Original screen-space resampling passes. K4 filters rasterize the transformed
+// actor first: cells remain aligned to the filter rectangle, even on rotation.
+const K4_SPATIAL_FRAGMENT = `#version 300 es
+precision highp float;
+uniform sampler2D image;uniform vec2 extent;uniform vec2 center;uniform vec2 origin;
+uniform float amount;uniform float radius;uniform bool twist;
+in vec2 uv;out vec4 outColor;
+void main(){vec2 q=vec2(uv.x,1.-uv.y)*extent;
+if(twist){vec2 d=q-center;float r=length(d);if(r<radius){float a=amount*pow(1.-r/radius,2.),s=sin(a),c=cos(a);d=vec2(c*d.x-s*d.y,s*d.x+c*d.y);}q=clamp(center+d,vec2(.5),extent-.5);}
+else q=floor((q+origin)/amount)*amount-origin;
+if(!twist)q=max(q,vec2(.5));
+vec2 p=vec2(q.x/extent.x,1.-q.y/extent.y);
+outColor=(q.x<0.||q.y<0.||q.x>extent.x||q.y>extent.y)?vec4(0.):texture(image,p);}`;
 
 function program(gl, vertex, fragment) {
   const shaders = [[gl.VERTEX_SHADER, vertex], [gl.FRAGMENT_SHADER, fragment]].map(([type, source]) => {
@@ -132,6 +150,8 @@ export class StageRenderer {
     const gl = canvas.getContext('webgl2', { alpha: false, antialias: false, preserveDrawingBuffer: false, powerPreference: 'high-performance' });
     if (!gl) throw Error('需要支持 WebGL 2 的浏览器。');
     this.gl = gl; this.pen = program(gl, PEN_VERTEX, PEN_FRAGMENT); this.texture = program(gl, TEXTURE_VERTEX, TEXTURE_FRAGMENT);
+    this.k4Spatial = program(gl,TEXTURE_VERTEX,K4_SPATIAL_FRAGMENT);
+    this.k4SpatialUniform=Object.fromEntries(['stageSize','position','dimensions','angle','image','extent','center','origin','amount','radius','twist'].map(k=>[k,gl.getUniformLocation(this.k4Spatial,k)]));
     this.penSize = gl.getUniformLocation(this.pen, 'stageSize');
     this.uniform = Object.fromEntries(['stageSize', 'position', 'dimensions', 'angle', 'image', 'tint', 'fxA', 'fxB', 'texSize', 'repeatUV', 'kitten4'].map(k => [k, gl.getUniformLocation(this.texture, k)]));
     this.vao = gl.createVertexArray(); this.buffer = gl.createBuffer(); this.bufferCapacity = 0;
@@ -161,6 +181,8 @@ export class StageRenderer {
     this.monitorDeclarations=project.variables?.variablesDict||{};
     this.monitorOwners={...project.scenes?.scenesDict,...project.actors?.actorsDict};
     const gl = this.gl;
+    for(const entry of this.k4FilterCache?.values()||[])for(const surface of entry.surfaces){gl.deleteFramebuffer(surface.framebuffer);gl.deleteTexture(surface.texture);}
+    this.k4FilterCache=new Map();this.stats.k4FilterBytes=0;
     for(const query of this.gpuQueries)gl.deleteQuery(query);
     this.gpuQueries=[];this.stats.gpuMs=null;
     for (const item of this.images.values()) gl.deleteTexture(item.texture);
@@ -641,7 +663,8 @@ export class StageRenderer {
     this.drawTexture(texture,(left+right)/2/sx-this.width/2,this.height/2-(top+bottom)/2/sy,canvas.width/sx,canvas.height/sy);
   }
 
-  drawTexture(texture,x,y,width,height,angle=0,tint=[1,1,1,1],effects=null,texSize=null,repeatUV=null) {
+  drawTexture(texture,x,y,width,height,angle=0,tint=[1,1,1,1],effects=null,texSize=null,repeatUV=null,filterCenter=null) {
+    if(this.kitten4&&effects&&(effects[3]>=1||effects[5]>0)&&!this.k4Filtering)return this.drawK4SpatialTexture(texture,x,y,width,height,angle,tint,effects,texSize,repeatUV,filterCenter);
     if(this.sceneTransform){const t=this.sceneTransform;x+=t.x;y-=t.y;tint=[tint[0],tint[1],tint[2],tint[3]*t.alpha];}
     const gl=this.gl,u=this.uniform,e=effects||NO_EFFECTS;
     gl.useProgram(this.texture); gl.uniform2f(u.stageSize,this.width,this.height); gl.uniform2f(u.position,x,y);
@@ -651,6 +674,57 @@ export class StageRenderer {
     gl.uniform2f(u.texSize,texSize?.[0]||Math.abs(width)||1,texSize?.[1]||Math.abs(height)||1);
     gl.uniform2f(u.repeatUV,repeatUV?.[0]||0,repeatUV?.[1]||0);
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,texture); gl.drawArrays(gl.TRIANGLES,0,6); this.stats.drawCalls++;
+  }
+
+  drawK4SpatialTexture(texture,x,y,width,height,angle,tint,e,texSize,repeatUV,filterCenter){
+    const gl=this.gl,sx=this.canvas.width/this.width,sy=this.canvas.height/this.height;
+    const c=Math.cos(angle),s=Math.sin(angle),w=Math.abs(width),h=Math.abs(height),pad=e[5]>0?20:0;
+    const halfX=(Math.abs(c)*w+Math.abs(s)*h)/2,halfY=(Math.abs(s)*w+Math.abs(c)*h)/2;
+    const left=Math.max(0,Math.floor((this.width/2+x-halfX-pad)*sx)),top=Math.max(0,Math.floor((this.height/2-y-halfY-pad)*sy));
+    const right=Math.min(this.canvas.width,Math.ceil((this.width/2+x+halfX+pad)*sx)),bottom=Math.min(this.canvas.height,Math.ceil((this.height/2-y+halfY+pad)*sy));
+    const fw=right-left,fh=bottom-top;if(fw<=0||fh<=0)return;
+    const target=gl.getParameter(gl.FRAMEBUFFER_BINDING),viewport=gl.getParameter(gl.VIEWPORT),transform=this.sceneTransform;
+    const cache=this.k4FilterCache??=new Map(),key=`${fw}x${fh}`,bytes=fw*fh*8;
+    let entry=cache.get(key);
+    if(entry){cache.delete(key);cache.set(key,entry);}
+    else{
+      // Bounded LRU avoids allocation churn when several actors have different
+      // bounds. At most one oversized pair is retained; never one full stage
+      // pair per actor. Expose its actual bytes separately from pen surfaces.
+      while(cache.size&&(cache.size>=4||(this.stats.k4FilterBytes||0)+bytes>32*1024*1024)){
+        const [oldKey,old]=cache.entries().next().value;
+        for(const surface of old.surfaces){gl.deleteFramebuffer(surface.framebuffer);gl.deleteTexture(surface.texture);}
+        cache.delete(oldKey);this.stats.k4FilterBytes-=old.bytes;
+      }
+      const surfaces=[];
+      try{surfaces.push(this.makeSurface(fw,fh));surfaces.push(this.makeSurface(fw,fh));}
+      catch(error){for(const surface of surfaces){gl.deleteFramebuffer(surface.framebuffer);gl.deleteTexture(surface.texture);}gl.bindFramebuffer(gl.FRAMEBUFFER,target);gl.viewport(...viewport);throw error;}
+      entry={surfaces,bytes};cache.set(key,entry);this.stats.k4FilterBytes=(this.stats.k4FilterBytes||0)+bytes;
+    }
+    const {surfaces}=entry;
+    this.k4Filtering=true;this.sceneTransform=null;
+    try{
+      gl.bindFramebuffer(gl.FRAMEBUFFER,surfaces[0].framebuffer);gl.viewport(0,0,fw,fh);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);
+      // Negative viewport origin keeps the original stage transform and pixel
+      // centres while rendering only the cropped filter input.
+      gl.viewport(-left,-(this.canvas.height-bottom),this.canvas.width,this.canvas.height);
+      // The clear input is a premultiplied raster, not a compositing target for
+      // the matrix result (whose RGB may exceed alpha).
+      this.drawTexture(texture,x,y,width,height,angle,tint,[e[0],0,e[2],0,0,0,0],texSize,repeatUV);
+      let input=0;
+      for(const [twist,amount]of [[false,e[3]],[true,e[5]]]){
+        if(!(amount>0))continue;
+        const output=1-input,u=this.k4SpatialUniform;
+        gl.bindFramebuffer(gl.FRAMEBUFFER,surfaces[output].framebuffer);gl.viewport(0,0,fw,fh);gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.useProgram(this.k4Spatial);gl.uniform2f(u.stageSize,fw,fh);gl.uniform2f(u.position,0,0);gl.uniform2f(u.dimensions,fw,fh);gl.uniform1f(u.angle,0);gl.uniform1i(u.image,0);
+        gl.uniform2f(u.extent,fw,fh);gl.uniform2f(u.center,(this.width/2+(filterCenter?.x??x))*sx-left,(this.height/2-(filterCenter?.y??y))*sy-top);
+        gl.uniform2f(u.origin,left,top);
+        gl.uniform1f(u.amount,twist?amount*10*Math.PI/180:amount*sx);gl.uniform1f(u.radius,Math.hypot(w,h)/2*sx);gl.uniform1i(u.twist,twist?1:0);
+        gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,surfaces[input].texture);gl.drawArrays(gl.TRIANGLES,0,6);this.stats.drawCalls++;input=output;
+      }
+      gl.bindFramebuffer(gl.FRAMEBUFFER,target);gl.viewport(...viewport);this.sceneTransform=transform;
+      this.drawTexture(surfaces[input].texture,(left+right)/2/sx-this.width/2,this.height/2-(top+bottom)/2/sy,fw/sx,fh/sy,0,[1,1,1,1],[0,0,0,0,0,0,e[6]]);
+    }finally{this.sceneTransform=transform;this.k4Filtering=false;gl.bindFramebuffer(gl.FRAMEBUFFER,target);gl.viewport(...viewport);}
   }
 
   render(resetStats=true) {
@@ -712,7 +786,7 @@ export class StageRenderer {
       if(!a.visible)continue;
       const image=this.spriteImage(a);
       if(image){const {x,y,width,height,angle}=actorGeometry(a,image,this.kitten4);
-        this.drawTexture(image.texture,x,y,width,height,angle,[1,1,1,a.opacity??1],a.effects,[image.width,image.height]);}
+        this.drawTexture(image.texture,x,y,width,height,angle,[1,1,1,a.opacity??1],a.effects,[image.width,image.height],null,{x:a.x,y:a.y});}
     }
     }finally{this.sceneTransform=null;}
   }

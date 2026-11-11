@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 import crypto from "node:crypto";
 import ts from "typescript";
 import { drawingMainPaths, physicsMainPaths, propertyMainPaths, serviceTypes } from "./k4-partial-6-scope.mjs";
+import { round7MainPaths } from "./k4-partial-7-scope.mjs";
 
 export function webpackModules(source) {
   let modules;
@@ -424,7 +425,7 @@ export function mappingStatus(root, rows) {
     }
     if (row.type === "set_entity_show_hide") {
       semantics = "partial";
-      limitations.push("第五轮17份原创夹具408官方帧：渐变尾部update相位、竞争alpha斜率叠加、取消调用方冻结、隐藏清理held指针、零/负/NaN/Infinity时长已实测；逐帧/像素结果见 kitten4-partial-visibility-5.md。克隆删除仍有一帧生命周期差异，场景/悬空UUID/非60Hz与完整手势边界保留partial");
+      limitations.push("第五轮17份原创夹具408官方帧：渐变尾部update相位、竞争alpha斜率叠加、取消调用方冻结、隐藏清理held指针、零/负/NaN/Infinity时长已实测；见 kitten4-partial-visibility-5.md。第五轮曾记录的克隆删除一帧差异已由第七轮修复；场景/悬空UUID/非60Hz与完整手势边界未验证");
     }
     if (row.type === "self_shake" && evidence.length) {
       semantics = "partial";
@@ -479,7 +480,7 @@ export function mappingStatus(root, rows) {
         "已知差异：Rapier与LiquidFun接触求解器不等价，既有bounce最大位置误差2.797382832px、friction为0.703993056px；不是已验证的完整物理兼容",
         "未验证边界：精确60Hz等待截止点存在浮点相位差，.04秒控制夹具不覆盖该边界",
       ];
-      limitations.push("第六轮只升级硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership仅有界回归，不升级其两个开关。见 kitten4-partial-physics-6.md。不是求解器全集认证");
+      limitations.push("第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证");
     }
     if (serviceTypes.has(row.type) && evidence.length && !stub) {
       status = "设备降级";
@@ -489,12 +490,18 @@ export function mappingStatus(root, rows) {
     if (propertyMainPaths.has(row.type) && evidence.length && !stub) {
       semantics = "main-path-verified";
       unverifiedBoundaries = ["未验证边界：删除竞争/悬空UUID、异步资源加载、非有限几何、iOS/ASCII与复杂对象输入；不是全属性平台全集认证"];
-      limitations.push("第六轮活实体/活克隆与已加载造型主路径：8份原创夹具192官方update、双VM384帧状态与192对画布changedPixels=0（RGB容差8）；见 kitten4-partial-properties-6.md。set_entity_show_hide仍保留删除生命周期已知差异，不在此升级");
+      limitations.push("第六轮活实体/活克隆与已加载造型主路径：8份原创夹具192官方update、双VM384帧状态与192对画布changedPixels=0（RGB容差8）；见 kitten4-partial-properties-6.md。显隐及删除生命周期另由第七轮专项约束，不扩展成任意删除竞争认证");
     }
     if (drawingMainPaths.has(row.type) && evidence.length && !stub) {
       semantics = "main-path-verified";
       unverifiedBoundaries = ["未验证边界：平台字体/RTL、极端资源、翻转/多倍率、ELASTIC、颜色检测raster与任意并发；不是所有字体/纹理及滤镜shader认证"];
       limitations.push("第六轮主路径：文字三align/旋转/半透明跨帧36对RGB全等；图像源alpha/pivot/旋转24帧超差0；all-scope clear后10帧超差0，见 kitten4-partial-effects-6.md。设置阶段pixelate/twist/ASCII仍有真实差异，其setter不升级");
+    }
+    const round7 = round7MainPaths.get(row.type);
+    if (round7 && evidence.length && !stub) {
+      semantics = "main-path-verified";
+      unverifiedBoundaries = [round7.boundary];
+      limitations.push(`第七轮主路径：${round7.scope}；见 ${round7.evidence}。边界不计作完整语义认证`);
     }
     // Helpful VM anchors for special rewrites without blanket string matching.
     const target = { set_actor_as: "kitten4_legacy_", set_velocity: "kitten4_set_velocity", set_entity_show_hide: "kitten4_entity_visibility" }[row.type];
