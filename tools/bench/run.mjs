@@ -75,7 +75,7 @@ async function main() {
   const report = { schema: "nekoc-bench-suite-v1", options: o, date: new Date().toISOString(),
     host: { platform: process.platform, arch: process.arch, cpu: os.cpus()[0]?.model, logical_cpus: os.cpus().length, memory: os.totalmem(), node: process.version },
     revision: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(), works: [],
-    hateneko: { status: "unverified", reason: "Not measured by this K4 runner. Run tools/bench/hateneko.mjs to record prerequisites; see docs/performance.md." } };
+    hateneko: { status: "separate-kn-suite", reason: "Not measured by this K4 runner. Run tools/bench/hateneko.mjs for same-input KN measurements; see docs/performance.md." } };
   if (o.runtime !== "official") report.binary = { file: binary, sha256: createHash("sha256").update(await readFile(binary)).digest("hex") };
   for (const file of files) {
     const work = { name: path.basename(file), file, sha256: createHash("sha256").update(await readFile(file)).digest("hex"), runs: [] };

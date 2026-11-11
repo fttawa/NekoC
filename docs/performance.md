@@ -8,7 +8,7 @@
 仓库不携带外部作品或内核源码。紧凑的自有测量证据见 [performance-evidence.json](performance-evidence.json)。
 
 **这不是“所有作品 NekoC 比官方快”的结论。** 导入边界、渲染成本、广播/克隆调度存在差异；
-对工作量不等或加载失败的项目不计算跨内核速度比。HateNeko 当前不可运行，数据标为未验证。
+对工作量不等或加载失败的项目不计算跨内核速度比。HateNeko 的独立 KN 同场实测见下文，不能套用本节 K4 数字。
 
 ## 环境与复现
 
@@ -49,7 +49,7 @@
 克隆数和广播接收次数不等，单列而不宣称速度比。画笔只比较标量工作量，像素一致性未验证。
 
 下表各单元格为三次独立运行统计量的中位数，帧单位 ms；内存单位 MiB。
-N/K 分别为 NekoC / 官方离线 K4。HateNeko 各行均 N/A（未验证）。
+N/K 分别为 NekoC / 官方离线 K4。此表不含 HateNeko（KN 后端另测，见下文）。
 
 | 自制作品 | 导入 N/K ms | 帧均值 N/K ms | 帧 p95 N/K ms | 进程/renderer 峰值 N/K MiB | K4 JS heap 采样 MiB |
 |---|---:|---:|---:|---:|---:|
@@ -149,12 +149,115 @@ after 基准之后只收紧 CLI 溢出参数校验，不改变正常输入测量
 
 ## HateNeko
 
-`node tools/bench/hateneko.mjs E:/nekoc-wt/_ref/hateneko dist/bench/hateneko.json`：
-PATH 未发现 `love`、`luajit`、`lua`；`player/main.lua:15–16,60–84` 依赖 LoveHost 和预编译作品，
-`player/tools/kn.py:5–8,34–40` 接收 `.bcmkn` 并写 works/builds。
-没有在只读参考目录运行写入型构建工具，也没有以 Lua 数值循环冒充完整运行时。
-另外该参考目录 `VERSION` 实测是 **0.4.0**，不能凭附件把此目录宣称为 0.7.1。
-HateNeko 导入/帧耗时/内存峰值均为 **未验证（N/A）**；未移植任何 HateNeko 实现逻辑，来源注释清单为空。
+### 同一 KN 输入实测（2026-11-11）
+
+已以 **HateNeko 0.4.0 / Love2D 11.5** 真正运行 KN 作品，替换此前的前置检查/N/A。
+不是 0.7.1，不是 K4 输入适配，也不是脱离作品运行时的 Lua 算术循环。
+代码基线 `0832707`，未做引擎优化；本表不含同时进行的 strcat 分支改动。
+同机 Windows x64 / i7-14650HX / Node v24.12.0，NekoC 使用 release `perf-bench` 默认 JIT。
+紧凑证据见 [performance-hateneko-evidence.json](performance-hateneko-evidence.json)，完整每帧数组与状态
+在 `dist/bench/hateneko/results.json`，Love 输出/错误日志同目录。
+
+```powershell
+$env:NEKOC_NODE_MODULES='D:/AppData/Local/Temp/opencode/nekoc-kitenn/node_modules'
+$env:CARGO_PROFILE_DEV_DEBUG='0'
+$env:CARGO_PROFILE_TEST_DEBUG='0'
+$env:CARGO_INCREMENTAL='0'
+$env:CARGO_BUILD_JOBS='1'
+cargo build --release --bin perf-bench
+node tools/bench/hateneko.mjs --frames 60 --warmup 10 --repeats 3
+# 竞争任务中断后以相同参数加 --resume 续跑
+node tools/bench/hateneko-evidence.mjs dist/bench/hateneko/results.json docs/performance-hateneko-evidence.json
+```
+
+`kn-fixtures.mjs` 使用本仓库 TS→积木生成器，七份 `.bcmkn` 均通过在线官方 KN 编辑器
+`tools/editor-compat.mjs`（`ok=true`、无 issues/pageErrors）。**编辑器检查只证明积木结构可加载，
+不证明本表工作量与官方运行结果一致**；HateNeko 是第三方对照，不是官方行为证据。
+递归无值参数、无返回值积木，不绕开参数 id 约定。
+
+只读参考完整复制到忽略目录 `dist/hateneko-run/`，其全树 SHA-256 在运行前后核对不变。
+只在副本内用 `kn.py compile --no-assets` 编译；所有 Lua/SVG 转换产物留在副本。
+副本 main 顶部加载自有 `hateneko-probe.lua`；conf 仅增加作品选择环境变量和关闭全屏/vsync。
+未改 scheduler/原语/作品语义，未移植 HateNeko 逻辑；来源注释清单为空。
+仍调用原 main.update、LoveHost 预加载及绘制，不启用会自动点击的 vendor probe/shot。
+
+七项自制微基准各预热 10、测量 60 帧，3 次独立 N/H 进程，交替先后顺序；固定 dt=1/60、不强制 GC。
+每次启动前检查 cargo/rustc/perf-bench/love/lovec；兼容套件中途发现 strcat 构建后自动中止、空闲后续跑。
+该检查不是系统级独占锁，检查后新启动任务及频率/温度/OS 调度仍可能干扰。
+
+**边界不可混淆：** N 导入为读取 `.bcmkn`→Program 编译→Engine；H 为观察模块入口→预加载→rt.start 返回，
+conf 已提前 require 预编译 Lua（证据 `work_cached_at_probe_entry=true`），不含该作品解析、进程启动或 Python 编译。
+Python 编译墙钟另存 `compile_wall_ms`（含 Python 启动和内联 SVG 转换）。因此不算导入速度比。
+N 帧是 Engine.advance；H 帧只包围 rt.step，含同步画笔处理但不含外层 draw/present。
+内存均为最终诊断快照前的进程 PeakWorkingSetSize，H 包含 Love 窗口/驱动/绘制，不算内存效率倍数。
+
+下表为三次运行统计量的中位数；N/H 分别为 NekoC/HateNeko。帧单位 ms、内存 MiB。
+
+| KN 自制作品 | 导入 N/H ms | 帧均值 N/H ms | 帧 p95 N/H ms | 进程峰值 N/H MiB | H/N 帧耗时比 |
+|---|---:|---:|---:|---:|---:|
+| 数值循环 | 0.770 / 205.36 | 0.02551 / 1.66385 | 0.02680 / 2.03250 | 6.98 / 152.50 | 65.21× |
+| 列表操作 | 0.754 / 195.38 | 0.22664 / 1.35933 | 0.23790 / 1.88200 | 7.24 / 152.59 | 6.00× |
+| 字符串拼接 | 0.755 / 192.10 | 1.11807 / 2.50636 | 1.21660 / 4.17950 | 10.73 / 154.18 | 2.24× |
+| 克隆创建删除 | 0.719 / 186.59 | 0.11878 / 0.91682 | 0.12980 / 1.94290 | 7.09 / 156.66 | 不可比 |
+| 广播风暴 | 1.036 / 186.36 | 0.17051 / 0.75654 | 0.18040 / 1.47600 | 8.34 / 152.80 | 不可比 |
+| 过程递归 | 0.886 / 187.61 | 0.03119 / 1.25052 | 0.01940 / 1.71080 | 7.71 / 152.52 | 40.09× |
+| 画笔 | 0.808 / 209.84 | 0.07816 / 3.56698 | 0.08210 / 4.07130 | 7.36 / 154.64 | 不可比 |
+
+递归存在少量较慢帧，故均值可大于 p95，原始数组保留；不剔除离群帧。
+倍数是中位帧均值 H/N，**只适用于这四份微基准与本次观察范围**，不推广为完整 KN 或实际游戏加速。
+
+#### 最终状态、工作量与失败项
+
+核对全局标量/逐项类型化列表、当前场景、角色属性多重集及实体变量；数值相对/绝对容差 1e-9。
+克隆临时 ID 按原型/属性归一，不删除角色数；N 的 K4-facing oracle rotation 用 `90-rotation` 还原为
+VM heading，与 H 的 dir 寄存器比较。此转换不代表渲染角度/像素已经一致。
+
+- 数值：两边 log=`998.9999999999424`；列表：log=1、1000 项均为数字 1；字符串：
+  16000 字符，完整字符串严格一致；递归：log=56000、depth=0。四项三次均为观察状态一致后才给比值。
+- 克隆：70 帧末 N 只有原角色 1 个，H 为 101 个；标量都是 0，**不能因标量相同忽略生命周期差异**。
+  限额/延迟销毁的具体根因未验证，不修引擎来迎合测速。
+- 广播：70 帧末 N log=84000，H log=840，接收工作量不等。是否由重复消息重启/合并导致未验证。
+- 画笔：N log=280000，H 三次为 138496 / 137984 / 138560，位置也不等。
+  H 墙钟预算/同步绘图可能导致每帧完成工作量变化，因果未验证；即使标量相同也不能当纯 VM 比。
+- 最终状态一致不是逐帧、调用栈、别名、像素或随机序列一致；两边 seed=1 不保证同 PRNG。
+
+#### 仓库自有 KN 兼容短跑
+
+完整遍历 `projects/` 16 份、`tests/fixtures/` 20 份 `.bcmkn`，各 12 帧、无预热、一次独立进程；
+未改作品、未合成鼠标/键盘输入，超时上限 20 秒。36 份 HateNeko 均编译成功；
+NekoC 30 份加载运行成功、6 份加载失败；HateNeko 35 份无报告错误/缺失原语、1 份显式 unsupported。
+最终 **JSON 可表达观察状态 17/36 一致**，另 12 份双边运行但状态不同、6 份 N 加载失败、1 份 H 不支持。
+本套件退出 1 是如实保留不一致项，不是全通过；所有短跑都不给性能倍数。
+
+| 范围 | 一致/总数 | 差异、失败或未验证 |
+|---|---:|---|
+| projects/eisei | 1/8 | `eisei_pv` 开场一致；`eisei_pen`、`_128`、`_128_compact`、`_128_full_rebuilt`、`_128_import_probe`、`_128_lite` 的 N 加载均报 `math_arithmetic: missing input A`，H 可运行；`_128_fixed` 的列表有文本 `"1"` vs 数字 `1` |
+| projects/qwen-chat、qwen-mini | 2/2 | 两个 base 无输入开场一致，不是实际模型生成验证 |
+| projects/fangjie | 0/1 | y=-65 vs 0，chunk_x 列表长度 64 vs 0；具体根因未验证 |
+| projects/pencraft | 0/3 | world 列表文本 `"3333333333333333"` vs 数字 `3333333333333300`，含类型/精度差异 |
+| projects/starhold | 0/1 | dt、lastTime 不等，H 使用墙钟（例 lastTime=0.04 vs 0.18333）；不能据此断言调度错误 |
+| projects/tiny-lm | 0/1 | 生成 id 列表长度 10 vs 0；无人输入、短帧窗口，工作进度不等，原因未验证 |
+| actor-variables 两份 | 0/2 | H 全局变量表含私有变量默认值，N 只在实体变量中导出；观察结构/作用域差异，不直接当成私有变量执行错误 |
+| audio、input-kn | 2/2 | 无输入开场一致；真实音频结束与输入响应未验证 |
+| kn-async-services/timers | 0/1 | fired=0 vs 2；N 不执行 native callback 插槽，H 有回调，非同工作量 |
+| kn-semantics | 9/12 | broadcast[-wait]、clone、conversion-boolean、list、scheduling、wait-negative、yield[-warp] 一致；conversion 的嵌套列表/串化不同，objects 缺失值不同；object-json 的 H 缺 `JSON.parse/JSON.stringify/Object.keys`，虽未报崩溃仍记 unsupported |
+| list_writes、nonfinite 两份 | 3/3 | JSON 观察一致；非有限数会序列化为 null，不能验证 NaN/Infinity 身份或列表别名 |
+
+逐项错误/状态摘要和 hash 均在紧凑证据；完整变量/列表不嵌入文档，仅留 dist。
+Love 窗口仍可能收到 OS 鼠标/焦点事件，随机、墙钟、素材/音频外部状态不等时一律保留为未验证，
+不以“第三方实现等于官方”判定哪边正确。
+
+本次 Python 编译墙钟七项分别约 391 / 408 / 397 / 392 / 411 / 422 / 413 ms（只编译一次，不是统计中位数）。
+实测 N 二进制 SHA-256：`068adef6b56ce947905d3544ba22cc5eec37530f649e8f165bb34a962b93be47`；
+探针 SHA-256：`0b0b593ccf3554b21cf8834ee1d07d59baecc8a1992bf6c8deaf2ddf789aa384`。
+后续修改仅收紧脚本验证/比较投影，不修改帧数组、二进制或 Lua 计时探针。
+
+本任务验证：`cargo fmt --check`、`cargo clippy --all-targets -- -D warnings` 成功；
+`RUST_TEST_THREADS=1 cargo test --all-targets` 为 780 passed / 0 failed / 1 ignored。
+默认并行首次在已有 columns JIT 差分测试 frame 53 失败，未修改测试，单线程全套重跑成功；根因未验证。
+`npm run -s test:tools` 最终为 406 passed / 0 failed / 51 skipped；K4 三 seed 均 `ran:52, run:1`，
+达到门槛但不隐藏剩余运行错误。详细原文摘要见根目录未提交 `OC-REPORT.md`。
+已保留 release 二进制于 `dist/bench/hateneko/bin/` 后清理本 worktree 4.3 GiB Cargo 临时构建产物；复验需按上述命令重建。
 
 ## 验证与已知风险
 
