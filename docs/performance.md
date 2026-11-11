@@ -223,7 +223,7 @@ VM heading，与 H 的 dir 寄存器比较。此转换不代表渲染角度/像�
 
 #### 仓库自有 KN 兼容短跑
 
-完整遍历 `projects/` 16 份、`tests/fixtures/` 20 份 `.bcmkn`，各 12 帧、无预热、一次独立进程；
+**修复前基线（`e46d38e` 所归档）**：完整遍历 `projects/` 16 份、`tests/fixtures/` 20 份 `.bcmkn`，各 12 帧、无预热、一次独立进程；
 未改作品、未合成鼠标/键盘输入，超时上限 20 秒。36 份 HateNeko 均编译成功；
 NekoC 30 份加载运行成功、6 份加载失败；HateNeko 35 份无报告错误/缺失原语、1 份显式 unsupported。
 最终 **JSON 可表达观察状态 17/36 一致**，另 12 份双边运行但状态不同、6 份 N 加载失败、1 份 H 不支持。
@@ -247,7 +247,57 @@ NekoC 30 份加载运行成功、6 份加载失败；HateNeko 35 份无报告错
 Love 窗口仍可能收到 OS 鼠标/焦点事件，随机、墙钟、素材/音频外部状态不等时一律保留为未验证，
 不以“第三方实现等于官方”判定哪边正确。
 
-本次 Python 编译墙钟七项分别约 391 / 408 / 397 / 392 / 411 / 422 / 413 ms（只编译一次，不是统计中位数）。
+#### kncompat 官方复核与修复（2026-11-11）
+
+本轮以 `e46d38e` 为基线，不合入同时进行的 strcat 改动，不重写上方历史微基准数字。
+测量二进制来自本 worktree 未提交修复源码（报告 revision 是基线 HEAD，不冒充已提交修订）；
+release `perf-bench` SHA-256 为 `7bd2611afa63de1a1b4b5e2fe8b3b3a941919ba46bc7ca29a9dcb2ea774c645e`。
+只修官方证据确认的 KN 问题，不追求与第三方输出无条件相同。详细取证和限制见
+[kncompat.md](kncompat.md)、[类型复核](kn-value-types.md)、[运行进度与 callback](kn-project-progress.md)。
+
+| 原争议 | 官方 KN 0.27.4 实测／源码结论 | 本轮处理 |
+|---|---|---|
+| 六份 eisei 缺少算术 A/B | 缺槽得到数值 NaN，脚本继续；不是默认 0 | 修正 KN 算术编译，原作品不变，六份均可完整编译 |
+| eisei 列表 `"1"` | 初始/运行时列表保留文本 | NekoC 正确，保留类型 |
+| pencraft world 长数字文本 | 保留 `"3333333333333333"`，不能按数值舍入 | NekoC 正确，保留类型 |
+| conversion 嵌套列表、objects 缺失值 | 逗号串化与按使用上下文处理缺失值，与 NekoC 已有主路径一致 | 增加五份带类型原创回归，不迎合第三方 |
+| 新探针：列表中的 Undefined 再读取 | 普通索引/last 均 NaN；null 则保留 | 修正 KN typed `list_item`，JIT 开/关与官方逐变量一致 |
+| fangjie y、chunk_x | world 初始化先于 chunk_x/标题；官方原作也能长时间保持 y=0、chunk_x=0 | 进度差异，不伪造列表修复；完整原作终态及逐帧策略仍未验证 |
+| tiny-lm id 长度 | 官方自然完成生成15项，前10项与 NekoC 记录相同 | 固定12次 update 工作量不等，不据此认定采样/append 错 |
+| native timer callback 插槽 | 官方编译未传 statement body，只传 delay；替换为空函数，fired=0 | 保留不执行插槽，不能因 H fired=2 而修改 |
+
+独立兼容复跑使用新选项 `--compat-only`，不生成/计量七份性能探针；新增五份原创类型夹具
+均通过官方 editor-compat。固定12帧、无预热、无合成输入的状态比较仍只是短窗观察，
+不把 KN 的默认 30000 次/4ms warp 切片差异伪装成完整调度一致性。
+
+```powershell
+node tools/bench/hateneko.mjs --compat-only --out dist/bench/kncompat
+# 检测到其他任务启动 cargo/bench 后中止，空闲时同参数续跑
+node tools/bench/hateneko.mjs --compat-only --out dist/bench/kncompat --resume
+node tools/bench/hateneko-evidence.mjs dist/bench/kncompat/results.json docs/kncompat-hateneko-evidence.json
+```
+
+本轮原始兼容复跑与门禁结果另行归档，历史的 `performance-hateneko-evidence.json` 保持不变。
+完整结果为 [kncompat-hateneko-evidence.json](kncompat-hateneko-evidence.json)，manifest 41项全部双边完成，
+参考树指纹前后不变。运行期间其他任务三次启动 cargo，guard 中止后以相同二进制、参数、作品 hash 续跑；
+没有禁用空闲检查，没有删除任何失败/unsupported/不等状态。套件最终退出1是保留不一致的预期结果。
+
+| 短跑范围 | NekoC 运行成功 | HateNeko 无报告错误／缺失原语 | 观察状态相等 | 剩余情况 |
+|---|---:|---:|---:|---|
+| 原有36份（修复前） | 30/36 | 35/36 | 17/36 | 6份 N 加载失败、12份双边不等、1份 H unsupported |
+| 同一36份（本轮） | **36/36** | 35/36 | 17/36 | 六份 eisei 已加载运行，仍有官方支持的字符串类型差异；共18份双边不等、1份 H unsupported |
+| 新增5份类型回归 | 5/5 | 5/5 | 1/5 | runtime-lists 一致；另外4份不同，但5份均与官方逐变量一致 |
+| 本轮完整41份 | **41/41** | 40/41 | 18/41 | 22份双边不等、1份 H unsupported，不计算性能比 |
+
+本轮格式/Clippy 已通过；JS 工具测试 `420 passed / 0 failed / 50 skipped`；K4 原命令三 seed
+均 `ran:52, run:1`，达到52门槛但仍保留原有运行错误，不声称全语料零错误。
+`RUST_TEST_THREADS=1 cargo test --all-targets` 为 `786 passed / 0 failed / 1 ignored`，完整测试不删减。
+已保留本轮二进制于 `dist/bench/kncompat/bin/`，之后 `cargo clean` 清理本 worktree 4.4 GiB 构建产物。
+
+#### 修复前性能测量的历史验证记录
+
+以下仍是前一轮七项性能测量的原始记录，不是本轮 kncompat 二进制或门禁结果。
+该轮 Python 编译墙钟七项分别约 391 / 408 / 397 / 392 / 411 / 422 / 413 ms（只编译一次，不是统计中位数）。
 实测 N 二进制 SHA-256：`068adef6b56ce947905d3544ba22cc5eec37530f649e8f165bb34a962b93be47`；
 探针 SHA-256：`0b0b593ccf3554b21cf8834ee1d07d59baecc8a1992bf6c8deaf2ddf789aa384`。
 后续修改仅收紧脚本验证/比较投影，不修改帧数组、二进制或 Lua 计时探针。

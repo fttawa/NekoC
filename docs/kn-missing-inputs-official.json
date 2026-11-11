@@ -1,0 +1,83 @@
+{
+  "officialUrl": "https://kn.codemao.cn/editor",
+  "verifiedAt": "2026-11-11T13:24:11.010Z",
+  "browserVersion": "157.0.4341.42",
+  "fixture": "dist/kncompat/missing-inputs/probe.bcmkn",
+  "sha256": "d0f1d15c14517c47df417851e2b8f44134377ba176e40ec41c05c521143c40cd",
+  "pageErrors": [],
+  "runtimeBundle": {
+    "url": "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+    "sha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7"
+  },
+  "mainBundle": {
+    "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+    "sha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165"
+  },
+  "variables": {
+    "done": 1,
+    "add_A": {
+      "$number": "NaN"
+    },
+    "add_B": {
+      "$number": "NaN"
+    },
+    "add_both": {
+      "$number": "NaN"
+    },
+    "minus_A": {
+      "$number": "NaN"
+    },
+    "minus_B": {
+      "$number": "NaN"
+    },
+    "minus_both": {
+      "$number": "NaN"
+    },
+    "multiply_A": {
+      "$number": "NaN"
+    },
+    "multiply_B": {
+      "$number": "NaN"
+    },
+    "multiply_both": {
+      "$number": "NaN"
+    },
+    "divide_A": {
+      "$number": "NaN"
+    },
+    "divide_B": {
+      "$number": "NaN"
+    },
+    "divide_both": {
+      "$number": "NaN"
+    },
+    "power_A": {
+      "$number": "NaN"
+    },
+    "power_B": {
+      "$number": "NaN"
+    },
+    "power_both": {
+      "$number": "NaN"
+    }
+  },
+  "editorCompat": {
+    "editorUrl": "https://kn.codemao.cn/editor",
+    "checkedAt": "2026-11-11T13:24:01.761Z",
+    "projects": [
+      {
+        "input": "dist/kncompat/missing-inputs/probe.bcmkn",
+        "sha256": "d0f1d15c14517c47df417851e2b8f44134377ba176e40ec41c05c521143c40cd",
+        "editorVersion": "0.27.4",
+        "projectVersion": "0.27.4",
+        "blockCount": 43,
+        "issues": [],
+        "pageErrors": [],
+        "ok": true
+      }
+    ],
+    "bundleUrl": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+    "ok": true
+  },
+  "ok": true
+}

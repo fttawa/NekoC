@@ -81,6 +81,8 @@ node tools/bench/hateneko.mjs --ref E:/nekoc-wt/_ref/hateneko --love D:/Tools/lo
   H 帧只计 `rt.step`，N 帧计 `Engine::advance`，均不含外层绘制/最终快照；同步画笔工作仍不等。
   内存均取 Windows 进程 PeakWorkingSetSize，H 包括窗口/GPU 驱动映射、draw、预加载；不算内存倍数。
 - 默认另遍历 `projects/`、`tests/fixtures/` 的 `.bcmkn`，各运行一次 12 帧无预热，运行超时最多 20 秒。
+  `--compat-only` 只跑这组仓库自有兼容短跑，不生成/计量七份性能探针，不可与 `--input` 同用；
+  可将独立复验结果导出到 `docs/kncompat-hateneko-evidence.json`，不覆盖历史性能表的原始证据。
   `--input` 可指定单份输入；`--binary`、`--python`、`--copy`、`--out`、`--timeout` 可覆盖默认值。
   素材使用离线 `--no-assets`，外部素材/网络/鼠标键盘/真实音频时间不在可验证范围。
 - 状态核对包含全局标量/列表、当前场景、角色数与属性及实体变量；克隆按原型与属性多重集比较，

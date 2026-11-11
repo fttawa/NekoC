@@ -4,7 +4,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
-import { compareRun, ignoredPath, assertWritablePath } from "./hateneko.mjs";
+import { compareRun, ignoredPath, assertWritablePath, assertCompleteSuite } from "./hateneko.mjs";
 
 const [input = "dist/bench/hateneko/results.json", output = "dist/bench/hateneko/evidence.json"] = process.argv.slice(2);
 const bytes = await readFile(input);
@@ -59,8 +59,12 @@ const evidence = { schema: "nekoc-hateneko-evidence-v1", source_sha256: createHa
   executed_tree_sha256: suite.executed_files ? createHash("sha256").update(JSON.stringify(suite.executed_files)).digest("hex") : null,
   observation: "globals/typed lists, scene, actor multiset and local variables; N heading=90-oracle rotation, H heading=dir; no pixels/tasks/intermediate proof",
   works };
-const published = fileURLToPath(new URL("../../docs/performance-hateneko-evidence.json", import.meta.url));
-const destination = path.resolve(output) === published ? published : ignoredPath(output);
+const published = ["performance-hateneko-evidence.json", "kncompat-hateneko-evidence.json"]
+  .map(name => fileURLToPath(new URL(`../../docs/${name}`, import.meta.url)));
+const destination = published.includes(path.resolve(output)) ? path.resolve(output) : ignoredPath(output);
+// Debug exports may retain partial samples, but a new published compatibility
+// report must cover the entire exact manifest, including explicit failures.
+if (destination === published[1]) assertCompleteSuite(suite);
 await assertWritablePath(destination);
 if (path.resolve(input) === destination) throw new Error("Evidence must not overwrite raw input");
 await writeFile(destination, JSON.stringify(evidence, null, 2) + "\n");

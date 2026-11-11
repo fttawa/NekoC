@@ -3,12 +3,30 @@ import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { mkdir, mkdtemp, readFile, writeFile, rm, symlink } from "node:fs/promises";
 import path from "node:path";
-import { parseArgs, compareStates, ignoredPath, compareRun, inputScope, assertWritablePath } from "../tools/bench/hateneko.mjs";
+import { parseArgs, compareStates, ignoredPath, compareRun, inputScope, assertWritablePath, assertCompleteSuite } from "../tools/bench/hateneko.mjs";
 
 test("HateNeko runner confines writable paths to this worktree dist and bounds counts", () => {
   assert.equal(parseArgs([]).frames, 60);
+  assert.equal(parseArgs(["--compat-only"]).compatOnly, true);
+  assert.throws(() => parseArgs(["--compat-only", "--input", "project.bcmkn"]));
   for (const value of ["docs/out", "../dist/run", "dist/../docs/run", "dist"]) assert.throws(() => ignoredPath(value));
   for (const args of [["--frames", "0"], ["--warmup", "-1"], ["--repeats", "NaN"], ["--frames", "100000", "--warmup", "1"], ["--copy", "dist/a", "--out", "dist/a/results"], ["--unknown", "x"], ["--input"]]) assert.throws(() => parseArgs(args));
+});
+
+test("published compatibility evidence requires complete exact paired manifest, not matching states", () => {
+  const input = { file: "original.bcmkn", sha256: "digest", synthetic: false };
+  const suite = { input_manifest: [input], reference: { unchanged: true }, options: { repeats: 3 }, works: [
+    { ...input, runs: [{ repeat: 0, runtimes: { nekoc: { status: "ok" }, hateneko: { status: "unsupported" } } }] },
+  ] };
+  assert.doesNotThrow(() => assertCompleteSuite(suite));
+  for (const change of [
+    r => { r.works = []; }, r => { r.input_manifest = []; }, r => { r.reference.unchanged = false; },
+    r => { r.works[0].sha256 = "stale"; }, r => { r.works[0].runs = []; },
+    r => { delete r.works[0].runs[0].runtimes.hateneko; }, r => { r.works[0].runs[0].repeat = 1; },
+  ]) {
+    const altered = structuredClone(suite); change(altered);
+    assert.throws(() => assertCompleteSuite(altered));
+  }
 });
 
 const state = () => ({ current_scene_id: "scene", variables: { v: 1, list: [1, "a", true] }, actors: {
