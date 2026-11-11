@@ -59,7 +59,7 @@ test("snapshot is exactly 300 unique names with mutually exclusive conservative 
     assert.match(row.risk, /未实现/, type);
   }
   for (const type of ["get_voice_volume"]) {
-    assert.equal(result.rows.find(row => row.type === type).status, "缺失", type);
+    assert.equal(result.rows.find(row => row.type === type).status, "部分语义", type);
   }
   assert.equal(result.rows.find(row => row.type === "get_orientation").status, "固定值占位");
   for (const type of ["appearance_of_sprite", "mouse_down", "self_dialog_wait"]) {
@@ -79,18 +79,13 @@ test("official panel evidence remains separate from VM support or retirement cla
     ["wand_coordinate","hardware-extension-config-not-installed"]]) {
     const row = result.rows.find(r => r.type === type);
     assert.equal(row.officialCategory, category);
-    if (["global_animation", "set_system_preset", "wand_coordinate"].includes(type)) {
-      assert.equal(row.status, "部分语义");
-      assert.ok(row.vm.length > 0);
-    } else {
-      assert.equal(row.status, "缺失");
-      assert.deepEqual(row.vm, []);
-    }
+    assert.equal(row.status, "部分语义");
+    assert.ok(row.vm.length > 0);
   }
   assert.match(coverageMarkdown(result), /两者均0/);
 });
 
-test("round five panel additions stay partial and ordinary microphone volume stays missing", () => {
+test("round five panel additions and microphone volume stay partial", () => {
   const result = inventory(root);
   const added = ["ai_chat_ask", "ai_text_actor", "ai_text_photo", "enable_face_detect_by_actor",
     "enable_face_detect_by_photo", "enable_object_detect_by_actor", "enable_object_detect_by_photo",
@@ -108,7 +103,7 @@ test("round five panel additions stay partial and ordinary microphone volume sta
   }
   const visibleMissing = result.rows.filter(row => row.status === "缺失" &&
     ["panel-default", "panel-configurable-default-hidden"].includes(row.officialCategory));
-  assert.deepEqual(visibleMissing.map(row => row.type), ["get_voice_volume"]);
+  assert.deepEqual(visibleMissing.map(row => row.type), []);
 });
 
 test("registered names absent from audited panels have no remaining dispatch gap", () => {
@@ -126,12 +121,12 @@ test("registered names absent from audited panels have no remaining dispatch gap
     assert.ok(row.tests.length > 0, `${row.type}: expected an existing regression reference`);
   }
   const alias = result.rows.find(row => row.type === "get_sprite_property");
-  assert.equal(alias.status, "缺失");
+  assert.equal(alias.status, "部分语义");
   assert.equal(alias.officialCategory, "code-api-alias-not-block");
-  assert.match(alias.risk, /非|未注册/);
+  assert.match(alias.risk, /非|未注册|没有同名注册/);
 });
 
-test("round six adds only ten synchronous branches and retains all 43 asynchronous/event gaps", () => {
+test("round six synchronous paths stay partial and round seven closes disconnected gaps", () => {
   const result = inventory(root);
   const additions = ["microbit_get_volume", "microbit_set_bpm", "microbit_change_bpm",
     "catbit_button_is_pressed", "wand_button_is_pressed", "wand_coordinate", "wand_rotation",
@@ -144,14 +139,18 @@ test("round six adds only ten synchronous branches and retains all 43 asynchrono
   }
   const missingHardware = result.rows.filter(r => r.status === "缺失" &&
     r.officialCategory === "hardware-extension-config-not-installed");
-  assert.equal(missingHardware.length, 43);
-  for (const row of missingHardware) assert.match(row.risk, /Promise|事件规格/, row.type);
-  assert.deepEqual(result.rows.filter(r => r.status === "缺失" && !missingHardware.includes(r))
-    .map(r => r.type), ["get_sprite_property", "get_voice_volume"]);
+  assert.equal(missingHardware.length, 0);
+  assert.deepEqual(result.rows.filter(r => r.status === "缺失"), []);
+  const remaining = result.rows.filter(r => r.officialCategory === "hardware-extension-config-not-installed" && /Promise|休眠事件/.test(r.risk));
+  assert.equal(remaining.length, 43);
+  for (const row of remaining) assert.equal(row.status, "部分语义", row.type);
 });
 
 test("field arms and traversal-only type mentions never become VM evidence", () => {
   let source = fs.readFileSync(new URL("../src/engine.rs", import.meta.url), "utf8");
+  // Remove real volume dispatch first; incidental traversal/field names must
+  // not restore it. This fixture intentionally changes compiler source only.
+  source = source.replaceAll('"get_voice_volume"', '"future_voice_volume"');
   source = source.replace('"random_num" | "math_arithmetic" | "math_modulo" | "math_arithmetic_power" =>',
      '"get_voice_volume" | "math_arithmetic" | "math_modulo" | "math_arithmetic_power" =>');
   source = source.replace('"width" => ExprOp::Constant(self.program.width)',

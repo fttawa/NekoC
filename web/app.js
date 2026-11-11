@@ -1,6 +1,7 @@
 import {StageRenderer,decodeFrame,sensesColor} from './renderer.js';
 import {PlayerConnection} from './player.js';
 import {playerExtensions} from './extensions.js';
+import {needsMicrophone} from './kn-microphone.js';
 import {ProjectAudio} from './audio.js';
 import {StageInput} from './input.js';
 import {StageOverlay} from './overlay.js';
@@ -159,7 +160,7 @@ async function start(resume=true){
 }
 async function startRuntime(resume=true){
   if(running)return;await inFlight;
-  if(!started){await api('project',project);audio.load(project);player=new PlayerConnection();const ready=await player.open(playerExtensions.schemas().length?project:null);compiled(ready.stats);started=true;sendCostumes=true;overlay?.reset();epoch++;input.reset();lastFrame=null;lastBytes=0;history=[];pipeline.completedFrames=0;renderEditor();renderPalette();}
+  if(!started){await api('project',project);audio.load(project);player=new PlayerConnection();const ready=await player.open(playerExtensions.schemas().length||needsMicrophone(project)?project:null);compiled(ready.stats);started=true;sendCostumes=true;overlay?.reset();epoch++;input.reset();lastFrame=null;lastBytes=0;history=[];pipeline.completedFrames=0;renderEditor();renderPalette();}
   frames=0;fpsStart=performance.now();fps=0;
    running=resume;if(resume){audio.resume();renderer.pauseMedia(false);}else{audio.pause();renderer.pauseMedia();}lastTick=performance.now();state(resume?'运行中':'已暂停');$('#stage').focus();
 }

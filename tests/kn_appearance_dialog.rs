@@ -231,13 +231,18 @@ fn procedure_actor_property_rejects_missing_ids_and_unimplemented_official_attri
     assert!(Program::compile(&actor_project(actor_report("clone_index", "target"))).is_err());
 }
 #[test]
-fn get_sprite_property_remains_rejected_because_it_is_not_registered_officially() {
-    assert!(
-        Program::compile(&project(vec![log(
-            json!({"type":"get_sprite_property","fields":{"sprite":"--self","attribute":"height"}})
-        )]))
-        .is_err()
-    );
+fn get_sprite_property_code_api_alias_reuses_appearance_getter() {
+    for jit in [false, true] {
+        assert_eq!(
+            run(
+                &project(vec![log(
+                    json!({"type":"get_sprite_property","fields":{"sprite":"--self","attribute":"height"}})
+                )]),
+                jit
+            ),
+            ["100"]
+        );
+    }
 }
 #[test]
 fn clone_named_appearance_properties_reuse_official_axis_getter() {

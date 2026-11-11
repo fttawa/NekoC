@@ -104,17 +104,20 @@ fn capture_alpha_is_shared_typed_and_close_and_logged_out_voice_continue_later()
 }
 
 #[test]
-fn camera_open_and_default_microphone_volume_remain_unsupported() {
-    for block in [
-        json!({"type":"open_hide_camera","fields":{"camera_status":"turn_on"}}),
-        log(json!({"type":"get_voice_volume"})),
-    ] {
+fn camera_open_remains_unsupported_but_microphone_has_explicit_unavailable_fallback() {
+    {
+        let block = json!({"type":"open_hide_camera","fields":{"camera_status":"turn_on"}});
         let mut p = Document::blank().value().clone();
         p["actors"]["actorsDict"]["nekoc-default-actor"]["nekoBlockJsonList"] = json!([
             {"type":"on_running_group_activated","next":block}
         ]);
         assert!(Program::compile(&p).is_err());
     }
+    let mut vm = Engine::new(program(vec![log(json!({"type":"get_voice_volume"}))]));
+    vm.start();
+    assert!(ticks(&mut vm).is_empty(), "default permission is pending");
+    vm.set_kn_voice_volume(None).unwrap();
+    assert_eq!(ticks(&mut vm), ["NaN"]);
 }
 
 #[test]
