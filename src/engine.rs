@@ -5015,6 +5015,8 @@ pub struct Engine {
     slots: Vec<f64>,
     lists: Vec<List>,
     values: Vec<Option<Cell>>,
+    /// Globals created by executed K4 UUID property reads, not declarations.
+    k4_property_globals: BTreeMap<String, Cell>,
     pressed: std::collections::BTreeSet<String>,
     released: BTreeSet<String>,
     mouse: [f64; 2],
@@ -5202,6 +5204,9 @@ impl Engine {
         for (i, id) in self.program.list_names.iter().enumerate() {
             variables.insert(id.clone(), serde_json::json!(self.list_values(i)));
         }
+        for (id, value) in self.lazy_k4_property_globals() {
+            variables.insert(id.clone(), serde_json::json!(value));
+        }
         let entity_variables: BTreeMap<_, _> = self
             .sprites
             .iter()
@@ -5266,13 +5271,18 @@ impl Engine {
                 )
             })
             .collect();
-        let variables: BTreeMap<_, _> = self
+        let mut variables: BTreeMap<_, _> = self
             .program
             .variable_names
             .iter()
             .enumerate()
             .map(|(index, id)| (id.clone(), self.global_value(index)))
             .collect();
+        variables.extend(
+            self.lazy_k4_property_globals()
+                .iter()
+                .map(|(id, value)| (id.clone(), value.clone())),
+        );
         let lists: BTreeMap<_, _> = self
             .program
             .list_names
@@ -5303,7 +5313,15 @@ impl Engine {
             .list_names
             .iter()
             .position(|n| n == id)
-            .map_or(Cell::Null, |i| Cell::List(self.lists[i].clone()))
+            .map_or_else(
+                || {
+                    self.k4_property_globals
+                        .get(id)
+                        .cloned()
+                        .unwrap_or(Cell::Null)
+                },
+                |i| Cell::List(self.lists[i].clone()),
+            )
     }
     /// Current group of a live actor, including clones (not scenes).
     pub fn actor_group(&self, id: &str) -> Option<&str> {
@@ -5319,10 +5337,18 @@ impl Engine {
             .variable_names
             .iter()
             .position(|n| n == id)
-            .map_or_else(String::new, |i| {
-                self.global_value(i)
-                    .text_with_js_nonfinite(self.program.semantics == RuntimeSemantics::KnCurrent)
-            })
+            .map_or_else(
+                || {
+                    self.k4_property_globals
+                        .get(id)
+                        .map_or_else(String::new, Cell::text)
+                },
+                |i| {
+                    self.global_value(i).text_with_js_nonfinite(
+                        self.program.semantics == RuntimeSemantics::KnCurrent,
+                    )
+                },
+            )
     }
     pub fn list_values(&self, index: usize) -> Vec<Cell> {
         self.lists[index].borrow().clone()
@@ -5405,6 +5431,7 @@ impl Engine {
             speech_commands: vec![],
             speech_config: [0.0, 10.0, 10.0, 10.0],
             cloud: cloud::State::default(),
+            k4_property_globals: BTreeMap::new(),
             videos: program.videos.clone(),
             next_video_generation: 1,
             video_above_pen: false,
@@ -5502,6 +5529,7 @@ impl Engine {
     pub fn start(&mut self) {
         self.extensions.clear();
         self.kn_local = kn_local::State::default();
+        self.k4_property_globals.clear();
         self.videos.clone_from(&self.program.videos);
         self.video_above_pen = false;
         let cloud_values = self.cloud_restart_values();
@@ -9814,6 +9842,10 @@ impl Engine {
                 self.start_entity_visibility(index, actor, targets, duration, show);
             }
             Op::AnimStep => {
+                if self.entity_visibility_blocked(index) {
+                    self.tasks[index].pc = pc;
+                    return Ok(false);
+                }
                 let Some(anim) = self.tasks[index].anim.clone() else {
                     return Ok(true);
                 };
@@ -10290,6 +10322,7 @@ impl Engine {
                 task.wait_finished = true;
             }
         }
+        self.tick_entity_visibility(dt);
         // Rebase the round-robin cursor when finished tasks are compacted. Wait
         // dependencies use stable IDs, never indices into this compacted vector.
         self.cursor = if exceeded {

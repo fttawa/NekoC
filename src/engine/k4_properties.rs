@@ -9,6 +9,7 @@ pub(super) struct Property {
     attribute: usize,
     variable: Option<usize>,
     global: Option<usize>,
+    list: Option<usize>,
     uuid_attribute: bool,
 }
 
@@ -46,6 +47,9 @@ impl Compiler {
         let global = uuid_attribute
             .then(|| self.slots.get(attribute).copied())
             .flatten();
+        let list = uuid_attribute
+            .then(|| self.lists.get(attribute).copied())
+            .flatten();
         let attribute = self.program.strings.len();
         self.program.strings.push(field(block, "attribute").into());
         let value = ValueExpr::K4Property(Property {
@@ -54,6 +58,7 @@ impl Compiler {
             attribute,
             variable,
             global,
+            list,
             uuid_attribute,
         });
         self.push_k4_value(value)
@@ -67,6 +72,10 @@ impl Compiler {
 }
 
 impl Engine {
+    pub(super) fn lazy_k4_property_globals(&self) -> &BTreeMap<String, Cell> {
+        &self.k4_property_globals
+    }
+
     pub(super) fn eval_k4_property(&mut self, property: Property, actor: usize) -> Cell {
         let mut target = if property.target == usize::MAX {
             actor
@@ -104,9 +113,31 @@ impl Engine {
         if let Some(slot) = property.global {
             return self.global_value(slot);
         }
+        if let Some(slot) = property.list {
+            // UUID properties return the actual list, not its string or a copy.
+            // Both native list blocks and property-based mutations share it.
+            return Cell::List(self.lists[slot].clone());
+        }
         if property.uuid_attribute {
-            // O8fc/get_var_or_list lazily creates an unknown global with 0.
-            return Cell::Number(0.0);
+            let id = self.program.strings[property.attribute].as_str();
+            // A later-compiled ordinary variable block can allocate a slot
+            // after this reporter was compiled. Resolve that shared slot too.
+            if let Some(slot) = self
+                .program
+                .variable_names
+                .iter()
+                .position(|name| name == id)
+            {
+                return self.global_value(slot);
+            }
+            // O8fc/get_var_or_list creates the slot only when this expression
+            // executes; unreachable reporters must not create runtime state.
+            let id = id.to_owned();
+            return self
+                .k4_property_globals
+                .entry(id)
+                .or_insert(Cell::Number(0.0))
+                .clone();
         }
         let Some(sprite) = self.sprites.get(target).filter(|s| s.alive) else {
             return Cell::Number(f64::NAN);
@@ -115,11 +146,17 @@ impl Engine {
         let number = match attribute {
             "0" => sprite.x,
             "1" => sprite.y,
-            "2" => sprite
-                .styles
-                .iter()
-                .position(|id| Some(id) == sprite.style.as_ref())
-                .map_or(0.0, |i| (i + 1) as f64),
+            "2" => {
+                if sprite.style.as_deref().is_none_or(str::is_empty) {
+                    if sprite.stage { 0.0 } else { f64::NAN }
+                } else {
+                    sprite
+                        .styles
+                        .iter()
+                        .position(|id| Some(id) == sprite.style.as_ref())
+                        .map_or(0.0, |i| (i + 1) as f64)
+                }
+            }
             // a1xw/set_rotation normalizes radians through JfQ3/t before
             // Tn6a converts back to degrees. Preserve its floating-point order.
             "3" => {
@@ -144,6 +181,9 @@ impl Engine {
                 180.0 * normalized / std::f64::consts::PI
             }
             "4" => {
+                if sprite.style.as_deref().is_none_or(str::is_empty) {
+                    return Cell::Number(f64::NAN);
+                }
                 let id = sprite.style.as_deref().unwrap_or("");
                 return Cell::Text(
                     self.program

@@ -241,6 +241,23 @@ test("third partial round retains solver, distort and stamp boundaries despite m
   }
 });
 
+test("fifth property round records measured fixes without erasing platform and deletion boundaries", () => {
+  const types = ['get', 'get_2', 'get_3', 'get_clone_index_property'];
+  for (const row of mappingStatus(root, types.map(type => ({ type, official: [] })))) {
+    assert.equal(row.status, '已实现', row.type);
+    assert.equal(row.semantics, 'partial', row.type);
+    assert.ok(row.limitations.some(text => text.includes('第五轮') && text.includes('kitten4-partial-properties-5.md')), row.type);
+    assert.ok(row.limitations.some(text => text.includes('删除竞争')), row.type);
+  }
+});
+
+test('fifth visibility round retains clone-disposal and scene limits despite measured timing fixes', () => {
+  const [row] = mappingStatus(root, [{ type: 'set_entity_show_hide', official: [] }]);
+  assert.equal(row.semantics, 'partial');
+  assert.ok(row.limitations.some(text => text.includes('408官方帧') && text.includes('kitten4-partial-visibility-5.md')));
+  assert.ok(row.limitations.some(text => text.includes('生命周期差异')));
+});
+
 test("optional official-package integration: 377 types and audited complete registration tables", {
   skip: !process.env.K4_PLAYER_DIR,
 }, () => {

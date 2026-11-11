@@ -754,7 +754,7 @@
         "src/kitten4.rs:528 (lower_block)"
       ],
       "limitations": [
-        "get/get_2/get_3 统一原生属性：全属性、目标字符串/悬空 UUID、角色/场景、克隆 self/原型、局部/全局变量已有 22 个原创夹具官方实测；非有限状态、无造型、iOS ASCII、惰性变量槽副作用仍有限制，见 kitten4-partial-properties.md",
+        "get/get_2/get_3 统一原生属性：原22夹具外，第五轮补全局列表引用与双向修改、执行时惰性未知UUID槽、空造型编号/名称；8夹具96官方帧与40对零差异画布见 kitten4-partial-properties-5.md；非有限状态、删除竞争、iOS ASCII及其他资源加载边界仍未验证",
         "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
       ],
       "occurrences": 2049
@@ -2389,7 +2389,7 @@
       ],
       "limitations": [
         "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
-        "严格索引类型与范围、场景/缺克隆错误及全属性已有离线官方实测；继承属性/效果与跨平台剩余边界，见 kitten4-partial-properties.md",
+        "严格索引类型与范围、场景/缺克隆错误及全属性已有离线官方实测；第五轮新增UUID列表引用与惰性槽逐帧/像素证据见 kitten4-partial-properties-5.md；继承属性/效果、删除竞争与跨平台边界仍有限制",
         "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
       ],
       "occurrences": 162
@@ -3177,7 +3177,7 @@
         "src/engine.rs:3710 (kitten4_entity_visibility)"
       ],
       "limitations": [
-        "角色/分组/场景显隐与有限正时长并发渐变已有源码推导回归；点击状态清理、取消/删克隆、竞争渐变和非有限时长未验证；删除引用沿用通用 noop 策略（官方悬空 UUID 行为未验证）",
+        "第五轮17份原创夹具408官方帧：渐变尾部update相位、竞争alpha斜率叠加、取消调用方冻结、隐藏清理held指针、零/负/NaN/Infinity时长已实测；逐帧/像素结果见 kitten4-partial-visibility-5.md。克隆删除仍有一帧生命周期差异，场景/悬空UUID/非60Hz与完整手势边界保留partial",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
       ],
       "occurrences": 64
@@ -5101,7 +5101,7 @@
       ],
       "limitations": [
         "legacy alias 归一化；继承目标积木的字段、子选项与运行时限制",
-        "get/get_2/get_3 统一原生属性：全属性、目标字符串/悬空 UUID、角色/场景、克隆 self/原型、局部/全局变量已有 22 个原创夹具官方实测；非有限状态、无造型、iOS ASCII、惰性变量槽副作用仍有限制，见 kitten4-partial-properties.md",
+        "get/get_2/get_3 统一原生属性：原22夹具外，第五轮补全局列表引用与双向修改、执行时惰性未知UUID槽、空造型编号/名称；8夹具96官方帧与40对零差异画布见 kitten4-partial-properties-5.md；非有限状态、删除竞争、iOS ASCII及其他资源加载边界仍未验证",
         "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
       ],
       "occurrences": 0
@@ -5123,7 +5123,7 @@
         "src/kitten4.rs:528 (lower_block)"
       ],
       "limitations": [
-        "get/get_2/get_3 统一原生属性：全属性、目标字符串/悬空 UUID、角色/场景、克隆 self/原型、局部/全局变量已有 22 个原创夹具官方实测；非有限状态、无造型、iOS ASCII、惰性变量槽副作用仍有限制，见 kitten4-partial-properties.md",
+        "get/get_2/get_3 统一原生属性：原22夹具外，第五轮补全局列表引用与双向修改、执行时惰性未知UUID槽、空造型编号/名称；8夹具96官方帧与40对零差异画布见 kitten4-partial-properties-5.md；非有限状态、删除竞争、iOS ASCII及其他资源加载边界仍未验证",
         "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
       ],
       "occurrences": 0

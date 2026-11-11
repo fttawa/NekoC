@@ -114,6 +114,12 @@ K4 partial 第二轮的 41 份仓库原创离线探针与保留边界：
 克隆与初始 group 的加载行为。另有
 [legacy 动态造型 ID 专项](../../docs/kitten4-partial-costume-4.md)，独立记录正常与错误边界。
 
+第五轮继续优先处理高频且可独立验证的边界：
+[属性列表引用、惰性 UUID 槽与无造型](../../docs/kitten4-partial-properties-5.md)，
+八份原创夹具、96 个官方 update 和 40 对固定帧零差异画布；相关类型仍保留
+未验证的平台、非有限状态和删除竞争限制。显隐专项见
+[第五轮显隐](../../docs/kitten4-partial-visibility-5.md)。
+
 ## 联网、安全与未验证范围
 
 默认外部 HTTP、WebSocket、Service Worker 均禁用；记录所有外部请求的方法、URL、类型和动作。
