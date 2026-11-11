@@ -32,6 +32,7 @@ export function parseArgs(args) {
     const key = args[i].replace(/^--/, "");
     if (key === "prepare-only") { o.prepareOnly = true; continue; }
     if (key === "resume") { o.resume = true; continue; }
+    if (key === "compat-only") { o.compatOnly = true; continue; }
     if (!["ref", "copy", "out", "love", "python", "binary", "frames", "warmup", "repeats", "timeout", "input"].includes(key) || !args[i + 1]) throw new Error(`Invalid option ${args[i]}`);
     o[key] = args[++i];
   }
@@ -40,6 +41,7 @@ export function parseArgs(args) {
     if (!Number.isSafeInteger(o[key]) || o[key] < (key === "warmup" ? 0 : 1) || o[key] > 1000000) throw new Error(`Invalid ${key}`);
   }
   if (o.frames + o.warmup > 100000) throw new Error("Too many frames");
+  if (o.compatOnly && o.input) throw new Error("--compat-only and --input are mutually exclusive");
   o.out = ignoredPath(o.out); o.copy = ignoredPath(o.copy);
   if (o.out === o.copy || o.out.startsWith(o.copy + path.sep) || o.copy.startsWith(o.out + path.sep)) throw new Error("Copy and output must be disjoint");
   return o;
@@ -180,14 +182,29 @@ export function compareRun(run, work) {
     && Number.isFinite(n.summary_ms?.mean) && n.summary_ms.mean > 0
     && Number.isFinite(h.summary_ms?.mean) && h.summary_ms.mean > 0) run.speedup_h_over_n = h.summary_ms.mean / n.summary_ms.mean;
 }
+export function assertCompleteSuite(suite) {
+  const manifest = suite.input_manifest;
+  if (!Array.isArray(manifest) || !manifest.length || suite.works?.length !== manifest.length
+      || suite.reference?.unchanged !== true) throw new Error("Incomplete suite or changed reference");
+  for (const [i, work] of suite.works.entries()) {
+    if (["file", "sha256", "synthetic"].some(key => work[key] !== manifest[i][key])) throw new Error("Incomplete input manifest coverage");
+    const count = work.synthetic ? suite.options.repeats : 1;
+    if (work.runs?.length !== count || !work.runs.every((run, index) => run.repeat === index
+        && ["nekoc", "hateneko"].every(name => typeof run.runtimes?.[name]?.status === "string"))) {
+      throw new Error("Incomplete paired runs");
+    }
+  }
+}
 async function main() {
   const o = parseArgs(process.argv.slice(2));
   const { ref, before, executed } = await prepare(o);
   await mkdir(o.out, { recursive: true });
   const { writeKnFixtures } = await import("./kn-fixtures.mjs");
-  const fixtures = await writeKnFixtures(path.join(o.out, "fixtures"));
-  const editorOutput = invoke(process.execPath, ["tools/editor-compat.mjs", ...fixtures, "--channel", "msedge", "--out", path.join(o.out, "editor.json")], { cwd: root, timeout: 600000 });
-  if (!JSON.parse(editorOutput).ok) throw new Error("Official editor check failed");
+  const fixtures = o.compatOnly ? [] : await writeKnFixtures(path.join(o.out, "fixtures"));
+  if (fixtures.length) {
+    const editorOutput = invoke(process.execPath, ["tools/editor-compat.mjs", ...fixtures, "--channel", "msedge", "--out", path.join(o.out, "editor.json")], { cwd: root, timeout: 600000 });
+    if (!JSON.parse(editorOutput).ok) throw new Error("Official editor check failed");
+  }
   if (o.prepareOnly) { console.log(`Prepared ${fixtures.length} editor-valid fixtures in ${o.out}`); return; }
   let report = { schema: "nekoc-hateneko-v1", date: new Date().toISOString(), options: o,
     host: { platform: process.platform, arch: process.arch, cpu: os.cpus()[0]?.model, logical_cpus: os.cpus().length, node: process.version },
@@ -197,7 +214,7 @@ async function main() {
   if (o.resume) {
     const saved = JSON.parse(await readFile(path.join(o.out, "results.json"), "utf8"));
     for (const key of ["binary_sha256", "probe_sha256", "love_version"]) if (saved[key] !== report[key]) throw new Error(`Resume ${key} mismatch`);
-    for (const key of ["frames", "warmup", "repeats", "input", "timeout"]) if (saved.options[key] !== o[key]) throw new Error(`Resume ${key} mismatch`);
+    for (const key of ["frames", "warmup", "repeats", "input", "timeout", "compatOnly"]) if (saved.options[key] !== o[key]) throw new Error(`Resume ${key} mismatch`);
     if (JSON.stringify(saved.reference.files) !== JSON.stringify(before)) throw new Error("Resume vendor fingerprint mismatch");
     if (saved.executed_files && JSON.stringify(saved.executed_files) !== JSON.stringify(executed)) throw new Error("Resume executed tree mismatch");
     saved.resumed_at ??= [];

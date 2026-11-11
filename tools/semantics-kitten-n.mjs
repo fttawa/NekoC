@@ -86,7 +86,7 @@ export function matchingEditorCheck(project, result) {
     Array.isArray(project.issues) && !project.issues.length && Array.isArray(project.pageErrors) && !project.pageErrors.length;
 }
 
-async function probe(page, source, result) {
+export async function probe(page, source, result) {
   await page.route(/\/crc_libs\.[\w-]+\.js(?:\?.*)?$/, async route => {
     const response = await route.fetch(), body = await response.body();
     result.runtimeBundle = { url: route.request().url(), sha256: createHash("sha256").update(body).digest("hex") };

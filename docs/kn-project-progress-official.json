@@ -1,0 +1,1473 @@
+{
+  "schema": "nekoc-kn-project-progress-official-v1",
+  "checkedAt": "2026-11-11T13:25:46.628Z",
+  "editorUrl": "https://kn.codemao.cn/editor",
+  "browserVersion": "157.0.4341.42",
+  "method": "Exact original projects via previewUrl; official bundle unchanged except webpack loader exposure. Passive variable/list/actor snapshots; no synthesized input. Wall-clock samples are NOT frame counts.",
+  "bundles": [
+    {
+      "name": "crc_libs.8196dbd1.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+      "bytes": 1297643,
+      "sha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7"
+    },
+    {
+      "name": "main.8ccf2442.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+      "bytes": 5594327,
+      "sha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165"
+    }
+  ],
+  "sourceLocations": [
+    {
+      "purpose": "default warp limits",
+      "bundle": "crc_libs.8196dbd1.js",
+      "bundleSha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7",
+      "byteOffset": 864527,
+      "excerptSha256": "d2da83e9e894fae056ec023aab87aa28156ee91d605239a3804b296c682629ef",
+      "excerptCharacters": 360
+    },
+    {
+      "purpose": "compiled warp loop boundary",
+      "bundle": "crc_libs.8196dbd1.js",
+      "bundleSha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7",
+      "byteOffset": 957710,
+      "excerptSha256": "c607d2f93be845eca7e57d15b407a832f0566af6ffb539d7866f2997ec8b49a0",
+      "excerptCharacters": 470
+    },
+    {
+      "purpose": "debug warp loop boundary",
+      "bundle": "crc_libs.8196dbd1.js",
+      "bundleSha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7",
+      "byteOffset": 884764,
+      "excerptSha256": "7ccdbb101cf9e9e4a737616fc76b75c39e10015efcadcf4228a65d3f83e9875a",
+      "excerptCharacters": 260
+    },
+    {
+      "purpose": "compiled warp preserves loop checks",
+      "bundle": "crc_libs.8196dbd1.js",
+      "bundleSha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7",
+      "byteOffset": 935049,
+      "excerptSha256": "e39c9a1262b3bc18b3f8be7849c0e60b676700d227794b662f07c7faff107afe",
+      "excerptCharacters": 430
+    },
+    {
+      "purpose": "compiled loop check generation",
+      "bundle": "crc_libs.8196dbd1.js",
+      "bundleSha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7",
+      "byteOffset": 924463,
+      "excerptSha256": "bf19e81a79a0dbe79b2ebe2e402fbe064a7d5d3f11642fc69ce05ecd0bfc4eba",
+      "excerptCharacters": 220
+    },
+    {
+      "purpose": "domain parameters only",
+      "bundle": "crc_libs.8196dbd1.js",
+      "bundleSha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7",
+      "byteOffset": 941381,
+      "excerptSha256": "0e8485aa55c9c3abc8d13c5983d1200f652e9dc617658eb3b3cf0e104b2a1af4",
+      "excerptCharacters": 1150
+    },
+    {
+      "purpose": "compile_params",
+      "bundle": "crc_libs.8196dbd1.js",
+      "bundleSha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7",
+      "byteOffset": 945923,
+      "excerptSha256": "4572bcac560dae663f250bfb19e410e4adb900cf23ac2ec22ed637581d5c6add",
+      "excerptCharacters": 1400
+    },
+    {
+      "purpose": "timeout accepts real function else substitutes empty function",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 2952116,
+      "excerptSha256": "cb5cc1b53b062f571929fafa87761fcb7acd5f17f5d6e3b8328ef24da89feae8",
+      "excerptCharacters": 180
+    },
+    {
+      "purpose": "interval accepts real function else substitutes empty function",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 2952514,
+      "excerptSha256": "a7eb5c93ae1e9ebf01e15a246b4da9024ce8bdf2067c8d3f9149ce8452b00bc7",
+      "excerptCharacters": 185
+    }
+  ],
+  "editorCompat": {
+    "editorUrl": "https://kn.codemao.cn/editor",
+    "checkedAt": "2026-11-11T13:26:33.716Z",
+    "projects": [
+      {
+        "input": "E:\\nekoc-wt\\kncompat\\projects\\fangjie\\fangjie.bcmkn",
+        "sha256": "652fdb4d92311401e33f28ff030240ccbf36d39605d678e5e82c145e24d30721",
+        "editorVersion": "0.27.4",
+        "projectVersion": "0.27.4",
+        "blockCount": 4070,
+        "issues": [],
+        "pageErrors": [],
+        "ok": true
+      },
+      {
+        "input": "E:\\nekoc-wt\\kncompat\\projects\\tiny-lm\\tiny_lm.bcmkn",
+        "sha256": "cf5c58a1ab92c1b605897a5093bea80a5bffc23e79c87dc7fa3a65b2ab82fb16",
+        "editorVersion": "0.27.4",
+        "projectVersion": "0.27.4",
+        "blockCount": 10093,
+        "issues": [],
+        "pageErrors": [],
+        "ok": true
+      },
+      {
+        "input": "E:\\nekoc-wt\\kncompat\\tests\\fixtures\\kn-async-services\\timers.bcmkn",
+        "sha256": "e90a01823eccd9ea6273f10164b67e440698df208d69135c785964f76f3f50bb",
+        "editorVersion": "0.27.4",
+        "projectVersion": "0.27.4",
+        "blockCount": 13,
+        "issues": [],
+        "pageErrors": [],
+        "ok": true
+      }
+    ],
+    "bundleUrl": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+    "ok": true
+  },
+  "cases": {
+    "fangjie": {
+      "fixture": "projects/fangjie/fangjie.bcmkn",
+      "sha256": "652fdb4d92311401e33f28ff030240ccbf36d39605d678e5e82c145e24d30721",
+      "pageErrors": [],
+      "samples": [
+        {
+          "label": "before-start",
+          "at": 2471.300000011921,
+          "running": false,
+          "variables": {
+            "kn-list-chunk_x": 0,
+            "kn-list-chunk_z": 0,
+            "kn-list-world": 0,
+            "kn-var-gui_dirty": 0,
+            "kn-var-px": 0,
+            "kn-var-py": 0,
+            "kn-var-pz": 0,
+            "kn-var-screen": 0
+          },
+          "actors": [
+            {
+              "id": "nekoc-default-actor",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "visible": true
+            }
+          ]
+        },
+        {
+          "label": "after-extra-0ms",
+          "at": 2637,
+          "running": true,
+          "variables": {
+            "kn-list-chunk_x": {
+              "length": 0,
+              "head": [],
+              "tail": []
+            },
+            "kn-list-chunk_z": {
+              "length": 0,
+              "head": [],
+              "tail": []
+            },
+            "kn-list-world": {
+              "length": 8,
+              "head": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "tail": [
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            "kn-var-gui_dirty": 1,
+            "kn-var-px": 8,
+            "kn-var-py": 30,
+            "kn-var-pz": 8,
+            "kn-var-screen": 0
+          },
+          "actors": [
+            {
+              "id": "nekoc-default-actor",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "visible": false
+            }
+          ]
+        },
+        {
+          "label": "after-extra-100ms",
+          "at": 2757.199999988079,
+          "running": true,
+          "variables": {
+            "kn-list-chunk_x": {
+              "length": 0,
+              "head": [],
+              "tail": []
+            },
+            "kn-list-chunk_z": {
+              "length": 0,
+              "head": [],
+              "tail": []
+            },
+            "kn-list-world": {
+              "length": 836,
+              "head": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "tail": [
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            "kn-var-gui_dirty": 1,
+            "kn-var-px": 8,
+            "kn-var-py": 30,
+            "kn-var-pz": 8,
+            "kn-var-screen": 0
+          },
+          "actors": [
+            {
+              "id": "nekoc-default-actor",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "visible": false
+            }
+          ]
+        },
+        {
+          "label": "after-extra-400ms",
+          "at": 3184,
+          "running": true,
+          "variables": {
+            "kn-list-chunk_x": {
+              "length": 0,
+              "head": [],
+              "tail": []
+            },
+            "kn-list-chunk_z": {
+              "length": 0,
+              "head": [],
+              "tail": []
+            },
+            "kn-list-world": {
+              "length": 3662,
+              "head": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "tail": [
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            "kn-var-gui_dirty": 1,
+            "kn-var-px": 8,
+            "kn-var-py": 30,
+            "kn-var-pz": 8,
+            "kn-var-screen": 0
+          },
+          "actors": [
+            {
+              "id": "nekoc-default-actor",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "visible": false
+            }
+          ]
+        },
+        {
+          "label": "after-extra-1000ms",
+          "at": 4210.600000023842,
+          "running": true,
+          "variables": {
+            "kn-list-chunk_x": {
+              "length": 0,
+              "head": [],
+              "tail": []
+            },
+            "kn-list-chunk_z": {
+              "length": 0,
+              "head": [],
+              "tail": []
+            },
+            "kn-list-world": {
+              "length": 7035,
+              "head": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "tail": [
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            "kn-var-gui_dirty": 1,
+            "kn-var-px": 8,
+            "kn-var-py": 30,
+            "kn-var-pz": 8,
+            "kn-var-screen": 0
+          },
+          "actors": [
+            {
+              "id": "nekoc-default-actor",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "visible": false
+            }
+          ]
+        },
+        {
+          "label": "after-extra-2500ms",
+          "at": 6737.5,
+          "running": true,
+          "variables": {
+            "kn-list-chunk_x": {
+              "length": 0,
+              "head": [],
+              "tail": []
+            },
+            "kn-list-chunk_z": {
+              "length": 0,
+              "head": [],
+              "tail": []
+            },
+            "kn-list-world": {
+              "length": 14851,
+              "head": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "tail": [
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            "kn-var-gui_dirty": 1,
+            "kn-var-px": 8,
+            "kn-var-py": 30,
+            "kn-var-pz": 8,
+            "kn-var-screen": 0
+          },
+          "actors": [
+            {
+              "id": "nekoc-default-actor",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "visible": false
+            }
+          ]
+        },
+        {
+          "label": "after-extra-5000ms",
+          "at": 11776.600000023842,
+          "running": true,
+          "variables": {
+            "kn-list-chunk_x": {
+              "length": 0,
+              "head": [],
+              "tail": []
+            },
+            "kn-list-chunk_z": {
+              "length": 0,
+              "head": [],
+              "tail": []
+            },
+            "kn-list-world": {
+              "length": 30065,
+              "head": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "tail": [
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            "kn-var-gui_dirty": 1,
+            "kn-var-px": 8,
+            "kn-var-py": 30,
+            "kn-var-pz": 8,
+            "kn-var-screen": 0
+          },
+          "actors": [
+            {
+              "id": "nekoc-default-actor",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "visible": false
+            }
+          ]
+        }
+      ],
+      "settleFailure": "page.waitForFunction: Timeout 300000ms exceeded.\n    at E:\\nekoc-wt\\kncompat\\tools\\compat\\kn-project-progress-probe.mjs:86:20",
+      "lastSettleSample": {
+        "label": "after-extra-5000ms",
+        "at": 11647.100000023842,
+        "running": true,
+        "variables": {
+          "kn-list-chunk_x": {
+            "length": 0,
+            "head": [],
+            "tail": []
+          },
+          "kn-list-chunk_z": {
+            "length": 0,
+            "head": [],
+            "tail": []
+          },
+          "kn-list-world": {
+            "length": 30292,
+            "head": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "tail": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "kn-var-gui_dirty": 1,
+          "kn-var-px": 8,
+          "kn-var-py": 30,
+          "kn-var-pz": 8,
+          "kn-var-screen": 0
+        },
+        "actors": [
+          {
+            "id": "nekoc-default-actor",
+            "logicalPosition": {
+              "x": 0,
+              "y": 0
+            },
+            "position": {
+              "x": 0,
+              "y": 0
+            },
+            "visible": false
+          }
+        ]
+      },
+      "settledPageErrors": []
+    },
+    "tiny-lm": {
+      "fixture": "projects/tiny-lm/tiny_lm.bcmkn",
+      "sha256": "cf5c58a1ab92c1b605897a5093bea80a5bffc23e79c87dc7fa3a65b2ab82fb16",
+      "pageErrors": [],
+      "samples": [
+        {
+          "label": "before-start",
+          "at": 2449,
+          "running": false,
+          "variables": {
+            "kn-list-lm_generated_ids": 0,
+            "kn-list-lm_prompt_tokens": 0,
+            "kn-list-lm_top_ids": 0,
+            "kn-var-lm_frames": 0,
+            "kn-var-lm_generated": 0,
+            "kn-var-lm_input_token": 0,
+            "kn-var-lm_last_input": 0,
+            "kn-var-lm_last_position": 0,
+            "kn-var-lm_next_token": 0,
+            "kn-var-lm_output": 0,
+            "kn-var-lm_phase": 0,
+            "kn-var-lm_position": 0,
+            "kn-var-lm_prefill": 0,
+            "kn-var-lm_ready": 0,
+            "kn-var-lm_running": 0,
+            "kn-var-lm_status": 0,
+            "kn-var-lm_tokens_processed": 0
+          },
+          "actors": [
+            {
+              "id": "nekoc-default-actor",
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "visible": true
+            }
+          ]
+        },
+        {
+          "label": "after-extra-0ms",
+          "at": 2696.100000023842,
+          "running": true,
+          "variables": {
+            "kn-list-lm_generated_ids": {
+              "length": 0,
+              "head": [],
+              "tail": []
+            },
+            "kn-list-lm_prompt_tokens": {
+              "length": 0,
+              "head": [],
+              "tail": []
+            },
+            "kn-list-lm_top_ids": {
+              "length": 0,
+              "head": [],
+              "tail": []
+            },
+            "kn-var-lm_frames": 0,
+            "kn-var-lm_generated": 0,
+            "kn-var-lm_input_token": 0,
+            "kn-var-lm_last_input": 0,
+            "kn-var-lm_last_position": 0,
+            "kn-var-lm_next_token": 0,
+            "kn-var-lm_output": "",
+            "kn-var-lm_phase": "KV CACHE",
+            "kn-var-lm_position": 0,
+            "kn-var-lm_prefill": 0,
+            "kn-var-lm_ready": 0,
+            "kn-var-lm_running": 0,
+            "kn-var-lm_status": "INITIALIZING",
+            "kn-var-lm_tokens_processed": 0
+          },
+          "actors": [
+            {
+              "id": "nekoc-default-actor",
+              "position": {
+                "x": -420,
+                "y": 242
+              },
+              "visible": false
+            }
+          ]
+        },
+        {
+          "label": "after-extra-100ms",
+          "at": 2813.900000035763,
+          "running": true,
+          "variables": {
+            "kn-list-lm_generated_ids": {
+              "length": 0,
+              "head": [],
+              "tail": []
+            },
+            "kn-list-lm_prompt_tokens": {
+              "length": 3,
+              "head": [
+                0,
+                30,
+                56
+              ],
+              "tail": [
+                0,
+                30,
+                56
+              ]
+            },
+            "kn-list-lm_top_ids": {
+              "length": 0,
+              "head": [],
+              "tail": []
+            },
+            "kn-var-lm_frames": 0,
+            "kn-var-lm_generated": 0,
+            "kn-var-lm_input_token": 0,
+            "kn-var-lm_last_input": 0,
+            "kn-var-lm_last_position": 0,
+            "kn-var-lm_next_token": 0,
+            "kn-var-lm_output": "",
+            "kn-var-lm_phase": "LAYER 1 / 2",
+            "kn-var-lm_position": 0,
+            "kn-var-lm_prefill": 1,
+            "kn-var-lm_ready": 1,
+            "kn-var-lm_running": 1,
+            "kn-var-lm_status": "PREFILL",
+            "kn-var-lm_tokens_processed": 0
+          },
+          "actors": [
+            {
+              "id": "nekoc-default-actor",
+              "position": {
+                "x": -420,
+                "y": 242
+              },
+              "visible": false
+            }
+          ]
+        },
+        {
+          "label": "after-extra-400ms",
+          "at": 3247.600000023842,
+          "running": true,
+          "variables": {
+            "kn-list-lm_generated_ids": {
+              "length": 0,
+              "head": [],
+              "tail": []
+            },
+            "kn-list-lm_prompt_tokens": {
+              "length": 3,
+              "head": [
+                0,
+                30,
+                56
+              ],
+              "tail": [
+                0,
+                30,
+                56
+              ]
+            },
+            "kn-list-lm_top_ids": {
+              "length": 0,
+              "head": [],
+              "tail": []
+            },
+            "kn-var-lm_frames": 0,
+            "kn-var-lm_generated": 0,
+            "kn-var-lm_input_token": 0,
+            "kn-var-lm_last_input": 0,
+            "kn-var-lm_last_position": 0,
+            "kn-var-lm_next_token": 0,
+            "kn-var-lm_output": "",
+            "kn-var-lm_phase": "LAYER 2 / 2",
+            "kn-var-lm_position": 0,
+            "kn-var-lm_prefill": 1,
+            "kn-var-lm_ready": 1,
+            "kn-var-lm_running": 1,
+            "kn-var-lm_status": "PREFILL",
+            "kn-var-lm_tokens_processed": 0
+          },
+          "actors": [
+            {
+              "id": "nekoc-default-actor",
+              "position": {
+                "x": -420,
+                "y": 242
+              },
+              "visible": false
+            }
+          ]
+        },
+        {
+          "label": "after-extra-1000ms",
+          "at": 4257.800000011921,
+          "running": true,
+          "variables": {
+            "kn-list-lm_generated_ids": {
+              "length": 0,
+              "head": [],
+              "tail": []
+            },
+            "kn-list-lm_prompt_tokens": {
+              "length": 3,
+              "head": [
+                0,
+                30,
+                56
+              ],
+              "tail": [
+                0,
+                30,
+                56
+              ]
+            },
+            "kn-list-lm_top_ids": {
+              "length": 0,
+              "head": [],
+              "tail": []
+            },
+            "kn-var-lm_frames": 1,
+            "kn-var-lm_generated": 0,
+            "kn-var-lm_input_token": 30,
+            "kn-var-lm_last_input": 0,
+            "kn-var-lm_last_position": 0,
+            "kn-var-lm_next_token": 0,
+            "kn-var-lm_output": "",
+            "kn-var-lm_phase": "LAYER 1 / 2",
+            "kn-var-lm_position": 1,
+            "kn-var-lm_prefill": 1,
+            "kn-var-lm_ready": 1,
+            "kn-var-lm_running": 1,
+            "kn-var-lm_status": "PREFILL",
+            "kn-var-lm_tokens_processed": 1
+          },
+          "actors": [
+            {
+              "id": "nekoc-default-actor",
+              "position": {
+                "x": -420,
+                "y": 242
+              },
+              "visible": false
+            }
+          ]
+        },
+        {
+          "label": "after-extra-2500ms",
+          "at": 6773.400000035763,
+          "running": true,
+          "variables": {
+            "kn-list-lm_generated_ids": {
+              "length": 1,
+              "head": [
+                66
+              ],
+              "tail": [
+                66
+              ]
+            },
+            "kn-list-lm_prompt_tokens": {
+              "length": 3,
+              "head": [
+                0,
+                30,
+                56
+              ],
+              "tail": [
+                0,
+                30,
+                56
+              ]
+            },
+            "kn-list-lm_top_ids": {
+              "length": 3,
+              "head": [
+                66,
+                20,
+                18
+              ],
+              "tail": [
+                66,
+                20,
+                18
+              ]
+            },
+            "kn-var-lm_frames": 3,
+            "kn-var-lm_generated": 1,
+            "kn-var-lm_input_token": 66,
+            "kn-var-lm_last_input": 56,
+            "kn-var-lm_last_position": 2,
+            "kn-var-lm_next_token": 66,
+            "kn-var-lm_output": "走",
+            "kn-var-lm_phase": "LAYER 2 / 2",
+            "kn-var-lm_position": 3,
+            "kn-var-lm_prefill": 0,
+            "kn-var-lm_ready": 1,
+            "kn-var-lm_running": 1,
+            "kn-var-lm_status": "GENERATING",
+            "kn-var-lm_tokens_processed": 3
+          },
+          "actors": [
+            {
+              "id": "nekoc-default-actor",
+              "position": {
+                "x": -420,
+                "y": 242
+              },
+              "visible": false
+            }
+          ]
+        },
+        {
+          "label": "after-extra-5000ms",
+          "at": 11795.200000047684,
+          "running": true,
+          "variables": {
+            "kn-list-lm_generated_ids": {
+              "length": 6,
+              "head": [
+                66,
+                15,
+                31,
+                4,
+                78,
+                58
+              ],
+              "tail": [
+                31,
+                4,
+                78,
+                58
+              ]
+            },
+            "kn-list-lm_prompt_tokens": {
+              "length": 3,
+              "head": [
+                0,
+                30,
+                56
+              ],
+              "tail": [
+                0,
+                30,
+                56
+              ]
+            },
+            "kn-list-lm_top_ids": {
+              "length": 3,
+              "head": [
+                58,
+                70,
+                27
+              ],
+              "tail": [
+                58,
+                70,
+                27
+              ]
+            },
+            "kn-var-lm_frames": 8,
+            "kn-var-lm_generated": 6,
+            "kn-var-lm_input_token": 58,
+            "kn-var-lm_last_input": 78,
+            "kn-var-lm_last_position": 7,
+            "kn-var-lm_next_token": 58,
+            "kn-var-lm_output": "走到山上，看",
+            "kn-var-lm_phase": "LAYER 2 / 2",
+            "kn-var-lm_position": 8,
+            "kn-var-lm_prefill": 0,
+            "kn-var-lm_ready": 1,
+            "kn-var-lm_running": 1,
+            "kn-var-lm_status": "GENERATING",
+            "kn-var-lm_tokens_processed": 8
+          },
+          "actors": [
+            {
+              "id": "nekoc-default-actor",
+              "position": {
+                "x": -420,
+                "y": 242
+              },
+              "visible": false
+            }
+          ]
+        }
+      ],
+      "settled": {
+        "label": "settled",
+        "at": 22394.5,
+        "running": true,
+        "variables": {
+          "kn-list-lm_generated_ids": {
+            "length": 15,
+            "head": [
+              66,
+              15,
+              31,
+              4,
+              78,
+              58,
+              64,
+              7,
+              8,
+              2,
+              27,
+              33,
+              32,
+              35,
+              2
+            ],
+            "tail": [
+              33,
+              32,
+              35,
+              2
+            ]
+          },
+          "kn-list-lm_prompt_tokens": {
+            "length": 3,
+            "head": [
+              0,
+              30,
+              56
+            ],
+            "tail": [
+              0,
+              30,
+              56
+            ]
+          },
+          "kn-list-lm_top_ids": {
+            "length": 3,
+            "head": [
+              1,
+              30,
+              2
+            ],
+            "tail": [
+              1,
+              30,
+              2
+            ]
+          },
+          "kn-var-lm_frames": 20,
+          "kn-var-lm_generated": 15,
+          "kn-var-lm_input_token": 2,
+          "kn-var-lm_last_input": 2,
+          "kn-var-lm_last_position": 17,
+          "kn-var-lm_next_token": 1,
+          "kn-var-lm_output": "走到山上，看见了云。它很开心。",
+          "kn-var-lm_phase": "READY",
+          "kn-var-lm_position": 18,
+          "kn-var-lm_prefill": 0,
+          "kn-var-lm_ready": 1,
+          "kn-var-lm_running": 0,
+          "kn-var-lm_status": "DONE / EOS",
+          "kn-var-lm_tokens_processed": 18
+        },
+        "actors": [
+          {
+            "id": "nekoc-default-actor",
+            "logicalPosition": {
+              "x": -420,
+              "y": -242
+            },
+            "position": {
+              "x": -420,
+              "y": 242
+            },
+            "visible": false
+          }
+        ]
+      },
+      "settledPageErrors": []
+    }
+  },
+  "timers": {
+    "checkedAt": "2026-11-11T13:22:41.064Z",
+    "fixture": {
+      "path": "tests/fixtures/kn-async-services/timers.bcmkn",
+      "sha256": "e90a01823eccd9ea6273f10164b67e440698df208d69135c785964f76f3f50bb"
+    },
+    "checks": {
+      "realFunctionCallbacks": true,
+      "textNotEvaluated": true,
+      "nativeCallbackStatementsDropped": true,
+      "sourceAnchorsFound": true,
+      "workspacePreservesCallbackStatements": true,
+      "noUncaughtPageErrors": true
+    },
+    "workspaceImport": [
+      {
+        "id": "kn-services-4",
+        "type": "setTimeout",
+        "callbackId": "kn-services-6",
+        "callbackType": "variables_set",
+        "callbackInputType": 3,
+        "callbackVariable": "fired"
+      },
+      {
+        "id": "kn-services-8",
+        "type": "setInterval",
+        "callbackId": "kn-services-10",
+        "callbackType": "variables_set",
+        "callbackInputType": 3,
+        "callbackVariable": "fired"
+      }
+    ],
+    "variables": {
+      "ready": 1,
+      "fired": 0,
+      "after": 1
+    },
+    "domainCalls": [
+      {
+        "name": "setTimeout",
+        "keys": [
+          "delay"
+        ],
+        "callbackType": "undefined",
+        "callback": "undefined",
+        "delay": 137
+      },
+      {
+        "name": "setInterval",
+        "keys": [
+          "delay"
+        ],
+        "callbackType": "undefined",
+        "callback": "undefined",
+        "delay": 137
+      }
+    ],
+    "nativeCalls": [
+      {
+        "callbackType": "function",
+        "delay": 137,
+        "isEmptyFunction": true
+      }
+    ],
+    "pageErrors": []
+  },
+  "limitations": [
+    "Wall-clock samples are not frame counts or equal-work comparisons.",
+    "No local engine execution, cargo, build or benchmark.",
+    "Official default warp config is source evidence, not proof of final config in every editor mode.",
+    "Only original unmodified native projects, no synthesized input; no full pixel/task/input parity claim."
+  ],
+  "diagnostic": {
+    "fixture": "dist/kn-project-progress/fangjie-short-world.bcmkn",
+    "sha256": "b80972b2875d73fd1af48f551c949fef13c2ec74e38fd778e626146d510d7cc5",
+    "originalFixture": "projects/fangjie/fangjie.bcmkn",
+    "originalSha256": "652fdb4d92311401e33f28ff030240ccbf36d39605d678e5e82c145e24d30721",
+    "diagnosticChange": "Only traverse_number upper bound math_number 524287 -> 7 (world initialization 524288 -> 8 iterations)",
+    "editorCompat": {
+      "editorUrl": "https://kn.codemao.cn/editor",
+      "checkedAt": "2026-11-11T13:34:48.130Z",
+      "projects": [
+        {
+          "input": "E:\\nekoc-wt\\kncompat\\dist\\kn-project-progress\\fangjie-short-world.bcmkn",
+          "sha256": "b80972b2875d73fd1af48f551c949fef13c2ec74e38fd778e626146d510d7cc5",
+          "editorVersion": "0.27.4",
+          "projectVersion": "0.27.4",
+          "blockCount": 4070,
+          "issues": [],
+          "pageErrors": [],
+          "ok": true
+        }
+      ],
+      "bundleUrl": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+      "ok": true
+    },
+    "pageErrors": [],
+    "settled": {
+      "label": "settled",
+      "at": 11863.5,
+      "running": true,
+      "variables": {
+        "kn-list-chunk_x": {
+          "length": 64,
+          "head": [
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999
+          ],
+          "tail": [
+            99999,
+            99999,
+            99999,
+            99999
+          ]
+        },
+        "kn-list-chunk_z": {
+          "length": 64,
+          "head": [
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999,
+            99999
+          ],
+          "tail": [
+            99999,
+            99999,
+            99999,
+            99999
+          ]
+        },
+        "kn-list-world": {
+          "length": 8,
+          "head": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "tail": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "kn-var-gui_dirty": 0,
+        "kn-var-px": 8,
+        "kn-var-py": 30,
+        "kn-var-pz": 8,
+        "kn-var-screen": 0
+      },
+      "actors": [
+        {
+          "id": "nekoc-default-actor",
+          "logicalPosition": {
+            "x": 0,
+            "y": -65
+          },
+          "position": {
+            "x": 0,
+            "y": 65
+          },
+          "visible": false
+        }
+      ]
+    },
+    "runtimeConfig": {
+      "nan_to_zero_conversion_blocks": [
+        "repeat_n_times",
+        "wait",
+        "kids_wait"
+      ],
+      "loop_break_error_type": "warning",
+      "per_entity_clone_limit": 300,
+      "entity_max_clones_per_frame": 300,
+      "clone_target_do_add_responder_interpreters": true,
+      "replace_parameters_value": true,
+      "block_pool_preallocation_size": 50,
+      "opti_frame_pool_preallocation_size": 10,
+      "opti_frame_pool_size_limit": 600,
+      "legacy": {
+        "lists_get_value_allow_return_undefined": false
+      },
+      "max_procedure_calls_per_interpreter_step": 50000,
+      "max_warp_iterations_per_interpreter_step": 30000,
+      "warp_interpreter_millisecond_time_limit": 4,
+      "max_call_stack_size": 10000,
+      "opti_compiler": {
+        "pretty_print": false
+      },
+      "reports_all_entities": true,
+      "should_report_current_running_block": false,
+      "user_debug_mode": false,
+      "ignore_missing_domain_function": false
+    }
+  }
+}

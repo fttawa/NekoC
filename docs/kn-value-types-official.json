@@ -1,0 +1,315 @@
+{
+  "officialUrl": "https://kn.codemao.cn/editor",
+  "verifiedAt": "2026-11-11T13:45:33.031Z",
+  "browserVersion": "157.0.4341.42",
+  "cases": {
+    "initial-lists": {
+      "pageErrors": [],
+      "fixture": "tests/fixtures/kn-value-types/initial-lists.bcmkn",
+      "sha256": "97bbbaf23f20119eb071dab017d3276a2370b9b4e3dfad5aeb281da4d6d42cba",
+      "runtimeBundle": {
+        "url": "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+        "sha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7"
+      },
+      "mainBundle": {
+        "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+        "sha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165"
+      },
+      "variables": {
+        "done": 1,
+        "source": [
+          "1",
+          "01",
+          "3333333333333333",
+          "33333333333333333",
+          "1e2",
+          "bad",
+          "",
+          "  ",
+          [
+            "2",
+            "猫",
+            [
+              "3"
+            ]
+          ]
+        ],
+        "copied": [
+          "1",
+          "01",
+          "3333333333333333",
+          "33333333333333333",
+          "1e2",
+          "bad",
+          "",
+          "  ",
+          [
+            "2",
+            "猫",
+            [
+              "3"
+            ]
+          ]
+        ],
+        "scalar": "1",
+        "scalarText": "1",
+        "first": "1",
+        "worldFirst": "3333333333333333"
+      }
+    },
+    "runtime-lists": {
+      "pageErrors": [],
+      "fixture": "tests/fixtures/kn-value-types/runtime-lists.bcmkn",
+      "sha256": "ee70035f1c979cc56911e015af452ff1dbf4eb35695c5638b5b0d10678f87c9e",
+      "runtimeBundle": {
+        "url": "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+        "sha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7"
+      },
+      "mainBundle": {
+        "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+        "sha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165"
+      },
+      "variables": {
+        "done": 1,
+        "runtime": [
+          "1",
+          "33333333333333333",
+          1
+        ],
+        "copied": [
+          "1",
+          "33333333333333333",
+          1
+        ],
+        "first": "1"
+      }
+    },
+    "nested-conversion": {
+      "pageErrors": [],
+      "fixture": "tests/fixtures/kn-value-types/nested-conversion.bcmkn",
+      "sha256": "7eec6bf7bda2759948ffa38ec5897b625e5a8e49de501473755ababebf88ad86",
+      "runtimeBundle": {
+        "url": "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+        "sha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7"
+      },
+      "mainBundle": {
+        "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+        "sha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165"
+      },
+      "variables": {
+        "done": 1,
+        "source": [
+          1,
+          "猫",
+          [
+            2,
+            3
+          ]
+        ],
+        "singleton": [
+          [
+            "2"
+          ]
+        ],
+        "joined": "1,猫,2,3",
+        "convertedText": "1,猫,2,3",
+        "convertedNumber": "1,猫,2,3",
+        "singletonNumber": 2
+      }
+    },
+    "missing-object": {
+      "pageErrors": [],
+      "fixture": "tests/fixtures/kn-value-types/missing-object.bcmkn",
+      "sha256": "d31caad15dc1db123200d9e5ddeaa32ca749b230de99100edabd2aeb2d793e3d",
+      "runtimeBundle": {
+        "url": "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+        "sha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7"
+      },
+      "mainBundle": {
+        "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+        "sha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165"
+      },
+      "variables": {
+        "done": 1,
+        "object": {},
+        "missing": 0,
+        "missingText": "",
+        "missingNumber": "undefined",
+        "runtime": [
+          {
+            "$undefined": true
+          }
+        ],
+        "listMissing": {
+          "$number": "NaN"
+        }
+      }
+    },
+    "nullish-list-item": {
+      "pageErrors": [],
+      "fixture": "tests/fixtures/kn-value-types/nullish-list-item.bcmkn",
+      "sha256": "bdc4ebfbc86523bcf4da5f1b214092241bb3fbd12fd4b040a7b1e49a4b9ef86f",
+      "runtimeBundle": {
+        "url": "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+        "sha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7"
+      },
+      "mainBundle": {
+        "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+        "sha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165"
+      },
+      "variables": {
+        "done": 1,
+        "object": {},
+        "runtime": [
+          {
+            "$undefined": true
+          }
+        ],
+        "nullSource": [
+          null
+        ],
+        "nullAny": 0,
+        "nullLast": 0,
+        "nullAnyText": "",
+        "nullLastText": "",
+        "undefinedAny": {
+          "$number": "NaN"
+        },
+        "undefinedLast": {
+          "$number": "NaN"
+        },
+        "undefinedAnyText": "NaN",
+        "undefinedLastText": "NaN",
+        "directMissingText": "",
+        "nullListText": "",
+        "undefinedListText": ""
+      }
+    }
+  },
+  "ok": true,
+  "editorCompat": {
+    "editorUrl": "https://kn.codemao.cn/editor",
+    "checkedAt": "2026-11-11T13:45:15.846Z",
+    "projects": [
+      {
+        "input": "tests/fixtures/kn-value-types/initial-lists.bcmkn",
+        "sha256": "97bbbaf23f20119eb071dab017d3276a2370b9b4e3dfad5aeb281da4d6d42cba",
+        "editorVersion": "0.27.4",
+        "projectVersion": "0.27.4",
+        "blockCount": 16,
+        "issues": [],
+        "pageErrors": [],
+        "ok": true
+      },
+      {
+        "input": "tests/fixtures/kn-value-types/missing-object.bcmkn",
+        "sha256": "d31caad15dc1db123200d9e5ddeaa32ca749b230de99100edabd2aeb2d793e3d",
+        "editorVersion": "0.27.4",
+        "projectVersion": "0.27.4",
+        "blockCount": 28,
+        "issues": [],
+        "pageErrors": [],
+        "ok": true
+      },
+      {
+        "input": "tests/fixtures/kn-value-types/nested-conversion.bcmkn",
+        "sha256": "7eec6bf7bda2759948ffa38ec5897b625e5a8e49de501473755ababebf88ad86",
+        "editorVersion": "0.27.4",
+        "projectVersion": "0.27.4",
+        "blockCount": 15,
+        "issues": [],
+        "pageErrors": [],
+        "ok": true
+      },
+      {
+        "input": "tests/fixtures/kn-value-types/nullish-list-item.bcmkn",
+        "sha256": "bdc4ebfbc86523bcf4da5f1b214092241bb3fbd12fd4b040a7b1e49a4b9ef86f",
+        "editorVersion": "0.27.4",
+        "projectVersion": "0.27.4",
+        "blockCount": 53,
+        "issues": [],
+        "pageErrors": [],
+        "ok": true
+      },
+      {
+        "input": "tests/fixtures/kn-value-types/runtime-lists.bcmkn",
+        "sha256": "ee70035f1c979cc56911e015af452ff1dbf4eb35695c5638b5b0d10678f87c9e",
+        "editorVersion": "0.27.4",
+        "projectVersion": "0.27.4",
+        "blockCount": 19,
+        "issues": [],
+        "pageErrors": [],
+        "ok": true
+      }
+    ],
+    "bundleUrl": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+    "ok": true
+  },
+  "originalInputs": {
+    "officialUrl": "https://kn.codemao.cn/editor",
+    "verifiedAt": "2026-11-11T13:45:45.072Z",
+    "browserVersion": "157.0.4341.42",
+    "method": "Exact original project previewUrl import; first runtime list snapshot immediately after Start (not a frame/time parity claim); no synthesized gameplay input.",
+    "cases": {
+      "eisei": {
+        "fixture": "projects/eisei/eisei_pen_128_fixed.bcmkn",
+        "sha256": "af3a68b555b5e573e5c63b0de1c4df6d12281b6eb08e389d9fe2c52714151b31",
+        "pageErrors": [],
+        "runtimeBundle": {
+          "url": "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+          "sha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7"
+        },
+        "mainBundle": {
+          "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+          "sha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165"
+        },
+        "lists": {
+          "kn-list-ep_bank_color": {
+            "length": 1435,
+            "head": [
+              "1",
+              "2|3|4|5|3|2|4|4|2",
+              "2|3|6|4|7|3|2|2|3|2|7|3|3|2|2|2"
+            ],
+            "headTypes": [
+              "string",
+              "string",
+              "string"
+            ]
+          }
+        },
+        "matchesSource": true
+      },
+      "pencraft": {
+        "fixture": "projects/pencraft/pencraft_flicker_fixed.bcmkn",
+        "sha256": "d9c9166dd6c8e5694b17ab484f2e4e239fe3793fc644a4e892849a3d9c682d9b",
+        "pageErrors": [],
+        "runtimeBundle": {
+          "url": "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+          "sha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7"
+        },
+        "mainBundle": {
+          "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+          "sha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165"
+        },
+        "lists": {
+          "kn-list-world": {
+            "length": 192,
+            "head": [
+              "3333333333333333",
+              "3333333333333333",
+              "3333333333333333"
+            ],
+            "headTypes": [
+              "string",
+              "string",
+              "string"
+            ]
+          }
+        },
+        "matchesSource": true
+      }
+    },
+    "ok": true
+  }
+}
