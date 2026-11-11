@@ -106,6 +106,9 @@ fn compare_hot(p: &Value, mut expect: impl FnMut(&Engine)) {
     for restart in 0..2 {
         for vm in [&mut interpreter, &mut native] {
             vm.set_random_seed(0x9E37_79B9_7F4A_7C15);
+            // Compare instruction-boundary state, not host-dependent KN 4 ms
+            // warp slices (native compilation may itself cross that deadline).
+            vm.use_virtual_clock();
             vm.start();
         }
         let mut finished = false;

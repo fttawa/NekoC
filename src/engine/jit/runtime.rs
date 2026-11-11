@@ -170,7 +170,8 @@ pub(super) unsafe extern "C" fn h_append_cell(c: *mut NativeContext, pc: u64) ->
     finish(c, pc)
 }
 
-/// Execute a scheduling boundary exactly once. MAX-2 means executed and yielded;
+/// Execute a scheduling boundary exactly once. KN and K4 use the same gateway
+/// but separate policies in warp_iteration_yields. MAX-2 means executed and yielded;
 /// the generated region must refund later instructions and immediately return.
 pub(super) unsafe extern "C" fn h_boundary(c: *mut NativeContext, pc: u64) -> u64 {
     let c = unsafe { &*c };

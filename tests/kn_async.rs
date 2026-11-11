@@ -135,6 +135,8 @@ fn timer_registration_and_clear_side_exit_hot_loops() {
         if !jit {
             vm.disable_jit();
         }
+        // The official 4 ms warp slice is wall-clock; keep this check host-independent.
+        vm.use_virtual_clock();
         vm.start();
         assert_eq!(tick(&mut vm).logs, ["done"]);
         assert_eq!(vm.active_tasks(), 1500);

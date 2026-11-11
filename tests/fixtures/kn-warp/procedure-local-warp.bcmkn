@@ -1,0 +1,399 @@
+{
+  "projectName": "NekoC KN warp procedure-local-warp",
+  "version": "0.27.4",
+  "toolType": "KN",
+  "stageSize": {
+    "width": 900,
+    "height": 562
+  },
+  "scenes": {
+    "currentSceneId": "nekoc-scene-main",
+    "sortList": [
+      "nekoc-scene-main"
+    ],
+    "scenesDict": {
+      "nekoc-scene-main": {
+        "id": "nekoc-scene-main",
+        "name": "Background",
+        "screenName": "Main",
+        "styles": [
+          "nekoc-background"
+        ],
+        "currentStyleId": "nekoc-background",
+        "actorIds": [
+          "20000000-0000-4000-8000-000000000001"
+        ],
+        "visible": true,
+        "editable": true,
+        "workspaceScrollXy": {
+          "x": 100,
+          "y": 50
+        },
+        "nekoBlockJsonList": [],
+        "comments": {}
+      }
+    }
+  },
+  "actors": {
+    "actorsDict": {
+      "20000000-0000-4000-8000-000000000001": {
+        "id": "20000000-0000-4000-8000-000000000001",
+        "name": "Sprite",
+        "styles": [
+          "nekoc-costume"
+        ],
+        "currentStyleId": "nekoc-costume",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": 100,
+        "rotation": 0,
+        "visible": true,
+        "locked": false,
+        "editable": true,
+        "deletable": true,
+        "workspaceScrollXy": {
+          "x": 100,
+          "y": 50
+        },
+        "nekoBlockJsonList": [
+          {
+            "id": "knwarp-498",
+            "type": "on_running_group_activated",
+            "fields": {},
+            "inputs": {},
+            "statements": {},
+            "next": {
+              "id": "knwarp-487",
+              "type": "procedures_2_callnoreturn",
+              "fields": {
+                "NAME": "knwarp-procedure"
+              },
+              "inputs": {},
+              "statements": {},
+              "mutation": "<mutation def_id=\"knwarp-procedure\" name=\"knwarp-procedure\" type=\"NORMAL\"></mutation>",
+              "next": {
+                "id": "knwarp-493",
+                "type": "repeat_n_times",
+                "fields": {},
+                "inputs": {
+                  "times": {
+                    "id": "knwarp-492",
+                    "type": "math_number",
+                    "fields": {
+                      "NUM": "2"
+                    },
+                    "inputs": {},
+                    "statements": {}
+                  }
+                },
+                "statements": {
+                  "DO": {
+                    "id": "knwarp-491",
+                    "type": "variables_set",
+                    "fields": {
+                      "variable": "outside"
+                    },
+                    "inputs": {
+                      "value": {
+                        "id": "knwarp-490",
+                        "type": "math_arithmetic",
+                        "fields": {
+                          "type": "add"
+                        },
+                        "inputs": {
+                          "A": {
+                            "id": "knwarp-488",
+                            "type": "variables_get",
+                            "fields": {
+                              "variable": "outside"
+                            },
+                            "inputs": {},
+                            "statements": {}
+                          },
+                          "B": {
+                            "id": "knwarp-489",
+                            "type": "math_number",
+                            "fields": {
+                              "NUM": "1"
+                            },
+                            "inputs": {},
+                            "statements": {}
+                          }
+                        },
+                        "statements": {}
+                      }
+                    },
+                    "statements": {}
+                  }
+                },
+                "next": {
+                  "id": "knwarp-495",
+                  "type": "variables_set",
+                  "fields": {
+                    "variable": "after"
+                  },
+                  "inputs": {
+                    "value": {
+                      "id": "knwarp-494",
+                      "type": "math_number",
+                      "fields": {
+                        "NUM": "1"
+                      },
+                      "inputs": {},
+                      "statements": {}
+                    }
+                  },
+                  "statements": {},
+                  "next": {
+                    "id": "knwarp-497",
+                    "type": "variables_set",
+                    "fields": {
+                      "variable": "done"
+                    },
+                    "inputs": {
+                      "value": {
+                        "id": "knwarp-496",
+                        "type": "math_number",
+                        "fields": {
+                          "NUM": "1"
+                        },
+                        "inputs": {},
+                        "statements": {}
+                      }
+                    },
+                    "statements": {}
+                  }
+                }
+              }
+            },
+            "location": [
+              80,
+              100
+            ]
+          }
+        ],
+        "comments": {},
+        "sceneId": "nekoc-scene-main"
+      }
+    }
+  },
+  "styles": {
+    "stylesDict": {
+      "nekoc-background": {
+        "id": "nekoc-background",
+        "name": "Background",
+        "url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='562'%3E%3Crect width='900' height='562' fill='white'/%3E%3C/svg%3E"
+      },
+      "nekoc-costume": {
+        "id": "nekoc-costume",
+        "name": "Sprite",
+        "url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Ccircle cx='20' cy='20' r='18' fill='rgb(96,143,238)'/%3E%3C/svg%3E",
+        "centerPoint": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    }
+  },
+  "variables": {
+    "variablesDict": {
+      "count": {
+        "id": "count",
+        "name": "count",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "other": {
+        "id": "other",
+        "name": "other",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "after": {
+        "id": "after",
+        "name": "after",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "done": {
+        "id": "done",
+        "name": "done",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "inside": {
+        "id": "inside",
+        "name": "inside",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "outside": {
+        "id": "outside",
+        "name": "outside",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    }
+  },
+  "broadcasts": {
+    "broadcastsDict": {
+      "nekoc-scene-main": []
+    }
+  },
+  "procedures": {
+    "proceduresDict": {
+      "knwarp-procedure": {
+        "id": "knwarp-procedure",
+        "name": "probe",
+        "type": "NORMAL",
+        "params": [],
+        "workspaceScrollXy": {
+          "x": 100,
+          "y": 50
+        },
+        "comments": {},
+        "nekoBlockJsonList": [
+          {
+            "id": "knwarp-506",
+            "type": "procedures_2_defnoreturn",
+            "fields": {
+              "NAME": "knwarp-procedure"
+            },
+            "inputs": {},
+            "statements": {
+              "STACK": {
+                "id": "knwarp-505",
+                "type": "warp",
+                "fields": {},
+                "inputs": {},
+                "statements": {
+                  "DO": {
+                    "id": "knwarp-504",
+                    "type": "repeat_n_times",
+                    "fields": {},
+                    "inputs": {
+                      "times": {
+                        "id": "knwarp-503",
+                        "type": "math_number",
+                        "fields": {
+                          "NUM": "30002"
+                        },
+                        "inputs": {},
+                        "statements": {}
+                      }
+                    },
+                    "statements": {
+                      "DO": {
+                        "id": "knwarp-502",
+                        "type": "variables_set",
+                        "fields": {
+                          "variable": "count"
+                        },
+                        "inputs": {
+                          "value": {
+                            "id": "knwarp-501",
+                            "type": "math_arithmetic",
+                            "fields": {
+                              "type": "add"
+                            },
+                            "inputs": {
+                              "A": {
+                                "id": "knwarp-499",
+                                "type": "variables_get",
+                                "fields": {
+                                  "variable": "count"
+                                },
+                                "inputs": {},
+                                "statements": {}
+                              },
+                              "B": {
+                                "id": "knwarp-500",
+                                "type": "math_number",
+                                "fields": {
+                                  "NUM": "1"
+                                },
+                                "inputs": {},
+                                "statements": {}
+                              }
+                            },
+                            "statements": {}
+                          }
+                        },
+                        "statements": {}
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "mutation": "<mutation></mutation>",
+            "location": [
+              80,
+              100
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "audios": {
+    "audiosDict": {},
+    "sortList": [],
+    "currentAudioId": ""
+  },
+  "hidden_toolbox": {
+    "toolbox": [],
+    "blocks": [],
+    "forcibleShowBlocks": [],
+    "isCombine": false
+  },
+  "courseMaterials": {
+    "courseMaterialsDict": {},
+    "sortList": []
+  },
+  "previewUrl": ""
+}
