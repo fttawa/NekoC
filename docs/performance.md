@@ -390,6 +390,51 @@ node tools/bench/hateneko-evidence.mjs dist/bench/kncompat/results.json docs/knc
 `RUST_TEST_THREADS=1 cargo test --all-targets` 为 `786 passed / 0 failed / 1 ignored`，完整测试不删减。
 已保留本轮二进制于 `dist/bench/kncompat/bin/`，之后 `cargo clean` 清理本 worktree 4.4 GiB 构建产物。
 
+#### hncompat2：41 件逐项三方裁定（2026-11-12）
+
+后续复核以 `d2d277b`（当时最新 `oc/integrate`）为基线，详见
+[41件裁定表](compatibility/hateneko-verdicts.md)。不改写上方历史性能数字，不把观察投影相等
+升级为逐帧、像素、音频或输入语义全等。官方仍为 KN 0.27.4，HateNeko 为0.4.0 / Love2D 11.5；
+本轮行为复跑用 dev 无调试信息二进制，不发布新的速度比。
+
+- 新增显式私有默认副本归一化、指定全局字段排除，**原始比较与归一化比较分开保留**；
+  不删除运行失败或 unsupported，不据归一化授予速度比。actor 两件还有 `cloneChanged`
+  进度差异，不能仅凭去掉全局副本宣称一致。
+- [本轮官方长程证据](compatibility/hncompat2-progress-official.json) 直接运行完整原作：
+  fangjie 约595秒完成524288项 world、64项 chunk_x/z及标题逻辑 y=-65；旧轮五分钟
+  未完成的边界已补齐。tiny-lm 约20秒自然 `DONE / EOS`，完整15项id，输出
+  “走到山上，看见了云。它很开心。”。两个原作都没有缩短循环或更改官方调度配置。
+- [其余39件官方观察](compatibility/hncompat2-official.json) 全部绑定原始作品hash；
+  actor 私有变量不属于全局表，完成后 `cloneChanged=99`；timer仍 `fired=0`；
+  列表类型/缺失值结果支持已有 N 路径。starhold 官方读取墙钟，并有随机会话字段，
+  不能通过静默排除随机数或写死官方墙钟值伪造一致。
+- audio/input 等原始一致只是无合成输入开场；官方单独按键观察不冒充 N/H 双边输入验证，
+  空全局表不证明音频播放完成。pencraft-before-present-fix 的列表类型虽已裁定，
+  x/y 未有同里程碑配对的部分仍保留无法裁定。
+
+最终复跑计数、JIT开/关长程结论及门禁摘要见裁定表；旧节的18/41保留为原轮记录。
+本轮锁定同一41件重新实测为 N **41/41** 成功、H **40/41** 成功/1 unsupported，
+原始一致 **18/41**，仅私有副本归一化后仍 **18/41**，新增相等0；
+完整双边证据为 [hncompat2-hateneko-evidence.json](compatibility/hncompat2-hateneko-evidence.json)。
+基线默认遍历已扩展到63件，本轮用显式历史manifest及逐作品hash锁定41件，不混用两组分母。
+
+| hncompat2 最终互斥裁定 | 数量 |
+|---|---:|
+| 和 H 原始观察一致 | **18** |
+| 官方裁定 NekoC 正确（本次争议范围） | **20** |
+| NekoC 本轮新增修复 | **0** |
+| 无法裁定（具体未配对输入/进度） | **3** |
+
+[600 update长程配对](compatibility/hncompat2-long-evidence.json) 的JIT开/关结果一致：
+tiny-lm 的N为官方同一完整15项id、EOS输出；H为32项不同id后自然`DONE / LIMIT`。
+actor 两件长程后H仍 `cloneChanged=cloneRead=otherRead=0`，官方与N为99/99/other-value。
+fangjie 三方world/chunk完整hash、标题y=-65一致，但N/H尚有4个鼠标相关值未同输入裁定，
+故与pencraft-before-present-fix坐标、starhold墙钟/RNG一起保留“无法裁定”，不偷偷增加一致率。
+
+门禁：fmt、Clippy `-D warnings` 通过；`cargo test --all-targets` **848 passed / 0 failed / 1 ignored**。
+JS工具最终完整门禁为 **547 passed / 0 failed / 53 skipped**（600项），未删减测试。
+K4语料原命令seed1/6/42均 `{ ran: 52, run: 1 }`，达到52门槛并保留原有运行错误，不声称全语料零错。
+
 #### 修复前性能测量的历史验证记录
 
 以下仍是前一轮七项性能测量的原始记录，不是本轮 kncompat 二进制或门禁结果。
