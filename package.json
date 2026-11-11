@@ -6,6 +6,7 @@
     "typecheck": "tsc --noEmit --strict --lib es2020 ts/nekoc.d.ts samples/typed_self_api.ts",
     "test:ts": "cargo run -- test samples/unit_tests.ts",
     "test:tools": "node --test tests/*.test.mjs",
+    "test:player": "node --test tests/player-e2e.test.mjs",
     "editor:oracle": "node tools/editor-oracle.mjs",
     "editor:compare": "node tools/oracle-compare.mjs",
     "editor:compat": "node tools/editor-compat.mjs",
