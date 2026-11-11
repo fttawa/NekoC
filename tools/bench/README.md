@@ -76,7 +76,7 @@ node tools/bench/hateneko.mjs --ref E:/nekoc-wt/_ref/hateneko --love D:/Tools/lo
   副本、输出拒绝互相嵌套、与参考重叠、越出 dist 或经过 junction。
 - `kn-fixtures.mjs` 从自有积木生成器生成七个 `.bcmkn`，工作量对应 K4 七探针；每次先执行
   `tools/editor-compat.mjs --channel msedge`，要求官方编辑器 `ok=true`。可用 `--prepare-only` 只准备。
-- 正式测量每次启动前检查 Windows cargo/rustc/perf-bench/love/lovec 进程；发现竞争任务立即中止，
+- 正式测量每次启动前检查 Windows cargo/rustc/jit-corpus/perf-bench/love/lovec 进程；发现竞争任务立即中止，
   **不会**杀掉其他任务。独立 N/H 进程交替先后顺序，固定 delta=1/60，保留全部预热和测量数组。
   这只能排除检查瞬间的这些进程，不能排除之后启动的任务或其他系统干扰。
 - Love2D 使用真实 main.lua、LoveHost、预加载、绘制；副本 main 顶部加载自有观察模块
@@ -91,7 +91,11 @@ node tools/bench/hateneko.mjs --ref E:/nekoc-wt/_ref/hateneko --love D:/Tools/lo
 - 默认另遍历 `projects/`、`tests/fixtures/` 的 `.bcmkn`，各运行一次 12 帧无预热，运行超时最多 20 秒。
   `--compat-only` 只跑这组仓库自有兼容短跑，不生成/计量七份性能探针，不可与 `--input` 同用；
   可将独立复验结果导出到 `docs/kncompat-hateneko-evidence.json`，不覆盖历史性能表的原始证据。
+  `--manifest docs/kncompat-hateneko-evidence.json` 可锁定该历史41件，逐一核对路径与原始字节hash；
+  仅可与 `--compat-only` 同用，不从新增夹具中隐式筛选或把当前全遍历冒充旧41件。
   `--input` 可指定单份输入；`--binary`、`--python`、`--copy`、`--out`、`--timeout` 可覆盖默认值。
+  `--project-frames N` 显式覆盖原作的12帧上限（1..100000），同时允许使用给定 `--timeout`；
+  `--interpreter` 只给 NekoC 加禁用 JIT 参数，H 不变，不把不同工作量当作相同帧语义。
   素材使用离线 `--no-assets`，外部素材/网络/鼠标键盘/真实音频时间不在可验证范围。
 - 状态核对包含全局标量/列表、当前场景、角色数与属性及实体变量；克隆按原型与属性多重集比较，
   不要求两边临时 ID 字面相同。NekoC 的 K4-facing oracle rotation 经 `90-rotation` 还原 VM heading，
@@ -101,8 +105,16 @@ node tools/bench/hateneko.mjs --ref E:/nekoc-wt/_ref/hateneko --love D:/Tools/lo
   任何不一致或加载/运行失败返回非零，不删除失败项制造全通过结论。
 - 如果竞争任务导致中断，用同一命令加 `--resume` 继续；校验 binary/probe/vendor/input hashes 与帧数，
   仅跳过已完成双边测量，未完成的一对从头测，不混用不兼容产物。
+  每次调用前及套件结束后复核二进制hash；建议先复制到本worktree `dist/` 固定路径，
+  不与可能被本地构建替换的 `target/` 产物混用。
   `node tools/bench/hateneko-evidence.mjs dist/bench/hateneko/results.json docs/performance-hateneko-evidence.json`
   只从原始样本重新计算观察投影/中位数并生成紧凑证据，不修改原始计时。
+- 可显式增加 `--normalize-private`，仅删除与声明初始值相同、且所有现存对应实体已有私有值的
+  冗余全局副本；不删除缺失或变更的私有值，不覆盖实体值。`--exclude-variables id1,id2` 只排除
+  明确列举的全局字段，不自动忽略随机数/计时字段，也不改变运行时。另存 `normalized_comparison`，
+  原始 `comparison` 不变；归一化不能授予速度比。两个参数也可传给 evidence 工具在同一原始
+  样本上重放，声明需匹配原作品 SHA-256。完整41件裁定见
+  [hateneko-verdicts.md](../../docs/compatibility/hateneko-verdicts.md)。
 
 完整实测、限制及优化前后见 [docs/performance.md](../../docs/performance.md)。
 

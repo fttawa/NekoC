@@ -33,22 +33,31 @@ export function parseArgs(args) {
     if (key === "prepare-only") { o.prepareOnly = true; continue; }
     if (key === "resume") { o.resume = true; continue; }
     if (key === "compat-only") { o.compatOnly = true; continue; }
-    if (!["ref", "copy", "out", "love", "python", "binary", "frames", "warmup", "repeats", "timeout", "input"].includes(key) || !args[i + 1]) throw new Error(`Invalid option ${args[i]}`);
+    if (key === "normalize-private") { o.normalizePrivate = true; continue; }
+    if (key === "interpreter") { o.interpreter = true; continue; }
+    if (!["ref", "copy", "out", "love", "python", "binary", "frames", "project-frames", "warmup", "repeats", "timeout", "input", "manifest", "exclude-variables"].includes(key) || !args[i + 1]) throw new Error(`Invalid option ${args[i]}`);
     o[key] = args[++i];
   }
+  if (o["project-frames"] !== undefined) {
+    o.projectFrames = Number(o["project-frames"]);
+    if (!Number.isSafeInteger(o.projectFrames) || o.projectFrames < 1 || o.projectFrames > 100000) throw new Error("Invalid project-frames");
+  }
+  o.excludeVariables = o["exclude-variables"]?.split(",") ?? [];
+  if (o.excludeVariables.some(id => !id.trim())) throw new Error("Empty excluded variable id");
   for (const key of ["frames", "warmup", "repeats", "timeout"]) {
     o[key] = Number(o[key]);
     if (!Number.isSafeInteger(o[key]) || o[key] < (key === "warmup" ? 0 : 1) || o[key] > 1000000) throw new Error(`Invalid ${key}`);
   }
   if (o.frames + o.warmup > 100000) throw new Error("Too many frames");
   if (o.compatOnly && o.input) throw new Error("--compat-only and --input are mutually exclusive");
+  if (o.manifest && (!o.compatOnly || o.input)) throw new Error("--manifest requires --compat-only without --input");
   o.out = ignoredPath(o.out); o.copy = ignoredPath(o.copy);
   if (o.out === o.copy || o.out.startsWith(o.copy + path.sep) || o.copy.startsWith(o.out + path.sep)) throw new Error("Copy and output must be disjoint");
   return o;
 }
 
 // Scoped observation, not a proof of pixel, task or intermediate-state equivalence.
-export function compareStates(a, b) {
+export function compareStates(a, b, options = {}) {
   const differences = [];
   for (const state of [a, b]) {
     const dict = value => value && typeof value === "object" && !Array.isArray(value);
@@ -69,6 +78,17 @@ export function compareStates(a, b) {
     } else if (differences.length < 30) differences.push({ key, nekoc: x ?? null, hateneko: y ?? null });
   }
   function scope(s, native) {
+    const variables = { ...s.variables };
+    // H exports a second, initial-value copy of actor-private declarations in
+    // its global table. Remove ONLY a redundant declared default, and only if
+    // every live instance already has that variable in its entity table. Never
+    // move defaults over a mutated local or ignore a conflicting global value.
+    if (options.privateDeclarations) for (const [id, declaration] of Object.entries(options.privateDeclarations)) {
+      const owners = Object.values(s.actors).filter(actor => actor.prototype_id === declaration.owner);
+      if (owners.length && owners.every(actor => Object.hasOwn(s.entity_variables[actor.id], id))
+          && JSON.stringify(variables[id]) === JSON.stringify(declaration.value)) delete variables[id];
+    }
+    for (const id of options.excludeVariables ?? []) delete variables[id];
     // Runtime-generated clone ids differ; retain their state as a multiset.
     const actors = Object.values(s.actors ?? {}).map(actor => ({
       prototype_id: actor.prototype_id, x: actor.x, y: actor.y,
@@ -79,10 +99,19 @@ export function compareStates(a, b) {
       current_style_id: actor.current_style_id, scale: actor.scale, scale_y: actor.scale_y, visible: actor.visible,
       variables: s.entity_variables?.[actor.id] ?? {},
     })).sort((x, y) => JSON.stringify(x).localeCompare(JSON.stringify(y)));
-    return { current_scene_id: s.current_scene_id, variables: s.variables, actors };
+    return { current_scene_id: s.current_scene_id, variables, actors };
   }
   visit(scope(a, true), scope(b, false), "state");
   return { equal: !differences.length, differences };
+}
+
+export function normalizationScope(project, options) {
+  return {
+    ...(options.normalizePrivate ? { privateDeclarations: Object.fromEntries(
+      Object.entries(project.variables?.variablesDict ?? {}).filter(([, v]) => (v.isGlobal ?? v.is_global) === false)
+        .map(([id, v]) => [id, { owner: v.currentEntityId ?? v.current_entity, value: v.value }])) } : {}),
+    excludeVariables: options.excludeVariables ?? [],
+  };
 }
 
 async function treeFiles(dir) {
@@ -143,7 +172,7 @@ async function prepare(o) {
 }
 export function assertIdle() {
   if (process.platform !== "win32") throw new Error("Process interference guard currently requires Windows");
-  const script = "@(Get-CimInstance Win32_Process | Where-Object { $_.Name -match '^(cargo|rustc|perf-bench|lovec|love)\\.exe$' } | Select-Object ProcessId,Name,CommandLine) | ConvertTo-Json -Compress";
+  const script = "@(Get-CimInstance Win32_Process | Where-Object { $_.Name -match '^(cargo|rustc|jit-corpus|perf-bench|lovec|love)\\.exe$' } | Select-Object ProcessId,Name,CommandLine) | ConvertTo-Json -Compress";
   const output = execFileSync("pwsh", ["-NoProfile", "-Command", script], { encoding: "utf8" }).trim();
   const parsed = output ? JSON.parse(output) : [];
   const processes = Array.isArray(parsed) ? parsed : [parsed];
@@ -154,6 +183,19 @@ async function ownedWorks() {
   const result = [];
   for (const dir of ["projects", "tests/fixtures"]) for (const file of await treeFiles(path.join(root, dir))) if (file.endsWith(".bcmkn")) result.push(file);
   return result;
+}
+export async function manifestWorks(filename) {
+  const manifest = JSON.parse(await readFile(filename, "utf8"));
+  if (!Array.isArray(manifest.works) || !manifest.works.length) throw new Error("Empty compatibility manifest");
+  const seen = new Set();
+  return Promise.all(manifest.works.map(async item => {
+    const file = item.file.replaceAll("\\", "/");
+    if (!/^(projects|tests\/fixtures)\//.test(file) || file.includes(":") || file.split("/").some(part => ["..", ".", ""].includes(part)) || !file.endsWith(".bcmkn") || seen.has(file)) throw new Error("Invalid compatibility manifest path");
+    seen.add(file);
+    const resolved = path.join(root, file);
+    if (hash(await readFile(resolved)) !== item.sha256) throw new Error(`Compatibility manifest hash mismatch: ${file}`);
+    return resolved;
+  }));
 }
 function invoke(command, args, options = {}) {
   return execFileSync(command, args, { encoding: "utf8", maxBuffer: 64 * 1024 * 1024, windowsHide: true, ...options });
@@ -178,6 +220,10 @@ export function compareRun(run, work) {
     && Array.isArray(result.warmup_ms) && result.warmup_ms.length === work.warmup
     && [...result.frame_ms, ...result.warmup_ms].every(v => Number.isFinite(v) && v >= 0);
   run.comparison = valid(n) && valid(h) ? compareStates(n.final_state, h.final_state) : { equal: false, reason: "load/run/unsupported/incomplete samples" };
+  if (work.normalization) run.normalized_comparison = valid(n) && valid(h)
+    ? compareStates(n.final_state, h.final_state, work.normalization)
+    : { equal: false, reason: "load/run/unsupported/incomplete samples" };
+  else delete run.normalized_comparison;
   if (run.comparison.equal && work.synthetic && path.basename(work.file) !== "pen.bcmkn"
     && Number.isFinite(n.summary_ms?.mean) && n.summary_ms.mean > 0
     && Number.isFinite(h.summary_ms?.mean) && h.summary_ms.mean > 0) run.speedup_h_over_n = h.summary_ms.mean / n.summary_ms.mean;
@@ -200,7 +246,7 @@ async function main() {
   const { ref, before, executed } = await prepare(o);
   await mkdir(o.out, { recursive: true });
   const { writeKnFixtures } = await import("./kn-fixtures.mjs");
-  const fixtures = o.compatOnly ? [] : await writeKnFixtures(path.join(o.out, "fixtures"));
+  const fixtures = o.compatOnly || o.input ? [] : await writeKnFixtures(path.join(o.out, "fixtures"));
   if (fixtures.length) {
     const editorOutput = invoke(process.execPath, ["tools/editor-compat.mjs", ...fixtures, "--channel", "msedge", "--out", path.join(o.out, "editor.json")], { cwd: root, timeout: 600000 });
     if (!JSON.parse(editorOutput).ok) throw new Error("Official editor check failed");
@@ -214,7 +260,7 @@ async function main() {
   if (o.resume) {
     const saved = JSON.parse(await readFile(path.join(o.out, "results.json"), "utf8"));
     for (const key of ["binary_sha256", "probe_sha256", "love_version"]) if (saved[key] !== report[key]) throw new Error(`Resume ${key} mismatch`);
-    for (const key of ["frames", "warmup", "repeats", "input", "timeout", "compatOnly"]) if (saved.options[key] !== o[key]) throw new Error(`Resume ${key} mismatch`);
+    for (const key of ["frames", "projectFrames", "warmup", "repeats", "input", "manifest", "timeout", "compatOnly", "interpreter", "normalizePrivate", "excludeVariables"]) if (JSON.stringify(saved.options[key]) !== JSON.stringify(o[key])) throw new Error(`Resume ${key} mismatch`);
     if (JSON.stringify(saved.reference.files) !== JSON.stringify(before)) throw new Error("Resume vendor fingerprint mismatch");
     if (saved.executed_files && JSON.stringify(saved.executed_files) !== JSON.stringify(executed)) throw new Error("Resume executed tree mismatch");
     saved.resumed_at ??= [];
@@ -223,7 +269,7 @@ async function main() {
     report.executed_files = executed;
     for (const work of report.works) for (const run of work.runs) compareRun(run, work);
   }
-  const files = o.input ? [path.resolve(o.input)] : [...fixtures, ...await ownedWorks()];
+  const files = o.input ? [path.resolve(o.input)] : o.manifest ? await manifestWorks(o.manifest) : [...fixtures, ...await ownedWorks()];
   const manifest = await Promise.all(files.map(async file => ({ file: path.relative(root, file), sha256: hash(await readFile(file)), synthetic: fixtures.includes(file) })));
   if (o.resume) {
     const savedManifest = report.input_manifest;
@@ -251,10 +297,12 @@ async function main() {
       const existing = report.works[index];
       if (existing && (existing.file !== path.relative(root, file) || existing.sha256 !== digest)) throw new Error("Resume input mismatch");
       const work = existing ?? { file: path.relative(root, file), sha256: digest, synthetic: fixtures.includes(file), runs: [] };
-      work.scope = inputScope(JSON.parse(await readFile(file, "utf8")));
-      const frames = work.synthetic ? o.frames : Math.min(o.frames, 12);
+      const project = JSON.parse(await readFile(file, "utf8"));
+      work.scope = inputScope(project);
+      if (o.normalizePrivate || o.excludeVariables.length) work.normalization = normalizationScope(project, o);
+      const frames = work.synthetic ? o.frames : o.projectFrames ?? Math.min(o.frames, 12);
       const warmup = work.synthetic ? o.warmup : 0;
-      const timeout = work.synthetic ? o.timeout : Math.min(o.timeout, 20000);
+      const timeout = work.synthetic || o.projectFrames ? o.timeout : Math.min(o.timeout, 20000);
       work.frames = frames; work.warmup = warmup; work.timeout = timeout;
       if (!existing) report.works.push(work);
       const repetitions = work.synthetic ? o.repeats : 1;
@@ -275,9 +323,10 @@ async function main() {
         for (const runtime of (repeat % 2 ? ["hateneko", "nekoc"] : ["nekoc", "hateneko"])) {
           if (runtime === "hateneko" && work.compile_error) { run.runtimes[runtime] = { status: "compile-error", error: work.compile_error }; continue; }
           run.idle_checks.push(assertIdle());
+          if (hash(await readFile(o.binary)) !== report.binary_sha256) throw new Error("Benchmark binary changed during suite");
           try {
             let result;
-            if (runtime === "nekoc") result = JSON.parse(invoke(path.resolve(o.binary), [file, "--frames", String(frames), "--warmup", String(warmup)], { timeout }));
+            if (runtime === "nekoc") result = JSON.parse(invoke(path.resolve(o.binary), [file, "--frames", String(frames), "--warmup", String(warmup), ...(o.interpreter ? ["--interpreter"] : [])], { timeout }));
             else {
               const output = path.join(o.out, `${index}-${repeat}-love.json`);
               await unlink(output).catch(e => { if (e.code !== "ENOENT") throw e; });
@@ -302,9 +351,11 @@ async function main() {
     }
   } finally {
     const after = await fingerprint(ref);
+    report.binary_unchanged = hash(await readFile(o.binary)) === report.binary_sha256;
     report.reference.unchanged = JSON.stringify(before) === JSON.stringify(after);
     await writeFile(path.join(o.out, "results.json"), JSON.stringify(report, null, 2));
     if (!report.reference.unchanged) throw new Error("Read-only reference fingerprint changed");
+    if (!report.binary_unchanged) throw new Error("Benchmark binary changed during suite");
   }
   if (report.works.some(w => w.runs.some(r => !r.comparison?.equal))) process.exitCode = 1;
 }
