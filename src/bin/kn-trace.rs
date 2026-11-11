@@ -33,7 +33,10 @@ fn main() -> Result<()> {
     engine.use_virtual_clock();
     engine.start();
     for _ in 0..180 {
-        let update = engine.advance(1.0 / 60.0, 100_000, Duration::from_secs(1))?;
+        // A single KN warp slice can complete 30002 iterations per script;
+        // multiple scripts must fit without mistaking a trace safety budget
+        // for the runtime's semantic iteration yield.
+        let update = engine.advance(1.0 / 60.0, 1_000_000, Duration::from_secs(1))?;
         ensure!(!update.budget_yield, "fixture exceeded execution budget");
     }
     let variables: BTreeMap<_, _> = project["variables"]["variablesDict"]

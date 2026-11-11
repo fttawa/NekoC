@@ -26,6 +26,7 @@ mod kn_helpers;
 mod kn_objects;
 mod kn_panel;
 mod kn_services;
+mod kn_warp;
 pub use kn_panel::{GlobalAnimationRequest, PanelNotice};
 mod physics;
 mod stage_dialog;
@@ -3368,7 +3369,7 @@ impl Compiler {
                     } else {
                         if !warped {
                             self.emit(Op::Yield, b);
-                        } else if self.program.semantics == RuntimeSemantics::Kitten4 {
+                        } else {
                             self.emit(Op::WarpIteration, b);
                         }
                         self.emit(Op::Jump(begin), b);
@@ -4863,6 +4864,7 @@ pub struct Engine {
     trace_filter: Option<BTreeSet<String>>,
     trace_truncated: bool,
     warp_iterations: u32,
+    kn_warp: kn_warp::Slice,
     cloud: cloud::State,
     scheduler_tick: u64,
     k4_frames: u64,
@@ -5277,6 +5279,7 @@ impl Engine {
             trace_filter: None,
             trace_truncated: false,
             warp_iterations: 0,
+            kn_warp: kn_warp::Slice::default(),
             oracle_events: None,
             physics: None,
             pen_rasters: vec![None; program.scenes.len()],
@@ -8395,7 +8398,8 @@ impl Engine {
         self.advance_with(dt, max_instructions, budget, 1)
     }
     /// Use a fixed UTC epoch (2000-01-01) for calendar reporters and ignore the
-    /// wall-clock execution budget. Timer/waits already use the supplied dt.
+    /// wall-clock execution budget and KN's 4 ms warp slice. KN still yields
+    /// at its deterministic iteration limit. Timer/waits use the supplied dt.
     /// Instruction/output limits remain deterministic safety bounds. This does
     /// not attach a cloud backend, load assets, or synthesize external input.
     pub fn use_virtual_clock(&mut self) {
@@ -8524,8 +8528,14 @@ impl Engine {
         })
     }
     fn warp_iteration_yields(&mut self) -> bool {
-        if self.program.semantics != RuntimeSemantics::Kitten4 || self.reporter_depth != 0 {
+        // Reporter evaluation is currently synchronous, not a resumable task.
+        // KN's official reporter warp can suspend; see docs/kn-warp.md for the
+        // known gap. Do not count a boundary whose yield cannot be honored.
+        if self.reporter_depth != 0 {
             return false;
+        }
+        if self.program.semantics == RuntimeSemantics::KnCurrent {
+            return self.kn_warp.iteration_yields(self.virtual_epoch.is_some());
         }
         // Lcae/OptiRunner.step_iteration_yield tests > before incrementing.
         let yielding = self.warp_iterations > 10_000;
@@ -10060,6 +10070,9 @@ impl Engine {
             self.trace_task("resume", index, None);
             self.current_task = index;
             self.warp_iterations = 0;
+            if self.program.semantics == RuntimeSemantics::KnCurrent {
+                self.kn_warp.reset();
+            }
             let mut clock_due = false;
             let mut since_clock = 0usize;
             loop {

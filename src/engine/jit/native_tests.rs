@@ -183,6 +183,75 @@ fn native_boundaries_charge_one_op_yield_once_and_refund_later_ops() {
 }
 
 #[test]
+fn kn_native_boundaries_share_the_interpreter_slice_and_refund_the_successor() {
+    for op in [
+        Op::Next(0, false),
+        Op::RangeNext(0, false),
+        Op::WarpIteration,
+    ] {
+        for final_iteration in [false, true] {
+            let mut e = engine(vec![op, Op::Set(2, Expr { end: 1 }), Op::Halt]);
+            e.program.semantics = RuntimeSemantics::KnCurrent;
+            e.use_virtual_clock();
+            e.tasks[0].loops = vec![if final_iteration { 1 } else { 2 }];
+            e.tasks[0].ranges = vec![RangeState {
+                value: 1.0,
+                end: if final_iteration { 1.0 } else { 2.0 },
+                step: 1.0,
+            }];
+            for _ in 0..=super::super::kn_warp::ITERATION_LIMIT {
+                assert!(!e.warp_iteration_yields());
+            }
+            e.jit_compile(0);
+            assert_eq!(e.jit_run(0, 0, 1, 10), Some(1));
+            assert!(e.jit_yield);
+            assert_eq!(
+                e.tasks[0].pc,
+                usize::from(final_iteration || matches!(op, Op::WarpIteration))
+            );
+            assert_eq!(e.slots[2], 0.0);
+            assert_eq!(e.jit_profile()["delegated_ops"], 0);
+        }
+    }
+}
+
+#[test]
+fn kn_expired_wall_slice_yields_in_both_gateways_without_consuming_successors() {
+    for native in [false, true] {
+        for op in [
+            Op::Next(0, false),
+            Op::RangeNext(0, false),
+            Op::WarpIteration,
+        ] {
+            let mut e = engine(vec![op, Op::Set(2, Expr { end: 1 }), Op::Halt]);
+            e.program.semantics = RuntimeSemantics::KnCurrent;
+            e.tasks[0].loops = vec![1];
+            e.tasks[0].ranges = vec![RangeState {
+                value: 1.0,
+                end: 1.0,
+                step: 1.0,
+            }];
+            e.jit_compile(0);
+            e.kn_warp.expire_for_test();
+            if native {
+                assert_eq!(e.jit_run(0, 0, 1, 10), Some(1));
+                assert!(e.jit_yield);
+            } else {
+                e.tasks[0].pc = 1;
+                assert!(!e.exec(0, 0, op, 1).unwrap());
+            }
+            assert_eq!(e.tasks[0].pc, 1);
+            assert_eq!(e.slots[2], 0.0);
+            // The completed tail must not be replayed when resuming.
+            e.kn_warp.reset();
+            e.jit_compile(1);
+            assert_eq!(e.jit_run(0, 1, 1, 1), Some(1));
+            assert_eq!(e.slots[2], 1.0);
+        }
+    }
+}
+
+#[test]
 fn hot_call_change_append_and_branch_really_run_without_generic_delegation() {
     let mut e = engine(vec![
         Op::Call(0, 0),
