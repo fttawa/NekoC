@@ -42,7 +42,7 @@ use std::{
     collections::{BTreeMap, BTreeSet, VecDeque},
     time::{Duration, Instant},
 };
-pub use value::Cell;
+pub use value::{Cell, Text};
 use value::{List, ListRef, Span, Target, ValueExpr};
 pub use video::VideoState;
 
@@ -2531,12 +2531,31 @@ impl Compiler {
         self.expression_work.push(ExprOp::Value(value));
         Ok(())
     }
+    fn expression_input<'a>(&self, b: &'a Value, key: &str) -> Result<&'a Value> {
+        // Official online KN probe: tools/kn-missing-inputs.mjs. A detached
+        // arithmetic slot evaluates as undefined -> NaN, not a zero shadow.
+        // Do not relax required inputs for K4 or unrelated KN block types.
+        if self.program.semantics == RuntimeSemantics::KnCurrent
+            && b["type"] == "math_arithmetic"
+            && matches!(
+                field(b, "type"),
+                "add" | "minus" | "multiply" | "divide" | "power"
+            )
+            && matches!(key, "A" | "B")
+            && b["inputs"].get(key).is_none()
+        {
+            static NAN: std::sync::OnceLock<Value> = std::sync::OnceLock::new();
+            return Ok(NAN
+                .get_or_init(|| serde_json::json!({"type":"math_number","fields":{"NUM":"NaN"}})));
+        }
+        input(b, key)
+    }
     fn expression(&mut self, b: &Value, depth: usize) -> Result<()> {
         // Compile ordinary numeric trees without allocating a traversal stack.
         // Recursion is strictly bounded, even for synthesized/proxy reporters.
         if depth < 32 {
             for key in self.expression_inputs(b) {
-                self.expression(input(b, key)?, depth + 1)?;
+                self.expression(self.expression_input(b, key)?, depth + 1)?;
             }
             return self.expression_one(b, depth);
         }
@@ -2548,7 +2567,7 @@ impl Compiler {
             }
             work.push((node, true));
             for key in self.expression_inputs(node).iter().rev() {
-                work.push((input(node, key)?, false));
+                work.push((self.expression_input(node, key)?, false));
             }
         }
         Ok(())
@@ -7874,6 +7893,14 @@ impl Engine {
                         |at| read_list_index(at, v.len(), self.program.semantics),
                     );
                     match at.and_then(|i| v.get(i)) {
+                        // Official KN list_item treats an undefined element like
+                        // a missing index, before any global-assignment fallback.
+                        // Paired evidence: docs/kn-value-types-official.json.
+                        Some(Cell::Undefined)
+                            if self.program.semantics == RuntimeSemantics::KnCurrent =>
+                        {
+                            Cell::Number(f64::NAN)
+                        }
                         Some(value) => value.clone(),
                         None => {
                             if self.program.semantics == RuntimeSemantics::Kitten4
@@ -7916,11 +7943,14 @@ impl Engine {
                     // second reporter. A list must stringify before that reporter
                     // can mutate it (the general join path's evaluation order).
                     let a = self.eval_value(self.program.value_args[parts.start as usize], actor);
-                    if matches!(a, Cell::Text(_))
-                        && self.program.semantics != RuntimeSemantics::KnCurrent
-                    {
+                    if matches!(a, Cell::Text(_)) {
                         let b = self
                             .eval_value(self.program.value_args[parts.start as usize + 1], actor);
+                        if self.program.semantics == RuntimeSemantics::KnCurrent
+                            && matches!(b, Cell::Undefined)
+                        {
+                            return a;
+                        }
                         return Cell::concat(&a, &b);
                     }
                     let stopped = self.program.semantics == RuntimeSemantics::KnCurrent
@@ -8053,7 +8083,7 @@ impl Engine {
                     return match String::from_utf16(selected) {
                         Ok(text) => Cell::Text(text.into()),
                         Err(_) => {
-                            // Rc<str> cannot preserve JS lone surrogate code
+                            // UTF-8 text cannot preserve JS lone surrogate code
                             // units. Fail explicitly instead of substituting U+FFFD.
                             self.value_error = Some("KN text_select produced an isolated UTF-16 surrogate; the current string model cannot preserve it".into());
                             Cell::Null
@@ -8852,9 +8882,8 @@ impl Engine {
                             .get(*id)
                             .is_some_and(|n| n == name.trim())
                     }),
-                    Cell::Text(id) | Cell::Costume(id) => {
-                        styles.iter().find(|s| s.as_str() == id.as_ref())
-                    }
+                    Cell::Text(id) => styles.iter().find(|s| s.as_str() == id.as_ref()),
+                    Cell::Costume(id) => styles.iter().find(|s| s.as_str() == id.as_ref()),
                     Cell::Number(n) if k4 && n.is_finite() && !styles.is_empty() => {
                         // Official Tn6a p(): round(index-1), then wrap, including negatives.
                         let index = (n - 0.5).floor().rem_euclid(styles.len() as f64) as usize;

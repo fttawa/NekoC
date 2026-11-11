@@ -1,0 +1,351 @@
+{
+  "projectName": "NekoC KN semantics value-types initial-lists",
+  "version": "0.27.4",
+  "toolType": "KN",
+  "stageSize": {
+    "width": 900,
+    "height": 562
+  },
+  "scenes": {
+    "currentSceneId": "nekoc-scene-main",
+    "sortList": [
+      "nekoc-scene-main"
+    ],
+    "scenesDict": {
+      "nekoc-scene-main": {
+        "id": "nekoc-scene-main",
+        "name": "Background",
+        "screenName": "Main",
+        "styles": [
+          "nekoc-background"
+        ],
+        "currentStyleId": "nekoc-background",
+        "actorIds": [
+          "20000000-0000-4000-8000-000000000001"
+        ],
+        "visible": true,
+        "editable": true,
+        "workspaceScrollXy": {
+          "x": 100,
+          "y": 50
+        },
+        "nekoBlockJsonList": [],
+        "comments": {}
+      }
+    }
+  },
+  "actors": {
+    "actorsDict": {
+      "20000000-0000-4000-8000-000000000001": {
+        "id": "20000000-0000-4000-8000-000000000001",
+        "name": "Sprite",
+        "styles": [
+          "nekoc-costume"
+        ],
+        "currentStyleId": "nekoc-costume",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": 100,
+        "rotation": 0,
+        "visible": true,
+        "locked": false,
+        "editable": true,
+        "deletable": true,
+        "workspaceScrollXy": {
+          "x": 100,
+          "y": 50
+        },
+        "nekoBlockJsonList": [
+          {
+            "id": "knvt-14",
+            "type": "on_running_group_activated",
+            "fields": {},
+            "inputs": {},
+            "next": {
+              "id": "knvt-2",
+              "type": "variables_set",
+              "fields": {
+                "variable": "scalarText"
+              },
+              "inputs": {
+                "value": {
+                  "id": "knvt-1",
+                  "type": "variables_get",
+                  "fields": {
+                    "variable": "scalar"
+                  },
+                  "inputs": {}
+                }
+              },
+              "next": {
+                "id": "knvt-6",
+                "type": "variables_set",
+                "fields": {
+                  "variable": "first"
+                },
+                "inputs": {
+                  "value": {
+                    "id": "knvt-5",
+                    "type": "list_item",
+                    "fields": {
+                      "item": "any"
+                    },
+                    "inputs": {
+                      "list": {
+                        "id": "knvt-3",
+                        "type": "pure_list_get",
+                        "fields": {
+                          "list": "source"
+                        },
+                        "inputs": {}
+                      },
+                      "list_index": {
+                        "id": "knvt-4",
+                        "type": "math_number",
+                        "fields": {
+                          "NUM": "1"
+                        },
+                        "inputs": {}
+                      }
+                    }
+                  }
+                },
+                "next": {
+                  "id": "knvt-10",
+                  "type": "variables_set",
+                  "fields": {
+                    "variable": "worldFirst"
+                  },
+                  "inputs": {
+                    "value": {
+                      "id": "knvt-9",
+                      "type": "list_item",
+                      "fields": {
+                        "item": "any"
+                      },
+                      "inputs": {
+                        "list": {
+                          "id": "knvt-7",
+                          "type": "pure_list_get",
+                          "fields": {
+                            "list": "source"
+                          },
+                          "inputs": {}
+                        },
+                        "list_index": {
+                          "id": "knvt-8",
+                          "type": "math_number",
+                          "fields": {
+                            "NUM": "3"
+                          },
+                          "inputs": {}
+                        }
+                      }
+                    }
+                  },
+                  "next": {
+                    "id": "knvt-13",
+                    "type": "list_copy",
+                    "fields": {},
+                    "inputs": {
+                      "list": {
+                        "id": "knvt-11",
+                        "type": "pure_list_get",
+                        "fields": {
+                          "list": "source"
+                        },
+                        "inputs": {}
+                      },
+                      "target_list": {
+                        "id": "knvt-12",
+                        "type": "pure_list_get",
+                        "fields": {
+                          "list": "copied"
+                        },
+                        "inputs": {}
+                      }
+                    },
+                    "next": {
+                      "id": "knvt-16",
+                      "type": "variables_set",
+                      "fields": {
+                        "variable": "done"
+                      },
+                      "inputs": {
+                        "value": {
+                          "id": "knvt-15",
+                          "type": "math_number",
+                          "fields": {
+                            "NUM": "1"
+                          },
+                          "inputs": {}
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "comments": {},
+        "sceneId": "nekoc-scene-main"
+      }
+    }
+  },
+  "styles": {
+    "stylesDict": {
+      "nekoc-background": {
+        "id": "nekoc-background",
+        "name": "Background",
+        "url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='562'%3E%3Crect width='900' height='562' fill='white'/%3E%3C/svg%3E"
+      },
+      "nekoc-costume": {
+        "id": "nekoc-costume",
+        "name": "Sprite",
+        "url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Ccircle cx='20' cy='20' r='18' fill='rgb(96,143,238)'/%3E%3C/svg%3E",
+        "centerPoint": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    }
+  },
+  "variables": {
+    "variablesDict": {
+      "done": {
+        "id": "done",
+        "name": "done",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "source": {
+        "id": "source",
+        "name": "source",
+        "value": [
+          "1",
+          "01",
+          "3333333333333333",
+          "33333333333333333",
+          "1e2",
+          "bad",
+          "",
+          "  ",
+          [
+            "2",
+            "猫",
+            [
+              "3"
+            ]
+          ]
+        ],
+        "type": "list",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "copied": {
+        "id": "copied",
+        "name": "copied",
+        "value": [],
+        "type": "list",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "scalar": {
+        "id": "scalar",
+        "name": "scalar",
+        "value": "1",
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "scalarText": {
+        "id": "scalarText",
+        "name": "scalarText",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "first": {
+        "id": "first",
+        "name": "first",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "worldFirst": {
+        "id": "worldFirst",
+        "name": "worldFirst",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    }
+  },
+  "broadcasts": {
+    "broadcastsDict": {
+      "nekoc-scene-main": []
+    }
+  },
+  "procedures": {
+    "proceduresDict": {}
+  },
+  "audios": {
+    "audiosDict": {},
+    "sortList": [],
+    "currentAudioId": ""
+  },
+  "hidden_toolbox": {
+    "toolbox": [],
+    "blocks": [],
+    "forcibleShowBlocks": [],
+    "isCombine": false
+  },
+  "courseMaterials": {
+    "courseMaterialsDict": {},
+    "sortList": []
+  },
+  "previewUrl": ""
+}

@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { fixtures } from "../tools/bench/fixtures.mjs";
 import { parseArgs, summarize, scoreProject } from "../tools/bench/run.mjs";
 import { compare } from "../tools/bench/compare.mjs";
+import { checkedRun } from "../tools/bench/paired-run.mjs";
 import { readJson, runOracle } from "../tools/compat/k4-oracle.mjs";
 
 test("performance evidence contains measured hashes, finite timings and no embedded works", async () => {
@@ -42,6 +43,66 @@ test("speed comparison fails closed on different work, errors or final states", 
   const config = suite(1); config.works[0].runs[0].seed = 2;
   assert.equal(compare(suite(1), config)[0].status, "configuration-mismatch");
   assert.throws(() => compare({ ...suite(1), options: { frames: 1 } }, { ...suite(1), options: { frames: 2 } }));
+});
+
+test("string concatenation evidence preserves measured pairs and differential scope", async () => {
+  const evidence = await readJson("docs/string-concat-evidence.json");
+  assert.equal(evidence.native_pair.length, 7);
+  for (const row of evidence.native_pair) {
+    assert.equal(row.status, "equal-final-state");
+    assert.ok([row.before_ms, row.after_ms].every(n => Number.isFinite(n) && n > 0));
+  }
+  assert.equal(evidence.configuration.repeats, 7);
+  assert.equal(evidence.official_string_pair.status, "equal-final-state");
+  assert.ok(evidence.official_string_pair.nekoc_ms <= 0.46);
+  for (const [samples, median] of [
+    [evidence.official_string_pair.official_run_means_ms, evidence.official_string_pair.official_ms],
+    [evidence.official_string_pair.nekoc_run_means_ms, evidence.official_string_pair.nekoc_ms],
+  ]) {
+    assert.equal(samples.length, evidence.configuration.repeats);
+    assert.equal(summarize(samples).median, median);
+  }
+  assert.equal(evidence.jit_differential.complete, 52);
+  assert.equal(evidence.jit_differential.differences, 0);
+  assert.equal(evidence.jit_differential.original_errors, 1);
+  for (const hash of [evidence.string_input_sha256, evidence.official_bundle_sha256, ...Object.values(evidence.binaries), ...Object.values(evidence.rebuilt_binaries), ...Object.values(evidence.raw_sha256)]) assert.match(hash, /^[a-f0-9]{64}$/);
+  assert.equal(evidence.compile_result, undefined);
+  assert.equal(evidence.theatre, undefined);
+});
+
+test("paired workers require exact updates and normalize the official configuration", () => {
+  const run = () => ({ frame_ms: Array(120).fill(1), warmup_ms: Array(10).fill(2) });
+  const official = checkedRun(run(), true);
+  assert.equal(official.runtime, "official");
+  assert.equal(official.seed, 1);
+  assert.equal(official.frames, 120);
+  assert.equal(official.warmup, 10);
+  const native = { ...run(), runtime: "nekoc", seed: 42 };
+  assert.equal(checkedRun(native, false), native);
+  assert.equal(native.seed, 42);
+  for (const invalid of [{}, { ...run(), frame_ms: [] }, { ...run(), warmup_ms: [] }]) assert.throws(() => checkedRun(invalid, true), /Update count/);
+  const invalid = run(); invalid.warmup_ms[0] = NaN;
+  assert.throws(() => checkedRun(invalid, true), /Invalid samples/);
+});
+
+test("cross-kernel pairs ignore only labels and empty entity maps, not private values", () => {
+  const suite = final_state => ({ works: [{ name: "s", sha256: "same", runs: [{ status: "ok", final_state, summary_ms: { mean: 1 } }] }] });
+  const official = { ...suite({ frame: 131, variables: { s: "text" }, variable_names: { s: "name" }, entity_variables: {} }), binary: { runtime: "official" } };
+  const native = suite({ frame: 130, variables: { s: "text" }, entity_variables: { actor: {} } });
+  assert.equal(compare(official, native)[0].status, "equal-final-state");
+  native.works[0].runs[0].final_state.entity_variables.actor.s = "private";
+  assert.equal(compare(official, native)[0].status, "state-mismatch");
+  delete native.works[0].runs[0].final_state.entity_variables.actor.s;
+  native.works[0].runs[0].final_state.variables.s = "different";
+  assert.equal(compare(official, native)[0].status, "state-mismatch");
+  native.works[0].runs[0].final_state.variables.s = "text";
+  native.works[0].runs[0].final_state.entity_variables.actor = [];
+  assert.equal(compare(official, native)[0].status, "state-mismatch");
+  for (const value of [null, Infinity, NaN, undefined, [null]]) {
+    native.works[0].runs[0].final_state.entity_variables = {};
+    native.works[0].runs[0].final_state.variables.s = value;
+    assert.equal(compare(official, native)[0].status, "unverified");
+  }
 });
 
 test("benchmark CLI rejects invalid counts, runtimes and tracked output paths", () => {

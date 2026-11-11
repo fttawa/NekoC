@@ -3,6 +3,8 @@ use anyhow::Result;
 use serde::{Serialize, Serializer};
 use serde_json::Value;
 use std::{cell::RefCell, rc::Rc};
+mod text;
+pub use text::Text;
 
 pub type List = Rc<RefCell<Vec<Cell>>>;
 pub type Object = Rc<RefCell<Vec<(String, Cell)>>>;
@@ -12,7 +14,7 @@ pub type Object = Rc<RefCell<Vec<(String, Cell)>>>;
 pub enum Cell {
     Number(f64),
     Bool(bool),
-    Text(Rc<str>),
+    Text(Text),
     List(List),
     Null,
     /// Official K4 costume dropdown value: a fresh {style_id: string} object.
@@ -53,18 +55,19 @@ impl Cell {
             _ => items.iter().position(|v| v.equals(self)),
         }
     }
-    /// Reserve the complete size for the common text+text case. No scalar
-    /// temporary strings and no geometric growth/copy of a long left operand.
+    /// Text operands are immutable and can be joined without copying prefixes.
+    /// Freeze all other values now, especially lists which reporters may mutate
+    /// later. Only the immutable bytes, never their conversion, are deferred.
     pub fn concat(a: &Self, b: &Self) -> Self {
-        let capacity = match (a, b) {
-            (Self::Text(a), Self::Text(b)) => a.len().saturating_add(b.len()),
-            (Self::Text(s), _) | (_, Self::Text(s)) => s.len().saturating_add(24),
-            _ => 48,
+        let a = match a {
+            Self::Text(text) => text.clone(),
+            _ => a.text().into(),
         };
-        let mut out = String::with_capacity(capacity);
-        a.append_text(&mut out);
-        b.append_text(&mut out);
-        Self::Text(out.into())
+        let b = match b {
+            Self::Text(text) => text.clone(),
+            _ => b.text().into(),
+        };
+        Self::Text(Text::concat(&a, &b))
     }
     pub fn from_json(value: &Value) -> Result<Self> {
         Ok(match value {
@@ -87,7 +90,7 @@ impl Cell {
             Self::Number(n) => *n,
             Self::Bool(v) => u8::from(*v) as f64,
             Self::Null => 0.0,
-            Self::Text(s) => crate::js_number::parse(s),
+            Self::Text(s) => s.number(),
             Self::List(_)
             | Self::Costume(_)
             | Self::Object(_)
@@ -106,7 +109,11 @@ impl Cell {
         match self {
             Self::Number(n) => crate::js_number::text(*n),
             Self::Bool(v) => v.to_string(),
-            Self::Text(s) => s.to_string(),
+            Self::Text(s) => {
+                let mut out = String::with_capacity(s.len());
+                s.append_to(&mut out);
+                out
+            }
             Self::Null => String::new(),
             Self::Costume(_) | Self::Object(_) | Self::Midi(_) => "[object Object]".into(),
             Self::Undefined => "undefined".into(),
@@ -141,7 +148,7 @@ impl Cell {
         match self {
             Self::Number(n) => out.push_str(ryu_js::Buffer::new().format(*n)),
             Self::Bool(v) => out.push_str(if *v { "true" } else { "false" }),
-            Self::Text(s) => out.push_str(s),
+            Self::Text(s) => s.append_to(out),
             Self::Null => {}
             Self::Costume(_) | Self::Object(_) | Self::Midi(_) => out.push_str("[object Object]"),
             Self::Undefined => out.push_str("undefined"),
@@ -542,6 +549,7 @@ mod performance_regressions {
             Cell::Number(1e21),
             Cell::Bool(false),
             Cell::Null,
+            Cell::Undefined,
             Cell::Costume("x".into()),
             Cell::from_json(&serde_json::json!([1, ["猫", null], true])).unwrap(),
         ];
@@ -553,5 +561,20 @@ mod performance_regressions {
                 );
             }
         }
+    }
+
+    #[test]
+    fn deferred_text_is_observed_consistently_by_all_scalar_consumers() {
+        let text = Cell::concat(&Cell::Text("12".into()), &Cell::Text(".5".into()));
+        assert_eq!(text.number(), 12.5);
+        assert!(text.truth());
+        let flat = Cell::Text("12.5".into());
+        assert!(text.equals(&flat));
+        assert!(text.k4_equals(&flat));
+        assert_eq!(text.index_in(&[flat]), Some(0));
+        assert_eq!(serde_json::to_string(&text).unwrap(), "\"12.5\"");
+        let mut out = "prefix:".to_owned();
+        text.append_text(&mut out);
+        assert_eq!(out, "prefix:12.5");
     }
 }
