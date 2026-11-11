@@ -1,0 +1,113 @@
+{
+  "schema": "nekoc-string-concat-evidence-v1",
+  "baseline_revision": "083270779739d7a6714c37dc9560b40e7dd0e57c",
+  "configuration": {
+    "build": "release, opt-level=3, fat LTO, codegen-units=1",
+    "warmup": 10,
+    "frames": 120,
+    "repeats": 7,
+    "order": "alternating AB/BA",
+    "seed": 1,
+    "scope": "headless advance/update only; final diagnostics outside timing"
+  },
+  "string_input_sha256": "975bf046127c3a80cd991d4afd01e7cd1f423af32380d5998b21c4f3c3d3ed98",
+  "official_bundle_sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160",
+  "binaries": {
+    "before": "bbb0f51ddfab6c8a314b922fed3b6884497799019178a4d39fdb9292e8fbbe7a",
+    "after": "910aaa8bedb5a2ec39017c8d57b5ae9921ad63f3ce6debf1e6a94986c8e13191"
+  },
+  "rebuilt_binaries": {
+    "perf_bench": "9308bafd0cbffbbbb3fa81fab935407fa2f5ea9cbb28d3d25057d55736166c7e",
+    "jit_corpus": "84e53e1d661de667a2c0fa0b52d8886371766b1bdabb958b03b40e9350863daf"
+  },
+  "binary_note": "binaries.after identifies the measured paired executable. A later release rebuild has a different hash; its timings are not substituted for the recorded pairs. Final corpus differential reports use rebuilt_binaries.jit_corpus.",
+  "raw_sha256": {
+    "dist/strcat/text-final-seed-1.json": "d4c91336c8ce5fae6282a9bb530073a6bff49e405c8eaaa0ac73139576e706d3",
+    "dist/strcat/text-final-seed-6.json": "13e4f47ce6e7aecc4852e2059b1c445a1f3f91b95686d1d3af6bd20dfca893e2",
+    "dist/strcat/text-final-seed-42.json": "1cecdf957328bde52b74045304d89bc84ebe4e460e34b3f9c298a676ef97a404",
+    "dist/strcat/text-final-budget997.json": "f653503928d49876aeb14c618715bd2e8241b9a9be1e2672b6da2fbe3246909d",
+    "dist/bench/paired-text-final/before.json": "93bcea9ffe25dd1d980c51b1c8e31b0fd29cf8271847c7779594f1f6f3049397",
+    "dist/bench/paired-text-final/after.json": "5bfc6fcf248b849872775d5ee35b2ea3efc45b8075d11acb2930aa8bd43e27c7",
+    "dist/bench/paired-text-final/comparison.json": "2b4a77c0b0ef60b4524016b7ad4999cce0ef0caa74cf914e44ccf7a8ab5a5094",
+    "dist/bench/string-official-text-final/before.json": "730db0f3ba57f70c58d309a27e896552ee7e4047cabfae58a24f0de6f062a3d9",
+    "dist/bench/string-official-text-final/after.json": "865f8a19269466a902e007fc8936768562a8473e9291a2c2b3676e9984ab65ba",
+    "dist/bench/string-official-text-final/comparison.json": "c845b670b965da6f1d287440317321f2a755e07716eb761ed322a417748242da",
+    "dist/bench/paired-final/before.json": "1a5ab1c65444921b26a1c3c093487484c3c3ba4dacd9f8e683332d209d462f9d",
+    "dist/bench/paired-final/after.json": "38dd558fe017a646b6a2d3abda06e0fa899bd977fe4928c92efaa2205161ce07",
+    "dist/bench/paired-final/comparison.json": "68cc0197e5567d367a91e237eeb95f284d5d0f0fdce77e17fb7649a5a293dc8d",
+    "dist/bench/string-official-final/before.json": "4714bbceecd2b1a6c1f5d0d70bf58a6b5c1ae65d95dcb78451d91db542c91ddd",
+    "dist/bench/string-official-final/after.json": "40e5ccec717124dcbb513b9f4eb930754254b77f9c3027b2bfc5c92724c96c49",
+    "dist/bench/paired-confirm/comparison.json": "5c2a078db49d2163c4ebd118efbf288adb809c01ce50b0311fdcc664b50008cb"
+  },
+  "storage_revision": "flat leaves use Rc<str>; rope nodes retain immutable cached Rc<str>",
+  "native_pair": [
+    { "name": "string", "status": "equal-final-state", "before_ms": 0.8108591666666662, "after_ms": 0.15247999999999998 },
+    { "name": "broadcast", "status": "equal-final-state", "before_ms": 0.21188500000000007, "after_ms": 0.19933166666666657 },
+    { "name": "clones", "status": "equal-final-state", "before_ms": 0.22517583333333338, "after_ms": 0.22284000000000004 },
+    { "name": "list", "status": "equal-final-state", "before_ms": 0.23310916666666665, "after_ms": 0.2387558333333333 },
+    { "name": "numeric", "status": "equal-final-state", "before_ms": 0.03769583333333339, "after_ms": 0.037789166666666665 },
+    { "name": "pen", "status": "equal-final-state", "before_ms": 0.08745666666666668, "after_ms": 0.08934666666666671 },
+    { "name": "recursion", "status": "equal-final-state", "before_ms": 0.030372500000000024, "after_ms": 0.03123083333333333 }
+  ],
+  "official_string_pair": {
+    "status": "equal-final-state",
+    "official_ms": 0.4658333331346512,
+    "nekoc_ms": 0.15400999999999992,
+    "official_run_means_ms": [0.46500000059604646, 0.4625, 0.45416666915019355, 0.4658333331346512, 0.4691666652758916, 0.525833331545194, 0.4799999992052714],
+    "nekoc_run_means_ms": [0.16180583333333326, 0.1575633333333333, 0.1528375, 0.15280583333333336, 0.14908083333333338, 0.15400999999999992, 0.15560083333333333]
+  },
+  "earlier_candidate_note": "The earlier pairs below predate the final Rc<str> flat-leaf revision and do not describe the after binary above.",
+  "earlier_native_pair": [
+    { "name": "string", "before_ms": 0.7863816666666668, "after_ms": 0.14330999999999994 },
+    { "name": "broadcast", "before_ms": 0.20515499999999992, "after_ms": 0.19258583333333337 },
+    { "name": "clones", "before_ms": 0.22293999999999997, "after_ms": 0.23918750000000008 },
+    { "name": "list", "before_ms": 0.23870833333333327, "after_ms": 0.24336250000000004 },
+    { "name": "numeric", "before_ms": 0.038627500000000044, "after_ms": 0.03762249999999998 },
+    { "name": "pen", "before_ms": 0.08428249999999997, "after_ms": 0.08648833333333333 },
+    { "name": "recursion", "before_ms": 0.030267500000000027, "after_ms": 0.030360833333333347 }
+  ],
+  "earlier_official_string_pair": {
+    "status": "equal-final-state",
+    "official_ms": 0.45416666318972904,
+    "nekoc_ms": 0.14695749999999996,
+    "official_run_means_ms": [0.4575, 0.465, 0.4375, 0.444167, 0.4625, 0.451667, 0.454167],
+    "nekoc_run_means_ms": [0.148585, 0.143810, 0.149036, 0.146957, 0.149127, 0.145584, 0.145998]
+  },
+  "earlier_native_confirmation_pair": [
+    { "name": "string", "before_ms": 0.7256541666666668, "after_ms": 0.14534749999999994 },
+    { "name": "broadcast", "before_ms": 0.19394083333333337, "after_ms": 0.18537083333333343 },
+    { "name": "clones", "before_ms": 0.21632749999999995, "after_ms": 0.22352333333333332 },
+    { "name": "list", "before_ms": 0.23256500000000002, "after_ms": 0.2370424999999999 },
+    { "name": "numeric", "before_ms": 0.037616666666666645, "after_ms": 0.037336666666666664 },
+    { "name": "pen", "before_ms": 0.08149416666666667, "after_ms": 0.08368166666666668 },
+    { "name": "recursion", "before_ms": 0.029185000000000003, "after_ms": 0.028988333333333307 }
+  ],
+  "jit_differential": {
+    "binary_sha256": "84e53e1d661de667a2c0fa0b52d8886371766b1bdabb958b03b40e9350863daf",
+    "seeds": [1, 6, 42],
+    "instructions": [2000000, 997],
+    "budget997_seed": 1,
+    "frames": 60,
+    "works_per_report": 53,
+    "complete": 52,
+    "original_errors": 1,
+    "differences": 0,
+    "load_compile_errors": 0
+  },
+  "final_corpus_timings": {
+    "scope": "single after-only diagnostic runs, not paired performance non-regression evidence; budget997 enables profiling",
+    "seed_1": { "interpreter_us": 2994963, "jit_us": 2606900 },
+    "seed_6": { "interpreter_us": 2908195, "jit_us": 2639514 },
+    "seed_42": { "interpreter_us": 2883634, "jit_us": 2579826 },
+    "budget997_seed_1": { "interpreter_us": 224499, "jit_us": 654720 }
+  },
+  "limitations": [
+    "Final list, pen and recursion pairs are 2.42%, 2.16% and 2.83% slower; noise and layout regressions are not excluded.",
+    "An earlier candidate's alternating seed-1 corpus timing was 4.42% slower in aggregate JIT time (305999424: +5.70%). Final flat-leaf corpus non-regression is not established.",
+    "The Number mirror shortcut does not accelerate all nonnumeric texts (e.g. deadbeef or pure non-ASCII).",
+    "Observing already-linked prefixes can retain multiple flat caches.",
+    "Cross-kernel performance JSON is not a fully typed semantic oracle.",
+    "The offline bundle includes wrapper DI exposure points; online authenticity is not independently verified.",
+    "No HateNeko implementation was ported."
+  ]
+}
