@@ -51,9 +51,9 @@ export class StageOverlay {
     // or teaching StageRenderer about DOM widgets. Each overlay owns its renderer.
     if (renderer.load) {
       const load = renderer.load;
-      renderer.load = async project => {
+      renderer.load = async (project, ...rest) => {
         this.project = project; this.previews.clear(); this.monitorKey = '';
-        const result = await load.call(renderer, project);
+        const result = await load.call(renderer, project, ...rest);
         await Promise.all((renderer.kitten4 ? [...renderer.images.values()] : []).filter(image => image.src).map(async image => {
           const preview = new Image(); preview.alt = ''; preview.src = image.src;
           try { await preview.decode(); this.previews.set(image.src, preview); } catch { /* Renderer reports asset failures. */ }
