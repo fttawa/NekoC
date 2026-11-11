@@ -12,6 +12,8 @@ fn engine(project: &Value, jit: bool) -> Engine {
         vm.disable_jit();
     }
     vm.set_random_seed(0x9E37_79B9_7F4A_7C15);
+    // A slow CI host must not hit the wall-clock budget on only one side.
+    vm.use_virtual_clock();
     vm.start();
     vm
 }
