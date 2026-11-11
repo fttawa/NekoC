@@ -109,6 +109,7 @@ export async function visualWork(input,options){
           body:`<!doctype html><style>html,body{margin:0}#box{position:relative;width:${width}px;height:${height}px;overflow:hidden}#stage{display:block;width:100%;height:100%}</style><div id="box"><canvas id="stage"></canvas></div>`}));
         await nekoPage.route('**/nekoc-overlay.js',async route=>route.fulfill({contentType:'application/javascript',body:await readFile(path.join(root,'web/overlay.js'),'utf8')}));
         await nekoPage.route('**/nekoc-renderer.js',async route=>route.fulfill({contentType:'application/javascript',body:await readFile(options.rendererSource||path.join(root,'web/renderer.js'),'utf8')}));
+        await nekoPage.route('**/pen-k4.js',async route=>route.fulfill({contentType:'application/javascript',body:await readFile(path.join(root,'web/pen-k4.js'),'utf8')}));
         await nekoPage.goto(new URL('/nekoc-visual',page.url()).href);
         await nekoPage.evaluate(async project=>{
           const {StageRenderer}=await import('/nekoc-renderer.js');

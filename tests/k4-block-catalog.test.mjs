@@ -230,6 +230,17 @@ test("second partial round records scoped evidence without clearing unresolved p
   }
 });
 
+test("third partial round retains solver, distort and stamp boundaries despite measured improvements", () => {
+  const types = ["physics2_set_gravity", "physics2_set_speed", "set_velocity", "set_velocity_by_vector",
+    "physics2_set_force", "physics2_set_mass", "physics2_set_roughness", "physics2_set_resilience",
+    "physics2_set_boundary", "stamp", "image_stamp", "set_scene_transition"];
+  for (const row of mappingStatus(root, types.map(type => ({ type, official: [] })))) {
+    assert.equal(row.status, "已实现", row.type);
+    assert.equal(row.semantics, "partial", row.type);
+    assert.ok(row.limitations.some(text => text.includes("第三轮") && text.includes("原创")), row.type);
+  }
+});
+
 test("optional official-package integration: 377 types and audited complete registration tables", {
   skip: !process.env.K4_PLAYER_DIR,
 }, () => {

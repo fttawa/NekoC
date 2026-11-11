@@ -8348,7 +8348,11 @@ impl Engine {
             ]);
             if self.program.uses_color {
                 let (to, size, color) = ((a.x, a.y), a.size, a.color);
-                self.raster_line(old, to, size, color);
+                if self.program.semantics == RuntimeSemantics::Kitten4 {
+                    self.raster_k4_line(old, to, size, color);
+                } else {
+                    self.raster_line(old, to, size, color);
+                }
             }
         }
     }
@@ -8909,9 +8913,14 @@ impl Engine {
                 self.layer_with_pen(actor, above);
             }
             Op::Pen(down) => {
-                let was = self.sprites[actor].pen;
+                let draws = down
+                    && if self.program.semantics == RuntimeSemantics::Kitten4 {
+                        self.k4_pen_down_draws(actor)
+                    } else {
+                        !self.sprites[actor].pen
+                    };
                 self.sprites[actor].pen = down;
-                if down && !was {
+                if draws {
                     self.line(actor, old);
                 }
             }

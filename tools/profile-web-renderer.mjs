@@ -8,7 +8,8 @@ const browser=await chromium.launch({headless:true,channel:'msedge',args:['--ena
 try{
   const page=await browser.newPage();await page.goto('http://127.0.0.1:4173');
   const result=await page.evaluate(async()=>{
-    const source=await(await fetch('/renderer.js')).text();
+    // Blob modules have no hierarchical base for the renderer's relative import.
+    const source=(await(await fetch('/renderer.js')).text()).replace("from './pen-k4.js'", `from '${new URL('/pen-k4.js',location.href).href}'`);
     const variants={triangles:source,strip:source.replace('vec2 p[6]=vec2[6](vec2(0,0),vec2(1,0),vec2(0,1),vec2(0,1),vec2(1,0),vec2(1,1));return p[gl_VertexID];','return vec2(float(gl_VertexID & 1),float(gl_VertexID >> 1));').replaceAll('gl.TRIANGLES,0,6','gl.TRIANGLE_STRIP,0,4')};
     const lines=new Float32Array(10000*9);let x=0,y=0;
     for(let i=0;i<10000;i++){const a=(i+1)*.8*Math.PI/180,nx=380*Math.sin(a),ny=220*Math.cos(a*1.013);lines.set([x,y,nx,ny,1,.2,.45,.3,1],i*9);x=nx;y=ny;}

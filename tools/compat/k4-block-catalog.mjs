@@ -396,6 +396,15 @@ export function mappingStatus(root, rows) {
     if (["set_actor_as", "physics2_enable_force", "set_velocity", "physics2_set_actor_as", "physics2_set_speed"].includes(row.type) && evidence.length) {
       limitations.push("第二轮 7 份原创物理夹具/210 帧官方实测：旧 exit 即时 static 清速、新 forceable/ticker 延迟和禁用动态体保速已修正；不声明跨求解器等价，见 kitten4-physics-partial.md");
     }
+    if (["physics2_enable_force", "physics2_set_gravity", "physics2_set_speed", "set_velocity", "set_velocity_by_vector", "physics2_set_force", "physics2_set_mass", "physics2_set_roughness", "physics2_set_resilience", "physics2_set_boundary"].includes(row.type) && evidence.length) {
+      limitations.push("第三轮 11 份原创夹具/660 帧官方轨迹：首次世界初始化、自由落体积分、20px/tick 向量限速、边界摩擦与全不透明矩形轮廓已修正；接触仍有误差，复杂轮廓/软体未对齐，见 kitten4-physics-trajectory-3.md");
+    }
+    if (row.type === "set_scene_transition" && evidence.length) {
+      limitations.push("第三轮 12 份原创夹具/780 帧：slide/bounce/fade 位置与 alpha、非法名称显示已回归；distort 截图扭曲与完成回调调度未对齐，见 kitten4-partial-transition-3.md");
+    }
+    if (["stamp", "image_stamp"].includes(row.type) && evidence.length) {
+      limitations.push("第三轮 11 份原创画笔夹具：起点圆盘/闭合线、半透明叠色、零坐标重复落笔、填充与印章交错已实测；复杂字体/纹理和跨帧量化仍未验证，见 kitten4-partial-pen-3.md");
+    }
     if (["self_change_effect_3", "self_change_effect", "self_change_effect_2", "self_set_effect_2", "self_set_effect", "self_clear_effects"].includes(row.type)) {
       limitations.push("8 种 scope、严格 number、别名增减、纹理尺寸 clamp、场景及小数 reporter 经 11 份原创夹具/1794 状态观察实测；ASCII 状态已支持但像素渲染、ELASTIC 与 iOS 仍未验证，见 kitten4-partial-effects.md");
     }

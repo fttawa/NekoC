@@ -3,10 +3,11 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import {StageRenderer} from '../web/renderer.js';
+import {drawK4PenLines} from '../web/pen-k4.js';
 
 const source = fs.readFileSync(new URL('../web/renderer.js', import.meta.url), 'utf8');
 // Test the actual private helper, without changing the renderer's public API.
-const {actorGeometry} = vm.runInNewContext(source.replaceAll('export ', '') + '\n({actorGeometry})');
+const {actorGeometry} = vm.runInNewContext(source.replace("import { drawK4PenLines } from './pen-k4.js';", '').replaceAll('export ', '') + '\n({actorGeometry})', {drawK4PenLines});
 const cases = JSON.parse(fs.readFileSync(new URL('./pivot-cases.json', import.meta.url), 'utf8'));
 const close = (a, b) => assert.ok(Math.abs(a-b)<1e-9, `${a} != ${b}`);
 
