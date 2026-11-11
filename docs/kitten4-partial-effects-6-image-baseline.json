@@ -1,0 +1,251 @@
+{
+  "schema": "nekoc-k4-partial-effects-6-image-baseline-v1",
+  "commit": "d2d277bc62f7536d77797e0a8660ef73055465dd",
+  "rendererSha256": "2e2423fbc9e99882028d7ae4de14d52b7e7e8a267ade5348573c34687547213b",
+  "cases": {
+    "image-alpha": {
+      "file": "tests/fixtures/kitten4/partial-effects-6-image-alpha.bcm",
+      "status": "captured",
+      "audioMetadata": true,
+      "frames": [
+        {
+          "frame": 1,
+          "width": 960,
+          "height": 720,
+          "overlay": false,
+          "videoBounds": {
+            "nekoc": [],
+            "official": []
+          },
+          "scope": "canvas",
+          "pixels": 691200,
+          "maskedPixels": 0,
+          "changedPixels": 0,
+          "changedPercent": 0,
+          "mae": 0,
+          "rmse": 0,
+          "psnr": null,
+          "tolerance": 8
+        },
+        {
+          "frame": 3,
+          "width": 960,
+          "height": 720,
+          "overlay": false,
+          "videoBounds": {
+            "nekoc": [],
+            "official": []
+          },
+          "scope": "canvas",
+          "pixels": 691200,
+          "maskedPixels": 0,
+          "changedPixels": 0,
+          "changedPercent": 0,
+          "mae": 0,
+          "rmse": 0,
+          "psnr": null,
+          "tolerance": 8
+        },
+        {
+          "frame": 5,
+          "width": 960,
+          "height": 720,
+          "overlay": false,
+          "videoBounds": {
+            "nekoc": [],
+            "official": []
+          },
+          "scope": "canvas",
+          "pixels": 691200,
+          "maskedPixels": 0,
+          "changedPixels": 0,
+          "changedPercent": 0,
+          "mae": 0,
+          "rmse": 0,
+          "psnr": null,
+          "tolerance": 8
+        },
+        {
+          "frame": 12,
+          "width": 960,
+          "height": 720,
+          "overlay": false,
+          "videoBounds": {
+            "nekoc": [],
+            "official": []
+          },
+          "scope": "canvas",
+          "pixels": 691200,
+          "maskedPixels": 0,
+          "changedPixels": 0,
+          "changedPercent": 0,
+          "mae": 0,
+          "rmse": 0,
+          "psnr": null,
+          "tolerance": 8
+        }
+      ],
+      "artifacts": "dist\\partial-effects-6\\baseline\\partial-effects-6-image-alpha.bcm",
+      "kernelAssets": [
+        {
+          "name": "player_v2__3ffeebbd0c789e8d9422.css",
+          "source": "player_v2__3ffeebbd0c789e8d9422.css",
+          "sha256": "39e8e70b124b604831773893cdc95931cdee3eaea52c6dd69f33f5781d48b45a"
+        },
+        {
+          "name": "player_v2.2d180c468559fbd29528.js",
+          "source": "player_v2.2d180c468559fbd29528.js.orig",
+          "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160"
+        },
+        {
+          "name": "vendors.d00f4bd454a6352e9d71.js",
+          "source": "vendors.d00f4bd454a6352e9d71.js",
+          "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
+        },
+        {
+          "name": "runtime.f42f527f119e09010b85.js",
+          "source": "runtime.f42f527f119e09010b85.js",
+          "sha256": "4164d67795238f64d035f473418236038ae475ae36032a967cba16ede263735f"
+        },
+        {
+          "name": "9.c396696e9dc71e25b012.js",
+          "source": "9.c396696e9dc71e25b012.js",
+          "sha256": "5758343310c47596d56e954aa05fa76a546080c8bf4fefd41cac0042794d6195"
+        },
+        {
+          "name": "14.c95e6f2ddd61fb701d0e.js",
+          "source": "14.c95e6f2ddd61fb701d0e.js",
+          "sha256": "d3ce91c9113463db4c0988210caeb1be2ddc508499d5c53a8e73a13b5f440175"
+        },
+        {
+          "name": "11.477512e6f03fd2f6f3c5.js",
+          "source": "11.477512e6f03fd2f6f3c5.js",
+          "sha256": "e81bfe3462cc3e79a70ba016ddee2a372a31480d3f52964952e1d21f3a490f91"
+        }
+      ],
+      "sha256": "7de383fae4c113f21ac9526fa6f98df0f7e4e2d3a48e3df285af43b413017bc3"
+    },
+    "image-pivot-rotate": {
+      "file": "tests/fixtures/kitten4/partial-effects-6-image-pivot-rotate.bcm",
+      "status": "captured",
+      "audioMetadata": true,
+      "frames": [
+        {
+          "frame": 1,
+          "width": 960,
+          "height": 720,
+          "overlay": false,
+          "videoBounds": {
+            "nekoc": [],
+            "official": []
+          },
+          "scope": "canvas",
+          "pixels": 691200,
+          "maskedPixels": 0,
+          "changedPixels": 144,
+          "changedPercent": 0.020833333333333336,
+          "mae": 0.004985050154320988,
+          "rmse": 0.4170177918681263,
+          "psnr": 55.727711921898674,
+          "tolerance": 8
+        },
+        {
+          "frame": 3,
+          "width": 960,
+          "height": 720,
+          "overlay": false,
+          "videoBounds": {
+            "nekoc": [],
+            "official": []
+          },
+          "scope": "canvas",
+          "pixels": 691200,
+          "maskedPixels": 0,
+          "changedPixels": 288,
+          "changedPercent": 0.04166666666666667,
+          "mae": 0.009970100308641976,
+          "rmse": 0.5897522170107848,
+          "psnr": 52.71741196525886,
+          "tolerance": 8
+        },
+        {
+          "frame": 5,
+          "width": 960,
+          "height": 720,
+          "overlay": false,
+          "videoBounds": {
+            "nekoc": [],
+            "official": []
+          },
+          "scope": "canvas",
+          "pixels": 691200,
+          "maskedPixels": 0,
+          "changedPixels": 432,
+          "changedPercent": 0.0625,
+          "mae": 0.014955150462962963,
+          "rmse": 0.7222960031757781,
+          "psnr": 50.95649937470205,
+          "tolerance": 8
+        },
+        {
+          "frame": 12,
+          "width": 960,
+          "height": 720,
+          "overlay": false,
+          "videoBounds": {
+            "nekoc": [],
+            "official": []
+          },
+          "scope": "canvas",
+          "pixels": 691200,
+          "maskedPixels": 0,
+          "changedPixels": 432,
+          "changedPercent": 0.0625,
+          "mae": 0.014955150462962963,
+          "rmse": 0.7222960031757781,
+          "psnr": 50.95649937470205,
+          "tolerance": 8
+        }
+      ],
+      "artifacts": "dist\\partial-effects-6\\baseline\\partial-effects-6-image-pivot-rotate.bcm",
+      "kernelAssets": [
+        {
+          "name": "player_v2__3ffeebbd0c789e8d9422.css",
+          "source": "player_v2__3ffeebbd0c789e8d9422.css",
+          "sha256": "39e8e70b124b604831773893cdc95931cdee3eaea52c6dd69f33f5781d48b45a"
+        },
+        {
+          "name": "runtime.f42f527f119e09010b85.js",
+          "source": "runtime.f42f527f119e09010b85.js",
+          "sha256": "4164d67795238f64d035f473418236038ae475ae36032a967cba16ede263735f"
+        },
+        {
+          "name": "vendors.d00f4bd454a6352e9d71.js",
+          "source": "vendors.d00f4bd454a6352e9d71.js",
+          "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
+        },
+        {
+          "name": "player_v2.2d180c468559fbd29528.js",
+          "source": "player_v2.2d180c468559fbd29528.js.orig",
+          "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160"
+        },
+        {
+          "name": "9.c396696e9dc71e25b012.js",
+          "source": "9.c396696e9dc71e25b012.js",
+          "sha256": "5758343310c47596d56e954aa05fa76a546080c8bf4fefd41cac0042794d6195"
+        },
+        {
+          "name": "14.c95e6f2ddd61fb701d0e.js",
+          "source": "14.c95e6f2ddd61fb701d0e.js",
+          "sha256": "d3ce91c9113463db4c0988210caeb1be2ddc508499d5c53a8e73a13b5f440175"
+        },
+        {
+          "name": "11.477512e6f03fd2f6f3c5.js",
+          "source": "11.477512e6f03fd2f6f3c5.js",
+          "sha256": "e81bfe3462cc3e79a70ba016ddee2a372a31480d3f52964952e1d21f3a490f91"
+        }
+      ],
+      "sha256": "46d7c23f327956e30e52a797b5907bac1003132ba49e828d8c0cb4d5ea482e63"
+    }
+  }
+}

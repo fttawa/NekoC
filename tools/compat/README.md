@@ -135,6 +135,14 @@ K4 partial 第二轮的 41 份仓库原创离线探针与保留边界：
 未验证的平台、非有限状态和删除竞争限制。显隐专项见
 [第五轮显隐](../../docs/kitten4-partial-visibility-5.md)。
 
+第六轮以指定离线内核可验证主路径为范围，原95项的A/B分类、固定频率分母、
+独立`main-path-verified`级别及B类无设备行为见
+[第六轮总览](../../docs/kitten4-partial-6.md)。新增
+[硬体控制逐帧证据](../../docs/kitten4-partial-physics-6.md)、
+[活实体/克隆/造型与显隐](../../docs/kitten4-partial-properties-6.md)、
+[效果、跨帧印章及纹理背景过渡](../../docs/kitten4-partial-effects-6.md)。
+主路径升级不是完整物理/渲染/设备认证；已知负例与未验证边界仍单独公开。
+
 ## 联网、安全与未验证范围
 
 默认外部 HTTP、WebSocket、Service Worker 均禁用；记录所有外部请求的方法、URL、类型和动作。

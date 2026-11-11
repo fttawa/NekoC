@@ -1206,6 +1206,10 @@ impl Engine {
                 let v = body.linvel();
                 v.y.atan2(v.x).to_degrees()
             }
+            // Box2D GetMass returns zero for static bodies. Rapier retains the
+            // collider-derived local mass even while fixed; do not expose it.
+            // Official observations: partial-physics-6 legacy/modern-membership.
+            Property::Mass if body.is_fixed() => 0.0,
             Property::Mass => body.mass(),
             Property::Friction => w.colliders[b.collider].friction(),
             Property::Restitution => w.colliders[b.collider].restitution(),
@@ -1274,7 +1278,13 @@ impl Engine {
                 w.colliders[b.collider].set_sensor(b.forceable && !b.collidable);
             }
             if !w.initialized {
-                w.initialized = true;
+                // Legacy worlds are preallocated by Start, before the first
+                // interpreter update. Their ticker registration still belongs
+                // to that update, as the original membership/gravity probes
+                // show: first motion is update 3, not update 2.
+                w.initialized = self.program.has_modern_physics
+                    || !self.program.legacy_physics_scenes.contains(&scene)
+                    || self.time > STEP + 1e-10;
                 continue;
             }
             w.remainder += dt;

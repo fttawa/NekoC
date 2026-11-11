@@ -1,0 +1,4362 @@
+{
+  "hidden_toolbox": {
+    "toolbox": [],
+    "blocks": []
+  },
+  "work_source_label": 1,
+  "version": 25,
+  "application_version": "4.11.20",
+  "work_type": "KITTEN",
+  "size": {
+    "width": 1280,
+    "height": 720
+  },
+  "type": 1,
+  "project_name": "NekoC original partial properties 6 get_3-state",
+  "theatre": {
+    "current_entity": "20000000-0000-4000-8000-000000000001",
+    "current_scene": "10000000-0000-4000-8000-000000000001",
+    "scenes_order": [
+      "10000000-0000-4000-8000-000000000001"
+    ],
+    "scenes": {
+      "10000000-0000-4000-8000-000000000001": {
+        "id": "10000000-0000-4000-8000-000000000001",
+        "name": "Background A",
+        "styles": [
+          "40000000-0000-4000-8000-000000000003",
+          "40000000-0000-4000-8000-000000000004"
+        ],
+        "current_style_id": "40000000-0000-4000-8000-000000000003",
+        "x": 0,
+        "y": 0,
+        "scale": 100,
+        "rotation": 0,
+        "rotation_type": 0,
+        "draggable": false,
+        "visible": true,
+        "workspace_offset": {
+          "x": 40,
+          "y": 40
+        },
+        "block_data_json": {
+          "blocks": {},
+          "connections": {},
+          "comments": {}
+        },
+        "actors": [
+          "20000000-0000-4000-8000-000000000001",
+          "20000000-0000-4000-8000-000000000002"
+        ],
+        "screen_name": "Scene A",
+        "group_order": [
+          "group"
+        ]
+      }
+    },
+    "actors": {
+      "20000000-0000-4000-8000-000000000001": {
+        "id": "20000000-0000-4000-8000-000000000001",
+        "name": "Probe",
+        "styles": [
+          "40000000-0000-4000-8000-000000000001",
+          "40000000-0000-4000-8000-000000000002"
+        ],
+        "current_style_id": "40000000-0000-4000-8000-000000000001",
+        "x": 0,
+        "y": 0,
+        "scale": 100,
+        "rotation": 0,
+        "rotation_type": 0,
+        "draggable": false,
+        "visible": true,
+        "workspace_offset": {
+          "x": 40,
+          "y": 40
+        },
+        "block_data_json": {
+          "blocks": {
+            "generated-1": {
+              "type": "start_on_click",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-1",
+              "parent_id": null,
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-2": {
+              "type": "self_move_to",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "x": "",
+                "y": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-2",
+              "parent_id": "generated-1",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-3": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "-37.125"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-3",
+              "parent_id": "generated-2",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-4": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "28.875"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-4",
+              "parent_id": "generated-2",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-5": {
+              "type": "self_point_towards",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "degrees": "<shadow type=\"controller_shadow\" />"
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-5",
+              "parent_id": "generated-2",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-6": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "137.25"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-6",
+              "parent_id": "generated-5",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-7": {
+              "type": "self_change_scale",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "scale": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-7",
+              "parent_id": "generated-5",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-8": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "125"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-8",
+              "parent_id": "generated-7",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-9": {
+              "type": "self_set_effect",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "val": ""
+              },
+              "fields": {
+                "scope": "1"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-9",
+              "parent_id": "generated-7",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-10": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "35"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-10",
+              "parent_id": "generated-9",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-11": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "30000000-0000-4000-8000-000000000061"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-11",
+              "parent_id": "generated-9",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-12": {
+              "type": "text",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "TEXT": "local-live"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-12",
+              "parent_id": "generated-11",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-13": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "choice"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-13",
+              "parent_id": "generated-11",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-14": {
+              "type": "text",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "TEXT": "40000000-0000-4000-8000-000000000002"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-14",
+              "parent_id": "generated-13",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-15": {
+              "type": "set_costume_by_id",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "style_id": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-15",
+              "parent_id": "generated-13",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-16": {
+              "type": "variables_get",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "VAR": "choice"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-16",
+              "parent_id": "generated-15",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-17": {
+              "type": "lists_append",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": "",
+                "VAR": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-17",
+              "parent_id": "generated-15",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-18": {
+              "type": "lists_get",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "VAR": "result"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-18",
+              "parent_id": "generated-17",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-19": {
+              "type": "get_3",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "0"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-19",
+              "parent_id": "generated-17",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-20": {
+              "type": "lists_append",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": "",
+                "VAR": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-20",
+              "parent_id": "generated-17",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-21": {
+              "type": "lists_get",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "VAR": "result"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-21",
+              "parent_id": "generated-20",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-22": {
+              "type": "get_3",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "1"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-22",
+              "parent_id": "generated-20",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-23": {
+              "type": "lists_append",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": "",
+                "VAR": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-23",
+              "parent_id": "generated-20",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-24": {
+              "type": "lists_get",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "VAR": "result"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-24",
+              "parent_id": "generated-23",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-25": {
+              "type": "get_3",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "2"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-25",
+              "parent_id": "generated-23",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-26": {
+              "type": "lists_append",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": "",
+                "VAR": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-26",
+              "parent_id": "generated-23",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-27": {
+              "type": "lists_get",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "VAR": "result"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-27",
+              "parent_id": "generated-26",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-28": {
+              "type": "get_3",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "3"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-28",
+              "parent_id": "generated-26",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-29": {
+              "type": "lists_append",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": "",
+                "VAR": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-29",
+              "parent_id": "generated-26",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-30": {
+              "type": "lists_get",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "VAR": "result"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-30",
+              "parent_id": "generated-29",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-31": {
+              "type": "get_3",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "4"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-31",
+              "parent_id": "generated-29",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-32": {
+              "type": "lists_append",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": "",
+                "VAR": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-32",
+              "parent_id": "generated-29",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-33": {
+              "type": "lists_get",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "VAR": "result"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-33",
+              "parent_id": "generated-32",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-34": {
+              "type": "get_3",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "5"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-34",
+              "parent_id": "generated-32",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-35": {
+              "type": "lists_append",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": "",
+                "VAR": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-35",
+              "parent_id": "generated-32",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-36": {
+              "type": "lists_get",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "VAR": "result"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-36",
+              "parent_id": "generated-35",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-37": {
+              "type": "get_3",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "8"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-37",
+              "parent_id": "generated-35",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-38": {
+              "type": "lists_append",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": "",
+                "VAR": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-38",
+              "parent_id": "generated-35",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-39": {
+              "type": "lists_get",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "VAR": "result"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-39",
+              "parent_id": "generated-38",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-40": {
+              "type": "get_3",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "9"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-40",
+              "parent_id": "generated-38",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-41": {
+              "type": "lists_append",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": "",
+                "VAR": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-41",
+              "parent_id": "generated-38",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-42": {
+              "type": "lists_get",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "VAR": "result"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-42",
+              "parent_id": "generated-41",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-43": {
+              "type": "get_3",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "16"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-43",
+              "parent_id": "generated-41",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-44": {
+              "type": "lists_append",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": "",
+                "VAR": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-44",
+              "parent_id": "generated-41",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-45": {
+              "type": "lists_get",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "VAR": "result"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-45",
+              "parent_id": "generated-44",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-46": {
+              "type": "get_3",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "17"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-46",
+              "parent_id": "generated-44",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-47": {
+              "type": "lists_append",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": "",
+                "VAR": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-47",
+              "parent_id": "generated-44",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-48": {
+              "type": "lists_get",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "VAR": "result"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-48",
+              "parent_id": "generated-47",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-49": {
+              "type": "get_3",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "30000000-0000-4000-8000-000000000061"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-49",
+              "parent_id": "generated-47",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-50": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "phase"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-50",
+              "parent_id": "generated-47",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-51": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "1"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-51",
+              "parent_id": "generated-50",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-52": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-52",
+              "parent_id": "generated-50",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-53": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-53",
+              "parent_id": "generated-52",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-54": {
+              "type": "set_entity_show_hide",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "20000000-0000-4000-8000-000000000001",
+                "type": "hide"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-54",
+              "parent_id": "generated-52",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-55": {
+              "type": "lists_append",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": "",
+                "VAR": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-55",
+              "parent_id": "generated-54",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-56": {
+              "type": "lists_get",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "VAR": "result"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-56",
+              "parent_id": "generated-55",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-57": {
+              "type": "get_3",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "0"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-57",
+              "parent_id": "generated-55",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-58": {
+              "type": "lists_append",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": "",
+                "VAR": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-58",
+              "parent_id": "generated-55",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-59": {
+              "type": "lists_get",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "VAR": "result"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-59",
+              "parent_id": "generated-58",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-60": {
+              "type": "get_3",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "1"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-60",
+              "parent_id": "generated-58",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-61": {
+              "type": "lists_append",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": "",
+                "VAR": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-61",
+              "parent_id": "generated-58",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-62": {
+              "type": "lists_get",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "VAR": "result"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-62",
+              "parent_id": "generated-61",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-63": {
+              "type": "get_3",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "2"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-63",
+              "parent_id": "generated-61",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-64": {
+              "type": "lists_append",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": "",
+                "VAR": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-64",
+              "parent_id": "generated-61",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-65": {
+              "type": "lists_get",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "VAR": "result"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-65",
+              "parent_id": "generated-64",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-66": {
+              "type": "get_3",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "3"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-66",
+              "parent_id": "generated-64",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-67": {
+              "type": "lists_append",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": "",
+                "VAR": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-67",
+              "parent_id": "generated-64",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-68": {
+              "type": "lists_get",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "VAR": "result"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-68",
+              "parent_id": "generated-67",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-69": {
+              "type": "get_3",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "4"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-69",
+              "parent_id": "generated-67",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-70": {
+              "type": "lists_append",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": "",
+                "VAR": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-70",
+              "parent_id": "generated-67",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-71": {
+              "type": "lists_get",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "VAR": "result"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-71",
+              "parent_id": "generated-70",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-72": {
+              "type": "get_3",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "5"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-72",
+              "parent_id": "generated-70",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-73": {
+              "type": "lists_append",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": "",
+                "VAR": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-73",
+              "parent_id": "generated-70",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-74": {
+              "type": "lists_get",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "VAR": "result"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-74",
+              "parent_id": "generated-73",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-75": {
+              "type": "get_3",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "8"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-75",
+              "parent_id": "generated-73",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-76": {
+              "type": "lists_append",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": "",
+                "VAR": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-76",
+              "parent_id": "generated-73",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-77": {
+              "type": "lists_get",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "VAR": "result"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-77",
+              "parent_id": "generated-76",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-78": {
+              "type": "get_3",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "9"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-78",
+              "parent_id": "generated-76",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-79": {
+              "type": "lists_append",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": "",
+                "VAR": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-79",
+              "parent_id": "generated-76",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-80": {
+              "type": "lists_get",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "VAR": "result"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-80",
+              "parent_id": "generated-79",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-81": {
+              "type": "get_3",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "16"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-81",
+              "parent_id": "generated-79",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-82": {
+              "type": "lists_append",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": "",
+                "VAR": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-82",
+              "parent_id": "generated-79",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-83": {
+              "type": "lists_get",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "VAR": "result"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-83",
+              "parent_id": "generated-82",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-84": {
+              "type": "get_3",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "17"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-84",
+              "parent_id": "generated-82",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-85": {
+              "type": "lists_append",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": "",
+                "VAR": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-85",
+              "parent_id": "generated-82",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-86": {
+              "type": "lists_get",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "VAR": "result"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-86",
+              "parent_id": "generated-85",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-87": {
+              "type": "get_3",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "30000000-0000-4000-8000-000000000061"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-87",
+              "parent_id": "generated-85",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-88": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "phase"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-88",
+              "parent_id": "generated-85",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-89": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "2"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-89",
+              "parent_id": "generated-88",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-90": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-90",
+              "parent_id": "generated-88",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-91": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-91",
+              "parent_id": "generated-90",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-92": {
+              "type": "set_costume_by_id",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "style_id": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-92",
+              "parent_id": "generated-90",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-93": {
+              "type": "text",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "TEXT": "40000000-0000-4000-8000-000000000001"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-93",
+              "parent_id": "generated-92",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-94": {
+              "type": "set_entity_show_hide",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "20000000-0000-4000-8000-000000000001",
+                "type": "show"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-94",
+              "parent_id": "generated-92",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-95": {
+              "type": "lists_append",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": "",
+                "VAR": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-95",
+              "parent_id": "generated-94",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-96": {
+              "type": "lists_get",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "VAR": "result"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-96",
+              "parent_id": "generated-95",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-97": {
+              "type": "get_3",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "0"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-97",
+              "parent_id": "generated-95",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-98": {
+              "type": "lists_append",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": "",
+                "VAR": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-98",
+              "parent_id": "generated-95",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-99": {
+              "type": "lists_get",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "VAR": "result"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-99",
+              "parent_id": "generated-98",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-100": {
+              "type": "get_3",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "1"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-100",
+              "parent_id": "generated-98",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-101": {
+              "type": "lists_append",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": "",
+                "VAR": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-101",
+              "parent_id": "generated-98",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-102": {
+              "type": "lists_get",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "VAR": "result"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-102",
+              "parent_id": "generated-101",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-103": {
+              "type": "get_3",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "2"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-103",
+              "parent_id": "generated-101",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-104": {
+              "type": "lists_append",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": "",
+                "VAR": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-104",
+              "parent_id": "generated-101",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-105": {
+              "type": "lists_get",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "VAR": "result"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-105",
+              "parent_id": "generated-104",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-106": {
+              "type": "get_3",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "3"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-106",
+              "parent_id": "generated-104",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-107": {
+              "type": "lists_append",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": "",
+                "VAR": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-107",
+              "parent_id": "generated-104",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-108": {
+              "type": "lists_get",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "VAR": "result"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-108",
+              "parent_id": "generated-107",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-109": {
+              "type": "get_3",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "4"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-109",
+              "parent_id": "generated-107",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-110": {
+              "type": "lists_append",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": "",
+                "VAR": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-110",
+              "parent_id": "generated-107",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-111": {
+              "type": "lists_get",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "VAR": "result"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-111",
+              "parent_id": "generated-110",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-112": {
+              "type": "get_3",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "5"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-112",
+              "parent_id": "generated-110",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-113": {
+              "type": "lists_append",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": "",
+                "VAR": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-113",
+              "parent_id": "generated-110",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-114": {
+              "type": "lists_get",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "VAR": "result"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-114",
+              "parent_id": "generated-113",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-115": {
+              "type": "get_3",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "8"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-115",
+              "parent_id": "generated-113",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-116": {
+              "type": "lists_append",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": "",
+                "VAR": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-116",
+              "parent_id": "generated-113",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-117": {
+              "type": "lists_get",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "VAR": "result"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-117",
+              "parent_id": "generated-116",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-118": {
+              "type": "get_3",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "9"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-118",
+              "parent_id": "generated-116",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-119": {
+              "type": "lists_append",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": "",
+                "VAR": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-119",
+              "parent_id": "generated-116",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-120": {
+              "type": "lists_get",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "VAR": "result"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-120",
+              "parent_id": "generated-119",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-121": {
+              "type": "get_3",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "16"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-121",
+              "parent_id": "generated-119",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-122": {
+              "type": "lists_append",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": "",
+                "VAR": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-122",
+              "parent_id": "generated-119",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-123": {
+              "type": "lists_get",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "VAR": "result"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-123",
+              "parent_id": "generated-122",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-124": {
+              "type": "get_3",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "17"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-124",
+              "parent_id": "generated-122",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-125": {
+              "type": "lists_append",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": "",
+                "VAR": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-125",
+              "parent_id": "generated-122",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-126": {
+              "type": "lists_get",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "VAR": "result"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-126",
+              "parent_id": "generated-125",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-127": {
+              "type": "get_3",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "30000000-0000-4000-8000-000000000061"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-127",
+              "parent_id": "generated-125",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-128": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "phase"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-128",
+              "parent_id": "generated-125",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-129": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "3"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-129",
+              "parent_id": "generated-128",
+              "location": [
+                0,
+                0
+              ]
+            }
+          },
+          "connections": {
+            "generated-1": {
+              "generated-2": {
+                "type": "next"
+              }
+            },
+            "generated-2": {
+              "generated-3": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "x"
+              },
+              "generated-4": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "y"
+              },
+              "generated-5": {
+                "type": "next"
+              }
+            },
+            "generated-3": {},
+            "generated-4": {},
+            "generated-5": {
+              "generated-6": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "degrees"
+              },
+              "generated-7": {
+                "type": "next"
+              }
+            },
+            "generated-6": {},
+            "generated-7": {
+              "generated-8": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "scale"
+              },
+              "generated-9": {
+                "type": "next"
+              }
+            },
+            "generated-8": {},
+            "generated-9": {
+              "generated-10": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "val"
+              },
+              "generated-11": {
+                "type": "next"
+              }
+            },
+            "generated-10": {},
+            "generated-11": {
+              "generated-12": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "generated-13": {
+                "type": "next"
+              }
+            },
+            "generated-12": {},
+            "generated-13": {
+              "generated-14": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "generated-15": {
+                "type": "next"
+              }
+            },
+            "generated-14": {},
+            "generated-15": {
+              "generated-16": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "style_id"
+              },
+              "generated-17": {
+                "type": "next"
+              }
+            },
+            "generated-16": {},
+            "generated-17": {
+              "generated-18": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VAR"
+              },
+              "generated-19": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "generated-20": {
+                "type": "next"
+              }
+            },
+            "generated-18": {},
+            "generated-19": {},
+            "generated-20": {
+              "generated-21": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VAR"
+              },
+              "generated-22": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "generated-23": {
+                "type": "next"
+              }
+            },
+            "generated-21": {},
+            "generated-22": {},
+            "generated-23": {
+              "generated-24": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VAR"
+              },
+              "generated-25": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "generated-26": {
+                "type": "next"
+              }
+            },
+            "generated-24": {},
+            "generated-25": {},
+            "generated-26": {
+              "generated-27": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VAR"
+              },
+              "generated-28": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "generated-29": {
+                "type": "next"
+              }
+            },
+            "generated-27": {},
+            "generated-28": {},
+            "generated-29": {
+              "generated-30": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VAR"
+              },
+              "generated-31": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "generated-32": {
+                "type": "next"
+              }
+            },
+            "generated-30": {},
+            "generated-31": {},
+            "generated-32": {
+              "generated-33": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VAR"
+              },
+              "generated-34": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "generated-35": {
+                "type": "next"
+              }
+            },
+            "generated-33": {},
+            "generated-34": {},
+            "generated-35": {
+              "generated-36": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VAR"
+              },
+              "generated-37": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "generated-38": {
+                "type": "next"
+              }
+            },
+            "generated-36": {},
+            "generated-37": {},
+            "generated-38": {
+              "generated-39": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VAR"
+              },
+              "generated-40": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "generated-41": {
+                "type": "next"
+              }
+            },
+            "generated-39": {},
+            "generated-40": {},
+            "generated-41": {
+              "generated-42": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VAR"
+              },
+              "generated-43": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "generated-44": {
+                "type": "next"
+              }
+            },
+            "generated-42": {},
+            "generated-43": {},
+            "generated-44": {
+              "generated-45": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VAR"
+              },
+              "generated-46": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "generated-47": {
+                "type": "next"
+              }
+            },
+            "generated-45": {},
+            "generated-46": {},
+            "generated-47": {
+              "generated-48": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VAR"
+              },
+              "generated-49": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "generated-50": {
+                "type": "next"
+              }
+            },
+            "generated-48": {},
+            "generated-49": {},
+            "generated-50": {
+              "generated-51": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "generated-52": {
+                "type": "next"
+              }
+            },
+            "generated-51": {},
+            "generated-52": {
+              "generated-53": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              },
+              "generated-54": {
+                "type": "next"
+              }
+            },
+            "generated-53": {},
+            "generated-54": {
+              "generated-55": {
+                "type": "next"
+              }
+            },
+            "generated-55": {
+              "generated-56": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VAR"
+              },
+              "generated-57": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "generated-58": {
+                "type": "next"
+              }
+            },
+            "generated-56": {},
+            "generated-57": {},
+            "generated-58": {
+              "generated-59": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VAR"
+              },
+              "generated-60": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "generated-61": {
+                "type": "next"
+              }
+            },
+            "generated-59": {},
+            "generated-60": {},
+            "generated-61": {
+              "generated-62": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VAR"
+              },
+              "generated-63": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "generated-64": {
+                "type": "next"
+              }
+            },
+            "generated-62": {},
+            "generated-63": {},
+            "generated-64": {
+              "generated-65": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VAR"
+              },
+              "generated-66": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "generated-67": {
+                "type": "next"
+              }
+            },
+            "generated-65": {},
+            "generated-66": {},
+            "generated-67": {
+              "generated-68": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VAR"
+              },
+              "generated-69": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "generated-70": {
+                "type": "next"
+              }
+            },
+            "generated-68": {},
+            "generated-69": {},
+            "generated-70": {
+              "generated-71": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VAR"
+              },
+              "generated-72": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "generated-73": {
+                "type": "next"
+              }
+            },
+            "generated-71": {},
+            "generated-72": {},
+            "generated-73": {
+              "generated-74": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VAR"
+              },
+              "generated-75": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "generated-76": {
+                "type": "next"
+              }
+            },
+            "generated-74": {},
+            "generated-75": {},
+            "generated-76": {
+              "generated-77": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VAR"
+              },
+              "generated-78": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "generated-79": {
+                "type": "next"
+              }
+            },
+            "generated-77": {},
+            "generated-78": {},
+            "generated-79": {
+              "generated-80": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VAR"
+              },
+              "generated-81": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "generated-82": {
+                "type": "next"
+              }
+            },
+            "generated-80": {},
+            "generated-81": {},
+            "generated-82": {
+              "generated-83": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VAR"
+              },
+              "generated-84": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "generated-85": {
+                "type": "next"
+              }
+            },
+            "generated-83": {},
+            "generated-84": {},
+            "generated-85": {
+              "generated-86": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VAR"
+              },
+              "generated-87": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "generated-88": {
+                "type": "next"
+              }
+            },
+            "generated-86": {},
+            "generated-87": {},
+            "generated-88": {
+              "generated-89": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "generated-90": {
+                "type": "next"
+              }
+            },
+            "generated-89": {},
+            "generated-90": {
+              "generated-91": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              },
+              "generated-92": {
+                "type": "next"
+              }
+            },
+            "generated-91": {},
+            "generated-92": {
+              "generated-93": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "style_id"
+              },
+              "generated-94": {
+                "type": "next"
+              }
+            },
+            "generated-93": {},
+            "generated-94": {
+              "generated-95": {
+                "type": "next"
+              }
+            },
+            "generated-95": {
+              "generated-96": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VAR"
+              },
+              "generated-97": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "generated-98": {
+                "type": "next"
+              }
+            },
+            "generated-96": {},
+            "generated-97": {},
+            "generated-98": {
+              "generated-99": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VAR"
+              },
+              "generated-100": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "generated-101": {
+                "type": "next"
+              }
+            },
+            "generated-99": {},
+            "generated-100": {},
+            "generated-101": {
+              "generated-102": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VAR"
+              },
+              "generated-103": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "generated-104": {
+                "type": "next"
+              }
+            },
+            "generated-102": {},
+            "generated-103": {},
+            "generated-104": {
+              "generated-105": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VAR"
+              },
+              "generated-106": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "generated-107": {
+                "type": "next"
+              }
+            },
+            "generated-105": {},
+            "generated-106": {},
+            "generated-107": {
+              "generated-108": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VAR"
+              },
+              "generated-109": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "generated-110": {
+                "type": "next"
+              }
+            },
+            "generated-108": {},
+            "generated-109": {},
+            "generated-110": {
+              "generated-111": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VAR"
+              },
+              "generated-112": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "generated-113": {
+                "type": "next"
+              }
+            },
+            "generated-111": {},
+            "generated-112": {},
+            "generated-113": {
+              "generated-114": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VAR"
+              },
+              "generated-115": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "generated-116": {
+                "type": "next"
+              }
+            },
+            "generated-114": {},
+            "generated-115": {},
+            "generated-116": {
+              "generated-117": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VAR"
+              },
+              "generated-118": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "generated-119": {
+                "type": "next"
+              }
+            },
+            "generated-117": {},
+            "generated-118": {},
+            "generated-119": {
+              "generated-120": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VAR"
+              },
+              "generated-121": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "generated-122": {
+                "type": "next"
+              }
+            },
+            "generated-120": {},
+            "generated-121": {},
+            "generated-122": {
+              "generated-123": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VAR"
+              },
+              "generated-124": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "generated-125": {
+                "type": "next"
+              }
+            },
+            "generated-123": {},
+            "generated-124": {},
+            "generated-125": {
+              "generated-126": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VAR"
+              },
+              "generated-127": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "generated-128": {
+                "type": "next"
+              }
+            },
+            "generated-126": {},
+            "generated-127": {},
+            "generated-128": {
+              "generated-129": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              }
+            },
+            "generated-129": {}
+          },
+          "comments": {}
+        },
+        "scene": "10000000-0000-4000-8000-000000000001",
+        "lock": false,
+        "editable_in_tuition_mode": true,
+        "user_change_r_c": false
+      },
+      "20000000-0000-4000-8000-000000000002": {
+        "id": "20000000-0000-4000-8000-000000000002",
+        "name": "Original observer",
+        "styles": [
+          "40000000-0000-4000-8000-000000000001",
+          "40000000-0000-4000-8000-000000000002"
+        ],
+        "current_style_id": "40000000-0000-4000-8000-000000000001",
+        "x": 180,
+        "y": 0,
+        "scale": 100,
+        "rotation": 0,
+        "rotation_type": 0,
+        "draggable": false,
+        "visible": true,
+        "workspace_offset": {
+          "x": 40,
+          "y": 40
+        },
+        "block_data_json": {
+          "blocks": {},
+          "connections": {},
+          "comments": {}
+        },
+        "scene": "10000000-0000-4000-8000-000000000001",
+        "lock": false,
+        "editable_in_tuition_mode": true,
+        "user_change_r_c": false
+      }
+    },
+    "groups": {
+      "group": {
+        "id": "group",
+        "name": "Original pair",
+        "is_group": true,
+        "actors": [
+          "20000000-0000-4000-8000-000000000001",
+          "20000000-0000-4000-8000-000000000002"
+        ],
+        "scene": "10000000-0000-4000-8000-000000000001",
+        "visible": true
+      }
+    },
+    "styles": {
+      "40000000-0000-4000-8000-000000000001": {
+        "id": "40000000-0000-4000-8000-000000000001",
+        "name": "First",
+        "adaptive": false,
+        "pivot": {
+          "x": 0,
+          "y": 0
+        },
+        "rotate_center": {
+          "x": 0,
+          "y": 0
+        },
+        "cdn_url": "",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCI+PHJlY3Qgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjMzM2Njk5Ii8+PC9zdmc+"
+      },
+      "40000000-0000-4000-8000-000000000002": {
+        "id": "40000000-0000-4000-8000-000000000002",
+        "name": "Second",
+        "adaptive": false,
+        "pivot": {
+          "x": 0,
+          "y": 0
+        },
+        "rotate_center": {
+          "x": 0,
+          "y": 0
+        },
+        "cdn_url": "",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMCIgaGVpZ2h0PSIyMCI+PHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjMzM2Njk5Ii8+PC9zdmc+"
+      },
+      "40000000-0000-4000-8000-000000000003": {
+        "id": "40000000-0000-4000-8000-000000000003",
+        "name": "Background one",
+        "adaptive": false,
+        "pivot": {
+          "x": 0,
+          "y": 0
+        },
+        "rotate_center": {
+          "x": 0,
+          "y": 0
+        },
+        "cdn_url": "",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjgwIiBoZWlnaHQ9IjcyMCI+PHJlY3Qgd2lkdGg9IjEyODAiIGhlaWdodD0iNzIwIiBmaWxsPSIjMzM2Njk5Ii8+PC9zdmc+"
+      },
+      "40000000-0000-4000-8000-000000000004": {
+        "id": "40000000-0000-4000-8000-000000000004",
+        "name": "Background two",
+        "adaptive": false,
+        "pivot": {
+          "x": 0,
+          "y": 0
+        },
+        "rotate_center": {
+          "x": 0,
+          "y": 0
+        },
+        "cdn_url": "",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMCIgaGVpZ2h0PSIyMCI+PHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjMzM2Njk5Ii8+PC9zdmc+"
+      }
+    },
+    "videos": {},
+    "timer": {}
+  },
+  "variables": {
+    "result": {
+      "id": "result",
+      "name": "result",
+      "value": [],
+      "type": "list",
+      "is_global": true,
+      "visible": false
+    },
+    "phase": {
+      "id": "phase",
+      "name": "phase",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "visible": false
+    },
+    "choice": {
+      "id": "choice",
+      "name": "choice",
+      "value": "40000000-0000-4000-8000-000000000001",
+      "type": "any",
+      "is_global": true,
+      "visible": false
+    },
+    "30000000-0000-4000-8000-000000000061": {
+      "id": "30000000-0000-4000-8000-000000000061",
+      "name": "original local",
+      "value": 17,
+      "type": "any",
+      "is_global": false,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false
+    }
+  },
+  "variable_order": [
+    "result",
+    "phase",
+    "choice",
+    "30000000-0000-4000-8000-000000000061"
+  ],
+  "cloud_variables": {},
+  "audio": {},
+  "audio_order": [],
+  "midimusic": [],
+  "midi_order": [],
+  "matrix": {},
+  "models": {},
+  "toolbox": {
+    "current_type": "event",
+    "pen": false
+  },
+  "toolbox_order": [
+    "event",
+    "control",
+    "action",
+    "appearance",
+    "sensing",
+    "operator",
+    "data"
+  ],
+  "last_toolbox_order": [],
+  "hardware_type": "",
+  "is_partial": false,
+  "ai_lab": {},
+  "broadcasts": {},
+  "painter": {
+    "color": []
+  }
+}

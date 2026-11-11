@@ -1,0 +1,8142 @@
+{
+  "schema": "nekoc-k4-partial-effects-6-evidence-v1",
+  "cases": {
+    "self_set_effect_2": {
+      "sha256": "1b305dab502de950b878953ee21bbf304051f1c924d5e362da6c765909b4bebb",
+      "observations": [
+        {
+          "frame": 1,
+          "opacity": 1,
+          "effects": [
+            65,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 2,
+          "opacity": 1,
+          "effects": [
+            65,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 3,
+          "opacity": 0.65,
+          "effects": [
+            65,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 4,
+          "opacity": 0.65,
+          "effects": [
+            65,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 5,
+          "opacity": 0.65,
+          "effects": [
+            65,
+            130,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 6,
+          "opacity": 0.65,
+          "effects": [
+            65,
+            130,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 7,
+          "opacity": 0.65,
+          "effects": [
+            65,
+            130,
+            0,
+            0,
+            0,
+            -60,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 8,
+          "opacity": 0.65,
+          "effects": [
+            65,
+            130,
+            0,
+            0,
+            0,
+            -60,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 9,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 10,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 11,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 12,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        }
+      ],
+      "errors": [],
+      "externalAllowed": 0,
+      "externalRequests": [
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/kitten",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/sysinfo",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/player-icons/mob%EF%BC%8Ficn_keyboard_nor.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/player-icons/mob_icn_reset.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        }
+      ],
+      "pageErrors": [],
+      "events": [
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "start"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "start"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "effect-0"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "effect-0"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-0"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-0"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "effect-1"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "effect-1"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-1"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-1"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "effect-2"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "effect-2"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-2"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-2"
+        },
+        {
+          "frame": 7,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "effect-6"
+        },
+        {
+          "frame": 7,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "effect-6"
+        },
+        {
+          "frame": 7,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-6"
+        },
+        {
+          "frame": 7,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-6"
+        },
+        {
+          "frame": 9,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "clear"
+        },
+        {
+          "frame": 9,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "clear"
+        },
+        {
+          "frame": 9,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-clear"
+        },
+        {
+          "frame": 9,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-clear"
+        }
+      ]
+    },
+    "self_change_effect_3": {
+      "sha256": "3e306b581300ccd5bc4f7c8e29229870a330dd169e7489bbbe753ac89fa41740",
+      "observations": [
+        {
+          "frame": 1,
+          "opacity": 1,
+          "effects": [
+            65,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 2,
+          "opacity": 1,
+          "effects": [
+            65,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 3,
+          "opacity": 0.65,
+          "effects": [
+            65,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 4,
+          "opacity": 0.65,
+          "effects": [
+            65,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 5,
+          "opacity": 0.65,
+          "effects": [
+            65,
+            130,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 6,
+          "opacity": 0.65,
+          "effects": [
+            65,
+            130,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 7,
+          "opacity": 0.65,
+          "effects": [
+            65,
+            130,
+            0,
+            0,
+            0,
+            -60,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 8,
+          "opacity": 0.65,
+          "effects": [
+            65,
+            130,
+            0,
+            0,
+            0,
+            -60,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 9,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 10,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 11,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 12,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        }
+      ],
+      "errors": [],
+      "externalAllowed": 0,
+      "externalRequests": [
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/kitten",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/sysinfo",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/player-icons/mob%EF%BC%8Ficn_keyboard_nor.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/player-icons/mob_icn_reset.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        }
+      ],
+      "pageErrors": [],
+      "events": [
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "start"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "start"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "effect-0"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "effect-0"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-0"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-0"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "effect-1"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "effect-1"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-1"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-1"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "effect-2"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "effect-2"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-2"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-2"
+        },
+        {
+          "frame": 7,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "effect-6"
+        },
+        {
+          "frame": 7,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "effect-6"
+        },
+        {
+          "frame": 7,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-6"
+        },
+        {
+          "frame": 7,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-6"
+        },
+        {
+          "frame": 9,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "clear"
+        },
+        {
+          "frame": 9,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "clear"
+        },
+        {
+          "frame": 9,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-clear"
+        },
+        {
+          "frame": 9,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-clear"
+        }
+      ]
+    },
+    "self_clear_effects": {
+      "sha256": "b486738d9bba64e73340b2490ba9756ff2fff306df490b47e802866314849aaf",
+      "observations": [
+        {
+          "frame": 1,
+          "opacity": 0.7,
+          "effects": [
+            30,
+            130,
+            30,
+            30,
+            30,
+            -30,
+            8
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 2,
+          "opacity": 0.7,
+          "effects": [
+            30,
+            130,
+            30,
+            30,
+            30,
+            -30,
+            8
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 3,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 4,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 5,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 6,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 7,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 8,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 9,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 10,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 11,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 12,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        }
+      ],
+      "errors": [],
+      "externalAllowed": 0,
+      "externalRequests": [
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/kitten",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/sysinfo",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/displacement_map_full.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/player-icons/mob%EF%BC%8Ficn_keyboard_nor.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/player-icons/mob_icn_reset.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        }
+      ],
+      "pageErrors": [
+        "Event"
+      ],
+      "events": [
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "start"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "start"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "seed-0"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "seed-0"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "seed-1"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "seed-1"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "seed-2"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "seed-2"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "seed-3"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "seed-3"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "seed-4"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "seed-4"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "seed-5"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "seed-5"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "seed-6"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "seed-6"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "seed-7"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "seed-7"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-all"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-all"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "clear"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "clear"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-clear"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-clear"
+        }
+      ]
+    },
+    "self_set_effect": {
+      "sha256": "b6537281ab6378091d2d4a49a62fe25ec48f0dabb0ae221ff6f1564cb324152b",
+      "observations": [
+        {
+          "frame": 1,
+          "opacity": 1,
+          "effects": [
+            65,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 2,
+          "opacity": 1,
+          "effects": [
+            65,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 3,
+          "opacity": 0.65,
+          "effects": [
+            65,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 4,
+          "opacity": 0.65,
+          "effects": [
+            65,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 5,
+          "opacity": 0.65,
+          "effects": [
+            65,
+            130,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 6,
+          "opacity": 0.65,
+          "effects": [
+            65,
+            130,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 7,
+          "opacity": 0.65,
+          "effects": [
+            65,
+            130,
+            0,
+            0,
+            0,
+            -60,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 8,
+          "opacity": 0.65,
+          "effects": [
+            65,
+            130,
+            0,
+            0,
+            0,
+            -60,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 9,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 10,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 11,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 12,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        }
+      ],
+      "errors": [],
+      "externalAllowed": 0,
+      "externalRequests": [
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/kitten",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/sysinfo",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/player-icons/mob%EF%BC%8Ficn_keyboard_nor.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/player-icons/mob_icn_reset.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        }
+      ],
+      "pageErrors": [],
+      "events": [
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "start"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "start"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "effect-0"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "effect-0"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-0"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-0"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "effect-1"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "effect-1"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-1"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-1"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "effect-2"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "effect-2"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-2"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-2"
+        },
+        {
+          "frame": 7,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "effect-6"
+        },
+        {
+          "frame": 7,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "effect-6"
+        },
+        {
+          "frame": 7,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-6"
+        },
+        {
+          "frame": 7,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-6"
+        },
+        {
+          "frame": 9,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "clear"
+        },
+        {
+          "frame": 9,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "clear"
+        },
+        {
+          "frame": 9,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-clear"
+        },
+        {
+          "frame": 9,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-clear"
+        }
+      ]
+    },
+    "self_change_effect": {
+      "sha256": "58dc89076132a226404b7fe6063ef206ee084f38cf530fa9a4819a4108867f42",
+      "observations": [
+        {
+          "frame": 1,
+          "opacity": 1,
+          "effects": [
+            65,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 2,
+          "opacity": 1,
+          "effects": [
+            65,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 3,
+          "opacity": 0.65,
+          "effects": [
+            65,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 4,
+          "opacity": 0.65,
+          "effects": [
+            65,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 5,
+          "opacity": 0.65,
+          "effects": [
+            65,
+            130,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 6,
+          "opacity": 0.65,
+          "effects": [
+            65,
+            130,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 7,
+          "opacity": 0.65,
+          "effects": [
+            65,
+            130,
+            0,
+            0,
+            0,
+            -60,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 8,
+          "opacity": 0.65,
+          "effects": [
+            65,
+            130,
+            0,
+            0,
+            0,
+            -60,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 9,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 10,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 11,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 12,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        }
+      ],
+      "errors": [],
+      "externalAllowed": 0,
+      "externalRequests": [
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/kitten",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/sysinfo",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/player-icons/mob%EF%BC%8Ficn_keyboard_nor.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/player-icons/mob_icn_reset.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        }
+      ],
+      "pageErrors": [],
+      "events": [
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "start"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "start"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "effect-0"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "effect-0"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-0"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-0"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "effect-1"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "effect-1"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-1"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-1"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "effect-2"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "effect-2"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-2"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-2"
+        },
+        {
+          "frame": 7,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "effect-6"
+        },
+        {
+          "frame": 7,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "effect-6"
+        },
+        {
+          "frame": 7,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-6"
+        },
+        {
+          "frame": 7,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-6"
+        },
+        {
+          "frame": 9,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "clear"
+        },
+        {
+          "frame": 9,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "clear"
+        },
+        {
+          "frame": 9,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-clear"
+        },
+        {
+          "frame": 9,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-clear"
+        }
+      ]
+    },
+    "self_change_effect_2": {
+      "sha256": "1c46b3841cf070ce6bb042eb37692b3dae086b73a85d50d3752f9e7bd6d5cbd5",
+      "observations": [
+        {
+          "frame": 1,
+          "opacity": 1,
+          "effects": [
+            65,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 2,
+          "opacity": 1,
+          "effects": [
+            65,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 3,
+          "opacity": 0.65,
+          "effects": [
+            65,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 4,
+          "opacity": 0.65,
+          "effects": [
+            65,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 5,
+          "opacity": 0.65,
+          "effects": [
+            65,
+            130,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 6,
+          "opacity": 0.65,
+          "effects": [
+            65,
+            130,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 7,
+          "opacity": 0.65,
+          "effects": [
+            65,
+            130,
+            0,
+            0,
+            0,
+            -60,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 8,
+          "opacity": 0.65,
+          "effects": [
+            65,
+            130,
+            0,
+            0,
+            0,
+            -60,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 9,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 10,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 11,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 12,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        }
+      ],
+      "errors": [],
+      "externalAllowed": 0,
+      "externalRequests": [
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/kitten",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/sysinfo",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/player-icons/mob%EF%BC%8Ficn_keyboard_nor.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/player-icons/mob_icn_reset.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        }
+      ],
+      "pageErrors": [],
+      "events": [
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "start"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "start"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "effect-0"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "effect-0"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-0"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-0"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "effect-1"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "effect-1"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-1"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-1"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "effect-2"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "effect-2"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-2"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-2"
+        },
+        {
+          "frame": 7,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "effect-6"
+        },
+        {
+          "frame": 7,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "effect-6"
+        },
+        {
+          "frame": 7,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-6"
+        },
+        {
+          "frame": 7,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-6"
+        },
+        {
+          "frame": 9,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "clear"
+        },
+        {
+          "frame": 9,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "clear"
+        },
+        {
+          "frame": 9,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-clear"
+        },
+        {
+          "frame": 9,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-clear"
+        }
+      ]
+    },
+    "scope-pixelate": {
+      "sha256": "fd53d7948809d0ebd635a6587ce26f7846304147dc75defaa31a3034e140bbb2",
+      "observations": [
+        {
+          "frame": 1,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            9,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 2,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            9,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 3,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            13,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 4,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            13,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 5,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 6,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 7,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 8,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 9,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 10,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 11,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 12,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        }
+      ],
+      "errors": [],
+      "externalAllowed": 0,
+      "externalRequests": [
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/kitten",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/sysinfo",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/player-icons/mob%EF%BC%8Ficn_keyboard_nor.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/player-icons/mob_icn_reset.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        }
+      ],
+      "pageErrors": [],
+      "events": [
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "start"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "start"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "set"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "set"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "change"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "change"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-change"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-change"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "clear"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "clear"
+        }
+      ]
+    },
+    "scope-ripple": {
+      "sha256": "acf62d9d03c1226419ab11b027f32ebca05813096a87bf90b34825ffa95f4dd3",
+      "observations": [
+        {
+          "frame": 1,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            65,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 2,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            65,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 3,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            69,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 4,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            69,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 5,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 6,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 7,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 8,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 9,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 10,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 11,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 12,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        }
+      ],
+      "errors": [],
+      "externalAllowed": 0,
+      "externalRequests": [
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/kitten",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/sysinfo",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/displacement_map_full.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/player-icons/mob%EF%BC%8Ficn_keyboard_nor.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/player-icons/mob_icn_reset.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        }
+      ],
+      "pageErrors": [
+        "Event"
+      ],
+      "events": [
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "start"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "start"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "set"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "set"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "change"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "change"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-change"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-change"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "clear"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "clear"
+        }
+      ]
+    },
+    "scope-twist": {
+      "sha256": "aa3ddaa351a90c97264ef82f2c197a4af079d24263f18a62b7140eb68d5d3f60",
+      "observations": [
+        {
+          "frame": 1,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            65,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 2,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            65,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 3,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            69,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 4,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            69,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 5,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 6,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 7,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 8,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 9,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 10,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 11,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 12,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        }
+      ],
+      "errors": [],
+      "externalAllowed": 0,
+      "externalRequests": [
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/kitten",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/sysinfo",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/player-icons/mob%EF%BC%8Ficn_keyboard_nor.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/player-icons/mob_icn_reset.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        }
+      ],
+      "pageErrors": [],
+      "events": [
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "start"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "start"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "set"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "set"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "change"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "change"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-change"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-change"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "clear"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "clear"
+        }
+      ]
+    },
+    "scope-ascii": {
+      "sha256": "1c67b996c27f2220cd3cd37e882e7ce93b102e0732ccfac19f6b6ff05e80cd39",
+      "observations": [
+        {
+          "frame": 1,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            8
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 2,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            8
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 3,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            12
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 4,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            12
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 5,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 6,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 7,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 8,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 9,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 10,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 11,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        },
+        {
+          "frame": 12,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [],
+          "brush": {
+            "nonzero": 0,
+            "alphaSum": 0
+          }
+        }
+      ],
+      "errors": [],
+      "externalAllowed": 0,
+      "externalRequests": [
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/kitten",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/sysinfo",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/player-icons/mob%EF%BC%8Ficn_keyboard_nor.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/player-icons/mob_icn_reset.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        }
+      ],
+      "pageErrors": [],
+      "events": [
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "start"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "start"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "set"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "set"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "change"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "change"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-change"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-change"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "clear"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "clear"
+        }
+      ]
+    },
+    "stamp-left": {
+      "sha256": "69aae04cc1bdb31657c94e7c11fd1f20941d79536a689eb992f087fd2066dbb6",
+      "observations": [
+        {
+          "frame": 1,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "left",
+                0
+              ]
+            }
+          ],
+          "brush": {
+            "nonzero": 857,
+            "alphaSum": 82552
+          }
+        },
+        {
+          "frame": 2,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "left",
+                0
+              ]
+            }
+          ],
+          "brush": {
+            "nonzero": 857,
+            "alphaSum": 82552
+          }
+        },
+        {
+          "frame": 3,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "left",
+                0
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "left",
+                0
+              ]
+            }
+          ],
+          "brush": {
+            "nonzero": 1745,
+            "alphaSum": 165156
+          }
+        },
+        {
+          "frame": 4,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "left",
+                0
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "left",
+                0
+              ]
+            }
+          ],
+          "brush": {
+            "nonzero": 1745,
+            "alphaSum": 165156
+          }
+        },
+        {
+          "frame": 5,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "left",
+                0
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "left",
+                0
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "left",
+                0
+              ]
+            }
+          ],
+          "brush": {
+            "nonzero": 2633,
+            "alphaSum": 247760
+          }
+        },
+        {
+          "frame": 6,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "left",
+                0
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "left",
+                0
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "left",
+                0
+              ]
+            }
+          ],
+          "brush": {
+            "nonzero": 2633,
+            "alphaSum": 247760
+          }
+        },
+        {
+          "frame": 7,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "left",
+                0
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "left",
+                0
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "left",
+                0
+              ]
+            }
+          ],
+          "brush": {
+            "nonzero": 2633,
+            "alphaSum": 247760
+          }
+        },
+        {
+          "frame": 8,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "left",
+                0
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "left",
+                0
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "left",
+                0
+              ]
+            }
+          ],
+          "brush": {
+            "nonzero": 2633,
+            "alphaSum": 247760
+          }
+        },
+        {
+          "frame": 9,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "left",
+                0
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "left",
+                0
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "left",
+                0
+              ]
+            }
+          ],
+          "brush": {
+            "nonzero": 2633,
+            "alphaSum": 247760
+          }
+        },
+        {
+          "frame": 10,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "left",
+                0
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "left",
+                0
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "left",
+                0
+              ]
+            }
+          ],
+          "brush": {
+            "nonzero": 2633,
+            "alphaSum": 247760
+          }
+        },
+        {
+          "frame": 11,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "left",
+                0
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "left",
+                0
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "left",
+                0
+              ]
+            }
+          ],
+          "brush": {
+            "nonzero": 2633,
+            "alphaSum": 247760
+          }
+        },
+        {
+          "frame": 12,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "left",
+                0
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "left",
+                0
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "left",
+                0
+              ]
+            }
+          ],
+          "brush": {
+            "nonzero": 2633,
+            "alphaSum": 247760
+          }
+        }
+      ],
+      "errors": [],
+      "externalAllowed": 0,
+      "externalRequests": [
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/kitten",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/sysinfo",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/player-icons/mob%EF%BC%8Ficn_keyboard_nor.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/player-icons/mob_icn_reset.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        }
+      ],
+      "pageErrors": [],
+      "events": [
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "start"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "start"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "color"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "color"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "alpha"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "alpha"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "move-0"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "move-0"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "stamp-0"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "stamp-0"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-0"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-0"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "move-1"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "move-1"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "stamp-1"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "stamp-1"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-1"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-1"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "move-2"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "move-2"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "stamp-2"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "stamp-2"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-2"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-2"
+        }
+      ]
+    },
+    "stamp-center": {
+      "sha256": "b2383726695fd0d4a67fe2871ceb7d77e10db2fbf6fd4c450a84939ed1f09541",
+      "observations": [
+        {
+          "frame": 1,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "center",
+                -0.5235987755982988
+              ]
+            }
+          ],
+          "brush": {
+            "nonzero": 889,
+            "alphaSum": 77820
+          }
+        },
+        {
+          "frame": 2,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "center",
+                -0.5235987755982988
+              ]
+            }
+          ],
+          "brush": {
+            "nonzero": 889,
+            "alphaSum": 77820
+          }
+        },
+        {
+          "frame": 3,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "center",
+                -0.5235987755982988
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "center",
+                -0.5235987755982988
+              ]
+            }
+          ],
+          "brush": {
+            "nonzero": 1800,
+            "alphaSum": 155714
+          }
+        },
+        {
+          "frame": 4,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "center",
+                -0.5235987755982988
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "center",
+                -0.5235987755982988
+              ]
+            }
+          ],
+          "brush": {
+            "nonzero": 1800,
+            "alphaSum": 155714
+          }
+        },
+        {
+          "frame": 5,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "center",
+                -0.5235987755982988
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "center",
+                -0.5235987755982988
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "center",
+                -0.5235987755982988
+              ]
+            }
+          ],
+          "brush": {
+            "nonzero": 2711,
+            "alphaSum": 233608
+          }
+        },
+        {
+          "frame": 6,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "center",
+                -0.5235987755982988
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "center",
+                -0.5235987755982988
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "center",
+                -0.5235987755982988
+              ]
+            }
+          ],
+          "brush": {
+            "nonzero": 2711,
+            "alphaSum": 233608
+          }
+        },
+        {
+          "frame": 7,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "center",
+                -0.5235987755982988
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "center",
+                -0.5235987755982988
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "center",
+                -0.5235987755982988
+              ]
+            }
+          ],
+          "brush": {
+            "nonzero": 2711,
+            "alphaSum": 233608
+          }
+        },
+        {
+          "frame": 8,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "center",
+                -0.5235987755982988
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "center",
+                -0.5235987755982988
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "center",
+                -0.5235987755982988
+              ]
+            }
+          ],
+          "brush": {
+            "nonzero": 2711,
+            "alphaSum": 233608
+          }
+        },
+        {
+          "frame": 9,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "center",
+                -0.5235987755982988
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "center",
+                -0.5235987755982988
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "center",
+                -0.5235987755982988
+              ]
+            }
+          ],
+          "brush": {
+            "nonzero": 2711,
+            "alphaSum": 233608
+          }
+        },
+        {
+          "frame": 10,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "center",
+                -0.5235987755982988
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "center",
+                -0.5235987755982988
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "center",
+                -0.5235987755982988
+              ]
+            }
+          ],
+          "brush": {
+            "nonzero": 2711,
+            "alphaSum": 233608
+          }
+        },
+        {
+          "frame": 11,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "center",
+                -0.5235987755982988
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "center",
+                -0.5235987755982988
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "center",
+                -0.5235987755982988
+              ]
+            }
+          ],
+          "brush": {
+            "nonzero": 2711,
+            "alphaSum": 233608
+          }
+        },
+        {
+          "frame": 12,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "center",
+                -0.5235987755982988
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "center",
+                -0.5235987755982988
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "center",
+                -0.5235987755982988
+              ]
+            }
+          ],
+          "brush": {
+            "nonzero": 2711,
+            "alphaSum": 233608
+          }
+        }
+      ],
+      "errors": [],
+      "externalAllowed": 0,
+      "externalRequests": [
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/kitten",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/sysinfo",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/player-icons/mob%EF%BC%8Ficn_keyboard_nor.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/player-icons/mob_icn_reset.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        }
+      ],
+      "pageErrors": [],
+      "events": [
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "start"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "start"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "color"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "color"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "alpha"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "alpha"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "move-0"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "move-0"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "stamp-0"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "stamp-0"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-0"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-0"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "move-1"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "move-1"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "stamp-1"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "stamp-1"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-1"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-1"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "move-2"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "move-2"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "stamp-2"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "stamp-2"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-2"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-2"
+        }
+      ]
+    },
+    "stamp-right": {
+      "sha256": "3e7921352b657935aab7d3dfc50d67e19afd117a2a0fc3fd9135d7f4969668d8",
+      "observations": [
+        {
+          "frame": 1,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "right",
+                0.7853981633974483
+              ]
+            }
+          ],
+          "brush": {
+            "nonzero": 898,
+            "alphaSum": 78082
+          }
+        },
+        {
+          "frame": 2,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "right",
+                0.7853981633974483
+              ]
+            }
+          ],
+          "brush": {
+            "nonzero": 898,
+            "alphaSum": 78082
+          }
+        },
+        {
+          "frame": 3,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "right",
+                0.7853981633974483
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "right",
+                0.7853981633974483
+              ]
+            }
+          ],
+          "brush": {
+            "nonzero": 1813,
+            "alphaSum": 156216
+          }
+        },
+        {
+          "frame": 4,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "right",
+                0.7853981633974483
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "right",
+                0.7853981633974483
+              ]
+            }
+          ],
+          "brush": {
+            "nonzero": 1813,
+            "alphaSum": 156216
+          }
+        },
+        {
+          "frame": 5,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "right",
+                0.7853981633974483
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "right",
+                0.7853981633974483
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "right",
+                0.7853981633974483
+              ]
+            }
+          ],
+          "brush": {
+            "nonzero": 2728,
+            "alphaSum": 234350
+          }
+        },
+        {
+          "frame": 6,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "right",
+                0.7853981633974483
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "right",
+                0.7853981633974483
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "right",
+                0.7853981633974483
+              ]
+            }
+          ],
+          "brush": {
+            "nonzero": 2728,
+            "alphaSum": 234350
+          }
+        },
+        {
+          "frame": 7,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "right",
+                0.7853981633974483
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "right",
+                0.7853981633974483
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "right",
+                0.7853981633974483
+              ]
+            }
+          ],
+          "brush": {
+            "nonzero": 2728,
+            "alphaSum": 234350
+          }
+        },
+        {
+          "frame": 8,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "right",
+                0.7853981633974483
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "right",
+                0.7853981633974483
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "right",
+                0.7853981633974483
+              ]
+            }
+          ],
+          "brush": {
+            "nonzero": 2728,
+            "alphaSum": 234350
+          }
+        },
+        {
+          "frame": 9,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "right",
+                0.7853981633974483
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "right",
+                0.7853981633974483
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "right",
+                0.7853981633974483
+              ]
+            }
+          ],
+          "brush": {
+            "nonzero": 2728,
+            "alphaSum": 234350
+          }
+        },
+        {
+          "frame": 10,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "right",
+                0.7853981633974483
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "right",
+                0.7853981633974483
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "right",
+                0.7853981633974483
+              ]
+            }
+          ],
+          "brush": {
+            "nonzero": 2728,
+            "alphaSum": 234350
+          }
+        },
+        {
+          "frame": 11,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "right",
+                0.7853981633974483
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "right",
+                0.7853981633974483
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "right",
+                0.7853981633974483
+              ]
+            }
+          ],
+          "brush": {
+            "nonzero": 2728,
+            "alphaSum": 234350
+          }
+        },
+        {
+          "frame": 12,
+          "opacity": 1,
+          "effects": [
+            0,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "right",
+                0.7853981633974483
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "right",
+                0.7853981633974483
+              ]
+            },
+            {
+              "name": "draw_text_stamp",
+              "args": [
+                "K4 Ag 6",
+                23.5,
+                "right",
+                0.7853981633974483
+              ]
+            }
+          ],
+          "brush": {
+            "nonzero": 2728,
+            "alphaSum": 234350
+          }
+        }
+      ],
+      "errors": [],
+      "externalAllowed": 0,
+      "externalRequests": [
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/kitten",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/sysinfo",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/player-icons/mob%EF%BC%8Ficn_keyboard_nor.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/player-icons/mob_icn_reset.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        }
+      ],
+      "pageErrors": [],
+      "events": [
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "start"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "start"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "color"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "color"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "alpha"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "alpha"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "move-0"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "move-0"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "stamp-0"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "stamp-0"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-0"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-0"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "move-1"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "move-1"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "stamp-1"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "stamp-1"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-1"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-1"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "move-2"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "move-2"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "stamp-2"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "stamp-2"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-2"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-2"
+        }
+      ]
+    },
+    "image-alpha": {
+      "sha256": "7de383fae4c113f21ac9526fa6f98df0f7e4e2d3a48e3df285af43b413017bc3",
+      "observations": [
+        {
+          "frame": 1,
+          "opacity": 0,
+          "effects": [
+            110,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            }
+          ],
+          "brush": {
+            "nonzero": 5568,
+            "alphaSum": 1295604
+          }
+        },
+        {
+          "frame": 2,
+          "opacity": 0,
+          "effects": [
+            110,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            }
+          ],
+          "brush": {
+            "nonzero": 5568,
+            "alphaSum": 1295604
+          }
+        },
+        {
+          "frame": 3,
+          "opacity": 0,
+          "effects": [
+            110,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            },
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            }
+          ],
+          "brush": {
+            "nonzero": 11136,
+            "alphaSum": 2591208
+          }
+        },
+        {
+          "frame": 4,
+          "opacity": 0,
+          "effects": [
+            110,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            },
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            }
+          ],
+          "brush": {
+            "nonzero": 11136,
+            "alphaSum": 2591208
+          }
+        },
+        {
+          "frame": 5,
+          "opacity": 0,
+          "effects": [
+            110,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            },
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            },
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            }
+          ],
+          "brush": {
+            "nonzero": 16704,
+            "alphaSum": 3886812
+          }
+        },
+        {
+          "frame": 6,
+          "opacity": 0,
+          "effects": [
+            110,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            },
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            },
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            }
+          ],
+          "brush": {
+            "nonzero": 16704,
+            "alphaSum": 3886812
+          }
+        },
+        {
+          "frame": 7,
+          "opacity": 0,
+          "effects": [
+            110,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            },
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            },
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            }
+          ],
+          "brush": {
+            "nonzero": 16704,
+            "alphaSum": 3886812
+          }
+        },
+        {
+          "frame": 8,
+          "opacity": 0,
+          "effects": [
+            110,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            },
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            },
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            }
+          ],
+          "brush": {
+            "nonzero": 16704,
+            "alphaSum": 3886812
+          }
+        },
+        {
+          "frame": 9,
+          "opacity": 0,
+          "effects": [
+            110,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            },
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            },
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            }
+          ],
+          "brush": {
+            "nonzero": 16704,
+            "alphaSum": 3886812
+          }
+        },
+        {
+          "frame": 10,
+          "opacity": 0,
+          "effects": [
+            110,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            },
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            },
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            }
+          ],
+          "brush": {
+            "nonzero": 16704,
+            "alphaSum": 3886812
+          }
+        },
+        {
+          "frame": 11,
+          "opacity": 0,
+          "effects": [
+            110,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            },
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            },
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            }
+          ],
+          "brush": {
+            "nonzero": 16704,
+            "alphaSum": 3886812
+          }
+        },
+        {
+          "frame": 12,
+          "opacity": 0,
+          "effects": [
+            110,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            },
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            },
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            }
+          ],
+          "brush": {
+            "nonzero": 16704,
+            "alphaSum": 3886812
+          }
+        }
+      ],
+      "errors": [],
+      "externalAllowed": 0,
+      "externalRequests": [
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/kitten",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/sysinfo",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/player-icons/mob%EF%BC%8Ficn_keyboard_nor.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/player-icons/mob_icn_reset.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        }
+      ],
+      "pageErrors": [],
+      "events": [
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "start"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "start"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "opacity"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "opacity"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hue"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hue"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "move-0"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "move-0"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "image-0"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "image-0"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-0"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-0"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "move-1"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "move-1"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "image-1"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "image-1"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-1"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-1"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "move-2"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "move-2"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "image-2"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "image-2"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-2"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-2"
+        }
+      ]
+    },
+    "image-pivot-rotate": {
+      "sha256": "46d7c23f327956e30e52a797b5907bac1003132ba49e828d8c0cb4d5ea482e63",
+      "observations": [
+        {
+          "frame": 1,
+          "opacity": 0,
+          "effects": [
+            110,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            }
+          ],
+          "brush": {
+            "nonzero": 3107,
+            "alphaSum": 678949
+          }
+        },
+        {
+          "frame": 2,
+          "opacity": 0,
+          "effects": [
+            110,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            }
+          ],
+          "brush": {
+            "nonzero": 3107,
+            "alphaSum": 678949
+          }
+        },
+        {
+          "frame": 3,
+          "opacity": 0,
+          "effects": [
+            110,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            },
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            }
+          ],
+          "brush": {
+            "nonzero": 6214,
+            "alphaSum": 1357898
+          }
+        },
+        {
+          "frame": 4,
+          "opacity": 0,
+          "effects": [
+            110,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            },
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            }
+          ],
+          "brush": {
+            "nonzero": 6214,
+            "alphaSum": 1357898
+          }
+        },
+        {
+          "frame": 5,
+          "opacity": 0,
+          "effects": [
+            110,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            },
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            },
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            }
+          ],
+          "brush": {
+            "nonzero": 9321,
+            "alphaSum": 2036847
+          }
+        },
+        {
+          "frame": 6,
+          "opacity": 0,
+          "effects": [
+            110,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            },
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            },
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            }
+          ],
+          "brush": {
+            "nonzero": 9321,
+            "alphaSum": 2036847
+          }
+        },
+        {
+          "frame": 7,
+          "opacity": 0,
+          "effects": [
+            110,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            },
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            },
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            }
+          ],
+          "brush": {
+            "nonzero": 9321,
+            "alphaSum": 2036847
+          }
+        },
+        {
+          "frame": 8,
+          "opacity": 0,
+          "effects": [
+            110,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            },
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            },
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            }
+          ],
+          "brush": {
+            "nonzero": 9321,
+            "alphaSum": 2036847
+          }
+        },
+        {
+          "frame": 9,
+          "opacity": 0,
+          "effects": [
+            110,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            },
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            },
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            }
+          ],
+          "brush": {
+            "nonzero": 9321,
+            "alphaSum": 2036847
+          }
+        },
+        {
+          "frame": 10,
+          "opacity": 0,
+          "effects": [
+            110,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            },
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            },
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            }
+          ],
+          "brush": {
+            "nonzero": 9321,
+            "alphaSum": 2036847
+          }
+        },
+        {
+          "frame": 11,
+          "opacity": 0,
+          "effects": [
+            110,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            },
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            },
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            }
+          ],
+          "brush": {
+            "nonzero": 9321,
+            "alphaSum": 2036847
+          }
+        },
+        {
+          "frame": 12,
+          "opacity": 0,
+          "effects": [
+            110,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "calls": [
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            },
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            },
+            {
+              "name": "draw_image_stamp",
+              "args": []
+            }
+          ],
+          "brush": {
+            "nonzero": 9321,
+            "alphaSum": 2036847
+          }
+        }
+      ],
+      "errors": [],
+      "externalAllowed": 0,
+      "externalRequests": [
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/kitten",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://collection.codemao.cn/report/sysinfo",
+          "method": "POST",
+          "resourceType": "ping",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+          "method": "GET",
+          "resourceType": "script",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+          "method": "GET",
+          "resourceType": "xhr",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/player-icons/mob%EF%BC%8Ficn_keyboard_nor.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        },
+        {
+          "url": "https://kn-cdn.codemao.cn/player-icons/mob_icn_reset.png",
+          "method": "GET",
+          "resourceType": "image",
+          "action": "blocked"
+        }
+      ],
+      "pageErrors": [],
+      "events": [
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "start"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "start"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "opacity"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "opacity"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hue"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hue"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "move-0"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "move-0"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "image-0"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "image-0"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-0"
+        },
+        {
+          "frame": 1,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-0"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "move-1"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "move-1"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "image-1"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "image-1"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-1"
+        },
+        {
+          "frame": 3,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-1"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "move-2"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "move-2"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "image-2"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "image-2"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-2"
+        },
+        {
+          "frame": 5,
+          "event": "block",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "start",
+          "block": "hold-2"
+        }
+      ]
+    }
+  },
+  "assets": [
+    {
+      "name": "player_v2__3ffeebbd0c789e8d9422.css",
+      "source": "player_v2__3ffeebbd0c789e8d9422.css",
+      "sha256": "39e8e70b124b604831773893cdc95931cdee3eaea52c6dd69f33f5781d48b45a"
+    },
+    {
+      "name": "runtime.f42f527f119e09010b85.js",
+      "source": "runtime.f42f527f119e09010b85.js",
+      "sha256": "4164d67795238f64d035f473418236038ae475ae36032a967cba16ede263735f"
+    },
+    {
+      "name": "player_v2.2d180c468559fbd29528.js",
+      "source": "player_v2.2d180c468559fbd29528.js.orig",
+      "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160"
+    },
+    {
+      "name": "vendors.d00f4bd454a6352e9d71.js",
+      "source": "vendors.d00f4bd454a6352e9d71.js",
+      "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
+    },
+    {
+      "name": "9.c396696e9dc71e25b012.js",
+      "source": "9.c396696e9dc71e25b012.js",
+      "sha256": "5758343310c47596d56e954aa05fa76a546080c8bf4fefd41cac0042794d6195"
+    },
+    {
+      "name": "14.c95e6f2ddd61fb701d0e.js",
+      "source": "14.c95e6f2ddd61fb701d0e.js",
+      "sha256": "d3ce91c9113463db4c0988210caeb1be2ddc508499d5c53a8e73a13b5f440175"
+    },
+    {
+      "name": "11.477512e6f03fd2f6f3c5.js",
+      "source": "11.477512e6f03fd2f6f3c5.js",
+      "sha256": "e81bfe3462cc3e79a70ba016ddee2a372a31480d3f52964952e1d21f3a490f91"
+    }
+  ]
+}

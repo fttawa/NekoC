@@ -215,7 +215,7 @@ export class StageRenderer {
         const ctx=hit.getContext('2d',{willReadFrequently:true});ctx.drawImage(image,0,0);
         const rgba=ctx.getImageData(0,0,hit.width,hit.height).data,alpha=new Uint8Array(hit.width*hit.height);
         for(let i=0;i<alpha.length;i++)alpha[i]=rgba[i*4+3];
-        this.images.set(id,{texture,src:image.src,width:image.naturalWidth,height:image.naturalHeight,centerPoint,adaptive:style.adaptive!==false,alpha,rgb:cellColors(rgba,hit.width,hit.height)});
+        this.images.set(id,{texture,src:image.src,source:hit,width:image.naturalWidth,height:image.naturalHeight,centerPoint,adaptive:style.adaptive!==false,alpha,rgb:cellColors(rgba,hit.width,hit.height)});
         this.stats.textureBytes += image.naturalWidth * image.naturalHeight * 4;
         this.dirty = true;
       } catch(error) { if(generation===this.generation)this.onError?.(`素材 ${style?.name || id}: ${error.message}`); }
@@ -561,8 +561,31 @@ export class StageRenderer {
 
   drawImageStamp(stamp){
     const image=this.images.get(stamp.style);if(!image)return;
+    if(this.kitten4&&image.source)return this.drawK4ImageStamp(stamp,image);
     const {x,y,width,height,angle}=this.kitten4?k4ImageStampGeometry(stamp,image):actorGeometry(stamp,image,false);
     this.drawTexture(image.texture,x,y,width,height,angle,[1,1,1,stamp.opacity??1],stamp.effects,[image.width,image.height]);
+  }
+
+  drawK4ImageStamp(stamp,image){
+    // The native brush rasterizes the transformed destination in Canvas. A
+    // transformed GL quad has different edge coverage on rotated/alpha stamps.
+    const g=k4ImageStampGeometry(stamp,image),sx=this.canvas.width/this.width,sy=this.canvas.height/this.height;
+    const c=Math.cos(g.angle),s=Math.sin(g.angle),w=Math.abs(g.width),h=Math.abs(g.height);
+    if(!w||!h)return;
+    const ox=this.width/2+g.x,oy=this.height/2-g.y;
+    const corners=[[-w/2,-h/2],[w/2,-h/2],[-w/2,h/2],[w/2,h/2]];
+    const xs=corners.map(([x,y])=>(ox+c*x-s*y)*sx),ys=corners.map(([x,y])=>(oy+s*x+c*y)*sy);
+    const left=Math.max(0,Math.floor(Math.min(...xs))-2),right=Math.min(this.canvas.width,Math.ceil(Math.max(...xs))+2);
+    const top=Math.max(0,Math.floor(Math.min(...ys))-2),bottom=Math.min(this.canvas.height,Math.ceil(Math.max(...ys))+2);
+    if(right<=left||bottom<=top)return;
+    const canvas=this.stampCanvas??=document.createElement('canvas'),ctx=canvas.getContext('2d');
+    canvas.width=right-left;canvas.height=bottom-top;
+    ctx.setTransform(sx,0,0,sy,-left,-top);ctx.translate(ox,oy);ctx.rotate(g.angle);
+    ctx.scale(Math.sign(g.width),Math.sign(g.height));ctx.drawImage(image.source,-w/2,-h/2,w,h);
+    const gl=this.gl,texture=this.stampTexture??=this.makeTexture(1,1);
+    gl.bindTexture(gl.TEXTURE_2D,texture);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,true);
+    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,canvas);
+    this.drawTexture(texture,(left+right)/2/sx-this.width/2,this.height/2-(top+bottom)/2/sy,canvas.width/sx,canvas.height/sy);
   }
 
   // Costume sizes plus opacity masks (<=128x128, 1 bit per cell) for VM collisions;

@@ -6,6 +6,7 @@ import vm from "node:vm";
 import { fileURLToPath } from "node:url";
 import crypto from "node:crypto";
 import ts from "typescript";
+import { drawingMainPaths, physicsMainPaths, propertyMainPaths, serviceTypes } from "./k4-partial-6-scope.mjs";
 
 export function webpackModules(source) {
   let modules;
@@ -368,7 +369,7 @@ export function mappingStatus(root, rows) {
     const stub = stubs.has(row.type);
     if (stub) evidence.push(...stubs.get(row.type));
     const degraded = (deviceTypes.has(row.type) || row.official.some(e => e.module === "ls7Z")) && (stub || evidence.length);
-    const status = degraded ? "设备降级" : stub ? "stub" : evidence.length ? "已实现" : "缺失";
+    let status = degraded ? "设备降级" : stub ? "stub" : evidence.length ? "已实现" : "缺失";
     let semantics = status === "已实现" ? "mapped-not-parity" : status === "缺失" ? "unsupported" : status === "stub" ? "no-effect" : "offline/device";
     const limitations = [];
     if (status === "缺失") limitations.push("未找到 K4 导入/VM lowering；保留不透明块不等于可执行支持");
@@ -470,10 +471,36 @@ export function mappingStatus(root, rows) {
       limitations.push(probed.includes(row.type) ? "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致" :
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证");
     }
+    let unverifiedBoundaries;
+    if (physicsMainPaths.has(row.type) && evidence.length && !stub) {
+      semantics = "main-path-verified";
+      unverifiedBoundaries = [
+        "未验证边界：复杂轮廓、软体、拖拽/设备输入、多场景与非60Hz组合；允许旋转只验证自由刚体开关，不证明碰撞角冲量相同",
+        "已知差异：Rapier与LiquidFun接触求解器不等价，既有bounce最大位置误差2.797382832px、friction为0.703993056px；不是已验证的完整物理兼容",
+        "未验证边界：精确60Hz等待截止点存在浮点相位差，.04秒控制夹具不覆盖该边界",
+      ];
+      limitations.push("第六轮只升级硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership仅有界回归，不升级其两个开关。见 kitten4-partial-physics-6.md。不是求解器全集认证");
+    }
+    if (serviceTypes.has(row.type) && evidence.length && !stub) {
+      status = "设备降级";
+      semantics = "partial";
+      limitations.push("B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md");
+    }
+    if (propertyMainPaths.has(row.type) && evidence.length && !stub) {
+      semantics = "main-path-verified";
+      unverifiedBoundaries = ["未验证边界：删除竞争/悬空UUID、异步资源加载、非有限几何、iOS/ASCII与复杂对象输入；不是全属性平台全集认证"];
+      limitations.push("第六轮活实体/活克隆与已加载造型主路径：8份原创夹具192官方update、双VM384帧状态与192对画布changedPixels=0（RGB容差8）；见 kitten4-partial-properties-6.md。set_entity_show_hide仍保留删除生命周期已知差异，不在此升级");
+    }
+    if (drawingMainPaths.has(row.type) && evidence.length && !stub) {
+      semantics = "main-path-verified";
+      unverifiedBoundaries = ["未验证边界：平台字体/RTL、极端资源、翻转/多倍率、ELASTIC、颜色检测raster与任意并发；不是所有字体/纹理及滤镜shader认证"];
+      limitations.push("第六轮主路径：文字三align/旋转/半透明跨帧36对RGB全等；图像源alpha/pivot/旋转24帧超差0；all-scope clear后10帧超差0，见 kitten4-partial-effects-6.md。设置阶段pixelate/twist/ASCII仍有真实差异，其setter不升级");
+    }
     // Helpful VM anchors for special rewrites without blanket string matching.
     const target = { set_actor_as: "kitten4_legacy_", set_velocity: "kitten4_set_velocity", set_entity_show_hide: "kitten4_entity_visibility" }[row.type];
     if (target && evidence.length) evidence.push(...engineAt(target));
-    return { ...row, status, semantics, mapping: [...new Set(evidence)], limitations };
+    return { ...row, status, semantics, mapping: [...new Set(evidence)], limitations,
+      ...(unverifiedBoundaries ? { unverifiedBoundaries } : {}) };
   });
 }
 
@@ -486,6 +513,7 @@ export function markdownReport(report) {
     "- 官方定位为 webpack **模块 factory `function` 开头起算的 0-based JavaScript UTF-16 字符 offset**（不是字节或整包偏移）。domain 指属性名，responder 指 id 属性，compiler 指枚举成员名。",
     "- 状态“已实现”仅表示有显式导入/执行映射，不表示语义全等；`mapped-not-parity` 仍未逐字段核对。`partial` 是已知子选项、云后端、渲染或物理差异；stub 为明确无效果，设备降级为本地固定值/无设备语义；缺失不因官方也有 noop 而冒充支持。",
     "- `offline-oracle-verified` 表示积木本体分支已由指定离线包的原创夹具约束，不表示跨版本、跨平台、浏览器输入或物理求解器全集一致；证据范围见各项专项说明。",
+    "- `main-path-verified` 是本轮按任务定义的主路径升级，不是完整语义认证；未验证边界独立列出，已知求解器/渲染差异仍保留。原95项A/B分类、B类无设备行为见 [第六轮](kitten4-partial-6.md)。",
     "- `is_stub` 严格限制在该函数的 kind 分派；flexibility 已实现硬体 strength adapter，但软体粒子仍为 partial。`scope=7` 等条件分支不把整个积木误标为 stub。未设置 K4_PLAYER_DIR 的普通 JS 单测不需要官方包、外部内核或 Cargo；设置后另启只读集成校验。",
     `- 频率来自只读语料 \`${report.corpus}\` 的 ${report.files} 个 .bcm 文件，${report.workspaceOwners} 个 owner 用 workspace，${report.compiledOwners} 个 owner 用 compiled_block_map 回退。每个 owner workspace 优先（包括空 workspace），不双计 compile AST、procedure 视图、shadow 备份或 mutation。频率为出现次数，不是作品数；0 不代表不存在。`,
     "- 文档和 JSON 只包含类型、位置、频率及本仓库限制；不含官方源码片段、作品内容、标题、作者或资源。", "",
@@ -499,6 +527,7 @@ export function markdownReport(report) {
     ...Object.entries(report.counts).map(([status, count]) => `| ${status} | ${count} |`), "",
     `已知 partial：${report.rows.filter(r => r.semantics === "partial").length} 项（不是第五种主状态）。`, "",
     "## 本次按频率补齐", "",
+    "- 第六轮按离线可验证A类/真实设备服务B类分流，主路径升级与未验证边界分列；物理控制逐update、属性/克隆、效果/绘图专项及固定95项分母见 kitten4-partial-6.md。B类仍为设备降级/partial，不计入主路径升级。",
     "- 第四轮按只读语料频率×成本优先补齐 self_set_role_camp（1336 次）：任意字符串不再受四值表示限制，180 帧官方原创夹具及双 VM 回归见 kitten4-partial-camp-4.md；其他高频物理/滤镜/属性项保留未解决边界。",
     "- 第五轮继续按频率×独立修复成本选择 get_3（2049 次）及克隆属性、显隐（64 次）；补列表引用、惰性 UUID 槽、无造型及显隐逐帧边界，原创状态/像素证据与保留范围见 kitten4-partial-5.md。仍有剩余边界的类型不以终态一致去 partial。",
     "- partial 专项：实际基线为 98 项（任务说明约 67 项已过时）。先核对高频属性、效果、阵营与舞台/拖拽；本轮证据及明确未完成范围见 kitten4-partial-properties.md、kitten4-partial-effects.md、kitten4-partial-misc.md。未完成官方实测的项保留 partial，不以仅有执行映射冒充完成。",
@@ -527,6 +556,10 @@ export function markdownReport(report) {
     "## 完整清单（频率降序）", "", "| 官方 type | 官方模块@offset（注册来源） | 状态 / 语义 | 频率 | NekoC mapping 位置 / 限制 |", "| --- | --- | --- | ---: | --- |"];
   const escape = value => String(value).replaceAll("|", "&#124;").replaceAll("\n", " ");
   for (const row of report.rows) lines.push(`| \`${row.type}\` | ${row.official.map(e => `\`${e.module}@${e.offset}\` (${e.registration})`).join("<br>")} | ${row.status}<br>${row.semantics} | ${row.occurrences} | ${[...row.mapping.map(p => `\`${p}\``), ...row.limitations].map(escape).join("<br>")} |`);
+  lines.push("", "## 未验证边界（主路径升级项独立列出）", "", "| 类型 | 未验证/已知差异 |", "| --- | --- |");
+  for (const row of report.rows.filter(row => row.unverifiedBoundaries)) {
+    lines.push(`| \`${row.type}\` | ${row.unverifiedBoundaries.map(escape).join("<br>")} |`);
+  }
   return lines.join("\n") + "\n";
 }
 

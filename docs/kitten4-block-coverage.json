@@ -8,10 +8,10 @@
   "compiledOwners": 4529,
   "count": 377,
   "counts": {
-    "已实现": 287,
+    "已实现": 247,
     "stub": 0,
     "缺失": 0,
-    "设备降级": 90
+    "设备降级": 130
   },
   "audit": {
     "tables": [
@@ -750,13 +750,17 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
         "src/kitten4.rs:528 (lower_block)"
       ],
       "limitations": [
         "get/get_2/get_3 统一原生属性：原22夹具外，第五轮补全局列表引用与双向修改、执行时惰性未知UUID槽、空造型编号/名称；8夹具96官方帧与40对零差异画布见 kitten4-partial-properties-5.md；非有限状态、删除竞争、iOS ASCII及其他资源加载边界仍未验证",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "第六轮活实体/活克隆与已加载造型主路径：8份原创夹具192官方update、双VM384帧状态与192对画布changedPixels=0（RGB容差8）；见 kitten4-partial-properties-6.md。set_entity_show_hide仍保留删除生命周期已知差异，不在此升级"
+      ],
+      "unverifiedBoundaries": [
+        "未验证边界：删除竞争/悬空UUID、异步资源加载、非有限几何、iOS/ASCII与复杂对象输入；不是全属性平台全集认证"
       ],
       "occurrences": 2049
     },
@@ -1026,15 +1030,21 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
         "src/kitten4.rs:559 (lower_block)",
-        "src/engine.rs:4250 (kitten4_legacy_)"
+        "src/engine.rs:4275 (kitten4_legacy_)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "第二轮 7 份原创物理夹具/210 帧官方实测：旧 exit 即时 static 清速、新 forceable/ticker 延迟和禁用动态体保速已修正；不声明跨求解器等价，见 kitten4-physics-partial.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "第六轮只升级硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership仅有界回归，不升级其两个开关。见 kitten4-partial-physics-6.md。不是求解器全集认证"
+      ],
+      "unverifiedBoundaries": [
+        "未验证边界：复杂轮廓、软体、拖拽/设备输入、多场景与非60Hz组合；允许旋转只验证自由刚体开关，不证明碰撞角冲量相同",
+        "已知差异：Rapier与LiquidFun接触求解器不等价，既有bounce最大位置误差2.797382832px、friction为0.703993056px；不是已验证的完整物理兼容",
+        "未验证边界：精确60Hz等待截止点存在浮点相位差，.04秒控制夹具不覆盖该边界"
       ],
       "occurrences": 1051
     },
@@ -1953,7 +1963,7 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
         "src/kitten4.rs:844 (lower_block)"
       ],
@@ -1961,7 +1971,11 @@
         "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
         "第二轮 18 份原创夹具官方实测：严格尺寸/10000 上限、场景错误、原图无角色滤镜/alpha、目的矩形 floor、过渡别名与任意 direction 已补齐；字体/像素、颜色 raster 与真实过渡动画仍有限制，见 kitten4-partial-drawing.md",
         "第三轮 11 份原创画笔夹具：起点圆盘/闭合线、半透明叠色、零坐标重复落笔、填充与印章交错已实测；复杂字体/纹理和跨帧量化仍未验证，见 kitten4-partial-pen-3.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "第六轮主路径：文字三align/旋转/半透明跨帧36对RGB全等；图像源alpha/pivot/旋转24帧超差0；all-scope clear后10帧超差0，见 kitten4-partial-effects-6.md。设置阶段pixelate/twist/ASCII仍有真实差异，其setter不升级"
+      ],
+      "unverifiedBoundaries": [
+        "未验证边界：平台字体/RTL、极端资源、翻转/多倍率、ELASTIC、颜色检测raster与任意并发；不是所有字体/纹理及滤镜shader认证"
       ],
       "occurrences": 308
     },
@@ -2063,7 +2077,7 @@
           "table": "cloud_variables_get"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4.rs:627 (lower_block)"
@@ -2071,7 +2085,8 @@
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 296
     },
@@ -2166,16 +2181,22 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
         "src/kitten4.rs:538 (lower_block)",
-        "src/engine.rs:4246 (kitten4_set_velocity)"
+        "src/engine.rs:4271 (kitten4_set_velocity)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "第二轮 7 份原创物理夹具/210 帧官方实测：旧 exit 即时 static 清速、新 forceable/ticker 延迟和禁用动态体保速已修正；不声明跨求解器等价，见 kitten4-physics-partial.md",
         "第三轮 11 份原创夹具/660 帧官方轨迹：首次世界初始化、自由落体积分、20px/tick 向量限速、边界摩擦与全不透明矩形轮廓已修正；接触仍有误差，复杂轮廓/软体未对齐，见 kitten4-physics-trajectory-3.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "第六轮只升级硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership仅有界回归，不升级其两个开关。见 kitten4-partial-physics-6.md。不是求解器全集认证"
+      ],
+      "unverifiedBoundaries": [
+        "未验证边界：复杂轮廓、软体、拖拽/设备输入、多场景与非60Hz组合；允许旋转只验证自由刚体开关，不证明碰撞角冲量相同",
+        "已知差异：Rapier与LiquidFun接触求解器不等价，既有bounce最大位置误差2.797382832px、friction为0.703993056px；不是已验证的完整物理兼容",
+        "未验证边界：精确60Hz等待截止点存在浮点相位差，.04秒控制夹具不覆盖该边界"
       ],
       "occurrences": 250
     },
@@ -2361,7 +2382,7 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
         "src/kitten4.rs:845 (lower_block)"
       ],
@@ -2369,7 +2390,11 @@
         "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
         "第二轮 18 份原创夹具官方实测：严格尺寸/10000 上限、场景错误、原图无角色滤镜/alpha、目的矩形 floor、过渡别名与任意 direction 已补齐；字体/像素、颜色 raster 与真实过渡动画仍有限制，见 kitten4-partial-drawing.md",
         "第三轮 11 份原创画笔夹具：起点圆盘/闭合线、半透明叠色、零坐标重复落笔、填充与印章交错已实测；复杂字体/纹理和跨帧量化仍未验证，见 kitten4-partial-pen-3.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "第六轮主路径：文字三align/旋转/半透明跨帧36对RGB全等；图像源alpha/pivot/旋转24帧超差0；all-scope clear后10帧超差0，见 kitten4-partial-effects-6.md。设置阶段pixelate/twist/ASCII仍有真实差异，其setter不升级"
+      ],
+      "unverifiedBoundaries": [
+        "未验证边界：平台字体/RTL、极端资源、翻转/多倍率、ELASTIC、颜色检测raster与任意并发；不是所有字体/纹理及滤镜shader认证"
       ],
       "occurrences": 165
     },
@@ -2384,14 +2409,18 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
         "src/kitten4.rs:836 (lower_block)"
       ],
       "limitations": [
         "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
         "严格索引类型与范围、场景/缺克隆错误及全属性已有离线官方实测；第五轮新增UUID列表引用与惰性槽逐帧/像素证据见 kitten4-partial-properties-5.md；继承属性/效果、删除竞争与跨平台边界仍有限制",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "第六轮活实体/活克隆与已加载造型主路径：8份原创夹具192官方update、双VM384帧状态与192对画布changedPixels=0（RGB容差8）；见 kitten4-partial-properties-6.md。set_entity_show_hide仍保留删除生命周期已知差异，不在此升级"
+      ],
+      "unverifiedBoundaries": [
+        "未验证边界：删除竞争/悬空UUID、异步资源加载、非有限几何、iOS/ASCII与复杂对象输入；不是全属性平台全集认证"
       ],
       "occurrences": 162
     },
@@ -2432,7 +2461,7 @@
           "table": "cloud_variables_get"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4.rs:595 (lower_block)"
@@ -2440,7 +2469,8 @@
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 159
     },
@@ -2608,7 +2638,7 @@
           "table": "cloud_variables_get"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4.rs:596 (lower_block)"
@@ -2616,7 +2646,8 @@
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 114
     },
@@ -2630,7 +2661,7 @@
           "table": "cloud_variables_get"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4.rs:461 (cloud_list)"
@@ -2638,7 +2669,8 @@
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 110
     },
@@ -2735,13 +2767,19 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
         "src/kitten4.rs:552 (lower_block)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第六轮只升级硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership仅有界回归，不升级其两个开关。见 kitten4-partial-physics-6.md。不是求解器全集认证"
+      ],
+      "unverifiedBoundaries": [
+        "未验证边界：复杂轮廓、软体、拖拽/设备输入、多场景与非60Hz组合；允许旋转只验证自由刚体开关，不证明碰撞角冲量相同",
+        "已知差异：Rapier与LiquidFun接触求解器不等价，既有bounce最大位置误差2.797382832px、friction为0.703993056px；不是已验证的完整物理兼容",
+        "未验证边界：精确60Hz等待截止点存在浮点相位差，.04秒控制夹具不覆盖该边界"
       ],
       "occurrences": 95
     },
@@ -2776,13 +2814,19 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
         "src/kitten4.rs:554 (lower_block)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第六轮只升级硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership仅有界回归，不升级其两个开关。见 kitten4-partial-physics-6.md。不是求解器全集认证"
+      ],
+      "unverifiedBoundaries": [
+        "未验证边界：复杂轮廓、软体、拖拽/设备输入、多场景与非60Hz组合；允许旋转只验证自由刚体开关，不证明碰撞角冲量相同",
+        "已知差异：Rapier与LiquidFun接触求解器不等价，既有bounce最大位置误差2.797382832px、friction为0.703993056px；不是已验证的完整物理兼容",
+        "未验证边界：精确60Hz等待截止点存在浮点相位差，.04秒控制夹具不覆盖该边界"
       ],
       "occurrences": 93
     },
@@ -2818,13 +2862,19 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
         "src/kitten4.rs:555 (lower_block)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第六轮只升级硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership仅有界回归，不升级其两个开关。见 kitten4-partial-physics-6.md。不是求解器全集认证"
+      ],
+      "unverifiedBoundaries": [
+        "未验证边界：复杂轮廓、软体、拖拽/设备输入、多场景与非60Hz组合；允许旋转只验证自由刚体开关，不证明碰撞角冲量相同",
+        "已知差异：Rapier与LiquidFun接触求解器不等价，既有bounce最大位置误差2.797382832px、friction为0.703993056px；不是已验证的完整物理兼容",
+        "未验证边界：精确60Hz等待截止点存在浮点相位差，.04秒控制夹具不覆盖该边界"
       ],
       "occurrences": 91
     },
@@ -2858,7 +2908,7 @@
           "table": "cloud_variables_get"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4.rs:597 (lower_block)"
@@ -2866,7 +2916,8 @@
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 83
     },
@@ -2987,7 +3038,7 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
         "src/engine/physics.rs:572 (parse)"
       ],
@@ -2995,7 +3046,13 @@
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "第二轮 7 份原创物理夹具/210 帧官方实测：旧 exit 即时 static 清速、新 forceable/ticker 延迟和禁用动态体保速已修正；不声明跨求解器等价，见 kitten4-physics-partial.md",
         "第三轮 11 份原创夹具/660 帧官方轨迹：首次世界初始化、自由落体积分、20px/tick 向量限速、边界摩擦与全不透明矩形轮廓已修正；接触仍有误差，复杂轮廓/软体未对齐，见 kitten4-physics-trajectory-3.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "第六轮只升级硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership仅有界回归，不升级其两个开关。见 kitten4-partial-physics-6.md。不是求解器全集认证"
+      ],
+      "unverifiedBoundaries": [
+        "未验证边界：复杂轮廓、软体、拖拽/设备输入、多场景与非60Hz组合；允许旋转只验证自由刚体开关，不证明碰撞角冲量相同",
+        "已知差异：Rapier与LiquidFun接触求解器不等价，既有bounce最大位置误差2.797382832px、friction为0.703993056px；不是已验证的完整物理兼容",
+        "未验证边界：精确60Hz等待截止点存在浮点相位差，.04秒控制夹具不覆盖该边界"
       ],
       "occurrences": 77
     },
@@ -3175,7 +3232,7 @@
       "semantics": "partial",
       "mapping": [
         "src/kitten4.rs:489 (lower_block)",
-        "src/engine.rs:3824 (kitten4_entity_visibility)"
+        "src/engine.rs:3849 (kitten4_entity_visibility)"
       ],
       "limitations": [
         "第五轮17份原创夹具408官方帧：渐变尾部update相位、竞争alpha斜率叠加、取消调用方冻结、隐藏清理held指针、零/负/NaN/Infinity时长已实测；逐帧/像素结果见 kitten4-partial-visibility-5.md。克隆删除仍有一帧生命周期差异，场景/悬空UUID/非60Hz与完整手势边界保留partial",
@@ -3321,14 +3378,20 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
         "src/engine/physics.rs:573 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "第三轮 11 份原创夹具/660 帧官方轨迹：首次世界初始化、自由落体积分、20px/tick 向量限速、边界摩擦与全不透明矩形轮廓已修正；接触仍有误差，复杂轮廓/软体未对齐，见 kitten4-physics-trajectory-3.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第六轮只升级硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership仅有界回归，不升级其两个开关。见 kitten4-partial-physics-6.md。不是求解器全集认证"
+      ],
+      "unverifiedBoundaries": [
+        "未验证边界：复杂轮廓、软体、拖拽/设备输入、多场景与非60Hz组合；允许旋转只验证自由刚体开关，不证明碰撞角冲量相同",
+        "已知差异：Rapier与LiquidFun接触求解器不等价，既有bounce最大位置误差2.797382832px、friction为0.703993056px；不是已验证的完整物理兼容",
+        "未验证边界：精确60Hz等待截止点存在浮点相位差，.04秒控制夹具不覆盖该边界"
       ],
       "occurrences": 43
     },
@@ -3503,7 +3566,7 @@
           "table": "cloud_variables_get"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4.rs:599 (lower_block)"
@@ -3511,7 +3574,8 @@
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 32
     },
@@ -3565,7 +3629,7 @@
           "table": "cloud_variables_get"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4.rs:461 (cloud_list)"
@@ -3573,7 +3637,8 @@
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 28
     },
@@ -3588,14 +3653,20 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
         "src/engine/physics.rs:577 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "第三轮 11 份原创夹具/660 帧官方轨迹：首次世界初始化、自由落体积分、20px/tick 向量限速、边界摩擦与全不透明矩形轮廓已修正；接触仍有误差，复杂轮廓/软体未对齐，见 kitten4-physics-trajectory-3.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第六轮只升级硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership仅有界回归，不升级其两个开关。见 kitten4-partial-physics-6.md。不是求解器全集认证"
+      ],
+      "unverifiedBoundaries": [
+        "未验证边界：复杂轮廓、软体、拖拽/设备输入、多场景与非60Hz组合；允许旋转只验证自由刚体开关，不证明碰撞角冲量相同",
+        "已知差异：Rapier与LiquidFun接触求解器不等价，既有bounce最大位置误差2.797382832px、friction为0.703993056px；不是已验证的完整物理兼容",
+        "未验证边界：精确60Hz等待截止点存在浮点相位差，.04秒控制夹具不覆盖该边界"
       ],
       "occurrences": 27
     },
@@ -3629,7 +3700,7 @@
           "table": "cloud_variables_get"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4.rs:600 (lower_block)"
@@ -3637,7 +3708,8 @@
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 24
     },
@@ -3692,14 +3764,20 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
         "src/engine/physics.rs:576 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "第三轮 11 份原创夹具/660 帧官方轨迹：首次世界初始化、自由落体积分、20px/tick 向量限速、边界摩擦与全不透明矩形轮廓已修正；接触仍有误差，复杂轮廓/软体未对齐，见 kitten4-physics-trajectory-3.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第六轮只升级硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership仅有界回归，不升级其两个开关。见 kitten4-partial-physics-6.md。不是求解器全集认证"
+      ],
+      "unverifiedBoundaries": [
+        "未验证边界：复杂轮廓、软体、拖拽/设备输入、多场景与非60Hz组合；允许旋转只验证自由刚体开关，不证明碰撞角冲量相同",
+        "已知差异：Rapier与LiquidFun接触求解器不等价，既有bounce最大位置误差2.797382832px、friction为0.703993056px；不是已验证的完整物理兼容",
+        "未验证边界：精确60Hz等待截止点存在浮点相位差，.04秒控制夹具不覆盖该边界"
       ],
       "occurrences": 20
     },
@@ -3774,13 +3852,19 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
         "src/engine/physics.rs:554 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第六轮只升级硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership仅有界回归，不升级其两个开关。见 kitten4-partial-physics-6.md。不是求解器全集认证"
+      ],
+      "unverifiedBoundaries": [
+        "未验证边界：复杂轮廓、软体、拖拽/设备输入、多场景与非60Hz组合；允许旋转只验证自由刚体开关，不证明碰撞角冲量相同",
+        "已知差异：Rapier与LiquidFun接触求解器不等价，既有bounce最大位置误差2.797382832px、friction为0.703993056px；不是已验证的完整物理兼容",
+        "未验证边界：精确60Hz等待截止点存在浮点相位差，.04秒控制夹具不覆盖该边界"
       ],
       "occurrences": 18
     },
@@ -3855,14 +3939,18 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
         "src/kitten4.rs:613 (lower_block)"
       ],
       "limitations": [
         "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
         "8 种 scope、严格 number、别名增减、纹理尺寸 clamp、场景及小数 reporter 经 11 份原创夹具/1794 状态观察实测；ASCII 状态已支持但像素渲染、ELASTIC 与 iOS 仍未验证，见 kitten4-partial-effects.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "第六轮主路径：文字三align/旋转/半透明跨帧36对RGB全等；图像源alpha/pivot/旋转24帧超差0；all-scope clear后10帧超差0，见 kitten4-partial-effects-6.md。设置阶段pixelate/twist/ASCII仍有真实差异，其setter不升级"
+      ],
+      "unverifiedBoundaries": [
+        "未验证边界：平台字体/RTL、极端资源、翻转/多倍率、ELASTIC、颜色检测raster与任意并发；不是所有字体/纹理及滤镜shader认证"
       ],
       "occurrences": 16
     },
@@ -3957,14 +4045,20 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
         "src/engine/physics.rs:571 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "第三轮 11 份原创夹具/660 帧官方轨迹：首次世界初始化、自由落体积分、20px/tick 向量限速、边界摩擦与全不透明矩形轮廓已修正；接触仍有误差，复杂轮廓/软体未对齐，见 kitten4-physics-trajectory-3.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第六轮只升级硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership仅有界回归，不升级其两个开关。见 kitten4-partial-physics-6.md。不是求解器全集认证"
+      ],
+      "unverifiedBoundaries": [
+        "未验证边界：复杂轮廓、软体、拖拽/设备输入、多场景与非60Hz组合；允许旋转只验证自由刚体开关，不证明碰撞角冲量相同",
+        "已知差异：Rapier与LiquidFun接触求解器不等价，既有bounce最大位置误差2.797382832px、friction为0.703993056px；不是已验证的完整物理兼容",
+        "未验证边界：精确60Hz等待截止点存在浮点相位差，.04秒控制夹具不覆盖该边界"
       ],
       "occurrences": 14
     },
@@ -3978,7 +4072,7 @@
           "table": "cloud_variables_get"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4.rs:635 (lower_block)"
@@ -3986,7 +4080,8 @@
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 13
     },
@@ -4000,7 +4095,7 @@
           "table": "cloud_variables_get"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4.rs:631 (lower_block)"
@@ -4008,7 +4103,8 @@
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 13
     },
@@ -4042,7 +4138,7 @@
           "table": "cloud_variables_get"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4.rs:461 (cloud_list)"
@@ -4050,7 +4146,8 @@
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 11
     },
@@ -4085,7 +4182,7 @@
           "table": "cloud_variables_get"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4.rs:601 (lower_block)"
@@ -4093,7 +4190,8 @@
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 10
     },
@@ -4328,7 +4426,7 @@
           "table": "cloud_variables_get"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4.rs:461 (cloud_list)"
@@ -4336,7 +4434,8 @@
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 3
     },
@@ -4474,13 +4573,19 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
         "src/kitten4.rs:553 (lower_block)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第六轮只升级硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership仅有界回归，不升级其两个开关。见 kitten4-partial-physics-6.md。不是求解器全集认证"
+      ],
+      "unverifiedBoundaries": [
+        "未验证边界：复杂轮廓、软体、拖拽/设备输入、多场景与非60Hz组合；允许旋转只验证自由刚体开关，不证明碰撞角冲量相同",
+        "已知差异：Rapier与LiquidFun接触求解器不等价，既有bounce最大位置误差2.797382832px、friction为0.703993056px；不是已验证的完整物理兼容",
+        "未验证边界：精确60Hz等待截止点存在浮点相位差，.04秒控制夹具不覆盖该边界"
       ],
       "occurrences": 2
     },
@@ -4514,7 +4619,7 @@
           "table": "cloud_variables_get"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4.rs:603 (lower_block)"
@@ -4522,7 +4627,8 @@
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 1
     },
@@ -4676,13 +4782,19 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
         "src/kitten4.rs:560 (lower_block)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第六轮只升级硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership仅有界回归，不升级其两个开关。见 kitten4-partial-physics-6.md。不是求解器全集认证"
+      ],
+      "unverifiedBoundaries": [
+        "未验证边界：复杂轮廓、软体、拖拽/设备输入、多场景与非60Hz组合；允许旋转只验证自由刚体开关，不证明碰撞角冲量相同",
+        "已知差异：Rapier与LiquidFun接触求解器不等价，既有bounce最大位置误差2.797382832px、friction为0.703993056px；不是已验证的完整物理兼容",
+        "未验证边界：精确60Hz等待截止点存在浮点相位差，.04秒控制夹具不覆盖该边界"
       ],
       "occurrences": 0
     },
@@ -4802,7 +4914,7 @@
           "table": "cloud_variables_get"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4.rs:461 (cloud_list)"
@@ -4810,7 +4922,8 @@
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -4824,7 +4937,7 @@
           "table": "cloud_variables_get"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4.rs:598 (lower_block)"
@@ -4832,7 +4945,8 @@
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -5052,14 +5166,15 @@
           "table": "set_camera_status"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4/media_devices.rs:12 (lower_media_devices)"
       ],
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -5095,7 +5210,7 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
         "src/kitten4.rs:528 (lower_block)",
         "src/kitten4/aliases.rs:66 (lower_legacy_alias)"
@@ -5103,7 +5218,11 @@
       "limitations": [
         "legacy alias 归一化；继承目标积木的字段、子选项与运行时限制",
         "get/get_2/get_3 统一原生属性：原22夹具外，第五轮补全局列表引用与双向修改、执行时惰性未知UUID槽、空造型编号/名称；8夹具96官方帧与40对零差异画布见 kitten4-partial-properties-5.md；非有限状态、删除竞争、iOS ASCII及其他资源加载边界仍未验证",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "第六轮活实体/活克隆与已加载造型主路径：8份原创夹具192官方update、双VM384帧状态与192对画布changedPixels=0（RGB容差8）；见 kitten4-partial-properties-6.md。set_entity_show_hide仍保留删除生命周期已知差异，不在此升级"
+      ],
+      "unverifiedBoundaries": [
+        "未验证边界：删除竞争/悬空UUID、异步资源加载、非有限几何、iOS/ASCII与复杂对象输入；不是全属性平台全集认证"
       ],
       "occurrences": 0
     },
@@ -5118,14 +5237,18 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
         "src/kitten4.rs:2268 (translate)",
         "src/kitten4.rs:528 (lower_block)"
       ],
       "limitations": [
         "get/get_2/get_3 统一原生属性：原22夹具外，第五轮补全局列表引用与双向修改、执行时惰性未知UUID槽、空造型编号/名称；8夹具96官方帧与40对零差异画布见 kitten4-partial-properties-5.md；非有限状态、删除竞争、iOS ASCII及其他资源加载边界仍未验证",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "第六轮活实体/活克隆与已加载造型主路径：8份原创夹具192官方update、双VM384帧状态与192对画布changedPixels=0（RGB容差8）；见 kitten4-partial-properties-6.md。set_entity_show_hide仍保留删除生命周期已知差异，不在此升级"
+      ],
+      "unverifiedBoundaries": [
+        "未验证边界：删除竞争/悬空UUID、异步资源加载、非有限几何、iOS/ASCII与复杂对象输入；不是全属性平台全集认证"
       ],
       "occurrences": 0
     },
@@ -5407,7 +5530,7 @@
           "table": "set_camera_status"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4/media_devices.rs:13 (lower_media_devices)",
@@ -5416,7 +5539,8 @@
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
         "第二轮原创官方离线实测默认 voice/scan、falsy translate 与 midi 对象最终值；异步帧相位、在线及实际设备未验证，见 kitten4-partial-text-2.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -5493,7 +5617,7 @@
           "table": "get_audios"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4/media_devices.rs:14 (lower_media_devices)",
@@ -5502,7 +5626,8 @@
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
         "第二轮原创官方离线实测默认 voice/scan、falsy translate 与 midi 对象最终值；异步帧相位、在线及实际设备未验证，见 kitten4-partial-text-2.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -5558,7 +5683,7 @@
           "table": "cloud_variables_get"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4.rs:602 (lower_block)"
@@ -5566,7 +5691,8 @@
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -6428,14 +6554,15 @@
           "registration": "compiler:MIDI_BLOCKS"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4/media_devices.rs:16 (lower_media_devices)"
       ],
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -6449,14 +6576,15 @@
           "table": "get_audios"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4/media_devices.rs:17 (lower_media_devices)"
       ],
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -6558,7 +6686,7 @@
           "table": "get_mobile_slope_value"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4/media_devices.rs:19 (lower_media_devices)",
@@ -6567,7 +6695,8 @@
       ],
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -6580,14 +6709,15 @@
           "registration": "responder"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4/media_devices.rs:20 (lower_media_devices)"
       ],
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -6600,14 +6730,15 @@
           "registration": "responder"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4/media_devices.rs:21 (lower_media_devices)"
       ],
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -6620,14 +6751,15 @@
           "registration": "responder"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4/media_devices.rs:22 (lower_media_devices)"
       ],
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -6646,14 +6778,15 @@
           "registration": "responder"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4/media_devices.rs:23 (lower_media_devices)"
       ],
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -6672,14 +6805,15 @@
           "registration": "responder"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4/media_devices.rs:24 (lower_media_devices)"
       ],
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -6696,7 +6830,7 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/engine.rs:2896 (physics2_get_property)"
+        "src/engine.rs:2907 (physics2_get_property)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
@@ -6715,14 +6849,20 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
         "src/engine/physics.rs:575 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "第三轮 11 份原创夹具/660 帧官方轨迹：首次世界初始化、自由落体积分、20px/tick 向量限速、边界摩擦与全不透明矩形轮廓已修正；接触仍有误差，复杂轮廓/软体未对齐，见 kitten4-physics-trajectory-3.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第六轮只升级硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership仅有界回归，不升级其两个开关。见 kitten4-partial-physics-6.md。不是求解器全集认证"
+      ],
+      "unverifiedBoundaries": [
+        "未验证边界：复杂轮廓、软体、拖拽/设备输入、多场景与非60Hz组合；允许旋转只验证自由刚体开关，不证明碰撞角冲量相同",
+        "已知差异：Rapier与LiquidFun接触求解器不等价，既有bounce最大位置误差2.797382832px、friction为0.703993056px；不是已验证的完整物理兼容",
+        "未验证边界：精确60Hz等待截止点存在浮点相位差，.04秒控制夹具不覆盖该边界"
       ],
       "occurrences": 0
     },
@@ -6736,14 +6876,15 @@
           "table": "get_audios"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4/media_devices.rs:25 (lower_media_devices)"
       ],
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -6990,14 +7131,15 @@
           "table": "get_audios"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4/media_devices.rs:26 (lower_media_devices)"
       ],
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -7011,14 +7153,15 @@
           "table": "get_audios"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4/media_devices.rs:27 (lower_media_devices)"
       ],
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -7374,13 +7517,19 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
         "src/kitten4.rs:557 (lower_block)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第六轮只升级硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership仅有界回归，不升级其两个开关。见 kitten4-partial-physics-6.md。不是求解器全集认证"
+      ],
+      "unverifiedBoundaries": [
+        "未验证边界：复杂轮廓、软体、拖拽/设备输入、多场景与非60Hz组合；允许旋转只验证自由刚体开关，不证明碰撞角冲量相同",
+        "已知差异：Rapier与LiquidFun接触求解器不等价，既有bounce最大位置误差2.797382832px、friction为0.703993056px；不是已验证的完整物理兼容",
+        "未验证边界：精确60Hz等待截止点存在浮点相位差，.04秒控制夹具不覆盖该边界"
       ],
       "occurrences": 0
     },
@@ -7541,14 +7690,18 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
         "src/kitten4/aliases.rs:60 (lower_legacy_alias)"
       ],
       "limitations": [
         "legacy alias 归一化；继承目标积木的字段、子选项与运行时限制",
         "第四轮独立动态 ID 命令：字段优先、动态文本/数组键、角色与场景全局纹理及错误尾部已有25份原创官方探针；显式 null、复杂对象/数组、资源加载与平台重建仍未验证，保留 partial，见 kitten4-partial-costume-4.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "第六轮活实体/活克隆与已加载造型主路径：8份原创夹具192官方update、双VM384帧状态与192对画布changedPixels=0（RGB容差8）；见 kitten4-partial-properties-6.md。set_entity_show_hide仍保留删除生命周期已知差异，不在此升级"
+      ],
+      "unverifiedBoundaries": [
+        "未验证边界：删除竞争/悬空UUID、异步资源加载、非有限几何、iOS/ASCII与复杂对象输入；不是全属性平台全集认证"
       ],
       "occurrences": 0
     },
@@ -7605,13 +7758,19 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
         "src/kitten4.rs:562 (lower_block)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第六轮只升级硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership仅有界回归，不升级其两个开关。见 kitten4-partial-physics-6.md。不是求解器全集认证"
+      ],
+      "unverifiedBoundaries": [
+        "未验证边界：复杂轮廓、软体、拖拽/设备输入、多场景与非60Hz组合；允许旋转只验证自由刚体开关，不证明碰撞角冲量相同",
+        "已知差异：Rapier与LiquidFun接触求解器不等价，既有bounce最大位置误差2.797382832px、friction为0.703993056px；不是已验证的完整物理兼容",
+        "未验证边界：精确60Hz等待截止点存在浮点相位差，.04秒控制夹具不覆盖该边界"
       ],
       "occurrences": 0
     },
@@ -7626,13 +7785,19 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
         "src/kitten4.rs:563 (lower_block)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第六轮只升级硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership仅有界回归，不升级其两个开关。见 kitten4-partial-physics-6.md。不是求解器全集认证"
+      ],
+      "unverifiedBoundaries": [
+        "未验证边界：复杂轮廓、软体、拖拽/设备输入、多场景与非60Hz组合；允许旋转只验证自由刚体开关，不证明碰撞角冲量相同",
+        "已知差异：Rapier与LiquidFun接触求解器不等价，既有bounce最大位置误差2.797382832px、friction为0.703993056px；不是已验证的完整物理兼容",
+        "未验证边界：精确60Hz等待截止点存在浮点相位差，.04秒控制夹具不覆盖该边界"
       ],
       "occurrences": 0
     },
@@ -7647,13 +7812,19 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
         "src/kitten4.rs:564 (lower_block)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第六轮只升级硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership仅有界回归，不升级其两个开关。见 kitten4-partial-physics-6.md。不是求解器全集认证"
+      ],
+      "unverifiedBoundaries": [
+        "未验证边界：复杂轮廓、软体、拖拽/设备输入、多场景与非60Hz组合；允许旋转只验证自由刚体开关，不证明碰撞角冲量相同",
+        "已知差异：Rapier与LiquidFun接触求解器不等价，既有bounce最大位置误差2.797382832px、friction为0.703993056px；不是已验证的完整物理兼容",
+        "未验证边界：精确60Hz等待截止点存在浮点相位差，.04秒控制夹具不覆盖该边界"
       ],
       "occurrences": 0
     },
@@ -7667,14 +7838,15 @@
           "table": "self_enable_physics"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4.rs:565 (lower_block)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -7709,14 +7881,15 @@
           "table": "get_audios"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4/media_devices.rs:28 (lower_media_devices)"
       ],
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -7752,14 +7925,20 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
         "src/kitten4.rs:566 (lower_block)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "第三轮 11 份原创夹具/660 帧官方轨迹：首次世界初始化、自由落体积分、20px/tick 向量限速、边界摩擦与全不透明矩形轮廓已修正；接触仍有误差，复杂轮廓/软体未对齐，见 kitten4-physics-trajectory-3.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第六轮只升级硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership仅有界回归，不升级其两个开关。见 kitten4-partial-physics-6.md。不是求解器全集认证"
+      ],
+      "unverifiedBoundaries": [
+        "未验证边界：复杂轮廓、软体、拖拽/设备输入、多场景与非60Hz组合；允许旋转只验证自由刚体开关，不证明碰撞角冲量相同",
+        "已知差异：Rapier与LiquidFun接触求解器不等价，既有bounce最大位置误差2.797382832px、friction为0.703993056px；不是已验证的完整物理兼容",
+        "未验证边界：精确60Hz等待截止点存在浮点相位差，.04秒控制夹具不覆盖该边界"
       ],
       "occurrences": 0
     },
@@ -7838,14 +8017,15 @@
           "table": "incompatible_block"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4/media_devices.rs:29 (lower_media_devices)"
       ],
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -7859,14 +8039,15 @@
           "table": "incompatible_block"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4/media_devices.rs:30 (lower_media_devices)"
       ],
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -8069,14 +8250,15 @@
           "table": "self_appear"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4/media_devices.rs:31 (lower_media_devices)"
       ],
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -8090,7 +8272,7 @@
           "table": "self_appear"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4/media_devices.rs:32 (lower_media_devices)",
@@ -8099,7 +8281,8 @@
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
         "第二轮原创官方离线实测默认 voice/scan、falsy translate 与 midi 对象最终值；异步帧相位、在线及实际设备未验证，见 kitten4-partial-text-2.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -8113,14 +8296,15 @@
           "table": "set_camera_status"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4/media_devices.rs:33 (lower_media_devices)"
       ],
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -8134,14 +8318,15 @@
           "table": "set_camera_status"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4/media_devices.rs:34 (lower_media_devices)"
       ],
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -8155,14 +8340,15 @@
           "table": "get_audios"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4/media_devices.rs:35 (lower_media_devices)"
       ],
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
