@@ -2216,6 +2216,9 @@ impl Compiler {
                 if self.program.semantics == RuntimeSemantics::Kitten4 {
                     return self.k4_property(b, true);
                 }
+                if self.program.semantics == RuntimeSemantics::KnCurrent {
+                    return self.kn_clone_property(b);
+                }
                 if let Some(&slot) = self.actor_variables.get(field(b, "attribute")) {
                     let target = self.actor_target(field(b, "sprite"))?;
                     let index = self.arg(b, "index")?;
@@ -2992,12 +2995,12 @@ impl Compiler {
                 ExprOp::Effect(self.actor_target(field(b, "sprite"))?, scope)
             }
             "mouse_down" => {
-                let state = match b["fields"]
+                let name = b["fields"]
                     .get("mouse_event_type")
                     .or_else(|| b["fields"].get("type"))
                     .and_then(Value::as_str)
-                    .unwrap_or("down")
-                {
+                    .unwrap_or("down");
+                let state = match name {
                     "down" => 0,
                     "click" => 1,
                     "up" => 2,
@@ -3006,7 +3009,15 @@ impl Compiler {
                 if self.program.semantics == RuntimeSemantics::KnCurrent {
                     let target = match field(b, "sprite") {
                         "" | "--screen" => None,
-                        id => Some(self.actor_target(id)?),
+                        id => match self.actor_target(id) {
+                            Ok(target) => Some(target),
+                            // Official reports an invalid target, then returns
+                            // false; do not fail compilation of unrelated code.
+                            Err(_) => {
+                                self.expression_work.push(ExprOp::Constant(0.0));
+                                return Ok(());
+                            }
+                        },
                     };
                     ExprOp::KnMouseDown(target, state)
                 } else {
@@ -5322,6 +5333,23 @@ impl Engine {
                 },
                 |i| Cell::List(self.lists[i].clone()),
             )
+    }
+    /// Current typed private variable of a live entity; unknown IDs return Null.
+    pub fn entity_variable_value(&self, entity: &str, id: &str) -> Cell {
+        let Some(slot) = self
+            .program
+            .actor_variable_names
+            .iter()
+            .position(|name| name == id)
+        else {
+            return Cell::Null;
+        };
+        self.sprites
+            .iter()
+            .find(|a| a.alive && a.id == entity)
+            .and_then(|actor| actor.variables.get(&slot))
+            .cloned()
+            .unwrap_or(Cell::Null)
     }
     /// Current group of a live actor, including clones (not scenes).
     pub fn actor_group(&self, id: &str) -> Option<&str> {
@@ -7773,6 +7801,7 @@ impl Engine {
             ValueExpr::KnPanel(reporter) => {
                 children.extend(reporter.children().into_iter().map(|i| (true, i)))
             }
+            ValueExpr::KnCloneProperty(property) => children.push((true, property.index)),
             ValueExpr::K4Property(property) => {
                 children.extend(property.index.map(|i| (true, i)));
             }
@@ -8161,7 +8190,7 @@ impl Engine {
             ValueExpr::Convert(i, number) => {
                 let v = self.eval_value(i, actor);
                 if self.program.semantics == RuntimeSemantics::KnCurrent {
-                    return kn_conversion::convert(v, number);
+                    return self.eval_kn_conversion(v, number);
                 }
                 if number {
                     // Official KN main.8ccf2442.js convertType (1633578):
@@ -8368,6 +8397,7 @@ impl Engine {
                     }
                 }
             }
+            ValueExpr::KnCloneProperty(property) => self.eval_kn_clone_property(property, actor),
             ValueExpr::BumpProperty(attribute) => {
                 let other = self.tasks[self.current_task].bumped;
                 match self.sprites.get(other).filter(|a| a.alive) {
@@ -9104,7 +9134,12 @@ impl Engine {
             Op::Opacity(value) => {
                 let transparency = self.eval(value, actor);
                 if transparency.is_finite() {
-                    self.sprites[actor].opacity = 1.0 - transparency.clamp(0.0, 100.0) / 100.0;
+                    self.sprites[actor].opacity =
+                        if self.program.semantics == RuntimeSemantics::KnCurrent {
+                            ((100.0 - transparency) / 100.0).clamp(0.0, 1.0)
+                        } else {
+                            1.0 - transparency.clamp(0.0, 100.0) / 100.0
+                        };
                 }
             }
             Op::PenLayer(layer) => {
@@ -9707,7 +9742,17 @@ impl Engine {
                     if scope == 1 {
                         let ghost = (1.0 - a.opacity) * 100.0;
                         let ghost = if change { ghost + v } else { v };
-                        a.opacity = 1.0 - ghost.clamp(0.0, 100.0) / 100.0;
+                        a.opacity = if self.program.semantics == RuntimeSemantics::KnCurrent {
+                            // Official setTargetAlphaEffect: subtraction before
+                            // division matters at the two-decimal rounding tie.
+                            if change {
+                                (a.opacity - v / 100.0).clamp(0.0, 1.0)
+                            } else {
+                                ((100.0 - v) / 100.0).clamp(0.0, 1.0)
+                            }
+                        } else {
+                            1.0 - ghost.clamp(0.0, 100.0) / 100.0
+                        };
                     } else {
                         let slot = &mut a.effects[scope as usize];
                         let next = if change {

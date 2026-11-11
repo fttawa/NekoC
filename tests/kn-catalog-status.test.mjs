@@ -62,9 +62,16 @@ test("snapshot is exactly 300 unique names with mutually exclusive conservative 
     assert.equal(result.rows.find(row => row.type === type).status, "部分语义", type);
   }
   assert.equal(result.rows.find(row => row.type === "get_orientation").status, "固定值占位");
-  for (const type of ["appearance_of_sprite", "mouse_down", "self_dialog_wait"]) {
+  for (const type of ["appearance_of_sprite", "self_dialog_wait"]) {
     assert.equal(result.rows.find(row => row.type === type).status, "部分语义", type);
   }
+  for (const type of ["mouse_down", "get_clone_index_property"]) {
+    const row = result.rows.find(row => row.type === type);
+    assert.equal(row.status, "有执行路径／未完整验证");
+    assert.match(row.risk, /kn-partial\.md/);
+    assert.match(row.risk, /未验证/);
+  }
+  assert.equal(result.counts["部分语义"], 115);
   for (const type of ["procedures_2_defnoreturn", "traverse_number_param"]) {
     assert.equal(result.rows.find(row => row.type === type).status, "元数据", type);
   }

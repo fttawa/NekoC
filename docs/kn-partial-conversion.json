@@ -1,0 +1,600 @@
+{
+  "schema": "nekoc-kn-partial-conversion-v1",
+  "officialUrl": "https://kn.codemao.cn/editor",
+  "verifiedAt": "2026-11-11T17:55:13.951Z",
+  "browserVersion": "157.0.4341.42",
+  "cases": {
+    "graphs": {
+      "pageErrors": [],
+      "fixture": "tests/fixtures/kn-partial-conversion/graphs.bcmkn",
+      "sha256": "21776336c96be88deae6fe878d0d2134a83ad640f8592d7943c088ff18b4c3f2",
+      "runtimeBundle": {
+        "url": "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+        "sha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7"
+      },
+      "mainBundle": {
+        "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+        "sha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165"
+      },
+      "variables": {
+        "a": 0,
+        "b": 0,
+        "done": 1,
+        "self_number": 0,
+        "self_string": "",
+        "self_boolean": true,
+        "self_tail_number": "1,",
+        "self_tail_string": "1,",
+        "self_tail_boolean": true,
+        "mutual_number": "1,2,",
+        "mutual_string": "1,2,",
+        "mutual_boolean": true,
+        "shared_number": "7,7",
+        "shared_string": "7,7",
+        "shared_boolean": true,
+        "object_cycle_number": "[object Object]",
+        "object_cycle_string": "[object Object]",
+        "object_cycle_boolean": true,
+        "array_object_number": "[object Object]",
+        "array_object_string": "[object Object]",
+        "array_object_boolean": true,
+        "object_shadow_valueof_number": "[object Object]",
+        "object_shadow_valueof_string": "[object Object]",
+        "object_shadow_valueof_boolean": true
+      },
+      "scripts": [
+        "https://creation.bcmcdn.com/neko/web/release/static/js/base.f158ddbf.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/main-vendors.07f7dd7e.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js"
+      ],
+      "nekoc": {
+        "variables": {
+          "a": 0,
+          "array_object_boolean": true,
+          "array_object_number": "[object Object]",
+          "array_object_string": "[object Object]",
+          "b": 0,
+          "done": 1,
+          "mutual_boolean": true,
+          "mutual_number": "1,2,",
+          "mutual_string": "1,2,",
+          "object_cycle_boolean": true,
+          "object_cycle_number": "[object Object]",
+          "object_cycle_string": "[object Object]",
+          "object_shadow_valueof_boolean": true,
+          "object_shadow_valueof_number": "[object Object]",
+          "object_shadow_valueof_string": "[object Object]",
+          "self_boolean": true,
+          "self_number": 0,
+          "self_string": "",
+          "self_tail_boolean": true,
+          "self_tail_number": "1,",
+          "self_tail_string": "1,",
+          "shared_boolean": true,
+          "shared_number": "7,7",
+          "shared_string": "7,7"
+        }
+      },
+      "equal": true
+    },
+    "deep": {
+      "pageErrors": [],
+      "fixture": "tests/fixtures/kn-partial-conversion/deep.bcmkn",
+      "sha256": "93f0008d1d7dacf9a09140304e9dad6e7d67904a85e38c5517d339125073c57b",
+      "runtimeBundle": {
+        "url": "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+        "sha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7"
+      },
+      "mainBundle": {
+        "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+        "sha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165"
+      },
+      "variables": {
+        "a": 0,
+        "b": 0,
+        "done": 1,
+        "depth127_number": 7,
+        "depth127_string": "7",
+        "depth127_boolean": true,
+        "depth128_number": 7,
+        "depth128_string": "7",
+        "depth128_boolean": true,
+        "depth129_number": 7,
+        "depth129_string": "7",
+        "depth129_boolean": true,
+        "depth256_number": 7,
+        "depth256_string": "7",
+        "depth256_boolean": true
+      },
+      "scripts": [
+        "https://creation.bcmcdn.com/neko/web/release/static/js/base.f158ddbf.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/main-vendors.07f7dd7e.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js"
+      ],
+      "nekoc": {
+        "variables": {
+          "a": 0,
+          "b": 0,
+          "depth127_boolean": true,
+          "depth127_number": 7,
+          "depth127_string": "7",
+          "depth128_boolean": true,
+          "depth128_number": 7,
+          "depth128_string": "7",
+          "depth129_boolean": true,
+          "depth129_number": 7,
+          "depth129_string": "7",
+          "depth256_boolean": true,
+          "depth256_number": 7,
+          "depth256_string": "7",
+          "done": 1
+        }
+      },
+      "equal": true
+    },
+    "values": {
+      "pageErrors": [],
+      "fixture": "tests/fixtures/kn-partial-conversion/values.bcmkn",
+      "sha256": "ab55231a8738c7a4ec7ccea56e640293de6892ed001d0aaa0a5de89af8c3431c",
+      "runtimeBundle": {
+        "url": "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+        "sha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7"
+      },
+      "mainBundle": {
+        "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+        "sha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165"
+      },
+      "variables": {
+        "a": 0,
+        "b": 0,
+        "done": 1,
+        "null_undefined_number": ",",
+        "null_undefined_string": ",",
+        "null_undefined_boolean": true,
+        "nested_null_number": 0,
+        "nested_null_string": "",
+        "nested_null_boolean": true,
+        "nan_array_number": "NaN",
+        "nan_array_string": "NaN",
+        "nan_array_boolean": true,
+        "numeric_nan_array_number": "NaN",
+        "numeric_nan_array_string": "NaN",
+        "numeric_nan_array_boolean": true,
+        "empty_object_number": "[object Object]",
+        "empty_object_string": "[object Object]",
+        "empty_object_boolean": true,
+        "object_json_number": "[object Object]",
+        "object_json_string": "[object Object]",
+        "object_json_boolean": true
+      },
+      "scripts": [
+        "https://creation.bcmcdn.com/neko/web/release/static/js/base.f158ddbf.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/main-vendors.07f7dd7e.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js"
+      ],
+      "nekoc": {
+        "variables": {
+          "a": 0,
+          "b": 0,
+          "done": 1,
+          "empty_object_boolean": true,
+          "empty_object_number": "[object Object]",
+          "empty_object_string": "[object Object]",
+          "nan_array_boolean": true,
+          "nan_array_number": "NaN",
+          "nan_array_string": "NaN",
+          "nested_null_boolean": true,
+          "nested_null_number": 0,
+          "nested_null_string": "",
+          "null_undefined_boolean": true,
+          "null_undefined_number": ",",
+          "null_undefined_string": ",",
+          "numeric_nan_array_boolean": true,
+          "numeric_nan_array_number": "NaN",
+          "numeric_nan_array_string": "NaN",
+          "object_json_boolean": true,
+          "object_json_number": "[object Object]",
+          "object_json_string": "[object Object]"
+        }
+      },
+      "equal": true
+    }
+  },
+  "local": {
+    "editorVersion": "0.27.4",
+    "calls": [
+      {
+        "label": "self",
+        "target": "number",
+        "result": {
+          "type": "number",
+          "value": 0
+        }
+      },
+      {
+        "label": "self",
+        "target": "string",
+        "result": {
+          "type": "string",
+          "value": ""
+        }
+      },
+      {
+        "label": "self",
+        "target": "boolean",
+        "result": {
+          "type": "boolean",
+          "value": true
+        }
+      },
+      {
+        "label": "self_tail",
+        "target": "number",
+        "result": {
+          "type": "string",
+          "value": "1,"
+        }
+      },
+      {
+        "label": "self_tail",
+        "target": "string",
+        "result": {
+          "type": "string",
+          "value": "1,"
+        }
+      },
+      {
+        "label": "self_tail",
+        "target": "boolean",
+        "result": {
+          "type": "boolean",
+          "value": true
+        }
+      },
+      {
+        "label": "mutual",
+        "target": "number",
+        "result": {
+          "type": "string",
+          "value": "1,2,"
+        }
+      },
+      {
+        "label": "mutual",
+        "target": "string",
+        "result": {
+          "type": "string",
+          "value": "1,2,"
+        }
+      },
+      {
+        "label": "mutual",
+        "target": "boolean",
+        "result": {
+          "type": "boolean",
+          "value": true
+        }
+      },
+      {
+        "label": "shared",
+        "target": "number",
+        "result": {
+          "type": "string",
+          "value": "7,7"
+        }
+      },
+      {
+        "label": "shared",
+        "target": "string",
+        "result": {
+          "type": "string",
+          "value": "7,7"
+        }
+      },
+      {
+        "label": "shared",
+        "target": "boolean",
+        "result": {
+          "type": "boolean",
+          "value": true
+        }
+      },
+      {
+        "label": "object_cycle",
+        "target": "number",
+        "result": {
+          "type": "string",
+          "value": "[object Object]"
+        }
+      },
+      {
+        "label": "object_cycle",
+        "target": "string",
+        "result": {
+          "type": "string",
+          "value": "[object Object]"
+        }
+      },
+      {
+        "label": "object_cycle",
+        "target": "boolean",
+        "result": {
+          "type": "boolean",
+          "value": true
+        }
+      },
+      {
+        "label": "array_object",
+        "target": "number",
+        "result": {
+          "type": "string",
+          "value": "[object Object]"
+        }
+      },
+      {
+        "label": "array_object",
+        "target": "string",
+        "result": {
+          "type": "string",
+          "value": "[object Object]"
+        }
+      },
+      {
+        "label": "array_object",
+        "target": "boolean",
+        "result": {
+          "type": "boolean",
+          "value": true
+        }
+      },
+      {
+        "label": "object_shadow_valueof",
+        "target": "number",
+        "result": {
+          "type": "string",
+          "value": "[object Object]"
+        }
+      },
+      {
+        "label": "object_shadow_valueof",
+        "target": "string",
+        "result": {
+          "type": "string",
+          "value": "[object Object]"
+        }
+      },
+      {
+        "label": "object_shadow_valueof",
+        "target": "boolean",
+        "result": {
+          "type": "boolean",
+          "value": true
+        }
+      },
+      {
+        "label": "object_shadow_tostring",
+        "target": "number",
+        "error": "TypeError: Cannot convert object to primitive value"
+      },
+      {
+        "label": "object_shadow_tostring",
+        "target": "string",
+        "error": "TypeError: Cannot convert object to primitive value"
+      },
+      {
+        "label": "object_shadow_tostring",
+        "target": "boolean",
+        "result": {
+          "type": "boolean",
+          "value": true
+        }
+      },
+      {
+        "label": "object_shadow_both",
+        "target": "number",
+        "error": "TypeError: Cannot convert object to primitive value"
+      },
+      {
+        "label": "object_shadow_both",
+        "target": "string",
+        "error": "TypeError: Cannot convert object to primitive value"
+      },
+      {
+        "label": "object_shadow_both",
+        "target": "boolean",
+        "result": {
+          "type": "boolean",
+          "value": true
+        }
+      },
+      {
+        "label": "array_shadow_tostring",
+        "target": "number",
+        "error": "TypeError: Cannot convert object to primitive value"
+      },
+      {
+        "label": "array_shadow_tostring",
+        "target": "string",
+        "error": "TypeError: Cannot convert object to primitive value"
+      },
+      {
+        "label": "array_shadow_tostring",
+        "target": "boolean",
+        "result": {
+          "type": "boolean",
+          "value": true
+        }
+      },
+      {
+        "label": "object_own_valueof_callable",
+        "target": "number",
+        "result": {
+          "type": "number",
+          "value": 17
+        }
+      },
+      {
+        "label": "object_own_valueof_callable",
+        "target": "string",
+        "result": {
+          "type": "string",
+          "value": "[object Object]"
+        }
+      },
+      {
+        "label": "object_own_valueof_callable",
+        "target": "boolean",
+        "result": {
+          "type": "boolean",
+          "value": true
+        }
+      },
+      {
+        "label": "depth127",
+        "target": "number",
+        "result": {
+          "type": "number",
+          "value": 7
+        }
+      },
+      {
+        "label": "depth127",
+        "target": "string",
+        "result": {
+          "type": "string",
+          "value": "7"
+        }
+      },
+      {
+        "label": "depth127",
+        "target": "boolean",
+        "result": {
+          "type": "boolean",
+          "value": true
+        }
+      },
+      {
+        "label": "depth128",
+        "target": "number",
+        "result": {
+          "type": "number",
+          "value": 7
+        }
+      },
+      {
+        "label": "depth128",
+        "target": "string",
+        "result": {
+          "type": "string",
+          "value": "7"
+        }
+      },
+      {
+        "label": "depth128",
+        "target": "boolean",
+        "result": {
+          "type": "boolean",
+          "value": true
+        }
+      },
+      {
+        "label": "depth129",
+        "target": "number",
+        "result": {
+          "type": "number",
+          "value": 7
+        }
+      },
+      {
+        "label": "depth129",
+        "target": "string",
+        "result": {
+          "type": "string",
+          "value": "7"
+        }
+      },
+      {
+        "label": "depth129",
+        "target": "boolean",
+        "result": {
+          "type": "boolean",
+          "value": true
+        }
+      },
+      {
+        "label": "depth256",
+        "target": "number",
+        "result": {
+          "type": "number",
+          "value": 7
+        }
+      },
+      {
+        "label": "depth256",
+        "target": "string",
+        "result": {
+          "type": "string",
+          "value": "7"
+        }
+      },
+      {
+        "label": "depth256",
+        "target": "boolean",
+        "result": {
+          "type": "boolean",
+          "value": true
+        }
+      }
+    ]
+  },
+  "ok": true,
+  "pairing": {
+    "comparedAt": "2026-11-11T18:04:18.729Z",
+    "binary": "target/debug/kn-trace.exe",
+    "binarySha256": "9ffec5891497b855bdc7daa5ac7844d1561d08497f6d92645f5034b3836d2b14",
+    "input": "docs/kn-partial-conversion.json",
+    "method": "kn-trace native project playback; exact typed variable comparison including done=1"
+  },
+  "nativeDifferentialVerified": true,
+  "editorCompat": {
+    "editorUrl": "https://kn.codemao.cn/editor",
+    "checkedAt": "2026-11-11T17:56:20.121Z",
+    "projects": [
+      {
+        "input": "tests/fixtures/kn-partial-conversion/graphs.bcmkn",
+        "sha256": "21776336c96be88deae6fe878d0d2134a83ad640f8592d7943c088ff18b4c3f2",
+        "editorVersion": "0.27.4",
+        "projectVersion": "0.27.4",
+        "blockCount": 133,
+        "issues": [],
+        "pageErrors": [],
+        "ok": true
+      },
+      {
+        "input": "tests/fixtures/kn-partial-conversion/deep.bcmkn",
+        "sha256": "93f0008d1d7dacf9a09140304e9dad6e7d67904a85e38c5517d339125073c57b",
+        "editorVersion": "0.27.4",
+        "projectVersion": "0.27.4",
+        "blockCount": 83,
+        "issues": [],
+        "pageErrors": [],
+        "ok": true
+      },
+      {
+        "input": "tests/fixtures/kn-partial-conversion/values.bcmkn",
+        "sha256": "ab55231a8738c7a4ec7ccea56e640293de6892ed001d0aaa0a5de89af8c3431c",
+        "editorVersion": "0.27.4",
+        "projectVersion": "0.27.4",
+        "blockCount": 86,
+        "issues": [],
+        "pageErrors": [],
+        "ok": true
+      }
+    ],
+    "bundleUrl": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+    "ok": true
+  }
+}

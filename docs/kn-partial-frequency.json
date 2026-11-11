@@ -1,0 +1,4477 @@
+{
+  "schemaVersion": 1,
+  "scope": "static block-node frequency, not execution frequency or semantic certification",
+  "baseline": {
+    "commit": "e63147f259abb65bfca69887d12324b1b09e1c95",
+    "document": "docs/kn-block-coverage.md",
+    "documentSha256": "3c608cf5de9e38a1de22eb032a13daaf49f31d6e403a2bb7b665ce57dd3a55ad",
+    "partialCount": 117,
+    "hardwareCount": 60,
+    "nonHardwareCount": 57
+  },
+  "corpusPolicy": "current git ls-files *.bcmkn intersect baseline git ls-tree; current file bytes; all post-baseline additions excluded, including this round's partial fixtures",
+  "traversal": "actors/scenes/procedures nekoBlockJsonList roots; next/inputs/statements only; fields, shadows XML, variable declarations excluded; dormant roots and callback inputs retained",
+  "referenceCheck": null,
+  "summary": {
+    "types": 117,
+    "occurrences": 50,
+    "zeroTypes": 112,
+    "hardware": {
+      "types": 60,
+      "occurrences": 0,
+      "zeroTypes": 60
+    },
+    "nonHardware": {
+      "types": 57,
+      "occurrences": 50,
+      "zeroTypes": 52
+    },
+    "groups": {
+      "projects": {
+        "files": 16,
+        "blocks": 40421,
+        "partialTypes": 2,
+        "partialOccurrences": 4
+      },
+      "samples": {
+        "files": 9,
+        "blocks": 14132,
+        "partialTypes": 1,
+        "partialOccurrences": 3
+      },
+      "fixtures": {
+        "files": 39,
+        "blocks": 2037,
+        "partialTypes": 4,
+        "partialOccurrences": 43
+      },
+      "other": {
+        "files": 0,
+        "blocks": 0,
+        "partialTypes": 0,
+        "partialOccurrences": 0
+      }
+    }
+  },
+  "excludedFiles": [
+    {
+      "file": "tests/fixtures/kn-partial-conversion/deep.bcmkn",
+      "reason": "not-in-task-baseline-corpus"
+    },
+    {
+      "file": "tests/fixtures/kn-partial-conversion/graphs.bcmkn",
+      "reason": "not-in-task-baseline-corpus"
+    },
+    {
+      "file": "tests/fixtures/kn-partial-conversion/values.bcmkn",
+      "reason": "not-in-task-baseline-corpus"
+    },
+    {
+      "file": "tests/fixtures/kn-semantics/partial-clone.bcmkn",
+      "reason": "not-in-task-baseline-corpus"
+    }
+  ],
+  "files": [
+    {
+      "file": "projects/eisei/eisei_pen.bcmkn",
+      "group": "projects",
+      "sha256": "ca0f62f80ab37db2f960d272c62b10de6dbb61f3be192e13a9467d15b5c3f025",
+      "blockCount": 338
+    },
+    {
+      "file": "projects/eisei/eisei_pen_128.bcmkn",
+      "group": "projects",
+      "sha256": "9dfbb4203d17d64941ba5b2534e802ae8d1db9a04c0f821bbd41fd59e267db65",
+      "blockCount": 338
+    },
+    {
+      "file": "projects/eisei/eisei_pen_128_compact.bcmkn",
+      "group": "projects",
+      "sha256": "04a1288f147a70b84ce538408a8ab16038ce1903ec2e5a0a619a5f8d786e8f46",
+      "blockCount": 329
+    },
+    {
+      "file": "projects/eisei/eisei_pen_128_fixed.bcmkn",
+      "group": "projects",
+      "sha256": "af3a68b555b5e573e5c63b0de1c4df6d12281b6eb08e389d9fe2c52714151b31",
+      "blockCount": 331
+    },
+    {
+      "file": "projects/eisei/eisei_pen_128_full_rebuilt.bcmkn",
+      "group": "projects",
+      "sha256": "9dfbb4203d17d64941ba5b2534e802ae8d1db9a04c0f821bbd41fd59e267db65",
+      "blockCount": 338
+    },
+    {
+      "file": "projects/eisei/eisei_pen_128_import_probe.bcmkn",
+      "group": "projects",
+      "sha256": "44198b29db7a009597cbe548727618102966d7b5aeb1c2630f3f5fd596ffb685",
+      "blockCount": 338
+    },
+    {
+      "file": "projects/eisei/eisei_pen_128_lite.bcmkn",
+      "group": "projects",
+      "sha256": "03beaa1a1162ef8d59ccbe0023f4b07c4056612b8221ff7fc75edeb7fe6bc288",
+      "blockCount": 338
+    },
+    {
+      "file": "projects/eisei/eisei_pv.bcmkn",
+      "group": "projects",
+      "sha256": "712901030775b958f7bec5b442329595988f223ebf6e8e42cba436b41f1b0357",
+      "blockCount": 185
+    },
+    {
+      "file": "projects/fangjie/fangjie.bcmkn",
+      "group": "projects",
+      "sha256": "652fdb4d92311401e33f28ff030240ccbf36d39605d678e5e82c145e24d30721",
+      "blockCount": 4070
+    },
+    {
+      "file": "projects/pencraft/pencraft-before-present-fix.bcmkn",
+      "group": "projects",
+      "sha256": "9c1bd747e5ef4c14b4cf1869e462a848b54fef2ba9a9e0a7efd2dd624ccb767e",
+      "blockCount": 3932
+    },
+    {
+      "file": "projects/pencraft/pencraft.bcmkn",
+      "group": "projects",
+      "sha256": "d9c9166dd6c8e5694b17ab484f2e4e239fe3793fc644a4e892849a3d9c682d9b",
+      "blockCount": 5183
+    },
+    {
+      "file": "projects/pencraft/pencraft_flicker_fixed.bcmkn",
+      "group": "projects",
+      "sha256": "d9c9166dd6c8e5694b17ab484f2e4e239fe3793fc644a4e892849a3d9c682d9b",
+      "blockCount": 5183
+    },
+    {
+      "file": "projects/qwen-chat/base.bcmkn",
+      "group": "projects",
+      "sha256": "a648d31073538360b7cb559d135ad39ed759d0783ac1f2d4d4f4e438f49fe10f",
+      "blockCount": 0
+    },
+    {
+      "file": "projects/qwen-mini/base.bcmkn",
+      "group": "projects",
+      "sha256": "a648d31073538360b7cb559d135ad39ed759d0783ac1f2d4d4f4e438f49fe10f",
+      "blockCount": 0
+    },
+    {
+      "file": "projects/starhold/starhold.bcmkn",
+      "group": "projects",
+      "sha256": "23e2171f88dc60f1cd6a49f1deecbce9ffb9a72caeb7b3bf2a82c217e088d674",
+      "blockCount": 9425
+    },
+    {
+      "file": "projects/tiny-lm/tiny_lm.bcmkn",
+      "group": "projects",
+      "sha256": "cf5c58a1ab92c1b605897a5093bea80a5bffc23e79c87dc7fa3a65b2ab82fb16",
+      "blockCount": 10093
+    },
+    {
+      "file": "samples/kitten-n-0.27.4.bcmkn",
+      "group": "samples",
+      "sha256": "38139625bd727b1c40836331ec1e8b059c355856eb7f93704c708579bdf4c009",
+      "blockCount": 0
+    },
+    {
+      "file": "samples/native-studio.bcmkn",
+      "group": "samples",
+      "sha256": "93347592f4667fb99a52f8bf3a2f4c69e9868676abe7b36f0348d9ec02ba4ca1",
+      "blockCount": 14
+    },
+    {
+      "file": "samples/pen_display.bcmkn",
+      "group": "samples",
+      "sha256": "d92005613ac00e1c008ba3efb405e3ad155a208602be8d439f8d1cac281b01aa",
+      "blockCount": 1142
+    },
+    {
+      "file": "samples/pen_display_columns.bcmkn",
+      "group": "samples",
+      "sha256": "377e1b17b081439f1a7ada5e1d3f0e00aa9e948ec331a6980ef4a3b76105493c",
+      "blockCount": 8429
+    },
+    {
+      "file": "samples/pen_display_fast.bcmkn",
+      "group": "samples",
+      "sha256": "f0cf80f7c79d91f115ec321e7fc50fd4e82ba2d01cbcd3e579a8c1e858cfdf18",
+      "blockCount": 1052
+    },
+    {
+      "file": "samples/pen_polyhedron.bcmkn",
+      "group": "samples",
+      "sha256": "eb8b26a77828c3fd68febb9c7586174d9d99e887ac5cf2d3fd0d760a430c7f72",
+      "blockCount": 3286
+    },
+    {
+      "file": "samples/three_body.bcmkn",
+      "group": "samples",
+      "sha256": "069d3c7bd465b024d2401e664c979c3159d86e6065159f5c0d34e9f9555be090",
+      "blockCount": 62
+    },
+    {
+      "file": "samples/web-pen-stress.bcmkn",
+      "group": "samples",
+      "sha256": "9c2bc81e3e295e37284933e1e5d0a0739323869f92e63b3a8bd62632ff602b4e",
+      "blockCount": 22
+    },
+    {
+      "file": "samples/我的作品-原生.bcmkn",
+      "group": "samples",
+      "sha256": "8a04cd1f6bd927a2bd4e8c055762b3f37017c60f9f9005b7d2bf8e09ed7bdc87",
+      "blockCount": 125
+    },
+    {
+      "file": "tests/fixtures/actor-variables-deleted.bcmkn",
+      "group": "fixtures",
+      "sha256": "4d08fef4a53367e3e60615a884ee78f2a08a2cb3308548e65e024b38b5395f22",
+      "blockCount": 32
+    },
+    {
+      "file": "tests/fixtures/actor-variables.bcmkn",
+      "group": "fixtures",
+      "sha256": "30f98c8575790dc3ab675d924bee658aca05f7913191d3bc4e6248a555c69a08",
+      "blockCount": 24
+    },
+    {
+      "file": "tests/fixtures/audio.bcmkn",
+      "group": "fixtures",
+      "sha256": "0c7e71352c9d6ddb13a7bd981dfa2caa7b8688a16ea95fc31505d4d5991561df",
+      "blockCount": 5
+    },
+    {
+      "file": "tests/fixtures/input-kn.bcmkn",
+      "group": "fixtures",
+      "sha256": "0acff8a7b40e638caf2db736e53c49118937ea1aebe0d5c5b25752cbb160ea4a",
+      "blockCount": 24
+    },
+    {
+      "file": "tests/fixtures/kn-async-services/timers.bcmkn",
+      "group": "fixtures",
+      "sha256": "e90a01823eccd9ea6273f10164b67e440698df208d69135c785964f76f3f50bb",
+      "blockCount": 13
+    },
+    {
+      "file": "tests/fixtures/kn-semantics/broadcast-wait.bcmkn",
+      "group": "fixtures",
+      "sha256": "ff498838edf13972a7f1d9639f41bcf64307063cb270e4d0ec1f87fe39a22bbb",
+      "blockCount": 25
+    },
+    {
+      "file": "tests/fixtures/kn-semantics/broadcast.bcmkn",
+      "group": "fixtures",
+      "sha256": "90335696fcb759e2eb47738fbec8247b84bcbe92d4c9f98d5094fab89744a850",
+      "blockCount": 31
+    },
+    {
+      "file": "tests/fixtures/kn-semantics/clone.bcmkn",
+      "group": "fixtures",
+      "sha256": "813d6031d85a89ba41e9ffbf67b4d64e8a2df47a8364213fd744617ff120eab7",
+      "blockCount": 36
+    },
+    {
+      "file": "tests/fixtures/kn-semantics/conversion-boolean.bcmkn",
+      "group": "fixtures",
+      "sha256": "c6787a468603b1329ed586fed9f0b9c5e21d4ea7c8847a0dac2b205eb9a9e098",
+      "blockCount": 9
+    },
+    {
+      "file": "tests/fixtures/kn-semantics/conversion.bcmkn",
+      "group": "fixtures",
+      "sha256": "a2db55c822d2a36f5d7e0ff72d309f2e06096262b81f5c4626ba7e9328d19939",
+      "blockCount": 37
+    },
+    {
+      "file": "tests/fixtures/kn-semantics/list.bcmkn",
+      "group": "fixtures",
+      "sha256": "0145e229fbe6c0f4ba08e151df2ba10a1fbdd602a9991fd7a87db435439f6225",
+      "blockCount": 27
+    },
+    {
+      "file": "tests/fixtures/kn-semantics/object-json.bcmkn",
+      "group": "fixtures",
+      "sha256": "a9e3af12bb0989d71cf978cdc40f428cf81cd41a2391d0001200a37fba399f2c",
+      "blockCount": 18
+    },
+    {
+      "file": "tests/fixtures/kn-semantics/objects.bcmkn",
+      "group": "fixtures",
+      "sha256": "44879ad1dc5511252d79600abc419cb7909ba089f4be6ae8dd5b2acd4768d963",
+      "blockCount": 74
+    },
+    {
+      "file": "tests/fixtures/kn-semantics/scheduling.bcmkn",
+      "group": "fixtures",
+      "sha256": "769a6c05699e3fde0199014eb83c2b23fa59d2b43268e84496c77c34f3d5d566",
+      "blockCount": 24
+    },
+    {
+      "file": "tests/fixtures/kn-semantics/wait-negative.bcmkn",
+      "group": "fixtures",
+      "sha256": "a5b2d51fa4ac09e5545668fddf16469bcc3da3b36009d661c1d7446f9b7abf2b",
+      "blockCount": 24
+    },
+    {
+      "file": "tests/fixtures/kn-semantics/yield-warp.bcmkn",
+      "group": "fixtures",
+      "sha256": "42259f4907e138ae62cdf010d68a6b223761935c648fee3a3f0cd374f9b0326c",
+      "blockCount": 25
+    },
+    {
+      "file": "tests/fixtures/kn-semantics/yield.bcmkn",
+      "group": "fixtures",
+      "sha256": "1b2d64778702f91c2668bc20f901e59f5c62e59f1b554c785c916140089b2af2",
+      "blockCount": 24
+    },
+    {
+      "file": "tests/fixtures/kn-value-types/initial-lists.bcmkn",
+      "group": "fixtures",
+      "sha256": "97bbbaf23f20119eb071dab017d3276a2370b9b4e3dfad5aeb281da4d6d42cba",
+      "blockCount": 16
+    },
+    {
+      "file": "tests/fixtures/kn-value-types/missing-object.bcmkn",
+      "group": "fixtures",
+      "sha256": "d31caad15dc1db123200d9e5ddeaa32ca749b230de99100edabd2aeb2d793e3d",
+      "blockCount": 28
+    },
+    {
+      "file": "tests/fixtures/kn-value-types/nested-conversion.bcmkn",
+      "group": "fixtures",
+      "sha256": "7eec6bf7bda2759948ffa38ec5897b625e5a8e49de501473755ababebf88ad86",
+      "blockCount": 15
+    },
+    {
+      "file": "tests/fixtures/kn-value-types/nullish-list-item.bcmkn",
+      "group": "fixtures",
+      "sha256": "bdc4ebfbc86523bcf4da5f1b214092241bb3fbd12fd4b040a7b1e49a4b9ef86f",
+      "blockCount": 53
+    },
+    {
+      "file": "tests/fixtures/kn-value-types/runtime-lists.bcmkn",
+      "group": "fixtures",
+      "sha256": "ee70035f1c979cc56911e015af452ff1dbf4eb35695c5638b5b0d10678f87c9e",
+      "blockCount": 19
+    },
+    {
+      "file": "tests/fixtures/kn-warp/boundary-30001.bcmkn",
+      "group": "fixtures",
+      "sha256": "a4a291022a3ef1643a3a91f0c42f3796592bfffe0db34bcebbab07e29750f20c",
+      "blockCount": 12
+    },
+    {
+      "file": "tests/fixtures/kn-warp/boundary-30002.bcmkn",
+      "group": "fixtures",
+      "sha256": "6624853d145dc797b9e26f01e4eb5899f4b8bc1ac1ecd7c79e883018bd8563c4",
+      "blockCount": 12
+    },
+    {
+      "file": "tests/fixtures/kn-warp/boundary-30003.bcmkn",
+      "group": "fixtures",
+      "sha256": "8274e1cb144a26ac84655a0658a373c0a9344a49c45a8fc038df60c0351ca741",
+      "blockCount": 12
+    },
+    {
+      "file": "tests/fixtures/kn-warp/break.bcmkn",
+      "group": "fixtures",
+      "sha256": "ae6cc2d6b98c8b2b31b472b4cabdd281aaefd5214ee146f895766cc45af3abc0",
+      "blockCount": 13
+    },
+    {
+      "file": "tests/fixtures/kn-warp/nested.bcmkn",
+      "group": "fixtures",
+      "sha256": "74779e206cc3729c783c6fe52f5fb83120d498fd3d702967df745f02a43ae796",
+      "blockCount": 15
+    },
+    {
+      "file": "tests/fixtures/kn-warp/parallel.bcmkn",
+      "group": "fixtures",
+      "sha256": "d3636bb879adf1455809e2cd3a59d7c23157422b8767ff4b926878841f2dae56",
+      "blockCount": 20
+    },
+    {
+      "file": "tests/fixtures/kn-warp/procedure-in-warp.bcmkn",
+      "group": "fixtures",
+      "sha256": "912d171fe36d4a48a474e2851312cebecdd700d61146383f7ec0a9ec63368cdc",
+      "blockCount": 28
+    },
+    {
+      "file": "tests/fixtures/kn-warp/procedure-local-warp.bcmkn",
+      "group": "fixtures",
+      "sha256": "89f5969f898cde6b6a86ac953ef770e6eb4f44ea565d237cc905a9aa60676fd6",
+      "blockCount": 20
+    },
+    {
+      "file": "tests/fixtures/kn-warp/procedure-wait.bcmkn",
+      "group": "fixtures",
+      "sha256": "a68bf2edcf7591e4782d2ed67f4295db2ce463eb493d7374076a4a2f97d238b1",
+      "blockCount": 34
+    },
+    {
+      "file": "tests/fixtures/kn-warp/range.bcmkn",
+      "group": "fixtures",
+      "sha256": "3073b42075edf943b94580273ea375eeca9af7c946e845d6d888e8bdb76a1ee5",
+      "blockCount": 15
+    },
+    {
+      "file": "tests/fixtures/kn-warp/reporter-local-warp.bcmkn",
+      "group": "fixtures",
+      "sha256": "5093e9505dcbe71b9b6e0aeab9c1261ca76167d302a34ee271e1debbd5c2003b",
+      "blockCount": 17
+    },
+    {
+      "file": "tests/fixtures/kn-warp/siblings.bcmkn",
+      "group": "fixtures",
+      "sha256": "1fcb8eb95bd00298c8c7163e9eb0036e47c82e65c1abbe3ed68b7cf73a32bd22",
+      "blockCount": 19
+    },
+    {
+      "file": "tests/fixtures/kn-warp/straight-line.bcmkn",
+      "group": "fixtures",
+      "sha256": "ffad7a1307080e8213d12e4b0366c74c8b7164391cdb07c3d122f44083952de6",
+      "blockCount": 326
+    },
+    {
+      "file": "tests/fixtures/kn-warp/until.bcmkn",
+      "group": "fixtures",
+      "sha256": "3f986084d98464cd6faddf5c6a2be5b254618392e8a63622803f9baf0c8b9489",
+      "blockCount": 14
+    },
+    {
+      "file": "tests/fixtures/list_writes.bcmkn",
+      "group": "fixtures",
+      "sha256": "21be50e5fac850ddf659a5286725b211b991573f39d47561782b9376bcf5a7b3",
+      "blockCount": 138
+    },
+    {
+      "file": "tests/fixtures/nonfinite/kn-list.bcmkn",
+      "group": "fixtures",
+      "sha256": "8edeaeea6947892e66024afd0302e725bf7b5f898a288ab33e2eb02ae5ad68e2",
+      "blockCount": 383
+    },
+    {
+      "file": "tests/fixtures/nonfinite/kn.bcmkn",
+      "group": "fixtures",
+      "sha256": "42aece2e8934fd51b890053813d365129ce70b83b67ad2833da73190826fbcc2",
+      "blockCount": 376
+    }
+  ],
+  "rows": [
+    {
+      "type": "ai_chat_answer",
+      "status": "部分语义",
+      "officialCategory": "可配置面板／默认隐藏",
+      "baselineVm": "`src/engine.rs:1910`<br>`src/engine.rs:2682`",
+      "baselineRisk": "仅未启动聊天后端、结果缓存为空时的空文本；聊天请求与真实答案未实现",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "ai_chat_ask",
+      "status": "部分语义",
+      "officialCategory": "可配置面板／默认隐藏",
+      "baselineVm": "`src/engine.rs:3551`",
+      "baselineRisk": "仅显式离线匿名 profile 的拒绝/空缓存失效与提示；真实聊天后端未实现",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "ai_text_actor",
+      "status": "部分语义",
+      "officialCategory": "可配置面板／默认隐藏",
+      "baselineVm": "`src/engine.rs:3551`",
+      "baselineRisk": "仅显式离线匿名 profile 的拒绝/NaN 缓存；OCR/角色图像识别未实现",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "ai_text_photo",
+      "status": "部分语义",
+      "officialCategory": "可配置面板／默认隐藏",
+      "baselineVm": "`src/engine.rs:3551`",
+      "baselineRisk": "仅显式离线匿名 profile 的拒绝/NaN 缓存；拍照/OCR 未实现",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "ai_text_result",
+      "status": "部分语义",
+      "officialCategory": "可配置面板／默认隐藏",
+      "baselineVm": "`src/engine.rs:1910`<br>`src/engine.rs:2682`",
+      "baselineRisk": "仅 OCR 缓存为空时的 numeric NaN；OCR 获取与真实结果未实现",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "ai_text_result_check",
+      "status": "部分语义",
+      "officialCategory": "可配置面板／默认隐藏",
+      "baselineVm": "`src/engine.rs:1944`<br>`src/engine.rs:2682`",
+      "baselineRisk": "仅 OCR 缓存为空时求值 text 后返回 boolean false；OCR 获取与有效缓存未实现",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "appearance_of_sprite",
+      "status": "部分语义",
+      "officialCategory": "普通面板配置／默认未隐藏",
+      "baselineVm": "`src/engine.rs:2876`",
+      "baselineRisk": "已实现独立横纵百分比与官方两位舍入；文本 costume 特殊缩放及全部错误路径未验证",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "bump_into_body_part",
+      "status": "部分语义",
+      "officialCategory": "可配置面板／默认隐藏",
+      "baselineVm": "`src/engine.rs:1910`<br>`src/engine.rs:2682`",
+      "baselineRisk": "仅无检测结果时 false；检测后端未实现",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "catbit_button_is_pressed",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:1874`<br>`src/engine.rs:2682`",
+      "baselineRisk": "仅空硬件 Map 时同步 boolean false；真实按键与未连接提示 UI 未实现",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "catbit_button_when",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:3155`",
+      "baselineRisk": "仅无硬件后端时注册休眠事件并验证事件体；自然设备事件不触发，真实派发未实现",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "catbit_usb_button_when",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:3155`",
+      "baselineRisk": "仅无硬件后端时注册休眠事件并验证事件体；自然设备事件不触发，真实派发未实现",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "change_robot2_master_motor_power",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:3502`",
+      "baselineRisk": "仅无连接 Promise 早退，求值输入后下一 update 继续；真实设备未实现，完整微任务/调度组合未验证",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "change_robot_master_motor_power",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:3502`",
+      "baselineRisk": "仅无连接 Promise 早退，求值输入后下一 update 继续；真实设备未实现，完整微任务/调度组合未验证",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "check_emotion",
+      "status": "部分语义",
+      "officialCategory": "可配置面板／默认隐藏",
+      "baselineVm": "`src/engine.rs:1910`<br>`src/engine.rs:2682`",
+      "baselineRisk": "仅人脸缓存为空时 numeric NaN，不是 false；检测后端未实现",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "check_face_shape",
+      "status": "部分语义",
+      "officialCategory": "可配置面板／默认隐藏",
+      "baselineVm": "`src/engine.rs:1910`<br>`src/engine.rs:2682`",
+      "baselineRisk": "仅人脸缓存为空时 numeric NaN，不是 false；检测后端未实现",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "check_gender",
+      "status": "部分语义",
+      "officialCategory": "可配置面板／默认隐藏",
+      "baselineVm": "`src/engine.rs:1910`<br>`src/engine.rs:2682`",
+      "baselineRisk": "仅人脸缓存为空时 numeric NaN，不是 false；检测后端未实现",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "check_tilt_direction_of_face",
+      "status": "部分语义",
+      "officialCategory": "可配置面板／默认隐藏",
+      "baselineVm": "`src/engine.rs:1910`<br>`src/engine.rs:2682`",
+      "baselineRisk": "仅无检测结果时 false；检测后端未实现",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "clearInterval",
+      "status": "部分语义",
+      "officialCategory": "已注册／本次面板未列出",
+      "baselineVm": "`src/engine.rs:3581`",
+      "baselineRisk": "取消尚未派发的定时器；浏览器 timer ID 数值不保证相同",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "clearTimeout",
+      "status": "部分语义",
+      "officialCategory": "已注册／本次面板未列出",
+      "baselineVm": "`src/engine.rs:3581`",
+      "baselineRisk": "取消尚未派发的定时器；浏览器 timer ID 数值不保证相同",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "convert_type",
+      "status": "部分语义",
+      "officialCategory": "普通面板配置／默认未隐藏",
+      "baselineVm": "`src/engine.rs:2287`<br>`src/engine.rs:2776`",
+      "baselineRisk": "已按63条官方观测补齐列表/null/undefined/普通对象与boolean目标；警告UI、自定义原型及循环值未验证",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 3,
+          "files": 3
+        },
+        "samples": {
+          "occurrences": 3,
+          "files": 1
+        },
+        "fixtures": {
+          "occurrences": 34,
+          "files": 7
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 40,
+      "files": 11,
+      "referenceFunctions": [],
+      "hits": [
+        {
+          "file": "projects/pencraft/pencraft-before-present-fix.bcmkn",
+          "group": "projects",
+          "type": "convert_type",
+          "id": "b29",
+          "location": "$.procedures.proceduresDict[\"kn-proc-mc-block\"].nekoBlockJsonList[0].statements[\"STACK\"].statements[\"DO\"].next.statements[\"DO0\"].inputs[\"value\"]",
+          "rootType": "procedures_2_defnoreturn",
+          "rootLocation": "$.procedures.proceduresDict[\"kn-proc-mc-block\"].nekoBlockJsonList[0]",
+          "rootNode": false
+        },
+        {
+          "file": "projects/pencraft/pencraft.bcmkn",
+          "group": "projects",
+          "type": "convert_type",
+          "id": "b29",
+          "location": "$.procedures.proceduresDict[\"kn-proc-mc-block\"].nekoBlockJsonList[0].statements[\"STACK\"].statements[\"DO\"].next.statements[\"DO0\"].inputs[\"value\"]",
+          "rootType": "procedures_2_defnoreturn",
+          "rootLocation": "$.procedures.proceduresDict[\"kn-proc-mc-block\"].nekoBlockJsonList[0]",
+          "rootNode": false
+        },
+        {
+          "file": "projects/pencraft/pencraft_flicker_fixed.bcmkn",
+          "group": "projects",
+          "type": "convert_type",
+          "id": "b29",
+          "location": "$.procedures.proceduresDict[\"kn-proc-mc-block\"].nekoBlockJsonList[0].statements[\"STACK\"].statements[\"DO\"].next.statements[\"DO0\"].inputs[\"value\"]",
+          "rootType": "procedures_2_defnoreturn",
+          "rootLocation": "$.procedures.proceduresDict[\"kn-proc-mc-block\"].nekoBlockJsonList[0]",
+          "rootNode": false
+        },
+        {
+          "file": "samples/我的作品-原生.bcmkn",
+          "group": "samples",
+          "type": "convert_type",
+          "id": "0HDdvxTMUEezrWHKzXym",
+          "location": "$.actors.actorsDict[\"17634c6a-31d6-4ca2-8285-4be96fced50d\"].nekoBlockJsonList[0].statements[\"DO\"].statements[\"DO0\"].next.next.statements[\"DO\"].next.inputs[\"value\"].inputs[\"ADD0\"]",
+          "rootType": "self_listen",
+          "rootLocation": "$.actors.actorsDict[\"17634c6a-31d6-4ca2-8285-4be96fced50d\"].nekoBlockJsonList[0]",
+          "rootNode": false
+        },
+        {
+          "file": "samples/我的作品-原生.bcmkn",
+          "group": "samples",
+          "type": "convert_type",
+          "id": "nbLG61dZjlajahSGog7V",
+          "location": "$.actors.actorsDict[\"17634c6a-31d6-4ca2-8285-4be96fced50d\"].nekoBlockJsonList[5]",
+          "rootType": "convert_type",
+          "rootLocation": "$.actors.actorsDict[\"17634c6a-31d6-4ca2-8285-4be96fced50d\"].nekoBlockJsonList[5]",
+          "rootNode": true
+        },
+        {
+          "file": "samples/我的作品-原生.bcmkn",
+          "group": "samples",
+          "type": "convert_type",
+          "id": "cOZfCKjJQI80cE9TxgD6",
+          "location": "$.actors.actorsDict[\"17634c6a-31d6-4ca2-8285-4be96fced50d\"].nekoBlockJsonList[6].next.next.next.statements[\"DO\"].inputs[\"value\"]",
+          "rootType": "variables_set",
+          "rootLocation": "$.actors.actorsDict[\"17634c6a-31d6-4ca2-8285-4be96fced50d\"].nekoBlockJsonList[6]",
+          "rootNode": false
+        },
+        {
+          "file": "tests/fixtures/kn-semantics/clone.bcmkn",
+          "group": "fixtures",
+          "type": "convert_type",
+          "id": "knsem-112",
+          "location": "$.actors.actorsDict[\"20000000-0000-4000-8000-000000000001\"].nekoBlockJsonList[2].statements[\"DO\"].inputs[\"value\"].inputs[\"ADD1\"]",
+          "rootType": "self_listen",
+          "rootLocation": "$.actors.actorsDict[\"20000000-0000-4000-8000-000000000001\"].nekoBlockJsonList[2]",
+          "rootNode": false
+        },
+        {
+          "file": "tests/fixtures/kn-semantics/conversion-boolean.bcmkn",
+          "group": "fixtures",
+          "type": "convert_type",
+          "id": "knsem-194",
+          "location": "$.actors.actorsDict[\"20000000-0000-4000-8000-000000000001\"].nekoBlockJsonList[0].next.next.inputs[\"value\"]",
+          "rootType": "on_running_group_activated",
+          "rootLocation": "$.actors.actorsDict[\"20000000-0000-4000-8000-000000000001\"].nekoBlockJsonList[0]",
+          "rootNode": false
+        },
+        {
+          "file": "tests/fixtures/kn-semantics/conversion-boolean.bcmkn",
+          "group": "fixtures",
+          "type": "convert_type",
+          "id": "knsem-191",
+          "location": "$.actors.actorsDict[\"20000000-0000-4000-8000-000000000001\"].nekoBlockJsonList[0].next.inputs[\"value\"]",
+          "rootType": "on_running_group_activated",
+          "rootLocation": "$.actors.actorsDict[\"20000000-0000-4000-8000-000000000001\"].nekoBlockJsonList[0]",
+          "rootNode": false
+        },
+        {
+          "file": "tests/fixtures/kn-semantics/conversion.bcmkn",
+          "group": "fixtures",
+          "type": "convert_type",
+          "id": "knsem-224",
+          "location": "$.actors.actorsDict[\"20000000-0000-4000-8000-000000000001\"].nekoBlockJsonList[0].next.next.next.next.next.next.next.next.next.inputs[\"value\"]",
+          "rootType": "on_running_group_activated",
+          "rootLocation": "$.actors.actorsDict[\"20000000-0000-4000-8000-000000000001\"].nekoBlockJsonList[0]",
+          "rootNode": false
+        },
+        {
+          "file": "tests/fixtures/kn-semantics/conversion.bcmkn",
+          "group": "fixtures",
+          "type": "convert_type",
+          "id": "knsem-221",
+          "location": "$.actors.actorsDict[\"20000000-0000-4000-8000-000000000001\"].nekoBlockJsonList[0].next.next.next.next.next.next.next.next.inputs[\"value\"]",
+          "rootType": "on_running_group_activated",
+          "rootLocation": "$.actors.actorsDict[\"20000000-0000-4000-8000-000000000001\"].nekoBlockJsonList[0]",
+          "rootNode": false
+        },
+        {
+          "file": "tests/fixtures/kn-semantics/conversion.bcmkn",
+          "group": "fixtures",
+          "type": "convert_type",
+          "id": "knsem-218",
+          "location": "$.actors.actorsDict[\"20000000-0000-4000-8000-000000000001\"].nekoBlockJsonList[0].next.next.next.next.next.next.next.inputs[\"value\"]",
+          "rootType": "on_running_group_activated",
+          "rootLocation": "$.actors.actorsDict[\"20000000-0000-4000-8000-000000000001\"].nekoBlockJsonList[0]",
+          "rootNode": false
+        },
+        {
+          "file": "tests/fixtures/kn-semantics/conversion.bcmkn",
+          "group": "fixtures",
+          "type": "convert_type",
+          "id": "knsem-215",
+          "location": "$.actors.actorsDict[\"20000000-0000-4000-8000-000000000001\"].nekoBlockJsonList[0].next.next.next.next.next.next.inputs[\"value\"]",
+          "rootType": "on_running_group_activated",
+          "rootLocation": "$.actors.actorsDict[\"20000000-0000-4000-8000-000000000001\"].nekoBlockJsonList[0]",
+          "rootNode": false
+        },
+        {
+          "file": "tests/fixtures/kn-semantics/conversion.bcmkn",
+          "group": "fixtures",
+          "type": "convert_type",
+          "id": "knsem-212",
+          "location": "$.actors.actorsDict[\"20000000-0000-4000-8000-000000000001\"].nekoBlockJsonList[0].next.next.next.next.next.inputs[\"value\"]",
+          "rootType": "on_running_group_activated",
+          "rootLocation": "$.actors.actorsDict[\"20000000-0000-4000-8000-000000000001\"].nekoBlockJsonList[0]",
+          "rootNode": false
+        },
+        {
+          "file": "tests/fixtures/kn-semantics/conversion.bcmkn",
+          "group": "fixtures",
+          "type": "convert_type",
+          "id": "knsem-209",
+          "location": "$.actors.actorsDict[\"20000000-0000-4000-8000-000000000001\"].nekoBlockJsonList[0].next.next.next.next.inputs[\"value\"]",
+          "rootType": "on_running_group_activated",
+          "rootLocation": "$.actors.actorsDict[\"20000000-0000-4000-8000-000000000001\"].nekoBlockJsonList[0]",
+          "rootNode": false
+        },
+        {
+          "file": "tests/fixtures/kn-semantics/conversion.bcmkn",
+          "group": "fixtures",
+          "type": "convert_type",
+          "id": "knsem-206",
+          "location": "$.actors.actorsDict[\"20000000-0000-4000-8000-000000000001\"].nekoBlockJsonList[0].next.next.next.inputs[\"value\"]",
+          "rootType": "on_running_group_activated",
+          "rootLocation": "$.actors.actorsDict[\"20000000-0000-4000-8000-000000000001\"].nekoBlockJsonList[0]",
+          "rootNode": false
+        },
+        {
+          "file": "tests/fixtures/kn-semantics/conversion.bcmkn",
+          "group": "fixtures",
+          "type": "convert_type",
+          "id": "knsem-203",
+          "location": "$.actors.actorsDict[\"20000000-0000-4000-8000-000000000001\"].nekoBlockJsonList[0].next.next.inputs[\"value\"]",
+          "rootType": "on_running_group_activated",
+          "rootLocation": "$.actors.actorsDict[\"20000000-0000-4000-8000-000000000001\"].nekoBlockJsonList[0]",
+          "rootNode": false
+        },
+        {
+          "file": "tests/fixtures/kn-semantics/conversion.bcmkn",
+          "group": "fixtures",
+          "type": "convert_type",
+          "id": "knsem-200",
+          "location": "$.actors.actorsDict[\"20000000-0000-4000-8000-000000000001\"].nekoBlockJsonList[0].next.inputs[\"value\"]",
+          "rootType": "on_running_group_activated",
+          "rootLocation": "$.actors.actorsDict[\"20000000-0000-4000-8000-000000000001\"].nekoBlockJsonList[0]",
+          "rootNode": false
+        },
+        {
+          "file": "tests/fixtures/kn-value-types/missing-object.bcmkn",
+          "group": "fixtures",
+          "type": "convert_type",
+          "id": "knvt-65",
+          "location": "$.actors.actorsDict[\"20000000-0000-4000-8000-000000000001\"].nekoBlockJsonList[0].next.next.next.next.inputs[\"value\"]",
+          "rootType": "on_running_group_activated",
+          "rootLocation": "$.actors.actorsDict[\"20000000-0000-4000-8000-000000000001\"].nekoBlockJsonList[0]",
+          "rootNode": false
+        },
+        {
+          "file": "tests/fixtures/kn-value-types/nested-conversion.bcmkn",
+          "group": "fixtures",
+          "type": "convert_type",
+          "id": "knvt-46",
+          "location": "$.actors.actorsDict[\"20000000-0000-4000-8000-000000000001\"].nekoBlockJsonList[0].next.next.next.next.inputs[\"value\"]",
+          "rootType": "on_running_group_activated",
+          "rootLocation": "$.actors.actorsDict[\"20000000-0000-4000-8000-000000000001\"].nekoBlockJsonList[0]",
+          "rootNode": false
+        },
+        {
+          "file": "tests/fixtures/kn-value-types/nested-conversion.bcmkn",
+          "group": "fixtures",
+          "type": "convert_type",
+          "id": "knvt-43",
+          "location": "$.actors.actorsDict[\"20000000-0000-4000-8000-000000000001\"].nekoBlockJsonList[0].next.next.next.inputs[\"value\"]",
+          "rootType": "on_running_group_activated",
+          "rootLocation": "$.actors.actorsDict[\"20000000-0000-4000-8000-000000000001\"].nekoBlockJsonList[0]",
+          "rootNode": false
+        },
+        {
+          "file": "tests/fixtures/kn-value-types/nested-conversion.bcmkn",
+          "group": "fixtures",
+          "type": "convert_type",
+          "id": "knvt-40",
+          "location": "$.actors.actorsDict[\"20000000-0000-4000-8000-000000000001\"].nekoBlockJsonList[0].next.next.inputs[\"value\"]",
+          "rootType": "on_running_group_activated",
+          "rootLocation": "$.actors.actorsDict[\"20000000-0000-4000-8000-000000000001\"].nekoBlockJsonList[0]",
+          "rootNode": false
+        },
+        {
+          "file": "tests/fixtures/nonfinite/kn-list.bcmkn",
+          "group": "fixtures",
+          "type": "convert_type",
+          "id": "nonfinite-36",
+          "location": "$.actors.actorsDict[\"nekoc-default-actor\"].nekoBlockJsonList[0].next.statements[\"DO\"].next.next.next.next.next.next.next.next.inputs[\"value\"]",
+          "rootType": "on_running_group_activated",
+          "rootLocation": "$.actors.actorsDict[\"nekoc-default-actor\"].nekoBlockJsonList[0]",
+          "rootNode": false
+        },
+        {
+          "file": "tests/fixtures/nonfinite/kn-list.bcmkn",
+          "group": "fixtures",
+          "type": "convert_type",
+          "id": "nonfinite-33",
+          "location": "$.actors.actorsDict[\"nekoc-default-actor\"].nekoBlockJsonList[0].next.statements[\"DO\"].next.next.next.next.next.next.next.inputs[\"value\"]",
+          "rootType": "on_running_group_activated",
+          "rootLocation": "$.actors.actorsDict[\"nekoc-default-actor\"].nekoBlockJsonList[0]",
+          "rootNode": false
+        },
+        {
+          "file": "tests/fixtures/nonfinite/kn-list.bcmkn",
+          "group": "fixtures",
+          "type": "convert_type",
+          "id": "nonfinite-30",
+          "location": "$.actors.actorsDict[\"nekoc-default-actor\"].nekoBlockJsonList[0].next.statements[\"DO\"].next.next.next.next.next.next.inputs[\"value\"]",
+          "rootType": "on_running_group_activated",
+          "rootLocation": "$.actors.actorsDict[\"nekoc-default-actor\"].nekoBlockJsonList[0]",
+          "rootNode": false
+        },
+        {
+          "file": "tests/fixtures/nonfinite/kn-list.bcmkn",
+          "group": "fixtures",
+          "type": "convert_type",
+          "id": "nonfinite-27",
+          "location": "$.actors.actorsDict[\"nekoc-default-actor\"].nekoBlockJsonList[0].next.statements[\"DO\"].next.next.next.next.next.inputs[\"value\"]",
+          "rootType": "on_running_group_activated",
+          "rootLocation": "$.actors.actorsDict[\"nekoc-default-actor\"].nekoBlockJsonList[0]",
+          "rootNode": false
+        },
+        {
+          "file": "tests/fixtures/nonfinite/kn-list.bcmkn",
+          "group": "fixtures",
+          "type": "convert_type",
+          "id": "nonfinite-22",
+          "location": "$.actors.actorsDict[\"nekoc-default-actor\"].nekoBlockJsonList[0].next.statements[\"DO\"].next.next.next.next.inputs[\"value\"]",
+          "rootType": "on_running_group_activated",
+          "rootLocation": "$.actors.actorsDict[\"nekoc-default-actor\"].nekoBlockJsonList[0]",
+          "rootNode": false
+        },
+        {
+          "file": "tests/fixtures/nonfinite/kn-list.bcmkn",
+          "group": "fixtures",
+          "type": "convert_type",
+          "id": "nonfinite-18",
+          "location": "$.actors.actorsDict[\"nekoc-default-actor\"].nekoBlockJsonList[0].next.statements[\"DO\"].next.next.next.inputs[\"value\"]",
+          "rootType": "on_running_group_activated",
+          "rootLocation": "$.actors.actorsDict[\"nekoc-default-actor\"].nekoBlockJsonList[0]",
+          "rootNode": false
+        },
+        {
+          "file": "tests/fixtures/nonfinite/kn-list.bcmkn",
+          "group": "fixtures",
+          "type": "convert_type",
+          "id": "nonfinite-14",
+          "location": "$.actors.actorsDict[\"nekoc-default-actor\"].nekoBlockJsonList[0].next.statements[\"DO\"].next.next.inputs[\"value\"]",
+          "rootType": "on_running_group_activated",
+          "rootLocation": "$.actors.actorsDict[\"nekoc-default-actor\"].nekoBlockJsonList[0]",
+          "rootNode": false
+        },
+        {
+          "file": "tests/fixtures/nonfinite/kn-list.bcmkn",
+          "group": "fixtures",
+          "type": "convert_type",
+          "id": "nonfinite-9",
+          "location": "$.actors.actorsDict[\"nekoc-default-actor\"].nekoBlockJsonList[0].next.statements[\"DO\"].next.inputs[\"value\"]",
+          "rootType": "on_running_group_activated",
+          "rootLocation": "$.actors.actorsDict[\"nekoc-default-actor\"].nekoBlockJsonList[0]",
+          "rootNode": false
+        },
+        {
+          "file": "tests/fixtures/nonfinite/kn-list.bcmkn",
+          "group": "fixtures",
+          "type": "convert_type",
+          "id": "nonfinite-4",
+          "location": "$.actors.actorsDict[\"nekoc-default-actor\"].nekoBlockJsonList[0].next.statements[\"DO\"].inputs[\"value\"]",
+          "rootType": "on_running_group_activated",
+          "rootLocation": "$.actors.actorsDict[\"nekoc-default-actor\"].nekoBlockJsonList[0]",
+          "rootNode": false
+        },
+        {
+          "file": "tests/fixtures/nonfinite/kn.bcmkn",
+          "group": "fixtures",
+          "type": "convert_type",
+          "id": "nonfinite-36",
+          "location": "$.actors.actorsDict[\"nekoc-default-actor\"].nekoBlockJsonList[0].next.statements[\"DO\"].next.next.next.next.next.next.next.next.inputs[\"value\"]",
+          "rootType": "on_running_group_activated",
+          "rootLocation": "$.actors.actorsDict[\"nekoc-default-actor\"].nekoBlockJsonList[0]",
+          "rootNode": false
+        },
+        {
+          "file": "tests/fixtures/nonfinite/kn.bcmkn",
+          "group": "fixtures",
+          "type": "convert_type",
+          "id": "nonfinite-33",
+          "location": "$.actors.actorsDict[\"nekoc-default-actor\"].nekoBlockJsonList[0].next.statements[\"DO\"].next.next.next.next.next.next.next.inputs[\"value\"]",
+          "rootType": "on_running_group_activated",
+          "rootLocation": "$.actors.actorsDict[\"nekoc-default-actor\"].nekoBlockJsonList[0]",
+          "rootNode": false
+        },
+        {
+          "file": "tests/fixtures/nonfinite/kn.bcmkn",
+          "group": "fixtures",
+          "type": "convert_type",
+          "id": "nonfinite-30",
+          "location": "$.actors.actorsDict[\"nekoc-default-actor\"].nekoBlockJsonList[0].next.statements[\"DO\"].next.next.next.next.next.next.inputs[\"value\"]",
+          "rootType": "on_running_group_activated",
+          "rootLocation": "$.actors.actorsDict[\"nekoc-default-actor\"].nekoBlockJsonList[0]",
+          "rootNode": false
+        },
+        {
+          "file": "tests/fixtures/nonfinite/kn.bcmkn",
+          "group": "fixtures",
+          "type": "convert_type",
+          "id": "nonfinite-27",
+          "location": "$.actors.actorsDict[\"nekoc-default-actor\"].nekoBlockJsonList[0].next.statements[\"DO\"].next.next.next.next.next.inputs[\"value\"]",
+          "rootType": "on_running_group_activated",
+          "rootLocation": "$.actors.actorsDict[\"nekoc-default-actor\"].nekoBlockJsonList[0]",
+          "rootNode": false
+        },
+        {
+          "file": "tests/fixtures/nonfinite/kn.bcmkn",
+          "group": "fixtures",
+          "type": "convert_type",
+          "id": "nonfinite-22",
+          "location": "$.actors.actorsDict[\"nekoc-default-actor\"].nekoBlockJsonList[0].next.statements[\"DO\"].next.next.next.next.inputs[\"value\"]",
+          "rootType": "on_running_group_activated",
+          "rootLocation": "$.actors.actorsDict[\"nekoc-default-actor\"].nekoBlockJsonList[0]",
+          "rootNode": false
+        },
+        {
+          "file": "tests/fixtures/nonfinite/kn.bcmkn",
+          "group": "fixtures",
+          "type": "convert_type",
+          "id": "nonfinite-18",
+          "location": "$.actors.actorsDict[\"nekoc-default-actor\"].nekoBlockJsonList[0].next.statements[\"DO\"].next.next.next.inputs[\"value\"]",
+          "rootType": "on_running_group_activated",
+          "rootLocation": "$.actors.actorsDict[\"nekoc-default-actor\"].nekoBlockJsonList[0]",
+          "rootNode": false
+        },
+        {
+          "file": "tests/fixtures/nonfinite/kn.bcmkn",
+          "group": "fixtures",
+          "type": "convert_type",
+          "id": "nonfinite-14",
+          "location": "$.actors.actorsDict[\"nekoc-default-actor\"].nekoBlockJsonList[0].next.statements[\"DO\"].next.next.inputs[\"value\"]",
+          "rootType": "on_running_group_activated",
+          "rootLocation": "$.actors.actorsDict[\"nekoc-default-actor\"].nekoBlockJsonList[0]",
+          "rootNode": false
+        },
+        {
+          "file": "tests/fixtures/nonfinite/kn.bcmkn",
+          "group": "fixtures",
+          "type": "convert_type",
+          "id": "nonfinite-9",
+          "location": "$.actors.actorsDict[\"nekoc-default-actor\"].nekoBlockJsonList[0].next.statements[\"DO\"].next.inputs[\"value\"]",
+          "rootType": "on_running_group_activated",
+          "rootLocation": "$.actors.actorsDict[\"nekoc-default-actor\"].nekoBlockJsonList[0]",
+          "rootNode": false
+        },
+        {
+          "file": "tests/fixtures/nonfinite/kn.bcmkn",
+          "group": "fixtures",
+          "type": "convert_type",
+          "id": "nonfinite-4",
+          "location": "$.actors.actorsDict[\"nekoc-default-actor\"].nekoBlockJsonList[0].next.statements[\"DO\"].inputs[\"value\"]",
+          "rootType": "on_running_group_activated",
+          "rootLocation": "$.actors.actorsDict[\"nekoc-default-actor\"].nekoBlockJsonList[0]",
+          "rootNode": false
+        }
+      ]
+    },
+    {
+      "type": "enable_face_detect_by_actor",
+      "status": "部分语义",
+      "officialCategory": "可配置面板／默认隐藏",
+      "baselineVm": "`src/engine.rs:3551`",
+      "baselineRisk": "仅显式离线匿名 profile 的登录拒绝；人脸检测未实现",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "enable_face_detect_by_photo",
+      "status": "部分语义",
+      "officialCategory": "可配置面板／默认隐藏",
+      "baselineVm": "`src/engine.rs:3551`",
+      "baselineRisk": "仅显式离线匿名 profile 的登录拒绝；拍照/人脸检测未实现",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "enable_object_detect_by_actor",
+      "status": "部分语义",
+      "officialCategory": "可配置面板／默认隐藏",
+      "baselineVm": "`src/engine.rs:3551`",
+      "baselineRisk": "仅显式离线匿名 profile 的登录拒绝；物体检测未实现",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "enable_object_detect_by_photo",
+      "status": "部分语义",
+      "officialCategory": "可配置面板／默认隐藏",
+      "baselineVm": "`src/engine.rs:3551`",
+      "baselineRisk": "仅显式离线匿名 profile 的登录拒绝；拍照/物体检测未实现",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "evaluate_actor_style",
+      "status": "部分语义",
+      "officialCategory": "可配置面板／默认隐藏",
+      "baselineVm": "`src/engine.rs:3551`",
+      "baselineRisk": "仅显式离线匿名 profile 的缺模型/离线拒绝；模型预测未实现",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "evaluate_camera",
+      "status": "部分语义",
+      "officialCategory": "可配置面板／默认隐藏",
+      "baselineVm": "`src/engine.rs:3551`",
+      "baselineRisk": "仅显式离线匿名 profile 的缺模型/离线拒绝；摄像/模型预测未实现",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "evaluate_photo",
+      "status": "部分语义",
+      "officialCategory": "可配置面板／默认隐藏",
+      "baselineVm": "`src/engine.rs:3551`",
+      "baselineRisk": "仅显式离线匿名 profile 的缺模型/离线拒绝；拍照/模型预测未实现",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "face_to_body_part",
+      "status": "部分语义",
+      "officialCategory": "可配置面板／默认隐藏",
+      "baselineVm": "`src/engine.rs:3591`",
+      "baselineRisk": "仅无检测结果时不修改方向；检测后端未实现",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "get_appearance_of_part",
+      "status": "部分语义",
+      "officialCategory": "可配置面板／默认隐藏",
+      "baselineVm": "`src/engine.rs:1910`<br>`src/engine.rs:2682`",
+      "baselineRisk": "仅无检测结果时 NaN；检测后端未实现",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "get_clone_index_property",
+      "status": "部分语义",
+      "officialCategory": "可配置面板／默认隐藏",
+      "baselineVm": "`src/engine.rs:2215`<br>`src/engine.rs:2952`",
+      "baselineRisk": "已补命名宽高/方向/造型属性；历史数字属性码与特效重叠及其他属性未完整验证",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 7,
+          "files": 2
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 7,
+      "files": 2,
+      "referenceFunctions": [],
+      "hits": [
+        {
+          "file": "tests/fixtures/actor-variables-deleted.bcmkn",
+          "group": "fixtures",
+          "type": "get_clone_index_property",
+          "id": "kn-actorvars-116",
+          "location": "$.actors.actorsDict[\"20000000-0000-4000-8000-000000000001\"].nekoBlockJsonList[0].next.next.next.next.next.next.next.next.next.inputs[\"value\"]",
+          "rootType": "on_running_group_activated",
+          "rootLocation": "$.actors.actorsDict[\"20000000-0000-4000-8000-000000000001\"].nekoBlockJsonList[0]",
+          "rootNode": false
+        },
+        {
+          "file": "tests/fixtures/actor-variables-deleted.bcmkn",
+          "group": "fixtures",
+          "type": "get_clone_index_property",
+          "id": "kn-actorvars-106",
+          "location": "$.actors.actorsDict[\"20000000-0000-4000-8000-000000000001\"].nekoBlockJsonList[0].next.next.next.next.next.next.inputs[\"value\"]",
+          "rootType": "on_running_group_activated",
+          "rootLocation": "$.actors.actorsDict[\"20000000-0000-4000-8000-000000000001\"].nekoBlockJsonList[0]",
+          "rootNode": false
+        },
+        {
+          "file": "tests/fixtures/actor-variables-deleted.bcmkn",
+          "group": "fixtures",
+          "type": "get_clone_index_property",
+          "id": "kn-actorvars-101",
+          "location": "$.actors.actorsDict[\"20000000-0000-4000-8000-000000000001\"].nekoBlockJsonList[0].next.next.next.next.next.inputs[\"value\"]",
+          "rootType": "on_running_group_activated",
+          "rootLocation": "$.actors.actorsDict[\"20000000-0000-4000-8000-000000000001\"].nekoBlockJsonList[0]",
+          "rootNode": false
+        },
+        {
+          "file": "tests/fixtures/actor-variables-deleted.bcmkn",
+          "group": "fixtures",
+          "type": "get_clone_index_property",
+          "id": "kn-actorvars-128",
+          "location": "$.actors.actorsDict[\"20000000-0000-4000-8000-000000000001\"].nekoBlockJsonList[1].statements[\"DO\"].next.next.inputs[\"value\"]",
+          "rootType": "start_as_a_mirror",
+          "rootLocation": "$.actors.actorsDict[\"20000000-0000-4000-8000-000000000001\"].nekoBlockJsonList[1]",
+          "rootNode": false
+        },
+        {
+          "file": "tests/fixtures/actor-variables.bcmkn",
+          "group": "fixtures",
+          "type": "get_clone_index_property",
+          "id": "kn-actorvars-41",
+          "location": "$.actors.actorsDict[\"20000000-0000-4000-8000-000000000001\"].nekoBlockJsonList[0].next.next.next.next.next.next.inputs[\"value\"]",
+          "rootType": "on_running_group_activated",
+          "rootLocation": "$.actors.actorsDict[\"20000000-0000-4000-8000-000000000001\"].nekoBlockJsonList[0]",
+          "rootNode": false
+        },
+        {
+          "file": "tests/fixtures/actor-variables.bcmkn",
+          "group": "fixtures",
+          "type": "get_clone_index_property",
+          "id": "kn-actorvars-36",
+          "location": "$.actors.actorsDict[\"20000000-0000-4000-8000-000000000001\"].nekoBlockJsonList[0].next.next.next.next.next.inputs[\"value\"]",
+          "rootType": "on_running_group_activated",
+          "rootLocation": "$.actors.actorsDict[\"20000000-0000-4000-8000-000000000001\"].nekoBlockJsonList[0]",
+          "rootNode": false
+        },
+        {
+          "file": "tests/fixtures/actor-variables.bcmkn",
+          "group": "fixtures",
+          "type": "get_clone_index_property",
+          "id": "kn-actorvars-56",
+          "location": "$.actors.actorsDict[\"20000000-0000-4000-8000-000000000001\"].nekoBlockJsonList[1].statements[\"DO\"].next.next.inputs[\"value\"]",
+          "rootType": "start_as_a_mirror",
+          "rootLocation": "$.actors.actorsDict[\"20000000-0000-4000-8000-000000000001\"].nekoBlockJsonList[1]",
+          "rootNode": false
+        }
+      ]
+    },
+    {
+      "type": "get_evaluate_class_accuracy",
+      "status": "部分语义",
+      "officialCategory": "可配置面板／默认隐藏",
+      "baselineVm": "`src/engine.rs:1865`<br>`src/engine.rs:2673`",
+      "baselineRisk": "仅显式离线匿名 profile 的 numeric NaN，保留可选 index 求值；模型预测未实现",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "get_evaluate_class_name",
+      "status": "部分语义",
+      "officialCategory": "可配置面板／默认隐藏",
+      "baselineVm": "`src/engine.rs:1865`<br>`src/engine.rs:2673`",
+      "baselineRisk": "仅显式离线匿名 profile 的 numeric NaN，保留可选 index 求值；模型与标签后端未实现",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "get_face_detection_result",
+      "status": "部分语义",
+      "officialCategory": "可配置面板／默认隐藏",
+      "baselineVm": "`src/engine.rs:1910`<br>`src/engine.rs:2682`",
+      "baselineRisk": "仅人脸缓存为空时 NaN；字段对应的真实检测结果未实现",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "get_object_detection_result",
+      "status": "部分语义",
+      "officialCategory": "可配置面板／默认隐藏",
+      "baselineVm": "`src/engine.rs:1910`<br>`src/engine.rs:2682`",
+      "baselineRisk": "仅物体缓存为空时 NaN；检测后端未实现",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "get_position_of_body_part",
+      "status": "部分语义",
+      "officialCategory": "可配置面板／默认隐藏",
+      "baselineVm": "`src/engine.rs:1910`<br>`src/engine.rs:2682`",
+      "baselineRisk": "仅无检测结果时 NaN；检测后端未实现",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "get_robot2_master_motor_power",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:1874`<br>`src/engine.rs:2682`",
+      "baselineRisk": "仅空硬件 Map 时同步 numeric NaN；真实电机与未连接提示 UI 未实现",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "get_robot_master_infrared_sensor_distance",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:1874`<br>`src/engine.rs:2682`",
+      "baselineRisk": "仅空硬件 Map 时同步 numeric NaN；真实红外与未连接提示 UI 未实现",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "get_robot_master_motor_power",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:1874`<br>`src/engine.rs:2682`",
+      "baselineRisk": "仅空硬件 Map 时同步 numeric NaN；真实电机与未连接提示 UI 未实现",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "get_sprite_property",
+      "status": "部分语义",
+      "officialCategory": "官方代码API／非同名积木",
+      "baselineVm": "`src/engine.rs:2860`",
+      "baselineRisk": "仅代码 API 兼容别名映射现有角色属性；官方没有同名注册积木，全部属性/错误路径未验证",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "get_tilt_angle_of_face",
+      "status": "部分语义",
+      "officialCategory": "可配置面板／默认隐藏",
+      "baselineVm": "`src/engine.rs:1910`<br>`src/engine.rs:2682`",
+      "baselineRisk": "仅无检测结果时 NaN；检测后端未实现",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "get_voice_answer",
+      "status": "部分语义",
+      "officialCategory": "普通面板配置／默认未隐藏",
+      "baselineVm": "`src/engine.rs:1910`<br>`src/engine.rs:2682`",
+      "baselineRisk": "仅未开始识别的初始空文本；麦克风、权限与识别后端未实现",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "get_voice_volume",
+      "status": "部分语义",
+      "officialCategory": "普通面板配置／默认未隐藏",
+      "baselineVm": "`src/engine.rs:2857`",
+      "baselineRisk": "仅默认权限 pending、拒绝 0、显式停用录音 NaN 与可选浏览器采样；每次读等待下一 update，真实无设备错误与完整平台差异未验证",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "global_animation",
+      "status": "部分语义",
+      "officialCategory": "普通面板配置／默认未隐藏",
+      "baselineVm": "`src/engine.rs:3551`",
+      "baselineRisk": "仅阻塞式宿主请求/完成回调；viewer 的 SVGA/全局音频/滤镜未实现，未接宿主会等待，官方像素与时序未验证",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "microbit_accelerometer",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:1874`<br>`src/engine.rs:2682`",
+      "baselineRisk": "仅无连接 Promise 兑现为 numeric NaN；子表达式逐次跨 update 恢复，真实传感器未实现，复杂过程/调度组合未验证",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "microbit_button_is_pressed",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:1874`<br>`src/engine.rs:2682`",
+      "baselineRisk": "仅无microbit连接时boolean false；真实设备按键未实现",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "microbit_button_when",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:3155`",
+      "baselineRisk": "仅无硬件后端时注册休眠事件并验证事件体；自然设备事件不触发，真实派发未实现",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "microbit_change_bpm",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:3542`",
+      "baselineRisk": "仅空硬件 Map 时同步早退并求值 offset；真实设备节拍与未连接提示 UI 未实现",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "microbit_compass_heading",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:1874`<br>`src/engine.rs:2682`",
+      "baselineRisk": "仅无连接 Promise 兑现为 numeric NaN；子表达式逐次跨 update 恢复，真实传感器未实现，复杂过程/调度组合未验证",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "microbit_get_volume",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:1874`<br>`src/engine.rs:2682`",
+      "baselineRisk": "仅空硬件 Map 时同步 undefined，不是音量 0/NaN；真实设备与未连接提示 UI 未实现",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "microbit_is_gesture",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:1874`<br>`src/engine.rs:2682`",
+      "baselineRisk": "仅无microbit连接时boolean false；真实设备手势未实现",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "microbit_led_clear",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:3502`",
+      "baselineRisk": "仅无连接 Promise 早退，求值输入后下一 update 继续；真实设备未实现，完整微任务/调度组合未验证",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "microbit_led_is_plot",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:1904`<br>`src/engine.rs:2682`",
+      "baselineRisk": "仅无microbit连接时顺序求值x/y后boolean false；真实LED查询未实现",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "microbit_led_plot",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:3502`",
+      "baselineRisk": "仅无连接 Promise 早退，求值输入后下一 update 继续；真实设备未实现，完整微任务/调度组合未验证",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "microbit_led_plot_graph",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:3502`",
+      "baselineRisk": "仅无连接 Promise 早退，求值输入后下一 update 继续；真实设备未实现，完整微任务/调度组合未验证",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "microbit_led_show_custom",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:3502`",
+      "baselineRisk": "仅无连接 Promise 早退，求值输入后下一 update 继续；真实设备未实现，完整微任务/调度组合未验证",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "microbit_led_show_icon",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:3502`",
+      "baselineRisk": "仅无连接 Promise 早退，求值输入后下一 update 继续；真实设备未实现，完整微任务/调度组合未验证",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "microbit_led_show_number",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:3502`",
+      "baselineRisk": "仅无连接 Promise 早退，求值输入后下一 update 继续；真实设备未实现，完整微任务/调度组合未验证",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "microbit_led_show_text",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:3502`",
+      "baselineRisk": "仅无连接 Promise 早退，求值输入后下一 update 继续；真实设备未实现，完整微任务/调度组合未验证",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "microbit_led_toggle",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:3502`",
+      "baselineRisk": "仅无连接 Promise 早退，求值输入后下一 update 继续；真实设备未实现，完整微任务/调度组合未验证",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "microbit_led_unplot",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:3502`",
+      "baselineRisk": "仅无连接 Promise 早退，求值输入后下一 update 继续；真实设备未实现，完整微任务/调度组合未验证",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "microbit_light_level",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:1874`<br>`src/engine.rs:2682`",
+      "baselineRisk": "仅无连接 Promise 兑现为 numeric NaN；子表达式逐次跨 update 恢复，真实传感器未实现，复杂过程/调度组合未验证",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "microbit_logo_is_pressed",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:1874`<br>`src/engine.rs:2682`",
+      "baselineRisk": "仅无microbit连接时boolean false；真实设备logo触摸未实现",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "microbit_logo_when",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:3155`",
+      "baselineRisk": "仅无硬件后端时注册休眠事件并验证事件体；自然设备事件不触发，真实派发未实现",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "microbit_magnetometer",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:1874`<br>`src/engine.rs:2682`",
+      "baselineRisk": "仅无连接 Promise 兑现为 numeric NaN；子表达式逐次跨 update 恢复，真实传感器未实现，复杂过程/调度组合未验证",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "microbit_math_map",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:1951`<br>`src/engine.rs:2682`",
+      "baselineRisk": "仅无 microbit 连接时求值五个输入后 NaN；官方映射公式本身也检查连接，真实设备分支未实现",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "microbit_pause_by_beats",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:3502`",
+      "baselineRisk": "仅无连接 Promise 早退，求值输入后下一 update 继续；真实设备未实现，完整微任务/调度组合未验证",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "microbit_pin_analog_read",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:1874`<br>`src/engine.rs:2682`",
+      "baselineRisk": "仅无microbit连接时numeric NaN；真实模拟引脚未实现",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "microbit_pin_analog_write",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:3502`",
+      "baselineRisk": "仅无连接 Promise 早退，求值输入后下一 update 继续；真实设备未实现，完整微任务/调度组合未验证",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "microbit_pin_digital_read",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:1874`<br>`src/engine.rs:2682`",
+      "baselineRisk": "仅无microbit连接时numeric NaN；真实数字引脚未实现",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "microbit_pin_digital_write",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:3502`",
+      "baselineRisk": "仅无连接 Promise 早退，求值输入后下一 update 继续；真实设备未实现，完整微任务/调度组合未验证",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "microbit_pin_set_touch_mode",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:3502`",
+      "baselineRisk": "仅无连接 Promise 早退，求值输入后下一 update 继续；真实设备未实现，完整微任务/调度组合未验证",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "microbit_pin_when",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:3155`",
+      "baselineRisk": "仅无硬件后端时注册休眠事件并验证事件体；自然设备事件不触发，真实派发未实现",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "microbit_play_melody",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:3502`",
+      "baselineRisk": "仅无连接 Promise 早退，求值输入后下一 update 继续；真实设备未实现，完整微任务/调度组合未验证",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "microbit_play_tone_by_beats",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:3502`",
+      "baselineRisk": "仅无连接 Promise 早退，求值输入后下一 update 继续；真实设备未实现，完整微任务/调度组合未验证",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "microbit_rotation",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:1874`<br>`src/engine.rs:2682`",
+      "baselineRisk": "仅无连接 Promise 兑现为 numeric NaN；子表达式逐次跨 update 恢复，真实传感器未实现，复杂过程/调度组合未验证",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "microbit_servo_set_angle_270",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:3502`",
+      "baselineRisk": "仅无连接 Promise 早退，求值输入后下一 update 继续；真实设备未实现，完整微任务/调度组合未验证",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "microbit_set_bpm",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:3542`",
+      "baselineRisk": "仅空硬件 Map 时同步早退并求值 bpm；真实设备节拍与未连接提示 UI 未实现",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "microbit_set_volume",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:3502`",
+      "baselineRisk": "仅无连接 Promise 早退，求值输入后下一 update 继续；真实设备未实现，完整微任务/调度组合未验证",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "microbit_sound_level",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:1874`<br>`src/engine.rs:2682`",
+      "baselineRisk": "仅无连接 Promise 兑现为 numeric NaN；子表达式逐次跨 update 恢复，真实传感器未实现，复杂过程/调度组合未验证",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "microbit_stop",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:3502`",
+      "baselineRisk": "仅无连接 Promise 早退，求值输入后下一 update 继续；真实设备未实现，完整微任务/调度组合未验证",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "microbit_temperature",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:1874`<br>`src/engine.rs:2682`",
+      "baselineRisk": "仅无连接 Promise 兑现为 numeric NaN；子表达式逐次跨 update 恢复，真实传感器未实现，复杂过程/调度组合未验证",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "mouse_down",
+      "status": "部分语义",
+      "officialCategory": "普通面板配置／默认未隐藏",
+      "baselineVm": "`src/engine.rs:2069`<br>`src/engine.rs:2994`",
+      "baselineRisk": "已区分屏幕/当前实例/命名角色及克隆并保留布尔类型；非法目标编译期拒绝，完整事件顺序未验证",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 1,
+          "files": 1
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 1,
+      "files": 1,
+      "referenceFunctions": [],
+      "hits": [
+        {
+          "file": "projects/fangjie/fangjie.bcmkn",
+          "group": "projects",
+          "type": "mouse_down",
+          "id": "b3800",
+          "location": "$.actors.actorsDict[\"nekoc-default-actor\"].nekoBlockJsonList[0].next.next.next.next.statements[\"DO\"].next.next.inputs[\"value\"].inputs[\"condition\"]",
+          "rootType": "on_running_group_activated",
+          "rootLocation": "$.actors.actorsDict[\"nekoc-default-actor\"].nekoBlockJsonList[0]",
+          "rootNode": false
+        }
+      ]
+    },
+    {
+      "type": "move_to_body_part",
+      "status": "部分语义",
+      "officialCategory": "可配置面板／默认隐藏",
+      "baselineVm": "`src/engine.rs:3591`",
+      "baselineRisk": "仅无检测结果时不修改位置；检测后端未实现",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "new_conversation",
+      "status": "部分语义",
+      "officialCategory": "可配置面板／默认隐藏",
+      "baselineVm": "`src/engine.rs:3551`",
+      "baselineRisk": "仅显式离线匿名 profile 的拒绝且保留缓存；真实新会话后端未实现",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "open_close_webcam",
+      "status": "部分语义",
+      "officialCategory": "可配置面板／默认隐藏",
+      "baselineVm": "`src/engine.rs:3551`",
+      "baselineRisk": "仅从未开启 profile 的 turn_off；turn_on 明确拒绝，摄像设备未实现",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "open_hide_camera",
+      "status": "部分语义",
+      "officialCategory": "可配置面板／默认隐藏",
+      "baselineVm": "`src/engine.rs:3551`",
+      "baselineRisk": "仅从未开启 profile 的 turn_off；turn_on 明确拒绝，摄像设备未实现",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "recognize_body_part",
+      "status": "部分语义",
+      "officialCategory": "可配置面板／默认隐藏",
+      "baselineVm": "`src/engine.rs:1910`<br>`src/engine.rs:2682`",
+      "baselineRisk": "仅无检测结果时 false；检测后端未实现",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "recognize_gesture",
+      "status": "部分语义",
+      "officialCategory": "可配置面板／默认隐藏",
+      "baselineVm": "`src/engine.rs:1910`<br>`src/engine.rs:2682`",
+      "baselineRisk": "仅无检测结果时 false；检测后端未实现",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "self_dialog_wait",
+      "status": "部分语义",
+      "officialCategory": "普通面板配置／默认未隐藏",
+      "baselineVm": "`src/engine.rs:4029`",
+      "baselineRisk": "官方实际为无限时非阻塞气泡；已补可见性/空文本/截断，跨场景及并发 timed 气泡取消未验证",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "setInterval",
+      "status": "部分语义",
+      "officialCategory": "已注册／本次面板未列出",
+      "baselineVm": "`src/engine.rs:3576`",
+      "baselineRisk": "按官方 0.27.4 原生实测丢弃 callback statement，只调度空回调；通用 JS function 回调未实现，墙钟精度未验证",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 1,
+          "files": 1
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 1,
+      "files": 1,
+      "referenceFunctions": [],
+      "hits": [
+        {
+          "file": "tests/fixtures/kn-async-services/timers.bcmkn",
+          "group": "fixtures",
+          "type": "setInterval",
+          "id": "kn-services-8",
+          "location": "$.actors.actorsDict[\"nekoc-default-actor\"].nekoBlockJsonList[0].next.next.next",
+          "rootType": "on_running_group_activated",
+          "rootLocation": "$.actors.actorsDict[\"nekoc-default-actor\"].nekoBlockJsonList[0]",
+          "rootNode": false
+        }
+      ]
+    },
+    {
+      "type": "setTimeout",
+      "status": "部分语义",
+      "officialCategory": "已注册／本次面板未列出",
+      "baselineVm": "`src/engine.rs:3576`",
+      "baselineRisk": "按官方 0.27.4 原生实测丢弃 callback statement，只调度空回调；通用 JS function 回调未实现，墙钟精度未验证",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 1,
+          "files": 1
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 1,
+      "files": 1,
+      "referenceFunctions": [],
+      "hits": [
+        {
+          "file": "tests/fixtures/kn-async-services/timers.bcmkn",
+          "group": "fixtures",
+          "type": "setTimeout",
+          "id": "kn-services-4",
+          "location": "$.actors.actorsDict[\"nekoc-default-actor\"].nekoBlockJsonList[0].next.next",
+          "rootType": "on_running_group_activated",
+          "rootLocation": "$.actors.actorsDict[\"nekoc-default-actor\"].nekoBlockJsonList[0]",
+          "rootNode": false
+        }
+      ]
+    },
+    {
+      "type": "set_camera_alpha",
+      "status": "部分语义",
+      "officialCategory": "可配置面板／默认隐藏",
+      "baselineVm": "`src/engine.rs:3551`",
+      "baselineRisk": "仅共享离线 alpha 控制值，严格 Number 与夹取；实际摄像/渲染未实现，异步相位未验证",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "set_robot2_master_motor_power_rotation",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:3502`",
+      "baselineRisk": "仅无连接 Promise 早退，求值输入后下一 update 继续；真实设备未实现，完整微任务/调度组合未验证",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "set_robot2_master_motor_power_rotation_duration",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:3502`",
+      "baselineRisk": "仅无连接 Promise 早退，求值输入后下一 update 继续；真实设备未实现，完整微任务/调度组合未验证",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "set_robot_master_light_color",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:3502`",
+      "baselineRisk": "仅无连接 Promise 早退，求值输入后下一 update 继续；真实设备未实现，完整微任务/调度组合未验证",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "set_robot_master_light_color_duration",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:3502`",
+      "baselineRisk": "仅无连接 Promise 早退，求值输入后下一 update 继续；真实设备未实现，完整微任务/调度组合未验证",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "set_robot_master_motor_power_rotation",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:3502`",
+      "baselineRisk": "仅无连接 Promise 早退，求值输入后下一 update 继续；真实设备未实现，完整微任务/调度组合未验证",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "set_robot_master_motor_power_rotation_duration",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:3502`",
+      "baselineRisk": "仅无连接 Promise 早退，求值输入后下一 update 继续；真实设备未实现，完整微任务/调度组合未验证",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "set_system_preset",
+      "status": "部分语义",
+      "officialCategory": "可配置面板／默认隐藏",
+      "baselineVm": "`src/engine.rs:3551`",
+      "baselineRisk": "仅显式离线匿名 profile 的拒绝；不会假称本地保存提示词，真实服务未实现",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "set_webcam_alpha",
+      "status": "部分语义",
+      "officialCategory": "可配置面板／默认隐藏",
+      "baselineVm": "`src/engine.rs:3551`",
+      "baselineRisk": "仅共享离线 alpha 控制值，严格 Number 与夹取；实际摄像/渲染未实现，异步相位未验证",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "show_hide_ranking",
+      "status": "部分语义",
+      "officialCategory": "可配置面板／默认隐藏",
+      "baselineVm": "`src/engine.rs:3551`",
+      "baselineRisk": "仅本地未发布作品的无榜单提前返回；真实榜单 UI/网络未实现",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "stop_robot2_master_motor",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:3502`",
+      "baselineRisk": "仅无连接 Promise 早退，求值输入后下一 update 继续；真实设备未实现，完整微任务/调度组合未验证",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "stop_robot_master_light",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:3502`",
+      "baselineRisk": "仅无连接 Promise 早退，求值输入后下一 update 继续；真实设备未实现，完整微任务/调度组合未验证",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "stop_robot_master_motor",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:3502`",
+      "baselineRisk": "仅无连接 Promise 早退，求值输入后下一 update 继续；真实设备未实现，完整微任务/调度组合未验证",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "translate",
+      "status": "部分语义",
+      "officialCategory": "普通面板配置／默认未隐藏",
+      "baselineVm": "`src/engine.rs:3551`",
+      "baselineRisk": "仅离线传输失败/空白提前返回；成功翻译与对话框未实现，Promise 相位未验证",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "translate_result",
+      "status": "部分语义",
+      "officialCategory": "普通面板配置／默认未隐藏",
+      "baselineVm": "`src/engine.rs:1865`<br>`src/engine.rs:2673`",
+      "baselineRisk": "仅离线失败/空白返回空文本并求值输入；成功翻译后端未实现，Promise 相位未验证",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "update_ranking",
+      "status": "部分语义",
+      "officialCategory": "可配置面板／默认隐藏",
+      "baselineVm": "`src/engine.rs:3551`",
+      "baselineRisk": "仅本地未发布作品的无榜单提前返回；真实分数提交/持久化未实现",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "user_id_get",
+      "status": "部分语义",
+      "officialCategory": "可配置面板／默认隐藏",
+      "baselineVm": "`src/engine.rs:1910`<br>`src/engine.rs:2682`",
+      "baselineRisk": "仅无账户后端 profile：官方未登录返回字符串 0；已登录用户未实现",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "user_info_of_th",
+      "status": "部分语义",
+      "officialCategory": "可配置面板／默认隐藏",
+      "baselineVm": "`src/engine.rs:1865`<br>`src/engine.rs:2673`",
+      "baselineRisk": "仅无 KN 榜单后端的 numeric NaN，order 仍求值；真实用户查询未实现",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "user_ranking_info",
+      "status": "部分语义",
+      "officialCategory": "可配置面板／默认隐藏",
+      "baselineVm": "`src/engine.rs:1865`<br>`src/engine.rs:2673`",
+      "baselineRisk": "仅无 KN 榜单后端的 numeric NaN；真实排名/分数查询未实现",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "username_get",
+      "status": "部分语义",
+      "officialCategory": "可配置面板／默认隐藏",
+      "baselineVm": "`src/engine.rs:1910`<br>`src/engine.rs:2682`",
+      "baselineRisk": "仅无账户后端 profile：官方未登录文本；已登录用户未实现",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "voice_recognition",
+      "status": "部分语义",
+      "officialCategory": "普通面板配置／默认未隐藏",
+      "baselineVm": "`src/engine.rs:3551`",
+      "baselineRisk": "仅未登录提前返回与宿主提示；真实权限/识别/登录 UI 未实现",
+      "hardware": false,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "wand_button_is_pressed",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:1874`<br>`src/engine.rs:2682`",
+      "baselineRisk": "仅空硬件 Map 时同步 boolean false；真实按键与未连接提示 UI 未实现",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "wand_coordinate",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:1874`<br>`src/engine.rs:2682`",
+      "baselineRisk": "仅空硬件 Map 时同步 numeric NaN；真实坐标与未连接提示 UI 未实现",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "wand_direction_when",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:3155`",
+      "baselineRisk": "仅无硬件后端时注册休眠事件并验证事件体；自然设备事件不触发，真实派发未实现",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "wand_reset_position",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:3502`",
+      "baselineRisk": "仅无连接 Promise 早退，求值输入后下一 update 继续；真实设备未实现，完整微任务/调度组合未验证",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    },
+    {
+      "type": "wand_rotation",
+      "status": "部分语义",
+      "officialCategory": "官方硬件扩展定义／未安装",
+      "baselineVm": "`src/engine.rs:1874`<br>`src/engine.rs:2682`",
+      "baselineRisk": "仅空硬件 Map 时同步 numeric NaN；真实旋转与未连接提示 UI 未实现",
+      "hardware": true,
+      "counts": {
+        "projects": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "samples": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "fixtures": {
+          "occurrences": 0,
+          "files": 0
+        },
+        "other": {
+          "occurrences": 0,
+          "files": 0
+        }
+      },
+      "occurrences": 0,
+      "files": 0,
+      "referenceFunctions": [],
+      "hits": []
+    }
+  ]
+}

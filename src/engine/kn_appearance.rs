@@ -14,6 +14,20 @@ pub(super) enum Property {
     Camp,
     Distance,
 }
+
+#[derive(Clone, Copy, Debug)]
+pub(super) struct CloneProperty {
+    target: usize,
+    pub(super) index: usize,
+    attribute: CloneAttribute,
+}
+
+#[derive(Clone, Copy, Debug)]
+enum CloneAttribute {
+    Property(Property),
+    Variable(usize),
+    Missing,
+}
 impl Property {
     pub(super) fn appearance(name: &str) -> Result<Self> {
         Ok(match name {
@@ -38,6 +52,34 @@ impl Property {
 }
 
 impl Compiler {
+    pub(super) fn kn_clone_property(&mut self, block: &Value) -> Result<usize> {
+        let name = field(block, "attribute");
+        let attribute = if let Some(&slot) = self.actor_variables.get(name) {
+            CloneAttribute::Variable(slot)
+        } else {
+            // Official getSceneOrActorProperty has no camp/distance/default
+            // case; getCloneIndexProperty normalizes its undefined to NaN.
+            match name {
+                "camp" | "distance" => CloneAttribute::Missing,
+                _ => Property::actor(name)
+                    .map(CloneAttribute::Property)
+                    .unwrap_or(CloneAttribute::Missing),
+            }
+        };
+        let property = CloneProperty {
+            target: self.actor_target(field(block, "sprite"))?,
+            // Preserve the Cell: the official domain rejects string/bool
+            // indices instead of applying numeric coercion.
+            index: self.value(input(block, "index")?)?,
+            attribute,
+        };
+        let index = self.program.values.len();
+        self.program
+            .values
+            .push(ValueExpr::KnCloneProperty(property));
+        Ok(index)
+    }
+
     pub(super) fn kn_actor_parameter(&self, block: &Value) -> Result<ExprOp> {
         ensure!(
             self.program.semantics == RuntimeSemantics::KnCurrent,
@@ -74,7 +116,14 @@ fn round(value: f64) -> f64 {
     let shifted = format!("{mantissa}e{}", exponent + 2)
         .parse::<f64>()
         .unwrap_or(value);
-    let rounded = (shifted + 0.5).floor();
+    // Math.round must not introduce a second rounding by adding 0.5: e.g.
+    // 1234.4999999999998 + 0.5 can itself round up to 1235 in binary64.
+    let floor = shifted.floor();
+    let rounded = if shifted - floor >= 0.5 {
+        floor + 1.0
+    } else {
+        floor
+    };
     let text = crate::js_number::text(rounded);
     let (mantissa, exponent) = text.split_once('e').map_or((text.as_str(), 0), |(m, e)| {
         (m, e.parse::<i32>().unwrap_or(0))
@@ -97,6 +146,42 @@ pub(super) fn set_axis(sprite: &mut Sprite, height: bool, value: f64, add: bool)
 }
 
 impl Engine {
+    pub(super) fn eval_kn_clone_property(&mut self, property: CloneProperty, actor: usize) -> Cell {
+        let index = self.eval_value(property.index, actor);
+        let target = if property.target == usize::MAX {
+            actor
+        } else {
+            property.target
+        };
+        // Official scene branch falls through without returning a value.
+        if self.sprites[target].stage {
+            return Cell::Undefined;
+        }
+        let Cell::Number(index) = index else {
+            return Cell::Number(f64::NAN);
+        };
+        let origin = self.sprites[target].origin;
+        let Some(target) = self
+            .sprites
+            .iter()
+            .position(|s| s.alive && s.origin == origin && f64::from(s.clone_index) == index)
+        else {
+            return Cell::Number(f64::NAN);
+        };
+        match property.attribute {
+            CloneAttribute::Property(p) => Cell::Number(self.kn_property(target, actor, p)),
+            CloneAttribute::Variable(slot) => {
+                let value = self.read_actor_variable(target, slot);
+                if matches!(value, Cell::Undefined) {
+                    Cell::Number(f64::NAN)
+                } else {
+                    value
+                }
+            }
+            CloneAttribute::Missing => Cell::Number(f64::NAN),
+        }
+    }
+
     pub(super) fn kn_property(&self, target: usize, actor: usize, property: Property) -> f64 {
         let s = &self.sprites[target];
         match property {
@@ -188,5 +273,6 @@ mod tests {
         assert_eq!(round(1.005), 1.01);
         assert_eq!(round(-2.34567), -2.35);
         assert_eq!(round(123.456), 123.46);
+        assert_eq!(round(100.0 * (1.0 - (100.0 - 12.345) / 100.0)), 12.34);
     }
 }

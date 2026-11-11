@@ -1,0 +1,2106 @@
+{
+  "projectName": "NekoC KN semantics partial-clone",
+  "version": "0.27.4",
+  "toolType": "KN",
+  "stageSize": {
+    "width": 900,
+    "height": 562
+  },
+  "scenes": {
+    "currentSceneId": "nekoc-scene-main",
+    "sortList": [
+      "nekoc-scene-main"
+    ],
+    "scenesDict": {
+      "nekoc-scene-main": {
+        "id": "nekoc-scene-main",
+        "name": "Background",
+        "screenName": "Main",
+        "styles": [
+          "nekoc-background"
+        ],
+        "currentStyleId": "nekoc-background",
+        "actorIds": [
+          "nekoc-default-actor"
+        ],
+        "visible": true,
+        "editable": true,
+        "workspaceScrollXy": {
+          "x": 100,
+          "y": 50
+        },
+        "nekoBlockJsonList": [],
+        "comments": {}
+      }
+    }
+  },
+  "actors": {
+    "actorsDict": {
+      "nekoc-default-actor": {
+        "id": "nekoc-default-actor",
+        "name": "Sprite",
+        "styles": [
+          "nekoc-costume"
+        ],
+        "currentStyleId": "nekoc-costume",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": 100,
+        "rotation": 0,
+        "visible": true,
+        "locked": false,
+        "editable": true,
+        "deletable": true,
+        "workspaceScrollXy": {
+          "x": 100,
+          "y": 50
+        },
+        "nekoBlockJsonList": [
+          {
+            "id": "partial-1",
+            "type": "on_running_group_activated",
+            "fields": {},
+            "inputs": {},
+            "next": {
+              "id": "partial-3",
+              "type": "self_set_position_x",
+              "fields": {},
+              "inputs": {
+                "value": {
+                  "id": "partial-2",
+                  "type": "math_number",
+                  "fields": {
+                    "NUM": "1.23456"
+                  },
+                  "inputs": {}
+                }
+              },
+              "next": {
+                "id": "partial-5",
+                "type": "self_set_position_y",
+                "fields": {},
+                "inputs": {
+                  "value": {
+                    "id": "partial-4",
+                    "type": "math_number",
+                    "fields": {
+                      "NUM": "-2.34567"
+                    },
+                    "inputs": {}
+                  }
+                },
+                "next": {
+                  "id": "partial-7",
+                  "type": "set_width_height_scale",
+                  "fields": {
+                    "type": "width"
+                  },
+                  "inputs": {
+                    "value": {
+                      "id": "partial-6",
+                      "type": "math_number",
+                      "fields": {
+                        "NUM": "123.456"
+                      },
+                      "inputs": {}
+                    }
+                  },
+                  "next": {
+                    "id": "partial-9",
+                    "type": "set_width_height_scale",
+                    "fields": {
+                      "type": "height"
+                    },
+                    "inputs": {
+                      "value": {
+                        "id": "partial-8",
+                        "type": "math_number",
+                        "fields": {
+                          "NUM": "56.789"
+                        },
+                        "inputs": {}
+                      }
+                    },
+                    "next": {
+                      "id": "partial-11",
+                      "type": "self_point_towards",
+                      "fields": {},
+                      "inputs": {
+                        "degrees": {
+                          "id": "partial-10",
+                          "type": "math_number",
+                          "fields": {
+                            "NUM": "25.7142857"
+                          },
+                          "inputs": {}
+                        }
+                      },
+                      "next": {
+                        "id": "partial-13",
+                        "type": "self_set_effect",
+                        "fields": {
+                          "scope": "0"
+                        },
+                        "inputs": {
+                          "value": {
+                            "id": "partial-12",
+                            "type": "math_number",
+                            "fields": {
+                              "NUM": "-10.125"
+                            },
+                            "inputs": {}
+                          }
+                        },
+                        "next": {
+                          "id": "partial-15",
+                          "type": "self_set_effect",
+                          "fields": {
+                            "scope": "1"
+                          },
+                          "inputs": {
+                            "value": {
+                              "id": "partial-14",
+                              "type": "math_number",
+                              "fields": {
+                                "NUM": "12.345"
+                              },
+                              "inputs": {}
+                            }
+                          },
+                          "next": {
+                            "id": "partial-17",
+                            "type": "self_set_effect",
+                            "fields": {
+                              "scope": "2"
+                            },
+                            "inputs": {
+                              "value": {
+                                "id": "partial-16",
+                                "type": "math_number",
+                                "fields": {
+                                  "NUM": "12.345"
+                                },
+                                "inputs": {}
+                              }
+                            },
+                            "next": {
+                              "id": "partial-19",
+                              "type": "self_set_effect",
+                              "fields": {
+                                "scope": "3"
+                              },
+                              "inputs": {
+                                "value": {
+                                  "id": "partial-18",
+                                  "type": "math_number",
+                                  "fields": {
+                                    "NUM": "12.345"
+                                  },
+                                  "inputs": {}
+                                }
+                              },
+                              "next": {
+                                "id": "partial-21",
+                                "type": "self_set_effect",
+                                "fields": {
+                                  "scope": "4"
+                                },
+                                "inputs": {
+                                  "value": {
+                                    "id": "partial-20",
+                                    "type": "math_number",
+                                    "fields": {
+                                      "NUM": "12.345"
+                                    },
+                                    "inputs": {}
+                                  }
+                                },
+                                "next": {
+                                  "id": "partial-23",
+                                  "type": "self_set_effect",
+                                  "fields": {
+                                    "scope": "5"
+                                  },
+                                  "inputs": {
+                                    "value": {
+                                      "id": "partial-22",
+                                      "type": "math_number",
+                                      "fields": {
+                                        "NUM": "12.345"
+                                      },
+                                      "inputs": {}
+                                    }
+                                  },
+                                  "next": {
+                                    "id": "partial-25",
+                                    "type": "self_set_effect",
+                                    "fields": {
+                                      "scope": "6"
+                                    },
+                                    "inputs": {
+                                      "value": {
+                                        "id": "partial-24",
+                                        "type": "math_number",
+                                        "fields": {
+                                          "NUM": "12.345"
+                                        },
+                                        "inputs": {}
+                                      }
+                                    },
+                                    "next": {
+                                      "id": "partial-27",
+                                      "type": "variables_set",
+                                      "fields": {
+                                        "variable": "30000000-0000-4000-8000-000000000001"
+                                      },
+                                      "inputs": {
+                                        "value": {
+                                          "id": "partial-26",
+                                          "type": "math_number",
+                                          "fields": {
+                                            "NUM": "42"
+                                          },
+                                          "inputs": {}
+                                        }
+                                      },
+                                      "next": {
+                                        "id": "partial-28",
+                                        "type": "mirror",
+                                        "fields": {
+                                          "sprite": "--self"
+                                        },
+                                        "inputs": {},
+                                        "next": {
+                                          "id": "partial-30",
+                                          "type": "variables_set",
+                                          "fields": {
+                                            "variable": "30000000-0000-4000-8000-000000000001"
+                                          },
+                                          "inputs": {
+                                            "value": {
+                                              "id": "partial-29",
+                                              "type": "math_number",
+                                              "fields": {
+                                                "NUM": "99"
+                                              },
+                                              "inputs": {}
+                                            }
+                                          },
+                                          "next": {
+                                            "id": "partial-33",
+                                            "type": "variables_set",
+                                            "fields": {
+                                              "variable": "p_x_0"
+                                            },
+                                            "inputs": {
+                                              "value": {
+                                                "id": "partial-32",
+                                                "type": "get_clone_index_property",
+                                                "fields": {
+                                                  "sprite": "--self",
+                                                  "attribute": "x"
+                                                },
+                                                "inputs": {
+                                                  "index": {
+                                                    "id": "partial-31",
+                                                    "type": "math_number",
+                                                    "fields": {
+                                                      "NUM": "0"
+                                                    },
+                                                    "inputs": {}
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "next": {
+                                              "id": "partial-36",
+                                              "type": "variables_set",
+                                              "fields": {
+                                                "variable": "p_x_1"
+                                              },
+                                              "inputs": {
+                                                "value": {
+                                                  "id": "partial-35",
+                                                  "type": "get_clone_index_property",
+                                                  "fields": {
+                                                    "sprite": "--self",
+                                                    "attribute": "x"
+                                                  },
+                                                  "inputs": {
+                                                    "index": {
+                                                      "id": "partial-34",
+                                                      "type": "math_number",
+                                                      "fields": {
+                                                        "NUM": "1"
+                                                      },
+                                                      "inputs": {}
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              "next": {
+                                                "id": "partial-39",
+                                                "type": "variables_set",
+                                                "fields": {
+                                                  "variable": "p_y_0"
+                                                },
+                                                "inputs": {
+                                                  "value": {
+                                                    "id": "partial-38",
+                                                    "type": "get_clone_index_property",
+                                                    "fields": {
+                                                      "sprite": "--self",
+                                                      "attribute": "y"
+                                                    },
+                                                    "inputs": {
+                                                      "index": {
+                                                        "id": "partial-37",
+                                                        "type": "math_number",
+                                                        "fields": {
+                                                          "NUM": "0"
+                                                        },
+                                                        "inputs": {}
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                "next": {
+                                                  "id": "partial-42",
+                                                  "type": "variables_set",
+                                                  "fields": {
+                                                    "variable": "p_y_1"
+                                                  },
+                                                  "inputs": {
+                                                    "value": {
+                                                      "id": "partial-41",
+                                                      "type": "get_clone_index_property",
+                                                      "fields": {
+                                                        "sprite": "--self",
+                                                        "attribute": "y"
+                                                      },
+                                                      "inputs": {
+                                                        "index": {
+                                                          "id": "partial-40",
+                                                          "type": "math_number",
+                                                          "fields": {
+                                                            "NUM": "1"
+                                                          },
+                                                          "inputs": {}
+                                                        }
+                                                      }
+                                                    }
+                                                  },
+                                                  "next": {
+                                                    "id": "partial-45",
+                                                    "type": "variables_set",
+                                                    "fields": {
+                                                      "variable": "p_scale_0"
+                                                    },
+                                                    "inputs": {
+                                                      "value": {
+                                                        "id": "partial-44",
+                                                        "type": "get_clone_index_property",
+                                                        "fields": {
+                                                          "sprite": "--self",
+                                                          "attribute": "scale"
+                                                        },
+                                                        "inputs": {
+                                                          "index": {
+                                                            "id": "partial-43",
+                                                            "type": "math_number",
+                                                            "fields": {
+                                                              "NUM": "0"
+                                                            },
+                                                            "inputs": {}
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    "next": {
+                                                      "id": "partial-48",
+                                                      "type": "variables_set",
+                                                      "fields": {
+                                                        "variable": "p_scale_1"
+                                                      },
+                                                      "inputs": {
+                                                        "value": {
+                                                          "id": "partial-47",
+                                                          "type": "get_clone_index_property",
+                                                          "fields": {
+                                                            "sprite": "--self",
+                                                            "attribute": "scale"
+                                                          },
+                                                          "inputs": {
+                                                            "index": {
+                                                              "id": "partial-46",
+                                                              "type": "math_number",
+                                                              "fields": {
+                                                                "NUM": "1"
+                                                              },
+                                                              "inputs": {}
+                                                            }
+                                                          }
+                                                        }
+                                                      },
+                                                      "next": {
+                                                        "id": "partial-51",
+                                                        "type": "variables_set",
+                                                        "fields": {
+                                                          "variable": "p_width_0"
+                                                        },
+                                                        "inputs": {
+                                                          "value": {
+                                                            "id": "partial-50",
+                                                            "type": "get_clone_index_property",
+                                                            "fields": {
+                                                              "sprite": "--self",
+                                                              "attribute": "width"
+                                                            },
+                                                            "inputs": {
+                                                              "index": {
+                                                                "id": "partial-49",
+                                                                "type": "math_number",
+                                                                "fields": {
+                                                                  "NUM": "0"
+                                                                },
+                                                                "inputs": {}
+                                                              }
+                                                            }
+                                                          }
+                                                        },
+                                                        "next": {
+                                                          "id": "partial-54",
+                                                          "type": "variables_set",
+                                                          "fields": {
+                                                            "variable": "p_width_1"
+                                                          },
+                                                          "inputs": {
+                                                            "value": {
+                                                              "id": "partial-53",
+                                                              "type": "get_clone_index_property",
+                                                              "fields": {
+                                                                "sprite": "--self",
+                                                                "attribute": "width"
+                                                              },
+                                                              "inputs": {
+                                                                "index": {
+                                                                  "id": "partial-52",
+                                                                  "type": "math_number",
+                                                                  "fields": {
+                                                                    "NUM": "1"
+                                                                  },
+                                                                  "inputs": {}
+                                                                }
+                                                              }
+                                                            }
+                                                          },
+                                                          "next": {
+                                                            "id": "partial-57",
+                                                            "type": "variables_set",
+                                                            "fields": {
+                                                              "variable": "p_height_0"
+                                                            },
+                                                            "inputs": {
+                                                              "value": {
+                                                                "id": "partial-56",
+                                                                "type": "get_clone_index_property",
+                                                                "fields": {
+                                                                  "sprite": "--self",
+                                                                  "attribute": "height"
+                                                                },
+                                                                "inputs": {
+                                                                  "index": {
+                                                                    "id": "partial-55",
+                                                                    "type": "math_number",
+                                                                    "fields": {
+                                                                      "NUM": "0"
+                                                                    },
+                                                                    "inputs": {}
+                                                                  }
+                                                                }
+                                                              }
+                                                            },
+                                                            "next": {
+                                                              "id": "partial-60",
+                                                              "type": "variables_set",
+                                                              "fields": {
+                                                                "variable": "p_height_1"
+                                                              },
+                                                              "inputs": {
+                                                                "value": {
+                                                                  "id": "partial-59",
+                                                                  "type": "get_clone_index_property",
+                                                                  "fields": {
+                                                                    "sprite": "--self",
+                                                                    "attribute": "height"
+                                                                  },
+                                                                  "inputs": {
+                                                                    "index": {
+                                                                      "id": "partial-58",
+                                                                      "type": "math_number",
+                                                                      "fields": {
+                                                                        "NUM": "1"
+                                                                      },
+                                                                      "inputs": {}
+                                                                    }
+                                                                  }
+                                                                }
+                                                              },
+                                                              "next": {
+                                                                "id": "partial-63",
+                                                                "type": "variables_set",
+                                                                "fields": {
+                                                                  "variable": "p_direction_0"
+                                                                },
+                                                                "inputs": {
+                                                                  "value": {
+                                                                    "id": "partial-62",
+                                                                    "type": "get_clone_index_property",
+                                                                    "fields": {
+                                                                      "sprite": "--self",
+                                                                      "attribute": "direction"
+                                                                    },
+                                                                    "inputs": {
+                                                                      "index": {
+                                                                        "id": "partial-61",
+                                                                        "type": "math_number",
+                                                                        "fields": {
+                                                                          "NUM": "0"
+                                                                        },
+                                                                        "inputs": {}
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                },
+                                                                "next": {
+                                                                  "id": "partial-66",
+                                                                  "type": "variables_set",
+                                                                  "fields": {
+                                                                    "variable": "p_direction_1"
+                                                                  },
+                                                                  "inputs": {
+                                                                    "value": {
+                                                                      "id": "partial-65",
+                                                                      "type": "get_clone_index_property",
+                                                                      "fields": {
+                                                                        "sprite": "--self",
+                                                                        "attribute": "direction"
+                                                                      },
+                                                                      "inputs": {
+                                                                        "index": {
+                                                                          "id": "partial-64",
+                                                                          "type": "math_number",
+                                                                          "fields": {
+                                                                            "NUM": "1"
+                                                                          },
+                                                                          "inputs": {}
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  },
+                                                                  "next": {
+                                                                    "id": "partial-69",
+                                                                    "type": "variables_set",
+                                                                    "fields": {
+                                                                      "variable": "p_style_index_0"
+                                                                    },
+                                                                    "inputs": {
+                                                                      "value": {
+                                                                        "id": "partial-68",
+                                                                        "type": "get_clone_index_property",
+                                                                        "fields": {
+                                                                          "sprite": "--self",
+                                                                          "attribute": "style_index"
+                                                                        },
+                                                                        "inputs": {
+                                                                          "index": {
+                                                                            "id": "partial-67",
+                                                                            "type": "math_number",
+                                                                            "fields": {
+                                                                              "NUM": "0"
+                                                                            },
+                                                                            "inputs": {}
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    "next": {
+                                                                      "id": "partial-72",
+                                                                      "type": "variables_set",
+                                                                      "fields": {
+                                                                        "variable": "p_style_index_1"
+                                                                      },
+                                                                      "inputs": {
+                                                                        "value": {
+                                                                          "id": "partial-71",
+                                                                          "type": "get_clone_index_property",
+                                                                          "fields": {
+                                                                            "sprite": "--self",
+                                                                            "attribute": "style_index"
+                                                                          },
+                                                                          "inputs": {
+                                                                            "index": {
+                                                                              "id": "partial-70",
+                                                                              "type": "math_number",
+                                                                              "fields": {
+                                                                                "NUM": "1"
+                                                                              },
+                                                                              "inputs": {}
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      },
+                                                                      "next": {
+                                                                        "id": "partial-75",
+                                                                        "type": "variables_set",
+                                                                        "fields": {
+                                                                          "variable": "p_0_0"
+                                                                        },
+                                                                        "inputs": {
+                                                                          "value": {
+                                                                            "id": "partial-74",
+                                                                            "type": "get_clone_index_property",
+                                                                            "fields": {
+                                                                              "sprite": "--self",
+                                                                              "attribute": "0"
+                                                                            },
+                                                                            "inputs": {
+                                                                              "index": {
+                                                                                "id": "partial-73",
+                                                                                "type": "math_number",
+                                                                                "fields": {
+                                                                                  "NUM": "0"
+                                                                                },
+                                                                                "inputs": {}
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        },
+                                                                        "next": {
+                                                                          "id": "partial-78",
+                                                                          "type": "variables_set",
+                                                                          "fields": {
+                                                                            "variable": "p_0_1"
+                                                                          },
+                                                                          "inputs": {
+                                                                            "value": {
+                                                                              "id": "partial-77",
+                                                                              "type": "get_clone_index_property",
+                                                                              "fields": {
+                                                                                "sprite": "--self",
+                                                                                "attribute": "0"
+                                                                              },
+                                                                              "inputs": {
+                                                                                "index": {
+                                                                                  "id": "partial-76",
+                                                                                  "type": "math_number",
+                                                                                  "fields": {
+                                                                                    "NUM": "1"
+                                                                                  },
+                                                                                  "inputs": {}
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          },
+                                                                          "next": {
+                                                                            "id": "partial-81",
+                                                                            "type": "variables_set",
+                                                                            "fields": {
+                                                                              "variable": "p_1_0"
+                                                                            },
+                                                                            "inputs": {
+                                                                              "value": {
+                                                                                "id": "partial-80",
+                                                                                "type": "get_clone_index_property",
+                                                                                "fields": {
+                                                                                  "sprite": "--self",
+                                                                                  "attribute": "1"
+                                                                                },
+                                                                                "inputs": {
+                                                                                  "index": {
+                                                                                    "id": "partial-79",
+                                                                                    "type": "math_number",
+                                                                                    "fields": {
+                                                                                      "NUM": "0"
+                                                                                    },
+                                                                                    "inputs": {}
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            },
+                                                                            "next": {
+                                                                              "id": "partial-84",
+                                                                              "type": "variables_set",
+                                                                              "fields": {
+                                                                                "variable": "p_1_1"
+                                                                              },
+                                                                              "inputs": {
+                                                                                "value": {
+                                                                                  "id": "partial-83",
+                                                                                  "type": "get_clone_index_property",
+                                                                                  "fields": {
+                                                                                    "sprite": "--self",
+                                                                                    "attribute": "1"
+                                                                                  },
+                                                                                  "inputs": {
+                                                                                    "index": {
+                                                                                      "id": "partial-82",
+                                                                                      "type": "math_number",
+                                                                                      "fields": {
+                                                                                        "NUM": "1"
+                                                                                      },
+                                                                                      "inputs": {}
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              },
+                                                                              "next": {
+                                                                                "id": "partial-87",
+                                                                                "type": "variables_set",
+                                                                                "fields": {
+                                                                                  "variable": "p_2_0"
+                                                                                },
+                                                                                "inputs": {
+                                                                                  "value": {
+                                                                                    "id": "partial-86",
+                                                                                    "type": "get_clone_index_property",
+                                                                                    "fields": {
+                                                                                      "sprite": "--self",
+                                                                                      "attribute": "2"
+                                                                                    },
+                                                                                    "inputs": {
+                                                                                      "index": {
+                                                                                        "id": "partial-85",
+                                                                                        "type": "math_number",
+                                                                                        "fields": {
+                                                                                          "NUM": "0"
+                                                                                        },
+                                                                                        "inputs": {}
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                },
+                                                                                "next": {
+                                                                                  "id": "partial-90",
+                                                                                  "type": "variables_set",
+                                                                                  "fields": {
+                                                                                    "variable": "p_2_1"
+                                                                                  },
+                                                                                  "inputs": {
+                                                                                    "value": {
+                                                                                      "id": "partial-89",
+                                                                                      "type": "get_clone_index_property",
+                                                                                      "fields": {
+                                                                                        "sprite": "--self",
+                                                                                        "attribute": "2"
+                                                                                      },
+                                                                                      "inputs": {
+                                                                                        "index": {
+                                                                                          "id": "partial-88",
+                                                                                          "type": "math_number",
+                                                                                          "fields": {
+                                                                                            "NUM": "1"
+                                                                                          },
+                                                                                          "inputs": {}
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  },
+                                                                                  "next": {
+                                                                                    "id": "partial-93",
+                                                                                    "type": "variables_set",
+                                                                                    "fields": {
+                                                                                      "variable": "p_3_0"
+                                                                                    },
+                                                                                    "inputs": {
+                                                                                      "value": {
+                                                                                        "id": "partial-92",
+                                                                                        "type": "get_clone_index_property",
+                                                                                        "fields": {
+                                                                                          "sprite": "--self",
+                                                                                          "attribute": "3"
+                                                                                        },
+                                                                                        "inputs": {
+                                                                                          "index": {
+                                                                                            "id": "partial-91",
+                                                                                            "type": "math_number",
+                                                                                            "fields": {
+                                                                                              "NUM": "0"
+                                                                                            },
+                                                                                            "inputs": {}
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    },
+                                                                                    "next": {
+                                                                                      "id": "partial-96",
+                                                                                      "type": "variables_set",
+                                                                                      "fields": {
+                                                                                        "variable": "p_3_1"
+                                                                                      },
+                                                                                      "inputs": {
+                                                                                        "value": {
+                                                                                          "id": "partial-95",
+                                                                                          "type": "get_clone_index_property",
+                                                                                          "fields": {
+                                                                                            "sprite": "--self",
+                                                                                            "attribute": "3"
+                                                                                          },
+                                                                                          "inputs": {
+                                                                                            "index": {
+                                                                                              "id": "partial-94",
+                                                                                              "type": "math_number",
+                                                                                              "fields": {
+                                                                                                "NUM": "1"
+                                                                                              },
+                                                                                              "inputs": {}
+                                                                                            }
+                                                                                          }
+                                                                                        }
+                                                                                      },
+                                                                                      "next": {
+                                                                                        "id": "partial-99",
+                                                                                        "type": "variables_set",
+                                                                                        "fields": {
+                                                                                          "variable": "p_4_0"
+                                                                                        },
+                                                                                        "inputs": {
+                                                                                          "value": {
+                                                                                            "id": "partial-98",
+                                                                                            "type": "get_clone_index_property",
+                                                                                            "fields": {
+                                                                                              "sprite": "--self",
+                                                                                              "attribute": "4"
+                                                                                            },
+                                                                                            "inputs": {
+                                                                                              "index": {
+                                                                                                "id": "partial-97",
+                                                                                                "type": "math_number",
+                                                                                                "fields": {
+                                                                                                  "NUM": "0"
+                                                                                                },
+                                                                                                "inputs": {}
+                                                                                              }
+                                                                                            }
+                                                                                          }
+                                                                                        },
+                                                                                        "next": {
+                                                                                          "id": "partial-102",
+                                                                                          "type": "variables_set",
+                                                                                          "fields": {
+                                                                                            "variable": "p_4_1"
+                                                                                          },
+                                                                                          "inputs": {
+                                                                                            "value": {
+                                                                                              "id": "partial-101",
+                                                                                              "type": "get_clone_index_property",
+                                                                                              "fields": {
+                                                                                                "sprite": "--self",
+                                                                                                "attribute": "4"
+                                                                                              },
+                                                                                              "inputs": {
+                                                                                                "index": {
+                                                                                                  "id": "partial-100",
+                                                                                                  "type": "math_number",
+                                                                                                  "fields": {
+                                                                                                    "NUM": "1"
+                                                                                                  },
+                                                                                                  "inputs": {}
+                                                                                                }
+                                                                                              }
+                                                                                            }
+                                                                                          },
+                                                                                          "next": {
+                                                                                            "id": "partial-105",
+                                                                                            "type": "variables_set",
+                                                                                            "fields": {
+                                                                                              "variable": "p_5_0"
+                                                                                            },
+                                                                                            "inputs": {
+                                                                                              "value": {
+                                                                                                "id": "partial-104",
+                                                                                                "type": "get_clone_index_property",
+                                                                                                "fields": {
+                                                                                                  "sprite": "--self",
+                                                                                                  "attribute": "5"
+                                                                                                },
+                                                                                                "inputs": {
+                                                                                                  "index": {
+                                                                                                    "id": "partial-103",
+                                                                                                    "type": "math_number",
+                                                                                                    "fields": {
+                                                                                                      "NUM": "0"
+                                                                                                    },
+                                                                                                    "inputs": {}
+                                                                                                  }
+                                                                                                }
+                                                                                              }
+                                                                                            },
+                                                                                            "next": {
+                                                                                              "id": "partial-108",
+                                                                                              "type": "variables_set",
+                                                                                              "fields": {
+                                                                                                "variable": "p_5_1"
+                                                                                              },
+                                                                                              "inputs": {
+                                                                                                "value": {
+                                                                                                  "id": "partial-107",
+                                                                                                  "type": "get_clone_index_property",
+                                                                                                  "fields": {
+                                                                                                    "sprite": "--self",
+                                                                                                    "attribute": "5"
+                                                                                                  },
+                                                                                                  "inputs": {
+                                                                                                    "index": {
+                                                                                                      "id": "partial-106",
+                                                                                                      "type": "math_number",
+                                                                                                      "fields": {
+                                                                                                        "NUM": "1"
+                                                                                                      },
+                                                                                                      "inputs": {}
+                                                                                                    }
+                                                                                                  }
+                                                                                                }
+                                                                                              },
+                                                                                              "next": {
+                                                                                                "id": "partial-111",
+                                                                                                "type": "variables_set",
+                                                                                                "fields": {
+                                                                                                  "variable": "p_6_0"
+                                                                                                },
+                                                                                                "inputs": {
+                                                                                                  "value": {
+                                                                                                    "id": "partial-110",
+                                                                                                    "type": "get_clone_index_property",
+                                                                                                    "fields": {
+                                                                                                      "sprite": "--self",
+                                                                                                      "attribute": "6"
+                                                                                                    },
+                                                                                                    "inputs": {
+                                                                                                      "index": {
+                                                                                                        "id": "partial-109",
+                                                                                                        "type": "math_number",
+                                                                                                        "fields": {
+                                                                                                          "NUM": "0"
+                                                                                                        },
+                                                                                                        "inputs": {}
+                                                                                                      }
+                                                                                                    }
+                                                                                                  }
+                                                                                                },
+                                                                                                "next": {
+                                                                                                  "id": "partial-114",
+                                                                                                  "type": "variables_set",
+                                                                                                  "fields": {
+                                                                                                    "variable": "p_6_1"
+                                                                                                  },
+                                                                                                  "inputs": {
+                                                                                                    "value": {
+                                                                                                      "id": "partial-113",
+                                                                                                      "type": "get_clone_index_property",
+                                                                                                      "fields": {
+                                                                                                        "sprite": "--self",
+                                                                                                        "attribute": "6"
+                                                                                                      },
+                                                                                                      "inputs": {
+                                                                                                        "index": {
+                                                                                                          "id": "partial-112",
+                                                                                                          "type": "math_number",
+                                                                                                          "fields": {
+                                                                                                            "NUM": "1"
+                                                                                                          },
+                                                                                                          "inputs": {}
+                                                                                                        }
+                                                                                                      }
+                                                                                                    }
+                                                                                                  },
+                                                                                                  "next": {
+                                                                                                    "id": "partial-117",
+                                                                                                    "type": "variables_set",
+                                                                                                    "fields": {
+                                                                                                      "variable": "local_0"
+                                                                                                    },
+                                                                                                    "inputs": {
+                                                                                                      "value": {
+                                                                                                        "id": "partial-116",
+                                                                                                        "type": "get_clone_index_property",
+                                                                                                        "fields": {
+                                                                                                          "sprite": "--self",
+                                                                                                          "attribute": "30000000-0000-4000-8000-000000000001"
+                                                                                                        },
+                                                                                                        "inputs": {
+                                                                                                          "index": {
+                                                                                                            "id": "partial-115",
+                                                                                                            "type": "math_number",
+                                                                                                            "fields": {
+                                                                                                              "NUM": "0"
+                                                                                                            },
+                                                                                                            "inputs": {}
+                                                                                                          }
+                                                                                                        }
+                                                                                                      }
+                                                                                                    },
+                                                                                                    "next": {
+                                                                                                      "id": "partial-120",
+                                                                                                      "type": "variables_set",
+                                                                                                      "fields": {
+                                                                                                        "variable": "local_1"
+                                                                                                      },
+                                                                                                      "inputs": {
+                                                                                                        "value": {
+                                                                                                          "id": "partial-119",
+                                                                                                          "type": "get_clone_index_property",
+                                                                                                          "fields": {
+                                                                                                            "sprite": "--self",
+                                                                                                            "attribute": "30000000-0000-4000-8000-000000000001"
+                                                                                                          },
+                                                                                                          "inputs": {
+                                                                                                            "index": {
+                                                                                                              "id": "partial-118",
+                                                                                                              "type": "math_number",
+                                                                                                              "fields": {
+                                                                                                                "NUM": "1"
+                                                                                                              },
+                                                                                                              "inputs": {}
+                                                                                                            }
+                                                                                                          }
+                                                                                                        }
+                                                                                                      },
+                                                                                                      "next": {
+                                                                                                        "id": "partial-127",
+                                                                                                        "type": "variables_set",
+                                                                                                        "fields": {
+                                                                                                          "variable": "text_index"
+                                                                                                        },
+                                                                                                        "inputs": {
+                                                                                                          "value": {
+                                                                                                            "id": "partial-126",
+                                                                                                            "type": "get_clone_index_property",
+                                                                                                            "fields": {
+                                                                                                              "sprite": "--self",
+                                                                                                              "attribute": "width"
+                                                                                                            },
+                                                                                                            "inputs": {
+                                                                                                              "index": {
+                                                                                                                "id": "partial-121",
+                                                                                                                "type": "variables_get",
+                                                                                                                "fields": {
+                                                                                                                  "variable": "input_text"
+                                                                                                                },
+                                                                                                                "inputs": {}
+                                                                                                              }
+                                                                                                            }
+                                                                                                          }
+                                                                                                        },
+                                                                                                        "next": {
+                                                                                                          "id": "partial-129",
+                                                                                                          "type": "variables_set",
+                                                                                                          "fields": {
+                                                                                                            "variable": "bool_index"
+                                                                                                          },
+                                                                                                          "inputs": {
+                                                                                                            "value": {
+                                                                                                              "id": "partial-128",
+                                                                                                              "type": "get_clone_index_property",
+                                                                                                              "fields": {
+                                                                                                                "sprite": "--self",
+                                                                                                                "attribute": "width"
+                                                                                                              },
+                                                                                                              "inputs": {
+                                                                                                                "index": {
+                                                                                                                  "id": "partial-122",
+                                                                                                                  "type": "variables_get",
+                                                                                                                  "fields": {
+                                                                                                                    "variable": "input_bool"
+                                                                                                                  },
+                                                                                                                  "inputs": {}
+                                                                                                                }
+                                                                                                              }
+                                                                                                            }
+                                                                                                          },
+                                                                                                          "next": {
+                                                                                                            "id": "partial-131",
+                                                                                                            "type": "variables_set",
+                                                                                                            "fields": {
+                                                                                                              "variable": "fraction_index"
+                                                                                                            },
+                                                                                                            "inputs": {
+                                                                                                              "value": {
+                                                                                                                "id": "partial-130",
+                                                                                                                "type": "get_clone_index_property",
+                                                                                                                "fields": {
+                                                                                                                  "sprite": "--self",
+                                                                                                                  "attribute": "width"
+                                                                                                                },
+                                                                                                                "inputs": {
+                                                                                                                  "index": {
+                                                                                                                    "id": "partial-123",
+                                                                                                                    "type": "math_number",
+                                                                                                                    "fields": {
+                                                                                                                      "NUM": "0.5"
+                                                                                                                    },
+                                                                                                                    "inputs": {}
+                                                                                                                  }
+                                                                                                                }
+                                                                                                              }
+                                                                                                            },
+                                                                                                            "next": {
+                                                                                                              "id": "partial-133",
+                                                                                                              "type": "variables_set",
+                                                                                                              "fields": {
+                                                                                                                "variable": "missing_index"
+                                                                                                              },
+                                                                                                              "inputs": {
+                                                                                                                "value": {
+                                                                                                                  "id": "partial-132",
+                                                                                                                  "type": "get_clone_index_property",
+                                                                                                                  "fields": {
+                                                                                                                    "sprite": "--self",
+                                                                                                                    "attribute": "width"
+                                                                                                                  },
+                                                                                                                  "inputs": {
+                                                                                                                    "index": {
+                                                                                                                      "id": "partial-124",
+                                                                                                                      "type": "math_number",
+                                                                                                                      "fields": {
+                                                                                                                        "NUM": "999"
+                                                                                                                      },
+                                                                                                                      "inputs": {}
+                                                                                                                    }
+                                                                                                                  }
+                                                                                                                }
+                                                                                                              },
+                                                                                                              "next": {
+                                                                                                                "id": "partial-135",
+                                                                                                                "type": "variables_set",
+                                                                                                                "fields": {
+                                                                                                                  "variable": "negative_index"
+                                                                                                                },
+                                                                                                                "inputs": {
+                                                                                                                  "value": {
+                                                                                                                    "id": "partial-134",
+                                                                                                                    "type": "get_clone_index_property",
+                                                                                                                    "fields": {
+                                                                                                                      "sprite": "--self",
+                                                                                                                      "attribute": "width"
+                                                                                                                    },
+                                                                                                                    "inputs": {
+                                                                                                                      "index": {
+                                                                                                                        "id": "partial-125",
+                                                                                                                        "type": "math_number",
+                                                                                                                        "fields": {
+                                                                                                                          "NUM": "-1"
+                                                                                                                        },
+                                                                                                                        "inputs": {}
+                                                                                                                      }
+                                                                                                                    }
+                                                                                                                  }
+                                                                                                                },
+                                                                                                                "next": {
+                                                                                                                  "id": "partial-137",
+                                                                                                                  "type": "variables_set",
+                                                                                                                  "fields": {
+                                                                                                                    "variable": "mouse_0_down"
+                                                                                                                  },
+                                                                                                                  "inputs": {
+                                                                                                                    "value": {
+                                                                                                                      "id": "partial-136",
+                                                                                                                      "type": "mouse_down",
+                                                                                                                      "fields": {
+                                                                                                                        "sprite": "--screen",
+                                                                                                                        "type": "down"
+                                                                                                                      },
+                                                                                                                      "inputs": {}
+                                                                                                                    }
+                                                                                                                  },
+                                                                                                                  "next": {
+                                                                                                                    "id": "partial-139",
+                                                                                                                    "type": "variables_set",
+                                                                                                                    "fields": {
+                                                                                                                      "variable": "mouse_0_click"
+                                                                                                                    },
+                                                                                                                    "inputs": {
+                                                                                                                      "value": {
+                                                                                                                        "id": "partial-138",
+                                                                                                                        "type": "mouse_down",
+                                                                                                                        "fields": {
+                                                                                                                          "sprite": "--screen",
+                                                                                                                          "type": "click"
+                                                                                                                        },
+                                                                                                                        "inputs": {}
+                                                                                                                      }
+                                                                                                                    },
+                                                                                                                    "next": {
+                                                                                                                      "id": "partial-141",
+                                                                                                                      "type": "variables_set",
+                                                                                                                      "fields": {
+                                                                                                                        "variable": "mouse_0_up"
+                                                                                                                      },
+                                                                                                                      "inputs": {
+                                                                                                                        "value": {
+                                                                                                                          "id": "partial-140",
+                                                                                                                          "type": "mouse_down",
+                                                                                                                          "fields": {
+                                                                                                                            "sprite": "--screen",
+                                                                                                                            "type": "up"
+                                                                                                                          },
+                                                                                                                          "inputs": {}
+                                                                                                                        }
+                                                                                                                      },
+                                                                                                                      "next": {
+                                                                                                                        "id": "partial-143",
+                                                                                                                        "type": "variables_set",
+                                                                                                                        "fields": {
+                                                                                                                          "variable": "mouse_1_down"
+                                                                                                                        },
+                                                                                                                        "inputs": {
+                                                                                                                          "value": {
+                                                                                                                            "id": "partial-142",
+                                                                                                                            "type": "mouse_down",
+                                                                                                                            "fields": {
+                                                                                                                              "sprite": "--self",
+                                                                                                                              "type": "down"
+                                                                                                                            },
+                                                                                                                            "inputs": {}
+                                                                                                                          }
+                                                                                                                        },
+                                                                                                                        "next": {
+                                                                                                                          "id": "partial-145",
+                                                                                                                          "type": "variables_set",
+                                                                                                                          "fields": {
+                                                                                                                            "variable": "mouse_1_click"
+                                                                                                                          },
+                                                                                                                          "inputs": {
+                                                                                                                            "value": {
+                                                                                                                              "id": "partial-144",
+                                                                                                                              "type": "mouse_down",
+                                                                                                                              "fields": {
+                                                                                                                                "sprite": "--self",
+                                                                                                                                "type": "click"
+                                                                                                                              },
+                                                                                                                              "inputs": {}
+                                                                                                                            }
+                                                                                                                          },
+                                                                                                                          "next": {
+                                                                                                                            "id": "partial-147",
+                                                                                                                            "type": "variables_set",
+                                                                                                                            "fields": {
+                                                                                                                              "variable": "mouse_1_up"
+                                                                                                                            },
+                                                                                                                            "inputs": {
+                                                                                                                              "value": {
+                                                                                                                                "id": "partial-146",
+                                                                                                                                "type": "mouse_down",
+                                                                                                                                "fields": {
+                                                                                                                                  "sprite": "--self",
+                                                                                                                                  "type": "up"
+                                                                                                                                },
+                                                                                                                                "inputs": {}
+                                                                                                                              }
+                                                                                                                            },
+                                                                                                                            "next": {
+                                                                                                                              "id": "partial-149",
+                                                                                                                              "type": "variables_set",
+                                                                                                                              "fields": {
+                                                                                                                                "variable": "mouse_2_down"
+                                                                                                                              },
+                                                                                                                              "inputs": {
+                                                                                                                                "value": {
+                                                                                                                                  "id": "partial-148",
+                                                                                                                                  "type": "mouse_down",
+                                                                                                                                  "fields": {
+                                                                                                                                    "sprite": "nekoc-default-actor",
+                                                                                                                                    "type": "down"
+                                                                                                                                  },
+                                                                                                                                  "inputs": {}
+                                                                                                                                }
+                                                                                                                              },
+                                                                                                                              "next": {
+                                                                                                                                "id": "partial-151",
+                                                                                                                                "type": "variables_set",
+                                                                                                                                "fields": {
+                                                                                                                                  "variable": "mouse_2_click"
+                                                                                                                                },
+                                                                                                                                "inputs": {
+                                                                                                                                  "value": {
+                                                                                                                                    "id": "partial-150",
+                                                                                                                                    "type": "mouse_down",
+                                                                                                                                    "fields": {
+                                                                                                                                      "sprite": "nekoc-default-actor",
+                                                                                                                                      "type": "click"
+                                                                                                                                    },
+                                                                                                                                    "inputs": {}
+                                                                                                                                  }
+                                                                                                                                },
+                                                                                                                                "next": {
+                                                                                                                                  "id": "partial-153",
+                                                                                                                                  "type": "variables_set",
+                                                                                                                                  "fields": {
+                                                                                                                                    "variable": "mouse_2_up"
+                                                                                                                                  },
+                                                                                                                                  "inputs": {
+                                                                                                                                    "value": {
+                                                                                                                                      "id": "partial-152",
+                                                                                                                                      "type": "mouse_down",
+                                                                                                                                      "fields": {
+                                                                                                                                        "sprite": "nekoc-default-actor",
+                                                                                                                                        "type": "up"
+                                                                                                                                      },
+                                                                                                                                      "inputs": {}
+                                                                                                                                    }
+                                                                                                                                  },
+                                                                                                                                  "next": {
+                                                                                                                                    "id": "partial-155",
+                                                                                                                                    "type": "variables_set",
+                                                                                                                                    "fields": {
+                                                                                                                                      "variable": "done"
+                                                                                                                                    },
+                                                                                                                                    "inputs": {
+                                                                                                                                      "value": {
+                                                                                                                                        "id": "partial-154",
+                                                                                                                                        "type": "math_number",
+                                                                                                                                        "fields": {
+                                                                                                                                          "NUM": "1"
+                                                                                                                                        },
+                                                                                                                                        "inputs": {}
+                                                                                                                                      }
+                                                                                                                                    }
+                                                                                                                                  }
+                                                                                                                                }
+                                                                                                                              }
+                                                                                                                            }
+                                                                                                                          }
+                                                                                                                        }
+                                                                                                                      }
+                                                                                                                    }
+                                                                                                                  }
+                                                                                                                }
+                                                                                                              }
+                                                                                                            }
+                                                                                                          }
+                                                                                                        }
+                                                                                                      }
+                                                                                                    }
+                                                                                                  }
+                                                                                                }
+                                                                                              }
+                                                                                            }
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "comments": {}
+      }
+    }
+  },
+  "styles": {
+    "stylesDict": {
+      "nekoc-background": {
+        "id": "nekoc-background",
+        "name": "Background",
+        "url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='562'%3E%3Crect width='900' height='562' fill='white'/%3E%3C/svg%3E"
+      },
+      "nekoc-costume": {
+        "id": "nekoc-costume",
+        "name": "Sprite",
+        "url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Ccircle cx='20' cy='20' r='18' fill='rgb(96,143,238)'/%3E%3C/svg%3E",
+        "centerPoint": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    }
+  },
+  "variables": {
+    "variablesDict": {
+      "done": {
+        "id": "done",
+        "name": "done",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "input_text": {
+        "id": "input_text",
+        "name": "input_text",
+        "value": "1",
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "input_bool": {
+        "id": "input_bool",
+        "name": "input_bool",
+        "value": true,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "p_x_0": {
+        "id": "p_x_0",
+        "name": "p_x_0",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "p_x_1": {
+        "id": "p_x_1",
+        "name": "p_x_1",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "p_y_0": {
+        "id": "p_y_0",
+        "name": "p_y_0",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "p_y_1": {
+        "id": "p_y_1",
+        "name": "p_y_1",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "p_scale_0": {
+        "id": "p_scale_0",
+        "name": "p_scale_0",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "p_scale_1": {
+        "id": "p_scale_1",
+        "name": "p_scale_1",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "p_width_0": {
+        "id": "p_width_0",
+        "name": "p_width_0",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "p_width_1": {
+        "id": "p_width_1",
+        "name": "p_width_1",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "p_height_0": {
+        "id": "p_height_0",
+        "name": "p_height_0",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "p_height_1": {
+        "id": "p_height_1",
+        "name": "p_height_1",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "p_direction_0": {
+        "id": "p_direction_0",
+        "name": "p_direction_0",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "p_direction_1": {
+        "id": "p_direction_1",
+        "name": "p_direction_1",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "p_style_index_0": {
+        "id": "p_style_index_0",
+        "name": "p_style_index_0",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "p_style_index_1": {
+        "id": "p_style_index_1",
+        "name": "p_style_index_1",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "p_0_0": {
+        "id": "p_0_0",
+        "name": "p_0_0",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "p_0_1": {
+        "id": "p_0_1",
+        "name": "p_0_1",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "p_1_0": {
+        "id": "p_1_0",
+        "name": "p_1_0",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "p_1_1": {
+        "id": "p_1_1",
+        "name": "p_1_1",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "p_2_0": {
+        "id": "p_2_0",
+        "name": "p_2_0",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "p_2_1": {
+        "id": "p_2_1",
+        "name": "p_2_1",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "p_3_0": {
+        "id": "p_3_0",
+        "name": "p_3_0",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "p_3_1": {
+        "id": "p_3_1",
+        "name": "p_3_1",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "p_4_0": {
+        "id": "p_4_0",
+        "name": "p_4_0",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "p_4_1": {
+        "id": "p_4_1",
+        "name": "p_4_1",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "p_5_0": {
+        "id": "p_5_0",
+        "name": "p_5_0",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "p_5_1": {
+        "id": "p_5_1",
+        "name": "p_5_1",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "p_6_0": {
+        "id": "p_6_0",
+        "name": "p_6_0",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "p_6_1": {
+        "id": "p_6_1",
+        "name": "p_6_1",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "local_0": {
+        "id": "local_0",
+        "name": "local_0",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "local_1": {
+        "id": "local_1",
+        "name": "local_1",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "text_index": {
+        "id": "text_index",
+        "name": "text_index",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "bool_index": {
+        "id": "bool_index",
+        "name": "bool_index",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "fraction_index": {
+        "id": "fraction_index",
+        "name": "fraction_index",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "missing_index": {
+        "id": "missing_index",
+        "name": "missing_index",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "negative_index": {
+        "id": "negative_index",
+        "name": "negative_index",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "mouse_0_down": {
+        "id": "mouse_0_down",
+        "name": "mouse_0_down",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "mouse_0_click": {
+        "id": "mouse_0_click",
+        "name": "mouse_0_click",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "mouse_0_up": {
+        "id": "mouse_0_up",
+        "name": "mouse_0_up",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "mouse_1_down": {
+        "id": "mouse_1_down",
+        "name": "mouse_1_down",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "mouse_1_click": {
+        "id": "mouse_1_click",
+        "name": "mouse_1_click",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "mouse_1_up": {
+        "id": "mouse_1_up",
+        "name": "mouse_1_up",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "mouse_2_down": {
+        "id": "mouse_2_down",
+        "name": "mouse_2_down",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "mouse_2_click": {
+        "id": "mouse_2_click",
+        "name": "mouse_2_click",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "mouse_2_up": {
+        "id": "mouse_2_up",
+        "name": "mouse_2_up",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "30000000-0000-4000-8000-000000000001": {
+        "id": "30000000-0000-4000-8000-000000000001",
+        "name": "private value",
+        "value": 0,
+        "type": "any",
+        "isGlobal": false,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    }
+  },
+  "broadcasts": {
+    "broadcastsDict": {
+      "nekoc-scene-main": []
+    }
+  },
+  "procedures": {
+    "proceduresDict": {}
+  },
+  "audios": {
+    "audiosDict": {},
+    "sortList": [],
+    "currentAudioId": ""
+  },
+  "hidden_toolbox": {
+    "toolbox": [],
+    "blocks": [],
+    "forcibleShowBlocks": [],
+    "isCombine": false
+  },
+  "courseMaterials": {
+    "courseMaterialsDict": {},
+    "sortList": []
+  },
+  "previewUrl": ""
+}
