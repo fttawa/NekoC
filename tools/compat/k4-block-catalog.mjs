@@ -423,7 +423,7 @@ export function mappingStatus(root, rows) {
     }
     if (row.type === "set_entity_show_hide") {
       semantics = "partial";
-      limitations.push("角色/分组/场景显隐与有限正时长并发渐变已有源码推导回归；点击状态清理、取消/删克隆、竞争渐变和非有限时长未验证；删除引用沿用通用 noop 策略（官方悬空 UUID 行为未验证）");
+      limitations.push("第五轮17份原创夹具408官方帧：渐变尾部update相位、竞争alpha斜率叠加、取消调用方冻结、隐藏清理held指针、零/负/NaN/Infinity时长已实测；逐帧/像素结果见 kitten4-partial-visibility-5.md。克隆删除仍有一帧生命周期差异，场景/悬空UUID/非60Hz与完整手势边界保留partial");
     }
     if (row.type === "self_shake" && evidence.length) {
       semantics = "partial";
@@ -449,10 +449,10 @@ export function mappingStatus(root, rows) {
     }
     if (["get", "get_2", "get_3"].includes(row.type) && evidence.length) {
       semantics = "partial";
-      limitations.push("get/get_2/get_3 统一原生属性：全属性、目标字符串/悬空 UUID、角色/场景、克隆 self/原型、局部/全局变量已有 22 个原创夹具官方实测；非有限状态、无造型、iOS ASCII、惰性变量槽副作用仍有限制，见 kitten4-partial-properties.md");
+      limitations.push("get/get_2/get_3 统一原生属性：原22夹具外，第五轮补全局列表引用与双向修改、执行时惰性未知UUID槽、空造型编号/名称；8夹具96官方帧与40对零差异画布见 kitten4-partial-properties-5.md；非有限状态、删除竞争、iOS ASCII及其他资源加载边界仍未验证");
     }
     if (row.type === "get_clone_index_property" && evidence.length) {
-      limitations.push("严格索引类型与范围、场景/缺克隆错误及全属性已有离线官方实测；继承属性/效果与跨平台剩余边界，见 kitten4-partial-properties.md");
+      limitations.push("严格索引类型与范围、场景/缺克隆错误及全属性已有离线官方实测；第五轮新增UUID列表引用与惰性槽逐帧/像素证据见 kitten4-partial-properties-5.md；继承属性/效果、删除竞争与跨平台边界仍有限制");
     }
     if (row.official.some(e => e.module === "ls7Z")) {
       limitations.push("官方此离线包 ls7Z 本身为提示/noop/NaN；本地省略硬件 toast UI，事件不触发；不能据此声称硬件控制已支持，逐项分类见 kitten4-devices.md");
@@ -499,6 +499,7 @@ export function markdownReport(report) {
     `已知 partial：${report.rows.filter(r => r.semantics === "partial").length} 项（不是第五种主状态）。`, "",
     "## 本次按频率补齐", "",
     "- 第四轮按只读语料频率×成本优先补齐 self_set_role_camp（1336 次）：任意字符串不再受四值表示限制，180 帧官方原创夹具及双 VM 回归见 kitten4-partial-camp-4.md；其他高频物理/滤镜/属性项保留未解决边界。",
+    "- 第五轮继续按频率×独立修复成本选择 get_3（2049 次）及克隆属性、显隐（64 次）；补列表引用、惰性 UUID 槽、无造型及显隐逐帧边界，原创状态/像素证据与保留范围见 kitten4-partial-5.md。仍有剩余边界的类型不以终态一致去 partial。",
     "- partial 专项：实际基线为 98 项（任务说明约 67 项已过时）。先核对高频属性、效果、阵营与舞台/拖拽；本轮证据及明确未完成范围见 kitten4-partial-properties.md、kitten4-partial-effects.md、kitten4-partial-misc.md。未完成官方实测的项保留 partial，不以仅有执行映射冒充完成。",
     "- partial 第二轮从 96 项继续按语料高频核对物理、云、印章与场景过渡，另核验文本搜索与媒体默认 reporter；41 份原创夹具经官方离线实测及回归，修复与保留边界见 kitten4-physics-partial.md、kitten4-partial-cloud-2.md、kitten4-partial-drawing.md、kitten4-partial-text-2.md。物理求解器、在线云、字体/图像像素和真实过渡动画仍不完整，保留 partial。",
     "- 第三轮：剩余 46 个类型逐项增加执行映射或固定官方错误边界，最后一个 flexibility stub 实现硬体 adapter；媒体/设备通过明确 host 请求、完成结果和事件 API，不伪装真实设备可用。源码定位、原创回归与未接 viewer 限制见 kitten4-third-round.md、kitten4-third-media.md、kitten4-third-physics.md。",

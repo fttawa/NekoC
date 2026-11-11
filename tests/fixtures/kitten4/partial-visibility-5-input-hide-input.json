@@ -1,0 +1,19 @@
+{
+  "schema": "nekoc-input-v1",
+  "events": [
+    {
+      "frame": 2,
+      "time_ms": 20,
+      "type": "pointerdown",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "frame": 17,
+      "time_ms": 320,
+      "type": "pointerup",
+      "x": 0,
+      "y": 0
+    }
+  ]
+}
