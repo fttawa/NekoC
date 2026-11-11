@@ -117,7 +117,7 @@ impl Engine {
             .map(|i| self.eval_value(self.program.value_args[i as usize], actor))
             .collect();
         let object = Cell::Object(Default::default());
-        for pair in args.chunks_exact(2) {
+        for pair in args.as_chunks::<2>().0 {
             if !pair[0].truth() {
                 break;
             }

@@ -34,8 +34,8 @@ impl Cell {
                 // Batch the negative-search common case without changing the
                 // first-match result or coercing mixed-type list elements.
                 let equal = |v: &Cell| matches!(v, Self::Number(n) if n == needle);
-                let mut chunks = items.chunks_exact(4);
-                for (i, chunk) in chunks.by_ref().enumerate() {
+                let (chunks, rest) = items.as_chunks::<4>();
+                for (i, chunk) in chunks.iter().enumerate() {
                     let hits = [
                         equal(&chunk[0]),
                         equal(&chunk[1]),
@@ -46,7 +46,6 @@ impl Cell {
                         return Some(i * 4 + hits.iter().position(|&v| v).unwrap());
                     }
                 }
-                let rest = chunks.remainder();
                 rest.iter()
                     .position(equal)
                     .map(|i| items.len() - rest.len() + i)

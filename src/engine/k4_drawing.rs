@@ -197,11 +197,13 @@ mod tests {
             .unwrap();
         let pixels = engine.pen_rasters[engine.current_scene].as_ref().unwrap();
         let drawn = pixels
-            .chunks_exact(4)
+            .as_chunks::<4>()
+            .0
+            .iter()
             .filter(|p| p[3] != 0)
             .collect::<Vec<_>>();
         assert!(!drawn.is_empty());
-        assert!(drawn.iter().all(|p| *p == [200, 40, 30, 255]));
+        assert!(drawn.iter().all(|p| **p == [200, 40, 30, 255]));
     }
 
     #[test]
