@@ -42,7 +42,7 @@ use std::{
     collections::{BTreeMap, BTreeSet, VecDeque},
     time::{Duration, Instant},
 };
-pub use value::Cell;
+pub use value::{Cell, Text};
 use value::{List, ListRef, Span, Target, ValueExpr};
 pub use video::VideoState;
 
@@ -7916,11 +7916,14 @@ impl Engine {
                     // second reporter. A list must stringify before that reporter
                     // can mutate it (the general join path's evaluation order).
                     let a = self.eval_value(self.program.value_args[parts.start as usize], actor);
-                    if matches!(a, Cell::Text(_))
-                        && self.program.semantics != RuntimeSemantics::KnCurrent
-                    {
+                    if matches!(a, Cell::Text(_)) {
                         let b = self
                             .eval_value(self.program.value_args[parts.start as usize + 1], actor);
+                        if self.program.semantics == RuntimeSemantics::KnCurrent
+                            && matches!(b, Cell::Undefined)
+                        {
+                            return a;
+                        }
                         return Cell::concat(&a, &b);
                     }
                     let stopped = self.program.semantics == RuntimeSemantics::KnCurrent
@@ -8053,7 +8056,7 @@ impl Engine {
                     return match String::from_utf16(selected) {
                         Ok(text) => Cell::Text(text.into()),
                         Err(_) => {
-                            // Rc<str> cannot preserve JS lone surrogate code
+                            // UTF-8 text cannot preserve JS lone surrogate code
                             // units. Fail explicitly instead of substituting U+FFFD.
                             self.value_error = Some("KN text_select produced an isolated UTF-16 surrogate; the current string model cannot preserve it".into());
                             Cell::Null
@@ -8852,9 +8855,8 @@ impl Engine {
                             .get(*id)
                             .is_some_and(|n| n == name.trim())
                     }),
-                    Cell::Text(id) | Cell::Costume(id) => {
-                        styles.iter().find(|s| s.as_str() == id.as_ref())
-                    }
+                    Cell::Text(id) => styles.iter().find(|s| s.as_str() == id.as_ref()),
+                    Cell::Costume(id) => styles.iter().find(|s| s.as_str() == id.as_ref()),
                     Cell::Number(n) if k4 && n.is_finite() && !styles.is_empty() => {
                         // Official Tn6a p(): round(index-1), then wrap, including negatives.
                         let index = (n - 0.5).floor().rem_euclid(styles.len() as f64) as usize;

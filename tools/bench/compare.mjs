@@ -7,6 +7,23 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 export function compare(before, after) {
+  const crossRuntime = before.binary?.runtime === "official" || after.binary?.runtime === "official";
+  const ambiguous = value => value == null || typeof value === "number" && !Number.isFinite(value)
+    || typeof value === "object" && Object.values(value).some(ambiguous);
+  const normalizedState = run => {
+    const state = structuredClone(run.final_state);
+    if (!state) return state;
+    delete state.frame;
+    if (crossRuntime) {
+      // Official-only display labels and absent-vs-empty entity maps are
+      // diagnostics. Keep every actual variable (including private cells).
+      delete state.variable_names;
+      if (state.entity_variables) for (const [id, values] of Object.entries(state.entity_variables)) {
+        if (values && !Array.isArray(values) && typeof values === "object" && Object.keys(values).length === 0) delete state.entity_variables[id];
+      }
+    }
+    return state;
+  };
   if (before.options && after.options && ["frames", "warmup"].some(k => before.options[k] !== after.options[k])) throw new Error("Frame/warmup options differ");
   return before.works.map(a => {
     const b = after.works.find(b => b.name === a.name);
@@ -15,11 +32,11 @@ export function compare(before, after) {
     if (left.length !== a.runs.length || right.length !== b.runs.length || !left.length || !right.length) return { name: a.name, status: "unverified" };
     for (const r of [...left, ...right]) {
       if (r.seed !== left[0].seed || r.frames !== left[0].frames || r.warmup !== left[0].warmup) return { name: a.name, status: "configuration-mismatch" };
-      const state = structuredClone(r.final_state);
-      // Snapshot frame numbering is a diagnostic only; runtime state stays strict.
-      if (state) delete state.frame;
-      const expected = structuredClone(left[0].final_state);
-      if (expected) delete expected.frame;
+      // The legacy performance JSON maps nonfinite values to null. Do not claim
+      // cross-kernel value equality for ambiguous variable encodings.
+      if (crossRuntime && (ambiguous(r.final_state?.variables) || ambiguous(r.final_state?.entity_variables))) return { name: a.name, status: "unverified" };
+      const state = normalizedState(r);
+      const expected = normalizedState(left[0]);
       if (!state || !isDeepStrictEqual(state, expected)) return { name: a.name, status: "state-mismatch" };
     }
     const l = summarize(left.map(r => r.summary_ms.mean)).median;

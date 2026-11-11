@@ -25,6 +25,14 @@ node tools/bench/run.mjs --runtime both --fixtures dist/bench/prepared --corpus 
 正式优化前后推荐用交错顺序的配对测试，避免测试时间/温度漂移：
 `node tools/bench/paired.mjs dist/bench/bin/before.exe target/release/perf-bench.exe dist/bench/prepared dist/bench/paired`
 （7 次独立进程，预热 10 帧、测量 120 帧；记录二进制 SHA-256）。
+也可把一个二进制参数替换成 `official`，交替运行外部离线 K4 与原生二进制；
+例如 `node tools/bench/paired.mjs official target/release/perf-bench.exe dist/bench/prepared-string dist/bench/string-official`。
+跨内核仍严格检查最终全状态；克隆/广播等已知工作量不同的作品会拒绝输出速度比。
+跨内核比较只额外忽略官方显示名称 `variable_names` 和缺省/空的实体变量映射项，
+仍比较所有实际全局、列表和私有值；帧号沿用原有诊断字段忽略约定。
+旧性能快照 JSON 会将非有限数合并为 null；跨内核变量含 null/非有限数时保守返回
+`unverified`，不凭该编码输出速度比。对象中已省略的 undefined 和符号零仍未完整保型，
+官方配对当前只认证受控、有限数/文本/布尔/列表的自有夹具，不是通用语义 oracle。
 最终状态相同仍不是逐帧语义等价的证明，回归以 `tests/jit_differential.rs` 等测试为准。
 官方加载由 oracle 的 `timeoutMs` 限制，整个 worker 子进程另有 `--timeout` 硬超时（默认 120 秒）。
 若操作系统强制终止 worker，浏览器的正常关闭 finally 无法保证执行，应检查是否残留孤立进程。
