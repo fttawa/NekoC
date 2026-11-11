@@ -1,0 +1,566 @@
+{
+  "projectName": "NekoC",
+  "version": "0.27.4",
+  "toolType": "KN",
+  "stageSize": {
+    "width": 900,
+    "height": 562
+  },
+  "scenes": {
+    "currentSceneId": "nekoc-scene-main",
+    "sortList": [
+      "nekoc-scene-main"
+    ],
+    "scenesDict": {
+      "nekoc-scene-main": {
+        "id": "nekoc-scene-main",
+        "name": "Background",
+        "screenName": "Main",
+        "styles": [
+          "nekoc-background"
+        ],
+        "currentStyleId": "nekoc-background",
+        "actorIds": [
+          "20000000-0000-4000-8000-000000000001",
+          "20000000-0000-4000-8000-000000000002"
+        ],
+        "visible": true,
+        "editable": true,
+        "workspaceScrollXy": {
+          "x": 100,
+          "y": 50
+        },
+        "nekoBlockJsonList": [],
+        "comments": {}
+      }
+    }
+  },
+  "actors": {
+    "actorsDict": {
+      "20000000-0000-4000-8000-000000000001": {
+        "id": "20000000-0000-4000-8000-000000000001",
+        "name": "Probe",
+        "styles": [
+          "nekoc-costume"
+        ],
+        "currentStyleId": "nekoc-costume",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": 100,
+        "rotation": 0,
+        "visible": true,
+        "locked": false,
+        "editable": true,
+        "deletable": true,
+        "workspaceScrollXy": {
+          "x": 100,
+          "y": 50
+        },
+        "nekoBlockJsonList": [
+          {
+            "type": "on_running_group_activated",
+            "fields": {},
+            "inputs": {},
+            "statements": {},
+            "next": {
+              "type": "variables_set",
+              "fields": {
+                "variable": "30000000-0000-4000-8000-000000000001"
+              },
+              "inputs": {
+                "value": {
+                  "type": "math_number",
+                  "fields": {
+                    "NUM": "41"
+                  },
+                  "inputs": {},
+                  "statements": {},
+                  "id": "kn-actorvars-91"
+                }
+              },
+              "statements": {},
+              "next": {
+                "type": "mirror",
+                "fields": {
+                  "sprite": "--self"
+                },
+                "inputs": {},
+                "statements": {},
+                "next": {
+                  "type": "wait",
+                  "fields": {},
+                  "inputs": {
+                    "time": {
+                      "type": "math_number",
+                      "fields": {
+                        "NUM": "0.3"
+                      },
+                      "inputs": {},
+                      "statements": {},
+                      "id": "kn-actorvars-94"
+                    }
+                  },
+                  "statements": {},
+                  "next": {
+                    "type": "variables_set",
+                    "fields": {
+                      "variable": "original"
+                    },
+                    "inputs": {
+                      "value": {
+                        "type": "variables_get",
+                        "fields": {
+                          "variable": "30000000-0000-4000-8000-000000000001"
+                        },
+                        "inputs": {},
+                        "statements": {},
+                        "id": "kn-actorvars-97"
+                      }
+                    },
+                    "statements": {},
+                    "next": {
+                      "type": "variables_set",
+                      "fields": {
+                        "variable": "cloneRead"
+                      },
+                      "inputs": {
+                        "value": {
+                          "type": "get_clone_index_property",
+                          "fields": {
+                            "sprite": "20000000-0000-4000-8000-000000000001",
+                            "attribute": "30000000-0000-4000-8000-000000000001"
+                          },
+                          "inputs": {
+                            "index": {
+                              "type": "math_number",
+                              "fields": {
+                                "NUM": "1"
+                              },
+                              "inputs": {},
+                              "statements": {},
+                              "id": "kn-actorvars-102"
+                            }
+                          },
+                          "statements": {},
+                          "id": "kn-actorvars-101"
+                        }
+                      },
+                      "statements": {},
+                      "next": {
+                        "type": "variables_set",
+                        "fields": {
+                          "variable": "otherRead"
+                        },
+                        "inputs": {
+                          "value": {
+                            "type": "get_clone_index_property",
+                            "fields": {
+                              "sprite": "20000000-0000-4000-8000-000000000002",
+                              "attribute": "30000000-0000-4000-8000-000000000002"
+                            },
+                            "inputs": {
+                              "index": {
+                                "type": "math_number",
+                                "fields": {
+                                  "NUM": "0"
+                                },
+                                "inputs": {},
+                                "statements": {},
+                                "id": "kn-actorvars-107"
+                              }
+                            },
+                            "statements": {},
+                            "id": "kn-actorvars-106"
+                          }
+                        },
+                        "statements": {},
+                        "next": {
+                          "type": "variables_set",
+                          "fields": {
+                            "variable": "done"
+                          },
+                          "inputs": {
+                            "value": {
+                              "type": "math_number",
+                              "fields": {
+                                "NUM": "1"
+                              },
+                              "inputs": {},
+                              "statements": {},
+                              "id": "kn-actorvars-110"
+                            }
+                          },
+                          "statements": {},
+                          "next": {
+                            "type": "wait",
+                            "fields": {},
+                            "inputs": {
+                              "time": {
+                                "type": "math_number",
+                                "fields": {
+                                  "NUM": "0.5"
+                                },
+                                "inputs": {},
+                                "statements": {},
+                                "id": "kn-actorvars-112"
+                              }
+                            },
+                            "statements": {},
+                            "next": {
+                              "type": "variables_set",
+                              "fields": {
+                                "variable": "afterDelete"
+                              },
+                              "inputs": {
+                                "value": {
+                                  "type": "get_clone_index_property",
+                                  "fields": {
+                                    "sprite": "20000000-0000-4000-8000-000000000001",
+                                    "attribute": "30000000-0000-4000-8000-000000000001"
+                                  },
+                                  "inputs": {
+                                    "index": {
+                                      "type": "math_number",
+                                      "fields": {
+                                        "NUM": "1"
+                                      },
+                                      "inputs": {},
+                                      "statements": {},
+                                      "id": "kn-actorvars-117"
+                                    }
+                                  },
+                                  "statements": {},
+                                  "id": "kn-actorvars-116"
+                                }
+                              },
+                              "statements": {},
+                              "id": "kn-actorvars-113"
+                            },
+                            "id": "kn-actorvars-111"
+                          },
+                          "id": "kn-actorvars-108"
+                        },
+                        "id": "kn-actorvars-103"
+                      },
+                      "id": "kn-actorvars-98"
+                    },
+                    "id": "kn-actorvars-95"
+                  },
+                  "id": "kn-actorvars-93"
+                },
+                "id": "kn-actorvars-92"
+              },
+              "id": "kn-actorvars-89"
+            },
+            "id": "kn-actorvars-88"
+          },
+          {
+            "type": "start_as_a_mirror",
+            "fields": {},
+            "inputs": {},
+            "statements": {
+              "DO": {
+                "type": "variables_set",
+                "fields": {
+                  "variable": "inherited"
+                },
+                "inputs": {
+                  "value": {
+                    "type": "variables_get",
+                    "fields": {
+                      "variable": "30000000-0000-4000-8000-000000000001"
+                    },
+                    "inputs": {},
+                    "statements": {},
+                    "id": "kn-actorvars-121"
+                  }
+                },
+                "statements": {},
+                "next": {
+                  "type": "variables_set",
+                  "fields": {
+                    "variable": "30000000-0000-4000-8000-000000000001"
+                  },
+                  "inputs": {
+                    "value": {
+                      "type": "math_number",
+                      "fields": {
+                        "NUM": "99"
+                      },
+                      "inputs": {},
+                      "statements": {},
+                      "id": "kn-actorvars-124"
+                    }
+                  },
+                  "statements": {},
+                  "next": {
+                    "type": "variables_set",
+                    "fields": {
+                      "variable": "cloneChanged"
+                    },
+                    "inputs": {
+                      "value": {
+                        "type": "get_clone_index_property",
+                        "fields": {
+                          "sprite": "--self",
+                          "attribute": "30000000-0000-4000-8000-000000000001"
+                        },
+                        "inputs": {
+                          "index": {
+                            "type": "get_current_clone_index",
+                            "id": "kn-actorvars-129"
+                          }
+                        },
+                        "statements": {},
+                        "id": "kn-actorvars-128"
+                      }
+                    },
+                    "statements": {},
+                    "next": {
+                      "type": "wait",
+                      "fields": {},
+                      "inputs": {
+                        "time": {
+                          "type": "math_number",
+                          "fields": {
+                            "NUM": "0.5"
+                          },
+                          "inputs": {},
+                          "statements": {},
+                          "id": "kn-actorvars-131"
+                        }
+                      },
+                      "statements": {},
+                      "next": {
+                        "type": "dispose_clone",
+                        "fields": {},
+                        "inputs": {},
+                        "statements": {},
+                        "id": "kn-actorvars-132"
+                      },
+                      "id": "kn-actorvars-130"
+                    },
+                    "id": "kn-actorvars-125"
+                  },
+                  "id": "kn-actorvars-122"
+                },
+                "id": "kn-actorvars-119"
+              }
+            },
+            "id": "kn-actorvars-118"
+          }
+        ],
+        "comments": {},
+        "sceneId": "nekoc-scene-main"
+      },
+      "20000000-0000-4000-8000-000000000002": {
+        "id": "20000000-0000-4000-8000-000000000002",
+        "name": "Other",
+        "styles": [
+          "nekoc-costume"
+        ],
+        "currentStyleId": "nekoc-costume",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": 100,
+        "rotation": 0,
+        "visible": true,
+        "locked": false,
+        "editable": true,
+        "deletable": true,
+        "workspaceScrollXy": {
+          "x": 100,
+          "y": 50
+        },
+        "nekoBlockJsonList": [],
+        "comments": {},
+        "sceneId": "nekoc-scene-main"
+      }
+    }
+  },
+  "styles": {
+    "stylesDict": {
+      "nekoc-background": {
+        "id": "nekoc-background",
+        "name": "Background",
+        "url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='562'%3E%3Crect width='900' height='562' fill='white'/%3E%3C/svg%3E"
+      },
+      "nekoc-costume": {
+        "id": "nekoc-costume",
+        "name": "Sprite",
+        "url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Ccircle cx='20' cy='20' r='18' fill='rgb(96,143,238)'/%3E%3C/svg%3E",
+        "centerPoint": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    }
+  },
+  "variables": {
+    "variablesDict": {
+      "30000000-0000-4000-8000-000000000001": {
+        "id": "30000000-0000-4000-8000-000000000001",
+        "name": "30000000-0000-4000-8000-000000000001",
+        "value": 5,
+        "type": "any",
+        "is_global": false,
+        "current_entity": "20000000-0000-4000-8000-000000000001",
+        "visible": true,
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "isGlobal": false,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001"
+      },
+      "30000000-0000-4000-8000-000000000002": {
+        "id": "30000000-0000-4000-8000-000000000002",
+        "name": "30000000-0000-4000-8000-000000000002",
+        "value": "other-value",
+        "type": "any",
+        "is_global": false,
+        "current_entity": "20000000-0000-4000-8000-000000000002",
+        "visible": true,
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "isGlobal": false,
+        "currentEntityId": "20000000-0000-4000-8000-000000000002"
+      },
+      "inherited": {
+        "id": "inherited",
+        "name": "inherited",
+        "value": 0,
+        "type": "any",
+        "is_global": true,
+        "current_entity": "20000000-0000-4000-8000-000000000001",
+        "visible": true,
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001"
+      },
+      "cloneChanged": {
+        "id": "cloneChanged",
+        "name": "cloneChanged",
+        "value": 0,
+        "type": "any",
+        "is_global": true,
+        "current_entity": "20000000-0000-4000-8000-000000000001",
+        "visible": true,
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001"
+      },
+      "original": {
+        "id": "original",
+        "name": "original",
+        "value": 0,
+        "type": "any",
+        "is_global": true,
+        "current_entity": "20000000-0000-4000-8000-000000000001",
+        "visible": true,
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001"
+      },
+      "otherRead": {
+        "id": "otherRead",
+        "name": "otherRead",
+        "value": 0,
+        "type": "any",
+        "is_global": true,
+        "current_entity": "20000000-0000-4000-8000-000000000001",
+        "visible": true,
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001"
+      },
+      "cloneRead": {
+        "id": "cloneRead",
+        "name": "cloneRead",
+        "value": 0,
+        "type": "any",
+        "is_global": true,
+        "current_entity": "20000000-0000-4000-8000-000000000001",
+        "visible": true,
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001"
+      },
+      "done": {
+        "id": "done",
+        "name": "done",
+        "value": 0,
+        "type": "any",
+        "is_global": true,
+        "current_entity": "20000000-0000-4000-8000-000000000001",
+        "visible": true,
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001"
+      },
+      "afterDelete": {
+        "id": "afterDelete",
+        "name": "afterDelete",
+        "value": 0,
+        "type": "any",
+        "is_global": true,
+        "current_entity": "20000000-0000-4000-8000-000000000001",
+        "visible": true,
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001"
+      }
+    }
+  },
+  "broadcasts": {
+    "broadcastsDict": {
+      "nekoc-scene-main": []
+    }
+  },
+  "procedures": {
+    "proceduresDict": {}
+  },
+  "audios": {
+    "audiosDict": {},
+    "sortList": [],
+    "currentAudioId": ""
+  },
+  "hidden_toolbox": {
+    "toolbox": [],
+    "blocks": [],
+    "forcibleShowBlocks": [],
+    "isCombine": false
+  },
+  "courseMaterials": {
+    "courseMaterialsDict": {},
+    "sortList": []
+  },
+  "previewUrl": ""
+}

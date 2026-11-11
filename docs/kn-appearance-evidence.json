@@ -1,0 +1,58 @@
+{
+  "bundles": [
+    {
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+      "sha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165"
+    },
+    {
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main-vendors.07f7dd7e.js",
+      "sha256": "38183ab8a9620f33fef75f1bd1f90ee26b492e7b6ded8b6b065fc052e7948f68"
+    },
+    {
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+      "sha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7"
+    }
+  ],
+  "sourceLocations": [
+    { "bundle": "main.8ccf2442.js", "byteOffset": 1897852, "subject": "getSceneOrActorProperty" },
+    { "bundle": "main.8ccf2442.js", "byteOffset": 1569626, "subject": "actor bubble helper" },
+    { "bundle": "main.8ccf2442.js", "byteOffset": 1667073, "subject": "procedure actor parameter domain" },
+    { "bundle": "main.8ccf2442.js", "byteOffset": 1560338, "subject": "clone property domain" },
+    { "bundle": "main.8ccf2442.js", "byteOffset": 1621338, "subject": "set scale" },
+    { "bundle": "main.8ccf2442.js", "byteOffset": 1621702, "subject": "change scale" },
+    { "bundle": "main.8ccf2442.js", "byteOffset": 1622204, "subject": "set axis scale" },
+    { "bundle": "main.8ccf2442.js", "byteOffset": 1622655, "subject": "change axis scale" },
+    { "bundle": "crc_libs.8196dbd1.js", "byteOffset": 886804, "subject": "Actor argument field mapping" }
+  ],
+  "observations": {
+    "pageErrors": [],
+    "registered": {
+      "appearance_of_sprite": true,
+      "self_dialog_wait": true,
+      "get_sprite_property": false,
+      "procedures_2_actor_param": true
+    },
+    "unregisteredError": "Error: Unknown block type get_sprite_property.",
+    "propertyInput": {
+      "type": "actor",
+      "scale": { "x": 1.23456, "y": 0.56789 },
+      "position": { "x": 1.23456, "y": -2.34567 },
+      "rotationRadians": "Math.PI / 7",
+      "visible": false,
+      "alpha": 0.25
+    },
+    "properties": { "1": 100, "x": 1.23, "y": -2.35, "scale": 123.46, "width": 123.46, "height": 56.79, "direction": 25.71 },
+    "dialog": {
+      "calls": [
+        ["probe-actor", "a\u00a0b", "saying"],
+        ["probe-actor", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx...", "thinking"],
+        ["probe-actor", "timed", "saying"]
+      ],
+      "tasks": [{ "lifetime": 250, "blocking": true }]
+    },
+    "conversions": [
+      { "input": "get_sprite_property('--self', 'height');", "blockType": "appearance_of_sprite", "appearance": "height", "errors": [] },
+      { "input": "get_sprite_property('--self', 'camp');", "unsupportedAttribute": "camp", "errorCount": 1 }
+    ]
+  }
+}

@@ -23,16 +23,104 @@ impl<'a> Runtime<'a> {
         script_values: &BTreeMap<String, RuntimeValue>,
         procedure_values: &BTreeMap<String, RuntimeValue>,
     ) -> RuntimeValue {
+        let Some(root) = block else {
+            return RuntimeValue::Null;
+        };
+        self.eval_one(
+            Some(root),
+            owner_id,
+            range_values,
+            script_values,
+            procedure_values,
+            None,
+            0,
+        )
+    }
+
+    fn eval_deep(
+        &self,
+        root: &Value,
+        owner_id: Option<&str>,
+        range_values: &BTreeMap<String, RuntimeValue>,
+        script_values: &BTreeMap<String, RuntimeValue>,
+        procedure_values: &BTreeMap<String, RuntimeValue>,
+    ) -> RuntimeValue {
+        let mut work = vec![(root, false)];
+        let mut values = BTreeMap::new();
+        while let Some((node, exit)) = work.pop() {
+            if !exit {
+                work.push((node, true));
+                work.extend(
+                    node["inputs"]
+                        .as_object()
+                        .into_iter()
+                        .flat_map(|o| o.values())
+                        .rev()
+                        .map(|v| (v, false)),
+                );
+                continue;
+            }
+            let value = self.eval_one(
+                Some(node),
+                owner_id,
+                range_values,
+                script_values,
+                procedure_values,
+                Some(&values),
+                0,
+            );
+            for child in node["inputs"]
+                .as_object()
+                .into_iter()
+                .flat_map(|o| o.values())
+            {
+                values.remove(&(child as *const Value as usize));
+            }
+            values.insert(node as *const Value as usize, value);
+        }
+        values.remove(&(root as *const Value as usize)).unwrap()
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn eval_one(
+        &self,
+        block: Option<&Value>,
+        owner_id: Option<&str>,
+        range_values: &BTreeMap<String, RuntimeValue>,
+        script_values: &BTreeMap<String, RuntimeValue>,
+        procedure_values: &BTreeMap<String, RuntimeValue>,
+        evaluated: Option<&BTreeMap<usize, RuntimeValue>>,
+        depth: usize,
+    ) -> RuntimeValue {
         let Some(block) = block else {
             return RuntimeValue::Null;
         };
-        let eval = |block| {
-            self.eval_for_context(
+        if depth >= 64 && evaluated.is_none() {
+            return self.eval_deep(
                 block,
                 owner_id,
                 range_values,
                 script_values,
                 procedure_values,
+            );
+        }
+        let eval = |block: Option<&Value>| {
+            if let Some(values) = evaluated {
+                return block
+                    .and_then(|b| values.get(&(b as *const Value as usize)))
+                    .cloned()
+                    .unwrap_or(RuntimeValue::Null);
+            }
+            // Ordinary reporters stay allocation-free; switch to the heap
+            // evaluator only after a bounded number of recursive frames.
+            self.eval_one(
+                block,
+                owner_id,
+                range_values,
+                script_values,
+                procedure_values,
+                None,
+                depth + 1,
             )
         };
         match block_type(block).unwrap_or("") {
@@ -51,7 +139,7 @@ impl<'a> Runtime<'a> {
                 .get("fields")
                 .and_then(|fields| fields.get("variable"))
                 .and_then(Value::as_str)
-                .and_then(|id| self.variables.get(id))
+                .and_then(|id| self.variable(id, owner_id))
                 .cloned()
                 .unwrap_or(RuntimeValue::Null),
             "broadcast_input" => RuntimeValue::String(
@@ -82,29 +170,31 @@ impl<'a> Runtime<'a> {
                 .get("fields")
                 .and_then(|fields| fields.get("list"))
                 .and_then(Value::as_str)
-                .and_then(|id| self.variables.get(id))
+                .and_then(|id| self.variable(id, owner_id))
                 .cloned()
                 .unwrap_or(RuntimeValue::List(Vec::new())),
             "list_item" => {
                 let list_id = eval(input(block, "list")).as_string();
                 let index = eval(input(block, "list_index")).as_number();
+                if !index.is_finite() && self.project.get("_nekocKitten4").is_some() {
+                    *self.value_error.borrow_mut() = Some("invalid non-finite list index".into());
+                }
                 let item = block
                     .get("fields")
                     .and_then(|fields| fields.get("item"))
                     .and_then(Value::as_str)
                     .unwrap_or("any");
-                let Some(RuntimeValue::List(items)) = self.variables.get(&list_id) else {
+                let Some(RuntimeValue::List(items)) = self.variable(&list_id, owner_id) else {
                     return RuntimeValue::Null;
                 };
                 list_index(item, index, items.len())
                     .and_then(|index| items.get(index).cloned())
-                    .unwrap_or(RuntimeValue::Null)
+                    .unwrap_or(RuntimeValue::Number(f64::NAN))
             }
             "list_length" => {
                 let list_id = eval(input(block, "list")).as_string();
                 let length = self
-                    .variables
-                    .get(&list_id)
+                    .variable(&list_id, owner_id)
                     .and_then(runtime_list)
                     .map(Vec::len)
                     .unwrap_or(0);
@@ -114,8 +204,7 @@ impl<'a> Runtime<'a> {
                 let list_id = eval(input(block, "list")).as_string();
                 let needle = eval(input(block, "list_item_value"));
                 let index = self
-                    .variables
-                    .get(&list_id)
+                    .variable(&list_id, owner_id)
                     .and_then(runtime_list)
                     .and_then(|items| {
                         items
@@ -130,8 +219,7 @@ impl<'a> Runtime<'a> {
                 let list_id = eval(input(block, "list")).as_string();
                 let needle = eval(input(block, "list_item_value"));
                 let exists = self
-                    .variables
-                    .get(&list_id)
+                    .variable(&list_id, owner_id)
                     .and_then(runtime_list)
                     .is_some_and(|items| {
                         items.iter().any(|item| same_runtime_value(item, &needle))
@@ -256,6 +344,43 @@ impl<'a> Runtime<'a> {
                 "height" => RuntimeValue::Number(self.stage_height),
                 _ => RuntimeValue::Number(self.stage_width),
             },
+            // These get_2 branches used to be translated into KN reporters on
+            // import. Keep the reference interpreter working now that import
+            // preserves the native reporter for the compiled K4 property path.
+            "kitten4::get_2" => {
+                let sprite = field_string(block, "sprite").unwrap_or("__self");
+                let sprite = if sprite == "__self" { "--self" } else { sprite };
+                let value = self
+                    .actor_for_sprite(sprite, owner_id)
+                    .map(|actor| match field_string(block, "attribute") {
+                        Some("0") => actor.x,
+                        Some("1") => actor.y,
+                        Some("3") => {
+                            let radians = (90.0 - actor.rotation) * std::f64::consts::PI / 180.0;
+                            let turn = 2.0 * std::f64::consts::PI;
+                            let absolute = radians.abs();
+                            let normalized = if absolute > turn {
+                                absolute % turn
+                            } else {
+                                absolute
+                            };
+                            let normalized = if radians < 0.0 {
+                                turn - normalized
+                            } else {
+                                normalized
+                            };
+                            let normalized = if normalized > std::f64::consts::PI {
+                                normalized - turn
+                            } else {
+                                normalized
+                            };
+                            180.0 * normalized / std::f64::consts::PI
+                        }
+                        _ => f64::NAN,
+                    })
+                    .unwrap_or(f64::NAN);
+                RuntimeValue::Number((value * 100.0 + 0.5).floor() / 100.0)
+            }
             "coordinate_of_sprite" => {
                 let sprite = field_string(block, "sprite").unwrap_or("--self");
                 let coordinate = field_string(block, "coordinate").unwrap_or("x");
@@ -365,6 +490,13 @@ impl<'a> Runtime<'a> {
                 let sprite = field_string(block, "sprite").unwrap_or("--self");
                 let attribute = field_string(block, "attribute").unwrap_or("x");
                 let index = eval(input(block, "index")).as_number().floor().max(0.0) as usize;
+                if self.private_variable_ids.contains(attribute) {
+                    return self
+                        .clone_actor_by_index(sprite, owner_id, index)
+                        .and_then(|actor| self.variable(attribute, Some(&actor.id)))
+                        .cloned()
+                        .unwrap_or(RuntimeValue::Number(f64::NAN));
+                }
                 RuntimeValue::Number(self.clone_property(sprite, owner_id, index, attribute))
             }
             "get_appearance_of_part" => {
@@ -438,7 +570,14 @@ impl<'a> Runtime<'a> {
                     .unwrap_or("string");
                 let value = eval(input(block, "text"));
                 match target {
-                    "number" => RuntimeValue::Number(value.as_number()),
+                    "number" => {
+                        let n = value.as_number();
+                        if n.is_nan() && matches!(&value, RuntimeValue::String(s) if s != "NaN") {
+                            value
+                        } else {
+                            RuntimeValue::Number(n)
+                        }
+                    }
                     "boolean" => RuntimeValue::Bool(value.is_truthy()),
                     _ => RuntimeValue::String(value.as_string()),
                 }
@@ -510,13 +649,7 @@ impl<'a> Runtime<'a> {
                 let value = match op {
                     "minus" | "subtract" => a - b,
                     "multiply" => a * b,
-                    "divide" => {
-                        if b == 0.0 {
-                            0.0
-                        } else {
-                            a / b
-                        }
-                    }
+                    "divide" => a / b,
                     "mod" => a % b,
                     "power" => a.powf(b),
                     _ => a + b,
@@ -526,7 +659,7 @@ impl<'a> Runtime<'a> {
             "math_modulo" => {
                 let a = eval(input(block, "A")).as_number();
                 let b = eval(input(block, "B")).as_number();
-                RuntimeValue::Number(if b == 0.0 { 0.0 } else { a % b })
+                RuntimeValue::Number(a % b)
             }
             "random_num" => {
                 let a = eval(input(block, "A")).as_number();

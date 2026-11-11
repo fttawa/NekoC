@@ -42,15 +42,15 @@ pub fn compile_ts_kitten4(
             format!("failed to convert Kitten 4 template {}", template.display())
         })?;
         native_template = Some(native);
-        serde_json::to_vec(&canonical)?
+        crate::json::to_vec(&canonical)?
     } else {
         // Embed the small starter so compilation also works outside the repo cwd.
-        let mut starter: Value =
-            serde_json::from_slice(include_bytes!("../samples/kitten-n-0.27.4.bcmkn"))?;
+        let mut starter =
+            crate::json::from_slice(include_bytes!("../samples/kitten-n-0.27.4.bcmkn"))?;
         // K4 selects fixed native stage sizes by aspect ratio. The KN starter's
         // 900x562 ratio is not recognized, so choose K4 landscape before compiling.
         starter["stageSize"] = json!({"width": 1280, "height": 720});
-        serde_json::to_vec(&starter)?
+        crate::json::to_vec(&starter)?
     };
     std::fs::write(&canonical_template, template_bytes)
         .context("failed to write canonical Kitten 4 compiler template")?;
@@ -71,7 +71,7 @@ pub fn compile_ts_kitten4(
         reconcile_replaced_owners(&mut native);
     }
 
-    let bytes = serde_json::to_vec(&native).context("failed to serialize Kitten 4 project")?;
+    let bytes = crate::json::to_vec(&native).context("failed to serialize Kitten 4 project")?;
     std::fs::write(output, bytes)
         .with_context(|| format!("failed to write Kitten 4 output {}", output.display()))?;
     Ok(())

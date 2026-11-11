@@ -1,0 +1,1289 @@
+{
+  "schema": "nekoc-kn-async-services-official-v1",
+  "checkedAt": "2026-11-10T15:46:06.154Z",
+  "editorUrl": "https://kn.codemao.cn/editor",
+  "editorVersion": "0.27.4",
+  "method": "Fresh headless Edge official editor; webpack loader exposed; direct registry calls; saved original fixture through previewUrl; passive registry/browser timer argument wrappers forward to original functions. No service function bodies modified.",
+  "fixture": {
+    "path": "tests/fixtures/kn-async-services/timers.bcmkn",
+    "sha256": "e90a01823eccd9ea6273f10164b67e440698df208d69135c785964f76f3f50bb"
+  },
+  "bundles": [
+    {
+      "name": "crc_libs.8196dbd1.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+      "bytes": 1297643,
+      "sha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7"
+    },
+    {
+      "name": "main.8ccf2442.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+      "bytes": 5594327,
+      "sha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165"
+    },
+    {
+      "name": "main-vendors.07f7dd7e.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main-vendors.07f7dd7e.js",
+      "bytes": 6460489,
+      "sha256": "38183ab8a9620f33fef75f1bd1f90ee26b492e7b6ded8b6b065fc052e7948f68"
+    }
+  ],
+  "sourceLocations": [
+    {
+      "symbol": "setTimeout",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 2952116,
+      "excerptCharacters": 500,
+      "excerptSha256": "0ba9c31cbe421ac9be8bf95c080a875ca2f16b46383449ebde363fafd4d8fca6"
+    },
+    {
+      "symbol": "setInterval",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 2952514,
+      "excerptCharacters": 500,
+      "excerptSha256": "55ede7821bbba18bab871b8879bfc68702769ab0fe51593f32d25d6c0c44f249"
+    },
+    {
+      "symbol": "clearTimeout",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 2952277,
+      "excerptCharacters": 500,
+      "excerptSha256": "206329c255e472c5d0791aa7b94e196b432f491398172b75b6f260e8fceb3233"
+    },
+    {
+      "symbol": "clearInterval",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 2952678,
+      "excerptCharacters": 500,
+      "excerptSha256": "a6362c17c1814bda5d60d922c30feef4a41fd2c20e7978cab292d4b94721b632"
+    },
+    {
+      "symbol": "get_orientation",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1578032,
+      "excerptCharacters": 500,
+      "excerptSha256": "9bde5b45ce3efeb672aa45af3498c4509b626dd4dc4207ba2af74b6096888ecb"
+    },
+    {
+      "symbol": "get_voice_volume",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1578597,
+      "excerptCharacters": 500,
+      "excerptSha256": "a5b801c16e56888360e4e3f887c22a9304d605a2c2874d6930120979dba11d5f"
+    },
+    {
+      "symbol": "username_get",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1702404,
+      "excerptCharacters": 500,
+      "excerptSha256": "29499171f52005e0c266d29c03068e56ddce2be18bf0a56643ad4b606c837474"
+    },
+    {
+      "symbol": "user_id_get",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1702789,
+      "excerptCharacters": 500,
+      "excerptSha256": "061ab5eaf523b0b16df3afcd68dca5c591217f2c34f2c1ea8978be6b8899975d"
+    },
+    {
+      "symbol": "recognize_body_part",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1671326,
+      "excerptCharacters": 500,
+      "excerptSha256": "379dbce29771baa93c4415ce2ba93ea6967c03aa6f6234c498e069666ee3826c"
+    },
+    {
+      "symbol": "bump_into_body_part",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1671471,
+      "excerptCharacters": 500,
+      "excerptSha256": "8e3696f3b4f98a19355ea4a20049a477e79a826033fc2e06fc55e9c7d33676c3"
+    },
+    {
+      "symbol": "move_to_body_part",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1672115,
+      "excerptCharacters": 500,
+      "excerptSha256": "5abca78f9bfc982a26953bf3081f08166ab757bd889b95936df5f717daae6eb6"
+    },
+    {
+      "symbol": "face_to_body_part",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1672645,
+      "excerptCharacters": 500,
+      "excerptSha256": "00c6fe657a6e000ec02d2aa354b40811238409539f9cfaf4cdb5f30a67144c18"
+    },
+    {
+      "symbol": "get_position_of_body_part",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1673206,
+      "excerptCharacters": 500,
+      "excerptSha256": "78d0ce48e8482e3a9cdb450de0746827a717850523c034839d52b5e6398b5247"
+    },
+    {
+      "symbol": "get_appearance_of_part",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1673529,
+      "excerptCharacters": 500,
+      "excerptSha256": "5c28da16d2b13c42cf4b2b07d35a5d51dc05b8ff6619de6fb568ac868af6c962"
+    },
+    {
+      "symbol": "get_tilt_angle_of_face",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1674031,
+      "excerptCharacters": 500,
+      "excerptSha256": "89ffc2d9451da7cc775c6ea2df3b2adb5ce6d0c21fc194315a41dbeea61bdcdd"
+    },
+    {
+      "symbol": "check_tilt_direction_of_face",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1674160,
+      "excerptCharacters": 500,
+      "excerptSha256": "0a163525ffbd3777790428968b1ec883d871522cef50ecf70043830533311432"
+    },
+    {
+      "symbol": "recognize_gesture",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1674435,
+      "excerptCharacters": 500,
+      "excerptSha256": "cf2134f57e1be7140f50811532a6a49eabace2d6388e79859ce62cd655623c0a"
+    },
+    {
+      "symbol": "get_voice_answer",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 1645843,
+      "excerptCharacters": 500,
+      "excerptSha256": "c81937d13868afe35d1723bdb4eebd670165c8432601e67230fef5b08f8ea013"
+    },
+    {
+      "symbol": "ai_text_result",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 5280063,
+      "excerptCharacters": 500,
+      "excerptSha256": "510d2e4b6c60e53301cca838586820a2c18754da6d8ed29c39a8b92263a5ae1c"
+    },
+    {
+      "symbol": "getHardwareCoreAndCheck",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 2178339,
+      "excerptCharacters": 500,
+      "excerptSha256": "60f17dd41a3840b3892fe2465b4bca56fc9061b27e970d09ca40c81c3a4ae230"
+    },
+    {
+      "symbol": "getHardware",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 2178176,
+      "excerptCharacters": 500,
+      "excerptSha256": "6cb733a9e5e0daa04619e7f80347eb661ed20387e6f56a0442081ea146f0976f"
+    },
+    {
+      "symbol": "hardwareBlockToCodeAliases",
+      "bundle": "main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 2771511,
+      "excerptCharacters": 500,
+      "excerptSha256": "fa53d026efbf45d6883e4f8e972f68fe89f97b1677a5c711a1e1c553a6206293"
+    },
+    {
+      "symbol": "compile_domain_functions",
+      "bundle": "crc_libs.8196dbd1.js",
+      "bundleSha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7",
+      "byteOffset": 941381,
+      "excerptCharacters": 500,
+      "excerptSha256": "e3969b0f10772f5ecc65873165dd907a1a90c52aade1927ccfeba6f82af87529"
+    },
+    {
+      "symbol": "compile_params",
+      "bundle": "crc_libs.8196dbd1.js",
+      "bundleSha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7",
+      "byteOffset": 945923,
+      "excerptCharacters": 500,
+      "excerptSha256": "428c48d20891259fc04bd754fed06af598f6927687620b34a79a51f68ba4d82b"
+    }
+  ],
+  "editorCompat": {
+    "editorUrl": "https://kn.codemao.cn/editor",
+    "checkedAt": "2026-11-10T15:35:12.166Z",
+    "bundleUrl": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+    "ok": true,
+    "project": {
+      "input": "tests/fixtures/kn-async-services/timers.bcmkn",
+      "sha256": "e90a01823eccd9ea6273f10164b67e440698df208d69135c785964f76f3f50bb",
+      "editorVersion": "0.27.4",
+      "projectVersion": "0.27.4",
+      "blockCount": 13,
+      "issues": [],
+      "pageErrors": [],
+      "ok": true
+    }
+  },
+  "availability": {
+    "setTimeout": {
+      "registered": true,
+      "output": false,
+      "previous": true,
+      "next": true,
+      "domainIndex": 338,
+      "sockets": [
+        {
+          "name": "callback",
+          "type": 3
+        },
+        {
+          "name": "delay",
+          "type": 1
+        }
+      ]
+    },
+    "setInterval": {
+      "registered": true,
+      "output": false,
+      "previous": true,
+      "next": true,
+      "domainIndex": 342,
+      "sockets": [
+        {
+          "name": "callback",
+          "type": 3
+        },
+        {
+          "name": "delay",
+          "type": 1
+        }
+      ]
+    },
+    "clearTimeout": {
+      "registered": true,
+      "output": false,
+      "previous": true,
+      "next": true,
+      "domainIndex": 339,
+      "sockets": [
+        {
+          "name": "timeoutId",
+          "type": 1
+        }
+      ]
+    },
+    "clearInterval": {
+      "registered": true,
+      "output": false,
+      "previous": true,
+      "next": true,
+      "domainIndex": 343,
+      "sockets": [
+        {
+          "name": "intervalId",
+          "type": 1
+        }
+      ]
+    },
+    "get_orientation": {
+      "registered": true,
+      "output": true,
+      "previous": false,
+      "next": false,
+      "domainIndex": 126,
+      "sockets": []
+    },
+    "get_voice_volume": {
+      "registered": true,
+      "output": true,
+      "previous": false,
+      "next": false,
+      "domainIndex": 127,
+      "sockets": []
+    },
+    "get_voice_answer": {
+      "registered": true,
+      "output": true,
+      "previous": false,
+      "next": false,
+      "domainIndex": 151,
+      "sockets": []
+    },
+    "username_get": {
+      "registered": true,
+      "output": true,
+      "previous": false,
+      "next": false,
+      "domainIndex": 243,
+      "sockets": []
+    },
+    "user_id_get": {
+      "registered": true,
+      "output": true,
+      "previous": false,
+      "next": false,
+      "domainIndex": 244,
+      "sockets": []
+    },
+    "ai_chat_answer": {
+      "registered": true,
+      "output": true,
+      "previous": false,
+      "next": false,
+      "domainIndex": 228,
+      "sockets": []
+    },
+    "ai_chat_ask": {
+      "registered": true,
+      "output": false,
+      "previous": true,
+      "next": true,
+      "domainIndex": 227,
+      "sockets": [
+        {
+          "name": "text",
+          "type": 1
+        }
+      ]
+    },
+    "new_conversation": {
+      "registered": true,
+      "output": false,
+      "previous": true,
+      "next": true,
+      "domainIndex": 230,
+      "sockets": []
+    },
+    "ai_text_result": {
+      "registered": true,
+      "output": true,
+      "previous": false,
+      "next": false,
+      "domainIndex": 249,
+      "sockets": []
+    },
+    "ai_text_result_check": {
+      "registered": true,
+      "output": true,
+      "previous": false,
+      "next": false,
+      "domainIndex": 250,
+      "sockets": [
+        {
+          "name": "text",
+          "type": 1
+        }
+      ]
+    },
+    "translate_result": {
+      "registered": true,
+      "output": true,
+      "previous": false,
+      "next": false,
+      "domainIndex": 141,
+      "sockets": [
+        {
+          "name": "text",
+          "type": 1
+        }
+      ]
+    },
+    "get_face_detection_result": {
+      "registered": true,
+      "output": true,
+      "previous": false,
+      "next": false,
+      "domainIndex": 220,
+      "sockets": []
+    },
+    "get_object_detection_result": {
+      "registered": true,
+      "output": true,
+      "previous": false,
+      "next": false,
+      "domainIndex": 226,
+      "sockets": []
+    },
+    "get_evaluate_class_name": {
+      "registered": true,
+      "output": true,
+      "previous": false,
+      "next": false,
+      "domainIndex": 235,
+      "sockets": []
+    },
+    "get_evaluate_class_accuracy": {
+      "registered": true,
+      "output": true,
+      "previous": false,
+      "next": false,
+      "domainIndex": 236,
+      "sockets": []
+    },
+    "check_gender": {
+      "registered": true,
+      "output": true,
+      "previous": false,
+      "next": false,
+      "domainIndex": 222,
+      "sockets": []
+    },
+    "check_emotion": {
+      "registered": true,
+      "output": true,
+      "previous": false,
+      "next": false,
+      "domainIndex": 221,
+      "sockets": []
+    },
+    "check_face_shape": {
+      "registered": true,
+      "output": true,
+      "previous": false,
+      "next": false,
+      "domainIndex": 223,
+      "sockets": []
+    },
+    "check_tilt_direction_of_face": {
+      "registered": true,
+      "output": true,
+      "previous": false,
+      "next": false,
+      "domainIndex": 216,
+      "sockets": []
+    },
+    "get_tilt_angle_of_face": {
+      "registered": true,
+      "output": true,
+      "previous": false,
+      "next": false,
+      "domainIndex": 215,
+      "sockets": []
+    },
+    "get_position_of_body_part": {
+      "registered": true,
+      "output": true,
+      "previous": false,
+      "next": false,
+      "domainIndex": 213,
+      "sockets": []
+    },
+    "get_appearance_of_part": {
+      "registered": true,
+      "output": true,
+      "previous": false,
+      "next": false,
+      "domainIndex": 214,
+      "sockets": []
+    },
+    "recognize_gesture": {
+      "registered": true,
+      "output": true,
+      "previous": false,
+      "next": false,
+      "domainIndex": 217,
+      "sockets": []
+    },
+    "recognize_body_part": {
+      "registered": true,
+      "output": true,
+      "previous": false,
+      "next": false,
+      "domainIndex": 209,
+      "sockets": []
+    },
+    "face_to_body_part": {
+      "registered": true,
+      "output": false,
+      "previous": true,
+      "next": true,
+      "domainIndex": 212,
+      "sockets": []
+    },
+    "bump_into_body_part": {
+      "registered": true,
+      "output": true,
+      "previous": false,
+      "next": false,
+      "domainIndex": 210,
+      "sockets": []
+    },
+    "move_to_body_part": {
+      "registered": true,
+      "output": false,
+      "previous": true,
+      "next": true,
+      "domainIndex": 211,
+      "sockets": []
+    },
+    "voice_recognition": {
+      "registered": true,
+      "output": false,
+      "previous": true,
+      "next": true,
+      "domainIndex": 150,
+      "sockets": []
+    },
+    "translate": {
+      "registered": true,
+      "output": false,
+      "previous": true,
+      "next": true,
+      "domainIndex": 140,
+      "sockets": [
+        {
+          "name": "text",
+          "type": 1
+        }
+      ]
+    },
+    "ai_text_photo": {
+      "registered": true,
+      "output": false,
+      "previous": true,
+      "next": true,
+      "domainIndex": 248,
+      "sockets": []
+    },
+    "ai_text_actor": {
+      "registered": true,
+      "output": false,
+      "previous": true,
+      "next": true,
+      "domainIndex": 247,
+      "sockets": []
+    },
+    "enable_face_detect_by_actor": {
+      "registered": true,
+      "output": false,
+      "previous": true,
+      "next": true,
+      "domainIndex": 218,
+      "sockets": []
+    },
+    "enable_face_detect_by_photo": {
+      "registered": true,
+      "output": false,
+      "previous": true,
+      "next": true,
+      "domainIndex": 219,
+      "sockets": []
+    },
+    "enable_object_detect_by_actor": {
+      "registered": true,
+      "output": false,
+      "previous": true,
+      "next": true,
+      "domainIndex": 224,
+      "sockets": []
+    },
+    "enable_object_detect_by_photo": {
+      "registered": true,
+      "output": false,
+      "previous": true,
+      "next": true,
+      "domainIndex": 225,
+      "sockets": []
+    },
+    "evaluate_camera": {
+      "registered": true,
+      "output": false,
+      "previous": true,
+      "next": true,
+      "domainIndex": 234,
+      "sockets": []
+    },
+    "evaluate_photo": {
+      "registered": true,
+      "output": false,
+      "previous": true,
+      "next": true,
+      "domainIndex": 233,
+      "sockets": []
+    },
+    "evaluate_actor_style": {
+      "registered": true,
+      "output": false,
+      "previous": true,
+      "next": true,
+      "domainIndex": 232,
+      "sockets": []
+    },
+    "user_info_of_th": {
+      "registered": true,
+      "output": true,
+      "previous": false,
+      "next": false,
+      "domainIndex": 242,
+      "sockets": [
+        {
+          "name": "order",
+          "type": 1
+        }
+      ]
+    },
+    "user_ranking_info": {
+      "registered": true,
+      "output": true,
+      "previous": false,
+      "next": false,
+      "domainIndex": 241,
+      "sockets": []
+    },
+    "update_ranking": {
+      "registered": true,
+      "output": false,
+      "previous": true,
+      "next": true,
+      "domainIndex": 240,
+      "sockets": []
+    },
+    "show_hide_ranking": {
+      "registered": true,
+      "output": false,
+      "previous": true,
+      "next": true,
+      "domainIndex": 239,
+      "sockets": []
+    }
+  },
+  "timerTypes": {
+    "setTimeout": {
+      "type": "setTimeout",
+      "params": [
+        {
+          "name": "callback",
+          "paramType": "Callable"
+        },
+        {
+          "name": "delay",
+          "paramType": "Number",
+          "fieldValueInfo": {}
+        }
+      ],
+      "returnType": "void",
+      "kind": "function"
+    },
+    "setInterval": {
+      "type": "setInterval",
+      "params": [
+        {
+          "name": "callback",
+          "paramType": "Callable"
+        },
+        {
+          "name": "delay",
+          "paramType": "Number",
+          "fieldValueInfo": {}
+        }
+      ],
+      "returnType": "void",
+      "kind": "function"
+    },
+    "clearTimeout": {
+      "type": "clearTimeout",
+      "params": [
+        {
+          "name": "timeoutId",
+          "paramType": "Number",
+          "fieldValueInfo": {}
+        }
+      ],
+      "returnType": "void",
+      "kind": "function"
+    },
+    "clearInterval": {
+      "type": "clearInterval",
+      "params": [
+        {
+          "name": "intervalId",
+          "paramType": "Number",
+          "fieldValueInfo": {}
+        }
+      ],
+      "returnType": "void",
+      "kind": "function"
+    }
+  },
+  "workspaceImport": [
+    {
+      "id": "kn-services-4",
+      "type": "setTimeout",
+      "callbackId": "kn-services-6",
+      "callbackType": "variables_set",
+      "callbackInputType": 3,
+      "callbackVariable": "fired"
+    },
+    {
+      "id": "kn-services-8",
+      "type": "setInterval",
+      "callbackId": "kn-services-10",
+      "callbackType": "variables_set",
+      "callbackInputType": 3,
+      "callbackVariable": "fired"
+    }
+  ],
+  "conversionObservations": [
+    {
+      "input": "setTimeout(() => { get_timer(); }, 100);",
+      "errors": [],
+      "warnings": [
+        "不支持的表达式类型: math_number"
+      ],
+      "callbackStatement": true,
+      "callbackArgumentRetained": true,
+      "nestedAssignment": false
+    },
+    {
+      "input": "setInterval(() => { get_timer(); }, 100);",
+      "errors": [],
+      "warnings": [
+        "不支持的表达式类型: math_number"
+      ],
+      "callbackStatement": true,
+      "callbackArgumentRetained": true,
+      "nestedAssignment": false
+    },
+    {
+      "input": "setTimeout(handler, 100);",
+      "errors": [],
+      "warnings": [
+        "不支持的表达式类型: math_number"
+      ],
+      "callbackStatement": false,
+      "callbackArgumentRetained": false,
+      "nestedAssignment": false
+    },
+    {
+      "input": "setTimeout('text', 100);",
+      "errors": [],
+      "warnings": [
+        "不支持的表达式类型: math_number"
+      ],
+      "callbackStatement": false,
+      "callbackArgumentRetained": false,
+      "nestedAssignment": false
+    },
+    {
+      "input": "const id = setTimeout(() => { get_timer(); }, 100);",
+      "errors": [],
+      "warnings": [
+        "不支持的表达式类型: math_number",
+        "不支持的表达式类型: setTimeout"
+      ],
+      "callbackStatement": true,
+      "callbackArgumentRetained": true,
+      "nestedAssignment": true
+    },
+    {
+      "input": "clearTimeout(7);",
+      "errors": [],
+      "warnings": [
+        "不支持的表达式类型: math_number"
+      ],
+      "callbackStatement": false,
+      "callbackArgumentRetained": false,
+      "nestedAssignment": false
+    },
+    {
+      "input": "clearInterval(7);",
+      "errors": [],
+      "warnings": [
+        "不支持的表达式类型: math_number"
+      ],
+      "callbackStatement": false,
+      "callbackArgumentRetained": false,
+      "nestedAssignment": false
+    }
+  ],
+  "serviceCalls": [
+    {
+      "name": "get_orientation",
+      "args": {
+        "target": "x"
+      },
+      "promise": true,
+      "result": {
+        "type": "number",
+        "value": 0
+      }
+    },
+    {
+      "name": "get_voice_volume",
+      "args": {},
+      "promise": true,
+      "result": {
+        "pending": true
+      }
+    },
+    {
+      "name": "get_voice_answer",
+      "args": {},
+      "promise": true,
+      "result": {
+        "type": "string",
+        "value": ""
+      }
+    },
+    {
+      "name": "username_get",
+      "args": {},
+      "promise": true,
+      "result": {
+        "type": "string",
+        "value": "未登录用户"
+      }
+    },
+    {
+      "name": "user_id_get",
+      "args": {},
+      "promise": true,
+      "result": {
+        "type": "string",
+        "value": "0"
+      }
+    },
+    {
+      "name": "ai_chat_answer",
+      "args": {},
+      "result": {
+        "type": "string",
+        "value": ""
+      }
+    },
+    {
+      "name": "ai_text_result",
+      "args": {},
+      "promise": true,
+      "result": {
+        "type": "number",
+        "value": "NaN"
+      }
+    },
+    {
+      "name": "ai_text_result_check",
+      "args": {
+        "options": "include",
+        "text": ""
+      },
+      "promise": true,
+      "result": {
+        "type": "boolean",
+        "value": false
+      }
+    },
+    {
+      "name": "get_face_detection_result",
+      "args": {
+        "type": "age"
+      },
+      "result": {
+        "type": "number",
+        "value": "NaN"
+      }
+    },
+    {
+      "name": "get_object_detection_result",
+      "args": {},
+      "result": {
+        "type": "number",
+        "value": "NaN"
+      }
+    },
+    {
+      "name": "get_evaluate_class_name",
+      "args": {
+        "model_id": "?"
+      },
+      "promise": true,
+      "result": {
+        "type": "number",
+        "value": "NaN"
+      }
+    },
+    {
+      "name": "get_evaluate_class_accuracy",
+      "args": {
+        "model_id": "?"
+      },
+      "promise": true,
+      "result": {
+        "type": "number",
+        "value": "NaN"
+      }
+    },
+    {
+      "name": "check_gender",
+      "args": {
+        "gender": "male"
+      },
+      "result": {
+        "type": "number",
+        "value": "NaN"
+      }
+    },
+    {
+      "name": "check_emotion",
+      "args": {
+        "emotion": "happy"
+      },
+      "result": {
+        "type": "number",
+        "value": "NaN"
+      }
+    },
+    {
+      "name": "check_face_shape",
+      "args": {
+        "face_shape": "square"
+      },
+      "result": {
+        "type": "number",
+        "value": "NaN"
+      }
+    },
+    {
+      "name": "check_tilt_direction_of_face",
+      "args": {
+        "direction": "left"
+      },
+      "result": {
+        "type": "boolean",
+        "value": false
+      }
+    },
+    {
+      "name": "get_tilt_angle_of_face",
+      "args": {},
+      "result": {
+        "type": "number",
+        "value": "NaN"
+      }
+    },
+    {
+      "name": "get_position_of_body_part",
+      "args": {
+        "body_part": "face",
+        "coordinate": "x"
+      },
+      "result": {
+        "type": "number",
+        "value": "NaN"
+      }
+    },
+    {
+      "name": "get_appearance_of_part",
+      "args": {
+        "body_part": "face",
+        "appearance": "scale"
+      },
+      "result": {
+        "type": "number",
+        "value": "NaN"
+      }
+    },
+    {
+      "name": "recognize_gesture",
+      "args": {
+        "gesture": "Victory"
+      },
+      "result": {
+        "type": "boolean",
+        "value": false
+      }
+    },
+    {
+      "name": "recognize_body_part",
+      "args": {
+        "body_part": "face"
+      },
+      "result": {
+        "type": "boolean",
+        "value": false
+      }
+    },
+    {
+      "name": "bump_into_body_part",
+      "args": {
+        "sprite": "--self",
+        "body_part": "face"
+      },
+      "result": {
+        "type": "boolean",
+        "value": false
+      }
+    },
+    {
+      "name": "move_to_body_part",
+      "args": {
+        "body_part": "face"
+      },
+      "promise": true,
+      "result": {
+        "type": "undefined"
+      }
+    },
+    {
+      "name": "face_to_body_part",
+      "args": {
+        "body_part": "face"
+      },
+      "promise": true,
+      "result": {
+        "type": "undefined"
+      }
+    },
+    {
+      "name": "user_info_of_th",
+      "args": {
+        "ranking": "?",
+        "type": "username",
+        "order": 1
+      },
+      "promise": true,
+      "result": {
+        "type": "number",
+        "value": "NaN"
+      }
+    },
+    {
+      "name": "user_ranking_info",
+      "args": {
+        "ranking": "?",
+        "type": "rank"
+      },
+      "promise": true,
+      "result": {
+        "type": "number",
+        "value": "NaN"
+      }
+    }
+  ],
+  "hardwareCalls": [
+    {
+      "name": "microbit_button_is_pressed",
+      "registeredDomain": false
+    },
+    {
+      "name": "microbit_light_level",
+      "registeredDomain": false
+    },
+    {
+      "name": "microbit_temperature",
+      "registeredDomain": false
+    },
+    {
+      "name": "microbit_get_volume",
+      "registeredDomain": false
+    },
+    {
+      "name": "microbit_led_clear",
+      "registeredDomain": false
+    },
+    {
+      "name": "catbit_button_is_pressed",
+      "registeredDomain": false
+    },
+    {
+      "name": "wand_button_is_pressed",
+      "registeredDomain": false
+    },
+    {
+      "name": "wand_coordinate",
+      "registeredDomain": false
+    },
+    {
+      "name": "wand_rotation",
+      "registeredDomain": false
+    },
+    {
+      "name": "wand_reset_position",
+      "registeredDomain": false
+    },
+    {
+      "name": "get_robot_master_motor_power",
+      "registeredDomain": false
+    },
+    {
+      "name": "get_robot_master_infrared_sensor_distance",
+      "registeredDomain": false
+    },
+    {
+      "name": "stop_robot_master_motor",
+      "registeredDomain": false
+    },
+    {
+      "name": "get_robot2_master_motor_power",
+      "registeredDomain": false
+    },
+    {
+      "name": "stop_robot2_master_motor",
+      "registeredDomain": false
+    }
+  ],
+  "hardwareCoreChecks": [
+    {
+      "id": "microbit",
+      "type": "undefined"
+    },
+    {
+      "id": "catbit",
+      "type": "undefined"
+    },
+    {
+      "id": "wand",
+      "type": "undefined"
+    },
+    {
+      "id": "tudao",
+      "type": "undefined"
+    },
+    {
+      "id": "tudao2",
+      "type": "undefined"
+    }
+  ],
+  "hardwareRegistry": [
+    [
+      "math_number_with_tudao3_slider",
+      161
+    ],
+    [
+      "microbit_led_plot_number_shadow",
+      167
+    ],
+    [
+      "microbit_beats_shadow",
+      168
+    ],
+    [
+      "microbit_note_shadow",
+      169
+    ],
+    [
+      "microbit_pin_digital_number_shadow",
+      170
+    ]
+  ],
+  "directTimerCalls": {
+    "timeoutCount": 1,
+    "intervalCount": 7,
+    "canceledCount": 0,
+    "ids": [
+      {
+        "type": "number",
+        "value": 203
+      },
+      {
+        "type": "number",
+        "value": 204
+      },
+      {
+        "type": "number",
+        "value": 205
+      }
+    ],
+    "clearReturn": {
+      "type": "undefined"
+    },
+    "clearIntervalReturn": {
+      "type": "undefined"
+    },
+    "afterClear": 7,
+    "textCallback": {
+      "id": {
+        "type": "number",
+        "value": 210
+      },
+      "executed": false
+    }
+  },
+  "projectTimer": {
+    "running": true,
+    "variables": {
+      "ready": 1,
+      "fired": 0,
+      "after": 1
+    },
+    "domainCalls": [
+      {
+        "name": "setTimeout",
+        "keys": [
+          "delay"
+        ],
+        "callbackType": "undefined",
+        "callback": "undefined",
+        "delay": 137
+      },
+      {
+        "name": "setInterval",
+        "keys": [
+          "delay"
+        ],
+        "callbackType": "undefined",
+        "callback": "undefined",
+        "delay": 137
+      }
+    ],
+    "nativeCalls": [
+      {
+        "callbackType": "function",
+        "delay": 137,
+        "isEmptyFunction": true
+      }
+    ]
+  },
+  "checks": {
+    "realFunctionCallbacks": true,
+    "textNotEvaluated": true,
+    "nativeCallbackStatementsDropped": true,
+    "sourceAnchorsFound": true,
+    "workspacePreservesCallbackStatements": true,
+    "noUncaughtPageErrors": true
+  },
+  "pageErrors": [],
+  "ok": true,
+  "limitations": [
+    "Fresh headless Edge context; no login, device permissions or hardware supplied.",
+    "Direct domain calls are distinguished from full project execution.",
+    "Native callback statement bodies were preserved by workspace importer but missing from runtime args; this is not general callback support.",
+    "Direct service calls observe fresh empty caches; AI/network commands remain unsupported.",
+    "No timer stop/restart, hardware permissions, login, clone/closure or browser background tests."
+  ],
+  "localComparison": {
+    "checkedAt": "2026-11-10T15:46:19.955Z",
+    "command": "target/debug/kn-trace.exe tests/fixtures/kn-async-services/timers.bcmkn",
+    "fixtureSha256": "e90a01823eccd9ea6273f10164b67e440698df208d69135c785964f76f3f50bb",
+    "binarySha256": "c1e6bbffa41461ef93b5663af008f632ff506387e7b6a21c5b7fff809f86496b",
+    "traceSourceSha256": "b4aff9d65f98946dfeb81e1777366663bd3bb1bf84e0e5131d5ec01985270654",
+    "virtualFrames": 180,
+    "observation": {
+      "variables": {
+        "after": 1,
+        "fired": 0,
+        "ready": 1
+      }
+    },
+    "officialVariables": {
+      "ready": 1,
+      "fired": 0,
+      "after": 1
+    },
+    "equalVariables": true,
+    "limitation": "Default kn-trace engine path, 180 virtual frames; only final fixture variables compared. Not generic callback, stop/restart or full scheduler parity."
+  }
+}

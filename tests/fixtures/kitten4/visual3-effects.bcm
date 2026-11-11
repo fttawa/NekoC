@@ -1,0 +1,953 @@
+{
+  "hidden_toolbox": {
+    "toolbox": [],
+    "blocks": []
+  },
+  "work_source_label": 1,
+  "version": 25,
+  "application_version": "4.11.20",
+  "work_type": "KITTEN",
+  "size": {
+    "width": 960,
+    "height": 720
+  },
+  "type": 1,
+  "project_name": "NekoC semantics screen",
+  "theatre": {
+    "current_entity": "20000000-0000-4000-8000-000000000001",
+    "current_scene": "10000000-0000-4000-8000-000000000001",
+    "scenes_order": [
+      "10000000-0000-4000-8000-000000000001"
+    ],
+    "scenes": {
+      "10000000-0000-4000-8000-000000000001": {
+        "id": "10000000-0000-4000-8000-000000000001",
+        "name": "Background A",
+        "styles": [
+          "background"
+        ],
+        "current_style_id": "background",
+        "x": 0,
+        "y": 0,
+        "scale": 100,
+        "rotation": 0,
+        "rotation_type": 0,
+        "draggable": false,
+        "visible": true,
+        "workspace_offset": {
+          "x": 40,
+          "y": 40
+        },
+        "block_data_json": {
+          "blocks": {},
+          "connections": {},
+          "comments": {}
+        },
+        "actors": [
+          "30000000-0000-4000-8000-000000000001",
+          "30000000-0000-4000-8000-000000000002",
+          "30000000-0000-4000-8000-000000000003",
+          "30000000-0000-4000-8000-000000000004",
+          "30000000-0000-4000-8000-000000000005",
+          "30000000-0000-4000-8000-000000000006"
+        ],
+        "screen_name": "Scene A",
+        "group_order": [
+          "group"
+        ]
+      }
+    },
+    "actors": {
+      "30000000-0000-4000-8000-000000000001": {
+        "id": "30000000-0000-4000-8000-000000000001",
+        "name": "hue-positive",
+        "styles": [
+          "costume-a"
+        ],
+        "current_style_id": "costume-a",
+        "x": -250,
+        "y": 130,
+        "scale": 100,
+        "rotation": 0,
+        "rotation_type": 0,
+        "draggable": false,
+        "visible": true,
+        "workspace_offset": {
+          "x": 40,
+          "y": 40
+        },
+        "block_data_json": {
+          "blocks": {
+            "hue-positive-start": {
+              "type": "start_on_click",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "hue-positive-start",
+              "parent_id": null,
+              "location": [
+                0,
+                0
+              ]
+            },
+            "hue-positive-first": {
+              "type": "self_set_effect_2",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "val": "<shadow type=\"controller_shadow\" />"
+              },
+              "fields": {
+                "scope": "0"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "hue-positive-first",
+              "parent_id": "hue-positive-start",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "hue-positive-first-value": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "65"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "hue-positive-first-value",
+              "parent_id": "hue-positive-first",
+              "location": [
+                0,
+                0
+              ]
+            }
+          },
+          "connections": {
+            "hue-positive-start": {
+              "hue-positive-first": {
+                "type": "next"
+              }
+            },
+            "hue-positive-first": {
+              "hue-positive-first-value": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "val"
+              }
+            },
+            "hue-positive-first-value": {}
+          },
+          "comments": {}
+        },
+        "scene": "10000000-0000-4000-8000-000000000001",
+        "lock": false,
+        "editable_in_tuition_mode": true,
+        "user_change_r_c": false
+      },
+      "30000000-0000-4000-8000-000000000002": {
+        "id": "30000000-0000-4000-8000-000000000002",
+        "name": "hue-negative",
+        "styles": [
+          "costume-a"
+        ],
+        "current_style_id": "costume-a",
+        "x": 0,
+        "y": 130,
+        "scale": 100,
+        "rotation": 0,
+        "rotation_type": 0,
+        "draggable": false,
+        "visible": true,
+        "workspace_offset": {
+          "x": 40,
+          "y": 40
+        },
+        "block_data_json": {
+          "blocks": {
+            "hue-negative-start": {
+              "type": "start_on_click",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "hue-negative-start",
+              "parent_id": null,
+              "location": [
+                0,
+                0
+              ]
+            },
+            "hue-negative-first": {
+              "type": "self_set_effect_2",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "val": "<shadow type=\"controller_shadow\" />"
+              },
+              "fields": {
+                "scope": "0"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "hue-negative-first",
+              "parent_id": "hue-negative-start",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "hue-negative-first-value": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "-110"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "hue-negative-first-value",
+              "parent_id": "hue-negative-first",
+              "location": [
+                0,
+                0
+              ]
+            }
+          },
+          "connections": {
+            "hue-negative-start": {
+              "hue-negative-first": {
+                "type": "next"
+              }
+            },
+            "hue-negative-first": {
+              "hue-negative-first-value": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "val"
+              }
+            },
+            "hue-negative-first-value": {}
+          },
+          "comments": {}
+        },
+        "scene": "10000000-0000-4000-8000-000000000001",
+        "lock": false,
+        "editable_in_tuition_mode": true,
+        "user_change_r_c": false
+      },
+      "30000000-0000-4000-8000-000000000003": {
+        "id": "30000000-0000-4000-8000-000000000003",
+        "name": "gray-full",
+        "styles": [
+          "costume-a"
+        ],
+        "current_style_id": "costume-a",
+        "x": 250,
+        "y": 130,
+        "scale": 100,
+        "rotation": 0,
+        "rotation_type": 0,
+        "draggable": false,
+        "visible": true,
+        "workspace_offset": {
+          "x": 40,
+          "y": 40
+        },
+        "block_data_json": {
+          "blocks": {
+            "gray-full-start": {
+              "type": "start_on_click",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "gray-full-start",
+              "parent_id": null,
+              "location": [
+                0,
+                0
+              ]
+            },
+            "gray-full-first": {
+              "type": "self_set_effect_2",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "val": "<shadow type=\"controller_shadow\" />"
+              },
+              "fields": {
+                "scope": "6"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "gray-full-first",
+              "parent_id": "gray-full-start",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "gray-full-first-value": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "100"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "gray-full-first-value",
+              "parent_id": "gray-full-first",
+              "location": [
+                0,
+                0
+              ]
+            }
+          },
+          "connections": {
+            "gray-full-start": {
+              "gray-full-first": {
+                "type": "next"
+              }
+            },
+            "gray-full-first": {
+              "gray-full-first-value": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "val"
+              }
+            },
+            "gray-full-first-value": {}
+          },
+          "comments": {}
+        },
+        "scene": "10000000-0000-4000-8000-000000000001",
+        "lock": false,
+        "editable_in_tuition_mode": true,
+        "user_change_r_c": false
+      },
+      "30000000-0000-4000-8000-000000000004": {
+        "id": "30000000-0000-4000-8000-000000000004",
+        "name": "gray-half",
+        "styles": [
+          "costume-a"
+        ],
+        "current_style_id": "costume-a",
+        "x": -250,
+        "y": -130,
+        "scale": 100,
+        "rotation": 0,
+        "rotation_type": 0,
+        "draggable": false,
+        "visible": true,
+        "workspace_offset": {
+          "x": 40,
+          "y": 40
+        },
+        "block_data_json": {
+          "blocks": {
+            "gray-half-start": {
+              "type": "start_on_click",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "gray-half-start",
+              "parent_id": null,
+              "location": [
+                0,
+                0
+              ]
+            },
+            "gray-half-first": {
+              "type": "self_set_effect_2",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "val": "<shadow type=\"controller_shadow\" />"
+              },
+              "fields": {
+                "scope": "6"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "gray-half-first",
+              "parent_id": "gray-half-start",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "gray-half-first-value": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "50"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "gray-half-first-value",
+              "parent_id": "gray-half-first",
+              "location": [
+                0,
+                0
+              ]
+            }
+          },
+          "connections": {
+            "gray-half-start": {
+              "gray-half-first": {
+                "type": "next"
+              }
+            },
+            "gray-half-first": {
+              "gray-half-first-value": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "val"
+              }
+            },
+            "gray-half-first-value": {}
+          },
+          "comments": {}
+        },
+        "scene": "10000000-0000-4000-8000-000000000001",
+        "lock": false,
+        "editable_in_tuition_mode": true,
+        "user_change_r_c": false
+      },
+      "30000000-0000-4000-8000-000000000005": {
+        "id": "30000000-0000-4000-8000-000000000005",
+        "name": "brightness",
+        "styles": [
+          "costume-a"
+        ],
+        "current_style_id": "costume-a",
+        "x": 0,
+        "y": -130,
+        "scale": 100,
+        "rotation": 0,
+        "rotation_type": 0,
+        "draggable": false,
+        "visible": true,
+        "workspace_offset": {
+          "x": 40,
+          "y": 40
+        },
+        "block_data_json": {
+          "blocks": {
+            "brightness-start": {
+              "type": "start_on_click",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "brightness-start",
+              "parent_id": null,
+              "location": [
+                0,
+                0
+              ]
+            },
+            "brightness-first": {
+              "type": "self_set_effect_2",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "val": "<shadow type=\"controller_shadow\" />"
+              },
+              "fields": {
+                "scope": "2"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "brightness-first",
+              "parent_id": "brightness-start",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "brightness-first-value": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "130"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "brightness-first-value",
+              "parent_id": "brightness-first",
+              "location": [
+                0,
+                0
+              ]
+            }
+          },
+          "connections": {
+            "brightness-start": {
+              "brightness-first": {
+                "type": "next"
+              }
+            },
+            "brightness-first": {
+              "brightness-first-value": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "val"
+              }
+            },
+            "brightness-first-value": {}
+          },
+          "comments": {}
+        },
+        "scene": "10000000-0000-4000-8000-000000000001",
+        "lock": false,
+        "editable_in_tuition_mode": true,
+        "user_change_r_c": false
+      },
+      "30000000-0000-4000-8000-000000000006": {
+        "id": "30000000-0000-4000-8000-000000000006",
+        "name": "hue-gray",
+        "styles": [
+          "costume-a"
+        ],
+        "current_style_id": "costume-a",
+        "x": 250,
+        "y": -130,
+        "scale": 100,
+        "rotation": 0,
+        "rotation_type": 0,
+        "draggable": false,
+        "visible": true,
+        "workspace_offset": {
+          "x": 40,
+          "y": 40
+        },
+        "block_data_json": {
+          "blocks": {
+            "hue-gray-start": {
+              "type": "start_on_click",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "hue-gray-start",
+              "parent_id": null,
+              "location": [
+                0,
+                0
+              ]
+            },
+            "hue-gray-first": {
+              "type": "self_set_effect_2",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "val": "<shadow type=\"controller_shadow\" />"
+              },
+              "fields": {
+                "scope": "0"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "hue-gray-first",
+              "parent_id": "hue-gray-start",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "hue-gray-first-value": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "125"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "hue-gray-first-value",
+              "parent_id": "hue-gray-first",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "hue-gray-second": {
+              "type": "self_set_effect_2",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "val": "<shadow type=\"controller_shadow\" />"
+              },
+              "fields": {
+                "scope": "6"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "hue-gray-second",
+              "parent_id": "hue-gray-first",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "hue-gray-second-value": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "70"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "hue-gray-second-value",
+              "parent_id": "hue-gray-second",
+              "location": [
+                0,
+                0
+              ]
+            }
+          },
+          "connections": {
+            "hue-gray-start": {
+              "hue-gray-first": {
+                "type": "next"
+              }
+            },
+            "hue-gray-first": {
+              "hue-gray-first-value": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "val"
+              },
+              "hue-gray-second": {
+                "type": "next"
+              }
+            },
+            "hue-gray-first-value": {},
+            "hue-gray-second": {
+              "hue-gray-second-value": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "val"
+              }
+            },
+            "hue-gray-second-value": {}
+          },
+          "comments": {}
+        },
+        "scene": "10000000-0000-4000-8000-000000000001",
+        "lock": false,
+        "editable_in_tuition_mode": true,
+        "user_change_r_c": false
+      }
+    },
+    "groups": {
+      "group": {
+        "id": "group",
+        "name": "",
+        "is_fold": false,
+        "is_group": false,
+        "actors": [
+          "30000000-0000-4000-8000-000000000001",
+          "30000000-0000-4000-8000-000000000002",
+          "30000000-0000-4000-8000-000000000003",
+          "30000000-0000-4000-8000-000000000004",
+          "30000000-0000-4000-8000-000000000005",
+          "30000000-0000-4000-8000-000000000006"
+        ],
+        "scene": "10000000-0000-4000-8000-000000000001",
+        "visible": true
+      }
+    },
+    "styles": {
+      "background": {
+        "id": "background",
+        "name": "background",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NjAiIGhlaWdodD0iNzIwIj48cmVjdCB3aWR0aD0iOTYwIiBoZWlnaHQ9IjcyMCIgZmlsbD0iI2Q4ZTdmMCIvPjwvc3ZnPg==",
+        "rotate_center": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "costume-a": {
+        "id": "costume-a",
+        "name": "asymmetric",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNjAiIGhlaWdodD0iMTIwIj48cmVjdCB4PSIwIiB3aWR0aD0iNDAiIGhlaWdodD0iOTYiIGZpbGw9IiNkMDI4NTAiLz48cmVjdCB4PSIwIiB5PSI5NiIgd2lkdGg9IjQwIiBoZWlnaHQ9IjI0IiBmaWxsPSIjZDAyODUwIiBvcGFjaXR5PSIwLjUiLz48cmVjdCB4PSI0MCIgd2lkdGg9IjQwIiBoZWlnaHQ9Ijk2IiBmaWxsPSIjMmZiMDgwIi8+PHJlY3QgeD0iNDAiIHk9Ijk2IiB3aWR0aD0iNDAiIGhlaWdodD0iMjQiIGZpbGw9IiMyZmIwODAiIG9wYWNpdHk9IjAuNSIvPjxyZWN0IHg9IjgwIiB3aWR0aD0iNDAiIGhlaWdodD0iOTYiIGZpbGw9IiMzMDU4ZDAiLz48cmVjdCB4PSI4MCIgeT0iOTYiIHdpZHRoPSI0MCIgaGVpZ2h0PSIyNCIgZmlsbD0iIzMwNThkMCIgb3BhY2l0eT0iMC41Ii8+PHJlY3QgeD0iMTIwIiB3aWR0aD0iNDAiIGhlaWdodD0iOTYiIGZpbGw9IiNhMDgwMzAiLz48cmVjdCB4PSIxMjAiIHk9Ijk2IiB3aWR0aD0iNDAiIGhlaWdodD0iMjQiIGZpbGw9IiNhMDgwMzAiIG9wYWNpdHk9IjAuNSIvPjwvc3ZnPg==",
+        "rotate_center": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    },
+    "videos": {},
+    "timer": {}
+  },
+  "variables": {},
+  "variable_order": [],
+  "cloud_variables": {},
+  "audio": {},
+  "audio_order": [],
+  "midimusic": [],
+  "midi_order": [],
+  "matrix": {},
+  "models": {},
+  "toolbox": {
+    "current_type": "event",
+    "pen": false
+  },
+  "toolbox_order": [
+    "event",
+    "control",
+    "action",
+    "appearance",
+    "sensing",
+    "operator",
+    "data"
+  ],
+  "last_toolbox_order": [],
+  "hardware_type": "",
+  "is_partial": false,
+  "ai_lab": {},
+  "broadcasts": {},
+  "painter": {
+    "color": []
+  }
+}

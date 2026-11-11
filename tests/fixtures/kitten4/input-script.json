@@ -1,0 +1,161 @@
+{
+  "schema": "nekoc-input-v1",
+  "events": [
+    {
+      "frame": 2,
+      "time_ms": 40,
+      "type": "keydown",
+      "key_code": 65
+    },
+    {
+      "frame": 5,
+      "time_ms": 100,
+      "type": "keyup",
+      "key_code": 65
+    },
+    {
+      "frame": 7,
+      "time_ms": 140,
+      "type": "keydown",
+      "key_code": 96
+    },
+    {
+      "frame": 8,
+      "time_ms": 160,
+      "type": "keyup",
+      "key_code": 96
+    },
+    {
+      "frame": 10,
+      "time_ms": 200,
+      "type": "pointerdown",
+      "x": -20,
+      "y": 0,
+      "pointer_type": "mouse"
+    },
+    {
+      "frame": 13,
+      "time_ms": 260,
+      "type": "pointerup",
+      "x": -20,
+      "y": 0,
+      "pointer_type": "mouse"
+    },
+    {
+      "frame": 15,
+      "time_ms": 300,
+      "type": "pointerdown",
+      "x": 20,
+      "y": 0,
+      "pointer_type": "mouse"
+    },
+    {
+      "frame": 16,
+      "time_ms": 320,
+      "type": "pointerup",
+      "x": 20,
+      "y": 0,
+      "pointer_type": "mouse"
+    },
+    {
+      "frame": 18,
+      "time_ms": 360,
+      "type": "pointerdown",
+      "x": -20,
+      "y": 0,
+      "pointer_type": "touch"
+    },
+    {
+      "frame": 19,
+      "time_ms": 380,
+      "type": "pointermove",
+      "x": -10,
+      "y": 5,
+      "pointer_type": "touch"
+    },
+    {
+      "frame": 20,
+      "time_ms": 400,
+      "type": "pointerup",
+      "x": -10,
+      "y": 5,
+      "pointer_type": "touch"
+    },
+    {
+      "frame": 22,
+      "time_ms": 440,
+      "type": "pointerdown",
+      "x": 200,
+      "y": 100,
+      "pointer_type": "mouse"
+    },
+    {
+      "frame": 23,
+      "time_ms": 460,
+      "type": "pointermove",
+      "x": 240,
+      "y": 100,
+      "pointer_type": "mouse"
+    },
+    {
+      "frame": 24,
+      "time_ms": 480,
+      "type": "pointerup",
+      "x": 260,
+      "y": 100,
+      "pointer_type": "mouse"
+    },
+    {
+      "frame": 26,
+      "time_ms": 520,
+      "type": "pointerdown",
+      "x": 200,
+      "y": 100,
+      "pointer_type": "mouse"
+    },
+    {
+      "frame": 27,
+      "time_ms": 1600,
+      "type": "pointerup",
+      "x": 220,
+      "y": 100,
+      "pointer_type": "mouse"
+    },
+    {
+      "frame": 30,
+      "time_ms": 1700,
+      "type": "keydown",
+      "key_code": 65
+    },
+    {
+      "frame": 30,
+      "time_ms": 1710,
+      "type": "keyup",
+      "key_code": 65
+    },
+    {
+      "frame": 32,
+      "time_ms": 1800,
+      "type": "keydown",
+      "key_code": 65
+    },
+    {
+      "frame": 33,
+      "time_ms": 1820,
+      "type": "keydown",
+      "key_code": 66
+    },
+    {
+      "frame": 34,
+      "time_ms": 1840,
+      "type": "keyup",
+      "key_code": 65
+    },
+    {
+      "frame": 36,
+      "time_ms": 1880,
+      "type": "keyup",
+      "key_code": 66
+    }
+  ]
+}

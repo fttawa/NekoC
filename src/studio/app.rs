@@ -390,12 +390,15 @@ impl Studio {
                     self.result(result);
                 }
                 if ui.button("Workspace JSON").clicked() {
-                    self.json_buffer = serde_json::to_string_pretty(
-                        self.document
-                            .value()
-                            .pointer(&self.owner)
-                            .and_then(|v| v.get("nekoBlockJsonList"))
-                            .unwrap_or(&json!([])),
+                    self.json_buffer = String::from_utf8(
+                        crate::json::to_vec_pretty(
+                            self.document
+                                .value()
+                                .pointer(&self.owner)
+                                .and_then(|v| v.get("nekoBlockJsonList"))
+                                .unwrap_or(&json!([])),
+                        )
+                        .unwrap(),
                     )
                     .unwrap();
                     self.json_open = true;
@@ -461,11 +464,12 @@ impl Studio {
                         )
                         .clicked()
                     {
-                        match serde_json::from_str::<Value>(&self.json_buffer) {
+                        match crate::json::from_str(&self.json_buffer) {
                             Ok(value) if value.is_array() => {
-                                let result = self
-                                    .document
-                                    .set(&format!("{}/nekoBlockJsonList", self.owner), value);
+                                let result = self.document.set(
+                                    &format!("{}/nekoBlockJsonList", self.owner),
+                                    value.into_value(),
+                                );
                                 if result.is_ok() {
                                     self.json_open = false;
                                     self.selected.clear();

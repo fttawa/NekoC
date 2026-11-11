@@ -1,0 +1,660 @@
+{
+  "schema": "nekoc-k4-run-error-evidence-v1",
+  "cases": {
+    "addition": {
+      "sha256": "273057ea3c52592f9b9f46b8de0f60196f290af590b284d20b1f1d3f6e007187",
+      "variables": [
+        {
+          "log": "6,11,14",
+          "result": [
+            5,
+            "6,11,14",
+            [
+              6,
+              11,
+              14
+            ],
+            "234",
+            "6,11,14",
+            [
+              6,
+              11,
+              14
+            ]
+          ]
+        },
+        {
+          "log": "6,11,14",
+          "result": [
+            5,
+            "6,11,14",
+            [
+              6,
+              11,
+              14
+            ],
+            "234",
+            "6,11,14",
+            [
+              6,
+              11,
+              14
+            ]
+          ]
+        },
+        {
+          "log": "6,11,14",
+          "result": [
+            5,
+            "6,11,14",
+            [
+              6,
+              11,
+              14
+            ],
+            "234",
+            "6,11,14",
+            [
+              6,
+              11,
+              14
+            ]
+          ]
+        },
+        {
+          "log": "6,11,14",
+          "result": [
+            5,
+            "6,11,14",
+            [
+              6,
+              11,
+              14
+            ],
+            "234",
+            "6,11,14",
+            [
+              6,
+              11,
+              14
+            ]
+          ]
+        }
+      ],
+      "execution": [
+        {
+          "frame": 1,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "addition"
+        },
+        {
+          "frame": 1,
+          "event": "finish",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "addition",
+          "stack": []
+        }
+      ]
+    },
+    "random": {
+      "sha256": "542ada7b7513c9b54071a2cdd59f1d704c6a99a8167474c561597a865673aa86",
+      "variables": [
+        {
+          "log": 0,
+          "result": [
+            1.25,
+            0.5,
+            5
+          ]
+        },
+        {
+          "log": 0,
+          "result": [
+            1.25,
+            0.5,
+            5
+          ]
+        },
+        {
+          "log": 0,
+          "result": [
+            1.25,
+            0.5,
+            5
+          ]
+        },
+        {
+          "log": 0,
+          "result": [
+            1.25,
+            0.5,
+            5
+          ]
+        }
+      ],
+      "execution": [
+        {
+          "frame": 1,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "random"
+        },
+        {
+          "frame": 1,
+          "event": "finish",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "random",
+          "stack": []
+        }
+      ]
+    },
+    "warp-10000": {
+      "sha256": "d207031a5a813f208b0ce9ff032f095c5c9dededdb8b97e7be447179bfc661aa",
+      "variables": [
+        {
+          "log": -1,
+          "result": [
+            -1
+          ]
+        },
+        {
+          "log": -1,
+          "result": [
+            -1
+          ]
+        },
+        {
+          "log": -1,
+          "result": [
+            -1
+          ]
+        },
+        {
+          "log": -1,
+          "result": [
+            -1
+          ]
+        }
+      ],
+      "execution": [
+        {
+          "frame": 1,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "producer"
+        },
+        {
+          "frame": 1,
+          "event": "finish",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "producer",
+          "stack": []
+        },
+        {
+          "frame": 1,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "initializer"
+        },
+        {
+          "frame": 1,
+          "event": "finish",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "initializer",
+          "stack": []
+        }
+      ]
+    },
+    "warp-10001": {
+      "sha256": "d22287ba61e7cd3767c4dc3a89dee212f87abc618e535f3d10ca0b2231952026",
+      "variables": [
+        {
+          "log": -1,
+          "result": [
+            -1
+          ]
+        },
+        {
+          "log": -1,
+          "result": [
+            -1
+          ]
+        },
+        {
+          "log": -1,
+          "result": [
+            -1
+          ]
+        },
+        {
+          "log": -1,
+          "result": [
+            -1
+          ]
+        }
+      ],
+      "execution": [
+        {
+          "frame": 1,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "producer"
+        },
+        {
+          "frame": 1,
+          "event": "finish",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "producer",
+          "stack": []
+        },
+        {
+          "frame": 1,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "initializer"
+        },
+        {
+          "frame": 1,
+          "event": "finish",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "initializer",
+          "stack": []
+        }
+      ]
+    },
+    "warp-10002": {
+      "sha256": "b5a6dc3e11fb1626f2ea4c4a2a880318ef8efc4e1cb1ebe509557a66a8c9cd50",
+      "variables": [
+        {
+          "log": 10002,
+          "result": [
+            10002
+          ]
+        },
+        {
+          "log": -1,
+          "result": [
+            10002
+          ]
+        },
+        {
+          "log": -1,
+          "result": [
+            10002
+          ]
+        },
+        {
+          "log": -1,
+          "result": [
+            10002
+          ]
+        }
+      ],
+      "execution": [
+        {
+          "frame": 1,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "producer"
+        },
+        {
+          "frame": 1,
+          "event": "yield",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "producer",
+          "stack": [
+            {
+              "procedure": "__main__",
+              "pc": [
+                9,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "frame": 1,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "initializer"
+        },
+        {
+          "frame": 1,
+          "event": "finish",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "initializer",
+          "stack": []
+        },
+        {
+          "frame": 2,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "producer"
+        },
+        {
+          "frame": 2,
+          "event": "finish",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "producer",
+          "stack": []
+        }
+      ]
+    },
+    "warp-30002": {
+      "sha256": "39276cea5066ef99d6ded1ea46336ee661d94473b33f327cd75f7a004db0fb21",
+      "variables": [
+        {
+          "log": 10002,
+          "result": [
+            10002
+          ]
+        },
+        {
+          "log": 20004,
+          "result": [
+            10002
+          ]
+        },
+        {
+          "log": -1,
+          "result": [
+            10002
+          ]
+        },
+        {
+          "log": -1,
+          "result": [
+            10002
+          ]
+        }
+      ],
+      "execution": [
+        {
+          "frame": 1,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "producer"
+        },
+        {
+          "frame": 1,
+          "event": "yield",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "producer",
+          "stack": [
+            {
+              "procedure": "__main__",
+              "pc": [
+                9,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "frame": 1,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "initializer"
+        },
+        {
+          "frame": 1,
+          "event": "finish",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "initializer",
+          "stack": []
+        },
+        {
+          "frame": 2,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "producer"
+        },
+        {
+          "frame": 2,
+          "event": "yield",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "producer",
+          "stack": [
+            {
+              "procedure": "__main__",
+              "pc": [
+                9,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "frame": 3,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "producer"
+        },
+        {
+          "frame": 3,
+          "event": "finish",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "producer",
+          "stack": []
+        }
+      ]
+    },
+    "warp-nested": {
+      "sha256": "4cd10f11aa0fe7f1a6443d0bbf8465b9a269c694ae7be94421ae07d05f653071",
+      "variables": [
+        {
+          "log": 10002,
+          "result": [
+            10002
+          ]
+        },
+        {
+          "log": 20003,
+          "result": [
+            10002
+          ]
+        },
+        {
+          "log": -1,
+          "result": [
+            10002
+          ]
+        },
+        {
+          "log": -1,
+          "result": [
+            10002
+          ]
+        }
+      ],
+      "execution": [
+        {
+          "frame": 1,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "producer"
+        },
+        {
+          "frame": 1,
+          "event": "yield",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "producer",
+          "stack": [
+            {
+              "procedure": "__main__",
+              "pc": [
+                9,
+                4,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "frame": 1,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "initializer"
+        },
+        {
+          "frame": 1,
+          "event": "finish",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "initializer",
+          "stack": []
+        },
+        {
+          "frame": 2,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "producer"
+        },
+        {
+          "frame": 2,
+          "event": "yield",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "producer",
+          "stack": [
+            {
+              "procedure": "__main__",
+              "pc": [
+                9,
+                4,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "frame": 3,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "producer"
+        },
+        {
+          "frame": 3,
+          "event": "finish",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "producer",
+          "stack": []
+        }
+      ]
+    },
+    "warp-until": {
+      "sha256": "8c6bc83795c997dee7f5000e51e5c3f5f0c13cc0793a100cfd17d5b3f47ceb1f",
+      "variables": [
+        {
+          "log": 10002,
+          "result": [
+            10002
+          ]
+        },
+        {
+          "log": -1,
+          "result": [
+            10002
+          ]
+        },
+        {
+          "log": -1,
+          "result": [
+            10002
+          ]
+        },
+        {
+          "log": -1,
+          "result": [
+            10002
+          ]
+        }
+      ],
+      "execution": [
+        {
+          "frame": 1,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "producer"
+        },
+        {
+          "frame": 1,
+          "event": "yield",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "producer",
+          "stack": [
+            {
+              "procedure": "__main__",
+              "pc": [
+                6,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "frame": 1,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "initializer"
+        },
+        {
+          "frame": 1,
+          "event": "finish",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "initializer",
+          "stack": []
+        },
+        {
+          "frame": 2,
+          "event": "resume",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "producer"
+        },
+        {
+          "frame": 2,
+          "event": "finish",
+          "entity": "20000000-0000-4000-8000-000000000001",
+          "hat": "producer",
+          "stack": []
+        }
+      ]
+    }
+  },
+  "assets": [
+    {
+      "name": "player_v2__3ffeebbd0c789e8d9422.css",
+      "source": "player_v2__3ffeebbd0c789e8d9422.css",
+      "sha256": "39e8e70b124b604831773893cdc95931cdee3eaea52c6dd69f33f5781d48b45a"
+    },
+    {
+      "name": "runtime.f42f527f119e09010b85.js",
+      "source": "runtime.f42f527f119e09010b85.js",
+      "sha256": "4164d67795238f64d035f473418236038ae475ae36032a967cba16ede263735f"
+    },
+    {
+      "name": "vendors.d00f4bd454a6352e9d71.js",
+      "source": "vendors.d00f4bd454a6352e9d71.js",
+      "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
+    },
+    {
+      "name": "player_v2.2d180c468559fbd29528.js",
+      "source": "player_v2.2d180c468559fbd29528.js.orig",
+      "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160"
+    },
+    {
+      "name": "9.c396696e9dc71e25b012.js",
+      "source": "9.c396696e9dc71e25b012.js",
+      "sha256": "5758343310c47596d56e954aa05fa76a546080c8bf4fefd41cac0042794d6195"
+    },
+    {
+      "name": "14.c95e6f2ddd61fb701d0e.js",
+      "source": "14.c95e6f2ddd61fb701d0e.js",
+      "sha256": "d3ce91c9113463db4c0988210caeb1be2ddc508499d5c53a8e73a13b5f440175"
+    },
+    {
+      "name": "11.477512e6f03fd2f6f3c5.js",
+      "source": "11.477512e6f03fd2f6f3c5.js",
+      "sha256": "e81bfe3462cc3e79a70ba016ddee2a372a31480d3f52964952e1d21f3a490f91"
+    }
+  ]
+}

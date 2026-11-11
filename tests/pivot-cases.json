@@ -1,0 +1,13 @@
+[
+  {"name":"KN 0", "direction":0, "turn":0, "rotation_type":0, "scale":100, "size_x":100, "size_y":100, "center":[20,46], "drawn":[20,12,0], "bounds":[10,30,40,52]},
+  {"name":"KN 90", "direction":90, "turn":0, "rotation_type":0, "scale":100, "size_x":100, "size_y":100, "center":[36,50], "drawn":[20,12,90], "bounds":[30,42,40,60]},
+  {"name":"KN scaled 0", "direction":0, "turn":0, "rotation_type":0, "scale":200, "size_x":150, "size_y":50, "center":[0,46], "drawn":[60,12,0], "bounds":[-30,30,40,52]},
+  {"name":"KN scaled 90", "direction":90, "turn":0, "rotation_type":0, "scale":200, "size_x":150, "size_y":50, "center":[36,70], "drawn":[60,12,90], "bounds":[30,42,40,100]},
+  {"name":"K4 0", "direction":90, "turn":90, "rotation_type":0, "scale":100, "size_x":100, "size_y":100, "center":[20,46], "drawn":[20,12,0], "bounds":[10,30,40,52]},
+  {"name":"K4 scaled 90", "direction":180, "turn":90, "rotation_type":0, "scale":200, "size_x":150, "size_y":50, "center":[36,70], "drawn":[60,12,90], "bounds":[30,42,40,100]},
+  {"name":"KN mirror left", "direction":-90, "turn":0, "rotation_type":1, "scale":100, "size_x":100, "size_y":100, "center":[40,46], "drawn":[-20,12,0], "bounds":[30,50,40,52]},
+  {"name":"K4 mirror left", "direction":0, "turn":90, "rotation_type":1, "scale":100, "size_x":100, "size_y":100, "center":[40,46], "drawn":[-20,12,0], "bounds":[30,50,40,52]},
+  {"name":"KN mirror right", "direction":450, "turn":0, "rotation_type":1, "scale":100, "size_x":100, "size_y":100, "center":[20,46], "drawn":[20,12,0], "bounds":[10,30,40,52]},
+  {"name":"KN fixed", "direction":90, "turn":0, "rotation_type":2, "scale":100, "size_x":100, "size_y":100, "center":[20,46], "drawn":[20,12,0], "bounds":[10,30,40,52]},
+  {"name":"negative axes", "direction":0, "turn":0, "rotation_type":0, "scale":100, "size_x":-100, "size_y":-100, "center":[40,34], "drawn":[-20,-12,0], "bounds":[30,50,28,40]}
+]

@@ -1,0 +1,488 @@
+{
+  "projectName": "NekoC KN semantics list",
+  "version": "0.27.4",
+  "toolType": "KN",
+  "stageSize": {
+    "width": 900,
+    "height": 562
+  },
+  "scenes": {
+    "currentSceneId": "nekoc-scene-main",
+    "sortList": [
+      "nekoc-scene-main"
+    ],
+    "scenesDict": {
+      "nekoc-scene-main": {
+        "id": "nekoc-scene-main",
+        "name": "Background",
+        "screenName": "Main",
+        "styles": [
+          "nekoc-background"
+        ],
+        "currentStyleId": "nekoc-background",
+        "actorIds": [
+          "20000000-0000-4000-8000-000000000001"
+        ],
+        "visible": true,
+        "editable": true,
+        "workspaceScrollXy": {
+          "x": 100,
+          "y": 50
+        },
+        "nekoBlockJsonList": [],
+        "comments": {}
+      }
+    }
+  },
+  "actors": {
+    "actorsDict": {
+      "20000000-0000-4000-8000-000000000001": {
+        "id": "20000000-0000-4000-8000-000000000001",
+        "name": "Sprite",
+        "styles": [
+          "nekoc-costume"
+        ],
+        "currentStyleId": "nekoc-costume",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": 100,
+        "rotation": 0,
+        "visible": true,
+        "locked": false,
+        "editable": true,
+        "deletable": true,
+        "workspaceScrollXy": {
+          "x": 100,
+          "y": 50
+        },
+        "nekoBlockJsonList": [
+          {
+            "id": "knsem-262",
+            "type": "on_running_group_activated",
+            "fields": {},
+            "inputs": {},
+            "statements": {},
+            "next": {
+              "id": "knsem-239",
+              "type": "variables_set",
+              "fields": {
+                "variable": "v0"
+              },
+              "inputs": {
+                "value": {
+                  "id": "knsem-238",
+                  "type": "list_item",
+                  "fields": {
+                    "item": "any"
+                  },
+                  "inputs": {
+                    "list": {
+                      "id": "knsem-236",
+                      "type": "pure_list_get",
+                      "fields": {
+                        "list": "items"
+                      },
+                      "inputs": {},
+                      "statements": {}
+                    },
+                    "list_index": {
+                      "id": "knsem-237",
+                      "type": "math_number",
+                      "fields": {
+                        "NUM": "1"
+                      },
+                      "inputs": {},
+                      "statements": {}
+                    }
+                  },
+                  "statements": {}
+                }
+              },
+              "statements": {},
+              "next": {
+                "id": "knsem-243",
+                "type": "variables_set",
+                "fields": {
+                  "variable": "v1"
+                },
+                "inputs": {
+                  "value": {
+                    "id": "knsem-242",
+                    "type": "list_item",
+                    "fields": {
+                      "item": "any"
+                    },
+                    "inputs": {
+                      "list": {
+                        "id": "knsem-240",
+                        "type": "pure_list_get",
+                        "fields": {
+                          "list": "items"
+                        },
+                        "inputs": {},
+                        "statements": {}
+                      },
+                      "list_index": {
+                        "id": "knsem-241",
+                        "type": "math_number",
+                        "fields": {
+                          "NUM": "-1"
+                        },
+                        "inputs": {},
+                        "statements": {}
+                      }
+                    },
+                    "statements": {}
+                  }
+                },
+                "statements": {},
+                "next": {
+                  "id": "knsem-247",
+                  "type": "variables_set",
+                  "fields": {
+                    "variable": "v2"
+                  },
+                  "inputs": {
+                    "value": {
+                      "id": "knsem-246",
+                      "type": "list_item",
+                      "fields": {
+                        "item": "any"
+                      },
+                      "inputs": {
+                        "list": {
+                          "id": "knsem-244",
+                          "type": "pure_list_get",
+                          "fields": {
+                            "list": "items"
+                          },
+                          "inputs": {},
+                          "statements": {}
+                        },
+                        "list_index": {
+                          "id": "knsem-245",
+                          "type": "math_number",
+                          "fields": {
+                            "NUM": "0"
+                          },
+                          "inputs": {},
+                          "statements": {}
+                        }
+                      },
+                      "statements": {}
+                    }
+                  },
+                  "statements": {},
+                  "next": {
+                    "id": "knsem-251",
+                    "type": "variables_set",
+                    "fields": {
+                      "variable": "v3"
+                    },
+                    "inputs": {
+                      "value": {
+                        "id": "knsem-250",
+                        "type": "list_item",
+                        "fields": {
+                          "item": "any"
+                        },
+                        "inputs": {
+                          "list": {
+                            "id": "knsem-248",
+                            "type": "pure_list_get",
+                            "fields": {
+                              "list": "items"
+                            },
+                            "inputs": {},
+                            "statements": {}
+                          },
+                          "list_index": {
+                            "id": "knsem-249",
+                            "type": "math_number",
+                            "fields": {
+                              "NUM": "4"
+                            },
+                            "inputs": {},
+                            "statements": {}
+                          }
+                        },
+                        "statements": {}
+                      }
+                    },
+                    "statements": {},
+                    "next": {
+                      "id": "knsem-255",
+                      "type": "variables_set",
+                      "fields": {
+                        "variable": "v4"
+                      },
+                      "inputs": {
+                        "value": {
+                          "id": "knsem-254",
+                          "type": "list_item",
+                          "fields": {
+                            "item": "any"
+                          },
+                          "inputs": {
+                            "list": {
+                              "id": "knsem-252",
+                              "type": "pure_list_get",
+                              "fields": {
+                                "list": "items"
+                              },
+                              "inputs": {},
+                              "statements": {}
+                            },
+                            "list_index": {
+                              "id": "knsem-253",
+                              "type": "math_number",
+                              "fields": {
+                                "NUM": "1.5"
+                              },
+                              "inputs": {},
+                              "statements": {}
+                            }
+                          },
+                          "statements": {}
+                        }
+                      },
+                      "statements": {},
+                      "next": {
+                        "id": "knsem-259",
+                        "type": "variables_set",
+                        "fields": {
+                          "variable": "v5"
+                        },
+                        "inputs": {
+                          "value": {
+                            "id": "knsem-258",
+                            "type": "list_item",
+                            "fields": {
+                              "item": "any"
+                            },
+                            "inputs": {
+                              "list": {
+                                "id": "knsem-256",
+                                "type": "pure_list_get",
+                                "fields": {
+                                  "list": "items"
+                                },
+                                "inputs": {},
+                                "statements": {}
+                              },
+                              "list_index": {
+                                "id": "knsem-257",
+                                "type": "math_number",
+                                "fields": {
+                                  "NUM": "-4"
+                                },
+                                "inputs": {},
+                                "statements": {}
+                              }
+                            },
+                            "statements": {}
+                          }
+                        },
+                        "statements": {},
+                        "next": {
+                          "id": "knsem-261",
+                          "type": "variables_set",
+                          "fields": {
+                            "variable": "done"
+                          },
+                          "inputs": {
+                            "value": {
+                              "id": "knsem-260",
+                              "type": "math_number",
+                              "fields": {
+                                "NUM": "1"
+                              },
+                              "inputs": {},
+                              "statements": {}
+                            }
+                          },
+                          "statements": {}
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "comments": {},
+        "sceneId": "nekoc-scene-main"
+      }
+    }
+  },
+  "styles": {
+    "stylesDict": {
+      "nekoc-background": {
+        "id": "nekoc-background",
+        "name": "Background",
+        "url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='562'%3E%3Crect width='900' height='562' fill='white'/%3E%3C/svg%3E"
+      },
+      "nekoc-costume": {
+        "id": "nekoc-costume",
+        "name": "Sprite",
+        "url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Ccircle cx='20' cy='20' r='18' fill='rgb(96,143,238)'/%3E%3C/svg%3E",
+        "centerPoint": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    }
+  },
+  "variables": {
+    "variablesDict": {
+      "trace": {
+        "id": "trace",
+        "name": "trace",
+        "value": "",
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "done": {
+        "id": "done",
+        "name": "done",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "items": {
+        "id": "items",
+        "name": "items",
+        "value": [
+          10,
+          20,
+          30
+        ],
+        "type": "list",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "v0": {
+        "id": "v0",
+        "name": "v0",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "v1": {
+        "id": "v1",
+        "name": "v1",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "v2": {
+        "id": "v2",
+        "name": "v2",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "v3": {
+        "id": "v3",
+        "name": "v3",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "v4": {
+        "id": "v4",
+        "name": "v4",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "v5": {
+        "id": "v5",
+        "name": "v5",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    }
+  },
+  "broadcasts": {
+    "broadcastsDict": {
+      "nekoc-scene-main": []
+    }
+  },
+  "procedures": {
+    "proceduresDict": {}
+  },
+  "audios": {
+    "audiosDict": {},
+    "sortList": [],
+    "currentAudioId": ""
+  },
+  "hidden_toolbox": {
+    "toolbox": [],
+    "blocks": [],
+    "forcibleShowBlocks": [],
+    "isCombine": false
+  },
+  "courseMaterials": {
+    "courseMaterialsDict": {},
+    "sortList": []
+  },
+  "previewUrl": ""
+}

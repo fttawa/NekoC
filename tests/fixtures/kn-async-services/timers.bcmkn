@@ -1,0 +1,85 @@
+{
+  "projectName": "NekoC KN timers oracle",
+  "version": "0.27.4",
+  "toolType": "KN",
+  "stageSize": { "width": 900, "height": 562 },
+  "scenes": {
+    "currentSceneId": "nekoc-scene-main",
+    "sortList": ["nekoc-scene-main"],
+    "scenesDict": {
+      "nekoc-scene-main": {
+        "id": "nekoc-scene-main", "name": "Background", "screenName": "Main",
+        "styles": ["nekoc-background"], "currentStyleId": "nekoc-background",
+        "actorIds": ["nekoc-default-actor"], "visible": true, "editable": true,
+        "workspaceScrollXy": { "x": 100, "y": 50 }, "nekoBlockJsonList": [], "comments": {}
+      }
+    }
+  },
+  "actors": {
+    "actorsDict": {
+      "nekoc-default-actor": {
+        "id": "nekoc-default-actor", "name": "Sprite",
+        "styles": ["nekoc-costume"], "currentStyleId": "nekoc-costume",
+        "position": { "x": 0, "y": 0 }, "scale": 100, "rotation": 0,
+        "visible": true, "locked": false, "editable": true, "deletable": true,
+        "workspaceScrollXy": { "x": 100, "y": 50 }, "comments": {},
+        "nekoBlockJsonList": [{
+          "id": "kn-services-1", "type": "on_running_group_activated", "next": {
+            "id": "kn-services-2", "type": "variables_set", "fields": { "variable": "ready" },
+            "inputs": { "value": { "id": "kn-services-3", "type": "math_number", "fields": { "NUM": "1" } } },
+            "next": {
+              "id": "kn-services-4", "type": "setTimeout",
+              "inputs": {
+                "delay": { "id": "kn-services-5", "type": "math_number", "fields": { "NUM": "137" } },
+                "callback": {
+                  "id": "kn-services-6", "type": "variables_set", "fields": { "variable": "fired" },
+                  "inputs": { "value": { "id": "kn-services-7", "type": "math_number", "fields": { "NUM": "1" } } }
+                }
+              },
+              "next": {
+                "id": "kn-services-8", "type": "setInterval",
+                "inputs": {
+                  "delay": { "id": "kn-services-9", "type": "math_number", "fields": { "NUM": "137" } },
+                  "callback": {
+                    "id": "kn-services-10", "type": "variables_set", "fields": { "variable": "fired" },
+                    "inputs": { "value": { "id": "kn-services-11", "type": "math_number", "fields": { "NUM": "2" } } }
+                  }
+                },
+                "next": {
+                  "id": "kn-services-12", "type": "variables_set", "fields": { "variable": "after" },
+                  "inputs": { "value": { "id": "kn-services-13", "type": "math_number", "fields": { "NUM": "1" } } }
+                }
+              }
+            }
+          }
+        }]
+      }
+    }
+  },
+  "styles": {
+    "stylesDict": {
+      "nekoc-background": {
+        "id": "nekoc-background", "name": "Background",
+        "url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='562'%3E%3Crect width='900' height='562' fill='white'/%3E%3C/svg%3E"
+      },
+      "nekoc-costume": {
+        "id": "nekoc-costume", "name": "Sprite",
+        "url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Ccircle cx='20' cy='20' r='18' fill='rgb(96,143,238)'/%3E%3C/svg%3E",
+        "centerPoint": { "x": 0, "y": 0 }
+      }
+    }
+  },
+  "variables": {
+    "variablesDict": {
+      "ready": { "id": "ready", "name": "ready", "value": 0, "type": "any", "isGlobal": true, "currentEntityId": "nekoc-default-actor", "visible": true, "position": { "x": -300, "y": 100 } },
+      "fired": { "id": "fired", "name": "fired", "value": 0, "type": "any", "isGlobal": true, "currentEntityId": "nekoc-default-actor", "visible": true, "position": { "x": -300, "y": 70 } },
+      "after": { "id": "after", "name": "after", "value": 0, "type": "any", "isGlobal": true, "currentEntityId": "nekoc-default-actor", "visible": true, "position": { "x": -300, "y": 40 } }
+    }
+  },
+  "broadcasts": { "broadcastsDict": { "nekoc-scene-main": [] } },
+  "procedures": { "proceduresDict": {} },
+  "audios": { "audiosDict": {}, "sortList": [], "currentAudioId": "" },
+  "hidden_toolbox": { "toolbox": [], "blocks": [], "forcibleShowBlocks": [], "isCombine": false },
+  "courseMaterials": { "courseMaterialsDict": {}, "sortList": [] },
+  "previewUrl": ""
+}

@@ -1,0 +1,749 @@
+{
+  "fixture": "tests/fixtures/kitten4/trajectory-3-coast.bcm",
+  "sha256": "a5a8b766e1764896a26875a19a735ad05b3c50815f209b8b54df72100a556464",
+  "observations": [
+    {
+      "frame": 1,
+      "style": {
+        "style_id": "probe-style",
+        "texture_id": "probe-style",
+        "pivot": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "texture": {
+        "width": 20,
+        "height": 20
+      },
+      "pointCount": 196,
+      "coreKeys": [
+        "app",
+        "data",
+        "textures",
+        "scenes",
+        "actors",
+        "stage_animation",
+        "physics",
+        "events",
+        "components"
+      ],
+      "shapes": [
+        {
+          "density": 0.1,
+          "vertices": [
+            {
+              "x": 1,
+              "y": 0.8
+            },
+            {
+              "x": -0.9,
+              "y": 1
+            },
+            {
+              "x": -0.8,
+              "y": -1
+            },
+            {
+              "x": 0.8,
+              "y": -1
+            }
+          ]
+        }
+      ],
+      "bodyPosition": {
+        "x": 0,
+        "y": 0
+      },
+      "velocity": {
+        "x": 20,
+        "y": 0
+      },
+      "groups": [
+        [
+          {
+            "x": 13,
+            "y": 0
+          },
+          {
+            "x": 2,
+            "y": 0
+          },
+          {
+            "x": 1,
+            "y": 14
+          },
+          {
+            "x": 14,
+            "y": 13
+          }
+        ]
+      ],
+      "worldKeys": [
+        "app",
+        "data",
+        "world_list",
+        "box2d",
+        "latest_world"
+      ]
+    },
+    {
+      "frame": 2,
+      "style": {
+        "style_id": "probe-style",
+        "texture_id": "probe-style",
+        "pivot": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "texture": {
+        "width": 20,
+        "height": 20
+      },
+      "pointCount": 196,
+      "coreKeys": [
+        "app",
+        "data",
+        "textures",
+        "scenes",
+        "actors",
+        "stage_animation",
+        "physics",
+        "events",
+        "components"
+      ],
+      "shapes": [
+        {
+          "density": 0.1,
+          "vertices": [
+            {
+              "x": 1,
+              "y": 0.8
+            },
+            {
+              "x": -0.9,
+              "y": 1
+            },
+            {
+              "x": -0.8,
+              "y": -1
+            },
+            {
+              "x": 0.8,
+              "y": -1
+            }
+          ]
+        }
+      ],
+      "bodyPosition": {
+        "x": 0,
+        "y": 0
+      },
+      "velocity": {
+        "x": 20,
+        "y": 0
+      },
+      "groups": [
+        [
+          {
+            "x": 13,
+            "y": 0
+          },
+          {
+            "x": 2,
+            "y": 0
+          },
+          {
+            "x": 1,
+            "y": 14
+          },
+          {
+            "x": 14,
+            "y": 13
+          }
+        ]
+      ],
+      "worldKeys": [
+        "app",
+        "data",
+        "world_list",
+        "box2d",
+        "latest_world"
+      ]
+    },
+    {
+      "frame": 3,
+      "style": {
+        "style_id": "probe-style",
+        "texture_id": "probe-style",
+        "pivot": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "texture": {
+        "width": 20,
+        "height": 20
+      },
+      "pointCount": 196,
+      "coreKeys": [
+        "app",
+        "data",
+        "textures",
+        "scenes",
+        "actors",
+        "stage_animation",
+        "physics",
+        "events",
+        "components"
+      ],
+      "shapes": [
+        {
+          "density": 0.1,
+          "vertices": [
+            {
+              "x": 1,
+              "y": 0.8
+            },
+            {
+              "x": -0.9,
+              "y": 1
+            },
+            {
+              "x": -0.8,
+              "y": -1
+            },
+            {
+              "x": 0.8,
+              "y": -1
+            }
+          ]
+        }
+      ],
+      "bodyPosition": {
+        "x": 0.3333333333333333,
+        "y": 0
+      },
+      "velocity": {
+        "x": 20,
+        "y": 0
+      },
+      "groups": [
+        [
+          {
+            "x": 13,
+            "y": 0
+          },
+          {
+            "x": 2,
+            "y": 0
+          },
+          {
+            "x": 1,
+            "y": 14
+          },
+          {
+            "x": 14,
+            "y": 13
+          }
+        ]
+      ],
+      "worldKeys": [
+        "app",
+        "data",
+        "world_list",
+        "box2d",
+        "latest_world"
+      ]
+    }
+  ],
+  "errors": [],
+  "diagnostics": {
+    "assets": [
+      {
+        "name": "player_v2__3ffeebbd0c789e8d9422.css",
+        "source": "player_v2__3ffeebbd0c789e8d9422.css",
+        "sha256": "39e8e70b124b604831773893cdc95931cdee3eaea52c6dd69f33f5781d48b45a"
+      },
+      {
+        "name": "runtime.f42f527f119e09010b85.js",
+        "source": "runtime.f42f527f119e09010b85.js",
+        "sha256": "4164d67795238f64d035f473418236038ae475ae36032a967cba16ede263735f"
+      },
+      {
+        "name": "vendors.d00f4bd454a6352e9d71.js",
+        "source": "vendors.d00f4bd454a6352e9d71.js",
+        "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
+      },
+      {
+        "name": "player_v2.2d180c468559fbd29528.js",
+        "source": "player_v2.2d180c468559fbd29528.js.orig",
+        "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160"
+      },
+      {
+        "name": "9.c396696e9dc71e25b012.js",
+        "source": "9.c396696e9dc71e25b012.js",
+        "sha256": "5758343310c47596d56e954aa05fa76a546080c8bf4fefd41cac0042794d6195"
+      },
+      {
+        "name": "14.c95e6f2ddd61fb701d0e.js",
+        "source": "14.c95e6f2ddd61fb701d0e.js",
+        "sha256": "d3ce91c9113463db4c0988210caeb1be2ddc508499d5c53a8e73a13b5f440175"
+      },
+      {
+        "name": "11.477512e6f03fd2f6f3c5.js",
+        "source": "11.477512e6f03fd2f6f3c5.js",
+        "sha256": "e81bfe3462cc3e79a70ba016ddee2a372a31480d3f52964952e1d21f3a490f91"
+      },
+      {
+        "name": "2.b8370041782df6e86958.js",
+        "source": "2.b8370041782df6e86958.js",
+        "sha256": "6ed56cf80a197b1dad00403ef2d55f9f4c357cb000cc52b5b0ba32c3989730d6"
+      }
+    ],
+    "localRequests": [
+      {
+        "url": "/new/abcdef0123456789",
+        "method": "GET",
+        "destination": "document",
+        "status": 200
+      },
+      {
+        "url": "/kn/build/player_v2__3ffeebbd0c789e8d9422.css",
+        "method": "GET",
+        "destination": "style",
+        "status": 200
+      },
+      {
+        "url": "/kn/build/player_v2.2d180c468559fbd29528.js",
+        "method": "GET",
+        "destination": "script",
+        "status": 200
+      },
+      {
+        "url": "/kn/build/runtime.f42f527f119e09010b85.js",
+        "method": "GET",
+        "destination": "script",
+        "status": 200
+      },
+      {
+        "url": "/kn/build/vendors.d00f4bd454a6352e9d71.js",
+        "method": "GET",
+        "destination": "script",
+        "status": 200
+      },
+      {
+        "url": "/kn/build/9.c396696e9dc71e25b012.js",
+        "method": "GET",
+        "destination": "script",
+        "status": 200
+      },
+      {
+        "url": "/new/client_config.json",
+        "method": "GET",
+        "destination": "empty",
+        "status": 200
+      },
+      {
+        "url": "/kn/build/14.c95e6f2ddd61fb701d0e.js",
+        "method": "GET",
+        "destination": "script",
+        "status": 200
+      },
+      {
+        "url": "/new/abcdef0123456789",
+        "method": "HEAD",
+        "destination": "empty",
+        "status": 200
+      },
+      {
+        "url": "/kn/build/11.477512e6f03fd2f6f3c5.js",
+        "method": "GET",
+        "destination": "script",
+        "status": 200
+      },
+      {
+        "url": "/web/users/details",
+        "method": "GET",
+        "destination": "empty",
+        "status": 401
+      },
+      {
+        "url": "/new/abcdef0123456789",
+        "method": "GET",
+        "destination": "empty",
+        "status": 200
+      },
+      {
+        "url": "/kn/build/2.b8370041782df6e86958.js",
+        "method": "GET",
+        "destination": "script",
+        "status": 200
+      },
+      {
+        "url": "/new/abcdef0123456789",
+        "method": "GET",
+        "destination": "document",
+        "status": 200
+      },
+      {
+        "url": "/kn/build/player_v2__3ffeebbd0c789e8d9422.css",
+        "method": "GET",
+        "destination": "style",
+        "status": 200
+      },
+      {
+        "url": "/kn/build/player_v2.2d180c468559fbd29528.js",
+        "method": "GET",
+        "destination": "script",
+        "status": 200
+      },
+      {
+        "url": "/kn/build/runtime.f42f527f119e09010b85.js",
+        "method": "GET",
+        "destination": "script",
+        "status": 200
+      },
+      {
+        "url": "/kn/build/vendors.d00f4bd454a6352e9d71.js",
+        "method": "GET",
+        "destination": "script",
+        "status": 200
+      },
+      {
+        "url": "/kn/build/9.c396696e9dc71e25b012.js",
+        "method": "GET",
+        "destination": "script",
+        "status": 200
+      },
+      {
+        "url": "/new/client_config.json",
+        "method": "GET",
+        "destination": "empty",
+        "status": 200
+      },
+      {
+        "url": "/kn/build/14.c95e6f2ddd61fb701d0e.js",
+        "method": "GET",
+        "destination": "script",
+        "status": 200
+      },
+      {
+        "url": "/new/abcdef0123456789",
+        "method": "HEAD",
+        "destination": "empty",
+        "status": 200
+      },
+      {
+        "url": "/kn/build/11.477512e6f03fd2f6f3c5.js",
+        "method": "GET",
+        "destination": "script",
+        "status": 200
+      },
+      {
+        "url": "/web/users/details",
+        "method": "GET",
+        "destination": "empty",
+        "status": 401
+      },
+      {
+        "url": "/new/abcdef0123456789",
+        "method": "GET",
+        "destination": "empty",
+        "status": 200
+      },
+      {
+        "url": "/kn/build/2.b8370041782df6e86958.js",
+        "method": "GET",
+        "destination": "script",
+        "status": 200
+      }
+    ],
+    "externalRequests": [
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+        "method": "GET",
+        "resourceType": "script",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+        "method": "GET",
+        "resourceType": "image",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://collection.codemao.cn/report/kitten",
+        "method": "POST",
+        "resourceType": "ping",
+        "action": "blocked"
+      },
+      {
+        "url": "https://collection.codemao.cn/report/sysinfo",
+        "method": "POST",
+        "resourceType": "ping",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+        "method": "GET",
+        "resourceType": "script",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+        "method": "GET",
+        "resourceType": "image",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/player-icons/mob%EF%BC%8Ficn_keyboard_nor.png",
+        "method": "GET",
+        "resourceType": "image",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/player-icons/mob_icn_reset.png",
+        "method": "GET",
+        "resourceType": "image",
+        "action": "blocked"
+      }
+    ],
+    "failedRequests": [
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "url": "https://collection.codemao.cn/report/kitten",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "url": "https://collection.codemao.cn/report/sysinfo",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "url": "http://127.0.0.1:46615/kn/build/2.b8370041782df6e86958.js",
+        "error": "net::ERR_ABORTED"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/player-icons/mob%EF%BC%8Ficn_keyboard_nor.png",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/player-icons/mob_icn_reset.png",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      }
+    ],
+    "missingLocal": [],
+    "pageErrors": [],
+    "console": [
+      {
+        "type": "log",
+        "text": "%cWelcome to Codemao default-function - v0.5.11 \n  color: #19CAAD;\n  "
+      },
+      {
+        "type": "log",
+        "text": "%cWelcome to ❤ Codemao Stage - v0.5.6 ❤ for Kitten o(*￣▽￣*)ブ \n  color: #BC2424;\n  text-shadow: 0 1px 0 #8D1B1B;"
+      },
+      {
+        "type": "log",
+        "text": "\n %c %c %c PixiJS 6.0.4 - ✰ WebGL 2 ✰  %c  %c  http://www.pixijs.com/  %c %c ♥%c♥%c♥ \n\n background: #ff66a5; padding:5px 0; background: #ff66a5; padding:5px 0; color: #ff66a5; background: #030307; padding:5px 0; background: #ff66a5; padding:5px 0; background: #ffc3dc; padding:5px 0; background: #ff66a5; padding:5px 0; color: #ff2424; background: #fff; padding:5px 0; color: #ff2424; background: #fff; padding:5px 0; color: #ff2424; background: #fff; padding:5px 0;"
+      },
+      {
+        "type": "warning",
+        "text": "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "log",
+        "text": "%cWelcome to Codemao default-function - v0.5.11 \n  color: #19CAAD;\n  "
+      },
+      {
+        "type": "log",
+        "text": "%cWelcome to ❤ Codemao Stage - v0.5.6 ❤ for Kitten o(*￣▽￣*)ブ \n  color: #BC2424;\n  text-shadow: 0 1px 0 #8D1B1B;"
+      },
+      {
+        "type": "log",
+        "text": "\n %c %c %c PixiJS 6.0.4 - ✰ WebGL 2 ✰  %c  %c  http://www.pixijs.com/  %c %c ♥%c♥%c♥ \n\n background: #ff66a5; padding:5px 0; background: #ff66a5; padding:5px 0; color: #ff66a5; background: #030307; padding:5px 0; background: #ff66a5; padding:5px 0; background: #ffc3dc; padding:5px 0; background: #ff66a5; padding:5px 0; color: #ff2424; background: #fff; padding:5px 0; color: #ff2424; background: #fff; padding:5px 0; color: #ff2424; background: #fff; padding:5px 0;"
+      },
+      {
+        "type": "warning",
+        "text": "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      }
+    ],
+    "adaptations": [],
+    "phase": "done",
+    "instrumentation": [
+      "external .orig bundle retains the wrapper's DI exposure; not independently authenticated upstream",
+      "rAF held during load; official Start performs update 1, then one rAF batch per update",
+      "native deterministic scheduler/PCG config; native Clock fixed to 1000/60 ms",
+      "Math.random redirected at Start to a separate seeded native PCG instance",
+      "diagnostic virtual Date: UTC 2000-01-01 + update count / 60; 16 ms intervals fire once before each update (not native wall-clock behavior)"
+    ]
+  }
+}

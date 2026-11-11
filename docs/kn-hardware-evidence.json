@@ -1,0 +1,715 @@
+{
+  "schema": "nekoc-kn-disconnected-microbit-summary-v1",
+  "checkedAt": "2026-11-10T17:57:16.109Z",
+  "editorUrl": "https://kn.codemao.cn/editor",
+  "version": "0.27.4",
+  "probe": "tools/compat/kn-hardware-probe.mjs",
+  "fullLocalReport": "dist/kn-hardware/report.json",
+  "method": "Fresh official Edge editor; expose webpack loader, load actual microbit lazy extension, read its official MICROBIT_BLOCKS panel definitions and call actual domain functions. Hardware map and connection guard are untouched; no device connection attempted.",
+  "modules": {
+    "lazyExtension": 83939,
+    "panel": 66111,
+    "domainFactory": 20592,
+    "hardware": 87282
+  },
+  "hardwareIds": [],
+  "hasMicrobit": false,
+  "caseCount": 37,
+  "pageErrors": [],
+  "checks": {
+    "noHardware": true,
+    "completePanels": true,
+    "actualTypedResults": true,
+    "sourceAnchorsFound": true,
+    "noUncaughtPageErrors": true
+  },
+  "bundles": [
+    {
+      "name": "main.8ccf2442.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+      "bytes": 5594327,
+      "sha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165"
+    },
+    {
+      "name": "2308.b9eeff62.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/2308.b9eeff62.chunk.js",
+      "bytes": 9133,
+      "sha256": "97f7fcde70ec2e9903181f65112055782bec0c91682560a2198c2ba729a9fa69"
+    },
+    {
+      "name": "entry_hardware.481194e4.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/entry_hardware.481194e4.chunk.js",
+      "bytes": 681355,
+      "sha256": "7259df6bc25c81905028a569ca5e99fba5091ca4fbddd29c2ec92ac15c75842d"
+    }
+  ],
+  "reporters": [
+    {
+      "name": "microbit_led_is_plot",
+      "panelOutput": "Boolean",
+      "inputs": [
+        "x",
+        "y"
+      ],
+      "fields": [],
+      "promise": false,
+      "result": {
+        "type": "boolean",
+        "value": false
+      },
+      "argumentReads": [],
+      "cases": [
+        {
+          "label": "panel defaults",
+          "args": {
+            "x": "probe",
+            "y": "probe"
+          },
+          "promise": false,
+          "result": {
+            "type": "boolean",
+            "value": false
+          }
+        },
+        {
+          "label": "invalid",
+          "args": {
+            "x": "not-a-number",
+            "y": "not-a-number"
+          },
+          "promise": false,
+          "result": {
+            "type": "boolean",
+            "value": false
+          }
+        },
+        {
+          "label": "empty",
+          "args": {
+            "x": "",
+            "y": ""
+          },
+          "promise": false,
+          "result": {
+            "type": "boolean",
+            "value": false
+          }
+        },
+        {
+          "label": "argument access",
+          "argumentReads": [],
+          "promise": false,
+          "result": {
+            "type": "boolean",
+            "value": false
+          }
+        }
+      ],
+      "source": {
+        "symbol": "microbit_led_is_plot",
+        "bundle": "entry_hardware.481194e4.chunk.js",
+        "bundleUrl": "https://creation.bcmcdn.com/neko/web/release/static/js/entry_hardware.481194e4.chunk.js",
+        "bundleSha256": "7259df6bc25c81905028a569ca5e99fba5091ca4fbddd29c2ec92ac15c75842d",
+        "byteOffset": 196159,
+        "excerptCharacters": 546,
+        "excerptSha256": "2b667ab4aeab4d1ffe3eca8ae136a82cca6a88e1be2881dde230ac56b166d1e2"
+      }
+    },
+    {
+      "name": "microbit_button_is_pressed",
+      "panelOutput": "Boolean",
+      "inputs": [],
+      "fields": [
+        {
+          "name": "key",
+          "type": "field_neko_dropdown",
+          "options": {
+            "menu_generator_advanced": [
+              [
+                "A",
+                "A"
+              ],
+              [
+                "B",
+                "B"
+              ],
+              [
+                "A+B",
+                "AB"
+              ]
+            ]
+          }
+        }
+      ],
+      "promise": false,
+      "result": {
+        "type": "boolean",
+        "value": false
+      },
+      "argumentReads": [
+        "key"
+      ],
+      "cases": [
+        {
+          "label": "panel defaults",
+          "args": {
+            "key": "A"
+          },
+          "promise": false,
+          "result": {
+            "type": "boolean",
+            "value": false
+          }
+        },
+        {
+          "label": "invalid",
+          "args": {
+            "key": "not-a-number"
+          },
+          "promise": false,
+          "result": {
+            "type": "boolean",
+            "value": false
+          }
+        },
+        {
+          "label": "empty",
+          "args": {
+            "key": ""
+          },
+          "promise": false,
+          "result": {
+            "type": "boolean",
+            "value": false
+          }
+        },
+        {
+          "label": "menu key=A",
+          "args": {
+            "key": "A"
+          },
+          "promise": false,
+          "result": {
+            "type": "boolean",
+            "value": false
+          }
+        },
+        {
+          "label": "menu key=B",
+          "args": {
+            "key": "B"
+          },
+          "promise": false,
+          "result": {
+            "type": "boolean",
+            "value": false
+          }
+        },
+        {
+          "label": "menu key=AB",
+          "args": {
+            "key": "AB"
+          },
+          "promise": false,
+          "result": {
+            "type": "boolean",
+            "value": false
+          }
+        },
+        {
+          "label": "argument access",
+          "argumentReads": [
+            "key"
+          ],
+          "promise": false,
+          "result": {
+            "type": "boolean",
+            "value": false
+          }
+        }
+      ],
+      "source": {
+        "symbol": "microbit_button_is_pressed",
+        "bundle": "entry_hardware.481194e4.chunk.js",
+        "bundleUrl": "https://creation.bcmcdn.com/neko/web/release/static/js/entry_hardware.481194e4.chunk.js",
+        "bundleSha256": "7259df6bc25c81905028a569ca5e99fba5091ca4fbddd29c2ec92ac15c75842d",
+        "byteOffset": 196747,
+        "excerptCharacters": 175,
+        "excerptSha256": "ffb9284d1163adc23b30f18696f48d5a14746123e888886286d6064b4a3cea51"
+      }
+    },
+    {
+      "name": "microbit_pin_digital_read",
+      "panelOutput": "Number",
+      "inputs": [],
+      "fields": [
+        {
+          "name": "key",
+          "type": "field_neko_dropdown",
+          "options": {
+            "menu_generator_advanced": [
+              [
+                "P0",
+                "0"
+              ],
+              [
+                "P1",
+                "1"
+              ],
+              [
+                "P2",
+                "2"
+              ]
+            ]
+          }
+        }
+      ],
+      "promise": false,
+      "result": {
+        "type": "number",
+        "value": "NaN"
+      },
+      "argumentReads": [
+        "key"
+      ],
+      "cases": [
+        {
+          "label": "panel defaults",
+          "args": {
+            "key": "0"
+          },
+          "promise": false,
+          "result": {
+            "type": "number",
+            "value": "NaN"
+          }
+        },
+        {
+          "label": "invalid",
+          "args": {
+            "key": "not-a-number"
+          },
+          "promise": false,
+          "result": {
+            "type": "number",
+            "value": "NaN"
+          }
+        },
+        {
+          "label": "empty",
+          "args": {
+            "key": ""
+          },
+          "promise": false,
+          "result": {
+            "type": "number",
+            "value": "NaN"
+          }
+        },
+        {
+          "label": "menu key=0",
+          "args": {
+            "key": "0"
+          },
+          "promise": false,
+          "result": {
+            "type": "number",
+            "value": "NaN"
+          }
+        },
+        {
+          "label": "menu key=1",
+          "args": {
+            "key": "1"
+          },
+          "promise": false,
+          "result": {
+            "type": "number",
+            "value": "NaN"
+          }
+        },
+        {
+          "label": "menu key=2",
+          "args": {
+            "key": "2"
+          },
+          "promise": false,
+          "result": {
+            "type": "number",
+            "value": "NaN"
+          }
+        },
+        {
+          "label": "argument access",
+          "argumentReads": [
+            "key"
+          ],
+          "promise": false,
+          "result": {
+            "type": "number",
+            "value": "NaN"
+          }
+        }
+      ],
+      "source": {
+        "symbol": "microbit_pin_digital_read",
+        "bundle": "entry_hardware.481194e4.chunk.js",
+        "bundleUrl": "https://creation.bcmcdn.com/neko/web/release/static/js/entry_hardware.481194e4.chunk.js",
+        "bundleSha256": "7259df6bc25c81905028a569ca5e99fba5091ca4fbddd29c2ec92ac15c75842d",
+        "byteOffset": 197825,
+        "excerptCharacters": 109,
+        "excerptSha256": "24041cc532dc1fc2f37fe14377af2147399d453c65ea5f197f85bbe415e8c357"
+      }
+    },
+    {
+      "name": "microbit_pin_analog_read",
+      "panelOutput": "Number",
+      "inputs": [],
+      "fields": [
+        {
+          "name": "key",
+          "type": "field_neko_dropdown",
+          "options": {
+            "menu_generator_advanced": [
+              [
+                "P0",
+                "0"
+              ],
+              [
+                "P1",
+                "1"
+              ],
+              [
+                "P2",
+                "2"
+              ]
+            ]
+          }
+        }
+      ],
+      "promise": false,
+      "result": {
+        "type": "number",
+        "value": "NaN"
+      },
+      "argumentReads": [
+        "key"
+      ],
+      "cases": [
+        {
+          "label": "panel defaults",
+          "args": {
+            "key": "0"
+          },
+          "promise": false,
+          "result": {
+            "type": "number",
+            "value": "NaN"
+          }
+        },
+        {
+          "label": "invalid",
+          "args": {
+            "key": "not-a-number"
+          },
+          "promise": false,
+          "result": {
+            "type": "number",
+            "value": "NaN"
+          }
+        },
+        {
+          "label": "empty",
+          "args": {
+            "key": ""
+          },
+          "promise": false,
+          "result": {
+            "type": "number",
+            "value": "NaN"
+          }
+        },
+        {
+          "label": "menu key=0",
+          "args": {
+            "key": "0"
+          },
+          "promise": false,
+          "result": {
+            "type": "number",
+            "value": "NaN"
+          }
+        },
+        {
+          "label": "menu key=1",
+          "args": {
+            "key": "1"
+          },
+          "promise": false,
+          "result": {
+            "type": "number",
+            "value": "NaN"
+          }
+        },
+        {
+          "label": "menu key=2",
+          "args": {
+            "key": "2"
+          },
+          "promise": false,
+          "result": {
+            "type": "number",
+            "value": "NaN"
+          }
+        },
+        {
+          "label": "argument access",
+          "argumentReads": [
+            "key"
+          ],
+          "promise": false,
+          "result": {
+            "type": "number",
+            "value": "NaN"
+          }
+        }
+      ],
+      "source": {
+        "symbol": "microbit_pin_analog_read",
+        "bundle": "entry_hardware.481194e4.chunk.js",
+        "bundleUrl": "https://creation.bcmcdn.com/neko/web/release/static/js/entry_hardware.481194e4.chunk.js",
+        "bundleSha256": "7259df6bc25c81905028a569ca5e99fba5091ca4fbddd29c2ec92ac15c75842d",
+        "byteOffset": 198674,
+        "excerptCharacters": 108,
+        "excerptSha256": "019e6d7ad8eed62f6d11fd8f9d6bfb42d21e3ab4040264d4d3a48e5550483757"
+      }
+    },
+    {
+      "name": "microbit_logo_is_pressed",
+      "panelOutput": "Boolean",
+      "inputs": [],
+      "fields": [],
+      "promise": false,
+      "result": {
+        "type": "boolean",
+        "value": false
+      },
+      "argumentReads": [
+        "key"
+      ],
+      "cases": [
+        {
+          "label": "panel defaults",
+          "args": {},
+          "promise": false,
+          "result": {
+            "type": "boolean",
+            "value": false
+          }
+        },
+        {
+          "label": "invalid",
+          "args": {},
+          "promise": false,
+          "result": {
+            "type": "boolean",
+            "value": false
+          }
+        },
+        {
+          "label": "empty",
+          "args": {},
+          "promise": false,
+          "result": {
+            "type": "boolean",
+            "value": false
+          }
+        },
+        {
+          "label": "argument access",
+          "argumentReads": [
+            "key"
+          ],
+          "promise": false,
+          "result": {
+            "type": "boolean",
+            "value": false
+          }
+        }
+      ],
+      "source": {
+        "symbol": "microbit_logo_is_pressed",
+        "bundle": "entry_hardware.481194e4.chunk.js",
+        "bundleUrl": "https://creation.bcmcdn.com/neko/web/release/static/js/entry_hardware.481194e4.chunk.js",
+        "bundleSha256": "7259df6bc25c81905028a569ca5e99fba5091ca4fbddd29c2ec92ac15c75842d",
+        "byteOffset": 199253,
+        "excerptCharacters": 95,
+        "excerptSha256": "caeb6fae2781fad2c4f9d7bc6f7b3cde39eba1574b499fd43e62d959e9f48442"
+      }
+    },
+    {
+      "name": "microbit_is_gesture",
+      "panelOutput": "Boolean",
+      "inputs": [],
+      "fields": [
+        {
+          "name": "gesture",
+          "type": "field_gesture",
+          "options": {}
+        }
+      ],
+      "promise": false,
+      "result": {
+        "type": "boolean",
+        "value": false
+      },
+      "argumentReads": [
+        "gesture"
+      ],
+      "cases": [
+        {
+          "label": "panel defaults",
+          "args": {
+            "gesture": "probe"
+          },
+          "promise": false,
+          "result": {
+            "type": "boolean",
+            "value": false
+          }
+        },
+        {
+          "label": "invalid",
+          "args": {
+            "gesture": "not-a-number"
+          },
+          "promise": false,
+          "result": {
+            "type": "boolean",
+            "value": false
+          }
+        },
+        {
+          "label": "empty",
+          "args": {
+            "gesture": ""
+          },
+          "promise": false,
+          "result": {
+            "type": "boolean",
+            "value": false
+          }
+        },
+        {
+          "label": "argument access",
+          "argumentReads": [
+            "gesture"
+          ],
+          "promise": false,
+          "result": {
+            "type": "boolean",
+            "value": false
+          }
+        }
+      ],
+      "source": {
+        "symbol": "microbit_is_gesture",
+        "bundle": "entry_hardware.481194e4.chunk.js",
+        "bundleUrl": "https://creation.bcmcdn.com/neko/web/release/static/js/entry_hardware.481194e4.chunk.js",
+        "bundleSha256": "7259df6bc25c81905028a569ca5e99fba5091ca4fbddd29c2ec92ac15c75842d",
+        "byteOffset": 204688,
+        "excerptCharacters": 98,
+        "excerptSha256": "db8b63c4ae6ec6a5641770d9ba0726fe0d2c1462f83c75eb7bd03f31577402f7"
+      }
+    },
+    {
+      "name": "microbit_math_map",
+      "panelOutput": "Number",
+      "inputs": [
+        "value",
+        "fromStart",
+        "fromEnd",
+        "toStart",
+        "toEnd"
+      ],
+      "fields": [],
+      "promise": false,
+      "result": {
+        "type": "number",
+        "value": "NaN"
+      },
+      "argumentReads": [],
+      "cases": [
+        {
+          "label": "panel defaults",
+          "args": {
+            "value": "0",
+            "fromStart": "0",
+            "fromEnd": "1023",
+            "toStart": "1",
+            "toEnd": "10"
+          },
+          "promise": false,
+          "result": {
+            "type": "number",
+            "value": "NaN"
+          }
+        },
+        {
+          "label": "invalid",
+          "args": {
+            "value": "not-a-number",
+            "fromStart": "not-a-number",
+            "fromEnd": "not-a-number",
+            "toStart": "not-a-number",
+            "toEnd": "not-a-number"
+          },
+          "promise": false,
+          "result": {
+            "type": "number",
+            "value": "NaN"
+          }
+        },
+        {
+          "label": "empty",
+          "args": {
+            "value": "",
+            "fromStart": "",
+            "fromEnd": "",
+            "toStart": "",
+            "toEnd": ""
+          },
+          "promise": false,
+          "result": {
+            "type": "number",
+            "value": "NaN"
+          }
+        },
+        {
+          "label": "argument access",
+          "argumentReads": [],
+          "promise": false,
+          "result": {
+            "type": "number",
+            "value": "NaN"
+          }
+        }
+      ],
+      "source": {
+        "symbol": "microbit_math_map",
+        "bundle": "entry_hardware.481194e4.chunk.js",
+        "bundleUrl": "https://creation.bcmcdn.com/neko/web/release/static/js/entry_hardware.481194e4.chunk.js",
+        "bundleSha256": "7259df6bc25c81905028a569ca5e99fba5091ca4fbddd29c2ec92ac15c75842d",
+        "byteOffset": 205162,
+        "excerptCharacters": 1292,
+        "excerptSha256": "5a934b81c5b230e8dd51a7c46d63aac7695c8db8e1ca7ac8ae7541b7c6a3fa8d"
+      }
+    }
+  ],
+  "limitations": [
+    "Direct official domain calls and panel definitions, not a full native project execution.",
+    "Only an empty hardware map is measured. Connected behavior is explicitly unsupported.",
+    "Domain argument access is not child block evaluation: caller must evaluate all panel value sockets even when the disconnected guard ignores their values.",
+    "Async sensor reporters, commands, events, catbit and robot are not implemented by this profile."
+  ]
+}

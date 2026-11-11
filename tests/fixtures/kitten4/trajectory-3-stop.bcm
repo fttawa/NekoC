@@ -1,0 +1,1115 @@
+{
+  "hidden_toolbox": {
+    "toolbox": [],
+    "blocks": []
+  },
+  "work_source_label": 1,
+  "version": 25,
+  "application_version": "4.11.20",
+  "work_type": "KITTEN",
+  "size": {
+    "width": 1280,
+    "height": 720
+  },
+  "type": 1,
+  "project_name": "NekoC original physics trajectory 3 stop",
+  "theatre": {
+    "current_entity": "20000000-0000-4000-8000-000000000001",
+    "current_scene": "10000000-0000-4000-8000-000000000001",
+    "scenes_order": [
+      "10000000-0000-4000-8000-000000000001"
+    ],
+    "scenes": {
+      "10000000-0000-4000-8000-000000000001": {
+        "id": "10000000-0000-4000-8000-000000000001",
+        "name": "Background",
+        "styles": [
+          "background"
+        ],
+        "current_style_id": "background",
+        "x": 0,
+        "y": 0,
+        "scale": 100,
+        "rotation": 0,
+        "rotation_type": 0,
+        "draggable": false,
+        "visible": true,
+        "workspace_offset": {
+          "x": 0,
+          "y": 0
+        },
+        "block_data_json": {
+          "blocks": {},
+          "connections": {},
+          "comments": {}
+        },
+        "actors": [
+          "20000000-0000-4000-8000-000000000001"
+        ],
+        "screen_name": "Physics",
+        "group_order": [
+          "group"
+        ]
+      }
+    },
+    "actors": {
+      "20000000-0000-4000-8000-000000000001": {
+        "id": "20000000-0000-4000-8000-000000000001",
+        "name": "Probe",
+        "styles": [
+          "probe-style"
+        ],
+        "current_style_id": "probe-style",
+        "x": 0,
+        "y": 0,
+        "scale": 100,
+        "rotation": 0,
+        "rotation_type": 0,
+        "draggable": false,
+        "visible": true,
+        "workspace_offset": {
+          "x": 0,
+          "y": 0
+        },
+        "block_data_json": {
+          "blocks": {
+            "trajectory-3-149": {
+              "type": "start_on_click",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "trajectory-3-149",
+              "parent_id": null,
+              "location": [
+                0,
+                0
+              ]
+            },
+            "trajectory-3-150": {
+              "type": "physics2_set_gravity",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "value": "",
+                "dir": "<shadow type=\"controller_shadow\" />"
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "trajectory-3-150",
+              "parent_id": "trajectory-3-149",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "trajectory-3-151": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "2"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "trajectory-3-151",
+              "parent_id": "trajectory-3-150",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "trajectory-3-152": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "-90"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "trajectory-3-152",
+              "parent_id": "trajectory-3-150",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "trajectory-3-153": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "trajectory-3-153",
+              "parent_id": "trajectory-3-150",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "trajectory-3-154": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0.25"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "trajectory-3-154",
+              "parent_id": "trajectory-3-153",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "trajectory-3-155": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "beforeY"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "trajectory-3-155",
+              "parent_id": "trajectory-3-153",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "trajectory-3-156": {
+              "type": "get_3",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "1"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "trajectory-3-156",
+              "parent_id": "trajectory-3-155",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "trajectory-3-157": {
+              "type": "physics2_set_gravity",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "value": "",
+                "dir": "<shadow type=\"controller_shadow\" />"
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "trajectory-3-157",
+              "parent_id": "trajectory-3-155",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "trajectory-3-158": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "trajectory-3-158",
+              "parent_id": "trajectory-3-157",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "trajectory-3-159": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "-90"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "trajectory-3-159",
+              "parent_id": "trajectory-3-157",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "trajectory-3-160": {
+              "type": "physics2_set_speed",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "value": "",
+                "dir": "<shadow type=\"controller_shadow\" />"
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "trajectory-3-160",
+              "parent_id": "trajectory-3-157",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "trajectory-3-161": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "trajectory-3-161",
+              "parent_id": "trajectory-3-160",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "trajectory-3-162": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "trajectory-3-162",
+              "parent_id": "trajectory-3-160",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "trajectory-3-163": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "trajectory-3-163",
+              "parent_id": "trajectory-3-160",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "trajectory-3-164": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0.25"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "trajectory-3-164",
+              "parent_id": "trajectory-3-163",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "trajectory-3-165": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "afterY"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "trajectory-3-165",
+              "parent_id": "trajectory-3-163",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "trajectory-3-166": {
+              "type": "get_3",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "1"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "trajectory-3-166",
+              "parent_id": "trajectory-3-165",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "trajectory-3-167": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "mass"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "trajectory-3-167",
+              "parent_id": "trajectory-3-165",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "trajectory-3-168": {
+              "type": "physics2_get_property",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "property": "mass"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "trajectory-3-168",
+              "parent_id": "trajectory-3-167",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "trajectory-3-169": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "friction"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "trajectory-3-169",
+              "parent_id": "trajectory-3-167",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "trajectory-3-170": {
+              "type": "physics2_get_property",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "property": "friction"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "trajectory-3-170",
+              "parent_id": "trajectory-3-169",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "trajectory-3-171": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "restitution"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "trajectory-3-171",
+              "parent_id": "trajectory-3-169",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "trajectory-3-172": {
+              "type": "physics2_get_property",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "property": "restitution"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "trajectory-3-172",
+              "parent_id": "trajectory-3-171",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "trajectory-3-173": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "speed"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "trajectory-3-173",
+              "parent_id": "trajectory-3-171",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "trajectory-3-174": {
+              "type": "physics2_get_property",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "property": "speed"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "trajectory-3-174",
+              "parent_id": "trajectory-3-173",
+              "location": [
+                0,
+                0
+              ]
+            }
+          },
+          "connections": {
+            "trajectory-3-149": {
+              "trajectory-3-150": {
+                "type": "next"
+              }
+            },
+            "trajectory-3-150": {
+              "trajectory-3-151": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "value"
+              },
+              "trajectory-3-152": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "dir"
+              },
+              "trajectory-3-153": {
+                "type": "next"
+              }
+            },
+            "trajectory-3-151": {},
+            "trajectory-3-152": {},
+            "trajectory-3-153": {
+              "trajectory-3-154": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              },
+              "trajectory-3-155": {
+                "type": "next"
+              }
+            },
+            "trajectory-3-154": {},
+            "trajectory-3-155": {
+              "trajectory-3-156": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "trajectory-3-157": {
+                "type": "next"
+              }
+            },
+            "trajectory-3-156": {},
+            "trajectory-3-157": {
+              "trajectory-3-158": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "value"
+              },
+              "trajectory-3-159": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "dir"
+              },
+              "trajectory-3-160": {
+                "type": "next"
+              }
+            },
+            "trajectory-3-158": {},
+            "trajectory-3-159": {},
+            "trajectory-3-160": {
+              "trajectory-3-161": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "value"
+              },
+              "trajectory-3-162": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "dir"
+              },
+              "trajectory-3-163": {
+                "type": "next"
+              }
+            },
+            "trajectory-3-161": {},
+            "trajectory-3-162": {},
+            "trajectory-3-163": {
+              "trajectory-3-164": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              },
+              "trajectory-3-165": {
+                "type": "next"
+              }
+            },
+            "trajectory-3-164": {},
+            "trajectory-3-165": {
+              "trajectory-3-166": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "trajectory-3-167": {
+                "type": "next"
+              }
+            },
+            "trajectory-3-166": {},
+            "trajectory-3-167": {
+              "trajectory-3-168": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "trajectory-3-169": {
+                "type": "next"
+              }
+            },
+            "trajectory-3-168": {},
+            "trajectory-3-169": {
+              "trajectory-3-170": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "trajectory-3-171": {
+                "type": "next"
+              }
+            },
+            "trajectory-3-170": {},
+            "trajectory-3-171": {
+              "trajectory-3-172": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "trajectory-3-173": {
+                "type": "next"
+              }
+            },
+            "trajectory-3-172": {},
+            "trajectory-3-173": {
+              "trajectory-3-174": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              }
+            },
+            "trajectory-3-174": {}
+          },
+          "comments": {}
+        },
+        "scene": "10000000-0000-4000-8000-000000000001",
+        "lock": false,
+        "editable_in_tuition_mode": true,
+        "user_change_r_c": false
+      }
+    },
+    "groups": {
+      "group": {
+        "id": "group",
+        "name": "",
+        "is_fold": false,
+        "is_group": false,
+        "actors": [
+          "20000000-0000-4000-8000-000000000001"
+        ],
+        "scene": "10000000-0000-4000-8000-000000000001",
+        "visible": true
+      }
+    },
+    "styles": {
+      "background": {
+        "id": "background",
+        "name": "background",
+        "width": 1280,
+        "height": 720,
+        "adaptive": false,
+        "pivot": {
+          "x": 0,
+          "y": 0
+        },
+        "rotate_center": {
+          "x": 0,
+          "y": 0
+        },
+        "cdn_url": "",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjgwIiBoZWlnaHQ9IjcyMCI+PHJlY3Qgd2lkdGg9IjEyODAiIGhlaWdodD0iNzIwIiBmaWxsPSIjMzM4OGFhIi8+PC9zdmc+"
+      },
+      "probe-style": {
+        "id": "probe-style",
+        "name": "probe-style",
+        "width": 20,
+        "height": 20,
+        "adaptive": false,
+        "pivot": {
+          "x": 0,
+          "y": 0
+        },
+        "rotate_center": {
+          "x": 0,
+          "y": 0
+        },
+        "cdn_url": "",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCI+PHJlY3Qgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjMzM4OGFhIi8+PC9zdmc+"
+      },
+      "floor-style": {
+        "id": "floor-style",
+        "name": "floor-style",
+        "width": 400,
+        "height": 20,
+        "adaptive": false,
+        "pivot": {
+          "x": 0,
+          "y": 0
+        },
+        "rotate_center": {
+          "x": 0,
+          "y": 0
+        },
+        "cdn_url": "",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MDAiIGhlaWdodD0iMjAiPjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMjAiIGZpbGw9IiMzMzg4YWEiLz48L3N2Zz4="
+      }
+    },
+    "videos": {},
+    "timer": {}
+  },
+  "variables": {
+    "beforeY": {
+      "id": "beforeY",
+      "name": "beforeY",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false
+    },
+    "afterY": {
+      "id": "afterY",
+      "name": "afterY",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false
+    },
+    "mass": {
+      "id": "mass",
+      "name": "mass",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false
+    },
+    "friction": {
+      "id": "friction",
+      "name": "friction",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false
+    },
+    "restitution": {
+      "id": "restitution",
+      "name": "restitution",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false
+    },
+    "speed": {
+      "id": "speed",
+      "name": "speed",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false
+    }
+  },
+  "variable_order": [
+    "beforeY",
+    "afterY",
+    "mass",
+    "friction",
+    "restitution",
+    "speed"
+  ],
+  "cloud_variables": {},
+  "audio": {},
+  "audio_order": [],
+  "midimusic": [],
+  "midi_order": [],
+  "matrix": {},
+  "models": {},
+  "toolbox": {
+    "current_type": "event",
+    "pen": false,
+    "physics2": true
+  },
+  "toolbox_order": [
+    "event",
+    "control",
+    "action",
+    "appearance",
+    "sensing",
+    "operator",
+    "data"
+  ],
+  "last_toolbox_order": [],
+  "hardware_type": "",
+  "is_partial": false,
+  "ai_lab": {},
+  "broadcasts": {},
+  "painter": {
+    "color": []
+  }
+}

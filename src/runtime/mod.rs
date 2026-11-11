@@ -2,7 +2,7 @@ mod eval;
 mod exec;
 pub mod helpers;
 
-use anyhow::{Result, bail};
+use anyhow::{Context, Result, bail};
 use serde::Serialize;
 use serde_json::{Map, Value};
 use std::collections::{BTreeMap, BTreeSet, HashSet};
@@ -33,7 +33,7 @@ impl RuntimeValue {
                     0.0
                 }
             }
-            RuntimeValue::String(value) => value.parse().unwrap_or(0.0),
+            RuntimeValue::String(value) => crate::js_number::parse(value),
             RuntimeValue::List(value) => value.len() as f64,
             RuntimeValue::Null => 0.0,
         }
@@ -41,7 +41,7 @@ impl RuntimeValue {
 
     fn is_truthy(&self) -> bool {
         match self {
-            RuntimeValue::Number(value) => *value != 0.0,
+            RuntimeValue::Number(value) => *value != 0.0 && !value.is_nan(),
             RuntimeValue::Bool(value) => *value,
             RuntimeValue::String(value) => !value.is_empty() && value != "false" && value != "0",
             RuntimeValue::List(value) => !value.is_empty(),
@@ -347,6 +347,8 @@ pub fn run_project_steps(value: &Value, steps: &[RuntimeStep]) -> Result<Runtime
 /// Incremental interpreter. The project must outlive the execution session.
 pub struct Runtime<'a> {
     cooperative: bool,
+    /// 墙钟时间片：cooperative 模式下 warp 线程运行超过该时长就让出；None 表示不按时间让出（测试用，保证确定性）。
+    pub(crate) warp_time_slice: Option<std::time::Duration>,
     project: &'a Value,
     ticks: usize,
     current_scene_id: Option<String>,
@@ -359,6 +361,8 @@ pub struct Runtime<'a> {
     last_choice_content: RuntimeValue,
     last_choice_index: usize,
     variables: BTreeMap<String, RuntimeValue>,
+    private_variable_ids: BTreeSet<String>,
+    entity_variables: BTreeMap<String, BTreeMap<String, RuntimeValue>>,
     variable_names: BTreeMap<String, String>,
     actors: BTreeMap<String, ActorState>,
     clone_sources: BTreeMap<String, String>,
@@ -373,6 +377,7 @@ pub struct Runtime<'a> {
     mouse_x: f64,
     mouse_y: f64,
     logs: Vec<String>,
+    value_error: std::cell::RefCell<Option<String>>,
     trace: Vec<RuntimeTraceEntry>,
     next_thread_id: usize,
     threads: Vec<Thread<'a>>,
@@ -457,12 +462,40 @@ impl<'a> Runtime<'a> {
             bail!("project root must be a JSON object");
         };
 
-        let variables = root
+        let mut variables: BTreeMap<String, RuntimeValue> = root
             .get("variables")
             .and_then(|value| value.get("variablesDict"))
             .and_then(Value::as_object)
             .map(collect_variables)
             .unwrap_or_default();
+        let mut private_variable_ids = BTreeSet::new();
+        let mut entity_variables: BTreeMap<String, BTreeMap<String, RuntimeValue>> =
+            BTreeMap::new();
+        if let Some(vars) = project
+            .pointer("/variables/variablesDict")
+            .and_then(Value::as_object)
+        {
+            for (id, var) in vars {
+                if var["isGlobal"] == false
+                    || (var["isGlobal"].is_null()
+                        && var["currentEntityId"]
+                            .as_str()
+                            .is_some_and(|id| !id.is_empty()))
+                {
+                    let owner = var["currentEntityId"]
+                        .as_str()
+                        .or_else(|| var["current_entity"].as_str())
+                        .with_context(|| format!("private variable {id}: missing owner"))?;
+                    private_variable_ids.insert(id.clone());
+                    if let Some(value) = variables.remove(id) {
+                        entity_variables
+                            .entry(owner.to_owned())
+                            .or_default()
+                            .insert(id.clone(), value);
+                    }
+                }
+            }
+        }
         let variable_names = root
             .get("variables")
             .and_then(|value| value.get("variablesDict"))
@@ -501,7 +534,9 @@ impl<'a> Runtime<'a> {
         let source_map = collect_source_map(project);
 
         Ok(Self {
+            value_error: std::cell::RefCell::new(None),
             cooperative: false,
+            warp_time_slice: Some(std::time::Duration::from_millis(4)),
             project,
             ticks: 0,
             current_scene_id,
@@ -514,6 +549,8 @@ impl<'a> Runtime<'a> {
             last_choice_content: RuntimeValue::String(String::new()),
             last_choice_index: 0,
             variables,
+            private_variable_ids,
+            entity_variables,
             variable_names,
             actors,
             clone_sources: BTreeMap::new(),
@@ -539,6 +576,11 @@ impl<'a> Runtime<'a> {
     /// retains its historical scheduling until its timing fixtures are migrated.
     pub fn set_cooperative(&mut self, enabled: bool) {
         self.cooperative = enabled;
+    }
+
+    /// 关闭 warp 的墙钟时间片，使结果不受 CPU 负载影响（测试用；播放器保持默认 4ms）。
+    pub fn disable_warp_time_slice(&mut self) {
+        self.warp_time_slice = None;
     }
 
     pub fn start(&mut self) {
@@ -676,6 +718,9 @@ impl<'a> Runtime<'a> {
             return;
         };
 
+        // KN's reference interpreter historically traversed sorted JSON maps.
+        // serde_json/preserve_order is required by K4, not a KN scheduling change.
+        let owners: BTreeMap<_, _> = owners.iter().collect();
         for (owner_id, owner) in owners {
             let Some(blocks) = owner.get("nekoBlockJsonList").and_then(Value::as_array) else {
                 continue;
@@ -802,6 +847,39 @@ impl<'a> Runtime<'a> {
         }
     }
 
+    fn variable(&self, id: &str, owner: Option<&str>) -> Option<&RuntimeValue> {
+        if self.private_variable_ids.contains(id) {
+            self.entity_variables.get(owner?)?.get(id)
+        } else {
+            self.variables.get(id)
+        }
+    }
+    fn set_variable(&mut self, id: &str, owner: &str, value: RuntimeValue) -> Result<()> {
+        if self.private_variable_ids.contains(id) {
+            let cell = self
+                .entity_variables
+                .get_mut(owner)
+                .and_then(|v| v.get_mut(id))
+                .with_context(|| format!("entity_variable_operation_out_of_scope: {id}"))?;
+            *cell = value;
+        } else {
+            self.variables.insert(id.to_owned(), value);
+        }
+        Ok(())
+    }
+    fn variable_mut(&mut self, id: &str, owner: &str) -> Result<&mut RuntimeValue> {
+        if self.private_variable_ids.contains(id) {
+            self.entity_variables
+                .get_mut(owner)
+                .and_then(|v| v.get_mut(id))
+                .with_context(|| format!("entity_variable_operation_out_of_scope: {id}"))
+        } else {
+            Ok(self
+                .variables
+                .entry(id.to_owned())
+                .or_insert(RuntimeValue::Null))
+        }
+    }
     fn clone_source_id(&self, actor_id: &str) -> String {
         self.clone_sources
             .get(actor_id)
@@ -828,6 +906,9 @@ impl<'a> Runtime<'a> {
     ) -> Option<&ActorState> {
         let actor_id = self.actor_id_for_sprite(sprite, owner_id)?;
         let source_id = self.clone_source_id(&actor_id);
+        if index == 0 {
+            return self.actors.get(&source_id);
+        }
         let clone_id = self
             .clone_sources
             .iter()
@@ -870,6 +951,12 @@ impl<'a> Runtime<'a> {
         let clone_index = *index;
         *index += 1;
         let clone_id = format!("{source_id}#clone-{clone_index}");
+        let variables = self
+            .entity_variables
+            .get(source_actor_id)
+            .cloned()
+            .unwrap_or_default();
+        self.entity_variables.insert(clone_id.clone(), variables);
         let mut clone_actor = source;
         clone_actor.id = clone_id.clone();
         clone_actor.name = format!("{} clone {clone_index}", clone_actor.name);
@@ -904,7 +991,10 @@ impl<'a> Runtime<'a> {
             return;
         };
         for block in blocks {
-            if block_type(block) == Some("start_as_clone") {
+            if matches!(
+                block_type(block),
+                Some("start_as_clone" | "start_as_a_mirror")
+            ) {
                 let entry =
                     RuntimeTraceEntry::script(self.ticks, "start_as_clone", clone_actor_id, block);
                 self.trace.push(self.trace_entry_with_source(entry));
@@ -918,6 +1008,7 @@ impl<'a> Runtime<'a> {
             return false;
         }
         self.actors.remove(clone_actor_id);
+        self.entity_variables.remove(clone_actor_id);
         self.clone_sources.remove(clone_actor_id);
         self.clone_indices.remove(clone_actor_id);
         self.trace.push(RuntimeTraceEntry {
@@ -1116,6 +1207,7 @@ fn collect_listeners_at<'a>(
         return;
     };
 
+    let owners: BTreeMap<_, _> = owners.iter().collect();
     for (owner_id, owner) in owners {
         let Some(blocks) = owner.get("nekoBlockJsonList").and_then(Value::as_array) else {
             continue;

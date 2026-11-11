@@ -48,9 +48,14 @@ impl<'a> super::Thread<'a> {
                 break;
             };
             self.execute_block(block, runtime)?;
+            if let Some(error) = runtime.value_error.borrow_mut().take() {
+                bail!("{error} at block {}", block["id"]);
+            }
             if runtime.cooperative
                 && self.warped
-                && started.elapsed() >= std::time::Duration::from_millis(4)
+                && runtime
+                    .warp_time_slice
+                    .is_some_and(|slice| started.elapsed() >= slice)
             {
                 self.yielded = true;
             }
@@ -81,6 +86,9 @@ impl<'a> super::Thread<'a> {
             | "start_as_clone" => {
                 self.advance(runtime, block.get("next"));
             }
+            "start_as_a_mirror" => {
+                self.enter_branch(runtime, statement(block, "DO"), block.get("next"));
+            }
             "when" => {
                 if self.eval(runtime, input(block, "condition")).is_truthy() {
                     self.enter_branch(runtime, statement(block, "DO"), block.get("next"));
@@ -92,7 +100,7 @@ impl<'a> super::Thread<'a> {
             "variables_set" => {
                 let variable = variable_field(block).context("variables_set missing variable")?;
                 let value = self.eval(runtime, input(block, "value"));
-                runtime.variables.insert(variable.to_owned(), value);
+                runtime.set_variable(variable, &self.owner_id, value)?;
                 self.advance(runtime, block.get("next"));
             }
             "change_variables" => {
@@ -100,8 +108,7 @@ impl<'a> super::Thread<'a> {
                     variable_field(block).context("change_variables missing variable")?;
                 let delta = self.eval(runtime, input(block, "value")).as_number();
                 let current = runtime
-                    .variables
-                    .get(variable)
+                    .variable(variable, Some(&self.owner_id))
                     .cloned()
                     .unwrap_or(RuntimeValue::Number(0.0))
                     .as_number();
@@ -115,33 +122,20 @@ impl<'a> super::Thread<'a> {
                 } else {
                     current + delta
                 };
-                runtime
-                    .variables
-                    .insert(variable.to_owned(), RuntimeValue::Number(value));
+                runtime.set_variable(variable, &self.owner_id, RuntimeValue::Number(value))?;
                 self.advance(runtime, block.get("next"));
             }
             "list_append" => {
                 let list_id = self.eval(runtime, input(block, "list")).as_string();
                 let value = self.eval(runtime, input(block, "list_item_value"));
-                ensure_runtime_list(
-                    runtime
-                        .variables
-                        .entry(list_id)
-                        .or_insert(RuntimeValue::Null),
-                )
-                .push(value);
+                ensure_runtime_list(runtime.variable_mut(&list_id, &self.owner_id)?).push(value);
                 self.advance(runtime, block.get("next"));
             }
             "list_insert_value" => {
                 let list_id = self.eval(runtime, input(block, "list")).as_string();
                 let index = self.eval(runtime, input(block, "list_index")).as_number();
                 let value = self.eval(runtime, input(block, "list_item_value"));
-                let items = ensure_runtime_list(
-                    runtime
-                        .variables
-                        .entry(list_id)
-                        .or_insert(RuntimeValue::Null),
-                );
+                let items = ensure_runtime_list(runtime.variable_mut(&list_id, &self.owner_id)?);
                 let index = insertion_index(index, items.len());
                 items.insert(index, value);
                 self.advance(runtime, block.get("next"));
@@ -155,12 +149,7 @@ impl<'a> super::Thread<'a> {
                     .and_then(|fields| fields.get("item"))
                     .and_then(Value::as_str)
                     .unwrap_or("any");
-                let items = ensure_runtime_list(
-                    runtime
-                        .variables
-                        .entry(list_id)
-                        .or_insert(RuntimeValue::Null),
-                );
+                let items = ensure_runtime_list(runtime.variable_mut(&list_id, &self.owner_id)?);
                 if let Some(index) = list_index(item, index, items.len())
                     && let Some(slot) = items.get_mut(index)
                 {
@@ -176,12 +165,7 @@ impl<'a> super::Thread<'a> {
                     .and_then(|fields| fields.get("item"))
                     .and_then(Value::as_str)
                     .unwrap_or("any");
-                let items = ensure_runtime_list(
-                    runtime
-                        .variables
-                        .entry(list_id)
-                        .or_insert(RuntimeValue::Null),
-                );
+                let items = ensure_runtime_list(runtime.variable_mut(&list_id, &self.owner_id)?);
                 if item == "all" {
                     items.clear();
                 } else if let Some(index) = list_index(item, index, items.len()) {
@@ -193,11 +177,10 @@ impl<'a> super::Thread<'a> {
                 let source_id = self.eval(runtime, input(block, "list")).as_string();
                 let target_id = self.eval(runtime, input(block, "target_list")).as_string();
                 let value = runtime
-                    .variables
-                    .get(&source_id)
+                    .variable(&source_id, Some(&self.owner_id))
                     .cloned()
                     .unwrap_or(RuntimeValue::List(Vec::new()));
-                runtime.variables.insert(target_id, value);
+                runtime.set_variable(&target_id, &self.owner_id, value)?;
                 self.advance(runtime, block.get("next"));
             }
             "show_hide_list" => {
@@ -462,6 +445,10 @@ impl<'a> super::Thread<'a> {
             }
             "self_go_forward" => {
                 let steps = self.eval(runtime, input(block, "steps")).as_number();
+                if !steps.is_finite() {
+                    self.advance(runtime, block.get("next"));
+                    return Ok(());
+                }
                 let old = runtime
                     .actors
                     .get(&self.owner_id)
@@ -484,8 +471,12 @@ impl<'a> super::Thread<'a> {
                     .map(|a| (a.x, a.y))
                     .unwrap_or((0.0, 0.0));
                 if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
-                    actor.x = x;
-                    actor.y = y;
+                    if x.is_finite() {
+                        actor.x = x;
+                    }
+                    if y.is_finite() {
+                        actor.y = y;
+                    }
                 }
                 record_pen_stroke(&mut runtime.actors, &self.owner_id, old.0, old.1);
                 self.advance(runtime, block.get("next"));
@@ -497,7 +488,9 @@ impl<'a> super::Thread<'a> {
                     .get(&self.owner_id)
                     .map(|a| (a.x, a.y))
                     .unwrap_or((0.0, 0.0));
-                if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
+                if let Some(actor) = runtime.actors.get_mut(&self.owner_id)
+                    && value.is_finite()
+                {
                     actor.x = value;
                 }
                 record_pen_stroke(&mut runtime.actors, &self.owner_id, old.0, old.1);
@@ -510,7 +503,9 @@ impl<'a> super::Thread<'a> {
                     .get(&self.owner_id)
                     .map(|a| (a.x, a.y))
                     .unwrap_or((0.0, 0.0));
-                if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
+                if let Some(actor) = runtime.actors.get_mut(&self.owner_id)
+                    && value.is_finite()
+                {
                     actor.y = value;
                 }
                 record_pen_stroke(&mut runtime.actors, &self.owner_id, old.0, old.1);
@@ -524,7 +519,9 @@ impl<'a> super::Thread<'a> {
                     .get(&self.owner_id)
                     .map(|a| (a.x, a.y))
                     .unwrap_or((0.0, 0.0));
-                if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
+                if let Some(actor) = runtime.actors.get_mut(&self.owner_id)
+                    && delta.is_finite()
+                {
                     actor.x += delta;
                 }
                 record_pen_stroke(&mut runtime.actors, &self.owner_id, old.0, old.1);
@@ -538,7 +535,9 @@ impl<'a> super::Thread<'a> {
                     .get(&self.owner_id)
                     .map(|a| (a.x, a.y))
                     .unwrap_or((0.0, 0.0));
-                if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
+                if let Some(actor) = runtime.actors.get_mut(&self.owner_id)
+                    && delta.is_finite()
+                {
                     actor.y += delta;
                 }
                 record_pen_stroke(&mut runtime.actors, &self.owner_id, old.0, old.1);
@@ -546,14 +545,18 @@ impl<'a> super::Thread<'a> {
             }
             "self_rotate" => {
                 let degrees = self.eval(runtime, input(block, "degrees")).as_number();
-                if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
+                if let Some(actor) = runtime.actors.get_mut(&self.owner_id)
+                    && degrees.is_finite()
+                {
                     actor.rotation += degrees;
                 }
                 self.advance(runtime, block.get("next"));
             }
             "self_point_towards" => {
                 let degrees = self.eval(runtime, input(block, "degrees")).as_number();
-                if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
+                if let Some(actor) = runtime.actors.get_mut(&self.owner_id)
+                    && degrees.is_finite()
+                {
                     actor.rotation = degrees;
                 }
                 self.advance(runtime, block.get("next"));
@@ -572,7 +575,10 @@ impl<'a> super::Thread<'a> {
             }
             "set_scale" => {
                 let value = self.eval(runtime, input(block, "scale")).as_number();
-                if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
+                if let Some(actor) = runtime.actors.get_mut(&self.owner_id)
+                    && (value.is_finite()
+                        || (value.is_nan() && runtime.project.get("_nekocKitten4").is_none()))
+                {
                     actor.scale = value;
                 }
                 self.advance(runtime, block.get("next"));
@@ -580,7 +586,9 @@ impl<'a> super::Thread<'a> {
             "self_change_scale" => {
                 let delta =
                     signed_delta(block, self.eval(runtime, input(block, "scale")).as_number());
-                if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
+                if let Some(actor) = runtime.actors.get_mut(&self.owner_id)
+                    && delta.is_finite()
+                {
                     actor.scale += delta;
                 }
                 self.advance(runtime, block.get("next"));
@@ -601,6 +609,10 @@ impl<'a> super::Thread<'a> {
             "set_width_height_scale" => {
                 let scope = field_string(block, "type").unwrap_or("width");
                 let value = self.eval(runtime, input(block, "value")).as_number();
+                if !value.is_finite() {
+                    self.advance(runtime, block.get("next"));
+                    return Ok(());
+                }
                 if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
                     match scope {
                         "width" | "height" => {
@@ -617,6 +629,10 @@ impl<'a> super::Thread<'a> {
                 let scope = field_string(block, "type").unwrap_or("width");
                 let delta =
                     signed_delta(block, self.eval(runtime, input(block, "value")).as_number());
+                if !delta.is_finite() {
+                    self.advance(runtime, block.get("next"));
+                    return Ok(());
+                }
                 if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
                     match scope {
                         "width" | "height" => {
@@ -629,10 +645,28 @@ impl<'a> super::Thread<'a> {
                 }
                 self.advance(runtime, block.get("next"));
             }
+            // Preserve the reference interpreter's transparency-set support
+            // after K4 lowering stopped routing through the coercing KN block.
+            "kitten4_set_effect" if field_string(block, "scope") == Some("1") => {
+                let value = self.eval(runtime, input(block, "val"));
+                if let RuntimeValue::Number(value) = value
+                    && value.is_finite()
+                    && let Some(actor) = runtime.actors.get_mut(&self.owner_id)
+                {
+                    actor.effects.insert("1".into(), value.clamp(0.0, 100.0));
+                }
+                self.advance(runtime, block.get("next"));
+            }
             "self_set_effect" => {
                 let scope = field_string(block, "scope").unwrap_or("color").to_owned();
                 let value = self.eval(runtime, input(block, "value")).as_number();
-                if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
+                if let Some(actor) = runtime.actors.get_mut(&self.owner_id)
+                    && value.is_finite()
+                {
+                    let value = match scope.as_str() {
+                        "1" | "ghost" | "transparency" => value.clamp(0.0, 100.0),
+                        _ => value,
+                    };
                     actor.effects.insert(scope, value);
                 }
                 self.advance(runtime, block.get("next"));
@@ -643,7 +677,13 @@ impl<'a> super::Thread<'a> {
                     signed_delta(block, self.eval(runtime, input(block, "value")).as_number());
                 if let Some(actor) = runtime.actors.get_mut(&self.owner_id) {
                     let current = actor.effects.get(&scope).copied().unwrap_or(0.0);
-                    actor.effects.insert(scope, current + delta);
+                    if delta.is_finite() {
+                        let value = match scope.as_str() {
+                            "1" | "ghost" | "transparency" => (current + delta).clamp(0.0, 100.0),
+                            _ => current + delta,
+                        };
+                        actor.effects.insert(scope, value);
+                    }
                 }
                 self.advance(runtime, block.get("next"));
             }
@@ -892,29 +932,29 @@ impl<'a> super::Thread<'a> {
         Ok(())
     }
 
-    pub(super) fn advance(&mut self, runtime: &Runtime<'a>, next: Option<&'a Value>) {
-        if let Some(next) = next {
-            self.current = Some(next);
-        } else if self
-            .continuations
-            .last()
-            .is_some_and(|(depth, _, _)| *depth == self.loops.len())
-        {
-            let (_, continuation, warped) = self.continuations.pop().unwrap();
-            self.warped = warped;
-            self.advance(runtime, continuation);
-        } else if let Some(next_loop) = self.next_loop_iteration(runtime) {
-            self.advance(runtime, next_loop);
-        } else if let Some(frame) = self.procedure_frames.pop() {
-            self.procedure_values = frame.procedure_values;
-            self.warped = frame.warped;
-            if let Some(after) = frame.after {
-                self.current = Some(after);
+    pub(super) fn advance(&mut self, runtime: &Runtime<'a>, mut next: Option<&'a Value>) {
+        loop {
+            if let Some(next) = next {
+                self.current = Some(next);
+                return;
+            } else if self
+                .continuations
+                .last()
+                .is_some_and(|(depth, _, _)| *depth == self.loops.len())
+            {
+                let (_, continuation, warped) = self.continuations.pop().unwrap();
+                self.warped = warped;
+                next = continuation;
+            } else if let Some(next_loop) = self.next_loop_iteration(runtime) {
+                next = next_loop;
+            } else if let Some(frame) = self.procedure_frames.pop() {
+                self.procedure_values = frame.procedure_values;
+                self.warped = frame.warped;
+                next = frame.after;
             } else {
-                self.advance(runtime, None);
+                self.done = true;
+                return;
             }
-        } else {
-            self.done = true;
         }
     }
 

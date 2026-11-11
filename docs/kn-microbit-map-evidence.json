@@ -1,0 +1,419 @@
+{
+  "schema": "nekoc-kn-microbit-map-official-v1",
+  "checkedAt": "2026-11-10T17:00:14.685Z",
+  "editorUrl": "https://kn.codemao.cn/editor",
+  "method": "Fresh headless official Edge editor with webpack loader exposed; load official lazy microbit module and call its actual exported domain function factory. No hardware map or connection helper replaced; no hardware connection attempted.",
+  "bundles": [
+    {
+      "name": "base.f158ddbf.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/base.f158ddbf.js",
+      "bytes": 949823,
+      "sha256": "724251e202e9dac074241e6296f3bbf3773c420141516764c8434dd17eb113e7"
+    },
+    {
+      "name": "main.8ccf2442.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+      "bytes": 5594327,
+      "sha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165"
+    },
+    {
+      "name": "crc_libs.8196dbd1.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+      "bytes": 1297643,
+      "sha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7"
+    },
+    {
+      "name": "main-vendors.07f7dd7e.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main-vendors.07f7dd7e.js",
+      "bytes": 6460489,
+      "sha256": "38183ab8a9620f33fef75f1bd1f90ee26b492e7b6ded8b6b065fc052e7948f68"
+    },
+    {
+      "name": "6062.1ef86232.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/6062.1ef86232.chunk.js",
+      "bytes": 5199,
+      "sha256": "362c82cbd0f2c6a05349ab05e2e6517cf40783429421424ef21b0b1e34978704"
+    },
+    {
+      "name": "5851.a37eb285.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/5851.a37eb285.chunk.js",
+      "bytes": 181408,
+      "sha256": "79f96472792b16fb60cb13ee65fe2a64f16b224a8848c591308cad0d02baced5"
+    },
+    {
+      "name": "4984.26063c69.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/4984.26063c69.chunk.js",
+      "bytes": 13538,
+      "sha256": "afda963988a73b83d4be21b2584d22ceb4a774502016fdce1c9c5d92569920c2"
+    },
+    {
+      "name": "2704.ec059467.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/2704.ec059467.chunk.js",
+      "bytes": 34835,
+      "sha256": "99a86c599cbda9180918819dc5b25b20cb83e1e2c1205ab47eb61f0b05b806b3"
+    },
+    {
+      "name": "catui2.c678ccd3.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/catui2.c678ccd3.chunk.js",
+      "bytes": 36077,
+      "sha256": "731eec8687c6bf701cae14a35a72f3bd08e35a6f36d7ef15bfb3a7330fcd3efb"
+    },
+    {
+      "name": "4023.4ec8fceb.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/4023.4ec8fceb.chunk.js",
+      "bytes": 18773,
+      "sha256": "e0b2892d66f6aa6e798b42d5573313fd41a0e1682d4d3a1c00a595bfb8ac40fb"
+    },
+    {
+      "name": "2121.88168974.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/2121.88168974.chunk.js",
+      "bytes": 95951,
+      "sha256": "ba8237837aab054dcdc620b0878dfa53c6c41887ddb92765a9df8b86dead4dc3"
+    },
+    {
+      "name": "2455.fff7df4c.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/2455.fff7df4c.chunk.js",
+      "bytes": 64310,
+      "sha256": "ef75b9497e0c59df11906a787139390ff5f7cb1092fa71eccb0de343adc08c9f"
+    },
+    {
+      "name": "6729.cc22670b.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/6729.cc22670b.chunk.js",
+      "bytes": 109,
+      "sha256": "76619f79ea51dfcd0c0ea4572f14d224829ee6ebe6f05d7443474a04f5dcd721"
+    },
+    {
+      "name": "2308.b9eeff62.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/2308.b9eeff62.chunk.js",
+      "bytes": 9133,
+      "sha256": "97f7fcde70ec2e9903181f65112055782bec0c91682560a2198c2ba729a9fa69"
+    },
+    {
+      "name": "5337.9c55d0e3.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/5337.9c55d0e3.chunk.js",
+      "bytes": 340604,
+      "sha256": "bd1ab2378ab30b25f75836f66c864faff358bddec80eeb93853655ca9214321b"
+    },
+    {
+      "name": "entry_hardware.481194e4.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/entry_hardware.481194e4.chunk.js",
+      "bytes": 681355,
+      "sha256": "7259df6bc25c81905028a569ca5e99fba5091ca4fbddd29c2ec92ac15c75842d"
+    },
+    {
+      "name": "8178.8c1ca691.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/8178.8c1ca691.chunk.js",
+      "bytes": 10683,
+      "sha256": "fbc439dc045b654365926c3b49b8622f270cba0fc86ed4e102e0e550d659eab5"
+    },
+    {
+      "name": "stage_animation.871fede4.chunk.js",
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/stage_animation.871fede4.chunk.js",
+      "bytes": 202201,
+      "sha256": "ab9d29b8b3dbcda99ec3be20754901fc80b4266325a57ab2eb14f8d2ae741656"
+    }
+  ],
+  "pageErrors": [],
+  "limitations": [
+    "Direct official domain function calls, not a complete native project or registered hardware workspace.",
+    "No connected-device behavior measured; mapping algorithm after the connection guard is source-only evidence.",
+    "All five block value sockets must still be evaluated by the caller; direct early return from the domain function does not authorize compiler input elision."
+  ],
+  "editor": {
+    "version": "0.27.4",
+    "extensionKeys": [
+      "default"
+    ],
+    "domainFactoryModule": 20592,
+    "domainName": "microbit_math_map",
+    "hardwareIds": [],
+    "hasMicrobit": false,
+    "inputSockets": [
+      {
+        "name": "value",
+        "defaultValue": "0"
+      },
+      {
+        "name": "fromStart",
+        "defaultValue": "0"
+      },
+      {
+        "name": "fromEnd",
+        "defaultValue": "1023"
+      },
+      {
+        "name": "toStart",
+        "defaultValue": "1"
+      },
+      {
+        "name": "toEnd",
+        "defaultValue": "10"
+      }
+    ],
+    "calls": [
+      {
+        "label": "ordinary numeric strings",
+        "args": {
+          "value": {
+            "type": "string",
+            "value": "512"
+          },
+          "fromStart": {
+            "type": "string",
+            "value": "0"
+          },
+          "fromEnd": {
+            "type": "string",
+            "value": "1023"
+          },
+          "toStart": {
+            "type": "string",
+            "value": "1"
+          },
+          "toEnd": {
+            "type": "string",
+            "value": "10"
+          }
+        },
+        "promise": false,
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        }
+      },
+      {
+        "label": "ordinary numbers",
+        "args": {
+          "value": {
+            "type": "number",
+            "value": 5
+          },
+          "fromStart": {
+            "type": "number",
+            "value": 0
+          },
+          "fromEnd": {
+            "type": "number",
+            "value": 10
+          },
+          "toStart": {
+            "type": "number",
+            "value": 0
+          },
+          "toEnd": {
+            "type": "number",
+            "value": 100
+          }
+        },
+        "promise": false,
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        }
+      },
+      {
+        "label": "invalid value",
+        "args": {
+          "value": {
+            "type": "string",
+            "value": "bad"
+          },
+          "fromStart": {
+            "type": "string",
+            "value": "0"
+          },
+          "fromEnd": {
+            "type": "string",
+            "value": "1023"
+          },
+          "toStart": {
+            "type": "string",
+            "value": "1"
+          },
+          "toEnd": {
+            "type": "string",
+            "value": "10"
+          }
+        },
+        "promise": false,
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        }
+      },
+      {
+        "label": "empty value",
+        "args": {
+          "value": {
+            "type": "string",
+            "value": ""
+          },
+          "fromStart": {
+            "type": "string",
+            "value": "0"
+          },
+          "fromEnd": {
+            "type": "string",
+            "value": "1023"
+          },
+          "toStart": {
+            "type": "string",
+            "value": "1"
+          },
+          "toEnd": {
+            "type": "string",
+            "value": "10"
+          }
+        },
+        "promise": false,
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        }
+      },
+      {
+        "label": "degenerate source range",
+        "args": {
+          "value": {
+            "type": "string",
+            "value": "512"
+          },
+          "fromStart": {
+            "type": "string",
+            "value": "0"
+          },
+          "fromEnd": {
+            "type": "string",
+            "value": "0"
+          },
+          "toStart": {
+            "type": "string",
+            "value": "1"
+          },
+          "toEnd": {
+            "type": "string",
+            "value": "10"
+          }
+        },
+        "promise": false,
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        }
+      },
+      {
+        "label": "outside range",
+        "args": {
+          "value": {
+            "type": "string",
+            "value": "9999"
+          },
+          "fromStart": {
+            "type": "string",
+            "value": "0"
+          },
+          "fromEnd": {
+            "type": "string",
+            "value": "1023"
+          },
+          "toStart": {
+            "type": "string",
+            "value": "1"
+          },
+          "toEnd": {
+            "type": "string",
+            "value": "10"
+          }
+        },
+        "promise": false,
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        }
+      },
+      {
+        "label": "infinite input",
+        "args": {
+          "value": {
+            "type": "number",
+            "value": "Infinity"
+          },
+          "fromStart": {
+            "type": "string",
+            "value": "0"
+          },
+          "fromEnd": {
+            "type": "string",
+            "value": "1023"
+          },
+          "toStart": {
+            "type": "string",
+            "value": "1"
+          },
+          "toEnd": {
+            "type": "string",
+            "value": "10"
+          }
+        },
+        "promise": false,
+        "result": {
+          "type": "number",
+          "value": "NaN"
+        }
+      }
+    ],
+    "guardedResult": {
+      "result": {
+        "type": "number",
+        "value": "NaN"
+      },
+      "getterReads": 0
+    }
+  },
+  "sourceLocations": [
+    {
+      "symbol": "microbit_lazy_module",
+      "bundle": "main.8ccf2442.js",
+      "bundleUrl": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 5467319,
+      "excerptCharacters": 400,
+      "excerptSha256": "a3d065b36c087631d01a92ce21fd2097f0e6d16ccb416dbd6130c8319686e446"
+    },
+    {
+      "symbol": "domain_factory",
+      "bundle": "entry_hardware.481194e4.chunk.js",
+      "bundleUrl": "https://creation.bcmcdn.com/neko/web/release/static/js/entry_hardware.481194e4.chunk.js",
+      "bundleSha256": "7259df6bc25c81905028a569ca5e99fba5091ca4fbddd29c2ec92ac15c75842d",
+      "byteOffset": 190292,
+      "excerptCharacters": 400,
+      "excerptSha256": "1644a3e60be4974161a85bd14bde1dca947708df49929f25fad4cd4f0d8d1953"
+    },
+    {
+      "symbol": "microbit_math_map",
+      "bundle": "entry_hardware.481194e4.chunk.js",
+      "bundleUrl": "https://creation.bcmcdn.com/neko/web/release/static/js/entry_hardware.481194e4.chunk.js",
+      "bundleSha256": "7259df6bc25c81905028a569ca5e99fba5091ca4fbddd29c2ec92ac15c75842d",
+      "byteOffset": 205131,
+      "excerptCharacters": 1740,
+      "excerptSha256": "3405dba61480c00fad2550edc61728938f32a8f24d276f2f410d1688af3e91d6"
+    },
+    {
+      "symbol": "hardware_connection_guard",
+      "bundle": "main.8ccf2442.js",
+      "bundleUrl": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+      "bundleSha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165",
+      "byteOffset": 2178339,
+      "excerptCharacters": 1200,
+      "excerptSha256": "86441ea3df7b8a565965a37f46f6aa2503f451b1a03dd6fa8eddbfce489fd6d4"
+    }
+  ],
+  "checks": {
+    "sourceAnchorsFound": true,
+    "noHardware": true,
+    "actualFunctionReturnsNaNWithoutHardware": true,
+    "guardBeforeArgumentAccess": true,
+    "noUncaughtPageErrors": true
+  },
+  "ok": true
+}

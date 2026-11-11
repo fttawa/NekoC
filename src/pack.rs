@@ -64,7 +64,7 @@ pub struct PackReport {
 }
 
 fn json_len(value: &Value) -> usize {
-    serde_json::to_vec(value).map_or(0, |v| v.len())
+    crate::json::to_vec(value).map_or(0, |v| v.len())
 }
 
 /// Separator absent from every item: a printable ASCII character when one is
@@ -270,10 +270,13 @@ pub fn is_packed(project: &Value) -> bool {
 }
 
 /// Packs a `.bcmkn` project value. Fails if the project is already packed.
-pub fn pack(project: &Value, options: &PackOptions) -> Result<(Value, PackReport)> {
+pub fn pack(project: &Value, options: &PackOptions) -> Result<(crate::json::Json, PackReport)> {
+    crate::json::expanded(|| pack_inner(project, options))
+}
+fn pack_inner(project: &Value, options: &PackOptions) -> Result<(crate::json::Json, PackReport)> {
     ensure!(!is_packed(project), "project is already packed");
     let template: Value = serde_json::from_str(TEMPLATE).context("decoder template")?;
-    let mut project = project.clone();
+    let mut project = crate::json::Json::new(crate::json::clone_value(project));
     let original_bytes = json_len(&project);
     let scene_id = project["scenes"]["currentSceneId"]
         .as_str()
@@ -473,9 +476,12 @@ pub fn pack(project: &Value, options: &PackOptions) -> Result<(Value, PackReport
 }
 
 /// Restores a packed project: lists decoded, decoder, gates and helpers removed.
-pub fn unpack(project: &Value) -> Result<Value> {
+pub fn unpack(project: &Value) -> Result<crate::json::Json> {
+    crate::json::expanded(|| unpack_inner(project))
+}
+fn unpack_inner(project: &Value) -> Result<crate::json::Json> {
     ensure!(is_packed(project), "project is not packed");
-    let mut project = project.clone();
+    let mut project = crate::json::Json::new(crate::json::clone_value(project));
     let scene_id = project["scenes"]["currentSceneId"]
         .as_str()
         .unwrap_or_default()

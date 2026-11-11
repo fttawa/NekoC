@@ -1,0 +1,268 @@
+{
+  "schema": "nekoc-k4-cloud-evidence-v1",
+  "cases": {
+    "defaults": {
+      "variables": [
+        {
+          "public": 0,
+          "private": 0,
+          "length": 0,
+          "missing": "",
+          "shown": "unexecuted",
+          "hidden": true,
+          "invalid": "unexecuted",
+          "shared": 0,
+          "personal": 0,
+          "items": []
+        },
+        {
+          "public": 0,
+          "private": 0,
+          "length": 0,
+          "missing": "",
+          "shown": "unexecuted",
+          "hidden": true,
+          "invalid": "unexecuted",
+          "shared": 0,
+          "personal": 0,
+          "items": []
+        },
+        {
+          "public": 0,
+          "private": 0,
+          "length": 0,
+          "missing": "",
+          "shown": "unexecuted",
+          "hidden": true,
+          "invalid": "unexecuted",
+          "shared": 0,
+          "personal": 0,
+          "items": []
+        }
+      ],
+      "errors": []
+    },
+    "writes": {
+      "variables": [
+        {
+          "public": "room/message",
+          "private": 7,
+          "length": 4,
+          "missing": "",
+          "shown": "unexecuted",
+          "hidden": "unexecuted",
+          "invalid": "unexecuted",
+          "shared": "room/message",
+          "personal": 7,
+          "items": [
+            "head",
+            "tail",
+            "inserted",
+            "replacement"
+          ]
+        },
+        {
+          "public": "room/message",
+          "private": 7,
+          "length": 4,
+          "missing": "",
+          "shown": "unexecuted",
+          "hidden": "unexecuted",
+          "invalid": "unexecuted",
+          "shared": "room/message",
+          "personal": 7,
+          "items": [
+            "head",
+            "tail",
+            "inserted",
+            "replacement"
+          ]
+        },
+        {
+          "public": "room/message",
+          "private": 7,
+          "length": 4,
+          "missing": "",
+          "shown": "unexecuted",
+          "hidden": "unexecuted",
+          "invalid": "unexecuted",
+          "shared": "room/message",
+          "personal": 7,
+          "items": [
+            "head",
+            "tail",
+            "inserted",
+            "replacement"
+          ]
+        }
+      ],
+      "errors": []
+    },
+    "limits": {
+      "variables": [
+        {
+          "public": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+          "private": 9,
+          "length": 1,
+          "missing": "unexecuted",
+          "shown": "unexecuted",
+          "hidden": "unexecuted",
+          "invalid": "unexecuted",
+          "shared": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+          "personal": 9,
+          "items": [
+            "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+          ]
+        },
+        {
+          "public": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+          "private": 9,
+          "length": 1,
+          "missing": "unexecuted",
+          "shown": "unexecuted",
+          "hidden": "unexecuted",
+          "invalid": "unexecuted",
+          "shared": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+          "personal": 9,
+          "items": [
+            "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+          ]
+        },
+        {
+          "public": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+          "private": 9,
+          "length": 1,
+          "missing": "unexecuted",
+          "shown": "unexecuted",
+          "hidden": "unexecuted",
+          "invalid": "unexecuted",
+          "shared": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+          "personal": 9,
+          "items": [
+            "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+          ]
+        }
+      ],
+      "errors": []
+    },
+    "change": {
+      "variables": [
+        {
+          "public": "123",
+          "private": 120,
+          "length": "unexecuted",
+          "missing": "unexecuted",
+          "shown": "unexecuted",
+          "hidden": "unexecuted",
+          "invalid": "unexecuted",
+          "shared": 120,
+          "personal": 0,
+          "items": []
+        },
+        {
+          "public": "123",
+          "private": 120,
+          "length": "unexecuted",
+          "missing": "unexecuted",
+          "shown": "unexecuted",
+          "hidden": "unexecuted",
+          "invalid": "unexecuted",
+          "shared": 120,
+          "personal": 0,
+          "items": []
+        },
+        {
+          "public": "123",
+          "private": 120,
+          "length": "unexecuted",
+          "missing": "unexecuted",
+          "shown": "unexecuted",
+          "hidden": "unexecuted",
+          "invalid": "unexecuted",
+          "shared": 120,
+          "personal": 0,
+          "items": []
+        }
+      ],
+      "errors": []
+    },
+    "ranking": {
+      "variables": [
+        {
+          "public": "unexecuted",
+          "private": "unexecuted",
+          "length": "unexecuted",
+          "missing": "unexecuted",
+          "shown": true,
+          "hidden": true,
+          "invalid": false,
+          "shared": 0,
+          "personal": 0,
+          "items": []
+        },
+        {
+          "public": "unexecuted",
+          "private": "unexecuted",
+          "length": "unexecuted",
+          "missing": "unexecuted",
+          "shown": true,
+          "hidden": true,
+          "invalid": false,
+          "shared": 0,
+          "personal": 0,
+          "items": []
+        },
+        {
+          "public": "unexecuted",
+          "private": "unexecuted",
+          "length": "unexecuted",
+          "missing": "unexecuted",
+          "shown": true,
+          "hidden": true,
+          "invalid": false,
+          "shared": 0,
+          "personal": 0,
+          "items": []
+        }
+      ],
+      "errors": []
+    }
+  },
+  "assets": [
+    {
+      "name": "player_v2__3ffeebbd0c789e8d9422.css",
+      "source": "player_v2__3ffeebbd0c789e8d9422.css",
+      "sha256": "39e8e70b124b604831773893cdc95931cdee3eaea52c6dd69f33f5781d48b45a"
+    },
+    {
+      "name": "player_v2.2d180c468559fbd29528.js",
+      "source": "player_v2.2d180c468559fbd29528.js.orig",
+      "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160"
+    },
+    {
+      "name": "runtime.f42f527f119e09010b85.js",
+      "source": "runtime.f42f527f119e09010b85.js",
+      "sha256": "4164d67795238f64d035f473418236038ae475ae36032a967cba16ede263735f"
+    },
+    {
+      "name": "vendors.d00f4bd454a6352e9d71.js",
+      "source": "vendors.d00f4bd454a6352e9d71.js",
+      "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
+    },
+    {
+      "name": "9.c396696e9dc71e25b012.js",
+      "source": "9.c396696e9dc71e25b012.js",
+      "sha256": "5758343310c47596d56e954aa05fa76a546080c8bf4fefd41cac0042794d6195"
+    },
+    {
+      "name": "14.c95e6f2ddd61fb701d0e.js",
+      "source": "14.c95e6f2ddd61fb701d0e.js",
+      "sha256": "d3ce91c9113463db4c0988210caeb1be2ddc508499d5c53a8e73a13b5f440175"
+    },
+    {
+      "name": "11.477512e6f03fd2f6f3c5.js",
+      "source": "11.477512e6f03fd2f6f3c5.js",
+      "sha256": "e81bfe3462cc3e79a70ba016ddee2a372a31480d3f52964952e1d21f3a490f91"
+    }
+  ]
+}

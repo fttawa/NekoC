@@ -1,5 +1,55 @@
-// Incremental renderer: one instanced capsule draw per pen delta, persistent FBO.
-// No CPU stroke history, no Canvas2D path replay, no per-stroke draw calls.
+// Incremental renderer with a persistent FBO: KN instanced capsules, K4 Canvas
+// origin disks + closed strokes. No retained CPU stroke history.
+import { drawK4PenLines } from './pen-k4.js';
+// Transition helpers stay here to avoid another dependency in visual harnesses.
+const quadOut = t => 1 - (1 - t) ** 2;
+function bounceOut(t) {
+  const scale=121/16,unit=11/4;
+  if(t<1/unit)return scale*t*t;
+  if(t<2/unit)return scale*(t-1.5/unit)**2+3/4;
+  if(t<2.5/unit)return scale*(t-2.25/unit)**2+15/16;
+  return scale*(t-2.625/unit)**2+63/64;
+}
+export function transitionKind(transition){
+  let kind=transition?.kind||'none';
+  if(kind==='fadeInOut')kind='fade_in_out';
+  if(kind==='distrot')kind='distort';
+  if(kind==='slide'||kind==='bounce')kind+=`_${transition.direction}`;
+  return kind;
+}
+// Display-tree coordinates (positive y down), independently implemented from the
+// observed container properties. VM actor coordinates still point upwards.
+export function sampleTransition(transition,ms,width,height){
+  const kind=transitionKind(transition);
+  const outgoing={x:0,y:0,alpha:1,visible:true},incoming={x:0,y:0,alpha:1,visible:true};
+  const result={outgoing,incoming,active:true,incomingOnTop:kind.startsWith('bounce_')};
+  const match=/^(slide|bounce)_(up|down|left|right)$/.exec(kind);
+  if(match){
+    const [,mode,direction]=match,duration=mode==='slide'?500:1000;
+    if(ms>duration)result.active=false;
+    else{
+      const p=(mode==='slide'?quadOut:bounceOut)(Math.max(0,ms)/duration);
+      const dx=direction==='left'?width:direction==='right'?-width:0;
+      const dy=direction==='up'?height:direction==='down'?-height:0;
+      incoming.x=dx*(1-p);incoming.y=dy*(1-p);
+      if(mode==='slide'){outgoing.x=-dx*p;outgoing.y=-dy*p;}
+    }
+  }else if(kind==='fade_in_out'){
+    if(ms>500)result.active=false;
+    else{incoming.alpha=quadOut(Math.max(0,ms)/500);outgoing.alpha=1-incoming.alpha;}
+  }else if(kind==='none'||!kind)result.active=false;
+  else if(kind==='distort'){
+    // A separate screenshot/filter pipeline is required; do not misrepresent it
+    // as a fade. This branch remains unsupported in the compositor.
+    result.active=false;result.unsupported=true;
+  }else{
+    // Unknown names never invoke official completion. Logical scene changes,
+    // while the previous scene stays visible (no tween is scheduled).
+    incoming.visible=false;result.stalled=true;
+  }
+  if(!result.active){outgoing.visible=false;incoming.visible=true;}
+  return result;
+}
 const QUAD = `vec2 corner(){vec2 p[6]=vec2[6](vec2(0,0),vec2(1,0),vec2(0,1),vec2(0,1),vec2(1,0),vec2(1,1));return p[gl_VertexID];}`;
 const PEN_VERTEX = `#version 300 es
 precision highp float;
@@ -24,19 +74,29 @@ void main(){uv=corner();vec2 p=(uv-.5)*dimensions;float c=cos(angle),s=sin(angle
 // Sprite effects by native scope: fxA = (color, brightness, pixelate, ripple),
 // fxB = (twist, grayscale). Textures are premultiplied; colour effects unpremultiply.
 const TEXTURE_FRAGMENT = `#version 300 es
-precision highp float;uniform sampler2D image;uniform vec4 tint;uniform vec4 fxA;uniform vec2 fxB;uniform vec2 texSize;in vec2 uv;out vec4 outColor;
+precision highp float;uniform sampler2D image;uniform vec4 tint;uniform vec4 fxA;uniform vec2 fxB;uniform vec2 texSize;uniform vec2 repeatUV;uniform bool kitten4;in vec2 uv;out vec4 outColor;
 vec3 hsv(vec3 c){vec4 K=vec4(0.,-1./3.,2./3.,-1.);vec4 p=mix(vec4(c.bg,K.wz),vec4(c.gb,K.xy),step(c.b,c.g));vec4 q=mix(vec4(p.xyw,c.r),vec4(c.r,p.yzx),step(p.x,c.r));float d=q.x-min(q.w,q.y);return vec3(abs(q.z+(q.w-q.y)/(6.*d+1e-10)),d/(q.x+1e-10),q.x);}
 vec3 rgb(vec3 c){vec3 p=abs(fract(c.xxx+vec3(1.,2./3.,1./3.))*6.-3.);return c.z*mix(vec3(1.),clamp(p-1.,0.,1.),c.y);}
 void main(){vec2 p=uv;
+if(repeatUV.x>0.)p=fract((p-.5)*repeatUV+.5);
 if(fxB.x!=0.){vec2 d=p-.5;float r=length(d)*2.;float a=radians(fxB.x)*max(0.,1.-r);float s=sin(a),c=cos(a);p=.5+mat2(c,-s,s,c)*d;}
 if(fxA.w!=0.){p+=vec2(sin(p.y*25.),sin(p.x*25.))*fxA.w/2000.;}
 if(abs(fxA.z)>=1.){vec2 cell=max(vec2(1.),vec2(abs(fxA.z)/10.+1.));vec2 n=texSize/cell;p=(floor(p*n)+.5)/n;}
 vec4 c=(p.x<0.||p.y<0.||p.x>1.||p.y>1.)?vec4(0.):texture(image,p);
+// K4 jt uses PIXI colour matrices, ordered hue -> brightness -> saturate.
+// Each pass clamps/quantizes its premultiplied RGBA8 intermediate, not RGB.
+// See docs/kitten4-visual3.md. KN retains its existing HSV/weighted-gray policy.
+if(kitten4&&c.a>0.){vec3 r=c.rgb/c.a;
+if(fxA.x!=0.){float a=radians(fxA.x),co=cos(a),si=sin(a)/sqrt(3.),v=(1.-co)/3.;r=vec3(dot(r,vec3(co+v,v-si,v+si)),dot(r,vec3(v+si,co+v,v-si)),dot(r,vec3(v-si,v+si,co+v)));r=floor(clamp(r*c.a,0.,1.)*255.+.5)/255./c.a;}
+if(fxA.y!=0.)r=floor(clamp((r+clamp(fxA.y/100.,-1.,1.))*c.a,0.,1.)*255.+.5)/255./c.a;
+if(fxB.y>0.)r=mix(r,vec3((r.r+r.g+r.b)/3.),clamp(fxB.y/100.,0.,1.));
+c.rgb=r*c.a;
+}else{
 if(c.a>0.&&(fxA.x!=0.||fxB.y>0.)){vec3 r=c.rgb/c.a;
 if(fxA.x!=0.){vec3 h=hsv(r);h.x=fract(h.x+fxA.x/200.);r=rgb(h);}
 if(fxB.y>0.){r=mix(r,vec3(dot(r,vec3(.299,.587,.114))),clamp(fxB.y/100.,0.,1.));}
 c.rgb=r*c.a;}
-if(fxA.y!=0.){c.rgb=clamp(c.rgb+fxA.y/100.*c.a,0.,c.a);}
+if(fxA.y!=0.){c.rgb=clamp(c.rgb+fxA.y/100.*c.a,0.,c.a);}}
 outColor=c*vec4(tint.rgb*tint.a,tint.a);}`;
 
 function program(gl, vertex, fragment) {
@@ -53,6 +113,19 @@ function program(gl, vertex, fragment) {
 
 const MAX_SCALE = 4;
 
+// Settle superseded loads immediately, rather than leaving their timers/events alive.
+function waitForAsset(promise,signal,message){
+  return new Promise((resolve,reject)=>{
+    let settled=false;
+    const done=(error,value)=>{if(settled)return;settled=true;clearTimeout(timer);signal.removeEventListener('abort',abort);error?reject(error):resolve(value);};
+    const abort=()=>done(new DOMException('素材加载已取消','AbortError'));
+    const timer=setTimeout(()=>done(Error(message)),15000);
+    signal.addEventListener('abort',abort,{once:true});
+    promise.then(value=>done(null,value),error=>done(error));
+    if(signal.aborted)abort();
+  });
+}
+
 export class StageRenderer {
   constructor(canvas) {
     this.canvas = canvas;
@@ -60,7 +133,7 @@ export class StageRenderer {
     if (!gl) throw Error('需要支持 WebGL 2 的浏览器。');
     this.gl = gl; this.pen = program(gl, PEN_VERTEX, PEN_FRAGMENT); this.texture = program(gl, TEXTURE_VERTEX, TEXTURE_FRAGMENT);
     this.penSize = gl.getUniformLocation(this.pen, 'stageSize');
-    this.uniform = Object.fromEntries(['stageSize', 'position', 'dimensions', 'angle', 'image', 'tint', 'fxA', 'fxB', 'texSize'].map(k => [k, gl.getUniformLocation(this.texture, k)]));
+    this.uniform = Object.fromEntries(['stageSize', 'position', 'dimensions', 'angle', 'image', 'tint', 'fxA', 'fxB', 'texSize', 'repeatUV', 'kitten4'].map(k => [k, gl.getUniformLocation(this.texture, k)]));
     this.vao = gl.createVertexArray(); this.buffer = gl.createBuffer(); this.bufferCapacity = 0;
     gl.bindVertexArray(this.vao); gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
     for (const [location, count, offset] of [[0,4,0], [1,1,16], [2,4,20]]) {
@@ -73,11 +146,20 @@ export class StageRenderer {
     this.textCache = new Map(); this.textCanvas = document.createElement('canvas');
     this.stats.textTextureBytes=0; this.stats.textUploads=0; this.stats.textStamps=0;
     this.generation = 0; this.lost = false;
+    this.videos=new Map();this.mediaPaused=false;
+    this.transitionClock=()=>performance.now();
     canvas.addEventListener('webglcontextlost', event => { event.preventDefault(); this.lost = true; this.onError?.('GPU 上下文丢失，请重新加载项目。'); });
   }
 
-  async load(project) {
+  async load(project, onProgress=()=>{}) {
+    this.clearSceneTransition();
     const generation = ++this.generation;
+    this.loadController?.abort();this.loadController=new AbortController();const {signal}=this.loadController;
+    for(const item of this.videos.values()){item.element.onseeked=null;item.element.onloadeddata=null;item.element.onerror=null;item.element.pause();item.element.removeAttribute('src');item.element.load();this.gl.deleteTexture(item.texture);}
+    this.videos=new Map();this.mediaPaused=false;
+    this.kitten4 = Object.hasOwn(project,'_nekocKitten4');
+    this.monitorDeclarations=project.variables?.variablesDict||{};
+    this.monitorOwners={...project.scenes?.scenesDict,...project.actors?.actorsDict};
     const gl = this.gl;
     for(const query of this.gpuQueries)gl.deleteQuery(query);
     this.gpuQueries=[];this.stats.gpuMs=null;
@@ -100,23 +182,29 @@ export class StageRenderer {
     this.usePenSurface(project.scenes?.currentSceneId);
     const scene = project.scenes?.scenesDict?.[project.scenes.currentSceneId];
     this.backdrop = scene?.currentStyleId;
-    this.sceneId=project.scenes?.currentSceneId;this.actorOrder=[...(scene?.actorIds||[])].reverse();this.penLayer=0;
+    this.backgroundState = null;
+    this.sceneId=project.scenes?.currentSceneId;this.actorOrder=[...(scene?.actorIds||[])];if(!project._nekocKitten4)this.actorOrder.reverse();this.penLayer=0;this.videoAbovePen=false;
     this.sprites = (scene?.actorIds || []).map(id => {
       const a = project.actors.actorsDict[id];
-      return { id, name:a.name, style:a.currentStyleId, x:a.position?.x||0,y:a.position?.y||0,direction:(a.rotation||0)*180/Math.PI,scale:a.scale??100,visible:a.visible!==false,opacity:1 };
+      return { id, name:a.name, style:a.currentStyleId, x:a.position?.x||0,y:a.position?.y||0,direction:(a.rotation||0)*180/Math.PI-(this.kitten4?90:0),scale:a.scale??100,rotation_type:a.rotationType??0,visible:a.visible!==false,opacity:1 };
     });
     this.spriteIndices=new Map(this.sprites.map((a,i)=>[a.id,i]));
     this.dirty = true;
     // Costumes of every scene are decoded up front so scene switches are instant.
     const actors=project.actors?.actorsDict||{};
     const ids = [...new Set(Object.values(this.scenes).flatMap(sc=>[sc.currentStyleId,...(sc.styles||[]),...(sc.actorIds||[]).flatMap(id=>[actors[id]?.currentStyleId,...(actors[id]?.styles||[])])]).filter(Boolean))];
+    const videos=this.skipVideos?[]:Object.entries(project.videos?.videosDict||{});
+    const total=ids.length+videos.length;let completed=0;
+    const progress=()=>{if(generation===this.generation)onProgress({completed,total});};progress();
     await Promise.all(ids.map(async id => {
-      const style = project.styles?.stylesDict?.[id]; if (!style?.url) return;
+      const style = project.styles?.stylesDict?.[id];
       try {
+        if(!style?.url)throw Error('缺少素材地址');
+        const centerPoint={x:style.centerPoint?.x??0,y:style.centerPoint?.y??0};
+        if(![centerPoint.x,centerPoint.y].every(n=>typeof n==='number'&&Number.isFinite(n)))throw Error('无效造型中心');
         const image = new Image(); image.crossOrigin = 'anonymous'; image.src = style.url;
-        let timeout;
-        try { await Promise.race([image.decode(),new Promise((_,reject)=>{timeout=setTimeout(()=>reject(Error('素材加载超时')),15000);})]); }
-        finally { clearTimeout(timeout); }
+        try { await waitForAsset(image.decode(),signal,'素材加载超时'); }
+        finally { if(signal.aborted)image.removeAttribute('src'); }
         if (generation !== this.generation) return;
         if (image.naturalWidth > limit || image.naturalHeight > limit) throw Error('素材超过 GPU 纹理尺寸上限');
         const texture = this.makeTexture(1,1); gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -127,11 +215,57 @@ export class StageRenderer {
         const ctx=hit.getContext('2d',{willReadFrequently:true});ctx.drawImage(image,0,0);
         const rgba=ctx.getImageData(0,0,hit.width,hit.height).data,alpha=new Uint8Array(hit.width*hit.height);
         for(let i=0;i<alpha.length;i++)alpha[i]=rgba[i*4+3];
-        this.images.set(id,{texture,width:image.naturalWidth,height:image.naturalHeight,alpha,rgb:cellColors(rgba,hit.width,hit.height)});
+        this.images.set(id,{texture,src:image.src,width:image.naturalWidth,height:image.naturalHeight,centerPoint,adaptive:style.adaptive!==false,alpha,rgb:cellColors(rgba,hit.width,hit.height)});
         this.stats.textureBytes += image.naturalWidth * image.naturalHeight * 4;
         this.dirty = true;
-      } catch(error) { this.onError?.(`素材 ${style.name || id}: ${error.message}`); }
+      } catch(error) { if(generation===this.generation)this.onError?.(`素材 ${style?.name || id}: ${error.message}`); }
+      finally{completed++;progress();}
     }));
+    if(generation!==this.generation)return;
+    // K4 ki/add_playable: successful decode uses native dimensions * scale;
+    // saved width/height are fallback display dimensions, not multiplied again.
+    // Video origin is the centre and y points upwards.
+    await Promise.all(videos.map(async([id,state])=>{
+      const element=document.createElement('video');element.crossOrigin='anonymous';element.preload='auto';element.playsInline=true;
+      const item={element,texture:this.makeTexture(1,1),state:{...state,id,playing:false,position:0,generation:0}};this.videos.set(id,item);
+      element.onseeked=()=>{if(generation===this.generation&&this.videos.get(id)===item)this.dirty=true;};
+      try{
+        try{await waitForAsset(new Promise((resolve,reject)=>{
+          element.onloadeddata=()=>resolve();element.onerror=()=>reject(Error('视频解码失败'));element.src=state.url;
+        }),signal,'视频加载超时');}finally{element.onloadeddata=null;element.onerror=null;}
+        if(generation!==this.generation)return;
+        const scale=Number.isFinite(state.scale)&&state.scale>=0?state.scale:Math.min(this.width/element.videoWidth,this.height/element.videoHeight,1);
+        item.displayWidth=element.videoWidth*scale;item.displayHeight=element.videoHeight*scale;
+        item.state.width=item.displayWidth;item.state.height=item.displayHeight;
+        this.dirty=true;
+      }catch(error){if(generation===this.generation){element.onseeked=null;element.pause();element.removeAttribute('src');element.load();this.gl.deleteTexture(item.texture);this.videos.delete(id);this.onError?.(`视频 ${id}: ${error.message}`);}}
+      finally{completed++;progress();}
+    }));
+  }
+
+  videoInfo(){return [...this.videos].filter(([,v])=>Number.isFinite(v.element.duration)&&Number.isFinite(v.displayWidth)&&Number.isFinite(v.displayHeight)).map(([id,v])=>({id,duration:v.element.duration,width:v.displayWidth,height:v.displayHeight}));}
+  pauseMedia(paused=true){this.mediaPaused=paused;for(const v of this.videos.values()){if(paused)v.element.pause();else if(v.state.playing)this.playVideo(v);}}
+  playVideo(v){v.element.play().catch(error=>{if(this.videos.get(v.state.id)===v&&v.state.playing&&!this.mediaPaused&&error.name!=='AbortError')this.onError?.(`视频 ${v.state.id}: ${error.message}`);});}
+  applyVideos(states){
+    for(const state of states||[]){const v=this.videos.get(state.id);if(!v)continue;
+      const restart=v.state.generation!==state.generation,playing=state.playing&&!this.mediaPaused;
+      // Running playback tolerates clock drift; a paused/stepped frame must seek
+      // even a small delta, then seeked invalidates the previously drawn frame.
+      if(restart||Math.abs(v.element.currentTime-state.position)>(playing ? .25 : .001))v.element.currentTime=state.position;
+      const wasPlaying=v.state.playing;v.state={...state,width:v.displayWidth??v.state.width,height:v.displayHeight??v.state.height};
+      if(!playing)v.element.pause();else if(restart||!wasPlaying)this.playVideo(v);
+    }
+    if(states?.length)this.dirty=true;
+  }
+
+  drawVideos(){
+    const gl=this.gl;
+    for(const v of this.videos.values()){
+      const s=v.state;if(s.visible===false||v.element.readyState<2)continue;
+      gl.bindTexture(gl.TEXTURE_2D,v.texture);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,true);
+      gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,v.element);
+      this.drawTexture(v.texture,s.x||0,s.y||0,s.width,s.height);
+    }
   }
 
   makeSurface(width,height){
@@ -153,14 +287,32 @@ export class StageRenderer {
   // The VM switched scenes: its sprites arrive in this frame; the scene's pen
   // drawing is kept from its last visit.
   switchScene(sceneId,transition){
+    if(this.kitten4){
+      this.clearSceneTransition();
+      if(transition&&transitionKind(transition)!=='none'){
+        const kind=transitionKind(transition);
+        const old={sceneId:this.sceneId,backdrop:this.backdrop,backgroundState:this.backgroundState,
+          sprites:this.sprites,spriteIndices:new Map(this.spriteIndices),actorOrder:this.actorOrder,
+          penTexture:this.penTexture,penLayer:this.penLayer};
+        this.sceneTransition={transition,start:this.transitionClock(),old,
+          // Scene order is the project order except bounce, which raises entry.
+          incomingOnTop:kind.startsWith('bounce_')||Object.keys(this.scenes).indexOf(sceneId)>Object.keys(this.scenes).indexOf(this.sceneId)};
+      }
+    }
     this.usePenSurface(sceneId);this.sceneId=sceneId;
     this.sprites=[];this.spriteIndices.clear();this.actorOrder=[];
     this.backdrop=this.scenes?.[sceneId]?.currentStyleId;this.dirty=true;
-    if(transition&&this.canvas.animate&&!matchMedia('(prefers-reduced-motion: reduce)').matches){
+    this.backgroundState=null;
+    if(!this.kitten4&&transition&&this.canvas.animate&&!matchMedia('(prefers-reduced-motion: reduce)').matches){
       const offset={left:'100%',right:'-100%',up:'0 100%',down:'0 -100%'}[transition.direction]||'0 0';
       const frames=/fade|distort|distrot/i.test(transition.kind)?[{opacity:0},{opacity:1}]:[{translate:offset},{translate:'0 0'}];
       this.canvas.animate(frames,{duration:/bounce/i.test(transition.kind)?520:360,easing:/bounce/i.test(transition.kind)?'cubic-bezier(.34,1.56,.64,1)':'ease-out'});
     }
+  }
+
+  clearSceneTransition(){
+    if(!this.sceneTransition)return;
+    this.sceneTransition=null;this.dirty=true;
   }
 
   // Device pixels per stage unit at the stage's current on-screen size, in half steps.
@@ -179,6 +331,7 @@ export class StageRenderer {
     scale=Math.min(scale,limit/Math.max(this.width,this.height));
     const width=Math.ceil(this.width*scale),height=Math.ceil(this.height*scale);
     if(width===this.canvas.width&&height===this.canvas.height)return;
+    this.clearSceneTransition();
     // Resize every scene's pen surface without restarting the game or losing drawings.
     const resized=new Map();
     try{for(const id of this.surfaces.keys())resized.set(id,this.makeSurface(width,height));}
@@ -204,20 +357,41 @@ export class StageRenderer {
   // present=false only draws pen deltas into the persistent FBO and marks the stage
   // dirty; the caller composites once per display frame with render().
   apply(frame, lines, present = true) {
+    this.k4PenLines=lines;
+    this.applyVideos(frame.videos);
+    if(typeof frame.video_above_pen==='boolean'&&frame.video_above_pen!==this.videoAbovePen){this.videoAbovePen=frame.video_above_pen;this.dirty=true;}
     this.changed = false;
     if (this.lost) return;
     if (lines.length % 9 !== 0) throw Error('损坏的画笔实例数据');
     const started = performance.now(), gl = this.gl;
     // Text and costume stamps interleave with pen lines by `before_line`.
-    const stamps=[...(frame.text_stamps||[]),...(frame.image_stamps||[]).map(s=>({...s,image:true}))];
-    for(const list of [frame.text_stamps||[],frame.image_stamps||[]]){
+    const fills=frame.pen_fills||[];
+    const rank=(index,key)=>{
+      let lo=0,hi=fills.length;
+      while(lo<hi){const mid=(lo+hi)>>>1;if(fills[mid][key]<=index)lo=mid+1;else hi=mid;}
+      return lo*2;
+    };
+    const stamps=[...(frame.text_stamps||[]).map((s,i)=>({...s,rank:rank(i,'before_text')})),...(frame.image_stamps||[]).map((s,i)=>({...s,image:true,rank:rank(i,'before_image')}))];
+    for(const list of [frame.text_stamps||[],frame.image_stamps||[],frame.pen_fills||[]]){
       let last=0;
       for(const stamp of list){
         if(!Number.isInteger(stamp.before_line)||stamp.before_line<last||stamp.before_line>lines.length/9)throw Error('损坏的印章绘制顺序');
         last=stamp.before_line;
       }
     }
-    stamps.sort((a,b)=>a.before_line-b.before_line);
+    // Fills carry per-kind cursors to preserve ties with text/image stamps without
+    // changing old frame headers or the packed 9-float line format.
+    let lastText=0,lastImage=0;
+    for(const [i,fill]of fills.entries()){
+      if(!Number.isInteger(fill.before_text)||fill.before_text<lastText||fill.before_text>(frame.text_stamps||[]).length||
+        !Number.isInteger(fill.before_image)||fill.before_image<lastImage||fill.before_image>(frame.image_stamps||[]).length||
+        !Array.isArray(fill.points)||fill.points.length<3||fill.points.length>65536||
+        !fill.points.every(p=>Array.isArray(p)&&p.length===2&&p.every(v=>Number.isFinite(v)&&Math.abs(v)<=1e9))||
+        !Array.isArray(fill.color)||fill.color.length!==4||!fill.color.every(v=>Number.isFinite(v)&&v>=0&&v<=1))throw Error('损坏的填充路径');
+      lastText=fill.before_text;lastImage=fill.before_image;
+      stamps.push({...fill,fill:true,rank:i*2+1});
+    }
+    stamps.sort((a,b)=>a.before_line-b.before_line||a.rank-b.rank);
     if(frame.scene&&frame.scene!==this.sceneId)this.switchScene(frame.scene,frame.transition);
     this.stats.drawCalls = 0; this.stats.penInstances = lines.length / 9;
     this.stats.textUploads=0;this.stats.textStamps=stamps.length;
@@ -240,7 +414,7 @@ export class StageRenderer {
     let cursor=0;
     for(const stamp of stamps){
       this.drawLines(cursor,stamp.before_line-cursor);cursor=stamp.before_line;
-      if(stamp.image)this.drawImageStamp(stamp);else this.drawTextStamp(stamp);
+      if(stamp.fill)this.drawPenFill(stamp);else if(stamp.image)this.drawImageStamp(stamp);else this.drawTextStamp(stamp);
     }
     this.drawLines(cursor,lines.length/9-cursor);
     gl.bindFramebuffer(gl.FRAMEBUFFER,null);
@@ -250,7 +424,7 @@ export class StageRenderer {
     if(frame.removed?.length){const gone=new Set(frame.removed);this.sprites=this.sprites.filter(a=>!gone.has(a.id));this.spriteIndices=new Map(this.sprites.map((a,i)=>[a.id,i]));changed=true;}
     if(Array.isArray(frame.order)){this.actorOrder=frame.order;changed=true;}
     for(const a of frame.sprites){
-      if(a.id===this.sceneId){changed ||= a.style!==this.backdrop;this.backdrop=a.style;continue;}
+      if(a.id===this.sceneId){changed ||= a.style!==this.backdrop||JSON.stringify(a)!==JSON.stringify(this.backgroundState);this.backdrop=a.style;this.backgroundState=a;continue;}
       const index=this.spriteIndices.get(a.id),old=index===undefined?null:this.sprites[index];
       changed ||= !old||['style','x','y','direction','scale','visible','opacity','size_x','size_y','rotation_type'].some(k=>a[k]!==old[k])||String(a.effects)!==String(old.effects);
       if(index===undefined){this.spriteIndices.set(a.id,this.sprites.length);this.sprites.push(a);}else this.sprites[index]=a;
@@ -276,11 +450,35 @@ export class StageRenderer {
 
   drawLines(start,count){
     if(!count)return;
+    if(this.kitten4)return drawK4PenLines(this,this.k4PenLines,start,count);
     const gl=this.gl;
     gl.useProgram(this.pen);gl.uniform2f(this.penSize,this.width,this.height);
     gl.bindVertexArray(this.vao);gl.bindBuffer(gl.ARRAY_BUFFER,this.buffer);
     for(const [location,size,offset]of [[0,4,0],[1,1,16],[2,4,20]])gl.vertexAttribPointer(location,size,gl.FLOAT,false,36,start*36+offset);
     gl.drawArraysInstanced(gl.TRIANGLES,0,6,count);this.stats.drawCalls++;gl.bindVertexArray(null);
+  }
+
+  drawPenFill(fill){
+    // Canvas supplies nonzero winding and antialiasing for concave/self-crossing
+    // paths, just like official Rt.draw_fill_pattern; only this delta is uploaded.
+    const gl=this.gl,canvas=this.fillCanvas??=document.createElement('canvas');
+    const sx=this.canvas.width/this.width,sy=this.canvas.height/this.height;
+    let left=this.canvas.width,right=0,top=this.canvas.height,bottom=0;
+    for(const [x,y]of fill.points){const px=(x+this.width/2)*sx,py=(this.height/2-y)*sy;left=Math.min(left,px);right=Math.max(right,px);top=Math.min(top,py);bottom=Math.max(bottom,py);}
+    left=Math.max(0,Math.floor(left)-1);right=Math.min(this.canvas.width,Math.ceil(right)+1);
+    top=Math.max(0,Math.floor(top)-1);bottom=Math.min(this.canvas.height,Math.ceil(bottom)+1);
+    if(right<=left||bottom<=top)return;
+    canvas.width=right-left;canvas.height=bottom-top;
+    const ctx=canvas.getContext('2d');
+    ctx.setTransform(sx,0,0,-sy,this.canvas.width/2-left,this.canvas.height/2-top);
+    ctx.fillStyle=`rgb(${fill.color.slice(0,3).map(v=>Math.round(v*255)).join(',')})`;
+    ctx.beginPath();ctx.moveTo(...fill.points[0]);
+    for(let i=1;i<fill.points.length;i++)ctx.lineTo(...fill.points[i]);
+    ctx.closePath();ctx.fill();
+    const texture=this.fillTexture??=this.makeTexture(1,1);
+    gl.bindTexture(gl.TEXTURE_2D,texture);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,true);
+    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,canvas);
+    this.drawTexture(texture,(left+right)/2/sx-this.width/2,this.height/2-(top+bottom)/2/sy,canvas.width/sx,canvas.height/sy);
   }
 
   textTexture(text,size){
@@ -335,10 +533,36 @@ export class StageRenderer {
   }
   spriteImage(a){return a.text?this.spriteTextImage(a.text):this.images.get(a.style);}
 
+  // K4 $n/ti: saved positions are top-left anchors in stage coordinates, not
+  // a flex list. Original Canvas drawing of the common scalar skin; no vendor
+  // textures or fonts bundled. Icon/list skins retain the generic DOM fallback.
+  monitorCanvas(monitor){
+    const state=this.monitorDeclarations?.[monitor.id];
+    if(!this.kitten4||monitor.list||!state||state.theme!=='common')return null;
+    const canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');
+    const font='18px "NotoSansCJKsc-Medium", "NotoSansCJKsc"';ctx.font=font;
+    const prefix=state.current_entity?`${this.monitorOwners?.[state.current_entity]?.name||''}·`:'';
+    const prefixWidth=prefix?Math.ceil(ctx.measureText(prefix).width):0,nameWidth=Math.ceil(ctx.measureText(monitor.name).width),valueWidth=monitor.value?Math.ceil(ctx.measureText(monitor.value).width):6;
+    const width=prefixWidth+nameWidth+valueWidth+50,height=52;
+    canvas.width=width;canvas.height=height;ctx.font=font;
+    const rounded=(x,y,w,h,r,color)=>{ctx.fillStyle=color;ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill();};
+    rounded(0,0,width,height,11,'#ffad48');
+    rounded(prefixWidth+nameWidth+20,10,valueWidth+20,32,11,'#fff');
+    ctx.fillStyle='#523939';ctx.fillText(prefix,10,33);
+    ctx.fillStyle='#fff';ctx.fillText(monitor.name,10+prefixWidth,33);
+    ctx.fillStyle='#000';ctx.fillText(monitor.value,30+prefixWidth+nameWidth,33);
+    const scale=Number.isFinite(state.scale)?state.scale:1;
+    const position=state.position||{x:10-this.width/2,y:this.height/2-10};
+    canvas.className='neko-monitor k4-common';
+    canvas.style.cssText=`position:absolute;display:block;border:0;border-radius:0;background:transparent;max-width:none;left:calc(${this.width/2+position.x} * var(--neko-unit));top:calc(${this.height/2-position.y} * var(--neko-unit));width:calc(${width*scale} * var(--neko-unit));height:calc(${height*scale} * var(--neko-unit))`;
+    canvas.setAttribute('aria-label',`${prefix}${monitor.name}: ${monitor.value}`);
+    return canvas;
+  }
+
   drawImageStamp(stamp){
     const image=this.images.get(stamp.style);if(!image)return;
-    const {width,height,angle}=spriteGeometry(stamp,image);
-    this.drawTexture(image.texture,stamp.x,stamp.y,width,height,angle,[1,1,1,stamp.opacity??1],stamp.effects,[image.width,image.height]);
+    const {x,y,width,height,angle}=this.kitten4?k4ImageStampGeometry(stamp,image):actorGeometry(stamp,image,false);
+    this.drawTexture(image.texture,x,y,width,height,angle,[1,1,1,stamp.opacity??1],stamp.effects,[image.width,image.height]);
   }
 
   // Costume sizes plus opacity masks (<=128x128, 1 bit per cell) for VM collisions;
@@ -352,7 +576,7 @@ export class StageRenderer {
         if(image.alpha[sy*image.width+sx]>0){const bit=y*mw+x;bits[bit>>3]|=1<<(bit&7);}
       }
       let binary='';for(let i=0;i<bits.length;i+=8192)binary+=String.fromCharCode(...bits.subarray(i,i+8192));
-      const info={id,width:image.width,height:image.height,mask_width:mw,mask_height:mh,mask:btoa(binary)};
+      const info={id,width:image.width,height:image.height,centerPoint:image.centerPoint??{x:0,y:0},mask_width:mw,mask_height:mh,mask:btoa(binary)};
       if(colors&&image.rgb){let text='';for(let i=0;i<image.rgb.length;i+=8190)text+=String.fromCharCode(...image.rgb.subarray(i,i+8190));info.rgb=btoa(text);}
       out.push(info);
     }
@@ -361,48 +585,124 @@ export class StageRenderer {
 
   drawTextStamp(stamp){
     if(!stamp.text)return;
+    if(this.kitten4)return this.drawK4TextStamp(stamp);
     const item=this.textTexture(stamp.text,stamp.size);
     const offset=stamp.align==='right'?item.advance:stamp.align==='center'?item.advance/2:0;
-    // Official text stamps rotate by the negative actor rotation, around the anchor.
+    // Keep the legacy KN stamp orientation policy.
     const angle=-stamp.direction*Math.PI/180,c=Math.cos(angle),s=Math.sin(angle),dx=item.dx-offset,dy=item.dy;
     this.drawTexture(item.texture,stamp.x+dx*c+dy*s,stamp.y-dx*s+dy*c,item.width,item.height,angle,stamp.color);
   }
 
-  drawTexture(texture,x,y,width,height,angle=0,tint=[1,1,1,1],effects=null,texSize=null) {
+  drawK4TextStamp(stamp){
+    // Rt.draw_text_stamp rasterizes AFTER rotating the Canvas context. Rotating
+    // a pre-rasterized glyph texture instead applies a second interpolation and
+    // changes small/CJK glyphs. Upload just the resulting pixel-aligned bounds.
+    const canvas=this.stampCanvas??=document.createElement('canvas'),ctx=canvas.getContext('2d');
+    const font=`bold ${stamp.size}px Arial, "Microsoft YaHei"`,angle=stamp.direction*Math.PI/180;
+    ctx.font=font;ctx.textBaseline='middle';ctx.textAlign=stamp.align;
+    const m=ctx.measureText(stamp.text),c=Math.cos(angle),s=Math.sin(angle);
+    const sx=this.canvas.width/this.width,sy=this.canvas.height/this.height;
+    const ox=this.width/2+stamp.x,oy=this.height/2-stamp.y;
+    const corners=[[-m.actualBoundingBoxLeft,-m.actualBoundingBoxAscent],[m.actualBoundingBoxRight,-m.actualBoundingBoxAscent],[-m.actualBoundingBoxLeft,m.actualBoundingBoxDescent],[m.actualBoundingBoxRight,m.actualBoundingBoxDescent]];
+    const xs=corners.map(([x,y])=>(ox+c*x-s*y)*sx),ys=corners.map(([x,y])=>(oy+s*x+c*y)*sy);
+    const left=Math.max(0,Math.floor(Math.min(...xs))-2),right=Math.min(this.canvas.width,Math.ceil(Math.max(...xs))+2);
+    const top=Math.max(0,Math.floor(Math.min(...ys))-2),bottom=Math.min(this.canvas.height,Math.ceil(Math.max(...ys))+2);
+    if(right<=left||bottom<=top)return;
+    canvas.width=right-left;canvas.height=bottom-top;
+    ctx.setTransform(sx,0,0,sy,-left,-top);ctx.translate(ox,oy);ctx.rotate(angle);
+    ctx.font=font;ctx.textBaseline='middle';ctx.textAlign=stamp.align;
+    ctx.fillStyle=`rgb(${stamp.color.slice(0,3).map(v=>Math.round(v*255)).join(',')})`;ctx.globalAlpha=stamp.color[3];ctx.fillText(stamp.text,0,0);
+    const gl=this.gl,texture=this.stampTexture??=this.makeTexture(1,1);
+    gl.bindTexture(gl.TEXTURE_2D,texture);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,true);
+    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,canvas);
+    this.drawTexture(texture,(left+right)/2/sx-this.width/2,this.height/2-(top+bottom)/2/sy,canvas.width/sx,canvas.height/sy);
+  }
+
+  drawTexture(texture,x,y,width,height,angle=0,tint=[1,1,1,1],effects=null,texSize=null,repeatUV=null) {
+    if(this.sceneTransform){const t=this.sceneTransform;x+=t.x;y-=t.y;tint=[tint[0],tint[1],tint[2],tint[3]*t.alpha];}
     const gl=this.gl,u=this.uniform,e=effects||NO_EFFECTS;
     gl.useProgram(this.texture); gl.uniform2f(u.stageSize,this.width,this.height); gl.uniform2f(u.position,x,y);
     gl.uniform2f(u.dimensions,width,height); gl.uniform1f(u.angle,angle); gl.uniform1i(u.image,0);
+    gl.uniform1i(u.kitten4,this.kitten4?1:0);
     gl.uniform4fv(u.tint,tint);gl.uniform4f(u.fxA,e[0],e[2],e[3],e[4]);gl.uniform2f(u.fxB,e[5],e[6]);
     gl.uniform2f(u.texSize,texSize?.[0]||Math.abs(width)||1,texSize?.[1]||Math.abs(height)||1);
+    gl.uniform2f(u.repeatUV,repeatUV?.[0]||0,repeatUV?.[1]||0);
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,texture); gl.drawArrays(gl.TRIANGLES,0,6); this.stats.drawCalls++;
   }
 
   render(resetStats=true) {
+    if(this.sceneTransition)this.dirty=true;
+    if([...this.videos?.values()||[]].some(v=>v.state.visible!==false&&v.state.playing&&!this.mediaPaused))this.dirty=true;
     if (!this.dirty || this.lost || !this.penTexture) return;
     const gl=this.gl,started=performance.now(); if(resetStats)this.stats.drawCalls=0;
-    gl.bindFramebuffer(gl.FRAMEBUFFER,null); gl.viewport(0,0,this.canvas.width,this.canvas.height);
-    gl.clearColor(1,1,1,1); gl.clear(gl.COLOR_BUFFER_BIT);
-    const backdrop=this.images.get(this.backdrop);
-    if(backdrop)this.drawTexture(backdrop.texture,0,0,this.width,this.height);
-    const layer=Math.min(this.penLayer,this.actorOrder.length);
-    for(let i=0;i<=this.actorOrder.length;i++) {
-      if(i===layer)this.drawTexture(this.penTexture,0,0,this.width,this.height);
-      const a=this.sprites[this.spriteIndices.get(this.actorOrder[i])];if(!a)continue;
+    const transition=this.sceneTransition;
+    const state=transition&&sampleTransition(transition.transition,this.transitionClock()-transition.start,this.width,this.height);
+    if(transition&&state.active){
+      // Keep the leaving scene's actors/pen/backdrop alive, not a CSS transform
+      // of the destination canvas. Incoming content is refreshed every frame.
+      gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl.viewport(0,0,this.canvas.width,this.canvas.height);
+      gl.clearColor(1,1,1,1);gl.clear(gl.COLOR_BUFFER_BIT);
+      // Container alpha is inherited by EACH child, not applied to a flattened
+      // screenshot. This matters where translucent actors overlap a backdrop.
+      const draw=(scene,s)=>{if(s.visible)this.drawScene(null,scene,s,false);};
+      if(transition.incomingOnTop){draw(transition.old,state.outgoing);draw(this,state.incoming);}
+      else{draw(this,state.incoming);draw(transition.old,state.outgoing);}
+    }else{
+      // Distort still deliberately falls back to the live scene: its native
+      // screenshot filters/padding have not been pixel-validated (see evidence).
+      if(transition)this.clearSceneTransition();
+      this.drawScene();
+    }
+    this.dirty=!!this.sceneTransition; if(resetStats)this.stats.submitMs=performance.now()-started;
+  }
+
+  drawScene(framebuffer=null,state=this,transform=null,clear=true){
+    const gl=this.gl;
+    this.sceneTransform=transform;
+    try{
+    gl.bindFramebuffer(gl.FRAMEBUFFER,framebuffer);gl.viewport(0,0,this.canvas.width,this.canvas.height);
+    // Scene layers must stay transparent: white is the stage clear colour, not
+    // part of either scene's alpha during cross-fades.
+    if(clear){gl.clearColor(...(framebuffer?[0,0,0,0]:[1,1,1,1]));gl.clear(gl.COLOR_BUFFER_BIT);}
+    const {backdrop:backdropId,backgroundState,penTexture,penLayer,actorOrder,sprites,spriteIndices}=state;
+    const backdrop=this.images.get(backdropId);
+    if(backdrop){
+      // K4 St.update_adaptive_scale uses COVER, not independent x/y stretch.
+      const scale=this.kitten4&&backdrop.adaptive?Math.max(this.width/backdrop.width,this.height/backdrop.height):null;
+      if(this.kitten4){
+        // Background is a stage-sized TilingSprite; scale changes its tile
+        // transform, not the stage rectangle (It.set_scale / St).
+        const a=backgroundState,base=scale??1,sx=base*(a?.scale??100)/100*(a?.size_x??100)/100,sy=base*(a?.scale??100)/100*(a?.size_y??100)/100;
+        if(sx&&sy)this.drawTexture(backdrop.texture,0,0,this.width,this.height,0,[1,1,1,a?.opacity??1],a?.effects,null,[this.width/(backdrop.width*sx),this.height/(backdrop.height*sy)]);
+      }else this.drawTexture(backdrop.texture,0,0,this.width,this.height);
+    }
+    // Media isn't duplicated into the leaving scene. Cross-scene video z-order
+    // during transitions still needs an independent native probe.
+    const drawVideos=()=>{if(state!==this)return;const saved=this.sceneTransform;this.sceneTransform=null;try{this.drawVideos();}finally{this.sceneTransform=saved;}};
+    // QqDm.h=1: media container above backdrop and below actor/pen content.
+    if(!this.videoAbovePen||penLayer>0)drawVideos();
+    const layer=Math.min(penLayer,actorOrder.length);
+    for(let i=0;i<=actorOrder.length;i++) {
+      if(i===layer)this.drawTexture(penTexture,0,0,this.width,this.height);
+      if(i===0&&this.videoAbovePen&&penLayer===0)drawVideos();
+      const a=sprites[spriteIndices.get(actorOrder[i])];if(!a)continue;
       if(!a.visible)continue;
       const image=this.spriteImage(a);
-      if(image){const {width,height,angle}=spriteGeometry(a,image);
-        this.drawTexture(image.texture,a.x,a.y,width,height,angle,[1,1,1,a.opacity??1],a.effects,[image.width,image.height]);}
+      if(image){const {x,y,width,height,angle}=actorGeometry(a,image,this.kitten4);
+        this.drawTexture(image.texture,x,y,width,height,angle,[1,1,1,a.opacity??1],a.effects,[image.width,image.height]);}
     }
-    this.dirty=false; if(resetStats)this.stats.submitMs=performance.now()-started;
+    }finally{this.sceneTransform=null;}
   }
 
   hitTest(x,y){
     for(let i=this.actorOrder.length-1;i>=0;i--){
       const a=this.sprites[this.spriteIndices.get(this.actorOrder[i])];
-      if(!a?.visible||!a.scale||(a.opacity??1)<=0)continue;
+      // K4 Lt/Mt and KN 61248 hit areas use original costume alpha, not
+      // the ghost-effect opacity (docs/input.md and docs/input-kn.md).
+      if(!a?.visible||!a.scale)continue;
       const image=this.spriteImage(a);if(!image)continue;
-      const {width,height,angle}=spriteGeometry(a,image);if(!width||!height)continue;
-      const c=Math.cos(angle),s=Math.sin(angle),dx=x-a.x,dy=y-a.y;
+      const {x:cx,y:cy,width,height,angle}=actorGeometry(a,image,this.kitten4);if(!width||!height||![cx,cy,width,height,angle].every(Number.isFinite))continue;
+      const c=Math.cos(angle),s=Math.sin(angle),dx=x-cx,dy=y-cy;
       const px=Math.floor((c*dx-s*dy)*image.width/width+image.width/2),py=Math.floor(image.height/2-(s*dx+c*dy)*image.height/height);
       if(px>=0&&px<image.width&&py>=0&&py<image.height&&image.alpha[py*image.width+px]>0)return a.id;
     }
@@ -424,11 +724,34 @@ function cellColors(rgba,width,height){
 export function sensesColor(project){return JSON.stringify(project?.actors||{}).includes('"bump_into_color"')||JSON.stringify(project?.scenes||{}).includes('"bump_into_color"');}
 // Drawn size and angle: width/height percentages on top of scale, rotation type
 // 0 free, 1 left-right flip (negative width), 2 upright.
-export function spriteGeometry(a,image){
+export function spriteGeometry(a,image,kitten4=false){
   const scale=a.scale/100;let width=image.width*scale*(a.size_x??100)/100,height=image.height*scale*(a.size_y??100)/100,angle=a.direction*Math.PI/180;
   if(a.rotation_type===2)angle=0;
-  else if(a.rotation_type===1){const d=((a.direction%360)+540)%360-180;angle=0;if(d<0)width=-width;}
+  // K4 Lt.set_rotation: heading is CCW from right, flips at [90,270).
+  // Wire direction has already subtracted the K4 costume turn (90 degrees).
+  else if(a.rotation_type===1){const d=((a.direction%360)+540)%360-180;angle=0;if(kitten4?(d<=-90||d>90):d<0)width=-width;}
   return {width,height,angle};
+}
+
+// Texture centre after the existing draw-angle/rotation-type policy. Pivot is
+// relative to the image centre in unscaled pixels (x right, y down), not actor
+// position, CSS pixels or the collision mask grid. Text images have no pivot.
+function actorGeometry(a,image,kitten4=false){
+  const geometry=spriteGeometry(a,image,kitten4),{width,height,angle}=geometry;
+  const px=image.centerPoint?.x??0,py=image.centerPoint?.y??0;
+  const dx=-px*width/image.width,dy=py*height/image.height,c=Math.cos(angle),s=Math.sin(angle);
+  return {...geometry,x:a.x+c*dx+s*dy,y:a.y-s*dx+c*dy};
+}
+
+// a1xw/Rt.draw_image_stamp floors the Canvas destination rectangle, not the
+// pivot/translation. An odd/fractional size therefore shifts the pixel centre.
+export function k4ImageStampGeometry(stamp,image){
+  const g=actorGeometry(stamp,image,true),w=Math.abs(g.width),h=Math.abs(g.height);
+  const width=Math.floor(w)*Math.sign(g.width),height=Math.floor(h)*Math.sign(g.height);
+  const dx=(Math.floor(-w/2)+Math.floor(w)/2)*Math.sign(g.width);
+  const dy=-(Math.floor(-h/2)+Math.floor(h)/2)*Math.sign(g.height);
+  const c=Math.cos(g.angle),s=Math.sin(g.angle);
+  return {width,height,angle:g.angle,x:g.x+c*dx+s*dy,y:g.y-s*dx+c*dy};
 }
 
 export function decodeFrame(buffer) {

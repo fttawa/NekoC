@@ -1,0 +1,490 @@
+{
+  "officialUrl": "https://kn.codemao.cn/editor",
+  "verifiedAt": "2026-11-10T13:53:02.775Z",
+  "browserVersion": "157.0.4341.42",
+  "cases": {
+    "scheduling": {
+      "pageErrors": [],
+      "fixture": "tests/fixtures/kn-semantics/scheduling.bcmkn",
+      "sha256": "769a6c05699e3fde0199014eb83c2b23fa59d2b43268e84496c77c34f3d5d566",
+      "runtimeBundle": {
+        "url": "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+        "sha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7"
+      },
+      "mainBundle": {
+        "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+        "sha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165"
+      },
+      "variables": {
+        "trace": "ABab",
+        "done": 1
+      },
+      "scripts": [
+        "https://creation.bcmcdn.com/neko/web/release/static/js/base.f158ddbf.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/main-vendors.07f7dd7e.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js"
+      ],
+      "nekoc": {
+        "variables": {
+          "done": 1,
+          "trace": "ABab"
+        }
+      },
+      "equal": true
+    },
+    "broadcast": {
+      "pageErrors": [],
+      "fixture": "tests/fixtures/kn-semantics/broadcast.bcmkn",
+      "sha256": "90335696fcb759e2eb47738fbec8247b84bcbe92d4c9f98d5094fab89744a850",
+      "runtimeBundle": {
+        "url": "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+        "sha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7"
+      },
+      "mainBundle": {
+        "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+        "sha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165"
+      },
+      "variables": {
+        "trace": "ABRrC",
+        "done": 1
+      },
+      "scripts": [
+        "https://creation.bcmcdn.com/neko/web/release/static/js/base.f158ddbf.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/main-vendors.07f7dd7e.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js"
+      ],
+      "nekoc": {
+        "variables": {
+          "done": 1,
+          "trace": "ABRrC"
+        }
+      },
+      "equal": true
+    },
+    "broadcast-wait": {
+      "pageErrors": [],
+      "fixture": "tests/fixtures/kn-semantics/broadcast-wait.bcmkn",
+      "sha256": "ff498838edf13972a7f1d9639f41bcf64307063cb270e4d0ec1f87fe39a22bbb",
+      "runtimeBundle": {
+        "url": "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+        "sha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7"
+      },
+      "mainBundle": {
+        "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+        "sha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165"
+      },
+      "variables": {
+        "trace": "ARrB",
+        "done": 1
+      },
+      "scripts": [
+        "https://creation.bcmcdn.com/neko/web/release/static/js/base.f158ddbf.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/main-vendors.07f7dd7e.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js"
+      ],
+      "nekoc": {
+        "variables": {
+          "done": 1,
+          "trace": "ARrB"
+        }
+      },
+      "equal": true
+    },
+    "clone": {
+      "pageErrors": [],
+      "fixture": "tests/fixtures/kn-semantics/clone.bcmkn",
+      "sha256": "813d6031d85a89ba41e9ffbf67b4d64e8a2df47a8364213fd744617ff120eab7",
+      "runtimeBundle": {
+        "url": "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+        "sha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7"
+      },
+      "mainBundle": {
+        "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+        "sha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165"
+      },
+      "variables": {
+        "trace": "ABKk01",
+        "done": 1
+      },
+      "scripts": [
+        "https://creation.bcmcdn.com/neko/web/release/static/js/base.f158ddbf.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/main-vendors.07f7dd7e.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js"
+      ],
+      "nekoc": {
+        "variables": {
+          "done": 1,
+          "trace": "ABKk01"
+        }
+      },
+      "equal": true
+    },
+    "yield": {
+      "pageErrors": [],
+      "fixture": "tests/fixtures/kn-semantics/yield.bcmkn",
+      "sha256": "1b2d64778702f91c2668bc20f901e59f5c62e59f1b554c785c916140089b2af2",
+      "runtimeBundle": {
+        "url": "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+        "sha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7"
+      },
+      "mainBundle": {
+        "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+        "sha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165"
+      },
+      "variables": {
+        "trace": "ABABABab",
+        "done": 1
+      },
+      "scripts": [
+        "https://creation.bcmcdn.com/neko/web/release/static/js/base.f158ddbf.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/main-vendors.07f7dd7e.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js"
+      ],
+      "nekoc": {
+        "variables": {
+          "done": 1,
+          "trace": "ABABABab"
+        }
+      },
+      "equal": true
+    },
+    "yield-warp": {
+      "pageErrors": [],
+      "fixture": "tests/fixtures/kn-semantics/yield-warp.bcmkn",
+      "sha256": "42259f4907e138ae62cdf010d68a6b223761935c648fee3a3f0cd374f9b0326c",
+      "runtimeBundle": {
+        "url": "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+        "sha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7"
+      },
+      "mainBundle": {
+        "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+        "sha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165"
+      },
+      "variables": {
+        "trace": "AAAaBBBb",
+        "done": 1
+      },
+      "scripts": [
+        "https://creation.bcmcdn.com/neko/web/release/static/js/base.f158ddbf.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/main-vendors.07f7dd7e.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js"
+      ],
+      "nekoc": {
+        "variables": {
+          "done": 1,
+          "trace": "AAAaBBBb"
+        }
+      },
+      "equal": true
+    },
+    "wait-negative": {
+      "pageErrors": [],
+      "fixture": "tests/fixtures/kn-semantics/wait-negative.bcmkn",
+      "sha256": "a5b2d51fa4ac09e5545668fddf16469bcc3da3b36009d661c1d7446f9b7abf2b",
+      "runtimeBundle": {
+        "url": "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+        "sha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7"
+      },
+      "mainBundle": {
+        "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+        "sha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165"
+      },
+      "variables": {
+        "trace": "ABab",
+        "done": 1
+      },
+      "scripts": [
+        "https://creation.bcmcdn.com/neko/web/release/static/js/base.f158ddbf.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/main-vendors.07f7dd7e.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js"
+      ],
+      "nekoc": {
+        "variables": {
+          "done": 1,
+          "trace": "ABab"
+        }
+      },
+      "equal": true
+    },
+    "conversion-boolean": {
+      "pageErrors": [],
+      "fixture": "tests/fixtures/kn-semantics/conversion-boolean.bcmkn",
+      "sha256": "c6787a468603b1329ed586fed9f0b9c5e21d4ea7c8847a0dac2b205eb9a9e098",
+      "runtimeBundle": {
+        "url": "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+        "sha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7"
+      },
+      "mainBundle": {
+        "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+        "sha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165"
+      },
+      "variables": {
+        "trace": "",
+        "done": 1,
+        "trueNumber": "true",
+        "falseNumber": "false"
+      },
+      "scripts": [
+        "https://creation.bcmcdn.com/neko/web/release/static/js/base.f158ddbf.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/main-vendors.07f7dd7e.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js"
+      ],
+      "nekoc": {
+        "variables": {
+          "done": 1,
+          "falseNumber": "false",
+          "trace": "",
+          "trueNumber": "true"
+        }
+      },
+      "equal": true
+    },
+    "conversion": {
+      "pageErrors": [],
+      "fixture": "tests/fixtures/kn-semantics/conversion.bcmkn",
+      "sha256": "a2db55c822d2a36f5d7e0ff72d309f2e06096262b81f5c4626ba7e9328d19939",
+      "runtimeBundle": {
+        "url": "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+        "sha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7"
+      },
+      "mainBundle": {
+        "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+        "sha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165"
+      },
+      "variables": {
+        "trace": "",
+        "done": 1,
+        "v0": 0,
+        "v1": 0,
+        "v2": 16,
+        "v3": 3,
+        "v4": 100,
+        "v5": "bad",
+        "v6": {
+          "$number": "NaN"
+        },
+        "v7": {
+          "$number": "Infinity"
+        },
+        "booleanNumber": "true",
+        "joined": "1e+21|true|1,猫,2,3",
+        "items": [
+          1,
+          "猫",
+          [
+            2,
+            3
+          ]
+        ]
+      },
+      "scripts": [
+        "https://creation.bcmcdn.com/neko/web/release/static/js/base.f158ddbf.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/main-vendors.07f7dd7e.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js"
+      ],
+      "nekoc": {
+        "variables": {
+          "booleanNumber": "true",
+          "done": 1,
+          "items": [
+            1,
+            "猫",
+            [
+              2,
+              3
+            ]
+          ],
+          "joined": "1e+21|true|1,猫,2,3",
+          "trace": "",
+          "v0": 0,
+          "v1": 0,
+          "v2": 16,
+          "v3": 3,
+          "v4": 100,
+          "v5": "bad",
+          "v6": {
+            "$number": "NaN"
+          },
+          "v7": {
+            "$number": "Infinity"
+          }
+        }
+      },
+      "equal": true
+    },
+    "list": {
+      "pageErrors": [],
+      "fixture": "tests/fixtures/kn-semantics/list.bcmkn",
+      "sha256": "0145e229fbe6c0f4ba08e151df2ba10a1fbdd602a9991fd7a87db435439f6225",
+      "runtimeBundle": {
+        "url": "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+        "sha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7"
+      },
+      "mainBundle": {
+        "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+        "sha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165"
+      },
+      "variables": {
+        "trace": "",
+        "done": 1,
+        "items": [
+          10,
+          20,
+          30
+        ],
+        "v0": 10,
+        "v1": 10,
+        "v2": 10,
+        "v3": {
+          "$number": "NaN"
+        },
+        "v4": 20,
+        "v5": 10
+      },
+      "scripts": [
+        "https://creation.bcmcdn.com/neko/web/release/static/js/base.f158ddbf.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/main-vendors.07f7dd7e.js",
+        "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js"
+      ],
+      "nekoc": {
+        "variables": {
+          "done": 1,
+          "items": [
+            10,
+            20,
+            30
+          ],
+          "trace": "",
+          "v0": 10,
+          "v1": 10,
+          "v2": 10,
+          "v3": {
+            "$number": "NaN"
+          },
+          "v4": 20,
+          "v5": 10
+        }
+      },
+      "equal": true
+    }
+  },
+  "ok": true,
+  "editorCompat": {
+    "editorUrl": "https://kn.codemao.cn/editor",
+    "checkedAt": "2026-11-10T14:04:53.956Z",
+    "projects": [
+      {
+        "input": "tests/fixtures/kn-semantics/broadcast-wait.bcmkn",
+        "sha256": "ff498838edf13972a7f1d9639f41bcf64307063cb270e4d0ec1f87fe39a22bbb",
+        "editorVersion": "0.27.4",
+        "projectVersion": "0.27.4",
+        "blockCount": 25,
+        "issues": [],
+        "pageErrors": [],
+        "ok": true
+      },
+      {
+        "input": "tests/fixtures/kn-semantics/broadcast.bcmkn",
+        "sha256": "90335696fcb759e2eb47738fbec8247b84bcbe92d4c9f98d5094fab89744a850",
+        "editorVersion": "0.27.4",
+        "projectVersion": "0.27.4",
+        "blockCount": 31,
+        "issues": [],
+        "pageErrors": [],
+        "ok": true
+      },
+      {
+        "input": "tests/fixtures/kn-semantics/clone.bcmkn",
+        "sha256": "813d6031d85a89ba41e9ffbf67b4d64e8a2df47a8364213fd744617ff120eab7",
+        "editorVersion": "0.27.4",
+        "projectVersion": "0.27.4",
+        "blockCount": 36,
+        "issues": [],
+        "pageErrors": [],
+        "ok": true
+      },
+      {
+        "input": "tests/fixtures/kn-semantics/conversion-boolean.bcmkn",
+        "sha256": "c6787a468603b1329ed586fed9f0b9c5e21d4ea7c8847a0dac2b205eb9a9e098",
+        "editorVersion": "0.27.4",
+        "projectVersion": "0.27.4",
+        "blockCount": 9,
+        "issues": [],
+        "pageErrors": [],
+        "ok": true
+      },
+      {
+        "input": "tests/fixtures/kn-semantics/conversion.bcmkn",
+        "sha256": "a2db55c822d2a36f5d7e0ff72d309f2e06096262b81f5c4626ba7e9328d19939",
+        "editorVersion": "0.27.4",
+        "projectVersion": "0.27.4",
+        "blockCount": 37,
+        "issues": [],
+        "pageErrors": [],
+        "ok": true
+      },
+      {
+        "input": "tests/fixtures/kn-semantics/list.bcmkn",
+        "sha256": "0145e229fbe6c0f4ba08e151df2ba10a1fbdd602a9991fd7a87db435439f6225",
+        "editorVersion": "0.27.4",
+        "projectVersion": "0.27.4",
+        "blockCount": 27,
+        "issues": [],
+        "pageErrors": [],
+        "ok": true
+      },
+      {
+        "input": "tests/fixtures/kn-semantics/scheduling.bcmkn",
+        "sha256": "769a6c05699e3fde0199014eb83c2b23fa59d2b43268e84496c77c34f3d5d566",
+        "editorVersion": "0.27.4",
+        "projectVersion": "0.27.4",
+        "blockCount": 24,
+        "issues": [],
+        "pageErrors": [],
+        "ok": true
+      },
+      {
+        "input": "tests/fixtures/kn-semantics/wait-negative.bcmkn",
+        "sha256": "a5b2d51fa4ac09e5545668fddf16469bcc3da3b36009d661c1d7446f9b7abf2b",
+        "editorVersion": "0.27.4",
+        "projectVersion": "0.27.4",
+        "blockCount": 24,
+        "issues": [],
+        "pageErrors": [],
+        "ok": true
+      },
+      {
+        "input": "tests/fixtures/kn-semantics/yield-warp.bcmkn",
+        "sha256": "42259f4907e138ae62cdf010d68a6b223761935c648fee3a3f0cd374f9b0326c",
+        "editorVersion": "0.27.4",
+        "projectVersion": "0.27.4",
+        "blockCount": 25,
+        "issues": [],
+        "pageErrors": [],
+        "ok": true
+      },
+      {
+        "input": "tests/fixtures/kn-semantics/yield.bcmkn",
+        "sha256": "1b2d64778702f91c2668bc20f901e59f5c62e59f1b554c785c916140089b2af2",
+        "editorVersion": "0.27.4",
+        "projectVersion": "0.27.4",
+        "blockCount": 24,
+        "issues": [],
+        "pageErrors": [],
+        "ok": true
+      }
+    ],
+    "bundleUrl": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+    "ok": true
+  }
+}

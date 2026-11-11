@@ -1,0 +1,182 @@
+{
+  "description": "Self-authored fixtures in the live official editors; runtime manager reads, not monitor values.",
+  "cases": [
+    {
+      "platform": "k4",
+      "scenario": "inheritance",
+      "url": "https://kitten4.codemao.cn/",
+      "at": "2026-11-09T16:27:40.283Z",
+      "browser": "157.0.4341.42",
+      "errors": [],
+      "fixture": "tests/fixtures/kitten4/actor-variables.bcm",
+      "sha256": "4ed28952394135d7ef35b619bdc5afeff1f10305357372b07e1ec833a469d88d",
+      "snapshot": {
+        "variables": {
+          "30000000-0000-4000-8000-000000000001": 41,
+          "30000000-0000-4000-8000-000000000002": "other-value",
+          "inherited": 41,
+          "cloneChanged": 99,
+          "original": 41,
+          "otherRead": "other-value",
+          "cloneRead": 99,
+          "done": 1,
+          "afterDelete": 0
+        },
+        "error": {
+          "error_string": "",
+          "show_error": false,
+          "bottom": 0,
+          "left": 0,
+          "show_more_info": false
+        }
+      }
+    },
+    {
+      "platform": "k4",
+      "scenario": "deleted",
+      "url": "https://kitten4.codemao.cn/",
+      "at": "2026-11-09T16:36:12.712Z",
+      "browser": "157.0.4341.42",
+      "errors": [],
+      "fixture": "tests/fixtures/kitten4/actor-variables-deleted.bcm",
+      "sha256": "a9be60775f05213c033f254b1fe939e2d94c4b449f612f76e79eca9eb0d002ad",
+      "beforeDelete": {
+        "30000000-0000-4000-8000-000000000001": 41,
+        "30000000-0000-4000-8000-000000000002": "other-value",
+        "inherited": 41,
+        "cloneChanged": 99,
+        "original": 41,
+        "otherRead": "other-value",
+        "cloneRead": 99,
+        "done": 1,
+        "afterDelete": 0
+      },
+      "snapshot": {
+        "variables": {
+          "30000000-0000-4000-8000-000000000001": 0,
+          "30000000-0000-4000-8000-000000000002": 0,
+          "inherited": 0,
+          "cloneChanged": 0,
+          "original": 0,
+          "otherRead": 0,
+          "cloneRead": 0,
+          "done": 0,
+          "afterDelete": 0
+        },
+        "error": {
+          "error_string": "该编号的克隆体不存在",
+          "show_error": true,
+          "bottom": 372,
+          "left": 986.1101684570312,
+          "block_id": "actorvars-76",
+          "show_more_info": false
+        }
+      }
+    },
+    {
+      "platform": "kn",
+      "scenario": "inheritance",
+      "url": "https://kn.codemao.cn/editor",
+      "at": "2026-11-09T16:36:12.633Z",
+      "browser": "157.0.4341.42",
+      "errors": [],
+      "fixture": "tests/fixtures/actor-variables.bcmkn",
+      "sha256": "30f98c8575790dc3ab675d924bee658aca05f7913191d3bc4e6248a555c69a08",
+      "snapshot": {
+        "variables": {
+          "30000000-0000-4000-8000-000000000001": 41,
+          "30000000-0000-4000-8000-000000000002": "other-value",
+          "inherited": 41,
+          "cloneChanged": 99,
+          "original": 41,
+          "otherRead": "other-value",
+          "cloneRead": 99,
+          "done": 1,
+          "afterDelete": 0
+        },
+        "monitorVariables": {
+          "30000000-0000-4000-8000-000000000001": 99,
+          "30000000-0000-4000-8000-000000000002": "other-value",
+          "inherited": 41,
+          "cloneChanged": 99,
+          "original": 41,
+          "otherRead": "other-value",
+          "cloneRead": 99,
+          "done": 1,
+          "afterDelete": 0
+        }
+      }
+    },
+    {
+      "platform": "kn",
+      "scenario": "deleted",
+      "url": "https://kn.codemao.cn/editor",
+      "at": "2026-11-09T16:36:12.682Z",
+      "browser": "157.0.4341.42",
+      "errors": [],
+      "fixture": "tests/fixtures/actor-variables-deleted.bcmkn",
+      "sha256": "4d08fef4a53367e3e60615a884ee78f2a08a2cb3308548e65e024b38b5395f22",
+      "beforeDelete": {
+        "30000000-0000-4000-8000-000000000001": 41,
+        "30000000-0000-4000-8000-000000000002": "other-value",
+        "inherited": 41,
+        "cloneChanged": 99,
+        "original": 41,
+        "otherRead": "other-value",
+        "cloneRead": 99,
+        "done": 1,
+        "afterDelete": 0
+      },
+      "snapshot": {
+        "variables": {
+          "30000000-0000-4000-8000-000000000001": 41,
+          "30000000-0000-4000-8000-000000000002": "other-value",
+          "inherited": 41,
+          "cloneChanged": 99,
+          "original": 41,
+          "otherRead": "other-value",
+          "cloneRead": 99,
+          "done": 1,
+          "afterDelete": "NaN"
+        },
+        "monitorVariables": {
+          "30000000-0000-4000-8000-000000000001": 99,
+          "30000000-0000-4000-8000-000000000002": "other-value",
+          "inherited": 41,
+          "cloneChanged": 99,
+          "original": 41,
+          "otherRead": "other-value",
+          "cloneRead": 99,
+          "done": 1,
+          "afterDelete": null
+        }
+      }
+    }
+  ],
+  "editorCompat": {
+    "editorUrl": "https://kn.codemao.cn/editor",
+    "checkedAt": "2026-11-09T16:33:15.324Z",
+    "projects": [
+      {
+        "input": "tests/fixtures/actor-variables.bcmkn",
+        "editorVersion": "0.27.4",
+        "projectVersion": "0.27.4",
+        "blockCount": 24,
+        "issues": [],
+        "pageErrors": [],
+        "ok": true
+      },
+      {
+        "input": "tests/fixtures/actor-variables-deleted.bcmkn",
+        "editorVersion": "0.27.4",
+        "projectVersion": "0.27.4",
+        "blockCount": 32,
+        "issues": [],
+        "pageErrors": [],
+        "ok": true
+      }
+    ],
+    "bundleUrl": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+    "ok": true
+  }
+}

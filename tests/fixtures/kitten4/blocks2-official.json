@@ -1,0 +1,228 @@
+{
+  "officialUrl": "https://kitten4.codemao.cn/",
+  "verifiedAt": "2026-11-09T16:58:21.955Z",
+  "browserVersion": "157.0.4341.42",
+  "cases": {
+    "invalid-list": {
+      "inputSha256": "41fb3453a46a2724676cacc931a78eee0c40c23a79676d04f20326fe482e83a5",
+      "workspaceIssues": [],
+      "state": {
+        "variables": {
+          "before": 0,
+          "after": 0,
+          "value": 0,
+          "number": 0,
+          "other": 0,
+          "fraction": 0,
+          "wrap": 0,
+          "name": 0,
+          "width": 0,
+          "activated": 0
+        },
+        "error": {
+          "error_string": "数据类型错误，仅支持列表类型运行",
+          "show_error": true,
+          "bottom": 393.6000061035156,
+          "left": 980.5831909179688,
+          "block_id": "probe-39",
+          "show_more_info": false
+        },
+        "running": false,
+        "flip": {
+          "x": false,
+          "y": false
+        },
+        "scripts": [
+          "https://kitten4.codemao.cn/browser-tip.js",
+          "https://creation.codemao.cn/kitten/build/72.d0c8e590841d585ca222.js",
+          "https://creation.codemao.cn/kitten/build/80.d10abbe101f61f1643c5.js",
+          "https://creation.codemao.cn/kitten/build/77.79dad0a4712bd232538c.js",
+          "https://creation.codemao.cn/kitten/build/73.04a112a110855e63b496.js",
+          "https://pv.sohu.com/cityjson?ie=utf-8",
+          "https://pv.sohu.com/cityjson?ie=utf-8",
+          "https://creation.codemao.cn/kitten/build/36.588b10f9f832eb8cf934.js",
+          "https://creation.codemao.cn/kitten/build/libs/lottie_svg_cmao.min.js",
+          "https://creation.codemao.cn/kitten/build/runtime.43302e3ecf1fd4923b40.js",
+          "https://creation.codemao.cn/kitten/build/vendors.5035cd22e77914a9f363.js",
+          "https://creation.codemao.cn/kitten/build/kitten.99f88a64d495cf0e79d0.js"
+        ]
+      }
+    },
+    "costume": {
+      "inputSha256": "cc835182d595fbd6d5631ec02ab05d5d4688e5f5ddc5bc23b7537f2bd2293b3e",
+      "workspaceIssues": [],
+      "state": {
+        "variables": {
+          "before": 0,
+          "after": 2,
+          "value": 0,
+          "number": 1,
+          "other": 1,
+          "fraction": 2,
+          "wrap": 2,
+          "name": 1,
+          "width": 0,
+          "activated": 0
+        },
+        "error": {
+          "error_string": "",
+          "show_error": false,
+          "bottom": 0,
+          "left": 0,
+          "show_more_info": false
+        },
+        "running": true,
+        "flip": {
+          "x": false,
+          "y": false
+        },
+        "scripts": [
+          "https://kitten4.codemao.cn/browser-tip.js",
+          "https://creation.codemao.cn/kitten/build/72.d0c8e590841d585ca222.js",
+          "https://creation.codemao.cn/kitten/build/80.d10abbe101f61f1643c5.js",
+          "https://creation.codemao.cn/kitten/build/77.79dad0a4712bd232538c.js",
+          "https://creation.codemao.cn/kitten/build/73.04a112a110855e63b496.js",
+          "https://pv.sohu.com/cityjson?ie=utf-8",
+          "https://pv.sohu.com/cityjson?ie=utf-8",
+          "https://creation.codemao.cn/kitten/build/36.588b10f9f832eb8cf934.js",
+          "https://creation.codemao.cn/kitten/build/libs/lottie_svg_cmao.min.js",
+          "https://creation.codemao.cn/kitten/build/runtime.43302e3ecf1fd4923b40.js",
+          "https://creation.codemao.cn/kitten/build/vendors.5035cd22e77914a9f363.js",
+          "https://creation.codemao.cn/kitten/build/kitten.99f88a64d495cf0e79d0.js"
+        ]
+      }
+    },
+    "negative-list": {
+      "inputSha256": "51a967b7ca52356b43f2a775a308f284b0c6447ddb809b2464d400e00dc12742",
+      "workspaceIssues": [],
+      "state": {
+        "variables": {
+          "before": 0,
+          "after": 1,
+          "value": 30,
+          "number": 0,
+          "other": 1,
+          "fraction": 0,
+          "wrap": 0,
+          "name": 0,
+          "width": 0,
+          "activated": 0
+        },
+        "error": {
+          "error_string": "",
+          "show_error": false,
+          "bottom": 0,
+          "left": 0,
+          "show_more_info": false
+        },
+        "running": true,
+        "flip": {
+          "x": false,
+          "y": false
+        },
+        "scripts": [
+          "https://kitten4.codemao.cn/browser-tip.js",
+          "https://creation.codemao.cn/kitten/build/72.d0c8e590841d585ca222.js",
+          "https://creation.codemao.cn/kitten/build/80.d10abbe101f61f1643c5.js",
+          "https://creation.codemao.cn/kitten/build/77.79dad0a4712bd232538c.js",
+          "https://creation.codemao.cn/kitten/build/73.04a112a110855e63b496.js",
+          "https://pv.sohu.com/cityjson?ie=utf-8",
+          "https://pv.sohu.com/cityjson?ie=utf-8",
+          "https://creation.codemao.cn/kitten/build/36.588b10f9f832eb8cf934.js",
+          "https://creation.codemao.cn/kitten/build/libs/lottie_svg_cmao.min.js",
+          "https://creation.codemao.cn/kitten/build/runtime.43302e3ecf1fd4923b40.js",
+          "https://creation.codemao.cn/kitten/build/vendors.5035cd22e77914a9f363.js",
+          "https://creation.codemao.cn/kitten/build/kitten.99f88a64d495cf0e79d0.js"
+        ]
+      }
+    },
+    "flip": {
+      "inputSha256": "bfa3782f7db414fe9794229ad03d24bab3c03bf1bb1c17f9a1416986b799202b",
+      "workspaceIssues": [],
+      "state": {
+        "variables": {
+          "before": 0,
+          "after": 1,
+          "value": 0,
+          "number": 0,
+          "other": 1,
+          "fraction": 0,
+          "wrap": 0,
+          "name": 0,
+          "width": 80,
+          "activated": 0
+        },
+        "error": {
+          "error_string": "",
+          "show_error": false,
+          "bottom": 0,
+          "left": 0,
+          "show_more_info": false
+        },
+        "running": true,
+        "flip": {
+          "x": true,
+          "y": true
+        },
+        "scripts": [
+          "https://kitten4.codemao.cn/browser-tip.js",
+          "https://creation.codemao.cn/kitten/build/72.d0c8e590841d585ca222.js",
+          "https://creation.codemao.cn/kitten/build/80.d10abbe101f61f1643c5.js",
+          "https://creation.codemao.cn/kitten/build/77.79dad0a4712bd232538c.js",
+          "https://creation.codemao.cn/kitten/build/73.04a112a110855e63b496.js",
+          "https://pv.sohu.com/cityjson?ie=utf-8",
+          "https://pv.sohu.com/cityjson?ie=utf-8",
+          "https://creation.codemao.cn/kitten/build/36.588b10f9f832eb8cf934.js",
+          "https://creation.codemao.cn/kitten/build/libs/lottie_svg_cmao.min.js",
+          "https://creation.codemao.cn/kitten/build/runtime.43302e3ecf1fd4923b40.js",
+          "https://creation.codemao.cn/kitten/build/vendors.5035cd22e77914a9f363.js",
+          "https://creation.codemao.cn/kitten/build/kitten.99f88a64d495cf0e79d0.js"
+        ]
+      }
+    },
+    "backdrop": {
+      "inputSha256": "1fbc3932d18d000453d736804ff9e9070c5366129b43caf95cb5ab5c3b59421d",
+      "workspaceIssues": [],
+      "state": {
+        "variables": {
+          "before": 0,
+          "after": 0,
+          "value": 0,
+          "number": 0,
+          "other": 1,
+          "fraction": 0,
+          "wrap": 0,
+          "name": 0,
+          "width": 0,
+          "activated": 7
+        },
+        "error": {
+          "error_string": "",
+          "show_error": false,
+          "bottom": 0,
+          "left": 0,
+          "show_more_info": false
+        },
+        "running": true,
+        "flip": {
+          "x": false,
+          "y": false
+        },
+        "scripts": [
+          "https://kitten4.codemao.cn/browser-tip.js",
+          "https://creation.codemao.cn/kitten/build/72.d0c8e590841d585ca222.js",
+          "https://creation.codemao.cn/kitten/build/80.d10abbe101f61f1643c5.js",
+          "https://creation.codemao.cn/kitten/build/77.79dad0a4712bd232538c.js",
+          "https://creation.codemao.cn/kitten/build/73.04a112a110855e63b496.js",
+          "https://pv.sohu.com/cityjson?ie=utf-8",
+          "https://pv.sohu.com/cityjson?ie=utf-8",
+          "https://creation.codemao.cn/kitten/build/36.588b10f9f832eb8cf934.js",
+          "https://creation.codemao.cn/kitten/build/libs/lottie_svg_cmao.min.js",
+          "https://creation.codemao.cn/kitten/build/runtime.43302e3ecf1fd4923b40.js",
+          "https://creation.codemao.cn/kitten/build/vendors.5035cd22e77914a9f363.js",
+          "https://creation.codemao.cn/kitten/build/kitten.99f88a64d495cf0e79d0.js"
+        ]
+      }
+    }
+  }
+}

@@ -24,6 +24,143 @@ fn frame(vm: &mut Engine) -> nekoc::engine::Frame {
 }
 
 #[test]
+fn kitten4_paths_record_pen_up_moves_reset_and_emit_ordered_opaque_fills() {
+    let chain = |blocks: Vec<Value>| {
+        blocks.into_iter().rev().fold(Value::Null, |next, mut b| {
+            if !next.is_null() {
+                b["next"] = next;
+            }
+            b
+        })
+    };
+    let path = |point| json!({"id":point,"type":"kitten4::set_pen_path","fields":{"point":point}});
+    let pos = |x, y| json!({"type":"self_move_to","inputs":{"x":num(x),"y":num(y)}});
+    let p = project(chain(vec![
+        pos(0.0, 0.0),
+        path("end_point"),
+        path("start_point"),
+        pos(-20.0, -20.0),
+        path("start_point"),
+        pos(20.0, -20.0),
+        pos(0.0, 20.0),
+        json!({"type":"self_set_pen_color","fields":{"color":"#ff0000"}}),
+        json!({"type":"self_set_pen_color_property","fields":{"scope":"alpha"},"inputs":{"val":num(0.0)}}),
+        path("end_point"),
+        path("end_point"),
+        json!({"id":"fill","type":"kitten4::set_fill_style","fields":{"color":"#777777"}}),
+        json!({"type":"pen_begin_path"}),
+        pos(0.0, 0.0),
+        pos(20.0, 0.0),
+        json!({"type":"pen_close_path"}),
+    ]));
+    let p = nekoc::kitten4::lower_for_vm(&p);
+    for interpreter in [false, true] {
+        let mut vm = Engine::new(Program::compile(&p).unwrap());
+        if interpreter {
+            vm.disable_jit();
+        }
+        vm.start();
+        let f = frame(&mut vm);
+        assert!(f.lines.is_empty());
+        assert_eq!(f.pen_fills.len(), 2);
+        assert_eq!(
+            f.pen_fills[0].points,
+            [[-20.0, -20.0], [20.0, -20.0], [0.0, 20.0]]
+        );
+        assert_eq!(f.pen_fills[0].color, [1.0, 0.0, 0.0, 1.0]);
+        assert_eq!(
+            f.pen_fills[1].color,
+            [119.0 / 255.0, 119.0 / 255.0, 119.0 / 255.0, 1.0]
+        );
+        assert_eq!(f.pen_fills[0].before_line, 0);
+        assert_eq!(f.pen_fills[0].before_text, 0);
+        assert_eq!(f.pen_fills[0].before_image, 0);
+        let idle = frame(&mut vm);
+        assert!(idle.pen_fills.is_empty());
+        assert!(
+            serde_json::to_value(idle)
+                .unwrap()
+                .get("pen_fills")
+                .is_none()
+        );
+        vm.start();
+        assert_eq!(frame(&mut vm).pen_fills.len(), 2);
+    }
+}
+
+#[test]
+fn path_survives_frames_clear_and_fill_is_visible_to_color_sensing() {
+    let pos = |x, y| json!({"type":"self_move_to","inputs":{"x":num(x),"y":num(y)}});
+    let p = var_project(
+        chain(vec![
+            pos(-30.0, -30.0),
+            json!({"type":"pen_begin_path"}),
+            pos(30.0, -30.0),
+            json!({"type":"wait","inputs":{"time":num(0.05)}}),
+            json!({"type":"clear_drawing"}),
+            pos(30.0, 30.0),
+            pos(-30.0, 30.0),
+            json!({"type":"set_fill_style","fields":{"color":"#ff0000"}}),
+            json!({"type":"pen_close_path"}),
+            pos(0.0, 0.0),
+            set("a", color_test("--self", "#ff0000")),
+            json!({"type":"clear_drawing"}),
+            set("b", color_test("--self", "#ff0000")),
+        ]),
+        &["a", "b"],
+    );
+    let mut vm = Engine::new(Program::compile(&p).unwrap());
+    vm.set_costume("nekoc-costume", solid(10.0, 10.0, [0, 0, 0]));
+    vm.start();
+    assert!(frame(&mut vm).pen_fills.is_empty());
+    run_frames(&mut vm, 10);
+    assert_eq!(vm.numeric_variables(), &[1.0, 0.0]);
+}
+
+#[test]
+fn pen_fill_order_tracks_lines_and_stamps_and_degenerate_paths_do_not_draw() {
+    let pos = |x, y| json!({"type":"self_move_to","inputs":{"x":num(x),"y":num(y)}});
+    let p = project(chain(vec![
+        json!({"type":"pen_begin_path"}),
+        json!({"type":"pen_close_path"}),
+        json!({"type":"pen_begin_path"}),
+        pos(10.0, 0.0),
+        json!({"type":"pen_close_path"}),
+        json!({"type":"self_pen_down"}),
+        json!({"type":"pen_begin_path"}),
+        pos(20.0, 0.0),
+        pos(20.0, 20.0),
+        json!({"type":"stamp","fields":{"align":"left"},"inputs":{"text":{"type":"text","fields":{"TEXT":"a"}},"size":num(10.0)}}),
+        json!({"type":"pen_close_path"}),
+        json!({"type":"pen_begin_path"}),
+        pos(30.0, 20.0),
+        pos(30.0, 30.0),
+        json!({"type":"image_stamp"}),
+        json!({"type":"pen_close_path"}),
+    ]));
+    let mut vm = Engine::new(Program::compile(&p).unwrap());
+    vm.start();
+    let f = frame(&mut vm);
+    assert_eq!(f.pen_fills.len(), 2);
+    assert_eq!(
+        (
+            f.pen_fills[0].before_line,
+            f.pen_fills[0].before_text,
+            f.pen_fills[0].before_image
+        ),
+        (3, 1, 0)
+    );
+    assert_eq!(
+        (
+            f.pen_fills[1].before_line,
+            f.pen_fills[1].before_text,
+            f.pen_fills[1].before_image
+        ),
+        (5, 1, 1)
+    );
+}
+
+#[test]
 fn key_release_and_pointer_targets_dispatch_only_matching_hats() {
     let mut p = project(json!({"type":"self_appear","fields":{"value":"appear"}}));
     let hats = p["actors"]["actorsDict"]["nekoc-default-actor"]["nekoBlockJsonList"]
@@ -51,7 +188,8 @@ fn key_release_and_pointer_targets_dispatch_only_matching_hats() {
     assert!(frame(&mut vm).logs.is_empty());
     vm.key_event("13", true);
     vm.key_event("13", false);
-    assert_eq!(frame(&mut vm).logs, ["down", "up"]);
+    // State responders observe the final state of a quick pair in this tick.
+    assert_eq!(frame(&mut vm).logs, ["up"]);
     assert!(frame(&mut vm).logs.is_empty());
     vm.pointer_event("other", "mouse_click", 12.0, 34.0);
     assert_eq!(frame(&mut vm).logs, ["screen"]);
@@ -131,10 +269,10 @@ fn pen_layer_moves_and_relative_targets_use_back_to_front_order() {
         .as_array_mut()
         .unwrap();
     for (key, layer, target) in [
-        ("1", "prev_layer", ""),
-        ("2", "next_layer", ""),
-        ("3", "nekoc-default-actor", "prev_layer"),
-        ("4", "back", "next_layer"),
+        ("49", "prev_layer", ""),
+        ("50", "next_layer", ""),
+        ("51", "nekoc-default-actor", "prev_layer"),
+        ("52", "back", "next_layer"),
     ] {
         hats.push(json!({"type":"on_keydown","fields":{"key":key,"type":"down"},"next":{"type":"set_pen_layer","fields":{"layer":layer,"target_layer":target}}}));
     }
@@ -142,16 +280,17 @@ fn pen_layer_moves_and_relative_targets_use_back_to_front_order() {
     vm.start();
     assert_eq!(frame(&mut vm).pen_layer, 0);
     for (key, expected) in [
-        ("1", 1),
-        ("1", 2),
-        ("1", 2),
-        ("2", 1),
-        ("3", 2),
-        ("4", 0),
-        ("2", 0),
+        ("49", 1),
+        ("49", 2),
+        ("49", 2),
+        ("50", 1),
+        ("51", 2),
+        ("52", 0),
+        ("50", 0),
     ] {
         vm.key(key);
         assert_eq!(frame(&mut vm).pen_layer, expected);
+        vm.key_event(key, false);
     }
     vm.start();
     assert_eq!(frame(&mut vm).pen_layer, 0);
@@ -210,10 +349,13 @@ fn compiled_control_and_values_match_reference_interpreter() {
     project["variables"]["variablesDict"]["score"] = json!({"id":"score","value":0});
     let mut reference = Runtime::from_project(&project).unwrap();
     reference.set_cooperative(true);
+    // 关闭两侧的墙钟预算，否则 CPU 繁忙时 warp 循环会在一帧内被提前切断。
+    reference.disable_warp_time_slice();
     reference.start();
     reference.run_ticks(1).unwrap();
     let old = reference.snapshot();
     let mut vm = Engine::new(Program::compile(&project).unwrap());
+    vm.use_virtual_clock();
     vm.start();
     let new = frame(&mut vm);
     assert_eq!(new.active, 0);
@@ -1125,15 +1267,41 @@ fn ranges_round_endpoints_descend_and_restore_nested_values_across_budgets() {
     }
     assert_eq!(vm.active_tasks(), 0);
     assert_eq!(logs, ["2", "5", "2", "5", "3", "3", "5", "3", "5", "3"]);
-    let p = project(range("bad", 0.0, 10.0, 0.0, movement(1.0)));
-    let mut vm = Engine::new(Program::compile(&p).unwrap());
-    vm.start();
-    assert!(
-        vm.advance(0.0, 100, Duration::from_secs(1))
-            .unwrap_err()
-            .to_string()
-            .contains("positive rounded step")
-    );
+    // Official KN repeats the same value for zero by. Bound the observation,
+    // check ordinary cooperative yield, then explicitly stop the live script.
+    for jit in [false, true] {
+        let mut p = project(chain(vec![
+            range(
+                "zero",
+                0.0,
+                10.0,
+                0.0,
+                chain(vec![log_value(range_value("zero")), movement(1.0)]),
+            ),
+            log_value(text("must not naturally finish")),
+        ]));
+        add_hat(
+            &mut p,
+            json!({"type":"on_keydown","fields":{"key":"32","type":"down"},"next":{"type":"stop","fields":{"scope":"0"}}}),
+        );
+        let mut vm = Engine::new(Program::compile(&p).unwrap());
+        if !jit {
+            vm.disable_jit();
+        }
+        vm.start();
+        for _ in 0..4 {
+            let f = vm.advance(0.0, 1_000, Duration::from_secs(1)).unwrap();
+            assert_eq!(f.logs, ["0"], "one iteration per cooperative yield");
+            assert_eq!(f.active, 1, "zero by must not naturally finish");
+        }
+        vm.key("32");
+        let f = frame(&mut vm);
+        // The already-live task runs once before the newly queued stop hat.
+        // It must still yield, then stop without reaching the range tail.
+        assert_eq!(f.logs, ["0"]);
+        assert_eq!(f.active, 0);
+        assert!(frame(&mut vm).logs.is_empty());
+    }
 }
 
 #[test]
@@ -1515,7 +1683,12 @@ fn effects_size_and_fade_update_sprite_state() {
     let a = &f.sprites[1];
     assert_eq!(a.effects[2], 100.0);
     assert!((a.opacity - 0.6).abs() < 1e-9);
-    assert_eq!((a.size_y, a.scale, a.rotation_type), (50.0, 80.0, 1));
+    // KN changes the two actual percentages independently (official source:
+    // docs/kn-appearance-dialog.md), not a uniform multiplier on height 50.
+    assert_eq!(
+        (a.size_x, a.size_y, a.scale, a.rotation_type),
+        (80.0, 30.0, 100.0, 1)
+    );
     let f = vm.advance(0.25, 1000, Duration::from_secs(1)).unwrap();
     assert!((f.sprites[0].opacity - 0.3).abs() < 1e-9);
     let f = vm.advance(0.25, 1000, Duration::from_secs(1)).unwrap();
@@ -1752,6 +1925,7 @@ fn square(vm: &mut Engine, ring: bool) {
         Costume {
             width: 40.0,
             height: 40.0,
+            center_point: [0.0; 2],
             mask: Some((4, 4, bits)),
             rgb: None,
         },
@@ -1826,6 +2000,45 @@ fn bounce_reflects_off_the_nearest_edge_and_moves_inside() {
 }
 
 #[test]
+fn pivot_boundary_reporter_and_image_stamp_keep_actor_coordinates() {
+    let mut p = project(chain(vec![
+        set(
+            "before",
+            json!({"type":"out_of_boundary","fields":{"boundary":"right"}}),
+        ),
+        json!({"type":"image_stamp"}),
+        json!({"type":"self_bounce_off_edge"}),
+        set(
+            "after",
+            json!({"type":"out_of_boundary","fields":{"boundary":"right"}}),
+        ),
+    ]));
+    for name in ["before", "after"] {
+        p["variables"]["variablesDict"][name] = json!({"id":name,"value":-1});
+    }
+    let a = &mut p["actors"]["actorsDict"]["nekoc-default-actor"];
+    a["position"] = json!({"x":430,"y":0});
+    a["rotation"] = json!(std::f64::consts::FRAC_PI_4);
+    let mut vm = Engine::new(Program::compile(&p).unwrap());
+    vm.set_costume(
+        "nekoc-costume",
+        Costume {
+            width: 20.0,
+            height: 12.0,
+            center_point: [-30.0, 0.0],
+            ..Costume::default()
+        },
+    );
+    vm.start();
+    let f = frame(&mut vm);
+    // Numeric variables are sorted by ID: after, before.
+    assert_eq!(vm.numeric_variables(), &[0.0, 1.0]);
+    let stamp = &f.image_stamps[0];
+    assert_eq!((stamp.x, stamp.y, stamp.direction), (430.0, 0.0, 45.0));
+    assert_eq!(stamp.style.as_deref(), Some("nekoc-costume"));
+}
+
+#[test]
 fn monitors_image_stamps_audio_waits_swipes_and_drags() {
     let mut p = var_project(
         chain(vec![
@@ -1844,6 +2057,7 @@ fn monitors_image_stamps_audio_waits_swipes_and_drags() {
         .unwrap()
         .push(json!({"type":"on_swipe","fields":{"type":"left"},"statements":{"DO":log_value(json!({"type":"text","fields":{"TEXT":"swiped"}}))}}));
     let mut vm = Engine::new(Program::compile(&p).unwrap());
+    vm.use_browser_audio();
     vm.start();
     let f = frame(&mut vm);
     assert_eq!(
@@ -2201,6 +2415,7 @@ fn solid(width: f64, height: f64, rgb: [u8; 3]) -> Costume {
     Costume {
         width,
         height,
+        center_point: [0.0; 2],
         mask: Some((40, 40, vec![0xff; 200])),
         rgb: Some(rgb.repeat(1600)),
     }

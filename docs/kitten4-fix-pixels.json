@@ -1,0 +1,27 @@
+{
+  "schema": "nekoc-k4fix-pixel-summary-v1",
+  "baseline": "003612429bc4a55b35734089115d06100b9090a1",
+  "kernelSha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160",
+  "frames": [1, 30, 60],
+  "seed": 1,
+  "rgbTolerance": 8,
+  "note": "before uses the old wall-clock oracle and canvas-only capture; after uses matched virtual clocks and the actual DOM overlay. Wall-clock baseline values are not deterministic. No corpus or images are embedded here.",
+  "rawReport": "dist/k4fix/final-before-after.json",
+  "works": {
+    "335017543": {
+      "beforePercent": [2.6155598958333335, 1.8127170138888888, 32.68229166666667],
+      "afterPercent": [2.6155598958333335, 1.8141276041666667, 1.8129340277777777],
+      "contourFrames": [100, 150],
+      "contourPercent": [1.9050564236111112, 1.9065755208333333],
+      "contourRawReport": "dist/k4fix/final-contour.json"
+    },
+    "331465353": {
+      "beforePercent": [9.5068359375, 16.160047743055557, 16.160047743055557],
+      "afterPercent": [1.7932942708333333, 1.7932942708333333, 1.7932942708333333]
+    },
+    "319595457": {
+      "beforePercent": [6.607060185185184, 6.9399594907407405, 7.051504629629629],
+      "afterPercent": [1.986111111111111, 2.525462962962963, 3.1221064814814814]
+    }
+  }
+}

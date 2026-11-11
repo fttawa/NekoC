@@ -27,7 +27,7 @@ fn compile(source: &str) -> Value {
     fs::write(&input, source).unwrap();
     fs::write(&base, template().to_string()).unwrap();
     bcmkn_compiler::compile_ts_bcmkn(input, base, &output).unwrap();
-    project::load_project(output).unwrap().value
+    project::load_project(output).unwrap().value.into_value()
 }
 
 fn blocks(value: &Value) -> Vec<&Value> {

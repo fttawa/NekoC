@@ -2,38 +2,981 @@
 //!
 //! Block names and sockets below are taken from the official 4.11.20 editor.
 //! A native snapshot is retained, and export applies a three-way structural diff
-//! against a fresh conversion of that snapshot. Thus editing a supported field
+//! against a cached conversion of that exact snapshot. Thus editing a supported field
 //! does not normalize away unknown data, shadow XML, or legacy serialization.
 use anyhow::{Context, Result, bail, ensure};
 use serde_json::{Map, Value, json};
 use std::collections::{BTreeMap, BTreeSet};
+use std::{cell::RefCell, rc::Rc};
+
+mod aliases;
+use aliases::lower_legacy_alias;
+mod audio_aliases;
+mod common;
+mod devices;
+mod effects;
+mod media_devices;
+mod third;
+
+struct SourceCache {
+    source: crate::json::Json,
+    canonical: Rc<crate::json::Json>,
+    starts: std::result::Result<StartHats, String>,
+}
+thread_local! {
+    // One successful source per importing/compiling thread. No unbounded global
+    // retention, no forged-metadata bypass, and failed imports never replace it.
+    static SOURCE_CACHE: RefCell<Option<SourceCache>> = const { RefCell::new(None) };
+}
+
+fn source_baseline(source: &Value) -> Result<Rc<crate::json::Json>> {
+    if let Some(cached) = SOURCE_CACHE.with(|cache| {
+        cache
+            .borrow()
+            .as_ref()
+            .filter(|cache| crate::json::ordered_equal(&cache.source, source))
+            .map(|cache| Rc::clone(&cache.canonical))
+    }) {
+        return Ok(cached);
+    }
+    let (canonical, starts) = crate::json::expanded(|| import_project(source))?;
+    let canonical = Rc::new(crate::json::Json::new(canonical));
+    SOURCE_CACHE.with(|cache| {
+        *cache.borrow_mut() = Some(SourceCache {
+            source: crate::json::Json::new(crate::json::clone_value(source)),
+            canonical: Rc::clone(&canonical),
+            starts,
+        })
+    });
+    Ok(canonical)
+}
+
+pub(crate) fn validate_source(source: &Value) -> Result<()> {
+    source_baseline(source).map(|_| ())
+}
 
 const METADATA: &str = "_nekocKitten4";
 const OPAQUE: &str = "kitten4::";
 const ANGLE: &str = "_nekocKitten4Angle";
-const MAX_DEPTH: usize = 256;
+// Inputs/statement bodies, not next links; shared with the canonical compiler.
+const MAX_DEPTH: usize = crate::json::MAX_BLOCK_DEPTH;
+
+fn check_depth(block: &Value, depth: usize) -> Result<()> {
+    ensure!(
+        depth <= MAX_DEPTH,
+        "block nesting exceeds {MAX_DEPTH} at block {} ({})",
+        block["id"],
+        block["type"]
+    );
+    Ok(())
+}
+
+#[derive(Clone, Copy, Debug)]
+pub(crate) enum StartKind {
+    Global,
+    Activation,
+}
+// Stage/actor namespace, owner ID, then the canonical root ID assigned by the
+// importer. Never correlate an edited canonical script list by array position.
+pub(crate) type StartHats = BTreeMap<(bool, String, String), StartKind>;
+
+pub(crate) fn start_hats(source: &Value) -> Result<StartHats> {
+    source_baseline(source)?;
+    SOURCE_CACHE
+        .with(|cache| cache.borrow().as_ref().unwrap().starts.clone())
+        .map_err(anyhow::Error::msg)
+}
 
 pub fn is_kitten4(value: &Value) -> bool {
     value.get("work_type").and_then(Value::as_str) == Some("KITTEN")
         && value.get("theatre").is_some_and(Value::is_object)
 }
 
-pub fn to_neko(value: &Value) -> Result<Value> {
-    ensure!(is_kitten4(value), "not a native Kitten 4 project");
-    let mut result = import_project(value)?;
-    result[METADATA] = json!({"source": value});
-    Ok(result)
+pub fn to_neko(value: &Value) -> Result<crate::json::Json> {
+    let _timing = crate::import_perf::span("kitten4_import");
+    crate::json::expanded(|| {
+        ensure!(is_kitten4(value), "not a native Kitten 4 project");
+        let mut result = source_baseline(value)?.as_ref().clone();
+        result[METADATA] = json!({"source": null});
+        result[METADATA]["source"] = crate::json::clone_value(value);
+        Ok(result)
+    })
 }
 
-pub fn from_neko(value: &Value) -> Result<Value> {
+/// What stops a work from running: untranslated blocks by use count, then the first
+/// compile or runtime error.
+pub fn coverage(source: &Value, frames: u32) -> Value {
+    coverage_with_seed(source, frames, None)
+}
+
+/// Offline coverage uses virtual time and deterministic instruction/output
+/// bounds. A fixed seed additionally fixes the random block input stream.
+pub fn coverage_with_seed(source: &Value, frames: u32, seed: Option<u64>) -> Value {
+    use crate::engine::{Engine, Program};
+    let project = match to_neko(source) {
+        Ok(project) => project,
+        Err(error) => return json!({"stage": "import", "error": format!("{error:#}")}),
+    };
+    let mut blocks = 0u64;
+    let mut opaque = BTreeMap::new();
+    for section in ["scenes", "actors", "procedures"] {
+        count_blocks(&project[section], &mut blocks, &mut opaque);
+    }
+    let stubbed: BTreeMap<_, _> = opaque
+        .iter()
+        .filter(|(kind, _)| is_stub(kind))
+        .map(|(kind, count)| (kind.clone(), *count))
+        .collect();
+    let mut report = json!({"blocks": blocks, "opaque": opaque, "stubbed": stubbed});
+    report["seed"] = json!(seed);
+    if let Err(error) = from_neko(&project) {
+        report["export_error"] = json!(format!("{error:#}"));
+    }
+    let result = Program::compile(&project)
+        .map_err(|error| ("compile", error))
+        .and_then(|program| {
+            let mut engine = Engine::new(program);
+            engine.use_virtual_clock();
+            if let Some(seed) = seed {
+                engine.set_random_seed(seed);
+            }
+            engine.start();
+            let mut budget_frames = 0u32;
+            for _ in 0..frames {
+                let frame = engine
+                    .advance(1.0 / 60.0, 2_000_000, std::time::Duration::from_millis(200))
+                    .map_err(|error| ("run", error))?;
+                budget_frames += u32::from(frame.budget_yield);
+            }
+            report["budget_frames"] = json!(budget_frames);
+            if let Some(dialog) = engine.pending_stage_dialog() {
+                report["blocked"] = json!({"kind":"stage_dialog", "id":dialog.id,
+                    "target":dialog.target, "active_tasks":engine.active_tasks()});
+            }
+            Ok(())
+        });
+    match result {
+        Ok(()) => report["stage"] = json!("ran"),
+        Err((stage, error)) => {
+            report["stage"] = json!(stage);
+            report["error"] = json!(format!("{error:#}"));
+        }
+    }
+    report
+}
+
+fn count_blocks(value: &Value, blocks: &mut u64, opaque: &mut BTreeMap<String, u64>) {
+    let mut pending = vec![value];
+    while let Some(value) = pending.pop() {
+        match value {
+            Value::Array(items) => pending.extend(items),
+            Value::Object(object) => {
+                if let Some(kind) = object.get("type").and_then(Value::as_str)
+                    && object.contains_key("id")
+                {
+                    *blocks += 1;
+                    if let Some(kind) = kind.strip_prefix(OPAQUE) {
+                        *opaque.entry(kind.to_owned()).or_default() += 1;
+                    }
+                }
+                pending.extend(object.values());
+            }
+            _ => {}
+        }
+    }
+}
+
+/// VM form of a Kitten 4 project. Blocks without an editable Kitten N equivalent stay
+/// opaque in the canonical project so they round-trip untouched, and are rewritten only
+/// here, just before compiling.
+pub fn lower_for_vm(project: &Value) -> crate::json::Json {
+    crate::json::expanded(|| lower_for_vm_inner(project))
+}
+
+fn lower_for_vm_inner(project: &Value) -> crate::json::Json {
+    let _timing = crate::import_perf::span("lower_for_vm");
+    // Do not clone the native source just to discard it. Published works often
+    // store most of their bytes in this provenance snapshot.
+    let mut lowered = crate::json::Json::new(match project.as_object() {
+        Some(object) => Value::Object(
+            object
+                .iter()
+                .filter(|(key, _)| key.as_str() != METADATA)
+                .map(|(key, value)| (key.clone(), crate::json::clone_value(value)))
+                .collect(),
+        ),
+        None => crate::json::clone_value(project),
+    });
+    // TL4g/Ct + vxpV/I + O8fc/UserVariableImpl: anonymous/offline Start
+    // supplies no cloud specs, so first access defaults to 0 / [], not saved value.
+    if let Some(cloud) = project
+        .pointer(&format!("/{METADATA}/source/cloud_variables"))
+        .and_then(Value::as_object)
+    {
+        for (id, variable) in cloud {
+            let list = variable["type"] == "public_list";
+            lowered["variables"]["variablesDict"][id] = json!({
+                "id": id, "name": variable["name"],
+                "type": if list { "list" } else { "variable" },
+                "value": if list { json!([]) } else { json!(0) },
+                "visible": variable["visible"],
+                "cloud": variable,
+            });
+        }
+    }
+    let targets = Targets {
+        actors: &project["actors"]["actorsDict"],
+        scenes: &project["scenes"]["scenesDict"],
+        procedures: &project["procedures"]["proceduresDict"],
+        groups: project
+            .pointer(&format!("/{METADATA}/source/theatre/groups"))
+            .unwrap_or(&Value::Null),
+    };
+    for section in ["scenes", "actors", "procedures"] {
+        lower_blocks(&mut lowered[section], &targets);
+    }
+    lowered
+}
+
+struct Targets<'a> {
+    actors: &'a Value,
+    scenes: &'a Value,
+    procedures: &'a Value,
+    groups: &'a Value,
+}
+
+impl Targets<'_> {
+    /// Collision with an actor group is a collision with any member. A target that no
+    /// longer exists can never collide.
+    fn bump(&self, target: &str) -> Vec<String> {
+        // Camps resolve from live actor membership, not the serialized actor
+        // dictionary. Preserve the editor's four ids for the VM's camp target.
+        if matches!(target, "camp_red" | "camp_yellow" | "camp_blue" | "no_camp") {
+            return vec![target.to_owned()];
+        }
+        if target.starts_with("__") || target.starts_with("--") {
+            return vec![target.replace("__edge", "--edge")];
+        }
+        if let Some(members) = self.groups[target]["actors"].as_array() {
+            return members
+                .iter()
+                .filter_map(Value::as_str)
+                .filter(|id| self.actors.get(id).is_some())
+                .map(str::to_owned)
+                .collect();
+        }
+        if self.actors.get(target).is_some() {
+            vec![target.to_owned()]
+        } else {
+            vec![]
+        }
+    }
+}
+
+/// Replaces what the official runtime can no longer resolve: a call to a deleted
+/// procedure or a block aimed at a deleted actor. A group target acts on its first member.
+fn lower_missing_reference(block: &mut Value, targets: &Targets) {
+    let kind = block["type"].as_str().unwrap_or_default().to_owned();
+    let call = kind.starts_with("procedures_2_call");
+    // Camera target '?' is an official reporter sentinel, not a deleted UUID.
+    if matches!(
+        kind.as_str(),
+        "kitten4::get_camera_data"
+            | "kitten4::get"
+            | "kitten4::get_2"
+            | "kitten4::get_3"
+            | "get_clone_index_property"
+            | "kitten4::get_clone_index_property"
+    ) {
+        // These reporters distinguish invalid strings, dangling UUIDs and
+        // missing clones themselves. Generic deleted-reference zeroing loses
+        // their native NaN/error behavior (Tn6a/get_3 and clone reporter).
+        return;
+    }
+    let mut missing = call && targets.procedures.get(field(block, "NAME")).is_none();
+    let visibility_group = kind == "kitten4::set_entity_show_hide"
+        && targets.groups.get(field(block, "sprite")).is_some();
+    if !visibility_group && !matches!(kind.as_str(), "kitten4::bump" | "kitten4::bump_into_color") {
+        for key in ["sprite", "target", "actor", "sprite1"] {
+            let id = field(block, key).to_owned();
+            if id.is_empty()
+                || id.starts_with("__")
+                || id.starts_with("--")
+                || targets.actors.get(&id).is_some()
+                || targets.scenes.get(&id).is_some()
+            {
+                continue;
+            }
+            match targets.bump(&id).first() {
+                Some(member) => put_field(block, key, member),
+                None => missing = true,
+            }
+        }
+    }
+    if !missing {
+        return;
+    }
+    let reporter = kind == "procedures_2_callreturn" || block["is_output"] == true || {
+        let kind = kind.trim_start_matches(OPAQUE);
+        kind.starts_with("get_") || kind.ends_with("_of_sprite")
+    };
+    block["type"] = json!(if reporter {
+        "math_number"
+    } else {
+        "kitten4_noop"
+    });
+    block["fields"] = json!({"NUM": "0"});
+    remove(block, "inputs");
+    remove(block, "mutation");
+}
+
+fn lower_bump(block: &mut Value, targets: &Targets) {
+    let id = block["id"].as_str().unwrap_or_default().to_owned();
+    let subjects = targets.bump(field(block, "sprite1"));
+    let others = targets.bump(field(block, "sprite2"));
+    let others = &others;
+    let id = &id;
+    let tests = subjects.iter().flat_map(|subject| {
+        others.iter().map(move |target| {
+            json!({"type": "bump_into", "id": id, "fields": {"sprite": subject, "sprite1": target}})
+        })
+    });
+    *block = tests
+        .reduce(|a, b| {
+            json!({"type": "logic_operation", "id": id, "fields": {"type": "or"},
+                "inputs": {"A": a, "B": b}})
+        })
+        .unwrap_or_else(|| json!({"type": "math_number", "id": id, "fields": {"NUM": "0"}}));
+}
+
+fn lower_blocks(value: &mut Value, targets: &Targets) {
+    // Postorder traversal without recursive next links; each frame owns its
+    // detached node so transformations may replace it safely.
+    enum Work {
+        Enter(Value),
+        Array(usize),
+        Object(Vec<String>),
+    }
+    let mut work = vec![Work::Enter(value.take())];
+    let mut output = Vec::new();
+    while let Some(item) = work.pop() {
+        match item {
+            Work::Enter(Value::Array(items)) => {
+                work.push(Work::Array(items.len()));
+                work.extend(items.into_iter().rev().map(Work::Enter));
+            }
+            Work::Enter(Value::Object(object)) => {
+                let (keys, values): (Vec<_>, Vec<_>) = object.into_iter().unzip();
+                work.push(Work::Object(keys));
+                work.extend(values.into_iter().rev().map(Work::Enter));
+            }
+            Work::Enter(other) => output.push(other),
+            Work::Array(len) => {
+                let start = output.len() - len;
+                let items = output.drain(start..).collect();
+                output.push(Value::Array(items));
+            }
+            Work::Object(keys) => {
+                let start = output.len() - keys.len();
+                let mut node = Value::Object(keys.into_iter().zip(output.drain(start..)).collect());
+                lower_node(&mut node, targets);
+                output.push(node);
+            }
+        }
+    }
+    *value = output.pop().unwrap();
+}
+
+fn lower_node(value: &mut Value, targets: &Targets) {
+    match value {
+        Value::Array(_) => {}
+        Value::Object(object) => {
+            if object.get("type").is_some_and(Value::is_string) && object.contains_key("id") {
+                lower_missing_reference(value, targets);
+            }
+            let Value::Object(object) = value else {
+                return;
+            };
+            if object.get("type").and_then(Value::as_str) == Some("kitten4::bump_into_color") {
+                let id = object.get("id").cloned().unwrap_or(Value::Null);
+                let subjects = targets.bump(field(value, "sprite"));
+                let color = field(value, "color").to_owned();
+                let next = value.get("next").cloned();
+                *value = subjects.into_iter().map(|subject| {
+                    json!({"id":id,"type":"bump_into_color","fields":{"sprite":subject,"color":color}})
+                }).reduce(|a,b| json!({"id":id,"type":"logic_operation","fields":{"type":"or"},"inputs":{"A":a,"B":b}}))
+                    .unwrap_or_else(|| json!({"id":id,"type":"logic_boolean","fields":{"BOOL":"FALSE"}}));
+                if let Some(next) = next {
+                    value["next"] = next;
+                }
+                return;
+            }
+            if object.get("type").and_then(Value::as_str) == Some("kitten4::bump") {
+                lower_bump(value, targets);
+                return;
+            }
+            if object.get("type").and_then(Value::as_str) == Some("when") {
+                lower_when(value);
+                return;
+            }
+            if object
+                .get("type")
+                .and_then(Value::as_str)
+                .is_some_and(|t| t.starts_with(OPAQUE))
+            {
+                lower_block(value, targets);
+            }
+        }
+        _ => {}
+    }
+}
+
+/// Official 4.11.20: level-triggered single-flight on originals and split
+/// instances; a mirror has no condition responder. See
+/// tests/fixtures/kitten4/semantics-when.bcm and semantics-when-split.bcm.
+fn lower_when(block: &mut Value) {
+    let id = block["id"].as_str().unwrap_or_default().to_owned();
+    let mut trigger = json!({"type": "wait_until", "id": format!("{id}-trigger"),
+        "inputs": {"condition": block["inputs"]["condition"].clone()}});
+    trigger["next"] = block["statements"]["DO"].take();
+    *block = json!({
+        "type": "on_running_group_activated", "id": id,
+        "next": {"type": "repeat_forever", "id": format!("{id}-loop"), "statements": {"DO": trigger}},
+    });
+}
+
+/// Accepted so a work runs, but without their effect. `coverage` lists them.
+fn is_stub(kind: &str) -> bool {
+    matches!(
+        kind,
+        "enable_voice_detection"
+            | "get_voice_volume"
+            | "wood_block_set"
+            | "wood_block_get"
+            | "set_camera_status"
+    )
+}
+
+fn cloud_list(block: &mut Value, native: &str) {
+    let list = field(block, "VAR").to_owned();
+    if native == "lists_get" {
+        block["type"] = json!("pure_list_get");
+        block["fields"] = json!({"list": list});
+        return;
+    }
+    remove(&mut block["fields"], "VAR");
+    if !block["inputs"].is_object() {
+        block["inputs"] = json!({});
+    }
+    block["inputs"]["VAR"] = json!({"type": "pure_list_get", "fields": {"list": list}});
+    if field(block, "TYPE") == "nth" {
+        put_field(block, "TYPE", "first");
+    }
+    block["type"] = json!(native);
+    let _ = translate(block, false);
+    if native == "lists_get_value" {
+        block["type"] = json!("kitten4_cloud_list_item");
+    }
+}
+
+fn lower_block(block: &mut Value, targets: &Targets) {
+    let kind = block["type"]
+        .as_str()
+        .unwrap_or_default()
+        .trim_start_matches(OPAQUE)
+        .to_owned();
+    if kind == "set_entity_show_hide" {
+        // Official Tn6a/lt: group members are affected together; the caller's
+        // interpreter (not a tell thread) is blocked by gradual visibility.
+        let target = field(block, "sprite");
+        let ids = if targets.scenes.get(target).is_some() {
+            vec![target.to_owned()]
+        } else {
+            targets.bump(target)
+        };
+        if ids.is_empty() {
+            // Tn6a rejects an unresolved visibility target. Do not turn a
+            // dangling/empty group into a successful no-effect instruction.
+            return;
+        }
+        block["type"] = json!("kitten4_entity_visibility");
+        block["visibility_targets"] = json!(ids);
+        return;
+    }
+    if lower_legacy_alias(block, targets) {
+        return;
+    }
+    if effects::lower_effect(block) {
+        return;
+    }
+    if common::lower_common(block) {
+        return;
+    }
+    if third::lower_third(block, targets) {
+        return;
+    }
+    if media_devices::lower_media_devices(block) {
+        return;
+    }
+    if devices::lower_devices(block) {
+        return;
+    }
+    if audio_aliases::lower_audio_alias(block, targets) {
+        return;
+    }
+    if matches!(kind.as_str(), "get" | "get_2" | "get_3") {
+        // Tn6a/get and get_2 delegate to get_3, including invalid targets,
+        // scene backgrounds, native rounding and UUID variable attributes.
+        block["type"] = json!("kitten4_property");
+        return;
+    }
+    if kind.starts_with("physics2_") {
+        block["type"] = json!(kind);
+        return;
+    }
+    if kind == "set_velocity" {
+        block["type"] = json!("kitten4_set_velocity");
+        return;
+    }
+    if kind == "set_layer_with_pen" {
+        block["type"] = json!("kitten4_layer_with_pen");
+        return;
+    }
+    if kind == "get_physics_property" {
+        block["type"] = json!("kitten4_legacy_property");
+        return;
+    }
+    if matches!(
+        kind.as_str(),
+        "self_enable_physics"
+            | "self_disable_physics"
+            | "self_set_friction"
+            | "self_set_restitution"
+            | "self_set_boundary"
+            | "self_set_mass"
+            | "self_set_density"
+            | "set_actor_as"
+            | "allow_rotate"
+            | "self_texture"
+            | "set_force"
+            | "set_force_by_vector"
+            | "set_gravity"
+            | "set_gravity_by_orientation"
+            | "set_velocity_by_vector"
+    ) {
+        block["type"] = json!(format!("kitten4_legacy_{kind}"));
+        return;
+    }
+    if is_stub(&kind) {
+        if matches!(kind.as_str(), "get_voice_volume" | "wood_block_get") {
+            // Offline player: no microphone samples => 0; its player-specific
+            // wood override returns NaN without evaluating the Python request.
+            block["type"] = json!("math_number");
+            put_field(
+                block,
+                "NUM",
+                if kind == "wood_block_get" { "NaN" } else { "0" },
+            );
+        } else {
+            block["type"] = json!("kitten4_noop");
+        }
+        return;
+    }
+    if matches!(
+        kind.as_str(),
+        "play_video" | "play_video_until_end" | "continue_pause_video" | "show_hide_video"
+    ) {
+        block["type"] = json!(format!("kitten4_{kind}"));
+        return;
+    }
+    if matches!(
+        kind.as_str(),
+        "cloud_variables_set"
+            | "change_cloud_variable"
+            | "cloud_lists_append"
+            | "cloud_lists_insert_value"
+            | "cloud_lists_delete"
+            | "cloud_lists_replace"
+            | "show_ranking"
+            | "hide_ranking"
+            | "is_ranking_show_hide"
+    ) {
+        block["type"] = json!(format!("kitten4_{kind}"));
+        return;
+    }
+    if let Some(list) = kind.strip_prefix("cloud_lists_") {
+        cloud_list(block, &format!("lists_{list}"));
+        return;
+    }
+    let renamed = match kind.as_str() {
+        "self_clear_effects" => "clear_all_effects",
+        "calculate" => {
+            block["type"] = json!("kitten4_calculate");
+            return;
+        }
+        "set_pen_path" => {
+            block["type"] = json!(match field(block, "point") {
+                "start_point" => "pen_begin_path",
+                "end_point" => "pen_close_path",
+                _ => "kitten4_noop",
+            });
+            return;
+        }
+        "set_fill_style" | "pen_begin_path" | "pen_close_path" => kind.as_str(),
+        "cloud_variables_get" => {
+            fields(block, &[("VAR", "variable")], false);
+            "variables_get"
+        }
+        "show_hide_cloud_variable" => {
+            fields(block, &[("VAR", "variable"), ("FUNC", "show_hide")], false);
+            "show_hide_variables"
+        }
+        "show_hide_list" | "show_hide_cloud_list" => {
+            fields(block, &[("VAR", "list"), ("FUNC", "show_hide")], false);
+            "show_hide_list"
+        }
+        "convert_type" => {
+            inputs(block, &[("original_value", "text")], false);
+            "convert_type"
+        }
+        "logic_empty" => {
+            put_field(block, "BOOL", "FALSE");
+            "logic_boolean"
+        }
+        "check_running_device" => {
+            // The local player is a desktop runtime, not a mobile emulator.
+            let computer = field(block, "device") == "computer";
+            put_field(block, "BOOL", if computer { "TRUE" } else { "FALSE" });
+            "logic_boolean"
+        }
+        "self_distance_to" => "distance_to",
+        "self_change_layer" => {
+            // Official set_theatre_layer's `n` adds a signed number of layers.
+            put_field(block, "layer", "n");
+            "self_change_layer"
+        }
+        "lists_get_value" => {
+            // `nth` occurs in legacy/cloud serialization; `first` means indexed,
+            // not the first element. Unknown TYPEs must not silently become indexed.
+            if !matches!(field(block, "TYPE"), "" | "first" | "last" | "nth") {
+                return;
+            }
+            if matches!(field(block, "TYPE"), "" | "nth") {
+                put_field(block, "TYPE", "first");
+            }
+            block["type"] = json!("lists_get_value");
+            let _ = translate(block, false);
+            return;
+        }
+        // No signed-in player in a local run.
+        "username_get" => {
+            put_field(block, "TEXT", "");
+            "text"
+        }
+        "user_id_get" | "connected_users_get" => {
+            put_field(block, "NUM", if kind == "user_id_get" { "0" } else { "1" });
+            "math_number"
+        }
+        "get_running_device" => {
+            put_field(block, "TEXT", "web");
+            "text"
+        }
+        "get_choice_or_index" => {
+            let index = field(block, "type") == "select_index";
+            put_field(block, "type", if index { "index" } else { "content" });
+            "get_choice_and_index"
+        }
+        "get_audios" | "get_whole_audios" => {
+            fields(block, &[("sound_id", "audio_id")], false);
+            "get_play_audio"
+        }
+        "play_audio_2" | "stop_audio_2" | "play_audio_and_wait_2" => {
+            inputs(block, &[("audio", "audio_id")], false);
+            match kind.as_str() {
+                "play_audio_2" => "play_audio",
+                "stop_audio_2" => "stop_audio",
+                _ => "play_audio_and_wait",
+            }
+        }
+        "play_audio" | "play_audio_and_wait" => {
+            let id = field(block, "audio").to_owned();
+            block["inputs"]["audio_id"] = json!({"type":"text","fields":{"TEXT":id}});
+            kind.as_str()
+        }
+        "stop_all_audios" => {
+            block["inputs"]["audio_id"] = json!({"type":"text","fields":{"TEXT":"all"}});
+            "stop_audio"
+        }
+        "play_words_audio" | "play_words_audio_wait" => {
+            if block["inputs"].get("text").is_none() {
+                let text = field(block, "text").to_owned();
+                block["inputs"]["text"] = json!({"type":"text","fields":{"TEXT":text}});
+            }
+            kind.as_str()
+        }
+        "set_volume_or_rate" | "change_volume_or_rate" => {
+            let id = field(block, "audio").to_owned();
+            block["inputs"]["audio"] = json!({"type":"text","fields":{"TEXT":id}});
+            if kind == "set_volume_or_rate" {
+                "set_volume_or_rate_2"
+            } else {
+                "change_volume_or_rate_2"
+            }
+        }
+        "check_screen" => {
+            // Official Tn6a/check_screen accepts scene IDs, names and 1-based
+            // numbers; an unknown scene is outside, not an error.
+            "kitten4_check_screen"
+        }
+        "shadow_number" | "shadow_text" => {
+            if let Some(inner) = block.pointer("/inputs/VALUE").cloned() {
+                *block = inner;
+            }
+            return;
+        }
+        // oiyH/default_value returns Number(TEXT), retaining text only for NaN.
+        // A numeric default is not a string when passed to typed comparisons.
+        "default_value" => "kitten4_default_value",
+        // The canonical form keeps forward trig only; the VM also has the inverses.
+        "math_trig" => {
+            let op = field(block, "OP").to_lowercase();
+            put_field(block, "type", &op);
+            remove(&mut block["fields"], "OP");
+            inputs(block, &[("NUM", "num")], false);
+            "math_trig"
+        }
+        "dispose" => "kitten4_dispose",
+        "clone" => "kitten4_split",
+        "on_swipe" | "backdrop_on_change" | "self_flip" => kind.as_str(),
+        "terminate" => {
+            put_field(block, "scope", "0");
+            "stop"
+        }
+        "set_volume_or_rate_2" | "change_volume_or_rate_2" => kind.as_str(),
+        "self_prev_next_style" => {
+            fields(block, &[("prev_or_next", "prev_next")], false);
+            "self_prev_next_style"
+        }
+        "set_costume" => {
+            inputs(block, &[("index", "style_id")], false);
+            "set_sprite_style"
+        }
+        // Official Tn6a/get_current_costume returns {style_id}, not a number
+        // (nor a plain ID string). Keep the canonical KN reporter unchanged.
+        "get_current_costume" => "kitten4_costume_literal",
+        "check_key" => {
+            fields(block, &[("key_event_type", "type")], false);
+            "check_key"
+        }
+        "get_mouse_info" => {
+            fields(block, &[("position", "type")], false);
+            "get_mouse_info"
+        }
+        "sprite_on_tap" => {
+            let actor = match field(block, "actor") {
+                "__self" => "--self".to_owned(),
+                "__scene" => "--screen".to_owned(),
+                other => other.to_owned(),
+            };
+            remove(&mut block["fields"], "actor");
+            put_field(block, "sprite", &actor);
+            "sprite_on_tap"
+        }
+        "self_change_scale_2" => "self_change_scale",
+        "add_width_height_scale_2" => "add_width_height_scale",
+        "self_set_effect_2" => "self_set_effect",
+        "self_change_effect_3" => "self_change_effect",
+        "get_current_scene" | "get_sensing_current_scene" => "get_screens",
+        "text_select_changeable" => {
+            // Without an end index it selects a single character.
+            if block.pointer("/inputs/NUM1").is_none()
+                && let Some(start) = block.pointer("/inputs/NUM0").cloned()
+            {
+                block["inputs"]["NUM1"] = start;
+            }
+            inputs(
+                block,
+                &[
+                    ("STRING", "text"),
+                    ("NUM0", "start_index"),
+                    ("NUM1", "end_index"),
+                ],
+                false,
+            );
+            "text_select"
+        }
+        "set_theatre_layer" => {
+            let layer = match field(block, "layer") {
+                "previous_level" => "prev_layer",
+                "next_level" => "next_layer",
+                other => other,
+            }
+            .to_owned();
+            put_field(block, "layer", &layer);
+            "self_change_layer"
+        }
+        "self_out_of_boundary" => {
+            let boundary = match field(block, "boundary") {
+                "1" => "left",
+                "2" => "top",
+                "3" => "bottom",
+                "4" => "right",
+                _ => "edge",
+            };
+            put_field(block, "boundary", boundary);
+            "out_of_boundary"
+        }
+        "show_hide_variable" => {
+            fields(block, &[("VAR", "variable"), ("FUNC", "show_hide")], false);
+            "show_hide_variables"
+        }
+        "mouse_down"
+        | "self_set_rotation_type"
+        | "get_clone_index_property"
+        | "get_clone_num"
+        | "get_stage_info"
+        | "mirror"
+        | "start_as_a_mirror"
+        | "dispose_clone"
+        | "self_move_specify"
+        | "self_face_to"
+        | "stamp"
+        | "image_stamp"
+        | "tell"
+        | "sync_tell"
+        | "get_current_clone_index"
+        | "get_answer"
+        | "self_ask"
+        | "ask_and_choose"
+        | "restart"
+        | "self_gradually_show_hide"
+        | "self_glide_to"
+        | "self_glide_coordinate"
+        | "stop"
+        | "get_time"
+        | "set_width_height_scale"
+        | "self_rotate_around"
+        | "switch_to_screen"
+        | "self_set_draggable"
+        | "self_set_role_camp"
+        | "create_stage_dialog"
+        | "set_scene_transition" => kind.as_str(),
+        _ => return,
+    }
+    .to_owned();
+    if kind.starts_with("get_") && renamed == "get_screens" {
+        fields(block, &[("scene", "screen")], false);
+    }
+    block["type"] = json!(renamed);
+}
+
+/// Equality that survives a trip through the browser, where 100.0 comes back as 100.
+fn same_json(a: &Value, b: &Value) -> bool {
+    let mut pending = vec![(a, b)];
+    while let Some((a, b)) = pending.pop() {
+        match (a, b) {
+            (Value::Number(a), Value::Number(b)) => {
+                if a == b {
+                    continue;
+                }
+                // Do not round distinct large integers to the same f64. Browser
+                // integer/float normalization is safe only in the exact JS range.
+                let (Some(a_float), Some(b_float)) = (a.as_f64(), b.as_f64()) else {
+                    return false;
+                };
+                if !((a.is_f64() || b.is_f64())
+                    && a_float.abs() <= 9_007_199_254_740_991.0
+                    && b_float.abs() <= 9_007_199_254_740_991.0
+                    && a_float == b_float)
+                {
+                    return false;
+                }
+            }
+            (Value::Array(a), Value::Array(b)) => {
+                if a.len() != b.len() {
+                    return false;
+                }
+                pending.extend(a.iter().zip(b));
+            }
+            (Value::Object(a), Value::Object(b)) => {
+                if a.len() != b.len() {
+                    return false;
+                }
+                for (key, a) in a {
+                    let Some(b) = b.get(key) else { return false };
+                    pending.push((a, b));
+                }
+            }
+            _ if a != b => return false,
+            _ => {}
+        }
+    }
+    true
+}
+
+fn is_published(source: &Value) -> bool {
+    let no_workspace = |section: &str| {
+        source["theatre"][section]
+            .as_object()
+            .is_none_or(|owners| owners.values().all(|o| o.get("block_data_json").is_none()))
+    };
+    source.get("compile_result").is_some_and(Value::is_array)
+        && no_workspace("actors")
+        && no_workspace("scenes")
+}
+
+pub fn from_neko(value: &Value) -> Result<crate::json::Json> {
+    crate::json::check_blocks(value, MAX_DEPTH)?;
+    crate::json::expanded(|| from_neko_inner(value).map(crate::json::Json::new))
+}
+
+fn from_neko_inner(value: &Value) -> Result<Value> {
     ensure!(value.is_object(), "canonical project must be an object");
     let source = value.get(METADATA).and_then(|m| m.get("source"));
     if let Some(source) = source {
         ensure!(is_kitten4(source), "invalid _nekocKitten4.source");
-        let baseline = import_project(source)?;
+        let baseline = source_baseline(source)?;
+        if value
+            .as_object()
+            .unwrap()
+            .iter()
+            .filter(|(key, _)| key.as_str() != METADATA)
+            .count()
+            == baseline.as_object().unwrap().len()
+            && baseline.as_object().unwrap().iter().all(|(key, original)| {
+                value
+                    .get(key)
+                    .is_some_and(|edited| same_json(edited, original))
+            })
+        {
+            return Ok(crate::json::clone_value(source));
+        }
+        if is_published(source) {
+            // No workspace to write edits into: only an unchanged work can be exported.
+            // Check the complete canonical snapshot, not just executable owners:
+            // root edits (variables, resources, name, size, future fields) would
+            // otherwise be silently lost by the source-clone return below.
+            let content = value.as_object().unwrap();
+            let baseline = baseline.as_object().unwrap();
+            let unchanged = content
+                .keys()
+                .filter(|key| key.as_str() != METADATA)
+                .count()
+                == baseline.len()
+                && baseline.iter().all(|(key, original)| {
+                    content
+                        .get(key)
+                        .is_some_and(|edited| same_json(edited, original))
+                });
+            ensure!(
+                unchanged,
+                "published Kitten 4 work has no block workspace, so edits cannot be exported"
+            );
+            return Ok(crate::json::clone_value(source));
+        }
         let old = export_project(&baseline, Some(source))?;
         let new = export_project(value, Some(source))?;
-        let mut result = source.clone();
+        let mut result = crate::json::clone_value(source);
         apply_changes(&mut result, &old, &new);
         Ok(result)
     } else {
@@ -45,17 +988,21 @@ pub fn from_neko(value: &Value) -> Result<Value> {
     }
 }
 
-fn import_project(source: &Value) -> Result<Value> {
+type SourceImport = (Value, std::result::Result<StartHats, String>);
+
+fn import_project(source: &Value) -> Result<SourceImport> {
     ensure!(
-        source.get("version").and_then(Value::as_u64) == Some(25),
-        "unsupported Kitten 4 project version {}; this adapter supports version 25",
+        matches!(source.get("version").and_then(Value::as_u64), Some(24 | 25)),
+        "unsupported Kitten 4 project version {}; this adapter supports versions 24 and 25",
         source["version"]
     );
     let theatre = source
         .get("theatre")
         .context("Kitten 4 theatre is missing")?;
-    let scenes = import_owners(&theatre["scenes"], "scene")?;
-    let actors = import_owners(&theatre["actors"], "actor")?;
+    let compiled = CompiledWork::new(source);
+    let mut starts = Ok(StartHats::new());
+    let scenes = import_owners(&theatre["scenes"], "scene", &compiled, &mut starts)?;
+    let actors = import_owners(&theatre["actors"], "actor", &compiled, &mut starts)?;
     let current_scene = theatre
         .get("current_scene")
         .and_then(Value::as_str)
@@ -74,6 +1021,8 @@ fn import_project(source: &Value) -> Result<Value> {
         .or_else(|| scenes.keys().next().map(String::as_str));
     let mut styles = object_or_empty(theatre.get("styles"), "theatre.styles")?;
     for style in styles.values_mut() {
+        // Both editors pass this unscaled, image-centred (x right, y down)
+        // offset directly to the runtime pivot; see docs/costume-pivot.md.
         rename(style, "rotate_center", "centerPoint");
     }
     let mut variables = object_or_empty(source.get("variables"), "variables")?;
@@ -81,21 +1030,25 @@ fn import_project(source: &Value) -> Result<Value> {
         rename(variable, "is_global", "isGlobal");
         rename(variable, "create_time", "createTime");
     }
-    Ok(json!({
-        "projectName": source.get("project_name").cloned().unwrap_or(json!("Kitten 4")),
-        "version": "0.27.4", "toolType": "KN",
-        "stageSize": source.get("size").cloned().unwrap_or(json!({"width":640,"height":360})),
-        "scenes": {"scenesDict": scenes,
-            "sortList": theatre.get("scenes_order").cloned().unwrap_or(json!([])),
-            "currentSceneId": current_scene},
-        "actors": {"actorsDict": actors},
-        "styles": {"stylesDict": styles},
-        "variables": {"variablesDict": variables},
-        "broadcasts": {"broadcastsDict": source.get("broadcasts").cloned().unwrap_or(json!({}))},
-        "audios": {"audiosDict": source.get("audio").cloned().unwrap_or(json!({})),
-            "sortList": source.get("audio_order").cloned().unwrap_or(json!([]))},
-        "procedures": {"proceduresDict": {}}
-    }))
+    Ok((
+        json!({
+            "projectName": source.get("project_name").cloned().unwrap_or(json!("Kitten 4")),
+            "version": "0.27.4", "toolType": "KN",
+            "stageSize": source.get("size").cloned().unwrap_or(json!({"width":640,"height":360})),
+            "scenes": {"scenesDict": scenes,
+                "sortList": theatre.get("scenes_order").cloned().unwrap_or(json!([])),
+                "currentSceneId": current_scene},
+            "actors": {"actorsDict": actors},
+            "styles": {"stylesDict": styles},
+            "videos": {"videosDict": theatre.get("videos").cloned().unwrap_or(json!({}))},
+            "variables": {"variablesDict": variables},
+            "broadcasts": {"broadcastsDict": source.get("broadcasts").cloned().unwrap_or(json!({}))},
+            "audios": {"audiosDict": source.get("audio").cloned().unwrap_or(json!({})),
+                "sortList": source.get("audio_order").cloned().unwrap_or(json!([]))},
+            "procedures": {"proceduresDict": compiled.procedures()?}
+        }),
+        starts,
+    ))
 }
 
 fn object_or_empty(value: Option<&Value>, label: &str) -> Result<Map<String, Value>> {
@@ -108,7 +1061,12 @@ fn object_or_empty(value: Option<&Value>, label: &str) -> Result<Map<String, Val
     }
 }
 
-fn import_owners(value: &Value, kind: &str) -> Result<Map<String, Value>> {
+fn import_owners(
+    value: &Value,
+    kind: &str,
+    compiled: &CompiledWork,
+    starts: &mut std::result::Result<StartHats, String>,
+) -> Result<Map<String, Value>> {
     let owners = value
         .as_object()
         .with_context(|| format!("theatre.{kind}s must be an object"))?;
@@ -121,8 +1079,26 @@ fn import_owners(value: &Value, kind: &str) -> Result<Map<String, Value>> {
                 .get("block_data_json")
                 .cloned()
                 .unwrap_or(json!({"blocks":{},"connections":{},"comments":{}}));
-            let scripts =
-                import_workspace(&workspace).with_context(|| format!("Kitten 4 {kind} {id}"))?;
+            let (scripts, hats) = if owner.get("block_data_json").is_some() {
+                import_workspace_with_starts(&workspace)
+            } else {
+                compiled.finish_with_starts(compiled.roots(id))
+            }
+            .with_context(|| format!("Kitten 4 {kind} {id}"))?;
+            for (root, start) in hats {
+                if let Ok(starts_map) = starts
+                    && starts_map
+                        .insert((kind == "scene", id.clone(), root.clone()), start)
+                        .is_some()
+                {
+                    // Import itself used to succeed; only VM provenance checking
+                    // rejects ambiguous hats. Keep that boundary and message.
+                    let section = if kind == "scene" { "scenes" } else { "actors" };
+                    *starts = Err(format!(
+                        "ambiguous Kitten 4 start provenance for {section}/{id}/{root}"
+                    ));
+                }
+            }
             result["nekoBlockJsonList"] = Value::Array(scripts);
             result["comments"] = workspace.get("comments").cloned().unwrap_or(json!({}));
             remove(&mut result, "block_data_json");
@@ -130,6 +1106,7 @@ fn import_owners(value: &Value, kind: &str) -> Result<Map<String, Value>> {
             rename(&mut result, "workspace_offset", "workspaceScrollXy");
             rename(&mut result, "screen_name", "screenName");
             rename(&mut result, "lock", "locked");
+            rename(&mut result, "rotation_type", "rotationType");
             if kind == "scene" {
                 rename(&mut result, "actors", "actorIds");
             }
@@ -149,7 +1126,319 @@ fn import_owners(value: &Value, kind: &str) -> Result<Map<String, Value>> {
 }
 
 /// Validate the entire graph (including disconnected cycles) before recursion.
-fn import_workspace(workspace: &Value) -> Result<Vec<Value>> {
+/// Published works carry no block workspace, only the tree the official compiler
+/// produced (`compile_result`). Its `params` use the same names as native fields and
+/// inputs, so it can be rebuilt into the nested form the importer already understands.
+struct CompiledWork<'a> {
+    source: &'a Value,
+    entities: Vec<&'a Value>,
+    parameters: BTreeMap<&'a str, Vec<&'a str>>,
+}
+
+impl<'a> CompiledWork<'a> {
+    fn new(source: &'a Value) -> Self {
+        let entities: Vec<&Value> = source
+            .get("compile_result")
+            .and_then(Value::as_array)
+            .map(|entities| entities.iter().collect())
+            .unwrap_or_default();
+        let mut parameters = BTreeMap::new();
+        for (name, definition) in entities
+            .iter()
+            .filter_map(|entity| entity["procedures"].as_object())
+            .flatten()
+        {
+            let names = definition["params"]
+                .as_object()
+                .map(|params| params.keys().map(String::as_str).collect())
+                .unwrap_or_default();
+            parameters.insert(name.as_str(), names);
+        }
+        Self {
+            source,
+            entities,
+            parameters,
+        }
+    }
+
+    fn roots<'b>(&'b self, owner: &'b str) -> impl Iterator<Item = &'a Value> + 'b {
+        self.entities
+            .iter()
+            .filter(|entity| entity["id"].as_str() == Some(owner))
+            .filter_map(|entity| entity["compiled_block_map"].as_object())
+            .flat_map(Map::values)
+    }
+
+    fn procedures(&self) -> Result<Map<String, Value>> {
+        let mut result = Map::new();
+        // Old Blockly definitions can live only in a workspace (no cached AST).
+        // DmFr/json_procedure_definition_to_json reads mutation argument names.
+        for owner in ["actors", "scenes"].into_iter().flat_map(|section| {
+            self.source["theatre"][section]
+                .as_object()
+                .into_iter()
+                .flat_map(Map::values)
+        }) {
+            let Some(workspace) = owner.get("block_data_json") else {
+                continue;
+            };
+            if !workspace["blocks"].as_object().is_some_and(|blocks| {
+                blocks
+                    .values()
+                    .any(|b| b["type"] == "procedures_defnoreturn")
+            }) {
+                continue;
+            }
+            let roots = import_workspace_with_starts(workspace)?.0;
+            for definition in roots
+                .into_iter()
+                .filter(|b| b["type"] == "procedures_2_defnoreturn")
+            {
+                let Some(original) = workspace["blocks"]
+                    .get(definition["id"].as_str().unwrap_or_default())
+                    .filter(|b| b["type"] == "procedures_defnoreturn")
+                else {
+                    continue;
+                };
+                let name = field(original, "NAME");
+                let params: Vec<Value> = third::mutation_names(original)
+                    .into_iter()
+                    .map(|param| json!({"id":param,"name":param,"type":"String"}))
+                    .collect();
+                result.insert(
+                    name.to_owned(),
+                    json!({"id":name,"name":name,"params":params,"nekoBlockJsonList":[definition]}),
+                );
+            }
+        }
+        for (name, definition) in self
+            .entities
+            .iter()
+            .filter_map(|entity| entity["procedures"].as_object())
+            .flatten()
+        {
+            let params: Vec<Value> = self.parameters[name.as_str()]
+                .iter()
+                .map(|param| json!({"id": param, "name": param, "type": "String"}))
+                .collect();
+            let scripts = self
+                .finish(std::iter::once(definition))
+                .with_context(|| format!("Kitten 4 procedure {name}"))?;
+            result.insert(
+                name.clone(),
+                json!({"id": name, "name": name, "params": params, "nekoBlockJsonList": scripts}),
+            );
+        }
+        Ok(result)
+    }
+
+    fn finish<'b>(&self, roots: impl Iterator<Item = &'b Value>) -> Result<Vec<Value>> {
+        Ok(self.finish_with_starts(roots)?.0)
+    }
+
+    fn finish_with_starts<'b>(
+        &self,
+        roots: impl Iterator<Item = &'b Value>,
+    ) -> Result<ImportedRoots> {
+        let _timing = crate::import_perf::span("compiled_work_native");
+        finish_roots(roots.map(|root| self.native(root, 0)), None)
+    }
+
+    fn native(&self, node: &Value, depth: usize) -> Result<Value> {
+        let mut work = vec![(node, depth, false)];
+        let mut output = BTreeMap::new();
+        while let Some((node, depth, exit)) = work.pop() {
+            let address = node as *const Value as usize;
+            if exit {
+                let next = node
+                    .get("next_block")
+                    .filter(|v| !v.is_null())
+                    .map(|v| output.remove(&(v as *const Value as usize)).unwrap());
+                let mut result = crate::json::Json::new(self.native_one(node, &mut output)?);
+                if let Some(next) = next {
+                    result["next"] = crate::json::Json::into_value(next);
+                }
+                output.insert(address, result);
+                continue;
+            }
+            check_depth(node, depth)?;
+            work.push((node, depth, true));
+            if let Some(next) = node.get("next_block").filter(|v| !v.is_null()) {
+                work.push((next, depth, false));
+            }
+            for child in node["params"]
+                .as_object()
+                .into_iter()
+                .flat_map(|p| p.values())
+                .filter(|v| v.is_object())
+                .chain(
+                    ["conditions", "child_block"]
+                        .into_iter()
+                        .flat_map(|k| node[k].as_array().into_iter().flatten())
+                        .filter(|v| !v.is_null()),
+                )
+            {
+                work.push((child, depth + 1, false));
+            }
+        }
+        Ok(output
+            .remove(&(node as *const Value as usize))
+            .unwrap()
+            .into_value())
+    }
+
+    fn native_one(
+        &self,
+        node: &Value,
+        output: &mut BTreeMap<usize, crate::json::Json>,
+    ) -> Result<Value> {
+        let kind = node["type"]
+            .as_str()
+            .context("compiled block has no type")?;
+        // Number sockets holding typed text compile to math_number with only TEXT.
+        let kind = if kind == "math_number" && node["params"].get("NUM").is_none() {
+            "text"
+        } else {
+            kind
+        };
+        let definition = kind.starts_with("procedures_2_def") || kind == "procedures_defnoreturn";
+        let (mut fields, mut inputs, mut statements) = (Map::new(), Map::new(), Map::new());
+        if !definition {
+            for (name, value) in node["params"].as_object().into_iter().flatten() {
+                if value.is_object() {
+                    inputs.insert(
+                        name.clone(),
+                        output
+                            .remove(&(value as *const Value as usize))
+                            .unwrap()
+                            .into_value(),
+                    );
+                } else if !value.is_null() {
+                    fields.insert(name.clone(), value.clone());
+                }
+            }
+        }
+        if matches!(
+            kind,
+            "procedures_2_callnoreturn"
+                | "procedures_2_callreturn"
+                | "procedures_callnoreturn"
+                | "procedures_callreturn"
+        ) {
+            let name = node["procedure_name"].as_str().unwrap_or_default();
+            fields.insert("NAME".into(), json!(name));
+            let parameters = self.parameters.get(name);
+            inputs.retain(|key, _| parameters.is_none_or(|p| p.contains(&key.as_str())));
+            for parameter in parameters.into_iter().flatten() {
+                inputs
+                    .entry(parameter.to_string())
+                    .or_insert_with(|| json!({"type": "math_number", "fields": {"NUM": "0"}}));
+            }
+        }
+        if matches!(
+            kind,
+            "procedures_2_return_value" | "procedures_return_value"
+        ) && !inputs.contains_key("VALUE")
+        {
+            inputs.insert(
+                "VALUE".into(),
+                json!({"type": "text", "fields": {"TEXT": ""}}),
+            );
+        }
+        let conditions = if kind == "controls_if_dropdown" {
+            for (index, condition) in node["if_dropdown_conditions"]
+                .as_array()
+                .into_iter()
+                .flatten()
+                .enumerate()
+            {
+                fields.insert(format!("IF{index}"), condition.clone());
+            }
+            node["if_dropdown_conditions"]
+                .as_array()
+                .map_or(0, Vec::len)
+        } else {
+            node["conditions"].as_array().map_or(0, Vec::len)
+        };
+        for (index, condition) in node["conditions"]
+            .as_array()
+            .into_iter()
+            .flatten()
+            .enumerate()
+        {
+            if !condition.is_null() {
+                inputs.insert(
+                    format!("IF{index}"),
+                    output
+                        .remove(&(condition as *const Value as usize))
+                        .unwrap()
+                        .into_value(),
+                );
+            }
+        }
+        for (index, child) in node["child_block"]
+            .as_array()
+            .into_iter()
+            .flatten()
+            .enumerate()
+        {
+            if child.is_null() {
+                continue;
+            }
+            let socket = match kind {
+                "controls_if" | "controls_if_no_else" | "controls_if_dropdown"
+                    if index < conditions =>
+                {
+                    format!("DO{index}")
+                }
+                "controls_if" | "controls_if_no_else" | "controls_if_dropdown" => "ELSE".to_owned(),
+                _ if definition => "STACK".to_owned(),
+                _ => "DO".to_owned(),
+            };
+            statements.insert(
+                socket,
+                output
+                    .remove(&(child as *const Value as usize))
+                    .unwrap()
+                    .into_value(),
+            );
+        }
+        let mut block = json!({"type": kind});
+        if matches!(
+            kind,
+            "procedures_2_callnoreturn"
+                | "procedures_2_callreturn"
+                | "procedures_callnoreturn"
+                | "procedures_callreturn"
+        ) {
+            let name = node["procedure_name"].as_str().unwrap_or_default();
+            let name = name
+                .replace('&', "&amp;")
+                .replace('<', "&lt;")
+                .replace('"', "&quot;");
+            block["mutation"] = json!(format!(
+                "<mutation def_id=\"{name}\" name=\"{name}\" type=\"NORMAL\"></mutation>"
+            ));
+        }
+        if let Some(id) = node.get("id") {
+            block["id"] = id.clone();
+        }
+        if !fields.is_empty() {
+            block["fields"] = Value::Object(fields);
+        }
+        if !inputs.is_empty() {
+            block["inputs"] = Value::Object(inputs);
+        }
+        if !statements.is_empty() {
+            block["statements"] = Value::Object(statements);
+        }
+        Ok(block)
+    }
+}
+
+type ImportedRoots = (Vec<Value>, Vec<(String, StartKind)>);
+
+fn import_workspace_with_starts(workspace: &Value) -> Result<ImportedRoots> {
     let blocks = workspace
         .get("blocks")
         .and_then(Value::as_object)
@@ -196,20 +1485,41 @@ fn import_workspace(workspace: &Value) -> Result<Vec<Value>> {
         }
     }
     let mut state = BTreeMap::new();
-    for id in blocks.keys() {
-        visit(id, &connections, &mut state, 0)?;
-    }
-    let mut scripts: Vec<Value> = blocks
+    // Visit complete root paths before cached descendants, so the path-length
+    // bound cannot be bypassed by dictionary ordering. Then check detached cycles.
+    for id in blocks
         .keys()
         .filter(|id| !parents.contains_key(id.as_str()))
-        .map(|id| {
-            let native = nest(id, blocks, &connections, 0)?;
-            import_block(&native, 0)
+        .chain(blocks.keys())
+    {
+        visit(id, &connections, &mut state, 0)?;
+    }
+    let roots = blocks
+        .keys()
+        .filter(|id| !parents.contains_key(id.as_str()))
+        .map(|id| nest(id, blocks, &connections, 0));
+    finish_roots(roots, Some(workspace))
+}
+
+fn finish_roots(
+    roots: impl Iterator<Item = Result<Value>>,
+    workspace: Option<&Value>,
+) -> Result<ImportedRoots> {
+    let mut kinds = Vec::new();
+    let mut scripts = roots
+        .map(|native| {
+            let native = native?;
+            kinds.push(match native["type"].as_str() {
+                Some("start_on_click" | "start_on_click_2") => Some(StartKind::Global),
+                Some("on_running_group_activated") => Some(StartKind::Activation),
+                _ => None,
+            });
+            import_block(native, 0)
         })
-        .collect::<Result<_>>()?;
+        .collect::<Result<Vec<_>>>()?;
     // Conversion expressions are real editable KN blocks and need stable,
     // noncolliding IDs for workspace editors and subsequent graph export.
-    let mut ids = Graph::new(Some(workspace));
+    let mut ids = Graph::new(workspace);
     for block in &scripts {
         ids.reserve_ids(block, 0)?;
     }
@@ -217,7 +1527,14 @@ fn import_workspace(workspace: &Value) -> Result<Vec<Value>> {
         ids.assign_ids(block, 0)?;
         repair_parents(block, None);
     }
-    Ok(scripts)
+    let starts = scripts
+        .iter()
+        .zip(kinds)
+        .filter_map(|(block, kind)| {
+            kind.map(|kind| (block["id"].as_str().unwrap().to_owned(), kind))
+        })
+        .collect();
+    Ok((scripts, starts))
 }
 
 fn visit<'a>(
@@ -226,22 +1543,39 @@ fn visit<'a>(
     state: &mut BTreeMap<&'a str, u8>,
     depth: usize,
 ) -> Result<()> {
-    ensure!(
-        depth <= MAX_DEPTH,
-        "Kitten 4 block graph nesting exceeds {MAX_DEPTH}"
-    );
-    match state.get(id) {
-        Some(1) => bail!("cycle in Kitten 4 block graph at {id}"),
-        Some(2) => return Ok(()),
-        _ => {}
-    }
-    state.insert(id, 1);
-    if let Some(children) = connections.get(id).and_then(Value::as_object) {
-        for child in children.keys() {
-            visit(child, connections, state, depth + 1)?;
+    let mut pending = vec![(id, depth, 0, false)];
+    while let Some((id, depth, path_depth, exit)) = pending.pop() {
+        if exit {
+            state.insert(id, 2);
+            continue;
+        }
+        ensure!(
+            depth <= MAX_DEPTH,
+            "Kitten 4 block graph nesting exceeds {MAX_DEPTH} at block {id}"
+        );
+        ensure!(
+            path_depth <= crate::json::MAX_BLOCK_PATH,
+            "Kitten 4 block path exceeds {} at block {id}",
+            crate::json::MAX_BLOCK_PATH
+        );
+        match state.get(id) {
+            Some(1) => bail!("cycle in Kitten 4 block graph at {id}"),
+            Some(2) => continue,
+            _ => {}
+        }
+        state.insert(id, 1);
+        pending.push((id, depth, path_depth, true));
+        if let Some(children) = connections.get(id).and_then(Value::as_object) {
+            for (child, connection) in children {
+                pending.push((
+                    child,
+                    depth + usize::from(connection["type"] != "next"),
+                    path_depth + 1,
+                    false,
+                ));
+            }
         }
     }
-    state.insert(id, 2);
     Ok(())
 }
 
@@ -251,73 +1585,176 @@ fn nest(
     connections: &Map<String, Value>,
     depth: usize,
 ) -> Result<Value> {
-    ensure!(
-        depth <= MAX_DEPTH,
-        "Kitten 4 block nesting exceeds {MAX_DEPTH}"
-    );
-    let mut result = blocks[id]
-        .as_object()
-        .cloned()
-        .with_context(|| format!("block {id} must be an object"))?;
-    ensure!(
-        result.get("id").is_none_or(|v| v.as_str() == Some(id)),
-        "block ID disagrees with dictionary key {id}"
-    );
-    result.insert("id".into(), json!(id));
-    for key in ["next", "inputs", "statements"] {
-        result.remove(key);
-    }
-    if let Some(children) = connections.get(id).and_then(Value::as_object) {
-        for (child, connection) in children {
-            let nested = nest(child, blocks, connections, depth + 1)?;
-            if connection["type"] == "next" {
-                result.insert("next".into(), nested);
-            } else {
-                let container = if connection["input_type"] == "statement" {
-                    "statements"
+    let mut work = vec![(id, depth, false)];
+    let mut output: BTreeMap<&str, crate::json::Json> = BTreeMap::new();
+    while let Some((id, depth, exit)) = work.pop() {
+        ensure!(
+            depth <= MAX_DEPTH,
+            "Kitten 4 block nesting exceeds {MAX_DEPTH} at block {id}"
+        );
+        if !exit {
+            work.push((id, depth, true));
+            if let Some(children) = connections.get(id).and_then(Value::as_object) {
+                work.extend(children.iter().rev().map(|(child, edge)| {
+                    (
+                        child.as_str(),
+                        depth + usize::from(edge["type"] != "next"),
+                        false,
+                    )
+                }));
+            }
+            continue;
+        }
+        let mut result = blocks[id]
+            .as_object()
+            .cloned()
+            .with_context(|| format!("block {id} must be an object"))?;
+        ensure!(
+            result.get("id").is_none_or(|v| v.as_str() == Some(id)),
+            "block ID disagrees with dictionary key {id}"
+        );
+        result.insert("id".into(), json!(id));
+        for key in ["next", "inputs", "statements"] {
+            result.remove(key);
+        }
+        if let Some(children) = connections.get(id).and_then(Value::as_object) {
+            for (child, connection) in children {
+                if connection["type"] == "next" {
+                    result.insert(
+                        "next".into(),
+                        output.remove(child.as_str()).unwrap().into_value(),
+                    );
                 } else {
-                    "inputs"
-                };
-                let name = connection["input_name"]
-                    .as_str()
-                    .context("missing input name")?;
-                result
-                    .entry(container)
-                    .or_insert(json!({}))
-                    .as_object_mut()
-                    .unwrap()
-                    .insert(name.into(), nested);
+                    let nested = output.remove(child.as_str()).unwrap().into_value();
+                    let container = if connection["input_type"] == "statement" {
+                        "statements"
+                    } else {
+                        "inputs"
+                    };
+                    let name = connection["input_name"]
+                        .as_str()
+                        .context("missing input name")?;
+                    result
+                        .entry(container)
+                        .or_insert(json!({}))
+                        .as_object_mut()
+                        .unwrap()
+                        .insert(name.into(), nested);
+                }
             }
         }
+        output.insert(id, Value::Object(result).into());
     }
-    Ok(Value::Object(result))
+    Ok(output.remove(id).unwrap().into_value())
 }
 
-fn import_block(block: &Value, depth: usize) -> Result<Value> {
-    ensure!(
-        depth <= MAX_DEPTH,
-        "Kitten 4 block nesting exceeds {MAX_DEPTH}"
-    );
-    let mut result = block.clone();
-    for key in ["inputs", "statements"] {
-        if let Some(children) = result.get_mut(key).and_then(Value::as_object_mut) {
-            for child in children.values_mut() {
-                *child = import_block(child, depth + 1)?;
+fn import_block(block: Value, depth: usize) -> Result<Value> {
+    enum Work {
+        Enter(crate::json::Json, usize),
+        Exit(crate::json::Json, Vec<(String, String)>, bool),
+    }
+    let mut work = vec![Work::Enter(block.into(), depth)];
+    let mut output: Vec<crate::json::Json> = Vec::new();
+    while let Some(item) = work.pop() {
+        match item {
+            Work::Enter(mut node, depth) => {
+                check_depth(&node, depth)?;
+                ensure!(
+                    node["type"] != "on_keydown"
+                        || node.get("next").is_none()
+                        || node.pointer("/statements/DO").is_none(),
+                    "native event has both next and DO bodies at block {}",
+                    node["id"]
+                );
+                let next = node.as_object_mut().and_then(|o| o.remove("next"));
+                let mut children = Vec::new();
+                let mut sockets = Vec::new();
+                for key in ["inputs", "statements"] {
+                    if let Some(values) = node.get_mut(key).and_then(Value::as_object_mut) {
+                        for (name, child) in values {
+                            sockets.push((key.to_owned(), name.clone()));
+                            children.push(Work::Enter(child.take().into(), depth + 1));
+                        }
+                    }
+                }
+                let has_next = next.is_some();
+                if let Some(next) = next {
+                    children.push(Work::Enter(next.into(), depth));
+                }
+                work.push(Work::Exit(node, sockets, has_next));
+                work.extend(children.into_iter().rev());
+            }
+            Work::Exit(mut node, sockets, has_next) => {
+                let next = has_next.then(|| output.pop().unwrap());
+                let start = output.len() - sockets.len();
+                for ((key, name), child) in sockets.into_iter().zip(output.drain(start..)) {
+                    node[&key][&name] = child.into_value();
+                }
+                let mut node = import_one(node, 0)?;
+                if let Some(next) = next {
+                    node["next"] = next.into_value();
+                }
+                output.push(node);
             }
         }
     }
-    if let Some(next) = result.get_mut("next") {
-        *next = import_block(next, depth + 1)?;
-    }
-    let kind = block["type"]
+    Ok(output.pop().unwrap().into_value())
+}
+
+fn import_one(mut result: crate::json::Json, _depth: usize) -> Result<crate::json::Json> {
+    third::normalize_procedure(&mut result);
+    let kind = result["type"]
         .as_str()
-        .context("Kitten 4 block is missing type")?;
+        .context("Kitten 4 block is missing type")?
+        .to_owned();
+    let heading_reporter = kind == "get_2" && field(&result, "attribute") == "3";
+    // Translation only renames direct input sockets. Keep their payloads out of
+    // the transactional rollback copy: cloning every descendant at each ancestor
+    // would make a deep expression quadratic in both time and allocation.
+    let mut payloads = Vec::new();
+    if let Some(children) = result.get_mut("inputs").and_then(Value::as_object_mut) {
+        for child in children.values_mut() {
+            let index = payloads.len();
+            payloads.push(crate::json::Json::new(child.take()));
+            *child = json!({"_nekocSocket":index});
+        }
+    }
+    // Roll back unsupported translation exactly as before, but keep the large
+    // next/statement subtrees out of this local transactional copy. Translators
+    // only rename direct sockets (on_keydown moves its body).
+    let full_rollback = (kind == "on_keydown").then(|| result.clone());
+    let next = result.as_object_mut().and_then(|o| o.remove("next"));
+    let statements = result.as_object_mut().and_then(|o| o.remove("statements"));
     let untranslated = result.clone();
+    if let Some(next) = next {
+        result["next"] = next;
+    }
+    if let Some(statements) = statements {
+        result["statements"] = statements;
+    }
     if !translate(&mut result, false).unwrap_or(false) {
+        let next = result.as_object_mut().and_then(|o| o.remove("next"));
+        let statements = result.as_object_mut().and_then(|o| o.remove("statements"));
         result = untranslated;
+        if let Some(next) = next {
+            result["next"] = next;
+        }
+        if let Some(statements) = statements {
+            result["statements"] = statements;
+        }
+        if let Some(original) = full_rollback {
+            result = original;
+        }
         result["type"] = json!(format!("{OPAQUE}{kind}"));
     }
-    match kind {
+    if let Some(children) = result.get_mut("inputs").and_then(Value::as_object_mut) {
+        for child in children.values_mut() {
+            if let Some(index) = child["_nekocSocket"].as_u64() {
+                *child = payloads[index as usize].take();
+            }
+        }
+    }
+    match kind.as_str() {
         "self_point_towards" | "self_rotate" => {
             let offset = if kind == "self_point_towards" {
                 90.0
@@ -325,11 +1762,11 @@ fn import_block(block: &Value, depth: usize) -> Result<Value> {
                 0.0
             };
             if let Some(input) = result.get_mut("inputs").and_then(|v| v.get_mut("degrees")) {
-                *input = angle_expression(input.clone(), offset, false, Some("input"));
+                *input = angle_expression(input.take(), offset, false, Some("input"));
             }
         }
-        "get_2" if field(block, "attribute") == "3" && result["type"] == "appearance_of_sprite" => {
-            result = native_heading_reporter(result);
+        "get_2" if heading_reporter && result["type"] == "appearance_of_sprite" => {
+            result = crate::json::Json::new(native_heading_reporter(result.into_value()));
         }
         _ => {}
     }
@@ -411,15 +1848,19 @@ fn original_heading_reporter(block: &Value) -> Option<&Value> {
         .then_some(reporter)
 }
 fn repair_parents(block: &mut Value, parent: Option<&str>) {
-    block["parent_id"] = json!(parent);
-    let id = block["id"].as_str().unwrap_or("").to_owned();
-    if let Some(next) = block.get_mut("next") {
-        repair_parents(next, Some(&id));
-    }
-    for key in ["inputs", "statements"] {
-        if let Some(children) = block.get_mut(key).and_then(Value::as_object_mut) {
-            for child in children.values_mut() {
-                repair_parents(child, Some(&id));
+    let mut pending = vec![(block, parent.map(str::to_owned))];
+    while let Some((block, parent)) = pending.pop() {
+        block["parent_id"] = json!(parent);
+        let id = block["id"].as_str().unwrap_or("").to_owned();
+        for (key, child) in block.as_object_mut().unwrap() {
+            if key == "next" {
+                pending.push((child, Some(id.clone())));
+            } else if matches!(key.as_str(), "inputs" | "statements")
+                && let Some(children) = child.as_object_mut()
+            {
+                for child in children.values_mut() {
+                    pending.push((child, Some(id.clone())));
+                }
             }
         }
     }
@@ -715,6 +2156,8 @@ fn translate(block: &mut Value, export: bool) -> Result<bool> {
             inputs(block, &[("NUM", "num")], export);
         }
         "math_modulo" => inputs(block, &[("DIVIDEND", "A"), ("DIVISOR", "B")], export),
+        // Existing conversion reporter: K4 and KN name its operand differently.
+        "convert_type" => inputs(block, &[("original_value", "text")], export),
         "random" => {
             neko = "random_num".into();
             inputs(block, &[("a", "A"), ("b", "B")], export);
@@ -822,6 +2265,11 @@ fn translate(block: &mut Value, export: bool) -> Result<bool> {
         "set_timer_state" => fields(block, &[("actions", "type")], export),
         "show_hide_timer" => fields(block, &[("state", "showHide")], export),
         "get_2" => {
+            if !export {
+                // Preserve all native branches for the dedicated K4 property
+                // lowering, including dangling UUIDs and rounded coordinates.
+                return Ok(false);
+            }
             if export {
                 let (attribute, target) = match kind.as_str() {
                     "self_get_position_x" => ("0", "--self"),
@@ -911,7 +2359,12 @@ fn translate(block: &mut Value, export: bool) -> Result<bool> {
         | "self_set_pen_size"
         | "self_set_pen_color"
         | "self_set_pen_color_property"
-        | "clear_drawing" => {}
+        | "clear_drawing"
+        | "procedures_2_defnoreturn"
+        | "procedures_2_callnoreturn"
+        | "procedures_2_callreturn"
+        | "procedures_2_parameter"
+        | "procedures_2_return_value" => {}
         _ => return Ok(false),
     }
     block["type"] = json!(if export { native } else { neko });
@@ -1102,6 +2555,7 @@ fn export_owners(
         remove(&mut result,"nekoBlockJsonList"); remove(&mut result,"comments");
         rename(&mut result,"currentStyleId","current_style_id"); rename(&mut result,"workspaceScrollXy","workspace_offset");
         rename(&mut result,"screenName","screen_name"); rename(&mut result,"locked","lock");
+        rename(&mut result,"rotationType","rotation_type");
         if kind=="scene" {rename(&mut result,"actorIds","actors");}
         if let Some(position)=result.get("position").cloned() {
             result["x"]=position["x"].clone();result["y"]=position["y"].clone();remove(&mut result,"position");
@@ -1116,91 +2570,137 @@ fn export_owners(
 }
 
 fn export_block(block: &Value, originals: Option<&Value>, depth: usize) -> Result<Value> {
-    export_block_mode(block, originals, depth, true)
-}
-
-fn export_block_mode(
-    block: &Value,
-    originals: Option<&Value>,
-    depth: usize,
-    convert_reporter: bool,
-) -> Result<Value> {
-    ensure!(
-        depth <= MAX_DEPTH,
-        "canonical block nesting exceeds {MAX_DEPTH}"
-    );
-    ensure!(block.is_object(), "canonical block must be an object");
-    if let Some(reporter) = original_heading_reporter(block) {
-        return export_block_mode(reporter, originals, depth + 1, false);
+    enum Work {
+        Enter(crate::json::Json, usize),
+        Exit(
+            crate::json::Json,
+            Vec<(String, String)>,
+            bool,
+            Option<f64>,
+            bool,
+        ),
     }
-    let mut result = block.clone();
-    let kind = block["type"]
-        .as_str()
-        .context("canonical block missing type")?;
-    let angle_offset = match kind {
-        "self_point_towards" => Some(90.0),
-        "self_rotate" => Some(0.0),
-        _ => None,
-    };
-    let mut restore_input = false;
-    if let Some(offset) = angle_offset
-        && let Some(input) = block.pointer("/inputs/degrees")
-        && let Some(original) = original_angle_input(input, "input", offset)
-    {
-        result["inputs"]["degrees"] = original.clone();
-        restore_input = true;
-    }
-    if let Some(native) = kind.strip_prefix(OPAQUE) {
-        let original = block["id"].as_str().and_then(|id| {
-            originals
-                .and_then(|g| g.get("blocks"))
-                .and_then(|b| b.get(id))
-        });
-        ensure!(
-            original.is_some_and(|b| b["type"].as_str() == Some(native)),
-            "cannot export unsupported new KN block {kind} ({})",
-            block["id"]
-        );
-        result["type"] = json!(native);
-    } else {
-        ensure!(
-            translate(&mut result, true)
-                .with_context(|| format!("block {kind} ({})", block["id"]))?,
-            "unsupported new KN block {kind} ({}) for Kitten 4 export",
-            block["id"]
-        );
-    }
-    for key in ["inputs", "statements"] {
-        if let Some(children) = result.get_mut(key) {
-            for child in children
-                .as_object_mut()
-                .with_context(|| format!("block {kind} {key} must be an object"))?
-                .values_mut()
-            {
-                *child = export_block(child, originals, depth + 1)?;
+    let mut work = vec![Work::Enter(crate::json::clone_value(block).into(), depth)];
+    let mut output: Vec<crate::json::Json> = Vec::new();
+    while let Some(item) = work.pop() {
+        match item {
+            Work::Enter(mut result, depth) => {
+                check_depth(&result, depth)?;
+                ensure!(result.is_object(), "canonical block must be an object");
+                let convert_reporter = if let Some(reporter) = original_heading_reporter(&result) {
+                    let reporter = crate::json::clone_value(reporter);
+                    result = reporter.into();
+                    false
+                } else {
+                    true
+                };
+                let next = result.as_object_mut().unwrap().remove("next");
+                // Event translation moves next into a statement socket. Attach it only
+                // after converting the individual chain node, in export_block.
+                let kind = result["type"]
+                    .as_str()
+                    .context("canonical block missing type")?
+                    .to_owned();
+                let angle_offset = match kind.as_str() {
+                    "self_point_towards" => Some(90.0),
+                    "self_rotate" => Some(0.0),
+                    _ => None,
+                };
+                let mut restore_input = false;
+                if let Some(offset) = angle_offset
+                    && let Some(input) = result.pointer("/inputs/degrees")
+                    && let Some(original) = original_angle_input(input, "input", offset)
+                {
+                    let original = crate::json::clone_value(original);
+                    crate::json::discard(std::mem::replace(
+                        &mut result["inputs"]["degrees"],
+                        original,
+                    ));
+                    restore_input = true;
+                }
+                if let Some(native) = kind.strip_prefix(OPAQUE) {
+                    let original = result["id"].as_str().and_then(|id| {
+                        originals
+                            .and_then(|g| g.get("blocks"))
+                            .and_then(|b| b.get(id))
+                    });
+                    ensure!(
+                        original.is_some_and(|b| b["type"].as_str() == Some(native)),
+                        "cannot export unsupported new KN block {kind} ({})",
+                        result["id"]
+                    );
+                    result["type"] = json!(native);
+                } else {
+                    ensure!(
+                        translate(&mut result, true)
+                            .with_context(|| format!("block {kind} ({})", result["id"]))?,
+                        "unsupported new KN block {kind} ({}) for Kitten 4 export",
+                        result["id"]
+                    );
+                }
+                let mut sockets = Vec::new();
+                let mut children = Vec::new();
+                for key in ["inputs", "statements"] {
+                    if let Some(children) = result.get_mut(key) {
+                        for (name, child) in children
+                            .as_object_mut()
+                            .with_context(|| format!("block {kind} {key} must be an object"))?
+                            .iter_mut()
+                        {
+                            sockets.push((key.to_owned(), name.clone()));
+                            // Collected below to keep ownership cleanup stack-safe.
+                            let _ = child;
+                        }
+                    }
+                }
+                for (key, name) in &sockets {
+                    children.push(Work::Enter(result[key][name].take().into(), depth + 1));
+                }
+                let has_next = next.is_some();
+                if let Some(next) = next {
+                    children.push(Work::Enter(next.into(), depth));
+                }
+                work.push(Work::Exit(
+                    result,
+                    sockets,
+                    has_next,
+                    angle_offset.filter(|_| !restore_input),
+                    convert_reporter
+                        && matches!(kind.as_str(), "get_orientation" | "self_get_rotation"),
+                ));
+                work.extend(children.into_iter().rev());
+            }
+            Work::Exit(mut result, sockets, has_next, angle_offset, convert_reporter) => {
+                let next = has_next.then(|| output.pop().unwrap());
+                let start = output.len() - sockets.len();
+                for ((key, name), child) in sockets.into_iter().zip(output.drain(start..)) {
+                    result[&key][&name] = child.into_value();
+                }
+                remove(&mut result, ANGLE);
+                if let Some(offset) = angle_offset {
+                    let input = result
+                        .pointer_mut("/inputs/degrees")
+                        .map(Value::take)
+                        .unwrap_or(json!({"type":"math_number","fields":{"NUM":0}}));
+                    if !result.get("inputs").is_some_and(Value::is_object) {
+                        result["inputs"] = json!({});
+                    }
+                    result["inputs"]["degrees"] = angle_expression(input, offset, true, None);
+                }
+                if convert_reporter {
+                    result = angle_expression(result.into_value(), 90.0, true, None).into();
+                }
+                if let Some(next) = next {
+                    result["next"] = next.into_value();
+                    if result["type"] == "on_keydown" {
+                        event_body(&mut result, true)?;
+                    }
+                }
+                output.push(result);
             }
         }
     }
-    if let Some(next) = result.get_mut("next") {
-        *next = export_block(next, originals, depth + 1)?;
-    }
-    remove(&mut result, ANGLE);
-    if let Some(offset) = angle_offset
-        && !restore_input
-    {
-        let input = result
-            .pointer("/inputs/degrees")
-            .cloned()
-            .unwrap_or(json!({"type":"math_number","fields":{"NUM":0}}));
-        if !result.get("inputs").is_some_and(Value::is_object) {
-            result["inputs"] = json!({});
-        }
-        result["inputs"]["degrees"] = angle_expression(input, offset, true, None);
-    }
-    if convert_reporter && matches!(kind, "get_orientation" | "self_get_rotation") {
-        result = angle_expression(result, 90.0, true, None);
-    }
-    Ok(result)
+    Ok(output.pop().unwrap().into_value())
 }
 
 struct Graph {
@@ -1222,116 +2722,143 @@ impl Graph {
         }
     }
     fn reserve_ids(&mut self, block: &Value, depth: usize) -> Result<()> {
-        ensure!(
-            depth <= MAX_DEPTH,
-            "canonical block nesting exceeds {MAX_DEPTH}"
-        );
-        if let Some(id) = block["id"].as_str() {
-            self.reserved.insert(id.to_owned());
-        }
-        if let Some(next) = block.get("next") {
-            self.reserve_ids(next, depth + 1)?;
-        }
-        for key in ["inputs", "statements"] {
-            if let Some(children) = block.get(key).and_then(Value::as_object) {
-                for child in children.values() {
-                    self.reserve_ids(child, depth + 1)?;
+        let mut pending = vec![(block, depth)];
+        while let Some((block, depth)) = pending.pop() {
+            check_depth(block, depth)?;
+            if let Some(id) = block["id"].as_str() {
+                self.reserved.insert(id.to_owned());
+            }
+            if let Some(next) = block.get("next") {
+                pending.push((next, depth));
+            }
+            for key in ["inputs", "statements"] {
+                if let Some(children) = block.get(key).and_then(Value::as_object) {
+                    for child in children.values() {
+                        pending.push((child, depth + 1));
+                    }
                 }
             }
         }
         Ok(())
     }
     fn assign_ids(&mut self, block: &mut Value, depth: usize) -> Result<()> {
-        ensure!(
-            depth <= MAX_DEPTH,
-            "canonical block nesting exceeds {MAX_DEPTH}"
-        );
-        if block["id"].as_str().is_none() {
-            loop {
-                self.sequence += 1;
-                let id = format!("nekoc-k4-angle-{}", self.sequence);
-                if self.reserved.insert(id.clone()) {
-                    block["id"] = json!(id);
-                    break;
+        let mut pending = vec![(block, depth)];
+        while let Some((block, depth)) = pending.pop() {
+            check_depth(block, depth)?;
+            if block["id"].as_str().is_none() {
+                loop {
+                    self.sequence += 1;
+                    let id = format!("nekoc-k4-angle-{}", self.sequence);
+                    if self.reserved.insert(id.clone()) {
+                        block["id"] = json!(id);
+                        break;
+                    }
                 }
             }
-        }
-        if let Some(next) = block.get_mut("next") {
-            self.assign_ids(next, depth + 1)?;
-        }
-        for key in ["inputs", "statements"] {
-            if let Some(children) = block.get_mut(key).and_then(Value::as_object_mut) {
-                for child in children.values_mut() {
-                    self.assign_ids(child, depth + 1)?;
+            for (key, child) in block.as_object_mut().unwrap() {
+                if key == "next" {
+                    pending.push((child, depth));
+                } else if matches!(key.as_str(), "inputs" | "statements")
+                    && let Some(children) = child.as_object_mut()
+                {
+                    for child in children.values_mut() {
+                        pending.push((child, depth + 1));
+                    }
                 }
             }
         }
         Ok(())
     }
     fn flatten(&mut self, block: &Value, parent: Option<&str>, depth: usize) -> Result<String> {
-        ensure!(
-            depth <= MAX_DEPTH,
-            "canonical block nesting exceeds {MAX_DEPTH}"
-        );
-        let id = if let Some(id) = block["id"].as_str() {
-            id.to_owned()
-        } else {
-            loop {
-                self.sequence += 1;
-                let id = format!("nekoc-k4-{}", self.sequence);
-                if !self.reserved.contains(&id) && !self.blocks.contains_key(&id) {
-                    break id;
+        let mut pending = vec![(block, parent.map(str::to_owned), depth, None)];
+        let mut first = None;
+        while let Some((block, parent, depth, edge)) = pending.pop() {
+            check_depth(block, depth)?;
+            let id = if let Some(id) = block["id"].as_str() {
+                id.to_owned()
+            } else {
+                loop {
+                    self.sequence += 1;
+                    let id = format!("nekoc-k4-{}", self.sequence);
+                    if !self.reserved.contains(&id) && !self.blocks.contains_key(&id) {
+                        break id;
+                    }
+                }
+            };
+            ensure!(
+                !self.blocks.contains_key(&id),
+                "duplicate canonical block id {id}"
+            );
+            let mut flat = Value::Object(
+                block
+                    .as_object()
+                    .context("block must be an object")?
+                    .iter()
+                    .filter(|(key, _)| {
+                        !matches!(key.as_str(), "next" | "inputs" | "statements" | "shield")
+                    })
+                    .map(|(key, value)| (key.clone(), crate::json::clone_value(value)))
+                    .collect(),
+            );
+            flat["id"] = json!(id);
+            flat["parent_id"] = json!(parent);
+            for (key, default) in [
+                ("is_shadow", json!(false)),
+                ("collapsed", Value::Null),
+                ("disabled", Value::Null),
+                ("deletable", json!(true)),
+                ("movable", json!(true)),
+                ("editable", json!(true)),
+                ("visible", json!("visible")),
+                ("location", json!([0, 0])),
+                ("shadows", json!({})),
+                ("fields", json!({})),
+                ("field_constraints", json!({})),
+                ("field_extra_attr", json!({})),
+                ("comment", Value::Null),
+                ("mutation", json!("")),
+                ("is_output", Value::Null),
+            ] {
+                flat.as_object_mut().unwrap().entry(key).or_insert(default);
+            }
+            self.blocks.insert(id.clone(), flat);
+            if let Some(edge) = edge
+                && let Some(parent) = &parent
+            {
+                self.connections
+                    .entry(parent.clone())
+                    .or_insert(json!({}))
+                    .as_object_mut()
+                    .unwrap()
+                    .insert(id.clone(), edge);
+            }
+            if first.is_none() {
+                first = Some(id.clone());
+            }
+            if let Some(next) = block.get("next") {
+                pending.push((next, Some(id.clone()), depth, Some(json!({"type":"next"}))));
+            }
+            // Preserve the previous preorder (inputs, statements, next), which
+            // determines generated IDs when a node has no explicit ID.
+            for (key, input_type) in [("statements", "statement"), ("inputs", "value")] {
+                if let Some(children) = block.get(key).and_then(Value::as_object) {
+                    for (name, child) in children.iter().rev() {
+                        pending.push((
+                            child,
+                            Some(id.clone()),
+                            depth + 1,
+                            Some(json!({"type":"input","input_name":name,"input_type":input_type})),
+                        ));
+                    }
                 }
             }
-        };
-        ensure!(
-            !self.blocks.contains_key(&id),
-            "duplicate canonical block id {id}"
-        );
-        let mut flat = block.clone();
-        for key in ["next", "inputs", "statements", "shield"] {
-            remove(&mut flat, key);
+            self.connections
+                .entry(id.clone())
+                .or_insert(json!({}))
+                .as_object_mut()
+                .unwrap();
         }
-        flat["id"] = json!(id);
-        flat["parent_id"] = json!(parent);
-        for (key, default) in [
-            ("is_shadow", json!(false)),
-            ("collapsed", Value::Null),
-            ("disabled", Value::Null),
-            ("deletable", json!(true)),
-            ("movable", json!(true)),
-            ("editable", json!(true)),
-            ("visible", json!("visible")),
-            ("location", json!([0, 0])),
-            ("shadows", json!({})),
-            ("fields", json!({})),
-            ("field_constraints", json!({})),
-            ("field_extra_attr", json!({})),
-            ("comment", Value::Null),
-            ("mutation", json!("")),
-            ("is_output", Value::Null),
-        ] {
-            flat.as_object_mut().unwrap().entry(key).or_insert(default);
-        }
-        self.blocks.insert(id.clone(), flat);
-        let mut edges = Map::new();
-        if let Some(next) = block.get("next") {
-            let child = self.flatten(next, Some(&id), depth + 1)?;
-            edges.insert(child, json!({"type":"next"}));
-        }
-        for (key, input_type) in [("inputs", "value"), ("statements", "statement")] {
-            if let Some(children) = block.get(key).and_then(Value::as_object) {
-                for (name, child) in children {
-                    let child = self.flatten(child, Some(&id), depth + 1)?;
-                    edges.insert(
-                        child,
-                        json!({"type":"input","input_name":name,"input_type":input_type}),
-                    );
-                }
-            }
-        }
-        self.connections.insert(id.clone(), Value::Object(edges));
-        Ok(id)
+        Ok(first.unwrap())
     }
 }
 

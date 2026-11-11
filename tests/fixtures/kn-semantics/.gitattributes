@@ -1,0 +1,2 @@
+# The official observations pin exact fixture bytes, including line endings.
+*.bcmkn text eol=lf

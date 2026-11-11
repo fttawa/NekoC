@@ -1,0 +1,343 @@
+{
+  "schema": "nekoc-kn-panel-services-v1",
+  "checkedAt": "2026-11-10T19:27:29.435Z",
+  "officialUrl": "https://kn.codemao.cn/editor",
+  "bundle": {
+    "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+    "sha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165"
+  },
+  "sourceLocations": [
+    {
+      "symbol": "global_animation",
+      "byteOffset": 1659364,
+      "anchor": "globalAnimation,function(){var e=(0,y.Z)",
+      "excerptCharacters": 800,
+      "excerptSha256": "52d4237bb30320c735b49505aebacee0d121e17b0400ad26dc7fa06bdf119152"
+    },
+    {
+      "symbol": "global_animation_cleanup",
+      "byteOffset": 1604902,
+      "anchor": "function Re(e){var t=e.lock,n=e.svgaContainer",
+      "excerptCharacters": 800,
+      "excerptSha256": "802f48d4e24601bec420cb3ace992ab277c3cc4a7cd68ac620cc1b44fcae1608"
+    },
+    {
+      "symbol": "global_animation_options",
+      "byteOffset": 1551838,
+      "anchor": "61823:function(e,t,n){\"use strict\";",
+      "excerptCharacters": 800,
+      "excerptSha256": "e88ebd8c3b9a50a6f215e0b16f27d485019b7eebff47b0976e1d2fb47c7814f9"
+    },
+    {
+      "symbol": "translate",
+      "byteOffset": 1567608,
+      "anchor": "(0,r.Z)(t,h.U4.translate,function()",
+      "excerptCharacters": 800,
+      "excerptSha256": "bce6e94c1e89dc4799e038094bdc8eff9caf071aa386250d9a7b259dd26f5a25"
+    },
+    {
+      "symbol": "translate_result",
+      "byteOffset": 1568646,
+      "anchor": "(0,r.Z)(t,h.U4.translateResult,function()",
+      "excerptCharacters": 800,
+      "excerptSha256": "8461c70e1dce14701253ab7307efbd3fc7cc55515d9bcbc271a001f85d95904e"
+    },
+    {
+      "symbol": "translate_transport",
+      "byteOffset": 1563013,
+      "anchor": "case 0:return\"/kitten/work/translate\",n=t.text,r=t.language",
+      "excerptCharacters": 800,
+      "excerptSha256": "1ccd43a5d90d696d0427a66edfb3af7a903dfebd14f31e58e7d1b194c18a9afc"
+    },
+    {
+      "symbol": "show_hide_ranking",
+      "byteOffset": 1695924,
+      "anchor": "(0,c.Z)(t,u.vk.showHideRanking,function()",
+      "excerptCharacters": 800,
+      "excerptSha256": "fcaddf7edc2dea95f33980bea310c05eb85896fbc459ec4ca654ad5294cb5354"
+    },
+    {
+      "symbol": "update_ranking",
+      "byteOffset": 1697530,
+      "anchor": "(0,c.Z)(t,u.vk.updateRanking,function()",
+      "excerptCharacters": 800,
+      "excerptSha256": "77d9cd8a71f58cfa59cfdf7a4d560f7485a4172c9e7352f2fb510f9cb588cefd"
+    },
+    {
+      "symbol": "user_ranking_info",
+      "byteOffset": 1699438,
+      "anchor": "(0,c.Z)(t,u.vk.userRankingInfo,function()",
+      "excerptCharacters": 800,
+      "excerptSha256": "9e97d77cd3e17ce8ad415d5c804beda819bb3640d2db229e8e2a14993ac3e8ed"
+    },
+    {
+      "symbol": "user_info_of_th",
+      "byteOffset": 1700796,
+      "anchor": "(0,c.Z)(t,u.vk.userInfoOfTh,function()",
+      "excerptCharacters": 800,
+      "excerptSha256": "1345861550e787b20ea1d98f7498571234553676474098ebfafb1508b932c584"
+    },
+    {
+      "symbol": "ai_text_shadows",
+      "byteOffset": 775402,
+      "anchor": "{type:\"multiline_text\",message0:\"%1\",args0:",
+      "excerptCharacters": 800,
+      "excerptSha256": "a73f117fc2b89ffd32904318ed2d0d7b5e870c65f86c24d499b12df1b17cf22f"
+    },
+    {
+      "symbol": "ai_text_shadow_reader",
+      "byteOffset": 1682943,
+      "anchor": "(0,c.Z)(t,\"limit_length_text\",(function(e){return e.TEXT}))",
+      "excerptCharacters": 800,
+      "excerptSha256": "9b6082ae44261738cffe79dfb3fa1955887754546eaab13c3bbdc8cf5254a2b7"
+    },
+    {
+      "symbol": "camera_alpha_shadow",
+      "byteOffset": 969739,
+      "anchor": "camera_alpha_slider",
+      "excerptCharacters": 800,
+      "excerptSha256": "f203d2d3536a040d6103570317cc9bb5244990ef863cc8802fb27acd820a1e1c"
+    }
+  ],
+  "pageErrors": [],
+  "calls": [
+    {
+      "name": "translate_result",
+      "args": {
+        "text": "",
+        "language": "en"
+      },
+      "promise": true,
+      "result": {
+        "type": "string",
+        "value": ""
+      }
+    },
+    {
+      "name": "translate",
+      "args": {
+        "text": "",
+        "language": "en"
+      },
+      "promise": true,
+      "result": {
+        "type": "undefined"
+      }
+    },
+    {
+      "name": "translate_result",
+      "args": {
+        "text": " \t\n",
+        "language": "en"
+      },
+      "promise": true,
+      "result": {
+        "type": "string",
+        "value": ""
+      }
+    },
+    {
+      "name": "translate",
+      "args": {
+        "text": " \t\n",
+        "language": "en"
+      },
+      "promise": true,
+      "result": {
+        "type": "undefined"
+      }
+    },
+    {
+      "name": "translate_result",
+      "args": {
+        "text": "猫",
+        "language": "en"
+      },
+      "promise": true,
+      "result": {
+        "type": "string",
+        "value": ""
+      }
+    },
+    {
+      "name": "translate",
+      "args": {
+        "text": "猫",
+        "language": "en"
+      },
+      "promise": true,
+      "result": {
+        "type": "undefined"
+      }
+    },
+    {
+      "name": "translate_result",
+      "args": {
+        "text": 123,
+        "language": "en"
+      },
+      "promise": true,
+      "result": {
+        "type": "string",
+        "value": ""
+      }
+    },
+    {
+      "name": "translate",
+      "args": {
+        "text": 123,
+        "language": "en"
+      },
+      "promise": true,
+      "result": {
+        "type": "undefined"
+      }
+    },
+    {
+      "name": "user_ranking_info",
+      "args": {
+        "ranking": "?",
+        "type": "rank"
+      },
+      "promise": true,
+      "result": {
+        "type": "number",
+        "value": "NaN"
+      }
+    },
+    {
+      "name": "user_info_of_th",
+      "args": {
+        "ranking": "?",
+        "type": "username",
+        "order": 1
+      },
+      "promise": true,
+      "result": {
+        "type": "number",
+        "value": "NaN"
+      }
+    },
+    {
+      "name": "show_hide_ranking",
+      "args": {
+        "ranking": "?",
+        "show_hide": "show"
+      },
+      "promise": true,
+      "result": {
+        "type": "undefined"
+      }
+    },
+    {
+      "name": "show_hide_ranking",
+      "args": {
+        "ranking": "?",
+        "show_hide": "hide"
+      },
+      "promise": true,
+      "result": {
+        "type": "undefined"
+      }
+    },
+    {
+      "name": "update_ranking",
+      "args": {
+        "ranking": "?",
+        "variable": "missing-variable"
+      },
+      "promise": true,
+      "result": {
+        "type": "undefined"
+      }
+    },
+    {
+      "name": "user_ranking_info",
+      "args": {
+        "ranking": "missing-ranking",
+        "type": "rank"
+      },
+      "promise": true,
+      "result": {
+        "type": "number",
+        "value": "NaN"
+      }
+    },
+    {
+      "name": "user_info_of_th",
+      "args": {
+        "ranking": "missing-ranking",
+        "type": "username",
+        "order": 1
+      },
+      "promise": true,
+      "result": {
+        "type": "number",
+        "value": "NaN"
+      }
+    },
+    {
+      "name": "show_hide_ranking",
+      "args": {
+        "ranking": "missing-ranking",
+        "show_hide": "show"
+      },
+      "promise": true,
+      "result": {
+        "type": "undefined"
+      }
+    },
+    {
+      "name": "show_hide_ranking",
+      "args": {
+        "ranking": "missing-ranking",
+        "show_hide": "hide"
+      },
+      "promise": true,
+      "result": {
+        "type": "undefined"
+      }
+    },
+    {
+      "name": "update_ranking",
+      "args": {
+        "ranking": "missing-ranking",
+        "variable": "missing-variable"
+      },
+      "promise": true,
+      "result": {
+        "type": "undefined"
+      }
+    },
+    {
+      "name": "global_animation",
+      "args": {
+        "animation": "animation_salvo"
+      },
+      "promise": true,
+      "result": {
+        "type": "undefined"
+      }
+    }
+  ],
+  "blockedRequests": [
+    {
+      "method": "POST",
+      "url": "https://api-creation.codemao.cn/kitten/work/translate"
+    },
+    {
+      "method": "POST",
+      "url": "https://api-creation.codemao.cn/kitten/work/translate"
+    },
+    {
+      "method": "POST",
+      "url": "https://api-creation.codemao.cn/kitten/work/translate"
+    },
+    {
+      "method": "POST",
+      "url": "https://api-creation.codemao.cn/kitten/work/translate"
+    }
+  ],
+  "version": "0.27.4",
+  "ok": true
+}

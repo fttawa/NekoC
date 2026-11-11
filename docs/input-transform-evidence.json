@@ -1,0 +1,325 @@
+{
+  "schema": "nekoc-input-evidence-v1",
+  "sha256": "72eabece47da3ae91e604e8e7fc01be4038d30a0125a92a0bd42238f5f79397d",
+  "inputSha256": "c463052c524386209c20caf035636038e645bb525f8d82a9f9e881a97292316c",
+  "assets": [
+    {
+      "name": "player_v2__3ffeebbd0c789e8d9422.css",
+      "source": "player_v2__3ffeebbd0c789e8d9422.css",
+      "sha256": "39e8e70b124b604831773893cdc95931cdee3eaea52c6dd69f33f5781d48b45a"
+    },
+    {
+      "name": "runtime.f42f527f119e09010b85.js",
+      "source": "runtime.f42f527f119e09010b85.js",
+      "sha256": "4164d67795238f64d035f473418236038ae475ae36032a967cba16ede263735f"
+    },
+    {
+      "name": "vendors.d00f4bd454a6352e9d71.js",
+      "source": "vendors.d00f4bd454a6352e9d71.js",
+      "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
+    },
+    {
+      "name": "player_v2.2d180c468559fbd29528.js",
+      "source": "player_v2.2d180c468559fbd29528.js.orig",
+      "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160"
+    },
+    {
+      "name": "9.c396696e9dc71e25b012.js",
+      "source": "9.c396696e9dc71e25b012.js",
+      "sha256": "5758343310c47596d56e954aa05fa76a546080c8bf4fefd41cac0042794d6195"
+    },
+    {
+      "name": "14.c95e6f2ddd61fb701d0e.js",
+      "source": "14.c95e6f2ddd61fb701d0e.js",
+      "sha256": "d3ce91c9113463db4c0988210caeb1be2ddc508499d5c53a8e73a13b5f440175"
+    },
+    {
+      "name": "11.477512e6f03fd2f6f3c5.js",
+      "source": "11.477512e6f03fd2f6f3c5.js",
+      "sha256": "e81bfe3462cc3e79a70ba016ddee2a372a31480d3f52964952e1d21f3a490f91"
+    }
+  ],
+  "inputObservations": [],
+  "frames": [
+    {
+      "frame": 1,
+      "variables": {
+        "key-65-down": 0,
+        "key-65-up": 0,
+        "key-any-down": 0,
+        "key-any-up": 0,
+        "key-48-down": 0,
+        "key-48-up": 0,
+        "__self-mouse_down": 0,
+        "__self-mouse_up": 0,
+        "__self-mouse_click": 0,
+        "__scene-mouse_down": 0,
+        "__scene-mouse_up": 0,
+        "__scene-mouse_click": 0,
+        "swipe-left": 0,
+        "swipe-right": 0,
+        "swipe-up": 0,
+        "swipe-down": 0
+      },
+      "actors": {
+        "20000000-0000-4000-8000-000000000001": {
+          "id": "20000000-0000-4000-8000-000000000001",
+          "prototype_id": "20000000-0000-4000-8000-000000000001",
+          "name": "Probe",
+          "x": 0,
+          "y": 0,
+          "rotation": 90,
+          "current_style_id": "costume-a",
+          "scale": 200,
+          "scale_y": 200,
+          "visible": true
+        }
+      }
+    },
+    {
+      "frame": 2,
+      "variables": {
+        "key-65-down": 0,
+        "key-65-up": 0,
+        "key-any-down": 0,
+        "key-any-up": 0,
+        "key-48-down": 0,
+        "key-48-up": 0,
+        "__self-mouse_down": 1,
+        "__self-mouse_up": 0,
+        "__self-mouse_click": 0,
+        "__scene-mouse_down": 0,
+        "__scene-mouse_up": 0,
+        "__scene-mouse_click": 0,
+        "swipe-left": 0,
+        "swipe-right": 0,
+        "swipe-up": 0,
+        "swipe-down": 0
+      },
+      "actors": {
+        "20000000-0000-4000-8000-000000000001": {
+          "id": "20000000-0000-4000-8000-000000000001",
+          "prototype_id": "20000000-0000-4000-8000-000000000001",
+          "name": "Probe",
+          "x": 0,
+          "y": 0,
+          "rotation": 90,
+          "current_style_id": "costume-a",
+          "scale": 200,
+          "scale_y": 200,
+          "visible": true
+        }
+      }
+    },
+    {
+      "frame": 3,
+      "variables": {
+        "key-65-down": 0,
+        "key-65-up": 0,
+        "key-any-down": 0,
+        "key-any-up": 0,
+        "key-48-down": 0,
+        "key-48-up": 0,
+        "__self-mouse_down": 2,
+        "__self-mouse_up": 0,
+        "__self-mouse_click": 0,
+        "__scene-mouse_down": 0,
+        "__scene-mouse_up": 0,
+        "__scene-mouse_click": 0,
+        "swipe-left": 0,
+        "swipe-right": 0,
+        "swipe-up": 0,
+        "swipe-down": 0
+      },
+      "actors": {
+        "20000000-0000-4000-8000-000000000001": {
+          "id": "20000000-0000-4000-8000-000000000001",
+          "prototype_id": "20000000-0000-4000-8000-000000000001",
+          "name": "Probe",
+          "x": 0,
+          "y": 0,
+          "rotation": 90,
+          "current_style_id": "costume-a",
+          "scale": 200,
+          "scale_y": 200,
+          "visible": true
+        }
+      }
+    },
+    {
+      "frame": 4,
+      "variables": {
+        "key-65-down": 0,
+        "key-65-up": 0,
+        "key-any-down": 0,
+        "key-any-up": 0,
+        "key-48-down": 0,
+        "key-48-up": 0,
+        "__self-mouse_down": 2,
+        "__self-mouse_up": 1,
+        "__self-mouse_click": 1,
+        "__scene-mouse_down": 0,
+        "__scene-mouse_up": 0,
+        "__scene-mouse_click": 0,
+        "swipe-left": 0,
+        "swipe-right": 0,
+        "swipe-up": 0,
+        "swipe-down": 0
+      },
+      "actors": {
+        "20000000-0000-4000-8000-000000000001": {
+          "id": "20000000-0000-4000-8000-000000000001",
+          "prototype_id": "20000000-0000-4000-8000-000000000001",
+          "name": "Probe",
+          "x": 0,
+          "y": 0,
+          "rotation": 90,
+          "current_style_id": "costume-a",
+          "scale": 200,
+          "scale_y": 200,
+          "visible": true
+        }
+      }
+    },
+    {
+      "frame": 5,
+      "variables": {
+        "key-65-down": 0,
+        "key-65-up": 0,
+        "key-any-down": 0,
+        "key-any-up": 0,
+        "key-48-down": 0,
+        "key-48-up": 0,
+        "__self-mouse_down": 2,
+        "__self-mouse_up": 1,
+        "__self-mouse_click": 1,
+        "__scene-mouse_down": 0,
+        "__scene-mouse_up": 0,
+        "__scene-mouse_click": 0,
+        "swipe-left": 0,
+        "swipe-right": 0,
+        "swipe-up": 0,
+        "swipe-down": 0
+      },
+      "actors": {
+        "20000000-0000-4000-8000-000000000001": {
+          "id": "20000000-0000-4000-8000-000000000001",
+          "prototype_id": "20000000-0000-4000-8000-000000000001",
+          "name": "Probe",
+          "x": 0,
+          "y": 0,
+          "rotation": 90,
+          "current_style_id": "costume-a",
+          "scale": 200,
+          "scale_y": 200,
+          "visible": true
+        }
+      }
+    },
+    {
+      "frame": 6,
+      "variables": {
+        "key-65-down": 0,
+        "key-65-up": 0,
+        "key-any-down": 0,
+        "key-any-up": 0,
+        "key-48-down": 0,
+        "key-48-up": 0,
+        "__self-mouse_down": 2,
+        "__self-mouse_up": 1,
+        "__self-mouse_click": 1,
+        "__scene-mouse_down": 1,
+        "__scene-mouse_up": 0,
+        "__scene-mouse_click": 0,
+        "swipe-left": 0,
+        "swipe-right": 0,
+        "swipe-up": 0,
+        "swipe-down": 0
+      },
+      "actors": {
+        "20000000-0000-4000-8000-000000000001": {
+          "id": "20000000-0000-4000-8000-000000000001",
+          "prototype_id": "20000000-0000-4000-8000-000000000001",
+          "name": "Probe",
+          "x": 0,
+          "y": 0,
+          "rotation": 90,
+          "current_style_id": "costume-a",
+          "scale": 200,
+          "scale_y": 200,
+          "visible": true
+        }
+      }
+    },
+    {
+      "frame": 7,
+      "variables": {
+        "key-65-down": 0,
+        "key-65-up": 0,
+        "key-any-down": 0,
+        "key-any-up": 0,
+        "key-48-down": 0,
+        "key-48-up": 0,
+        "__self-mouse_down": 2,
+        "__self-mouse_up": 1,
+        "__self-mouse_click": 1,
+        "__scene-mouse_down": 1,
+        "__scene-mouse_up": 1,
+        "__scene-mouse_click": 1,
+        "swipe-left": 0,
+        "swipe-right": 0,
+        "swipe-up": 0,
+        "swipe-down": 0
+      },
+      "actors": {
+        "20000000-0000-4000-8000-000000000001": {
+          "id": "20000000-0000-4000-8000-000000000001",
+          "prototype_id": "20000000-0000-4000-8000-000000000001",
+          "name": "Probe",
+          "x": 0,
+          "y": 0,
+          "rotation": 90,
+          "current_style_id": "costume-a",
+          "scale": 200,
+          "scale_y": 200,
+          "visible": true
+        }
+      }
+    },
+    {
+      "frame": 8,
+      "variables": {
+        "key-65-down": 0,
+        "key-65-up": 0,
+        "key-any-down": 0,
+        "key-any-up": 0,
+        "key-48-down": 0,
+        "key-48-up": 0,
+        "__self-mouse_down": 2,
+        "__self-mouse_up": 1,
+        "__self-mouse_click": 1,
+        "__scene-mouse_down": 1,
+        "__scene-mouse_up": 1,
+        "__scene-mouse_click": 1,
+        "swipe-left": 0,
+        "swipe-right": 0,
+        "swipe-up": 0,
+        "swipe-down": 0
+      },
+      "actors": {
+        "20000000-0000-4000-8000-000000000001": {
+          "id": "20000000-0000-4000-8000-000000000001",
+          "prototype_id": "20000000-0000-4000-8000-000000000001",
+          "name": "Probe",
+          "x": 0,
+          "y": 0,
+          "rotation": 90,
+          "current_style_id": "costume-a",
+          "scale": 200,
+          "scale_y": 200,
+          "visible": true
+        }
+      }
+    }
+  ]
+}

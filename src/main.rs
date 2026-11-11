@@ -96,6 +96,26 @@ enum Command {
         input: PathBuf,
         scenario: PathBuf,
     },
+    /// Report which Kitten 4 blocks each work uses that cannot run yet
+    Coverage {
+        inputs: Vec<PathBuf>,
+        /// Frames to run after a successful compile
+        #[arg(long, default_value_t = 120)]
+        frames: u32,
+        /// Fixed PRNG seed (omitted: use the clock).
+        #[arg(long)]
+        seed: Option<u64>,
+    },
+    /// Measure import phases (use a release build).
+    BenchImport {
+        inputs: Vec<PathBuf>,
+        #[arg(long)]
+        out: Option<PathBuf>,
+        #[arg(long, default_value_t = 0)]
+        frames: u32,
+        #[arg(long)]
+        snapshot: bool,
+    },
     Validate {
         input: PathBuf,
         #[arg(long)]
@@ -330,21 +350,24 @@ fn main() -> Result<()> {
             optimize,
         } => {
             if optimize {
-                let workspace_path = out.with_extension("workspace.json");
-                nekoc::ts_frontend::compile_ts(&input, &workspace_path)?;
-                let report = std::fs::read_to_string(&workspace_path)?;
+                let workspace_file = tempfile::NamedTempFile::new()?;
+                let workspace_path = workspace_file.path();
+                nekoc::ts_frontend::compile_ts(&input, workspace_path)?;
+                let report = std::fs::read_to_string(workspace_path)?;
                 let report: serde_json::Value = serde_json::from_str(&report)?;
                 let optimized = nekoc::optimizer::optimize_report(&report);
-                let bytes = serde_json::to_vec_pretty(&optimized)?;
-                std::fs::write(&workspace_path, bytes)?;
+                nekoc::bcmkn_compiler::compile_workspace_bcmkn(
+                    &optimized, &input, &template, &out,
+                )?;
                 if let Some(stats) = optimized.get("optimization") {
                     eprintln!(
                         "Optimized: folded={}, removed={}, simplified={}",
                         stats["constantFolded"], stats["deadRemoved"], stats["simplified"]
                     );
                 }
+            } else {
+                nekoc::bcmkn_compiler::compile_ts_bcmkn(input, template, out)?;
             }
-            nekoc::bcmkn_compiler::compile_ts_bcmkn(input, template, out)?;
         }
         Command::CompileTsKitten4 {
             input,
@@ -424,14 +447,14 @@ fn main() -> Result<()> {
             window,
             min_match,
         } => {
-            let project: serde_json::Value = serde_json::from_slice(&std::fs::read(&input)?)?;
+            let project = nekoc::project::load_project(&input)?.value;
             let options = nekoc::pack::PackOptions {
                 min_list_bytes: min_kb * 1024,
                 window,
                 min_match,
             };
             let (packed, report) = nekoc::pack::pack(&project, &options)?;
-            std::fs::write(&out, serde_json::to_vec(&packed)?)?;
+            std::fs::write(&out, nekoc::json::to_vec(&packed)?)?;
             for list in &report.lists {
                 println!(
                     "{}: {} items, {} -> {} bytes ({} tokens)",
@@ -450,8 +473,32 @@ fn main() -> Result<()> {
             );
         }
         Command::Unpack { input, out } => {
-            let project: serde_json::Value = serde_json::from_slice(&std::fs::read(&input)?)?;
-            std::fs::write(&out, serde_json::to_vec(&nekoc::pack::unpack(&project)?)?)?;
+            let project = nekoc::project::load_project(&input)?.value;
+            std::fs::write(&out, nekoc::json::to_vec(&nekoc::pack::unpack(&project)?)?)?;
+        }
+        Command::BenchImport {
+            inputs,
+            out,
+            frames,
+            snapshot,
+        } => {
+            nekoc::import_bench::run(nekoc::import_bench::Args {
+                files: inputs,
+                out,
+                frames,
+                snapshot,
+            })?;
+        }
+        Command::Coverage {
+            inputs,
+            frames,
+            seed,
+        } => {
+            for input in inputs {
+                let project = nekoc::project::load_project(&input)?;
+                let report = nekoc::kitten4::coverage_with_seed(&project.value, frames, seed);
+                println!("{}", serde_json::json!({"file": input, "report": report}));
+            }
         }
         Command::Validate { input, out } => {
             let project = nekoc::project::load_project(input)?;

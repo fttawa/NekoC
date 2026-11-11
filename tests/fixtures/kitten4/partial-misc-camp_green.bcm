@@ -1,0 +1,844 @@
+{
+  "hidden_toolbox": {
+    "toolbox": [],
+    "blocks": []
+  },
+  "work_source_label": 1,
+  "version": 25,
+  "application_version": "4.11.20",
+  "work_type": "KITTEN",
+  "size": {
+    "width": 960,
+    "height": 720
+  },
+  "type": 1,
+  "project_name": "NekoC partial misc camp_green",
+  "theatre": {
+    "current_entity": "20000000-0000-4000-8000-000000000001",
+    "current_scene": "10000000-0000-4000-8000-000000000001",
+    "scenes_order": [
+      "10000000-0000-4000-8000-000000000001"
+    ],
+    "scenes": {
+      "10000000-0000-4000-8000-000000000001": {
+        "id": "10000000-0000-4000-8000-000000000001",
+        "name": "Background A",
+        "styles": [
+          "background"
+        ],
+        "current_style_id": "background",
+        "x": 0,
+        "y": 0,
+        "scale": 100,
+        "rotation": 0,
+        "rotation_type": 0,
+        "draggable": false,
+        "visible": true,
+        "workspace_offset": {
+          "x": 40,
+          "y": 40
+        },
+        "block_data_json": {
+          "blocks": {},
+          "connections": {},
+          "comments": {}
+        },
+        "actors": [
+          "20000000-0000-4000-8000-000000000001",
+          "20000000-0000-4000-8000-000000000003"
+        ],
+        "screen_name": "Scene A",
+        "group_order": [
+          "group"
+        ]
+      }
+    },
+    "actors": {
+      "20000000-0000-4000-8000-000000000001": {
+        "id": "20000000-0000-4000-8000-000000000001",
+        "name": "Probe",
+        "styles": [
+          "costume-a"
+        ],
+        "current_style_id": "costume-a",
+        "x": 0,
+        "y": 0,
+        "scale": 100,
+        "rotation": 0,
+        "rotation_type": 0,
+        "draggable": false,
+        "visible": true,
+        "workspace_offset": {
+          "x": 40,
+          "y": 40
+        },
+        "block_data_json": {
+          "blocks": {
+            "start": {
+              "type": "start_on_click",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "start",
+              "parent_id": null,
+              "location": [
+                0,
+                0
+              ]
+            },
+            "custom-camp": {
+              "type": "self_set_role_camp",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "role_camp": "camp_green"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "custom-camp",
+              "parent_id": "start",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "set-member-0": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "member-0"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "set-member-0",
+              "parent_id": "custom-camp",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-1": {
+              "type": "math_arithmetic",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "A": "",
+                "B": ""
+              },
+              "fields": {
+                "OP": "MULTIPLY"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-1",
+              "parent_id": "set-member-0",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-2": {
+              "type": "bump",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite1": "20000000-0000-4000-8000-000000000003",
+                "sprite2": "camp_red"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-2",
+              "parent_id": "generated-1",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-3": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "1"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-3",
+              "parent_id": "generated-1",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "set-member-1": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "member-1"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "set-member-1",
+              "parent_id": "set-member-0",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-4": {
+              "type": "math_arithmetic",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "A": "",
+                "B": ""
+              },
+              "fields": {
+                "OP": "MULTIPLY"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-4",
+              "parent_id": "set-member-1",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-5": {
+              "type": "bump",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite1": "20000000-0000-4000-8000-000000000003",
+                "sprite2": "camp_yellow"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-5",
+              "parent_id": "generated-4",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-6": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "1"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-6",
+              "parent_id": "generated-4",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "set-member-2": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "member-2"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "set-member-2",
+              "parent_id": "set-member-1",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-7": {
+              "type": "math_arithmetic",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "A": "",
+                "B": ""
+              },
+              "fields": {
+                "OP": "MULTIPLY"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-7",
+              "parent_id": "set-member-2",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-8": {
+              "type": "bump",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite1": "20000000-0000-4000-8000-000000000003",
+                "sprite2": "camp_blue"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-8",
+              "parent_id": "generated-7",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-9": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "1"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-9",
+              "parent_id": "generated-7",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "set-member-3": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "member-3"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "set-member-3",
+              "parent_id": "set-member-2",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-10": {
+              "type": "math_arithmetic",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "A": "",
+                "B": ""
+              },
+              "fields": {
+                "OP": "MULTIPLY"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-10",
+              "parent_id": "set-member-3",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-11": {
+              "type": "bump",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite1": "20000000-0000-4000-8000-000000000003",
+                "sprite2": "no_camp"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-11",
+              "parent_id": "generated-10",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-12": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "1"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-12",
+              "parent_id": "generated-10",
+              "location": [
+                0,
+                0
+              ]
+            }
+          },
+          "connections": {
+            "start": {
+              "custom-camp": {
+                "type": "next"
+              }
+            },
+            "custom-camp": {
+              "set-member-0": {
+                "type": "next"
+              }
+            },
+            "set-member-0": {
+              "generated-1": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "set-member-1": {
+                "type": "next"
+              }
+            },
+            "generated-1": {
+              "generated-2": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "A"
+              },
+              "generated-3": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "B"
+              }
+            },
+            "generated-2": {},
+            "generated-3": {},
+            "set-member-1": {
+              "generated-4": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "set-member-2": {
+                "type": "next"
+              }
+            },
+            "generated-4": {
+              "generated-5": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "A"
+              },
+              "generated-6": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "B"
+              }
+            },
+            "generated-5": {},
+            "generated-6": {},
+            "set-member-2": {
+              "generated-7": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "set-member-3": {
+                "type": "next"
+              }
+            },
+            "generated-7": {
+              "generated-8": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "A"
+              },
+              "generated-9": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "B"
+              }
+            },
+            "generated-8": {},
+            "generated-9": {},
+            "set-member-3": {
+              "generated-10": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              }
+            },
+            "generated-10": {
+              "generated-11": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "A"
+              },
+              "generated-12": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "B"
+              }
+            },
+            "generated-11": {},
+            "generated-12": {}
+          },
+          "comments": {}
+        },
+        "scene": "10000000-0000-4000-8000-000000000001",
+        "lock": false,
+        "editable_in_tuition_mode": true,
+        "user_change_r_c": false
+      },
+      "20000000-0000-4000-8000-000000000003": {
+        "id": "20000000-0000-4000-8000-000000000003",
+        "name": "Probe",
+        "styles": [
+          "costume-a"
+        ],
+        "current_style_id": "costume-a",
+        "x": 0,
+        "y": 0,
+        "scale": 100,
+        "rotation": 0,
+        "rotation_type": 0,
+        "draggable": false,
+        "visible": true,
+        "workspace_offset": {
+          "x": 40,
+          "y": 40
+        },
+        "block_data_json": {
+          "blocks": {},
+          "connections": {},
+          "comments": {}
+        },
+        "scene": "10000000-0000-4000-8000-000000000001",
+        "lock": false,
+        "editable_in_tuition_mode": true,
+        "user_change_r_c": false
+      }
+    },
+    "groups": {
+      "group": {
+        "id": "group",
+        "name": "",
+        "is_fold": false,
+        "is_group": false,
+        "actors": [
+          "20000000-0000-4000-8000-000000000001",
+          "20000000-0000-4000-8000-000000000003"
+        ],
+        "scene": "10000000-0000-4000-8000-000000000001",
+        "visible": true
+      }
+    },
+    "styles": {
+      "background": {
+        "id": "background",
+        "name": "background",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NjAiIGhlaWdodD0iNzIwIj48cmVjdCB3aWR0aD0iOTYwIiBoZWlnaHQ9IjcyMCIgZmlsbD0iI2Q4ZTdmMCIvPjwvc3ZnPg==",
+        "rotate_center": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "costume-a": {
+        "id": "costume-a",
+        "name": "asymmetric",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MCIgaGVpZ2h0PSI0MCI+PHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjZTg0MDMwIi8+PHJlY3Qgd2lkdGg9IjIwIiBoZWlnaHQ9IjE1IiBmaWxsPSIjMjBiMDYwIi8+PC9zdmc+",
+        "rotate_center": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    },
+    "videos": {},
+    "timer": {}
+  },
+  "variables": {
+    "member-0": {
+      "id": "member-0",
+      "name": "member-0",
+      "value": -1,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "member-1": {
+      "id": "member-1",
+      "name": "member-1",
+      "value": -1,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "member-2": {
+      "id": "member-2",
+      "name": "member-2",
+      "value": -1,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "member-3": {
+      "id": "member-3",
+      "name": "member-3",
+      "value": -1,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    }
+  },
+  "variable_order": [
+    "member-0",
+    "member-1",
+    "member-2",
+    "member-3"
+  ],
+  "cloud_variables": {},
+  "audio": {},
+  "audio_order": [],
+  "midimusic": [],
+  "midi_order": [],
+  "matrix": {},
+  "models": {},
+  "toolbox": {
+    "current_type": "event",
+    "pen": false
+  },
+  "toolbox_order": [
+    "event",
+    "control",
+    "action",
+    "appearance",
+    "sensing",
+    "operator",
+    "data"
+  ],
+  "last_toolbox_order": [],
+  "hardware_type": "",
+  "is_partial": false,
+  "ai_lab": {},
+  "broadcasts": {},
+  "painter": {
+    "color": []
+  }
+}

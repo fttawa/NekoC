@@ -1,0 +1,1349 @@
+{
+  "hidden_toolbox": {
+    "toolbox": [],
+    "blocks": []
+  },
+  "work_source_label": 1,
+  "version": 25,
+  "application_version": "4.11.20",
+  "work_type": "KITTEN",
+  "size": {
+    "width": 1280,
+    "height": 720
+  },
+  "type": 1,
+  "project_name": "NekoC original partial physics legacy-flags",
+  "theatre": {
+    "current_entity": "20000000-0000-4000-8000-000000000001",
+    "current_scene": "10000000-0000-4000-8000-000000000001",
+    "scenes_order": [
+      "10000000-0000-4000-8000-000000000001"
+    ],
+    "scenes": {
+      "10000000-0000-4000-8000-000000000001": {
+        "id": "10000000-0000-4000-8000-000000000001",
+        "name": "Background",
+        "styles": [
+          "background"
+        ],
+        "current_style_id": "background",
+        "x": 0,
+        "y": 0,
+        "scale": 100,
+        "rotation": 0,
+        "rotation_type": 0,
+        "draggable": false,
+        "visible": true,
+        "workspace_offset": {
+          "x": 0,
+          "y": 0
+        },
+        "block_data_json": {
+          "blocks": {},
+          "connections": {},
+          "comments": {}
+        },
+        "actors": [
+          "20000000-0000-4000-8000-000000000001"
+        ],
+        "screen_name": "Physics",
+        "group_order": [
+          "group"
+        ]
+      }
+    },
+    "actors": {
+      "20000000-0000-4000-8000-000000000001": {
+        "id": "20000000-0000-4000-8000-000000000001",
+        "name": "Probe",
+        "styles": [
+          "probe-style"
+        ],
+        "current_style_id": "probe-style",
+        "x": 0,
+        "y": 0,
+        "scale": 100,
+        "rotation": 0,
+        "rotation_type": 0,
+        "draggable": false,
+        "visible": true,
+        "workspace_offset": {
+          "x": 0,
+          "y": 0
+        },
+        "block_data_json": {
+          "blocks": {
+            "partial-physics-209": {
+              "type": "start_on_click",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "partial-physics-209",
+              "parent_id": null,
+              "location": [
+                0,
+                0
+              ]
+            },
+            "partial-physics-1": {
+              "type": "self_enable_physics",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "partial-physics-1",
+              "parent_id": "partial-physics-209",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "partial-physics-4": {
+              "type": "set_gravity",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "value": "",
+                "dir": "<shadow type=\"controller_shadow\" />"
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "partial-physics-4",
+              "parent_id": "partial-physics-1",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "partial-physics-2": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "partial-physics-2",
+              "parent_id": "partial-physics-4",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "partial-physics-3": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "partial-physics-3",
+              "parent_id": "partial-physics-4",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "partial-physics-7": {
+              "type": "set_velocity",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "value": "",
+                "dir": "<shadow type=\"controller_shadow\" />"
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "partial-physics-7",
+              "parent_id": "partial-physics-4",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "partial-physics-5": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "2"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "partial-physics-5",
+              "parent_id": "partial-physics-7",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "partial-physics-6": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "partial-physics-6",
+              "parent_id": "partial-physics-7",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "partial-physics-9": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "beforeSpeed"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "partial-physics-9",
+              "parent_id": "partial-physics-7",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "partial-physics-8": {
+              "type": "get_physics_property",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "speed"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "partial-physics-8",
+              "parent_id": "partial-physics-9",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "partial-physics-10": {
+              "type": "set_actor_as",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "physics_body_type": "exit_physics_world"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "partial-physics-10",
+              "parent_id": "partial-physics-9",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "partial-physics-12": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "exitSpeed"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "partial-physics-12",
+              "parent_id": "partial-physics-10",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "partial-physics-11": {
+              "type": "get_physics_property",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "speed"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "partial-physics-11",
+              "parent_id": "partial-physics-12",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "partial-physics-13": {
+              "type": "set_actor_as",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "physics_body_type": "attend_physics_world"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "partial-physics-13",
+              "parent_id": "partial-physics-12",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "partial-physics-15": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "reenterSpeed"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "partial-physics-15",
+              "parent_id": "partial-physics-13",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "partial-physics-14": {
+              "type": "get_physics_property",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "speed"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "partial-physics-14",
+              "parent_id": "partial-physics-15",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "partial-physics-18": {
+              "type": "set_velocity",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "value": "",
+                "dir": "<shadow type=\"controller_shadow\" />"
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "partial-physics-18",
+              "parent_id": "partial-physics-15",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "partial-physics-16": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "3"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "partial-physics-16",
+              "parent_id": "partial-physics-18",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "partial-physics-17": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "partial-physics-17",
+              "parent_id": "partial-physics-18",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "partial-physics-20": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "staticWriteSpeed"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "partial-physics-20",
+              "parent_id": "partial-physics-18",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "partial-physics-19": {
+              "type": "get_physics_property",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "speed"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "partial-physics-19",
+              "parent_id": "partial-physics-20",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "partial-physics-21": {
+              "type": "self_enable_physics",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "partial-physics-21",
+              "parent_id": "partial-physics-20",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "partial-physics-24": {
+              "type": "set_velocity",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "value": "",
+                "dir": "<shadow type=\"controller_shadow\" />"
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "partial-physics-24",
+              "parent_id": "partial-physics-21",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "partial-physics-22": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "4"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "partial-physics-22",
+              "parent_id": "partial-physics-24",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "partial-physics-23": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "partial-physics-23",
+              "parent_id": "partial-physics-24",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "partial-physics-26": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "enabledSpeed"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "partial-physics-26",
+              "parent_id": "partial-physics-24",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "partial-physics-25": {
+              "type": "get_physics_property",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "speed"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "partial-physics-25",
+              "parent_id": "partial-physics-26",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "partial-physics-28": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "partial-physics-28",
+              "parent_id": "partial-physics-26",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "partial-physics-27": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0.05"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "partial-physics-27",
+              "parent_id": "partial-physics-28",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "partial-physics-30": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "afterTickSpeed"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "partial-physics-30",
+              "parent_id": "partial-physics-28",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "partial-physics-29": {
+              "type": "get_physics_property",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "speed"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "partial-physics-29",
+              "parent_id": "partial-physics-30",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "partial-physics-208": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "done"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "partial-physics-208",
+              "parent_id": "partial-physics-30",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "partial-physics-207": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "1"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "partial-physics-207",
+              "parent_id": "partial-physics-208",
+              "location": [
+                0,
+                0
+              ]
+            }
+          },
+          "connections": {
+            "partial-physics-209": {
+              "partial-physics-1": {
+                "type": "next"
+              }
+            },
+            "partial-physics-1": {
+              "partial-physics-4": {
+                "type": "next"
+              }
+            },
+            "partial-physics-4": {
+              "partial-physics-2": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "value"
+              },
+              "partial-physics-3": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "dir"
+              },
+              "partial-physics-7": {
+                "type": "next"
+              }
+            },
+            "partial-physics-2": {},
+            "partial-physics-3": {},
+            "partial-physics-7": {
+              "partial-physics-5": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "value"
+              },
+              "partial-physics-6": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "dir"
+              },
+              "partial-physics-9": {
+                "type": "next"
+              }
+            },
+            "partial-physics-5": {},
+            "partial-physics-6": {},
+            "partial-physics-9": {
+              "partial-physics-8": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "partial-physics-10": {
+                "type": "next"
+              }
+            },
+            "partial-physics-8": {},
+            "partial-physics-10": {
+              "partial-physics-12": {
+                "type": "next"
+              }
+            },
+            "partial-physics-12": {
+              "partial-physics-11": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "partial-physics-13": {
+                "type": "next"
+              }
+            },
+            "partial-physics-11": {},
+            "partial-physics-13": {
+              "partial-physics-15": {
+                "type": "next"
+              }
+            },
+            "partial-physics-15": {
+              "partial-physics-14": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "partial-physics-18": {
+                "type": "next"
+              }
+            },
+            "partial-physics-14": {},
+            "partial-physics-18": {
+              "partial-physics-16": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "value"
+              },
+              "partial-physics-17": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "dir"
+              },
+              "partial-physics-20": {
+                "type": "next"
+              }
+            },
+            "partial-physics-16": {},
+            "partial-physics-17": {},
+            "partial-physics-20": {
+              "partial-physics-19": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "partial-physics-21": {
+                "type": "next"
+              }
+            },
+            "partial-physics-19": {},
+            "partial-physics-21": {
+              "partial-physics-24": {
+                "type": "next"
+              }
+            },
+            "partial-physics-24": {
+              "partial-physics-22": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "value"
+              },
+              "partial-physics-23": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "dir"
+              },
+              "partial-physics-26": {
+                "type": "next"
+              }
+            },
+            "partial-physics-22": {},
+            "partial-physics-23": {},
+            "partial-physics-26": {
+              "partial-physics-25": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "partial-physics-28": {
+                "type": "next"
+              }
+            },
+            "partial-physics-25": {},
+            "partial-physics-28": {
+              "partial-physics-27": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              },
+              "partial-physics-30": {
+                "type": "next"
+              }
+            },
+            "partial-physics-27": {},
+            "partial-physics-30": {
+              "partial-physics-29": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "partial-physics-208": {
+                "type": "next"
+              }
+            },
+            "partial-physics-29": {},
+            "partial-physics-208": {
+              "partial-physics-207": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              }
+            },
+            "partial-physics-207": {}
+          },
+          "comments": {}
+        },
+        "scene": "10000000-0000-4000-8000-000000000001",
+        "lock": false,
+        "editable_in_tuition_mode": true,
+        "user_change_r_c": false
+      }
+    },
+    "groups": {
+      "group": {
+        "id": "group",
+        "name": "",
+        "is_fold": false,
+        "is_group": false,
+        "actors": [
+          "20000000-0000-4000-8000-000000000001"
+        ],
+        "scene": "10000000-0000-4000-8000-000000000001",
+        "visible": true
+      }
+    },
+    "styles": {
+      "background": {
+        "id": "background",
+        "name": "background",
+        "width": 1280,
+        "height": 720,
+        "adaptive": false,
+        "pivot": {
+          "x": 0,
+          "y": 0
+        },
+        "rotate_center": {
+          "x": 0,
+          "y": 0
+        },
+        "cdn_url": "",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjgwIiBoZWlnaHQ9IjcyMCI+PHJlY3Qgd2lkdGg9IjEyODAiIGhlaWdodD0iNzIwIiBmaWxsPSIjMzM4OGFhIi8+PC9zdmc+"
+      },
+      "probe-style": {
+        "id": "probe-style",
+        "name": "probe-style",
+        "width": 20,
+        "height": 20,
+        "adaptive": false,
+        "pivot": {
+          "x": 0,
+          "y": 0
+        },
+        "rotate_center": {
+          "x": 0,
+          "y": 0
+        },
+        "cdn_url": "",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCI+PHJlY3Qgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjMzM4OGFhIi8+PC9zdmc+"
+      },
+      "floor-style": {
+        "id": "floor-style",
+        "name": "floor-style",
+        "width": 400,
+        "height": 20,
+        "adaptive": false,
+        "pivot": {
+          "x": 0,
+          "y": 0
+        },
+        "rotate_center": {
+          "x": 0,
+          "y": 0
+        },
+        "cdn_url": "",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MDAiIGhlaWdodD0iMjAiPjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMjAiIGZpbGw9IiMzMzg4YWEiLz48L3N2Zz4="
+      }
+    },
+    "videos": {},
+    "timer": {}
+  },
+  "variables": {
+    "beforeSpeed": {
+      "id": "beforeSpeed",
+      "name": "beforeSpeed",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false
+    },
+    "exitSpeed": {
+      "id": "exitSpeed",
+      "name": "exitSpeed",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false
+    },
+    "reenterSpeed": {
+      "id": "reenterSpeed",
+      "name": "reenterSpeed",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false
+    },
+    "staticWriteSpeed": {
+      "id": "staticWriteSpeed",
+      "name": "staticWriteSpeed",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false
+    },
+    "enabledSpeed": {
+      "id": "enabledSpeed",
+      "name": "enabledSpeed",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false
+    },
+    "afterTickSpeed": {
+      "id": "afterTickSpeed",
+      "name": "afterTickSpeed",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false
+    },
+    "done": {
+      "id": "done",
+      "name": "done",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false
+    }
+  },
+  "variable_order": [
+    "beforeSpeed",
+    "exitSpeed",
+    "reenterSpeed",
+    "staticWriteSpeed",
+    "enabledSpeed",
+    "afterTickSpeed",
+    "done"
+  ],
+  "cloud_variables": {},
+  "audio": {},
+  "audio_order": [],
+  "midimusic": [],
+  "midi_order": [],
+  "matrix": {},
+  "models": {},
+  "toolbox": {
+    "current_type": "event",
+    "pen": false
+  },
+  "toolbox_order": [
+    "event",
+    "control",
+    "action",
+    "appearance",
+    "sensing",
+    "operator",
+    "data"
+  ],
+  "last_toolbox_order": [],
+  "hardware_type": "",
+  "is_partial": false,
+  "ai_lab": {},
+  "broadcasts": {},
+  "painter": {
+    "color": []
+  }
+}

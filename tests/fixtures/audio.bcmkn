@@ -1,0 +1,166 @@
+{
+  "projectName": "NekoC original audio probe",
+  "version": "0.27.4",
+  "toolType": "KN",
+  "stageSize": {
+    "width": 900,
+    "height": 562
+  },
+  "scenes": {
+    "currentSceneId": "nekoc-scene-main",
+    "sortList": [
+      "nekoc-scene-main"
+    ],
+    "scenesDict": {
+      "nekoc-scene-main": {
+        "id": "nekoc-scene-main",
+        "name": "Background",
+        "screenName": "Main",
+        "styles": [
+          "nekoc-background"
+        ],
+        "currentStyleId": "nekoc-background",
+        "actorIds": [
+          "nekoc-default-actor"
+        ],
+        "visible": true,
+        "editable": true,
+        "workspaceScrollXy": {
+          "x": 100,
+          "y": 50
+        },
+        "nekoBlockJsonList": [],
+        "comments": {}
+      }
+    }
+  },
+  "actors": {
+    "actorsDict": {
+      "nekoc-default-actor": {
+        "id": "nekoc-default-actor",
+        "name": "Sprite",
+        "styles": [
+          "nekoc-costume"
+        ],
+        "currentStyleId": "nekoc-costume",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": 100,
+        "rotation": 0,
+        "visible": true,
+        "locked": false,
+        "editable": true,
+        "deletable": true,
+        "workspaceScrollXy": {
+          "x": 100,
+          "y": 50
+        },
+        "nekoBlockJsonList": [
+          {
+            "id": "audio-start",
+            "type": "on_running_group_activated",
+            "fields": {},
+            "inputs": {},
+            "statements": {},
+            "next": {
+              "id": "play-wait",
+              "type": "play_audio_and_wait",
+              "fields": {},
+              "inputs": {
+                "audio_id": {
+                  "id": "audio-kn-1",
+                  "type": "get_play_audio",
+                  "fields": {
+                    "audio_id": "nekoc-tone"
+                  },
+                  "inputs": {},
+                  "statements": {},
+                  "parent_id": "play-wait"
+                }
+              },
+              "statements": {},
+              "next": {
+                "id": "after",
+                "type": "console_log",
+                "fields": {},
+                "inputs": {
+                  "console_log": {
+                    "id": "audio-kn-2",
+                    "type": "text",
+                    "fields": {
+                      "TEXT": "audio finished"
+                    },
+                    "inputs": {},
+                    "statements": {},
+                    "parent_id": "after"
+                  }
+                },
+                "statements": {},
+                "parent_id": "play-wait"
+              },
+              "parent_id": "audio-start"
+            }
+          }
+        ],
+        "comments": {}
+      }
+    }
+  },
+  "styles": {
+    "stylesDict": {
+      "nekoc-background": {
+        "id": "nekoc-background",
+        "name": "Background",
+        "url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='562'%3E%3Crect width='900' height='562' fill='white'/%3E%3C/svg%3E"
+      },
+      "nekoc-costume": {
+        "id": "nekoc-costume",
+        "name": "Sprite",
+        "url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Ccircle cx='20' cy='20' r='18' fill='rgb(96,143,238)'/%3E%3C/svg%3E",
+        "centerPoint": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    }
+  },
+  "variables": {
+    "variablesDict": {}
+  },
+  "broadcasts": {
+    "broadcastsDict": {
+      "nekoc-scene-main": []
+    }
+  },
+  "procedures": {
+    "proceduresDict": {}
+  },
+  "audios": {
+    "audiosDict": {
+      "nekoc-tone": {
+        "id": "nekoc-tone",
+        "name": "NekoC tone",
+        "url": "data:audio/wav;base64,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",
+        "volume": 0.4,
+        "playback_rate": 1
+      }
+    },
+    "sortList": [
+      "nekoc-tone"
+    ],
+    "currentAudioId": "nekoc-tone"
+  },
+  "hidden_toolbox": {
+    "toolbox": [],
+    "blocks": [],
+    "forcibleShowBlocks": [],
+    "isCombine": false
+  },
+  "courseMaterials": {
+    "courseMaterialsDict": {},
+    "sortList": []
+  },
+  "previewUrl": ""
+}
