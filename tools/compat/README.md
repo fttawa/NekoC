@@ -143,6 +143,13 @@ K4 partial 第二轮的 41 份仓库原创离线探针与保留边界：
 [效果、跨帧印章及纹理背景过渡](../../docs/kitten4-partial-effects-6.md)。
 主路径升级不是完整物理/渲染/设备认证；已知负例与未验证边界仍单独公开。
 
+第七轮继续处理剩余28项A类，当前认证范围与完整剩余表见
+[第七轮总览](../../docs/kitten4-partial-7.md)。
+[克隆生命周期](../../docs/kitten4-partial-lifecycle-7.md)修复删除早一帧并复验408对画布；
+[物理ticker](../../docs/kitten4-partial-physics-7.md)修复forceable最后一次积分与持续力相位；
+[纯数据/等待](../../docs/kitten4-partial-data-7.md)补MIDI和文本逐帧证据并保留抖动负例；
+[滤镜专项](../../docs/kitten4-partial-effects-7.md)区分算法修复、像素事实和未认证分支。
+
 ## 联网、安全与未验证范围
 
 默认外部 HTTP、WebSocket、Service Worker 均禁用；记录所有外部请求的方法、URL、类型和动作。

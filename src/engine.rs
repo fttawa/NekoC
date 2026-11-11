@@ -13,6 +13,7 @@ mod jit_observation;
 mod k4_clock;
 mod k4_drawing;
 mod k4_effects;
+mod k4_lifecycle;
 mod k4_monitors;
 mod k4_properties;
 mod kn_ai;
@@ -5103,6 +5104,7 @@ pub struct Engine {
     order_dirty: bool,
     removed: Vec<String>,
     free_slots: Vec<usize>,
+    k4_pending_disposals: Vec<usize>,
     clone_serial: u64,
     clones: usize,
     /// Per-frame creation counts and monotonic clone numbers (not variable storage).
@@ -5557,6 +5559,7 @@ impl Engine {
             order_dirty: true,
             removed: vec![],
             free_slots: vec![],
+            k4_pending_disposals: vec![],
             clone_serial: 0,
             clones: 0,
             clone_counts: BTreeMap::new(),
@@ -5636,6 +5639,7 @@ impl Engine {
         self.order_dirty = true;
         self.removed.clear();
         self.free_slots.clear();
+        self.k4_pending_disposals.clear();
         self.clone_serial = 0;
         self.clones = 0;
         self.clone_counts.clear();
@@ -7562,6 +7566,7 @@ impl Engine {
         Ok(())
     }
     fn delete_clone(&mut self, index: usize) {
+        self.k4_pending_disposals.retain(|&actor| actor != index);
         if !self.sprites[index].alive {
             return;
         }
@@ -10210,12 +10215,12 @@ impl Engine {
             }
             Op::DisposeClone => {
                 if self.sprites[actor].clone_index > 0 {
-                    self.delete_clone(actor);
+                    self.request_entity_disposal(actor);
                     return Ok(false);
                 }
             }
             Op::DisposeSelf => {
-                self.delete_clone(actor);
+                self.request_entity_disposal(actor);
                 return Ok(false);
             }
             Op::Layer(movement) => {
@@ -10259,6 +10264,7 @@ impl Engine {
         total_count: &mut usize,
     ) -> Result<bool> {
         self.scheduler_tick += 1;
+        self.dispose_requested_entities();
         for id in self.audio.tick(dt) {
             self.audio_finished(id);
         }

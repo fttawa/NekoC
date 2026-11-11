@@ -8,7 +8,7 @@ use serde_json::Value;
 use std::{collections::BTreeMap, time::Duration};
 
 #[test]
-fn visibility_matches_official_frames_except_documented_clone_disposal_gap() {
+fn visibility_matches_all_official_frames_including_clone_disposal() {
     let evidence: Value = serde_json::from_str(include_str!(
         "../docs/kitten4-partial-visibility-5-evidence.json"
     ))
@@ -57,11 +57,9 @@ fn visibility_matches_official_frames_except_documented_clone_disposal_gap() {
                 }
                 let context = format!("{name}/{frame}/interpreted={interpreted}");
                 let actual = vm.oracle_snapshot(frame);
-                let known_removed_early = name.starts_with("delete-") && frame == 8;
                 assert_eq!(
                     actual["actors"].as_object().unwrap().len(),
-                    expected["sprites"].as_object().unwrap().len()
-                        - usize::from(known_removed_early),
+                    expected["sprites"].as_object().unwrap().len(),
                     "{context}/actor-count"
                 );
                 for (id, value) in expected["variables"].as_object().unwrap() {
@@ -81,12 +79,6 @@ fn visibility_matches_official_frames_except_documented_clone_disposal_gap() {
                     } else {
                         sprites.get(id).copied()
                     };
-                    // Shared clone disposal is immediate; the offline player
-                    // defers removal one update. Explicitly pin this known gap.
-                    if name.starts_with("delete-") && frame == 8 && id.ends_with("#clone") {
-                        assert!(matched.is_none(), "known boundary changed: {context}/{id}");
-                        continue;
-                    }
                     let (visible, opacity) =
                         matched.unwrap_or_else(|| panic!("missing {context}/{id}: {sprites:?}"));
                     assert_eq!(

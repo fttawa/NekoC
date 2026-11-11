@@ -2,7 +2,8 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
-import { baseline, drawingMainPaths, physicsMainPaths, propertyMainPaths, serviceGroups, serviceTypes, scopeMarkdown } from "../tools/compat/k4-partial-6-scope.mjs";
+import { baseline, drawingMainPaths, physicsMainPaths, propertyMainPaths, serviceGroups, serviceTypes } from "../tools/compat/k4-partial-6-scope.mjs";
+import { round7MainPaths } from "../tools/compat/k4-partial-7-scope.mjs";
 import { optionFrequency } from "../tools/compat/k4-partial-6-options.mjs";
 
 test("all 95 original partial types are explicitly partitioned, without promoting device fallback", () => {
@@ -23,9 +24,10 @@ test("all 95 original partial types are explicitly partitioned, without promotin
     assert.ok(row.unverifiedBoundaries.length > 0, type);
   }
   for (const type of ["physics2_enable_force", "physics2_set_actor_as", "physics2_set_texture", "physics2_set_flexibility", "set_entity_show_hide"]) {
-    assert.equal(rows.get(type).semantics, "partial", type);
+    assert.equal(rows.get(type).semantics, round7MainPaths.has(type) ? "main-path-verified" : "partial", type);
   }
-  assert.equal(fs.readFileSync("docs/kitten4-partial-6.md", "utf8").replaceAll("\r\n", "\n"), scopeMarkdown(report));
+  // The round-6 report is an archived baseline, not rewritten by later rounds.
+  assert.match(fs.readFileSync("docs/kitten4-partial-6.md", "utf8"), /本轮 \*\*27项\*\*/);
 });
 
 test("option histograms honor empty workspaces and deduplicate ASTs without retaining UUID data", t => {
