@@ -34,7 +34,8 @@ export function needsMicrophone(project){
   const work=[project];
   while(work.length){const node=work.pop();if(!node||typeof node!=='object')continue;
     if(node.type==='get_voice_volume')return true;
-    work.push(...Object.values(node));
+    // 逐个压栈：大列表（如几十万项的权重）展开成 push 参数会撑爆调用栈。
+    for(const value of Object.values(node))if(value&&typeof value==='object')work.push(value);
   }
   return false;
 }
