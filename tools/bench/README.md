@@ -95,6 +95,13 @@ node tools/bench/official-kn.mjs --bundle-dir D:/path/to/read-only-kn-bundles --
 node tools/bench/official-kn.mjs --fixtures dist/bench/official-kn/fixtures --bundle-dir D:/path/to/read-only-kn-bundles --native-binary dist/bench/bin/native.exe --out dist/bench/official-kn-run
 ```
 
+本轮实测使用同一批历史AB输入 `dist/bench/kn-ab/fixtures`、
+`--bundle-dir E:/nekoc-wt/hncompat2/dist/hncompat2-official`、
+`--native-binary dist/bench/kn-ab/latest-final.exe`，额外同exe的
+`--native-wall-clock-binary`仅留独立真时钟诊断。
+首批输出 `dist/bench/official-kn-final` 因其它会话构建中断并保留；重试使用
+`dist/bench/official-kn-final-retry`，不能将首批失败隐藏或与重试拼成成功套件。
+
 如需把默认真实墙钟退化单独留档（额外 native 诊断，不参与官方比较），显式增加
 `--native-wall-clock-binary dist/bench/bin/native.exe`。该行要求返回
 `deterministic=false`，与正式 `--native-binary` 的 `deterministic=true` 分列保存，

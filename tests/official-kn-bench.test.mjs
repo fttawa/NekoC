@@ -202,6 +202,17 @@ test("official wrapper rejects two manager updates within one controlled frame",
   assert.equal(page.window.__knBench.sample.frame_ms.length, 1);
 });
 
+test("official projection retains tagged variable values and rejects missing live actor APIs", () => {
+  const page = mockPage();
+  page.install({ dt: 1 / 60, frames: 1, warmup: 0, budget: 4096 });
+  page.values.global = [undefined, NaN, -0, Infinity];
+  const state = JSON.parse(JSON.stringify(page.window.__knBench.projection()));
+  assert.deepEqual(state.variables.global, [{ $undefined: true }, { $number: "NaN" }, { $number: "-0" }, { $number: "Infinity" }]);
+  const stage = page.window.__nekocRequire(54174).V.core;
+  delete stage.actors.get_actor_ids;
+  assert.throws(() => page.window.__knBench.projection(), /Missing live actor/);
+});
+
 test("native companion always uses the explicit deterministic contract", () => {
   const source = readFileSync(new URL("../tools/bench/official-kn.mjs", import.meta.url), "utf8");
   assert.match(source, /result\.deterministic !== deterministic/);

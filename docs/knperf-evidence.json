@@ -1,6 +1,6 @@
 {
   "schema": "nekoc-knperf-evidence-v1",
-  "date": "2026-11-12T12:47:57.011Z",
+  "date": "2026-11-12T13:11:49.314Z",
   "native_ab": [
     {
       "name": "history-head",
@@ -2188,13 +2188,23 @@
           "final_state_equal": true
         }
       ]
-    }
-  ],
-  "incomplete_native_ab": [
+    },
     {
       "name": "latest-final",
       "raw_file": "dist/bench/kn-ab/latest-final/results.json",
-      "raw_sha256": "8f02def6f3c57a630d1ea6611651f990f7999a202dfaeabe36cb52ac375af319",
+      "raw_sha256": "d509e180b2e98f225c2d238ff2caae407023cf0826dd32417034dbf7e2bd6757",
+      "host": {
+        "platform": "win32",
+        "arch": "x64",
+        "cpu": "Intel(R) Core(TM) i7-14650HX",
+        "node": "v24.12.0"
+      },
+      "options": {
+        "frames": 60,
+        "warmup": 10,
+        "repeats": 5,
+        "order": "before-after / after-before alternating"
+      },
       "binaries": {
         "before": {
           "file": "E:\\nekoc-wt\\knperf\\dist\\bench\\kn-ab\\latest-before.exe",
@@ -2205,27 +2215,1126 @@
           "sha256": "188cc2d8c8592515200f694769afd1733692ef6c3e597f9b0fc93c8188bfe437"
         }
       },
-      "completed_pairs": [
+      "works": [
         {
           "name": "broadcast.bcmkn",
-          "pairs": 5
+          "input_sha256": "a31b315960edd340608910ef1b63a57f22b76168953ceb3a05f176ad412ea80f",
+          "runs": [
+            {
+              "repeat": 0,
+              "before_ms": {
+                "mean": 0.17689333333333337,
+                "median": 0.1704,
+                "p95": 0.2046,
+                "max": 0.2633
+              },
+              "after_ms": {
+                "mean": 0.18520333333333336,
+                "median": 0.1831,
+                "p95": 0.1972,
+                "max": 0.2031
+              },
+              "final_state_equal": true,
+              "before_state_sha256": "7a30e26f0b27407068520d9f5edc8b72a901a2277f362883702aadbe2e826749",
+              "after_state_sha256": "7a30e26f0b27407068520d9f5edc8b72a901a2277f362883702aadbe2e826749"
+            },
+            {
+              "repeat": 1,
+              "before_ms": {
+                "mean": 0.18215666666666672,
+                "median": 0.1778,
+                "p95": 0.2044,
+                "max": 0.2809
+              },
+              "after_ms": {
+                "mean": 0.17398999999999992,
+                "median": 0.17,
+                "p95": 0.18330000000000002,
+                "max": 0.2063
+              },
+              "final_state_equal": true,
+              "before_state_sha256": "7a30e26f0b27407068520d9f5edc8b72a901a2277f362883702aadbe2e826749",
+              "after_state_sha256": "7a30e26f0b27407068520d9f5edc8b72a901a2277f362883702aadbe2e826749"
+            },
+            {
+              "repeat": 2,
+              "before_ms": {
+                "mean": 0.17438333333333328,
+                "median": 0.17200000000000001,
+                "p95": 0.1872,
+                "max": 0.19440000000000002
+              },
+              "after_ms": {
+                "mean": 0.18517,
+                "median": 0.18230000000000002,
+                "p95": 0.2039,
+                "max": 0.2261
+              },
+              "final_state_equal": true,
+              "before_state_sha256": "7a30e26f0b27407068520d9f5edc8b72a901a2277f362883702aadbe2e826749",
+              "after_state_sha256": "7a30e26f0b27407068520d9f5edc8b72a901a2277f362883702aadbe2e826749"
+            },
+            {
+              "repeat": 3,
+              "before_ms": {
+                "mean": 0.1756583333333333,
+                "median": 0.1756,
+                "p95": 0.18569999999999998,
+                "max": 0.1893
+              },
+              "after_ms": {
+                "mean": 0.17678333333333335,
+                "median": 0.17300000000000001,
+                "p95": 0.1868,
+                "max": 0.27559999999999996
+              },
+              "final_state_equal": true,
+              "before_state_sha256": "7a30e26f0b27407068520d9f5edc8b72a901a2277f362883702aadbe2e826749",
+              "after_state_sha256": "7a30e26f0b27407068520d9f5edc8b72a901a2277f362883702aadbe2e826749"
+            },
+            {
+              "repeat": 4,
+              "before_ms": {
+                "mean": 0.17788000000000004,
+                "median": 0.1717,
+                "p95": 0.20149999999999998,
+                "max": 0.32949999999999996
+              },
+              "after_ms": {
+                "mean": 0.180935,
+                "median": 0.1774,
+                "p95": 0.2006,
+                "max": 0.28400000000000003
+              },
+              "final_state_equal": true,
+              "before_state_sha256": "7a30e26f0b27407068520d9f5edc8b72a901a2277f362883702aadbe2e826749",
+              "after_state_sha256": "7a30e26f0b27407068520d9f5edc8b72a901a2277f362883702aadbe2e826749"
+            }
+          ],
+          "before_ms": 0.17689333333333337,
+          "after_ms": 0.180935,
+          "change_percent": 2.284804401899443,
+          "final_state_equal": true
         },
         {
           "name": "clones.bcmkn",
-          "pairs": 5
+          "input_sha256": "5749bf64af9266e61ddb5bdb68d510a85d5bc057e981b03138e21be4d8ad67ef",
+          "runs": [
+            {
+              "repeat": 0,
+              "before_ms": {
+                "mean": 0.11483499999999998,
+                "median": 0.1116,
+                "p95": 0.1403,
+                "max": 0.1945
+              },
+              "after_ms": {
+                "mean": 0.12052500000000003,
+                "median": 0.1163,
+                "p95": 0.1356,
+                "max": 0.2195
+              },
+              "final_state_equal": true,
+              "before_state_sha256": "06d4ce306dceb5626b9062040a29316e20283504a240d192684611e617887a0e",
+              "after_state_sha256": "06d4ce306dceb5626b9062040a29316e20283504a240d192684611e617887a0e"
+            },
+            {
+              "repeat": 1,
+              "before_ms": {
+                "mean": 0.11250833333333338,
+                "median": 0.1113,
+                "p95": 0.11900000000000001,
+                "max": 0.2002
+              },
+              "after_ms": {
+                "mean": 0.11302333333333332,
+                "median": 0.11,
+                "p95": 0.1212,
+                "max": 0.1871
+              },
+              "final_state_equal": true,
+              "before_state_sha256": "06d4ce306dceb5626b9062040a29316e20283504a240d192684611e617887a0e",
+              "after_state_sha256": "06d4ce306dceb5626b9062040a29316e20283504a240d192684611e617887a0e"
+            },
+            {
+              "repeat": 2,
+              "before_ms": {
+                "mean": 0.10983833333333327,
+                "median": 0.106,
+                "p95": 0.1207,
+                "max": 0.1675
+              },
+              "after_ms": {
+                "mean": 0.11895500000000005,
+                "median": 0.1158,
+                "p95": 0.14329999999999998,
+                "max": 0.15410000000000001
+              },
+              "final_state_equal": true,
+              "before_state_sha256": "06d4ce306dceb5626b9062040a29316e20283504a240d192684611e617887a0e",
+              "after_state_sha256": "06d4ce306dceb5626b9062040a29316e20283504a240d192684611e617887a0e"
+            },
+            {
+              "repeat": 3,
+              "before_ms": {
+                "mean": 0.12187666666666665,
+                "median": 0.1073,
+                "p95": 0.1796,
+                "max": 0.2509
+              },
+              "after_ms": {
+                "mean": 0.10924000000000003,
+                "median": 0.10579999999999999,
+                "p95": 0.1164,
+                "max": 0.2162
+              },
+              "final_state_equal": true,
+              "before_state_sha256": "06d4ce306dceb5626b9062040a29316e20283504a240d192684611e617887a0e",
+              "after_state_sha256": "06d4ce306dceb5626b9062040a29316e20283504a240d192684611e617887a0e"
+            },
+            {
+              "repeat": 4,
+              "before_ms": {
+                "mean": 0.10696000000000003,
+                "median": 0.1054,
+                "p95": 0.11510000000000001,
+                "max": 0.11689999999999999
+              },
+              "after_ms": {
+                "mean": 0.11758166666666665,
+                "median": 0.1116,
+                "p95": 0.14459999999999998,
+                "max": 0.3076
+              },
+              "final_state_equal": true,
+              "before_state_sha256": "06d4ce306dceb5626b9062040a29316e20283504a240d192684611e617887a0e",
+              "after_state_sha256": "06d4ce306dceb5626b9062040a29316e20283504a240d192684611e617887a0e"
+            }
+          ],
+          "before_ms": 0.11250833333333338,
+          "after_ms": 0.11758166666666665,
+          "change_percent": 4.5092956077326996,
+          "final_state_equal": true
         },
         {
           "name": "list.bcmkn",
-          "pairs": 5
+          "input_sha256": "9c6cf54bbc555256e5f1bea1a9d53799d6a75282a68111d49942ce9e10ae5387",
+          "runs": [
+            {
+              "repeat": 0,
+              "before_ms": {
+                "mean": 0.24230333333333334,
+                "median": 0.23399999999999999,
+                "p95": 0.2813,
+                "max": 0.4487
+              },
+              "after_ms": {
+                "mean": 0.24798166666666663,
+                "median": 0.2468,
+                "p95": 0.2505,
+                "max": 0.2879
+              },
+              "final_state_equal": true,
+              "before_state_sha256": "e106cc37c3c538b9ff0726e1359050f4ca4f93fa9e0f2c8c70cab7c6f6c0c3b8",
+              "after_state_sha256": "e106cc37c3c538b9ff0726e1359050f4ca4f93fa9e0f2c8c70cab7c6f6c0c3b8"
+            },
+            {
+              "repeat": 1,
+              "before_ms": {
+                "mean": 0.24224666666666655,
+                "median": 0.2408,
+                "p95": 0.25179999999999997,
+                "max": 0.3428
+              },
+              "after_ms": {
+                "mean": 0.2515183333333334,
+                "median": 0.24760000000000001,
+                "p95": 0.3104,
+                "max": 0.3839
+              },
+              "final_state_equal": true,
+              "before_state_sha256": "e106cc37c3c538b9ff0726e1359050f4ca4f93fa9e0f2c8c70cab7c6f6c0c3b8",
+              "after_state_sha256": "e106cc37c3c538b9ff0726e1359050f4ca4f93fa9e0f2c8c70cab7c6f6c0c3b8"
+            },
+            {
+              "repeat": 2,
+              "before_ms": {
+                "mean": 0.2459083333333333,
+                "median": 0.2317,
+                "p95": 0.2887,
+                "max": 0.4167
+              },
+              "after_ms": {
+                "mean": 0.2493966666666666,
+                "median": 0.2384,
+                "p95": 0.3387,
+                "max": 0.3886
+              },
+              "final_state_equal": true,
+              "before_state_sha256": "e106cc37c3c538b9ff0726e1359050f4ca4f93fa9e0f2c8c70cab7c6f6c0c3b8",
+              "after_state_sha256": "e106cc37c3c538b9ff0726e1359050f4ca4f93fa9e0f2c8c70cab7c6f6c0c3b8"
+            },
+            {
+              "repeat": 3,
+              "before_ms": {
+                "mean": 0.24044,
+                "median": 0.231,
+                "p95": 0.2614,
+                "max": 0.4306
+              },
+              "after_ms": {
+                "mean": 0.24392000000000003,
+                "median": 0.24630000000000002,
+                "p95": 0.2561,
+                "max": 0.3547
+              },
+              "final_state_equal": true,
+              "before_state_sha256": "e106cc37c3c538b9ff0726e1359050f4ca4f93fa9e0f2c8c70cab7c6f6c0c3b8",
+              "after_state_sha256": "e106cc37c3c538b9ff0726e1359050f4ca4f93fa9e0f2c8c70cab7c6f6c0c3b8"
+            },
+            {
+              "repeat": 4,
+              "before_ms": {
+                "mean": 0.2400033333333333,
+                "median": 0.2307,
+                "p95": 0.2582,
+                "max": 0.3667
+              },
+              "after_ms": {
+                "mean": 0.23740999999999995,
+                "median": 0.2344,
+                "p95": 0.24889999999999998,
+                "max": 0.2746
+              },
+              "final_state_equal": true,
+              "before_state_sha256": "e106cc37c3c538b9ff0726e1359050f4ca4f93fa9e0f2c8c70cab7c6f6c0c3b8",
+              "after_state_sha256": "e106cc37c3c538b9ff0726e1359050f4ca4f93fa9e0f2c8c70cab7c6f6c0c3b8"
+            }
+          ],
+          "before_ms": 0.24224666666666655,
+          "after_ms": 0.24798166666666663,
+          "change_percent": 2.3674216363486655,
+          "final_state_equal": true
         },
         {
           "name": "numeric.bcmkn",
-          "pairs": 2
+          "input_sha256": "f00a2779ff75eedd1e74d2a9bda50045e3fd14710111d1e404e15295d9807b54",
+          "runs": [
+            {
+              "repeat": 0,
+              "before_ms": {
+                "mean": 0.12028833333333333,
+                "median": 0.1179,
+                "p95": 0.1268,
+                "max": 0.1778
+              },
+              "after_ms": {
+                "mean": 0.10646833333333337,
+                "median": 0.1028,
+                "p95": 0.1124,
+                "max": 0.13520000000000001
+              },
+              "final_state_equal": true,
+              "before_state_sha256": "a9526c724eee589b5b8e8932302f452a596d31259bd9ebf72c8aba190666d937",
+              "after_state_sha256": "a9526c724eee589b5b8e8932302f452a596d31259bd9ebf72c8aba190666d937"
+            },
+            {
+              "repeat": 1,
+              "before_ms": {
+                "mean": 0.12177666666666667,
+                "median": 0.1182,
+                "p95": 0.1497,
+                "max": 0.1754
+              },
+              "after_ms": {
+                "mean": 0.1100616666666667,
+                "median": 0.1108,
+                "p95": 0.1189,
+                "max": 0.1535
+              },
+              "final_state_equal": true,
+              "before_state_sha256": "a9526c724eee589b5b8e8932302f452a596d31259bd9ebf72c8aba190666d937",
+              "after_state_sha256": "a9526c724eee589b5b8e8932302f452a596d31259bd9ebf72c8aba190666d937"
+            },
+            {
+              "repeat": 2,
+              "before_ms": {
+                "mean": 0.12092000000000001,
+                "median": 0.1185,
+                "p95": 0.12789999999999999,
+                "max": 0.1553
+              },
+              "after_ms": {
+                "mean": 0.11028000000000003,
+                "median": 0.111,
+                "p95": 0.12219999999999999,
+                "max": 0.1453
+              },
+              "final_state_equal": true,
+              "before_state_sha256": "a9526c724eee589b5b8e8932302f452a596d31259bd9ebf72c8aba190666d937",
+              "after_state_sha256": "a9526c724eee589b5b8e8932302f452a596d31259bd9ebf72c8aba190666d937"
+            },
+            {
+              "repeat": 3,
+              "before_ms": {
+                "mean": 0.11566833333333333,
+                "median": 0.1144,
+                "p95": 0.1254,
+                "max": 0.1605
+              },
+              "after_ms": {
+                "mean": 0.11491500000000006,
+                "median": 0.1114,
+                "p95": 0.12219999999999999,
+                "max": 0.207
+              },
+              "final_state_equal": true,
+              "before_state_sha256": "a9526c724eee589b5b8e8932302f452a596d31259bd9ebf72c8aba190666d937",
+              "after_state_sha256": "a9526c724eee589b5b8e8932302f452a596d31259bd9ebf72c8aba190666d937"
+            },
+            {
+              "repeat": 4,
+              "before_ms": {
+                "mean": 0.12186000000000001,
+                "median": 0.1188,
+                "p95": 0.1266,
+                "max": 0.1794
+              },
+              "after_ms": {
+                "mean": 0.11540666666666669,
+                "median": 0.1114,
+                "p95": 0.161,
+                "max": 0.2478
+              },
+              "final_state_equal": true,
+              "before_state_sha256": "a9526c724eee589b5b8e8932302f452a596d31259bd9ebf72c8aba190666d937",
+              "after_state_sha256": "a9526c724eee589b5b8e8932302f452a596d31259bd9ebf72c8aba190666d937"
+            }
+          ],
+          "before_ms": 0.12092000000000001,
+          "after_ms": 0.11028000000000003,
+          "change_percent": -8.799206086668853,
+          "final_state_equal": true
+        },
+        {
+          "name": "pen.bcmkn",
+          "input_sha256": "18e692cb3716029246cbf8ab9ce847933b1cfd0e9dc9e2e2be5d52d01d67a7a8",
+          "runs": [
+            {
+              "repeat": 0,
+              "before_ms": {
+                "mean": 0.1752166666666667,
+                "median": 0.1733,
+                "p95": 0.1907,
+                "max": 0.2063
+              },
+              "after_ms": {
+                "mean": 0.1656433333333333,
+                "median": 0.1625,
+                "p95": 0.176,
+                "max": 0.2255
+              },
+              "final_state_equal": true,
+              "before_state_sha256": "f2c925755ab6b821eb8cb83649982a8881a6c7f74a4b68c9a8368d7d4815177f",
+              "after_state_sha256": "f2c925755ab6b821eb8cb83649982a8881a6c7f74a4b68c9a8368d7d4815177f"
+            },
+            {
+              "repeat": 1,
+              "before_ms": {
+                "mean": 0.17876833333333322,
+                "median": 0.16699999999999998,
+                "p95": 0.2504,
+                "max": 0.3372
+              },
+              "after_ms": {
+                "mean": 0.16269000000000003,
+                "median": 0.1596,
+                "p95": 0.20249999999999999,
+                "max": 0.2427
+              },
+              "final_state_equal": true,
+              "before_state_sha256": "f2c925755ab6b821eb8cb83649982a8881a6c7f74a4b68c9a8368d7d4815177f",
+              "after_state_sha256": "f2c925755ab6b821eb8cb83649982a8881a6c7f74a4b68c9a8368d7d4815177f"
+            },
+            {
+              "repeat": 2,
+              "before_ms": {
+                "mean": 0.16796833333333339,
+                "median": 0.1657,
+                "p95": 0.1928,
+                "max": 0.2102
+              },
+              "after_ms": {
+                "mean": 0.1617316666666667,
+                "median": 0.1607,
+                "p95": 0.1924,
+                "max": 0.2346
+              },
+              "final_state_equal": true,
+              "before_state_sha256": "f2c925755ab6b821eb8cb83649982a8881a6c7f74a4b68c9a8368d7d4815177f",
+              "after_state_sha256": "f2c925755ab6b821eb8cb83649982a8881a6c7f74a4b68c9a8368d7d4815177f"
+            },
+            {
+              "repeat": 3,
+              "before_ms": {
+                "mean": 0.16977833333333336,
+                "median": 0.166,
+                "p95": 0.1986,
+                "max": 0.24489999999999998
+              },
+              "after_ms": {
+                "mean": 0.155755,
+                "median": 0.1564,
+                "p95": 0.1641,
+                "max": 0.18450000000000003
+              },
+              "final_state_equal": true,
+              "before_state_sha256": "f2c925755ab6b821eb8cb83649982a8881a6c7f74a4b68c9a8368d7d4815177f",
+              "after_state_sha256": "f2c925755ab6b821eb8cb83649982a8881a6c7f74a4b68c9a8368d7d4815177f"
+            },
+            {
+              "repeat": 4,
+              "before_ms": {
+                "mean": 0.16602833333333333,
+                "median": 0.1597,
+                "p95": 0.20379999999999998,
+                "max": 0.279
+              },
+              "after_ms": {
+                "mean": 0.15596666666666664,
+                "median": 0.1532,
+                "p95": 0.174,
+                "max": 0.1972
+              },
+              "final_state_equal": true,
+              "before_state_sha256": "f2c925755ab6b821eb8cb83649982a8881a6c7f74a4b68c9a8368d7d4815177f",
+              "after_state_sha256": "f2c925755ab6b821eb8cb83649982a8881a6c7f74a4b68c9a8368d7d4815177f"
+            }
+          ],
+          "before_ms": 0.16977833333333336,
+          "after_ms": 0.1617316666666667,
+          "change_percent": -4.7395132869329615,
+          "final_state_equal": true
+        },
+        {
+          "name": "recursion.bcmkn",
+          "input_sha256": "4ac07cd722b7a60dd671c6a116ca53cb6aac912936de1353f75b6cfc0786ee7e",
+          "runs": [
+            {
+              "repeat": 0,
+              "before_ms": {
+                "mean": 0.03369333333333331,
+                "median": 0.0211,
+                "p95": 0.0249,
+                "max": 0.7447
+              },
+              "after_ms": {
+                "mean": 0.030351666666666735,
+                "median": 0.0193,
+                "p95": 0.0209,
+                "max": 0.673
+              },
+              "final_state_equal": true,
+              "before_state_sha256": "439fb002f4a6a07bad1a0fee08d8ff9d8026b82c3a168e647c370474fb02da19",
+              "after_state_sha256": "439fb002f4a6a07bad1a0fee08d8ff9d8026b82c3a168e647c370474fb02da19"
+            },
+            {
+              "repeat": 1,
+              "before_ms": {
+                "mean": 0.031458333333333345,
+                "median": 0.0209,
+                "p95": 0.0234,
+                "max": 0.6631
+              },
+              "after_ms": {
+                "mean": 0.03502000000000002,
+                "median": 0.019899999999999998,
+                "p95": 0.034999999999999996,
+                "max": 0.7291
+              },
+              "final_state_equal": true,
+              "before_state_sha256": "439fb002f4a6a07bad1a0fee08d8ff9d8026b82c3a168e647c370474fb02da19",
+              "after_state_sha256": "439fb002f4a6a07bad1a0fee08d8ff9d8026b82c3a168e647c370474fb02da19"
+            },
+            {
+              "repeat": 2,
+              "before_ms": {
+                "mean": 0.03238,
+                "median": 0.020999999999999998,
+                "p95": 0.022099999999999998,
+                "max": 0.7144
+              },
+              "after_ms": {
+                "mean": 0.035316666666666725,
+                "median": 0.021500000000000002,
+                "p95": 0.0262,
+                "max": 0.7932
+              },
+              "final_state_equal": true,
+              "before_state_sha256": "439fb002f4a6a07bad1a0fee08d8ff9d8026b82c3a168e647c370474fb02da19",
+              "after_state_sha256": "439fb002f4a6a07bad1a0fee08d8ff9d8026b82c3a168e647c370474fb02da19"
+            },
+            {
+              "repeat": 3,
+              "before_ms": {
+                "mean": 0.03631333333333336,
+                "median": 0.0204,
+                "p95": 0.036699999999999997,
+                "max": 0.7703
+              },
+              "after_ms": {
+                "mean": 0.03343,
+                "median": 0.0208,
+                "p95": 0.027200000000000002,
+                "max": 0.7437
+              },
+              "final_state_equal": true,
+              "before_state_sha256": "439fb002f4a6a07bad1a0fee08d8ff9d8026b82c3a168e647c370474fb02da19",
+              "after_state_sha256": "439fb002f4a6a07bad1a0fee08d8ff9d8026b82c3a168e647c370474fb02da19"
+            },
+            {
+              "repeat": 4,
+              "before_ms": {
+                "mean": 0.03805333333333334,
+                "median": 0.0213,
+                "p95": 0.0375,
+                "max": 0.7537
+              },
+              "after_ms": {
+                "mean": 0.03419999999999998,
+                "median": 0.0212,
+                "p95": 0.0297,
+                "max": 0.7277
+              },
+              "final_state_equal": true,
+              "before_state_sha256": "439fb002f4a6a07bad1a0fee08d8ff9d8026b82c3a168e647c370474fb02da19",
+              "after_state_sha256": "439fb002f4a6a07bad1a0fee08d8ff9d8026b82c3a168e647c370474fb02da19"
+            }
+          ],
+          "before_ms": 0.03369333333333331,
+          "after_ms": 0.03419999999999998,
+          "change_percent": 1.5037593984962516,
+          "final_state_equal": true
+        },
+        {
+          "name": "string.bcmkn",
+          "input_sha256": "fd121e7a188faf85d93ba932ebd8cba75f1bd2d74de66a453ee5139beb70b8d3",
+          "runs": [
+            {
+              "repeat": 0,
+              "before_ms": {
+                "mean": 0.2113800000000001,
+                "median": 0.2029,
+                "p95": 0.27109999999999995,
+                "max": 0.3314
+              },
+              "after_ms": {
+                "mean": 0.21895833333333345,
+                "median": 0.20929999999999999,
+                "p95": 0.2591,
+                "max": 0.4061
+              },
+              "final_state_equal": true,
+              "before_state_sha256": "9b67d5223947c6bd016daf45f25d164c9f69891e1212a65a54d9f7b8cc21df16",
+              "after_state_sha256": "9b67d5223947c6bd016daf45f25d164c9f69891e1212a65a54d9f7b8cc21df16"
+            },
+            {
+              "repeat": 1,
+              "before_ms": {
+                "mean": 0.21421833333333337,
+                "median": 0.205,
+                "p95": 0.25989999999999996,
+                "max": 0.365
+              },
+              "after_ms": {
+                "mean": 0.19911500000000001,
+                "median": 0.1992,
+                "p95": 0.2177,
+                "max": 0.2398
+              },
+              "final_state_equal": true,
+              "before_state_sha256": "9b67d5223947c6bd016daf45f25d164c9f69891e1212a65a54d9f7b8cc21df16",
+              "after_state_sha256": "9b67d5223947c6bd016daf45f25d164c9f69891e1212a65a54d9f7b8cc21df16"
+            },
+            {
+              "repeat": 2,
+              "before_ms": {
+                "mean": 0.2297183333333333,
+                "median": 0.20670000000000002,
+                "p95": 0.3303,
+                "max": 0.9645
+              },
+              "after_ms": {
+                "mean": 0.21070666666666665,
+                "median": 0.2072,
+                "p95": 0.2468,
+                "max": 0.3475
+              },
+              "final_state_equal": true,
+              "before_state_sha256": "9b67d5223947c6bd016daf45f25d164c9f69891e1212a65a54d9f7b8cc21df16",
+              "after_state_sha256": "9b67d5223947c6bd016daf45f25d164c9f69891e1212a65a54d9f7b8cc21df16"
+            },
+            {
+              "repeat": 3,
+              "before_ms": {
+                "mean": 0.20903999999999995,
+                "median": 0.2044,
+                "p95": 0.2187,
+                "max": 0.3318
+              },
+              "after_ms": {
+                "mean": 0.21312833333333334,
+                "median": 0.2056,
+                "p95": 0.25520000000000004,
+                "max": 0.3079
+              },
+              "final_state_equal": true,
+              "before_state_sha256": "9b67d5223947c6bd016daf45f25d164c9f69891e1212a65a54d9f7b8cc21df16",
+              "after_state_sha256": "9b67d5223947c6bd016daf45f25d164c9f69891e1212a65a54d9f7b8cc21df16"
+            },
+            {
+              "repeat": 4,
+              "before_ms": {
+                "mean": 0.19621333333333332,
+                "median": 0.1903,
+                "p95": 0.2079,
+                "max": 0.2889
+              },
+              "after_ms": {
+                "mean": 0.20908499999999994,
+                "median": 0.2071,
+                "p95": 0.23379999999999998,
+                "max": 0.31980000000000003
+              },
+              "final_state_equal": true,
+              "before_state_sha256": "9b67d5223947c6bd016daf45f25d164c9f69891e1212a65a54d9f7b8cc21df16",
+              "after_state_sha256": "9b67d5223947c6bd016daf45f25d164c9f69891e1212a65a54d9f7b8cc21df16"
+            }
+          ],
+          "before_ms": 0.2113800000000001,
+          "after_ms": 0.21070666666666665,
+          "change_percent": -0.318541646954984,
+          "final_state_equal": true
         }
       ]
     }
   ],
-  "official": null,
+  "incomplete_native_ab": [],
+  "official": {
+    "raw_file": "dist/bench/official-kn-final-retry/results.json",
+    "raw_sha256": "74ddbf7c107fc0b8ea99547e1840326d4acd2596a6d118dd2a4ceece2f834d2a",
+    "complete": false,
+    "expected_works": 7,
+    "completed_runs": 7,
+    "options": {
+      "out": "E:\\nekoc-wt\\knperf\\dist\\bench\\official-kn-final-retry",
+      "frames": 60,
+      "warmup": 10,
+      "repeats": 3,
+      "dt": 0.016666666666666666,
+      "budget": 4096,
+      "timeout": 120000,
+      "channel": "msedge",
+      "bundleDir": "../hncompat2/dist/hncompat2-official",
+      "fixtures": "dist/bench/kn-ab/fixtures",
+      "bundle-dir": "E:/nekoc-wt/hncompat2/dist/hncompat2-official",
+      "native-binary": "dist/bench/kn-ab/latest-final.exe",
+      "nativeBinary": "dist/bench/kn-ab/latest-final.exe",
+      "native-wall-clock-binary": "dist/bench/kn-ab/latest-final.exe",
+      "nativeWallClockBinary": "dist/bench/kn-ab/latest-final.exe"
+    },
+    "bundles": {
+      "main.8ccf2442.js": {
+        "path": "E:\\nekoc-wt\\hncompat2\\dist\\hncompat2-official\\main.8ccf2442.js",
+        "bytes": 5594327,
+        "sha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165"
+      },
+      "crc_libs.8196dbd1.js": {
+        "path": "E:\\nekoc-wt\\hncompat2\\dist\\hncompat2-official\\crc_libs.8196dbd1.js",
+        "bytes": 1297643,
+        "sha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7"
+      },
+      "main-vendors.07f7dd7e.js": {
+        "path": "E:\\nekoc-wt\\hncompat2\\dist\\hncompat2-official\\main-vendors.07f7dd7e.js",
+        "bytes": 6460489,
+        "sha256": "38183ab8a9620f33fef75f1bd1f90ee26b492e7b6ded8b6b065fc052e7948f68"
+      }
+    },
+    "host": {
+      "platform": "win32",
+      "arch": "x64",
+      "cpu": "Intel(R) Core(TM) i7-14650HX",
+      "node": "v24.12.0"
+    },
+    "harness_sha256": "c68a6b079397e4f75fabd2998be19c14fbcba11a8c1e6e77be90543ccfcf0586",
+    "native_binary": {
+      "path": "E:\\nekoc-wt\\knperf\\dist\\bench\\kn-ab\\latest-final.exe",
+      "sha256": "188cc2d8c8592515200f694769afd1733692ef6c3e597f9b0fc93c8188bfe437"
+    },
+    "works": [
+      {
+        "name": "numeric",
+        "input_sha256": "f00a2779ff75eedd1e74d2a9bda50045e3fd14710111d1e404e15295d9807b54",
+        "runs": [
+          {
+            "repeat": 0,
+            "status": "ok",
+            "errors": [],
+            "page_errors": [],
+            "console_errors": [
+              "Failed to load resource: the server responded with a status of 403 ()",
+              "j",
+              "Failed to load resource: the server responded with a status of 401 ()"
+            ],
+            "browser_version": "157.0.4341.46",
+            "official_ms": {
+              "mean": 26.063333332538605,
+              "median": 17.100000023841858,
+              "p95": 44.59999996423721,
+              "max": 47.5
+            },
+            "native_ms": {
+              "mean": 0.029584999999999993,
+              "median": 0.027200000000000002,
+              "p95": 0.035500000000000004,
+              "max": 0.0864
+            },
+            "projection_equal": true,
+            "comparison": {
+              "status": "unverified",
+              "reason": "equal workload not established"
+            },
+            "official_workload": {
+              "certified": false,
+              "equivalent": false,
+              "reason": "official KN completed fixed updates; per-loop work equivalence not certified"
+            },
+            "native_workload": {
+              "certified": false,
+              "equivalent": false,
+              "instructions": 480180,
+              "active_frames": 60,
+              "reason": "native reports total instructions, not the official warp-tail unit; a coordinated per-update batch/tail diagnostic is still required",
+              "required_diagnostic": "per-update completed batch count, total warp-tail count, and max single-step tail with the same unit",
+              "contract": "numeric"
+            },
+            "final_state_sha256": "505f0b36ffd2f0a54ccc0663140b9c0dc77958fe7d97297a058fe0a1e3ecf08f"
+          },
+          {
+            "repeat": 1,
+            "status": "ok",
+            "errors": [],
+            "page_errors": [],
+            "console_errors": [
+              "Failed to load resource: the server responded with a status of 403 ()",
+              "j",
+              "Failed to load resource: the server responded with a status of 401 ()"
+            ],
+            "browser_version": "157.0.4341.46",
+            "official_ms": {
+              "mean": 21.52499999701977,
+              "median": 15.100000023841858,
+              "p95": 41.30000001192093,
+              "max": 46.09999996423721
+            },
+            "native_ms": {
+              "mean": 0.027076666666666672,
+              "median": 0.027100000000000003,
+              "p95": 0.0298,
+              "max": 0.030000000000000002
+            },
+            "projection_equal": true,
+            "comparison": {
+              "status": "unverified",
+              "reason": "equal workload not established"
+            },
+            "official_workload": {
+              "certified": false,
+              "equivalent": false,
+              "reason": "official KN completed fixed updates; per-loop work equivalence not certified"
+            },
+            "native_workload": {
+              "certified": false,
+              "equivalent": false,
+              "instructions": 480180,
+              "active_frames": 60,
+              "reason": "native reports total instructions, not the official warp-tail unit; a coordinated per-update batch/tail diagnostic is still required",
+              "required_diagnostic": "per-update completed batch count, total warp-tail count, and max single-step tail with the same unit",
+              "contract": "numeric"
+            },
+            "final_state_sha256": "505f0b36ffd2f0a54ccc0663140b9c0dc77958fe7d97297a058fe0a1e3ecf08f"
+          },
+          {
+            "repeat": 2,
+            "status": "ok",
+            "errors": [],
+            "page_errors": [],
+            "console_errors": [
+              "Failed to load resource: the server responded with a status of 403 ()",
+              "j",
+              "Failed to load resource: the server responded with a status of 422 ()",
+              "Failed to load resource: the server responded with a status of 401 ()"
+            ],
+            "browser_version": "157.0.4341.46",
+            "official_ms": {
+              "mean": 28.139999998609223,
+              "median": 19.600000023841858,
+              "p95": 40.69999998807907,
+              "max": 43.69999998807907
+            },
+            "native_ms": {
+              "mean": 0.026571666666666674,
+              "median": 0.025599999999999998,
+              "p95": 0.0287,
+              "max": 0.0478
+            },
+            "projection_equal": true,
+            "comparison": {
+              "status": "unverified",
+              "reason": "equal workload not established"
+            },
+            "official_workload": {
+              "certified": false,
+              "equivalent": false,
+              "reason": "official KN completed fixed updates; per-loop work equivalence not certified"
+            },
+            "native_workload": {
+              "certified": false,
+              "equivalent": false,
+              "instructions": 480180,
+              "active_frames": 60,
+              "reason": "native reports total instructions, not the official warp-tail unit; a coordinated per-update batch/tail diagnostic is still required",
+              "required_diagnostic": "per-update completed batch count, total warp-tail count, and max single-step tail with the same unit",
+              "contract": "numeric"
+            },
+            "final_state_sha256": "505f0b36ffd2f0a54ccc0663140b9c0dc77958fe7d97297a058fe0a1e3ecf08f"
+          }
+        ]
+      },
+      {
+        "name": "list",
+        "input_sha256": "9c6cf54bbc555256e5f1bea1a9d53799d6a75282a68111d49942ce9e10ae5387",
+        "runs": [
+          {
+            "repeat": 0,
+            "status": "ok",
+            "errors": [],
+            "page_errors": [],
+            "console_errors": [
+              "Failed to load resource: the server responded with a status of 403 ()",
+              "j",
+              "Failed to load resource: the server responded with a status of 401 ()"
+            ],
+            "browser_version": "157.0.4341.46",
+            "official_ms": {
+              "mean": 36.77666666507721,
+              "median": 22.099999964237213,
+              "p95": 61.69999998807907,
+              "max": 64.39999997615814
+            },
+            "native_ms": {
+              "mean": 0.25315166666666666,
+              "median": 0.243,
+              "p95": 0.3393,
+              "max": 0.45820000000000005
+            },
+            "projection_equal": true,
+            "comparison": {
+              "status": "unverified",
+              "reason": "equal workload not established"
+            },
+            "official_workload": {
+              "certified": false,
+              "equivalent": false,
+              "reason": "official KN completed fixed updates; per-loop work equivalence not certified"
+            },
+            "native_workload": {
+              "certified": false,
+              "equivalent": false,
+              "instructions": 240240,
+              "active_frames": 60,
+              "reason": "native reports total instructions, not the official warp-tail unit; a coordinated per-update batch/tail diagnostic is still required",
+              "required_diagnostic": "per-update completed batch count, total warp-tail count, and max single-step tail with the same unit",
+              "contract": "list"
+            },
+            "final_state_sha256": "34ac26444c5546f8af04f47b737a68f89fd079614e15819986879304958a1a7f"
+          },
+          {
+            "repeat": 1,
+            "status": "ok",
+            "errors": [],
+            "page_errors": [],
+            "console_errors": [
+              "Failed to load resource: the server responded with a status of 403 ()",
+              "j",
+              "Failed to load resource: the server responded with a status of 401 ()"
+            ],
+            "browser_version": "157.0.4341.46",
+            "official_ms": {
+              "mean": 34.058333338300386,
+              "median": 22.400000035762787,
+              "p95": 59.40000003576279,
+              "max": 67.5
+            },
+            "native_ms": {
+              "mean": 0.238525,
+              "median": 0.23379999999999998,
+              "p95": 0.2637,
+              "max": 0.29760000000000003
+            },
+            "projection_equal": true,
+            "comparison": {
+              "status": "unverified",
+              "reason": "equal workload not established"
+            },
+            "official_workload": {
+              "certified": false,
+              "equivalent": false,
+              "reason": "official KN completed fixed updates; per-loop work equivalence not certified"
+            },
+            "native_workload": {
+              "certified": false,
+              "equivalent": false,
+              "instructions": 240240,
+              "active_frames": 60,
+              "reason": "native reports total instructions, not the official warp-tail unit; a coordinated per-update batch/tail diagnostic is still required",
+              "required_diagnostic": "per-update completed batch count, total warp-tail count, and max single-step tail with the same unit",
+              "contract": "list"
+            },
+            "final_state_sha256": "34ac26444c5546f8af04f47b737a68f89fd079614e15819986879304958a1a7f"
+          },
+          {
+            "repeat": 2,
+            "status": "ok",
+            "errors": [],
+            "page_errors": [],
+            "console_errors": [
+              "Failed to load resource: the server responded with a status of 403 ()",
+              "j",
+              "Failed to load resource: the server responded with a status of 422 ()",
+              "Failed to load resource: the server responded with a status of 401 ()",
+              "Failed to load resource: the server responded with a status of 422 ()"
+            ],
+            "browser_version": "157.0.4341.46",
+            "official_ms": {
+              "mean": 37.05666666229566,
+              "median": 23.30000001192093,
+              "p95": 59.39999997615814,
+              "max": 62.10000002384186
+            },
+            "native_ms": {
+              "mean": 0.23390333333333332,
+              "median": 0.2296,
+              "p95": 0.2561,
+              "max": 0.5067999999999999
+            },
+            "projection_equal": true,
+            "comparison": {
+              "status": "unverified",
+              "reason": "equal workload not established"
+            },
+            "official_workload": {
+              "certified": false,
+              "equivalent": false,
+              "reason": "official KN completed fixed updates; per-loop work equivalence not certified"
+            },
+            "native_workload": {
+              "certified": false,
+              "equivalent": false,
+              "instructions": 240240,
+              "active_frames": 60,
+              "reason": "native reports total instructions, not the official warp-tail unit; a coordinated per-update batch/tail diagnostic is still required",
+              "required_diagnostic": "per-update completed batch count, total warp-tail count, and max single-step tail with the same unit",
+              "contract": "list"
+            },
+            "final_state_sha256": "34ac26444c5546f8af04f47b737a68f89fd079614e15819986879304958a1a7f"
+          }
+        ]
+      },
+      {
+        "name": "string",
+        "input_sha256": "fd121e7a188faf85d93ba932ebd8cba75f1bd2d74de66a453ee5139beb70b8d3",
+        "runs": [
+          {
+            "repeat": 0,
+            "status": "unverified",
+            "errors": [
+              "Other build/benchmark processes present; retry when idle: [{\"ProcessId\":27424,\"Name\":\"cargo.exe\",\"CommandLine\":\"\\\"D:\\\\Rust\\\\.rustup\\\\toolchains\\\\stable-x86_64-pc-windows-msvc\\\\bin\\\\cargo.exe\\\" clippy --all-targets -- -D warnings\"},{\"ProcessId\":38816,\"Name\":\"cargo.exe\",\"CommandLine\":\"\\\"D:\\\\Rust\\\\.rustup\\\\toolchains\\\\stable-x86_64-pc-windows-msvc\\\\bin\\\\cargo.exe\\\" check --all-targets\"}]"
+            ],
+            "page_errors": [],
+            "console_errors": [
+              "Failed to load resource: the server responded with a status of 403 ()",
+              "j",
+              "Failed to load resource: the server responded with a status of 401 ()"
+            ],
+            "browser_version": "157.0.4341.46",
+            "official_ms": {
+              "mean": 16.283333331346512,
+              "median": 13.199999988079071,
+              "p95": 37.30000001192093,
+              "max": 40.299999952316284
+            },
+            "native_ms": null,
+            "comparison": {
+              "status": "unverified",
+              "reason": "native run failed"
+            },
+            "official_workload": {
+              "certified": false,
+              "equivalent": false,
+              "reason": "official KN completed fixed updates; per-loop work equivalence not certified"
+            },
+            "final_state_sha256": "3d07d150a9cb4f2283acc60f7182e16a1e7a4a10db358ac642bfb08b1d078220"
+          }
+        ]
+      }
+    ]
+  },
+  "official_attempts": [
+    {
+      "raw_file": "dist/bench/official-kn-final/results.json",
+      "raw_sha256": "8925d3a2db02604ea0cbc7ad154f9af8339dd6a52034a83ac7c808f45dfe7707",
+      "complete": false,
+      "works": [
+        {
+          "name": "numeric",
+          "runs": [
+            {
+              "repeat": 0,
+              "status": "ok",
+              "errors": [],
+              "projection_equal": true,
+              "comparison": {
+                "status": "unverified",
+                "reason": "equal workload not established"
+              }
+            },
+            {
+              "repeat": 1,
+              "status": "ok",
+              "errors": [],
+              "projection_equal": true,
+              "comparison": {
+                "status": "unverified",
+                "reason": "equal workload not established"
+              }
+            },
+            {
+              "repeat": 2,
+              "status": "unverified",
+              "errors": [
+                "Other build/benchmark processes present; retry when idle: [{\"ProcessId\":54660,\"Name\":\"cargo.exe\",\"CommandLine\":\"\\\"D:\\\\Rust\\\\.rustup\\\\toolchains\\\\stable-x86_64-pc-windows-msvc\\\\bin\\\\cargo.exe\\\" check --all-targets\"},{\"ProcessId\":40480,\"Name\":\"rustc.exe\",\"CommandLine\":\"\\\"D:\\\\Rust\\\\.rustup\\\\toolchains\\\\stable-x86_64-pc-windows-msvc\\\\bin\\\\rustc.exe\\\" --crate-name nekoc --edition=2024 src\\\\lib.rs --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --crate-type lib --emit=dep-info,metadata -C embed-bitcode=no --cfg feature=\\\\\\\"default\\\\\\\" --check-cfg cfg(docsrs,test) --check-cfg \\\"cfg(feature, values(\\\\\\\"default\\\\\\\", \\\\\\\"desktop\\\\\\\", \\\\\\\"interp-profile\\\\\\\", \\\\\\\"jit-timing\\\\\\\", \\\\\\\"studio\\\\\\\"))\\\" -C metadata=d734db4eb4668ce4 -C extra-filename=-082d9f03b4fd9f75 --out-dir E:\\\\\"},{\"ProcessId\":3088,\"Name\":\"rustc.exe\",\"CommandLine\":\"\\\"D:\\\\Rust\\\\.rustup\\\\toolchains\\\\stable-x86_64-pc-windows-msvc\\\\bin\\\\rustc.exe\\\" --crate-name nekoc --edition=2024 src\\\\lib.rs --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --emit=dep-info,metadata -C embed-bitcode=no --test --cfg feature=\\\\\\\"default\\\\\\\" --check-cfg cfg(docsrs,test) --check-cfg \\\"cfg(feature, values(\\\\\\\"default\\\\\\\", \\\\\\\"desktop\\\\\\\", \\\\\\\"interp-profile\\\\\\\", \\\\\\\"jit-timing\\\\\\\", \\\\\\\"studio\\\\\\\"))\\\" -C metadata=53aa23eee1c1eccd -C extra-filename=-f90654c8217f6948 --out-dir E:\\\\nekoc-wt\\\\k\"}]"
+              ],
+              "comparison": {
+                "status": "unverified",
+                "reason": "native run failed"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
   "diagnostics": [
     {
       "name": "numeric",

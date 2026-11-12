@@ -39,4 +39,24 @@ test("archived KN regression evidence retains five paired runs and all seven con
   const numeric = boundary.works.find(work => work.name === "numeric.bcmkn");
   assert.ok(numeric.change_percent > 300);
   assert.equal(numeric.final_state_equal, true);
+  for (const diagnostic of evidence.diagnostics ?? []) {
+    assert.equal(diagnostic.status, "ok");
+    assert.equal(diagnostic.workload.certified, true);
+    assert.equal(diagnostic.workload.equivalent, false);
+    assert.equal(diagnostic.updates.length, 70);
+    assert.ok(diagnostic.updates.every(update => update.tail_calls === diagnostic.workload.tail_per_update
+      && update.boundary_returns === 0 && update.completed_batch));
+  }
+  if (evidence.official) {
+    assert.equal(typeof evidence.official.complete, "boolean");
+    if (evidence.official.complete) {
+      assert.equal(evidence.official.works.length, 7);
+      assert.equal(evidence.official.completed_runs, 21);
+      assert.equal(evidence.official.bundles_unchanged, true);
+      assert.equal(evidence.official.harness_unchanged, true);
+    }
+    for (const work of evidence.official.works) for (const run of work.runs) {
+      assert.notEqual(run.comparison?.status, "comparable", "native per-update workload evidence is not implemented");
+    }
+  }
 });
