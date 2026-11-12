@@ -17,6 +17,21 @@ pub fn run(
     seed: u64,
     cloud: &CloudOptions,
 ) -> Result<Value> {
+    run_with_input(source, ticks, events, seed, cloud, None)
+}
+
+pub fn run_with_input(
+    source: &Value,
+    ticks: usize,
+    events: &[RuntimeEvent],
+    seed: u64,
+    cloud: &CloudOptions,
+    input: Option<&crate::input::InputScript>,
+) -> Result<Value> {
+    if let Some(script) = input {
+        script.validate(u32::try_from(ticks).context("input replay exceeds u32 frames")?)?;
+    }
+    let mut replay = crate::input::InputReplay::default();
     let canonical;
     let project = if crate::kitten4::is_kitten4(source) {
         canonical = crate::kitten4::to_neko(source)?;
@@ -42,15 +57,25 @@ pub fn run(
     dispatch_events(&mut engine, events);
     let mut logs = Vec::new();
     let mut extension_requests = Vec::new();
+    let mut device_output = Vec::new();
     let mut budget_yields = 0;
     let mut ask = Value::Null;
     let mut stage_dialog = Value::Null;
     for tick in 0..ticks {
+        if let Some(script) = input {
+            replay.before_frame(&mut engine, script, (tick + 1) as u32);
+        }
         let frame = engine
             .advance(1.0 / 60.0, 2_000_000, Duration::from_secs(5))
             .with_context(|| format!("engine update {} failed", tick + 1))?;
         logs.extend(frame.logs);
         extension_requests.extend(frame.extension_requests);
+        device_output.extend(
+            frame
+                .k4_media_output
+                .into_iter()
+                .map(|output| json!({"frame":tick + 1,"output":output})),
+        );
         budget_yields += usize::from(frame.budget_yield);
         ask = serde_json::to_value(frame.ask)?;
         stage_dialog = serde_json::to_value(frame.stage_dialog)?;
@@ -77,6 +102,7 @@ pub fn run(
     snapshot["ask"] = ask;
     snapshot["stage_dialog"] = stage_dialog;
     snapshot["extension_requests"] = json!(extension_requests);
+    snapshot["k4_media_output"] = json!(device_output);
     Ok(snapshot)
 }
 

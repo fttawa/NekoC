@@ -121,6 +121,31 @@ fn invalid_replays_are_rejected_before_execution() {
 }
 
 #[test]
+fn device_input_script_replays_raw_samples_and_explicit_service_inputs() {
+    let script: InputScript = serde_json::from_value(serde_json::json!({
+        "schema":"nekoc-input-v1", "events":[
+            {"frame":1,"time_ms":0,"type":"device_motion","x":1,"y":2,"z":9.8},
+            {"frame":2,"time_ms":10,"type":"device_orientation","beta":30,"gamma":-10,"portrait":true},
+            {"frame":2,"time_ms":10,"type":"device_event","action":"on_mobile_slide","device":"mobile_1","value":"up"},
+            {"frame":3,"time_ms":20,"type":"mobile_button","device":"mobile_2","event":"keydown","button":"A"}
+        ]
+    })).unwrap();
+    script.validate(3).unwrap();
+    for interpreter in [false, true] {
+        let mut vm = engine(interpreter, include_str!("fixtures/kitten4/input.bcm"));
+        let mut replay = InputReplay::default();
+        for frame in 1..=3 {
+            replay.before_frame(&mut vm, &script, frame);
+            vm.advance(1.0 / 60.0, 100_000, Duration::from_secs(1))
+                .unwrap();
+        }
+        assert_eq!(vm.k4_device_motion_sample(), Some([1.0, 2.0, 9.8]));
+        vm.start();
+        assert_eq!(vm.k4_device_motion_sample(), None);
+    }
+}
+
+#[test]
 fn restart_clears_held_pointer_and_key_state() {
     let mut vm = engine(false, include_str!("fixtures/kitten4/input.bcm"));
     vm.pointer_event(

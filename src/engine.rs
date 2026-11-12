@@ -5027,6 +5027,9 @@ pub struct Frame {
     /// so existing KN/K4 audio command consumers remain wire-compatible.
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub k4_media: Vec<MediaOutput>,
+    /// Host requests produced by K4 device blocks, such as browser vibration.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub k4_media_output: Vec<MediaOutput>,
     /// Sprite ids back to front, sent when layers change or clones appear.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<Vec<String>>,
@@ -8690,6 +8693,12 @@ impl Engine {
             }
         }
         self.flush_cloud(cloud_frame.as_ref())?;
+        let browser_media = if self.audio.browser {
+            self.k4_media.take_frame_output()
+        } else {
+            vec![]
+        };
+        let queued_media = self.take_k4_media_output();
         Ok(Frame {
             extension_requests: self.extension_requests(),
             video_above_pen: self.video_above_pen && self.pen_layer == 0,
@@ -8707,10 +8716,16 @@ impl Engine {
             logs: std::mem::take(&mut self.logs),
             audio_commands: std::mem::take(&mut self.audio_commands),
             speech_commands: std::mem::take(&mut self.speech_commands),
-            k4_media: if self.audio.browser {
-                self.k4_media.take_frame_output()
+            // `k4_media` is the additive browser audio contract.  Keep the
+            // device-host field populated with the same frame-only events so
+            // browser device and audio consumers can process one frame in
+            // their existing order. Native hosts continue using the queued
+            // compatibility field.
+            k4_media: browser_media.clone(),
+            k4_media_output: if self.audio.browser {
+                browser_media
             } else {
-                vec![]
+                queued_media
             },
             order: std::mem::take(&mut self.order_dirty).then(|| {
                 self.order
@@ -10068,6 +10083,7 @@ impl Engine {
         self.clone_counts.clear();
         self.step_physics(dt);
         self.check_bumps();
+        self.dispatch_k4_devices();
         self.dispatch_held_keys();
         self.dispatch_pointer_states();
         let mut count = *total_count;

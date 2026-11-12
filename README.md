@@ -20,7 +20,7 @@ Kitten 4 目标和 Kitten N 共用同一个 TypeScript 前端，另外加了原�
 cargo run --release --bin web -- samples/native-studio.bcmkn
 ```
 
-打开 **http://127.0.0.1:4173**，打开或拖入 Kitten N `.bcmkn` / Kitten 4 `.bcm` 作品，就可以编辑积木、在 Rust 字节码虚拟机里运行，并按原格式导出。
+打开 **<http://127.0.0.1:4173>**，打开或拖入 Kitten N `.bcmkn` / Kitten 4 `.bcm` 作品，就可以编辑积木、在 Rust 字节码虚拟机里运行，并按原格式导出。
 
 - 舞台用 WebGL2 渲染，画笔采用二进制增量更新和常驻 GPU 画布。可以试试 `samples/web-pen-stress.bcmkn`（一万段画笔线）。
 - 导入导出会原样保留暂不支持的积木；快速虚拟机遇到不支持的执行特性会报告出来。

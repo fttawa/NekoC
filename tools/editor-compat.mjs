@@ -10,12 +10,13 @@ const { values, positionals } = parseArgs({
   options: {
     url: { type: "string", default: "https://kn.codemao.cn/editor" },
     channel: { type: "string" },
+    "bundle-dir": { type: "string" },
     out: { type: "string" },
     help: { type: "boolean" },
   },
 });
 if (values.help || !positionals.length) {
-  console.log("Usage: node tools/editor-compat.mjs <project.bcmkn> [...] [--channel msedge] [--out report.json]");
+  console.log("Usage: node tools/editor-compat.mjs <project.bcmkn> [...] [--channel msedge] [--bundle-dir local-path] [--out report.json]");
   process.exit(values.help ? 0 : 2);
 }
 
@@ -57,6 +58,9 @@ function procedureParameterIssues(project) {
 }
 
 async function main() {
+  // Optional pinned, local-only mode used by the controlled KN benchmark.
+  const local = values["bundle-dir"] ? await import("./bench/official-kn.mjs") : null;
+  const bundles = local ? await local.readOfficialBundles(values["bundle-dir"]) : null;
   const { chromium } = loadPlaywright();
   const browser = await chromium.launch({ headless: true, ...(values.channel ? { channel: values.channel } : {}) });
   const report = { editorUrl: values.url, checkedAt: new Date().toISOString(), projects: [] };
@@ -71,9 +75,15 @@ async function main() {
       await page.route(projectUrl, route => route.fulfill({ contentType: "application/json", body: JSON.stringify(project) }));
       const pageErrors = [];
       page.on("pageerror", error => pageErrors.push(error.message));
+      if (bundles) await page.route(/\/static\/js\/(main|crc_libs|main-vendors)\.[\w-]+\.js(?:\?.*)?$/, async route => {
+        const name = path.basename(new URL(route.request().url()).pathname);
+        const item = bundles[name];
+        if (!item) { pageErrors.push(`Unpinned official bundle: ${name}`); return route.abort(); }
+        await route.fulfill({ contentType: "application/javascript", body: name.startsWith("main.") ? local.exposeLoader(item.body) : item.body });
+      });
       // Expose the editor's module loader in this isolated browser only. Discover
       // modules by their exports rather than pinning build-specific numeric IDs.
-      await page.route(/\/main\.[\w-]+\.js(?:\?.*)?$/, async route => {
+      if (!bundles) await page.route(/\/main\.[\w-]+\.js(?:\?.*)?$/, async route => {
         const response = await route.fetch();
         const source = await response.text();
         const marker = "var __webpack_exports__=";
@@ -144,6 +154,7 @@ async function main() {
     await browser.close();
   }
   report.ok = report.projects.every(project => project.ok);
+  if (bundles) report.bundles = Object.fromEntries(Object.entries(bundles).map(([name, item]) => [name, { path: item.path, sha256: item.sha256 }]));
   const output = JSON.stringify(report, null, 2);
   if (values.out) await writeFile(values.out, output);
   console.log(output);

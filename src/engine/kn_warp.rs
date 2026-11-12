@@ -7,14 +7,14 @@ const TIME_LIMIT: Duration = Duration::from_millis(4);
 
 pub(super) struct Slice {
     iterations: u32,
-    started: Instant,
+    deadline: Instant,
 }
 
 impl Default for Slice {
     fn default() -> Self {
         Self {
             iterations: 0,
-            started: Instant::now(),
+            deadline: Instant::now() + TIME_LIMIT,
         }
     }
 }
@@ -22,29 +22,28 @@ impl Default for Slice {
 impl Slice {
     #[cfg(test)]
     pub(super) fn expire_for_test(&mut self) {
-        self.started = Instant::now() - TIME_LIMIT - Duration::from_secs(1);
+        self.deadline = Instant::now() - Duration::from_secs(1);
     }
 
     pub(super) fn reset(&mut self) {
         self.iterations = 0;
-        self.started = Instant::now();
+        self.deadline = Instant::now() + TIME_LIMIT;
     }
 
     pub(super) fn iteration_yields(&mut self, deterministic: bool) -> bool {
-        self.check(if deterministic {
-            None
-        } else {
-            Some(self.started.elapsed())
-        })
-    }
-
-    fn check(&mut self, elapsed: Option<Duration>) -> bool {
-        // Official KN 0.27.4 OptiRunner.step_iteration_yield: check the
-        // previous count, then increment. See docs/kn-warp.md for evidence.
-        let yielding = self.iterations > ITERATION_LIMIT
-            || elapsed.is_some_and(|elapsed| elapsed > TIME_LIMIT);
+        // Compare absolute monotonic instants instead of constructing an elapsed
+        // Duration at every loop tail. Keep the same strict 4 ms boundary and
+        // read the clock at EVERY tail; sampling it less often changes KN.
+        let expired = !deterministic && self.expired_at(Instant::now());
+        // Official KN compares the old count, then increments even on yield;
+        // the first count-only yield is tail 30002. See docs/kn-warp.md.
+        let yielding = self.iterations > ITERATION_LIMIT || expired;
         self.iterations += 1;
         yielding
+    }
+
+    fn expired_at(&self, now: Instant) -> bool {
+        now > self.deadline
     }
 }
 
@@ -56,18 +55,27 @@ mod tests {
     fn deterministic_slice_uses_iterations_not_host_speed() {
         let mut slice = Slice::default();
         for _ in 0..=ITERATION_LIMIT {
-            assert!(!slice.check(None));
+            assert!(!slice.iteration_yields(true));
         }
-        assert!(slice.check(None));
+        assert!(slice.iteration_yields(true));
+        assert_eq!(slice.iterations, ITERATION_LIMIT + 2);
         slice.reset();
-        assert!(!slice.check(None));
+        assert!(!slice.iteration_yields(true));
     }
 
     #[test]
     fn wall_clock_is_checked_only_at_iteration_boundaries() {
-        let mut slice = Slice::default();
-        assert!(!slice.check(Some(TIME_LIMIT)));
-        assert!(slice.check(Some(TIME_LIMIT + Duration::from_nanos(1))));
+        let slice = Slice::default();
+        let started = slice.deadline - TIME_LIMIT;
+        for elapsed in [
+            Duration::ZERO,
+            TIME_LIMIT,
+            TIME_LIMIT + Duration::from_nanos(1),
+        ] {
+            assert_eq!(slice.expired_at(started + elapsed), elapsed > TIME_LIMIT);
+        }
+        assert!(!slice.expired_at(slice.deadline));
+        assert!(slice.expired_at(slice.deadline + Duration::from_nanos(1)));
     }
 
     #[test]

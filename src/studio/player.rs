@@ -219,12 +219,9 @@ impl NativePreview {
         if frame.clear || frame.scene_changed {
             self.snapshot.native_lines.clear();
         }
-        self.snapshot.native_lines.extend(
-            frame
-                .lines
-                .chunks_exact(9)
-                .map(|v| <[f32; 9]>::try_from(v).unwrap()),
-        );
+        self.snapshot
+            .native_lines
+            .extend(frame.lines.as_chunks::<9>().0.iter().copied());
         self.snapshot.pen_layer = frame.pen_layer;
         self.snapshot.native_overlay = Some(self.overlays.frame(frame.monitors, &self.engine));
         self.snapshot.state.logs.extend(frame.logs);

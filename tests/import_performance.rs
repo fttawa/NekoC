@@ -2,6 +2,15 @@ use nekoc::{bcmkn, engine::Program, kitten4, studio::document::Document};
 use serde_json::{Value, json};
 use std::time::{Duration, Instant};
 
+/// 耗时上限只在本地检查。CI 机器的速度不稳定，不拿它做性能判断；
+/// 功能断言（导入成功、报告内容）在 CI 上照常执行。
+fn assert_within_budget(started: Instant, context: &str) {
+    if std::env::var_os("CI").is_some() {
+        return;
+    }
+    assert!(started.elapsed() < Duration::from_secs(20), "{context}");
+}
+
 fn synthetic_kn(scripts: usize, list_items: usize) -> Value {
     let mut project = Document::blank().value().clone();
     project["variables"]["variablesDict"]["large-list"] = json!({
@@ -30,7 +39,7 @@ fn large_kn_import_has_a_generous_regression_budget() {
     let (_, report) = bcmkn::import(project).unwrap();
     assert_eq!(report["fast_runtime_ready"], true);
     assert_eq!(report["script_diagnostics"], json!([]));
-    assert!(started.elapsed() < Duration::from_secs(20), "{report}");
+    assert_within_budget(started, &format!("{report}"));
 }
 
 #[test]
@@ -54,7 +63,7 @@ fn published_k4_many_scripts_remain_runnable() {
     let (project, report) = bcmkn::import(project).unwrap();
     assert_eq!(report["fast_runtime_ready"], true, "{report}");
     assert_eq!(Program::compile(&project).unwrap().stats().scripts, 160);
-    assert!(started.elapsed() < Duration::from_secs(20));
+    assert_within_budget(started, "large K4 import");
 }
 
 #[test]
@@ -77,7 +86,7 @@ fn large_unsupported_k4_still_groups_every_script() {
     assert_eq!(report["fast_runtime_ready"], false);
     assert_eq!(report["script_diagnostics"].as_array().unwrap().len(), 1);
     assert_eq!(report["script_diagnostics"][0]["affected_scripts"], 200);
-    assert!(started.elapsed() < Duration::from_secs(20));
+    assert_within_budget(started, "large unsupported K4 import");
 }
 
 #[test]

@@ -4248,6 +4248,7 @@
       ],
       "limitations": [
         "5 单位四方向逐更新抖动、阻塞及归位已有源码推导回归；与官方任务队列的逐帧相位/结束续接、物理刚体受力、竞争移动及取消未验证",
+        "第十二轮设备专项复验：self_shake 两个 Clock origin 的官方逐帧位移/后继恢复一致；物理刚体、竞争取消及真实墙钟仍未验证，见 kitten4-device.md。",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
         "第八轮修复帧尾归位和下一update续接，零时钟原点六件240帧双VM全变量/x/y一致；官方原点改变浮点严格阈值，保留partial。见 kitten4-shake-8.md",
         "第九轮4夹具×4原点共640官方update；新增显式shake时钟原点配置，同原点JIT/解释器全部typed变量与坐标逐帧一致，重启保留配置；真实墙钟原点默认不同及物理/并发边界仍partial。见 kitten4-shake-9.md"
@@ -6819,6 +6820,7 @@
       ],
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 的 MIDI 仅本地 WebAudio oscillator fallback，未验证官方 MP3/fade 竞态及音色；摄像头/录音/语音识别/设备硬件未接入，TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "第十二轮设备输入边界：显式 mobile action、按钮状态、方向重力换算与 vibrate 输出均有原创夹具/官方逐帧对照；raw devicemotion 不在指定官方包中自行转 shake/tilt；真实硬件权限、控制器传输、Rapier 物理轨迹及 busy 等待边界仍为 partial，见 kitten4-device.md。",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
         "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
@@ -6840,6 +6842,7 @@
       ],
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 的 MIDI 仅本地 WebAudio oscillator fallback，未验证官方 MP3/fade 竞态及音色；摄像头/录音/语音识别/设备硬件未接入，TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "第十二轮设备输入边界：显式 mobile action、按钮状态、方向重力换算与 vibrate 输出均有原创夹具/官方逐帧对照；raw devicemotion 不在指定官方包中自行转 shake/tilt；真实硬件权限、控制器传输、Rapier 物理轨迹及 busy 等待边界仍为 partial，见 kitten4-device.md。",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
         "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
@@ -6861,6 +6864,7 @@
       ],
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 的 MIDI 仅本地 WebAudio oscillator fallback，未验证官方 MP3/fade 竞态及音色；摄像头/录音/语音识别/设备硬件未接入，TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "第十二轮设备输入边界：显式 mobile action、按钮状态、方向重力换算与 vibrate 输出均有原创夹具/官方逐帧对照；raw devicemotion 不在指定官方包中自行转 shake/tilt；真实硬件权限、控制器传输、Rapier 物理轨迹及 busy 等待边界仍为 partial，见 kitten4-device.md。",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
         "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
@@ -6882,6 +6886,7 @@
       ],
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 的 MIDI 仅本地 WebAudio oscillator fallback，未验证官方 MP3/fade 竞态及音色；摄像头/录音/语音识别/设备硬件未接入，TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "第十二轮设备输入边界：显式 mobile action、按钮状态、方向重力换算与 vibrate 输出均有原创夹具/官方逐帧对照；raw devicemotion 不在指定官方包中自行转 shake/tilt；真实硬件权限、控制器传输、Rapier 物理轨迹及 busy 等待边界仍为 partial，见 kitten4-device.md。",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
         "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
@@ -6909,6 +6914,7 @@
       ],
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 的 MIDI 仅本地 WebAudio oscillator fallback，未验证官方 MP3/fade 竞态及音色；摄像头/录音/语音识别/设备硬件未接入，TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "第十二轮设备输入边界：显式 mobile action、按钮状态、方向重力换算与 vibrate 输出均有原创夹具/官方逐帧对照；raw devicemotion 不在指定官方包中自行转 shake/tilt；真实硬件权限、控制器传输、Rapier 物理轨迹及 busy 等待边界仍为 partial，见 kitten4-device.md。",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
         "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
@@ -6936,6 +6942,7 @@
       ],
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 的 MIDI 仅本地 WebAudio oscillator fallback，未验证官方 MP3/fade 竞态及音色；摄像头/录音/语音识别/设备硬件未接入，TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "第十二轮设备输入边界：显式 mobile action、按钮状态、方向重力换算与 vibrate 输出均有原创夹具/官方逐帧对照；raw devicemotion 不在指定官方包中自行转 shake/tilt；真实硬件权限、控制器传输、Rapier 物理轨迹及 busy 等待边界仍为 partial，见 kitten4-device.md。",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
         "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
@@ -7987,6 +7994,7 @@
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
+        "第十二轮设备输入边界：显式 mobile action、按钮状态、方向重力换算与 vibrate 输出均有原创夹具/官方逐帧对照；raw devicemotion 不在指定官方包中自行转 shake/tilt；真实硬件权限、控制器传输、Rapier 物理轨迹及 busy 等待边界仍为 partial，见 kitten4-device.md。",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
         "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
@@ -8166,6 +8174,7 @@
       ],
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 的 MIDI 仅本地 WebAudio oscillator fallback，未验证官方 MP3/fade 竞态及音色；摄像头/录音/语音识别/设备硬件未接入，TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "第十二轮设备输入边界：显式 mobile action、按钮状态、方向重力换算与 vibrate 输出均有原创夹具/官方逐帧对照；raw devicemotion 不在指定官方包中自行转 shake/tilt；真实硬件权限、控制器传输、Rapier 物理轨迹及 busy 等待边界仍为 partial，见 kitten4-device.md。",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
         "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
@@ -8188,6 +8197,7 @@
       ],
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 的 MIDI 仅本地 WebAudio oscillator fallback，未验证官方 MP3/fade 竞态及音色；摄像头/录音/语音识别/设备硬件未接入，TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "第十二轮设备输入边界：显式 mobile action、按钮状态、方向重力换算与 vibrate 输出均有原创夹具/官方逐帧对照；raw devicemotion 不在指定官方包中自行转 shake/tilt；真实硬件权限、控制器传输、Rapier 物理轨迹及 busy 等待边界仍为 partial，见 kitten4-device.md。",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
         "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
