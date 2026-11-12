@@ -52,7 +52,7 @@ impl Compiler {
             .flatten();
         let attribute = self.program.strings.len();
         self.program.strings.push(field(block, "attribute").into());
-        let value = ValueExpr::K4Property(Property {
+        self.program.k4_properties.push(Property {
             target,
             index,
             attribute,
@@ -61,6 +61,7 @@ impl Compiler {
             list,
             uuid_attribute,
         });
+        let value = ValueExpr::K4Property(self.program.k4_properties.len() as u32 - 1);
         self.push_k4_value(value)
     }
 

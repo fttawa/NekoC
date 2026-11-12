@@ -73,10 +73,10 @@ impl Compiler {
             index: self.value(input(block, "index")?)?,
             attribute,
         };
+        self.program.kn_clone_properties.push(property);
+        let slot = self.program.kn_clone_properties.len() as u32 - 1;
         let index = self.program.values.len();
-        self.program
-            .values
-            .push(ValueExpr::KnCloneProperty(property));
+        self.program.values.push(ValueExpr::KnCloneProperty(slot));
         Ok(index)
     }
 

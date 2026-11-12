@@ -416,17 +416,23 @@ pub(super) struct Span {
     pub start: u32,
     pub len: u32,
 }
+/// Every interpreted reporter dispatches on this enum, so its size is a hot-path
+/// cost (the whole `Program::values` table is scanned through the cache).
+/// Payloads over 24 bytes live in side tables on `Program`; the variant keeps
+/// a u32 index. `value_expr_stays_small` guards the limit.
 #[derive(Clone, Copy, Debug)]
 pub(super) enum ValueExpr {
     K4Frames,
     K4DomainError(usize),
     K4LegacyChoice,
-    K4Media(super::k4_media::Reporter),
+    /// Index into `Program::k4_media`.
+    K4Media(u32),
     KnPanel(super::kn_panel::Reporter),
     /// Evaluate the query, then return the official absent-OCR-cache result.
     OfflineOcrCheck(usize),
-    /// Five evaluated sockets, then official disconnected-microbit NaN.
-    OfflineMicrobitMap([usize; 5]),
+    /// Five evaluated sockets (in `Program::value_args`), then official
+    /// disconnected-microbit NaN.
+    OfflineMicrobitMap(Span),
     /// Official no-device LED query, after evaluating x and y once each.
     OfflineMicrobitLed([usize; 2]),
     Kitten4Add(usize, usize),
@@ -476,8 +482,10 @@ pub(super) enum ValueExpr {
     CallReturn(usize, usize),
     /// (original actor, clone index including 0 for original, native attribute)
     CloneProperty(usize, super::Expr, u8),
-    KnCloneProperty(super::kn_appearance::CloneProperty),
-    K4Property(super::k4_properties::Property),
+    /// Index into `Program::kn_clone_properties`.
+    KnCloneProperty(u32),
+    /// Index into `Program::k4_properties`.
+    K4Property(u32),
     Answer,
     /// Last chosen option: index (true) or content.
     Choice(bool),
@@ -496,6 +504,13 @@ pub(super) enum ValueExpr {
 #[cfg(test)]
 mod performance_regressions {
     use super::*;
+
+    #[test]
+    fn value_expr_stays_small() {
+        // Keep the dispatch table compact; this is a layout guard, not a
+        // measured speedup. Move large payloads to a Program side table.
+        assert!(std::mem::size_of::<ValueExpr>() <= 32);
+    }
 
     #[test]
     fn specialized_search_keeps_strict_types_nan_zero_and_identity() {

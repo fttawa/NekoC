@@ -802,6 +802,11 @@ pub struct Program {
     single_text_selects: BTreeSet<usize>,
     constants: Vec<Cell>,
     value_args: Vec<usize>,
+    /// Payloads too large for `ValueExpr`; it stores only an index into these
+    /// tables so every expression node stays 32 bytes (see value.rs).
+    k4_properties: Vec<k4_properties::Property>,
+    k4_media: Vec<k4_media::Reporter>,
+    kn_clone_properties: Vec<kn_appearance::CloneProperty>,
     local_count: usize,
     code_locals: BTreeSet<usize>,
     scripts: Vec<Script>,
@@ -1066,6 +1071,9 @@ impl Program {
                 single_text_selects: BTreeSet::new(),
                 constants: vec![],
                 value_args: vec![],
+                k4_properties: vec![],
+                k4_media: vec![],
+                kn_clone_properties: vec![],
                 local_count: 0,
                 code_locals: BTreeSet::new(),
                 scripts: vec![],
@@ -1950,13 +1958,16 @@ impl Compiler {
                 ValueExpr::OfflineOcrCheck(self.value(input(b, "text")?)?)
             }
             "microbit_math_map" if self.program.semantics == RuntimeSemantics::KnCurrent => {
-                ValueExpr::OfflineMicrobitMap([
+                let args = [
                     self.value(input(b, "value")?)?,
                     self.value(input(b, "fromStart")?)?,
                     self.value(input(b, "fromEnd")?)?,
                     self.value(input(b, "toStart")?)?,
                     self.value(input(b, "toEnd")?)?,
-                ])
+                ];
+                let start = self.program.value_args.len() as u32;
+                self.program.value_args.extend(args);
+                ValueExpr::OfflineMicrobitMap(Span { start, len: 5 })
             }
             "kitten4_calculate" | "calculate" => {
                 ValueExpr::Calculate(self.value(input(b, "input")?)?)
@@ -2003,7 +2014,9 @@ impl Compiler {
             "kitten4_frames" => ValueExpr::K4Frames,
             "kitten4_legacy_choice" => ValueExpr::K4LegacyChoice,
             kind if kind.starts_with("kitten4_media_") => {
-                ValueExpr::K4Media(self.k4_media_reporter(b)?)
+                let reporter = self.k4_media_reporter(b)?;
+                self.program.k4_media.push(reporter);
+                ValueExpr::K4Media(self.program.k4_media.len() as u32 - 1)
             }
             "kitten4_domain_error" => {
                 let message = self.push_constant(Cell::Text(field(b, "error_type").into()));
@@ -7834,15 +7847,23 @@ impl Engine {
             ValueExpr::KnPanel(reporter) => {
                 children.extend(reporter.children().into_iter().map(|i| (true, i)))
             }
-            ValueExpr::KnCloneProperty(property) => children.push((true, property.index)),
+            ValueExpr::KnCloneProperty(property) => children.push((
+                true,
+                self.program.kn_clone_properties[property as usize].index,
+            )),
             ValueExpr::K4Property(property) => {
+                let property = &self.program.k4_properties[property as usize];
                 children.extend(property.index.map(|i| (true, i)));
             }
-            ValueExpr::K4Media(reporter) => {
-                children.extend(reporter.children().into_iter().map(|i| (true, i)))
-            }
+            ValueExpr::K4Media(reporter) => children.extend(
+                self.program.k4_media[reporter as usize]
+                    .children()
+                    .into_iter()
+                    .map(|i| (true, i)),
+            ),
             ValueExpr::OfflineMicrobitMap(args) => {
-                children.extend(args.map(|i| (true, i)));
+                let args = &self.program.value_args[args.start as usize..][..args.len as usize];
+                children.extend(args.iter().map(|&i| (true, i)));
             }
             ValueExpr::OfflineMicrobitLed(args) => {
                 children.extend(args.map(|i| (true, i)));
@@ -7999,8 +8020,8 @@ impl Engine {
                 // Official extension checks connectivity before its formula.
                 // Socket evaluation still precedes the domain function call.
                 // Evidence: docs/kn-microbit-map.md.
-                for i in args {
-                    let _ = self.eval_value(i, actor);
+                for k in args.start..args.start + args.len {
+                    let _ = self.eval_value(self.program.value_args[k as usize], actor);
                 }
                 Cell::Number(f64::NAN)
             }
@@ -8430,7 +8451,10 @@ impl Engine {
                     }
                 }
             }
-            ValueExpr::KnCloneProperty(property) => self.eval_kn_clone_property(property, actor),
+            ValueExpr::KnCloneProperty(property) => {
+                let property = self.program.kn_clone_properties[property as usize];
+                self.eval_kn_clone_property(property, actor)
+            }
             ValueExpr::BumpProperty(attribute) => {
                 let other = self.tasks[self.current_task].bumped;
                 match self.sprites.get(other).filter(|a| a.alive) {
@@ -8470,9 +8494,15 @@ impl Engine {
                 );
                 Cell::Null
             }
-            ValueExpr::K4Media(reporter) => self.eval_k4_media(reporter, actor),
+            ValueExpr::K4Media(reporter) => {
+                let reporter = self.program.k4_media[reporter as usize];
+                self.eval_k4_media(reporter, actor)
+            }
             ValueExpr::KnPanel(reporter) => self.eval_kn_panel(reporter, actor),
-            ValueExpr::K4Property(property) => self.eval_k4_property(property, actor),
+            ValueExpr::K4Property(property) => {
+                let property = self.program.k4_properties[property as usize];
+                self.eval_k4_property(property, actor)
+            }
             ValueExpr::K4DomainError(message) => {
                 let message = self.eval_value(message, actor).text();
                 self.value_error = Some(format!("K4 domain error: {message}"));
