@@ -83,8 +83,17 @@ enum Command {
     },
     Run {
         input: PathBuf,
-        #[arg(long, default_value_t = 1)]
+        /// Headless 60 Hz updates (also accepted as --frames).
+        #[arg(long, alias = "frames", default_value_t = 1)]
         ticks: usize,
+        /// Use the old KN JSON interpreter and its original snapshot/trace.
+        #[arg(long)]
+        legacy_runtime: bool,
+        /// Fixed Engine PRNG seed (default: 1).
+        #[arg(long, conflicts_with = "legacy_runtime")]
+        seed: Option<u64>,
+        #[command(flatten)]
+        cloud: nekoc::cloud::CloudOptions,
         #[arg(long = "event")]
         events: Vec<CliRuntimeEvent>,
         #[arg(long)]
@@ -397,21 +406,33 @@ fn main() -> Result<()> {
         Command::Run {
             input,
             ticks,
+            legacy_runtime,
+            seed,
+            cloud,
             events,
             out,
             expect,
         } => {
+            if legacy_runtime
+                && (cloud.cloud_file.is_some()
+                    || cloud.cloud_memory
+                    || cloud.cloud_namespace.is_some()
+                    || cloud.cloud_user != "anonymous")
+            {
+                bail!("--legacy-runtime does not support local cloud options");
+            }
             let project = nekoc::project::load_project(input)?;
             let events = events
                 .into_iter()
                 .map(nekoc::runtime::RuntimeEvent::from)
                 .collect::<Vec<_>>();
-            let snapshot = if events.is_empty() {
-                nekoc::runtime::run_project(&project.value, ticks)?
+            let report = if legacy_runtime {
+                let snapshot =
+                    nekoc::runtime::run_project_with_events(&project.value, &events, ticks)?;
+                nekoc::runtime::snapshot_to_json(&snapshot)
             } else {
-                nekoc::runtime::run_project_with_events(&project.value, &events, ticks)?
+                nekoc::cli_run::run(&project.value, ticks, &events, seed.unwrap_or(1), &cloud)?
             };
-            let report = nekoc::runtime::snapshot_to_json(&snapshot);
             if let Some(expect) = expect {
                 let expected: serde_json::Value = serde_json::from_slice(&std::fs::read(&expect)?)?;
                 let differences = nekoc::diff::diff_values(&expected, &report, 200);

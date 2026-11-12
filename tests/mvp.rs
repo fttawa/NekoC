@@ -1521,7 +1521,7 @@ onStart(() => {
 }
 
 #[test]
-fn cli_run_writes_runtime_snapshot() {
+fn cli_legacy_run_writes_runtime_snapshot() {
     let dir = tempdir().unwrap();
     let input = dir.path().join("runtime.bcmkn");
     let output = dir.path().join("runtime.json");
@@ -1574,6 +1574,7 @@ fn cli_run_writes_runtime_snapshot() {
         .args([
             "run",
             input.to_str().unwrap(),
+            "--legacy-runtime",
             "--ticks",
             "1",
             "--out",
@@ -1590,7 +1591,7 @@ fn cli_run_writes_runtime_snapshot() {
 }
 
 #[test]
-fn cli_run_can_check_expected_runtime_snapshot() {
+fn cli_legacy_run_can_check_expected_runtime_snapshot() {
     let dir = tempdir().unwrap();
     let input = dir.path().join("runtime.bcmkn");
     let expected = dir.path().join("expected.json");
@@ -1714,6 +1715,7 @@ fn cli_run_can_check_expected_runtime_snapshot() {
             "1",
             "--expect",
             expected.to_str().unwrap(),
+            "--legacy-runtime",
         ])
         .assert()
         .success()
@@ -1730,6 +1732,7 @@ fn cli_run_can_check_expected_runtime_snapshot() {
             "1",
             "--expect",
             wrong_expected.to_str().unwrap(),
+            "--legacy-runtime",
         ])
         .assert()
         .failure()
@@ -1737,7 +1740,7 @@ fn cli_run_can_check_expected_runtime_snapshot() {
 }
 
 #[test]
-fn cli_run_can_inject_click_events() {
+fn cli_legacy_run_can_inject_click_events() {
     let dir = tempdir().unwrap();
     let input = dir.path().join("runtime-click.bcmkn");
     let output = dir.path().join("runtime-click.json");
@@ -1789,6 +1792,7 @@ fn cli_run_can_inject_click_events() {
         .args([
             "run",
             input.to_str().unwrap(),
+            "--legacy-runtime",
             "--ticks",
             "1",
             "--event",
@@ -1805,7 +1809,7 @@ fn cli_run_can_inject_click_events() {
 }
 
 #[test]
-fn cli_run_click_event_can_update_mouse_position() {
+fn cli_legacy_run_click_event_can_update_mouse_position() {
     let dir = tempdir().unwrap();
     let input = dir.path().join("runtime-click-position.bcmkn");
     let output = dir.path().join("runtime-click-position.json");
@@ -1877,6 +1881,7 @@ fn cli_run_click_event_can_update_mouse_position() {
         .args([
             "run",
             input.to_str().unwrap(),
+            "--legacy-runtime",
             "--ticks",
             "1",
             "--event",
@@ -1895,7 +1900,7 @@ fn cli_run_click_event_can_update_mouse_position() {
 }
 
 #[test]
-fn cli_run_can_inject_key_events() {
+fn cli_legacy_run_can_inject_key_events() {
     let dir = tempdir().unwrap();
     let input = dir.path().join("runtime-key.bcmkn");
     let output = dir.path().join("runtime-key.json");
@@ -1951,6 +1956,7 @@ fn cli_run_can_inject_key_events() {
         .args([
             "run",
             input.to_str().unwrap(),
+            "--legacy-runtime",
             "--ticks",
             "1",
             "--event",
@@ -1967,7 +1973,7 @@ fn cli_run_can_inject_key_events() {
 }
 
 #[test]
-fn cli_run_can_inject_mouse_events() {
+fn cli_legacy_run_can_inject_mouse_events() {
     let dir = tempdir().unwrap();
     let input = dir.path().join("runtime-mouse.bcmkn");
     let output = dir.path().join("runtime-mouse.json");
@@ -2039,6 +2045,7 @@ fn cli_run_can_inject_mouse_events() {
         .args([
             "run",
             input.to_str().unwrap(),
+            "--legacy-runtime",
             "--ticks",
             "1",
             "--event",

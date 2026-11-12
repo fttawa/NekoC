@@ -78,7 +78,7 @@ node tools/editor-compat.mjs hello.bcmkn
 | `decompile <input.bcmkn> --out <output.ts>` | 把 `.bcmkn` 反编译成 TypeScript |
 | `inspect <input> --out <report.json>` | 查看 Kitten N / Kitten 4 作品结构 |
 | `validate <input>` | 校验 Kitten N / Kitten 4 作品结构 |
-| `run <input.bcmkn> --ticks 30 [--event click]` | 运行并输出快照 |
+| `run <input.bcmkn\|input.bcm> --ticks 30 [--event click]` | 默认用 Engine（默认 JIT）无头运行并输出快照；`--legacy-runtime` 保留旧解释器 |
 | `run-scenario <input.bcmkn> <scenario.json>` | 运行场景测试 |
 | `watch <input.ts> --template <t> --out <out>` | 监视文件变化并自动重新编译 |
 | `diff <left.bcmkn> <right.bcmkn>` | 结构对比 |
@@ -252,13 +252,17 @@ nekoc compile-ts input.ts --out output.json --optimize
 
 ## 运行时
 
-NekoC 带有根据官方实现逆向整理的 Kitten N 运行时，可以直接运行 `.bcmkn`：
+`nekoc run` 默认使用与 Web 播放器、性能/兼容统计相同的 `engine::Engine`（默认 JIT），支持 Kitten N `.bcmkn` 和 Kitten 4 `.bcm`。这是无头执行，不创建窗口、播放声音或下载资源；需要可视化请使用 Web Studio。
 
 ```bash
 nekoc run project.bcmkn --ticks 30
 nekoc run project.bcmkn --ticks 1 --event click:100,200
 nekoc run project.bcmkn --ticks 1 --event key-down:space
+nekoc run project.bcm --frames 60 --seed 42 --out snapshot.json
+nekoc run project.bcmkn --legacy-runtime --ticks 30
 ```
+
+Engine 每 tick 固定推进 1/60 秒，默认 seed 为 1，快照标识为 `nekoc-engine-run-v1`。旧解释器是 30 Hz，快照、调度和事件语义不同；旧 `--expect` 文件请配合 `--legacy-runtime`，不会自动回退。`run-scenario` / `compile-ts-scenario` 仍使用旧解释器。选项、输出格式、云模拟及限制见 **[CLI 无头运行](docs/cli-run.md)**。
 
 ### 场景测试
 
