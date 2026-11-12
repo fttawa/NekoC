@@ -252,6 +252,52 @@ fn kn_expired_wall_slice_yields_in_both_gateways_without_consuming_successors() 
 }
 
 #[test]
+fn kn_sampled_wall_slice_is_shared_when_native_and_interpreted_tails_alternate() {
+    for op in [
+        Op::Next(0, false),
+        Op::RangeNext(0, false),
+        Op::WarpIteration,
+    ] {
+        for final_iteration in [false, true] {
+            for native_on_even in [false, true] {
+                // Keep this a one-op region so one unit of fuel can execute a
+                // non-yielding boundary without reserving fuel for a numeric successor.
+                let mut e = engine(vec![op, Op::Halt]);
+                e.program.semantics = RuntimeSemantics::KnCurrent;
+                e.kn_warp.warm_sampling_for_test();
+                e.kn_warp.expire_for_test();
+                // Warmup scheduled the next read 32 tails away. Moving between JIT
+                // and interpreter must NOT restart either that interval or the slice.
+                for tail in 1..=32 {
+                    e.tasks[0].loops = vec![if final_iteration { 1 } else { 2 }];
+                    e.tasks[0].ranges = vec![RangeState {
+                        value: 1.0,
+                        end: if final_iteration { 1.0 } else { 2.0 },
+                        step: 1.0,
+                    }];
+                    let yielding = if (tail % 2 == 0) == native_on_even {
+                        e.jit_compile(0);
+                        e.jit_yield = false;
+                        assert_eq!(e.jit_run(0, 0, 1, 1), Some(1));
+                        e.jit_yield
+                    } else {
+                        e.tasks[0].pc = 1;
+                        !e.exec(0, 0, op, 1).unwrap()
+                    };
+                    assert_eq!(yielding, tail == 32);
+                    assert_eq!(e.slots[2], 0.0);
+                    assert_eq!(
+                        e.tasks[0].pc,
+                        usize::from(final_iteration || matches!(op, Op::WarpIteration))
+                    );
+                }
+                assert_eq!(e.jit_profile()["delegated_ops"], 0);
+            }
+        }
+    }
+}
+
+#[test]
 fn hot_call_change_append_and_branch_really_run_without_generic_delegation() {
     let mut e = engine(vec![
         Op::Call(0, 0),

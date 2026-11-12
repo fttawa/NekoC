@@ -229,6 +229,20 @@ node tools/bench/hateneko.mjs --ref E:/nekoc-wt/_ref/hateneko --love D:/Tools/lo
 
 完整实测、限制及优化前后见 [docs/performance.md](../../docs/performance.md)。
 
+### KN 确定性前后语义诊断（不是计时）
+
+```powershell
+node tools/bench/kn-deterministic-ab.mjs dist/knwarp2/before.exe dist/knwarp2/after.exe dist/knwarp2/fixtures dist/knwarp2/deterministic-ab
+```
+
+七份自有夹具 × JIT/解释器 × seed 1/6/42，10 预热 + 60 帧，显式
+`--deterministic`；排除导入/启动/帧耗时和 RSS，其余 JSON 投影比较（不做数值容差）。
+旧 oracle JSON 不能保型 undefined/null/非有限数，JS 解析也不能保留负零和超安全整数；
+本诊断不宣称任意 Cell 值的逐位相等，计数路径精确保持另由 Rust 单测覆盖。
+每次完整双边样本、输入/二进制 hash 和最终摘要存于本 worktree 忽略目录。
+这是最终状态/总指令/画笔量等公开输出诊断，不是逐帧 task-stack、像素或官方兼容证明。
+墙钟五轮性能仍使用 `kn-ab.mjs`，不可把此命令的虚拟时钟时间作为性能恢复数字。
+
 ## 同类项目 / kitten2scratch → TurboWarp
 
 第三方代码仅 clone 到当前 worktree 的忽略目录 `dist/peers/`。先审查源码，

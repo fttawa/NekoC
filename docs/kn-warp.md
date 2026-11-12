@@ -56,6 +56,7 @@ node --test tests/kn-warp.test.mjs
 ## NekoC 实施范围
 
 - `src/engine/kn_warp.rs` 独立保存 KN 每次 task resume 的计数和墙钟起点；与 K4 的旧策略分离。`Engine::use_virtual_clock()` 对应忽略4ms墙钟、保留迭代上限的可复现规则，不估算“每个积木耗时”。
+- knwarp2 后默认墙钟通过独立 `kn_warp_sampling.rs` 自适应摊销读钟，最多间隔32尾；这与上文官方逐尾行为存在显式偏差，硬界及条件时间界见 [采样契约](kn-warp-sampling.md)。确定性模式不采样，仍按原计数逐尾判断。
 - Repeat/RangeNext 及 while/until/forever 的尾部进入同一策略；JIT 的 `h_boundary` 共用该判断，执行后的边界只收费一次，立即退出 native region，后继不偷跑。
 - `tests/kn_warp.rs` 将归档的 **12 个无显式 wait、无 reporter 的确定性项目**逐 update 全变量对照解释器/JIT，另验证真实时间过期的内部 gateway、热 native 状态/栈和续跑。原生 continue 只验证本地 lowering，不包装为官方实测。
 - `procedure-wait` 保留为官方证据：官方 wait(0) 后隔一整个 update 才恢复，当前 Engine KN 的 wait(0) 在下一次 update 即恢复。这是原有等待边界缺口，本次没有改通用等待调度，故不纳入逐 update 一致的12项。
