@@ -192,6 +192,9 @@ fn private_numeric_loop_and_global_loop_agree_with_and_without_jit() {
         if !jit {
             vm.disable_jit();
         }
+        // KN 的 warp 按墙钟 4 ms 让出；慢机器上 5 帧可能跑不完 1 万次循环。
+        // 用虚拟时钟只按确定的迭代上限让出，结果与机器快慢无关。
+        vm.use_virtual_clock();
         vm.start();
         run(&mut vm, 5).unwrap();
         assert_eq!(vm.variable_text("original"), "20000");
