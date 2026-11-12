@@ -988,8 +988,8 @@
         "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
         "8 种 scope、严格 number、别名增减、纹理尺寸 clamp、场景及小数 reporter 经 11 份原创夹具/1794 状态观察实测；ASCII 状态已支持但像素渲染、ELASTIC 与 iOS 仍未验证，见 kitten4-partial-effects.md",
         "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
-        "第八轮真实VM 34件262对全画布，RGB容差0/1/8分列；ASCII独立/场景及场景/舞台外twist已修复；ripple素材条件未验证、ASCII组合仍有负例，setter仍partial。见 kitten4-partial-effects-8.md",
-        "第九轮修复ASCII最终投影的多余POT复制；9件64对完整画布中60对RGB容差8零超差，twist与舞台外组合负例消除；全链仍65像素、hue仍1像素负例，ripple缺素材例外，仍partial。见 kitten4-partial-effects-9.md"
+        "第八轮历史证据：真实VM 34件262对全画布，RGB容差0/1/8分列；ASCII独立/场景及场景/舞台外twist已修复，历史组合负例见 kitten4-partial-effects-8.md；当前修复与边界见第十一轮",
+        "第九/十轮消除ASCII最终投影、全链65像素及hue1像素历史负例；第十一轮修复slide两倍输入范围裁剪与distort离屏ASCII投影，并发送同update切场边界滤镜快照。ripple缺素材例外，最终主路径验证与边界见 kitten4-partial-effects-11.md"
       ],
       "occurrences": 1228
     },
@@ -1035,7 +1035,7 @@
       "semantics": "main-path-verified",
       "mapping": [
         "src/kitten4.rs:559 (lower_block)",
-        "src/engine.rs:4313 (kitten4_legacy_)"
+        "src/engine.rs:4315 (kitten4_legacy_)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
@@ -1441,8 +1441,8 @@
         "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
         "8 种 scope、严格 number、别名增减、纹理尺寸 clamp、场景及小数 reporter 经 11 份原创夹具/1794 状态观察实测；ASCII 状态已支持但像素渲染、ELASTIC 与 iOS 仍未验证，见 kitten4-partial-effects.md",
         "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
-        "第八轮真实VM 34件262对全画布，RGB容差0/1/8分列；ASCII独立/场景及场景/舞台外twist已修复；ripple素材条件未验证、ASCII组合仍有负例，setter仍partial。见 kitten4-partial-effects-8.md",
-        "第九轮修复ASCII最终投影的多余POT复制；9件64对完整画布中60对RGB容差8零超差，twist与舞台外组合负例消除；全链仍65像素、hue仍1像素负例，ripple缺素材例外，仍partial。见 kitten4-partial-effects-9.md"
+        "第八轮历史证据：真实VM 34件262对全画布，RGB容差0/1/8分列；ASCII独立/场景及场景/舞台外twist已修复，历史组合负例见 kitten4-partial-effects-8.md；当前修复与边界见第十一轮",
+        "第九/十轮消除ASCII最终投影、全链65像素及hue1像素历史负例；第十一轮修复slide两倍输入范围裁剪与distort离屏ASCII投影，并发送同update切场边界滤镜快照。ripple缺素材例外，最终主路径验证与边界见 kitten4-partial-effects-11.md"
       ],
       "occurrences": 735
     },
@@ -2198,7 +2198,7 @@
       "semantics": "main-path-verified",
       "mapping": [
         "src/kitten4.rs:538 (lower_block)",
-        "src/engine.rs:4309 (kitten4_set_velocity)"
+        "src/engine.rs:4311 (kitten4_set_velocity)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
@@ -2293,7 +2293,7 @@
         "第二轮 18 份原创夹具官方实测：严格尺寸/10000 上限、场景错误、原图无角色滤镜/alpha、目的矩形 floor、过渡别名与任意 direction 已补齐；字体/像素、颜色 raster 与真实过渡动画仍有限制，见 kitten4-partial-drawing.md",
         "第三轮 12 份原创夹具/780 帧：slide/bounce/fade 位置与 alpha、非法名称显示已回归；distort 截图扭曲与完成回调调度未对齐，见 kitten4-partial-transition-3.md",
         "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
-        "第九轮14件910个连续官方update/全画布：补distort双截图扭曲与100ms延迟，修复完成回调前运行组提前切换；严格端点后下一update激活。纹理栅格仍有残差，none启动顺序有负例，真实时钟/竞争切场未验证，仍partial。见 kitten4-partial-transition-9.md"
+        "第九轮14件910个连续官方update/全画布：补distort双截图扭曲与100ms延迟，修复完成回调前运行组提前切换；严格端点后下一update激活。历史纹理与none负例已由第十轮修复；真实时钟/竞争切场未验证。见 kitten4-partial-transition-9.md 与 kitten4-partial-effects-11.md"
       ],
       "occurrences": 215
     },
@@ -3280,7 +3280,7 @@
       "semantics": "main-path-verified",
       "mapping": [
         "src/kitten4.rs:489 (lower_block)",
-        "src/engine.rs:3887 (kitten4_entity_visibility)"
+        "src/engine.rs:3889 (kitten4_entity_visibility)"
       ],
       "limitations": [
         "第五轮17份原创夹具408官方帧：渐变尾部update相位、竞争alpha斜率叠加、取消调用方冻结、隐藏清理held指针、零/负/NaN/Infinity时长已实测；见 kitten4-partial-visibility-5.md。第五轮曾记录的克隆删除一帧差异已由第七轮修复；场景/悬空UUID/非60Hz与完整手势边界未验证",
@@ -6953,7 +6953,7 @@
       "status": "已实现",
       "semantics": "main-path-verified",
       "mapping": [
-        "src/engine.rs:2945 (physics2_get_property)"
+        "src/engine.rs:2947 (physics2_get_property)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
@@ -7312,8 +7312,8 @@
         "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
         "8 种 scope、严格 number、别名增减、纹理尺寸 clamp、场景及小数 reporter 经 11 份原创夹具/1794 状态观察实测；ASCII 状态已支持但像素渲染、ELASTIC 与 iOS 仍未验证，见 kitten4-partial-effects.md",
         "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
-        "第八轮真实VM 34件262对全画布，RGB容差0/1/8分列；ASCII独立/场景及场景/舞台外twist已修复；ripple素材条件未验证、ASCII组合仍有负例，setter仍partial。见 kitten4-partial-effects-8.md",
-        "第九轮修复ASCII最终投影的多余POT复制；9件64对完整画布中60对RGB容差8零超差，twist与舞台外组合负例消除；全链仍65像素、hue仍1像素负例，ripple缺素材例外，仍partial。见 kitten4-partial-effects-9.md"
+        "第八轮历史证据：真实VM 34件262对全画布，RGB容差0/1/8分列；ASCII独立/场景及场景/舞台外twist已修复，历史组合负例见 kitten4-partial-effects-8.md；当前修复与边界见第十一轮",
+        "第九/十轮消除ASCII最终投影、全链65像素及hue1像素历史负例；第十一轮修复slide两倍输入范围裁剪与distort离屏ASCII投影，并发送同update切场边界滤镜快照。ripple缺素材例外，最终主路径验证与边界见 kitten4-partial-effects-11.md"
       ],
       "occurrences": 0
     },
@@ -7337,8 +7337,8 @@
         "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
         "8 种 scope、严格 number、别名增减、纹理尺寸 clamp、场景及小数 reporter 经 11 份原创夹具/1794 状态观察实测；ASCII 状态已支持但像素渲染、ELASTIC 与 iOS 仍未验证，见 kitten4-partial-effects.md",
         "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
-        "第八轮真实VM 34件262对全画布，RGB容差0/1/8分列；ASCII独立/场景及场景/舞台外twist已修复；ripple素材条件未验证、ASCII组合仍有负例，setter仍partial。见 kitten4-partial-effects-8.md",
-        "第九轮修复ASCII最终投影的多余POT复制；9件64对完整画布中60对RGB容差8零超差，twist与舞台外组合负例消除；全链仍65像素、hue仍1像素负例，ripple缺素材例外，仍partial。见 kitten4-partial-effects-9.md"
+        "第八轮历史证据：真实VM 34件262对全画布，RGB容差0/1/8分列；ASCII独立/场景及场景/舞台外twist已修复，历史组合负例见 kitten4-partial-effects-8.md；当前修复与边界见第十一轮",
+        "第九/十轮消除ASCII最终投影、全链65像素及hue1像素历史负例；第十一轮修复slide两倍输入范围裁剪与distort离屏ASCII投影，并发送同update切场边界滤镜快照。ripple缺素材例外，最终主路径验证与边界见 kitten4-partial-effects-11.md"
       ],
       "occurrences": 0
     },
@@ -7639,8 +7639,8 @@
         "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
         "8 种 scope、严格 number、别名增减、纹理尺寸 clamp、场景及小数 reporter 经 11 份原创夹具/1794 状态观察实测；ASCII 状态已支持但像素渲染、ELASTIC 与 iOS 仍未验证，见 kitten4-partial-effects.md",
         "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
-        "第八轮真实VM 34件262对全画布，RGB容差0/1/8分列；ASCII独立/场景及场景/舞台外twist已修复；ripple素材条件未验证、ASCII组合仍有负例，setter仍partial。见 kitten4-partial-effects-8.md",
-        "第九轮修复ASCII最终投影的多余POT复制；9件64对完整画布中60对RGB容差8零超差，twist与舞台外组合负例消除；全链仍65像素、hue仍1像素负例，ripple缺素材例外，仍partial。见 kitten4-partial-effects-9.md"
+        "第八轮历史证据：真实VM 34件262对全画布，RGB容差0/1/8分列；ASCII独立/场景及场景/舞台外twist已修复，历史组合负例见 kitten4-partial-effects-8.md；当前修复与边界见第十一轮",
+        "第九/十轮消除ASCII最终投影、全链65像素及hue1像素历史负例；第十一轮修复slide两倍输入范围裁剪与distort离屏ASCII投影，并发送同update切场边界滤镜快照。ripple缺素材例外，最终主路径验证与边界见 kitten4-partial-effects-11.md"
       ],
       "occurrences": 0
     },

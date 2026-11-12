@@ -162,10 +162,12 @@ export async function visualWork(input,options){
         const file=path.join(artifact,'costumes.json');await saveJson(file,costumes);
         const videoFile=path.join(artifact,'video-metadata.json');await saveJson(videoFile,videos.filter(v=>Number.isFinite(v.duration)));
          const audioFile=path.join(artifact,'audio-durations.json');await saveJson(audioFile,audios.filter(a=>a.loaded&&Number.isFinite(a.duration)&&a.duration>0).map(({id,duration})=>({id,duration})));
-         rendered=JSON.parse(await command(exe,[...args,'--costumes',path.resolve(file),'--videos',path.resolve(videoFile),...(audioMetadata?['--audios',path.resolve(audioFile)]:[])]));
+          rendered=JSON.parse(await command(exe,[...args,'--costumes',path.resolve(file),'--videos',path.resolve(videoFile),...(audioMetadata?['--audios',path.resolve(audioFile)]:[])]));
+         await options.onVisualReady?.({page,nekoPage});
       },
        onFrame:async(page,frame)=>{
         const delta=rendered.frames[frame-1];
+         await options.onComparingFrame?.({page,nekoPage,frame,delta});
          await nekoPage.evaluate(({frame,lines})=>{window.renderer.videoStates=frame.videos||[];window.renderer.apply(frame,new Float32Array(lines));window.overlay.apply(frame);window.overlay.update();},delta);
          await options.onComparedFrame?.({page,nekoPage,frame,delta});
         if(!options.captureFrames.includes(frame))return;

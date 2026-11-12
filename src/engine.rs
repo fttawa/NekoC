@@ -754,6 +754,8 @@ pub struct SceneInfo {
 pub struct Transition {
     pub direction: String,
     pub kind: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub outgoing: Option<k4_drawing::TransitionScene>,
 }
 /// Execution provenance, captured before lowering removes native metadata.
 /// This is private VM state, not a new canonical-project or wire-format field.
@@ -7077,6 +7079,7 @@ impl Engine {
         let old = self.current_scene;
         let deferred =
             self.program.semantics == RuntimeSemantics::Kitten4 && self.next_transition.is_some();
+        let outgoing = deferred.then(|| self.transition_scene(old));
         // Visual scene ownership changes immediately, independently of the
         // callback-driven running group (a1xw/Nt and RegisterEvent adapter).
         self.scene_activation = deferred.then(|| {
@@ -7111,6 +7114,9 @@ impl Engine {
         self.order_dirty = true;
         self.scene_changed = true;
         self.transition = self.next_transition.clone();
+        if let Some(transition) = &mut self.transition {
+            transition.outgoing = outgoing;
+        }
         for i in 0..self.sprites.len() {
             if self.sprites[i].scene == target && self.sprites[i].alive {
                 self.dirty[i] = true;
@@ -9933,8 +9939,12 @@ impl Engine {
                 if self.program.semantics == RuntimeSemantics::Kitten4 {
                     kind = k4_drawing::transition_kind(&kind, &direction);
                 }
-                self.next_transition = (!matches!(kind.as_str(), "" | "none"))
-                    .then_some(Transition { direction, kind });
+                self.next_transition =
+                    (!matches!(kind.as_str(), "" | "none")).then_some(Transition {
+                        direction,
+                        kind,
+                        outgoing: None,
+                    });
             }
             Op::SwitchScene(value) => {
                 let value = self.eval_value(value, actor);
