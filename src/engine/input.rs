@@ -49,7 +49,16 @@ impl Engine {
     }
 
     pub(super) fn dispatch_pointer_states(&mut self) {
+        #[cfg(feature = "interp-profile")]
+        let _profile = interp_profile::span("dispatch_pointer_states", &());
         if self.stopped {
+            return;
+        }
+        if self.input_targets.is_empty()
+            && self.input_clicks.is_empty()
+            && (self.program.semantics != RuntimeSemantics::KnCurrent
+                || !(self.pointer_down || self.pointer_released || self.pointer_clicked))
+        {
             return;
         }
         for script in 0..self.program.scripts.len() {

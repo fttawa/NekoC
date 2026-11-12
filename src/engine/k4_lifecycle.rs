@@ -21,6 +21,8 @@ impl Engine {
     }
 
     pub(super) fn dispose_requested_entities(&mut self) {
+        #[cfg(feature = "interp-profile")]
+        let _profile = super::interp_profile::span("dispose_requested_entities", &());
         for actor in std::mem::take(&mut self.k4_pending_disposals) {
             self.delete_clone(actor);
         }

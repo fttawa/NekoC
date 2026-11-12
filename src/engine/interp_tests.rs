@@ -215,6 +215,71 @@ fn cold_physics_argument_error_reaches_tail_without_allocating_world() {
     }
 }
 
+#[test]
+fn parameter_buffers_preserve_nested_arguments_identity_and_error_unwind() {
+    let mut e = engine(
+        vec![Op::Halt, Op::ReturnValue(0), Op::ReturnValue(1)],
+        RuntimeSemantics::Kitten4,
+    );
+    e.program.values = vec![
+        ValueExpr::Parameter(0),
+        ValueExpr::Parameter(1),
+        ValueExpr::CallReturn(0, 0),
+    ];
+    e.program.procedure_entries = vec![1, 2];
+    // The nested identity reporter must see the caller's live parameter, and
+    // the outer reporter must still see it when evaluating the second socket.
+    e.program.call_arguments = vec![vec![0], vec![2, 0], vec![]];
+    let list = Rc::new(RefCell::new(vec![Cell::Bool(true)]));
+    e.tasks[0].parameters = vec![Cell::List(list.clone())];
+    for _ in 0..16 {
+        let Cell::List(result) = e.call_reporter(1, 1, 1) else {
+            panic!("nested reporter lost argument type");
+        };
+        assert!(Rc::ptr_eq(&result, &list));
+        assert!(e.tasks[0].calls.is_empty());
+        assert_eq!(e.tasks[0].parameters.len(), 1);
+        assert_eq!(Rc::strong_count(&list), 3); // caller, result, test
+        drop(result);
+        // Reusing a capacity-two buffer must not expose its previous tail.
+        assert!(matches!(e.call_reporter(1, 2, 1), Cell::Number(n) if n.is_nan()));
+        assert_eq!(Rc::strong_count(&list), 2);
+    }
+    e.program.procedure_entries.push(3);
+    e.program.ops.push(Op::ReturnValue(3));
+    e.program.sources.push("parameter-pool-error".into());
+    e.program.values.push(ValueExpr::Item(
+        ListRef::Expression(0),
+        Some(Expr { end: 1 }),
+    ));
+    e.program.expressions[0] = ExprOp::Constant(2.0);
+    let result = e.call_reporter(2, 0, 1);
+    assert!(matches!(result, Cell::Number(n) if n.is_nan()));
+    assert!(
+        e.value_error
+            .as_deref()
+            .unwrap()
+            .contains("lists_get_value_bad_index")
+    );
+    assert!(e.tasks[0].calls.is_empty());
+    assert_eq!(e.tasks[0].parameters.len(), 1);
+    assert_eq!(Rc::strong_count(&list), 2);
+    // Fail before a Return pops the frame, exercising the reporter unwind too.
+    e.value_error = None;
+    e.program.expressions.push(ExprOp::Value(3));
+    e.program.expression_starts.push(1);
+    e.program.ops[3] = Op::Branch(Expr { end: 2 }, 4);
+    e.program.ops.push(Op::ReturnValue(0));
+    e.program.sources.push("parameter-pool-after-error".into());
+    assert!(matches!(e.call_reporter(2, 0, 1), Cell::Null));
+    assert!(e.value_error.is_some());
+    assert!(e.tasks[0].calls.is_empty());
+    assert_eq!(e.tasks[0].parameters.len(), 1);
+    assert_eq!(Rc::strong_count(&list), 2);
+    e.value_error = None;
+    assert!(matches!(e.call_reporter(0, 0, 1), Cell::List(result) if Rc::ptr_eq(&result, &list)));
+}
+
 #[derive(Clone, Copy, Debug)]
 enum EvaluationPath {
     // Empty deep_values: eval_value_one::<true> is the ordinary fast path.

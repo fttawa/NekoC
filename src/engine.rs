@@ -39,8 +39,10 @@ mod kn_services;
 mod kn_warp;
 mod legacy_costume;
 pub use kn_panel::{GlobalAnimationRequest, PanelNotice};
+mod parameter_pool;
 mod physics;
 mod role_camp;
+mod sprite_copy;
 mod stage_dialog;
 mod value;
 use k4_clock::{K4Timer, timer_policy, to_fixed2};
@@ -5071,6 +5073,7 @@ pub struct Engine {
     kn_local: kn_local::State,
     oracle_events: Option<Vec<Value>>,
     evaluation_cache: Vec<BTreeMap<(bool, usize), VecDeque<Cell>>>,
+    parameter_pool: parameter_pool::ParameterPool,
     physics: Option<Box<physics::Physics>>,
     pub program: Program,
     jit: Option<Box<jit::Jit>>,
@@ -5612,6 +5615,7 @@ impl Engine {
             reset: true,
             value_error: None,
             evaluation_cache: vec![],
+            parameter_pool: parameter_pool::ParameterPool::default(),
             stopped: false,
             restart: false,
             reporter_depth: 0,
@@ -6487,7 +6491,7 @@ impl Engine {
             return Cell::Null;
         }
         let count = self.program.call_arguments[args].len();
-        let mut parameters = Vec::with_capacity(count);
+        let mut parameters = self.parameter_pool.take(count);
         for k in 0..count {
             let value = self.program.call_arguments[args][k];
             parameters.push(self.eval_value(value, actor));
@@ -6534,7 +6538,8 @@ impl Engine {
         while task.calls.len() > depth {
             let call = task.calls.pop().unwrap();
             task.pc = call.pc;
-            task.parameters = call.parameters;
+            let parameters = std::mem::replace(&mut task.parameters, call.parameters);
+            self.parameter_pool.recycle(parameters);
             task.loops.truncate(call.loops);
             task.ranges.truncate(call.ranges);
         }
@@ -7528,6 +7533,8 @@ impl Engine {
         }
     }
     fn clone_sprite(&mut self, source: usize, split: Option<(f64, f64)>) -> Result<()> {
+        #[cfg(feature = "interp-profile")]
+        let _profile = interp_profile::span("clone_sprite", &());
         ensure!(!self.sprites[source].stage, "the stage cannot be cloned");
         ensure!(
             self.program.semantics != RuntimeSemantics::Kitten4
@@ -7538,9 +7545,6 @@ impl Engine {
             return Ok(());
         }
         let origin = self.sprites[source].origin;
-        let live = (0..self.sprites.len())
-            .filter(|&i| self.sprites[i].alive && self.sprites[i].origin == origin && i != origin)
-            .count();
         if self.program.semantics == RuntimeSemantics::Kitten4 {
             // Official iNFq clone_entity: per-entity, per-frame guard uses >300,
             // so the 301st creation succeeds. This is NOT a live clone cap.
@@ -7549,7 +7553,17 @@ impl Engine {
                 return Ok(());
             }
             *count += 1;
-        } else if live >= 300 {
+        }
+        let live = {
+            #[cfg(feature = "interp-profile")]
+            let _profile = interp_profile::span("clone_scan", &());
+            (0..self.sprites.len())
+                .filter(|&i| {
+                    self.sprites[i].alive && self.sprites[i].origin == origin && i != origin
+                })
+                .count()
+        };
+        if self.program.semantics != RuntimeSemantics::Kitten4 && live >= 300 {
             return Ok(());
         }
         // Official RuntimeDataImpl/clone_created evicts the oldest clone when
@@ -7797,6 +7811,12 @@ impl Engine {
             usize::MAX => (self.sprites[actor].x, self.sprites[actor].y),
             t => (self.sprites[t].x, self.sprites[t].y),
         }
+    }
+    pub(super) fn take_parameters(&mut self, count: usize) -> Vec<Cell> {
+        self.parameter_pool.take(count)
+    }
+    pub(super) fn recycle_parameters(&mut self, parameters: Vec<Cell>) {
+        self.parameter_pool.recycle(parameters);
     }
     #[inline]
     fn global_value(&self, i: usize) -> Cell {
@@ -8551,6 +8571,8 @@ impl Engine {
         budget: Duration,
         max_ticks: usize,
     ) -> Result<Frame> {
+        #[cfg(feature = "interp-profile")]
+        let _profile = interp_profile::span("advance", &());
         ensure!(dt.is_finite(), "frame delta must be finite");
         self.sequence += 1;
         let started = Instant::now();
@@ -8564,6 +8586,9 @@ impl Engine {
             exceeded = self.tick(dt, max_instructions, budget, started, &mut count)?;
             ticks += 1;
             dt = 0.0;
+            if exceeded || ticks >= max_ticks.max(1) {
+                break;
+            }
             let visible = !self.lines.is_empty()
                 || !self.text_stamps.is_empty()
                 || !self.pen_fills.is_empty()
@@ -8577,16 +8602,14 @@ impl Engine {
                 || !self.removed.is_empty()
                 || self.dirty.iter().any(|d| *d);
             let runnable = self.tasks.iter().any(|t| self.task_runnable(t));
-            if exceeded
-                || visible
-                || !runnable
-                || ticks >= max_ticks.max(1)
-                || (self.virtual_epoch.is_none() && started.elapsed() >= budget)
+            if visible || !runnable || (self.virtual_epoch.is_none() && started.elapsed() >= budget)
             {
                 break;
             }
         }
         let execute_us = started.elapsed().as_micros();
+        #[cfg(feature = "interp-profile")]
+        let _profile = interp_profile::span("build_frame", &());
         let scene = self.current_scene;
         let costume_turn = self.program.costume_turn;
         // Only the active scene is drawn; other scenes keep their dirty marks.
@@ -8601,7 +8624,7 @@ impl Engine {
                 }
                 *dirty = false;
                 a.alive.then(|| {
-                    let mut drawn = a.clone();
+                    let mut drawn = a.clone_for_frame();
                     drawn.direction -= costume_turn;
                     // JSON maps nonfinite numbers to null. Hide invalid geometry
                     // on the wire, without changing the VM's logical state.
@@ -9456,7 +9479,7 @@ impl Engine {
             }
             Op::Call(procedure, args) => {
                 let count = self.program.call_arguments[args].len();
-                let mut parameters = Vec::with_capacity(count);
+                let mut parameters = self.parameter_pool.take(count);
                 for k in 0..count {
                     let value = self.program.call_arguments[args][k];
                     parameters.push(self.eval_value(value, actor));
@@ -9483,7 +9506,8 @@ impl Engine {
                 let task = &mut self.tasks[index];
                 let call = task.calls.pop().context("invalid procedure return")?;
                 task.pc = call.pc;
-                task.parameters = call.parameters;
+                let parameters = std::mem::replace(&mut task.parameters, call.parameters);
+                self.parameter_pool.recycle(parameters);
                 task.loops.truncate(call.loops);
                 task.ranges.truncate(call.ranges);
             }
@@ -9955,6 +9979,8 @@ impl Engine {
         started: Instant,
         total_count: &mut usize,
     ) -> Result<bool> {
+        #[cfg(feature = "interp-profile")]
+        let _profile = interp_profile::span("tick", &());
         self.scheduler_tick += 1;
         if let Some(activation) = self.scene_activation.as_ref()
             && activation.completed(self.time)
@@ -9999,6 +10025,8 @@ impl Engine {
         let mut count = *total_count;
         let mut exceeded = false;
         let total = self.tasks.len();
+        #[cfg(feature = "interp-profile")]
+        let ready_profile = interp_profile::span("ready_queue", &());
         self.ready.clear();
         self.ready
             .extend((0..total).map(|i| (self.cursor + i) % total));
@@ -10015,6 +10043,8 @@ impl Engine {
                 (!listener, std::cmp::Reverse(task.created), task.id)
             });
         }
+        #[cfg(feature = "interp-profile")]
+        drop(ready_profile);
         while let Some(index) = self.ready.pop_front() {
             if self.restart {
                 break;

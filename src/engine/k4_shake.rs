@@ -105,6 +105,8 @@ impl Engine {
     /// frame end makes AnimStep resume on the next update, never the end frame.
     /// No physics/body behavior is implemented here.
     pub(super) fn tick_k4_shake(&mut self) {
+        #[cfg(feature = "interp-profile")]
+        let _profile = super::interp_profile::span("tick_k4_shake", &());
         let now = self.k4_shake_clock.now();
         for index in 0..self.tasks.len() {
             if !matches!(self.tasks[index].anim, Some(Anim::Shake(_))) {

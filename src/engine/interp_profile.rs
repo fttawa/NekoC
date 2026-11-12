@@ -52,6 +52,11 @@ pub(super) fn span(category: &str, value: &impl Debug) -> Span {
     Span { key, start }
 }
 
+/// Count a diagnostic event without attributing a synthetic duration to it.
+pub(super) fn count(key: &str) {
+    PROFILE.with_borrow_mut(|p| p.entries.entry(key.into()).or_default().calls += 1);
+}
+
 impl Drop for Span {
     fn drop(&mut self) {
         let elapsed = self.start.elapsed().as_nanos();
@@ -103,6 +108,12 @@ mod tests {
             outer["inclusive_ns"].as_u64().unwrap(),
             outer["exclusive_ns"].as_u64().unwrap() + inner["inclusive_ns"].as_u64().unwrap()
         );
+        count("event/only");
+        count("event/only");
+        let report = snapshot();
+        assert_eq!(report["event/only"]["calls"], 2);
+        assert_eq!(report["event/only"]["inclusive_ns"], 0);
+        assert_eq!(report["event/only"]["exclusive_ns"], 0);
         reset();
         assert_eq!(snapshot(), serde_json::json!({}));
     }

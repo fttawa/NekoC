@@ -6,6 +6,8 @@ impl Engine {
     /// Cancellation disposal is deferred until the next update: a caller stopped
     /// in the script phase still contributes this update's final alpha delta.
     pub(super) fn tick_entity_visibility(&mut self, dt: f64) {
+        #[cfg(feature = "interp-profile")]
+        let _profile = super::interp_profile::span("tick_entity_visibility", &());
         for task in 0..self.tasks.len() {
             let Some(Anim::EntityVisibility {
                 start,
