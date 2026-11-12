@@ -245,14 +245,14 @@ fn backend_failure_is_visible_and_default_mode_never_creates_a_file() {
     let dir = tempfile::tempdir().unwrap();
     let path = dir.path().join("missing").join("cloud.json");
     let mut vm = engine("writes");
-    vm.set_cloud_backend(
-        Arc::new(FileCloudBackend::new(path)),
-        "one".into(),
-        "alice".into(),
-    )
-    .unwrap();
-    vm.start();
-    assert!(tick(&mut vm).is_err());
+    assert!(
+        vm.set_cloud_backend(
+            Arc::new(FileCloudBackend::new(path)),
+            "one".into(),
+            "alice".into(),
+        )
+        .is_err()
+    );
     let mut default = engine("defaults");
     default.start();
     tick(&mut default).unwrap();

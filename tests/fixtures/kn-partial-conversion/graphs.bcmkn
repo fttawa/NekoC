@@ -1,0 +1,1546 @@
+{
+  "projectName": "NekoC KN semantics partial-conversion graphs",
+  "version": "0.27.4",
+  "toolType": "KN",
+  "stageSize": {
+    "width": 900,
+    "height": 562
+  },
+  "scenes": {
+    "currentSceneId": "nekoc-scene-main",
+    "sortList": [
+      "nekoc-scene-main"
+    ],
+    "scenesDict": {
+      "nekoc-scene-main": {
+        "id": "nekoc-scene-main",
+        "name": "Background",
+        "screenName": "Main",
+        "styles": [
+          "nekoc-background"
+        ],
+        "currentStyleId": "nekoc-background",
+        "actorIds": [
+          "20000000-0000-4000-8000-000000000001"
+        ],
+        "visible": true,
+        "editable": true,
+        "workspaceScrollXy": {
+          "x": 100,
+          "y": 50
+        },
+        "nekoBlockJsonList": [],
+        "comments": {}
+      }
+    }
+  },
+  "actors": {
+    "actorsDict": {
+      "20000000-0000-4000-8000-000000000001": {
+        "id": "20000000-0000-4000-8000-000000000001",
+        "name": "Sprite",
+        "styles": [
+          "nekoc-costume"
+        ],
+        "currentStyleId": "nekoc-costume",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": 100,
+        "rotation": 0,
+        "visible": true,
+        "locked": false,
+        "editable": true,
+        "deletable": true,
+        "workspaceScrollXy": {
+          "x": 100,
+          "y": 50
+        },
+        "nekoBlockJsonList": [
+          {
+            "id": "knpc-127",
+            "type": "on_running_group_activated",
+            "fields": {},
+            "inputs": {},
+            "next": {
+              "id": "knpc-2",
+              "type": "variables_set",
+              "fields": {
+                "variable": "a"
+              },
+              "inputs": {
+                "value": {
+                  "id": "knpc-1",
+                  "type": "_array_literal",
+                  "fields": {},
+                  "inputs": {},
+                  "mutation": "<mutation items=\"0\"></mutation>"
+                }
+              },
+              "next": {
+                "id": "knpc-6",
+                "type": "_object_set",
+                "fields": {},
+                "inputs": {
+                  "obj": {
+                    "id": "knpc-3",
+                    "type": "variables_get",
+                    "fields": {
+                      "variable": "a"
+                    },
+                    "inputs": {}
+                  },
+                  "key": {
+                    "id": "knpc-4",
+                    "type": "math_number",
+                    "fields": {
+                      "NUM": "0"
+                    },
+                    "inputs": {}
+                  },
+                  "value": {
+                    "id": "knpc-5",
+                    "type": "variables_get",
+                    "fields": {
+                      "variable": "a"
+                    },
+                    "inputs": {}
+                  }
+                },
+                "mutation": "<mutation computed=\"true\"></mutation>",
+                "next": {
+                  "id": "knpc-8",
+                  "type": "variables_set",
+                  "fields": {
+                    "variable": "b"
+                  },
+                  "inputs": {
+                    "value": {
+                      "id": "knpc-7",
+                      "type": "variables_get",
+                      "fields": {
+                        "variable": "a"
+                      },
+                      "inputs": {}
+                    }
+                  },
+                  "next": {
+                    "id": "knpc-11",
+                    "type": "variables_set",
+                    "fields": {
+                      "variable": "self_number"
+                    },
+                    "inputs": {
+                      "value": {
+                        "id": "knpc-10",
+                        "type": "convert_type",
+                        "fields": {
+                          "type": "number"
+                        },
+                        "inputs": {
+                          "text": {
+                            "id": "knpc-9",
+                            "type": "variables_get",
+                            "fields": {
+                              "variable": "b"
+                            },
+                            "inputs": {}
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "id": "knpc-14",
+                      "type": "variables_set",
+                      "fields": {
+                        "variable": "self_string"
+                      },
+                      "inputs": {
+                        "value": {
+                          "id": "knpc-13",
+                          "type": "convert_type",
+                          "fields": {
+                            "type": "string"
+                          },
+                          "inputs": {
+                            "text": {
+                              "id": "knpc-12",
+                              "type": "variables_get",
+                              "fields": {
+                                "variable": "b"
+                              },
+                              "inputs": {}
+                            }
+                          }
+                        }
+                      },
+                      "next": {
+                        "id": "knpc-17",
+                        "type": "variables_set",
+                        "fields": {
+                          "variable": "self_boolean"
+                        },
+                        "inputs": {
+                          "value": {
+                            "id": "knpc-16",
+                            "type": "convert_type",
+                            "fields": {
+                              "type": "boolean"
+                            },
+                            "inputs": {
+                              "text": {
+                                "id": "knpc-15",
+                                "type": "variables_get",
+                                "fields": {
+                                  "variable": "b"
+                                },
+                                "inputs": {}
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "id": "knpc-20",
+                          "type": "variables_set",
+                          "fields": {
+                            "variable": "a"
+                          },
+                          "inputs": {
+                            "value": {
+                              "id": "knpc-19",
+                              "type": "_array_literal",
+                              "fields": {},
+                              "inputs": {
+                                "items0": {
+                                  "id": "knpc-18",
+                                  "type": "math_number",
+                                  "fields": {
+                                    "NUM": "1"
+                                  },
+                                  "inputs": {}
+                                }
+                              },
+                              "mutation": "<mutation items=\"1\"></mutation>"
+                            }
+                          },
+                          "next": {
+                            "id": "knpc-24",
+                            "type": "_object_set",
+                            "fields": {},
+                            "inputs": {
+                              "obj": {
+                                "id": "knpc-21",
+                                "type": "variables_get",
+                                "fields": {
+                                  "variable": "a"
+                                },
+                                "inputs": {}
+                              },
+                              "key": {
+                                "id": "knpc-22",
+                                "type": "math_number",
+                                "fields": {
+                                  "NUM": "1"
+                                },
+                                "inputs": {}
+                              },
+                              "value": {
+                                "id": "knpc-23",
+                                "type": "variables_get",
+                                "fields": {
+                                  "variable": "a"
+                                },
+                                "inputs": {}
+                              }
+                            },
+                            "mutation": "<mutation computed=\"true\"></mutation>",
+                            "next": {
+                              "id": "knpc-26",
+                              "type": "variables_set",
+                              "fields": {
+                                "variable": "b"
+                              },
+                              "inputs": {
+                                "value": {
+                                  "id": "knpc-25",
+                                  "type": "variables_get",
+                                  "fields": {
+                                    "variable": "a"
+                                  },
+                                  "inputs": {}
+                                }
+                              },
+                              "next": {
+                                "id": "knpc-29",
+                                "type": "variables_set",
+                                "fields": {
+                                  "variable": "self_tail_number"
+                                },
+                                "inputs": {
+                                  "value": {
+                                    "id": "knpc-28",
+                                    "type": "convert_type",
+                                    "fields": {
+                                      "type": "number"
+                                    },
+                                    "inputs": {
+                                      "text": {
+                                        "id": "knpc-27",
+                                        "type": "variables_get",
+                                        "fields": {
+                                          "variable": "b"
+                                        },
+                                        "inputs": {}
+                                      }
+                                    }
+                                  }
+                                },
+                                "next": {
+                                  "id": "knpc-32",
+                                  "type": "variables_set",
+                                  "fields": {
+                                    "variable": "self_tail_string"
+                                  },
+                                  "inputs": {
+                                    "value": {
+                                      "id": "knpc-31",
+                                      "type": "convert_type",
+                                      "fields": {
+                                        "type": "string"
+                                      },
+                                      "inputs": {
+                                        "text": {
+                                          "id": "knpc-30",
+                                          "type": "variables_get",
+                                          "fields": {
+                                            "variable": "b"
+                                          },
+                                          "inputs": {}
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "next": {
+                                    "id": "knpc-35",
+                                    "type": "variables_set",
+                                    "fields": {
+                                      "variable": "self_tail_boolean"
+                                    },
+                                    "inputs": {
+                                      "value": {
+                                        "id": "knpc-34",
+                                        "type": "convert_type",
+                                        "fields": {
+                                          "type": "boolean"
+                                        },
+                                        "inputs": {
+                                          "text": {
+                                            "id": "knpc-33",
+                                            "type": "variables_get",
+                                            "fields": {
+                                              "variable": "b"
+                                            },
+                                            "inputs": {}
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "next": {
+                                      "id": "knpc-38",
+                                      "type": "variables_set",
+                                      "fields": {
+                                        "variable": "a"
+                                      },
+                                      "inputs": {
+                                        "value": {
+                                          "id": "knpc-37",
+                                          "type": "_array_literal",
+                                          "fields": {},
+                                          "inputs": {
+                                            "items0": {
+                                              "id": "knpc-36",
+                                              "type": "math_number",
+                                              "fields": {
+                                                "NUM": "1"
+                                              },
+                                              "inputs": {}
+                                            }
+                                          },
+                                          "mutation": "<mutation items=\"1\"></mutation>"
+                                        }
+                                      },
+                                      "next": {
+                                        "id": "knpc-41",
+                                        "type": "variables_set",
+                                        "fields": {
+                                          "variable": "b"
+                                        },
+                                        "inputs": {
+                                          "value": {
+                                            "id": "knpc-40",
+                                            "type": "_array_literal",
+                                            "fields": {},
+                                            "inputs": {
+                                              "items0": {
+                                                "id": "knpc-39",
+                                                "type": "math_number",
+                                                "fields": {
+                                                  "NUM": "2"
+                                                },
+                                                "inputs": {}
+                                              }
+                                            },
+                                            "mutation": "<mutation items=\"1\"></mutation>"
+                                          }
+                                        },
+                                        "next": {
+                                          "id": "knpc-45",
+                                          "type": "_object_set",
+                                          "fields": {},
+                                          "inputs": {
+                                            "obj": {
+                                              "id": "knpc-42",
+                                              "type": "variables_get",
+                                              "fields": {
+                                                "variable": "a"
+                                              },
+                                              "inputs": {}
+                                            },
+                                            "key": {
+                                              "id": "knpc-43",
+                                              "type": "math_number",
+                                              "fields": {
+                                                "NUM": "1"
+                                              },
+                                              "inputs": {}
+                                            },
+                                            "value": {
+                                              "id": "knpc-44",
+                                              "type": "variables_get",
+                                              "fields": {
+                                                "variable": "b"
+                                              },
+                                              "inputs": {}
+                                            }
+                                          },
+                                          "mutation": "<mutation computed=\"true\"></mutation>",
+                                          "next": {
+                                            "id": "knpc-49",
+                                            "type": "_object_set",
+                                            "fields": {},
+                                            "inputs": {
+                                              "obj": {
+                                                "id": "knpc-46",
+                                                "type": "variables_get",
+                                                "fields": {
+                                                  "variable": "b"
+                                                },
+                                                "inputs": {}
+                                              },
+                                              "key": {
+                                                "id": "knpc-47",
+                                                "type": "math_number",
+                                                "fields": {
+                                                  "NUM": "1"
+                                                },
+                                                "inputs": {}
+                                              },
+                                              "value": {
+                                                "id": "knpc-48",
+                                                "type": "variables_get",
+                                                "fields": {
+                                                  "variable": "a"
+                                                },
+                                                "inputs": {}
+                                              }
+                                            },
+                                            "mutation": "<mutation computed=\"true\"></mutation>",
+                                            "next": {
+                                              "id": "knpc-51",
+                                              "type": "variables_set",
+                                              "fields": {
+                                                "variable": "b"
+                                              },
+                                              "inputs": {
+                                                "value": {
+                                                  "id": "knpc-50",
+                                                  "type": "variables_get",
+                                                  "fields": {
+                                                    "variable": "a"
+                                                  },
+                                                  "inputs": {}
+                                                }
+                                              },
+                                              "next": {
+                                                "id": "knpc-54",
+                                                "type": "variables_set",
+                                                "fields": {
+                                                  "variable": "mutual_number"
+                                                },
+                                                "inputs": {
+                                                  "value": {
+                                                    "id": "knpc-53",
+                                                    "type": "convert_type",
+                                                    "fields": {
+                                                      "type": "number"
+                                                    },
+                                                    "inputs": {
+                                                      "text": {
+                                                        "id": "knpc-52",
+                                                        "type": "variables_get",
+                                                        "fields": {
+                                                          "variable": "b"
+                                                        },
+                                                        "inputs": {}
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                "next": {
+                                                  "id": "knpc-57",
+                                                  "type": "variables_set",
+                                                  "fields": {
+                                                    "variable": "mutual_string"
+                                                  },
+                                                  "inputs": {
+                                                    "value": {
+                                                      "id": "knpc-56",
+                                                      "type": "convert_type",
+                                                      "fields": {
+                                                        "type": "string"
+                                                      },
+                                                      "inputs": {
+                                                        "text": {
+                                                          "id": "knpc-55",
+                                                          "type": "variables_get",
+                                                          "fields": {
+                                                            "variable": "b"
+                                                          },
+                                                          "inputs": {}
+                                                        }
+                                                      }
+                                                    }
+                                                  },
+                                                  "next": {
+                                                    "id": "knpc-60",
+                                                    "type": "variables_set",
+                                                    "fields": {
+                                                      "variable": "mutual_boolean"
+                                                    },
+                                                    "inputs": {
+                                                      "value": {
+                                                        "id": "knpc-59",
+                                                        "type": "convert_type",
+                                                        "fields": {
+                                                          "type": "boolean"
+                                                        },
+                                                        "inputs": {
+                                                          "text": {
+                                                            "id": "knpc-58",
+                                                            "type": "variables_get",
+                                                            "fields": {
+                                                              "variable": "b"
+                                                            },
+                                                            "inputs": {}
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    "next": {
+                                                      "id": "knpc-63",
+                                                      "type": "variables_set",
+                                                      "fields": {
+                                                        "variable": "a"
+                                                      },
+                                                      "inputs": {
+                                                        "value": {
+                                                          "id": "knpc-62",
+                                                          "type": "_array_literal",
+                                                          "fields": {},
+                                                          "inputs": {
+                                                            "items0": {
+                                                              "id": "knpc-61",
+                                                              "type": "math_number",
+                                                              "fields": {
+                                                                "NUM": "7"
+                                                              },
+                                                              "inputs": {}
+                                                            }
+                                                          },
+                                                          "mutation": "<mutation items=\"1\"></mutation>"
+                                                        }
+                                                      },
+                                                      "next": {
+                                                        "id": "knpc-67",
+                                                        "type": "variables_set",
+                                                        "fields": {
+                                                          "variable": "b"
+                                                        },
+                                                        "inputs": {
+                                                          "value": {
+                                                            "id": "knpc-66",
+                                                            "type": "_array_literal",
+                                                            "fields": {},
+                                                            "inputs": {
+                                                              "items0": {
+                                                                "id": "knpc-64",
+                                                                "type": "variables_get",
+                                                                "fields": {
+                                                                  "variable": "a"
+                                                                },
+                                                                "inputs": {}
+                                                              },
+                                                              "items1": {
+                                                                "id": "knpc-65",
+                                                                "type": "variables_get",
+                                                                "fields": {
+                                                                  "variable": "a"
+                                                                },
+                                                                "inputs": {}
+                                                              }
+                                                            },
+                                                            "mutation": "<mutation items=\"2\"></mutation>"
+                                                          }
+                                                        },
+                                                        "next": {
+                                                          "id": "knpc-69",
+                                                          "type": "variables_set",
+                                                          "fields": {
+                                                            "variable": "b"
+                                                          },
+                                                          "inputs": {
+                                                            "value": {
+                                                              "id": "knpc-68",
+                                                              "type": "variables_get",
+                                                              "fields": {
+                                                                "variable": "b"
+                                                              },
+                                                              "inputs": {}
+                                                            }
+                                                          },
+                                                          "next": {
+                                                            "id": "knpc-72",
+                                                            "type": "variables_set",
+                                                            "fields": {
+                                                              "variable": "shared_number"
+                                                            },
+                                                            "inputs": {
+                                                              "value": {
+                                                                "id": "knpc-71",
+                                                                "type": "convert_type",
+                                                                "fields": {
+                                                                  "type": "number"
+                                                                },
+                                                                "inputs": {
+                                                                  "text": {
+                                                                    "id": "knpc-70",
+                                                                    "type": "variables_get",
+                                                                    "fields": {
+                                                                      "variable": "b"
+                                                                    },
+                                                                    "inputs": {}
+                                                                  }
+                                                                }
+                                                              }
+                                                            },
+                                                            "next": {
+                                                              "id": "knpc-75",
+                                                              "type": "variables_set",
+                                                              "fields": {
+                                                                "variable": "shared_string"
+                                                              },
+                                                              "inputs": {
+                                                                "value": {
+                                                                  "id": "knpc-74",
+                                                                  "type": "convert_type",
+                                                                  "fields": {
+                                                                    "type": "string"
+                                                                  },
+                                                                  "inputs": {
+                                                                    "text": {
+                                                                      "id": "knpc-73",
+                                                                      "type": "variables_get",
+                                                                      "fields": {
+                                                                        "variable": "b"
+                                                                      },
+                                                                      "inputs": {}
+                                                                    }
+                                                                  }
+                                                                }
+                                                              },
+                                                              "next": {
+                                                                "id": "knpc-78",
+                                                                "type": "variables_set",
+                                                                "fields": {
+                                                                  "variable": "shared_boolean"
+                                                                },
+                                                                "inputs": {
+                                                                  "value": {
+                                                                    "id": "knpc-77",
+                                                                    "type": "convert_type",
+                                                                    "fields": {
+                                                                      "type": "boolean"
+                                                                    },
+                                                                    "inputs": {
+                                                                      "text": {
+                                                                        "id": "knpc-76",
+                                                                        "type": "variables_get",
+                                                                        "fields": {
+                                                                          "variable": "b"
+                                                                        },
+                                                                        "inputs": {}
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                },
+                                                                "next": {
+                                                                  "id": "knpc-82",
+                                                                  "type": "variables_set",
+                                                                  "fields": {
+                                                                    "variable": "a"
+                                                                  },
+                                                                  "inputs": {
+                                                                    "value": {
+                                                                      "id": "knpc-81",
+                                                                      "type": "_object_literal",
+                                                                      "fields": {},
+                                                                      "inputs": {
+                                                                        "key0": {
+                                                                          "id": "knpc-80",
+                                                                          "type": "text",
+                                                                          "fields": {
+                                                                            "TEXT": "x"
+                                                                          },
+                                                                          "inputs": {}
+                                                                        },
+                                                                        "value0": {
+                                                                          "id": "knpc-79",
+                                                                          "type": "math_number",
+                                                                          "fields": {
+                                                                            "NUM": "1"
+                                                                          },
+                                                                          "inputs": {}
+                                                                        }
+                                                                      },
+                                                                      "mutation": "<mutation items=\"1\"></mutation>"
+                                                                    }
+                                                                  },
+                                                                  "next": {
+                                                                    "id": "knpc-86",
+                                                                    "type": "_object_set",
+                                                                    "fields": {},
+                                                                    "inputs": {
+                                                                      "obj": {
+                                                                        "id": "knpc-83",
+                                                                        "type": "variables_get",
+                                                                        "fields": {
+                                                                          "variable": "a"
+                                                                        },
+                                                                        "inputs": {}
+                                                                      },
+                                                                      "key": {
+                                                                        "id": "knpc-84",
+                                                                        "type": "text",
+                                                                        "fields": {
+                                                                          "TEXT": "self"
+                                                                        },
+                                                                        "inputs": {}
+                                                                      },
+                                                                      "value": {
+                                                                        "id": "knpc-85",
+                                                                        "type": "variables_get",
+                                                                        "fields": {
+                                                                          "variable": "a"
+                                                                        },
+                                                                        "inputs": {}
+                                                                      }
+                                                                    },
+                                                                    "mutation": "<mutation computed=\"true\"></mutation>",
+                                                                    "next": {
+                                                                      "id": "knpc-88",
+                                                                      "type": "variables_set",
+                                                                      "fields": {
+                                                                        "variable": "b"
+                                                                      },
+                                                                      "inputs": {
+                                                                        "value": {
+                                                                          "id": "knpc-87",
+                                                                          "type": "variables_get",
+                                                                          "fields": {
+                                                                            "variable": "a"
+                                                                          },
+                                                                          "inputs": {}
+                                                                        }
+                                                                      },
+                                                                      "next": {
+                                                                        "id": "knpc-91",
+                                                                        "type": "variables_set",
+                                                                        "fields": {
+                                                                          "variable": "object_cycle_number"
+                                                                        },
+                                                                        "inputs": {
+                                                                          "value": {
+                                                                            "id": "knpc-90",
+                                                                            "type": "convert_type",
+                                                                            "fields": {
+                                                                              "type": "number"
+                                                                            },
+                                                                            "inputs": {
+                                                                              "text": {
+                                                                                "id": "knpc-89",
+                                                                                "type": "variables_get",
+                                                                                "fields": {
+                                                                                  "variable": "b"
+                                                                                },
+                                                                                "inputs": {}
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        },
+                                                                        "next": {
+                                                                          "id": "knpc-94",
+                                                                          "type": "variables_set",
+                                                                          "fields": {
+                                                                            "variable": "object_cycle_string"
+                                                                          },
+                                                                          "inputs": {
+                                                                            "value": {
+                                                                              "id": "knpc-93",
+                                                                              "type": "convert_type",
+                                                                              "fields": {
+                                                                                "type": "string"
+                                                                              },
+                                                                              "inputs": {
+                                                                                "text": {
+                                                                                  "id": "knpc-92",
+                                                                                  "type": "variables_get",
+                                                                                  "fields": {
+                                                                                    "variable": "b"
+                                                                                  },
+                                                                                  "inputs": {}
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          },
+                                                                          "next": {
+                                                                            "id": "knpc-97",
+                                                                            "type": "variables_set",
+                                                                            "fields": {
+                                                                              "variable": "object_cycle_boolean"
+                                                                            },
+                                                                            "inputs": {
+                                                                              "value": {
+                                                                                "id": "knpc-96",
+                                                                                "type": "convert_type",
+                                                                                "fields": {
+                                                                                  "type": "boolean"
+                                                                                },
+                                                                                "inputs": {
+                                                                                  "text": {
+                                                                                    "id": "knpc-95",
+                                                                                    "type": "variables_get",
+                                                                                    "fields": {
+                                                                                      "variable": "b"
+                                                                                    },
+                                                                                    "inputs": {}
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            },
+                                                                            "next": {
+                                                                              "id": "knpc-100",
+                                                                              "type": "variables_set",
+                                                                              "fields": {
+                                                                                "variable": "b"
+                                                                              },
+                                                                              "inputs": {
+                                                                                "value": {
+                                                                                  "id": "knpc-99",
+                                                                                  "type": "_array_literal",
+                                                                                  "fields": {},
+                                                                                  "inputs": {
+                                                                                    "items0": {
+                                                                                      "id": "knpc-98",
+                                                                                      "type": "variables_get",
+                                                                                      "fields": {
+                                                                                        "variable": "a"
+                                                                                      },
+                                                                                      "inputs": {}
+                                                                                    }
+                                                                                  },
+                                                                                  "mutation": "<mutation items=\"1\"></mutation>"
+                                                                                }
+                                                                              },
+                                                                              "next": {
+                                                                                "id": "knpc-103",
+                                                                                "type": "variables_set",
+                                                                                "fields": {
+                                                                                  "variable": "array_object_number"
+                                                                                },
+                                                                                "inputs": {
+                                                                                  "value": {
+                                                                                    "id": "knpc-102",
+                                                                                    "type": "convert_type",
+                                                                                    "fields": {
+                                                                                      "type": "number"
+                                                                                    },
+                                                                                    "inputs": {
+                                                                                      "text": {
+                                                                                        "id": "knpc-101",
+                                                                                        "type": "variables_get",
+                                                                                        "fields": {
+                                                                                          "variable": "b"
+                                                                                        },
+                                                                                        "inputs": {}
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                },
+                                                                                "next": {
+                                                                                  "id": "knpc-106",
+                                                                                  "type": "variables_set",
+                                                                                  "fields": {
+                                                                                    "variable": "array_object_string"
+                                                                                  },
+                                                                                  "inputs": {
+                                                                                    "value": {
+                                                                                      "id": "knpc-105",
+                                                                                      "type": "convert_type",
+                                                                                      "fields": {
+                                                                                        "type": "string"
+                                                                                      },
+                                                                                      "inputs": {
+                                                                                        "text": {
+                                                                                          "id": "knpc-104",
+                                                                                          "type": "variables_get",
+                                                                                          "fields": {
+                                                                                            "variable": "b"
+                                                                                          },
+                                                                                          "inputs": {}
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  },
+                                                                                  "next": {
+                                                                                    "id": "knpc-109",
+                                                                                    "type": "variables_set",
+                                                                                    "fields": {
+                                                                                      "variable": "array_object_boolean"
+                                                                                    },
+                                                                                    "inputs": {
+                                                                                      "value": {
+                                                                                        "id": "knpc-108",
+                                                                                        "type": "convert_type",
+                                                                                        "fields": {
+                                                                                          "type": "boolean"
+                                                                                        },
+                                                                                        "inputs": {
+                                                                                          "text": {
+                                                                                            "id": "knpc-107",
+                                                                                            "type": "variables_get",
+                                                                                            "fields": {
+                                                                                              "variable": "b"
+                                                                                            },
+                                                                                            "inputs": {}
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    },
+                                                                                    "next": {
+                                                                                      "id": "knpc-115",
+                                                                                      "type": "variables_set",
+                                                                                      "fields": {
+                                                                                        "variable": "a"
+                                                                                      },
+                                                                                      "inputs": {
+                                                                                        "value": {
+                                                                                          "id": "knpc-114",
+                                                                                          "type": "_object_literal",
+                                                                                          "fields": {},
+                                                                                          "inputs": {
+                                                                                            "key0": {
+                                                                                              "id": "knpc-112",
+                                                                                              "type": "text",
+                                                                                              "fields": {
+                                                                                                "TEXT": "valueOf"
+                                                                                              },
+                                                                                              "inputs": {}
+                                                                                            },
+                                                                                            "value0": {
+                                                                                              "id": "knpc-110",
+                                                                                              "type": "text",
+                                                                                              "fields": {
+                                                                                                "TEXT": "17"
+                                                                                              },
+                                                                                              "inputs": {}
+                                                                                            },
+                                                                                            "key1": {
+                                                                                              "id": "knpc-113",
+                                                                                              "type": "text",
+                                                                                              "fields": {
+                                                                                                "TEXT": "constructor"
+                                                                                              },
+                                                                                              "inputs": {}
+                                                                                            },
+                                                                                            "value1": {
+                                                                                              "id": "knpc-111",
+                                                                                              "type": "math_number",
+                                                                                              "fields": {
+                                                                                                "NUM": "2"
+                                                                                              },
+                                                                                              "inputs": {}
+                                                                                            }
+                                                                                          },
+                                                                                          "mutation": "<mutation items=\"2\"></mutation>"
+                                                                                        }
+                                                                                      },
+                                                                                      "next": {
+                                                                                        "id": "knpc-117",
+                                                                                        "type": "variables_set",
+                                                                                        "fields": {
+                                                                                          "variable": "b"
+                                                                                        },
+                                                                                        "inputs": {
+                                                                                          "value": {
+                                                                                            "id": "knpc-116",
+                                                                                            "type": "variables_get",
+                                                                                            "fields": {
+                                                                                              "variable": "a"
+                                                                                            },
+                                                                                            "inputs": {}
+                                                                                          }
+                                                                                        },
+                                                                                        "next": {
+                                                                                          "id": "knpc-120",
+                                                                                          "type": "variables_set",
+                                                                                          "fields": {
+                                                                                            "variable": "object_shadow_valueof_number"
+                                                                                          },
+                                                                                          "inputs": {
+                                                                                            "value": {
+                                                                                              "id": "knpc-119",
+                                                                                              "type": "convert_type",
+                                                                                              "fields": {
+                                                                                                "type": "number"
+                                                                                              },
+                                                                                              "inputs": {
+                                                                                                "text": {
+                                                                                                  "id": "knpc-118",
+                                                                                                  "type": "variables_get",
+                                                                                                  "fields": {
+                                                                                                    "variable": "b"
+                                                                                                  },
+                                                                                                  "inputs": {}
+                                                                                                }
+                                                                                              }
+                                                                                            }
+                                                                                          },
+                                                                                          "next": {
+                                                                                            "id": "knpc-123",
+                                                                                            "type": "variables_set",
+                                                                                            "fields": {
+                                                                                              "variable": "object_shadow_valueof_string"
+                                                                                            },
+                                                                                            "inputs": {
+                                                                                              "value": {
+                                                                                                "id": "knpc-122",
+                                                                                                "type": "convert_type",
+                                                                                                "fields": {
+                                                                                                  "type": "string"
+                                                                                                },
+                                                                                                "inputs": {
+                                                                                                  "text": {
+                                                                                                    "id": "knpc-121",
+                                                                                                    "type": "variables_get",
+                                                                                                    "fields": {
+                                                                                                      "variable": "b"
+                                                                                                    },
+                                                                                                    "inputs": {}
+                                                                                                  }
+                                                                                                }
+                                                                                              }
+                                                                                            },
+                                                                                            "next": {
+                                                                                              "id": "knpc-126",
+                                                                                              "type": "variables_set",
+                                                                                              "fields": {
+                                                                                                "variable": "object_shadow_valueof_boolean"
+                                                                                              },
+                                                                                              "inputs": {
+                                                                                                "value": {
+                                                                                                  "id": "knpc-125",
+                                                                                                  "type": "convert_type",
+                                                                                                  "fields": {
+                                                                                                    "type": "boolean"
+                                                                                                  },
+                                                                                                  "inputs": {
+                                                                                                    "text": {
+                                                                                                      "id": "knpc-124",
+                                                                                                      "type": "variables_get",
+                                                                                                      "fields": {
+                                                                                                        "variable": "b"
+                                                                                                      },
+                                                                                                      "inputs": {}
+                                                                                                    }
+                                                                                                  }
+                                                                                                }
+                                                                                              },
+                                                                                              "next": {
+                                                                                                "id": "knpc-129",
+                                                                                                "type": "variables_set",
+                                                                                                "fields": {
+                                                                                                  "variable": "a"
+                                                                                                },
+                                                                                                "inputs": {
+                                                                                                  "value": {
+                                                                                                    "id": "knpc-128",
+                                                                                                    "type": "math_number",
+                                                                                                    "fields": {
+                                                                                                      "NUM": "0"
+                                                                                                    },
+                                                                                                    "inputs": {}
+                                                                                                  }
+                                                                                                },
+                                                                                                "next": {
+                                                                                                  "id": "knpc-131",
+                                                                                                  "type": "variables_set",
+                                                                                                  "fields": {
+                                                                                                    "variable": "b"
+                                                                                                  },
+                                                                                                  "inputs": {
+                                                                                                    "value": {
+                                                                                                      "id": "knpc-130",
+                                                                                                      "type": "math_number",
+                                                                                                      "fields": {
+                                                                                                        "NUM": "0"
+                                                                                                      },
+                                                                                                      "inputs": {}
+                                                                                                    }
+                                                                                                  },
+                                                                                                  "next": {
+                                                                                                    "id": "knpc-133",
+                                                                                                    "type": "variables_set",
+                                                                                                    "fields": {
+                                                                                                      "variable": "done"
+                                                                                                    },
+                                                                                                    "inputs": {
+                                                                                                      "value": {
+                                                                                                        "id": "knpc-132",
+                                                                                                        "type": "math_number",
+                                                                                                        "fields": {
+                                                                                                          "NUM": "1"
+                                                                                                        },
+                                                                                                        "inputs": {}
+                                                                                                      }
+                                                                                                    }
+                                                                                                  }
+                                                                                                }
+                                                                                              }
+                                                                                            }
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "comments": {},
+        "sceneId": "nekoc-scene-main"
+      }
+    }
+  },
+  "styles": {
+    "stylesDict": {
+      "nekoc-background": {
+        "id": "nekoc-background",
+        "name": "Background",
+        "url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='562'%3E%3Crect width='900' height='562' fill='white'/%3E%3C/svg%3E"
+      },
+      "nekoc-costume": {
+        "id": "nekoc-costume",
+        "name": "Sprite",
+        "url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Ccircle cx='20' cy='20' r='18' fill='rgb(96,143,238)'/%3E%3C/svg%3E",
+        "centerPoint": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    }
+  },
+  "variables": {
+    "variablesDict": {
+      "a": {
+        "id": "a",
+        "name": "a",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "b": {
+        "id": "b",
+        "name": "b",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "done": {
+        "id": "done",
+        "name": "done",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "self_number": {
+        "id": "self_number",
+        "name": "self_number",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "self_string": {
+        "id": "self_string",
+        "name": "self_string",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "self_boolean": {
+        "id": "self_boolean",
+        "name": "self_boolean",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "self_tail_number": {
+        "id": "self_tail_number",
+        "name": "self_tail_number",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "self_tail_string": {
+        "id": "self_tail_string",
+        "name": "self_tail_string",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "self_tail_boolean": {
+        "id": "self_tail_boolean",
+        "name": "self_tail_boolean",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "mutual_number": {
+        "id": "mutual_number",
+        "name": "mutual_number",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "mutual_string": {
+        "id": "mutual_string",
+        "name": "mutual_string",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "mutual_boolean": {
+        "id": "mutual_boolean",
+        "name": "mutual_boolean",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "shared_number": {
+        "id": "shared_number",
+        "name": "shared_number",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "shared_string": {
+        "id": "shared_string",
+        "name": "shared_string",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "shared_boolean": {
+        "id": "shared_boolean",
+        "name": "shared_boolean",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "object_cycle_number": {
+        "id": "object_cycle_number",
+        "name": "object_cycle_number",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "object_cycle_string": {
+        "id": "object_cycle_string",
+        "name": "object_cycle_string",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "object_cycle_boolean": {
+        "id": "object_cycle_boolean",
+        "name": "object_cycle_boolean",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "array_object_number": {
+        "id": "array_object_number",
+        "name": "array_object_number",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "array_object_string": {
+        "id": "array_object_string",
+        "name": "array_object_string",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "array_object_boolean": {
+        "id": "array_object_boolean",
+        "name": "array_object_boolean",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "object_shadow_valueof_number": {
+        "id": "object_shadow_valueof_number",
+        "name": "object_shadow_valueof_number",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "object_shadow_valueof_string": {
+        "id": "object_shadow_valueof_string",
+        "name": "object_shadow_valueof_string",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "object_shadow_valueof_boolean": {
+        "id": "object_shadow_valueof_boolean",
+        "name": "object_shadow_valueof_boolean",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "20000000-0000-4000-8000-000000000001",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    }
+  },
+  "broadcasts": {
+    "broadcastsDict": {
+      "nekoc-scene-main": []
+    }
+  },
+  "procedures": {
+    "proceduresDict": {}
+  },
+  "audios": {
+    "audiosDict": {},
+    "sortList": [],
+    "currentAudioId": ""
+  },
+  "hidden_toolbox": {
+    "toolbox": [],
+    "blocks": [],
+    "forcibleShowBlocks": [],
+    "isCombine": false
+  },
+  "courseMaterials": {
+    "courseMaterialsDict": {},
+    "sortList": []
+  },
+  "previewUrl": ""
+}

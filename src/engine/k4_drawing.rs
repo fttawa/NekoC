@@ -1,6 +1,16 @@
 //! Fixed K4 Tn6a pen/stamp domain rules, separate from KN coercion and limits.
 use super::{Cell, Engine, TextAlign, TextStamp};
 
+/// Render state at the synchronous scene-switch boundary, not the preceding
+/// presented frame. Only attached to K4 transitions; KN's wire data is unchanged.
+#[derive(Clone, Debug, serde::Serialize)]
+pub struct TransitionScene {
+    scene: String,
+    sprites: Vec<super::Sprite>,
+    order: Vec<String>,
+    pen_layer: usize,
+}
+
 #[derive(Clone, Copy, Debug)]
 pub(super) enum Command {
     Text {
@@ -23,7 +33,71 @@ pub(super) fn transition_kind(kind: &str, direction: &str) -> String {
     }
 }
 
+/// Offline deterministic adapter for a1xw/Et's independent animation clock.
+/// Completion runs after an update's screenshot/ticker; activation scripts run
+/// in the following update. Unknown names have no tween and never complete.
+pub(super) struct SceneActivation {
+    pub target: usize,
+    start: f64,
+    duration: Option<f64>,
+}
+impl SceneActivation {
+    pub fn new(target: usize, kind: &str, start: f64) -> Self {
+        let duration = match kind {
+            "fade_in_out" | "slide_up" | "slide_down" | "slide_left" | "slide_right" => Some(0.5),
+            "bounce_up" | "bounce_down" | "bounce_left" | "bounce_right" => Some(1.0),
+            "distort" => Some(0.6),
+            _ => None,
+        };
+        Self {
+            target,
+            start,
+            duration,
+        }
+    }
+    pub fn completed(&self, now: f64) -> bool {
+        // Roundoff of cumulative f64 dt must not turn an exact endpoint into
+        // the strict `elapsed > duration` completion sample.
+        self.duration.is_some_and(|d| now - self.start > d + 1e-12)
+    }
+}
+
 impl Engine {
+    pub(super) fn transition_scene(&self, scene: usize) -> TransitionScene {
+        let sprites = self
+            .sprites
+            .iter()
+            .filter(|a| a.alive && a.scene == scene)
+            .map(|a| {
+                let mut drawn = a.clone_for_frame();
+                drawn.direction -= self.program.costume_turn;
+                if ![a.x, a.y, a.direction, a.scale, a.size_x, a.size_y]
+                    .iter()
+                    .all(|v| v.is_finite())
+                {
+                    drawn.visible = false;
+                }
+                if a.flip_x {
+                    drawn.size_x = -drawn.size_x;
+                }
+                if a.flip_y {
+                    drawn.size_y = -drawn.size_y;
+                }
+                drawn
+            })
+            .collect();
+        TransitionScene {
+            scene: self.program.scenes[scene].id.clone(),
+            sprites,
+            order: self
+                .order
+                .iter()
+                .map(|&i| self.sprites[i].id.clone())
+                .collect(),
+            pen_layer: self.pen_layer,
+        }
+    }
+
     /// Rt.set_pen_down tests both stored coordinates for JS truthiness. With
     /// either coordinate zero a repeated pen-down draws another dot; away from
     /// the axes it is idempotent. A down brush's stored origin is its position.

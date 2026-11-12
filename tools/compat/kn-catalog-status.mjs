@@ -70,16 +70,7 @@ const risks = {
   open_hide_camera: "仅从未开启 profile 的 turn_off；turn_on 明确拒绝，摄像设备未实现",
   open_close_webcam: "仅从未开启 profile 的 turn_off；turn_on 明确拒绝，摄像设备未实现",
   voice_recognition: "仅未登录提前返回与宿主提示；真实权限/识别/登录 UI 未实现",
-  appearance_of_sprite: "已实现独立横纵百分比与官方两位舍入；文本 costume 特殊缩放及全部错误路径未验证",
   get_orientation: "官方 desktop 无设备分支实测为 numeric 0；仍未接入移动端设备倾斜，固定值不算传感器支持",
-  mouse_down: "已区分屏幕/当前实例/命名角色及克隆并保留布尔类型；非法目标编译期拒绝，完整事件顺序未验证",
-  self_dialog_wait: "官方实际为无限时非阻塞气泡；已补可见性/空文本/截断，跨场景及并发 timed 气泡取消未验证",
-  get_clone_index_property: "已补命名宽高/方向/造型属性；历史数字属性码与特效重叠及其他属性未完整验证",
-  convert_type: "已按63条官方观测补齐列表/null/undefined/普通对象与boolean目标；警告UI、自定义原型及循环值未验证",
-  setTimeout: "按官方 0.27.4 原生实测丢弃 callback statement，只调度空回调；通用 JS function 回调未实现，墙钟精度未验证",
-  setInterval: "按官方 0.27.4 原生实测丢弃 callback statement，只调度空回调；通用 JS function 回调未实现，墙钟精度未验证",
-  clearTimeout: "取消尚未派发的定时器；浏览器 timer ID 数值不保证相同",
-  clearInterval: "取消尚未派发的定时器；浏览器 timer ID 数值不保证相同",
   username_get: "仅无账户后端 profile：官方未登录文本；已登录用户未实现",
   user_id_get: "仅无账户后端 profile：官方未登录返回字符串 0；已登录用户未实现",
   get_voice_answer: "仅未开始识别的初始空文本；麦克风、权限与识别后端未实现",
@@ -117,8 +108,19 @@ const risks = {
   get_robot_master_motor_power: "仅空硬件 Map 时同步 numeric NaN；真实电机与未连接提示 UI 未实现",
   get_robot_master_infrared_sensor_distance: "仅空硬件 Map 时同步 numeric NaN；真实红外与未连接提示 UI 未实现",
   get_robot2_master_motor_power: "仅空硬件 Map 时同步 numeric NaN；真实电机与未连接提示 UI 未实现",
+  get_voice_volume: "仅默认权限 pending、拒绝 0、显式停用录音 NaN 与可选浏览器采样；每次读等待下一 update，真实无设备错误与完整平台差异未验证",
 };
 const limitations = {
+  convert_type: "常见类型/空值/列表对象的官方0.27.4主路径配对，见 docs/kn-partial2-timers.md；未验证边界：callable原型、Symbol、稀疏数组、孤立UTF-16及错误UI",
+  setTimeout: "官方0.27.4原生注册主路径配对，见 docs/kn-partial2-timers.md；callback statement被官方丢弃，不宣称JS闭包支持；未验证边界：墙钟精度、后台节流及跨场景生命周期",
+  setInterval: "官方0.27.4原生注册主路径配对，见 docs/kn-partial2-timers.md；callback statement被官方丢弃，不宣称JS闭包支持；未验证边界：墙钟精度、后台节流及跨场景生命周期",
+  clearTimeout: "官方0.27.4原生取消主路径配对，见 docs/kn-partial2-timers.md；未验证边界：浏览器句柄数值一致性及真实function回调竞争",
+  clearInterval: "官方0.27.4原生取消主路径配对，见 docs/kn-partial2-timers.md；未验证边界：浏览器句柄数值一致性及真实function回调竞争",
+  appearance_of_sprite: "普通角色缩放官方0.27.4主路径配对，见 docs/kn-partial2-appearance.md；未验证边界：文本costume特殊缩放、全部错误及渲染路径",
+  get_sprite_property: "官方代码API属性映射主路径验证，见 docs/kn-partial2-appearance.md；没有同名注册积木；未验证边界：全部错误、文本造型及跨场景",
+  self_dialog_wait: "官方0.27.4原生非阻塞无限时气泡主路径配对，见 docs/kn-partial2-appearance.md；未验证边界：跨场景、并发timed气泡取消及像素排版",
+  mouse_down: "官方0.27.4完整原创工程/浏览器按下和无效目标实测见 docs/kn-partial.md；非法目标返回false，触摸/失焦及完整事件顺序未验证",
+  get_clone_index_property: "官方0.27.4原创工程覆盖0..6特效、命名属性、私有变量及严格索引；见 docs/kn-partial.md，文本造型/跨场景/删除生命周期未验证",
   __break__: "官方类型声明/API 伪名；编辑器实际积木为 break。此分派仅为兼容输入，非同名积木支持",
   script_variables_set: "官方代码 API，非注册积木；原生作品用 variables_set + 脚本变量 JSON。兼容别名参照 HateNeko",
   change_script_variables: "官方代码 API，非注册积木；官方 JS→XML 存在赋值转换异常，本地兼容别名未模拟该缺陷",
@@ -168,16 +170,17 @@ export function inventory(root, reference, engineSource) {
     types.map(type => [type, category]));
   const panelCategories = new Map(panelRows);
   // Exact measured remaining-hardware sets, not a prefix-based compatibility
-  // fallback. Promise settlement and event metadata are not VM execution paths.
+  // fallback. These restrictions do not by themselves establish VM paths.
   const micro = JSON.parse(fs.readFileSync(path.join(root, "docs/kn-hardware-remaining-evidence.json"), "utf8"));
   const other = JSON.parse(fs.readFileSync(path.join(root, "docs/kn-other-hardware-evidence.json"), "utf8"));
   const hardwareLimits = new Map([
     ...micro.blocks.filter(b => b.inCatalog && b.classification.startsWith("unsupported-")).map(b =>
-      [b.name, b.kind === "event" ? "官方事件规格仍存在；缺少原生派发/调度证据，保留缺失；空 Map 自然通知无来源，不认证全局不可达" :
-        "官方无连接仍返回 Promise；原生 await/调度未验证，保留缺失，不折叠成同步常量或 no-op"]),
+      [b.name, b.kind === "event" ? "仅无硬件后端时注册休眠事件并验证事件体；自然设备事件不触发，真实派发未实现" :
+        b.kind === "reporter" ? "仅无连接 Promise 兑现为 numeric NaN；子表达式逐次跨 update 恢复，真实传感器未实现，复杂过程/调度组合未验证" :
+        "仅无连接 Promise 早退，求值输入后下一 update 继续；真实设备未实现，完整微任务/调度组合未验证"]),
     ...other.editor.panels.filter(b => b.kind !== "reporter").map(b =>
-      [b.name, b.kind === "event" ? "官方事件规格仍存在；缺少原生派发/调度证据，保留缺失，不认证全局不可达" :
-        "官方无连接仍返回 Promise；原生 await/调度未验证，保留缺失，不折叠成同步 no-op"]),
+      [b.name, b.kind === "event" ? "仅无硬件后端时注册休眠事件并验证事件体；自然设备事件不触发，真实派发未实现" :
+        "仅无连接 Promise 早退，求值输入后下一 update 继续；真实设备未实现，完整微任务/调度组合未验证"]),
   ]);
   if (panel.catalogSha256 !== catalogSha256 || panelRows.length !== catalogTypes.length ||
       panelCategories.size !== catalogTypes.length ||
@@ -231,10 +234,10 @@ export function inventory(root, reference, engineSource) {
     const referenceFunctions = lua.filter(([, source]) => source.includes(`M.${type}`))
       .map(([file]) => path.relative(reference, file).replaceAll("\\", "/"));
     const metadata = ["procedures_2_defnoreturn", "traverse_number_param"].includes(type);
-    const status = !vm.length ? "缺失" : metadata ? "元数据" : type === "get_orientation" ? "固定值占位" : risks[type] ? "部分语义" : statuses[0];
+    const status = !vm.length ? "缺失" : metadata ? "元数据" : type === "get_orientation" ? "固定值占位" : risks[type] || hardwareLimits.has(type) ? "部分语义" : statuses[0];
     const tests = testSources.filter(([, source]) => source.includes(`"${type}"`))
       .map(([file]) => path.relative(root, file).replaceAll("\\", "/"));
-    return { type, status, risk: risks[type] ?? limitations[type] ?? (vm.length ? "显式路径仅证明会编译；全部字段、选项、错误与官方行为尚未逐项验证" : hardwareLimits.get(type) ?? missingReason(type)),
+    return { type, status, risk: risks[type] ?? limitations[type] ?? hardwareLimits.get(type) ?? (vm.length ? "显式路径仅证明会编译；全部字段、选项、错误与官方行为尚未逐项验证" : missingReason(type)),
       occurrences: frequencies.get(type) ?? 0, event: eventTypes.has(type), tests,
       vm, compiler: "src/bcmkn_compiler.rs::build_nested_block (generic field-preserving import)",
       reference: referenceFunctions, officialCategory: panelCategories.get(type),
@@ -280,9 +283,12 @@ export function coverageMarkdown(result) {
     "- 第三轮常用外观/对白与鼠标目标的修复见 [kn-appearance-dialog.md](kn-appearance-dialog.md)、[kn-pointer.md](kn-pointer.md)；新增 AI/OCR/检测查询仅是 [kn-offline-round3.md](kn-offline-round3.md) 的官方空缓存分支，不实现获取命令或实际后端。microbit map 的无连接 NaN 分支见 [kn-microbit-map.md](kn-microbit-map.md)，不能把它当作无条件数学映射。",
     "- 第四轮常用类型转换的63条官方带类型观测及边界见 [kn-conversion.md](kn-conversion.md)；完整工程警告 UI、自定义原型和循环值仍未验证。",
     "- 第四轮6个新增microbit同步查询只覆盖 [kn-hardware.md](kn-hardware.md) 的官方无连接分支；37条官方局部调用含已有map，不代表真实硬件或完整原生工程调度支持。",
-    "- 第四轮已逐项核对300名称的官方面板/注册/扩展配置，见 [kn-panel-audit.md](kn-panel-audit.md) 和 [kn-panel-evidence.json](kn-panel-evidence.json)。普通默认配置142、可配置默认隐藏52、嵌套动态1、已注册但本次面板未列出41、硬件扩展定义60、官方代码API/声明别名4；本轮没有足够证据认证任何名称为“非官方/已下线”（两者均0）。这套分类独立于VM状态：缺失包含1个非同名积木API，不把它伪造为可执行入口，也不拿面板分类减少VM缺失计数。",
-    "- 第五轮只处理上述两类面板可达缺失项；官方取证与严格离线/宿主边界见 [kn-panel-services.md](kn-panel-services.md)、[kn-panel-capture.md](kn-panel-capture.md)、[kn-panel-ai.md](kn-panel-ai.md)。新增分派统一保留部分语义，不把无后端早退当作成功请求；默认音量仍缺失。",
+    "- 第四轮已逐项核对300名称的官方面板/注册/扩展配置，见 [kn-panel-audit.md](kn-panel-audit.md) 和 [kn-panel-evidence.json](kn-panel-evidence.json)。普通默认配置142、可配置默认隐藏52、嵌套动态1、已注册但本次面板未列出41、硬件扩展定义60、官方代码API/声明别名4；没有足够证据认证任何名称为“非官方/已下线”（两者均0）。这套分类独立于VM状态；代码API兼容输入不意味着官方注册同名积木。",
+    "- 第五轮处理两类面板可达服务项；官方取证与严格离线/宿主边界见 [kn-panel-services.md](kn-panel-services.md)、[kn-panel-capture.md](kn-panel-capture.md)、[kn-panel-ai.md](kn-panel-ai.md)。新增分派统一保留部分语义，不把无后端早退当作成功请求。",
     "- 第六轮逐项核实原53个硬件缺失项，新增10个同步无连接路径（8 reporter、2 command），均仅空硬件 Map 的部分语义；43个 Promise/事件项仍缺失，不伪装同步执行。官方403次局部调用、127个源码锚点及41个非面板注册项的可达性复核见 [kn-hardware-remaining.md](kn-hardware-remaining.md)、[kn-other-hardware.md](kn-other-hardware.md)，实现边界见 [kn-hardware-round6.md](kn-hardware-round6.md)。41项都有现有执行/元数据路径，36项可由官方代码视图生成；其余5项可构造，不标不可达。`get_sprite_property`仍只作为代码API别名，不创建同名VM入口。",
+    "- 第七轮补齐上述45个执行入口，全部保留部分语义：43个硬件项仅无设备降级、属性API仅别名、麦克风音量经可选宿主输入。逐项官方在线取证见 [kn-remaining-official.md](kn-remaining-official.md)，实现和异步限制见 [kn-remaining.md](kn-remaining.md)。不是完整硬件支持或全类型官方一致性认证；第六轮的缺失结论是历史基线。",
+    "- 第一轮按[自有作品静态频率](kn-partial-priority.md)修转换、鼠标与克隆属性；后两项改为有执行路径／未完整验证（不是完整认证），见[原生差分及边界](kn-partial.md)。转换深层/循环列表和对象错误见[专项证据](kn-partial-conversion.md)。",
+    "- [partial第二轮](kn-partial2.md)按常见输入/空值/列表对象主路径升级8个本地项，115→107；罕见JS边界单列未验证，不再因此保留整项partial。未达到15项：其余47个非硬件服务/设备/宿主项逐项记录降级后跳过，不冒充成功路径；60个硬件项仍保留部分语义。",
     "- 官方 bundle：`https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js`；SHA-256 `58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165`。`_execute` byte 2962264 是空函数；`_array_literal` byte 2962446 使用 `Object.values`。空函数不等于输入不求值，执行管线仍需单独验证。",
     "- 导入层 `src/bcmkn_compiler.rs::build_nested_block` 泛型保留 type/fields，再按连接重建 inputs/statements/next；这只能说明能装配/读取，不能证明 VM 支持。`tests/kn_gap.rs::workspace_compiler_preserves_unknown_types_without_claiming_vm_support` 专门覆盖此区别。",
     "- 实现定位只扫描 value_one、expression_one、scripts、chain 的类型分派，排除注释、字段选项、expression_inputs 遍历提示和游离根忽略名单。元数据单独列出。此静态审计不能证明每条 guard 在 KN 模式均可达，也不能替代运行测试。",

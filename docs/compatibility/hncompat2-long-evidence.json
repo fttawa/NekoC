@@ -1,0 +1,4049 @@
+{
+  "schema": "hncompat2-long-v1",
+  "runs": [
+    {
+      "source": "E:\\nekoc-wt\\hncompat2\\dist\\bench\\hncompat2-long\\actor-deleted-interpreter\\results.json",
+      "source_sha256": "e8e88a83016254284be79b7d0520851142cdae3d75199a05bd250c7a95561988",
+      "revision": "d2d277bc62f7536d77797e0a8660ef73055465dd",
+      "binary_sha256": "6645f7100b3c4f6d48f567deef969c2012f09f22827640c5c0f044607726a386",
+      "interpreter": true,
+      "binary_unchanged": true,
+      "reference": {
+        "version": "0.4.0",
+        "unchanged": true,
+        "tree_sha256": "be9a9c4936d4b7d3b83a38e128b6dd255cf418fa502e2a44e1aa87641158f74c"
+      },
+      "file": "tests/fixtures/actor-variables-deleted.bcmkn",
+      "sha256": "4d08fef4a53367e3e60615a884ee78f2a08a2cb3308548e65e024b38b5395f22",
+      "frames": 600,
+      "runs": [
+        {
+          "comparison": {
+            "equal": false,
+            "differences": [
+              {
+                "key": "state.variables.30000000-0000-4000-8000-000000000001",
+                "nekoc": null,
+                "hateneko": 5
+              },
+              {
+                "key": "state.variables.30000000-0000-4000-8000-000000000002",
+                "nekoc": null,
+                "hateneko": "other-value"
+              },
+              {
+                "key": "state.variables.afterDelete",
+                "nekoc": null,
+                "hateneko": 0
+              },
+              {
+                "key": "state.variables.cloneChanged",
+                "nekoc": 99,
+                "hateneko": 0
+              },
+              {
+                "key": "state.variables.cloneRead",
+                "nekoc": 99,
+                "hateneko": 0
+              },
+              {
+                "key": "state.variables.otherRead",
+                "nekoc": "other-value",
+                "hateneko": 0
+              }
+            ]
+          },
+          "normalization": {
+            "privateDeclarations": {
+              "30000000-0000-4000-8000-000000000001": {
+                "owner": "20000000-0000-4000-8000-000000000001",
+                "value": 5
+              },
+              "30000000-0000-4000-8000-000000000002": {
+                "owner": "20000000-0000-4000-8000-000000000002",
+                "value": "other-value"
+              }
+            },
+            "excludeVariables": []
+          },
+          "normalized_comparison": {
+            "equal": false,
+            "differences": [
+              {
+                "key": "state.variables.afterDelete",
+                "nekoc": null,
+                "hateneko": 0
+              },
+              {
+                "key": "state.variables.cloneChanged",
+                "nekoc": 99,
+                "hateneko": 0
+              },
+              {
+                "key": "state.variables.cloneRead",
+                "nekoc": 99,
+                "hateneko": 0
+              },
+              {
+                "key": "state.variables.otherRead",
+                "nekoc": "other-value",
+                "hateneko": 0
+              }
+            ]
+          },
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "expected_frames": 600,
+              "measured_frames": 600,
+              "expected_warmup": 0,
+              "measured_warmup": 0,
+              "milestone_reached": true,
+              "final_state": {
+                "current_scene_id": "nekoc-scene-main",
+                "actors": {
+                  "20000000-0000-4000-8000-000000000001": {
+                    "id": "20000000-0000-4000-8000-000000000001",
+                    "prototype_id": "20000000-0000-4000-8000-000000000001",
+                    "name": "Probe",
+                    "x": 0,
+                    "y": 0,
+                    "rotation": 90,
+                    "current_style_id": "nekoc-costume",
+                    "scale": 100,
+                    "scale_y": 100,
+                    "visible": true
+                  },
+                  "20000000-0000-4000-8000-000000000002": {
+                    "id": "20000000-0000-4000-8000-000000000002",
+                    "prototype_id": "20000000-0000-4000-8000-000000000002",
+                    "name": "Other",
+                    "x": 0,
+                    "y": 0,
+                    "rotation": 90,
+                    "current_style_id": "nekoc-costume",
+                    "scale": 100,
+                    "scale_y": 100,
+                    "visible": true
+                  }
+                },
+                "entity_variables": {
+                  "20000000-0000-4000-8000-000000000001": {
+                    "30000000-0000-4000-8000-000000000001": 41
+                  },
+                  "20000000-0000-4000-8000-000000000002": {
+                    "30000000-0000-4000-8000-000000000002": "other-value"
+                  }
+                },
+                "variables": {
+                  "afterDelete": null,
+                  "cloneChanged": 99,
+                  "cloneRead": 99,
+                  "done": 1,
+                  "inherited": 41,
+                  "original": 41,
+                  "otherRead": "other-value"
+                }
+              }
+            },
+            "hateneko": {
+              "status": "ok",
+              "errors": [],
+              "missing_primitives": [],
+              "expected_frames": 600,
+              "measured_frames": 600,
+              "expected_warmup": 0,
+              "measured_warmup": 0,
+              "milestone_reached": true,
+              "final_state": {
+                "current_scene_id": "nekoc-scene-main",
+                "actors": {
+                  "20000000-0000-4000-8000-000000000001": {
+                    "current_style_id": "nekoc-costume",
+                    "id": "20000000-0000-4000-8000-000000000001",
+                    "name": "Probe",
+                    "prototype_id": "20000000-0000-4000-8000-000000000001",
+                    "rotation": 0,
+                    "scale": 100,
+                    "scale_y": 100,
+                    "visible": true,
+                    "x": 0,
+                    "y": 0
+                  },
+                  "20000000-0000-4000-8000-000000000002": {
+                    "current_style_id": "nekoc-costume",
+                    "id": "20000000-0000-4000-8000-000000000002",
+                    "name": "Other",
+                    "prototype_id": "20000000-0000-4000-8000-000000000002",
+                    "rotation": 0,
+                    "scale": 100,
+                    "scale_y": 100,
+                    "visible": true,
+                    "x": 0,
+                    "y": 0
+                  }
+                },
+                "entity_variables": {
+                  "20000000-0000-4000-8000-000000000001": {
+                    "30000000-0000-4000-8000-000000000001": 41
+                  },
+                  "20000000-0000-4000-8000-000000000002": {
+                    "30000000-0000-4000-8000-000000000002": "other-value"
+                  }
+                },
+                "variables": {
+                  "30000000-0000-4000-8000-000000000001": 5,
+                  "30000000-0000-4000-8000-000000000002": "other-value",
+                  "afterDelete": 0,
+                  "cloneChanged": 0,
+                  "cloneRead": 0,
+                  "done": 1,
+                  "inherited": 41,
+                  "original": 41,
+                  "otherRead": 0
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "source": "E:\\nekoc-wt\\hncompat2\\dist\\bench\\hncompat2-long\\actor-deleted-jit\\results.json",
+      "source_sha256": "4a8cd0a04e98e243f1c625101dc135ebab4023110964a343946d418e76984727",
+      "revision": "d2d277bc62f7536d77797e0a8660ef73055465dd",
+      "binary_sha256": "6645f7100b3c4f6d48f567deef969c2012f09f22827640c5c0f044607726a386",
+      "interpreter": false,
+      "binary_unchanged": true,
+      "reference": {
+        "version": "0.4.0",
+        "unchanged": true,
+        "tree_sha256": "be9a9c4936d4b7d3b83a38e128b6dd255cf418fa502e2a44e1aa87641158f74c"
+      },
+      "file": "tests/fixtures/actor-variables-deleted.bcmkn",
+      "sha256": "4d08fef4a53367e3e60615a884ee78f2a08a2cb3308548e65e024b38b5395f22",
+      "frames": 600,
+      "runs": [
+        {
+          "comparison": {
+            "equal": false,
+            "differences": [
+              {
+                "key": "state.variables.30000000-0000-4000-8000-000000000001",
+                "nekoc": null,
+                "hateneko": 5
+              },
+              {
+                "key": "state.variables.30000000-0000-4000-8000-000000000002",
+                "nekoc": null,
+                "hateneko": "other-value"
+              },
+              {
+                "key": "state.variables.afterDelete",
+                "nekoc": null,
+                "hateneko": 0
+              },
+              {
+                "key": "state.variables.cloneChanged",
+                "nekoc": 99,
+                "hateneko": 0
+              },
+              {
+                "key": "state.variables.cloneRead",
+                "nekoc": 99,
+                "hateneko": 0
+              },
+              {
+                "key": "state.variables.otherRead",
+                "nekoc": "other-value",
+                "hateneko": 0
+              }
+            ]
+          },
+          "normalization": {
+            "privateDeclarations": {
+              "30000000-0000-4000-8000-000000000001": {
+                "owner": "20000000-0000-4000-8000-000000000001",
+                "value": 5
+              },
+              "30000000-0000-4000-8000-000000000002": {
+                "owner": "20000000-0000-4000-8000-000000000002",
+                "value": "other-value"
+              }
+            },
+            "excludeVariables": []
+          },
+          "normalized_comparison": {
+            "equal": false,
+            "differences": [
+              {
+                "key": "state.variables.afterDelete",
+                "nekoc": null,
+                "hateneko": 0
+              },
+              {
+                "key": "state.variables.cloneChanged",
+                "nekoc": 99,
+                "hateneko": 0
+              },
+              {
+                "key": "state.variables.cloneRead",
+                "nekoc": 99,
+                "hateneko": 0
+              },
+              {
+                "key": "state.variables.otherRead",
+                "nekoc": "other-value",
+                "hateneko": 0
+              }
+            ]
+          },
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "expected_frames": 600,
+              "measured_frames": 600,
+              "expected_warmup": 0,
+              "measured_warmup": 0,
+              "milestone_reached": true,
+              "final_state": {
+                "current_scene_id": "nekoc-scene-main",
+                "actors": {
+                  "20000000-0000-4000-8000-000000000001": {
+                    "id": "20000000-0000-4000-8000-000000000001",
+                    "prototype_id": "20000000-0000-4000-8000-000000000001",
+                    "name": "Probe",
+                    "x": 0,
+                    "y": 0,
+                    "rotation": 90,
+                    "current_style_id": "nekoc-costume",
+                    "scale": 100,
+                    "scale_y": 100,
+                    "visible": true
+                  },
+                  "20000000-0000-4000-8000-000000000002": {
+                    "id": "20000000-0000-4000-8000-000000000002",
+                    "prototype_id": "20000000-0000-4000-8000-000000000002",
+                    "name": "Other",
+                    "x": 0,
+                    "y": 0,
+                    "rotation": 90,
+                    "current_style_id": "nekoc-costume",
+                    "scale": 100,
+                    "scale_y": 100,
+                    "visible": true
+                  }
+                },
+                "entity_variables": {
+                  "20000000-0000-4000-8000-000000000001": {
+                    "30000000-0000-4000-8000-000000000001": 41
+                  },
+                  "20000000-0000-4000-8000-000000000002": {
+                    "30000000-0000-4000-8000-000000000002": "other-value"
+                  }
+                },
+                "variables": {
+                  "afterDelete": null,
+                  "cloneChanged": 99,
+                  "cloneRead": 99,
+                  "done": 1,
+                  "inherited": 41,
+                  "original": 41,
+                  "otherRead": "other-value"
+                }
+              }
+            },
+            "hateneko": {
+              "status": "ok",
+              "errors": [],
+              "missing_primitives": [],
+              "expected_frames": 600,
+              "measured_frames": 600,
+              "expected_warmup": 0,
+              "measured_warmup": 0,
+              "milestone_reached": true,
+              "final_state": {
+                "current_scene_id": "nekoc-scene-main",
+                "actors": {
+                  "20000000-0000-4000-8000-000000000001": {
+                    "current_style_id": "nekoc-costume",
+                    "id": "20000000-0000-4000-8000-000000000001",
+                    "name": "Probe",
+                    "prototype_id": "20000000-0000-4000-8000-000000000001",
+                    "rotation": 0,
+                    "scale": 100,
+                    "scale_y": 100,
+                    "visible": true,
+                    "x": 0,
+                    "y": 0
+                  },
+                  "20000000-0000-4000-8000-000000000002": {
+                    "current_style_id": "nekoc-costume",
+                    "id": "20000000-0000-4000-8000-000000000002",
+                    "name": "Other",
+                    "prototype_id": "20000000-0000-4000-8000-000000000002",
+                    "rotation": 0,
+                    "scale": 100,
+                    "scale_y": 100,
+                    "visible": true,
+                    "x": 0,
+                    "y": 0
+                  }
+                },
+                "entity_variables": {
+                  "20000000-0000-4000-8000-000000000001": {
+                    "30000000-0000-4000-8000-000000000001": 41
+                  },
+                  "20000000-0000-4000-8000-000000000002": {
+                    "30000000-0000-4000-8000-000000000002": "other-value"
+                  }
+                },
+                "variables": {
+                  "30000000-0000-4000-8000-000000000001": 5,
+                  "30000000-0000-4000-8000-000000000002": "other-value",
+                  "afterDelete": 0,
+                  "cloneChanged": 0,
+                  "cloneRead": 0,
+                  "done": 1,
+                  "inherited": 41,
+                  "original": 41,
+                  "otherRead": 0
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "source": "E:\\nekoc-wt\\hncompat2\\dist\\bench\\hncompat2-long\\actor-interpreter\\results.json",
+      "source_sha256": "d0416a6764d590f056bd0abdfea2cb6ea36a19fd19d62363505fbb65a20f029c",
+      "revision": "d2d277bc62f7536d77797e0a8660ef73055465dd",
+      "binary_sha256": "6645f7100b3c4f6d48f567deef969c2012f09f22827640c5c0f044607726a386",
+      "interpreter": true,
+      "binary_unchanged": true,
+      "reference": {
+        "version": "0.4.0",
+        "unchanged": true,
+        "tree_sha256": "be9a9c4936d4b7d3b83a38e128b6dd255cf418fa502e2a44e1aa87641158f74c"
+      },
+      "file": "tests/fixtures/actor-variables.bcmkn",
+      "sha256": "30f98c8575790dc3ab675d924bee658aca05f7913191d3bc4e6248a555c69a08",
+      "frames": 600,
+      "runs": [
+        {
+          "comparison": {
+            "equal": false,
+            "differences": [
+              {
+                "key": "state.variables.30000000-0000-4000-8000-000000000001",
+                "nekoc": null,
+                "hateneko": 5
+              },
+              {
+                "key": "state.variables.30000000-0000-4000-8000-000000000002",
+                "nekoc": null,
+                "hateneko": "other-value"
+              },
+              {
+                "key": "state.variables.cloneChanged",
+                "nekoc": 99,
+                "hateneko": 0
+              },
+              {
+                "key": "state.variables.cloneRead",
+                "nekoc": 99,
+                "hateneko": 0
+              },
+              {
+                "key": "state.variables.otherRead",
+                "nekoc": "other-value",
+                "hateneko": 0
+              }
+            ]
+          },
+          "normalization": {
+            "privateDeclarations": {
+              "30000000-0000-4000-8000-000000000001": {
+                "owner": "20000000-0000-4000-8000-000000000001",
+                "value": 5
+              },
+              "30000000-0000-4000-8000-000000000002": {
+                "owner": "20000000-0000-4000-8000-000000000002",
+                "value": "other-value"
+              }
+            },
+            "excludeVariables": []
+          },
+          "normalized_comparison": {
+            "equal": false,
+            "differences": [
+              {
+                "key": "state.variables.cloneChanged",
+                "nekoc": 99,
+                "hateneko": 0
+              },
+              {
+                "key": "state.variables.cloneRead",
+                "nekoc": 99,
+                "hateneko": 0
+              },
+              {
+                "key": "state.variables.otherRead",
+                "nekoc": "other-value",
+                "hateneko": 0
+              }
+            ]
+          },
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "expected_frames": 600,
+              "measured_frames": 600,
+              "expected_warmup": 0,
+              "measured_warmup": 0,
+              "milestone_reached": true,
+              "final_state": {
+                "current_scene_id": "nekoc-scene-main",
+                "actors": {
+                  "20000000-0000-4000-8000-000000000001": {
+                    "id": "20000000-0000-4000-8000-000000000001",
+                    "prototype_id": "20000000-0000-4000-8000-000000000001",
+                    "name": "Probe",
+                    "x": 0,
+                    "y": 0,
+                    "rotation": 90,
+                    "current_style_id": "nekoc-costume",
+                    "scale": 100,
+                    "scale_y": 100,
+                    "visible": true
+                  },
+                  "20000000-0000-4000-8000-000000000001#1": {
+                    "id": "20000000-0000-4000-8000-000000000001#1",
+                    "prototype_id": "20000000-0000-4000-8000-000000000001",
+                    "name": "Probe",
+                    "x": 0,
+                    "y": 0,
+                    "rotation": 90,
+                    "current_style_id": "nekoc-costume",
+                    "scale": 100,
+                    "scale_y": 100,
+                    "visible": true
+                  },
+                  "20000000-0000-4000-8000-000000000002": {
+                    "id": "20000000-0000-4000-8000-000000000002",
+                    "prototype_id": "20000000-0000-4000-8000-000000000002",
+                    "name": "Other",
+                    "x": 0,
+                    "y": 0,
+                    "rotation": 90,
+                    "current_style_id": "nekoc-costume",
+                    "scale": 100,
+                    "scale_y": 100,
+                    "visible": true
+                  }
+                },
+                "entity_variables": {
+                  "20000000-0000-4000-8000-000000000001": {
+                    "30000000-0000-4000-8000-000000000001": 41
+                  },
+                  "20000000-0000-4000-8000-000000000001#1": {
+                    "30000000-0000-4000-8000-000000000001": 99
+                  },
+                  "20000000-0000-4000-8000-000000000002": {
+                    "30000000-0000-4000-8000-000000000002": "other-value"
+                  }
+                },
+                "variables": {
+                  "afterDelete": 0,
+                  "cloneChanged": 99,
+                  "cloneRead": 99,
+                  "done": 1,
+                  "inherited": 41,
+                  "original": 41,
+                  "otherRead": "other-value"
+                }
+              }
+            },
+            "hateneko": {
+              "status": "ok",
+              "errors": [],
+              "missing_primitives": [],
+              "expected_frames": 600,
+              "measured_frames": 600,
+              "expected_warmup": 0,
+              "measured_warmup": 0,
+              "milestone_reached": true,
+              "final_state": {
+                "current_scene_id": "nekoc-scene-main",
+                "actors": {
+                  "20000000-0000-4000-8000-000000000001": {
+                    "current_style_id": "nekoc-costume",
+                    "id": "20000000-0000-4000-8000-000000000001",
+                    "name": "Probe",
+                    "prototype_id": "20000000-0000-4000-8000-000000000001",
+                    "rotation": 0,
+                    "scale": 100,
+                    "scale_y": 100,
+                    "visible": true,
+                    "x": 0,
+                    "y": 0
+                  },
+                  "20000000-0000-4000-8000-000000000001#1": {
+                    "current_style_id": "nekoc-costume",
+                    "id": "20000000-0000-4000-8000-000000000001#1",
+                    "name": "Probe",
+                    "prototype_id": "20000000-0000-4000-8000-000000000001",
+                    "rotation": 0,
+                    "scale": 100,
+                    "scale_y": 100,
+                    "visible": true,
+                    "x": 0,
+                    "y": 0
+                  },
+                  "20000000-0000-4000-8000-000000000002": {
+                    "current_style_id": "nekoc-costume",
+                    "id": "20000000-0000-4000-8000-000000000002",
+                    "name": "Other",
+                    "prototype_id": "20000000-0000-4000-8000-000000000002",
+                    "rotation": 0,
+                    "scale": 100,
+                    "scale_y": 100,
+                    "visible": true,
+                    "x": 0,
+                    "y": 0
+                  }
+                },
+                "entity_variables": {
+                  "20000000-0000-4000-8000-000000000001": {
+                    "30000000-0000-4000-8000-000000000001": 41
+                  },
+                  "20000000-0000-4000-8000-000000000001#1": {
+                    "30000000-0000-4000-8000-000000000001": 99
+                  },
+                  "20000000-0000-4000-8000-000000000002": {
+                    "30000000-0000-4000-8000-000000000002": "other-value"
+                  }
+                },
+                "variables": {
+                  "30000000-0000-4000-8000-000000000001": 5,
+                  "30000000-0000-4000-8000-000000000002": "other-value",
+                  "afterDelete": 0,
+                  "cloneChanged": 0,
+                  "cloneRead": 0,
+                  "done": 1,
+                  "inherited": 41,
+                  "original": 41,
+                  "otherRead": 0
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "source": "E:\\nekoc-wt\\hncompat2\\dist\\bench\\hncompat2-long\\actor-jit\\results.json",
+      "source_sha256": "c1f2d715fe366c835af2bd52beda5cf417d04ac7d286e25998bba849e1b6504d",
+      "revision": "d2d277bc62f7536d77797e0a8660ef73055465dd",
+      "binary_sha256": "6645f7100b3c4f6d48f567deef969c2012f09f22827640c5c0f044607726a386",
+      "interpreter": false,
+      "binary_unchanged": true,
+      "reference": {
+        "version": "0.4.0",
+        "unchanged": true,
+        "tree_sha256": "be9a9c4936d4b7d3b83a38e128b6dd255cf418fa502e2a44e1aa87641158f74c"
+      },
+      "file": "tests/fixtures/actor-variables.bcmkn",
+      "sha256": "30f98c8575790dc3ab675d924bee658aca05f7913191d3bc4e6248a555c69a08",
+      "frames": 600,
+      "runs": [
+        {
+          "comparison": {
+            "equal": false,
+            "differences": [
+              {
+                "key": "state.variables.30000000-0000-4000-8000-000000000001",
+                "nekoc": null,
+                "hateneko": 5
+              },
+              {
+                "key": "state.variables.30000000-0000-4000-8000-000000000002",
+                "nekoc": null,
+                "hateneko": "other-value"
+              },
+              {
+                "key": "state.variables.cloneChanged",
+                "nekoc": 99,
+                "hateneko": 0
+              },
+              {
+                "key": "state.variables.cloneRead",
+                "nekoc": 99,
+                "hateneko": 0
+              },
+              {
+                "key": "state.variables.otherRead",
+                "nekoc": "other-value",
+                "hateneko": 0
+              }
+            ]
+          },
+          "normalization": {
+            "privateDeclarations": {
+              "30000000-0000-4000-8000-000000000001": {
+                "owner": "20000000-0000-4000-8000-000000000001",
+                "value": 5
+              },
+              "30000000-0000-4000-8000-000000000002": {
+                "owner": "20000000-0000-4000-8000-000000000002",
+                "value": "other-value"
+              }
+            },
+            "excludeVariables": []
+          },
+          "normalized_comparison": {
+            "equal": false,
+            "differences": [
+              {
+                "key": "state.variables.cloneChanged",
+                "nekoc": 99,
+                "hateneko": 0
+              },
+              {
+                "key": "state.variables.cloneRead",
+                "nekoc": 99,
+                "hateneko": 0
+              },
+              {
+                "key": "state.variables.otherRead",
+                "nekoc": "other-value",
+                "hateneko": 0
+              }
+            ]
+          },
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "expected_frames": 600,
+              "measured_frames": 600,
+              "expected_warmup": 0,
+              "measured_warmup": 0,
+              "milestone_reached": true,
+              "final_state": {
+                "current_scene_id": "nekoc-scene-main",
+                "actors": {
+                  "20000000-0000-4000-8000-000000000001": {
+                    "id": "20000000-0000-4000-8000-000000000001",
+                    "prototype_id": "20000000-0000-4000-8000-000000000001",
+                    "name": "Probe",
+                    "x": 0,
+                    "y": 0,
+                    "rotation": 90,
+                    "current_style_id": "nekoc-costume",
+                    "scale": 100,
+                    "scale_y": 100,
+                    "visible": true
+                  },
+                  "20000000-0000-4000-8000-000000000001#1": {
+                    "id": "20000000-0000-4000-8000-000000000001#1",
+                    "prototype_id": "20000000-0000-4000-8000-000000000001",
+                    "name": "Probe",
+                    "x": 0,
+                    "y": 0,
+                    "rotation": 90,
+                    "current_style_id": "nekoc-costume",
+                    "scale": 100,
+                    "scale_y": 100,
+                    "visible": true
+                  },
+                  "20000000-0000-4000-8000-000000000002": {
+                    "id": "20000000-0000-4000-8000-000000000002",
+                    "prototype_id": "20000000-0000-4000-8000-000000000002",
+                    "name": "Other",
+                    "x": 0,
+                    "y": 0,
+                    "rotation": 90,
+                    "current_style_id": "nekoc-costume",
+                    "scale": 100,
+                    "scale_y": 100,
+                    "visible": true
+                  }
+                },
+                "entity_variables": {
+                  "20000000-0000-4000-8000-000000000001": {
+                    "30000000-0000-4000-8000-000000000001": 41
+                  },
+                  "20000000-0000-4000-8000-000000000001#1": {
+                    "30000000-0000-4000-8000-000000000001": 99
+                  },
+                  "20000000-0000-4000-8000-000000000002": {
+                    "30000000-0000-4000-8000-000000000002": "other-value"
+                  }
+                },
+                "variables": {
+                  "afterDelete": 0,
+                  "cloneChanged": 99,
+                  "cloneRead": 99,
+                  "done": 1,
+                  "inherited": 41,
+                  "original": 41,
+                  "otherRead": "other-value"
+                }
+              }
+            },
+            "hateneko": {
+              "status": "ok",
+              "errors": [],
+              "missing_primitives": [],
+              "expected_frames": 600,
+              "measured_frames": 600,
+              "expected_warmup": 0,
+              "measured_warmup": 0,
+              "milestone_reached": true,
+              "final_state": {
+                "current_scene_id": "nekoc-scene-main",
+                "actors": {
+                  "20000000-0000-4000-8000-000000000001": {
+                    "current_style_id": "nekoc-costume",
+                    "id": "20000000-0000-4000-8000-000000000001",
+                    "name": "Probe",
+                    "prototype_id": "20000000-0000-4000-8000-000000000001",
+                    "rotation": 0,
+                    "scale": 100,
+                    "scale_y": 100,
+                    "visible": true,
+                    "x": 0,
+                    "y": 0
+                  },
+                  "20000000-0000-4000-8000-000000000001#1": {
+                    "current_style_id": "nekoc-costume",
+                    "id": "20000000-0000-4000-8000-000000000001#1",
+                    "name": "Probe",
+                    "prototype_id": "20000000-0000-4000-8000-000000000001",
+                    "rotation": 0,
+                    "scale": 100,
+                    "scale_y": 100,
+                    "visible": true,
+                    "x": 0,
+                    "y": 0
+                  },
+                  "20000000-0000-4000-8000-000000000002": {
+                    "current_style_id": "nekoc-costume",
+                    "id": "20000000-0000-4000-8000-000000000002",
+                    "name": "Other",
+                    "prototype_id": "20000000-0000-4000-8000-000000000002",
+                    "rotation": 0,
+                    "scale": 100,
+                    "scale_y": 100,
+                    "visible": true,
+                    "x": 0,
+                    "y": 0
+                  }
+                },
+                "entity_variables": {
+                  "20000000-0000-4000-8000-000000000001": {
+                    "30000000-0000-4000-8000-000000000001": 41
+                  },
+                  "20000000-0000-4000-8000-000000000001#1": {
+                    "30000000-0000-4000-8000-000000000001": 99
+                  },
+                  "20000000-0000-4000-8000-000000000002": {
+                    "30000000-0000-4000-8000-000000000002": "other-value"
+                  }
+                },
+                "variables": {
+                  "30000000-0000-4000-8000-000000000001": 5,
+                  "30000000-0000-4000-8000-000000000002": "other-value",
+                  "afterDelete": 0,
+                  "cloneChanged": 0,
+                  "cloneRead": 0,
+                  "done": 1,
+                  "inherited": 41,
+                  "original": 41,
+                  "otherRead": 0
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "source": "E:\\nekoc-wt\\hncompat2\\dist\\bench\\hncompat2-long\\fangjie-interpreter\\results.json",
+      "source_sha256": "aafa818b048bcdfe778ecfc782b6d03f0160ce62b91161f0d68cb8a0799b00e5",
+      "revision": "d2d277bc62f7536d77797e0a8660ef73055465dd",
+      "binary_sha256": "6645f7100b3c4f6d48f567deef969c2012f09f22827640c5c0f044607726a386",
+      "interpreter": true,
+      "binary_unchanged": true,
+      "reference": {
+        "version": "0.4.0",
+        "unchanged": true,
+        "tree_sha256": "be9a9c4936d4b7d3b83a38e128b6dd255cf418fa502e2a44e1aa87641158f74c"
+      },
+      "file": "projects/fangjie/fangjie.bcmkn",
+      "sha256": "652fdb4d92311401e33f28ff030240ccbf36d39605d678e5e82c145e24d30721",
+      "frames": 600,
+      "runs": [
+        {
+          "comparison": {
+            "equal": false,
+            "differences": [
+              {
+                "key": "state.variables.kn-var-guimx",
+                "nekoc": 0,
+                "hateneko": null
+              },
+              {
+                "key": "state.variables.kn-var-guimy",
+                "nekoc": 0,
+                "hateneko": null
+              },
+              {
+                "key": "state.variables.kn-var-mx0",
+                "nekoc": 0,
+                "hateneko": null
+              },
+              {
+                "key": "state.variables.kn-var-my0",
+                "nekoc": 0,
+                "hateneko": null
+              }
+            ]
+          },
+          "normalization": {
+            "privateDeclarations": {},
+            "excludeVariables": []
+          },
+          "normalized_comparison": {
+            "equal": false,
+            "differences": [
+              {
+                "key": "state.variables.kn-var-guimx",
+                "nekoc": 0,
+                "hateneko": null
+              },
+              {
+                "key": "state.variables.kn-var-guimy",
+                "nekoc": 0,
+                "hateneko": null
+              },
+              {
+                "key": "state.variables.kn-var-mx0",
+                "nekoc": 0,
+                "hateneko": null
+              },
+              {
+                "key": "state.variables.kn-var-my0",
+                "nekoc": 0,
+                "hateneko": null
+              }
+            ]
+          },
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "expected_frames": 600,
+              "measured_frames": 600,
+              "expected_warmup": 0,
+              "measured_warmup": 0,
+              "milestone_reached": true,
+              "final_state": {
+                "current_scene_id": "nekoc-scene-main",
+                "actors": {
+                  "nekoc-default-actor": {
+                    "id": "nekoc-default-actor",
+                    "prototype_id": "nekoc-default-actor",
+                    "name": "Sprite",
+                    "x": 0,
+                    "y": -65,
+                    "rotation": 90,
+                    "current_style_id": "nekoc-costume",
+                    "scale": 100,
+                    "scale_y": 100,
+                    "visible": false
+                  }
+                },
+                "entity_variables": {
+                  "nekoc-default-actor": {}
+                },
+                "variables": {
+                  "kn-list-block_faces": {
+                    "kind": "list",
+                    "length": 54,
+                    "sha256": "591e2244d786a7dcafd6c14c5fc9a0c1fb8052ca052bdbb381b896a74ba70b1e",
+                    "first": [
+                      0,
+                      1,
+                      2
+                    ],
+                    "last": [
+                      20,
+                      21,
+                      8
+                    ]
+                  },
+                  "kn-list-block_names": [
+                    "草方块",
+                    "泥土",
+                    "石头",
+                    "沙子",
+                    "原木",
+                    "树叶",
+                    "木板",
+                    "圆石",
+                    "煤矿石",
+                    "铁矿石",
+                    "金矿石",
+                    "钻石矿石",
+                    "玻璃",
+                    "红砖",
+                    "水",
+                    "雪块",
+                    "基岩",
+                    "工作台"
+                  ],
+                  "kn-list-chunk_x": {
+                    "kind": "list",
+                    "length": 64,
+                    "sha256": "17294ded8e7270f1f5db008f1a7a0dcf7ec945d5f6b48c89064f9129f87d9125",
+                    "first": [
+                      99999,
+                      99999,
+                      99999
+                    ],
+                    "last": [
+                      99999,
+                      99999,
+                      99999
+                    ]
+                  },
+                  "kn-list-chunk_z": {
+                    "kind": "list",
+                    "length": 64,
+                    "sha256": "17294ded8e7270f1f5db008f1a7a0dcf7ec945d5f6b48c89064f9129f87d9125",
+                    "first": [
+                      99999,
+                      99999,
+                      99999
+                    ],
+                    "last": [
+                      99999,
+                      99999,
+                      99999
+                    ]
+                  },
+                  "kn-list-edit_b": [],
+                  "kn-list-edit_cx": [],
+                  "kn-list-edit_cz": [],
+                  "kn-list-edit_i": [],
+                  "kn-list-hardness": [
+                    0.5,
+                    0.4,
+                    1.4,
+                    0.4,
+                    0.9,
+                    0.2,
+                    0.8,
+                    1.6,
+                    1.8,
+                    2.4,
+                    2.8,
+                    3.4,
+                    0.3,
+                    1.6,
+                    99,
+                    0.4,
+                    99,
+                    1
+                  ],
+                  "kn-list-help": [
+                    "W A S D：移动　　空格：跳跃 / 上浮　　R：奔跑",
+                    "方向键：转动视角（设置里可开启鼠标视角）",
+                    "F 或按住鼠标左键：挖方块",
+                    "G：放置快捷栏选中的方块",
+                    "数字键 1–9：切换快捷栏",
+                    "E：背包　　C：合成",
+                    "P：暂停菜单",
+                    "世界会无限延伸，你改过的方块都会保留",
+                    "小心高处：摔落会掉血，血量会慢慢恢复"
+                  ],
+                  "kn-list-hot": [
+                    2,
+                    3,
+                    5,
+                    7,
+                    8,
+                    13,
+                    14,
+                    4,
+                    18
+                  ],
+                  "kn-list-inv": [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                  ],
+                  "kn-list-recipes": {
+                    "kind": "list",
+                    "length": 36,
+                    "sha256": "b3c025a7ee15538f174407d217788dfb871a2452f04cd6943c73cce3783ec8d5",
+                    "first": [
+                      7,
+                      4,
+                      5
+                    ],
+                    "last": [
+                      1,
+                      0,
+                      0
+                    ]
+                  },
+                  "kn-list-tex_h": {
+                    "kind": "list",
+                    "length": 5632,
+                    "sha256": "771af4a18b1b917a63b94cd3c01c8675fcb2b7596da3292d44a39b3e61de5d16",
+                    "first": [
+                      103.8,
+                      103.7,
+                      103.7
+                    ],
+                    "last": [
+                      31.7,
+                      31.7,
+                      31.7
+                    ]
+                  },
+                  "kn-list-tex_s": {
+                    "kind": "list",
+                    "length": 5632,
+                    "sha256": "b2d34dd4ac5b61a646bf7241275c92c322da62f539da2450810726df0d312ce2",
+                    "first": [
+                      55.2,
+                      68.6,
+                      58.2
+                    ],
+                    "last": [
+                      59,
+                      59,
+                      59
+                    ]
+                  },
+                  "kn-list-tex_v": {
+                    "kind": "list",
+                    "length": 5632,
+                    "sha256": "584298d50352552be3240c0fc3f9b1a7d7c1c20b32c5a9875c8cf278532fe315",
+                    "first": [
+                      68.2,
+                      54.9,
+                      64.7
+                    ],
+                    "last": [
+                      47.8,
+                      47.8,
+                      47.8
+                    ]
+                  },
+                  "kn-list-world": {
+                    "kind": "list",
+                    "length": 524288,
+                    "sha256": "85f99ca1946040d96a6130d38d54735660098f0a066ec0cbfc15fdc56ac7a576",
+                    "first": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "last": [
+                      0,
+                      0,
+                      0
+                    ]
+                  },
+                  "kn-var-a1": 0,
+                  "kn-var-a2": 0,
+                  "kn-var-ab": 0,
+                  "kn-var-action": 0,
+                  "kn-var-adx": 0,
+                  "kn-var-ady": 0,
+                  "kn-var-adz": 0,
+                  "kn-var-aimok": 0,
+                  "kn-var-aimx": -9999,
+                  "kn-var-aimy": 0,
+                  "kn-var-aimz": 0,
+                  "kn-var-ax": 0,
+                  "kn-var-ay": 0,
+                  "kn-var-az": 0,
+                  "kn-var-b": 0,
+                  "kn-var-back": 0,
+                  "kn-var-base": 0,
+                  "kn-var-can": 0,
+                  "kn-var-cave": 0,
+                  "kn-var-ccy": 0,
+                  "kn-var-cellp": 12,
+                  "kn-var-clicked": 0,
+                  "kn-var-clock": 0.08,
+                  "kn-var-cols": 120,
+                  "kn-var-cp": 0,
+                  "kn-var-cy": 0,
+                  "kn-var-cy2": 0,
+                  "kn-var-day": 0,
+                  "kn-var-dayf": 0,
+                  "kn-var-done": 0,
+                  "kn-var-drop": 0,
+                  "kn-var-dt": 0,
+                  "kn-var-dx": 0,
+                  "kn-var-dy": 0,
+                  "kn-var-dz": 0,
+                  "kn-var-ei": 0,
+                  "kn-var-ex": 0,
+                  "kn-var-ey": 0,
+                  "kn-var-ez": 0,
+                  "kn-var-face": 0,
+                  "kn-var-fallfrom": 0,
+                  "kn-var-far": 32,
+                  "kn-var-fi": 0,
+                  "kn-var-fog": 0,
+                  "kn-var-fps": 30,
+                  "kn-var-frames": 0,
+                  "kn-var-fx": 0,
+                  "kn-var-fx0": 0,
+                  "kn-var-fy0": 0,
+                  "kn-var-fz": 0,
+                  "kn-var-fz0": 0,
+                  "kn-var-got": 0,
+                  "kn-var-ground": 0,
+                  "kn-var-gui_dirty": 0,
+                  "kn-var-guimx": 0,
+                  "kn-var-guimy": 0,
+                  "kn-var-gx": 0,
+                  "kn-var-gx0": 0,
+                  "kn-var-gy0": 0,
+                  "kn-var-gz": 0,
+                  "kn-var-hb": 0,
+                  "kn-var-hb0": 0,
+                  "kn-var-hbx": 0,
+                  "kn-var-hit": 0,
+                  "kn-var-hitlabel": 0,
+                  "kn-var-hp": 20,
+                  "kn-var-hs": 0,
+                  "kn-var-hud_dirty": 1,
+                  "kn-var-hudsel": 0,
+                  "kn-var-hudtick": 0,
+                  "kn-var-hue": 26.5,
+                  "kn-var-hx": 0,
+                  "kn-var-hy": 0,
+                  "kn-var-hy0": 0,
+                  "kn-var-hz": 0,
+                  "kn-var-inwater": 0,
+                  "kn-var-ix": 0,
+                  "kn-var-iz": 0,
+                  "kn-var-lab": 0,
+                  "kn-var-last": 0,
+                  "kn-var-lastmx": 0,
+                  "kn-var-lastmy": 0,
+                  "kn-var-lastx": 0,
+                  "kn-var-lasty": 0,
+                  "kn-var-lastz": 0,
+                  "kn-var-light": 0,
+                  "kn-var-mb": 0,
+                  "kn-var-mf": 0,
+                  "kn-var-minex": 0,
+                  "kn-var-miney": 0,
+                  "kn-var-minez": 0,
+                  "kn-var-mining": 0,
+                  "kn-var-mousedown": 0,
+                  "kn-var-mouselook": 0,
+                  "kn-var-ms": 0,
+                  "kn-var-mx": 0,
+                  "kn-var-mx0": 0,
+                  "kn-var-my": 0,
+                  "kn-var-my0": 0,
+                  "kn-var-mz": 0,
+                  "kn-var-n00": 0,
+                  "kn-var-n01": 0,
+                  "kn-var-n1": 0,
+                  "kn-var-n10": 0,
+                  "kn-var-n11": 0,
+                  "kn-var-n2": 0,
+                  "kn-var-notice": "",
+                  "kn-var-notice_t": 0,
+                  "kn-var-nx": 0,
+                  "kn-var-nxp": 0,
+                  "kn-var-nyp": 0,
+                  "kn-var-nz": 0,
+                  "kn-var-nzp": 0,
+                  "kn-var-over": 0,
+                  "kn-var-pb": 0,
+                  "kn-var-pcx": 0,
+                  "kn-var-pcz": 0,
+                  "kn-var-pending": 0,
+                  "kn-var-pitch": 0,
+                  "kn-var-pix": 0,
+                  "kn-var-place_req": 0,
+                  "kn-var-pq": 0,
+                  "kn-var-px": 8,
+                  "kn-var-pxl": 0,
+                  "kn-var-py": 30,
+                  "kn-var-pz": 8,
+                  "kn-var-qx": 0,
+                  "kn-var-qz": 0,
+                  "kn-var-r": 0,
+                  "kn-var-r0": 0,
+                  "kn-var-rb": 0,
+                  "kn-var-regen": 0,
+                  "kn-var-rn": 0,
+                  "kn-var-rx0": 0,
+                  "kn-var-ry": 0,
+                  "kn-var-rz0": 0,
+                  "kn-var-sat": 0,
+                  "kn-var-sb": 0,
+                  "kn-var-scale": 0,
+                  "kn-var-screen": 0,
+                  "kn-var-seed": 1,
+                  "kn-var-sel": 1,
+                  "kn-var-shade": 0,
+                  "kn-var-skys": 0,
+                  "kn-var-skyv": 0,
+                  "kn-var-slot": 0,
+                  "kn-var-slotb": 0,
+                  "kn-var-sp": 0,
+                  "kn-var-speed": 0,
+                  "kn-var-started": 0,
+                  "kn-var-stx": 0,
+                  "kn-var-sty": 0,
+                  "kn-var-stz": 0,
+                  "kn-var-su": 0,
+                  "kn-var-sund": 0,
+                  "kn-var-sunx": 0.7,
+                  "kn-var-suny": 0.7,
+                  "kn-var-sv": 0,
+                  "kn-var-sy": 0,
+                  "kn-var-sy0": 0,
+                  "kn-var-t": 0,
+                  "kn-var-t1": 0,
+                  "kn-var-t2": 0,
+                  "kn-var-t3": 0,
+                  "kn-var-texel": 751,
+                  "kn-var-tid": 2,
+                  "kn-var-top": 0,
+                  "kn-var-tu": 0,
+                  "kn-var-tv": 0,
+                  "kn-var-tx": 0,
+                  "kn-var-ty": 0,
+                  "kn-var-tz": 0,
+                  "kn-var-ux0": 0,
+                  "kn-var-uy0": 0,
+                  "kn-var-uz0": 0,
+                  "kn-var-val": 0,
+                  "kn-var-vrows": 0,
+                  "kn-var-vy": 0,
+                  "kn-var-wasdown": 0,
+                  "kn-var-wex": 0,
+                  "kn-var-wez": 0,
+                  "kn-var-wx": 0,
+                  "kn-var-wz": 0,
+                  "kn-var-yaw": 0
+                }
+              }
+            },
+            "hateneko": {
+              "status": "ok",
+              "errors": [],
+              "missing_primitives": [],
+              "expected_frames": 600,
+              "measured_frames": 600,
+              "expected_warmup": 0,
+              "measured_warmup": 0,
+              "milestone_reached": true,
+              "final_state": {
+                "current_scene_id": "nekoc-scene-main",
+                "actors": {
+                  "nekoc-default-actor": {
+                    "current_style_id": "nekoc-costume",
+                    "id": "nekoc-default-actor",
+                    "name": "Sprite",
+                    "prototype_id": "nekoc-default-actor",
+                    "rotation": 0,
+                    "scale": 100,
+                    "scale_y": 100,
+                    "visible": false,
+                    "x": 0,
+                    "y": -65
+                  }
+                },
+                "entity_variables": {
+                  "nekoc-default-actor": {}
+                },
+                "variables": {
+                  "kn-list-block_faces": {
+                    "kind": "list",
+                    "length": 54,
+                    "sha256": "591e2244d786a7dcafd6c14c5fc9a0c1fb8052ca052bdbb381b896a74ba70b1e",
+                    "first": [
+                      0,
+                      1,
+                      2
+                    ],
+                    "last": [
+                      20,
+                      21,
+                      8
+                    ]
+                  },
+                  "kn-list-block_names": [
+                    "草方块",
+                    "泥土",
+                    "石头",
+                    "沙子",
+                    "原木",
+                    "树叶",
+                    "木板",
+                    "圆石",
+                    "煤矿石",
+                    "铁矿石",
+                    "金矿石",
+                    "钻石矿石",
+                    "玻璃",
+                    "红砖",
+                    "水",
+                    "雪块",
+                    "基岩",
+                    "工作台"
+                  ],
+                  "kn-list-chunk_x": {
+                    "kind": "list",
+                    "length": 64,
+                    "sha256": "17294ded8e7270f1f5db008f1a7a0dcf7ec945d5f6b48c89064f9129f87d9125",
+                    "first": [
+                      99999,
+                      99999,
+                      99999
+                    ],
+                    "last": [
+                      99999,
+                      99999,
+                      99999
+                    ]
+                  },
+                  "kn-list-chunk_z": {
+                    "kind": "list",
+                    "length": 64,
+                    "sha256": "17294ded8e7270f1f5db008f1a7a0dcf7ec945d5f6b48c89064f9129f87d9125",
+                    "first": [
+                      99999,
+                      99999,
+                      99999
+                    ],
+                    "last": [
+                      99999,
+                      99999,
+                      99999
+                    ]
+                  },
+                  "kn-list-edit_b": [],
+                  "kn-list-edit_cx": [],
+                  "kn-list-edit_cz": [],
+                  "kn-list-edit_i": [],
+                  "kn-list-hardness": [
+                    0.5,
+                    0.4,
+                    1.4,
+                    0.4,
+                    0.9,
+                    0.2,
+                    0.8,
+                    1.6,
+                    1.8,
+                    2.4,
+                    2.8,
+                    3.4,
+                    0.3,
+                    1.6,
+                    99,
+                    0.4,
+                    99,
+                    1
+                  ],
+                  "kn-list-help": [
+                    "W A S D：移动　　空格：跳跃 / 上浮　　R：奔跑",
+                    "方向键：转动视角（设置里可开启鼠标视角）",
+                    "F 或按住鼠标左键：挖方块",
+                    "G：放置快捷栏选中的方块",
+                    "数字键 1–9：切换快捷栏",
+                    "E：背包　　C：合成",
+                    "P：暂停菜单",
+                    "世界会无限延伸，你改过的方块都会保留",
+                    "小心高处：摔落会掉血，血量会慢慢恢复"
+                  ],
+                  "kn-list-hot": [
+                    2,
+                    3,
+                    5,
+                    7,
+                    8,
+                    13,
+                    14,
+                    4,
+                    18
+                  ],
+                  "kn-list-inv": [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                  ],
+                  "kn-list-recipes": {
+                    "kind": "list",
+                    "length": 36,
+                    "sha256": "b3c025a7ee15538f174407d217788dfb871a2452f04cd6943c73cce3783ec8d5",
+                    "first": [
+                      7,
+                      4,
+                      5
+                    ],
+                    "last": [
+                      1,
+                      0,
+                      0
+                    ]
+                  },
+                  "kn-list-tex_h": {
+                    "kind": "list",
+                    "length": 5632,
+                    "sha256": "771af4a18b1b917a63b94cd3c01c8675fcb2b7596da3292d44a39b3e61de5d16",
+                    "first": [
+                      103.8,
+                      103.7,
+                      103.7
+                    ],
+                    "last": [
+                      31.7,
+                      31.7,
+                      31.7
+                    ]
+                  },
+                  "kn-list-tex_s": {
+                    "kind": "list",
+                    "length": 5632,
+                    "sha256": "b2d34dd4ac5b61a646bf7241275c92c322da62f539da2450810726df0d312ce2",
+                    "first": [
+                      55.2,
+                      68.6,
+                      58.2
+                    ],
+                    "last": [
+                      59,
+                      59,
+                      59
+                    ]
+                  },
+                  "kn-list-tex_v": {
+                    "kind": "list",
+                    "length": 5632,
+                    "sha256": "584298d50352552be3240c0fc3f9b1a7d7c1c20b32c5a9875c8cf278532fe315",
+                    "first": [
+                      68.2,
+                      54.9,
+                      64.7
+                    ],
+                    "last": [
+                      47.8,
+                      47.8,
+                      47.8
+                    ]
+                  },
+                  "kn-list-world": {
+                    "kind": "list",
+                    "length": 524288,
+                    "sha256": "85f99ca1946040d96a6130d38d54735660098f0a066ec0cbfc15fdc56ac7a576",
+                    "first": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "last": [
+                      0,
+                      0,
+                      0
+                    ]
+                  },
+                  "kn-var-a1": 0,
+                  "kn-var-a2": 0,
+                  "kn-var-ab": 0,
+                  "kn-var-action": 0,
+                  "kn-var-adx": 0,
+                  "kn-var-ady": 0,
+                  "kn-var-adz": 0,
+                  "kn-var-aimok": 0,
+                  "kn-var-aimx": -9999,
+                  "kn-var-aimy": 0,
+                  "kn-var-aimz": 0,
+                  "kn-var-ax": 0,
+                  "kn-var-ay": 0,
+                  "kn-var-az": 0,
+                  "kn-var-b": 0,
+                  "kn-var-back": 0,
+                  "kn-var-base": 0,
+                  "kn-var-can": 0,
+                  "kn-var-cave": 0,
+                  "kn-var-ccy": 0,
+                  "kn-var-cellp": 12,
+                  "kn-var-clicked": 0,
+                  "kn-var-clock": 0.08,
+                  "kn-var-cols": 120,
+                  "kn-var-cp": 0,
+                  "kn-var-cy": 0,
+                  "kn-var-cy2": 0,
+                  "kn-var-day": 0,
+                  "kn-var-dayf": 0,
+                  "kn-var-done": 0,
+                  "kn-var-drop": 0,
+                  "kn-var-dt": 0,
+                  "kn-var-dx": 0,
+                  "kn-var-dy": 0,
+                  "kn-var-dz": 0,
+                  "kn-var-ei": 0,
+                  "kn-var-ex": 0,
+                  "kn-var-ey": 0,
+                  "kn-var-ez": 0,
+                  "kn-var-face": 0,
+                  "kn-var-fallfrom": 0,
+                  "kn-var-far": 32,
+                  "kn-var-fi": 0,
+                  "kn-var-fog": 0,
+                  "kn-var-fps": 30,
+                  "kn-var-frames": 0,
+                  "kn-var-fx": 0,
+                  "kn-var-fx0": 0,
+                  "kn-var-fy0": 0,
+                  "kn-var-fz": 0,
+                  "kn-var-fz0": 0,
+                  "kn-var-got": 0,
+                  "kn-var-ground": 0,
+                  "kn-var-gui_dirty": 0,
+                  "kn-var-guimx": null,
+                  "kn-var-guimy": null,
+                  "kn-var-gx": 0,
+                  "kn-var-gx0": 0,
+                  "kn-var-gy0": 0,
+                  "kn-var-gz": 0,
+                  "kn-var-hb": 0,
+                  "kn-var-hb0": 0,
+                  "kn-var-hbx": 0,
+                  "kn-var-hit": 0,
+                  "kn-var-hitlabel": 0,
+                  "kn-var-hp": 20,
+                  "kn-var-hs": 0,
+                  "kn-var-hud_dirty": 1,
+                  "kn-var-hudsel": 0,
+                  "kn-var-hudtick": 0,
+                  "kn-var-hue": 26.5,
+                  "kn-var-hx": 0,
+                  "kn-var-hy": 0,
+                  "kn-var-hy0": 0,
+                  "kn-var-hz": 0,
+                  "kn-var-inwater": 0,
+                  "kn-var-ix": 0,
+                  "kn-var-iz": 0,
+                  "kn-var-lab": 0,
+                  "kn-var-last": 0,
+                  "kn-var-lastmx": 0,
+                  "kn-var-lastmy": 0,
+                  "kn-var-lastx": 0,
+                  "kn-var-lasty": 0,
+                  "kn-var-lastz": 0,
+                  "kn-var-light": 0,
+                  "kn-var-mb": 0,
+                  "kn-var-mf": 0,
+                  "kn-var-minex": 0,
+                  "kn-var-miney": 0,
+                  "kn-var-minez": 0,
+                  "kn-var-mining": 0,
+                  "kn-var-mousedown": 0,
+                  "kn-var-mouselook": 0,
+                  "kn-var-ms": 0,
+                  "kn-var-mx": 0,
+                  "kn-var-mx0": null,
+                  "kn-var-my": 0,
+                  "kn-var-my0": null,
+                  "kn-var-mz": 0,
+                  "kn-var-n00": 0,
+                  "kn-var-n01": 0,
+                  "kn-var-n1": 0,
+                  "kn-var-n10": 0,
+                  "kn-var-n11": 0,
+                  "kn-var-n2": 0,
+                  "kn-var-notice": "",
+                  "kn-var-notice_t": 0,
+                  "kn-var-nx": 0,
+                  "kn-var-nxp": 0,
+                  "kn-var-nyp": 0,
+                  "kn-var-nz": 0,
+                  "kn-var-nzp": 0,
+                  "kn-var-over": 0,
+                  "kn-var-pb": 0,
+                  "kn-var-pcx": 0,
+                  "kn-var-pcz": 0,
+                  "kn-var-pending": 0,
+                  "kn-var-pitch": 0,
+                  "kn-var-pix": 0,
+                  "kn-var-place_req": 0,
+                  "kn-var-pq": 0,
+                  "kn-var-px": 8,
+                  "kn-var-pxl": 0,
+                  "kn-var-py": 30,
+                  "kn-var-pz": 8,
+                  "kn-var-qx": 0,
+                  "kn-var-qz": 0,
+                  "kn-var-r": 0,
+                  "kn-var-r0": 0,
+                  "kn-var-rb": 0,
+                  "kn-var-regen": 0,
+                  "kn-var-rn": 0,
+                  "kn-var-rx0": 0,
+                  "kn-var-ry": 0,
+                  "kn-var-rz0": 0,
+                  "kn-var-sat": 0,
+                  "kn-var-sb": 0,
+                  "kn-var-scale": 0,
+                  "kn-var-screen": 0,
+                  "kn-var-seed": 1,
+                  "kn-var-sel": 1,
+                  "kn-var-shade": 0,
+                  "kn-var-skys": 0,
+                  "kn-var-skyv": 0,
+                  "kn-var-slot": 0,
+                  "kn-var-slotb": 0,
+                  "kn-var-sp": 0,
+                  "kn-var-speed": 0,
+                  "kn-var-started": 0,
+                  "kn-var-stx": 0,
+                  "kn-var-sty": 0,
+                  "kn-var-stz": 0,
+                  "kn-var-su": 0,
+                  "kn-var-sund": 0,
+                  "kn-var-sunx": 0.7,
+                  "kn-var-suny": 0.7,
+                  "kn-var-sv": 0,
+                  "kn-var-sy": 0,
+                  "kn-var-sy0": 0,
+                  "kn-var-t": 0,
+                  "kn-var-t1": 0,
+                  "kn-var-t2": 0,
+                  "kn-var-t3": 0,
+                  "kn-var-texel": 751,
+                  "kn-var-tid": 2,
+                  "kn-var-top": 0,
+                  "kn-var-tu": 0,
+                  "kn-var-tv": 0,
+                  "kn-var-tx": 0,
+                  "kn-var-ty": 0,
+                  "kn-var-tz": 0,
+                  "kn-var-ux0": 0,
+                  "kn-var-uy0": 0,
+                  "kn-var-uz0": 0,
+                  "kn-var-val": 0,
+                  "kn-var-vrows": 0,
+                  "kn-var-vy": 0,
+                  "kn-var-wasdown": 0,
+                  "kn-var-wex": 0,
+                  "kn-var-wez": 0,
+                  "kn-var-wx": 0,
+                  "kn-var-wz": 0,
+                  "kn-var-yaw": 0
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "source": "E:\\nekoc-wt\\hncompat2\\dist\\bench\\hncompat2-long\\fangjie-jit\\results.json",
+      "source_sha256": "a905f6d31415f981c3c4d9c632374ecce36c51518a3710f0798176b6aa30f818",
+      "revision": "d2d277bc62f7536d77797e0a8660ef73055465dd",
+      "binary_sha256": "6645f7100b3c4f6d48f567deef969c2012f09f22827640c5c0f044607726a386",
+      "interpreter": false,
+      "binary_unchanged": true,
+      "reference": {
+        "version": "0.4.0",
+        "unchanged": true,
+        "tree_sha256": "be9a9c4936d4b7d3b83a38e128b6dd255cf418fa502e2a44e1aa87641158f74c"
+      },
+      "file": "projects/fangjie/fangjie.bcmkn",
+      "sha256": "652fdb4d92311401e33f28ff030240ccbf36d39605d678e5e82c145e24d30721",
+      "frames": 600,
+      "runs": [
+        {
+          "comparison": {
+            "equal": false,
+            "differences": [
+              {
+                "key": "state.variables.kn-var-guimx",
+                "nekoc": 0,
+                "hateneko": null
+              },
+              {
+                "key": "state.variables.kn-var-guimy",
+                "nekoc": 0,
+                "hateneko": null
+              },
+              {
+                "key": "state.variables.kn-var-mx0",
+                "nekoc": 0,
+                "hateneko": null
+              },
+              {
+                "key": "state.variables.kn-var-my0",
+                "nekoc": 0,
+                "hateneko": null
+              }
+            ]
+          },
+          "normalization": {
+            "privateDeclarations": {},
+            "excludeVariables": []
+          },
+          "normalized_comparison": {
+            "equal": false,
+            "differences": [
+              {
+                "key": "state.variables.kn-var-guimx",
+                "nekoc": 0,
+                "hateneko": null
+              },
+              {
+                "key": "state.variables.kn-var-guimy",
+                "nekoc": 0,
+                "hateneko": null
+              },
+              {
+                "key": "state.variables.kn-var-mx0",
+                "nekoc": 0,
+                "hateneko": null
+              },
+              {
+                "key": "state.variables.kn-var-my0",
+                "nekoc": 0,
+                "hateneko": null
+              }
+            ]
+          },
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "expected_frames": 600,
+              "measured_frames": 600,
+              "expected_warmup": 0,
+              "measured_warmup": 0,
+              "milestone_reached": true,
+              "final_state": {
+                "current_scene_id": "nekoc-scene-main",
+                "actors": {
+                  "nekoc-default-actor": {
+                    "id": "nekoc-default-actor",
+                    "prototype_id": "nekoc-default-actor",
+                    "name": "Sprite",
+                    "x": 0,
+                    "y": -65,
+                    "rotation": 90,
+                    "current_style_id": "nekoc-costume",
+                    "scale": 100,
+                    "scale_y": 100,
+                    "visible": false
+                  }
+                },
+                "entity_variables": {
+                  "nekoc-default-actor": {}
+                },
+                "variables": {
+                  "kn-list-block_faces": {
+                    "kind": "list",
+                    "length": 54,
+                    "sha256": "591e2244d786a7dcafd6c14c5fc9a0c1fb8052ca052bdbb381b896a74ba70b1e",
+                    "first": [
+                      0,
+                      1,
+                      2
+                    ],
+                    "last": [
+                      20,
+                      21,
+                      8
+                    ]
+                  },
+                  "kn-list-block_names": [
+                    "草方块",
+                    "泥土",
+                    "石头",
+                    "沙子",
+                    "原木",
+                    "树叶",
+                    "木板",
+                    "圆石",
+                    "煤矿石",
+                    "铁矿石",
+                    "金矿石",
+                    "钻石矿石",
+                    "玻璃",
+                    "红砖",
+                    "水",
+                    "雪块",
+                    "基岩",
+                    "工作台"
+                  ],
+                  "kn-list-chunk_x": {
+                    "kind": "list",
+                    "length": 64,
+                    "sha256": "17294ded8e7270f1f5db008f1a7a0dcf7ec945d5f6b48c89064f9129f87d9125",
+                    "first": [
+                      99999,
+                      99999,
+                      99999
+                    ],
+                    "last": [
+                      99999,
+                      99999,
+                      99999
+                    ]
+                  },
+                  "kn-list-chunk_z": {
+                    "kind": "list",
+                    "length": 64,
+                    "sha256": "17294ded8e7270f1f5db008f1a7a0dcf7ec945d5f6b48c89064f9129f87d9125",
+                    "first": [
+                      99999,
+                      99999,
+                      99999
+                    ],
+                    "last": [
+                      99999,
+                      99999,
+                      99999
+                    ]
+                  },
+                  "kn-list-edit_b": [],
+                  "kn-list-edit_cx": [],
+                  "kn-list-edit_cz": [],
+                  "kn-list-edit_i": [],
+                  "kn-list-hardness": [
+                    0.5,
+                    0.4,
+                    1.4,
+                    0.4,
+                    0.9,
+                    0.2,
+                    0.8,
+                    1.6,
+                    1.8,
+                    2.4,
+                    2.8,
+                    3.4,
+                    0.3,
+                    1.6,
+                    99,
+                    0.4,
+                    99,
+                    1
+                  ],
+                  "kn-list-help": [
+                    "W A S D：移动　　空格：跳跃 / 上浮　　R：奔跑",
+                    "方向键：转动视角（设置里可开启鼠标视角）",
+                    "F 或按住鼠标左键：挖方块",
+                    "G：放置快捷栏选中的方块",
+                    "数字键 1–9：切换快捷栏",
+                    "E：背包　　C：合成",
+                    "P：暂停菜单",
+                    "世界会无限延伸，你改过的方块都会保留",
+                    "小心高处：摔落会掉血，血量会慢慢恢复"
+                  ],
+                  "kn-list-hot": [
+                    2,
+                    3,
+                    5,
+                    7,
+                    8,
+                    13,
+                    14,
+                    4,
+                    18
+                  ],
+                  "kn-list-inv": [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                  ],
+                  "kn-list-recipes": {
+                    "kind": "list",
+                    "length": 36,
+                    "sha256": "b3c025a7ee15538f174407d217788dfb871a2452f04cd6943c73cce3783ec8d5",
+                    "first": [
+                      7,
+                      4,
+                      5
+                    ],
+                    "last": [
+                      1,
+                      0,
+                      0
+                    ]
+                  },
+                  "kn-list-tex_h": {
+                    "kind": "list",
+                    "length": 5632,
+                    "sha256": "771af4a18b1b917a63b94cd3c01c8675fcb2b7596da3292d44a39b3e61de5d16",
+                    "first": [
+                      103.8,
+                      103.7,
+                      103.7
+                    ],
+                    "last": [
+                      31.7,
+                      31.7,
+                      31.7
+                    ]
+                  },
+                  "kn-list-tex_s": {
+                    "kind": "list",
+                    "length": 5632,
+                    "sha256": "b2d34dd4ac5b61a646bf7241275c92c322da62f539da2450810726df0d312ce2",
+                    "first": [
+                      55.2,
+                      68.6,
+                      58.2
+                    ],
+                    "last": [
+                      59,
+                      59,
+                      59
+                    ]
+                  },
+                  "kn-list-tex_v": {
+                    "kind": "list",
+                    "length": 5632,
+                    "sha256": "584298d50352552be3240c0fc3f9b1a7d7c1c20b32c5a9875c8cf278532fe315",
+                    "first": [
+                      68.2,
+                      54.9,
+                      64.7
+                    ],
+                    "last": [
+                      47.8,
+                      47.8,
+                      47.8
+                    ]
+                  },
+                  "kn-list-world": {
+                    "kind": "list",
+                    "length": 524288,
+                    "sha256": "85f99ca1946040d96a6130d38d54735660098f0a066ec0cbfc15fdc56ac7a576",
+                    "first": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "last": [
+                      0,
+                      0,
+                      0
+                    ]
+                  },
+                  "kn-var-a1": 0,
+                  "kn-var-a2": 0,
+                  "kn-var-ab": 0,
+                  "kn-var-action": 0,
+                  "kn-var-adx": 0,
+                  "kn-var-ady": 0,
+                  "kn-var-adz": 0,
+                  "kn-var-aimok": 0,
+                  "kn-var-aimx": -9999,
+                  "kn-var-aimy": 0,
+                  "kn-var-aimz": 0,
+                  "kn-var-ax": 0,
+                  "kn-var-ay": 0,
+                  "kn-var-az": 0,
+                  "kn-var-b": 0,
+                  "kn-var-back": 0,
+                  "kn-var-base": 0,
+                  "kn-var-can": 0,
+                  "kn-var-cave": 0,
+                  "kn-var-ccy": 0,
+                  "kn-var-cellp": 12,
+                  "kn-var-clicked": 0,
+                  "kn-var-clock": 0.08,
+                  "kn-var-cols": 120,
+                  "kn-var-cp": 0,
+                  "kn-var-cy": 0,
+                  "kn-var-cy2": 0,
+                  "kn-var-day": 0,
+                  "kn-var-dayf": 0,
+                  "kn-var-done": 0,
+                  "kn-var-drop": 0,
+                  "kn-var-dt": 0,
+                  "kn-var-dx": 0,
+                  "kn-var-dy": 0,
+                  "kn-var-dz": 0,
+                  "kn-var-ei": 0,
+                  "kn-var-ex": 0,
+                  "kn-var-ey": 0,
+                  "kn-var-ez": 0,
+                  "kn-var-face": 0,
+                  "kn-var-fallfrom": 0,
+                  "kn-var-far": 32,
+                  "kn-var-fi": 0,
+                  "kn-var-fog": 0,
+                  "kn-var-fps": 30,
+                  "kn-var-frames": 0,
+                  "kn-var-fx": 0,
+                  "kn-var-fx0": 0,
+                  "kn-var-fy0": 0,
+                  "kn-var-fz": 0,
+                  "kn-var-fz0": 0,
+                  "kn-var-got": 0,
+                  "kn-var-ground": 0,
+                  "kn-var-gui_dirty": 0,
+                  "kn-var-guimx": 0,
+                  "kn-var-guimy": 0,
+                  "kn-var-gx": 0,
+                  "kn-var-gx0": 0,
+                  "kn-var-gy0": 0,
+                  "kn-var-gz": 0,
+                  "kn-var-hb": 0,
+                  "kn-var-hb0": 0,
+                  "kn-var-hbx": 0,
+                  "kn-var-hit": 0,
+                  "kn-var-hitlabel": 0,
+                  "kn-var-hp": 20,
+                  "kn-var-hs": 0,
+                  "kn-var-hud_dirty": 1,
+                  "kn-var-hudsel": 0,
+                  "kn-var-hudtick": 0,
+                  "kn-var-hue": 26.5,
+                  "kn-var-hx": 0,
+                  "kn-var-hy": 0,
+                  "kn-var-hy0": 0,
+                  "kn-var-hz": 0,
+                  "kn-var-inwater": 0,
+                  "kn-var-ix": 0,
+                  "kn-var-iz": 0,
+                  "kn-var-lab": 0,
+                  "kn-var-last": 0,
+                  "kn-var-lastmx": 0,
+                  "kn-var-lastmy": 0,
+                  "kn-var-lastx": 0,
+                  "kn-var-lasty": 0,
+                  "kn-var-lastz": 0,
+                  "kn-var-light": 0,
+                  "kn-var-mb": 0,
+                  "kn-var-mf": 0,
+                  "kn-var-minex": 0,
+                  "kn-var-miney": 0,
+                  "kn-var-minez": 0,
+                  "kn-var-mining": 0,
+                  "kn-var-mousedown": 0,
+                  "kn-var-mouselook": 0,
+                  "kn-var-ms": 0,
+                  "kn-var-mx": 0,
+                  "kn-var-mx0": 0,
+                  "kn-var-my": 0,
+                  "kn-var-my0": 0,
+                  "kn-var-mz": 0,
+                  "kn-var-n00": 0,
+                  "kn-var-n01": 0,
+                  "kn-var-n1": 0,
+                  "kn-var-n10": 0,
+                  "kn-var-n11": 0,
+                  "kn-var-n2": 0,
+                  "kn-var-notice": "",
+                  "kn-var-notice_t": 0,
+                  "kn-var-nx": 0,
+                  "kn-var-nxp": 0,
+                  "kn-var-nyp": 0,
+                  "kn-var-nz": 0,
+                  "kn-var-nzp": 0,
+                  "kn-var-over": 0,
+                  "kn-var-pb": 0,
+                  "kn-var-pcx": 0,
+                  "kn-var-pcz": 0,
+                  "kn-var-pending": 0,
+                  "kn-var-pitch": 0,
+                  "kn-var-pix": 0,
+                  "kn-var-place_req": 0,
+                  "kn-var-pq": 0,
+                  "kn-var-px": 8,
+                  "kn-var-pxl": 0,
+                  "kn-var-py": 30,
+                  "kn-var-pz": 8,
+                  "kn-var-qx": 0,
+                  "kn-var-qz": 0,
+                  "kn-var-r": 0,
+                  "kn-var-r0": 0,
+                  "kn-var-rb": 0,
+                  "kn-var-regen": 0,
+                  "kn-var-rn": 0,
+                  "kn-var-rx0": 0,
+                  "kn-var-ry": 0,
+                  "kn-var-rz0": 0,
+                  "kn-var-sat": 0,
+                  "kn-var-sb": 0,
+                  "kn-var-scale": 0,
+                  "kn-var-screen": 0,
+                  "kn-var-seed": 1,
+                  "kn-var-sel": 1,
+                  "kn-var-shade": 0,
+                  "kn-var-skys": 0,
+                  "kn-var-skyv": 0,
+                  "kn-var-slot": 0,
+                  "kn-var-slotb": 0,
+                  "kn-var-sp": 0,
+                  "kn-var-speed": 0,
+                  "kn-var-started": 0,
+                  "kn-var-stx": 0,
+                  "kn-var-sty": 0,
+                  "kn-var-stz": 0,
+                  "kn-var-su": 0,
+                  "kn-var-sund": 0,
+                  "kn-var-sunx": 0.7,
+                  "kn-var-suny": 0.7,
+                  "kn-var-sv": 0,
+                  "kn-var-sy": 0,
+                  "kn-var-sy0": 0,
+                  "kn-var-t": 0,
+                  "kn-var-t1": 0,
+                  "kn-var-t2": 0,
+                  "kn-var-t3": 0,
+                  "kn-var-texel": 751,
+                  "kn-var-tid": 2,
+                  "kn-var-top": 0,
+                  "kn-var-tu": 0,
+                  "kn-var-tv": 0,
+                  "kn-var-tx": 0,
+                  "kn-var-ty": 0,
+                  "kn-var-tz": 0,
+                  "kn-var-ux0": 0,
+                  "kn-var-uy0": 0,
+                  "kn-var-uz0": 0,
+                  "kn-var-val": 0,
+                  "kn-var-vrows": 0,
+                  "kn-var-vy": 0,
+                  "kn-var-wasdown": 0,
+                  "kn-var-wex": 0,
+                  "kn-var-wez": 0,
+                  "kn-var-wx": 0,
+                  "kn-var-wz": 0,
+                  "kn-var-yaw": 0
+                }
+              }
+            },
+            "hateneko": {
+              "status": "ok",
+              "errors": [],
+              "missing_primitives": [],
+              "expected_frames": 600,
+              "measured_frames": 600,
+              "expected_warmup": 0,
+              "measured_warmup": 0,
+              "milestone_reached": true,
+              "final_state": {
+                "current_scene_id": "nekoc-scene-main",
+                "actors": {
+                  "nekoc-default-actor": {
+                    "current_style_id": "nekoc-costume",
+                    "id": "nekoc-default-actor",
+                    "name": "Sprite",
+                    "prototype_id": "nekoc-default-actor",
+                    "rotation": 0,
+                    "scale": 100,
+                    "scale_y": 100,
+                    "visible": false,
+                    "x": 0,
+                    "y": -65
+                  }
+                },
+                "entity_variables": {
+                  "nekoc-default-actor": {}
+                },
+                "variables": {
+                  "kn-list-block_faces": {
+                    "kind": "list",
+                    "length": 54,
+                    "sha256": "591e2244d786a7dcafd6c14c5fc9a0c1fb8052ca052bdbb381b896a74ba70b1e",
+                    "first": [
+                      0,
+                      1,
+                      2
+                    ],
+                    "last": [
+                      20,
+                      21,
+                      8
+                    ]
+                  },
+                  "kn-list-block_names": [
+                    "草方块",
+                    "泥土",
+                    "石头",
+                    "沙子",
+                    "原木",
+                    "树叶",
+                    "木板",
+                    "圆石",
+                    "煤矿石",
+                    "铁矿石",
+                    "金矿石",
+                    "钻石矿石",
+                    "玻璃",
+                    "红砖",
+                    "水",
+                    "雪块",
+                    "基岩",
+                    "工作台"
+                  ],
+                  "kn-list-chunk_x": {
+                    "kind": "list",
+                    "length": 64,
+                    "sha256": "17294ded8e7270f1f5db008f1a7a0dcf7ec945d5f6b48c89064f9129f87d9125",
+                    "first": [
+                      99999,
+                      99999,
+                      99999
+                    ],
+                    "last": [
+                      99999,
+                      99999,
+                      99999
+                    ]
+                  },
+                  "kn-list-chunk_z": {
+                    "kind": "list",
+                    "length": 64,
+                    "sha256": "17294ded8e7270f1f5db008f1a7a0dcf7ec945d5f6b48c89064f9129f87d9125",
+                    "first": [
+                      99999,
+                      99999,
+                      99999
+                    ],
+                    "last": [
+                      99999,
+                      99999,
+                      99999
+                    ]
+                  },
+                  "kn-list-edit_b": [],
+                  "kn-list-edit_cx": [],
+                  "kn-list-edit_cz": [],
+                  "kn-list-edit_i": [],
+                  "kn-list-hardness": [
+                    0.5,
+                    0.4,
+                    1.4,
+                    0.4,
+                    0.9,
+                    0.2,
+                    0.8,
+                    1.6,
+                    1.8,
+                    2.4,
+                    2.8,
+                    3.4,
+                    0.3,
+                    1.6,
+                    99,
+                    0.4,
+                    99,
+                    1
+                  ],
+                  "kn-list-help": [
+                    "W A S D：移动　　空格：跳跃 / 上浮　　R：奔跑",
+                    "方向键：转动视角（设置里可开启鼠标视角）",
+                    "F 或按住鼠标左键：挖方块",
+                    "G：放置快捷栏选中的方块",
+                    "数字键 1–9：切换快捷栏",
+                    "E：背包　　C：合成",
+                    "P：暂停菜单",
+                    "世界会无限延伸，你改过的方块都会保留",
+                    "小心高处：摔落会掉血，血量会慢慢恢复"
+                  ],
+                  "kn-list-hot": [
+                    2,
+                    3,
+                    5,
+                    7,
+                    8,
+                    13,
+                    14,
+                    4,
+                    18
+                  ],
+                  "kn-list-inv": [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                  ],
+                  "kn-list-recipes": {
+                    "kind": "list",
+                    "length": 36,
+                    "sha256": "b3c025a7ee15538f174407d217788dfb871a2452f04cd6943c73cce3783ec8d5",
+                    "first": [
+                      7,
+                      4,
+                      5
+                    ],
+                    "last": [
+                      1,
+                      0,
+                      0
+                    ]
+                  },
+                  "kn-list-tex_h": {
+                    "kind": "list",
+                    "length": 5632,
+                    "sha256": "771af4a18b1b917a63b94cd3c01c8675fcb2b7596da3292d44a39b3e61de5d16",
+                    "first": [
+                      103.8,
+                      103.7,
+                      103.7
+                    ],
+                    "last": [
+                      31.7,
+                      31.7,
+                      31.7
+                    ]
+                  },
+                  "kn-list-tex_s": {
+                    "kind": "list",
+                    "length": 5632,
+                    "sha256": "b2d34dd4ac5b61a646bf7241275c92c322da62f539da2450810726df0d312ce2",
+                    "first": [
+                      55.2,
+                      68.6,
+                      58.2
+                    ],
+                    "last": [
+                      59,
+                      59,
+                      59
+                    ]
+                  },
+                  "kn-list-tex_v": {
+                    "kind": "list",
+                    "length": 5632,
+                    "sha256": "584298d50352552be3240c0fc3f9b1a7d7c1c20b32c5a9875c8cf278532fe315",
+                    "first": [
+                      68.2,
+                      54.9,
+                      64.7
+                    ],
+                    "last": [
+                      47.8,
+                      47.8,
+                      47.8
+                    ]
+                  },
+                  "kn-list-world": {
+                    "kind": "list",
+                    "length": 524288,
+                    "sha256": "85f99ca1946040d96a6130d38d54735660098f0a066ec0cbfc15fdc56ac7a576",
+                    "first": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "last": [
+                      0,
+                      0,
+                      0
+                    ]
+                  },
+                  "kn-var-a1": 0,
+                  "kn-var-a2": 0,
+                  "kn-var-ab": 0,
+                  "kn-var-action": 0,
+                  "kn-var-adx": 0,
+                  "kn-var-ady": 0,
+                  "kn-var-adz": 0,
+                  "kn-var-aimok": 0,
+                  "kn-var-aimx": -9999,
+                  "kn-var-aimy": 0,
+                  "kn-var-aimz": 0,
+                  "kn-var-ax": 0,
+                  "kn-var-ay": 0,
+                  "kn-var-az": 0,
+                  "kn-var-b": 0,
+                  "kn-var-back": 0,
+                  "kn-var-base": 0,
+                  "kn-var-can": 0,
+                  "kn-var-cave": 0,
+                  "kn-var-ccy": 0,
+                  "kn-var-cellp": 12,
+                  "kn-var-clicked": 0,
+                  "kn-var-clock": 0.08,
+                  "kn-var-cols": 120,
+                  "kn-var-cp": 0,
+                  "kn-var-cy": 0,
+                  "kn-var-cy2": 0,
+                  "kn-var-day": 0,
+                  "kn-var-dayf": 0,
+                  "kn-var-done": 0,
+                  "kn-var-drop": 0,
+                  "kn-var-dt": 0,
+                  "kn-var-dx": 0,
+                  "kn-var-dy": 0,
+                  "kn-var-dz": 0,
+                  "kn-var-ei": 0,
+                  "kn-var-ex": 0,
+                  "kn-var-ey": 0,
+                  "kn-var-ez": 0,
+                  "kn-var-face": 0,
+                  "kn-var-fallfrom": 0,
+                  "kn-var-far": 32,
+                  "kn-var-fi": 0,
+                  "kn-var-fog": 0,
+                  "kn-var-fps": 30,
+                  "kn-var-frames": 0,
+                  "kn-var-fx": 0,
+                  "kn-var-fx0": 0,
+                  "kn-var-fy0": 0,
+                  "kn-var-fz": 0,
+                  "kn-var-fz0": 0,
+                  "kn-var-got": 0,
+                  "kn-var-ground": 0,
+                  "kn-var-gui_dirty": 0,
+                  "kn-var-guimx": null,
+                  "kn-var-guimy": null,
+                  "kn-var-gx": 0,
+                  "kn-var-gx0": 0,
+                  "kn-var-gy0": 0,
+                  "kn-var-gz": 0,
+                  "kn-var-hb": 0,
+                  "kn-var-hb0": 0,
+                  "kn-var-hbx": 0,
+                  "kn-var-hit": 0,
+                  "kn-var-hitlabel": 0,
+                  "kn-var-hp": 20,
+                  "kn-var-hs": 0,
+                  "kn-var-hud_dirty": 1,
+                  "kn-var-hudsel": 0,
+                  "kn-var-hudtick": 0,
+                  "kn-var-hue": 26.5,
+                  "kn-var-hx": 0,
+                  "kn-var-hy": 0,
+                  "kn-var-hy0": 0,
+                  "kn-var-hz": 0,
+                  "kn-var-inwater": 0,
+                  "kn-var-ix": 0,
+                  "kn-var-iz": 0,
+                  "kn-var-lab": 0,
+                  "kn-var-last": 0,
+                  "kn-var-lastmx": 0,
+                  "kn-var-lastmy": 0,
+                  "kn-var-lastx": 0,
+                  "kn-var-lasty": 0,
+                  "kn-var-lastz": 0,
+                  "kn-var-light": 0,
+                  "kn-var-mb": 0,
+                  "kn-var-mf": 0,
+                  "kn-var-minex": 0,
+                  "kn-var-miney": 0,
+                  "kn-var-minez": 0,
+                  "kn-var-mining": 0,
+                  "kn-var-mousedown": 0,
+                  "kn-var-mouselook": 0,
+                  "kn-var-ms": 0,
+                  "kn-var-mx": 0,
+                  "kn-var-mx0": null,
+                  "kn-var-my": 0,
+                  "kn-var-my0": null,
+                  "kn-var-mz": 0,
+                  "kn-var-n00": 0,
+                  "kn-var-n01": 0,
+                  "kn-var-n1": 0,
+                  "kn-var-n10": 0,
+                  "kn-var-n11": 0,
+                  "kn-var-n2": 0,
+                  "kn-var-notice": "",
+                  "kn-var-notice_t": 0,
+                  "kn-var-nx": 0,
+                  "kn-var-nxp": 0,
+                  "kn-var-nyp": 0,
+                  "kn-var-nz": 0,
+                  "kn-var-nzp": 0,
+                  "kn-var-over": 0,
+                  "kn-var-pb": 0,
+                  "kn-var-pcx": 0,
+                  "kn-var-pcz": 0,
+                  "kn-var-pending": 0,
+                  "kn-var-pitch": 0,
+                  "kn-var-pix": 0,
+                  "kn-var-place_req": 0,
+                  "kn-var-pq": 0,
+                  "kn-var-px": 8,
+                  "kn-var-pxl": 0,
+                  "kn-var-py": 30,
+                  "kn-var-pz": 8,
+                  "kn-var-qx": 0,
+                  "kn-var-qz": 0,
+                  "kn-var-r": 0,
+                  "kn-var-r0": 0,
+                  "kn-var-rb": 0,
+                  "kn-var-regen": 0,
+                  "kn-var-rn": 0,
+                  "kn-var-rx0": 0,
+                  "kn-var-ry": 0,
+                  "kn-var-rz0": 0,
+                  "kn-var-sat": 0,
+                  "kn-var-sb": 0,
+                  "kn-var-scale": 0,
+                  "kn-var-screen": 0,
+                  "kn-var-seed": 1,
+                  "kn-var-sel": 1,
+                  "kn-var-shade": 0,
+                  "kn-var-skys": 0,
+                  "kn-var-skyv": 0,
+                  "kn-var-slot": 0,
+                  "kn-var-slotb": 0,
+                  "kn-var-sp": 0,
+                  "kn-var-speed": 0,
+                  "kn-var-started": 0,
+                  "kn-var-stx": 0,
+                  "kn-var-sty": 0,
+                  "kn-var-stz": 0,
+                  "kn-var-su": 0,
+                  "kn-var-sund": 0,
+                  "kn-var-sunx": 0.7,
+                  "kn-var-suny": 0.7,
+                  "kn-var-sv": 0,
+                  "kn-var-sy": 0,
+                  "kn-var-sy0": 0,
+                  "kn-var-t": 0,
+                  "kn-var-t1": 0,
+                  "kn-var-t2": 0,
+                  "kn-var-t3": 0,
+                  "kn-var-texel": 751,
+                  "kn-var-tid": 2,
+                  "kn-var-top": 0,
+                  "kn-var-tu": 0,
+                  "kn-var-tv": 0,
+                  "kn-var-tx": 0,
+                  "kn-var-ty": 0,
+                  "kn-var-tz": 0,
+                  "kn-var-ux0": 0,
+                  "kn-var-uy0": 0,
+                  "kn-var-uz0": 0,
+                  "kn-var-val": 0,
+                  "kn-var-vrows": 0,
+                  "kn-var-vy": 0,
+                  "kn-var-wasdown": 0,
+                  "kn-var-wex": 0,
+                  "kn-var-wez": 0,
+                  "kn-var-wx": 0,
+                  "kn-var-wz": 0,
+                  "kn-var-yaw": 0
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "source": "E:\\nekoc-wt\\hncompat2\\dist\\bench\\hncompat2-long\\tiny-lm-interpreter\\results.json",
+      "source_sha256": "9992e438189762ead942839b6c7a529d0489f368844ee373429c17d3fbbf1412",
+      "revision": "d2d277bc62f7536d77797e0a8660ef73055465dd",
+      "binary_sha256": "6645f7100b3c4f6d48f567deef969c2012f09f22827640c5c0f044607726a386",
+      "interpreter": true,
+      "binary_unchanged": true,
+      "reference": {
+        "version": "0.4.0",
+        "unchanged": true,
+        "tree_sha256": "be9a9c4936d4b7d3b83a38e128b6dd255cf418fa502e2a44e1aa87641158f74c"
+      },
+      "file": "projects/tiny-lm/tiny_lm.bcmkn",
+      "sha256": "cf5c58a1ab92c1b605897a5093bea80a5bffc23e79c87dc7fa3a65b2ab82fb16",
+      "frames": 600,
+      "runs": [
+        {
+          "comparison": {
+            "equal": false,
+            "differences": [
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.length",
+                "nekoc": 15,
+                "hateneko": 32
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.0",
+                "nekoc": 66,
+                "hateneko": 20
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.1",
+                "nekoc": 15,
+                "hateneko": 29
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.10",
+                "nekoc": 27,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.11",
+                "nekoc": 33,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.12",
+                "nekoc": 32,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.13",
+                "nekoc": 35,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.14",
+                "nekoc": 2,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.15",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.16",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.17",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.18",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.19",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.2",
+                "nekoc": 31,
+                "hateneko": 71
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.20",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.21",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.22",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.23",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.24",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.25",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.26",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.27",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.28",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.29",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.3",
+                "nekoc": 4,
+                "hateneko": 71
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.30",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.31",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.4",
+                "nekoc": 78,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.6",
+                "nekoc": 64,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.7",
+                "nekoc": 7,
+                "hateneko": 58
+              }
+            ]
+          },
+          "normalization": {
+            "privateDeclarations": {},
+            "excludeVariables": []
+          },
+          "normalized_comparison": {
+            "equal": false,
+            "differences": [
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.length",
+                "nekoc": 15,
+                "hateneko": 32
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.0",
+                "nekoc": 66,
+                "hateneko": 20
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.1",
+                "nekoc": 15,
+                "hateneko": 29
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.10",
+                "nekoc": 27,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.11",
+                "nekoc": 33,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.12",
+                "nekoc": 32,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.13",
+                "nekoc": 35,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.14",
+                "nekoc": 2,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.15",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.16",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.17",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.18",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.19",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.2",
+                "nekoc": 31,
+                "hateneko": 71
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.20",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.21",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.22",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.23",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.24",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.25",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.26",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.27",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.28",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.29",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.3",
+                "nekoc": 4,
+                "hateneko": 71
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.30",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.31",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.4",
+                "nekoc": 78,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.6",
+                "nekoc": 64,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.7",
+                "nekoc": 7,
+                "hateneko": 58
+              }
+            ]
+          },
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "expected_frames": 600,
+              "measured_frames": 600,
+              "expected_warmup": 0,
+              "measured_warmup": 0,
+              "milestone_reached": true,
+              "final_state": {
+                "current_scene_id": "nekoc-scene-main",
+                "actors": {
+                  "nekoc-default-actor": {
+                    "id": "nekoc-default-actor",
+                    "prototype_id": "nekoc-default-actor",
+                    "name": "Sprite",
+                    "x": -420,
+                    "y": -242,
+                    "rotation": 90,
+                    "current_style_id": "nekoc-costume",
+                    "scale": 100,
+                    "scale_y": 100,
+                    "visible": false
+                  }
+                },
+                "entity_variables": {
+                  "nekoc-default-actor": {}
+                },
+                "variables": {
+                  "kn-list-lm_generated_ids": [
+                    66,
+                    15,
+                    31,
+                    4,
+                    78,
+                    58,
+                    64,
+                    7,
+                    8,
+                    2,
+                    27,
+                    33,
+                    32,
+                    35,
+                    2
+                  ],
+                  "kn-list-lm_logits": {
+                    "kind": "list",
+                    "length": 79,
+                    "sha256": "82cb94071cc067c42e438cee5e9acda48a772c492718d212f52902bad4b89bce",
+                    "first": [
+                      -0.1884372843292726,
+                      12.47399612245611,
+                      1.834803327526732
+                    ],
+                    "last": [
+                      0.27435569172867635,
+                      1.0726649506302794,
+                      0.4089176804471416
+                    ]
+                  },
+                  "kn-list-lm_prompt_tokens": [
+                    0,
+                    30,
+                    56
+                  ],
+                  "kn-list-lm_token_ms": [
+                    33.33333333333333,
+                    33.33333333333333,
+                    33.33333333333336,
+                    33.33333333333333,
+                    33.33333333333333,
+                    33.33333333333333,
+                    33.33333333333333,
+                    33.33333333333333,
+                    33.333333333333435,
+                    33.333333333333435,
+                    33.333333333333435,
+                    33.333333333333435,
+                    33.333333333333435,
+                    33.333333333333435,
+                    50.000000000000156
+                  ],
+                  "kn-list-lm_top_ids": [
+                    1,
+                    30,
+                    2
+                  ],
+                  "kn-list-lm_top_scores": [
+                    12.47399612245611,
+                    1.8550150733035584,
+                    1.834803327526732
+                  ],
+                  "kn-list-lm_vocabulary": {
+                    "kind": "list",
+                    "length": 79,
+                    "sha256": "cefc995da801bbcd03ee339e70b20215f3ae4d91832d5e8a6ad43710c292fe1c",
+                    "first": [
+                      "<BOS>",
+                      "<EOS>",
+                      "。"
+                    ],
+                    "last": [
+                      "鸟",
+                      "鹿",
+                      "，"
+                    ]
+                  },
+                  "kn-list-lm_weights": {
+                    "kind": "list",
+                    "length": 29312,
+                    "sha256": "c292e279e8a794a83e29583eeaf7f25c02f636000be51d868a34d29bcb95ce7a",
+                    "first": [
+                      -0.056283399,
+                      0.049609251,
+                      -0.112355553
+                    ],
+                    "last": [
+                      1.468102813,
+                      1.38531518,
+                      1.320181966
+                    ]
+                  },
+                  "kn-var-lm_frames": 93,
+                  "kn-var-lm_generated": 15,
+                  "kn-var-lm_input_token": 2,
+                  "kn-var-lm_last_input": 2,
+                  "kn-var-lm_last_position": 17,
+                  "kn-var-lm_last_seconds": 0.03333333333333344,
+                  "kn-var-lm_layer": 1,
+                  "kn-var-lm_max_new_tokens": 32,
+                  "kn-var-lm_next_token": 1,
+                  "kn-var-lm_output": "走到山上，看见了云。它很开心。",
+                  "kn-var-lm_parameters": 29312,
+                  "kn-var-lm_phase": "READY",
+                  "kn-var-lm_position": 18,
+                  "kn-var-lm_prefill": 0,
+                  "kn-var-lm_prompt": "小猫",
+                  "kn-var-lm_ready": 1,
+                  "kn-var-lm_request": 0,
+                  "kn-var-lm_running": 0,
+                  "kn-var-lm_seed": 7,
+                  "kn-var-lm_status": "DONE / EOS",
+                  "kn-var-lm_stop": 0,
+                  "kn-var-lm_temperature": 0,
+                  "kn-var-lm_tokens_processed": 18,
+                  "kn-var-lm_vocab_size": 79,
+                  "kn-var-lm_weight_count": 29312
+                }
+              }
+            },
+            "hateneko": {
+              "status": "ok",
+              "errors": [],
+              "missing_primitives": [],
+              "expected_frames": 600,
+              "measured_frames": 600,
+              "expected_warmup": 0,
+              "measured_warmup": 0,
+              "milestone_reached": false,
+              "final_state": {
+                "current_scene_id": "nekoc-scene-main",
+                "actors": {
+                  "nekoc-default-actor": {
+                    "current_style_id": "nekoc-costume",
+                    "id": "nekoc-default-actor",
+                    "name": "Sprite",
+                    "prototype_id": "nekoc-default-actor",
+                    "rotation": 0,
+                    "scale": 100,
+                    "scale_y": 100,
+                    "visible": false,
+                    "x": -420,
+                    "y": -242
+                  }
+                },
+                "entity_variables": {
+                  "nekoc-default-actor": {}
+                },
+                "variables": {
+                  "kn-list-lm_generated_ids": [
+                    20,
+                    29,
+                    71,
+                    71,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58
+                  ],
+                  "kn-list-lm_logits": {
+                    "kind": "list",
+                    "length": 79,
+                    "sha256": "d5dc252f233d8882b940eff9123d0e0b6bfb82e7e913b90f473bb89793bcf1a8",
+                    "first": [
+                      0.12969772439536736,
+                      -2.1985134541843774,
+                      -2.578517711857463
+                    ],
+                    "last": [
+                      -2.4741748057933077,
+                      -2.3880134848767263,
+                      0.296624844026925
+                    ]
+                  },
+                  "kn-list-lm_prompt_tokens": [
+                    0,
+                    30,
+                    56
+                  ],
+                  "kn-list-lm_token_ms": [
+                    30,
+                    20.000000000000018,
+                    20.000000000000018,
+                    19.99999999999999,
+                    19.99999999999999,
+                    30.00000000000003,
+                    19.99999999999996,
+                    30.00000000000003,
+                    29.99999999999997,
+                    20.000000000000018,
+                    29.99999999999997,
+                    20.000000000000018,
+                    20.000000000000018,
+                    20.000000000000018,
+                    20.000000000000018,
+                    30.00000000000003,
+                    20.000000000000018,
+                    19.999999999999908,
+                    30.00000000000003,
+                    30.00000000000003,
+                    20.000000000000018,
+                    29.999999999999915,
+                    30.00000000000003,
+                    30.00000000000003,
+                    20.000000000000018,
+                    20.000000000000018,
+                    19.999999999999908,
+                    30.00000000000003,
+                    30.00000000000003,
+                    30.00000000000003,
+                    29.999999999999915,
+                    30.00000000000003
+                  ],
+                  "kn-list-lm_top_ids": [
+                    58,
+                    70,
+                    30
+                  ],
+                  "kn-list-lm_top_scores": [
+                    9.391490744154186,
+                    6.159867334616554,
+                    4.830586603003943
+                  ],
+                  "kn-list-lm_vocabulary": {
+                    "kind": "list",
+                    "length": 79,
+                    "sha256": "cefc995da801bbcd03ee339e70b20215f3ae4d91832d5e8a6ad43710c292fe1c",
+                    "first": [
+                      "<BOS>",
+                      "<EOS>",
+                      "。"
+                    ],
+                    "last": [
+                      "鸟",
+                      "鹿",
+                      "，"
+                    ]
+                  },
+                  "kn-list-lm_weights": {
+                    "kind": "list",
+                    "length": 29312,
+                    "sha256": "c292e279e8a794a83e29583eeaf7f25c02f636000be51d868a34d29bcb95ce7a",
+                    "first": [
+                      -0.056283399,
+                      0.049609251,
+                      -0.112355553
+                    ],
+                    "last": [
+                      1.468102813,
+                      1.38531518,
+                      1.320181966
+                    ]
+                  },
+                  "kn-var-lm_frames": 52,
+                  "kn-var-lm_generated": 32,
+                  "kn-var-lm_input_token": 58,
+                  "kn-var-lm_last_input": 58,
+                  "kn-var-lm_last_position": 33,
+                  "kn-var-lm_last_seconds": 0.030000000000000027,
+                  "kn-var-lm_layer": 1,
+                  "kn-var-lm_max_new_tokens": 32,
+                  "kn-var-lm_next_token": 58,
+                  "kn-var-lm_output": "在家里里看看看看看看看看看看看看看看看看看看看看看看看看看看看看",
+                  "kn-var-lm_parameters": 29312,
+                  "kn-var-lm_phase": "READY",
+                  "kn-var-lm_position": 34,
+                  "kn-var-lm_prefill": 0,
+                  "kn-var-lm_prompt": "小猫",
+                  "kn-var-lm_ready": 1,
+                  "kn-var-lm_request": 0,
+                  "kn-var-lm_running": 0,
+                  "kn-var-lm_seed": 7,
+                  "kn-var-lm_status": "DONE / LIMIT",
+                  "kn-var-lm_stop": 0,
+                  "kn-var-lm_temperature": 0,
+                  "kn-var-lm_tokens_processed": 34,
+                  "kn-var-lm_vocab_size": 79,
+                  "kn-var-lm_weight_count": 29312
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "source": "E:\\nekoc-wt\\hncompat2\\dist\\bench\\hncompat2-long\\tiny-lm-jit\\results.json",
+      "source_sha256": "5137cc86f228f45c49c3e54ca5790d35dd26a16301df2d8a36f4384f1948095e",
+      "revision": "d2d277bc62f7536d77797e0a8660ef73055465dd",
+      "binary_sha256": "6645f7100b3c4f6d48f567deef969c2012f09f22827640c5c0f044607726a386",
+      "interpreter": false,
+      "binary_unchanged": true,
+      "reference": {
+        "version": "0.4.0",
+        "unchanged": true,
+        "tree_sha256": "be9a9c4936d4b7d3b83a38e128b6dd255cf418fa502e2a44e1aa87641158f74c"
+      },
+      "file": "projects/tiny-lm/tiny_lm.bcmkn",
+      "sha256": "cf5c58a1ab92c1b605897a5093bea80a5bffc23e79c87dc7fa3a65b2ab82fb16",
+      "frames": 600,
+      "runs": [
+        {
+          "comparison": {
+            "equal": false,
+            "differences": [
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.length",
+                "nekoc": 15,
+                "hateneko": 32
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.0",
+                "nekoc": 66,
+                "hateneko": 20
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.1",
+                "nekoc": 15,
+                "hateneko": 29
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.10",
+                "nekoc": 27,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.11",
+                "nekoc": 33,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.12",
+                "nekoc": 32,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.13",
+                "nekoc": 35,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.14",
+                "nekoc": 2,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.15",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.16",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.17",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.18",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.19",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.2",
+                "nekoc": 31,
+                "hateneko": 71
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.20",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.21",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.22",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.23",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.24",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.25",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.26",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.27",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.28",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.29",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.3",
+                "nekoc": 4,
+                "hateneko": 71
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.30",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.31",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.4",
+                "nekoc": 78,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.6",
+                "nekoc": 64,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.7",
+                "nekoc": 7,
+                "hateneko": 58
+              }
+            ]
+          },
+          "normalization": {
+            "privateDeclarations": {},
+            "excludeVariables": []
+          },
+          "normalized_comparison": {
+            "equal": false,
+            "differences": [
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.length",
+                "nekoc": 15,
+                "hateneko": 32
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.0",
+                "nekoc": 66,
+                "hateneko": 20
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.1",
+                "nekoc": 15,
+                "hateneko": 29
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.10",
+                "nekoc": 27,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.11",
+                "nekoc": 33,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.12",
+                "nekoc": 32,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.13",
+                "nekoc": 35,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.14",
+                "nekoc": 2,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.15",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.16",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.17",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.18",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.19",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.2",
+                "nekoc": 31,
+                "hateneko": 71
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.20",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.21",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.22",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.23",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.24",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.25",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.26",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.27",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.28",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.29",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.3",
+                "nekoc": 4,
+                "hateneko": 71
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.30",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.31",
+                "nekoc": null,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.4",
+                "nekoc": 78,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.6",
+                "nekoc": 64,
+                "hateneko": 58
+              },
+              {
+                "key": "state.variables.kn-list-lm_generated_ids.7",
+                "nekoc": 7,
+                "hateneko": 58
+              }
+            ]
+          },
+          "runtimes": {
+            "nekoc": {
+              "status": "ok",
+              "expected_frames": 600,
+              "measured_frames": 600,
+              "expected_warmup": 0,
+              "measured_warmup": 0,
+              "milestone_reached": true,
+              "final_state": {
+                "current_scene_id": "nekoc-scene-main",
+                "actors": {
+                  "nekoc-default-actor": {
+                    "id": "nekoc-default-actor",
+                    "prototype_id": "nekoc-default-actor",
+                    "name": "Sprite",
+                    "x": -420,
+                    "y": -242,
+                    "rotation": 90,
+                    "current_style_id": "nekoc-costume",
+                    "scale": 100,
+                    "scale_y": 100,
+                    "visible": false
+                  }
+                },
+                "entity_variables": {
+                  "nekoc-default-actor": {}
+                },
+                "variables": {
+                  "kn-list-lm_generated_ids": [
+                    66,
+                    15,
+                    31,
+                    4,
+                    78,
+                    58,
+                    64,
+                    7,
+                    8,
+                    2,
+                    27,
+                    33,
+                    32,
+                    35,
+                    2
+                  ],
+                  "kn-list-lm_logits": {
+                    "kind": "list",
+                    "length": 79,
+                    "sha256": "82cb94071cc067c42e438cee5e9acda48a772c492718d212f52902bad4b89bce",
+                    "first": [
+                      -0.1884372843292726,
+                      12.47399612245611,
+                      1.834803327526732
+                    ],
+                    "last": [
+                      0.27435569172867635,
+                      1.0726649506302794,
+                      0.4089176804471416
+                    ]
+                  },
+                  "kn-list-lm_prompt_tokens": [
+                    0,
+                    30,
+                    56
+                  ],
+                  "kn-list-lm_token_ms": [
+                    33.33333333333333,
+                    66.66666666666669,
+                    49.999999999999986,
+                    16.666666666666664,
+                    33.33333333333333,
+                    33.33333333333333,
+                    33.33333333333333,
+                    16.666666666666718,
+                    33.333333333333435,
+                    33.333333333333435,
+                    33.333333333333435,
+                    16.666666666666718,
+                    33.333333333333435,
+                    166.6666666666672,
+                    16.666666666666607
+                  ],
+                  "kn-list-lm_top_ids": [
+                    1,
+                    30,
+                    2
+                  ],
+                  "kn-list-lm_top_scores": [
+                    12.47399612245611,
+                    1.8550150733035584,
+                    1.834803327526732
+                  ],
+                  "kn-list-lm_vocabulary": {
+                    "kind": "list",
+                    "length": 79,
+                    "sha256": "cefc995da801bbcd03ee339e70b20215f3ae4d91832d5e8a6ad43710c292fe1c",
+                    "first": [
+                      "<BOS>",
+                      "<EOS>",
+                      "。"
+                    ],
+                    "last": [
+                      "鸟",
+                      "鹿",
+                      "，"
+                    ]
+                  },
+                  "kn-list-lm_weights": {
+                    "kind": "list",
+                    "length": 29312,
+                    "sha256": "c292e279e8a794a83e29583eeaf7f25c02f636000be51d868a34d29bcb95ce7a",
+                    "first": [
+                      -0.056283399,
+                      0.049609251,
+                      -0.112355553
+                    ],
+                    "last": [
+                      1.468102813,
+                      1.38531518,
+                      1.320181966
+                    ]
+                  },
+                  "kn-var-lm_frames": 92,
+                  "kn-var-lm_generated": 15,
+                  "kn-var-lm_input_token": 2,
+                  "kn-var-lm_last_input": 2,
+                  "kn-var-lm_last_position": 17,
+                  "kn-var-lm_last_seconds": 0,
+                  "kn-var-lm_layer": 1,
+                  "kn-var-lm_max_new_tokens": 32,
+                  "kn-var-lm_next_token": 1,
+                  "kn-var-lm_output": "走到山上，看见了云。它很开心。",
+                  "kn-var-lm_parameters": 29312,
+                  "kn-var-lm_phase": "READY",
+                  "kn-var-lm_position": 18,
+                  "kn-var-lm_prefill": 0,
+                  "kn-var-lm_prompt": "小猫",
+                  "kn-var-lm_ready": 1,
+                  "kn-var-lm_request": 0,
+                  "kn-var-lm_running": 0,
+                  "kn-var-lm_seed": 7,
+                  "kn-var-lm_status": "DONE / EOS",
+                  "kn-var-lm_stop": 0,
+                  "kn-var-lm_temperature": 0,
+                  "kn-var-lm_tokens_processed": 18,
+                  "kn-var-lm_vocab_size": 79,
+                  "kn-var-lm_weight_count": 29312
+                }
+              }
+            },
+            "hateneko": {
+              "status": "ok",
+              "errors": [],
+              "missing_primitives": [],
+              "expected_frames": 600,
+              "measured_frames": 600,
+              "expected_warmup": 0,
+              "measured_warmup": 0,
+              "milestone_reached": false,
+              "final_state": {
+                "current_scene_id": "nekoc-scene-main",
+                "actors": {
+                  "nekoc-default-actor": {
+                    "current_style_id": "nekoc-costume",
+                    "id": "nekoc-default-actor",
+                    "name": "Sprite",
+                    "prototype_id": "nekoc-default-actor",
+                    "rotation": 0,
+                    "scale": 100,
+                    "scale_y": 100,
+                    "visible": false,
+                    "x": -420,
+                    "y": -242
+                  }
+                },
+                "entity_variables": {
+                  "nekoc-default-actor": {}
+                },
+                "variables": {
+                  "kn-list-lm_generated_ids": [
+                    20,
+                    29,
+                    71,
+                    71,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58,
+                    58
+                  ],
+                  "kn-list-lm_logits": {
+                    "kind": "list",
+                    "length": 79,
+                    "sha256": "d5dc252f233d8882b940eff9123d0e0b6bfb82e7e913b90f473bb89793bcf1a8",
+                    "first": [
+                      0.12969772439536736,
+                      -2.1985134541843774,
+                      -2.578517711857463
+                    ],
+                    "last": [
+                      -2.4741748057933077,
+                      -2.3880134848767263,
+                      0.296624844026925
+                    ]
+                  },
+                  "kn-list-lm_prompt_tokens": [
+                    0,
+                    30,
+                    56
+                  ],
+                  "kn-list-lm_token_ms": [
+                    19.99999999999999,
+                    19.99999999999999,
+                    10.000000000000009,
+                    20.000000000000018,
+                    10.000000000000009,
+                    10.000000000000009,
+                    10.000000000000009,
+                    20.000000000000018,
+                    10.000000000000009,
+                    10.000000000000009,
+                    10.000000000000009,
+                    20.000000000000018,
+                    19.99999999999996,
+                    10.000000000000009,
+                    10.000000000000009,
+                    19.99999999999996,
+                    20.000000000000018,
+                    10.000000000000009,
+                    10.000000000000009,
+                    20.000000000000018,
+                    10.000000000000009,
+                    9.999999999999897,
+                    20.000000000000018,
+                    20.000000000000018,
+                    20.000000000000018,
+                    10.000000000000009,
+                    20.000000000000018,
+                    19.999999999999908,
+                    10.000000000000009,
+                    10.000000000000009,
+                    10.000000000000009,
+                    10.000000000000009
+                  ],
+                  "kn-list-lm_top_ids": [
+                    58,
+                    70,
+                    30
+                  ],
+                  "kn-list-lm_top_scores": [
+                    9.391490744154186,
+                    6.159867334616554,
+                    4.830586603003943
+                  ],
+                  "kn-list-lm_vocabulary": {
+                    "kind": "list",
+                    "length": 79,
+                    "sha256": "cefc995da801bbcd03ee339e70b20215f3ae4d91832d5e8a6ad43710c292fe1c",
+                    "first": [
+                      "<BOS>",
+                      "<EOS>",
+                      "。"
+                    ],
+                    "last": [
+                      "鸟",
+                      "鹿",
+                      "，"
+                    ]
+                  },
+                  "kn-list-lm_weights": {
+                    "kind": "list",
+                    "length": 29312,
+                    "sha256": "c292e279e8a794a83e29583eeaf7f25c02f636000be51d868a34d29bcb95ce7a",
+                    "first": [
+                      -0.056283399,
+                      0.049609251,
+                      -0.112355553
+                    ],
+                    "last": [
+                      1.468102813,
+                      1.38531518,
+                      1.320181966
+                    ]
+                  },
+                  "kn-var-lm_frames": 54,
+                  "kn-var-lm_generated": 32,
+                  "kn-var-lm_input_token": 58,
+                  "kn-var-lm_last_input": 58,
+                  "kn-var-lm_last_position": 33,
+                  "kn-var-lm_last_seconds": 0.010000000000000009,
+                  "kn-var-lm_layer": 1,
+                  "kn-var-lm_max_new_tokens": 32,
+                  "kn-var-lm_next_token": 58,
+                  "kn-var-lm_output": "在家里里看看看看看看看看看看看看看看看看看看看看看看看看看看看看",
+                  "kn-var-lm_parameters": 29312,
+                  "kn-var-lm_phase": "READY",
+                  "kn-var-lm_position": 34,
+                  "kn-var-lm_prefill": 0,
+                  "kn-var-lm_prompt": "小猫",
+                  "kn-var-lm_ready": 1,
+                  "kn-var-lm_request": 0,
+                  "kn-var-lm_running": 0,
+                  "kn-var-lm_seed": 7,
+                  "kn-var-lm_status": "DONE / LIMIT",
+                  "kn-var-lm_stop": 0,
+                  "kn-var-lm_temperature": 0,
+                  "kn-var-lm_tokens_processed": 34,
+                  "kn-var-lm_vocab_size": 79,
+                  "kn-var-lm_weight_count": 29312
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

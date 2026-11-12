@@ -399,12 +399,15 @@ fn forever_yields_and_warp_budget_resumes_without_losing_state() {
         json!({"type":"warp","statements":{"DO":{"type":"repeat_forever","statements":{"DO":movement(1.0)}}}}),
     );
     let mut vm = Engine::new(Program::compile(&project).unwrap());
+    vm.use_virtual_clock();
     vm.start();
     let first = vm.advance(1.0 / 60.0, 10, Duration::from_secs(2)).unwrap();
     assert!(first.budget_yield);
-    assert_eq!(first.sprites[1].y, 5.0);
+    // Move + KN iteration checkpoint + back edge: ten instructions complete
+    // three tails and enter the fourth body. The safety budget is not a slice.
+    assert_eq!(first.sprites[1].y, 4.0);
     let second = vm.advance(1.0 / 60.0, 10, Duration::from_secs(2)).unwrap();
-    assert_eq!(second.sprites[0].y, 10.0);
+    assert_eq!(second.sprites[0].y, 7.0);
     let ordinary = project_without_warp();
     let mut vm = Engine::new(Program::compile(&ordinary).unwrap());
     vm.start();
@@ -453,6 +456,7 @@ fn nested_loop_break_restores_outer_counter() {
         }}
     }}}));
     let mut vm = Engine::new(Program::compile(&p).unwrap());
+    vm.use_virtual_clock();
     vm.start();
     let f = frame(&mut vm);
     assert_eq!(f.active, 0);
@@ -565,6 +569,7 @@ fn statement_procedures_are_compiled_once_and_inherit_warp() {
         }}
     }]});
     let mut vm = Engine::new(Program::compile(&p).unwrap());
+    vm.use_virtual_clock();
     vm.start();
     let f = frame(&mut vm);
     assert_eq!(f.active, 0);
@@ -593,6 +598,8 @@ fn stress_bcmkn_compiles_and_streams_bounded_frames() {
         true
     );
     let mut vm = Engine::new(Program::compile(&project.value).unwrap());
+    // Test output bounds, not the host-dependent 4 ms KN warp slice.
+    vm.use_virtual_clock();
     vm.start();
     let f = frame(&mut vm);
     assert_eq!(f.lines.len(), 10001 * 9);

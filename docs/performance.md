@@ -1,5 +1,159 @@
 # NekoC / 离线 K4 播放器性能基准
 
+> **最新整合复测入口（2026-11-12，`da8dc9c`）：[总评分卡](scorecard.md)。**
+> 下文保留各轮历史数据、二进制身份与失败样本，不把它们冒充当前版本数据。
+> 最新同参数七项、41件兼容、覆盖与未验证项见评分卡；跨内核工作量不等仍不授予速度比。
+
+## 最新汇总：整合版本复测
+
+2026-11-12，基线 `da8dc9c5c414a4b32c9239c33df437d6d8322cf1`。
+测量命令为[评分卡命令表](scorecard.md#测量身份复现命令与口径)的K4/H：均10预热+60测量帧、
+三次独立进程/浏览器、取帧均值的中位数；默认JIT，非插件作品。保留全部重复与失败样本。
+
+| 探针 | N/K4帧均值ms | K4/N比值资格 | N/HateNeko帧均值ms（独立KN输入） | H/N比值资格 |
+|---|---:|---|---:|---|
+| 数值 | 0.036070 / 5.798333 | 160.75×，最终投影容差内相等 | 0.117712 / 1.662302 | 14.12×，三次观察相等 |
+| 列表 | 0.223143 / 0.865000 | 3.88×，最终投影相等 | 0.240512 / 1.302922 | 5.42×，三次观察相等 |
+| 字符串 | 0.148882 / 0.473333 | 3.18×，最终投影相等 | 0.204388 / 2.555538 | 12.50×，三次观察相等 |
+| 克隆 | 0.234970 / 4.830000 | 不可比，角色投影不同 | 0.120642 / 0.910122 | 不可比，生命周期不同 |
+| 广播 | 0.190592 / 0.223333 | 不可比，工作量不同 | 0.180145 / 0.730658 | 不可比，工作量不同 |
+| 递归 | 0.039913 / 1.175000 | 29.44×，最终投影相等 | 0.032783 / 1.243263 | 不可比，一次H少一批 |
+| 画笔 | 0.090340 / 277.985000 | 不可比，绘制边界不同 | 0.159500 / 3.501155 | 不可比，工作量/绘制边界不同 |
+
+N/K4与N/H分别读取K4/KN作品，不可交叉当同输入排序。H实测仍为**0.4.0 / Love2D 11.5**，不是0.7.1。
+递归H一次log=55200，另两次56000，N均56000，故本轮不能沿用历史40.09×；不删除不利样本。
+KN数值N明显高于历史0.02551ms，未作同机历史二进制AB交替，原因**未验证**，保留为性能风险，
+不能因其他探针变快就宣称全面无退化。官方KN七项不存在历史正式计时runner，不能用本表H列冒充。
+完整p95、终态、覆盖、扩展接口限制、peerbench与官方KN取证边界见[总评分卡](scorecard.md)。
+本轮完整门禁：fmt/Clippy通过；`RUST_TEST_THREADS=1 cargo test --all-targets`合计
+**925 passed / 0 failed / 1 ignored**；`npm run -s test:tools`为**614 passed / 0 failed / 62 skipped**（676项）。
+K4原命令三个seed均`{ ran: 52, run: 1 }`，保留`214725822`错误，不声称53件无错误。
+H41精确复测：N **41/41**、H **40/41**，原始与仅私有默认副本归一化均**18/41**；
+22双边不等、1 H unsupported，相等项集合不变。既有官方裁定18/20/0/3保留原证据边界，
+详见[最新41件复测](compatibility/hateneko-verdicts.md#最新integrate短跑复测scorecard)。
+peerbench本轮14/14转换、42次配对完成，仍14项全部不可比；T每step约12.996–12.998ms，
+主要反映墙钟调度预算/有损转换，不发布N/T速度比。[本轮14项表](scorecard.md#peerbenchkitten2scratch--turbowarp复测)
+保留三次中位数和原因。固定vendor及参数与历史一致，N二进制hash与K4/H本轮一致。
+另已实际运行官方KN七项新探索（21次，10+60有效update）：均值中位数依次数值3.863333、
+列表3.721667、字符串3.476667、克隆6.033333、广播0.558333、递归3.735000、画笔4.020000ms。
+main/crc双bundle hash均匹配已有官方KN归档；默认rAF/墙钟切片导致列表、字符串、递归、画笔
+实际工作量不同，克隆实体未采集，**七项全部不发布官方KN/N倍数**。这是新方法探索，不冒充
+不存在的历史正式计时复测；见[方法](scorecard-kn-method.md)与[本轮结果](scorecard.md#官方-kn-七项的证据缺口)。
+下文从“结论与适用范围”起均为历史分轮记录，保留原提交号与限制。
+
+## KN 数值退化定位与受控 runner（2026-11-12）
+
+本节修正上文“KN数值退化原因未验证”的历史状态。历史约0.02551ms与整合约0.11771ms
+不是同一批配对数据；本轮使用同机release、同字节七份KN夹具、10预热+60测量，
+每项五轮独立进程AB/BA交替，比较每次帧均值的中位数。计时前排除已知
+cargo/rustc/jit-corpus/perf-bench竞争，不杀其它会话；原始样本和中断日志全部保留。
+构建禁用debug信息/incremental，历史源码只解到本worktree忽略目录，不切换工作分支。
+
+### 确认不是噪声，并锁定引入边界
+
+| 探针 | 历史0832707 ms | 整合f0edaea ms | 耗时变化 |
+|---|---:|---:|---:|
+| 数值 | 0.026997 | 0.116620 | +331.98% |
+| 列表 | 0.232208 | 0.239048 | +2.95% |
+| 字符串 | 1.071160 | 0.205818 | -80.79% |
+| 克隆 | 0.119960 | 0.116205 | -3.13% |
+| 广播 | 0.167980 | 0.182038 | +8.37% |
+| 递归 | 0.030292 | 0.032215 | +6.35% |
+| 画笔 | 0.071808 | 0.155750 | +116.90% |
+
+七项各五对最终状态严格相同。数值五轮范围为历史0.025140–0.028697ms、
+整合0.111897–0.118022ms，完全分离，不以其它项加速抵消退化。
+进一步直接比较父提交`cf310a9`与其后继
+`2be78a1ab3c5ceb01dd0d1011d7be64cfc684b23`：数值
+**0.025173→0.115047ms（+357.02%）**，五轮范围同样分离。
+该父子比较数值范围为0.024165–0.027633 / 0.111013–0.133590ms，
+画笔0.073153→0.159667ms（+118.26%）；列表+8.76%、字符串+29.68%、
+克隆+8.06%、广播+11.74%、递归+7.11%。七项最终状态仍全部相同。
+引入点是[KN warp切片](kn-warp.md)的真实时钟检查：每个循环body-tail读钟，
+默认严格`>4ms`，旧计数`>30000`后再递增。JIT也通过同一boundary helper检查。
+这是必要的新增语义成本，不是可以直接删掉的冗余检查；不能降低读钟频率、扩大预算、
+把默认模式切到虚拟时间或回退到历史实现来“恢复”旧数字。
+
+### 保留语义的候选与测量边界
+
+`Slice`每step预计算`deadline=Instant::now()+4ms`，每个循环尾仍读一次
+`Instant::now()`，严格比较`now>deadline`；只省去每尾构造elapsed Duration。
+计数顺序、每step重置、K4策略、JIT/解释器共用检查不变。边界单测覆盖恰好4ms、
+多1ns、30001/30002尾、过期/reset与deterministic忽略真实时间。
+
+初版候选独立历史配对数值0.104258ms、画笔0.151078ms，仍明显慢于历史；
+该候选不是最终二进制，且没有与f0edaea直接配对，**不从不同批次相除发布优化百分比**。
+最终直接配对结果另见本节后续记录及 `knperf-evidence.json`。
+
+最终以新整合基线`f8bb6d8`分别重建未优化/候选release二进制，同基线五轮
+直接AB（默认真实时钟，10+60，保留完整原始数组）如下：
+
+| 探针 | f8bb6d8 ms | deadline ms | 耗时变化 |
+|---|---:|---:|---:|
+| 数值 | 0.120920 | 0.110280 | -8.80% |
+| 列表 | 0.242247 | 0.247982 | +2.37% |
+| 字符串 | 0.211380 | 0.210707 | -0.32% |
+| 克隆 | 0.112508 | 0.117582 | +4.51% |
+| 广播 | 0.176893 | 0.180935 | +2.28% |
+| 递归 | 0.033693 | 0.034200 | +1.50% |
+| 画笔 | 0.169778 | 0.161732 | -4.74% |
+
+七项各五对最终状态严格一致。数值五轮范围0.115668–0.121860 / 0.106468–0.115407ms，
+画笔0.166028–0.178768 / 0.155755–0.165643ms；其它项范围存在重叠，但不能据此
+排除小幅退化或将慢项全部归因于噪声。中途检测其它会话Cargo构建而停止，恢复时只复用
+完整配对，受干扰的未完成单边尝试另存，不删除；因此五对并非同一连续空闲窗口。
+这只是有限改善，**默认数值未恢复历史约0.02551ms，不能宣称全面无退化**。
+前/后exe SHA-256分别为`4c703067775394636db433d273c588655ecd9d65f452f0e6845c5b3cac070719`、
+`188cc2d8c8592515200f694769afd1733692ef6c3e597f9b0fc93c8188bfe437`。
+
+新增 `perf-bench --deterministic` 显式调用 `Engine::use_virtual_clock()`，JSON返回
+`deterministic=true/false`；默认仍是真实4ms模式。受控官方比较与默认退化诊断分列，
+虚拟时间的快数字不能冒充默认墙钟性能恢复。
+
+### 官方 KN 受控入口的资格限制
+
+新增[official-kn.mjs](../tools/bench/official-kn.mjs)，固定dt逐帧推进，默认10+60帧、
+三次独立Edge/worker；计时仅包原始同步`RuntimeManager.update`，不包rAF外层绘制、
+协议通信和最终投影。三个固定官方bundle只读本地缓存并严格hash gate，不提交或下载它们；
+HTML和其它编辑器UI仍联网。原始每帧样本、预热、输入/二进制/bundle/harness hashes、
+配置、浏览器版本与错误全部保存。源码调度证据沿用[kn-warp.md](kn-warp.md)。
+
+最终观察保留当前场景、全局标量/完整列表、全部存活角色/clone及其原型、属性、声明私有值。
+clone按属性/私有值多重集匹配，不靠临时ID拼写。官方变量undefined/非有限数/负零有标签，
+native旧JSON不能保型时保守拒绝比较；几何坐标负零规范为0。真实浏览器smoke已发现并
+修复几何负零导致的投影误拒绝，不把mock单测当官方实测。
+非零位置(17,-23)、输入旋转37弧度的诊断观察到官方折叠整圈，投影130.056158度，
+native保留整圈为-2029.943842度；不将这种差异归一化成相等。七项原夹具初始旋转均为0。
+
+`--diagnostic`独立运行无计时的step/tail包装，尝试认证数值4000、列表1000、字符串2000尾
+的固定批次，保留每update计数、单step最大尾数和边界返回。**native目前只报告总指令数，
+没有相同单位的逐update完成批次/循环尾证据，因此CLI始终不授予跨内核倍数**。
+最终投影相等或固定帧数相等都不够。克隆、广播、递归工作量不预设相同；画笔因同步绘制
+与增量输出边界不同始终不可比。官方/默认native的时间边界也不是全面语义或像素兼容认证。
+本轮该独立诊断已真实完成：数值/列表/字符串的70次update（含10预热）每帧分别
+4000/1000/2000尾；60测量帧合计240000/60000/120000尾，单step最大值同批次大小，
+均无runtime/page错误、无预算边界返回。三项均只获得官方单边`certified=true`、
+`equivalent=false`，不是正式计时，也不是native证书。
+
+正式七项套件两次均因其它会话Cargo构建被竞争门禁中断：首批仅数值前两次完成，
+第三次受干扰；第二批数值/列表各三次完成，字符串首轮受干扰，克隆/广播/递归/画笔未测。
+第二批数值三次均值26.063333/21.525000/28.140000ms，列表
+36.776667/34.058333/37.056667ms；这六次最终投影均与受控native相等，
+仍因native缺少同单位工作量证据而全部`unverified`，**不计算倍数**。
+这些不是完整七项结果，也不拿其中较快样本替代失败样本；两批原始与错误均归档。
+独立单边尾数诊断虽成功，也不能补作缺失的正式计时。当前交付是部分完成。
+
+最终在整合基线`f8bb6d8`上通过`cargo fmt --check`、
+`cargo clippy --all-targets -- -D warnings`、`cargo test --all-targets`：
+**946 passed / 0 failed / 1 ignored**。原命令K4语料seed 1/6/42均
+`{ ran: 52, run: 1 }`，保留原有错误，不将其写成53件全部运行成功。
+`npm run -s test:tools`为 **649 passed / 0 failed / 64 skipped**（713项）。
+
+复现命令与路径防护见[bench README](../tools/bench/README.md)。原始AB位于
+`dist/bench/kn-ab/{history-head,warp-introduction,deadline-head,latest-final}/results.json`；
+历史构建共享target时必须先`cargo clean --release -p nekoc`，并以留存exe hash核对身份，
+不能只看Cargo“Finished”来认为切换了源码。
+
 ## 结论与适用范围
 
 本次以 `oc/integrate` 的 `146fd4f` 为优化基线，提供可复现的 release/headless 基准，
@@ -390,6 +544,51 @@ node tools/bench/hateneko-evidence.mjs dist/bench/kncompat/results.json docs/knc
 `RUST_TEST_THREADS=1 cargo test --all-targets` 为 `786 passed / 0 failed / 1 ignored`，完整测试不删减。
 已保留本轮二进制于 `dist/bench/kncompat/bin/`，之后 `cargo clean` 清理本 worktree 4.4 GiB 构建产物。
 
+#### hncompat2：41 件逐项三方裁定（2026-11-12）
+
+后续复核以 `d2d277b`（当时最新 `oc/integrate`）为基线，详见
+[41件裁定表](compatibility/hateneko-verdicts.md)。不改写上方历史性能数字，不把观察投影相等
+升级为逐帧、像素、音频或输入语义全等。官方仍为 KN 0.27.4，HateNeko 为0.4.0 / Love2D 11.5；
+本轮行为复跑用 dev 无调试信息二进制，不发布新的速度比。
+
+- 新增显式私有默认副本归一化、指定全局字段排除，**原始比较与归一化比较分开保留**；
+  不删除运行失败或 unsupported，不据归一化授予速度比。actor 两件还有 `cloneChanged`
+  进度差异，不能仅凭去掉全局副本宣称一致。
+- [本轮官方长程证据](compatibility/hncompat2-progress-official.json) 直接运行完整原作：
+  fangjie 约595秒完成524288项 world、64项 chunk_x/z及标题逻辑 y=-65；旧轮五分钟
+  未完成的边界已补齐。tiny-lm 约20秒自然 `DONE / EOS`，完整15项id，输出
+  “走到山上，看见了云。它很开心。”。两个原作都没有缩短循环或更改官方调度配置。
+- [其余39件官方观察](compatibility/hncompat2-official.json) 全部绑定原始作品hash；
+  actor 私有变量不属于全局表，完成后 `cloneChanged=99`；timer仍 `fired=0`；
+  列表类型/缺失值结果支持已有 N 路径。starhold 官方读取墙钟，并有随机会话字段，
+  不能通过静默排除随机数或写死官方墙钟值伪造一致。
+- audio/input 等原始一致只是无合成输入开场；官方单独按键观察不冒充 N/H 双边输入验证，
+  空全局表不证明音频播放完成。pencraft-before-present-fix 的列表类型虽已裁定，
+  x/y 未有同里程碑配对的部分仍保留无法裁定。
+
+最终复跑计数、JIT开/关长程结论及门禁摘要见裁定表；旧节的18/41保留为原轮记录。
+本轮锁定同一41件重新实测为 N **41/41** 成功、H **40/41** 成功/1 unsupported，
+原始一致 **18/41**，仅私有副本归一化后仍 **18/41**，新增相等0；
+完整双边证据为 [hncompat2-hateneko-evidence.json](compatibility/hncompat2-hateneko-evidence.json)。
+基线默认遍历已扩展到63件，本轮用显式历史manifest及逐作品hash锁定41件，不混用两组分母。
+
+| hncompat2 最终互斥裁定 | 数量 |
+|---|---:|
+| 和 H 原始观察一致 | **18** |
+| 官方裁定 NekoC 正确（本次争议范围） | **20** |
+| NekoC 本轮新增修复 | **0** |
+| 无法裁定（具体未配对输入/进度） | **3** |
+
+[600 update长程配对](compatibility/hncompat2-long-evidence.json) 的JIT开/关结果一致：
+tiny-lm 的N为官方同一完整15项id、EOS输出；H为32项不同id后自然`DONE / LIMIT`。
+actor 两件长程后H仍 `cloneChanged=cloneRead=otherRead=0`，官方与N为99/99/other-value。
+fangjie 三方world/chunk完整hash、标题y=-65一致，但N/H尚有4个鼠标相关值未同输入裁定，
+故与pencraft-before-present-fix坐标、starhold墙钟/RNG一起保留“无法裁定”，不偷偷增加一致率。
+
+门禁：fmt、Clippy `-D warnings` 通过；`cargo test --all-targets` **848 passed / 0 failed / 1 ignored**。
+JS工具最终完整门禁为 **547 passed / 0 failed / 53 skipped**（600项），未删减测试。
+K4语料原命令seed1/6/42均 `{ ran: 52, run: 1 }`，达到52门槛并保留原有运行错误，不声称全语料零错。
+
 #### 修复前性能测量的历史验证记录
 
 以下仍是前一轮七项性能测量的原始记录，不是本轮 kncompat 二进制或门禁结果。
@@ -404,6 +603,141 @@ node tools/bench/hateneko-evidence.mjs dist/bench/kncompat/results.json docs/knc
 `npm run -s test:tools` 最终为 406 passed / 0 failed / 51 skipped；K4 三 seed 均 `ran:52, run:1`，
 达到门槛但不隐藏剩余运行错误。详细原文摘要见根目录未提交 `OC-REPORT.md`。
 已保留 release 二进制于 `dist/bench/hateneko/bin/` 后清理本 worktree 4.3 GiB Cargo 临时构建产物；复验需按上述命令重建。
+
+## 同类项目对比
+
+### kitten2scratch → TurboWarp 编译运行时（2026-11-11/12）
+
+**已实测，但没有可发布的等工作量速度比。** 复用本文 K4 七探针的官方发布 AST 和
+`kn-fixtures.mjs` 七份 KN；14/14 均成功转换成 SB3，双边各完成三次独立进程、预热10帧、
+测量60帧，按 N/T、T/N、N/T 交替。所有 KN 均经官方 KN 0.27.4 编辑器检查 `ok=true`、
+无 issues/pageErrors。转换成功不代表语义保真；14项均判为**不可比**，没有删除失败项或修补转换结果。
+
+- NekoC 基线为 `d8fd090`（包含本轮开始时最新 `oc/integrate` 的 `7cc5039`），release/default JIT；
+  binary SHA-256=`73675489b63709950d47318b1c0c571f2b144331484506bc1ff216691e73528e`。
+- 转换器 [CodeManTeam/kitten2scratch](https://github.com/CodeManTeam/kitten2scratch/tree/3b2dc03044e958b8052e947eebae09f2ec24ed5c)，
+  commit `3b2dc03044e958b8052e947eebae09f2ec24ed5c`。
+- VM [TurboWarp/scratch-vm](https://github.com/TurboWarp/scratch-vm/tree/0cb82afe62506f3d9f2ff849c95593f0473b5d2c)，
+  commit `0cb82afe62506f3d9f2ff849c95593f0473b5d2c`，Node v24.12.0 无头直接加载源码，
+  `compilerOptions={enabled:true,warpTimer:false}`、turboMode=false、60 Hz。
+  每次运行均观察到 compiled thread，编译器并非只设置开关而未进入；不据此证明每个子体都已执行。
+  结果中的 `compiled_threads` 为含预热的逐帧观察次数之和，不是唯一线程数或编译覆盖率。
+- 同机 Windows x64 / i7-14650HX / 24逻辑CPU。没有强制 GC/清文件缓存；检查瞬间的竞争构建进程为空，
+  但不是系统级独占，其他 Node/浏览器、频率温度和 OS 调度仍可能干扰。
+- 紧凑证据：[performance-peers-evidence.json](performance-peers-evidence.json)。完整原始数组、终态、
+  转换 SB3/project.json、每次 stderr 和官方编译/编辑器诊断在 `dist/bench/peers/`，不提交作品或 vendor 源码。
+  复现命令见 [tools/bench/README.md](../tools/bench/README.md#同类项目--kitten2scratch--turbowarp)。
+
+下表是**转换兼容性诊断运行**的三次帧均值中位数（ms），不是等价负载的性能排行。
+T 的约13 ms主要反映保留的墙钟调度预算；不得除以 N 的数字宣称加速。
+
+| 格式 | 探针 | N 帧均值 ms | T 帧均值 ms | 终态/工作量检查，结论均为不可比 |
+|---|---|---:|---:|---|
+| K4 | 数值 | 0.03911 | 12.99663 | log 均约999；收敛不能证明迭代数相等，warp/帧边界丢失 |
+| K4 | 列表 | 0.22926 | 12.99755 | N 长1000；T 长73434/73622/72960；清空积木缺 INDEX |
+| K4 | 字符串 | 0.15496 | 12.99663 | N 长16000；T 为 `"00"`；join 缺 STRING1/STRING2 |
+| K4 | 克隆 | 0.22149 | 12.99701 | 标量相同但 N 有201角色、T 仅1角色，生命周期/工作量不同 |
+| K4 | 广播 | 0.19640 | 12.99641 | N log=82800，T=0 |
+| K4 | 递归 | 0.03847 | 12.99656 | N log=56000；T 为11536375/11317248/11436029；批次数不等 |
+| K4 | 画笔 | 0.08305 | 12.99703 | N log=280000；T 为14920673/15426586/15345138，无 renderer/绘图 |
+| KN | 数值 | 0.02682 | 12.99667 | N log约999，T=0 |
+| KN | 列表 | 0.23394 | 12.99612 | N log=1、长1000；T log=0、空列表 |
+| KN | 字符串 | 0.16196 | 12.99646 | N 长16000；T log仍为数字0 |
+| KN | 克隆 | 0.12973 | 12.99664 | 标量/末尾角色数相同，但 T 没执行 warp 子体，不能把空转当兼容 |
+| KN | 广播 | 0.15923 | 12.99662 | N log=84000，T=0 |
+| KN | 递归 | 0.02984 | 12.99659 | N log=56000，T=0 |
+| KN | 画笔 | 0.07181 | 12.99655 | N log=280000，T=0，无 renderer/绘图 |
+
+**具体转换证据**（这些是第三方转换器/VM 证据，不是官方行为来源）：
+
+1. 转换器 [`src/block_map.js:111`](https://github.com/CodeManTeam/kitten2scratch/blob/3b2dc03044e958b8052e947eebae09f2ec24ed5c/src/block_map.js#L111)
+   把 warp 映射为 `motion_align_scene`；[`src/parse_kitten4.js:722–730`](https://github.com/CodeManTeam/kitten2scratch/blob/3b2dc03044e958b8052e947eebae09f2ec24ed5c/src/parse_kitten4.js#L722-L730)
+   将其当 no-op 展开。TurboWarp [`src/blocks/scratch3_motion.js:41`](https://github.com/TurboWarp/scratch-vm/blob/0cb82afe62506f3d9f2ff849c95593f0473b5d2c/src/blocks/scratch3_motion.js#L41)
+   确实将该 opcode 实现为 no-op，**不是说 TurboWarp 缺这个原语**。这里丢失的是原 warp 的语义。
+2. KN 转换 [`src/parse_kittenn.js:181–204`](https://github.com/CodeManTeam/kitten2scratch/blob/3b2dc03044e958b8052e947eebae09f2ec24ed5c/src/parse_kittenn.js#L181-L204)
+   保留 SUBSTACK，但没有对应的 warp 特殊执行。实测输出 `kn-numeric-project.json` 的 `b15`
+   为带 `SUBSTACK=b16` 的 `motion_align_scene`，`next=null`；VM 的 no-op 不执行此子体。
+   另外数值影子 fields 为空、算术仍为 A/B 等转换问题存在，但未绕过 warp 单独验证其因果贡献。
+3. K4 list/string 原始 stderr 显式报告 `data_deleteoflist: missing input INDEX` 和
+   `operator_join: missing input STRING1/STRING2`；生成项目仍用 TYPE / ADD0 / ADD1。
+   不修改这些插槽后重新测速，以免把自制修复当第三方现状。
+4. K4 广播/克隆的进一步根因**未验证**；不能把所有差异都归因于某一个原语。
+   KN 末尾没有克隆也不是证明每帧完成了同量创建删除；空体可产生相同标量和角色数。
+
+**计量边界：** N 导入为读作品→转换/Program 编译→Engine 创建；T 导入为已加载 VM 模块后的
+读 SB3→VM 创建→loadProject，无 renderer/audio/storage，不含 Node 启动或转换器；greenFlag/初次编译另列 start_ms。
+转换墙钟含 CLI 启动，单次记录，不计算导入比。N 帧为 Engine.advance；T 为完整 `_step`，
+手动设置 `currentStepTime=1000/60`，不启 `vm.start()` 的 interval。保留 sequencer 的现实墙钟预算
+（[sequencer.js:72–93](https://github.com/TurboWarp/scratch-vm/blob/0cb82afe62506f3d9f2ff849c95593f0473b5d2c/src/engine/sequencer.js#L72-L93)），
+一个 `_step` 不等于原作的一批循环。T 不执行绘图，画笔无论标量是否相等都不能给纯 VM 比。
+N 内存是进程 PeakWorkingSetSize；T 是 Node maxRSS，两者都在最终快照前读取，不是浏览器 renderer 或全播放器内存比。
+未模拟输入，不涉及跨 VM 随机一致性；没有逐帧、任务栈、别名或像素等价证明。
+连续同步 step 之间没有让异步回调获得事件循环轮次，也不表示真实经过1/60秒；只适用于这些同步探针。
+静态 opcode 分类无法发现所有“未知源积木→合法 Scratch 原语”的降级，不作为全支持认证。
+vendor commit/lockfile 已固定并记录，但安装的 node_modules 全树完整性未独立认证。
+
+首次探索发现手动 step 不会由 setFramerate 更新 `currentStepTime`（正常更新在 FrameLoop.start），
+因此首轮默认30Hz预算的样本仅保存在 `exploratory-30hz-results.json`，没有用于上表。
+正式60Hz样本另存 results.json；套件退出1表示明确不可比，不是运行崩溃或本仓库测试失败。
+
+### K4-ULTRA：源码评估，性能未验证
+
+固定 [JXW666NB/K4-ULTRA `e6465b1c`](https://github.com/JXW666NB/K4-ULTRA/tree/e6465b1c23479bde68b5811b8f8f27fb26724053)。
+没有运行仓库的 exe 或桌面壳，也没有移植源码。`resources/app/build/kitten.822d814413fb10654fde.js`
+SHA-256=`9898000cbebc96d6c49c3447b5967aba69be4768e7680535f109efdaf91f43b0`。
+
+- [`64644–64931`](https://github.com/JXW666NB/K4-ULTRA/blob/e6465b1c23479bde68b5811b8f8f27fb26724053/resources/app/build/kitten.822d814413fb10654fde.js#L64644-L64931)
+  定义 `OptiRunner`，[`65158–65219`](https://github.com/JXW666NB/K4-ULTRA/blob/e6465b1c23479bde68b5811b8f8f27fb26724053/resources/app/build/kitten.822d814413fb10654fde.js#L65158-L65219)
+  定义 `OptiCompilerImpl` 并在65201行用 `new Function` 生成 JS 函数。
+  本轮证据支持“有 JS 编译器和执行器”，**不支持直接照抄‘自研字节码内核’宣传**。
+- 62275行内嵌 `@crc/blink 0.28.17 / Codemao` 元数据；不能仅凭可编辑元数据认证整个包来源。
+  两个类依赖 Registry/BlockPool/EventBus/FramePool/Config/内部 AST 和 domain functions，
+  不是能直接接收 `.bcm` 的独立模块 API。
+- 最小 Webpack 白名单装载成功取得两个 function 导出（先载入 bundle 自带 reflect-metadata）；
+  进一步在 headless Edge 157.0.4341.42 用原生 `new_heart`、basic domain 注册、Opti 编译及 runtime load
+  实际执行原有 numeric AST 五次 update，追踪计数20000次变量赋值、40000次算术调用；不是算术替身。
+  **原始输入语义门禁失败**：`NUM="1"` 经最小基本 Heart 原样进入 ADD，出现 `0+"1"→"01"`，
+  五帧最终log=`0.0020457384397430836`，期望为`998.9999979614092`；无runtime/page错误。
+  只在内存把三个NUM字符串转为number后五帧正确，但这是`diagnostic-only`，不是正式基准。
+  应用另有含类型分派的算术域函数（[88295–88335](https://github.com/JXW666NB/K4-ULTRA/blob/e6465b1c23479bde68b5811b8f8f27fb26724053/resources/app/build/kitten.822d814413fb10654fde.js#L88295-L88335)），
+  尚未验证完整应用域注册/输入标准化，**不能据此说完整K4播放器算错**。
+  本探针无渲染/预热/三轮且有调用计数插桩，**未获得可比的正式性能结果**。
+  诊断脚本与原始JSON为`dist/peers/k4-browser-probe.cjs`、`k4-browser-probe.json`、`k4-browser-normalized.json`。
+- 本轮没有执行 bundle 顶部扩展扫描器。**2026-11-12源码复核补充**：旧 `_loadExtensions`
+  在116–118行立即`return`，因此23行fs/path与178–200行动态执行代码不能证明旧路径实际执行。
+  HTML实际加载`extension-loader-v2.js`，其241/253行确有`new Function`及生成器/runtime注册，
+  详见[可扩展性源码依据](scorecard-extensibility.md#k4-ultra纠正旧扫描路径实际依据是-v2)。
+  只审查后的注册表达式及依赖工厂用于既有最小加载；`node:vm`不是恶意代码安全隔离保证。
+
+另用 Terser 4.8.1 只做静态模块工厂比较，不执行模块：bcm与本文`.orig`参考的`Lcae/LmbJ`
+去注释/格式、统一局部变量后完全相同；K4再归一化导入ID、展开`__main__`常量后也相同。
+归一化runner/compiler SHA-256分别为`40d4df3fd4629aadd247abf7e3e36b119d1a3004b26bc6d1c4034050026a7e74` /
+`5411a04349dd26578dcebaaa5fe0e73c04c0eb47f5a28b6951d5f6f268f116f9`。
+这只证明指定两工厂实现结构相同；不证明归一化掉的依赖相同，更不认证整包官方身份。
+完整规则、偏移、各级hash在`dist/peers/k4-executor-compare.json`，未复制任何第三方源码进跟踪路径。
+
+### bcm_convertor：官方播放器封装，不重复独立内核测速
+
+固定 [sf-yuzifu/bcm_convertor `7c88ead2`](https://github.com/sf-yuzifu/bcm_convertor/tree/7c88ead2757f36d571ec1b212e234d8b99e6bdd6)。
+在线路径 [`onlineTemplateAdapter.js:36–57`](https://github.com/sf-yuzifu/bcm_convertor/blob/7c88ead2757f36d571ec1b212e234d8b99e6bdd6/src/services/templates/adapters/onlineTemplateAdapter.js#L36-L57)
+构造 `kn.codemao.cn/player` / `player.codemao.cn/we` 官方 URL，
+[`src-tauri/convert/online/index.js:61–63`](https://github.com/sf-yuzifu/bcm_convertor/blob/7c88ead2757f36d571ec1b212e234d8b99e6bdd6/src-tauri/convert/online/index.js#L61-L63)
+直接 loadURL。**在线模式：内核等同官方，性能参照官方数据**，不另算封装层的内核加速。
+
+离线 K4 [`preload.js:6–21`](https://github.com/sf-yuzifu/bcm_convertor/blob/7c88ead2757f36d571ec1b212e234d8b99e6bdd6/src-tauri/convert/kitten4/main/preload.js#L6-L21)
+注入作品 JSON，renderer 加载随附 `player_v2.bb850a0057626e190668.js`；
+该单行 bundle 的零基字符偏移359387含 `@crc/stage 0.5.6 / Codemao`，451186/476153导出
+同名 OptiRunner/OptiCompilerImpl，1152196从 `window.kitten4_player.bcmc_json` 进入 `action_load_bcmc_by_json`。
+这是复用编程猫播放器体系的强证据，**不是离线包与官方发布物字节相同或未经修改的证明**。
+离线性能仅参照本文官方路径作背景，不宣称版本/配置相同；离线K3精确官方来源链同样**未验证**。
+未执行其 npm builder（会自行安装工具链）或 Electron 壳（部分配置 nodeIntegration=true、webSecurity=false）。
+HateNeko 按任务约定不重复测量，沿用上节独立 KN 结果。
+
+本轮门禁：`cargo fmt --check`、`cargo clippy --all-targets -- -D warnings`、
+`RUST_TEST_THREADS=1 cargo test --all-targets` 全通过（Rust合计799 passed / 0 failed / 1 ignored）；
+`npm run -s test:tools` 为482 tests / 430 passed / 0 failed / 52 skipped。
+按原命令运行K4语料门禁，seed 1/6/42均`{ ran: 52, run: 1 }`，达到52门槛，仍保留原有1份运行错误。
+本任务不改引擎语义，不把语料门槛通过写成全语料无错误。release二进制保留于`dist/bench/peers/bin/`后清理target。
 
 ## 验证与已知风险
 

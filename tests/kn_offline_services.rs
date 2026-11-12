@@ -43,8 +43,10 @@ fn unavailable_profile_preserves_typed_account_and_device_results() {
 
 #[test]
 fn network_ai_permission_and_unknown_blocks_are_not_blanket_stubs() {
+    // Microphone is host-backed, never a kn_services constant stub.
+    assert_eq!(reporter("get_voice_volume"), None);
+    assert!(!no_detection_command("get_voice_volume"));
     for name in [
-        "get_voice_volume",
         "voice_recognition",
         "ai_chat_ask",
         "new_conversation",
@@ -215,17 +217,19 @@ fn offline_ocr_check_evaluates_query_and_preserves_boolean_type() {
 fn unsupported_backends_are_still_diagnosed_in_executable_code() {
     use nekoc::{engine::Program, studio::document::Document};
     use serde_json::json;
-    for name in [
-        "get_voice_volume",
-        "ai_chat_ask",
-        "voice_recognition",
-        "update_ranking",
-        "microbit_temperature",
-    ] {
+    for name in ["ai_chat_ask", "voice_recognition", "update_ranking"] {
         let mut p = Document::blank().value().clone();
         p["actors"]["actorsDict"]["nekoc-default-actor"]["nekoBlockJsonList"] = json!([
             {"type":"on_running_group_activated","next":{"type":"console_log","inputs":{"console_log":{"type":name}}}}
         ]);
         assert!(Program::compile(&p).is_err(), "{name}");
     }
+    let mut p = Document::blank().value().clone();
+    p["actors"]["actorsDict"]["nekoc-default-actor"]["nekoBlockJsonList"] = json!([
+        {"type":"on_running_group_activated","next":{"type":"console_log","inputs":{"console_log":{"type":"get_voice_volume"}}}}
+    ]);
+    assert!(
+        Program::compile(&p).is_ok(),
+        "microphone uses the explicit local host boundary"
+    );
 }

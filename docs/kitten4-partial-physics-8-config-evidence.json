@@ -1,0 +1,1030 @@
+{
+  "schema": "nekoc-k4-contact-config-8-v1",
+  "cases": {
+    "bounce": {
+      "fixtureSha256": "8b0a262b4f360059d844c0c371f2d2311f7762cc186d737b4cd3cc2a30f545be",
+      "config": {
+        "linearSlop": 0.005,
+        "polygonRadius": 0.01,
+        "baumgarte": 0.2,
+        "toiBaumgarte": 0.75,
+        "maxLinearCorrection": 0.2,
+        "maxTranslation": 2,
+        "timeToSleep": 0.5,
+        "linearSleepTolerance": 0.01
+      },
+      "fixtures": [
+        {
+          "radius": 0.01,
+          "vertices": [
+            {
+              "x": 1,
+              "y": 0.8
+            },
+            {
+              "x": -0.9,
+              "y": 1
+            },
+            {
+              "x": -0.8,
+              "y": -1
+            },
+            {
+              "x": 0.8,
+              "y": -1
+            }
+          ],
+          "friction": 0.1,
+          "restitution": 1,
+          "threshold": 1
+        }
+      ],
+      "contacts": [
+        {
+          "frame": 21,
+          "position": {
+            "x": 6.245004513516506e-17,
+            "y": 34.92460069444444
+          },
+          "velocity": {
+            "x": 2.472593302776069e-32,
+            "y": -6.333333333333331
+          },
+          "toiCounts": [
+            1
+          ]
+        },
+        {
+          "frame": 59,
+          "position": {
+            "x": 3.0878077872387166e-16,
+            "y": 34.95
+          },
+          "velocity": {
+            "x": 0,
+            "y": -6.333333333333333
+          },
+          "toiCounts": [
+            1
+          ]
+        }
+      ],
+      "errors": [],
+      "assets": [
+        {
+          "name": "player_v2__3ffeebbd0c789e8d9422.css",
+          "source": "player_v2__3ffeebbd0c789e8d9422.css",
+          "sha256": "39e8e70b124b604831773893cdc95931cdee3eaea52c6dd69f33f5781d48b45a"
+        },
+        {
+          "name": "runtime.f42f527f119e09010b85.js",
+          "source": "runtime.f42f527f119e09010b85.js",
+          "sha256": "4164d67795238f64d035f473418236038ae475ae36032a967cba16ede263735f"
+        },
+        {
+          "name": "vendors.d00f4bd454a6352e9d71.js",
+          "source": "vendors.d00f4bd454a6352e9d71.js",
+          "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
+        },
+        {
+          "name": "player_v2.2d180c468559fbd29528.js",
+          "source": "player_v2.2d180c468559fbd29528.js.orig",
+          "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160"
+        },
+        {
+          "name": "9.c396696e9dc71e25b012.js",
+          "source": "9.c396696e9dc71e25b012.js",
+          "sha256": "5758343310c47596d56e954aa05fa76a546080c8bf4fefd41cac0042794d6195"
+        },
+        {
+          "name": "14.c95e6f2ddd61fb701d0e.js",
+          "source": "14.c95e6f2ddd61fb701d0e.js",
+          "sha256": "d3ce91c9113463db4c0988210caeb1be2ddc508499d5c53a8e73a13b5f440175"
+        },
+        {
+          "name": "11.477512e6f03fd2f6f3c5.js",
+          "source": "11.477512e6f03fd2f6f3c5.js",
+          "sha256": "e81bfe3462cc3e79a70ba016ddee2a372a31480d3f52964952e1d21f3a490f91"
+        },
+        {
+          "name": "2.b8370041782df6e86958.js",
+          "source": "2.b8370041782df6e86958.js",
+          "sha256": "6ed56cf80a197b1dad00403ef2d55f9f4c357cb000cc52b5b0ba32c3989730d6"
+        }
+      ],
+      "pageErrors": []
+    },
+    "friction": {
+      "fixtureSha256": "b1fd2582587a1563ec6d10d4a36011e99088ab25f2f0cfec1ae9e6e090a01902",
+      "config": {
+        "linearSlop": 0.005,
+        "polygonRadius": 0.01,
+        "baumgarte": 0.2,
+        "toiBaumgarte": 0.75,
+        "maxLinearCorrection": 0.2,
+        "maxTranslation": 2,
+        "timeToSleep": 0.5,
+        "linearSleepTolerance": 0.01
+      },
+      "fixtures": [
+        {
+          "radius": 0.01,
+          "vertices": [
+            {
+              "x": 1,
+              "y": 0.8
+            },
+            {
+              "x": -0.9,
+              "y": 1
+            },
+            {
+              "x": -0.8,
+              "y": -1
+            },
+            {
+              "x": 0.8,
+              "y": -1
+            }
+          ],
+          "friction": 1,
+          "restitution": 0,
+          "threshold": 1
+        }
+      ],
+      "contacts": [
+        {
+          "frame": 21,
+          "position": {
+            "x": 6.306252065605834,
+            "y": 34.98515625
+          },
+          "velocity": {
+            "x": 17.167647228500268,
+            "y": 0
+          },
+          "toiCounts": [
+            1
+          ]
+        },
+        {
+          "frame": 22,
+          "position": {
+            "x": 6.5898949994391725,
+            "y": 34.985125000000004
+          },
+          "velocity": {
+            "x": 17.018576030000283,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 23,
+          "position": {
+            "x": 6.871053413297511,
+            "y": 34.9851
+          },
+          "velocity": {
+            "x": 16.869504831500297,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 24,
+          "position": {
+            "x": 7.149727307180849,
+            "y": 34.98508
+          },
+          "velocity": {
+            "x": 16.72043363300031,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 25,
+          "position": {
+            "x": 7.425916681089188,
+            "y": 34.985064
+          },
+          "velocity": {
+            "x": 16.571362434500326,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 26,
+          "position": {
+            "x": 7.699621535022526,
+            "y": 34.9850512
+          },
+          "velocity": {
+            "x": 16.42229123600034,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 27,
+          "position": {
+            "x": 7.970841868980866,
+            "y": 34.98504096
+          },
+          "velocity": {
+            "x": 16.273220037500355,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 28,
+          "position": {
+            "x": 8.239577682964205,
+            "y": 34.985032767999996
+          },
+          "velocity": {
+            "x": 16.12414883900037,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 29,
+          "position": {
+            "x": 8.505828976972545,
+            "y": 34.985026214399994
+          },
+          "velocity": {
+            "x": 15.975077640500384,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 30,
+          "position": {
+            "x": 8.769595751005884,
+            "y": 34.985020971519994
+          },
+          "velocity": {
+            "x": 15.826006442000399,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 31,
+          "position": {
+            "x": 9.030878005064224,
+            "y": 34.985016777215996
+          },
+          "velocity": {
+            "x": 15.676935243500413,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 32,
+          "position": {
+            "x": 9.289675739147565,
+            "y": 34.9850134217728
+          },
+          "velocity": {
+            "x": 15.527864045000427,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 33,
+          "position": {
+            "x": 9.545988953255906,
+            "y": 34.985010737418236
+          },
+          "velocity": {
+            "x": 15.378792846500442,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 34,
+          "position": {
+            "x": 9.799817647389247,
+            "y": 34.98500858993459
+          },
+          "velocity": {
+            "x": 15.229721648000456,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 35,
+          "position": {
+            "x": 10.051161821547588,
+            "y": 34.98500687194767
+          },
+          "velocity": {
+            "x": 15.080650449500471,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 36,
+          "position": {
+            "x": 10.30002147573093,
+            "y": 34.985005497558134
+          },
+          "velocity": {
+            "x": 14.931579251000485,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 37,
+          "position": {
+            "x": 10.54639660993927,
+            "y": 34.985004398046506
+          },
+          "velocity": {
+            "x": 14.7825080525005,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 38,
+          "position": {
+            "x": 10.790287224172612,
+            "y": 34.9850035184372
+          },
+          "velocity": {
+            "x": 14.633436854000514,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 39,
+          "position": {
+            "x": 11.031693318430955,
+            "y": 34.98500281474976
+          },
+          "velocity": {
+            "x": 14.484365655500529,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 40,
+          "position": {
+            "x": 11.270614892714297,
+            "y": 34.98500225179981
+          },
+          "velocity": {
+            "x": 14.335294457000543,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 41,
+          "position": {
+            "x": 11.50705194702264,
+            "y": 34.98500180143985
+          },
+          "velocity": {
+            "x": 14.186223258500558,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 42,
+          "position": {
+            "x": 11.741004481355983,
+            "y": 34.98500144115188
+          },
+          "velocity": {
+            "x": 14.037152060000572,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 43,
+          "position": {
+            "x": 11.972472495714326,
+            "y": 34.985001152921505
+          },
+          "velocity": {
+            "x": 13.888080861500587,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 44,
+          "position": {
+            "x": 12.201455990097669,
+            "y": 34.98500092233721
+          },
+          "velocity": {
+            "x": 13.739009663000601,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 45,
+          "position": {
+            "x": 12.427954964506013,
+            "y": 34.98500073786977
+          },
+          "velocity": {
+            "x": 13.589938464500616,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 46,
+          "position": {
+            "x": 12.651969418939357,
+            "y": 34.98500059029581
+          },
+          "velocity": {
+            "x": 13.44086726600063,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 47,
+          "position": {
+            "x": 12.873499353397701,
+            "y": 34.98500047223665
+          },
+          "velocity": {
+            "x": 13.291796067500645,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 48,
+          "position": {
+            "x": 13.092544767881046,
+            "y": 34.98500037778932
+          },
+          "velocity": {
+            "x": 13.14272486900066,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 49,
+          "position": {
+            "x": 13.30910566238939,
+            "y": 34.985000302231455
+          },
+          "velocity": {
+            "x": 12.993653670500674,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 50,
+          "position": {
+            "x": 13.523182036922735,
+            "y": 34.985000241785166
+          },
+          "velocity": {
+            "x": 12.844582472000688,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 51,
+          "position": {
+            "x": 13.73477389148108,
+            "y": 34.985000193428135
+          },
+          "velocity": {
+            "x": 12.695511273500703,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 52,
+          "position": {
+            "x": 13.943881226064425,
+            "y": 34.98500015474251
+          },
+          "velocity": {
+            "x": 12.546440075000717,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 53,
+          "position": {
+            "x": 14.150504040672772,
+            "y": 34.98500012379401
+          },
+          "velocity": {
+            "x": 12.397368876500732,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 54,
+          "position": {
+            "x": 14.354642335306117,
+            "y": 34.985000099035204
+          },
+          "velocity": {
+            "x": 12.248297678000746,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 55,
+          "position": {
+            "x": 14.556296109964464,
+            "y": 34.985000079228165
+          },
+          "velocity": {
+            "x": 12.09922647950076,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 56,
+          "position": {
+            "x": 14.75546536464781,
+            "y": 34.98500006338253
+          },
+          "velocity": {
+            "x": 11.950155281000775,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 57,
+          "position": {
+            "x": 14.952150099356157,
+            "y": 34.98500005070602
+          },
+          "velocity": {
+            "x": 11.80108408250079,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 58,
+          "position": {
+            "x": 15.146350314089503,
+            "y": 34.98500004056481
+          },
+          "velocity": {
+            "x": 11.652012884000804,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 59,
+          "position": {
+            "x": 15.33806600884785,
+            "y": 34.98500003245185
+          },
+          "velocity": {
+            "x": 11.502941685500819,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 60,
+          "position": {
+            "x": 15.527297183631196,
+            "y": 34.98500002596148
+          },
+          "velocity": {
+            "x": 11.353870487000833,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        }
+      ],
+      "errors": [],
+      "assets": [
+        {
+          "name": "player_v2__3ffeebbd0c789e8d9422.css",
+          "source": "player_v2__3ffeebbd0c789e8d9422.css",
+          "sha256": "39e8e70b124b604831773893cdc95931cdee3eaea52c6dd69f33f5781d48b45a"
+        },
+        {
+          "name": "runtime.f42f527f119e09010b85.js",
+          "source": "runtime.f42f527f119e09010b85.js",
+          "sha256": "4164d67795238f64d035f473418236038ae475ae36032a967cba16ede263735f"
+        },
+        {
+          "name": "player_v2.2d180c468559fbd29528.js",
+          "source": "player_v2.2d180c468559fbd29528.js.orig",
+          "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160"
+        },
+        {
+          "name": "vendors.d00f4bd454a6352e9d71.js",
+          "source": "vendors.d00f4bd454a6352e9d71.js",
+          "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
+        },
+        {
+          "name": "9.c396696e9dc71e25b012.js",
+          "source": "9.c396696e9dc71e25b012.js",
+          "sha256": "5758343310c47596d56e954aa05fa76a546080c8bf4fefd41cac0042794d6195"
+        },
+        {
+          "name": "14.c95e6f2ddd61fb701d0e.js",
+          "source": "14.c95e6f2ddd61fb701d0e.js",
+          "sha256": "d3ce91c9113463db4c0988210caeb1be2ddc508499d5c53a8e73a13b5f440175"
+        },
+        {
+          "name": "11.477512e6f03fd2f6f3c5.js",
+          "source": "11.477512e6f03fd2f6f3c5.js",
+          "sha256": "e81bfe3462cc3e79a70ba016ddee2a372a31480d3f52964952e1d21f3a490f91"
+        },
+        {
+          "name": "2.b8370041782df6e86958.js",
+          "source": "2.b8370041782df6e86958.js",
+          "sha256": "6ed56cf80a197b1dad00403ef2d55f9f4c357cb000cc52b5b0ba32c3989730d6"
+        }
+      ],
+      "pageErrors": []
+    },
+    "right": {
+      "fixtureSha256": "56ecf104158282d416ae5d7c79d050f92629a45c8d9fa015a113964e19af1b42",
+      "config": {
+        "linearSlop": 0.005,
+        "polygonRadius": 0.01,
+        "baumgarte": 0.2,
+        "toiBaumgarte": 0.75,
+        "maxLinearCorrection": 0.2,
+        "maxTranslation": 2,
+        "timeToSleep": 0.5,
+        "linearSleepTolerance": 0.01
+      },
+      "fixtures": [
+        {
+          "radius": 0.01,
+          "vertices": [
+            {
+              "x": 1,
+              "y": 0.8
+            },
+            {
+              "x": -0.9,
+              "y": 1
+            },
+            {
+              "x": -0.8,
+              "y": -1
+            },
+            {
+              "x": 0.8,
+              "y": -1
+            }
+          ],
+          "friction": 0.1,
+          "restitution": 0,
+          "threshold": 1
+        }
+      ],
+      "contacts": [
+        {
+          "frame": 4,
+          "position": {
+            "x": 62.98515625,
+            "y": 0
+          },
+          "velocity": {
+            "x": 0,
+            "y": 0
+          },
+          "toiCounts": [
+            1
+          ]
+        },
+        {
+          "frame": 5,
+          "position": {
+            "x": 62.985125000000004,
+            "y": 0
+          },
+          "velocity": {
+            "x": 0,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 6,
+          "position": {
+            "x": 62.9851,
+            "y": 0
+          },
+          "velocity": {
+            "x": 0,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 7,
+          "position": {
+            "x": 62.98508,
+            "y": 0
+          },
+          "velocity": {
+            "x": 0,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 8,
+          "position": {
+            "x": 62.985064,
+            "y": 0
+          },
+          "velocity": {
+            "x": 0,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 9,
+          "position": {
+            "x": 62.9850512,
+            "y": 0
+          },
+          "velocity": {
+            "x": 0,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 10,
+          "position": {
+            "x": 62.98504096,
+            "y": 0
+          },
+          "velocity": {
+            "x": 0,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 11,
+          "position": {
+            "x": 62.985032767999996,
+            "y": 0
+          },
+          "velocity": {
+            "x": 0,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 12,
+          "position": {
+            "x": 62.985026214399994,
+            "y": 0
+          },
+          "velocity": {
+            "x": 0,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 13,
+          "position": {
+            "x": 62.985020971519994,
+            "y": 0
+          },
+          "velocity": {
+            "x": 0,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 14,
+          "position": {
+            "x": 62.985016777215996,
+            "y": 0
+          },
+          "velocity": {
+            "x": 0,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 15,
+          "position": {
+            "x": 62.9850134217728,
+            "y": 0
+          },
+          "velocity": {
+            "x": 0,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        },
+        {
+          "frame": 16,
+          "position": {
+            "x": 62.985010737418236,
+            "y": 0
+          },
+          "velocity": {
+            "x": 0,
+            "y": 0
+          },
+          "toiCounts": [
+            0
+          ]
+        }
+      ],
+      "errors": [],
+      "assets": [
+        {
+          "name": "player_v2__3ffeebbd0c789e8d9422.css",
+          "source": "player_v2__3ffeebbd0c789e8d9422.css",
+          "sha256": "39e8e70b124b604831773893cdc95931cdee3eaea52c6dd69f33f5781d48b45a"
+        },
+        {
+          "name": "runtime.f42f527f119e09010b85.js",
+          "source": "runtime.f42f527f119e09010b85.js",
+          "sha256": "4164d67795238f64d035f473418236038ae475ae36032a967cba16ede263735f"
+        },
+        {
+          "name": "vendors.d00f4bd454a6352e9d71.js",
+          "source": "vendors.d00f4bd454a6352e9d71.js",
+          "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
+        },
+        {
+          "name": "player_v2.2d180c468559fbd29528.js",
+          "source": "player_v2.2d180c468559fbd29528.js.orig",
+          "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160"
+        },
+        {
+          "name": "9.c396696e9dc71e25b012.js",
+          "source": "9.c396696e9dc71e25b012.js",
+          "sha256": "5758343310c47596d56e954aa05fa76a546080c8bf4fefd41cac0042794d6195"
+        },
+        {
+          "name": "14.c95e6f2ddd61fb701d0e.js",
+          "source": "14.c95e6f2ddd61fb701d0e.js",
+          "sha256": "d3ce91c9113463db4c0988210caeb1be2ddc508499d5c53a8e73a13b5f440175"
+        },
+        {
+          "name": "11.477512e6f03fd2f6f3c5.js",
+          "source": "11.477512e6f03fd2f6f3c5.js",
+          "sha256": "e81bfe3462cc3e79a70ba016ddee2a372a31480d3f52964952e1d21f3a490f91"
+        },
+        {
+          "name": "2.b8370041782df6e86958.js",
+          "source": "2.b8370041782df6e86958.js",
+          "sha256": "6ed56cf80a197b1dad00403ef2d55f9f4c357cb000cc52b5b0ba32c3989730d6"
+        }
+      ],
+      "pageErrors": []
+    }
+  }
+}

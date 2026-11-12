@@ -1,8 +1,8 @@
 use super::{
     document::{Document, escape_pointer, palette},
-    player::Player,
+    player::{Player, PreviewSnapshot},
 };
-use crate::runtime::{Runtime, RuntimeEvent, RuntimeSnapshot};
+use crate::runtime::RuntimeEvent;
 use base64::Engine;
 use eframe::egui::{self, Color32, RichText, Vec2};
 use serde_json::{Value, json};
@@ -20,7 +20,7 @@ pub struct Studio {
     selected: String,
     status: String,
     player: Option<Player>,
-    snapshot: Option<RuntimeSnapshot>,
+    snapshot: Option<PreviewSnapshot>,
     running: bool,
     events: Vec<RuntimeEvent>,
     next_tick: Instant,
@@ -28,6 +28,7 @@ pub struct Studio {
     json_open: bool,
     search: String,
     image_sources: BTreeMap<String, egui::ImageSource<'static>>,
+    measured_costumes: BTreeMap<String, [f64; 2]>,
     pending_open: Option<PathBuf>,
     resource_path: String,
     screenshot: Option<PathBuf>,
@@ -83,6 +84,7 @@ impl Studio {
             json_open: false,
             search: String::new(),
             image_sources: BTreeMap::new(),
+            measured_costumes: BTreeMap::new(),
             pending_open: None,
             resource_path: String::new(),
             screenshot,
@@ -116,9 +118,13 @@ impl Studio {
 
     fn refresh_preview(&mut self) {
         if self.player.is_none() {
-            self.snapshot = Runtime::from_project(self.document.value())
-                .ok()
-                .map(|r| r.snapshot());
+            match Player::preview(self.document.value()) {
+                Ok(snapshot) => self.snapshot = Some(snapshot),
+                Err(error) => {
+                    self.snapshot = None;
+                    self.status = error.to_string();
+                }
+            }
         }
     }
 
@@ -139,6 +145,7 @@ impl Studio {
 
     fn tick(&mut self) {
         if self.player.is_none() {
+            self.measured_costumes.clear();
             match Player::start(self.document.value().clone()) {
                 Ok(player) => self.player = Some(player),
                 Err(error) => {
@@ -168,6 +175,7 @@ impl Studio {
                 self.saved_path = Some(path.clone());
                 self.select_first_owner();
                 self.image_sources.clear();
+                self.measured_costumes.clear();
                 self.refresh_preview();
                 self.status = format!("Opened {}", path.display());
             }
@@ -698,64 +706,79 @@ impl Studio {
             {
                 egui::Image::new(source).paint_at(ui, rect);
             }
-            let actor_ids = scene["actorIds"].as_array();
-            for actor in snapshot.actors.values() {
-                if actor_ids.is_some_and(|ids| !ids.iter().any(|id| id.as_str() == Some(&actor.id)))
-                {
-                    continue;
+            if let Some(sprites) = &snapshot.native_sprites {
+                self.paint_native_sprites(
+                    ui,
+                    rect,
+                    scale,
+                    sprites,
+                    &snapshot.native_lines,
+                    snapshot.pen_layer,
+                );
+            } else {
+                let actor_ids = scene["actorIds"].as_array();
+                for actor in snapshot.actors.values() {
+                    if actor_ids
+                        .is_some_and(|ids| !ids.iter().any(|id| id.as_str() == Some(&actor.id)))
+                    {
+                        continue;
+                    }
+                    for stroke in &actor.pen.strokes {
+                        let color = parse_color(&stroke.color);
+                        let radius = (stroke.size as f32 * scale / 2.0).max(0.1);
+                        let a = point(stroke.x1, stroke.y1);
+                        let b = point(stroke.x2, stroke.y2);
+                        painter.line_segment([a, b], egui::Stroke::new(radius * 2.0, color));
+                        painter.circle_filled(a, radius, color);
+                        painter.circle_filled(b, radius, color);
+                    }
                 }
-                for stroke in &actor.pen.strokes {
-                    let color = parse_color(&stroke.color);
-                    let radius = (stroke.size as f32 * scale / 2.0).max(0.1);
-                    let a = point(stroke.x1, stroke.y1);
-                    let b = point(stroke.x2, stroke.y2);
-                    painter.line_segment([a, b], egui::Stroke::new(radius * 2.0, color));
-                    painter.circle_filled(a, radius, color);
-                    painter.circle_filled(b, radius, color);
+                // Preserve scene layer order rather than sorting sprites by identifier.
+                let ordered: Vec<_> = if let Some(ids) = actor_ids {
+                    ids.iter()
+                        .filter_map(Value::as_str)
+                        .filter_map(|id| snapshot.actors.get(id))
+                        .collect()
+                } else {
+                    snapshot.actors.values().collect()
+                };
+                for actor in ordered {
+                    if !actor.visible {
+                        continue;
+                    }
+                    let center = point(actor.x, actor.y);
+                    if let Some(style) = actor.current_style_id.as_deref()
+                        && let Some(source) = self.image_source(style)
+                    {
+                        let image = egui::Image::new(source)
+                            .rotate(-(actor.rotation as f32).to_radians(), Vec2::splat(0.5));
+                        let natural = image
+                            .load_for_size(ui.ctx(), Vec2::splat(256.0))
+                            .ok()
+                            .and_then(|p| p.size())
+                            .unwrap_or(Vec2::splat(40.0));
+                        let actor_size = natural * (actor.scale as f32 / 100.0).abs() * scale;
+                        image.paint_at(ui, egui::Rect::from_center_size(center, actor_size));
+                    } else {
+                        painter.circle_filled(
+                            center,
+                            18.0 * scale * actor.scale as f32 / 100.0,
+                            Color32::from_rgb(96, 143, 238),
+                        );
+                    }
+                    if let Some(dialog) = &actor.dialog {
+                        painter.text(
+                            center + egui::vec2(0.0, -30.0),
+                            egui::Align2::CENTER_BOTTOM,
+                            &dialog.text,
+                            egui::FontId::proportional(16.0),
+                            Color32::BLACK,
+                        );
+                    }
                 }
             }
-            // Preserve scene layer order rather than sorting sprites by identifier.
-            let ordered: Vec<_> = if let Some(ids) = actor_ids {
-                ids.iter()
-                    .filter_map(Value::as_str)
-                    .filter_map(|id| snapshot.actors.get(id))
-                    .collect()
-            } else {
-                snapshot.actors.values().collect()
-            };
-            for actor in ordered {
-                if !actor.visible {
-                    continue;
-                }
-                let center = point(actor.x, actor.y);
-                if let Some(style) = actor.current_style_id.as_deref()
-                    && let Some(source) = self.image_source(style)
-                {
-                    let image = egui::Image::new(source)
-                        .rotate(-(actor.rotation as f32).to_radians(), Vec2::splat(0.5));
-                    let natural = image
-                        .load_for_size(ui.ctx(), Vec2::splat(256.0))
-                        .ok()
-                        .and_then(|p| p.size())
-                        .unwrap_or(Vec2::splat(40.0));
-                    let actor_size = natural * (actor.scale as f32 / 100.0).abs() * scale;
-                    image.paint_at(ui, egui::Rect::from_center_size(center, actor_size));
-                } else {
-                    painter.circle_filled(
-                        center,
-                        18.0 * scale * actor.scale as f32 / 100.0,
-                        Color32::from_rgb(96, 143, 238),
-                    );
-                }
-                if let Some(dialog) = &actor.dialog {
-                    painter.text(
-                        center + egui::vec2(0.0, -30.0),
-                        egui::Align2::CENTER_BOTTOM,
-                        &dialog.text,
-                        egui::FontId::proportional(16.0),
-                        Color32::BLACK,
-                    );
-                }
+            if let Some(overlay) = &snapshot.native_overlay {
+                super::overlay_renderer::paint(ui, rect, scale, overlay);
             }
         }
         if response.clicked() {
@@ -799,7 +822,139 @@ impl Studio {
             }
         }
         ui.set_clip_rect(old_clip);
-        ui.small("Preview: basic costumes / pen. Click events are synthetic; effects and audio are not yet rendered.");
+        ui.small("Preview: native costumes / soft meshes / pen (partial). Effects and audio are not yet rendered.");
+    }
+
+    fn paint_native_sprites(
+        &mut self,
+        ui: &egui::Ui,
+        rect: egui::Rect,
+        scale: f32,
+        sprites: &[super::player::NativeSprite],
+        lines: &[[f32; 9]],
+        pen_layer: usize,
+    ) {
+        let painter = ui.painter().with_clip_rect(rect.intersect(ui.clip_rect()));
+        let point = |x: f64, y: f64| {
+            egui::pos2(
+                rect.center().x + x as f32 * scale,
+                rect.center().y - y as f32 * scale,
+            )
+        };
+        for i in 0..=sprites.len() {
+            if i == pen_layer.min(sprites.len()) {
+                for &[x1, y1, x2, y2, width, r, g, b, a] in lines {
+                    if ![x1, y1, x2, y2, width, r, g, b, a]
+                        .iter()
+                        .all(|n| n.is_finite())
+                    {
+                        continue;
+                    }
+                    let color = Color32::from_rgba_unmultiplied(
+                        (r.clamp(0.0, 1.0) * 255.0) as u8,
+                        (g.clamp(0.0, 1.0) * 255.0) as u8,
+                        (b.clamp(0.0, 1.0) * 255.0) as u8,
+                        (a.clamp(0.0, 1.0) * 255.0) as u8,
+                    );
+                    let radius = (width * scale / 2.0).max(0.0);
+                    let a = point(x1 as f64, y1 as f64);
+                    let b = point(x2 as f64, y2 as f64);
+                    painter.line_segment([a, b], egui::Stroke::new(radius * 2.0, color));
+                    painter.circle_filled(a, radius, color);
+                    painter.circle_filled(b, radius, color);
+                }
+            }
+            let Some(sprite) = sprites.get(i) else {
+                continue;
+            };
+            if !sprite.visible {
+                continue;
+            }
+            if let Some(style) = sprite.style.as_deref()
+                && let Some(source) = self.image_source(style)
+            {
+                let image = egui::Image::new(source).fit_to_original_size(1.0);
+                match image.load_for_size(ui.ctx(), rect.size()) {
+                    Ok(egui::load::TexturePoll::Ready { texture }) => {
+                        let style_value = &self.document.value()["styles"]["stylesDict"][style];
+                        let width = style_value["width"]
+                            .as_f64()
+                            .unwrap_or(texture.size.x as f64);
+                        let height = style_value["height"]
+                            .as_f64()
+                            .unwrap_or(texture.size.y as f64);
+                        if width <= 0.0
+                            || height <= 0.0
+                            || !width.is_finite()
+                            || !height.is_finite()
+                        {
+                            continue;
+                        }
+                        let pivot = crate::engine::Costume::center_point_from_json(
+                            &style_value["centerPoint"],
+                        );
+                        if self.measured_costumes.get(style) != Some(&[width, height])
+                            && let Some(player) = &self.player
+                        {
+                            // load_for_size registered inline bytes with the
+                            // loaders above. Read their decoded pixels too, not
+                            // just the GPU texture: soft physics requires alpha.
+                            if let Some(uri) = image.uri() {
+                                match ui
+                                    .ctx()
+                                    .try_load_image(uri, egui::load::SizeHint::default())
+                                {
+                                    Ok(egui::load::ImagePoll::Ready { image }) => {
+                                        let costume = super::renderer::decoded_costume(
+                                            &image, width, height, pivot,
+                                        );
+                                        if costume.mask.is_some()
+                                            && player.set_costume(style.into(), costume).is_ok()
+                                        {
+                                            self.measured_costumes
+                                                .insert(style.into(), [width, height]);
+                                        }
+                                    }
+                                    Ok(egui::load::ImagePoll::Pending { .. }) => {
+                                        ui.ctx().request_repaint()
+                                    }
+                                    Err(error) => {
+                                        self.status = format!("Costume alpha {style}: {error}")
+                                    }
+                                }
+                            }
+                        }
+                        let quad;
+                        let source = if let Some(mesh) = &sprite.soft_mesh {
+                            mesh
+                        } else {
+                            quad = super::renderer::costume_quad(sprite, width, height, pivot);
+                            &quad
+                        };
+                        if let Some(mesh) = super::renderer::soft_mesh(
+                            source,
+                            texture.id,
+                            rect.center(),
+                            scale,
+                            sprite.opacity,
+                        ) {
+                            painter.add(egui::Shape::mesh(mesh));
+                        }
+                    }
+                    Ok(egui::load::TexturePoll::Pending { .. }) => ui.ctx().request_repaint(),
+                    Err(error) => self.status = format!("Costume {style}: {error}"),
+                }
+            }
+            if let Some(dialog) = &sprite.dialog {
+                painter.text(
+                    point(sprite.x, sprite.y) + egui::vec2(0.0, -30.0),
+                    egui::Align2::CENTER_BOTTOM,
+                    &dialog.text,
+                    egui::FontId::proportional(16.0),
+                    Color32::BLACK,
+                );
+            }
+        }
     }
 }
 
@@ -841,7 +996,12 @@ impl eframe::App for Studio {
         }
         if self.running && Instant::now() >= self.next_tick {
             self.tick();
-            self.next_tick = Instant::now() + Duration::from_secs_f64(1.0 / 30.0);
+            let fps = if self.document.value().get("_nekocKitten4").is_some() {
+                60.0
+            } else {
+                30.0
+            };
+            self.next_tick = Instant::now() + Duration::from_secs_f64(1.0 / fps);
         }
         self.toolbar(ctx);
         egui::TopBottomPanel::bottom("status").show(ctx, |ui| {

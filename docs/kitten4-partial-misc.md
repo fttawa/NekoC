@@ -1,5 +1,8 @@
 # Kitten 4 partial misc：阵营、舞台信息与拖动
 
+> 第四轮已补齐任意字符串阵营并验证初始 group 忽略行为；本页是历史记录。
+> 当前实现与 180 帧新增证据见 [kitten4-partial-camp-4.md](kitten4-partial-camp-4.md)。
+
 ## 范围与结果
 
 本次修改 `src/engine.rs` 内 `self_set_role_camp`、`get_stage_info`、

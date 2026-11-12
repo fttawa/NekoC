@@ -1,0 +1,2228 @@
+{
+  "hidden_toolbox": {
+    "toolbox": [],
+    "blocks": []
+  },
+  "work_source_label": 1,
+  "version": 25,
+  "application_version": "4.11.20",
+  "work_type": "KITTEN",
+  "size": {
+    "width": 1280,
+    "height": 720
+  },
+  "type": 1,
+  "project_name": "NekoC original main path physics 6 legacy-membership",
+  "theatre": {
+    "current_entity": "20000000-0000-4000-8000-000000000001",
+    "current_scene": "10000000-0000-4000-8000-000000000001",
+    "scenes_order": [
+      "10000000-0000-4000-8000-000000000001"
+    ],
+    "scenes": {
+      "10000000-0000-4000-8000-000000000001": {
+        "id": "10000000-0000-4000-8000-000000000001",
+        "name": "Background",
+        "styles": [
+          "background"
+        ],
+        "current_style_id": "background",
+        "x": 0,
+        "y": 0,
+        "scale": 100,
+        "rotation": 0,
+        "rotation_type": 0,
+        "draggable": false,
+        "visible": true,
+        "workspace_offset": {
+          "x": 0,
+          "y": 0
+        },
+        "block_data_json": {
+          "blocks": {},
+          "connections": {},
+          "comments": {}
+        },
+        "actors": [
+          "20000000-0000-4000-8000-000000000001"
+        ],
+        "screen_name": "Physics",
+        "group_order": [
+          "group"
+        ]
+      }
+    },
+    "actors": {
+      "20000000-0000-4000-8000-000000000001": {
+        "id": "20000000-0000-4000-8000-000000000001",
+        "name": "Probe",
+        "styles": [
+          "probe-style"
+        ],
+        "current_style_id": "probe-style",
+        "x": 0,
+        "y": 0,
+        "scale": 100,
+        "rotation": 0,
+        "rotation_type": 0,
+        "draggable": false,
+        "visible": true,
+        "workspace_offset": {
+          "x": 0,
+          "y": 0
+        },
+        "block_data_json": {
+          "blocks": {
+            "physics-main-6-1": {
+              "type": "start_on_click",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-main-6-1",
+              "parent_id": null,
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-2": {
+              "type": "self_enable_physics",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-main-6-2",
+              "parent_id": "physics-main-6-1",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-3": {
+              "type": "set_gravity",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "value": "",
+                "dir": "<shadow type=\"controller_shadow\" />"
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-main-6-3",
+              "parent_id": "physics-main-6-2",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-4": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-main-6-4",
+              "parent_id": "physics-main-6-3",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-5": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-main-6-5",
+              "parent_id": "physics-main-6-3",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-6": {
+              "type": "set_velocity",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "value": "",
+                "dir": "<shadow type=\"controller_shadow\" />"
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-main-6-6",
+              "parent_id": "physics-main-6-3",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-7": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "2"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-main-6-7",
+              "parent_id": "physics-main-6-6",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-8": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-main-6-8",
+              "parent_id": "physics-main-6-6",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-9": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-main-6-9",
+              "parent_id": "physics-main-6-6",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-10": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0.04"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-main-6-10",
+              "parent_id": "physics-main-6-9",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-11": {
+              "type": "set_actor_as",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "physics_body_type": "exit_physics_world"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-main-6-11",
+              "parent_id": "physics-main-6-9",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-12": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "exit_speed"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-main-6-12",
+              "parent_id": "physics-main-6-11",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-13": {
+              "type": "get_physics_property",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "speed"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-main-6-13",
+              "parent_id": "physics-main-6-12",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-14": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "exit_friction"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-main-6-14",
+              "parent_id": "physics-main-6-12",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-15": {
+              "type": "get_physics_property",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "friction"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-main-6-15",
+              "parent_id": "physics-main-6-14",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-16": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "exit_restitution"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-main-6-16",
+              "parent_id": "physics-main-6-14",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-17": {
+              "type": "get_physics_property",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "restitution"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-main-6-17",
+              "parent_id": "physics-main-6-16",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-18": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "exit_mass"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-main-6-18",
+              "parent_id": "physics-main-6-16",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-19": {
+              "type": "get_physics_property",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "mass"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-main-6-19",
+              "parent_id": "physics-main-6-18",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-20": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-main-6-20",
+              "parent_id": "physics-main-6-18",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-21": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0.04"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-main-6-21",
+              "parent_id": "physics-main-6-20",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-22": {
+              "type": "set_actor_as",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "physics_body_type": "attend_physics_world"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-main-6-22",
+              "parent_id": "physics-main-6-20",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-23": {
+              "type": "set_velocity",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "value": "",
+                "dir": "<shadow type=\"controller_shadow\" />"
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-main-6-23",
+              "parent_id": "physics-main-6-22",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-24": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "3"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-main-6-24",
+              "parent_id": "physics-main-6-23",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-25": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-main-6-25",
+              "parent_id": "physics-main-6-23",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-26": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-main-6-26",
+              "parent_id": "physics-main-6-23",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-27": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0.04"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-main-6-27",
+              "parent_id": "physics-main-6-26",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-28": {
+              "type": "self_enable_physics",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-main-6-28",
+              "parent_id": "physics-main-6-26",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-29": {
+              "type": "set_velocity",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "value": "",
+                "dir": "<shadow type=\"controller_shadow\" />"
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-main-6-29",
+              "parent_id": "physics-main-6-28",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-30": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "-2"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-main-6-30",
+              "parent_id": "physics-main-6-29",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-31": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "90"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-main-6-31",
+              "parent_id": "physics-main-6-29",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-32": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-main-6-32",
+              "parent_id": "physics-main-6-29",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-33": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0.04"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-main-6-33",
+              "parent_id": "physics-main-6-32",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-34": {
+              "type": "self_disable_physics",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-main-6-34",
+              "parent_id": "physics-main-6-32",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-35": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "disabled_speed"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-main-6-35",
+              "parent_id": "physics-main-6-34",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-36": {
+              "type": "get_physics_property",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "speed"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-main-6-36",
+              "parent_id": "physics-main-6-35",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-37": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "disabled_friction"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-main-6-37",
+              "parent_id": "physics-main-6-35",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-38": {
+              "type": "get_physics_property",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "friction"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-main-6-38",
+              "parent_id": "physics-main-6-37",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-39": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "disabled_restitution"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-main-6-39",
+              "parent_id": "physics-main-6-37",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-40": {
+              "type": "get_physics_property",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "restitution"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-main-6-40",
+              "parent_id": "physics-main-6-39",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-41": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "disabled_mass"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-main-6-41",
+              "parent_id": "physics-main-6-39",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-42": {
+              "type": "get_physics_property",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "mass"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-main-6-42",
+              "parent_id": "physics-main-6-41",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-43": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-main-6-43",
+              "parent_id": "physics-main-6-41",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-44": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0.04"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-main-6-44",
+              "parent_id": "physics-main-6-43",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-45": {
+              "type": "self_enable_physics",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-main-6-45",
+              "parent_id": "physics-main-6-43",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-46": {
+              "type": "set_velocity",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "value": "",
+                "dir": "<shadow type=\"controller_shadow\" />"
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-main-6-46",
+              "parent_id": "physics-main-6-45",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-47": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "1"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-main-6-47",
+              "parent_id": "physics-main-6-46",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-48": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-main-6-48",
+              "parent_id": "physics-main-6-46",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-49": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "final_speed"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-main-6-49",
+              "parent_id": "physics-main-6-46",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-50": {
+              "type": "get_physics_property",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "speed"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-main-6-50",
+              "parent_id": "physics-main-6-49",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-51": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "final_friction"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-main-6-51",
+              "parent_id": "physics-main-6-49",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-52": {
+              "type": "get_physics_property",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "friction"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-main-6-52",
+              "parent_id": "physics-main-6-51",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-53": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "final_restitution"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-main-6-53",
+              "parent_id": "physics-main-6-51",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-54": {
+              "type": "get_physics_property",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "restitution"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-main-6-54",
+              "parent_id": "physics-main-6-53",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-55": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "final_mass"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-main-6-55",
+              "parent_id": "physics-main-6-53",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-56": {
+              "type": "get_physics_property",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "sprite": "__self",
+                "attribute": "mass"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-main-6-56",
+              "parent_id": "physics-main-6-55",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-57": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "done"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "physics-main-6-57",
+              "parent_id": "physics-main-6-55",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "physics-main-6-58": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "1"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "physics-main-6-58",
+              "parent_id": "physics-main-6-57",
+              "location": [
+                0,
+                0
+              ]
+            }
+          },
+          "connections": {
+            "physics-main-6-1": {
+              "physics-main-6-2": {
+                "type": "next"
+              }
+            },
+            "physics-main-6-2": {
+              "physics-main-6-3": {
+                "type": "next"
+              }
+            },
+            "physics-main-6-3": {
+              "physics-main-6-4": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "value"
+              },
+              "physics-main-6-5": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "dir"
+              },
+              "physics-main-6-6": {
+                "type": "next"
+              }
+            },
+            "physics-main-6-4": {},
+            "physics-main-6-5": {},
+            "physics-main-6-6": {
+              "physics-main-6-7": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "value"
+              },
+              "physics-main-6-8": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "dir"
+              },
+              "physics-main-6-9": {
+                "type": "next"
+              }
+            },
+            "physics-main-6-7": {},
+            "physics-main-6-8": {},
+            "physics-main-6-9": {
+              "physics-main-6-10": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              },
+              "physics-main-6-11": {
+                "type": "next"
+              }
+            },
+            "physics-main-6-10": {},
+            "physics-main-6-11": {
+              "physics-main-6-12": {
+                "type": "next"
+              }
+            },
+            "physics-main-6-12": {
+              "physics-main-6-13": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "physics-main-6-14": {
+                "type": "next"
+              }
+            },
+            "physics-main-6-13": {},
+            "physics-main-6-14": {
+              "physics-main-6-15": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "physics-main-6-16": {
+                "type": "next"
+              }
+            },
+            "physics-main-6-15": {},
+            "physics-main-6-16": {
+              "physics-main-6-17": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "physics-main-6-18": {
+                "type": "next"
+              }
+            },
+            "physics-main-6-17": {},
+            "physics-main-6-18": {
+              "physics-main-6-19": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "physics-main-6-20": {
+                "type": "next"
+              }
+            },
+            "physics-main-6-19": {},
+            "physics-main-6-20": {
+              "physics-main-6-21": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              },
+              "physics-main-6-22": {
+                "type": "next"
+              }
+            },
+            "physics-main-6-21": {},
+            "physics-main-6-22": {
+              "physics-main-6-23": {
+                "type": "next"
+              }
+            },
+            "physics-main-6-23": {
+              "physics-main-6-24": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "value"
+              },
+              "physics-main-6-25": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "dir"
+              },
+              "physics-main-6-26": {
+                "type": "next"
+              }
+            },
+            "physics-main-6-24": {},
+            "physics-main-6-25": {},
+            "physics-main-6-26": {
+              "physics-main-6-27": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              },
+              "physics-main-6-28": {
+                "type": "next"
+              }
+            },
+            "physics-main-6-27": {},
+            "physics-main-6-28": {
+              "physics-main-6-29": {
+                "type": "next"
+              }
+            },
+            "physics-main-6-29": {
+              "physics-main-6-30": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "value"
+              },
+              "physics-main-6-31": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "dir"
+              },
+              "physics-main-6-32": {
+                "type": "next"
+              }
+            },
+            "physics-main-6-30": {},
+            "physics-main-6-31": {},
+            "physics-main-6-32": {
+              "physics-main-6-33": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              },
+              "physics-main-6-34": {
+                "type": "next"
+              }
+            },
+            "physics-main-6-33": {},
+            "physics-main-6-34": {
+              "physics-main-6-35": {
+                "type": "next"
+              }
+            },
+            "physics-main-6-35": {
+              "physics-main-6-36": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "physics-main-6-37": {
+                "type": "next"
+              }
+            },
+            "physics-main-6-36": {},
+            "physics-main-6-37": {
+              "physics-main-6-38": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "physics-main-6-39": {
+                "type": "next"
+              }
+            },
+            "physics-main-6-38": {},
+            "physics-main-6-39": {
+              "physics-main-6-40": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "physics-main-6-41": {
+                "type": "next"
+              }
+            },
+            "physics-main-6-40": {},
+            "physics-main-6-41": {
+              "physics-main-6-42": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "physics-main-6-43": {
+                "type": "next"
+              }
+            },
+            "physics-main-6-42": {},
+            "physics-main-6-43": {
+              "physics-main-6-44": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              },
+              "physics-main-6-45": {
+                "type": "next"
+              }
+            },
+            "physics-main-6-44": {},
+            "physics-main-6-45": {
+              "physics-main-6-46": {
+                "type": "next"
+              }
+            },
+            "physics-main-6-46": {
+              "physics-main-6-47": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "value"
+              },
+              "physics-main-6-48": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "dir"
+              },
+              "physics-main-6-49": {
+                "type": "next"
+              }
+            },
+            "physics-main-6-47": {},
+            "physics-main-6-48": {},
+            "physics-main-6-49": {
+              "physics-main-6-50": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "physics-main-6-51": {
+                "type": "next"
+              }
+            },
+            "physics-main-6-50": {},
+            "physics-main-6-51": {
+              "physics-main-6-52": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "physics-main-6-53": {
+                "type": "next"
+              }
+            },
+            "physics-main-6-52": {},
+            "physics-main-6-53": {
+              "physics-main-6-54": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "physics-main-6-55": {
+                "type": "next"
+              }
+            },
+            "physics-main-6-54": {},
+            "physics-main-6-55": {
+              "physics-main-6-56": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              },
+              "physics-main-6-57": {
+                "type": "next"
+              }
+            },
+            "physics-main-6-56": {},
+            "physics-main-6-57": {
+              "physics-main-6-58": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              }
+            },
+            "physics-main-6-58": {}
+          },
+          "comments": {}
+        },
+        "scene": "10000000-0000-4000-8000-000000000001",
+        "lock": false,
+        "editable_in_tuition_mode": true,
+        "user_change_r_c": false
+      }
+    },
+    "groups": {
+      "group": {
+        "id": "group",
+        "name": "",
+        "is_fold": false,
+        "is_group": false,
+        "actors": [
+          "20000000-0000-4000-8000-000000000001"
+        ],
+        "scene": "10000000-0000-4000-8000-000000000001",
+        "visible": true
+      }
+    },
+    "styles": {
+      "background": {
+        "id": "background",
+        "name": "background",
+        "width": 1280,
+        "height": 720,
+        "adaptive": false,
+        "pivot": {
+          "x": 0,
+          "y": 0
+        },
+        "rotate_center": {
+          "x": 0,
+          "y": 0
+        },
+        "cdn_url": "",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjgwIiBoZWlnaHQ9IjcyMCI+PHJlY3Qgd2lkdGg9IjEyODAiIGhlaWdodD0iNzIwIiBmaWxsPSIjMzM4OGFhIi8+PC9zdmc+"
+      },
+      "probe-style": {
+        "id": "probe-style",
+        "name": "probe-style",
+        "width": 20,
+        "height": 20,
+        "adaptive": false,
+        "pivot": {
+          "x": 0,
+          "y": 0
+        },
+        "rotate_center": {
+          "x": 0,
+          "y": 0
+        },
+        "cdn_url": "",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCI+PHJlY3Qgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjMzM4OGFhIi8+PC9zdmc+"
+      },
+      "floor-style": {
+        "id": "floor-style",
+        "name": "floor-style",
+        "width": 400,
+        "height": 20,
+        "adaptive": false,
+        "pivot": {
+          "x": 0,
+          "y": 0
+        },
+        "rotate_center": {
+          "x": 0,
+          "y": 0
+        },
+        "cdn_url": "",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MDAiIGhlaWdodD0iMjAiPjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMjAiIGZpbGw9IiMzMzg4YWEiLz48L3N2Zz4="
+      }
+    },
+    "videos": {},
+    "timer": {}
+  },
+  "variables": {
+    "exit_speed": {
+      "id": "exit_speed",
+      "name": "exit_speed",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false
+    },
+    "exit_friction": {
+      "id": "exit_friction",
+      "name": "exit_friction",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false
+    },
+    "exit_restitution": {
+      "id": "exit_restitution",
+      "name": "exit_restitution",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false
+    },
+    "exit_mass": {
+      "id": "exit_mass",
+      "name": "exit_mass",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false
+    },
+    "disabled_speed": {
+      "id": "disabled_speed",
+      "name": "disabled_speed",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false
+    },
+    "disabled_friction": {
+      "id": "disabled_friction",
+      "name": "disabled_friction",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false
+    },
+    "disabled_restitution": {
+      "id": "disabled_restitution",
+      "name": "disabled_restitution",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false
+    },
+    "disabled_mass": {
+      "id": "disabled_mass",
+      "name": "disabled_mass",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false
+    },
+    "final_speed": {
+      "id": "final_speed",
+      "name": "final_speed",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false
+    },
+    "final_friction": {
+      "id": "final_friction",
+      "name": "final_friction",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false
+    },
+    "final_restitution": {
+      "id": "final_restitution",
+      "name": "final_restitution",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false
+    },
+    "final_mass": {
+      "id": "final_mass",
+      "name": "final_mass",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false
+    },
+    "done": {
+      "id": "done",
+      "name": "done",
+      "value": 0,
+      "type": "any",
+      "is_global": true,
+      "current_entity": "20000000-0000-4000-8000-000000000001",
+      "visible": false
+    }
+  },
+  "variable_order": [
+    "exit_speed",
+    "exit_friction",
+    "exit_restitution",
+    "exit_mass",
+    "disabled_speed",
+    "disabled_friction",
+    "disabled_restitution",
+    "disabled_mass",
+    "final_speed",
+    "final_friction",
+    "final_restitution",
+    "final_mass",
+    "done"
+  ],
+  "cloud_variables": {},
+  "audio": {},
+  "audio_order": [],
+  "midimusic": [],
+  "midi_order": [],
+  "matrix": {},
+  "models": {},
+  "toolbox": {
+    "current_type": "event",
+    "pen": false
+  },
+  "toolbox_order": [
+    "event",
+    "control",
+    "action",
+    "appearance",
+    "sensing",
+    "operator",
+    "data"
+  ],
+  "last_toolbox_order": [],
+  "hardware_type": "",
+  "is_partial": false,
+  "ai_lab": {},
+  "broadcasts": {},
+  "painter": {
+    "color": []
+  }
+}

@@ -97,7 +97,7 @@ pub(super) unsafe extern "C" fn h_call(c: *mut NativeContext, pc: u64) -> u64 {
         unreachable!()
     };
     let count = engine.program.call_arguments[args].len();
-    let mut parameters = Vec::with_capacity(count);
+    let mut parameters = engine.take_parameters(count);
     for k in 0..count {
         let value = engine.program.call_arguments[args][k];
         parameters.push(engine.eval_value(value, c.actor));
@@ -133,15 +133,18 @@ pub(super) unsafe extern "C" fn h_return(c: *mut NativeContext, pc: u64) -> u64 
         let value = engine.eval_value(value, c.actor);
         engine.tasks[c.index].returned = Some(value);
     }
-    let task = &mut engine.tasks[c.index];
-    let Some(call) = task.calls.pop() else {
-        engine.jit_error = Some(anyhow!("invalid procedure return"));
-        return u64::MAX - 1;
+    let parameters = {
+        let task = &mut engine.tasks[c.index];
+        let Some(call) = task.calls.pop() else {
+            engine.jit_error = Some(anyhow!("invalid procedure return"));
+            return u64::MAX - 1;
+        };
+        task.pc = call.pc;
+        task.loops.truncate(call.loops);
+        task.ranges.truncate(call.ranges);
+        std::mem::replace(&mut task.parameters, call.parameters)
     };
-    task.pc = call.pc;
-    task.parameters = call.parameters;
-    task.loops.truncate(call.loops);
-    task.ranges.truncate(call.ranges);
+    engine.recycle_parameters(parameters);
     parameters::refresh(c);
     finish(c, pc)
 }
@@ -170,7 +173,8 @@ pub(super) unsafe extern "C" fn h_append_cell(c: *mut NativeContext, pc: u64) ->
     finish(c, pc)
 }
 
-/// Execute a scheduling boundary exactly once. MAX-2 means executed and yielded;
+/// Execute a scheduling boundary exactly once. KN and K4 use the same gateway
+/// but separate policies in warp_iteration_yields. MAX-2 means executed and yielded;
 /// the generated region must refund later instructions and immediately return.
 pub(super) unsafe extern "C" fn h_boundary(c: *mut NativeContext, pc: u64) -> u64 {
     let c = unsafe { &*c };

@@ -65,24 +65,26 @@ export class StageOverlay {
     this.monitors = document.createElement('div'); this.monitors.className = 'neko-monitors';
     this.root.append(this.monitors); box.append(this.root);
     this.bubbles = new Map(); this.ask = null; this.askId = null; this.monitorKey = '';
-    this.stageDialog = null;
+    this.stageDialog = null; this.ranking = null;
   }
   reset() {
     const restore=this.root.contains(document.activeElement);
     for (const bubble of this.bubbles.values()) bubble.remove();
     this.bubbles.clear(); this.monitors.replaceChildren(); this.monitorKey = '';
+    this.renderer.cloudListViews?.clear();
     this.ask?.remove(); this.ask = null; this.askId = null;
     this.stageDialog?.remove(); this.stageDialog = null;
+    this.ranking?.remove(); this.ranking = null;
     if(restore)this.renderer.canvas?.focus({preventScroll:true});
   }
   apply(frame) {
     this.root.style.setProperty('--neko-unit', `${100 / this.renderer.width}cqw`);
     this.monitors.style.left = this.monitors.style.top = this.renderer.kitten4 ? '0' : '';
-    const monitors = frame.monitors || [], key = JSON.stringify(monitors);
+    const monitors = frame.monitors || [], key = JSON.stringify([monitors,frame.cloud_ui?.lists]);
     if (key !== this.monitorKey) {
       this.monitorKey = key;
       this.monitors.replaceChildren(...monitors.map(m => {
-        const canvas = this.renderer.monitorCanvas?.(m); if (canvas) return canvas;
+        const canvas = this.renderer.monitorCanvas?.(m,frame.cloud_ui); if (canvas) return canvas;
         const row = document.createElement('div'); row.className = `neko-monitor${m.list ? ' list' : ''}`;
         const name = document.createElement('b'), value = document.createElement('span');
         name.textContent = m.name; value.textContent = m.value; row.append(name, value); return row;
@@ -97,6 +99,37 @@ export class StageOverlay {
       this.ask.style.transform = `translateY(calc(${this.askDistance} * var(--neko-unit)))`;
     }
     this.showStageDialog(frame.stage_dialog || null);
+    this.showRanking(frame.cloud_ui?.ranking||null);
+  }
+  showRanking(ranking) {
+    if (ranking && this.ranking?.dataset.variable === ranking.variable) return;
+    this.ranking?.remove(); this.ranking = null;
+    if (!ranking || !this.renderer.kitten4) return;
+    // Anonymous offline shell. No official images/fonts or fake ranking rows.
+    // Measured default wide-stage DOM: 555x400; current-user then empty loading body.
+    const panel=document.createElement('div');panel.className='neko-ranking';panel.dataset.variable=ranking.variable;
+    panel.setAttribute('role','dialog');panel.setAttribute('aria-label','排行榜');
+    const scale=Math.min(this.renderer.width/555,1),unit='var(--neko-unit)';
+    panel.style.cssText=`position:absolute;pointer-events:auto;left:50%;top:50%;width:calc(555 * ${unit});height:calc(400 * ${unit});transform:translate(-50%,-50%) scale(${scale});background:#d1eeff;border-radius:calc(20 * ${unit});box-shadow:0 calc(2 * ${unit}) calc(4 * ${unit}) #0006;font:calc(16 * ${unit})/1.15 "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",Arial,sans-serif;color:#000`;
+    const create=(tag,cls,css,text)=>{const e=document.createElement(tag);e.className=cls;e.style.cssText=css;if(text!==undefined)e.textContent=text;return e;};
+    const size=n=>`calc(${n} * ${unit})`;
+    const header=create('div','ranking-header',`height:${size(90)};display:flex;align-items:center;justify-content:center`);
+    const title=create('span','header-text',`font-size:${size(54.55)};color:#fff;-webkit-text-stroke:${size(2)} #4ca0ca`,'排行榜');
+    const close=create('button','close-btn',`position:absolute;right:${size(5)};top:${size(5)};border:0;background:none;color:white;font-size:${size(44)};line-height:1;width:${size(38)};height:${size(38)};padding:0;cursor:pointer`,'×');close.type='button';close.setAttribute('aria-label','关闭排行榜');
+    close.onclick=()=>{panel.hidden=true;this.onAnswer({kind:'ranking_close'});};header.append(title,close);
+    const user=create('div','current-user',`position:relative;margin:0 ${size(25)};height:${size(74)};border-radius:${size(20)};background:#fff;display:flex;align-items:center;box-shadow:0 ${size(2)} ${size(4)} #0004`);
+    const rank=create('span','ranking-num',`margin-left:${size(22)};width:${size(33)};font-size:${size(27)};color:#ccc;text-align:center`,'-');
+    const avatar=create('div','current-user-avatar',`margin:${size(10)};width:${size(50)};height:${size(50)};border:${size(2)} solid #ddd;border-radius:50%;background:#eee;flex-shrink:0`);avatar.setAttribute('role','img');avatar.setAttribute('aria-label','匿名头像');
+    const nickname=create('span','nickname',`width:${size(150)};font: ${size(23)} PingFangSC-Regular,sans-serif`,'未登录用户');
+    const n=ranking.value,value=typeof n!=='number'?'-':Math.ceil(Math.log(n+1)/Math.LN10)<=10?String(n):n.toExponential(5);
+    const score=create('span','score',`position:absolute;right:${size(15)};font:${size(26)} PingFangSC-Semibold,sans-serif;color:#ff8048`,value);user.append(rank,avatar,nickname,score);
+    const content=create('div','ranking-content',`margin:${size(20)} ${size(24)};height:${size(190)};box-sizing:border-box;padding-top:${size(5)};background:#fff;border-radius:${size(20)};overflow:hidden`);
+    const scroll=create('div','scroll-container','height:100%');
+    const loading=create('div','loading','height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center');
+    const icon=create('div','loading-icon',`width:${size(100)};height:${size(100)};box-sizing:border-box;border:${size(5)} solid #d1eeff;border-right-color:transparent;border-radius:50%`);icon.setAttribute('role','img');icon.setAttribute('aria-label','loading');
+    const label=create('div','loading-label',`font:${size(18)} PingFangSC-Regular,sans-serif;color:#aeaeae;margin-top:${size(8)}`,'loading');loading.append(icon,label);scroll.append(loading);content.append(scroll);panel.append(header,user,content);
+    for(const type of ['pointerdown','pointerup','mousedown','mouseup','touchstart','touchend','keydown','keyup'])panel.addEventListener(type,e=>e.stopPropagation());
+    this.root.append(panel);this.ranking=panel;
   }
   showStageDialog(dialog) {
     if (dialog && this.stageDialog?.dataset.id === String(dialog.id)) {

@@ -39,9 +39,14 @@ export function sampleTransition(transition,ms,width,height){
     else{incoming.alpha=quadOut(Math.max(0,ms)/500);outgoing.alpha=1-incoming.alpha;}
   }else if(kind==='none'||!kind)result.active=false;
   else if(kind==='distort'){
-    // A separate screenshot/filter pipeline is required; do not misrepresent it
-    // as a fade. This branch remains unsupported in the compositor.
-    result.active=false;result.unsupported=true;
+    // Two frozen full-stage screenshots, with independently delayed tweens.
+    // The outgoing tween retains its last (unclamped) overshoot until cleanup.
+    const out=quadOut(Math.max(0,Math.min(ms,transition.outEnd??ms))/500);
+    const into=quadOut(Math.max(0,ms-100)/500);
+    outgoing.alpha=1-out;incoming.alpha=into;
+    outgoing.angle=-227.8*Math.PI/180*out;
+    incoming.angle=189*Math.PI/180*(1-into);
+    result.active=ms<=600;result.screenshots=true;
   }else{
     // Unknown names never invoke official completion. Logical scene changes,
     // while the previous scene stays visible (no tween is scheduled).
@@ -74,7 +79,7 @@ void main(){uv=corner();vec2 p=(uv-.5)*dimensions;float c=cos(angle),s=sin(angle
 // Sprite effects by native scope: fxA = (color, brightness, pixelate, ripple),
 // fxB = (twist, grayscale). Textures are premultiplied; colour effects unpremultiply.
 const TEXTURE_FRAGMENT = `#version 300 es
-precision highp float;uniform sampler2D image;uniform vec4 tint;uniform vec4 fxA;uniform vec2 fxB;uniform vec2 texSize;uniform vec2 repeatUV;uniform bool kitten4;in vec2 uv;out vec4 outColor;
+precision highp float;uniform sampler2D image;uniform vec4 tint;uniform bool packedTint;uniform vec4 fxA;uniform vec2 fxB;uniform vec3 hueWeights;uniform vec2 saturationWeights;uniform vec2 texSize;uniform vec2 repeatUV;uniform bool kitten4;in vec2 uv;out vec4 outColor;
 vec3 hsv(vec3 c){vec4 K=vec4(0.,-1./3.,2./3.,-1.);vec4 p=mix(vec4(c.bg,K.wz),vec4(c.gb,K.xy),step(c.b,c.g));vec4 q=mix(vec4(p.xyw,c.r),vec4(c.r,p.yzx),step(p.x,c.r));float d=q.x-min(q.w,q.y);return vec3(abs(q.z+(q.w-q.y)/(6.*d+1e-10)),d/(q.x+1e-10),q.x);}
 vec3 rgb(vec3 c){vec3 p=abs(fract(c.xxx+vec3(1.,2./3.,1./3.))*6.-3.);return c.z*mix(vec3(1.),clamp(p-1.,0.,1.),c.y);}
 void main(){vec2 p=uv;
@@ -83,13 +88,17 @@ if(fxB.x!=0.){vec2 d=p-.5;float r=length(d)*2.;float a=radians(fxB.x)*max(0.,1.-
 if(fxA.w!=0.){p+=vec2(sin(p.y*25.),sin(p.x*25.))*fxA.w/2000.;}
 if(abs(fxA.z)>=1.){vec2 cell=max(vec2(1.),vec2(abs(fxA.z)/10.+1.));vec2 n=texSize/cell;p=(floor(p*n)+.5)/n;}
 vec4 c=(p.x<0.||p.y<0.||p.x>1.||p.y>1.)?vec4(0.):texture(image,p);
+// K4 applies world alpha when rasterizing the filter's input, before its
+// colour matrices. Matrix outputs may legitimately exceed the alpha channel.
+float alpha=tint.a;
+if(kitten4&&(fxA.x!=0.||fxA.y!=0.||fxB.y>0.)){c=floor(c*alpha*255.+.5)/255.;alpha=1.;}
 // K4 jt uses PIXI colour matrices, ordered hue -> brightness -> saturate.
 // Each pass clamps/quantizes its premultiplied RGBA8 intermediate, not RGB.
 // See docs/kitten4-visual3.md. KN retains its existing HSV/weighted-gray policy.
 if(kitten4&&c.a>0.){vec3 r=c.rgb/c.a;
-if(fxA.x!=0.){float a=radians(fxA.x),co=cos(a),si=sin(a)/sqrt(3.),v=(1.-co)/3.;r=vec3(dot(r,vec3(co+v,v-si,v+si)),dot(r,vec3(v+si,co+v,v-si)),dot(r,vec3(v-si,v+si,co+v)));r=floor(clamp(r*c.a,0.,1.)*255.+.5)/255./c.a;}
+if(fxA.x!=0.){r=vec3(dot(r,hueWeights),dot(r,hueWeights.zxy),dot(r,hueWeights.yzx));r=floor(clamp(r*c.a,0.,1.)*255.+.5)/255./c.a;}
 if(fxA.y!=0.)r=floor(clamp((r+clamp(fxA.y/100.,-1.,1.))*c.a,0.,1.)*255.+.5)/255./c.a;
-if(fxB.y>0.)r=mix(r,vec3((r.r+r.g+r.b)/3.),clamp(fxB.y/100.,0.,1.));
+if(fxB.y>0.)r=vec3(dot(r,saturationWeights.xyy),dot(r,saturationWeights.yxy),dot(r,saturationWeights.yyx));
 c.rgb=r*c.a;
 }else{
 if(c.a>0.&&(fxA.x!=0.||fxB.y>0.)){vec3 r=c.rgb/c.a;
@@ -97,7 +106,57 @@ if(fxA.x!=0.){vec3 h=hsv(r);h.x=fract(h.x+fxA.x/200.);r=rgb(h);}
 if(fxB.y>0.){r=mix(r,vec3(dot(r,vec3(.299,.587,.114))),clamp(fxB.y/100.,0.,1.));}
 c.rgb=r*c.a;}
 if(fxA.y!=0.){c.rgb=clamp(c.rgb+fxA.y/100.*c.a,0.,c.a);}}
-outColor=c*vec4(tint.rgb*tint.a,tint.a);}`;
+outColor=c*(packedTint?tint:vec4(tint.rgb*alpha,alpha));}`;
+
+// Original screen-space resampling passes. K4 filters rasterize the transformed
+// actor first: cells remain aligned to the filter rectangle, even on rotation.
+const K4_FILTER_VERTEX = `#version 300 es
+precision highp float;
+uniform vec2 stageSize;uniform vec2 position;uniform vec2 dimensions;uniform float angle;uniform vec2 origin;uniform vec2 extent;uniform bool flipOutput;
+out vec2 uv;
+void main(){vec2 corners[6]=vec2[6](vec2(0,0),vec2(1,0),vec2(1,1),vec2(0,0),vec2(1,1),vec2(0,1));vec2 p=corners[gl_VertexID];uv=p*dimensions/extent;vec2 scale=vec2(2.,-2.)/stageSize;vec2 translation=vec2(-1.,1.)+position*scale;gl_Position=vec4((origin+p*dimensions)*scale+translation,0.,1.);if(flipOutput)gl_Position.y=-gl_Position.y;}`;
+const K4_SPATIAL_FRAGMENT = `#version 300 es
+precision highp float;
+uniform sampler2D image;uniform vec2 extent;uniform vec2 center;uniform vec2 origin;
+uniform float amount;uniform float radius;uniform bool twist;uniform bool ascii;
+in vec2 uv;out vec4 outColor;
+// Original row masks drawn from the observed 5x5 glyphs, ordered by luminance.
+// Keeping rows separate avoids float bit-packing precision dependencies.
+uint glyphRow(int level,int row){
+ if(level==0)return uint[5](0u,0u,0u,2u,0u)[row];
+ if(level==1)return uint[5](0u,2u,0u,2u,0u)[row];
+ if(level==2)return uint[5](4u,31u,4u,10u,0u)[row];
+ if(level==3)return uint[5](14u,17u,17u,17u,14u)[row];
+ if(level==4)return uint[5](12u,2u,21u,9u,22u)[row];
+ if(level==5)return uint[5](14u,17u,14u,17u,14u)[row];
+ if(level==6)return uint[5](28u,2u,26u,18u,12u)[row];
+ return uint[5](10u,31u,10u,31u,10u)[row];
+}
+void main(){vec2 q=uv*extent;
+vec2 cell=mod(q+origin,amount)/amount;
+if(twist){vec2 d=q-center;float r=length(d);if(r<radius){float falloff=(radius-r)/radius;float a=falloff*falloff*amount,s=sin(a),c=cos(a);d=vec2(c*d.x-s*d.y,s*d.x+c*d.y);}q=clamp(center+d,vec2(.5),extent-.5);}
+else q=floor((q+origin)/amount)*amount-origin;
+if(!twist)q=max(q,vec2(.5));
+vec2 p=vec2(q.x/extent.x,1.-q.y/extent.y);
+outColor=(q.x<0.||q.y<0.||q.x>extent.x||q.y>extent.y)?vec4(0.):texture(image,p);
+if(ascii){float gray=(outColor.r+outColor.g+outColor.b)/3.;int level=0;
+ for(int i=2;i<=8;i++)if(gray>float(i)/10.)level=i-1;
+ ivec2 dotPosition=ivec2(floor((cell*2.-1.)*vec2(4.,-4.)+2.5));
+ if(any(lessThan(dotPosition,ivec2(0)))||any(greaterThan(dotPosition,ivec2(4))))outColor=vec4(0.);
+ else outColor*=float((glyphRow(level,dotPosition.y)>>uint(dotPosition.x))&1u);
+  }}`;
+
+// Independent three-channel affine matrix pass. Keep rasterization, each colour
+// operation and its RGBA8 storage separate; no gamma conversion is involved.
+const K4_COLOR_FRAGMENT = `#version 300 es
+precision highp float;
+uniform sampler2D image;uniform vec3 rowR;uniform vec3 rowG;uniform vec3 rowB;uniform float bias;
+in vec2 uv;out vec4 outColor;
+void main(){vec4 c=texture(image,vec2(uv.x,1.-uv.y));vec3 straight=c.a>0.?c.rgb/c.a:c.rgb;
+vec3 result=vec3(rowR.x*straight.r,rowG.x*straight.r,rowB.x*straight.r);
+result+=vec3(rowR.y*straight.g,rowG.y*straight.g,rowB.y*straight.g);
+result+=vec3(rowR.z*straight.b,rowG.z*straight.b,rowB.z*straight.b);
+outColor=vec4((result+bias)*c.a,c.a);}`;
 
 function program(gl, vertex, fragment) {
   const shaders = [[gl.VERTEX_SHADER, vertex], [gl.FRAGMENT_SHADER, fragment]].map(([type, source]) => {
@@ -132,8 +191,12 @@ export class StageRenderer {
     const gl = canvas.getContext('webgl2', { alpha: false, antialias: false, preserveDrawingBuffer: false, powerPreference: 'high-performance' });
     if (!gl) throw Error('需要支持 WebGL 2 的浏览器。');
     this.gl = gl; this.pen = program(gl, PEN_VERTEX, PEN_FRAGMENT); this.texture = program(gl, TEXTURE_VERTEX, TEXTURE_FRAGMENT);
+    this.k4Spatial = program(gl,K4_FILTER_VERTEX,K4_SPATIAL_FRAGMENT);
+    this.k4SpatialUniform=Object.fromEntries(['stageSize','position','dimensions','angle','image','extent','center','origin','amount','radius','twist','ascii','flipOutput'].map(k=>[k,gl.getUniformLocation(this.k4Spatial,k)]));
+    this.k4Color=program(gl,K4_FILTER_VERTEX,K4_COLOR_FRAGMENT);
+    this.k4ColorUniform=Object.fromEntries(['stageSize','position','dimensions','extent','origin','image','rowR','rowG','rowB','bias'].map(k=>[k,gl.getUniformLocation(this.k4Color,k)]));
     this.penSize = gl.getUniformLocation(this.pen, 'stageSize');
-    this.uniform = Object.fromEntries(['stageSize', 'position', 'dimensions', 'angle', 'image', 'tint', 'fxA', 'fxB', 'texSize', 'repeatUV', 'kitten4'].map(k => [k, gl.getUniformLocation(this.texture, k)]));
+    this.uniform = Object.fromEntries(['stageSize', 'position', 'dimensions', 'angle', 'image', 'tint', 'packedTint', 'fxA', 'fxB', 'hueWeights', 'saturationWeights', 'texSize', 'repeatUV', 'kitten4'].map(k => [k, gl.getUniformLocation(this.texture, k)]));
     this.vao = gl.createVertexArray(); this.buffer = gl.createBuffer(); this.bufferCapacity = 0;
     gl.bindVertexArray(this.vao); gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
     for (const [location, count, offset] of [[0,4,0], [1,1,16], [2,4,20]]) {
@@ -159,8 +222,12 @@ export class StageRenderer {
     this.videos=new Map();this.mediaPaused=false;
     this.kitten4 = Object.hasOwn(project,'_nekocKitten4');
     this.monitorDeclarations=project.variables?.variablesDict||{};
+    this.cloudDeclarations=project._nekocKitten4?.source?.cloud_variables||{};
+    this.cloudListViews=new Map();
     this.monitorOwners={...project.scenes?.scenesDict,...project.actors?.actorsDict};
     const gl = this.gl;
+    for(const entry of this.k4FilterCache?.values()||[])for(const surface of entry.surfaces){gl.deleteFramebuffer(surface.framebuffer);gl.deleteTexture(surface.texture);}
+    this.k4FilterCache=new Map();this.stats.k4FilterBytes=0;
     for(const query of this.gpuQueries)gl.deleteQuery(query);
     this.gpuQueries=[];this.stats.gpuMs=null;
     for (const item of this.images.values()) gl.deleteTexture(item.texture);
@@ -212,10 +279,17 @@ export class StageRenderer {
         gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,image);
         // One alpha byte per pixel allows transparent costume regions to pass clicks through.
         const hit=document.createElement('canvas');hit.width=image.naturalWidth;hit.height=image.naturalHeight;
-        const ctx=hit.getContext('2d',{willReadFrequently:true});ctx.drawImage(image,0,0);
+        const ctx=hit.getContext('2d',this.kitten4?undefined:{willReadFrequently:true});
+        if(this.kitten4&&/^data:image\/svg\+xml/i.test(style.url)){
+          // Explicit source/destination rectangles select the SVG raster path
+          // observed in native SVGResource; the 3-argument overload differs at
+          // diagonal antialiasing edges in Chromium.
+          ctx.drawImage(image,0,0,image.naturalWidth,image.naturalHeight,0,0,hit.width,hit.height);
+          gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,hit);
+        }else ctx.drawImage(image,0,0);
         const rgba=ctx.getImageData(0,0,hit.width,hit.height).data,alpha=new Uint8Array(hit.width*hit.height);
         for(let i=0;i<alpha.length;i++)alpha[i]=rgba[i*4+3];
-        this.images.set(id,{texture,src:image.src,width:image.naturalWidth,height:image.naturalHeight,centerPoint,adaptive:style.adaptive!==false,alpha,rgb:cellColors(rgba,hit.width,hit.height)});
+        this.images.set(id,{texture,src:image.src,source:hit,width:image.naturalWidth,height:image.naturalHeight,centerPoint,adaptive:style.adaptive!==false,alpha,rgb:cellColors(rgba,hit.width,hit.height)});
         this.stats.textureBytes += image.naturalWidth * image.naturalHeight * 4;
         this.dirty = true;
       } catch(error) { if(generation===this.generation)this.onError?.(`素材 ${style?.name || id}: ${error.message}`); }
@@ -291,9 +365,17 @@ export class StageRenderer {
       this.clearSceneTransition();
       if(transition&&transitionKind(transition)!=='none'){
         const kind=transitionKind(transition);
-        const old={sceneId:this.sceneId,backdrop:this.backdrop,backgroundState:this.backgroundState,
+         const old={sceneId:this.sceneId,backdrop:this.backdrop,backgroundState:this.backgroundState,
           sprites:this.sprites,spriteIndices:new Map(this.spriteIndices),actorOrder:this.actorOrder,
-          penTexture:this.penTexture,penLayer:this.penLayer};
+           penTexture:this.penTexture,penLayer:this.penLayer};
+         const snapshot=transition.outgoing;
+         if(snapshot?.scene===old.sceneId){
+           old.backgroundState=snapshot.sprites.find(a=>a.id===old.sceneId)??old.backgroundState;
+           old.backdrop=old.backgroundState?.style??old.backdrop;
+           old.sprites=snapshot.sprites.filter(a=>a.id!==old.sceneId);
+           old.spriteIndices=new Map(old.sprites.map((a,i)=>[a.id,i]));
+           old.actorOrder=snapshot.order;old.penLayer=snapshot.pen_layer;
+         }
         this.sceneTransition={transition,start:this.transitionClock(),old,
           // Scene order is the project order except bounce, which raises entry.
           incomingOnTop:kind.startsWith('bounce_')||Object.keys(this.scenes).indexOf(sceneId)>Object.keys(this.scenes).indexOf(this.sceneId)};
@@ -312,7 +394,56 @@ export class StageRenderer {
 
   clearSceneTransition(){
     if(!this.sceneTransition)return;
+    for(const surface of this.sceneTransition.screenshots||[]){
+      this.gl.deleteFramebuffer(surface.framebuffer);this.gl.deleteTexture(surface.texture);
+    }
+    const input=this.sceneTransition.filterInput;
+    if(input){this.gl.deleteFramebuffer(input.framebuffer);this.gl.deleteTexture(input.texture);}
+    const ascii=this.sceneTransition.asciiOutput;
+    if(ascii){this.gl.deleteFramebuffer(ascii.framebuffer);this.gl.deleteTexture(ascii.texture);}
     this.sceneTransition=null;this.dirty=true;
+  }
+
+  drawDistortTransition(transition,state){
+    const gl=this.gl,w=this.canvas.width,h=this.canvas.height;
+    if(!transition.screenshots){
+      const surfaces=[];
+      try{
+        for(const scene of [transition.old,this]){
+          const surface=this.makeSurface(w,h);surfaces.push(surface);
+          this.drawScene(surface.framebuffer,scene);
+        }
+      }catch(error){for(const s of surfaces){gl.deleteFramebuffer(s.framebuffer);gl.deleteTexture(s.texture);}throw error;}
+      transition.screenshots=surfaces;
+    }
+    if(!this.distortProgram){
+      // Original shader derived from radial inverse mapping; native evidence:
+      // a1xw/Et screenshot lifetime, lvVU/TwistFilter radius and squared falloff.
+      this.distortProgram=program(gl,K4_FILTER_VERTEX,`#version 300 es
+precision highp float;uniform sampler2D image;uniform vec2 extent;uniform vec2 center;uniform vec2 origin;uniform float radius;uniform float turn;in vec2 uv;out vec4 outColor;
+void main(){vec2 p=uv*extent+origin;vec2 d=p-center;float r=length(d);if(r<radius){float t=(radius-r)/radius;float a=t*t*turn;float c=cos(a),s=sin(a);d=vec2(c*d.x-s*d.y,s*d.x+c*d.y);}vec2 q=(center+d-origin)/extent;outColor=texture(image,vec2(q.x,1.-q.y));}`);
+      this.distortUniform=Object.fromEntries(['stageSize','position','dimensions','image','extent','center','origin','radius','turn'].map(k=>[k,gl.getUniformLocation(this.distortProgram,k)]));
+    }
+    // The destination scene remains live underneath both screenshot sprites.
+    this.drawScene();
+    // Native screenshot sprites rasterize world alpha BEFORE the twist, into a
+    // padded RGBA8 filter input. Multiplying after interpolation is not equal.
+    const sx=w/this.width,sy=h/this.height,pad=10;
+    const fw=2**Math.ceil(Math.log2(w+2*pad*sx)),fh=2**Math.ceil(Math.log2(h+2*pad*sy));
+    if(!transition.filterInput)transition.filterInput=this.makeSurface(fw,fh);
+    const u=this.distortUniform;
+    for(const [i,s]of [state.outgoing,state.incoming].entries()){
+      gl.bindFramebuffer(gl.FRAMEBUFFER,transition.filterInput.framebuffer);gl.viewport(0,0,fw,fh);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);
+      const stageW=this.width,stageH=this.height;this.width=fw/sx;this.height=fh/sy;
+      const alpha=Math.max(0,Math.min(1,s.alpha)),rgb=Math.round(alpha*255)/255;
+      try{this.drawTexture(transition.screenshots[i].texture,pad+stageW/2-this.width/2,this.height/2-pad-stageH/2,stageW,stageH,0,[rgb,rgb,rgb,Math.floor(alpha*255)/255],null,null,null,null,true);}
+      finally{this.width=stageW;this.height=stageH;}
+      gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl.viewport(0,0,w,h);
+      gl.useProgram(this.distortProgram);gl.uniform2f(u.stageSize,w,h);gl.uniform2f(u.position,0,0);
+      gl.uniform2f(u.dimensions,w+2*pad*sx,h+2*pad*sy);gl.uniform1i(u.image,0);gl.uniform2f(u.extent,fw,fh);
+      gl.uniform2f(u.origin,-pad*sx,-pad*sy);gl.uniform2f(u.center,w/2,h/2);gl.uniform1f(u.radius,Math.min(w,h));
+      gl.uniform1f(u.turn,s.angle);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,transition.filterInput.texture);gl.drawArrays(gl.TRIANGLES,0,6);this.stats.drawCalls++;
+    }
   }
 
   // Device pixels per stage unit at the stage's current on-screen size, in half steps.
@@ -424,9 +555,10 @@ export class StageRenderer {
     if(frame.removed?.length){const gone=new Set(frame.removed);this.sprites=this.sprites.filter(a=>!gone.has(a.id));this.spriteIndices=new Map(this.sprites.map((a,i)=>[a.id,i]));changed=true;}
     if(Array.isArray(frame.order)){this.actorOrder=frame.order;changed=true;}
     for(const a of frame.sprites){
+      if(a.soft_mesh!=null)validateSoftMesh(a.soft_mesh);
       if(a.id===this.sceneId){changed ||= a.style!==this.backdrop||JSON.stringify(a)!==JSON.stringify(this.backgroundState);this.backdrop=a.style;this.backgroundState=a;continue;}
       const index=this.spriteIndices.get(a.id),old=index===undefined?null:this.sprites[index];
-      changed ||= !old||['style','x','y','direction','scale','visible','opacity','size_x','size_y','rotation_type'].some(k=>a[k]!==old[k])||String(a.effects)!==String(old.effects);
+      changed ||= !old||['style','x','y','direction','scale','visible','opacity','size_x','size_y','rotation_type'].some(k=>a[k]!==old[k])||String(a.effects)!==String(old.effects)||JSON.stringify(a.soft_mesh)!==JSON.stringify(old.soft_mesh);
       if(index===undefined){this.spriteIndices.set(a.id,this.sprites.length);this.sprites.push(a);}else this.sprites[index]=a;
     }
     this.changed = changed || !!frame.clear || lines.length>0 || stamps.length>0;
@@ -526,7 +658,7 @@ export class StageRenderer {
     gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,canvas);
     const rgba=ctx.getImageData(0,0,canvas.width,canvas.height).data,alpha=new Uint8Array(canvas.width*canvas.height);
     for(let i=0;i<alpha.length;i++)alpha[i]=rgba[i*4+3];
-    item={texture,width:canvas.width,height:canvas.height,alpha};
+    item={texture,source:canvas,width:canvas.width,height:canvas.height,alpha};
     this.spriteTexts.set(key,item);
     if(this.spriteTexts.size>256){const [oldKey,old]=this.spriteTexts.entries().next().value;gl.deleteTexture(old.texture);this.spriteTexts.delete(oldKey);}
     return item;
@@ -535,10 +667,13 @@ export class StageRenderer {
 
   // K4 $n/ti: saved positions are top-left anchors in stage coordinates, not
   // a flex list. Original Canvas drawing of the common scalar skin; no vendor
-  // textures or fonts bundled. Icon/list skins retain the generic DOM fallback.
-  monitorCanvas(monitor){
-    const state=this.monitorDeclarations?.[monitor.id];
-    if(!this.kitten4||monitor.list||!state||state.theme!=='common')return null;
+   // textures or fonts bundled. Non-cloud list/icon skins retain DOM fallback.
+  monitorCanvas(monitor,ui){
+    const cloud=this.cloudDeclarations?.[monitor.id];
+    const state=cloud||this.monitorDeclarations?.[monitor.id];
+    if(!this.kitten4||!state)return null;
+    if(cloud&&monitor.list)return this.cloudListCanvas(monitor,state,ui?.lists?.[monitor.id]||[]);
+    if(monitor.list||(state.theme||'common')!=='common')return null;
     const canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');
     const font='18px "NotoSansCJKsc-Medium", "NotoSansCJKsc"';ctx.font=font;
     const prefix=state.current_entity?`${this.monitorOwners?.[state.current_entity]?.name||''}·`:'';
@@ -559,10 +694,89 @@ export class StageRenderer {
     return canvas;
   }
 
+  cloudListCanvas(monitor,state,items){
+    // Independent Canvas skin from measured PIXI geometry (Yn/di), not vendor assets.
+    const canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');
+    const bodyWidth=170+Math.max(0,state.offset?.x||0),bodyHeight=180+Math.floor(Math.max(0,state.offset?.y||0)/45)*45;
+    const width=bodyWidth+18,height=bodyHeight+68;
+    canvas.width=width;canvas.height=height;
+    const rounded=(x,y,w,h,r,color)=>{ctx.fillStyle=color;ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill();};
+    rounded(1,1,width-2,height-2,20,'#ffaa2f');
+    ctx.strokeStyle='#ccc';ctx.lineWidth=2;ctx.stroke();
+    const font='500 20px "PingFangSC-Medium", "PingFang SC"';ctx.font=font;
+    const ellipsis=(text,max)=>{text=String(text);if(Math.ceil(ctx.measureText(text).width)<=max)return text;let result='';for(const c of text){if(Math.ceil(ctx.measureText(result+c).width)+Math.ceil(ctx.measureText('...').width)>max)break;result+=c;}return result+'...';};
+    const title=ellipsis(monitor.name,bodyWidth-32),titleWidth=Math.ceil(ctx.measureText(title).width);
+    const textureText=(text,x,y,color)=>{
+      const lines=String(text).split(/\r\n|\r|\n/),font=ctx.font;
+      const texture=document.createElement('canvas'),tc=texture.getContext('2d');tc.font=font;
+      texture.width=Math.max(6,...lines.map(line=>Math.ceil(tc.measureText(line).width)));
+      const lineHeight=font.startsWith('500')?25:23;texture.height=lineHeight*lines.length;
+      tc.font=font;tc.fillStyle=color;lines.forEach((line,i)=>tc.fillText(line,0,(font.startsWith('500')?20:18)+i*lineHeight));
+      ctx.drawImage(texture,x,y);
+    };
+    textureText(title,1+(bodyWidth+16-titleWidth)/2,13,'#fff');
+    rounded(9,59,bodyWidth,bodyHeight,10,'#fff');
+    ctx.save();ctx.clip();
+    const rows=bodyHeight/45;
+    const view=this.cloudListViews.get(monitor.id)||{index:0,hadItems:false};
+    view.hadItems||=items.length>0;
+    let index=Math.max(0,Math.min(Math.max(0,items.length-rows),view.index));this.cloudListViews.set(monitor.id,view);
+    const paint=()=>{
+      ctx.clearRect(9,59,bodyWidth,bodyHeight);ctx.fillStyle='#fff';ctx.fillRect(9,59,bodyWidth,bodyHeight);
+      if(!items.length){ctx.font='bold 16px "STHeitiSC-Medium", "Microsoft YaHei"';ctx.fillStyle='#000';ctx.fillText('空',9+bodyWidth/2-8,85);if(!view.hadItems)rounded(9,69,5,112,2.5,'#a3afbf4d');return;}
+      ctx.font='bold 17.5px "STHeitiSC-Medium", "Microsoft YaHei"';
+      const orderWidth=ctx.measureText(String(Math.min(index+rows,items.length))).width;
+      for(let r=0;r<rows;r++){
+        const at=index+r,y=59+r*45;
+        ctx.fillStyle=r%2?'#f4f5f7':'#fff';ctx.fillRect(9,y,bodyWidth,45);
+        if(at>=items.length)continue;
+        ctx.fillStyle='#0000007f';ctx.fillText(String(at+1),14,y+29);
+        textureText(ellipsis(items[at],bodyWidth-10-45-orderWidth),29+orderWidth,y+11,'#43372e');
+      }
+      if(items.length>rows){const range=bodyHeight-150,step=range/(items.length-rows);rounded(9+bodyWidth-10,69+index*step,5,112,2.5,'#a3afbf4d');}
+    };
+    paint();ctx.restore();
+    // The resize affordance is an original triangle, not an embedded texture.
+    ctx.fillStyle='#000';ctx.beginPath();ctx.moveTo(166,228);ctx.lineTo(174,219);ctx.lineTo(176,219);ctx.lineTo(176,229);ctx.lineTo(166,229);ctx.closePath();ctx.fill();
+    const position=state.position||{x:10-this.width/2,y:this.height/2-10};
+    canvas.className='neko-monitor k4-cloud-list';
+    canvas.style.cssText=`position:absolute;display:block;border:0;border-radius:0;background:transparent;max-width:none;pointer-events:auto;left:calc(${this.width/2+position.x-1} * var(--neko-unit));top:calc(${this.height/2-position.y-1} * var(--neko-unit));width:calc(${width} * var(--neko-unit));height:calc(${height} * var(--neko-unit))`;
+    canvas.setAttribute('aria-label',`${monitor.name}: ${items.length} items`);
+    let dragY;
+    canvas.onpointerdown=e=>{e.stopPropagation();dragY=e.clientY;canvas.setPointerCapture(e.pointerId);};
+    canvas.onpointermove=e=>{if(dragY===undefined)return;e.stopPropagation();const delta=Math.trunc((dragY-e.clientY)/(45*canvas.clientWidth/width));if(delta){index=Math.max(0,Math.min(Math.max(0,items.length-rows),index+delta));view.index=index;dragY=e.clientY;ctx.save();ctx.beginPath();ctx.roundRect(9,59,bodyWidth,bodyHeight,10);ctx.clip();paint();ctx.restore();}};
+    canvas.onpointerup=e=>{e.stopPropagation();dragY=undefined;};
+    canvas.onpointercancel=()=>{dragY=undefined;};
+    return canvas;
+  }
+
   drawImageStamp(stamp){
     const image=this.images.get(stamp.style);if(!image)return;
+    if(this.kitten4&&image.source)return this.drawK4ImageStamp(stamp,image);
     const {x,y,width,height,angle}=this.kitten4?k4ImageStampGeometry(stamp,image):actorGeometry(stamp,image,false);
     this.drawTexture(image.texture,x,y,width,height,angle,[1,1,1,stamp.opacity??1],stamp.effects,[image.width,image.height]);
+  }
+
+  drawK4ImageStamp(stamp,image){
+    // The native brush rasterizes the transformed destination in Canvas. A
+    // transformed GL quad has different edge coverage on rotated/alpha stamps.
+    const g=k4ImageStampGeometry(stamp,image),sx=this.canvas.width/this.width,sy=this.canvas.height/this.height;
+    const c=Math.cos(g.angle),s=Math.sin(g.angle),w=Math.abs(g.width),h=Math.abs(g.height);
+    if(!w||!h)return;
+    const ox=this.width/2+g.x,oy=this.height/2-g.y;
+    const corners=[[-w/2,-h/2],[w/2,-h/2],[-w/2,h/2],[w/2,h/2]];
+    const xs=corners.map(([x,y])=>(ox+c*x-s*y)*sx),ys=corners.map(([x,y])=>(oy+s*x+c*y)*sy);
+    const left=Math.max(0,Math.floor(Math.min(...xs))-2),right=Math.min(this.canvas.width,Math.ceil(Math.max(...xs))+2);
+    const top=Math.max(0,Math.floor(Math.min(...ys))-2),bottom=Math.min(this.canvas.height,Math.ceil(Math.max(...ys))+2);
+    if(right<=left||bottom<=top)return;
+    const canvas=this.stampCanvas??=document.createElement('canvas'),ctx=canvas.getContext('2d');
+    canvas.width=right-left;canvas.height=bottom-top;
+    ctx.setTransform(sx,0,0,sy,-left,-top);ctx.translate(ox,oy);ctx.rotate(g.angle);
+    ctx.scale(Math.sign(g.width),Math.sign(g.height));ctx.drawImage(image.source,-w/2,-h/2,w,h);
+    const gl=this.gl,texture=this.stampTexture??=this.makeTexture(1,1);
+    gl.bindTexture(gl.TEXTURE_2D,texture);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,true);
+    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,canvas);
+    this.drawTexture(texture,(left+right)/2/sx-this.width/2,this.height/2-(top+bottom)/2/sy,canvas.width/sx,canvas.height/sy);
   }
 
   // Costume sizes plus opacity masks (<=128x128, 1 bit per cell) for VM collisions;
@@ -618,16 +832,155 @@ export class StageRenderer {
     this.drawTexture(texture,(left+right)/2/sx-this.width/2,this.height/2-(top+bottom)/2/sy,canvas.width/sx,canvas.height/sy);
   }
 
-  drawTexture(texture,x,y,width,height,angle=0,tint=[1,1,1,1],effects=null,texSize=null,repeatUV=null) {
+  drawTexture(texture,x,y,width,height,angle=0,tint=[1,1,1,1],effects=null,texSize=null,repeatUV=null,filterCenter=null,packedTint=false) {
+    if(this.kitten4&&effects&&(effects[3]>=1||effects[5]>0||effects[7]>=1)&&!this.k4Filtering)return this.drawK4SpatialTexture(texture,x,y,width,height,angle,tint,effects,texSize,repeatUV,filterCenter);
     if(this.sceneTransform){const t=this.sceneTransform;x+=t.x;y-=t.y;tint=[tint[0],tint[1],tint[2],tint[3]*t.alpha];}
     const gl=this.gl,u=this.uniform,e=effects||NO_EFFECTS;
     gl.useProgram(this.texture); gl.uniform2f(u.stageSize,this.width,this.height); gl.uniform2f(u.position,x,y);
     gl.uniform2f(u.dimensions,width,height); gl.uniform1f(u.angle,angle); gl.uniform1i(u.image,0);
     gl.uniform1i(u.kitten4,this.kitten4?1:0);
+    gl.uniform1i(u.packedTint,packedTint?1:0);
     gl.uniform4fv(u.tint,tint);gl.uniform4f(u.fxA,e[0],e[2],e[3],e[4]);gl.uniform2f(u.fxB,e[5],e[6]);
+    const theta=e[0]*Math.PI/180,co=Math.cos(theta),base=(1-co)/3,skew=Math.sin(theta)/Math.sqrt(3),gray=Math.min(1,Math.max(0,e[6]/100));
+    gl.uniform3f(u.hueWeights,co+base,base-skew,base+skew);gl.uniform2f(u.saturationWeights,1-2*gray/3,gray/3);
     gl.uniform2f(u.texSize,texSize?.[0]||Math.abs(width)||1,texSize?.[1]||Math.abs(height)||1);
     gl.uniform2f(u.repeatUV,repeatUV?.[0]||0,repeatUV?.[1]||0);
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,texture); gl.drawArrays(gl.TRIANGLES,0,6); this.stats.drawCalls++;
+  }
+
+  drawSoftMesh(a,image){
+    const mesh=a.soft_mesh;
+    if(!mesh.triangles.length||!mesh.vertices.length)return;
+    const sx=this.canvas.width/this.width,sy=this.canvas.height/this.height;
+    let left=Infinity,right=-Infinity,top=Infinity,bottom=-Infinity;
+    for(const [x,y]of mesh.vertices){const px=(this.width/2+x)*sx,py=(this.height/2-y)*sy;left=Math.min(left,px);right=Math.max(right,px);top=Math.min(top,py);bottom=Math.max(bottom,py);}
+    left=Math.floor(left)-1;right=Math.ceil(right)+1;top=Math.floor(top)-1;bottom=Math.ceil(bottom)+1;
+    // Keep offstage geometry in the filter input, as with ordinary sprites.
+    const pad=a.effects?.[5]>0?20*Math.max(sx,sy):0;
+    if(right+pad<=0||bottom+pad<=0||left-pad>=this.canvas.width||top-pad>=this.canvas.height)return;
+    const gl=this.gl,limit=gl.getParameter(gl.MAX_TEXTURE_SIZE);
+    if(right-left>limit||bottom-top>limit)throw Error('Soft mesh exceeds GPU texture limit');
+    const canvas=this.softCanvas??=document.createElement('canvas');
+    canvas.width=right-left;canvas.height=bottom-top;
+    const ctx=canvas.getContext('2d');
+    drawSoftMeshTriangles(ctx,image.source,mesh,sx,sy,this.canvas.width/2-left,this.canvas.height/2-top);
+    const texture=this.softTexture??=this.makeTexture(1,1);
+    gl.bindTexture(gl.TEXTURE_2D,texture);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,true);
+    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,canvas);
+    // Effects operate on the deformed raster. This is an independent partial
+    // implementation, not a claim of official triangle-edge/subpixel parity.
+    this.drawTexture(texture,(left+right)/2/sx-this.width/2,this.height/2-(top+bottom)/2/sy,canvas.width/sx,canvas.height/sy,0,[1,1,1,a.opacity??1],a.effects,[canvas.width,canvas.height],null,{x:a.x,y:a.y});
+  }
+
+  drawK4SpatialTexture(texture,x,y,width,height,angle,tint,e,texSize,repeatUV,filterCenter){
+    const gl=this.gl,sx=this.canvas.width/this.width,sy=this.canvas.height/this.height;
+    const inherited=this.sceneTransform;
+    if(inherited){filterCenter??={x,y};x+=inherited.x;y-=inherited.y;tint=[...tint.slice(0,3),tint[3]*inherited.alpha];}
+    const c=Math.cos(angle),s=Math.sin(angle),w=Math.abs(width),h=Math.abs(height),pad=e[5]>0?20:0;
+    const halfX=(Math.abs(c)*w+Math.abs(s)*h)/2,halfY=(Math.abs(s)*w+Math.abs(c)*h)/2;
+    // Filter input is not stage-clipped: a twist can bring offstage pixels back
+    // into view. Native background TilingSprites keep the same 20px padding.
+    // The offline K4 filter manager fits to a twice-stage rectangle, not the
+    // visible stage. A sliding parent's offstage bounds still affect grid UVs.
+    const left=Math.floor(Math.max(-this.width/2,this.width/2+x-halfX-pad)*sx),top=Math.floor(Math.max(-this.height/2,this.height/2-y-halfY-pad)*sy);
+    const frameRight=Math.ceil(Math.min(this.width*1.5,this.width/2+x+halfX+pad)*sx),frameBottom=Math.ceil(Math.min(this.height*1.5,this.height/2-y+halfY+pad)*sy);
+    if(frameRight<=0||frameBottom<=0||left>=this.canvas.width||top>=this.canvas.height)return;
+    const activeW=frameRight-left,activeH=frameBottom-top;if(activeW<=0||activeH<=0)return;
+    // Native intermediate textures come from a power-of-two pool. Sampling the
+    // transparent unused area differs from clamping to the active frame edge.
+    const screen=left===0&&top===0&&activeW===this.canvas.width&&activeH===this.canvas.height;
+    const fw=screen?activeW:2**Math.ceil(Math.log2(activeW)),fh=screen?activeH:2**Math.ceil(Math.log2(activeH));
+    const maxTextureSize=gl.getParameter(gl.MAX_TEXTURE_SIZE);
+    if(!Number.isFinite(fw)||!Number.isFinite(fh)||fw>maxTextureSize||fh>maxTextureSize)throw Error('K4 filter input exceeds GPU texture limit');
+    const right=left+fw,bottom=top+fh;
+    const target=gl.getParameter(gl.FRAMEBUFFER_BINDING),viewport=gl.getParameter(gl.VIEWPORT);
+    const scissor=gl.isEnabled(gl.SCISSOR_TEST),scissorBox=gl.getParameter(gl.SCISSOR_BOX);
+    const cache=this.k4FilterCache??=new Map(),key=`${fw}x${fh}`,bytes=fw*fh*8;
+    let entry=cache.get(key);
+    if(entry){cache.delete(key);cache.set(key,entry);}
+    else{
+      // Bounded LRU avoids allocation churn when several actors have different
+      // bounds. At most one oversized pair is retained; never one full stage
+      // pair per actor. Expose its actual bytes separately from pen surfaces.
+      while(cache.size&&(cache.size>=4||(this.stats.k4FilterBytes||0)+bytes>32*1024*1024)){
+        const [oldKey,old]=cache.entries().next().value;
+        for(const surface of old.surfaces){gl.deleteFramebuffer(surface.framebuffer);gl.deleteTexture(surface.texture);}
+        cache.delete(oldKey);this.stats.k4FilterBytes-=old.bytes;
+      }
+      const surfaces=[];
+      try{surfaces.push(this.makeSurface(fw,fh));surfaces.push(this.makeSurface(fw,fh));}
+      catch(error){for(const surface of surfaces){gl.deleteFramebuffer(surface.framebuffer);gl.deleteTexture(surface.texture);}gl.bindFramebuffer(gl.FRAMEBUFFER,target);gl.viewport(...viewport);throw error;}
+      entry={surfaces,bytes};cache.set(key,entry);this.stats.k4FilterBytes=(this.stats.k4FilterBytes||0)+bytes;
+    }
+    const {surfaces}=entry;
+    this.k4Filtering=true;this.sceneTransform=null;
+    try{
+      gl.bindFramebuffer(gl.FRAMEBUFFER,surfaces[0].framebuffer);gl.viewport(0,0,fw,fh);gl.disable(gl.SCISSOR_TEST);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);
+      // The clear input is a premultiplied raster, not a compositing target for
+      // the matrix result (whose RGB may exceed alpha).
+      // Use the filter rectangle as projection, not a shifted stage viewport:
+      // clip-space stage clipping would discard the offstage source geometry.
+      const stageW=this.width,stageH=this.height;
+      this.width=fw/sx;this.height=fh/sy;
+      // Native batch packs RGB by nearest byte but alpha by truncation. They
+      // differ at e.g. 65% opacity; preserve both instead of a single scalar.
+      const inputTint=repeatUV?tint:[...tint.slice(0,3).map(v=>Math.round(v*tint[3]*255)/255),Math.floor(tint[3]*255)/255];
+      try{this.drawTexture(texture,x-((left+right)/2/sx-stageW/2),y-(stageH/2-(top+bottom)/2/sy),width,height,angle,inputTint,null,texSize,repeatUV,null,!repeatUV);}
+      finally{this.width=stageW;this.height=stageH;}
+      gl.enable(gl.SCISSOR_TEST);gl.scissor(0,fh-activeH,activeW,activeH);
+      let input=0;
+      const colorPass=(scope,value)=>{
+        const output=1-input,u=this.k4ColorUniform;
+        gl.bindFramebuffer(gl.FRAMEBUFFER,surfaces[output].framebuffer);gl.viewport(0,0,fw,fh);gl.disable(gl.SCISSOR_TEST);gl.clear(gl.COLOR_BUFFER_BIT);gl.enable(gl.SCISSOR_TEST);
+        gl.useProgram(this.k4Color);gl.uniform2f(u.stageSize,fw,fh);gl.uniform2f(u.position,-left,-top);gl.uniform2f(u.origin,left,top);gl.uniform2f(u.dimensions,activeW,activeH);gl.uniform2f(u.extent,fw,fh);gl.uniform1i(u.image,0);
+        let rows=[[1,0,0],[0,1,0],[0,0,1]],bias=0;
+        if(scope===0){const t=value/180*Math.PI,c=Math.cos(t),v=(1-c)/3,s=Math.sqrt(1/3)*Math.sin(t);rows=[[c+v,v-s,v+s],[v+s,c+v,v-s],[v-s,v+s,c+v]];}
+        if(scope===2)bias=Math.min(1,Math.max(-1,value/100));
+        if(scope===6){const gray=Math.min(1,Math.max(0,value/100)),diagonal=1-2*gray/3,off=gray/3;rows=[[diagonal,off,off],[off,diagonal,off],[off,off,diagonal]];}
+        gl.uniform3fv(u.rowR,rows[0]);gl.uniform3fv(u.rowG,rows[1]);gl.uniform3fv(u.rowB,rows[2]);gl.uniform1f(u.bias,bias);
+        gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,surfaces[input].texture);gl.drawArrays(gl.TRIANGLES,0,6);this.stats.drawCalls++;input=output;
+      };
+      // Rasterization and colour filtering are separate RGBA8 passes: applying
+      // a matrix to the unrounded texture sample moves ASCII luminance bins.
+      if(e[0]!==0)colorPass(0,e[0]);
+      if(e[2]!==0)colorPass(2,e[2]);
+      for(const [kind,amount]of [[0,e[3]],[1,e[5]],[2,e[7]]]){
+        if(!(amount>0))continue;
+        const twist=kind===1,ascii=kind===2;
+        // Saturation precedes ASCII in the native filter chain.
+        if(ascii&&e[6]>0){
+          colorPass(6,e[6]);
+        }
+        const output=1-input,u=this.k4SpatialUniform;
+         const direct=ascii;
+         const screenshot=direct&&target&&this.sceneScreenshot;
+         // Native RenderTextures use an upward projection; the default canvas
+         // uses a downward one. Rasterize ASCII in the destination orientation
+         // before copying it back to our consistently downward scene surface.
+         // Reversing only UVs after rasterization shifts exact glyph cell edges.
+         const asciiOutput=screenshot&&(this.sceneTransition.asciiOutput??=this.makeSurface(this.canvas.width,this.canvas.height));
+         if(screenshot){gl.bindFramebuffer(gl.FRAMEBUFFER,asciiOutput.framebuffer);gl.viewport(...viewport);gl.disable(gl.SCISSOR_TEST);gl.clear(gl.COLOR_BUFFER_BIT);}
+         else if(direct){gl.bindFramebuffer(gl.FRAMEBUFFER,target);gl.viewport(...viewport);gl.scissor(left,this.canvas.height-frameBottom,activeW,activeH);}
+        else{gl.bindFramebuffer(gl.FRAMEBUFFER,surfaces[output].framebuffer);gl.viewport(0,0,fw,fh);gl.disable(gl.SCISSOR_TEST);gl.clear(gl.COLOR_BUFFER_BIT);gl.enable(gl.SCISSOR_TEST);}
+        // Last ASCII pass uses the destination's projection, rather than an
+        // extra POT raster/copy. Integer cell edges otherwise drift by a pixel
+        // through a different UV interpolation (see round-9 paired evidence).
+         // Container translation/alpha already entered the input raster; do not
+         // apply them a second time to the final filtered quad.
+        gl.useProgram(this.k4Spatial);gl.uniform2f(u.stageSize,direct?this.canvas.width:fw,direct?this.canvas.height:fh);gl.uniform2f(u.position,direct?0:-left,direct?0:-top);gl.uniform2f(u.dimensions,activeW,activeH);gl.uniform1f(u.angle,0);gl.uniform1i(u.image,0);
+        gl.uniform2f(u.extent,fw,fh);gl.uniform2f(u.center,(this.width/2+(filterCenter?.x??x))*sx-left,(this.height/2-(filterCenter?.y??y))*sy-top);
+        gl.uniform2f(u.origin,left,top);
+        gl.uniform1f(u.amount,twist?amount*10*Math.PI/180:amount*sx);gl.uniform1f(u.radius,Math.hypot(w,h)/2*sx);gl.uniform1i(u.twist,twist?1:0);
+         gl.uniform1i(u.ascii,ascii?1:0);
+         gl.uniform1i(u.flipOutput,screenshot?1:0);
+         gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,surfaces[input].texture);gl.drawArrays(gl.TRIANGLES,0,6);this.stats.drawCalls++;input=output;
+         if(screenshot){gl.bindFramebuffer(gl.FRAMEBUFFER,target);gl.viewport(...viewport);this.drawTexture(asciiOutput.texture,0,0,this.width,-this.height);}
+      }
+      if(e[7]>=1)return;
+      gl.bindFramebuffer(gl.FRAMEBUFFER,target);gl.viewport(...viewport);
+      gl.scissor(left,this.canvas.height-frameBottom,activeW,activeH);
+      this.drawTexture(surfaces[input].texture,(left+right)/2/sx-this.width/2,this.height/2-(top+bottom)/2/sy,fw/sx,fh/sy,0,[1,1,1,1],[0,0,0,0,0,0,e[7]>=1?0:e[6]]);
+    }finally{this.sceneTransform=inherited;this.k4Filtering=false;gl.bindFramebuffer(gl.FRAMEBUFFER,target);gl.viewport(...viewport);gl.scissor(...scissorBox);if(!scissor)gl.disable(gl.SCISSOR_TEST);}
   }
 
   render(resetStats=true) {
@@ -636,8 +989,14 @@ export class StageRenderer {
     if (!this.dirty || this.lost || !this.penTexture) return;
     const gl=this.gl,started=performance.now(); if(resetStats)this.stats.drawCalls=0;
     const transition=this.sceneTransition;
+    if(transition&&transitionKind(transition.transition)==='distort'){
+      const elapsed=this.transitionClock()-transition.start;
+      if(elapsed>500&&transition.transition.outEnd===undefined)transition.transition={...transition.transition,outEnd:elapsed};
+    }
     const state=transition&&sampleTransition(transition.transition,this.transitionClock()-transition.start,this.width,this.height);
-    if(transition&&state.active){
+    if(transition&&state.active&&state.screenshots){
+      this.drawDistortTransition(transition,state);
+    }else if(transition&&state.active){
       // Keep the leaving scene's actors/pen/backdrop alive, not a CSS transform
       // of the destination canvas. Incoming content is refreshed every frame.
       gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl.viewport(0,0,this.canvas.width,this.canvas.height);
@@ -648,8 +1007,6 @@ export class StageRenderer {
       if(transition.incomingOnTop){draw(transition.old,state.outgoing);draw(this,state.incoming);}
       else{draw(this,state.incoming);draw(transition.old,state.outgoing);}
     }else{
-      // Distort still deliberately falls back to the live scene: its native
-      // screenshot filters/padding have not been pixel-validated (see evidence).
       if(transition)this.clearSceneTransition();
       this.drawScene();
     }
@@ -659,6 +1016,7 @@ export class StageRenderer {
   drawScene(framebuffer=null,state=this,transform=null,clear=true){
     const gl=this.gl;
     this.sceneTransform=transform;
+    this.sceneScreenshot=!!framebuffer;
     try{
     gl.bindFramebuffer(gl.FRAMEBUFFER,framebuffer);gl.viewport(0,0,this.canvas.width,this.canvas.height);
     // Scene layers must stay transparent: white is the stage clear colour, not
@@ -688,10 +1046,11 @@ export class StageRenderer {
       const a=sprites[spriteIndices.get(actorOrder[i])];if(!a)continue;
       if(!a.visible)continue;
       const image=this.spriteImage(a);
+      if(image&&a.soft_mesh&&image.source){this.drawSoftMesh(a,image);continue;}
       if(image){const {x,y,width,height,angle}=actorGeometry(a,image,this.kitten4);
-        this.drawTexture(image.texture,x,y,width,height,angle,[1,1,1,a.opacity??1],a.effects,[image.width,image.height]);}
+        this.drawTexture(image.texture,x,y,width,height,angle,[1,1,1,a.opacity??1],a.effects,[image.width,image.height],null,{x:a.x,y:a.y});}
     }
-    }finally{this.sceneTransform=null;}
+    }finally{this.sceneTransform=null;this.sceneScreenshot=false;}
   }
 
   hitTest(x,y){
@@ -701,6 +1060,11 @@ export class StageRenderer {
       // the ghost-effect opacity (docs/input.md and docs/input-kn.md).
       if(!a?.visible||!a.scale)continue;
       const image=this.spriteImage(a);if(!image)continue;
+      if(a.soft_mesh){
+        const uv=softMeshUVAt(a.soft_mesh,x,y,image);
+        if(uv)return a.id;
+        continue;
+      }
       const {x:cx,y:cy,width,height,angle}=actorGeometry(a,image,this.kitten4);if(!width||!height||![cx,cy,width,height,angle].every(Number.isFinite))continue;
       const c=Math.cos(angle),s=Math.sin(angle),dx=x-cx,dy=y-cy;
       const px=Math.floor((c*dx-s*dy)*image.width/width+image.width/2),py=Math.floor(image.height/2-(s*dx+c*dy)*image.height/height);
@@ -711,6 +1075,53 @@ export class StageRenderer {
 }
 
 const NO_EFFECTS=[0,0,0,0,0,0,0];
+
+// The mesh wire is additive: old frames need no field; an omitted field in a
+// later complete sprite snapshot removes the deformation. Bound allocations and
+// reject malformed indices before any Canvas/GPU work.
+export function validateSoftMesh(mesh){
+  if(!mesh||!Array.isArray(mesh.vertices)||mesh.vertices.length>65536||
+    !Array.isArray(mesh.triangles)||mesh.triangles.length>131072||
+    !mesh.vertices.every(v=>Array.isArray(v)&&v.length===4&&v.every(Number.isFinite)&&Math.abs(v[0])<=1e9&&Math.abs(v[1])<=1e9&&v[2]>=0&&v[2]<=1&&v[3]>=0&&v[3]<=1)||
+    !mesh.triangles.every(t=>Array.isArray(t)&&t.length===3&&t.every(i=>Number.isInteger(i)&&i>=0&&i<mesh.vertices.length)))throw Error('损坏的柔体网格');
+  return mesh;
+}
+
+// Original Canvas2D affine texture mapping. UVs are top-left based, while world
+// y is up. Clip in destination pixels before mapping source pixels onto it.
+// Degenerate UV/world triangles have no renderable area and are skipped.
+export function drawSoftMeshTriangles(ctx,source,mesh,sx=1,sy=1,ox=0,oy=0){
+  for(const triangle of mesh.triangles){
+    const p=triangle.map(i=>mesh.vertices[i]);
+    const [a,b,c]=p.map(([x,y,u,v])=>[ox+x*sx,oy-y*sy,u*source.width,v*source.height]);
+    const u1=b[2]-a[2],v1=b[3]-a[3],u2=c[2]-a[2],v2=c[3]-a[3],det=u1*v2-u2*v1;
+    const x1=b[0]-a[0],y1=b[1]-a[1],x2=c[0]-a[0],y2=c[1]-a[1];
+    if(Math.abs(det)<1e-12||Math.abs(x1*y2-x2*y1)<1e-12)continue;
+    const m0=(x1*v2-x2*v1)/det,m1=(y1*v2-y2*v1)/det;
+    const m2=(x2*u1-x1*u2)/det,m3=(y2*u1-y1*u2)/det;
+    ctx.save();
+    try{
+      ctx.setTransform(1,0,0,1,0,0);ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.lineTo(c[0],c[1]);ctx.closePath();ctx.clip();
+      ctx.setTransform(m0,m1,m2,m3,a[0]-m0*a[2]-m2*a[3],a[1]-m1*a[2]-m3*a[3]);ctx.drawImage(source,0,0);
+    }finally{ctx.restore();}
+  }
+}
+
+// Barycentric hit testing follows deformed triangles, not the old sprite quad.
+// Inspect all overlapping triangles so transparent texels pass through.
+export function softMeshUVAt(mesh,x,y,image){
+  for(let i=mesh.triangles.length-1;i>=0;i--){
+    const [a,b,c]=mesh.triangles[i].map(index=>mesh.vertices[index]);
+    const bx=b[0]-a[0],by=b[1]-a[1],cx=c[0]-a[0],cy=c[1]-a[1],det=bx*cy-cx*by;
+    if(Math.abs(det)<1e-12)continue;
+    const dx=x-a[0],dy=y-a[1],s=(dx*cy-cx*dy)/det,t=(bx*dy-dx*by)/det;
+    if(s<0||t<0||s+t>1)continue;
+    const u=a[2]+s*(b[2]-a[2])+t*(c[2]-a[2]),v=a[3]+s*(b[3]-a[3])+t*(c[3]-a[3]);
+    const px=Math.min(image.width-1,Math.max(0,Math.floor(u*image.width))),py=Math.min(image.height-1,Math.max(0,Math.floor(v*image.height)));
+    if(image.alpha[py*image.width+px]>0)return [u,v];
+  }
+  return null;
+}
 // RGB at the centre of each costume-info cell (same <=128x128 grid as the mask).
 function cellColors(rgba,width,height){
   const mw=Math.min(width,128),mh=Math.min(height,128),out=new Uint8Array(mw*mh*3);

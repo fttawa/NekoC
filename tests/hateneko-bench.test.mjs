@@ -3,12 +3,13 @@ import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { mkdir, mkdtemp, readFile, writeFile, rm, symlink } from "node:fs/promises";
 import path from "node:path";
-import { parseArgs, compareStates, ignoredPath, compareRun, inputScope, assertWritablePath, assertCompleteSuite } from "../tools/bench/hateneko.mjs";
+import { parseArgs, compareStates, ignoredPath, compareRun, inputScope, assertWritablePath, assertCompleteSuite, normalizationScope, manifestWorks } from "../tools/bench/hateneko.mjs";
 
 test("HateNeko runner confines writable paths to this worktree dist and bounds counts", () => {
   assert.equal(parseArgs([]).frames, 60);
   assert.equal(parseArgs(["--compat-only"]).compatOnly, true);
   assert.throws(() => parseArgs(["--compat-only", "--input", "project.bcmkn"]));
+  assert.throws(() => parseArgs(["--manifest", "docs/kncompat-hateneko-evidence.json"]));
   for (const value of ["docs/out", "../dist/run", "dist/../docs/run", "dist"]) assert.throws(() => ignoredPath(value));
   for (const args of [["--frames", "0"], ["--warmup", "-1"], ["--repeats", "NaN"], ["--frames", "100000", "--warmup", "1"], ["--copy", "dist/a", "--out", "dist/a/results"], ["--unknown", "x"], ["--input"]]) assert.throws(() => parseArgs(args));
 });
@@ -55,6 +56,82 @@ test("HateNeko clone comparison ignores generated id spelling, not count or stat
   assert.equal(compareStates(a, b).equal, true);
   b.actors.cloneB.visible = false;
   assert.equal(compareStates(a, b).equal, false);
+});
+
+test("single-input observations do not generate or editor-check unrelated synthetic benchmarks", async () => {
+  const source = await readFile(new URL("../tools/bench/hateneko.mjs", import.meta.url), "utf8");
+  assert.match(source, /const fixtures = o\.compatOnly \|\| o\.input \? \[\] : await writeKnFixtures/);
+});
+
+test("explicit compatibility manifest pins the historical 41 exact original inputs", async () => {
+  const files = await manifestWorks("docs/kncompat-hateneko-evidence.json");
+  assert.equal(files.length, 41);
+  assert.ok(files.every(file => path.isAbsolute(file) && file.endsWith(".bcmkn")));
+  await mkdir("dist/bench", { recursive: true });
+  const scratch = await mkdtemp(path.resolve("dist/bench/hn-manifest-test-"));
+  const file = path.join(scratch, "manifest.json");
+  try {
+    for (const works of [[], [{ file: "../escape.bcmkn", sha256: "x" }],
+      [{ file: "projects/C:/escape.bcmkn", sha256: "x" }], [{ file: "tests/fixtures/../escape.bcmkn", sha256: "x" }],
+      [{ file: "tests/fixtures/audio.bcmkn", sha256: "stale" }]]) {
+      await writeFile(file, JSON.stringify({ works }));
+      await assert.rejects(manifestWorks(file));
+    }
+  } finally { await rm(scratch, { recursive: true, force: true }); }
+});
+
+test("HateNeko optional private normalization removes only redundant declared defaults", () => {
+  const n = state(), h = state(); h.actors.sprite.rotation = 0;
+  h.variables.local = 5;
+  const options = normalizationScope({ variables: { variablesDict: {
+    local: { isGlobal: false, currentEntityId: "sprite", value: 5 },
+    v: { isGlobal: true, value: 1 },
+  } } }, { normalizePrivate: true });
+  const before = structuredClone(h);
+  assert.equal(compareStates(n, h).equal, false);
+  assert.equal(compareStates(n, h, options).equal, true);
+  assert.deepEqual(h, before);
+  h.variables.local = 6;
+  assert.equal(compareStates(n, h, options).equal, false);
+  h.variables.local = 5; delete h.entity_variables.sprite.local;
+  assert.equal(compareStates(n, h, options).equal, false);
+  h.entity_variables.sprite.local = 99;
+  assert.equal(compareStates(n, h, options).equal, false);
+  h.entity_variables.sprite.local = 2; h.variables.v = 999;
+  assert.equal(compareStates(n, h, options).equal, false);
+  h.variables.v = 1;
+  n.actors.cloneA = { ...n.actors.sprite, id: "cloneA" };
+  h.actors.cloneB = { ...h.actors.sprite, id: "cloneB" };
+  n.entity_variables.cloneA = { local: 99 }; h.entity_variables.cloneB = { local: 99 };
+  assert.equal(compareStates(n, h, options).equal, true);
+  delete h.entity_variables.cloneB.local;
+  assert.equal(compareStates(n, h, options).equal, false);
+  h.entity_variables.cloneB.local = 98;
+  assert.equal(compareStates(n, h, options).equal, false);
+});
+
+test("HateNeko exclusions are explicit, preserve raw mismatch and never grant a speed ratio", () => {
+  const n = state(), h = state(); h.actors.sprite.rotation = 0; h.variables.v = 99;
+  const work = { file: "numeric.bcmkn", synthetic: true, frames: 1, warmup: 0, normalization: { excludeVariables: ["v"] } };
+  const run = { runtimes: Object.fromEntries([["nekoc", n], ["hateneko", h]].map(([name, final_state]) => [name, {
+    status: "ok", final_state, frame_ms: [2], warmup_ms: [], summary_ms: { mean: 2 },
+  }])) };
+  compareRun(run, work);
+  assert.equal(run.comparison.equal, false);
+  assert.equal(run.normalized_comparison.equal, true);
+  assert.equal(run.speedup_h_over_n, undefined);
+  run.runtimes.hateneko.status = "unsupported";
+  compareRun(run, work);
+  assert.equal(run.normalized_comparison.equal, false);
+  delete work.normalization;
+  compareRun(run, work);
+  assert.equal(run.normalized_comparison, undefined);
+  const args = parseArgs(["--normalize-private", "--exclude-variables", "dt,now", "--project-frames", "600", "--interpreter"]);
+  assert.equal(args.projectFrames, 600);
+  assert.equal(args.normalizePrivate, true);
+  assert.equal(args.interpreter, true);
+  assert.deepEqual(args.excludeVariables, ["dt", "now"]);
+  for (const args of [["--project-frames", "0"], ["--project-frames", "100001"], ["--project-frames", "NaN"], ["--exclude-variables", "dt,"]]) assert.throws(() => parseArgs(args));
 });
 
 test("HateNeko ratios fail closed on errors, state differences and pen scope", () => {
@@ -115,6 +192,21 @@ test("HateNeko published evidence rejects empty/partial samples and derives mean
     assert.equal(evidence.works[0].speedup_h_over_n, 3);
     for (const row of evidence.works.slice(1)) { assert.equal(row.equal_observed_state, false); assert.equal(row.speedup_h_over_n, undefined); }
     assert.deepEqual(JSON.parse(await readFile(input, "utf8")), suite);
+    // Explicit exclusions only affect a second projection and are replayable
+    // without mutating raw observations or blessing failed samples.
+    const different = run(); different.runtimes.hateneko.final_state.variables.v = 99;
+    const raw = { ...suite, works: [work([different])] };
+    await writeFile(input, JSON.stringify(raw));
+    execFileSync(process.execPath, ["tools/bench/hateneko-evidence.mjs", input, output, "--exclude-variables", "v"], { stdio: "pipe" });
+    const replay = JSON.parse(await readFile(output, "utf8"));
+    assert.equal(replay.works[0].equal_observed_state, false);
+    assert.equal(replay.works[0].equal_normalized_state, true);
+    assert.equal(replay.works[0].speedup_h_over_n, undefined);
+    assert.deepEqual(replay.replay_normalization.excludeVariables, ["v"]);
+    assert.deepEqual(JSON.parse(await readFile(input, "utf8")), raw);
+    for (const flags of [["--exclude-variables"], ["--exclude-variables", "v,"], ["--unknown"]]) {
+      assert.throws(() => execFileSync(process.execPath, ["tools/bench/hateneko-evidence.mjs", input, output, ...flags], { stdio: "pipe" }));
+    }
   } finally { await rm(scratch, { recursive: true, force: true }); }
 });
 

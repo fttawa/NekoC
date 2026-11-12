@@ -16,6 +16,7 @@ pub(super) struct Binding {
 #[derive(Default)]
 pub(super) struct State {
     pub ranking: Option<usize>,
+    pub ranking_value: Option<f64>,
     backend: Option<Arc<dyn CloudBackend>>,
     namespace: String,
     user: String,
@@ -68,6 +69,16 @@ fn js_number(value: &Cell) -> f64 {
 }
 
 impl Engine {
+    /// Acquire the shared profile before refreshing. Keep the returned view alive
+    /// until the successful frame commit; a failed frame releases it without writes.
+    pub(super) fn begin_cloud_frame(&mut self) -> Result<Option<Arc<dyn CloudBackend>>> {
+        let Some(backend) = self.cloud.backend.clone() else {
+            return Ok(None);
+        };
+        let view = backend.lock_frame()?.unwrap_or(backend);
+        self.load_cloud_values(&view, false)?;
+        Ok(Some(view))
+    }
     pub(super) fn cloud_restart_values(&self) -> Vec<Cell> {
         if self.cloud.backend.is_some() {
             self.capture_cloud()
@@ -87,12 +98,25 @@ impl Engine {
             !namespace.is_empty(),
             "local cloud namespace must not be empty"
         );
+        let view = backend.lock_frame()?.unwrap_or_else(|| backend.clone());
+        let old_namespace = std::mem::replace(&mut self.cloud.namespace, namespace);
+        let old_user = std::mem::replace(&mut self.cloud.user, user);
+        if let Err(error) = self.load_cloud_values(&view, true) {
+            self.cloud.namespace = old_namespace;
+            self.cloud.user = old_user;
+            return Err(error);
+        }
+        self.cloud.backend = Some(backend);
+        Ok(())
+    }
+    fn load_cloud_values(&mut self, backend: &Arc<dyn CloudBackend>, reset: bool) -> Result<()> {
+        let current = self.capture_cloud();
         let mut loaded = Vec::new();
         for binding in &self.program.cloud {
             let key = CloudKey {
-                project: namespace.clone(),
+                project: self.cloud.namespace.clone(),
                 variable: binding.remote.clone(),
-                user: binding.private.then(|| user.clone()),
+                user: binding.private.then(|| self.cloud.user.clone()),
             };
             let value = backend.load(&key)?;
             if let Some(value) = &value {
@@ -112,6 +136,14 @@ impl Engine {
             loaded.push(value);
         }
         for (index, value) in loaded.into_iter().enumerate() {
+            // Avoid replacing live list references when another frame has not
+            // changed the value. New remote lists are restored in-place below.
+            if !reset
+                && value.as_ref() == self.cloud.saved.get(index)
+                && Some(&serde_json::to_value(&current[index])?) == self.cloud.saved.get(index)
+            {
+                continue;
+            }
             if let Some(value) = value {
                 let binding = &self.program.cloud[index];
                 let cell = if value.is_null() {
@@ -143,9 +175,6 @@ impl Engine {
                 self.restore_cloud_entry(index, cell);
             }
         }
-        self.cloud.backend = Some(backend);
-        self.cloud.namespace = namespace;
-        self.cloud.user = user;
         self.cloud.saved = self
             .capture_cloud()
             .iter()
@@ -186,7 +215,7 @@ impl Engine {
                 .position(|id| id == &binding.id)
                 && let Cell::List(list) = cell
             {
-                self.lists[i] = list;
+                *self.lists[i].borrow_mut() = list.borrow().clone();
             }
         } else if let Some(i) = self
             .program
@@ -202,8 +231,8 @@ impl Engine {
             self.restore_cloud_entry(i, cell);
         }
     }
-    pub(super) fn flush_cloud(&mut self) -> Result<()> {
-        let Some(backend) = &self.cloud.backend else {
+    pub(super) fn flush_cloud(&mut self, backend: Option<&Arc<dyn CloudBackend>>) -> Result<()> {
+        let Some(backend) = backend else {
             return Ok(());
         };
         for (i, cell) in self.capture_cloud().iter().enumerate() {

@@ -152,6 +152,105 @@ fn extension_schema_handshake_completes_through_real_private_socket() {
 }
 
 #[test]
+fn extension_v2_reporter_hat_errors_and_negotiation_use_real_socket() {
+    use tungstenite::{Message, client::IntoClientRequest};
+    let studio = Studio::start("samples/native-studio.bcmkn");
+    let mut project = nekoc::studio::document::Document::blank().value().clone();
+    project["variables"]["variablesDict"]["output"] =
+        json!({"id":"output","name":"output","value":0,"type":"number"});
+    project["actors"]["actorsDict"]["nekoc-default-actor"]["nekoBlockJsonList"] = json!([
+        {"type":"on_running_group_activated","next":{
+            "type":"variables_set","fields":{"variable":"output"},"inputs":{"value":{
+                "type":"nekoc_extension_reporter","fields":{"opcode":"test.double"},
+                "inputs":{"n":{"type":"math_number","fields":{"NUM":3}}}
+            }}
+        }},
+        {"type":"nekoc_extension_hat","fields":{"opcode":"test.event"},"next":{
+            "type":"variables_set","fields":{"variable":"output"},
+            "inputs":{"value":{"type":"self_listen_value"}}
+        }}
+    ]);
+    let payload = json!({"nekoc_extension_handshake":1,"extension_api_versions":[2,1],
+    "project":project,"extensions":[
+        {"api_version":2,"opcode":"test.double","kind":"reporter","parameters":[{"name":"n","value_type":"number"}],"returns":"number","blocking":true},
+        {"api_version":2,"opcode":"test.event","kind":"hat","parameters":[],"returns":null,"blocking":false}
+    ]});
+    studio.json("POST", "/api/extension-check", &payload, 200);
+    let connect = || {
+        let request = format!("ws://127.0.0.1:{}/api/player-private", studio.port)
+            .into_client_request()
+            .unwrap();
+        let stream = TcpStream::connect(("127.0.0.1", studio.port)).unwrap();
+        stream
+            .set_read_timeout(Some(Duration::from_secs(15)))
+            .unwrap();
+        tungstenite::client(request, stream).unwrap().0
+    };
+    let frame = |socket: &mut tungstenite::WebSocket<TcpStream>, payload: Value| {
+        socket.send(Message::Text(payload.to_string())).unwrap();
+        let bytes = socket.read().unwrap().into_data();
+        let length = u32::from_le_bytes(bytes[..4].try_into().unwrap()) as usize;
+        serde_json::from_slice::<Value>(&bytes[4..4 + length]).unwrap()
+    };
+    let mut socket = connect();
+    socket.send(Message::Text(payload.to_string())).unwrap();
+    let ready: Value = serde_json::from_str(socket.read().unwrap().to_text().unwrap()).unwrap();
+    assert_eq!(ready["extension_api_version"], 2);
+    let first = frame(&mut socket, json!({}));
+    let request = &first["extension_requests"][0];
+    assert_eq!(request["arguments"], json!([3.0]));
+    frame(
+        &mut socket,
+        json!({"events":[{"kind":"extension_result","id":request["id"],"value":6}]}),
+    );
+    socket
+        .send(Message::Text(json!({"debug_snapshot":true}).to_string()))
+        .unwrap();
+    let snapshot: Value = serde_json::from_str(socket.read().unwrap().to_text().unwrap()).unwrap();
+    assert_eq!(snapshot["snapshot"]["variables"]["output"], 6.0);
+    frame(
+        &mut socket,
+        json!({"events":[{"kind":"extension_event","opcode":"test.event","value":"hat"}]}),
+    );
+    socket
+        .send(Message::Text(json!({"debug_snapshot":true}).to_string()))
+        .unwrap();
+    let snapshot: Value = serde_json::from_str(socket.read().unwrap().to_text().unwrap()).unwrap();
+    assert_eq!(snapshot["snapshot"]["variables"]["output"], "hat");
+    socket.close(None).unwrap();
+
+    let mut socket = connect();
+    socket.send(Message::Text(payload.to_string())).unwrap();
+    assert!(socket.read().unwrap().is_text());
+    let first = frame(&mut socket, json!({}));
+    let failed = frame(
+        &mut socket,
+        json!({"events":[{"kind":"extension_result","id":first["extension_requests"][0]["id"],"error":"plugin failed"}]}),
+    );
+    assert!(
+        failed["logs"][0]
+            .as_str()
+            .unwrap()
+            .contains("plugin failed")
+    );
+    // v2 reports/stops only the failed caller; the connection and event hats live on.
+    frame(
+        &mut socket,
+        json!({"events":[{"kind":"extension_event","opcode":"test.event","value":8}]}),
+    );
+    socket.close(None).unwrap();
+
+    for versions in [json!([1]), json!([9])] {
+        let mut denied = payload.clone();
+        denied["extension_api_versions"] = versions;
+        let mut socket = connect();
+        socket.send(Message::Text(denied.to_string())).unwrap();
+        let error: Value = serde_json::from_str(socket.read().unwrap().to_text().unwrap()).unwrap();
+        assert!(error["error"].is_string());
+    }
+}
+
+#[test]
 fn fill_delta_uses_existing_binary_envelope_and_legacy_frames_omit_extension() {
     let studio = Studio::start("samples/native-studio.bcmkn");
     let mut project = nekoc::studio::document::Document::blank().value().clone();

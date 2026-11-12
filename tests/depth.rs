@@ -561,8 +561,20 @@ fn merged_private_clone_reporter_accepts_a_deep_numeric_index() {
         .as_str()
         .unwrap()
         .to_owned();
+    // Official KN's clone reporter falls through for scenes. Exercise the
+    // deep-index evaluator on an actor, not the legacy scene-private shortcut.
+    let actor = project["actors"]["actorsDict"]
+        .as_object()
+        .unwrap()
+        .keys()
+        .next()
+        .unwrap()
+        .clone();
+    let roots = project["scenes"]["scenesDict"][&scene]["nekoBlockJsonList"].take();
+    project["scenes"]["scenesDict"][&scene]["nekoBlockJsonList"] = json!([]);
+    project["actors"]["actorsDict"][&actor]["nekoBlockJsonList"] = roots;
     project["variables"]["variablesDict"]["private"] =
-        json!({"id":"private","value":42,"isGlobal":false,"currentEntityId":scene});
+        json!({"id":"private","value":42,"isGlobal":false,"currentEntityId":actor});
     let mut vm = Engine::new(Program::compile(&project).unwrap());
     vm.start();
     vm.advance(1.0 / 60.0, 100_000, Duration::from_secs(60))

@@ -8,6 +8,7 @@ import { readJson, runOracle, saveJson } from '../tools/compat/k4-oracle.mjs';
 import { workspace } from '../tools/compat/k4-scheduling-fixtures.mjs';
 import { visualWork } from '../tools/compat/k4-visual.mjs';
 import { loadPlaywright } from '../tools/probe-kitten4.mjs';
+import { needsMicrophone } from '../web/kn-microphone.js';
 
 // Repository-owned blue 64x48 / 0.4s WebM, generated from ffmpeg's color source.
 const media='data:video/webm;base64,GkXfo59ChoEBQveBAULygQRC84EIQoKEd2VibUKHgQJChYECGFOAZwEAAAAAAAJNEU2bdLpNu4tTq4QVSalmU6yBoU27i1OrhBZUrmtTrIHWTbuMU6uEElTDZ1OsggEjTbuMU6uEHFO7a1OsggI37AEAAAAAAABZAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAVSalmsCrXsYMPQkBNgIxMYXZmNjIuMy4xMDBXQYxMYXZmNjIuMy4xMDBEiYhAeQAAAAAAABZUrmvIrgEAAAAAAAA/14EBc8WIPKxZQ09HUG6cgQAitZyDdW5kiIEAhoVWX1ZQOIOBASPjg4QF9eEA4JCwgUC6gTCagQJVsIRVuYEBElTDZ/tzc59jwIBnyJlFo4dFTkNPREVSRIeMTGF2ZjYyLjMuMTAwc3PWY8CLY8WIPKxZQ09HUG5nyKFFo4dFTkNPREVSRIeUTGF2YzYyLjExLjEwMCBsaWJ2cHhnyKFFo4hEVVJBVElPTkSHkzAwOjAwOjAwLjQwMDAwMDAwMAAfQ7Z1QI7ngQCjwYEAAIBQAwCdASpAADAAAEcIhYWIhYSIAgICdaoD+AIHCNVnmY830gD+/00S//xYV/FhX8WFf/FhX/z8zu3F/OYAo5aBAGQA0QEABRCsABgAGFgv9AAIjAAAo5aBAMgA0QEABRCsABgAGFgv9AAIjAAAo5aBASwA0QEABRCsABgAGFgv9AAIjAAAHFO7a5G7j7OBALeK94EB8YIBo/CBAw==';
@@ -17,7 +18,7 @@ test('editor single-step initializes without resuming media and stays paused aft
   const source=await readFile('web/app.js','utf8');
   for(const initiallyStarted of [false,true]){
     const button={},audio={paused:false,resumes:0,pause(){this.paused=true;},resume(){this.paused=false;this.resumes++;},load(){}},renderer={paused:false,pauseMedia(value=true){this.paused=value;}};
-    const context={running:false,started:initiallyStarted,inFlight:null,starting:null,project:{},audio,renderer,performance:{now:()=>0},api:async()=>{},
+    const context={needsMicrophone,running:false,started:initiallyStarted,inFlight:null,starting:null,project:{},audio,renderer,performance:{now:()=>0},api:async()=>{},
       PlayerConnection:class{async open(){return {stats:{}};}},playerExtensions:{schemas:()=>[]},compiled(){},sendCostumes:false,overlay:null,epoch:0,input:{reset(){}},lastFrame:null,lastBytes:0,history:[],pipeline:{},frames:0,fpsStart:0,fps:0,lastTick:0,
       renderEditor(){},renderPalette(){},state(value){context.status=value;},$:id=>id==='#step'?button:{focus(){}},handleError(error){throw error;},
       async nextFrame(){assert.ok(audio.paused&&renderer.paused,'media must already be paused while applying the step frame');context.steps=(context.steps||0)+1;},

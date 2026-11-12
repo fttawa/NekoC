@@ -1,0 +1,156 @@
+{
+  "schema": "nekoc-k4-soft-blocked-source-locations-v1",
+  "coordinateConvention": "one-based line and UTF-16 column; offsets zero-based",
+  "files": [
+    {
+      "name": "player_v2.2d180c468559fbd29528.js.orig",
+      "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160",
+      "locations": [
+        {
+          "fact": "physics constants module",
+          "offset": 190524,
+          "line": 1,
+          "column": 190525
+        },
+        {
+          "fact": "flexibility block",
+          "offset": 650472,
+          "line": 1,
+          "column": 650473
+        },
+        {
+          "fact": "strength clamp and mapping",
+          "offset": 666103,
+          "line": 1,
+          "column": 666104
+        },
+        {
+          "fact": "default body strength",
+          "offset": 644939,
+          "line": 1,
+          "column": 644940
+        },
+        {
+          "fact": "max anchor hardware-derived budget",
+          "offset": 841930,
+          "line": 1,
+          "column": 841931
+        },
+        {
+          "fact": "elastic group and filter initialization",
+          "offset": 844798,
+          "line": 1,
+          "column": 844799
+        },
+        {
+          "fact": "rest-to-current renderer anchors",
+          "offset": 846936,
+          "line": 1,
+          "column": 846937
+        },
+        {
+          "fact": "point sampling entry",
+          "offset": 847572,
+          "line": 1,
+          "column": 847573
+        },
+        {
+          "fact": "zero boundary sampling increment",
+          "offset": 848900,
+          "line": 1,
+          "column": 848901
+        },
+        {
+          "fact": "zero-increment loop",
+          "offset": 848980,
+          "line": 1,
+          "column": 848981
+        },
+        {
+          "fact": "live group strength update",
+          "offset": 854388,
+          "line": 1,
+          "column": 854389
+        },
+        {
+          "fact": "world fixed step",
+          "offset": 863017,
+          "line": 1,
+          "column": 863018
+        },
+        {
+          "fact": "particle radius",
+          "offset": 863219,
+          "line": 1,
+          "column": 863220
+        },
+        {
+          "fact": "soft filter module",
+          "offset": 1667458,
+          "line": 1,
+          "column": 1667459
+        },
+        {
+          "fact": "soft filter anchor update",
+          "offset": 1671958,
+          "line": 1,
+          "column": 1671959
+        }
+      ]
+    },
+    {
+      "name": "2.b8370041782df6e86958.js",
+      "sha256": "6ed56cf80a197b1dad00403ef2d55f9f4c357cb000cc52b5b0ba32c3989730d6",
+      "locations": [
+        {
+          "fact": "particle iteration count formula",
+          "offset": 227556,
+          "line": 1,
+          "column": 227557
+        },
+        {
+          "fact": "anchor-relative rest positions",
+          "offset": 228793,
+          "line": 1,
+          "column": 228794
+        },
+        {
+          "fact": "particle system default elastic strength",
+          "offset": 239154,
+          "line": 1,
+          "column": 239155
+        },
+        {
+          "fact": "triad strength live callback",
+          "offset": 264714,
+          "line": 1,
+          "column": 264715
+        },
+        {
+          "fact": "particle substep loop",
+          "offset": 274458,
+          "line": 1,
+          "column": 274459
+        },
+        {
+          "fact": "elastic triad velocity solver",
+          "offset": 285513,
+          "line": 1,
+          "column": 285514
+        },
+        {
+          "fact": "stride",
+          "offset": 296975,
+          "line": 1,
+          "column": 296976
+        },
+        {
+          "fact": "world default particle iterations",
+          "offset": 315002,
+          "line": 1,
+          "column": 315003
+        }
+      ]
+    }
+  ]
+}

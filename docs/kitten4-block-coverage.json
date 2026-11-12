@@ -1,16 +1,17 @@
 {
   "bundle": "src/player/build/player_v2.2d180c468559fbd29528.js.orig",
   "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160",
+  "sourceScope": "指定官方离线主 chunk；非在线编辑器全集。在线发布物关系见 docs/compatibility/k4-online-vs-offline.md",
   "corpus": "E:/nekoc/dist/kitten4-corpus",
   "files": 53,
   "workspaceOwners": 0,
   "compiledOwners": 4529,
   "count": 377,
   "counts": {
-    "已实现": 287,
+    "已实现": 259,
     "stub": 0,
     "缺失": 0,
-    "设备降级": 90
+    "设备降级": 118
   },
   "audit": {
     "tables": [
@@ -304,7 +305,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2330 (translate)"
+        "src/kitten4.rs:2332 (translate)"
       ],
       "limitations": [
         "仅编译器结构表证据，不表示存在普通 domain handler",
@@ -325,7 +326,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2006 (translate)"
+        "src/kitten4.rs:2008 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -351,7 +352,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2067 (translate)"
+        "src/kitten4.rs:2069 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -371,7 +372,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:738 (lower_block)"
+        "src/kitten4.rs:740 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -397,10 +398,10 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2020 (translate)",
-        "src/kitten4.rs:2026 (translate)",
-        "src/kitten4.rs:2043 (translate)",
-        "src/kitten4.rs:657 (lower_block)"
+        "src/kitten4.rs:2022 (translate)",
+        "src/kitten4.rs:2028 (translate)",
+        "src/kitten4.rs:2045 (translate)",
+        "src/kitten4.rs:659 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -426,7 +427,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2015 (translate)"
+        "src/kitten4.rs:2017 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -446,7 +447,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2333 (translate)"
+        "src/kitten4.rs:2335 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -465,7 +466,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2331 (translate)"
+        "src/kitten4.rs:2333 (translate)"
       ],
       "limitations": [
         "仅编译器结构表证据，不表示存在普通 domain handler",
@@ -485,7 +486,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2339 (translate)"
+        "src/kitten4.rs:2341 (translate)"
       ],
       "limitations": [
         "仅编译器结构表证据，不表示存在普通 domain handler",
@@ -505,7 +506,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2365 (translate)"
+        "src/kitten4.rs:2367 (translate)"
       ],
       "limitations": [
         "仅编译器结构表证据，不表示存在普通 domain handler",
@@ -526,7 +527,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2006 (translate)"
+        "src/kitten4.rs:2008 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -545,7 +546,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2363 (translate)"
+        "src/kitten4.rs:2365 (translate)"
       ],
       "limitations": [
         "仅编译器结构表证据，不表示存在普通 domain handler",
@@ -565,7 +566,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2005 (translate)"
+        "src/kitten4.rs:2007 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -584,7 +585,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2364 (translate)"
+        "src/kitten4.rs:2366 (translate)"
       ],
       "limitations": [
         "仅编译器结构表证据，不表示存在普通 domain handler",
@@ -604,7 +605,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2337 (translate)"
+        "src/kitten4.rs:2339 (translate)"
       ],
       "limitations": [
         "仅编译器结构表证据，不表示存在普通 domain handler",
@@ -624,7 +625,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2336 (translate)"
+        "src/kitten4.rs:2338 (translate)"
       ],
       "limitations": [
         "仅编译器结构表证据，不表示存在普通 domain handler",
@@ -645,7 +646,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2335 (translate)"
+        "src/kitten4.rs:2337 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -665,7 +666,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2182 (translate)"
+        "src/kitten4.rs:2184 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -685,7 +686,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:332 (lower_bump)"
+        "src/kitten4.rs:334 (lower_bump)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -705,7 +706,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2342 (translate)"
+        "src/kitten4.rs:2344 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -731,7 +732,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2010 (translate)"
+        "src/kitten4.rs:2012 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -749,13 +750,17 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
-        "src/kitten4.rs:526 (lower_block)"
+        "src/kitten4.rs:528 (lower_block)"
       ],
       "limitations": [
-        "get/get_2/get_3 统一原生属性：全属性、目标字符串/悬空 UUID、角色/场景、克隆 self/原型、局部/全局变量已有 22 个原创夹具官方实测；非有限状态、无造型、iOS ASCII、惰性变量槽副作用仍有限制，见 kitten4-partial-properties.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "get/get_2/get_3 统一原生属性：原22夹具外，第五轮补全局列表引用与双向修改、执行时惰性未知UUID槽、空造型编号/名称；8夹具96官方帧与40对零差异画布见 kitten4-partial-properties-5.md；非有限状态、删除竞争、iOS ASCII及其他资源加载边界仍未验证",
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "第六轮活实体/活克隆与已加载造型主路径：8份原创夹具192官方update、双VM384帧状态与192对画布changedPixels=0（RGB容差8）；见 kitten4-partial-properties-6.md。显隐及删除生命周期另由第七轮专项约束，不扩展成任意删除竞争认证"
+      ],
+      "unverifiedBoundaries": [
+        "未验证边界：删除竞争/悬空UUID、异步资源加载、非有限几何、iOS/ASCII与复杂对象输入；不是全属性平台全集认证"
       ],
       "occurrences": 2049
     },
@@ -772,7 +777,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2002 (translate)"
+        "src/kitten4.rs:2004 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -792,7 +797,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2240 (translate)"
+        "src/kitten4.rs:2242 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -812,7 +817,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:759 (lower_block)"
+        "src/kitten4.rs:761 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -832,7 +837,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2062 (translate)"
+        "src/kitten4.rs:2064 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -857,7 +862,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:1999 (translate)"
+        "src/kitten4.rs:2001 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -877,7 +882,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2240 (translate)"
+        "src/kitten4.rs:2242 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -897,7 +902,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:765 (lower_block)"
+        "src/kitten4.rs:767 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -915,14 +920,12 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "offline-oracle-verified",
       "mapping": [
-        "src/kitten4.rs:860 (lower_block)"
+        "src/kitten4.rs:862 (lower_block)"
       ],
       "limitations": [
-        "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
-        "四个编辑器阵营、克隆继承与场景错误已有官方实测；官方任意 group 字符串仍受本地四值表示限制并显式拒绝，见 kitten4-partial-misc.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "第四轮任意字符串（含 camp_green/空串/Unicode）、四阵营动态碰撞、克隆独立继承及重启逐帧对齐；初始 group 被官方加载器忽略，场景错误沿用既有官方证据；见 kitten4-partial-camp-4.md。不扩大为物理碰撞求解器全等"
       ],
       "occurrences": 1336
     },
@@ -939,7 +942,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2349 (translate)"
+        "src/kitten4.rs:2351 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -959,7 +962,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2334 (translate)"
+        "src/kitten4.rs:2336 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -979,12 +982,14 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:786 (lower_block)"
+        "src/kitten4.rs:788 (lower_block)"
       ],
       "limitations": [
         "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
         "8 种 scope、严格 number、别名增减、纹理尺寸 clamp、场景及小数 reporter 经 11 份原创夹具/1794 状态观察实测；ASCII 状态已支持但像素渲染、ELASTIC 与 iOS 仍未验证，见 kitten4-partial-effects.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "第八轮历史证据：真实VM 34件262对全画布，RGB容差0/1/8分列；ASCII独立/场景及场景/舞台外twist已修复，历史组合负例见 kitten4-partial-effects-8.md；当前修复与边界见第十一轮",
+        "第九/十轮消除ASCII最终投影、全链65像素及hue1像素历史负例；第十一轮修复slide两倍输入范围裁剪与distort离屏ASCII投影，并发送同update切场边界滤镜快照。ripple缺素材例外，最终主路径验证与边界见 kitten4-partial-effects-11.md"
       ],
       "occurrences": 1228
     },
@@ -1007,9 +1012,9 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2019 (translate)",
-        "src/kitten4.rs:2024 (translate)",
-        "src/kitten4.rs:2043 (translate)"
+        "src/kitten4.rs:2021 (translate)",
+        "src/kitten4.rs:2026 (translate)",
+        "src/kitten4.rs:2045 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1027,15 +1032,20 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
-        "src/kitten4.rs:557 (lower_block)",
-        "src/engine.rs:4074 (kitten4_legacy_)"
+        "src/kitten4.rs:559 (lower_block)",
+        "src/engine.rs:4318 (kitten4_legacy_)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "第二轮 7 份原创物理夹具/210 帧官方实测：旧 exit 即时 static 清速、新 forceable/ticker 延迟和禁用动态体保速已修正；不声明跨求解器等价，见 kitten4-physics-partial.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
+      ],
+      "unverifiedBoundaries": [
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 1051
     },
@@ -1052,7 +1062,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:807 (lower_block)"
+        "src/kitten4.rs:809 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1077,7 +1087,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:838 (lower_block)"
+        "src/kitten4.rs:840 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1097,7 +1107,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:766 (lower_block)"
+        "src/kitten4.rs:768 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1117,7 +1127,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:784 (lower_block)"
+        "src/kitten4.rs:786 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1137,7 +1147,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:837 (lower_block)"
+        "src/kitten4.rs:839 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1156,7 +1166,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:774 (lower_block)"
+        "src/kitten4.rs:776 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1182,8 +1192,8 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2019 (translate)",
-        "src/kitten4.rs:2022 (translate)"
+        "src/kitten4.rs:2021 (translate)",
+        "src/kitten4.rs:2024 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1202,7 +1212,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2338 (translate)"
+        "src/kitten4.rs:2340 (translate)"
       ],
       "limitations": [
         "仅编译器结构表证据，不表示存在普通 domain handler",
@@ -1223,7 +1233,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2197 (translate)"
+        "src/kitten4.rs:2199 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1243,7 +1253,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2348 (translate)"
+        "src/kitten4.rs:2350 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1263,7 +1273,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2350 (translate)"
+        "src/kitten4.rs:2352 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1282,7 +1292,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2343 (translate)"
+        "src/kitten4.rs:2345 (translate)"
       ],
       "limitations": [
         "仅编译器结构表证据，不表示存在普通 domain handler",
@@ -1303,7 +1313,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2351 (translate)"
+        "src/kitten4.rs:2353 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1334,7 +1344,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2345 (translate)"
+        "src/kitten4.rs:2347 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1358,7 +1368,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2362 (translate)"
+        "src/kitten4.rs:2364 (translate)"
       ],
       "limitations": [
         "仅编译器结构表证据，不表示存在普通 domain handler",
@@ -1384,8 +1394,8 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2344 (translate)",
-        "src/kitten4.rs:436 (lower_when)"
+        "src/kitten4.rs:2346 (translate)",
+        "src/kitten4.rs:438 (lower_when)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1405,7 +1415,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2125 (translate)"
+        "src/kitten4.rs:2127 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1425,12 +1435,14 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:787 (lower_block)"
+        "src/kitten4.rs:789 (lower_block)"
       ],
       "limitations": [
         "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
         "8 种 scope、严格 number、别名增减、纹理尺寸 clamp、场景及小数 reporter 经 11 份原创夹具/1794 状态观察实测；ASCII 状态已支持但像素渲染、ELASTIC 与 iOS 仍未验证，见 kitten4-partial-effects.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "第八轮历史证据：真实VM 34件262对全画布，RGB容差0/1/8分列；ASCII独立/场景及场景/舞台外twist已修复，历史组合负例见 kitten4-partial-effects-8.md；当前修复与边界见第十一轮",
+        "第九/十轮消除ASCII最终投影、全链65像素及hue1像素历史负例；第十一轮修复slide两倍输入范围裁剪与distort离屏ASCII投影，并发送同update切场边界滤镜快照。ripple缺素材例外，最终主路径验证与边界见 kitten4-partial-effects-11.md"
       ],
       "occurrences": 735
     },
@@ -1453,7 +1465,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2346 (translate)"
+        "src/kitten4.rs:2348 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1473,7 +1485,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:839 (lower_block)"
+        "src/kitten4.rs:841 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1499,7 +1511,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2160 (translate)"
+        "src/kitten4.rs:2162 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1519,7 +1531,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:851 (lower_block)"
+        "src/kitten4.rs:853 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1545,8 +1557,8 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2020 (translate)",
-        "src/kitten4.rs:2027 (translate)"
+        "src/kitten4.rs:2022 (translate)",
+        "src/kitten4.rs:2029 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1565,7 +1577,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2366 (translate)"
+        "src/kitten4.rs:2368 (translate)"
       ],
       "limitations": [
         "仅编译器结构表证据，不表示存在普通 domain handler",
@@ -1586,7 +1598,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:858 (lower_block)"
+        "src/kitten4.rs:860 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1606,7 +1618,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:788 (lower_block)"
+        "src/kitten4.rs:790 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1626,7 +1638,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:688 (lower_block)"
+        "src/kitten4.rs:690 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1646,7 +1658,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:785 (lower_block)"
+        "src/kitten4.rs:787 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1666,7 +1678,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:832 (lower_block)"
+        "src/kitten4.rs:834 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1685,7 +1697,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2063 (translate)"
+        "src/kitten4.rs:2065 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1705,8 +1717,8 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:692 (lower_block)",
-        "src/kitten4.rs:695 (lower_block)"
+        "src/kitten4.rs:694 (lower_block)",
+        "src/kitten4.rs:697 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1726,7 +1738,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2185 (translate)"
+        "src/kitten4.rs:2187 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1746,7 +1758,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2091 (translate)"
+        "src/kitten4.rs:2093 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1766,7 +1778,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:833 (lower_block)"
+        "src/kitten4.rs:835 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1786,7 +1798,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:755 (lower_block)"
+        "src/kitten4.rs:757 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1806,7 +1818,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:840 (lower_block)"
+        "src/kitten4.rs:842 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1825,7 +1837,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2340 (translate)"
+        "src/kitten4.rs:2342 (translate)"
       ],
       "limitations": [
         "仅编译器结构表证据，不表示存在普通 domain handler",
@@ -1852,7 +1864,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2263 (translate)"
+        "src/kitten4.rs:2265 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1872,8 +1884,8 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2146 (translate)",
-        "src/kitten4.rs:740 (lower_block)"
+        "src/kitten4.rs:2148 (translate)",
+        "src/kitten4.rs:742 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1893,7 +1905,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2353 (translate)"
+        "src/kitten4.rs:2355 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1911,15 +1923,20 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
-        "src/engine/physics.rs:550 (parse)"
+        "src/engine/physics.rs:779 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "第二轮 7 份原创物理夹具/210 帧官方实测：旧 exit 即时 static 清速、新 forceable/ticker 延迟和禁用动态体保速已修正；不声明跨求解器等价，见 kitten4-physics-partial.md",
         "第三轮 11 份原创夹具/660 帧官方轨迹：首次世界初始化、自由落体积分、20px/tick 向量限速、边界摩擦与全不透明矩形轮廓已修正；接触仍有误差，复杂轮廓/软体未对齐，见 kitten4-physics-trajectory-3.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "第七轮主路径：动态禁用/恢复、static同批速度写入忽略、双false保速；第六轮漏积分输入原样严格重放；见 kitten4-partial-physics-7.md。边界不计作完整语义认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
+      ],
+      "unverifiedBoundaries": [
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 317
     },
@@ -1936,7 +1953,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:789 (lower_block)"
+        "src/kitten4.rs:791 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1954,15 +1971,19 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
-        "src/kitten4.rs:842 (lower_block)"
+        "src/kitten4.rs:844 (lower_block)"
       ],
       "limitations": [
         "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
         "第二轮 18 份原创夹具官方实测：严格尺寸/10000 上限、场景错误、原图无角色滤镜/alpha、目的矩形 floor、过渡别名与任意 direction 已补齐；字体/像素、颜色 raster 与真实过渡动画仍有限制，见 kitten4-partial-drawing.md",
         "第三轮 11 份原创画笔夹具：起点圆盘/闭合线、半透明叠色、零坐标重复落笔、填充与印章交错已实测；复杂字体/纹理和跨帧量化仍未验证，见 kitten4-partial-pen-3.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "第六轮主路径：文字三align/旋转/半透明跨帧36对RGB全等；图像源alpha/pivot/旋转24帧超差0；all-scope clear后10帧超差0，见 kitten4-partial-effects-6.md。设置阶段pixelate/twist/ASCII仍有真实差异，其setter不升级"
+      ],
+      "unverifiedBoundaries": [
+        "未验证边界：平台字体/RTL、极端资源、翻转/多倍率、ELASTIC、颜色检测raster与任意并发；不是所有字体/纹理及滤镜shader认证"
       ],
       "occurrences": 308
     },
@@ -1979,7 +2000,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:846 (lower_block)"
+        "src/kitten4.rs:848 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -1999,7 +2020,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:841 (lower_block)"
+        "src/kitten4.rs:843 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2019,7 +2040,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2157 (translate)"
+        "src/kitten4.rs:2159 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2045,9 +2066,9 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2019 (translate)",
-        "src/kitten4.rs:2025 (translate)",
-        "src/kitten4.rs:2043 (translate)"
+        "src/kitten4.rs:2021 (translate)",
+        "src/kitten4.rs:2027 (translate)",
+        "src/kitten4.rs:2045 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2065,14 +2086,21 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "offline-oracle-verified",
       "mapping": [
-        "src/kitten4.rs:625 (lower_block)"
+        "src/kitten4.rs:627 (lower_block)"
       ],
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "k4cloud新增5件原创夹具138个连续官方update，17个类型均有真实block事件；公私标量/全部列表操作、PIXI监视器与DOM排行榜loading壳均已取证，双VM逐帧回归已通过，见 k4cloud-offline.md、k4cloud-coverage.md。在线服务、监视器布局/交互及排行榜壳仍未认证",
+        "k4cloudui补105帧PIXI像素与排行榜DOM结构/文字对比，Web和原生已有匿名loading壳；监视器RGB容差8仍有非零残差、原生像素未验证，5项UI仍partial，见 k4cloudui.md / k4cloudui-evidence.json",
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md",
+        "离线数据积木本体：k4cloud 5项、kitten4_cloud 11项、kitten4_partial_cloud_2 7项双VM回归通过；0/[]初值、公私计算、类型/长度/索引、列表别名逐帧约束。显隐和排行榜五项仍partial，不声明舞台像素全等"
+      ],
+      "unverifiedBoundaries": [
+        "仅固定官方包匿名离线数据分支；未验证在线身份/权限、服务端数据、重连与孤立UTF-16 surrogate；本机共享后端是独立测试协议，不是官方联网认证"
       ],
       "occurrences": 296
     },
@@ -2089,7 +2117,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2359 (translate)"
+        "src/kitten4.rs:2361 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2109,7 +2137,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:730 (lower_block)"
+        "src/kitten4.rs:732 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2129,7 +2157,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:770 (lower_block)"
+        "src/kitten4.rs:772 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2149,7 +2177,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2197 (translate)"
+        "src/kitten4.rs:2199 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2167,16 +2195,21 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
-        "src/kitten4.rs:536 (lower_block)",
-        "src/engine.rs:4070 (kitten4_set_velocity)"
+        "src/kitten4.rs:538 (lower_block)",
+        "src/engine.rs:4314 (kitten4_set_velocity)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "第二轮 7 份原创物理夹具/210 帧官方实测：旧 exit 即时 static 清速、新 forceable/ticker 延迟和禁用动态体保速已修正；不声明跨求解器等价，见 kitten4-physics-partial.md",
         "第三轮 11 份原创夹具/660 帧官方轨迹：首次世界初始化、自由落体积分、20px/tick 向量限速、边界摩擦与全不透明矩形轮廓已修正；接触仍有误差，复杂轮廓/软体未对齐，见 kitten4-physics-trajectory-3.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
+      ],
+      "unverifiedBoundaries": [
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 250
     },
@@ -2193,7 +2226,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2186 (translate)"
+        "src/kitten4.rs:2188 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2212,7 +2245,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2341 (translate)"
+        "src/kitten4.rs:2343 (translate)"
       ],
       "limitations": [
         "仅编译器结构表证据，不表示存在普通 domain handler",
@@ -2233,7 +2266,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:856 (lower_block)"
+        "src/kitten4.rs:858 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2253,13 +2286,14 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:862 (lower_block)"
+        "src/kitten4.rs:864 (lower_block)"
       ],
       "limitations": [
         "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
         "第二轮 18 份原创夹具官方实测：严格尺寸/10000 上限、场景错误、原图无角色滤镜/alpha、目的矩形 floor、过渡别名与任意 direction 已补齐；字体/像素、颜色 raster 与真实过渡动画仍有限制，见 kitten4-partial-drawing.md",
         "第三轮 12 份原创夹具/780 帧：slide/bounce/fade 位置与 alpha、非法名称显示已回归；distort 截图扭曲与完成回调调度未对齐，见 kitten4-partial-transition-3.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "第九轮14件910个连续官方update/全画布：补distort双截图扭曲与100ms延迟，修复完成回调前运行组提前切换；严格端点后下一update激活。历史纹理与none负例已由第十轮修复；真实时钟/竞争切场未验证。见 kitten4-partial-transition-9.md 与 kitten4-partial-effects-11.md"
       ],
       "occurrences": 215
     },
@@ -2276,7 +2310,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:688 (lower_block)"
+        "src/kitten4.rs:690 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2302,7 +2336,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2020 (translate)"
+        "src/kitten4.rs:2022 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2320,14 +2354,19 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
-        "src/engine/physics.rs:551 (parse)"
+        "src/engine/physics.rs:780 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "第二轮 7 份原创物理夹具/210 帧官方实测：旧 exit 即时 static 清速、新 forceable/ticker 延迟和禁用动态体保速已修正；不声明跨求解器等价，见 kitten4-physics-partial.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "第七轮主路径：collidable开关、sensor自由运动、双false禁用/恢复；不附带旧版清速；见 kitten4-partial-physics-7.md。边界不计作完整语义认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
+      ],
+      "unverifiedBoundaries": [
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 173
     },
@@ -2344,7 +2383,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:852 (lower_block)"
+        "src/kitten4.rs:854 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2362,15 +2401,19 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
-        "src/kitten4.rs:843 (lower_block)"
+        "src/kitten4.rs:845 (lower_block)"
       ],
       "limitations": [
         "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
         "第二轮 18 份原创夹具官方实测：严格尺寸/10000 上限、场景错误、原图无角色滤镜/alpha、目的矩形 floor、过渡别名与任意 direction 已补齐；字体/像素、颜色 raster 与真实过渡动画仍有限制，见 kitten4-partial-drawing.md",
         "第三轮 11 份原创画笔夹具：起点圆盘/闭合线、半透明叠色、零坐标重复落笔、填充与印章交错已实测；复杂字体/纹理和跨帧量化仍未验证，见 kitten4-partial-pen-3.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "第六轮主路径：文字三align/旋转/半透明跨帧36对RGB全等；图像源alpha/pivot/旋转24帧超差0；all-scope clear后10帧超差0，见 kitten4-partial-effects-6.md。设置阶段pixelate/twist/ASCII仍有真实差异，其setter不升级"
+      ],
+      "unverifiedBoundaries": [
+        "未验证边界：平台字体/RTL、极端资源、翻转/多倍率、ELASTIC、颜色检测raster与任意并发；不是所有字体/纹理及滤镜shader认证"
       ],
       "occurrences": 165
     },
@@ -2385,14 +2428,18 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
-        "src/kitten4.rs:834 (lower_block)"
+        "src/kitten4.rs:836 (lower_block)"
       ],
       "limitations": [
         "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
-        "严格索引类型与范围、场景/缺克隆错误及全属性已有离线官方实测；继承属性/效果与跨平台剩余边界，见 kitten4-partial-properties.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "严格索引类型与范围、场景/缺克隆错误及全属性已有离线官方实测；第五轮新增UUID列表引用与惰性槽逐帧/像素证据见 kitten4-partial-properties-5.md；继承属性/效果、删除竞争与跨平台边界仍有限制",
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "第六轮活实体/活克隆与已加载造型主路径：8份原创夹具192官方update、双VM384帧状态与192对画布changedPixels=0（RGB容差8）；见 kitten4-partial-properties-6.md。显隐及删除生命周期另由第七轮专项约束，不扩展成任意删除竞争认证"
+      ],
+      "unverifiedBoundaries": [
+        "未验证边界：删除竞争/悬空UUID、异步资源加载、非有限几何、iOS/ASCII与复杂对象输入；不是全属性平台全集认证"
       ],
       "occurrences": 162
     },
@@ -2415,8 +2462,8 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2020 (translate)",
-        "src/kitten4.rs:2028 (translate)"
+        "src/kitten4.rs:2022 (translate)",
+        "src/kitten4.rs:2030 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2434,14 +2481,21 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "offline-oracle-verified",
       "mapping": [
-        "src/kitten4.rs:593 (lower_block)"
+        "src/kitten4.rs:595 (lower_block)"
       ],
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "k4cloud新增5件原创夹具138个连续官方update，17个类型均有真实block事件；公私标量/全部列表操作、PIXI监视器与DOM排行榜loading壳均已取证，双VM逐帧回归已通过，见 k4cloud-offline.md、k4cloud-coverage.md。在线服务、监视器布局/交互及排行榜壳仍未认证",
+        "k4cloudui补105帧PIXI像素与排行榜DOM结构/文字对比，Web和原生已有匿名loading壳；监视器RGB容差8仍有非零残差、原生像素未验证，5项UI仍partial，见 k4cloudui.md / k4cloudui-evidence.json",
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md",
+        "离线数据积木本体：k4cloud 5项、kitten4_cloud 11项、kitten4_partial_cloud_2 7项双VM回归通过；0/[]初值、公私计算、类型/长度/索引、列表别名逐帧约束。显隐和排行榜五项仍partial，不声明舞台像素全等"
+      ],
+      "unverifiedBoundaries": [
+        "仅固定官方包匿名离线数据分支；未验证在线身份/权限、服务端数据、重连与孤立UTF-16 surrogate；本机共享后端是独立测试协议，不是官方联网认证"
       ],
       "occurrences": 159
     },
@@ -2464,8 +2518,8 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2019 (translate)",
-        "src/kitten4.rs:2023 (translate)"
+        "src/kitten4.rs:2021 (translate)",
+        "src/kitten4.rs:2025 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2485,7 +2539,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:847 (lower_block)"
+        "src/kitten4.rs:849 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2505,8 +2559,8 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:692 (lower_block)",
-        "src/kitten4.rs:696 (lower_block)"
+        "src/kitten4.rs:694 (lower_block)",
+        "src/kitten4.rs:698 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2526,7 +2580,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:651 (lower_block)"
+        "src/kitten4.rs:653 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2546,7 +2600,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:861 (lower_block)"
+        "src/kitten4.rs:863 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2566,7 +2620,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2187 (translate)"
+        "src/kitten4.rs:2189 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2592,7 +2646,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:855 (lower_block)"
+        "src/kitten4.rs:857 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2610,14 +2664,21 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "offline-oracle-verified",
       "mapping": [
-        "src/kitten4.rs:594 (lower_block)"
+        "src/kitten4.rs:596 (lower_block)"
       ],
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "k4cloud新增5件原创夹具138个连续官方update，17个类型均有真实block事件；公私标量/全部列表操作、PIXI监视器与DOM排行榜loading壳均已取证，双VM逐帧回归已通过，见 k4cloud-offline.md、k4cloud-coverage.md。在线服务、监视器布局/交互及排行榜壳仍未认证",
+        "k4cloudui补105帧PIXI像素与排行榜DOM结构/文字对比，Web和原生已有匿名loading壳；监视器RGB容差8仍有非零残差、原生像素未验证，5项UI仍partial，见 k4cloudui.md / k4cloudui-evidence.json",
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md",
+        "离线数据积木本体：k4cloud 5项、kitten4_cloud 11项、kitten4_partial_cloud_2 7项双VM回归通过；0/[]初值、公私计算、类型/长度/索引、列表别名逐帧约束。显隐和排行榜五项仍partial，不声明舞台像素全等"
+      ],
+      "unverifiedBoundaries": [
+        "仅固定官方包匿名离线数据分支；未验证在线身份/权限、服务端数据、重连与孤立UTF-16 surrogate；本机共享后端是独立测试协议，不是官方联网认证"
       ],
       "occurrences": 114
     },
@@ -2632,14 +2693,21 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "offline-oracle-verified",
       "mapping": [
-        "src/kitten4.rs:459 (cloud_list)"
+        "src/kitten4.rs:461 (cloud_list)"
       ],
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "k4cloud新增5件原创夹具138个连续官方update，17个类型均有真实block事件；公私标量/全部列表操作、PIXI监视器与DOM排行榜loading壳均已取证，双VM逐帧回归已通过，见 k4cloud-offline.md、k4cloud-coverage.md。在线服务、监视器布局/交互及排行榜壳仍未认证",
+        "k4cloudui补105帧PIXI像素与排行榜DOM结构/文字对比，Web和原生已有匿名loading壳；监视器RGB容差8仍有非零残差、原生像素未验证，5项UI仍partial，见 k4cloudui.md / k4cloudui-evidence.json",
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md",
+        "离线数据积木本体：k4cloud 5项、kitten4_cloud 11项、kitten4_partial_cloud_2 7项双VM回归通过；0/[]初值、公私计算、类型/长度/索引、列表别名逐帧约束。显隐和排行榜五项仍partial，不声明舞台像素全等"
+      ],
+      "unverifiedBoundaries": [
+        "仅固定官方包匿名离线数据分支；未验证在线身份/权限、服务端数据、重连与孤立UTF-16 surrogate；本机共享后端是独立测试协议，不是官方联网认证"
       ],
       "occurrences": 110
     },
@@ -2656,7 +2724,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:692 (lower_block)"
+        "src/kitten4.rs:694 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2676,8 +2744,8 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2159 (translate)",
-        "src/kitten4.rs:637 (lower_block)"
+        "src/kitten4.rs:2161 (translate)",
+        "src/kitten4.rs:639 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2697,11 +2765,12 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/engine/physics.rs:578 (parse)"
+        "src/engine/physics.rs:807 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第九轮4件420官方update记录粒子与组身份，修复重复soft幂等及scale帧尾重建清速；未实现粒子求解/soft滤镜。impact25/90的刚体点位误差下界分别3.386681/16.340179px，矩形输入首帧超时未验证，不升级。见 kitten4-partial-physics-9.md"
       ],
       "occurrences": 103
     },
@@ -2718,7 +2787,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2332 (translate)"
+        "src/kitten4.rs:2334 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2736,13 +2805,18 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
-        "src/kitten4.rs:550 (lower_block)"
+        "src/kitten4.rs:552 (lower_block)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
+      ],
+      "unverifiedBoundaries": [
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 95
     },
@@ -2759,7 +2833,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:854 (lower_block)"
+        "src/kitten4.rs:856 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2777,13 +2851,18 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
-        "src/kitten4.rs:552 (lower_block)"
+        "src/kitten4.rs:554 (lower_block)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
+      ],
+      "unverifiedBoundaries": [
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 93
     },
@@ -2798,13 +2877,17 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
-        "src/kitten4.rs:554 (lower_block)"
+        "src/kitten4.rs:556 (lower_block)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第八轮主路径：四菜单边界存在/移除控制；单个锁旋转刚体的四边正面/非弹性/斜入射/低速接触，双VM各2520帧，每坐标<0.15px；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
+      ],
+      "unverifiedBoundaries": [
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 92
     },
@@ -2819,13 +2902,18 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
-        "src/kitten4.rs:553 (lower_block)"
+        "src/kitten4.rs:555 (lower_block)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
+      ],
+      "unverifiedBoundaries": [
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 91
     },
@@ -2842,7 +2930,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2361 (translate)"
+        "src/kitten4.rs:2363 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2860,14 +2948,21 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "offline-oracle-verified",
       "mapping": [
-        "src/kitten4.rs:595 (lower_block)"
+        "src/kitten4.rs:597 (lower_block)"
       ],
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "k4cloud新增5件原创夹具138个连续官方update，17个类型均有真实block事件；公私标量/全部列表操作、PIXI监视器与DOM排行榜loading壳均已取证，双VM逐帧回归已通过，见 k4cloud-offline.md、k4cloud-coverage.md。在线服务、监视器布局/交互及排行榜壳仍未认证",
+        "k4cloudui补105帧PIXI像素与排行榜DOM结构/文字对比，Web和原生已有匿名loading壳；监视器RGB容差8仍有非零残差、原生像素未验证，5项UI仍partial，见 k4cloudui.md / k4cloudui-evidence.json",
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md",
+        "离线数据积木本体：k4cloud 5项、kitten4_cloud 11项、kitten4_partial_cloud_2 7项双VM回归通过；0/[]初值、公私计算、类型/长度/索引、列表别名逐帧约束。显隐和排行榜五项仍partial，不声明舞台像素全等"
+      ],
+      "unverifiedBoundaries": [
+        "仅固定官方包匿名离线数据分支；未验证在线身份/权限、服务端数据、重连与孤立UTF-16 surrogate；本机共享后端是独立测试协议，不是官方联网认证"
       ],
       "occurrences": 83
     },
@@ -2890,7 +2985,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2054 (translate)"
+        "src/kitten4.rs:2056 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2910,7 +3005,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:817 (lower_block)"
+        "src/kitten4.rs:819 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2930,7 +3025,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:540 (lower_block)"
+        "src/kitten4.rs:542 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2950,7 +3045,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:725 (lower_block)"
+        "src/kitten4.rs:727 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2970,7 +3065,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:788 (lower_block)"
+        "src/kitten4.rs:790 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -2988,15 +3083,20 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
-        "src/engine/physics.rs:572 (parse)"
+        "src/engine/physics.rs:801 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "第二轮 7 份原创物理夹具/210 帧官方实测：旧 exit 即时 static 清速、新 forceable/ticker 延迟和禁用动态体保速已修正；不声明跨求解器等价，见 kitten4-physics-partial.md",
         "第三轮 11 份原创夹具/660 帧官方轨迹：首次世界初始化、自由落体积分、20px/tick 向量限速、边界摩擦与全不透明矩形轮廓已修正；接触仍有误差，复杂轮廓/软体未对齐，见 kitten4-physics-trajectory-3.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
+      ],
+      "unverifiedBoundaries": [
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 77
     },
@@ -3013,7 +3113,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:683 (lower_block)"
+        "src/kitten4.rs:685 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3033,7 +3133,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:730 (lower_block)"
+        "src/kitten4.rs:732 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3053,7 +3153,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2165 (translate)"
+        "src/kitten4.rs:2167 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3071,14 +3171,18 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
-        "src/engine/physics.rs:555 (parse)"
+        "src/engine/physics.rs:784 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "第三轮 11 份原创夹具/660 帧官方轨迹：首次世界初始化、自由落体积分、20px/tick 向量限速、边界摩擦与全不透明矩形轮廓已修正；接触仍有误差，复杂轮廓/软体未对齐，见 kitten4-physics-trajectory-3.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第八轮主路径：四菜单边界存在/移除控制；单个锁旋转刚体的四边正面/非弹性/斜入射/低速接触，双VM各2520帧，每坐标<0.15px；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
+      ],
+      "unverifiedBoundaries": [
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 67
     },
@@ -3095,7 +3199,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2357 (translate)"
+        "src/kitten4.rs:2359 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3115,7 +3219,7 @@
       "status": "设备降级",
       "semantics": "offline/device",
       "mapping": [
-        "src/kitten4.rs:671 (lower_block)"
+        "src/kitten4.rs:673 (lower_block)"
       ],
       "limitations": [
         "本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义"
@@ -3135,7 +3239,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2356 (translate)"
+        "src/kitten4.rs:2358 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3155,7 +3259,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:853 (lower_block)"
+        "src/kitten4.rs:855 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3173,14 +3277,18 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
-        "src/kitten4.rs:487 (lower_block)",
-        "src/engine.rs:3645 (kitten4_entity_visibility)"
+        "src/kitten4.rs:489 (lower_block)",
+        "src/engine.rs:3892 (kitten4_entity_visibility)"
       ],
       "limitations": [
-        "角色/分组/场景显隐与有限正时长并发渐变已有源码推导回归；点击状态清理、取消/删克隆、竞争渐变和非有限时长未验证；删除引用沿用通用 noop 策略（官方悬空 UUID 行为未验证）",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "第五轮17份原创夹具408官方帧：渐变尾部update相位、竞争alpha斜率叠加、取消调用方冻结、隐藏清理held指针、零/负/NaN/Infinity时长已实测；见 kitten4-partial-visibility-5.md。第五轮曾记录的克隆删除一帧差异已由第七轮修复；场景/悬空UUID/非60Hz与完整手势边界未验证",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第七轮主路径：有效UUID角色/组瞬时与渐变显隐，含删除调用克隆；408帧状态与408对零超差画布；见 kitten4-partial-lifecycle-7.md。边界不计作完整语义认证"
+      ],
+      "unverifiedBoundaries": [
+        "未验证：场景隐藏/悬空UUID、畸形mode、同帧restart/stop-all、嵌套tell、多点拖拽、跨场景/slot复用竞争、非60Hz"
       ],
       "occurrences": 64
     },
@@ -3197,8 +3305,8 @@
       "status": "设备降级",
       "semantics": "offline/device",
       "mapping": [
-        "src/kitten4.rs:675 (lower_block)",
-        "src/kitten4.rs:676 (lower_block)"
+        "src/kitten4.rs:677 (lower_block)",
+        "src/kitten4.rs:678 (lower_block)"
       ],
       "limitations": [
         "本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义"
@@ -3218,7 +3326,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:748 (lower_block)"
+        "src/kitten4.rs:750 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3238,7 +3346,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2360 (translate)"
+        "src/kitten4.rs:2362 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3258,7 +3366,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2358 (translate)"
+        "src/kitten4.rs:2360 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3278,7 +3386,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:849 (lower_block)"
+        "src/kitten4.rs:851 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3304,7 +3412,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2347 (translate)"
+        "src/kitten4.rs:2349 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3322,14 +3430,19 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
-        "src/engine/physics.rs:573 (parse)"
+        "src/engine/physics.rs:802 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "第三轮 11 份原创夹具/660 帧官方轨迹：首次世界初始化、自由落体积分、20px/tick 向量限速、边界摩擦与全不透明矩形轮廓已修正；接触仍有误差，复杂轮廓/软体未对齐，见 kitten4-physics-trajectory-3.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
+      ],
+      "unverifiedBoundaries": [
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 43
     },
@@ -3346,7 +3459,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:848 (lower_block)"
+        "src/kitten4.rs:850 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3365,7 +3478,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:641 (lower_block)"
+        "src/kitten4.rs:643 (lower_block)"
       ],
       "limitations": [
         "仅编译器结构表证据，不表示存在普通 domain handler",
@@ -3386,7 +3499,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:828 (lower_block)"
+        "src/kitten4.rs:830 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3406,7 +3519,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:857 (lower_block)"
+        "src/kitten4.rs:859 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3426,7 +3539,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:754 (lower_block)"
+        "src/kitten4.rs:756 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3446,7 +3559,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2354 (translate)"
+        "src/kitten4.rs:2356 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3464,13 +3577,18 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
-        "src/engine/physics.rs:562 (parse)"
+        "src/engine/physics.rs:791 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第七轮主路径：指定右边缘/独立角色禁碰穿越与恢复允许调用；不认证恢复接触冲量/克隆组；见 kitten4-partial-physics-7.md。边界不计作完整语义认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
+      ],
+      "unverifiedBoundaries": [
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 33
     },
@@ -3487,7 +3605,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2264 (translate)"
+        "src/kitten4.rs:2266 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3505,14 +3623,21 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "offline-oracle-verified",
       "mapping": [
-        "src/kitten4.rs:597 (lower_block)"
+        "src/kitten4.rs:599 (lower_block)"
       ],
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "k4cloud新增5件原创夹具138个连续官方update，17个类型均有真实block事件；公私标量/全部列表操作、PIXI监视器与DOM排行榜loading壳均已取证，双VM逐帧回归已通过，见 k4cloud-offline.md、k4cloud-coverage.md。在线服务、监视器布局/交互及排行榜壳仍未认证",
+        "k4cloudui补105帧PIXI像素与排行榜DOM结构/文字对比，Web和原生已有匿名loading壳；监视器RGB容差8仍有非零残差、原生像素未验证，5项UI仍partial，见 k4cloudui.md / k4cloudui-evidence.json",
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md",
+        "离线数据积木本体：k4cloud 5项、kitten4_cloud 11项、kitten4_partial_cloud_2 7项双VM回归通过；0/[]初值、公私计算、类型/长度/索引、列表别名逐帧约束。显隐和排行榜五项仍partial，不声明舞台像素全等"
+      ],
+      "unverifiedBoundaries": [
+        "仅固定官方包匿名离线数据分支；未验证在线身份/权限、服务端数据、重连与孤立UTF-16 surrogate；本机共享后端是独立测试协议，不是官方联网认证"
       ],
       "occurrences": 32
     },
@@ -3529,7 +3654,7 @@
       "status": "已实现",
       "semantics": "offline-oracle-verified",
       "mapping": [
-        "src/kitten4.rs:836 (lower_block)"
+        "src/kitten4.rs:838 (lower_block)"
       ],
       "limitations": [
         "固定离线包积木本体分支已有原创夹具实测及双 VM 回归；舞台尺寸/严格 draggable 字段、克隆继承与场景错误见 kitten4-partial-misc.md；不扩大为浏览器手势或物理引擎完全一致"
@@ -3549,7 +3674,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:633 (lower_block)"
+        "src/kitten4.rs:635 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3567,14 +3692,21 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "offline-oracle-verified",
       "mapping": [
-        "src/kitten4.rs:459 (cloud_list)"
+        "src/kitten4.rs:461 (cloud_list)"
       ],
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "k4cloud新增5件原创夹具138个连续官方update，17个类型均有真实block事件；公私标量/全部列表操作、PIXI监视器与DOM排行榜loading壳均已取证，双VM逐帧回归已通过，见 k4cloud-offline.md、k4cloud-coverage.md。在线服务、监视器布局/交互及排行榜壳仍未认证",
+        "k4cloudui补105帧PIXI像素与排行榜DOM结构/文字对比，Web和原生已有匿名loading壳；监视器RGB容差8仍有非零残差、原生像素未验证，5项UI仍partial，见 k4cloudui.md / k4cloudui-evidence.json",
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md",
+        "离线数据积木本体：k4cloud 5项、kitten4_cloud 11项、kitten4_partial_cloud_2 7项双VM回归通过；0/[]初值、公私计算、类型/长度/索引、列表别名逐帧约束。显隐和排行榜五项仍partial，不声明舞台像素全等"
+      ],
+      "unverifiedBoundaries": [
+        "仅固定官方包匿名离线数据分支；未验证在线身份/权限、服务端数据、重连与孤立UTF-16 surrogate；本机共享后端是独立测试协议，不是官方联网认证"
       ],
       "occurrences": 28
     },
@@ -3589,14 +3721,19 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
-        "src/engine/physics.rs:577 (parse)"
+        "src/engine/physics.rs:806 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "第三轮 11 份原创夹具/660 帧官方轨迹：首次世界初始化、自由落体积分、20px/tick 向量限速、边界摩擦与全不透明矩形轮廓已修正；接触仍有误差，复杂轮廓/软体未对齐，见 kitten4-physics-trajectory-3.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
+      ],
+      "unverifiedBoundaries": [
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 27
     },
@@ -3613,7 +3750,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:616 (lower_block)"
+        "src/kitten4.rs:618 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3631,14 +3768,21 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "offline-oracle-verified",
       "mapping": [
-        "src/kitten4.rs:598 (lower_block)"
+        "src/kitten4.rs:600 (lower_block)"
       ],
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "k4cloud新增5件原创夹具138个连续官方update，17个类型均有真实block事件；公私标量/全部列表操作、PIXI监视器与DOM排行榜loading壳均已取证，双VM逐帧回归已通过，见 k4cloud-offline.md、k4cloud-coverage.md。在线服务、监视器布局/交互及排行榜壳仍未认证",
+        "k4cloudui补105帧PIXI像素与排行榜DOM结构/文字对比，Web和原生已有匿名loading壳；监视器RGB容差8仍有非零残差、原生像素未验证，5项UI仍partial，见 k4cloudui.md / k4cloudui-evidence.json",
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md",
+        "离线数据积木本体：k4cloud 5项、kitten4_cloud 11项、kitten4_partial_cloud_2 7项双VM回归通过；0/[]初值、公私计算、类型/长度/索引、列表别名逐帧约束。显隐和排行榜五项仍partial，不声明舞台像素全等"
+      ],
+      "unverifiedBoundaries": [
+        "仅固定官方包匿名离线数据分支；未验证在线身份/权限、服务端数据、重连与孤立UTF-16 surrogate；本机共享后端是独立测试协议，不是官方联网认证"
       ],
       "occurrences": 24
     },
@@ -3655,7 +3799,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:835 (lower_block)"
+        "src/kitten4.rs:837 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3675,7 +3819,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:747 (lower_block)"
+        "src/kitten4.rs:749 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3693,14 +3837,19 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
-        "src/engine/physics.rs:576 (parse)"
+        "src/engine/physics.rs:805 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "第三轮 11 份原创夹具/660 帧官方轨迹：首次世界初始化、自由落体积分、20px/tick 向量限速、边界摩擦与全不透明矩形轮廓已修正；接触仍有误差，复杂轮廓/软体未对齐，见 kitten4-physics-trajectory-3.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
+      ],
+      "unverifiedBoundaries": [
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 20
     },
@@ -3716,7 +3865,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:844 (lower_block)"
+        "src/kitten4.rs:846 (lower_block)"
       ],
       "limitations": [
         "仅编译器结构表证据，不表示存在普通 domain handler",
@@ -3737,7 +3886,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2164 (translate)"
+        "src/kitten4.rs:2166 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3757,7 +3906,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:850 (lower_block)"
+        "src/kitten4.rs:852 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3775,13 +3924,18 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
-        "src/engine/physics.rs:554 (parse)"
+        "src/engine/physics.rs:783 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
+      ],
+      "unverifiedBoundaries": [
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 18
     },
@@ -3798,7 +3952,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2352 (translate)"
+        "src/kitten4.rs:2354 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3818,7 +3972,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2262 (translate)"
+        "src/kitten4.rs:2264 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3838,7 +3992,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2265 (translate)"
+        "src/kitten4.rs:2267 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3856,14 +4010,18 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
-        "src/kitten4.rs:611 (lower_block)"
+        "src/kitten4.rs:613 (lower_block)"
       ],
       "limitations": [
         "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
         "8 种 scope、严格 number、别名增减、纹理尺寸 clamp、场景及小数 reporter 经 11 份原创夹具/1794 状态观察实测；ASCII 状态已支持但像素渲染、ELASTIC 与 iOS 仍未验证，见 kitten4-partial-effects.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "第六轮主路径：文字三align/旋转/半透明跨帧36对RGB全等；图像源alpha/pivot/旋转24帧超差0；all-scope clear后10帧超差0，见 kitten4-partial-effects-6.md。设置阶段pixelate/twist/ASCII仍有真实差异，其setter不升级"
+      ],
+      "unverifiedBoundaries": [
+        "未验证边界：平台字体/RTL、极端资源、翻转/多倍率、ELASTIC、颜色检测raster与任意并发；不是所有字体/纹理及滤镜shader认证"
       ],
       "occurrences": 16
     },
@@ -3880,7 +4038,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2355 (translate)"
+        "src/kitten4.rs:2357 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3900,7 +4058,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:749 (lower_block)"
+        "src/kitten4.rs:751 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3920,7 +4078,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:624 (lower_block)"
+        "src/kitten4.rs:626 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3940,7 +4098,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:586 (lower_block)"
+        "src/kitten4.rs:588 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -3958,14 +4116,19 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
-        "src/engine/physics.rs:571 (parse)"
+        "src/engine/physics.rs:800 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "第三轮 11 份原创夹具/660 帧官方轨迹：首次世界初始化、自由落体积分、20px/tick 向量限速、边界摩擦与全不透明矩形轮廓已修正；接触仍有误差，复杂轮廓/软体未对齐，见 kitten4-physics-trajectory-3.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
+      ],
+      "unverifiedBoundaries": [
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 14
     },
@@ -3979,15 +4142,18 @@
           "table": "cloud_variables_get"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:633 (lower_block)"
+        "src/kitten4.rs:635 (lower_block)"
       ],
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "k4cloud新增5件原创夹具138个连续官方update，17个类型均有真实block事件；公私标量/全部列表操作、PIXI监视器与DOM排行榜loading壳均已取证，双VM逐帧回归已通过，见 k4cloud-offline.md、k4cloud-coverage.md。在线服务、监视器布局/交互及排行榜壳仍未认证",
+        "k4cloudui补105帧PIXI像素与排行榜DOM结构/文字对比，Web和原生已有匿名loading壳；监视器RGB容差8仍有非零残差、原生像素未验证，5项UI仍partial，见 k4cloudui.md / k4cloudui-evidence.json",
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 13
     },
@@ -4001,15 +4167,18 @@
           "table": "cloud_variables_get"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:629 (lower_block)"
+        "src/kitten4.rs:631 (lower_block)"
       ],
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "k4cloud新增5件原创夹具138个连续官方update，17个类型均有真实block事件；公私标量/全部列表操作、PIXI监视器与DOM排行榜loading壳均已取证，双VM逐帧回归已通过，见 k4cloud-offline.md、k4cloud-coverage.md。在线服务、监视器布局/交互及排行榜壳仍未认证",
+        "k4cloudui补105帧PIXI像素与排行榜DOM结构/文字对比，Web和原生已有匿名loading壳；监视器RGB容差8仍有非零残差、原生像素未验证，5项UI仍partial，见 k4cloudui.md / k4cloudui-evidence.json",
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 13
     },
@@ -4026,7 +4195,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:754 (lower_block)"
+        "src/kitten4.rs:756 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -4044,14 +4213,21 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "offline-oracle-verified",
       "mapping": [
-        "src/kitten4.rs:459 (cloud_list)"
+        "src/kitten4.rs:461 (cloud_list)"
       ],
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "k4cloud新增5件原创夹具138个连续官方update，17个类型均有真实block事件；公私标量/全部列表操作、PIXI监视器与DOM排行榜loading壳均已取证，双VM逐帧回归已通过，见 k4cloud-offline.md、k4cloud-coverage.md。在线服务、监视器布局/交互及排行榜壳仍未认证",
+        "k4cloudui补105帧PIXI像素与排行榜DOM结构/文字对比，Web和原生已有匿名loading壳；监视器RGB容差8仍有非零残差、原生像素未验证，5项UI仍partial，见 k4cloudui.md / k4cloudui-evidence.json",
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md",
+        "离线数据积木本体：k4cloud 5项、kitten4_cloud 11项、kitten4_partial_cloud_2 7项双VM回归通过；0/[]初值、公私计算、类型/长度/索引、列表别名逐帧约束。显隐和排行榜五项仍partial，不声明舞台像素全等"
+      ],
+      "unverifiedBoundaries": [
+        "仅固定官方包匿名离线数据分支；未验证在线身份/权限、服务端数据、重连与孤立UTF-16 surrogate；本机共享后端是独立测试协议，不是官方联网认证"
       ],
       "occurrences": 11
     },
@@ -4072,7 +4248,10 @@
       ],
       "limitations": [
         "5 单位四方向逐更新抖动、阻塞及归位已有源码推导回归；与官方任务队列的逐帧相位/结束续接、物理刚体受力、竞争移动及取消未验证",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "第十二轮设备专项复验：self_shake 两个 Clock origin 的官方逐帧位移/后继恢复一致；物理刚体、竞争取消及真实墙钟仍未验证，见 kitten4-device.md。",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第八轮修复帧尾归位和下一update续接，零时钟原点六件240帧双VM全变量/x/y一致；官方原点改变浮点严格阈值，保留partial。见 kitten4-shake-8.md",
+        "第九轮4夹具×4原点共640官方update；新增显式shake时钟原点配置，同原点JIT/解释器全部typed变量与坐标逐帧一致，重启保留配置；真实墙钟原点默认不同及物理/并发边界仍partial。见 kitten4-shake-9.md"
       ],
       "occurrences": 10
     },
@@ -4086,15 +4265,18 @@
           "table": "cloud_variables_get"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:599 (lower_block)"
+        "src/kitten4.rs:601 (lower_block)"
       ],
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "k4cloud新增5件原创夹具138个连续官方update，17个类型均有真实block事件；公私标量/全部列表操作、PIXI监视器与DOM排行榜loading壳均已取证，双VM逐帧回归已通过，见 k4cloud-offline.md、k4cloud-coverage.md。在线服务、监视器布局/交互及排行榜壳仍未认证",
+        "k4cloudui补105帧PIXI像素与排行榜DOM结构/文字对比，Web和原生已有匿名loading壳；监视器RGB容差8仍有非零残差、原生像素未验证，5项UI仍partial，见 k4cloudui.md / k4cloudui-evidence.json",
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 10
     },
@@ -4111,7 +4293,7 @@
       "status": "设备降级",
       "semantics": "offline/device",
       "mapping": [
-        "src/kitten4.rs:455 (is_stub)"
+        "src/kitten4.rs:457 (is_stub)"
       ],
       "limitations": [
         "is_stub 明确列出：无效果或固定返回值；不视为完整实现",
@@ -4131,7 +4313,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:749 (lower_block)"
+        "src/kitten4.rs:751 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -4151,7 +4333,7 @@
       "status": "设备降级",
       "semantics": "offline/device",
       "mapping": [
-        "src/kitten4.rs:645 (lower_block)"
+        "src/kitten4.rs:647 (lower_block)"
       ],
       "limitations": [
         "本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义"
@@ -4171,7 +4353,7 @@
       "status": "已实现",
       "semantics": "offline-oracle-verified",
       "mapping": [
-        "src/kitten4.rs:859 (lower_block)"
+        "src/kitten4.rs:861 (lower_block)"
       ],
       "limitations": [
         "固定离线包积木本体分支已有原创夹具实测及双 VM 回归；舞台尺寸/严格 draggable 字段、克隆继承与场景错误见 kitten4-partial-misc.md；不扩大为浏览器手势或物理引擎完全一致"
@@ -4191,7 +4373,7 @@
       "status": "设备降级",
       "semantics": "offline/device",
       "mapping": [
-        "src/kitten4.rs:675 (lower_block)"
+        "src/kitten4.rs:677 (lower_block)"
       ],
       "limitations": [
         "本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义"
@@ -4211,7 +4393,7 @@
       "status": "设备降级",
       "semantics": "offline/device",
       "mapping": [
-        "src/kitten4.rs:451 (is_stub)"
+        "src/kitten4.rs:453 (is_stub)"
       ],
       "limitations": [
         "is_stub 明确列出：无效果或固定返回值；不视为完整实现",
@@ -4232,7 +4414,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:586 (lower_block)"
+        "src/kitten4.rs:588 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -4252,7 +4434,7 @@
       "status": "设备降级",
       "semantics": "offline/device",
       "mapping": [
-        "src/kitten4.rs:679 (lower_block)"
+        "src/kitten4.rs:681 (lower_block)"
       ],
       "limitations": [
         "本地无对应设备/登录服务；固定值、空值或无效果，不代表真实设备语义"
@@ -4272,7 +4454,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:612 (lower_block)"
+        "src/kitten4.rs:614 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -4292,7 +4474,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:586 (lower_block)"
+        "src/kitten4.rs:588 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -4312,7 +4494,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:389 (lower_node)"
+        "src/kitten4.rs:391 (lower_node)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -4330,14 +4512,21 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "offline-oracle-verified",
       "mapping": [
-        "src/kitten4.rs:459 (cloud_list)"
+        "src/kitten4.rs:461 (cloud_list)"
       ],
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "k4cloud新增5件原创夹具138个连续官方update，17个类型均有真实block事件；公私标量/全部列表操作、PIXI监视器与DOM排行榜loading壳均已取证，双VM逐帧回归已通过，见 k4cloud-offline.md、k4cloud-coverage.md。在线服务、监视器布局/交互及排行榜壳仍未认证",
+        "k4cloudui补105帧PIXI像素与排行榜DOM结构/文字对比，Web和原生已有匿名loading壳；监视器RGB容差8仍有非零残差、原生像素未验证，5项UI仍partial，见 k4cloudui.md / k4cloudui-evidence.json",
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md",
+        "离线数据积木本体：k4cloud 5项、kitten4_cloud 11项、kitten4_partial_cloud_2 7项双VM回归通过；0/[]初值、公私计算、类型/长度/索引、列表别名逐帧约束。显隐和排行榜五项仍partial，不声明舞台像素全等"
+      ],
+      "unverifiedBoundaries": [
+        "仅固定官方包匿名离线数据分支；未验证在线身份/权限、服务端数据、重连与孤立UTF-16 surrogate；本机共享后端是独立测试协议，不是官方联网认证"
       ],
       "occurrences": 3
     },
@@ -4354,8 +4543,8 @@
       "status": "设备降级",
       "semantics": "offline/device",
       "mapping": [
-        "src/kitten4.rs:570 (lower_block)",
-        "src/kitten4.rs:452 (is_stub)"
+        "src/kitten4.rs:572 (lower_block)",
+        "src/kitten4.rs:454 (is_stub)"
       ],
       "limitations": [
         "is_stub 明确列出：无效果或固定返回值；不视为完整实现",
@@ -4376,11 +4565,12 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/engine/physics.rs:585 (parse)"
+        "src/engine/physics.rs:814 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第九轮4件420官方update记录粒子与组身份，修复重复soft幂等及scale帧尾重建清速；未实现粒子求解/soft滤镜。impact25/90的刚体点位误差下界分别3.386681/16.340179px，矩形输入首帧超时未验证，不升级。见 kitten4-partial-physics-9.md"
       ],
       "occurrences": 3
     },
@@ -4397,7 +4587,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:709 (lower_block)"
+        "src/kitten4.rs:711 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -4416,7 +4606,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:749 (lower_block)"
+        "src/kitten4.rs:751 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -4434,13 +4624,18 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
-        "src/engine/physics.rs:574 (parse)"
+        "src/engine/physics.rs:803 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第七轮主路径：新建/运行中world、1秒非零力、正负角度、0/负整数阻塞、小数忽略和完成续接；见 kitten4-partial-physics-7.md。边界不计作完整语义认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
+      ],
+      "unverifiedBoundaries": [
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 2
     },
@@ -4457,7 +4652,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:652 (lower_block)"
+        "src/kitten4.rs:654 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -4475,13 +4670,18 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
-        "src/kitten4.rs:551 (lower_block)"
+        "src/kitten4.rs:553 (lower_block)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
+      ],
+      "unverifiedBoundaries": [
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 2
     },
@@ -4497,7 +4697,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:845 (lower_block)"
+        "src/kitten4.rs:847 (lower_block)"
       ],
       "limitations": [
         "仅编译器结构表证据，不表示存在普通 domain handler",
@@ -4515,15 +4715,18 @@
           "table": "cloud_variables_get"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:601 (lower_block)"
+        "src/kitten4.rs:603 (lower_block)"
       ],
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "k4cloud新增5件原创夹具138个连续官方update，17个类型均有真实block事件；公私标量/全部列表操作、PIXI监视器与DOM排行榜loading壳均已取证，双VM逐帧回归已通过，见 k4cloud-offline.md、k4cloud-coverage.md。在线服务、监视器布局/交互及排行榜壳仍未认证",
+        "k4cloudui补105帧PIXI像素与排行榜DOM结构/文字对比，Web和原生已有匿名loading壳；监视器RGB容差8仍有非零残差、原生像素未验证，5项UI仍partial，见 k4cloudui.md / k4cloudui-evidence.json",
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 1
     },
@@ -4540,7 +4743,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:586 (lower_block)"
+        "src/kitten4.rs:588 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -4560,7 +4763,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:709 (lower_block)"
+        "src/kitten4.rs:711 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -4580,7 +4783,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:750 (lower_block)"
+        "src/kitten4.rs:752 (lower_block)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -4606,9 +4809,9 @@
       "status": "设备降级",
       "semantics": "offline/device",
       "mapping": [
-        "src/kitten4.rs:570 (lower_block)",
-        "src/kitten4.rs:577 (lower_block)",
-        "src/kitten4.rs:454 (is_stub)"
+        "src/kitten4.rs:572 (lower_block)",
+        "src/kitten4.rs:579 (lower_block)",
+        "src/kitten4.rs:456 (is_stub)"
       ],
       "limitations": [
         "is_stub 明确列出：无效果或固定返回值；不视为完整实现",
@@ -4636,7 +4839,7 @@
       "status": "设备降级",
       "semantics": "offline/device",
       "mapping": [
-        "src/kitten4.rs:453 (is_stub)"
+        "src/kitten4.rs:455 (is_stub)"
       ],
       "limitations": [
         "is_stub 明确列出：无效果或固定返回值；不视为完整实现",
@@ -4677,13 +4880,18 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
-        "src/kitten4.rs:558 (lower_block)"
+        "src/kitten4.rs:560 (lower_block)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
+      ],
+      "unverifiedBoundaries": [
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 0
     },
@@ -4784,7 +4992,7 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:716 (lower_block)",
+        "src/kitten4.rs:718 (lower_block)",
         "src/kitten4/audio_aliases.rs:22 (lower_audio_alias)"
       ],
       "limitations": [
@@ -4804,14 +5012,21 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "offline-oracle-verified",
       "mapping": [
-        "src/kitten4.rs:459 (cloud_list)"
+        "src/kitten4.rs:461 (cloud_list)"
       ],
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "k4cloud新增5件原创夹具138个连续官方update，17个类型均有真实block事件；公私标量/全部列表操作、PIXI监视器与DOM排行榜loading壳均已取证，双VM逐帧回归已通过，见 k4cloud-offline.md、k4cloud-coverage.md。在线服务、监视器布局/交互及排行榜壳仍未认证",
+        "k4cloudui补105帧PIXI像素与排行榜DOM结构/文字对比，Web和原生已有匿名loading壳；监视器RGB容差8仍有非零残差、原生像素未验证，5项UI仍partial，见 k4cloudui.md / k4cloudui-evidence.json",
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md",
+        "离线数据积木本体：k4cloud 5项、kitten4_cloud 11项、kitten4_partial_cloud_2 7项双VM回归通过；0/[]初值、公私计算、类型/长度/索引、列表别名逐帧约束。显隐和排行榜五项仍partial，不声明舞台像素全等"
+      ],
+      "unverifiedBoundaries": [
+        "仅固定官方包匿名离线数据分支；未验证在线身份/权限、服务端数据、重连与孤立UTF-16 surrogate；本机共享后端是独立测试协议，不是官方联网认证"
       ],
       "occurrences": 0
     },
@@ -4826,14 +5041,21 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "offline-oracle-verified",
       "mapping": [
-        "src/kitten4.rs:596 (lower_block)"
+        "src/kitten4.rs:598 (lower_block)"
       ],
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "k4cloud新增5件原创夹具138个连续官方update，17个类型均有真实block事件；公私标量/全部列表操作、PIXI监视器与DOM排行榜loading壳均已取证，双VM逐帧回归已通过，见 k4cloud-offline.md、k4cloud-coverage.md。在线服务、监视器布局/交互及排行榜壳仍未认证",
+        "k4cloudui补105帧PIXI像素与排行榜DOM结构/文字对比，Web和原生已有匿名loading壳；监视器RGB容差8仍有非零残差、原生像素未验证，5项UI仍partial，见 k4cloudui.md / k4cloudui-evidence.json",
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md",
+        "离线数据积木本体：k4cloud 5项、kitten4_cloud 11项、kitten4_partial_cloud_2 7项双VM回归通过；0/[]初值、公私计算、类型/长度/索引、列表别名逐帧约束。显隐和排行榜五项仍partial，不声明舞台像素全等"
+      ],
+      "unverifiedBoundaries": [
+        "仅固定官方包匿名离线数据分支；未验证在线身份/权限、服务端数据、重连与孤立UTF-16 surrogate；本机共享后端是独立测试协议，不是官方联网认证"
       ],
       "occurrences": 0
     },
@@ -5053,14 +5275,15 @@
           "table": "set_camera_status"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4/media_devices.rs:12 (lower_media_devices)"
       ],
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -5096,15 +5319,19 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
-        "src/kitten4.rs:526 (lower_block)",
-        "src/kitten4/aliases.rs:74 (lower_legacy_alias)"
+        "src/kitten4.rs:528 (lower_block)",
+        "src/kitten4/aliases.rs:66 (lower_legacy_alias)"
       ],
       "limitations": [
         "legacy alias 归一化；继承目标积木的字段、子选项与运行时限制",
-        "get/get_2/get_3 统一原生属性：全属性、目标字符串/悬空 UUID、角色/场景、克隆 self/原型、局部/全局变量已有 22 个原创夹具官方实测；非有限状态、无造型、iOS ASCII、惰性变量槽副作用仍有限制，见 kitten4-partial-properties.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "get/get_2/get_3 统一原生属性：原22夹具外，第五轮补全局列表引用与双向修改、执行时惰性未知UUID槽、空造型编号/名称；8夹具96官方帧与40对零差异画布见 kitten4-partial-properties-5.md；非有限状态、删除竞争、iOS ASCII及其他资源加载边界仍未验证",
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "第六轮活实体/活克隆与已加载造型主路径：8份原创夹具192官方update、双VM384帧状态与192对画布changedPixels=0（RGB容差8）；见 kitten4-partial-properties-6.md。显隐及删除生命周期另由第七轮专项约束，不扩展成任意删除竞争认证"
+      ],
+      "unverifiedBoundaries": [
+        "未验证边界：删除竞争/悬空UUID、异步资源加载、非有限几何、iOS/ASCII与复杂对象输入；不是全属性平台全集认证"
       ],
       "occurrences": 0
     },
@@ -5119,14 +5346,18 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
-        "src/kitten4.rs:2266 (translate)",
-        "src/kitten4.rs:526 (lower_block)"
+        "src/kitten4.rs:2268 (translate)",
+        "src/kitten4.rs:528 (lower_block)"
       ],
       "limitations": [
-        "get/get_2/get_3 统一原生属性：全属性、目标字符串/悬空 UUID、角色/场景、克隆 self/原型、局部/全局变量已有 22 个原创夹具官方实测；非有限状态、无造型、iOS ASCII、惰性变量槽副作用仍有限制，见 kitten4-partial-properties.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "get/get_2/get_3 统一原生属性：原22夹具外，第五轮补全局列表引用与双向修改、执行时惰性未知UUID槽、空造型编号/名称；8夹具96官方帧与40对零差异画布见 kitten4-partial-properties-5.md；非有限状态、删除竞争、iOS ASCII及其他资源加载边界仍未验证",
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "第六轮活实体/活克隆与已加载造型主路径：8份原创夹具192官方update、双VM384帧状态与192对画布changedPixels=0（RGB容差8）；见 kitten4-partial-properties-6.md。显隐及删除生命周期另由第七轮专项约束，不扩展成任意删除竞争认证"
+      ],
+      "unverifiedBoundaries": [
+        "未验证边界：删除竞争/悬空UUID、异步资源加载、非有限几何、iOS/ASCII与复杂对象输入；不是全属性平台全集认证"
       ],
       "occurrences": 0
     },
@@ -5346,13 +5577,18 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
-        "src/kitten4.rs:544 (lower_block)"
+        "src/kitten4.rs:546 (lower_block)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第七轮主路径：五个合法菜单、材质/密度改变、动态与静态质量、运动与零速；见 kitten4-partial-physics-7.md。边界不计作完整语义认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
+      ],
+      "unverifiedBoundaries": [
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 0
     },
@@ -5408,7 +5644,7 @@
           "table": "set_camera_status"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4/media_devices.rs:13 (lower_media_devices)",
@@ -5417,7 +5653,8 @@
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
         "第二轮原创官方离线实测默认 voice/scan、falsy translate 与 midi 对象最终值；异步帧相位、在线及实际设备未验证，见 kitten4-partial-text-2.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -5494,7 +5731,7 @@
           "table": "get_audios"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4/media_devices.rs:14 (lower_media_devices)",
@@ -5503,7 +5740,8 @@
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
         "第二轮原创官方离线实测默认 voice/scan、falsy translate 与 midi 对象最终值；异步帧相位、在线及实际设备未验证，见 kitten4-partial-text-2.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -5559,15 +5797,18 @@
           "table": "cloud_variables_get"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:600 (lower_block)"
+        "src/kitten4.rs:602 (lower_block)"
       ],
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "k4cloud新增5件原创夹具138个连续官方update，17个类型均有真实block事件；公私标量/全部列表操作、PIXI监视器与DOM排行榜loading壳均已取证，双VM逐帧回归已通过，见 k4cloud-offline.md、k4cloud-coverage.md。在线服务、监视器布局/交互及排行榜壳仍未认证",
+        "k4cloudui补105帧PIXI像素与排行榜DOM结构/文字对比，Web和原生已有匿名loading壳；监视器RGB容差8仍有非零残差、原生像素未验证，5项UI仍partial，见 k4cloudui.md / k4cloudui-evidence.json",
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -6402,7 +6643,7 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
         "src/kitten4/media_devices.rs:15 (lower_media_devices)",
         "src/kitten4/media_devices.rs:61 (lower_media_devices)"
@@ -6410,7 +6651,11 @@
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
         "第二轮原创官方离线实测默认 voice/scan、falsy translate 与 midi 对象最终值；异步帧相位、在线及实际设备未验证，见 kitten4-partial-text-2.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "第七轮主路径：字符串/数组有效搜索、MIDI id对象与纯等待调度，144个官方update全变量逐帧双模式对比；见 kitten4-partial-data-7.md。边界不计作完整语义认证"
+      ],
+      "unverifiedBoundaries": [
+        "未验证：孤立surrogate、无效END/nullish、宿主对象identity、非有限与精确截止浮点相位、非60Hz；不含MIDI发声"
       ],
       "occurrences": 0
     },
@@ -6429,14 +6674,15 @@
           "registration": "compiler:MIDI_BLOCKS"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4/media_devices.rs:16 (lower_media_devices)"
       ],
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -6450,14 +6696,15 @@
           "table": "get_audios"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4/media_devices.rs:17 (lower_media_devices)"
       ],
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -6477,13 +6724,17 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
         "src/kitten4/media_devices.rs:18 (lower_media_devices)"
       ],
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第七轮主路径：字符串/数组有效搜索、MIDI id对象与纯等待调度，144个官方update全变量逐帧双模式对比；见 kitten4-partial-data-7.md。边界不计作完整语义认证"
+      ],
+      "unverifiedBoundaries": [
+        "未验证：孤立surrogate、无效END/nullish、宿主对象identity、非有限与精确截止浮点相位、非60Hz；不含MIDI发声"
       ],
       "occurrences": 0
     },
@@ -6541,7 +6792,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4/aliases.rs:75 (lower_legacy_alias)"
+        "src/kitten4/aliases.rs:67 (lower_legacy_alias)"
       ],
       "limitations": [
         "legacy alias 归一化；继承目标积木的字段、子选项与运行时限制",
@@ -6559,7 +6810,7 @@
           "table": "get_mobile_slope_value"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4/media_devices.rs:19 (lower_media_devices)",
@@ -6568,7 +6819,9 @@
       ],
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "第十二轮设备输入边界：显式 mobile action、按钮状态、方向重力换算与 vibrate 输出均有原创夹具/官方逐帧对照；raw devicemotion 不在指定官方包中自行转 shake/tilt；真实硬件权限、控制器传输、Rapier 物理轨迹及 busy 等待边界仍为 partial，见 kitten4-device.md。",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -6581,14 +6834,16 @@
           "registration": "responder"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4/media_devices.rs:20 (lower_media_devices)"
       ],
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "第十二轮设备输入边界：显式 mobile action、按钮状态、方向重力换算与 vibrate 输出均有原创夹具/官方逐帧对照；raw devicemotion 不在指定官方包中自行转 shake/tilt；真实硬件权限、控制器传输、Rapier 物理轨迹及 busy 等待边界仍为 partial，见 kitten4-device.md。",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -6601,14 +6856,16 @@
           "registration": "responder"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4/media_devices.rs:21 (lower_media_devices)"
       ],
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "第十二轮设备输入边界：显式 mobile action、按钮状态、方向重力换算与 vibrate 输出均有原创夹具/官方逐帧对照；raw devicemotion 不在指定官方包中自行转 shake/tilt；真实硬件权限、控制器传输、Rapier 物理轨迹及 busy 等待边界仍为 partial，见 kitten4-device.md。",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -6621,14 +6878,16 @@
           "registration": "responder"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4/media_devices.rs:22 (lower_media_devices)"
       ],
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "第十二轮设备输入边界：显式 mobile action、按钮状态、方向重力换算与 vibrate 输出均有原创夹具/官方逐帧对照；raw devicemotion 不在指定官方包中自行转 shake/tilt；真实硬件权限、控制器传输、Rapier 物理轨迹及 busy 等待边界仍为 partial，见 kitten4-device.md。",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -6647,14 +6906,16 @@
           "registration": "responder"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4/media_devices.rs:23 (lower_media_devices)"
       ],
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "第十二轮设备输入边界：显式 mobile action、按钮状态、方向重力换算与 vibrate 输出均有原创夹具/官方逐帧对照；raw devicemotion 不在指定官方包中自行转 shake/tilt；真实硬件权限、控制器传输、Rapier 物理轨迹及 busy 等待边界仍为 partial，见 kitten4-device.md。",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -6673,14 +6934,16 @@
           "registration": "responder"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4/media_devices.rs:24 (lower_media_devices)"
       ],
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "第十二轮设备输入边界：显式 mobile action、按钮状态、方向重力换算与 vibrate 输出均有原创夹具/官方逐帧对照；raw devicemotion 不在指定官方包中自行转 shake/tilt；真实硬件权限、控制器传输、Rapier 物理轨迹及 busy 等待边界仍为 partial，见 kitten4-device.md。",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -6695,13 +6958,18 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
-        "src/engine.rs:2800 (physics2_get_property)"
+        "src/engine.rs:2948 (physics2_get_property)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第七轮主路径：六个合法菜单、方向/零速/static质量/硬体柔软度元数据；不代表软体认证；见 kitten4-partial-physics-7.md。边界不计作完整语义认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
+      ],
+      "unverifiedBoundaries": [
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 0
     },
@@ -6716,14 +6984,19 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
-        "src/engine/physics.rs:575 (parse)"
+        "src/engine/physics.rs:804 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "第三轮 11 份原创夹具/660 帧官方轨迹：首次世界初始化、自由落体积分、20px/tick 向量限速、边界摩擦与全不透明矩形轮廓已修正；接触仍有误差，复杂轮廓/软体未对齐，见 kitten4-physics-trajectory-3.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
+      ],
+      "unverifiedBoundaries": [
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 0
     },
@@ -6737,14 +7010,15 @@
           "table": "get_audios"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4/media_devices.rs:25 (lower_media_devices)"
       ],
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -6761,7 +7035,7 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:700 (lower_block)",
+        "src/kitten4.rs:702 (lower_block)",
         "src/kitten4/audio_aliases.rs:12 (lower_audio_alias)"
       ],
       "limitations": [
@@ -6783,7 +7057,7 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:700 (lower_block)",
+        "src/kitten4.rs:702 (lower_block)",
         "src/kitten4/audio_aliases.rs:12 (lower_audio_alias)",
         "src/kitten4/audio_aliases.rs:13 (lower_audio_alias)"
       ],
@@ -6991,14 +7265,15 @@
           "table": "get_audios"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4/media_devices.rs:26 (lower_media_devices)"
       ],
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -7012,14 +7287,15 @@
           "table": "get_audios"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4/media_devices.rs:27 (lower_media_devices)"
       ],
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -7042,7 +7318,9 @@
         "legacy alias 归一化；继承目标积木的字段、子选项与运行时限制",
         "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
         "8 种 scope、严格 number、别名增减、纹理尺寸 clamp、场景及小数 reporter 经 11 份原创夹具/1794 状态观察实测；ASCII 状态已支持但像素渲染、ELASTIC 与 iOS 仍未验证，见 kitten4-partial-effects.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "第八轮历史证据：真实VM 34件262对全画布，RGB容差0/1/8分列；ASCII独立/场景及场景/舞台外twist已修复，历史组合负例见 kitten4-partial-effects-8.md；当前修复与边界见第十一轮",
+        "第九/十轮消除ASCII最终投影、全链65像素及hue1像素历史负例；第十一轮修复slide两倍输入范围裁剪与distort离屏ASCII投影，并发送同update切场边界滤镜快照。ripple缺素材例外，最终主路径验证与边界见 kitten4-partial-effects-11.md"
       ],
       "occurrences": 0
     },
@@ -7065,7 +7343,9 @@
         "legacy alias 归一化；继承目标积木的字段、子选项与运行时限制",
         "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
         "8 种 scope、严格 number、别名增减、纹理尺寸 clamp、场景及小数 reporter 经 11 份原创夹具/1794 状态观察实测；ASCII 状态已支持但像素渲染、ELASTIC 与 iOS 仍未验证，见 kitten4-partial-effects.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "第八轮历史证据：真实VM 34件262对全画布，RGB容差0/1/8分列；ASCII独立/场景及场景/舞台外twist已修复，历史组合负例见 kitten4-partial-effects-8.md；当前修复与边界见第十一轮",
+        "第九/十轮消除ASCII最终投影、全链65像素及hue1像素历史负例；第十一轮修复slide两倍输入范围裁剪与distort离屏ASCII投影，并发送同update切场边界滤镜快照。ripple缺素材例外，最终主路径验证与边界见 kitten4-partial-effects-11.md"
       ],
       "occurrences": 0
     },
@@ -7082,7 +7362,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2261 (translate)"
+        "src/kitten4.rs:2263 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -7331,13 +7611,18 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
-        "src/kitten4.rs:556 (lower_block)"
+        "src/kitten4.rs:558 (lower_block)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第七轮主路径：有限非负2.5/0/.125/1、质量重算、两位reporter舍入、匀速保持；见 kitten4-partial-physics-7.md。边界不计作完整语义认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
+      ],
+      "unverifiedBoundaries": [
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 0
     },
@@ -7360,7 +7645,9 @@
         "legacy alias 归一化；继承目标积木的字段、子选项与运行时限制",
         "存在字段、效果、渲染或平台子选项边界；映射存在不能证明全语义一致",
         "8 种 scope、严格 number、别名增减、纹理尺寸 clamp、场景及小数 reporter 经 11 份原创夹具/1794 状态观察实测；ASCII 状态已支持但像素渲染、ELASTIC 与 iOS 仍未验证，见 kitten4-partial-effects.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "第八轮历史证据：真实VM 34件262对全画布，RGB容差0/1/8分列；ASCII独立/场景及场景/舞台外twist已修复，历史组合负例见 kitten4-partial-effects-8.md；当前修复与边界见第十一轮",
+        "第九/十轮消除ASCII最终投影、全链65像素及hue1像素历史负例；第十一轮修复slide两倍输入范围裁剪与distort离屏ASCII投影，并发送同update切场边界滤镜快照。ripple缺素材例外，最终主路径验证与边界见 kitten4-partial-effects-11.md"
       ],
       "occurrences": 0
     },
@@ -7375,13 +7662,18 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
-        "src/kitten4.rs:555 (lower_block)"
+        "src/kitten4.rs:557 (lower_block)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
+      ],
+      "unverifiedBoundaries": [
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 0
     },
@@ -7438,13 +7730,18 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
-        "src/kitten4.rs:559 (lower_block)"
+        "src/kitten4.rs:561 (lower_block)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第七轮主路径：origin/iron/wood/elastic四种旧刚体材质预设及属性联动、速度保持；不是现代soft模拟；见 kitten4-partial-physics-7.md。边界不计作完整语义认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
+      ],
+      "unverifiedBoundaries": [
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 0
     },
@@ -7542,14 +7839,18 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
         "src/kitten4/aliases.rs:60 (lower_legacy_alias)"
       ],
       "limitations": [
         "legacy alias 归一化；继承目标积木的字段、子选项与运行时限制",
-        "仅字段 style_id literal；动态 style_id 输入保持 opaque 并明确拒绝编译（编辑器可达性未验证）",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "第四轮独立动态 ID 命令：字段优先、动态文本/数组键、角色与场景全局纹理及错误尾部已有25份原创官方探针；显式 null、复杂对象/数组、资源加载与平台重建仍未验证，保留 partial，见 kitten4-partial-costume-4.md",
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "第六轮活实体/活克隆与已加载造型主路径：8份原创夹具192官方update、双VM384帧状态与192对画布changedPixels=0（RGB容差8）；见 kitten4-partial-properties-6.md。显隐及删除生命周期另由第七轮专项约束，不扩展成任意删除竞争认证"
+      ],
+      "unverifiedBoundaries": [
+        "未验证边界：删除竞争/悬空UUID、异步资源加载、非有限几何、iOS/ASCII与复杂对象输入；不是全属性平台全集认证"
       ],
       "occurrences": 0
     },
@@ -7606,13 +7907,18 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
-        "src/kitten4.rs:560 (lower_block)"
+        "src/kitten4.rs:562 (lower_block)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
+      ],
+      "unverifiedBoundaries": [
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 0
     },
@@ -7627,13 +7933,18 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
-        "src/kitten4.rs:561 (lower_block)"
+        "src/kitten4.rs:563 (lower_block)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
+      ],
+      "unverifiedBoundaries": [
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 0
     },
@@ -7648,13 +7959,18 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
-        "src/kitten4.rs:562 (lower_block)"
+        "src/kitten4.rs:564 (lower_block)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
+      ],
+      "unverifiedBoundaries": [
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 0
     },
@@ -7668,14 +7984,16 @@
           "table": "self_enable_physics"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:563 (lower_block)"
+        "src/kitten4.rs:565 (lower_block)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "第十二轮设备输入边界：显式 mobile action、按钮状态、方向重力换算与 vibrate 输出均有原创夹具/官方逐帧对照；raw devicemotion 不在指定官方包中自行转 shake/tilt；真实硬件权限、控制器传输、Rapier 物理轨迹及 busy 等待边界仍为 partial，见 kitten4-device.md。",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -7710,14 +8028,15 @@
           "table": "get_audios"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4/media_devices.rs:28 (lower_media_devices)"
       ],
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -7753,14 +8072,19 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
-        "src/kitten4.rs:564 (lower_block)"
+        "src/kitten4.rs:566 (lower_block)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
         "第三轮 11 份原创夹具/660 帧官方轨迹：首次世界初始化、自由落体积分、20px/tick 向量限速、边界摩擦与全不透明矩形轮廓已修正；接触仍有误差，复杂轮廓/软体未对齐，见 kitten4-physics-trajectory-3.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "第六轮硬体控制主路径：10份原创夹具400个官方update，其中9件360帧位置/旋转/全部变量双VM一致；modern-membership当时仅有界回归，第七轮已修漏积分并严格重放。见 kitten4-partial-physics-6.md、kitten4-partial-physics-7.md。不是求解器全集认证",
+        "第八轮主路径：沿用第六/七轮硬体控制认证；旧bounce/friction及四个边界负例原样重放，补四边正面/非弹性/斜入射/低速；双VM各2520帧亚像素有界；见 kitten4-partial-physics-8.md。未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
+      ],
+      "unverifiedBoundaries": [
+        "未验证：旋转/角冲量、actor间接触、多体堆叠、复杂轮廓/compound、软体、角落同时接触、舞台外侧接触、接触中生命周期、多场景与非60Hz；只认证单个锁旋转刚体的舞台长边接触；2520帧最大残差0.118503308290px（回归<0.15px），不是严格轨迹全等"
       ],
       "occurrences": 0
     },
@@ -7777,8 +8101,8 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:716 (lower_block)",
-        "src/kitten4.rs:719 (lower_block)",
+        "src/kitten4.rs:718 (lower_block)",
+        "src/kitten4.rs:721 (lower_block)",
         "src/kitten4/audio_aliases.rs:21 (lower_audio_alias)"
       ],
       "limitations": [
@@ -7839,14 +8163,16 @@
           "table": "incompatible_block"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4/media_devices.rs:29 (lower_media_devices)"
       ],
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "第十二轮设备输入边界：显式 mobile action、按钮状态、方向重力换算与 vibrate 输出均有原创夹具/官方逐帧对照；raw devicemotion 不在指定官方包中自行转 shake/tilt；真实硬件权限、控制器传输、Rapier 物理轨迹及 busy 等待边界仍为 partial，见 kitten4-device.md。",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -7860,14 +8186,16 @@
           "table": "incompatible_block"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4/media_devices.rs:30 (lower_media_devices)"
       ],
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "第十二轮设备输入边界：显式 mobile action、按钮状态、方向重力换算与 vibrate 输出均有原创夹具/官方逐帧对照；raw devicemotion 不在指定官方包中自行转 shake/tilt；真实硬件权限、控制器传输、Rapier 物理轨迹及 busy 等待边界仍为 partial，见 kitten4-device.md。",
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -7971,7 +8299,7 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/kitten4.rs:705 (lower_block)"
+        "src/kitten4.rs:707 (lower_block)"
       ],
       "limitations": [
         "legacy 音频已回归：动态目标及有符号增量已纠偏；严格 ID、非有限增量、内部 lock/improvise、微信录音分支仍有限制，见 kitten4-audio-aliases.md",
@@ -8030,13 +8358,17 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "main-path-verified",
       "mapping": [
         "src/kitten4/common.rs:12 (lower_common)"
       ],
       "limitations": [
         "第二轮原创离线实测验证 FIRST/LAST、空 needle 的 1-based UTF-16 位置、FIND 转型、数组 VALUE 严格搜索和非字符串/非数组错误；孤立 surrogate、无效 END 与 nullish 参数未验证，见 kitten4-partial-text-2.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "第七轮主路径：字符串/数组有效搜索、MIDI id对象与纯等待调度，144个官方update全变量逐帧双模式对比；见 kitten4-partial-data-7.md。边界不计作完整语义认证"
+      ],
+      "unverifiedBoundaries": [
+        "未验证：孤立surrogate、无效END/nullish、宿主对象identity、非有限与精确截止浮点相位、非60Hz；不含MIDI发声"
       ],
       "occurrences": 0
     },
@@ -8053,7 +8385,7 @@
       "status": "已实现",
       "semantics": "mapped-not-parity",
       "mapping": [
-        "src/kitten4.rs:2188 (translate)"
+        "src/kitten4.rs:2190 (translate)"
       ],
       "limitations": [
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
@@ -8070,14 +8402,15 @@
           "table": "self_appear"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4/media_devices.rs:31 (lower_media_devices)"
       ],
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -8091,7 +8424,7 @@
           "table": "self_appear"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4/media_devices.rs:32 (lower_media_devices)",
@@ -8100,7 +8433,8 @@
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
         "第二轮原创官方离线实测默认 voice/scan、falsy translate 与 midi 对象最终值；异步帧相位、在线及实际设备未验证，见 kitten4-partial-text-2.md",
-        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致"
+        "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -8114,14 +8448,15 @@
           "table": "set_camera_status"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4/media_devices.rs:33 (lower_media_devices)"
       ],
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -8135,14 +8470,15 @@
           "table": "set_camera_status"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4/media_devices.rs:34 (lower_media_devices)"
       ],
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },
@@ -8156,14 +8492,15 @@
           "table": "get_audios"
         }
       ],
-      "status": "已实现",
+      "status": "设备降级",
       "semantics": "partial",
       "mapping": [
         "src/kitten4/media_devices.rs:35 (lower_media_devices)"
       ],
       "limitations": [
         "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
       "occurrences": 0
     },

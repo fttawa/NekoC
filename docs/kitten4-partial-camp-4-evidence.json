@@ -1,0 +1,3402 @@
+{
+  "schema": "nekoc-k4-partial-camp-4-v1",
+  "cases": {
+    "cycle": {
+      "sha256": "9a8fa620681c2255bb0fa0887223b682813ea9e38f50ddb070cf4a14c69f6a23",
+      "variables": [
+        {
+          "member-0-0": 0,
+          "member-0-1": 0,
+          "member-0-2": 0,
+          "member-0-3": 0,
+          "member-1-0": -1,
+          "member-1-1": -1,
+          "member-1-2": -1,
+          "member-1-3": -1,
+          "member-2-0": -1,
+          "member-2-1": -1,
+          "member-2-2": -1,
+          "member-2-3": -1,
+          "member-3-0": -1,
+          "member-3-1": -1,
+          "member-3-2": -1,
+          "member-3-3": -1,
+          "member-4-0": -1,
+          "member-4-1": -1,
+          "member-4-2": -1,
+          "member-4-3": -1,
+          "member-5-0": -1,
+          "member-5-1": -1,
+          "member-5-2": -1,
+          "member-5-3": -1,
+          "member-6-0": -1,
+          "member-6-1": -1,
+          "member-6-2": -1,
+          "member-6-3": -1,
+          "member-7-0": -1,
+          "member-7-1": -1,
+          "member-7-2": -1,
+          "member-7-3": -1
+        },
+        {
+          "member-0-0": 0,
+          "member-0-1": 0,
+          "member-0-2": 0,
+          "member-0-3": 0,
+          "member-1-0": -1,
+          "member-1-1": -1,
+          "member-1-2": -1,
+          "member-1-3": -1,
+          "member-2-0": -1,
+          "member-2-1": -1,
+          "member-2-2": -1,
+          "member-2-3": -1,
+          "member-3-0": -1,
+          "member-3-1": -1,
+          "member-3-2": -1,
+          "member-3-3": -1,
+          "member-4-0": -1,
+          "member-4-1": -1,
+          "member-4-2": -1,
+          "member-4-3": -1,
+          "member-5-0": -1,
+          "member-5-1": -1,
+          "member-5-2": -1,
+          "member-5-3": -1,
+          "member-6-0": -1,
+          "member-6-1": -1,
+          "member-6-2": -1,
+          "member-6-3": -1,
+          "member-7-0": -1,
+          "member-7-1": -1,
+          "member-7-2": -1,
+          "member-7-3": -1
+        },
+        {
+          "member-0-0": 0,
+          "member-0-1": 0,
+          "member-0-2": 0,
+          "member-0-3": 0,
+          "member-1-0": 0,
+          "member-1-1": 0,
+          "member-1-2": 0,
+          "member-1-3": 0,
+          "member-2-0": -1,
+          "member-2-1": -1,
+          "member-2-2": -1,
+          "member-2-3": -1,
+          "member-3-0": -1,
+          "member-3-1": -1,
+          "member-3-2": -1,
+          "member-3-3": -1,
+          "member-4-0": -1,
+          "member-4-1": -1,
+          "member-4-2": -1,
+          "member-4-3": -1,
+          "member-5-0": -1,
+          "member-5-1": -1,
+          "member-5-2": -1,
+          "member-5-3": -1,
+          "member-6-0": -1,
+          "member-6-1": -1,
+          "member-6-2": -1,
+          "member-6-3": -1,
+          "member-7-0": -1,
+          "member-7-1": -1,
+          "member-7-2": -1,
+          "member-7-3": -1
+        },
+        {
+          "member-0-0": 0,
+          "member-0-1": 0,
+          "member-0-2": 0,
+          "member-0-3": 0,
+          "member-1-0": 0,
+          "member-1-1": 0,
+          "member-1-2": 0,
+          "member-1-3": 0,
+          "member-2-0": -1,
+          "member-2-1": -1,
+          "member-2-2": -1,
+          "member-2-3": -1,
+          "member-3-0": -1,
+          "member-3-1": -1,
+          "member-3-2": -1,
+          "member-3-3": -1,
+          "member-4-0": -1,
+          "member-4-1": -1,
+          "member-4-2": -1,
+          "member-4-3": -1,
+          "member-5-0": -1,
+          "member-5-1": -1,
+          "member-5-2": -1,
+          "member-5-3": -1,
+          "member-6-0": -1,
+          "member-6-1": -1,
+          "member-6-2": -1,
+          "member-6-3": -1,
+          "member-7-0": -1,
+          "member-7-1": -1,
+          "member-7-2": -1,
+          "member-7-3": -1
+        },
+        {
+          "member-0-0": 0,
+          "member-0-1": 0,
+          "member-0-2": 0,
+          "member-0-3": 0,
+          "member-1-0": 0,
+          "member-1-1": 0,
+          "member-1-2": 0,
+          "member-1-3": 0,
+          "member-2-0": 0,
+          "member-2-1": 0,
+          "member-2-2": 0,
+          "member-2-3": 0,
+          "member-3-0": -1,
+          "member-3-1": -1,
+          "member-3-2": -1,
+          "member-3-3": -1,
+          "member-4-0": -1,
+          "member-4-1": -1,
+          "member-4-2": -1,
+          "member-4-3": -1,
+          "member-5-0": -1,
+          "member-5-1": -1,
+          "member-5-2": -1,
+          "member-5-3": -1,
+          "member-6-0": -1,
+          "member-6-1": -1,
+          "member-6-2": -1,
+          "member-6-3": -1,
+          "member-7-0": -1,
+          "member-7-1": -1,
+          "member-7-2": -1,
+          "member-7-3": -1
+        },
+        {
+          "member-0-0": 0,
+          "member-0-1": 0,
+          "member-0-2": 0,
+          "member-0-3": 0,
+          "member-1-0": 0,
+          "member-1-1": 0,
+          "member-1-2": 0,
+          "member-1-3": 0,
+          "member-2-0": 0,
+          "member-2-1": 0,
+          "member-2-2": 0,
+          "member-2-3": 0,
+          "member-3-0": -1,
+          "member-3-1": -1,
+          "member-3-2": -1,
+          "member-3-3": -1,
+          "member-4-0": -1,
+          "member-4-1": -1,
+          "member-4-2": -1,
+          "member-4-3": -1,
+          "member-5-0": -1,
+          "member-5-1": -1,
+          "member-5-2": -1,
+          "member-5-3": -1,
+          "member-6-0": -1,
+          "member-6-1": -1,
+          "member-6-2": -1,
+          "member-6-3": -1,
+          "member-7-0": -1,
+          "member-7-1": -1,
+          "member-7-2": -1,
+          "member-7-3": -1
+        },
+        {
+          "member-0-0": 0,
+          "member-0-1": 0,
+          "member-0-2": 0,
+          "member-0-3": 0,
+          "member-1-0": 0,
+          "member-1-1": 0,
+          "member-1-2": 0,
+          "member-1-3": 0,
+          "member-2-0": 0,
+          "member-2-1": 0,
+          "member-2-2": 0,
+          "member-2-3": 0,
+          "member-3-0": 0,
+          "member-3-1": 0,
+          "member-3-2": 0,
+          "member-3-3": 0,
+          "member-4-0": -1,
+          "member-4-1": -1,
+          "member-4-2": -1,
+          "member-4-3": -1,
+          "member-5-0": -1,
+          "member-5-1": -1,
+          "member-5-2": -1,
+          "member-5-3": -1,
+          "member-6-0": -1,
+          "member-6-1": -1,
+          "member-6-2": -1,
+          "member-6-3": -1,
+          "member-7-0": -1,
+          "member-7-1": -1,
+          "member-7-2": -1,
+          "member-7-3": -1
+        },
+        {
+          "member-0-0": 0,
+          "member-0-1": 0,
+          "member-0-2": 0,
+          "member-0-3": 0,
+          "member-1-0": 0,
+          "member-1-1": 0,
+          "member-1-2": 0,
+          "member-1-3": 0,
+          "member-2-0": 0,
+          "member-2-1": 0,
+          "member-2-2": 0,
+          "member-2-3": 0,
+          "member-3-0": 0,
+          "member-3-1": 0,
+          "member-3-2": 0,
+          "member-3-3": 0,
+          "member-4-0": -1,
+          "member-4-1": -1,
+          "member-4-2": -1,
+          "member-4-3": -1,
+          "member-5-0": -1,
+          "member-5-1": -1,
+          "member-5-2": -1,
+          "member-5-3": -1,
+          "member-6-0": -1,
+          "member-6-1": -1,
+          "member-6-2": -1,
+          "member-6-3": -1,
+          "member-7-0": -1,
+          "member-7-1": -1,
+          "member-7-2": -1,
+          "member-7-3": -1
+        },
+        {
+          "member-0-0": 0,
+          "member-0-1": 0,
+          "member-0-2": 0,
+          "member-0-3": 0,
+          "member-1-0": 0,
+          "member-1-1": 0,
+          "member-1-2": 0,
+          "member-1-3": 0,
+          "member-2-0": 0,
+          "member-2-1": 0,
+          "member-2-2": 0,
+          "member-2-3": 0,
+          "member-3-0": 0,
+          "member-3-1": 0,
+          "member-3-2": 0,
+          "member-3-3": 0,
+          "member-4-0": 1,
+          "member-4-1": 0,
+          "member-4-2": 0,
+          "member-4-3": 0,
+          "member-5-0": -1,
+          "member-5-1": -1,
+          "member-5-2": -1,
+          "member-5-3": -1,
+          "member-6-0": -1,
+          "member-6-1": -1,
+          "member-6-2": -1,
+          "member-6-3": -1,
+          "member-7-0": -1,
+          "member-7-1": -1,
+          "member-7-2": -1,
+          "member-7-3": -1
+        },
+        {
+          "member-0-0": 0,
+          "member-0-1": 0,
+          "member-0-2": 0,
+          "member-0-3": 0,
+          "member-1-0": 0,
+          "member-1-1": 0,
+          "member-1-2": 0,
+          "member-1-3": 0,
+          "member-2-0": 0,
+          "member-2-1": 0,
+          "member-2-2": 0,
+          "member-2-3": 0,
+          "member-3-0": 0,
+          "member-3-1": 0,
+          "member-3-2": 0,
+          "member-3-3": 0,
+          "member-4-0": 1,
+          "member-4-1": 0,
+          "member-4-2": 0,
+          "member-4-3": 0,
+          "member-5-0": -1,
+          "member-5-1": -1,
+          "member-5-2": -1,
+          "member-5-3": -1,
+          "member-6-0": -1,
+          "member-6-1": -1,
+          "member-6-2": -1,
+          "member-6-3": -1,
+          "member-7-0": -1,
+          "member-7-1": -1,
+          "member-7-2": -1,
+          "member-7-3": -1
+        },
+        {
+          "member-0-0": 0,
+          "member-0-1": 0,
+          "member-0-2": 0,
+          "member-0-3": 0,
+          "member-1-0": 0,
+          "member-1-1": 0,
+          "member-1-2": 0,
+          "member-1-3": 0,
+          "member-2-0": 0,
+          "member-2-1": 0,
+          "member-2-2": 0,
+          "member-2-3": 0,
+          "member-3-0": 0,
+          "member-3-1": 0,
+          "member-3-2": 0,
+          "member-3-3": 0,
+          "member-4-0": 1,
+          "member-4-1": 0,
+          "member-4-2": 0,
+          "member-4-3": 0,
+          "member-5-0": 0,
+          "member-5-1": 1,
+          "member-5-2": 0,
+          "member-5-3": 0,
+          "member-6-0": -1,
+          "member-6-1": -1,
+          "member-6-2": -1,
+          "member-6-3": -1,
+          "member-7-0": -1,
+          "member-7-1": -1,
+          "member-7-2": -1,
+          "member-7-3": -1
+        },
+        {
+          "member-0-0": 0,
+          "member-0-1": 0,
+          "member-0-2": 0,
+          "member-0-3": 0,
+          "member-1-0": 0,
+          "member-1-1": 0,
+          "member-1-2": 0,
+          "member-1-3": 0,
+          "member-2-0": 0,
+          "member-2-1": 0,
+          "member-2-2": 0,
+          "member-2-3": 0,
+          "member-3-0": 0,
+          "member-3-1": 0,
+          "member-3-2": 0,
+          "member-3-3": 0,
+          "member-4-0": 1,
+          "member-4-1": 0,
+          "member-4-2": 0,
+          "member-4-3": 0,
+          "member-5-0": 0,
+          "member-5-1": 1,
+          "member-5-2": 0,
+          "member-5-3": 0,
+          "member-6-0": -1,
+          "member-6-1": -1,
+          "member-6-2": -1,
+          "member-6-3": -1,
+          "member-7-0": -1,
+          "member-7-1": -1,
+          "member-7-2": -1,
+          "member-7-3": -1
+        },
+        {
+          "member-0-0": 0,
+          "member-0-1": 0,
+          "member-0-2": 0,
+          "member-0-3": 0,
+          "member-1-0": 0,
+          "member-1-1": 0,
+          "member-1-2": 0,
+          "member-1-3": 0,
+          "member-2-0": 0,
+          "member-2-1": 0,
+          "member-2-2": 0,
+          "member-2-3": 0,
+          "member-3-0": 0,
+          "member-3-1": 0,
+          "member-3-2": 0,
+          "member-3-3": 0,
+          "member-4-0": 1,
+          "member-4-1": 0,
+          "member-4-2": 0,
+          "member-4-3": 0,
+          "member-5-0": 0,
+          "member-5-1": 1,
+          "member-5-2": 0,
+          "member-5-3": 0,
+          "member-6-0": 0,
+          "member-6-1": 0,
+          "member-6-2": 1,
+          "member-6-3": 0,
+          "member-7-0": -1,
+          "member-7-1": -1,
+          "member-7-2": -1,
+          "member-7-3": -1
+        },
+        {
+          "member-0-0": 0,
+          "member-0-1": 0,
+          "member-0-2": 0,
+          "member-0-3": 0,
+          "member-1-0": 0,
+          "member-1-1": 0,
+          "member-1-2": 0,
+          "member-1-3": 0,
+          "member-2-0": 0,
+          "member-2-1": 0,
+          "member-2-2": 0,
+          "member-2-3": 0,
+          "member-3-0": 0,
+          "member-3-1": 0,
+          "member-3-2": 0,
+          "member-3-3": 0,
+          "member-4-0": 1,
+          "member-4-1": 0,
+          "member-4-2": 0,
+          "member-4-3": 0,
+          "member-5-0": 0,
+          "member-5-1": 1,
+          "member-5-2": 0,
+          "member-5-3": 0,
+          "member-6-0": 0,
+          "member-6-1": 0,
+          "member-6-2": 1,
+          "member-6-3": 0,
+          "member-7-0": -1,
+          "member-7-1": -1,
+          "member-7-2": -1,
+          "member-7-3": -1
+        },
+        {
+          "member-0-0": 0,
+          "member-0-1": 0,
+          "member-0-2": 0,
+          "member-0-3": 0,
+          "member-1-0": 0,
+          "member-1-1": 0,
+          "member-1-2": 0,
+          "member-1-3": 0,
+          "member-2-0": 0,
+          "member-2-1": 0,
+          "member-2-2": 0,
+          "member-2-3": 0,
+          "member-3-0": 0,
+          "member-3-1": 0,
+          "member-3-2": 0,
+          "member-3-3": 0,
+          "member-4-0": 1,
+          "member-4-1": 0,
+          "member-4-2": 0,
+          "member-4-3": 0,
+          "member-5-0": 0,
+          "member-5-1": 1,
+          "member-5-2": 0,
+          "member-5-3": 0,
+          "member-6-0": 0,
+          "member-6-1": 0,
+          "member-6-2": 1,
+          "member-6-3": 0,
+          "member-7-0": 0,
+          "member-7-1": 0,
+          "member-7-2": 0,
+          "member-7-3": 1
+        },
+        {
+          "member-0-0": 0,
+          "member-0-1": 0,
+          "member-0-2": 0,
+          "member-0-3": 0,
+          "member-1-0": 0,
+          "member-1-1": 0,
+          "member-1-2": 0,
+          "member-1-3": 0,
+          "member-2-0": 0,
+          "member-2-1": 0,
+          "member-2-2": 0,
+          "member-2-3": 0,
+          "member-3-0": 0,
+          "member-3-1": 0,
+          "member-3-2": 0,
+          "member-3-3": 0,
+          "member-4-0": 1,
+          "member-4-1": 0,
+          "member-4-2": 0,
+          "member-4-3": 0,
+          "member-5-0": 0,
+          "member-5-1": 1,
+          "member-5-2": 0,
+          "member-5-3": 0,
+          "member-6-0": 0,
+          "member-6-1": 0,
+          "member-6-2": 1,
+          "member-6-3": 0,
+          "member-7-0": 0,
+          "member-7-1": 0,
+          "member-7-2": 0,
+          "member-7-3": 1
+        },
+        {
+          "member-0-0": 0,
+          "member-0-1": 0,
+          "member-0-2": 0,
+          "member-0-3": 0,
+          "member-1-0": 0,
+          "member-1-1": 0,
+          "member-1-2": 0,
+          "member-1-3": 0,
+          "member-2-0": 0,
+          "member-2-1": 0,
+          "member-2-2": 0,
+          "member-2-3": 0,
+          "member-3-0": 0,
+          "member-3-1": 0,
+          "member-3-2": 0,
+          "member-3-3": 0,
+          "member-4-0": 1,
+          "member-4-1": 0,
+          "member-4-2": 0,
+          "member-4-3": 0,
+          "member-5-0": 0,
+          "member-5-1": 1,
+          "member-5-2": 0,
+          "member-5-3": 0,
+          "member-6-0": 0,
+          "member-6-1": 0,
+          "member-6-2": 1,
+          "member-6-3": 0,
+          "member-7-0": 0,
+          "member-7-1": 0,
+          "member-7-2": 0,
+          "member-7-3": 1
+        },
+        {
+          "member-0-0": 0,
+          "member-0-1": 0,
+          "member-0-2": 0,
+          "member-0-3": 0,
+          "member-1-0": 0,
+          "member-1-1": 0,
+          "member-1-2": 0,
+          "member-1-3": 0,
+          "member-2-0": 0,
+          "member-2-1": 0,
+          "member-2-2": 0,
+          "member-2-3": 0,
+          "member-3-0": 0,
+          "member-3-1": 0,
+          "member-3-2": 0,
+          "member-3-3": 0,
+          "member-4-0": 1,
+          "member-4-1": 0,
+          "member-4-2": 0,
+          "member-4-3": 0,
+          "member-5-0": 0,
+          "member-5-1": 1,
+          "member-5-2": 0,
+          "member-5-3": 0,
+          "member-6-0": 0,
+          "member-6-1": 0,
+          "member-6-2": 1,
+          "member-6-3": 0,
+          "member-7-0": 0,
+          "member-7-1": 0,
+          "member-7-2": 0,
+          "member-7-3": 1
+        },
+        {
+          "member-0-0": 0,
+          "member-0-1": 0,
+          "member-0-2": 0,
+          "member-0-3": 0,
+          "member-1-0": 0,
+          "member-1-1": 0,
+          "member-1-2": 0,
+          "member-1-3": 0,
+          "member-2-0": 0,
+          "member-2-1": 0,
+          "member-2-2": 0,
+          "member-2-3": 0,
+          "member-3-0": 0,
+          "member-3-1": 0,
+          "member-3-2": 0,
+          "member-3-3": 0,
+          "member-4-0": 1,
+          "member-4-1": 0,
+          "member-4-2": 0,
+          "member-4-3": 0,
+          "member-5-0": 0,
+          "member-5-1": 1,
+          "member-5-2": 0,
+          "member-5-3": 0,
+          "member-6-0": 0,
+          "member-6-1": 0,
+          "member-6-2": 1,
+          "member-6-3": 0,
+          "member-7-0": 0,
+          "member-7-1": 0,
+          "member-7-2": 0,
+          "member-7-3": 1
+        },
+        {
+          "member-0-0": 0,
+          "member-0-1": 0,
+          "member-0-2": 0,
+          "member-0-3": 0,
+          "member-1-0": 0,
+          "member-1-1": 0,
+          "member-1-2": 0,
+          "member-1-3": 0,
+          "member-2-0": 0,
+          "member-2-1": 0,
+          "member-2-2": 0,
+          "member-2-3": 0,
+          "member-3-0": 0,
+          "member-3-1": 0,
+          "member-3-2": 0,
+          "member-3-3": 0,
+          "member-4-0": 1,
+          "member-4-1": 0,
+          "member-4-2": 0,
+          "member-4-3": 0,
+          "member-5-0": 0,
+          "member-5-1": 1,
+          "member-5-2": 0,
+          "member-5-3": 0,
+          "member-6-0": 0,
+          "member-6-1": 0,
+          "member-6-2": 1,
+          "member-6-3": 0,
+          "member-7-0": 0,
+          "member-7-1": 0,
+          "member-7-2": 0,
+          "member-7-3": 1
+        },
+        {
+          "member-0-0": 0,
+          "member-0-1": 0,
+          "member-0-2": 0,
+          "member-0-3": 0,
+          "member-1-0": 0,
+          "member-1-1": 0,
+          "member-1-2": 0,
+          "member-1-3": 0,
+          "member-2-0": 0,
+          "member-2-1": 0,
+          "member-2-2": 0,
+          "member-2-3": 0,
+          "member-3-0": 0,
+          "member-3-1": 0,
+          "member-3-2": 0,
+          "member-3-3": 0,
+          "member-4-0": 1,
+          "member-4-1": 0,
+          "member-4-2": 0,
+          "member-4-3": 0,
+          "member-5-0": 0,
+          "member-5-1": 1,
+          "member-5-2": 0,
+          "member-5-3": 0,
+          "member-6-0": 0,
+          "member-6-1": 0,
+          "member-6-2": 1,
+          "member-6-3": 0,
+          "member-7-0": 0,
+          "member-7-1": 0,
+          "member-7-2": 0,
+          "member-7-3": 1
+        },
+        {
+          "member-0-0": 0,
+          "member-0-1": 0,
+          "member-0-2": 0,
+          "member-0-3": 0,
+          "member-1-0": 0,
+          "member-1-1": 0,
+          "member-1-2": 0,
+          "member-1-3": 0,
+          "member-2-0": 0,
+          "member-2-1": 0,
+          "member-2-2": 0,
+          "member-2-3": 0,
+          "member-3-0": 0,
+          "member-3-1": 0,
+          "member-3-2": 0,
+          "member-3-3": 0,
+          "member-4-0": 1,
+          "member-4-1": 0,
+          "member-4-2": 0,
+          "member-4-3": 0,
+          "member-5-0": 0,
+          "member-5-1": 1,
+          "member-5-2": 0,
+          "member-5-3": 0,
+          "member-6-0": 0,
+          "member-6-1": 0,
+          "member-6-2": 1,
+          "member-6-3": 0,
+          "member-7-0": 0,
+          "member-7-1": 0,
+          "member-7-2": 0,
+          "member-7-3": 1
+        },
+        {
+          "member-0-0": 0,
+          "member-0-1": 0,
+          "member-0-2": 0,
+          "member-0-3": 0,
+          "member-1-0": 0,
+          "member-1-1": 0,
+          "member-1-2": 0,
+          "member-1-3": 0,
+          "member-2-0": 0,
+          "member-2-1": 0,
+          "member-2-2": 0,
+          "member-2-3": 0,
+          "member-3-0": 0,
+          "member-3-1": 0,
+          "member-3-2": 0,
+          "member-3-3": 0,
+          "member-4-0": 1,
+          "member-4-1": 0,
+          "member-4-2": 0,
+          "member-4-3": 0,
+          "member-5-0": 0,
+          "member-5-1": 1,
+          "member-5-2": 0,
+          "member-5-3": 0,
+          "member-6-0": 0,
+          "member-6-1": 0,
+          "member-6-2": 1,
+          "member-6-3": 0,
+          "member-7-0": 0,
+          "member-7-1": 0,
+          "member-7-2": 0,
+          "member-7-3": 1
+        },
+        {
+          "member-0-0": 0,
+          "member-0-1": 0,
+          "member-0-2": 0,
+          "member-0-3": 0,
+          "member-1-0": 0,
+          "member-1-1": 0,
+          "member-1-2": 0,
+          "member-1-3": 0,
+          "member-2-0": 0,
+          "member-2-1": 0,
+          "member-2-2": 0,
+          "member-2-3": 0,
+          "member-3-0": 0,
+          "member-3-1": 0,
+          "member-3-2": 0,
+          "member-3-3": 0,
+          "member-4-0": 1,
+          "member-4-1": 0,
+          "member-4-2": 0,
+          "member-4-3": 0,
+          "member-5-0": 0,
+          "member-5-1": 1,
+          "member-5-2": 0,
+          "member-5-3": 0,
+          "member-6-0": 0,
+          "member-6-1": 0,
+          "member-6-2": 1,
+          "member-6-3": 0,
+          "member-7-0": 0,
+          "member-7-1": 0,
+          "member-7-2": 0,
+          "member-7-3": 1
+        },
+        {
+          "member-0-0": 0,
+          "member-0-1": 0,
+          "member-0-2": 0,
+          "member-0-3": 0,
+          "member-1-0": 0,
+          "member-1-1": 0,
+          "member-1-2": 0,
+          "member-1-3": 0,
+          "member-2-0": 0,
+          "member-2-1": 0,
+          "member-2-2": 0,
+          "member-2-3": 0,
+          "member-3-0": 0,
+          "member-3-1": 0,
+          "member-3-2": 0,
+          "member-3-3": 0,
+          "member-4-0": 1,
+          "member-4-1": 0,
+          "member-4-2": 0,
+          "member-4-3": 0,
+          "member-5-0": 0,
+          "member-5-1": 1,
+          "member-5-2": 0,
+          "member-5-3": 0,
+          "member-6-0": 0,
+          "member-6-1": 0,
+          "member-6-2": 1,
+          "member-6-3": 0,
+          "member-7-0": 0,
+          "member-7-1": 0,
+          "member-7-2": 0,
+          "member-7-3": 1
+        },
+        {
+          "member-0-0": 0,
+          "member-0-1": 0,
+          "member-0-2": 0,
+          "member-0-3": 0,
+          "member-1-0": 0,
+          "member-1-1": 0,
+          "member-1-2": 0,
+          "member-1-3": 0,
+          "member-2-0": 0,
+          "member-2-1": 0,
+          "member-2-2": 0,
+          "member-2-3": 0,
+          "member-3-0": 0,
+          "member-3-1": 0,
+          "member-3-2": 0,
+          "member-3-3": 0,
+          "member-4-0": 1,
+          "member-4-1": 0,
+          "member-4-2": 0,
+          "member-4-3": 0,
+          "member-5-0": 0,
+          "member-5-1": 1,
+          "member-5-2": 0,
+          "member-5-3": 0,
+          "member-6-0": 0,
+          "member-6-1": 0,
+          "member-6-2": 1,
+          "member-6-3": 0,
+          "member-7-0": 0,
+          "member-7-1": 0,
+          "member-7-2": 0,
+          "member-7-3": 1
+        },
+        {
+          "member-0-0": 0,
+          "member-0-1": 0,
+          "member-0-2": 0,
+          "member-0-3": 0,
+          "member-1-0": 0,
+          "member-1-1": 0,
+          "member-1-2": 0,
+          "member-1-3": 0,
+          "member-2-0": 0,
+          "member-2-1": 0,
+          "member-2-2": 0,
+          "member-2-3": 0,
+          "member-3-0": 0,
+          "member-3-1": 0,
+          "member-3-2": 0,
+          "member-3-3": 0,
+          "member-4-0": 1,
+          "member-4-1": 0,
+          "member-4-2": 0,
+          "member-4-3": 0,
+          "member-5-0": 0,
+          "member-5-1": 1,
+          "member-5-2": 0,
+          "member-5-3": 0,
+          "member-6-0": 0,
+          "member-6-1": 0,
+          "member-6-2": 1,
+          "member-6-3": 0,
+          "member-7-0": 0,
+          "member-7-1": 0,
+          "member-7-2": 0,
+          "member-7-3": 1
+        },
+        {
+          "member-0-0": 0,
+          "member-0-1": 0,
+          "member-0-2": 0,
+          "member-0-3": 0,
+          "member-1-0": 0,
+          "member-1-1": 0,
+          "member-1-2": 0,
+          "member-1-3": 0,
+          "member-2-0": 0,
+          "member-2-1": 0,
+          "member-2-2": 0,
+          "member-2-3": 0,
+          "member-3-0": 0,
+          "member-3-1": 0,
+          "member-3-2": 0,
+          "member-3-3": 0,
+          "member-4-0": 1,
+          "member-4-1": 0,
+          "member-4-2": 0,
+          "member-4-3": 0,
+          "member-5-0": 0,
+          "member-5-1": 1,
+          "member-5-2": 0,
+          "member-5-3": 0,
+          "member-6-0": 0,
+          "member-6-1": 0,
+          "member-6-2": 1,
+          "member-6-3": 0,
+          "member-7-0": 0,
+          "member-7-1": 0,
+          "member-7-2": 0,
+          "member-7-3": 1
+        },
+        {
+          "member-0-0": 0,
+          "member-0-1": 0,
+          "member-0-2": 0,
+          "member-0-3": 0,
+          "member-1-0": 0,
+          "member-1-1": 0,
+          "member-1-2": 0,
+          "member-1-3": 0,
+          "member-2-0": 0,
+          "member-2-1": 0,
+          "member-2-2": 0,
+          "member-2-3": 0,
+          "member-3-0": 0,
+          "member-3-1": 0,
+          "member-3-2": 0,
+          "member-3-3": 0,
+          "member-4-0": 1,
+          "member-4-1": 0,
+          "member-4-2": 0,
+          "member-4-3": 0,
+          "member-5-0": 0,
+          "member-5-1": 1,
+          "member-5-2": 0,
+          "member-5-3": 0,
+          "member-6-0": 0,
+          "member-6-1": 0,
+          "member-6-2": 1,
+          "member-6-3": 0,
+          "member-7-0": 0,
+          "member-7-1": 0,
+          "member-7-2": 0,
+          "member-7-3": 1
+        },
+        {
+          "member-0-0": 0,
+          "member-0-1": 0,
+          "member-0-2": 0,
+          "member-0-3": 0,
+          "member-1-0": 0,
+          "member-1-1": 0,
+          "member-1-2": 0,
+          "member-1-3": 0,
+          "member-2-0": 0,
+          "member-2-1": 0,
+          "member-2-2": 0,
+          "member-2-3": 0,
+          "member-3-0": 0,
+          "member-3-1": 0,
+          "member-3-2": 0,
+          "member-3-3": 0,
+          "member-4-0": 1,
+          "member-4-1": 0,
+          "member-4-2": 0,
+          "member-4-3": 0,
+          "member-5-0": 0,
+          "member-5-1": 1,
+          "member-5-2": 0,
+          "member-5-3": 0,
+          "member-6-0": 0,
+          "member-6-1": 0,
+          "member-6-2": 1,
+          "member-6-3": 0,
+          "member-7-0": 0,
+          "member-7-1": 0,
+          "member-7-2": 0,
+          "member-7-3": 1
+        }
+      ],
+      "groups": [
+        {
+          "20000000-0000-4000-8000-000000000001": "camp_green",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "camp_green",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "camp_custom",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "camp_custom",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "🐈camp",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "🐈camp",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "camp_red",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "camp_red",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "camp_yellow",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "camp_yellow",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "camp_blue",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "camp_blue",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "no_camp",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "no_camp",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "no_camp",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "no_camp",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "no_camp",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "no_camp",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "no_camp",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "no_camp",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "no_camp",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "no_camp",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "no_camp",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "no_camp",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "no_camp",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "no_camp",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "no_camp",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "no_camp",
+          "20000000-0000-4000-8000-000000000003": null
+        }
+      ],
+      "errors": [],
+      "externalAllowed": 0,
+      "pageErrors": []
+    },
+    "custom-cycle": {
+      "sha256": "beb48542b63f800cdfddff428e452db4aa99e0725eb4f9dcdb5fe0e651efddd8",
+      "variables": [
+        {
+          "member-0-0": 1,
+          "reverse-0-0": 1,
+          "member-0-1": 0,
+          "reverse-0-1": 0,
+          "member-0-2": 0,
+          "reverse-0-2": 0,
+          "member-0-3": 0,
+          "reverse-0-3": 0,
+          "member-1-0": -1,
+          "reverse-1-0": -1,
+          "member-1-1": -1,
+          "reverse-1-1": -1,
+          "member-1-2": -1,
+          "reverse-1-2": -1,
+          "member-1-3": -1,
+          "reverse-1-3": -1,
+          "member-2-0": -1,
+          "reverse-2-0": -1,
+          "member-2-1": -1,
+          "reverse-2-1": -1,
+          "member-2-2": -1,
+          "reverse-2-2": -1,
+          "member-2-3": -1,
+          "reverse-2-3": -1
+        },
+        {
+          "member-0-0": 1,
+          "reverse-0-0": 1,
+          "member-0-1": 0,
+          "reverse-0-1": 0,
+          "member-0-2": 0,
+          "reverse-0-2": 0,
+          "member-0-3": 0,
+          "reverse-0-3": 0,
+          "member-1-0": -1,
+          "reverse-1-0": -1,
+          "member-1-1": -1,
+          "reverse-1-1": -1,
+          "member-1-2": -1,
+          "reverse-1-2": -1,
+          "member-1-3": -1,
+          "reverse-1-3": -1,
+          "member-2-0": -1,
+          "reverse-2-0": -1,
+          "member-2-1": -1,
+          "reverse-2-1": -1,
+          "member-2-2": -1,
+          "reverse-2-2": -1,
+          "member-2-3": -1,
+          "reverse-2-3": -1
+        },
+        {
+          "member-0-0": 1,
+          "reverse-0-0": 1,
+          "member-0-1": 0,
+          "reverse-0-1": 0,
+          "member-0-2": 0,
+          "reverse-0-2": 0,
+          "member-0-3": 0,
+          "reverse-0-3": 0,
+          "member-1-0": 0,
+          "reverse-1-0": 0,
+          "member-1-1": 1,
+          "reverse-1-1": 1,
+          "member-1-2": 0,
+          "reverse-1-2": 0,
+          "member-1-3": 0,
+          "reverse-1-3": 0,
+          "member-2-0": -1,
+          "reverse-2-0": -1,
+          "member-2-1": -1,
+          "reverse-2-1": -1,
+          "member-2-2": -1,
+          "reverse-2-2": -1,
+          "member-2-3": -1,
+          "reverse-2-3": -1
+        },
+        {
+          "member-0-0": 1,
+          "reverse-0-0": 1,
+          "member-0-1": 0,
+          "reverse-0-1": 0,
+          "member-0-2": 0,
+          "reverse-0-2": 0,
+          "member-0-3": 0,
+          "reverse-0-3": 0,
+          "member-1-0": 0,
+          "reverse-1-0": 0,
+          "member-1-1": 1,
+          "reverse-1-1": 1,
+          "member-1-2": 0,
+          "reverse-1-2": 0,
+          "member-1-3": 0,
+          "reverse-1-3": 0,
+          "member-2-0": -1,
+          "reverse-2-0": -1,
+          "member-2-1": -1,
+          "reverse-2-1": -1,
+          "member-2-2": -1,
+          "reverse-2-2": -1,
+          "member-2-3": -1,
+          "reverse-2-3": -1
+        },
+        {
+          "member-0-0": 1,
+          "reverse-0-0": 1,
+          "member-0-1": 0,
+          "reverse-0-1": 0,
+          "member-0-2": 0,
+          "reverse-0-2": 0,
+          "member-0-3": 0,
+          "reverse-0-3": 0,
+          "member-1-0": 0,
+          "reverse-1-0": 0,
+          "member-1-1": 1,
+          "reverse-1-1": 1,
+          "member-1-2": 0,
+          "reverse-1-2": 0,
+          "member-1-3": 0,
+          "reverse-1-3": 0,
+          "member-2-0": 0,
+          "reverse-2-0": 0,
+          "member-2-1": 0,
+          "reverse-2-1": 0,
+          "member-2-2": 1,
+          "reverse-2-2": 1,
+          "member-2-3": 0,
+          "reverse-2-3": 0
+        },
+        {
+          "member-0-0": 1,
+          "reverse-0-0": 1,
+          "member-0-1": 0,
+          "reverse-0-1": 0,
+          "member-0-2": 0,
+          "reverse-0-2": 0,
+          "member-0-3": 0,
+          "reverse-0-3": 0,
+          "member-1-0": 0,
+          "reverse-1-0": 0,
+          "member-1-1": 1,
+          "reverse-1-1": 1,
+          "member-1-2": 0,
+          "reverse-1-2": 0,
+          "member-1-3": 0,
+          "reverse-1-3": 0,
+          "member-2-0": 0,
+          "reverse-2-0": 0,
+          "member-2-1": 0,
+          "reverse-2-1": 0,
+          "member-2-2": 1,
+          "reverse-2-2": 1,
+          "member-2-3": 0,
+          "reverse-2-3": 0
+        },
+        {
+          "member-0-0": 1,
+          "reverse-0-0": 1,
+          "member-0-1": 0,
+          "reverse-0-1": 0,
+          "member-0-2": 0,
+          "reverse-0-2": 0,
+          "member-0-3": 0,
+          "reverse-0-3": 0,
+          "member-1-0": 0,
+          "reverse-1-0": 0,
+          "member-1-1": 1,
+          "reverse-1-1": 1,
+          "member-1-2": 0,
+          "reverse-1-2": 0,
+          "member-1-3": 0,
+          "reverse-1-3": 0,
+          "member-2-0": 0,
+          "reverse-2-0": 0,
+          "member-2-1": 0,
+          "reverse-2-1": 0,
+          "member-2-2": 1,
+          "reverse-2-2": 1,
+          "member-2-3": 0,
+          "reverse-2-3": 0
+        },
+        {
+          "member-0-0": 1,
+          "reverse-0-0": 1,
+          "member-0-1": 0,
+          "reverse-0-1": 0,
+          "member-0-2": 0,
+          "reverse-0-2": 0,
+          "member-0-3": 0,
+          "reverse-0-3": 0,
+          "member-1-0": 0,
+          "reverse-1-0": 0,
+          "member-1-1": 1,
+          "reverse-1-1": 1,
+          "member-1-2": 0,
+          "reverse-1-2": 0,
+          "member-1-3": 0,
+          "reverse-1-3": 0,
+          "member-2-0": 0,
+          "reverse-2-0": 0,
+          "member-2-1": 0,
+          "reverse-2-1": 0,
+          "member-2-2": 1,
+          "reverse-2-2": 1,
+          "member-2-3": 0,
+          "reverse-2-3": 0
+        },
+        {
+          "member-0-0": 1,
+          "reverse-0-0": 1,
+          "member-0-1": 0,
+          "reverse-0-1": 0,
+          "member-0-2": 0,
+          "reverse-0-2": 0,
+          "member-0-3": 0,
+          "reverse-0-3": 0,
+          "member-1-0": 0,
+          "reverse-1-0": 0,
+          "member-1-1": 1,
+          "reverse-1-1": 1,
+          "member-1-2": 0,
+          "reverse-1-2": 0,
+          "member-1-3": 0,
+          "reverse-1-3": 0,
+          "member-2-0": 0,
+          "reverse-2-0": 0,
+          "member-2-1": 0,
+          "reverse-2-1": 0,
+          "member-2-2": 1,
+          "reverse-2-2": 1,
+          "member-2-3": 0,
+          "reverse-2-3": 0
+        },
+        {
+          "member-0-0": 1,
+          "reverse-0-0": 1,
+          "member-0-1": 0,
+          "reverse-0-1": 0,
+          "member-0-2": 0,
+          "reverse-0-2": 0,
+          "member-0-3": 0,
+          "reverse-0-3": 0,
+          "member-1-0": 0,
+          "reverse-1-0": 0,
+          "member-1-1": 1,
+          "reverse-1-1": 1,
+          "member-1-2": 0,
+          "reverse-1-2": 0,
+          "member-1-3": 0,
+          "reverse-1-3": 0,
+          "member-2-0": 0,
+          "reverse-2-0": 0,
+          "member-2-1": 0,
+          "reverse-2-1": 0,
+          "member-2-2": 1,
+          "reverse-2-2": 1,
+          "member-2-3": 0,
+          "reverse-2-3": 0
+        },
+        {
+          "member-0-0": 1,
+          "reverse-0-0": 1,
+          "member-0-1": 0,
+          "reverse-0-1": 0,
+          "member-0-2": 0,
+          "reverse-0-2": 0,
+          "member-0-3": 0,
+          "reverse-0-3": 0,
+          "member-1-0": 0,
+          "reverse-1-0": 0,
+          "member-1-1": 1,
+          "reverse-1-1": 1,
+          "member-1-2": 0,
+          "reverse-1-2": 0,
+          "member-1-3": 0,
+          "reverse-1-3": 0,
+          "member-2-0": 0,
+          "reverse-2-0": 0,
+          "member-2-1": 0,
+          "reverse-2-1": 0,
+          "member-2-2": 1,
+          "reverse-2-2": 1,
+          "member-2-3": 0,
+          "reverse-2-3": 0
+        },
+        {
+          "member-0-0": 1,
+          "reverse-0-0": 1,
+          "member-0-1": 0,
+          "reverse-0-1": 0,
+          "member-0-2": 0,
+          "reverse-0-2": 0,
+          "member-0-3": 0,
+          "reverse-0-3": 0,
+          "member-1-0": 0,
+          "reverse-1-0": 0,
+          "member-1-1": 1,
+          "reverse-1-1": 1,
+          "member-1-2": 0,
+          "reverse-1-2": 0,
+          "member-1-3": 0,
+          "reverse-1-3": 0,
+          "member-2-0": 0,
+          "reverse-2-0": 0,
+          "member-2-1": 0,
+          "reverse-2-1": 0,
+          "member-2-2": 1,
+          "reverse-2-2": 1,
+          "member-2-3": 0,
+          "reverse-2-3": 0
+        },
+        {
+          "member-0-0": 1,
+          "reverse-0-0": 1,
+          "member-0-1": 0,
+          "reverse-0-1": 0,
+          "member-0-2": 0,
+          "reverse-0-2": 0,
+          "member-0-3": 0,
+          "reverse-0-3": 0,
+          "member-1-0": 0,
+          "reverse-1-0": 0,
+          "member-1-1": 1,
+          "reverse-1-1": 1,
+          "member-1-2": 0,
+          "reverse-1-2": 0,
+          "member-1-3": 0,
+          "reverse-1-3": 0,
+          "member-2-0": 0,
+          "reverse-2-0": 0,
+          "member-2-1": 0,
+          "reverse-2-1": 0,
+          "member-2-2": 1,
+          "reverse-2-2": 1,
+          "member-2-3": 0,
+          "reverse-2-3": 0
+        },
+        {
+          "member-0-0": 1,
+          "reverse-0-0": 1,
+          "member-0-1": 0,
+          "reverse-0-1": 0,
+          "member-0-2": 0,
+          "reverse-0-2": 0,
+          "member-0-3": 0,
+          "reverse-0-3": 0,
+          "member-1-0": 0,
+          "reverse-1-0": 0,
+          "member-1-1": 1,
+          "reverse-1-1": 1,
+          "member-1-2": 0,
+          "reverse-1-2": 0,
+          "member-1-3": 0,
+          "reverse-1-3": 0,
+          "member-2-0": 0,
+          "reverse-2-0": 0,
+          "member-2-1": 0,
+          "reverse-2-1": 0,
+          "member-2-2": 1,
+          "reverse-2-2": 1,
+          "member-2-3": 0,
+          "reverse-2-3": 0
+        },
+        {
+          "member-0-0": 1,
+          "reverse-0-0": 1,
+          "member-0-1": 0,
+          "reverse-0-1": 0,
+          "member-0-2": 0,
+          "reverse-0-2": 0,
+          "member-0-3": 0,
+          "reverse-0-3": 0,
+          "member-1-0": 0,
+          "reverse-1-0": 0,
+          "member-1-1": 1,
+          "reverse-1-1": 1,
+          "member-1-2": 0,
+          "reverse-1-2": 0,
+          "member-1-3": 0,
+          "reverse-1-3": 0,
+          "member-2-0": 0,
+          "reverse-2-0": 0,
+          "member-2-1": 0,
+          "reverse-2-1": 0,
+          "member-2-2": 1,
+          "reverse-2-2": 1,
+          "member-2-3": 0,
+          "reverse-2-3": 0
+        },
+        {
+          "member-0-0": 1,
+          "reverse-0-0": 1,
+          "member-0-1": 0,
+          "reverse-0-1": 0,
+          "member-0-2": 0,
+          "reverse-0-2": 0,
+          "member-0-3": 0,
+          "reverse-0-3": 0,
+          "member-1-0": 0,
+          "reverse-1-0": 0,
+          "member-1-1": 1,
+          "reverse-1-1": 1,
+          "member-1-2": 0,
+          "reverse-1-2": 0,
+          "member-1-3": 0,
+          "reverse-1-3": 0,
+          "member-2-0": 0,
+          "reverse-2-0": 0,
+          "member-2-1": 0,
+          "reverse-2-1": 0,
+          "member-2-2": 1,
+          "reverse-2-2": 1,
+          "member-2-3": 0,
+          "reverse-2-3": 0
+        },
+        {
+          "member-0-0": 1,
+          "reverse-0-0": 1,
+          "member-0-1": 0,
+          "reverse-0-1": 0,
+          "member-0-2": 0,
+          "reverse-0-2": 0,
+          "member-0-3": 0,
+          "reverse-0-3": 0,
+          "member-1-0": 0,
+          "reverse-1-0": 0,
+          "member-1-1": 1,
+          "reverse-1-1": 1,
+          "member-1-2": 0,
+          "reverse-1-2": 0,
+          "member-1-3": 0,
+          "reverse-1-3": 0,
+          "member-2-0": 0,
+          "reverse-2-0": 0,
+          "member-2-1": 0,
+          "reverse-2-1": 0,
+          "member-2-2": 1,
+          "reverse-2-2": 1,
+          "member-2-3": 0,
+          "reverse-2-3": 0
+        },
+        {
+          "member-0-0": 1,
+          "reverse-0-0": 1,
+          "member-0-1": 0,
+          "reverse-0-1": 0,
+          "member-0-2": 0,
+          "reverse-0-2": 0,
+          "member-0-3": 0,
+          "reverse-0-3": 0,
+          "member-1-0": 0,
+          "reverse-1-0": 0,
+          "member-1-1": 1,
+          "reverse-1-1": 1,
+          "member-1-2": 0,
+          "reverse-1-2": 0,
+          "member-1-3": 0,
+          "reverse-1-3": 0,
+          "member-2-0": 0,
+          "reverse-2-0": 0,
+          "member-2-1": 0,
+          "reverse-2-1": 0,
+          "member-2-2": 1,
+          "reverse-2-2": 1,
+          "member-2-3": 0,
+          "reverse-2-3": 0
+        },
+        {
+          "member-0-0": 1,
+          "reverse-0-0": 1,
+          "member-0-1": 0,
+          "reverse-0-1": 0,
+          "member-0-2": 0,
+          "reverse-0-2": 0,
+          "member-0-3": 0,
+          "reverse-0-3": 0,
+          "member-1-0": 0,
+          "reverse-1-0": 0,
+          "member-1-1": 1,
+          "reverse-1-1": 1,
+          "member-1-2": 0,
+          "reverse-1-2": 0,
+          "member-1-3": 0,
+          "reverse-1-3": 0,
+          "member-2-0": 0,
+          "reverse-2-0": 0,
+          "member-2-1": 0,
+          "reverse-2-1": 0,
+          "member-2-2": 1,
+          "reverse-2-2": 1,
+          "member-2-3": 0,
+          "reverse-2-3": 0
+        },
+        {
+          "member-0-0": 1,
+          "reverse-0-0": 1,
+          "member-0-1": 0,
+          "reverse-0-1": 0,
+          "member-0-2": 0,
+          "reverse-0-2": 0,
+          "member-0-3": 0,
+          "reverse-0-3": 0,
+          "member-1-0": 0,
+          "reverse-1-0": 0,
+          "member-1-1": 1,
+          "reverse-1-1": 1,
+          "member-1-2": 0,
+          "reverse-1-2": 0,
+          "member-1-3": 0,
+          "reverse-1-3": 0,
+          "member-2-0": 0,
+          "reverse-2-0": 0,
+          "member-2-1": 0,
+          "reverse-2-1": 0,
+          "member-2-2": 1,
+          "reverse-2-2": 1,
+          "member-2-3": 0,
+          "reverse-2-3": 0
+        },
+        {
+          "member-0-0": 1,
+          "reverse-0-0": 1,
+          "member-0-1": 0,
+          "reverse-0-1": 0,
+          "member-0-2": 0,
+          "reverse-0-2": 0,
+          "member-0-3": 0,
+          "reverse-0-3": 0,
+          "member-1-0": 0,
+          "reverse-1-0": 0,
+          "member-1-1": 1,
+          "reverse-1-1": 1,
+          "member-1-2": 0,
+          "reverse-1-2": 0,
+          "member-1-3": 0,
+          "reverse-1-3": 0,
+          "member-2-0": 0,
+          "reverse-2-0": 0,
+          "member-2-1": 0,
+          "reverse-2-1": 0,
+          "member-2-2": 1,
+          "reverse-2-2": 1,
+          "member-2-3": 0,
+          "reverse-2-3": 0
+        },
+        {
+          "member-0-0": 1,
+          "reverse-0-0": 1,
+          "member-0-1": 0,
+          "reverse-0-1": 0,
+          "member-0-2": 0,
+          "reverse-0-2": 0,
+          "member-0-3": 0,
+          "reverse-0-3": 0,
+          "member-1-0": 0,
+          "reverse-1-0": 0,
+          "member-1-1": 1,
+          "reverse-1-1": 1,
+          "member-1-2": 0,
+          "reverse-1-2": 0,
+          "member-1-3": 0,
+          "reverse-1-3": 0,
+          "member-2-0": 0,
+          "reverse-2-0": 0,
+          "member-2-1": 0,
+          "reverse-2-1": 0,
+          "member-2-2": 1,
+          "reverse-2-2": 1,
+          "member-2-3": 0,
+          "reverse-2-3": 0
+        },
+        {
+          "member-0-0": 1,
+          "reverse-0-0": 1,
+          "member-0-1": 0,
+          "reverse-0-1": 0,
+          "member-0-2": 0,
+          "reverse-0-2": 0,
+          "member-0-3": 0,
+          "reverse-0-3": 0,
+          "member-1-0": 0,
+          "reverse-1-0": 0,
+          "member-1-1": 1,
+          "reverse-1-1": 1,
+          "member-1-2": 0,
+          "reverse-1-2": 0,
+          "member-1-3": 0,
+          "reverse-1-3": 0,
+          "member-2-0": 0,
+          "reverse-2-0": 0,
+          "member-2-1": 0,
+          "reverse-2-1": 0,
+          "member-2-2": 1,
+          "reverse-2-2": 1,
+          "member-2-3": 0,
+          "reverse-2-3": 0
+        },
+        {
+          "member-0-0": 1,
+          "reverse-0-0": 1,
+          "member-0-1": 0,
+          "reverse-0-1": 0,
+          "member-0-2": 0,
+          "reverse-0-2": 0,
+          "member-0-3": 0,
+          "reverse-0-3": 0,
+          "member-1-0": 0,
+          "reverse-1-0": 0,
+          "member-1-1": 1,
+          "reverse-1-1": 1,
+          "member-1-2": 0,
+          "reverse-1-2": 0,
+          "member-1-3": 0,
+          "reverse-1-3": 0,
+          "member-2-0": 0,
+          "reverse-2-0": 0,
+          "member-2-1": 0,
+          "reverse-2-1": 0,
+          "member-2-2": 1,
+          "reverse-2-2": 1,
+          "member-2-3": 0,
+          "reverse-2-3": 0
+        },
+        {
+          "member-0-0": 1,
+          "reverse-0-0": 1,
+          "member-0-1": 0,
+          "reverse-0-1": 0,
+          "member-0-2": 0,
+          "reverse-0-2": 0,
+          "member-0-3": 0,
+          "reverse-0-3": 0,
+          "member-1-0": 0,
+          "reverse-1-0": 0,
+          "member-1-1": 1,
+          "reverse-1-1": 1,
+          "member-1-2": 0,
+          "reverse-1-2": 0,
+          "member-1-3": 0,
+          "reverse-1-3": 0,
+          "member-2-0": 0,
+          "reverse-2-0": 0,
+          "member-2-1": 0,
+          "reverse-2-1": 0,
+          "member-2-2": 1,
+          "reverse-2-2": 1,
+          "member-2-3": 0,
+          "reverse-2-3": 0
+        },
+        {
+          "member-0-0": 1,
+          "reverse-0-0": 1,
+          "member-0-1": 0,
+          "reverse-0-1": 0,
+          "member-0-2": 0,
+          "reverse-0-2": 0,
+          "member-0-3": 0,
+          "reverse-0-3": 0,
+          "member-1-0": 0,
+          "reverse-1-0": 0,
+          "member-1-1": 1,
+          "reverse-1-1": 1,
+          "member-1-2": 0,
+          "reverse-1-2": 0,
+          "member-1-3": 0,
+          "reverse-1-3": 0,
+          "member-2-0": 0,
+          "reverse-2-0": 0,
+          "member-2-1": 0,
+          "reverse-2-1": 0,
+          "member-2-2": 1,
+          "reverse-2-2": 1,
+          "member-2-3": 0,
+          "reverse-2-3": 0
+        },
+        {
+          "member-0-0": 1,
+          "reverse-0-0": 1,
+          "member-0-1": 0,
+          "reverse-0-1": 0,
+          "member-0-2": 0,
+          "reverse-0-2": 0,
+          "member-0-3": 0,
+          "reverse-0-3": 0,
+          "member-1-0": 0,
+          "reverse-1-0": 0,
+          "member-1-1": 1,
+          "reverse-1-1": 1,
+          "member-1-2": 0,
+          "reverse-1-2": 0,
+          "member-1-3": 0,
+          "reverse-1-3": 0,
+          "member-2-0": 0,
+          "reverse-2-0": 0,
+          "member-2-1": 0,
+          "reverse-2-1": 0,
+          "member-2-2": 1,
+          "reverse-2-2": 1,
+          "member-2-3": 0,
+          "reverse-2-3": 0
+        },
+        {
+          "member-0-0": 1,
+          "reverse-0-0": 1,
+          "member-0-1": 0,
+          "reverse-0-1": 0,
+          "member-0-2": 0,
+          "reverse-0-2": 0,
+          "member-0-3": 0,
+          "reverse-0-3": 0,
+          "member-1-0": 0,
+          "reverse-1-0": 0,
+          "member-1-1": 1,
+          "reverse-1-1": 1,
+          "member-1-2": 0,
+          "reverse-1-2": 0,
+          "member-1-3": 0,
+          "reverse-1-3": 0,
+          "member-2-0": 0,
+          "reverse-2-0": 0,
+          "member-2-1": 0,
+          "reverse-2-1": 0,
+          "member-2-2": 1,
+          "reverse-2-2": 1,
+          "member-2-3": 0,
+          "reverse-2-3": 0
+        },
+        {
+          "member-0-0": 1,
+          "reverse-0-0": 1,
+          "member-0-1": 0,
+          "reverse-0-1": 0,
+          "member-0-2": 0,
+          "reverse-0-2": 0,
+          "member-0-3": 0,
+          "reverse-0-3": 0,
+          "member-1-0": 0,
+          "reverse-1-0": 0,
+          "member-1-1": 1,
+          "reverse-1-1": 1,
+          "member-1-2": 0,
+          "reverse-1-2": 0,
+          "member-1-3": 0,
+          "reverse-1-3": 0,
+          "member-2-0": 0,
+          "reverse-2-0": 0,
+          "member-2-1": 0,
+          "reverse-2-1": 0,
+          "member-2-2": 1,
+          "reverse-2-2": 1,
+          "member-2-3": 0,
+          "reverse-2-3": 0
+        },
+        {
+          "member-0-0": 1,
+          "reverse-0-0": 1,
+          "member-0-1": 0,
+          "reverse-0-1": 0,
+          "member-0-2": 0,
+          "reverse-0-2": 0,
+          "member-0-3": 0,
+          "reverse-0-3": 0,
+          "member-1-0": 0,
+          "reverse-1-0": 0,
+          "member-1-1": 1,
+          "reverse-1-1": 1,
+          "member-1-2": 0,
+          "reverse-1-2": 0,
+          "member-1-3": 0,
+          "reverse-1-3": 0,
+          "member-2-0": 0,
+          "reverse-2-0": 0,
+          "member-2-1": 0,
+          "reverse-2-1": 0,
+          "member-2-2": 1,
+          "reverse-2-2": 1,
+          "member-2-3": 0,
+          "reverse-2-3": 0
+        }
+      ],
+      "groups": [
+        {
+          "20000000-0000-4000-8000-000000000001": "camp_green",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "camp_green",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "camp_custom",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "camp_custom",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "🐈camp",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "🐈camp",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "🐈camp",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "🐈camp",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "🐈camp",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "🐈camp",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "🐈camp",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "🐈camp",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "🐈camp",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "🐈camp",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "🐈camp",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "🐈camp",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "🐈camp",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "🐈camp",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "🐈camp",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "🐈camp",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "🐈camp",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "🐈camp",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "🐈camp",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "🐈camp",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "🐈camp",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "🐈camp",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "🐈camp",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "🐈camp",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "🐈camp",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "🐈camp",
+          "20000000-0000-4000-8000-000000000003": null
+        }
+      ],
+      "errors": [],
+      "externalAllowed": 0,
+      "pageErrors": []
+    },
+    "clone": {
+      "sha256": "7375bb65495898e0f490c82ee2ea445d4b479a7329562101d18a6ccbd9cb239d",
+      "variables": [
+        {
+          "inherited-red": -1,
+          "inherited-yellow": -1,
+          "clone-red": -1,
+          "clone-yellow": -1,
+          "clone-blue": -1
+        },
+        {
+          "inherited-red": -1,
+          "inherited-yellow": -1,
+          "clone-red": -1,
+          "clone-yellow": -1,
+          "clone-blue": -1
+        },
+        {
+          "inherited-red": -1,
+          "inherited-yellow": -1,
+          "clone-red": -1,
+          "clone-yellow": -1,
+          "clone-blue": -1
+        },
+        {
+          "inherited-red": -1,
+          "inherited-yellow": -1,
+          "clone-red": -1,
+          "clone-yellow": -1,
+          "clone-blue": -1
+        },
+        {
+          "inherited-red": -1,
+          "inherited-yellow": -1,
+          "clone-red": -1,
+          "clone-yellow": -1,
+          "clone-blue": -1
+        },
+        {
+          "inherited-red": -1,
+          "inherited-yellow": -1,
+          "clone-red": -1,
+          "clone-yellow": -1,
+          "clone-blue": -1
+        },
+        {
+          "inherited-red": -1,
+          "inherited-yellow": -1,
+          "clone-red": -1,
+          "clone-yellow": -1,
+          "clone-blue": -1
+        },
+        {
+          "inherited-red": -1,
+          "inherited-yellow": -1,
+          "clone-red": -1,
+          "clone-yellow": -1,
+          "clone-blue": -1
+        },
+        {
+          "inherited-red": -1,
+          "inherited-yellow": -1,
+          "clone-red": -1,
+          "clone-yellow": -1,
+          "clone-blue": -1
+        },
+        {
+          "inherited-red": -1,
+          "inherited-yellow": -1,
+          "clone-red": -1,
+          "clone-yellow": -1,
+          "clone-blue": -1
+        },
+        {
+          "inherited-red": -1,
+          "inherited-yellow": -1,
+          "clone-red": -1,
+          "clone-yellow": -1,
+          "clone-blue": -1
+        },
+        {
+          "inherited-red": -1,
+          "inherited-yellow": -1,
+          "clone-red": -1,
+          "clone-yellow": -1,
+          "clone-blue": -1
+        },
+        {
+          "inherited-red": -1,
+          "inherited-yellow": -1,
+          "clone-red": -1,
+          "clone-yellow": -1,
+          "clone-blue": -1
+        },
+        {
+          "inherited-red": -1,
+          "inherited-yellow": -1,
+          "clone-red": -1,
+          "clone-yellow": -1,
+          "clone-blue": -1
+        },
+        {
+          "inherited-red": -1,
+          "inherited-yellow": -1,
+          "clone-red": -1,
+          "clone-yellow": -1,
+          "clone-blue": -1
+        },
+        {
+          "inherited-red": -1,
+          "inherited-yellow": -1,
+          "clone-red": -1,
+          "clone-yellow": -1,
+          "clone-blue": -1
+        },
+        {
+          "inherited-red": -1,
+          "inherited-yellow": -1,
+          "clone-red": -1,
+          "clone-yellow": -1,
+          "clone-blue": -1
+        },
+        {
+          "inherited-red": -1,
+          "inherited-yellow": -1,
+          "clone-red": -1,
+          "clone-yellow": -1,
+          "clone-blue": -1
+        },
+        {
+          "inherited-red": -1,
+          "inherited-yellow": -1,
+          "clone-red": -1,
+          "clone-yellow": -1,
+          "clone-blue": -1
+        },
+        {
+          "inherited-red": -1,
+          "inherited-yellow": -1,
+          "clone-red": -1,
+          "clone-yellow": -1,
+          "clone-blue": -1
+        },
+        {
+          "inherited-red": -1,
+          "inherited-yellow": -1,
+          "clone-red": -1,
+          "clone-yellow": -1,
+          "clone-blue": -1
+        },
+        {
+          "inherited-red": -1,
+          "inherited-yellow": -1,
+          "clone-red": -1,
+          "clone-yellow": -1,
+          "clone-blue": -1
+        },
+        {
+          "inherited-red": -1,
+          "inherited-yellow": -1,
+          "clone-red": -1,
+          "clone-yellow": -1,
+          "clone-blue": -1
+        },
+        {
+          "inherited-red": -1,
+          "inherited-yellow": -1,
+          "clone-red": -1,
+          "clone-yellow": -1,
+          "clone-blue": -1
+        },
+        {
+          "inherited-red": -1,
+          "inherited-yellow": -1,
+          "clone-red": -1,
+          "clone-yellow": -1,
+          "clone-blue": -1
+        },
+        {
+          "inherited-red": -1,
+          "inherited-yellow": -1,
+          "clone-red": -1,
+          "clone-yellow": -1,
+          "clone-blue": -1
+        },
+        {
+          "inherited-red": -1,
+          "inherited-yellow": -1,
+          "clone-red": -1,
+          "clone-yellow": -1,
+          "clone-blue": -1
+        },
+        {
+          "inherited-red": -1,
+          "inherited-yellow": -1,
+          "clone-red": -1,
+          "clone-yellow": -1,
+          "clone-blue": -1
+        },
+        {
+          "inherited-red": -1,
+          "inherited-yellow": -1,
+          "clone-red": -1,
+          "clone-yellow": -1,
+          "clone-blue": -1
+        },
+        {
+          "inherited-red": -1,
+          "inherited-yellow": -1,
+          "clone-red": -1,
+          "clone-yellow": -1,
+          "clone-blue": -1
+        }
+      ],
+      "groups": [
+        {
+          "20000000-0000-4000-8000-000000000001": "camp_yellow",
+          "20000000-0000-4000-8000-000000000001#1": "阵营🐈",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "camp_yellow",
+          "20000000-0000-4000-8000-000000000001#1": "阵营🐈",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "camp_yellow",
+          "20000000-0000-4000-8000-000000000001#1": "阵营🐈",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "camp_yellow",
+          "20000000-0000-4000-8000-000000000001#1": "camp_green",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "camp_yellow",
+          "20000000-0000-4000-8000-000000000001#1": "camp_green",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "camp_yellow",
+          "20000000-0000-4000-8000-000000000001#1": "camp_green",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "camp_yellow",
+          "20000000-0000-4000-8000-000000000001#1": "camp_green",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "camp_yellow",
+          "20000000-0000-4000-8000-000000000001#1": "camp_green",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "camp_yellow",
+          "20000000-0000-4000-8000-000000000001#1": "camp_green",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "camp_yellow",
+          "20000000-0000-4000-8000-000000000001#1": "camp_green",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "camp_yellow",
+          "20000000-0000-4000-8000-000000000001#1": "camp_green",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "camp_yellow",
+          "20000000-0000-4000-8000-000000000001#1": "camp_green",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "camp_yellow",
+          "20000000-0000-4000-8000-000000000001#1": "camp_green",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "camp_yellow",
+          "20000000-0000-4000-8000-000000000001#1": "camp_green",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "camp_yellow",
+          "20000000-0000-4000-8000-000000000001#1": "camp_green",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "camp_yellow",
+          "20000000-0000-4000-8000-000000000001#1": "camp_green",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "camp_yellow",
+          "20000000-0000-4000-8000-000000000001#1": "camp_green",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "camp_yellow",
+          "20000000-0000-4000-8000-000000000001#1": "camp_green",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "camp_yellow",
+          "20000000-0000-4000-8000-000000000001#1": "camp_green",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "camp_yellow",
+          "20000000-0000-4000-8000-000000000001#1": "camp_green",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "camp_yellow",
+          "20000000-0000-4000-8000-000000000001#1": "camp_green",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "camp_yellow",
+          "20000000-0000-4000-8000-000000000001#1": "camp_green",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "camp_yellow",
+          "20000000-0000-4000-8000-000000000001#1": "camp_green",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "camp_yellow",
+          "20000000-0000-4000-8000-000000000001#1": "camp_green",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "camp_yellow",
+          "20000000-0000-4000-8000-000000000001#1": "camp_green",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "camp_yellow",
+          "20000000-0000-4000-8000-000000000001#1": "camp_green",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "camp_yellow",
+          "20000000-0000-4000-8000-000000000001#1": "camp_green",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "camp_yellow",
+          "20000000-0000-4000-8000-000000000001#1": "camp_green",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "camp_yellow",
+          "20000000-0000-4000-8000-000000000001#1": "camp_green",
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": "camp_yellow",
+          "20000000-0000-4000-8000-000000000001#1": "camp_green",
+          "20000000-0000-4000-8000-000000000003": null
+        }
+      ],
+      "errors": [],
+      "externalAllowed": 0,
+      "pageErrors": []
+    },
+    "initial-camp_green": {
+      "sha256": "bcb41472c512d78d05d5082f79973b2b6d3d7154b58101d484ee67b4a8449de1",
+      "variables": [
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        }
+      ],
+      "groups": [
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        }
+      ],
+      "errors": [],
+      "externalAllowed": 0,
+      "pageErrors": []
+    },
+    "initial-camp_custom": {
+      "sha256": "3830d5d8f1f066490a1b4d64bd084ce205565b512c48bed04330a074ab139c42",
+      "variables": [
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        }
+      ],
+      "groups": [
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        }
+      ],
+      "errors": [],
+      "externalAllowed": 0,
+      "pageErrors": []
+    },
+    "initial-empty": {
+      "sha256": "2f21959edc892595208e23ecc4ca858d8f6bfbd8db96170fc30f1ab06352d38f",
+      "variables": [
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        },
+        {
+          "member-0": 0,
+          "member-1": 0,
+          "member-2": 0,
+          "member-3": 0
+        }
+      ],
+      "groups": [
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        },
+        {
+          "20000000-0000-4000-8000-000000000001": null,
+          "20000000-0000-4000-8000-000000000003": null
+        }
+      ],
+      "errors": [],
+      "externalAllowed": 0,
+      "pageErrors": []
+    }
+  },
+  "assets": [
+    {
+      "name": "player_v2__3ffeebbd0c789e8d9422.css",
+      "source": "player_v2__3ffeebbd0c789e8d9422.css",
+      "sha256": "39e8e70b124b604831773893cdc95931cdee3eaea52c6dd69f33f5781d48b45a"
+    },
+    {
+      "name": "runtime.f42f527f119e09010b85.js",
+      "source": "runtime.f42f527f119e09010b85.js",
+      "sha256": "4164d67795238f64d035f473418236038ae475ae36032a967cba16ede263735f"
+    },
+    {
+      "name": "vendors.d00f4bd454a6352e9d71.js",
+      "source": "vendors.d00f4bd454a6352e9d71.js",
+      "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
+    },
+    {
+      "name": "player_v2.2d180c468559fbd29528.js",
+      "source": "player_v2.2d180c468559fbd29528.js.orig",
+      "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160"
+    },
+    {
+      "name": "9.c396696e9dc71e25b012.js",
+      "source": "9.c396696e9dc71e25b012.js",
+      "sha256": "5758343310c47596d56e954aa05fa76a546080c8bf4fefd41cac0042794d6195"
+    },
+    {
+      "name": "14.c95e6f2ddd61fb701d0e.js",
+      "source": "14.c95e6f2ddd61fb701d0e.js",
+      "sha256": "d3ce91c9113463db4c0988210caeb1be2ddc508499d5c53a8e73a13b5f440175"
+    },
+    {
+      "name": "11.477512e6f03fd2f6f3c5.js",
+      "source": "11.477512e6f03fd2f6f3c5.js",
+      "sha256": "e81bfe3462cc3e79a70ba016ddee2a372a31480d3f52964952e1d21f3a490f91"
+    }
+  ]
+}

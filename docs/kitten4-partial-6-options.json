@@ -1,0 +1,104 @@
+{
+  "schema": "nekoc-k4-partial-options-6-v1",
+  "files": 53,
+  "scope": "只读静态选项频率，不证明节点实际执行；UUID聚合，不保留作品内容",
+  "counts": {
+    "physics2_forbid_bump_with": {
+      "is_bump": {
+        "false": 29,
+        "true": 4
+      }
+    },
+    "physics2_enable_force": {
+      "is_enable": {
+        "false": 232,
+        "true": 85
+      }
+    },
+    "physics2_set_actor_as": {
+      "physics_body_type": {
+        "attend_physics_world": 151,
+        "exit_physics_world": 22
+      }
+    },
+    "physics2_set_boundary": {
+      "physics_bound_type": {
+        "all_bounds": 55,
+        "not_bound": 2,
+        "left_right_bottom_bounds": 10
+      }
+    },
+    "physics2_set_texture": {
+      "texture_type": {
+        "hard": 101,
+        "soft": 2
+      }
+    },
+    "self_set_effect_2": {
+      "scope": {
+        "0": 194,
+        "1": 588,
+        "2": 418,
+        "3": 1,
+        "4": 15,
+        "5": 3,
+        "6": 9
+      }
+    },
+    "self_change_effect_3": {
+      "scope": {
+        "0": 14,
+        "1": 524,
+        "2": 176,
+        "4": 1,
+        "5": 12,
+        "6": 5,
+        "7": 3
+      }
+    },
+    "physics2_allow_rotate": {
+      "is_allow": {
+        "true": 16,
+        "false": 2
+      }
+    },
+    "get_3": {
+      "attribute": {
+        "0": 514,
+        "1": 571,
+        "2": 169,
+        "3": 111,
+        "4": 22,
+        "5": 492,
+        "7": 13,
+        "8": 39,
+        "9": 66,
+        "12": 4,
+        "13": 3,
+        "16": 24,
+        "17": 18,
+        "<dynamic-or-uuid>": 3
+      }
+    },
+    "get_clone_index_property": {
+      "attribute": {
+        "0": 16,
+        "1": 15,
+        "2": 1,
+        "3": 7,
+        "<dynamic-or-uuid>": 123
+      }
+    },
+    "set_actor_as": {
+      "physics_body_type": {
+        "exit_physics_world": 959,
+        "attend_physics_world": 92
+      }
+    },
+    "self_set_boundary": {
+      "physics_bound_type": {
+        "all_bounds": 92
+      }
+    }
+  }
+}

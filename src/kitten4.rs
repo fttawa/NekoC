@@ -250,8 +250,9 @@ impl Targets<'_> {
     /// longer exists can never collide.
     fn bump(&self, target: &str) -> Vec<String> {
         // Camps resolve from live actor membership, not the serialized actor
-        // dictionary. Preserve the editor's four ids for the VM's camp target.
-        if matches!(target, "camp_red" | "camp_yellow" | "camp_blue" | "no_camp") {
+        // dictionary. The official option resolver recognizes any string that
+        // contains "camp", including non-editor custom group names.
+        if target.contains("camp") {
             return vec![target.to_owned()];
         }
         if target.starts_with("__") || target.starts_with("--") {

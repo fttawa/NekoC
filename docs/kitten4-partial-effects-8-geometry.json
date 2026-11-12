@@ -1,0 +1,3373 @@
+{
+  "ascii": {
+    "fixtureSha256": "34416e426e68ea927169cffe59a92d37a9f671b818c6be1a4601408a8d3f9a66",
+    "samples": [
+      {
+        "index": 6,
+        "frame": 1,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 397,
+            "y": 295,
+            "width": 192,
+            "height": 144,
+            "type": 1
+          }
+        },
+        "size": 8,
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          397,
+          295
+        ]
+      },
+      {
+        "index": 6,
+        "frame": 2,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 397,
+            "y": 295,
+            "width": 192,
+            "height": 144,
+            "type": 1
+          }
+        },
+        "size": 8,
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          397,
+          295
+        ]
+      },
+      {
+        "index": 6,
+        "frame": 2,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 397,
+            "y": 295,
+            "width": 192,
+            "height": 144,
+            "type": 1
+          }
+        },
+        "size": 8,
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          397,
+          295
+        ]
+      },
+      {
+        "index": 6,
+        "frame": 3,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 397,
+            "y": 295,
+            "width": 192,
+            "height": 144,
+            "type": 1
+          }
+        },
+        "size": 12,
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          397,
+          295
+        ]
+      },
+      {
+        "index": 6,
+        "frame": 3,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 397,
+            "y": 295,
+            "width": 192,
+            "height": 144,
+            "type": 1
+          }
+        },
+        "size": 12,
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          397,
+          295
+        ]
+      },
+      {
+        "index": 6,
+        "frame": 4,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 397,
+            "y": 295,
+            "width": 192,
+            "height": 144,
+            "type": 1
+          }
+        },
+        "size": 12,
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          397,
+          295
+        ]
+      },
+      {
+        "index": 6,
+        "frame": 4,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 397,
+            "y": 295,
+            "width": 192,
+            "height": 144,
+            "type": 1
+          }
+        },
+        "size": 12,
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          397,
+          295
+        ]
+      }
+    ],
+    "errors": [],
+    "assets": [
+      {
+        "name": "player_v2__3ffeebbd0c789e8d9422.css",
+        "source": "player_v2__3ffeebbd0c789e8d9422.css",
+        "sha256": "39e8e70b124b604831773893cdc95931cdee3eaea52c6dd69f33f5781d48b45a"
+      },
+      {
+        "name": "runtime.f42f527f119e09010b85.js",
+        "source": "runtime.f42f527f119e09010b85.js",
+        "sha256": "4164d67795238f64d035f473418236038ae475ae36032a967cba16ede263735f"
+      },
+      {
+        "name": "vendors.d00f4bd454a6352e9d71.js",
+        "source": "vendors.d00f4bd454a6352e9d71.js",
+        "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
+      },
+      {
+        "name": "player_v2.2d180c468559fbd29528.js",
+        "source": "player_v2.2d180c468559fbd29528.js.orig",
+        "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160"
+      },
+      {
+        "name": "9.c396696e9dc71e25b012.js",
+        "source": "9.c396696e9dc71e25b012.js",
+        "sha256": "5758343310c47596d56e954aa05fa76a546080c8bf4fefd41cac0042794d6195"
+      },
+      {
+        "name": "14.c95e6f2ddd61fb701d0e.js",
+        "source": "14.c95e6f2ddd61fb701d0e.js",
+        "sha256": "d3ce91c9113463db4c0988210caeb1be2ddc508499d5c53a8e73a13b5f440175"
+      },
+      {
+        "name": "11.477512e6f03fd2f6f3c5.js",
+        "source": "11.477512e6f03fd2f6f3c5.js",
+        "sha256": "e81bfe3462cc3e79a70ba016ddee2a372a31480d3f52964952e1d21f3a490f91"
+      }
+    ],
+    "pageErrors": [],
+    "externalRequests": [
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+        "method": "GET",
+        "resourceType": "script",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+        "method": "GET",
+        "resourceType": "image",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://collection.codemao.cn/report/kitten",
+        "method": "POST",
+        "resourceType": "ping",
+        "action": "blocked"
+      },
+      {
+        "url": "https://collection.codemao.cn/report/sysinfo",
+        "method": "POST",
+        "resourceType": "ping",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+        "method": "GET",
+        "resourceType": "script",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+        "method": "GET",
+        "resourceType": "image",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/player-icons/mob%EF%BC%8Ficn_keyboard_nor.png",
+        "method": "GET",
+        "resourceType": "image",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/player-icons/mob_icn_reset.png",
+        "method": "GET",
+        "resourceType": "image",
+        "action": "blocked"
+      }
+    ]
+  },
+  "scene-spatial": {
+    "fixtureSha256": "8a6a15036abe663bc5d4e184722b73ef14f4072d266741d17c656c8c8a9af90a",
+    "samples": [
+      {
+        "index": 2,
+        "frame": 1,
+        "input": {
+          "width": 960,
+          "height": 720,
+          "filterFrame": {
+            "x": 0,
+            "y": 0,
+            "width": 960,
+            "height": 720,
+            "type": 1
+          }
+        },
+        "size": [
+          9,
+          9
+        ],
+        "padding": 0,
+        "filterArea": [
+          960,
+          720,
+          0,
+          0
+        ]
+      },
+      {
+        "index": 2,
+        "frame": 2,
+        "input": {
+          "width": 960,
+          "height": 720,
+          "filterFrame": {
+            "x": 0,
+            "y": 0,
+            "width": 960,
+            "height": 720,
+            "type": 1
+          }
+        },
+        "size": [
+          9,
+          9
+        ],
+        "padding": 0,
+        "filterArea": [
+          960,
+          720,
+          0,
+          0
+        ]
+      },
+      {
+        "index": 2,
+        "frame": 2,
+        "input": {
+          "width": 960,
+          "height": 720,
+          "filterFrame": {
+            "x": -20,
+            "y": -20,
+            "width": 1000,
+            "height": 760,
+            "type": 1
+          }
+        },
+        "size": [
+          9,
+          9
+        ],
+        "padding": 0,
+        "filterArea": [
+          960,
+          720,
+          0,
+          0
+        ]
+      },
+      {
+        "index": 2,
+        "frame": 3,
+        "input": {
+          "width": 1024,
+          "height": 1024,
+          "filterFrame": {
+            "x": -20,
+            "y": -20,
+            "width": 1000,
+            "height": 760,
+            "type": 1
+          }
+        },
+        "size": [
+          9,
+          9
+        ],
+        "padding": 0,
+        "filterArea": [
+          1024,
+          1024,
+          -20,
+          -20
+        ]
+      },
+      {
+        "index": 4,
+        "frame": 3,
+        "input": {
+          "width": 1024,
+          "height": 1024,
+          "filterFrame": {
+            "x": -20,
+            "y": -20,
+            "width": 1000,
+            "height": 760,
+            "type": 1
+          }
+        },
+        "angle": 6.981317007977318,
+        "radius": 600,
+        "offset": {
+          "x": 480,
+          "y": 360
+        },
+        "padding": 20,
+        "filterArea": [
+          1024,
+          1024,
+          -20,
+          -20
+        ]
+      },
+      {
+        "index": 2,
+        "frame": 3,
+        "input": {
+          "width": 1024,
+          "height": 1024,
+          "filterFrame": {
+            "x": -20,
+            "y": -20,
+            "width": 1000,
+            "height": 760,
+            "type": 1
+          }
+        },
+        "size": [
+          9,
+          9
+        ],
+        "padding": 0,
+        "filterArea": [
+          1024,
+          1024,
+          -20,
+          -20
+        ]
+      },
+      {
+        "index": 4,
+        "frame": 3,
+        "input": {
+          "width": 1024,
+          "height": 1024,
+          "filterFrame": {
+            "x": -20,
+            "y": -20,
+            "width": 1000,
+            "height": 760,
+            "type": 1
+          }
+        },
+        "angle": 6.981317007977318,
+        "radius": 600,
+        "offset": {
+          "x": 480,
+          "y": 360
+        },
+        "padding": 20,
+        "filterArea": [
+          1024,
+          1024,
+          -20,
+          -20
+        ]
+      },
+      {
+        "index": 2,
+        "frame": 4,
+        "input": {
+          "width": 1024,
+          "height": 1024,
+          "filterFrame": {
+            "x": -20,
+            "y": -20,
+            "width": 1000,
+            "height": 760,
+            "type": 1
+          }
+        },
+        "size": [
+          9,
+          9
+        ],
+        "padding": 0,
+        "filterArea": [
+          1024,
+          1024,
+          -20,
+          -20
+        ]
+      },
+      {
+        "index": 4,
+        "frame": 4,
+        "input": {
+          "width": 1024,
+          "height": 1024,
+          "filterFrame": {
+            "x": -20,
+            "y": -20,
+            "width": 1000,
+            "height": 760,
+            "type": 1
+          }
+        },
+        "angle": 6.981317007977318,
+        "radius": 600,
+        "offset": {
+          "x": 480,
+          "y": 360
+        },
+        "padding": 20,
+        "filterArea": [
+          1024,
+          1024,
+          -20,
+          -20
+        ]
+      },
+      {
+        "index": 2,
+        "frame": 4,
+        "input": {
+          "width": 1024,
+          "height": 1024,
+          "filterFrame": {
+            "x": -20,
+            "y": -20,
+            "width": 1000,
+            "height": 760,
+            "type": 1
+          }
+        },
+        "size": [
+          9,
+          9
+        ],
+        "padding": 0,
+        "filterArea": [
+          1024,
+          1024,
+          -20,
+          -20
+        ]
+      },
+      {
+        "index": 4,
+        "frame": 4,
+        "input": {
+          "width": 1024,
+          "height": 1024,
+          "filterFrame": {
+            "x": -20,
+            "y": -20,
+            "width": 1000,
+            "height": 760,
+            "type": 1
+          }
+        },
+        "angle": 6.981317007977318,
+        "radius": 600,
+        "offset": {
+          "x": 480,
+          "y": 360
+        },
+        "padding": 20,
+        "filterArea": [
+          1024,
+          1024,
+          -20,
+          -20
+        ]
+      }
+    ],
+    "errors": [],
+    "assets": [
+      {
+        "name": "player_v2__3ffeebbd0c789e8d9422.css",
+        "source": "player_v2__3ffeebbd0c789e8d9422.css",
+        "sha256": "39e8e70b124b604831773893cdc95931cdee3eaea52c6dd69f33f5781d48b45a"
+      },
+      {
+        "name": "runtime.f42f527f119e09010b85.js",
+        "source": "runtime.f42f527f119e09010b85.js",
+        "sha256": "4164d67795238f64d035f473418236038ae475ae36032a967cba16ede263735f"
+      },
+      {
+        "name": "player_v2.2d180c468559fbd29528.js",
+        "source": "player_v2.2d180c468559fbd29528.js.orig",
+        "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160"
+      },
+      {
+        "name": "vendors.d00f4bd454a6352e9d71.js",
+        "source": "vendors.d00f4bd454a6352e9d71.js",
+        "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
+      },
+      {
+        "name": "9.c396696e9dc71e25b012.js",
+        "source": "9.c396696e9dc71e25b012.js",
+        "sha256": "5758343310c47596d56e954aa05fa76a546080c8bf4fefd41cac0042794d6195"
+      },
+      {
+        "name": "14.c95e6f2ddd61fb701d0e.js",
+        "source": "14.c95e6f2ddd61fb701d0e.js",
+        "sha256": "d3ce91c9113463db4c0988210caeb1be2ddc508499d5c53a8e73a13b5f440175"
+      },
+      {
+        "name": "11.477512e6f03fd2f6f3c5.js",
+        "source": "11.477512e6f03fd2f6f3c5.js",
+        "sha256": "e81bfe3462cc3e79a70ba016ddee2a372a31480d3f52964952e1d21f3a490f91"
+      }
+    ],
+    "pageErrors": [],
+    "externalRequests": [
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+        "method": "GET",
+        "resourceType": "script",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+        "method": "GET",
+        "resourceType": "image",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://collection.codemao.cn/report/kitten",
+        "method": "POST",
+        "resourceType": "ping",
+        "action": "blocked"
+      },
+      {
+        "url": "https://collection.codemao.cn/report/sysinfo",
+        "method": "POST",
+        "resourceType": "ping",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+        "method": "GET",
+        "resourceType": "script",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+        "method": "GET",
+        "resourceType": "image",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/player-icons/mob%EF%BC%8Ficn_keyboard_nor.png",
+        "method": "GET",
+        "resourceType": "image",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/player-icons/mob_icn_reset.png",
+        "method": "GET",
+        "resourceType": "image",
+        "action": "blocked"
+      }
+    ]
+  },
+  "spatial-offstage": {
+    "fixtureSha256": "ba4214a1bb454d820ef48c1f6936853aa618b6ea3bfde7b4e3c25d01643b10ec",
+    "samples": [
+      {
+        "index": 2,
+        "frame": 1,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 834,
+            "y": 608,
+            "width": 192,
+            "height": 144,
+            "type": 1
+          }
+        },
+        "size": [
+          9,
+          9
+        ],
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          834,
+          608
+        ]
+      },
+      {
+        "index": 2,
+        "frame": 2,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 834,
+            "y": 608,
+            "width": 192,
+            "height": 144,
+            "type": 1
+          }
+        },
+        "size": [
+          9,
+          9
+        ],
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          834,
+          608
+        ]
+      },
+      {
+        "index": 2,
+        "frame": 2,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 814,
+            "y": 588,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "size": [
+          9,
+          9
+        ],
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          834,
+          608
+        ]
+      },
+      {
+        "index": 2,
+        "frame": 3,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 814,
+            "y": 588,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "size": [
+          9,
+          9
+        ],
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          814,
+          588
+        ]
+      },
+      {
+        "index": 4,
+        "frame": 3,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 814,
+            "y": 588,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "angle": 6.981317007977318,
+        "radius": 120,
+        "offset": {
+          "x": 930,
+          "y": 680
+        },
+        "padding": 20,
+        "filterArea": [
+          256,
+          256,
+          814,
+          588
+        ]
+      },
+      {
+        "index": 2,
+        "frame": 3,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 814,
+            "y": 588,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "size": [
+          9,
+          9
+        ],
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          814,
+          588
+        ]
+      },
+      {
+        "index": 4,
+        "frame": 3,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 814,
+            "y": 588,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "angle": 6.981317007977318,
+        "radius": 120,
+        "offset": {
+          "x": 930,
+          "y": 680
+        },
+        "padding": 20,
+        "filterArea": [
+          256,
+          256,
+          814,
+          588
+        ]
+      },
+      {
+        "index": 2,
+        "frame": 4,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 814,
+            "y": 588,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "size": [
+          9,
+          9
+        ],
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          814,
+          588
+        ]
+      },
+      {
+        "index": 4,
+        "frame": 4,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 814,
+            "y": 588,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "angle": 6.981317007977318,
+        "radius": 120,
+        "offset": {
+          "x": 930,
+          "y": 680
+        },
+        "padding": 20,
+        "filterArea": [
+          256,
+          256,
+          814,
+          588
+        ]
+      },
+      {
+        "index": 2,
+        "frame": 4,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 814,
+            "y": 588,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "size": [
+          9,
+          9
+        ],
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          814,
+          588
+        ]
+      },
+      {
+        "index": 4,
+        "frame": 4,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 814,
+            "y": 588,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "angle": 6.981317007977318,
+        "radius": 120,
+        "offset": {
+          "x": 930,
+          "y": 680
+        },
+        "padding": 20,
+        "filterArea": [
+          256,
+          256,
+          814,
+          588
+        ]
+      }
+    ],
+    "errors": [],
+    "assets": [
+      {
+        "name": "player_v2__3ffeebbd0c789e8d9422.css",
+        "source": "player_v2__3ffeebbd0c789e8d9422.css",
+        "sha256": "39e8e70b124b604831773893cdc95931cdee3eaea52c6dd69f33f5781d48b45a"
+      },
+      {
+        "name": "runtime.f42f527f119e09010b85.js",
+        "source": "runtime.f42f527f119e09010b85.js",
+        "sha256": "4164d67795238f64d035f473418236038ae475ae36032a967cba16ede263735f"
+      },
+      {
+        "name": "vendors.d00f4bd454a6352e9d71.js",
+        "source": "vendors.d00f4bd454a6352e9d71.js",
+        "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
+      },
+      {
+        "name": "player_v2.2d180c468559fbd29528.js",
+        "source": "player_v2.2d180c468559fbd29528.js.orig",
+        "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160"
+      },
+      {
+        "name": "9.c396696e9dc71e25b012.js",
+        "source": "9.c396696e9dc71e25b012.js",
+        "sha256": "5758343310c47596d56e954aa05fa76a546080c8bf4fefd41cac0042794d6195"
+      },
+      {
+        "name": "14.c95e6f2ddd61fb701d0e.js",
+        "source": "14.c95e6f2ddd61fb701d0e.js",
+        "sha256": "d3ce91c9113463db4c0988210caeb1be2ddc508499d5c53a8e73a13b5f440175"
+      },
+      {
+        "name": "11.477512e6f03fd2f6f3c5.js",
+        "source": "11.477512e6f03fd2f6f3c5.js",
+        "sha256": "e81bfe3462cc3e79a70ba016ddee2a372a31480d3f52964952e1d21f3a490f91"
+      }
+    ],
+    "pageErrors": [],
+    "externalRequests": [
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+        "method": "GET",
+        "resourceType": "script",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+        "method": "GET",
+        "resourceType": "image",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://collection.codemao.cn/report/kitten",
+        "method": "POST",
+        "resourceType": "ping",
+        "action": "blocked"
+      },
+      {
+        "url": "https://collection.codemao.cn/report/sysinfo",
+        "method": "POST",
+        "resourceType": "ping",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+        "method": "GET",
+        "resourceType": "script",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+        "method": "GET",
+        "resourceType": "image",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/player-icons/mob%EF%BC%8Ficn_keyboard_nor.png",
+        "method": "GET",
+        "resourceType": "image",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/player-icons/mob_icn_reset.png",
+        "method": "GET",
+        "resourceType": "image",
+        "action": "blocked"
+      }
+    ]
+  },
+  "all-no-ripple": {
+    "fixtureSha256": "2f376a635a52b5b35bf800a3eb4086e5a7eaf176705ebbbc3d38bdbe95ab5713",
+    "samples": [
+      {
+        "index": 0,
+        "frame": 1,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 397,
+            "y": 295,
+            "width": 192,
+            "height": 144,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "index": 0,
+        "frame": 2,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 397,
+            "y": 295,
+            "width": 192,
+            "height": 144,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "index": 0,
+        "frame": 2,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 397,
+            "y": 295,
+            "width": 192,
+            "height": 144,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "index": 0,
+        "frame": 3,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 397,
+            "y": 295,
+            "width": 192,
+            "height": 144,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "index": 0,
+        "frame": 3,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 397,
+            "y": 295,
+            "width": 192,
+            "height": 144,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "index": 0,
+        "frame": 4,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 397,
+            "y": 295,
+            "width": 192,
+            "height": 144,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "index": 0,
+        "frame": 4,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 397,
+            "y": 295,
+            "width": 192,
+            "height": 144,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "index": 0,
+        "frame": 5,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 397,
+            "y": 295,
+            "width": 192,
+            "height": 144,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "index": 1,
+        "frame": 5,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 397,
+            "y": 295,
+            "width": 192,
+            "height": 144,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "index": 0,
+        "frame": 5,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 397,
+            "y": 295,
+            "width": 192,
+            "height": 144,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "index": 1,
+        "frame": 5,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 397,
+            "y": 295,
+            "width": 192,
+            "height": 144,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "index": 0,
+        "frame": 6,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 397,
+            "y": 295,
+            "width": 192,
+            "height": 144,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "index": 1,
+        "frame": 6,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 397,
+            "y": 295,
+            "width": 192,
+            "height": 144,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "index": 0,
+        "frame": 6,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 397,
+            "y": 295,
+            "width": 192,
+            "height": 144,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "index": 1,
+        "frame": 6,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 397,
+            "y": 295,
+            "width": 192,
+            "height": 144,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "index": 0,
+        "frame": 7,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 397,
+            "y": 295,
+            "width": 192,
+            "height": 144,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          397,
+          295
+        ]
+      },
+      {
+        "index": 1,
+        "frame": 7,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 397,
+            "y": 295,
+            "width": 192,
+            "height": 144,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          397,
+          295
+        ]
+      },
+      {
+        "index": 2,
+        "frame": 7,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 397,
+            "y": 295,
+            "width": 192,
+            "height": 144,
+            "type": 1
+          }
+        },
+        "size": [
+          9,
+          9
+        ],
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          397,
+          295
+        ]
+      },
+      {
+        "index": 0,
+        "frame": 7,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 397,
+            "y": 295,
+            "width": 192,
+            "height": 144,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          397,
+          295
+        ]
+      },
+      {
+        "index": 1,
+        "frame": 7,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 397,
+            "y": 295,
+            "width": 192,
+            "height": 144,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          397,
+          295
+        ]
+      },
+      {
+        "index": 2,
+        "frame": 7,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 397,
+            "y": 295,
+            "width": 192,
+            "height": 144,
+            "type": 1
+          }
+        },
+        "size": [
+          9,
+          9
+        ],
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          397,
+          295
+        ]
+      },
+      {
+        "index": 0,
+        "frame": 8,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 397,
+            "y": 295,
+            "width": 192,
+            "height": 144,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          397,
+          295
+        ]
+      },
+      {
+        "index": 1,
+        "frame": 8,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 397,
+            "y": 295,
+            "width": 192,
+            "height": 144,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          397,
+          295
+        ]
+      },
+      {
+        "index": 2,
+        "frame": 8,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 397,
+            "y": 295,
+            "width": 192,
+            "height": 144,
+            "type": 1
+          }
+        },
+        "size": [
+          9,
+          9
+        ],
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          397,
+          295
+        ]
+      },
+      {
+        "index": 0,
+        "frame": 8,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          397,
+          295
+        ]
+      },
+      {
+        "index": 1,
+        "frame": 8,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          397,
+          295
+        ]
+      },
+      {
+        "index": 2,
+        "frame": 8,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "size": [
+          9,
+          9
+        ],
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          397,
+          295
+        ]
+      },
+      {
+        "index": 0,
+        "frame": 9,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 1,
+        "frame": 9,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 2,
+        "frame": 9,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "size": [
+          9,
+          9
+        ],
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 4,
+        "frame": 9,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "angle": 6.981317007977318,
+        "radius": 120,
+        "offset": {
+          "x": 493,
+          "y": 367
+        },
+        "padding": 20,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 0,
+        "frame": 9,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 1,
+        "frame": 9,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 2,
+        "frame": 9,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "size": [
+          9,
+          9
+        ],
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 4,
+        "frame": 9,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "angle": 6.981317007977318,
+        "radius": 120,
+        "offset": {
+          "x": 493,
+          "y": 367
+        },
+        "padding": 20,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 0,
+        "frame": 10,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 1,
+        "frame": 10,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 2,
+        "frame": 10,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "size": [
+          9,
+          9
+        ],
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 4,
+        "frame": 10,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "angle": 6.981317007977318,
+        "radius": 120,
+        "offset": {
+          "x": 493,
+          "y": 367
+        },
+        "padding": 20,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 0,
+        "frame": 10,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 1,
+        "frame": 10,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 2,
+        "frame": 10,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "size": [
+          9,
+          9
+        ],
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 4,
+        "frame": 10,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "angle": 6.981317007977318,
+        "radius": 120,
+        "offset": {
+          "x": 493,
+          "y": 367
+        },
+        "padding": 20,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 0,
+        "frame": 11,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 1,
+        "frame": 11,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 2,
+        "frame": 11,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "size": [
+          9,
+          9
+        ],
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 4,
+        "frame": 11,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "angle": 6.981317007977318,
+        "radius": 120,
+        "offset": {
+          "x": 493,
+          "y": 367
+        },
+        "padding": 20,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 5,
+        "frame": 11,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 0,
+        "frame": 11,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 1,
+        "frame": 11,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 2,
+        "frame": 11,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "size": [
+          9,
+          9
+        ],
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 4,
+        "frame": 11,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "angle": 6.981317007977318,
+        "radius": 120,
+        "offset": {
+          "x": 493,
+          "y": 367
+        },
+        "padding": 20,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 5,
+        "frame": 11,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 0,
+        "frame": 12,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 1,
+        "frame": 12,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 2,
+        "frame": 12,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "size": [
+          9,
+          9
+        ],
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 4,
+        "frame": 12,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "angle": 6.981317007977318,
+        "radius": 120,
+        "offset": {
+          "x": 493,
+          "y": 367
+        },
+        "padding": 20,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 5,
+        "frame": 12,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 0,
+        "frame": 12,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 1,
+        "frame": 12,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 2,
+        "frame": 12,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "size": [
+          9,
+          9
+        ],
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 4,
+        "frame": 12,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "angle": 6.981317007977318,
+        "radius": 120,
+        "offset": {
+          "x": 493,
+          "y": 367
+        },
+        "padding": 20,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 5,
+        "frame": 12,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 0,
+        "frame": 13,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 1,
+        "frame": 13,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 2,
+        "frame": 13,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "size": [
+          9,
+          9
+        ],
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 4,
+        "frame": 13,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "angle": 6.981317007977318,
+        "radius": 120,
+        "offset": {
+          "x": 493,
+          "y": 367
+        },
+        "padding": 20,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 5,
+        "frame": 13,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 6,
+        "frame": 13,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "size": 8,
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 0,
+        "frame": 13,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 1,
+        "frame": 13,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 2,
+        "frame": 13,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "size": [
+          9,
+          9
+        ],
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 4,
+        "frame": 13,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "angle": 6.981317007977318,
+        "radius": 120,
+        "offset": {
+          "x": 493,
+          "y": 367
+        },
+        "padding": 20,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 5,
+        "frame": 13,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 6,
+        "frame": 13,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "size": 8,
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 0,
+        "frame": 14,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 1,
+        "frame": 14,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 2,
+        "frame": 14,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "size": [
+          9,
+          9
+        ],
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 4,
+        "frame": 14,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "angle": 6.981317007977318,
+        "radius": 120,
+        "offset": {
+          "x": 493,
+          "y": 367
+        },
+        "padding": 20,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 5,
+        "frame": 14,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 6,
+        "frame": 14,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "size": 8,
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 0,
+        "frame": 14,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 1,
+        "frame": 14,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 2,
+        "frame": 14,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "size": [
+          9,
+          9
+        ],
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 4,
+        "frame": 14,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "angle": 6.981317007977318,
+        "radius": 120,
+        "offset": {
+          "x": 493,
+          "y": 367
+        },
+        "padding": 20,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 5,
+        "frame": 14,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      },
+      {
+        "index": 6,
+        "frame": 14,
+        "input": {
+          "width": 256,
+          "height": 256,
+          "filterFrame": {
+            "x": 377,
+            "y": 275,
+            "width": 232,
+            "height": 184,
+            "type": 1
+          }
+        },
+        "size": 8,
+        "padding": 0,
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ]
+      }
+    ],
+    "errors": [],
+    "assets": [
+      {
+        "name": "player_v2__3ffeebbd0c789e8d9422.css",
+        "source": "player_v2__3ffeebbd0c789e8d9422.css",
+        "sha256": "39e8e70b124b604831773893cdc95931cdee3eaea52c6dd69f33f5781d48b45a"
+      },
+      {
+        "name": "runtime.f42f527f119e09010b85.js",
+        "source": "runtime.f42f527f119e09010b85.js",
+        "sha256": "4164d67795238f64d035f473418236038ae475ae36032a967cba16ede263735f"
+      },
+      {
+        "name": "player_v2.2d180c468559fbd29528.js",
+        "source": "player_v2.2d180c468559fbd29528.js.orig",
+        "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160"
+      },
+      {
+        "name": "vendors.d00f4bd454a6352e9d71.js",
+        "source": "vendors.d00f4bd454a6352e9d71.js",
+        "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
+      },
+      {
+        "name": "9.c396696e9dc71e25b012.js",
+        "source": "9.c396696e9dc71e25b012.js",
+        "sha256": "5758343310c47596d56e954aa05fa76a546080c8bf4fefd41cac0042794d6195"
+      },
+      {
+        "name": "14.c95e6f2ddd61fb701d0e.js",
+        "source": "14.c95e6f2ddd61fb701d0e.js",
+        "sha256": "d3ce91c9113463db4c0988210caeb1be2ddc508499d5c53a8e73a13b5f440175"
+      },
+      {
+        "name": "11.477512e6f03fd2f6f3c5.js",
+        "source": "11.477512e6f03fd2f6f3c5.js",
+        "sha256": "e81bfe3462cc3e79a70ba016ddee2a372a31480d3f52964952e1d21f3a490f91"
+      }
+    ],
+    "pageErrors": [],
+    "externalRequests": [
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+        "method": "GET",
+        "resourceType": "script",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+        "method": "GET",
+        "resourceType": "image",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://collection.codemao.cn/report/kitten",
+        "method": "POST",
+        "resourceType": "ping",
+        "action": "blocked"
+      },
+      {
+        "url": "https://collection.codemao.cn/report/sysinfo",
+        "method": "POST",
+        "resourceType": "ping",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+        "method": "GET",
+        "resourceType": "script",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+        "method": "GET",
+        "resourceType": "image",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/player-icons/mob%EF%BC%8Ficn_keyboard_nor.png",
+        "method": "GET",
+        "resourceType": "image",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/player-icons/mob_icn_reset.png",
+        "method": "GET",
+        "resourceType": "image",
+        "action": "blocked"
+      }
+    ]
+  }
+}

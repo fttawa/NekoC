@@ -6,7 +6,12 @@ import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { corpusFrequency, mappingStatus, markdownReport, officialInventory, rustDispatch,
-  rustFunction, webpackModules } from "../tools/compat/k4-block-catalog.mjs";
+  rustFunction, webpackModules, cloudDataTypes } from "../tools/compat/k4-block-catalog.mjs";
+import { drawingMainPaths, physicsMainPaths, propertyMainPaths, serviceTypes } from "../tools/compat/k4-partial-6-scope.mjs";
+import { round7MainPaths } from "../tools/compat/k4-partial-7-scope.mjs";
+
+const currentSemantics = type => cloudDataTypes.has(type) ? "offline-oracle-verified" : physicsMainPaths.has(type) || propertyMainPaths.has(type) || drawingMainPaths.has(type) || round7MainPaths.has(type) ? "main-path-verified" : "partial";
+const currentStatus = type => serviceTypes.has(type) && !cloudDataTypes.has(type) ? "设备降级" : "已实现";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 function temporary(t) {
@@ -141,7 +146,7 @@ test("mapping regression: if/matches/aliases/cloud are implemented, precise stub
     "physics2_set_speed", "physics2_get_property", "physics2_unknown", "cloud_lists_unknown", "get_orientation"];
   const rows = mappingStatus(root, types.map(type => ({ type, official: [] })));
   const by = Object.fromEntries(rows.map(row => [row.type, row]));
-  for (const type of types.slice(0, 12)) assert.equal(by[type].status, "已实现", type);
+  for (const type of types.slice(0, 12)) assert.equal(by[type].status, currentStatus(type), type);
   assert.match(by.self_change_x.mapping[0], /src\/kitten4\/aliases\.rs:\d+/);
   assert.equal(by.get_choice.status, "已实现");
   assert.equal(by.play_video.status, "已实现");
@@ -176,8 +181,8 @@ test("partial work removes only measured block-body limits and retains renderer 
     "get_clone_index_property", "self_set_effect_2", "self_change_effect_3", "self_clear_effects", "physics2_set_speed", "cloud_variables_get"];
   const rows = mappingStatus(root, types.map(type => ({ type, official: [] })));
   for (const row of rows) {
-    assert.equal(row.status, "已实现", row.type);
-    assert.equal(row.semantics, types.slice(0, 2).includes(row.type) ? "offline-oracle-verified" : "partial", row.type);
+    assert.equal(row.status, currentStatus(row.type), row.type);
+    assert.equal(row.semantics, types.slice(0, 3).includes(row.type) ? "offline-oracle-verified" : currentSemantics(row.type), row.type);
     assert.ok(!row.limitations.some(s => s.includes("scope=7 降级为 noop")));
   }
 });
@@ -194,7 +199,7 @@ test("second round scans explicit module dispatches without swallowing unrelated
   for (const row of rows.slice(9, 14)) assert.equal(row.status, "设备降级", row.type);
   assert.equal(rows.at(-1).status, "缺失");
   assert.equal(rows.find(row => row.type === "self_shake").semantics, "partial");
-  assert.equal(rows.find(row => row.type === "text_indexOf").semantics, "partial");
+  assert.equal(rows.find(row => row.type === "text_indexOf").semantics, currentSemantics("text_indexOf"));
 });
 
 test("third round explicitly maps all formerly missing types and preserves partial boundaries", () => {
@@ -209,9 +214,9 @@ test("third round explicitly maps all formerly missing types and preserves parti
     turn_on_the_qrcode_camera voice_recognition physics2_set_flexibility`.split(/\s+/);
   assert.equal(types.length, 47);
   const rows = mappingStatus(root, types.map(type => ({ type, official: [] })));
-  for (const row of rows) assert.equal(row.status, "已实现", row.type);
+  for (const row of rows) assert.equal(row.status, currentStatus(row.type), row.type);
   for (const type of ["voice_recognition", "self_texture", "physics2_set_flexibility", "translate_result"]) {
-    assert.equal(rows.find(r => r.type === type).semantics, "partial", type);
+    assert.equal(rows.find(r => r.type === type).semantics, currentSemantics(type), type);
   }
   const unknown = mappingStatus(root, [{type:"midi_unknown",official:[]},{type:"procedures_unknown",official:[]}]);
   for (const row of unknown) assert.equal(row.status,"缺失");
@@ -223,8 +228,8 @@ test("second partial round records scoped evidence without clearing unresolved p
     "stamp", "image_stamp", "set_scene_transition"];
   const rows = mappingStatus(root, types.map(type => ({ type, official: [] })));
   for (const row of rows) {
-    assert.equal(row.status, "已实现", row.type);
-    assert.equal(row.semantics, "partial", row.type);
+    assert.equal(row.status, currentStatus(row.type), row.type);
+    assert.equal(row.semantics, currentSemantics(row.type), row.type);
     assert.ok(row.limitations.some(s => s.includes("第二轮") && s.includes("原创")), row.type);
     assert.ok(row.limitations.some(s => s.includes("未验证") || s.includes("限制") || s.includes("不声明")), row.type);
   }
@@ -233,12 +238,37 @@ test("second partial round records scoped evidence without clearing unresolved p
 test("third partial round retains solver, distort and stamp boundaries despite measured improvements", () => {
   const types = ["physics2_set_gravity", "physics2_set_speed", "set_velocity", "set_velocity_by_vector",
     "physics2_set_force", "physics2_set_mass", "physics2_set_roughness", "physics2_set_resilience",
-    "physics2_set_boundary", "stamp", "image_stamp", "set_scene_transition"];
+    "stamp", "image_stamp", "set_scene_transition"];
   for (const row of mappingStatus(root, types.map(type => ({ type, official: [] })))) {
     assert.equal(row.status, "已实现", row.type);
-    assert.equal(row.semantics, "partial", row.type);
+    assert.equal(row.semantics, currentSemantics(row.type), row.type);
     assert.ok(row.limitations.some(text => text.includes("第三轮") && text.includes("原创")), row.type);
   }
+});
+
+test("eighth round upgrades only measured boundary paths", () => {
+  const row = mappingStatus(root, [{ type: "physics2_set_boundary", official: [] }])[0];
+  assert.equal(row.status, "已实现");
+  assert.equal(row.semantics, "main-path-verified");
+  assert.ok(row.limitations.some(text => text.includes("第八轮") && text.includes("0.118503")));
+});
+
+test("fifth property round records measured fixes without erasing platform and deletion boundaries", () => {
+  const types = ['get', 'get_2', 'get_3', 'get_clone_index_property'];
+  for (const row of mappingStatus(root, types.map(type => ({ type, official: [] })))) {
+    assert.equal(row.status, '已实现', row.type);
+    assert.equal(row.semantics, currentSemantics(row.type), row.type);
+    assert.ok(row.limitations.some(text => text.includes('第五轮') && text.includes('kitten4-partial-properties-5.md')), row.type);
+    assert.ok(row.limitations.some(text => text.includes('删除竞争')), row.type);
+  }
+});
+
+test('seventh visibility round closes clone-disposal gap and retains scene limits', () => {
+  const [row] = mappingStatus(root, [{ type: 'set_entity_show_hide', official: [] }]);
+  assert.equal(row.semantics, 'main-path-verified');
+  assert.ok(row.limitations.some(text => text.includes('408官方帧') && text.includes('kitten4-partial-visibility-5.md')));
+  assert.ok(row.limitations.some(text => text.includes('第七轮') && text.includes('kitten4-partial-lifecycle-7.md')));
+  assert.ok(row.unverifiedBoundaries.some(text => text.includes('场景隐藏')));
 });
 
 test("optional official-package integration: 377 types and audited complete registration tables", {

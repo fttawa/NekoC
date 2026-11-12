@@ -1349,11 +1349,11 @@ fn legacy_costume_id_literal_is_a_tagged_id_not_a_name_or_index() {
                 json!({}),
             )],
         );
-        let canonical = imported(&native, "set_sprite_style");
+        let canonical = imported(&native, "kitten4_legacy_costume");
         let lowered = kitten4::lower_for_vm(&canonical);
-        let literal = &find(&lowered["actors"], "alias-probe")["inputs"]["style_id"];
-        assert_eq!(literal["type"], "kitten4_costume_literal");
-        assert_eq!(literal["fields"]["style_id"], STYLE_B);
+        let command = find(&lowered["actors"], "alias-probe");
+        assert_eq!(command["type"], "kitten4_legacy_costume");
+        assert_eq!(command["fields"]["style_id"], STYLE_B);
         for interpreted in [true, false] {
             let (_, actor, _) = run(&canonical, interpreted);
             assert_eq!(actor.style.as_deref(), Some(STYLE_B));
@@ -1362,11 +1362,10 @@ fn legacy_costume_id_literal_is_a_tagged_id_not_a_name_or_index() {
 }
 
 #[test]
-fn unsupported_dynamic_legacy_costume_id_is_not_silently_lowered_to_an_empty_id() {
+fn dynamic_legacy_costume_id_is_not_a_name_or_an_empty_id() {
     // Tn6a/lt 609666 wraps the evaluated style_id in an object. The current
-    // VM costume-literal expression only accepts fields.style_id, so this
-    // reporter form is intentionally unsupported rather than a claimed match.
-    // Editor reachability/browser execution of this synthetic form is unverified.
+    // ID command preserves typed inputs. Fourth-round offline probes verify the
+    // dynamic form independently of current editor panel reachability.
     for source in SOURCES {
         let value = block("text", json!({"TEXT":STYLE_B}), json!({}));
         let native = project(
@@ -1377,15 +1376,11 @@ fn unsupported_dynamic_legacy_costume_id_is_not_silently_lowered_to_an_empty_id(
                 json!({"style_id":value}),
             )],
         );
-        let canonical = imported(&native, "kitten4::set_costume_by_id");
-        let error = match Program::compile(&canonical) {
-            Err(error) => error,
-            Ok(_) => panic!("unsupported alias must not pretend to execute"),
-        };
-        assert!(
-            format!("{error:#}").contains("set_costume_by_id"),
-            "{error}"
-        );
+        let canonical = imported(&native, "kitten4_legacy_costume");
+        for interpreted in [true, false] {
+            let (_, actor, _) = run(&canonical, interpreted);
+            assert_eq!(actor.style.as_deref(), Some(STYLE_B));
+        }
         assert_eq!(kitten4::from_neko(&canonical).unwrap(), native);
     }
 }

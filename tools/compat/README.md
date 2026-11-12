@@ -35,9 +35,24 @@ node --test tests/k4-oracle.test.mjs
 静态资源限定于外部 build 目录的直接文件，拒绝路径穿越。
 端口随机分配，结束或失败均关闭浏览器和服务。不要给第三方服务传账号凭据。
 
-默认要求外部包保留 `player_v2*.js.orig`，**不回退到含调度优化的 `.js`**。
+默认要求外部包保留 `player_v2*.js.orig`，**不回退到含调度、数值及其他本地修改的 `.js`**。
 `.orig` 本身仍有包装器的 DI 暴露点；这里的“官方”意为此离线包中的官方运行时，
-没有独立认证它等于线上发布物。每次结果记录资源 SHA-256，便于复验。
+其与线上发布物的关系限于[本次在线/离线取证](../../docs/compatibility/k4-online-vs-offline.md)：
+指定主包除 DI 暴露外字节一致，三份公开作品的受控状态一致；不是当前在线编辑器全集或网络/墙钟行为认证。
+每次结果记录资源 SHA-256，便于复验。
+
+在线来源取证（所有下载与轨迹仅写本 worktree `dist/k4online/`）：
+
+```powershell
+node tools/compat/k4-online.mjs collect
+node tools/compat/k4-online-trace.mjs 186831447 E:/nekoc/dist/kitten4-corpus
+node tools/compat/k4-online.mjs compare "$env:K4_PLAYER_DIR" dist/k4online/186831447.pair.json
+```
+
+在线适配器使用真实官方播放页，不替换脚本、作品或配置；仅放行官方域名 HTTPS GET/HEAD，
+不登录、不提交表单，不转发 Cookie/Authorization，阻断 POST、第三方追踪和 WebSocket。
+作品 canonical JSON hash 必须匹配本地输入才采样。使用与离线 oracle 相同的状态采样与显式
+60 Hz/PCG/虚拟 Date 控制；它验证受控 update，不验证原生联网或真实播放速率。
 
 ## 编译、帧和比较约定
 
@@ -108,6 +123,57 @@ K4 partial 第二轮的 41 份仓库原创离线探针与保留边界：
 [场景过渡](../../docs/kitten4-partial-transition-3.md)、
 [画笔/填充/混合印章](../../docs/kitten4-partial-pen-3.md)。仍保留相关 partial，
 尤其不能把少量像素样例或无接触轨迹对齐当作完整求解器/滤镜兼容。
+
+第四轮按只读语料频率×成本优先处理任意字符串阵营：
+[180 帧逐帧证据](../../docs/kitten4-partial-camp-4.md)，包括自定义阵营双向碰撞、
+克隆与初始 group 的加载行为。另有
+[legacy 动态造型 ID 专项](../../docs/kitten4-partial-costume-4.md)，独立记录正常与错误边界。
+
+第五轮继续优先处理高频且可独立验证的边界：
+[属性列表引用、惰性 UUID 槽与无造型](../../docs/kitten4-partial-properties-5.md)，
+八份原创夹具、96 个官方 update 和 40 对固定帧零差异画布；相关类型仍保留
+未验证的平台、非有限状态和删除竞争限制。显隐专项见
+[第五轮显隐](../../docs/kitten4-partial-visibility-5.md)。
+
+第六轮以指定离线内核可验证主路径为范围，原95项的A/B分类、固定频率分母、
+独立`main-path-verified`级别及B类无设备行为见
+[第六轮总览](../../docs/kitten4-partial-6.md)。新增
+[硬体控制逐帧证据](../../docs/kitten4-partial-physics-6.md)、
+[活实体/克隆/造型与显隐](../../docs/kitten4-partial-properties-6.md)、
+[效果、跨帧印章及纹理背景过渡](../../docs/kitten4-partial-effects-6.md)。
+主路径升级不是完整物理/渲染/设备认证；已知负例与未验证边界仍单独公开。
+
+第七轮继续处理剩余28项A类，当前认证范围与完整剩余表见
+[第七轮总览](../../docs/kitten4-partial-7.md)。
+[克隆生命周期](../../docs/kitten4-partial-lifecycle-7.md)修复删除早一帧并复验408对画布；
+[物理ticker](../../docs/kitten4-partial-physics-7.md)修复forceable最后一次积分与持续力相位；
+[纯数据/等待](../../docs/kitten4-partial-data-7.md)补MIDI和文本逐帧证据并保留抖动负例；
+[滤镜专项](../../docs/kitten4-partial-effects-7.md)区分算法修复、像素事实和未认证分支。
+
+第八轮：[范围与升级](../../docs/kitten4-partial-8.md)、
+[单刚体舞台边缘亚像素轨迹](../../docs/kitten4-partial-physics-8.md)、
+[ASCII与空间滤镜输入面](../../docs/kitten4-partial-effects-8.md)、
+[shake帧尾与原点边界](../../docs/kitten4-shake-8.md)。仅boundary两项新增主路径认证；
+滤镜组合/ripple与shake原点相关负例仍公开，不冒充全等。
+
+第九轮场景过渡：
+[distort双截图、连续全画布与完成回调](../../docs/kitten4-partial-transition-9.md)。
+14份原创夹具各65帧，完成后下一update激活；纹理残差及none启动顺序负例仍保留，
+不把受控performance时钟外推为真实浏览器时钟认证。
+
+第九轮完整范围与未完成项见[总览](../../docs/kitten4-partial-9.md)，另有
+[soft粒子/重建](../../docs/kitten4-partial-physics-9.md)、
+[ASCII最终投影](../../docs/kitten4-partial-effects-9.md)、
+[shake显式原点](../../docs/kitten4-shake-9.md)。本轮保持54项partial，不将负例升级。
+
+第十轮 [ASCII量化、过渡栅格与启动顺序](../../docs/kitten4-partial-effects-10.md)
+修复既有ASCII全链/hue与无滤镜distort。第十一轮
+[slide/distort滤镜继承](../../docs/kitten4-partial-effects-11.md)补齐两倍输入范围裁剪、
+截图目标投影和同update离场状态快照；历史证据不覆盖重录，当前像素证据单独绑定renderer身份。
+
+soft 后续进展见[粒子近似与逐帧误差](../../docs/kitten4-soft.md)及
+[矩形首帧零步长阻塞的 CDP 实测](../../docs/kitten4-soft-blocked-investigation.md)。
+粒子/渲染网格通道不等于官方形变兼容，相关两项仍为 partial。
 
 ## 联网、安全与未验证范围
 

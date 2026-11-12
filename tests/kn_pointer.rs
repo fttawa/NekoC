@@ -127,12 +127,20 @@ fn named_actor_includes_clones_but_self_means_current_instance() {
 }
 
 #[test]
-fn invalid_pointer_target_and_state_are_not_silently_global() {
-    for (target, state) in [("missing-actor", "down"), (ACTOR, "invalid")] {
+fn invalid_pointer_target_and_state_return_false_not_global() {
+    for (target, state) in [("missing-actor", "down"), ("?", "down")] {
         let mut p = project(false);
         p["actors"]["actorsDict"][ACTOR]["nekoBlockJsonList"] = json!([
             {"type":"on_running_group_activated","next":probe(target, state)}
         ]);
-        assert!(Program::compile(&p).is_err());
+        let mut vm = Engine::new(Program::compile(&p).unwrap());
+        vm.start();
+        vm.pointer_event("--screen", "mouse_down", 0.0, 0.0);
+        assert_eq!(tick(&mut vm), ["false"]);
     }
+    let mut p = project(false);
+    p["actors"]["actorsDict"][ACTOR]["nekoBlockJsonList"] = json!([
+        {"type":"on_running_group_activated","next":probe(ACTOR, "invalid")}
+    ]);
+    assert!(Program::compile(&p).is_err());
 }

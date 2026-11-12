@@ -1,0 +1,276 @@
+{
+  "officialUrl": "https://kn.codemao.cn/editor",
+  "verifiedAt": "2026-11-11T18:09:55.350Z",
+  "result": {
+    "fixture": "tests/fixtures/kn-semantics/partial-clone.bcmkn",
+    "sha256": "0a3d014b4f46e4fe1a2c451bcbf0aab6adf2b7886547147aa52daa2750db727c",
+    "pageErrors": [],
+    "runtimeBundle": {
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+      "sha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7"
+    },
+    "mainBundle": {
+      "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+      "sha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165"
+    },
+    "variables": {
+      "done": 1,
+      "input_text": "1",
+      "input_bool": true,
+      "p_x_0": 1.23,
+      "p_x_1": 1.23,
+      "p_y_0": -2.35,
+      "p_y_1": -2.35,
+      "p_scale_0": 123.46,
+      "p_scale_1": 123.46,
+      "p_width_0": 123.46,
+      "p_width_1": 123.46,
+      "p_height_0": 56.79,
+      "p_height_1": 56.79,
+      "p_direction_0": 25.71,
+      "p_direction_1": 25.71,
+      "p_style_index_0": 1,
+      "p_style_index_1": 1,
+      "p_0_0": 349.88,
+      "p_0_1": 349.88,
+      "p_1_0": 12.34,
+      "p_1_1": 12.34,
+      "p_2_0": 12.35,
+      "p_2_1": 12.35,
+      "p_3_0": 12.35,
+      "p_3_1": 12.35,
+      "p_4_0": 12.35,
+      "p_4_1": 12.35,
+      "p_5_0": 12.35,
+      "p_5_1": 12.35,
+      "p_6_0": 12.35,
+      "p_6_1": 12.35,
+      "local_0": 99,
+      "local_1": 42,
+      "text_index": {
+        "$number": "NaN"
+      },
+      "bool_index": {
+        "$number": "NaN"
+      },
+      "fraction_index": {
+        "$number": "NaN"
+      },
+      "missing_index": {
+        "$number": "NaN"
+      },
+      "negative_index": {
+        "$number": "NaN"
+      },
+      "mouse_0_down": false,
+      "mouse_0_click": false,
+      "mouse_0_up": false,
+      "mouse_1_down": false,
+      "mouse_1_click": false,
+      "mouse_1_up": false,
+      "mouse_2_down": false,
+      "mouse_2_click": false,
+      "mouse_2_up": false,
+      "30000000-0000-4000-8000-000000000001": 99
+    },
+    "scripts": [
+      "https://creation.bcmcdn.com/neko/web/release/static/js/base.f158ddbf.js",
+      "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+      "https://creation.bcmcdn.com/neko/web/release/static/js/main-vendors.07f7dd7e.js",
+      "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js"
+    ],
+    "actorInspection": {
+      "alpha": 0.87655,
+      "rawTransparency": 12.344999999999995,
+      "formulaAlpha": 0.87655
+    },
+    "domainCalls": [
+      {
+        "type": "get_clone_index_property",
+        "attribute": "camp",
+        "result": {
+          "$number": "NaN"
+        }
+      },
+      {
+        "type": "get_clone_index_property",
+        "attribute": "distance",
+        "result": {
+          "$number": "NaN"
+        }
+      },
+      {
+        "type": "get_clone_index_property",
+        "attribute": "unknown",
+        "result": {
+          "$number": "NaN"
+        }
+      },
+      {
+        "type": "get_clone_index_property",
+        "attribute": "7",
+        "result": {
+          "$number": "NaN"
+        }
+      },
+      {
+        "type": "get_clone_index_property",
+        "attribute": "?",
+        "result": {
+          "$number": "NaN"
+        }
+      },
+      {
+        "type": "get_clone_index_property",
+        "scene": true,
+        "result": {
+          "$undefined": true
+        }
+      },
+      {
+        "type": "mouse_down",
+        "sprite": "missing-actor",
+        "result": false
+      },
+      {
+        "type": "mouse_down",
+        "sprite": "?",
+        "result": false
+      }
+    ],
+    "pointerSamples": [
+      {
+        "label": "before",
+        "values": {
+          "--screen:down": false,
+          "--screen:click": false,
+          "--screen:up": false,
+          "--self:down": false,
+          "--self:click": false,
+          "--self:up": false,
+          "nekoc-default-actor:down": false,
+          "nekoc-default-actor:click": false,
+          "nekoc-default-actor:up": false,
+          "missing-actor:down": false,
+          "missing-actor:click": false,
+          "missing-actor:up": false
+        }
+      },
+      {
+        "label": "held",
+        "values": {
+          "--screen:down": true,
+          "--screen:click": false,
+          "--screen:up": false,
+          "--self:down": false,
+          "--self:click": false,
+          "--self:up": false,
+          "nekoc-default-actor:down": false,
+          "nekoc-default-actor:click": false,
+          "nekoc-default-actor:up": false,
+          "missing-actor:down": false,
+          "missing-actor:click": false,
+          "missing-actor:up": false
+        }
+      },
+      {
+        "label": "released",
+        "values": {
+          "--screen:down": false,
+          "--screen:click": false,
+          "--screen:up": false,
+          "--self:down": false,
+          "--self:click": false,
+          "--self:up": false,
+          "nekoc-default-actor:down": false,
+          "nekoc-default-actor:click": false,
+          "nekoc-default-actor:up": false,
+          "missing-actor:down": false,
+          "missing-actor:click": false,
+          "missing-actor:up": false
+        }
+      }
+    ],
+    "nekoc": {
+      "variables": {
+        "30000000-0000-4000-8000-000000000001": 99,
+        "bool_index": {
+          "$number": "NaN"
+        },
+        "done": 1,
+        "fraction_index": {
+          "$number": "NaN"
+        },
+        "input_bool": true,
+        "input_text": "1",
+        "local_0": 99,
+        "local_1": 42,
+        "missing_index": {
+          "$number": "NaN"
+        },
+        "mouse_0_click": false,
+        "mouse_0_down": false,
+        "mouse_0_up": false,
+        "mouse_1_click": false,
+        "mouse_1_down": false,
+        "mouse_1_up": false,
+        "mouse_2_click": false,
+        "mouse_2_down": false,
+        "mouse_2_up": false,
+        "negative_index": {
+          "$number": "NaN"
+        },
+        "p_0_0": 349.88,
+        "p_0_1": 349.88,
+        "p_1_0": 12.34,
+        "p_1_1": 12.34,
+        "p_2_0": 12.35,
+        "p_2_1": 12.35,
+        "p_3_0": 12.35,
+        "p_3_1": 12.35,
+        "p_4_0": 12.35,
+        "p_4_1": 12.35,
+        "p_5_0": 12.35,
+        "p_5_1": 12.35,
+        "p_6_0": 12.35,
+        "p_6_1": 12.35,
+        "p_direction_0": 25.71,
+        "p_direction_1": 25.71,
+        "p_height_0": 56.79,
+        "p_height_1": 56.79,
+        "p_scale_0": 123.46,
+        "p_scale_1": 123.46,
+        "p_style_index_0": 1,
+        "p_style_index_1": 1,
+        "p_width_0": 123.46,
+        "p_width_1": 123.46,
+        "p_x_0": 1.23,
+        "p_x_1": 1.23,
+        "p_y_0": -2.35,
+        "p_y_1": -2.35,
+        "text_index": {
+          "$number": "NaN"
+        }
+      }
+    },
+    "equal": true
+  },
+  "editorCompat": {
+    "editorUrl": "https://kn.codemao.cn/editor",
+    "checkedAt": "2026-11-11T17:53:13.869Z",
+    "projects": [
+      {
+        "input": "tests/fixtures/kn-semantics/partial-clone.bcmkn",
+        "sha256": "0a3d014b4f46e4fe1a2c451bcbf0aab6adf2b7886547147aa52daa2750db727c",
+        "editorVersion": "0.27.4",
+        "projectVersion": "0.27.4",
+        "blockCount": 155,
+        "issues": [],
+        "pageErrors": [],
+        "ok": true
+      }
+    ],
+    "bundleUrl": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+    "ok": true
+  }
+}

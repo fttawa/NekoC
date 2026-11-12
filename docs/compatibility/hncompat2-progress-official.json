@@ -1,0 +1,1076 @@
+{
+  "schema": "nekoc-hncompat2-progress-official-v1",
+  "checkedAt": "2026-11-11T19:16:33.894Z",
+  "editorUrl": "https://kn.codemao.cn/editor",
+  "browserVersion": "157.0.4341.46",
+  "method": "Exact original UTF-8 project bytes via previewUrl; official online JavaScript unchanged except webpack loader exposure. Only editor Complete/Start UI events, then passive snapshots; no project edits, synthesized gameplay input, scheduler/config/time patches or local engines.",
+  "timeoutMsPerProject": 600000,
+  "sampleIntervalMs": 10000,
+  "cases": {
+    "fangjie": {
+      "fixture": "projects/fangjie/fangjie.bcmkn",
+      "sha256": "652fdb4d92311401e33f28ff030240ccbf36d39605d678e5e82c145e24d30721",
+      "projectVersion": "0.27.4",
+      "pageErrors": [],
+      "bundles": [
+        {
+          "name": "crc_libs.8196dbd1.js",
+          "url": "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+          "bytes": 1297643,
+          "sha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7"
+        },
+        {
+          "name": "main.8ccf2442.js",
+          "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+          "bytes": 5594327,
+          "sha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165"
+        }
+      ],
+      "samples": [
+        {
+          "label": "before-start",
+          "at": 2562.599999964237,
+          "running": false,
+          "elapsedFrames": 0,
+          "variables": {
+            "kn-list-chunk_x": 0,
+            "kn-list-chunk_z": 0,
+            "kn-list-world": 0,
+            "kn-var-gui_dirty": 0,
+            "kn-var-px": 0,
+            "kn-var-py": 0,
+            "kn-var-pz": 0,
+            "kn-var-screen": 0
+          },
+          "actors": [
+            {
+              "id": "nekoc-default-actor",
+              "logicalPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "visible": true
+            }
+          ],
+          "visibilityState": "visible",
+          "wallMsSinceStart": null
+        },
+        {
+          "label": "after-start",
+          "at": 2735.899999976158,
+          "running": true,
+          "elapsedFrames": 1,
+          "variables": {
+            "kn-list-chunk_x": {
+              "length": 0
+            },
+            "kn-list-chunk_z": {
+              "length": 0
+            },
+            "kn-list-world": {
+              "length": 2
+            },
+            "kn-var-gui_dirty": 1,
+            "kn-var-px": 8,
+            "kn-var-py": 30,
+            "kn-var-pz": 8,
+            "kn-var-screen": 0
+          },
+          "actors": [
+            {
+              "id": "nekoc-default-actor",
+              "logicalPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "visible": false
+            }
+          ],
+          "visibilityState": "visible",
+          "wallMsSinceStart": 171
+        },
+        {
+          "label": "progress",
+          "at": 12768.399999976158,
+          "running": true,
+          "elapsedFrames": 404,
+          "variables": {
+            "kn-list-chunk_x": {
+              "length": 0
+            },
+            "kn-list-chunk_z": {
+              "length": 0
+            },
+            "kn-list-world": {
+              "length": 28643
+            },
+            "kn-var-gui_dirty": 1,
+            "kn-var-px": 8,
+            "kn-var-py": 30,
+            "kn-var-pz": 8,
+            "kn-var-screen": 0
+          },
+          "actors": [
+            {
+              "id": "nekoc-default-actor",
+              "logicalPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "visible": false
+            }
+          ],
+          "visibilityState": "visible",
+          "wallMsSinceStart": 10205
+        },
+        {
+          "label": "progress",
+          "at": 62942.69999998808,
+          "running": true,
+          "elapsedFrames": 1727,
+          "variables": {
+            "kn-list-chunk_x": {
+              "length": 0
+            },
+            "kn-list-chunk_z": {
+              "length": 0
+            },
+            "kn-list-world": {
+              "length": 123340
+            },
+            "kn-var-gui_dirty": 1,
+            "kn-var-px": 8,
+            "kn-var-py": 30,
+            "kn-var-pz": 8,
+            "kn-var-screen": 0
+          },
+          "actors": [
+            {
+              "id": "nekoc-default-actor",
+              "logicalPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "visible": false
+            }
+          ],
+          "visibilityState": "visible",
+          "wallMsSinceStart": 60377
+        },
+        {
+          "label": "progress",
+          "at": 123255.09999996424,
+          "running": true,
+          "elapsedFrames": 2792,
+          "variables": {
+            "kn-list-chunk_x": {
+              "length": 0
+            },
+            "kn-list-chunk_z": {
+              "length": 0
+            },
+            "kn-list-world": {
+              "length": 193957
+            },
+            "kn-var-gui_dirty": 1,
+            "kn-var-px": 8,
+            "kn-var-py": 30,
+            "kn-var-pz": 8,
+            "kn-var-screen": 0
+          },
+          "actors": [
+            {
+              "id": "nekoc-default-actor",
+              "logicalPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "visible": false
+            }
+          ],
+          "visibilityState": "visible",
+          "wallMsSinceStart": 120695
+        },
+        {
+          "label": "progress",
+          "at": 183663,
+          "running": true,
+          "elapsedFrames": 3650,
+          "variables": {
+            "kn-list-chunk_x": {
+              "length": 0
+            },
+            "kn-list-chunk_z": {
+              "length": 0
+            },
+            "kn-list-world": {
+              "length": 251588
+            },
+            "kn-var-gui_dirty": 1,
+            "kn-var-px": 8,
+            "kn-var-py": 30,
+            "kn-var-pz": 8,
+            "kn-var-screen": 0
+          },
+          "actors": [
+            {
+              "id": "nekoc-default-actor",
+              "logicalPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "visible": false
+            }
+          ],
+          "visibilityState": "visible",
+          "wallMsSinceStart": 181099
+        },
+        {
+          "label": "progress",
+          "at": 244075.30000001192,
+          "running": true,
+          "elapsedFrames": 4397,
+          "variables": {
+            "kn-list-chunk_x": {
+              "length": 0
+            },
+            "kn-list-chunk_z": {
+              "length": 0
+            },
+            "kn-list-world": {
+              "length": 303320
+            },
+            "kn-var-gui_dirty": 1,
+            "kn-var-px": 8,
+            "kn-var-py": 30,
+            "kn-var-pz": 8,
+            "kn-var-screen": 0
+          },
+          "actors": [
+            {
+              "id": "nekoc-default-actor",
+              "logicalPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "visible": false
+            }
+          ],
+          "visibilityState": "visible",
+          "wallMsSinceStart": 241510
+        },
+        {
+          "label": "progress",
+          "at": 304564.3000000119,
+          "running": true,
+          "elapsedFrames": 5064,
+          "variables": {
+            "kn-list-chunk_x": {
+              "length": 0
+            },
+            "kn-list-chunk_z": {
+              "length": 0
+            },
+            "kn-list-world": {
+              "length": 350159
+            },
+            "kn-var-gui_dirty": 1,
+            "kn-var-px": 8,
+            "kn-var-py": 30,
+            "kn-var-pz": 8,
+            "kn-var-screen": 0
+          },
+          "actors": [
+            {
+              "id": "nekoc-default-actor",
+              "logicalPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "visible": false
+            }
+          ],
+          "visibilityState": "visible",
+          "wallMsSinceStart": 302001
+        },
+        {
+          "label": "progress",
+          "at": 365014.1999999881,
+          "running": true,
+          "elapsedFrames": 5665,
+          "variables": {
+            "kn-list-chunk_x": {
+              "length": 0
+            },
+            "kn-list-chunk_z": {
+              "length": 0
+            },
+            "kn-list-world": {
+              "length": 391980
+            },
+            "kn-var-gui_dirty": 1,
+            "kn-var-px": 8,
+            "kn-var-py": 30,
+            "kn-var-pz": 8,
+            "kn-var-screen": 0
+          },
+          "actors": [
+            {
+              "id": "nekoc-default-actor",
+              "logicalPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "visible": false
+            }
+          ],
+          "visibilityState": "visible",
+          "wallMsSinceStart": 362451
+        },
+        {
+          "label": "progress",
+          "at": 425598.3000000119,
+          "running": true,
+          "elapsedFrames": 6215,
+          "variables": {
+            "kn-list-chunk_x": {
+              "length": 0
+            },
+            "kn-list-chunk_z": {
+              "length": 0
+            },
+            "kn-list-world": {
+              "length": 430933
+            },
+            "kn-var-gui_dirty": 1,
+            "kn-var-px": 8,
+            "kn-var-py": 30,
+            "kn-var-pz": 8,
+            "kn-var-screen": 0
+          },
+          "actors": [
+            {
+              "id": "nekoc-default-actor",
+              "logicalPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "visible": false
+            }
+          ],
+          "visibilityState": "visible",
+          "wallMsSinceStart": 423034
+        },
+        {
+          "label": "progress",
+          "at": 486168.59999996424,
+          "running": true,
+          "elapsedFrames": 6733,
+          "variables": {
+            "kn-list-chunk_x": {
+              "length": 0
+            },
+            "kn-list-chunk_z": {
+              "length": 0
+            },
+            "kn-list-world": {
+              "length": 468113
+            },
+            "kn-var-gui_dirty": 1,
+            "kn-var-px": 8,
+            "kn-var-py": 30,
+            "kn-var-pz": 8,
+            "kn-var-screen": 0
+          },
+          "actors": [
+            {
+              "id": "nekoc-default-actor",
+              "logicalPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "visible": false
+            }
+          ],
+          "visibilityState": "visible",
+          "wallMsSinceStart": 483604
+        },
+        {
+          "label": "progress",
+          "at": 546782.8999999762,
+          "running": true,
+          "elapsedFrames": 7209,
+          "variables": {
+            "kn-list-chunk_x": {
+              "length": 0
+            },
+            "kn-list-chunk_z": {
+              "length": 0
+            },
+            "kn-list-world": {
+              "length": 501165
+            },
+            "kn-var-gui_dirty": 1,
+            "kn-var-px": 8,
+            "kn-var-py": 30,
+            "kn-var-pz": 8,
+            "kn-var-screen": 0
+          },
+          "actors": [
+            {
+              "id": "nekoc-default-actor",
+              "logicalPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "visible": false
+            }
+          ],
+          "visibilityState": "visible",
+          "wallMsSinceStart": 544218
+        },
+        {
+          "label": "progress",
+          "at": 597371.6999999881,
+          "running": true,
+          "elapsedFrames": 7592,
+          "variables": {
+            "kn-list-chunk_x": {
+              "length": 64
+            },
+            "kn-list-chunk_z": {
+              "length": 64
+            },
+            "kn-list-world": {
+              "length": 524288
+            },
+            "kn-var-gui_dirty": 0,
+            "kn-var-px": 8,
+            "kn-var-py": 30,
+            "kn-var-pz": 8,
+            "kn-var-screen": 0
+          },
+          "actors": [
+            {
+              "id": "nekoc-default-actor",
+              "logicalPosition": {
+                "x": 0,
+                "y": -65
+              },
+              "position": {
+                "x": 0,
+                "y": 65
+              },
+              "visible": false
+            }
+          ],
+          "visibilityState": "visible",
+          "wallMsSinceStart": 594807
+        },
+        {
+          "label": "milestone-confirmed",
+          "at": 597630.8999999762,
+          "running": true,
+          "elapsedFrames": 7594,
+          "variables": {
+            "kn-list-chunk_x": {
+              "length": 64,
+              "head": [
+                99999,
+                99999,
+                99999,
+                99999
+              ],
+              "tail": [
+                99999,
+                99999,
+                99999,
+                99999
+              ]
+            },
+            "kn-list-chunk_z": {
+              "length": 64,
+              "head": [
+                99999,
+                99999,
+                99999,
+                99999
+              ],
+              "tail": [
+                99999,
+                99999,
+                99999,
+                99999
+              ]
+            },
+            "kn-list-world": {
+              "length": 524288,
+              "head": [
+                0,
+                0,
+                0,
+                0
+              ],
+              "tail": [
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            "kn-var-gui_dirty": 0,
+            "kn-var-px": 8,
+            "kn-var-py": 30,
+            "kn-var-pz": 8,
+            "kn-var-screen": 0
+          },
+          "actors": [
+            {
+              "id": "nekoc-default-actor",
+              "logicalPosition": {
+                "x": 0,
+                "y": -65
+              },
+              "position": {
+                "x": 0,
+                "y": 65
+              },
+              "visible": false
+            }
+          ],
+          "visibilityState": "visible",
+          "wallMsSinceStart": 597339,
+          "listDigests": {
+            "kn-list-chunk_x": {
+              "length": 64,
+              "jsonSha256": "17294ded8e7270f1f5db008f1a7a0dcf7ec945d5f6b48c89064f9129f87d9125",
+              "allEqual": 99999
+            },
+            "kn-list-chunk_z": {
+              "length": 64,
+              "jsonSha256": "17294ded8e7270f1f5db008f1a7a0dcf7ec945d5f6b48c89064f9129f87d9125",
+              "allEqual": 99999
+            },
+            "kn-list-world": {
+              "length": 524288,
+              "jsonSha256": "85f99ca1946040d96a6130d38d54735660098f0a066ec0cbfc15fdc56ac7a576",
+              "allEqual": 0
+            }
+          }
+        }
+      ],
+      "outcome": "milestone-complete",
+      "runtimeInspection": {
+        "editorVersion": "0.27.4",
+        "config": {
+          "nan_to_zero_conversion_blocks": [
+            "repeat_n_times",
+            "wait",
+            "kids_wait"
+          ],
+          "loop_break_error_type": "warning",
+          "per_entity_clone_limit": 300,
+          "entity_max_clones_per_frame": 300,
+          "clone_target_do_add_responder_interpreters": true,
+          "replace_parameters_value": true,
+          "block_pool_preallocation_size": 50,
+          "opti_frame_pool_preallocation_size": 10,
+          "opti_frame_pool_size_limit": 600,
+          "legacy": {
+            "lists_get_value_allow_return_undefined": false
+          },
+          "max_procedure_calls_per_interpreter_step": 50000,
+          "max_warp_iterations_per_interpreter_step": 30000,
+          "warp_interpreter_millisecond_time_limit": 4,
+          "max_call_stack_size": 10000,
+          "opti_compiler": {
+            "pretty_print": false
+          },
+          "reports_all_entities": true,
+          "should_report_current_running_block": false,
+          "user_debug_mode": false,
+          "ignore_missing_domain_function": false
+        },
+        "visibilityState": "visible",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36 Edg/157.0.0.0"
+      },
+      "startedAt": "2026-11-11T19:16:36.656Z",
+      "firstMilestoneWallMs": 594807,
+      "sourceUnchangedAfterRun": true,
+      "rawSampleCount": 62
+    },
+    "tiny-lm": {
+      "fixture": "projects/tiny-lm/tiny_lm.bcmkn",
+      "sha256": "cf5c58a1ab92c1b605897a5093bea80a5bffc23e79c87dc7fa3a65b2ab82fb16",
+      "projectVersion": "0.27.4",
+      "pageErrors": [],
+      "bundles": [
+        {
+          "name": "crc_libs.8196dbd1.js",
+          "url": "https://creation.bcmcdn.com/neko/web/release/static/js/crc_libs.8196dbd1.js",
+          "bytes": 1297643,
+          "sha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7"
+        },
+        {
+          "name": "main.8ccf2442.js",
+          "url": "https://creation.bcmcdn.com/neko/web/release/static/js/main.8ccf2442.js",
+          "bytes": 5594327,
+          "sha256": "58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165"
+        }
+      ],
+      "samples": [
+        {
+          "label": "before-start",
+          "at": 2774.199999988079,
+          "running": false,
+          "elapsedFrames": 0,
+          "variables": {
+            "kn-list-lm_generated_ids": 0,
+            "kn-list-lm_prompt_tokens": 0,
+            "kn-list-lm_top_ids": 0,
+            "kn-var-lm_frames": 0,
+            "kn-var-lm_generated": 0,
+            "kn-var-lm_input_token": 0,
+            "kn-var-lm_last_input": 0,
+            "kn-var-lm_last_position": 0,
+            "kn-var-lm_next_token": 0,
+            "kn-var-lm_output": 0,
+            "kn-var-lm_phase": 0,
+            "kn-var-lm_position": 0,
+            "kn-var-lm_prefill": 0,
+            "kn-var-lm_ready": 0,
+            "kn-var-lm_running": 0,
+            "kn-var-lm_status": 0,
+            "kn-var-lm_tokens_processed": 0
+          },
+          "actors": [
+            {
+              "id": "nekoc-default-actor",
+              "logicalPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "position": {
+                "x": 0,
+                "y": 0
+              },
+              "visible": true
+            }
+          ],
+          "visibilityState": "visible",
+          "wallMsSinceStart": null
+        },
+        {
+          "label": "after-start",
+          "at": 3158.399999976158,
+          "running": true,
+          "elapsedFrames": 1,
+          "variables": {
+            "kn-list-lm_generated_ids": {
+              "length": 0,
+              "head": [],
+              "tail": []
+            },
+            "kn-list-lm_prompt_tokens": {
+              "length": 0
+            },
+            "kn-list-lm_top_ids": {
+              "length": 0
+            },
+            "kn-var-lm_frames": 0,
+            "kn-var-lm_generated": 0,
+            "kn-var-lm_input_token": 0,
+            "kn-var-lm_last_input": 0,
+            "kn-var-lm_last_position": 0,
+            "kn-var-lm_next_token": 0,
+            "kn-var-lm_output": "",
+            "kn-var-lm_phase": "KV CACHE",
+            "kn-var-lm_position": 0,
+            "kn-var-lm_prefill": 0,
+            "kn-var-lm_ready": 0,
+            "kn-var-lm_running": 0,
+            "kn-var-lm_status": "INITIALIZING",
+            "kn-var-lm_tokens_processed": 0
+          },
+          "actors": [
+            {
+              "id": "nekoc-default-actor",
+              "logicalPosition": {
+                "x": -420,
+                "y": -242
+              },
+              "position": {
+                "x": -420,
+                "y": 242
+              },
+              "visible": false
+            }
+          ],
+          "visibilityState": "visible",
+          "wallMsSinceStart": 380
+        },
+        {
+          "label": "progress",
+          "at": 13172.399999976158,
+          "running": true,
+          "elapsedFrames": 1112,
+          "variables": {
+            "kn-list-lm_generated_ids": {
+              "length": 7,
+              "head": [
+                66,
+                15,
+                31,
+                4,
+                78,
+                58,
+                64
+              ],
+              "tail": [
+                4,
+                78,
+                58,
+                64
+              ]
+            },
+            "kn-list-lm_prompt_tokens": {
+              "length": 3
+            },
+            "kn-list-lm_top_ids": {
+              "length": 3
+            },
+            "kn-var-lm_frames": 9,
+            "kn-var-lm_generated": 7,
+            "kn-var-lm_input_token": 64,
+            "kn-var-lm_last_input": 58,
+            "kn-var-lm_last_position": 8,
+            "kn-var-lm_next_token": 64,
+            "kn-var-lm_output": "走到山上，看见",
+            "kn-var-lm_phase": "LAYER 1 / 2",
+            "kn-var-lm_position": 9,
+            "kn-var-lm_prefill": 0,
+            "kn-var-lm_ready": 1,
+            "kn-var-lm_running": 1,
+            "kn-var-lm_status": "GENERATING",
+            "kn-var-lm_tokens_processed": 9
+          },
+          "actors": [
+            {
+              "id": "nekoc-default-actor",
+              "logicalPosition": {
+                "x": -420,
+                "y": -242
+              },
+              "position": {
+                "x": -420,
+                "y": 242
+              },
+              "visible": false
+            }
+          ],
+          "visibilityState": "visible",
+          "wallMsSinceStart": 10395
+        },
+        {
+          "label": "progress",
+          "at": 23190.30000001192,
+          "running": true,
+          "elapsedFrames": 2375,
+          "variables": {
+            "kn-list-lm_generated_ids": {
+              "length": 15,
+              "head": [
+                66,
+                15,
+                31,
+                4,
+                78,
+                58,
+                64,
+                7,
+                8,
+                2,
+                27,
+                33,
+                32,
+                35,
+                2
+              ],
+              "tail": [
+                33,
+                32,
+                35,
+                2
+              ]
+            },
+            "kn-list-lm_prompt_tokens": {
+              "length": 3
+            },
+            "kn-list-lm_top_ids": {
+              "length": 3
+            },
+            "kn-var-lm_frames": 27,
+            "kn-var-lm_generated": 15,
+            "kn-var-lm_input_token": 2,
+            "kn-var-lm_last_input": 2,
+            "kn-var-lm_last_position": 17,
+            "kn-var-lm_next_token": 1,
+            "kn-var-lm_output": "走到山上，看见了云。它很开心。",
+            "kn-var-lm_phase": "READY",
+            "kn-var-lm_position": 18,
+            "kn-var-lm_prefill": 0,
+            "kn-var-lm_ready": 1,
+            "kn-var-lm_running": 0,
+            "kn-var-lm_status": "DONE / EOS",
+            "kn-var-lm_tokens_processed": 18
+          },
+          "actors": [
+            {
+              "id": "nekoc-default-actor",
+              "logicalPosition": {
+                "x": -420,
+                "y": -242
+              },
+              "position": {
+                "x": -420,
+                "y": 242
+              },
+              "visible": false
+            }
+          ],
+          "visibilityState": "visible",
+          "wallMsSinceStart": 20413
+        },
+        {
+          "label": "milestone-confirmed",
+          "at": 23395.899999976158,
+          "running": true,
+          "elapsedFrames": 2421,
+          "variables": {
+            "kn-list-lm_generated_ids": {
+              "length": 15,
+              "head": [
+                66,
+                15,
+                31,
+                4,
+                78,
+                58,
+                64,
+                7,
+                8,
+                2,
+                27,
+                33,
+                32,
+                35,
+                2
+              ],
+              "tail": [
+                33,
+                32,
+                35,
+                2
+              ]
+            },
+            "kn-list-lm_prompt_tokens": {
+              "length": 3,
+              "head": [
+                0,
+                30,
+                56
+              ],
+              "tail": [
+                0,
+                30,
+                56
+              ]
+            },
+            "kn-list-lm_top_ids": {
+              "length": 3,
+              "head": [
+                1,
+                30,
+                2
+              ],
+              "tail": [
+                1,
+                30,
+                2
+              ]
+            },
+            "kn-var-lm_frames": 29,
+            "kn-var-lm_generated": 15,
+            "kn-var-lm_input_token": 2,
+            "kn-var-lm_last_input": 2,
+            "kn-var-lm_last_position": 17,
+            "kn-var-lm_next_token": 1,
+            "kn-var-lm_output": "走到山上，看见了云。它很开心。",
+            "kn-var-lm_phase": "READY",
+            "kn-var-lm_position": 18,
+            "kn-var-lm_prefill": 0,
+            "kn-var-lm_ready": 1,
+            "kn-var-lm_running": 0,
+            "kn-var-lm_status": "DONE / EOS",
+            "kn-var-lm_tokens_processed": 18
+          },
+          "actors": [
+            {
+              "id": "nekoc-default-actor",
+              "logicalPosition": {
+                "x": -420,
+                "y": -242
+              },
+              "position": {
+                "x": -420,
+                "y": 242
+              },
+              "visible": false
+            }
+          ],
+          "visibilityState": "visible",
+          "wallMsSinceStart": 20619,
+          "listDigests": {
+            "kn-list-lm_generated_ids": {
+              "length": 15,
+              "jsonSha256": "1ff1eff9f876116bb8c6097d838a5f3e044fe71a9979bc546f1176dc02f1b660"
+            },
+            "kn-list-lm_prompt_tokens": {
+              "length": 3,
+              "jsonSha256": "7fd2bf382b3d54991bac86d466848f45221fb663570eb5d1d7be24ebcbc6c4fc"
+            },
+            "kn-list-lm_top_ids": {
+              "length": 3,
+              "jsonSha256": "3ede7e9e9cb51ff1067aa3ec9e870fb277f0966d298f2c8add0efbde7509cbc6"
+            }
+          }
+        }
+      ],
+      "outcome": "milestone-complete",
+      "runtimeInspection": {
+        "editorVersion": "0.27.4",
+        "config": {
+          "nan_to_zero_conversion_blocks": [
+            "repeat_n_times",
+            "wait",
+            "kids_wait"
+          ],
+          "loop_break_error_type": "warning",
+          "per_entity_clone_limit": 300,
+          "entity_max_clones_per_frame": 300,
+          "clone_target_do_add_responder_interpreters": true,
+          "replace_parameters_value": true,
+          "block_pool_preallocation_size": 50,
+          "opti_frame_pool_preallocation_size": 10,
+          "opti_frame_pool_size_limit": 600,
+          "legacy": {
+            "lists_get_value_allow_return_undefined": false
+          },
+          "max_procedure_calls_per_interpreter_step": 50000,
+          "max_warp_iterations_per_interpreter_step": 30000,
+          "warp_interpreter_millisecond_time_limit": 4,
+          "max_call_stack_size": 10000,
+          "opti_compiler": {
+            "pretty_print": false
+          },
+          "reports_all_entities": true,
+          "should_report_current_running_block": false,
+          "user_debug_mode": false,
+          "ignore_missing_domain_function": false
+        },
+        "visibilityState": "visible",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36 Edg/157.0.0.0"
+      },
+      "startedAt": "2026-11-11T19:26:37.187Z",
+      "firstMilestoneWallMs": 20413,
+      "sourceUnchangedAfterRun": true,
+      "rawSampleCount": 5
+    }
+  },
+  "limitations": [
+    "Wall-clock samples are not frame counts or equal-work comparisons.",
+    "Milestone completion is not whole-project termination: both projects retain live event loops.",
+    "No pixel, gameplay input, timer lifecycle or full runtime equivalence claim.",
+    "List SHA-256 binds JSON.stringify(values) in order, not runtime storage bytes."
+  ],
+  "completedAt": "2026-11-11T19:26:58.204Z",
+  "ok": true,
+  "rawReport": {
+    "path": "dist/hncompat2-progress/raw-report.json",
+    "sha256": "1e10698bb6bc4c3a761648e63b9497e66839a430f6288d1e7e349417174514ca"
+  },
+  "sourceAnchors": [
+    {
+      "purpose": "Official default warp iteration and wall-clock limits (live config also recorded)",
+      "bundle": "crc_libs.8196dbd1.js",
+      "bundleSha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7",
+      "byteOffset": 864527,
+      "excerptCharacters": 240,
+      "excerptSha256": "2b9075499b0c552abd86343fc6448edb4d0f12679512047739fada9b92003e83"
+    },
+    {
+      "purpose": "List append pushes then reports update; not evidence of listener cost",
+      "bundle": "crc_libs.8196dbd1.js",
+      "bundleSha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7",
+      "byteOffset": 825581,
+      "excerptCharacters": 100,
+      "excerptSha256": "e4c454265eb02eb93e86ee8c5eaa273f078e521e22a63dd9436745c8c7b055cb"
+    },
+    {
+      "purpose": "List update publishes runtime_data.list_update event; listener behavior not inferred",
+      "bundle": "crc_libs.8196dbd1.js",
+      "bundleSha256": "462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7",
+      "byteOffset": 977868,
+      "excerptCharacters": 145,
+      "excerptSha256": "bc0f7c502b70372208d4698e59fb0f9c313ef687bb24a5af0859b979d3b70de2"
+    }
+  ]
+}

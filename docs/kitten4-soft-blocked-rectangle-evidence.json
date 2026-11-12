@@ -1,0 +1,581 @@
+{
+  "schema": "nekoc-k4-soft-blocked-debug-v1",
+  "variant": "rectangle",
+  "projectSha256": "b2c2b79a5db8efabbac63d41bbc485ed8476e76c9fa24839f7bd10e5ca3aa93e",
+  "method": "CDP Debugger.pause; read-only scope/property inspection; resume; no kernel replacement",
+  "pauses": [
+    {
+      "reason": "other",
+      "stack": [
+        {
+          "function": "generate_position_data",
+          "file": "/kn/build/player_v2.2d180c468559fbd29528.js",
+          "line": 1,
+          "column": 848981,
+          "locals": {
+            "t": "probe-style",
+            "e": "e",
+            "c": "Array(40)",
+            "h": "Array(26)",
+            "d": "Set(25)",
+            "_": 1.7999999999999998,
+            "w": 25,
+            "x": 0,
+            "E": "Set(1)"
+          },
+          "this": {
+            "app": "O",
+            "data": "ht",
+            "box2d": "Module",
+            "scene_world": "Qt",
+            "actor": "Lt",
+            "get_strength": "[function]",
+            "type": 1,
+            "position_cache": "Mt",
+            "particle_system": "Bo",
+            "start_rotation": 0
+          },
+          "samplingState": {
+            "outlineLength": 40,
+            "pointCount": 26,
+            "interiorAnchorCount": 25,
+            "boundaryAnchorCount": 1,
+            "increment": 0,
+            "cachedMaxAnchors": 101,
+            "initialPointCount": 25,
+            "particleStride": 1.7999999999999998,
+            "firstOutlinePoint": {
+              "x": -4.9,
+              "y": -3.9
+            },
+            "lastOutlinePoint": {
+              "x": -4.6,
+              "y": -3.9
+            }
+          }
+        },
+        {
+          "function": "init",
+          "file": "/kn/build/player_v2.2d180c468559fbd29528.js",
+          "line": 1,
+          "column": 844835,
+          "locals": {
+            "t": "Object",
+            "e": "probe-style"
+          },
+          "this": {
+            "app": "O",
+            "data": "ht",
+            "box2d": "Module",
+            "scene_world": "Qt",
+            "actor": "Lt",
+            "get_strength": "[function]",
+            "type": 1,
+            "position_cache": "Mt",
+            "particle_system": "Bo",
+            "start_rotation": 0
+          }
+        },
+        {
+          "function": "set_enabled",
+          "file": "/kn/build/player_v2.2d180c468559fbd29528.js",
+          "line": 1,
+          "column": 842362,
+          "locals": {
+            "t": true,
+            "e": "Object"
+          },
+          "this": {
+            "app": "O",
+            "data": "ht",
+            "box2d": "Module",
+            "scene_world": "Qt",
+            "actor": "Lt",
+            "get_strength": "[function]",
+            "type": 1,
+            "position_cache": "Mt",
+            "particle_system": "Bo",
+            "start_rotation": 0
+          }
+        },
+        {
+          "function": "set_elastic",
+          "file": "/kn/build/player_v2.2d180c468559fbd29528.js",
+          "line": 1,
+          "column": 861087
+        },
+        {
+          "function": "physics2_set_texture",
+          "file": "/kn/build/player_v2.2d180c468559fbd29528.js",
+          "line": 1,
+          "column": 650342
+        },
+        {
+          "function": "t.step_call_domain_function",
+          "file": "/kn/build/player_v2.2d180c468559fbd29528.js",
+          "line": 1,
+          "column": 446469
+        },
+        {
+          "function": "optifun",
+          "file": "",
+          "line": 3,
+          "column": 1652
+        },
+        {
+          "function": "t.do_step",
+          "file": "/kn/build/player_v2.2d180c468559fbd29528.js",
+          "line": 1,
+          "column": 452370
+        },
+        {
+          "function": "t.step",
+          "file": "/kn/build/player_v2.2d180c468559fbd29528.js",
+          "line": 1,
+          "column": 451775
+        },
+        {
+          "function": "t._step",
+          "file": "/kn/build/player_v2.2d180c468559fbd29528.js",
+          "line": 1,
+          "column": 1188624
+        },
+        {
+          "function": "t.step_code",
+          "file": "/kn/build/player_v2.2d180c468559fbd29528.js",
+          "line": 1,
+          "column": 1188398
+        },
+        {
+          "function": "t.update",
+          "file": "/kn/build/player_v2.2d180c468559fbd29528.js",
+          "line": 1,
+          "column": 1181347
+        },
+        {
+          "function": "t.update",
+          "file": "/kn/build/player_v2.2d180c468559fbd29528.js",
+          "line": 1,
+          "column": 570933
+        },
+        {
+          "function": "at",
+          "file": "/kn/build/player_v2.2d180c468559fbd29528.js",
+          "line": 1,
+          "column": 1724837
+        },
+        {
+          "function": "ft",
+          "file": "/kn/build/player_v2.2d180c468559fbd29528.js",
+          "line": 1,
+          "column": 1728585
+        },
+        {
+          "function": "t.execute",
+          "file": "/kn/build/player_v2.2d180c468559fbd29528.js",
+          "line": 1,
+          "column": 744911
+        }
+      ]
+    },
+    {
+      "reason": "other",
+      "stack": [
+        {
+          "function": "generate_position_data",
+          "file": "/kn/build/player_v2.2d180c468559fbd29528.js",
+          "line": 1,
+          "column": 848981,
+          "locals": {
+            "t": "probe-style",
+            "e": "e",
+            "c": "Array(40)",
+            "h": "Array(26)",
+            "d": "Set(25)",
+            "_": 1.7999999999999998,
+            "w": 25,
+            "x": 0,
+            "E": "Set(1)"
+          },
+          "this": {
+            "app": "O",
+            "data": "ht",
+            "box2d": "Module",
+            "scene_world": "Qt",
+            "actor": "Lt",
+            "get_strength": "[function]",
+            "type": 1,
+            "position_cache": "Mt",
+            "particle_system": "Bo",
+            "start_rotation": 0
+          },
+          "samplingState": {
+            "outlineLength": 40,
+            "pointCount": 26,
+            "interiorAnchorCount": 25,
+            "boundaryAnchorCount": 1,
+            "increment": 0,
+            "cachedMaxAnchors": 101,
+            "initialPointCount": 25,
+            "particleStride": 1.7999999999999998,
+            "firstOutlinePoint": {
+              "x": -4.9,
+              "y": -3.9
+            },
+            "lastOutlinePoint": {
+              "x": -4.6,
+              "y": -3.9
+            }
+          }
+        },
+        {
+          "function": "init",
+          "file": "/kn/build/player_v2.2d180c468559fbd29528.js",
+          "line": 1,
+          "column": 844835,
+          "locals": {
+            "t": "Object",
+            "e": "probe-style"
+          },
+          "this": {
+            "app": "O",
+            "data": "ht",
+            "box2d": "Module",
+            "scene_world": "Qt",
+            "actor": "Lt",
+            "get_strength": "[function]",
+            "type": 1,
+            "position_cache": "Mt",
+            "particle_system": "Bo",
+            "start_rotation": 0
+          }
+        },
+        {
+          "function": "set_enabled",
+          "file": "/kn/build/player_v2.2d180c468559fbd29528.js",
+          "line": 1,
+          "column": 842362,
+          "locals": {
+            "t": true,
+            "e": "Object"
+          },
+          "this": {
+            "app": "O",
+            "data": "ht",
+            "box2d": "Module",
+            "scene_world": "Qt",
+            "actor": "Lt",
+            "get_strength": "[function]",
+            "type": 1,
+            "position_cache": "Mt",
+            "particle_system": "Bo",
+            "start_rotation": 0
+          }
+        },
+        {
+          "function": "set_elastic",
+          "file": "/kn/build/player_v2.2d180c468559fbd29528.js",
+          "line": 1,
+          "column": 861087
+        },
+        {
+          "function": "physics2_set_texture",
+          "file": "/kn/build/player_v2.2d180c468559fbd29528.js",
+          "line": 1,
+          "column": 650342
+        },
+        {
+          "function": "t.step_call_domain_function",
+          "file": "/kn/build/player_v2.2d180c468559fbd29528.js",
+          "line": 1,
+          "column": 446469
+        },
+        {
+          "function": "optifun",
+          "file": "",
+          "line": 3,
+          "column": 1652
+        },
+        {
+          "function": "t.do_step",
+          "file": "/kn/build/player_v2.2d180c468559fbd29528.js",
+          "line": 1,
+          "column": 452370
+        },
+        {
+          "function": "t.step",
+          "file": "/kn/build/player_v2.2d180c468559fbd29528.js",
+          "line": 1,
+          "column": 451775
+        },
+        {
+          "function": "t._step",
+          "file": "/kn/build/player_v2.2d180c468559fbd29528.js",
+          "line": 1,
+          "column": 1188624
+        },
+        {
+          "function": "t.step_code",
+          "file": "/kn/build/player_v2.2d180c468559fbd29528.js",
+          "line": 1,
+          "column": 1188398
+        },
+        {
+          "function": "t.update",
+          "file": "/kn/build/player_v2.2d180c468559fbd29528.js",
+          "line": 1,
+          "column": 1181347
+        },
+        {
+          "function": "t.update",
+          "file": "/kn/build/player_v2.2d180c468559fbd29528.js",
+          "line": 1,
+          "column": 570933
+        },
+        {
+          "function": "at",
+          "file": "/kn/build/player_v2.2d180c468559fbd29528.js",
+          "line": 1,
+          "column": 1724837
+        },
+        {
+          "function": "ft",
+          "file": "/kn/build/player_v2.2d180c468559fbd29528.js",
+          "line": 1,
+          "column": 1728585
+        },
+        {
+          "function": "t.execute",
+          "file": "/kn/build/player_v2.2d180c468559fbd29528.js",
+          "line": 1,
+          "column": 744911
+        }
+      ]
+    },
+    {
+      "reason": "other",
+      "stack": [
+        {
+          "function": "generate_position_data",
+          "file": "/kn/build/player_v2.2d180c468559fbd29528.js",
+          "line": 1,
+          "column": 848981,
+          "locals": {
+            "t": "probe-style",
+            "e": "e",
+            "c": "Array(40)",
+            "h": "Array(26)",
+            "d": "Set(25)",
+            "_": 1.7999999999999998,
+            "w": 25,
+            "x": 0,
+            "E": "Set(1)"
+          },
+          "this": {
+            "app": "O",
+            "data": "ht",
+            "box2d": "Module",
+            "scene_world": "Qt",
+            "actor": "Lt",
+            "get_strength": "[function]",
+            "type": 1,
+            "position_cache": "Mt",
+            "particle_system": "Bo",
+            "start_rotation": 0
+          },
+          "samplingState": {
+            "outlineLength": 40,
+            "pointCount": 26,
+            "interiorAnchorCount": 25,
+            "boundaryAnchorCount": 1,
+            "increment": 0,
+            "cachedMaxAnchors": 101,
+            "initialPointCount": 25,
+            "particleStride": 1.7999999999999998,
+            "firstOutlinePoint": {
+              "x": -4.9,
+              "y": -3.9
+            },
+            "lastOutlinePoint": {
+              "x": -4.6,
+              "y": -3.9
+            }
+          }
+        },
+        {
+          "function": "init",
+          "file": "/kn/build/player_v2.2d180c468559fbd29528.js",
+          "line": 1,
+          "column": 844835,
+          "locals": {
+            "t": "Object",
+            "e": "probe-style"
+          },
+          "this": {
+            "app": "O",
+            "data": "ht",
+            "box2d": "Module",
+            "scene_world": "Qt",
+            "actor": "Lt",
+            "get_strength": "[function]",
+            "type": 1,
+            "position_cache": "Mt",
+            "particle_system": "Bo",
+            "start_rotation": 0
+          }
+        },
+        {
+          "function": "set_enabled",
+          "file": "/kn/build/player_v2.2d180c468559fbd29528.js",
+          "line": 1,
+          "column": 842362,
+          "locals": {
+            "t": true,
+            "e": "Object"
+          },
+          "this": {
+            "app": "O",
+            "data": "ht",
+            "box2d": "Module",
+            "scene_world": "Qt",
+            "actor": "Lt",
+            "get_strength": "[function]",
+            "type": 1,
+            "position_cache": "Mt",
+            "particle_system": "Bo",
+            "start_rotation": 0
+          }
+        },
+        {
+          "function": "set_elastic",
+          "file": "/kn/build/player_v2.2d180c468559fbd29528.js",
+          "line": 1,
+          "column": 861087
+        },
+        {
+          "function": "physics2_set_texture",
+          "file": "/kn/build/player_v2.2d180c468559fbd29528.js",
+          "line": 1,
+          "column": 650342
+        },
+        {
+          "function": "t.step_call_domain_function",
+          "file": "/kn/build/player_v2.2d180c468559fbd29528.js",
+          "line": 1,
+          "column": 446469
+        },
+        {
+          "function": "optifun",
+          "file": "",
+          "line": 3,
+          "column": 1652
+        },
+        {
+          "function": "t.do_step",
+          "file": "/kn/build/player_v2.2d180c468559fbd29528.js",
+          "line": 1,
+          "column": 452370
+        },
+        {
+          "function": "t.step",
+          "file": "/kn/build/player_v2.2d180c468559fbd29528.js",
+          "line": 1,
+          "column": 451775
+        },
+        {
+          "function": "t._step",
+          "file": "/kn/build/player_v2.2d180c468559fbd29528.js",
+          "line": 1,
+          "column": 1188624
+        },
+        {
+          "function": "t.step_code",
+          "file": "/kn/build/player_v2.2d180c468559fbd29528.js",
+          "line": 1,
+          "column": 1188398
+        },
+        {
+          "function": "t.update",
+          "file": "/kn/build/player_v2.2d180c468559fbd29528.js",
+          "line": 1,
+          "column": 1181347
+        },
+        {
+          "function": "t.update",
+          "file": "/kn/build/player_v2.2d180c468559fbd29528.js",
+          "line": 1,
+          "column": 570933
+        },
+        {
+          "function": "at",
+          "file": "/kn/build/player_v2.2d180c468559fbd29528.js",
+          "line": 1,
+          "column": 1724837
+        },
+        {
+          "function": "ft",
+          "file": "/kn/build/player_v2.2d180c468559fbd29528.js",
+          "line": 1,
+          "column": 1728585
+        },
+        {
+          "function": "t.execute",
+          "file": "/kn/build/player_v2.2d180c468559fbd29528.js",
+          "line": 1,
+          "column": 744911
+        }
+      ]
+    }
+  ],
+  "environment": {
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36 Edg/157.0.0.0",
+    "uniformVectors": 1024
+  },
+  "status": "watchdog-timeout",
+  "frames": 0,
+  "error": "page.evaluate: Target page, context or browser has been closed",
+  "watchdog": "work exceeded 16000 ms",
+  "assets": [
+    {
+      "name": "player_v2__3ffeebbd0c789e8d9422.css",
+      "source": "player_v2__3ffeebbd0c789e8d9422.css",
+      "sha256": "39e8e70b124b604831773893cdc95931cdee3eaea52c6dd69f33f5781d48b45a"
+    },
+    {
+      "name": "runtime.f42f527f119e09010b85.js",
+      "source": "runtime.f42f527f119e09010b85.js",
+      "sha256": "4164d67795238f64d035f473418236038ae475ae36032a967cba16ede263735f"
+    },
+    {
+      "name": "vendors.d00f4bd454a6352e9d71.js",
+      "source": "vendors.d00f4bd454a6352e9d71.js",
+      "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
+    },
+    {
+      "name": "player_v2.2d180c468559fbd29528.js",
+      "source": "player_v2.2d180c468559fbd29528.js.orig",
+      "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160"
+    },
+    {
+      "name": "9.c396696e9dc71e25b012.js",
+      "source": "9.c396696e9dc71e25b012.js",
+      "sha256": "5758343310c47596d56e954aa05fa76a546080c8bf4fefd41cac0042794d6195"
+    },
+    {
+      "name": "14.c95e6f2ddd61fb701d0e.js",
+      "source": "14.c95e6f2ddd61fb701d0e.js",
+      "sha256": "d3ce91c9113463db4c0988210caeb1be2ddc508499d5c53a8e73a13b5f440175"
+    },
+    {
+      "name": "11.477512e6f03fd2f6f3c5.js",
+      "source": "11.477512e6f03fd2f6f3c5.js",
+      "sha256": "e81bfe3462cc3e79a70ba016ddee2a372a31480d3f52964952e1d21f3a490f91"
+    },
+    {
+      "name": "2.b8370041782df6e86958.js",
+      "source": "2.b8370041782df6e86958.js",
+      "sha256": "6ed56cf80a197b1dad00403ef2d55f9f4c357cb000cc52b5b0ba32c3989730d6"
+    }
+  ],
+  "pageErrors": []
+}

@@ -6,6 +6,8 @@
 
 本次只读检查外部播放器 `resources/app/src/player/build/player_v2.2d180c468559fbd29528.js.orig`，通过 webpack 模块 ID 定位原始实现；没有移植第三方内核。资源路径及 SHA-256 见 [kitten4-scheduling-evidence.json](kitten4-scheduling-evidence.json)。外部作品不属于回归夹具，也没有加入仓库。
 
+此处“官方”限定为指定离线包；后续[在线/离线取证](compatibility/k4-online-vs-offline.md)确认主包仅有 DI 暴露差异及有限样本受控状态一致，不证明所有线上版本。原生帧循环由 rAF 驱动，oracle 的固定 60 Hz 不是官方强制帧率。
+
 最小夹具由 `tools/compat/k4-scheduling-fixtures.mjs` 生成。设置 `K4_PLAYER_DIR` 为外部播放器 app 路径后，执行：
 
 ```powershell
@@ -65,6 +67,8 @@ node tools/compat/k4-oracle.mjs run --input <外部作品.bcm> --frames 3 --bloc
 ### 未完成的自动让出上限
 
 只读源码还确认 `Lcae/OptiRunner.step` 每步最多进行 `max_procedure_calls_per_interpreter_step` 次程序调用；`step_iteration_yield` 对 warped 迭代检查 `n_warp_iterations > max_warp_iterations_per_interpreter_step`，非 deterministic 模式还受墙钟限制。`TGGv/ConfigImpl` 的默认值分别是 50000、30000 和 4 ms。
+
+注意这是内核默认值，不是播放器最终配置：同包 `KmiX` 覆盖为 warp 10000 次、100 ms（procedure 上限仍为 50000）。以下未完成项保留历史任务状态；后续上限实现及实际配置证据见 [运行错误记录](kitten4-run-errors.md)。
 
 NekoC 当前只有全帧的指令/墙钟预算，没有完整重现上述**每解释器**上限。尤其很大的 warp 初始化可能过早越过其他线程应获得执行机会的位置。此项尚无可提交的独立最小实测与 JIT 实现，不宣称已经对齐，也不把它当成两个剩余作品错误的已证实根因。
 

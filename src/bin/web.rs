@@ -125,6 +125,10 @@ struct Args {
     #[cfg(feature = "desktop")]
     #[arg(long)]
     export_exe: Option<PathBuf>,
+    /// Open the native window with the same host-selected cloud profile.
+    #[cfg(feature = "desktop")]
+    #[arg(long)]
+    desktop: bool,
 }
 fn header(name: &str, value: &str) -> Header {
     Header::from_bytes(name, value).unwrap()
@@ -345,6 +349,18 @@ fn frame_budget(payload: &Value) -> Duration {
 }
 
 fn frame_bytes(vm: &mut Engine, payload: &Value) -> Result<Vec<u8>> {
+    if let Some(microphone) = payload.get("kn_microphone") {
+        match microphone["status"].as_str() {
+            Some("ready") => vm.set_kn_voice_volume(Some(
+                microphone["value"]
+                    .as_f64()
+                    .context("ready KN microphone sample requires a number")?,
+            ))?,
+            Some("pending") => vm.set_kn_voice_pending(),
+            Some("denied" | "unavailable") => vm.set_kn_voice_volume(Some(0.0))?,
+            _ => bail!("invalid KN microphone status"),
+        }
+    }
     if let Some(pressed) = payload["pressed"].as_array() {
         vm.set_pressed_keys(
             pressed
@@ -447,6 +463,16 @@ fn frame_bytes(vm: &mut Engine, payload: &Value) -> Result<Vec<u8>> {
                         vm.complete_extension(id, result)?;
                     }
                 }
+                Some("extension_event") => {
+                    let opcode = event["opcode"]
+                        .as_str()
+                        .context("extension event missing opcode")?;
+                    let value = event
+                        .get("value")
+                        .context("extension event missing value")?
+                        .clone();
+                    vm.emit_extension_event(opcode, value)?;
+                }
                 Some("drag") => {
                     if let (Some(target), Some(x), Some(y)) = (
                         event["target"].as_str(),
@@ -475,6 +501,7 @@ fn frame_bytes(vm: &mut Engine, payload: &Value) -> Result<Vec<u8>> {
                         vm.stage_dialog_click(id);
                     }
                 }
+                Some("ranking_close") => vm.close_cloud_ranking(),
                 Some("pointer") => {
                     if let (Some(state), Some(x), Some(y)) = (
                         event["state"].as_str(),
@@ -482,6 +509,54 @@ fn frame_bytes(vm: &mut Engine, payload: &Value) -> Result<Vec<u8>> {
                         event["y"].as_f64(),
                     ) {
                         vm.pointer_event(event["target"].as_str().unwrap_or(""), state, x, y);
+                    }
+                }
+                Some("device_motion") => {
+                    if let (Some(x), Some(y), Some(z)) = (
+                        event["x"].as_f64(),
+                        event["y"].as_f64(),
+                        event["z"].as_f64(),
+                    ) {
+                        vm.inject_k4_device(nekoc::device::DeviceInput::Motion { x, y, z });
+                    }
+                }
+                Some("device_orientation") => {
+                    if let (Some(beta), Some(gamma), Some(portrait)) = (
+                        event["beta"].as_f64(),
+                        event["gamma"].as_f64(),
+                        event["portrait"].as_bool(),
+                    ) {
+                        vm.inject_k4_device(nekoc::device::DeviceInput::Orientation {
+                            beta,
+                            gamma,
+                            portrait,
+                        });
+                    }
+                }
+                Some("device_event") => {
+                    if let (Some(action), Some(device), Some(value)) = (
+                        event["action"].as_str(),
+                        event["device"].as_str(),
+                        event["value"].as_str(),
+                    ) {
+                        vm.inject_k4_device(nekoc::device::DeviceInput::Event {
+                            action: action.into(),
+                            device: device.into(),
+                            value: value.into(),
+                        });
+                    }
+                }
+                Some("mobile_button") => {
+                    if let (Some(device), Some(button_event), Some(button)) = (
+                        event["device"].as_str(),
+                        event["event"].as_str(),
+                        event["button"].as_str(),
+                    ) {
+                        vm.inject_k4_device(nekoc::device::DeviceInput::Button {
+                            device: device.into(),
+                            event: button_event.into(),
+                            button: button.into(),
+                        });
                     }
                 }
                 _ => {}
@@ -528,6 +603,7 @@ fn player_socket(request: Request, project: Option<Json>, cloud: CloudSession) -
         let result = (|| -> Result<()> {
             // Private players supply their own snapshot on this connection; no global import race.
             let mut registry = nekoc::extensions::ExtensionRegistry::new();
+            let mut extension_api_version = None;
             let project = if let Some(project) = project {
                 project
             } else {
@@ -538,6 +614,24 @@ fn player_socket(request: Request, project: Option<Json>, cloud: CloudSession) -
                     let schemas: Vec<nekoc::extensions::BlockSchema> =
                         serde_json::from_value(project["extensions"].clone())?;
                     ensure!(schemas.len() <= 256, "too many remote extensions");
+                    let versions: Vec<u32> = if project.get("extension_api_versions").is_some() {
+                        serde_json::from_value(project["extension_api_versions"].clone())?
+                    } else {
+                        vec![1]
+                    };
+                    ensure!(versions.len() <= 16, "too many extension API versions");
+                    let version = nekoc::extensions::negotiate_version(&versions)?;
+                    ensure!(
+                        schemas.iter().all(|schema| schema.api_version <= version),
+                        "extension schema exceeds negotiated API version"
+                    );
+                    extension_api_version = Some(version);
+                    if version == 2 {
+                        registry.set_call_policy(nekoc::extensions::CallPolicy {
+                            errors: nekoc::extensions::ErrorPolicy::Report,
+                            ..Default::default()
+                        })?;
+                    }
                     // No network opt-in on the wire: project data cannot grant capabilities.
                     for schema in schemas {
                         registry.register_remote(schema)?;
@@ -560,7 +654,8 @@ fn player_socket(request: Request, project: Option<Json>, cloud: CloudSession) -
             cloud.attach(&mut vm)?;
             vm.start();
             socket.send(Message::Text(
-                json!({"ready":true,"stats":stats}).to_string(),
+                json!({"ready":true,"stats":stats,"extension_api_version":extension_api_version})
+                    .to_string(),
             ))?;
             loop {
                 match socket.read()? {
@@ -709,7 +804,7 @@ mod desktop {
         Ok(listener(0)?.local_addr()?.port())
     }
 
-    pub fn run(project: Json) -> Result<()> {
+    pub fn run(project: Json, cloud: CloudSession) -> Result<()> {
         let title = project
             .get("projectName")
             .and_then(Value::as_str)
@@ -717,7 +812,9 @@ mod desktop {
             .to_owned();
         let port = app_port(&project)?;
         std::thread::spawn(move || {
-            let _ = serve(project, port);
+            if let Err(error) = serve_with_cloud(project, port, cloud) {
+                eprintln!("native player server: {error:#}");
+            }
         });
         let event_loop = EventLoop::new();
         let window = WindowBuilder::new()
@@ -746,11 +843,11 @@ mod desktop {
     }
 }
 fn main() -> Result<()> {
+    let args = Args::parse();
     #[cfg(feature = "desktop")]
     if let Some(project) = desktop::embedded_project()? {
-        return desktop::run(project);
+        return desktop::run(project, CloudSession::new(args.cloud));
     }
-    let args = Args::parse();
     let initial = if let Some(path) = args.input {
         nekoc::project::load_project(path)?.value
     } else {
@@ -761,6 +858,10 @@ fn main() -> Result<()> {
         desktop::export(&initial, output)?;
         println!("{}", output.display());
         return Ok(());
+    }
+    #[cfg(feature = "desktop")]
+    if args.desktop {
+        return desktop::run(initial, CloudSession::new(args.cloud));
     }
     serve_with_cloud(initial, args.port, CloudSession::new(args.cloud))
 }
@@ -789,10 +890,6 @@ impl CloudSession {
         }
         Ok(())
     }
-}
-#[cfg(feature = "desktop")]
-fn serve(initial: Json, port: u16) -> Result<()> {
-    serve_with_cloud(initial, port, CloudSession::default())
 }
 fn serve_with_cloud(initial: Json, port: u16, cloud: CloudSession) -> Result<()> {
     let mut imports = ImportCache::default();
@@ -910,6 +1007,14 @@ fn serve_with_cloud(initial: Json, port: u16, cloud: CloudSession) -> Result<()>
                 "/extensions.js" => Some((
                     "text/javascript",
                     include_bytes!("../../web/extensions.js").as_slice(),
+                )),
+                "/kn-microphone.js" => Some((
+                    "text/javascript",
+                    include_bytes!("../../web/kn-microphone.js").as_slice(),
+                )),
+                "/k4-device.js" => Some((
+                    "text/javascript; charset=utf-8",
+                    include_bytes!("../../web/k4-device.js").as_slice(),
                 )),
                 "/audio.js" => Some((
                     "text/javascript",

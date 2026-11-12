@@ -162,12 +162,11 @@ fn actor_only_setters_report_scene_domain_error_without_executing_tail() {
 }
 
 #[test]
-fn non_editor_camp_strings_are_explicitly_rejected_not_mapped_to_another_camp() {
+fn non_editor_camp_strings_preserve_the_official_group_without_aliasing() {
     let evidence = evidence();
     for name in ["camp_green", "camp_custom"] {
         let case = &evidence["cases"][name];
-        // Official stores arbitrary strings; it does not treat camp_green as
-        // the editor's green/camp_yellow. Our compact camp VM declines these.
+        // Official stores arbitrary strings; camp_green is not camp_yellow.
         assert_eq!(case["observations"][0]["actors"][0]["group"], name);
         for value in case["variables"]
             .as_array()
@@ -180,16 +179,18 @@ fn non_editor_camp_strings_are_explicitly_rejected_not_mapped_to_another_camp() 
         {
             assert_eq!(value, 0);
         }
-        let native: Value = serde_json::from_str(
-            &std::fs::read_to_string(format!("tests/fixtures/kitten4/partial-misc-{name}.bcm"))
-                .unwrap(),
-        )
-        .unwrap();
-        let project = kitten4::to_neko(&native).unwrap();
-        let error = match Program::compile(&project) {
-            Err(error) => error,
-            Ok(_) => panic!("custom camp must not silently alias"),
-        };
-        assert!(format!("{error:#}").contains(name), "{error:#}");
+        for interpreted in [false, true] {
+            let mut engine = load(name, interpreted);
+            for (i, expected) in case["variables"].as_array().unwrap().iter().enumerate() {
+                engine
+                    .advance(1.0 / 60.0, 100_000, Duration::from_secs(1))
+                    .unwrap();
+                assert!(same(
+                    &engine.oracle_snapshot(i as u32 + 1)["variables"],
+                    expected
+                ));
+                assert_eq!(engine.actor_group(A), Some(name));
+            }
+        }
     }
 }

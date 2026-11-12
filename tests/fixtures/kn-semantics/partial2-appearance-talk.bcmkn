@@ -1,0 +1,1289 @@
+{
+  "projectName": "NekoC KN semantics partial2-appearance-talk",
+  "version": "0.27.4",
+  "toolType": "KN",
+  "stageSize": {
+    "width": 900,
+    "height": 562
+  },
+  "scenes": {
+    "currentSceneId": "nekoc-scene-main",
+    "sortList": [
+      "nekoc-scene-main"
+    ],
+    "scenesDict": {
+      "nekoc-scene-main": {
+        "id": "nekoc-scene-main",
+        "name": "Background",
+        "screenName": "Main",
+        "styles": [
+          "nekoc-background"
+        ],
+        "currentStyleId": "nekoc-background",
+        "actorIds": [
+          "nekoc-default-actor"
+        ],
+        "visible": true,
+        "editable": true,
+        "workspaceScrollXy": {
+          "x": 100,
+          "y": 50
+        },
+        "nekoBlockJsonList": [],
+        "comments": {}
+      }
+    }
+  },
+  "actors": {
+    "actorsDict": {
+      "nekoc-default-actor": {
+        "id": "nekoc-default-actor",
+        "name": "Sprite",
+        "styles": [
+          "nekoc-costume"
+        ],
+        "currentStyleId": "nekoc-costume",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "scale": 100,
+        "rotation": 0,
+        "visible": true,
+        "locked": false,
+        "editable": true,
+        "deletable": true,
+        "workspaceScrollXy": {
+          "x": 100,
+          "y": 50
+        },
+        "nekoBlockJsonList": [
+          {
+            "id": "partial2-talk-1",
+            "type": "on_running_group_activated",
+            "fields": {},
+            "inputs": {},
+            "next": {
+              "id": "partial2-talk-3",
+              "type": "self_set_position_x",
+              "fields": {},
+              "inputs": {
+                "value": {
+                  "id": "partial2-talk-2",
+                  "type": "math_number",
+                  "fields": {
+                    "NUM": "1.23456"
+                  },
+                  "inputs": {}
+                }
+              },
+              "next": {
+                "id": "partial2-talk-5",
+                "type": "self_set_position_y",
+                "fields": {},
+                "inputs": {
+                  "value": {
+                    "id": "partial2-talk-4",
+                    "type": "math_number",
+                    "fields": {
+                      "NUM": "-2.34567"
+                    },
+                    "inputs": {}
+                  }
+                },
+                "next": {
+                  "id": "partial2-talk-7",
+                  "type": "set_width_height_scale",
+                  "fields": {
+                    "type": "width"
+                  },
+                  "inputs": {
+                    "value": {
+                      "id": "partial2-talk-6",
+                      "type": "math_number",
+                      "fields": {
+                        "NUM": "123.456"
+                      },
+                      "inputs": {}
+                    }
+                  },
+                  "next": {
+                    "id": "partial2-talk-9",
+                    "type": "set_width_height_scale",
+                    "fields": {
+                      "type": "height"
+                    },
+                    "inputs": {
+                      "value": {
+                        "id": "partial2-talk-8",
+                        "type": "math_number",
+                        "fields": {
+                          "NUM": "56.789"
+                        },
+                        "inputs": {}
+                      }
+                    },
+                    "next": {
+                      "id": "partial2-talk-11",
+                      "type": "self_point_towards",
+                      "fields": {},
+                      "inputs": {
+                        "degrees": {
+                          "id": "partial2-talk-10",
+                          "type": "math_number",
+                          "fields": {
+                            "NUM": "25.7142857"
+                          },
+                          "inputs": {}
+                        }
+                      },
+                      "next": {
+                        "id": "partial2-talk-13",
+                        "type": "self_set_effect",
+                        "fields": {
+                          "scope": "0"
+                        },
+                        "inputs": {
+                          "value": {
+                            "id": "partial2-talk-12",
+                            "type": "math_number",
+                            "fields": {
+                              "NUM": "-10.125"
+                            },
+                            "inputs": {}
+                          }
+                        },
+                        "next": {
+                          "id": "partial2-talk-15",
+                          "type": "self_set_effect",
+                          "fields": {
+                            "scope": "1"
+                          },
+                          "inputs": {
+                            "value": {
+                              "id": "partial2-talk-14",
+                              "type": "math_number",
+                              "fields": {
+                                "NUM": "12.345"
+                              },
+                              "inputs": {}
+                            }
+                          },
+                          "next": {
+                            "id": "partial2-talk-17",
+                            "type": "self_set_effect",
+                            "fields": {
+                              "scope": "2"
+                            },
+                            "inputs": {
+                              "value": {
+                                "id": "partial2-talk-16",
+                                "type": "math_number",
+                                "fields": {
+                                  "NUM": "12.345"
+                                },
+                                "inputs": {}
+                              }
+                            },
+                            "next": {
+                              "id": "partial2-talk-19",
+                              "type": "self_set_effect",
+                              "fields": {
+                                "scope": "3"
+                              },
+                              "inputs": {
+                                "value": {
+                                  "id": "partial2-talk-18",
+                                  "type": "math_number",
+                                  "fields": {
+                                    "NUM": "12.345"
+                                  },
+                                  "inputs": {}
+                                }
+                              },
+                              "next": {
+                                "id": "partial2-talk-21",
+                                "type": "self_set_effect",
+                                "fields": {
+                                  "scope": "4"
+                                },
+                                "inputs": {
+                                  "value": {
+                                    "id": "partial2-talk-20",
+                                    "type": "math_number",
+                                    "fields": {
+                                      "NUM": "12.345"
+                                    },
+                                    "inputs": {}
+                                  }
+                                },
+                                "next": {
+                                  "id": "partial2-talk-23",
+                                  "type": "self_set_effect",
+                                  "fields": {
+                                    "scope": "5"
+                                  },
+                                  "inputs": {
+                                    "value": {
+                                      "id": "partial2-talk-22",
+                                      "type": "math_number",
+                                      "fields": {
+                                        "NUM": "12.345"
+                                      },
+                                      "inputs": {}
+                                    }
+                                  },
+                                  "next": {
+                                    "id": "partial2-talk-25",
+                                    "type": "self_set_effect",
+                                    "fields": {
+                                      "scope": "6"
+                                    },
+                                    "inputs": {
+                                      "value": {
+                                        "id": "partial2-talk-24",
+                                        "type": "math_number",
+                                        "fields": {
+                                          "NUM": "12.345"
+                                        },
+                                        "inputs": {}
+                                      }
+                                    },
+                                    "next": {
+                                      "id": "partial2-talk-27",
+                                      "type": "variables_set",
+                                      "fields": {
+                                        "variable": "self_x"
+                                      },
+                                      "inputs": {
+                                        "value": {
+                                          "id": "partial2-talk-26",
+                                          "type": "coordinate_of_sprite",
+                                          "fields": {
+                                            "sprite": "--self",
+                                            "coordinate": "x"
+                                          },
+                                          "inputs": {}
+                                        }
+                                      },
+                                      "next": {
+                                        "id": "partial2-talk-29",
+                                        "type": "variables_set",
+                                        "fields": {
+                                          "variable": "self_y"
+                                        },
+                                        "inputs": {
+                                          "value": {
+                                            "id": "partial2-talk-28",
+                                            "type": "coordinate_of_sprite",
+                                            "fields": {
+                                              "sprite": "--self",
+                                              "coordinate": "y"
+                                            },
+                                            "inputs": {}
+                                          }
+                                        },
+                                        "next": {
+                                          "id": "partial2-talk-31",
+                                          "type": "variables_set",
+                                          "fields": {
+                                            "variable": "self_style_index"
+                                          },
+                                          "inputs": {
+                                            "value": {
+                                              "id": "partial2-talk-30",
+                                              "type": "style_of_sprite",
+                                              "fields": {
+                                                "sprite": "--self"
+                                              },
+                                              "inputs": {}
+                                            }
+                                          },
+                                          "next": {
+                                            "id": "partial2-talk-33",
+                                            "type": "variables_set",
+                                            "fields": {
+                                              "variable": "self_scale"
+                                            },
+                                            "inputs": {
+                                              "value": {
+                                                "id": "partial2-talk-32",
+                                                "type": "appearance_of_sprite",
+                                                "fields": {
+                                                  "sprite": "--self",
+                                                  "appearance": "scale"
+                                                },
+                                                "inputs": {}
+                                              }
+                                            },
+                                            "next": {
+                                              "id": "partial2-talk-35",
+                                              "type": "variables_set",
+                                              "fields": {
+                                                "variable": "self_width"
+                                              },
+                                              "inputs": {
+                                                "value": {
+                                                  "id": "partial2-talk-34",
+                                                  "type": "appearance_of_sprite",
+                                                  "fields": {
+                                                    "sprite": "--self",
+                                                    "appearance": "width"
+                                                  },
+                                                  "inputs": {}
+                                                }
+                                              },
+                                              "next": {
+                                                "id": "partial2-talk-37",
+                                                "type": "variables_set",
+                                                "fields": {
+                                                  "variable": "self_height"
+                                                },
+                                                "inputs": {
+                                                  "value": {
+                                                    "id": "partial2-talk-36",
+                                                    "type": "appearance_of_sprite",
+                                                    "fields": {
+                                                      "sprite": "--self",
+                                                      "appearance": "height"
+                                                    },
+                                                    "inputs": {}
+                                                  }
+                                                },
+                                                "next": {
+                                                  "id": "partial2-talk-39",
+                                                  "type": "variables_set",
+                                                  "fields": {
+                                                    "variable": "self_direction"
+                                                  },
+                                                  "inputs": {
+                                                    "value": {
+                                                      "id": "partial2-talk-38",
+                                                      "type": "appearance_of_sprite",
+                                                      "fields": {
+                                                        "sprite": "--self",
+                                                        "appearance": "direction"
+                                                      },
+                                                      "inputs": {}
+                                                    }
+                                                  },
+                                                  "next": {
+                                                    "id": "partial2-talk-41",
+                                                    "type": "variables_set",
+                                                    "fields": {
+                                                      "variable": "self_color"
+                                                    },
+                                                    "inputs": {
+                                                      "value": {
+                                                        "id": "partial2-talk-40",
+                                                        "type": "effect_of_sprite",
+                                                        "fields": {
+                                                          "sprite": "--self",
+                                                          "effect": "0"
+                                                        },
+                                                        "inputs": {}
+                                                      }
+                                                    },
+                                                    "next": {
+                                                      "id": "partial2-talk-43",
+                                                      "type": "variables_set",
+                                                      "fields": {
+                                                        "variable": "self_opacity"
+                                                      },
+                                                      "inputs": {
+                                                        "value": {
+                                                          "id": "partial2-talk-42",
+                                                          "type": "effect_of_sprite",
+                                                          "fields": {
+                                                            "sprite": "--self",
+                                                            "effect": "1"
+                                                          },
+                                                          "inputs": {}
+                                                        }
+                                                      },
+                                                      "next": {
+                                                        "id": "partial2-talk-45",
+                                                        "type": "variables_set",
+                                                        "fields": {
+                                                          "variable": "self_brightness"
+                                                        },
+                                                        "inputs": {
+                                                          "value": {
+                                                            "id": "partial2-talk-44",
+                                                            "type": "effect_of_sprite",
+                                                            "fields": {
+                                                              "sprite": "--self",
+                                                              "effect": "2"
+                                                            },
+                                                            "inputs": {}
+                                                          }
+                                                        },
+                                                        "next": {
+                                                          "id": "partial2-talk-47",
+                                                          "type": "variables_set",
+                                                          "fields": {
+                                                            "variable": "self_pixelate"
+                                                          },
+                                                          "inputs": {
+                                                            "value": {
+                                                              "id": "partial2-talk-46",
+                                                              "type": "effect_of_sprite",
+                                                              "fields": {
+                                                                "sprite": "--self",
+                                                                "effect": "3"
+                                                              },
+                                                              "inputs": {}
+                                                            }
+                                                          },
+                                                          "next": {
+                                                            "id": "partial2-talk-49",
+                                                            "type": "variables_set",
+                                                            "fields": {
+                                                              "variable": "self_ripple"
+                                                            },
+                                                            "inputs": {
+                                                              "value": {
+                                                                "id": "partial2-talk-48",
+                                                                "type": "effect_of_sprite",
+                                                                "fields": {
+                                                                  "sprite": "--self",
+                                                                  "effect": "4"
+                                                                },
+                                                                "inputs": {}
+                                                              }
+                                                            },
+                                                            "next": {
+                                                              "id": "partial2-talk-51",
+                                                              "type": "variables_set",
+                                                              "fields": {
+                                                                "variable": "self_distortion"
+                                                              },
+                                                              "inputs": {
+                                                                "value": {
+                                                                  "id": "partial2-talk-50",
+                                                                  "type": "effect_of_sprite",
+                                                                  "fields": {
+                                                                    "sprite": "--self",
+                                                                    "effect": "5"
+                                                                  },
+                                                                  "inputs": {}
+                                                                }
+                                                              },
+                                                              "next": {
+                                                                "id": "partial2-talk-53",
+                                                                "type": "variables_set",
+                                                                "fields": {
+                                                                  "variable": "self_grayscale"
+                                                                },
+                                                                "inputs": {
+                                                                  "value": {
+                                                                    "id": "partial2-talk-52",
+                                                                    "type": "effect_of_sprite",
+                                                                    "fields": {
+                                                                      "sprite": "--self",
+                                                                      "effect": "6"
+                                                                    },
+                                                                    "inputs": {}
+                                                                  }
+                                                                },
+                                                                "next": {
+                                                                  "id": "partial2-talk-55",
+                                                                  "type": "variables_set",
+                                                                  "fields": {
+                                                                    "variable": "actor_x"
+                                                                  },
+                                                                  "inputs": {
+                                                                    "value": {
+                                                                      "id": "partial2-talk-54",
+                                                                      "type": "coordinate_of_sprite",
+                                                                      "fields": {
+                                                                        "sprite": "nekoc-default-actor",
+                                                                        "coordinate": "x"
+                                                                      },
+                                                                      "inputs": {}
+                                                                    }
+                                                                  },
+                                                                  "next": {
+                                                                    "id": "partial2-talk-57",
+                                                                    "type": "variables_set",
+                                                                    "fields": {
+                                                                      "variable": "actor_y"
+                                                                    },
+                                                                    "inputs": {
+                                                                      "value": {
+                                                                        "id": "partial2-talk-56",
+                                                                        "type": "coordinate_of_sprite",
+                                                                        "fields": {
+                                                                          "sprite": "nekoc-default-actor",
+                                                                          "coordinate": "y"
+                                                                        },
+                                                                        "inputs": {}
+                                                                      }
+                                                                    },
+                                                                    "next": {
+                                                                      "id": "partial2-talk-59",
+                                                                      "type": "variables_set",
+                                                                      "fields": {
+                                                                        "variable": "actor_style_index"
+                                                                      },
+                                                                      "inputs": {
+                                                                        "value": {
+                                                                          "id": "partial2-talk-58",
+                                                                          "type": "style_of_sprite",
+                                                                          "fields": {
+                                                                            "sprite": "nekoc-default-actor"
+                                                                          },
+                                                                          "inputs": {}
+                                                                        }
+                                                                      },
+                                                                      "next": {
+                                                                        "id": "partial2-talk-61",
+                                                                        "type": "variables_set",
+                                                                        "fields": {
+                                                                          "variable": "actor_scale"
+                                                                        },
+                                                                        "inputs": {
+                                                                          "value": {
+                                                                            "id": "partial2-talk-60",
+                                                                            "type": "appearance_of_sprite",
+                                                                            "fields": {
+                                                                              "sprite": "nekoc-default-actor",
+                                                                              "appearance": "scale"
+                                                                            },
+                                                                            "inputs": {}
+                                                                          }
+                                                                        },
+                                                                        "next": {
+                                                                          "id": "partial2-talk-63",
+                                                                          "type": "variables_set",
+                                                                          "fields": {
+                                                                            "variable": "actor_width"
+                                                                          },
+                                                                          "inputs": {
+                                                                            "value": {
+                                                                              "id": "partial2-talk-62",
+                                                                              "type": "appearance_of_sprite",
+                                                                              "fields": {
+                                                                                "sprite": "nekoc-default-actor",
+                                                                                "appearance": "width"
+                                                                              },
+                                                                              "inputs": {}
+                                                                            }
+                                                                          },
+                                                                          "next": {
+                                                                            "id": "partial2-talk-65",
+                                                                            "type": "variables_set",
+                                                                            "fields": {
+                                                                              "variable": "actor_height"
+                                                                            },
+                                                                            "inputs": {
+                                                                              "value": {
+                                                                                "id": "partial2-talk-64",
+                                                                                "type": "appearance_of_sprite",
+                                                                                "fields": {
+                                                                                  "sprite": "nekoc-default-actor",
+                                                                                  "appearance": "height"
+                                                                                },
+                                                                                "inputs": {}
+                                                                              }
+                                                                            },
+                                                                            "next": {
+                                                                              "id": "partial2-talk-67",
+                                                                              "type": "variables_set",
+                                                                              "fields": {
+                                                                                "variable": "actor_direction"
+                                                                              },
+                                                                              "inputs": {
+                                                                                "value": {
+                                                                                  "id": "partial2-talk-66",
+                                                                                  "type": "appearance_of_sprite",
+                                                                                  "fields": {
+                                                                                    "sprite": "nekoc-default-actor",
+                                                                                    "appearance": "direction"
+                                                                                  },
+                                                                                  "inputs": {}
+                                                                                }
+                                                                              },
+                                                                              "next": {
+                                                                                "id": "partial2-talk-69",
+                                                                                "type": "variables_set",
+                                                                                "fields": {
+                                                                                  "variable": "actor_color"
+                                                                                },
+                                                                                "inputs": {
+                                                                                  "value": {
+                                                                                    "id": "partial2-talk-68",
+                                                                                    "type": "effect_of_sprite",
+                                                                                    "fields": {
+                                                                                      "sprite": "nekoc-default-actor",
+                                                                                      "effect": "0"
+                                                                                    },
+                                                                                    "inputs": {}
+                                                                                  }
+                                                                                },
+                                                                                "next": {
+                                                                                  "id": "partial2-talk-71",
+                                                                                  "type": "variables_set",
+                                                                                  "fields": {
+                                                                                    "variable": "actor_opacity"
+                                                                                  },
+                                                                                  "inputs": {
+                                                                                    "value": {
+                                                                                      "id": "partial2-talk-70",
+                                                                                      "type": "effect_of_sprite",
+                                                                                      "fields": {
+                                                                                        "sprite": "nekoc-default-actor",
+                                                                                        "effect": "1"
+                                                                                      },
+                                                                                      "inputs": {}
+                                                                                    }
+                                                                                  },
+                                                                                  "next": {
+                                                                                    "id": "partial2-talk-73",
+                                                                                    "type": "variables_set",
+                                                                                    "fields": {
+                                                                                      "variable": "actor_brightness"
+                                                                                    },
+                                                                                    "inputs": {
+                                                                                      "value": {
+                                                                                        "id": "partial2-talk-72",
+                                                                                        "type": "effect_of_sprite",
+                                                                                        "fields": {
+                                                                                          "sprite": "nekoc-default-actor",
+                                                                                          "effect": "2"
+                                                                                        },
+                                                                                        "inputs": {}
+                                                                                      }
+                                                                                    },
+                                                                                    "next": {
+                                                                                      "id": "partial2-talk-75",
+                                                                                      "type": "variables_set",
+                                                                                      "fields": {
+                                                                                        "variable": "actor_pixelate"
+                                                                                      },
+                                                                                      "inputs": {
+                                                                                        "value": {
+                                                                                          "id": "partial2-talk-74",
+                                                                                          "type": "effect_of_sprite",
+                                                                                          "fields": {
+                                                                                            "sprite": "nekoc-default-actor",
+                                                                                            "effect": "3"
+                                                                                          },
+                                                                                          "inputs": {}
+                                                                                        }
+                                                                                      },
+                                                                                      "next": {
+                                                                                        "id": "partial2-talk-77",
+                                                                                        "type": "variables_set",
+                                                                                        "fields": {
+                                                                                          "variable": "actor_ripple"
+                                                                                        },
+                                                                                        "inputs": {
+                                                                                          "value": {
+                                                                                            "id": "partial2-talk-76",
+                                                                                            "type": "effect_of_sprite",
+                                                                                            "fields": {
+                                                                                              "sprite": "nekoc-default-actor",
+                                                                                              "effect": "4"
+                                                                                            },
+                                                                                            "inputs": {}
+                                                                                          }
+                                                                                        },
+                                                                                        "next": {
+                                                                                          "id": "partial2-talk-79",
+                                                                                          "type": "variables_set",
+                                                                                          "fields": {
+                                                                                            "variable": "actor_distortion"
+                                                                                          },
+                                                                                          "inputs": {
+                                                                                            "value": {
+                                                                                              "id": "partial2-talk-78",
+                                                                                              "type": "effect_of_sprite",
+                                                                                              "fields": {
+                                                                                                "sprite": "nekoc-default-actor",
+                                                                                                "effect": "5"
+                                                                                              },
+                                                                                              "inputs": {}
+                                                                                            }
+                                                                                          },
+                                                                                          "next": {
+                                                                                            "id": "partial2-talk-81",
+                                                                                            "type": "variables_set",
+                                                                                            "fields": {
+                                                                                              "variable": "actor_grayscale"
+                                                                                            },
+                                                                                            "inputs": {
+                                                                                              "value": {
+                                                                                                "id": "partial2-talk-80",
+                                                                                                "type": "effect_of_sprite",
+                                                                                                "fields": {
+                                                                                                  "sprite": "nekoc-default-actor",
+                                                                                                  "effect": "6"
+                                                                                                },
+                                                                                                "inputs": {}
+                                                                                              }
+                                                                                            },
+                                                                                            "next": {
+                                                                                              "id": "partial2-talk-83",
+                                                                                              "type": "variables_set",
+                                                                                              "fields": {
+                                                                                                "variable": "actor_distance"
+                                                                                              },
+                                                                                              "inputs": {
+                                                                                                "value": {
+                                                                                                  "id": "partial2-talk-82",
+                                                                                                  "type": "distance_to",
+                                                                                                  "fields": {
+                                                                                                    "sprite": "nekoc-default-actor"
+                                                                                                  },
+                                                                                                  "inputs": {}
+                                                                                                }
+                                                                                              },
+                                                                                              "next": {
+                                                                                                "id": "partial2-talk-85",
+                                                                                                "type": "self_dialog_wait",
+                                                                                                "fields": {
+                                                                                                  "type": "talk"
+                                                                                                },
+                                                                                                "inputs": {
+                                                                                                  "text": {
+                                                                                                    "id": "partial2-talk-84",
+                                                                                                    "type": "text",
+                                                                                                    "fields": {
+                                                                                                      "TEXT": "original talk text"
+                                                                                                    },
+                                                                                                    "inputs": {}
+                                                                                                  }
+                                                                                                },
+                                                                                                "next": {
+                                                                                                  "id": "partial2-talk-87",
+                                                                                                  "type": "variables_set",
+                                                                                                  "fields": {
+                                                                                                    "variable": "after_dialog"
+                                                                                                  },
+                                                                                                  "inputs": {
+                                                                                                    "value": {
+                                                                                                      "id": "partial2-talk-86",
+                                                                                                      "type": "math_number",
+                                                                                                      "fields": {
+                                                                                                        "NUM": "1"
+                                                                                                      },
+                                                                                                      "inputs": {}
+                                                                                                    }
+                                                                                                  },
+                                                                                                  "next": {
+                                                                                                    "id": "partial2-talk-89",
+                                                                                                    "type": "variables_set",
+                                                                                                    "fields": {
+                                                                                                      "variable": "done"
+                                                                                                    },
+                                                                                                    "inputs": {
+                                                                                                      "value": {
+                                                                                                        "id": "partial2-talk-88",
+                                                                                                        "type": "math_number",
+                                                                                                        "fields": {
+                                                                                                          "NUM": "1"
+                                                                                                        },
+                                                                                                        "inputs": {}
+                                                                                                      }
+                                                                                                    }
+                                                                                                  }
+                                                                                                }
+                                                                                              }
+                                                                                            }
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "comments": {}
+      }
+    }
+  },
+  "styles": {
+    "stylesDict": {
+      "nekoc-background": {
+        "id": "nekoc-background",
+        "name": "Background",
+        "url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='562'%3E%3Crect width='900' height='562' fill='white'/%3E%3C/svg%3E"
+      },
+      "nekoc-costume": {
+        "id": "nekoc-costume",
+        "name": "Sprite",
+        "url": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Ccircle cx='20' cy='20' r='18' fill='rgb(96,143,238)'/%3E%3C/svg%3E",
+        "centerPoint": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    }
+  },
+  "variables": {
+    "variablesDict": {
+      "done": {
+        "id": "done",
+        "name": "done",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "after_dialog": {
+        "id": "after_dialog",
+        "name": "after_dialog",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "self_x": {
+        "id": "self_x",
+        "name": "self_x",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "self_y": {
+        "id": "self_y",
+        "name": "self_y",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "self_style_index": {
+        "id": "self_style_index",
+        "name": "self_style_index",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "self_scale": {
+        "id": "self_scale",
+        "name": "self_scale",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "self_width": {
+        "id": "self_width",
+        "name": "self_width",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "self_height": {
+        "id": "self_height",
+        "name": "self_height",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "self_direction": {
+        "id": "self_direction",
+        "name": "self_direction",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "self_color": {
+        "id": "self_color",
+        "name": "self_color",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "self_opacity": {
+        "id": "self_opacity",
+        "name": "self_opacity",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "self_brightness": {
+        "id": "self_brightness",
+        "name": "self_brightness",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "self_pixelate": {
+        "id": "self_pixelate",
+        "name": "self_pixelate",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "self_ripple": {
+        "id": "self_ripple",
+        "name": "self_ripple",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "self_distortion": {
+        "id": "self_distortion",
+        "name": "self_distortion",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "self_grayscale": {
+        "id": "self_grayscale",
+        "name": "self_grayscale",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "actor_x": {
+        "id": "actor_x",
+        "name": "actor_x",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "actor_y": {
+        "id": "actor_y",
+        "name": "actor_y",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "actor_style_index": {
+        "id": "actor_style_index",
+        "name": "actor_style_index",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "actor_scale": {
+        "id": "actor_scale",
+        "name": "actor_scale",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "actor_width": {
+        "id": "actor_width",
+        "name": "actor_width",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "actor_height": {
+        "id": "actor_height",
+        "name": "actor_height",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "actor_direction": {
+        "id": "actor_direction",
+        "name": "actor_direction",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "actor_color": {
+        "id": "actor_color",
+        "name": "actor_color",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "actor_opacity": {
+        "id": "actor_opacity",
+        "name": "actor_opacity",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "actor_brightness": {
+        "id": "actor_brightness",
+        "name": "actor_brightness",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "actor_pixelate": {
+        "id": "actor_pixelate",
+        "name": "actor_pixelate",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "actor_ripple": {
+        "id": "actor_ripple",
+        "name": "actor_ripple",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "actor_distortion": {
+        "id": "actor_distortion",
+        "name": "actor_distortion",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "actor_grayscale": {
+        "id": "actor_grayscale",
+        "name": "actor_grayscale",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "actor_distance": {
+        "id": "actor_distance",
+        "name": "actor_distance",
+        "value": 0,
+        "type": "any",
+        "isGlobal": true,
+        "currentEntityId": "nekoc-default-actor",
+        "visible": false,
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    }
+  },
+  "broadcasts": {
+    "broadcastsDict": {
+      "nekoc-scene-main": []
+    }
+  },
+  "procedures": {
+    "proceduresDict": {}
+  },
+  "audios": {
+    "audiosDict": {},
+    "sortList": [],
+    "currentAudioId": ""
+  },
+  "hidden_toolbox": {
+    "toolbox": [],
+    "blocks": [],
+    "forcibleShowBlocks": [],
+    "isCombine": false
+  },
+  "courseMaterials": {
+    "courseMaterialsDict": {},
+    "sortList": []
+  },
+  "previewUrl": ""
+}

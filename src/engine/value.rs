@@ -59,6 +59,8 @@ impl Cell {
     /// Freeze all other values now, especially lists which reporters may mutate
     /// later. Only the immutable bytes, never their conversion, are deferred.
     pub fn concat(a: &Self, b: &Self) -> Self {
+        #[cfg(feature = "interp-profile")]
+        let _profile = super::interp_profile::span("concat", &());
         let a = match a {
             Self::Text(text) => text.clone(),
             _ => a.text().into(),
@@ -215,7 +217,23 @@ impl Cell {
     }
     /// K4 oiyH/logic_compare calls lodash isEqual (Y+p1), not JS ===.
     /// List search still uses `equals`/`index_in` and reference identity.
+    #[inline]
     pub fn k4_equals(&self, other: &Self) -> bool {
+        #[cfg(feature = "interp-profile")]
+        let _profile = super::interp_profile::span("k4_equals", &());
+        // Scalar equality never needs a traversal stack or cloned operands.
+        // Keep the structural walker out of callers' scalar hot paths.
+        match (self, other) {
+            (Self::Number(a), Self::Number(b)) => a == b || (a.is_nan() && b.is_nan()),
+            (Self::Costume(a), Self::Costume(b)) => a == b,
+            (Self::List(_), Self::List(_))
+            | (Self::Object(_), Self::Object(_))
+            | (Self::Midi(_), Self::Midi(_)) => self.k4_equals_structural(other),
+            _ => self.equals(other),
+        }
+    }
+    #[inline(never)]
+    fn k4_equals_structural(&self, other: &Self) -> bool {
         // Explicit work stack avoids recursive comparison overflow. Track only
         // the active path, as lodash does, so shared lists need not alias alike.
         let mut work = vec![Some((self.clone(), other.clone()))];
@@ -300,6 +318,37 @@ impl Cell {
 #[cfg(test)]
 mod equality_tests {
     use super::*;
+
+    #[test]
+    fn scalar_fast_path_matches_structural_walker_for_every_cell_pair() {
+        let values = [
+            Cell::Number(0.0),
+            Cell::Number(-0.0),
+            Cell::Number(17.0),
+            Cell::Number(f64::NAN),
+            Cell::Number(f64::INFINITY),
+            Cell::Number(f64::NEG_INFINITY),
+            Cell::Bool(false),
+            Cell::Bool(true),
+            Cell::Text("17".into()),
+            Cell::Text(Text::concat(&"a".into(), &"中".into())),
+            Cell::Text("a中".into()),
+            Cell::Text("a文".into()),
+            Cell::Null,
+            Cell::Undefined,
+            Cell::Costume("same-id".into()),
+            Cell::Costume("same-id".into()),
+            Cell::Costume("other-id".into()),
+            Cell::List(Rc::new(RefCell::new(vec![Cell::Number(f64::NAN)]))),
+            Cell::Object(Rc::new(RefCell::new(vec![("x".into(), Cell::Bool(true))]))),
+            Cell::Midi(Rc::new(Cell::Number(1.0))),
+        ];
+        for a in &values {
+            for b in &values {
+                assert_eq!(a.k4_equals(b), a.k4_equals_structural(b), "{a:?}/{b:?}");
+            }
+        }
+    }
 
     #[test]
     fn k4_structural_equality_does_not_change_strict_search() {
@@ -416,17 +465,23 @@ pub(super) struct Span {
     pub start: u32,
     pub len: u32,
 }
+/// Every interpreted reporter dispatches on this enum, so its size is a hot-path
+/// cost (the whole `Program::values` table is scanned through the cache).
+/// Payloads over 24 bytes live in side tables on `Program`; the variant keeps
+/// a u32 index. `value_expr_stays_small` guards the limit.
 #[derive(Clone, Copy, Debug)]
 pub(super) enum ValueExpr {
     K4Frames,
     K4DomainError(usize),
     K4LegacyChoice,
-    K4Media(super::k4_media::Reporter),
+    /// Index into `Program::k4_media`.
+    K4Media(u32),
     KnPanel(super::kn_panel::Reporter),
     /// Evaluate the query, then return the official absent-OCR-cache result.
     OfflineOcrCheck(usize),
-    /// Five evaluated sockets, then official disconnected-microbit NaN.
-    OfflineMicrobitMap([usize; 5]),
+    /// Five evaluated sockets (in `Program::value_args`), then official
+    /// disconnected-microbit NaN.
+    OfflineMicrobitMap(Span),
     /// Official no-device LED query, after evaluating x and y once each.
     OfflineMicrobitLed([usize; 2]),
     Kitten4Add(usize, usize),
@@ -476,7 +531,10 @@ pub(super) enum ValueExpr {
     CallReturn(usize, usize),
     /// (original actor, clone index including 0 for original, native attribute)
     CloneProperty(usize, super::Expr, u8),
-    K4Property(super::k4_properties::Property),
+    /// Index into `Program::kn_clone_properties`.
+    KnCloneProperty(u32),
+    /// Index into `Program::k4_properties`.
+    K4Property(u32),
     Answer,
     /// Last chosen option: index (true) or content.
     Choice(bool),
@@ -495,6 +553,13 @@ pub(super) enum ValueExpr {
 #[cfg(test)]
 mod performance_regressions {
     use super::*;
+
+    #[test]
+    fn value_expr_stays_small() {
+        // Keep the dispatch table compact; this is a layout guard, not a
+        // measured speedup. Move large payloads to a Program side table.
+        assert!(std::mem::size_of::<ValueExpr>() <= 32);
+    }
 
     #[test]
     fn specialized_search_keeps_strict_types_nan_zero_and_identity() {

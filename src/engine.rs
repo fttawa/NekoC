@@ -6,31 +6,49 @@ use serde::Serialize;
 use serde_json::Value;
 mod calculate;
 mod cloud;
+pub mod cloud_ui;
+mod collision_geometry;
 mod extensions;
 mod input;
+mod interp_exec_cold;
+#[cfg(feature = "interp-profile")]
+pub mod interp_profile;
+#[cfg(test)]
+mod interp_tests;
+mod interp_value_cold;
 mod jit;
 mod jit_observation;
 mod k4_clock;
 mod k4_drawing;
 mod k4_effects;
+mod k4_lifecycle;
 mod k4_monitors;
 mod k4_properties;
 mod kn_ai;
 mod kn_appearance;
 mod kn_async;
+mod kn_await;
 mod kn_capture;
 mod kn_catalog;
 mod kn_conversion;
 mod kn_hardware;
 mod kn_helpers;
+mod kn_local;
 mod kn_objects;
 mod kn_panel;
 mod kn_services;
+mod kn_warp;
+mod legacy_costume;
 pub use kn_panel::{GlobalAnimationRequest, PanelNotice};
+mod clone_index;
+mod parameter_pool;
 mod physics;
+mod role_camp;
+mod sprite_copy;
 mod stage_dialog;
 mod value;
 use k4_clock::{K4Timer, timer_policy, to_fixed2};
+use role_camp::{RoleCamp, is_camp_target};
 mod k4_media;
 mod k4_shake;
 pub use k4_media::{MediaOutput, MediaRequest, RequestKind};
@@ -254,6 +272,7 @@ enum ExprOp {
     Unary(Unary),
     KnProperty(usize, kn_appearance::Property),
     KnActorParameter(usize, kn_appearance::Property),
+    KnVoiceVolume,
 }
 #[derive(Clone, Copy, Debug)]
 struct Expr {
@@ -288,6 +307,7 @@ enum TimerState {
 
 #[derive(Clone, Copy, Debug)]
 enum Op {
+    KnAwaitVoice,
     WarpIteration,
     Set(usize, Expr),
     SetValue(Target, usize),
@@ -395,8 +415,10 @@ enum Op {
     /// Question value and optional choice values (`value_args` span).
     Ask(usize, Option<Span>),
     Layer(LayerMove),
-    /// self_set_role_camp: 0 none, 1 red, 2 yellow (shown green), 3 blue.
-    Camp(u8),
+    /// self_set_role_camp: index of the group string in Program::strings.
+    Camp(usize),
+    /// Legacy K4 style_id command; not a name/index selection.
+    LegacyCostume(usize),
     /// Emphasis animation (0 shake, 1 scale, 2 bounce); the next op is `TimelineStep`.
     Emphasis(u8),
     /// Appear (true) / disappear transition (kind, direction); next op `TimelineStep`.
@@ -479,6 +501,14 @@ enum PenLayer {
     Relative(usize, bool),
 }
 
+/// Optional deformable costume geometry on the frame wire. Positions use the
+/// same world pixels as Sprite x/y (y up); UV (0,0) is the costume's top left.
+#[derive(Clone, Debug, Serialize, serde::Deserialize)]
+pub struct SoftMesh {
+    pub vertices: Vec<[f64; 4]>,
+    pub triangles: Vec<[usize; 3]>,
+}
+
 #[derive(Clone, Debug, Serialize)]
 pub struct Sprite {
     pub id: String,
@@ -508,11 +538,14 @@ pub struct Sprite {
     /// Text the sprite is rendered as (self_text_effect_text), replacing its costume.
     /// Always serialized so leaving text mode reaches the renderer as `null`.
     pub text: Option<SpriteText>,
+    /// Rendering-only snapshot; the VM's stored sprites keep this unset.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub soft_mesh: Option<SoftMesh>,
     #[serde(skip)]
     styles: Vec<String>,
-    /// 0 no camp, 1 red, 2 yellow/green, 3 blue.
+    /// Standard KN camp or the exact K4 group string; copied on clone.
     #[serde(skip)]
-    camp: u8,
+    camp: RoleCamp,
     /// Text size and RGB colour kept even while no text is shown.
     #[serde(skip)]
     text_style: (f64, u32),
@@ -690,6 +723,9 @@ struct Script {
 
 #[derive(Clone, Debug)]
 enum ScriptEvent {
+    /// No device backend is installed; retain and validate the body, but never
+    /// dispatch a natural hardware event in the disconnected profile.
+    KnDisconnectedHardware,
     K4Media(k4_media::Event),
     Start,
     /// KN level-triggered root; one persistent, scene-suspended task per hat.
@@ -704,6 +740,7 @@ enum ScriptEvent {
     Broadcast(usize, bool),
     /// on_bump_actor: (other actor, 0 start / 1 move / 2 end).
     Bump(usize, u8),
+    Extension(String),
 }
 
 /// A scene ("running group"): its stage entity and actors (front to back).
@@ -718,6 +755,8 @@ pub struct SceneInfo {
 pub struct Transition {
     pub direction: String,
     pub kind: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub outgoing: Option<k4_drawing::TransitionScene>,
 }
 /// Execution provenance, captured before lowering removes native metadata.
 /// This is private VM state, not a new canonical-project or wire-format field.
@@ -788,6 +827,11 @@ pub struct Program {
     single_text_selects: BTreeSet<usize>,
     constants: Vec<Cell>,
     value_args: Vec<usize>,
+    /// Payloads too large for `ValueExpr`; it stores only an index into these
+    /// tables so every expression node stays 32 bytes (see value.rs).
+    k4_properties: Vec<k4_properties::Property>,
+    k4_media: Vec<k4_media::Reporter>,
+    kn_clone_properties: Vec<kn_appearance::CloneProperty>,
     local_count: usize,
     code_locals: BTreeSet<usize>,
     scripts: Vec<Script>,
@@ -1052,6 +1096,9 @@ impl Program {
                 single_text_selects: BTreeSet::new(),
                 constants: vec![],
                 value_args: vec![],
+                k4_properties: vec![],
+                k4_media: vec![],
+                kn_clone_properties: vec![],
                 local_count: 0,
                 code_locals: BTreeSet::new(),
                 scripts: vec![],
@@ -1298,8 +1345,9 @@ impl Program {
                 dialog: None,
                 draggable: false,
                 text: None,
+                soft_mesh: None,
                 styles: owner_styles(scene_value),
-                camp: 0,
+                camp: RoleCamp::Standard(0),
                 text_style: (36.0, 0),
                 text_scale: None,
                 origin: stage,
@@ -1347,12 +1395,21 @@ impl Program {
                     dialog: None,
                     draggable: actor["draggable"].as_bool().unwrap_or(false),
                     text: None,
+                    soft_mesh: None,
                     styles: owner_styles(actor),
-                    camp: actor["group"]
-                        .as_str()
-                        .or_else(|| actor["camp"].as_str())
-                        .and_then(camp_code)
-                        .unwrap_or(0),
+                    // The K4 project loader does not restore a serialized actor
+                    // group; only the runtime setter assigns one (camp-4 probes).
+                    camp: if kitten4 {
+                        RoleCamp::Unset
+                    } else {
+                        RoleCamp::new(
+                            actor["group"]
+                                .as_str()
+                                .or_else(|| actor["camp"].as_str())
+                                .unwrap_or("no_camp"),
+                            compiler.program.semantics,
+                        )
+                    },
                     text_style: (36.0, 0),
                     text_scale: None,
                     origin: index,
@@ -1817,6 +1874,9 @@ impl Compiler {
     }
     #[inline]
     fn value(&mut self, b: &Value) -> Result<usize> {
+        if let Some(value) = self.kn_await_value(b)? {
+            return Ok(value);
+        }
         if !self.compile_work && self.compile_depth >= 32 {
             return self.deep_value(b);
         }
@@ -1860,6 +1920,13 @@ impl Compiler {
             | "get_robot_master_motor_power"
             | "get_robot_master_infrared_sensor_distance"
             | "get_robot2_master_motor_power"
+            | "microbit_accelerometer"
+            | "microbit_compass_heading"
+            | "microbit_light_level"
+            | "microbit_magnetometer"
+            | "microbit_rotation"
+            | "microbit_sound_level"
+            | "microbit_temperature"
                 if self.program.semantics == RuntimeSemantics::KnCurrent =>
             {
                 let spec = kn_hardware::reporter(b["type"].as_str().unwrap()).unwrap();
@@ -1918,13 +1985,16 @@ impl Compiler {
                 ValueExpr::OfflineOcrCheck(self.value(input(b, "text")?)?)
             }
             "microbit_math_map" if self.program.semantics == RuntimeSemantics::KnCurrent => {
-                ValueExpr::OfflineMicrobitMap([
+                let args = [
                     self.value(input(b, "value")?)?,
                     self.value(input(b, "fromStart")?)?,
                     self.value(input(b, "fromEnd")?)?,
                     self.value(input(b, "toStart")?)?,
                     self.value(input(b, "toEnd")?)?,
-                ])
+                ];
+                let start = self.program.value_args.len() as u32;
+                self.program.value_args.extend(args);
+                ValueExpr::OfflineMicrobitMap(Span { start, len: 5 })
             }
             "kitten4_calculate" | "calculate" => {
                 ValueExpr::Calculate(self.value(input(b, "input")?)?)
@@ -1971,7 +2041,9 @@ impl Compiler {
             "kitten4_frames" => ValueExpr::K4Frames,
             "kitten4_legacy_choice" => ValueExpr::K4LegacyChoice,
             kind if kind.starts_with("kitten4_media_") => {
-                ValueExpr::K4Media(self.k4_media_reporter(b)?)
+                let reporter = self.k4_media_reporter(b)?;
+                self.program.k4_media.push(reporter);
+                ValueExpr::K4Media(self.program.k4_media.len() as u32 - 1)
             }
             "kitten4_domain_error" => {
                 let message = self.push_constant(Cell::Text(field(b, "error_type").into()));
@@ -2184,6 +2256,9 @@ impl Compiler {
             "get_clone_index_property" => {
                 if self.program.semantics == RuntimeSemantics::Kitten4 {
                     return self.k4_property(b, true);
+                }
+                if self.program.semantics == RuntimeSemantics::KnCurrent {
+                    return self.kn_clone_property(b);
                 }
                 if let Some(&slot) = self.actor_variables.get(field(b, "attribute")) {
                     let target = self.actor_target(field(b, "sprite"))?;
@@ -2455,6 +2530,12 @@ impl Compiler {
     }
     #[inline]
     fn expr(&mut self, block: &Value) -> Result<Expr> {
+        if let Some(value) = self.kn_await_value(block)? {
+            self.program.expressions.push(ExprOp::Value(value));
+            return Ok(Expr {
+                end: self.program.expressions.len() as u32,
+            });
+        }
         if !self.compile_work && self.compile_depth >= 32 {
             let value = self.deep_value(block)?;
             self.program.expressions.push(ExprOp::Value(value));
@@ -2662,6 +2743,13 @@ impl Compiler {
             | "get_robot_master_motor_power"
             | "get_robot_master_infrared_sensor_distance"
             | "get_robot2_master_motor_power"
+            | "microbit_accelerometer"
+            | "microbit_compass_heading"
+            | "microbit_light_level"
+            | "microbit_magnetometer"
+            | "microbit_rotation"
+            | "microbit_sound_level"
+            | "microbit_temperature"
             | "get_face_detection_result"
             | "get_object_detection_result"
             | "check_gender"
@@ -2810,15 +2898,32 @@ impl Compiler {
             "timer" => ExprOp::Timer,
             "get_timer" => ExprOp::BlockTimer,
             "kitten4_days_after_2000" => ExprOp::DaysAfter2000,
+            "get_voice_volume" if self.program.semantics == RuntimeSemantics::KnCurrent => {
+                ExprOp::KnVoiceVolume
+            }
+            "get_sprite_property" if self.program.semantics == RuntimeSemantics::KnCurrent => {
+                self.kn_sprite_property(b)?
+            }
             "coordinate_of_sprite" => {
                 ensure!(
                     matches!(field(b, "coordinate"), "x" | "y"),
                     "unknown coordinate reporter"
                 );
-                ExprOp::Coordinate(
-                    self.actor_target(field(b, "sprite"))?,
-                    field(b, "coordinate") == "y",
-                )
+                let target = self.actor_target(field(b, "sprite"))?;
+                if self.program.semantics == RuntimeSemantics::KnCurrent {
+                    // Official KN native getters share the rounded property
+                    // path used by clone/API getters; see partial2 evidence.
+                    ExprOp::KnProperty(
+                        target,
+                        if field(b, "coordinate") == "y" {
+                            kn_appearance::Property::Y
+                        } else {
+                            kn_appearance::Property::X
+                        },
+                    )
+                } else {
+                    ExprOp::Coordinate(target, field(b, "coordinate") == "y")
+                }
             }
             // Native get_orientation is device tilt, not sprite rotation.
             // Like the official desktop runtime, this player reports zero.
@@ -2843,6 +2948,15 @@ impl Compiler {
             "physics2_get_property" => {
                 ExprOp::PhysicsProperty(physics::Property::parse(field(b, "property"))?)
             }
+            "distance_to"
+                if self.program.semantics == RuntimeSemantics::KnCurrent
+                    && field(b, "sprite") == "--self" =>
+            {
+                // Unlike appearance getters, the official distance domain does
+                // not resolve this placeholder (editor normalizes it to '?').
+                // Keep its observed NaN rather than inventing distance zero.
+                ExprOp::Constant(f64::NAN)
+            }
             "distance_to" => ExprOp::Distance(self.point_target(field(b, "sprite"))?),
             "get_clone_num" => ExprOp::CloneCount(self.actor_target(field(b, "sprite"))?),
             "bump_into" => {
@@ -2853,13 +2967,13 @@ impl Compiler {
                     .unwrap_or("");
                 let other = match other {
                     "--mouse" | "__mouse" | "--pointer" | "__pointer" => TARGET_MOUSE,
-                    id => match edge_target(id).or_else(|| camp_target(id)) {
+                    id => match edge_target(id).or_else(|| self.role_camp_target(id)) {
                         Some(target) => target,
                         None => self.actor_target(id)?,
                     },
                 };
                 let subject = field(b, "sprite");
-                let subject = match camp_target(subject) {
+                let subject = match self.role_camp_target(subject) {
                     Some(camp) => camp,
                     None => self.actor_target(subject)?,
                 };
@@ -2867,7 +2981,7 @@ impl Compiler {
             }
             "bump_into_color" => {
                 let subject = field(b, "sprite");
-                let subject = match camp_target(subject) {
+                let subject = match self.role_camp_target(subject) {
                     Some(camp) => camp,
                     None => self.actor_target(subject)?,
                 };
@@ -2939,15 +3053,20 @@ impl Compiler {
             "effect_of_sprite" => {
                 let scope = effect_scope(field(b, "effect"))
                     .with_context(|| format!("unsupported effect at {}", b["id"]))?;
-                ExprOp::Effect(self.actor_target(field(b, "sprite"))?, scope)
+                let target = self.actor_target(field(b, "sprite"))?;
+                if self.program.semantics == RuntimeSemantics::KnCurrent {
+                    ExprOp::KnProperty(target, kn_appearance::Property::Effect(scope))
+                } else {
+                    ExprOp::Effect(target, scope)
+                }
             }
             "mouse_down" => {
-                let state = match b["fields"]
+                let name = b["fields"]
                     .get("mouse_event_type")
                     .or_else(|| b["fields"].get("type"))
                     .and_then(Value::as_str)
-                    .unwrap_or("down")
-                {
+                    .unwrap_or("down");
+                let state = match name {
                     "down" => 0,
                     "click" => 1,
                     "up" => 2,
@@ -2956,7 +3075,15 @@ impl Compiler {
                 if self.program.semantics == RuntimeSemantics::KnCurrent {
                     let target = match field(b, "sprite") {
                         "" | "--screen" => None,
-                        id => Some(self.actor_target(id)?),
+                        id => match self.actor_target(id) {
+                            Ok(target) => Some(target),
+                            // Official reports an invalid target, then returns
+                            // false; do not fail compilation of unrelated code.
+                            Err(_) => {
+                                self.expression_work.push(ExprOp::Constant(0.0));
+                                return Ok(());
+                            }
+                        },
                     };
                     ExprOp::KnMouseDown(target, state)
                 } else {
@@ -3102,6 +3229,16 @@ impl Compiler {
         for root in owner["nekoBlockJsonList"].as_array().into_iter().flatten() {
             let kind = root["type"].as_str().unwrap_or("");
             let event = match kind {
+                "microbit_button_when"
+                | "microbit_logo_when"
+                | "microbit_pin_when"
+                | "catbit_button_when"
+                | "catbit_usb_button_when"
+                | "wand_direction_when"
+                    if self.program.semantics == RuntimeSemantics::KnCurrent =>
+                {
+                    ScriptEvent::KnDisconnectedHardware
+                }
                 "when" if self.program.semantics == RuntimeSemantics::KnCurrent => {
                     ScriptEvent::KnWhen
                 }
@@ -3109,6 +3246,7 @@ impl Compiler {
                     self.value(input(root, "message")?)?,
                     kind == "self_listen_with_param",
                 ),
+                "nekoc_extension_hat" => self.extension_hat(root)?,
                 "on_running_group_activated" | "start_on_click" => {
                     let sprite = &self.program.sprites[actor];
                     let key = (
@@ -3224,7 +3362,16 @@ impl Compiler {
             let start = self.program.ops.len();
             if matches!(event, ScriptEvent::KnWhen) {
                 let condition = self.condition(input(root, "condition")?)?;
-                self.emit(Op::WaitUntil(condition), root);
+                if self.program.ops.len() == start {
+                    self.emit(Op::WaitUntil(condition), root);
+                } else {
+                    let gate = self.emit(Op::Branch(condition, 0), root);
+                    let body = self.emit(Op::Jump(0), root);
+                    self.program.ops[gate] = Op::Branch(condition, self.program.ops.len());
+                    self.emit(Op::Yield, root);
+                    self.emit(Op::Jump(start), root);
+                    self.program.ops[body] = Op::Jump(self.program.ops.len());
+                }
                 self.chain(root["statements"].get("DO"), false)
                     .with_context(|| format!("owner {}", owner["name"]))?;
                 // Both false checks and completed bodies yield. The same task
@@ -3249,12 +3396,14 @@ impl Compiler {
                 root["statements"].get("DO").or(root.get("next"))
             } else if matches!(
                 event,
-                ScriptEvent::CloneStart
+                ScriptEvent::KnDisconnectedHardware
+                    | ScriptEvent::CloneStart
                     | ScriptEvent::K4Media(_)
                     | ScriptEvent::Swipe(_)
                     | ScriptEvent::Bump(..)
                     | ScriptEvent::Pointer(..)
                     | ScriptEvent::K4Backdrop(_)
+                    | ScriptEvent::Extension(_)
             ) {
                 root["statements"]
                     .get("DO")
@@ -3368,7 +3517,7 @@ impl Compiler {
                     } else {
                         if !warped {
                             self.emit(Op::Yield, b);
-                        } else if self.program.semantics == RuntimeSemantics::Kitten4 {
+                        } else {
                             self.emit(Op::WarpIteration, b);
                         }
                         self.emit(Op::Jump(begin), b);
@@ -3378,12 +3527,18 @@ impl Compiler {
                         self.program.ops[begin] = Op::Repeat(n, end);
                     }
                     if kind == "repeat_forever_until" {
-                        self.program.ops[begin + 1] = Op::Jump(end);
+                        let gate = (begin..end)
+                            .find(|&pc| matches!(self.program.ops[pc], Op::Branch(..)))
+                            .unwrap();
+                        self.program.ops[gate + 1] = Op::Jump(end);
                     }
-                    if kind == "controls_while"
-                        && let Op::Branch(condition, _) = self.program.ops[begin]
-                    {
-                        self.program.ops[begin] = Op::Branch(condition, end);
+                    if kind == "controls_while" {
+                        let gate = (begin..end)
+                            .find(|&pc| matches!(self.program.ops[pc], Op::Branch(..)))
+                            .unwrap();
+                        if let Op::Branch(condition, _) = self.program.ops[gate] {
+                            self.program.ops[gate] = Op::Branch(condition, end);
+                        }
                     }
                     for pc in self.loops.pop().unwrap() {
                         self.program.ops[pc] = if matches!(self.program.ops[pc], Op::Jump(_)) {
@@ -3423,6 +3578,46 @@ impl Compiler {
                 );
                 let kind = b["type"].as_str().unwrap_or("");
                 let op = match kind {
+                    "microbit_led_clear"
+                    | "microbit_led_plot"
+                    | "microbit_led_plot_graph"
+                    | "microbit_led_show_custom"
+                    | "microbit_led_show_icon"
+                    | "microbit_led_show_number"
+                    | "microbit_led_show_text"
+                    | "microbit_led_toggle"
+                    | "microbit_led_unplot"
+                    | "microbit_pause_by_beats"
+                    | "microbit_pin_analog_write"
+                    | "microbit_pin_digital_write"
+                    | "microbit_pin_set_touch_mode"
+                    | "microbit_play_melody"
+                    | "microbit_play_tone_by_beats"
+                    | "microbit_servo_set_angle_270"
+                    | "microbit_set_volume"
+                    | "microbit_stop"
+                    | "wand_reset_position"
+                    | "set_robot_master_light_color"
+                    | "set_robot_master_light_color_duration"
+                    | "stop_robot_master_light"
+                    | "set_robot_master_motor_power_rotation"
+                    | "set_robot_master_motor_power_rotation_duration"
+                    | "change_robot_master_motor_power"
+                    | "stop_robot_master_motor"
+                    | "set_robot2_master_motor_power_rotation"
+                    | "set_robot2_master_motor_power_rotation_duration"
+                    | "change_robot2_master_motor_power"
+                    | "stop_robot2_master_motor"
+                        if self.program.semantics == RuntimeSemantics::KnCurrent =>
+                    {
+                        for socket in kn_hardware::async_command(kind).unwrap() {
+                            let value = self.value(input(b, socket)?)?;
+                            self.emit(Op::Execute(value), b);
+                        }
+                        // Preserve the Promise boundary even though its guard
+                        // has no device work or wall-clock duration to await.
+                        Op::Yield
+                    }
                     "microbit_set_bpm" | "microbit_change_bpm"
                         if self.program.semantics == RuntimeSemantics::KnCurrent =>
                     {
@@ -3719,6 +3914,7 @@ impl Compiler {
                         Op::AnimStep
                     }
                     "set_sprite_style" => Op::Style(self.value(input(b, "style_id")?)?),
+                    "kitten4_legacy_costume" => self.legacy_costume(b)?,
                     "self_prev_next_style" => {
                         ensure!(
                             matches!(field(b, "prev_next"), "next" | "prev"),
@@ -3930,17 +4126,13 @@ impl Compiler {
                     "close_self_dialog" => Op::CloseDialog,
                     "self_bounce_off_edge" => Op::Bounce,
                     "self_set_role_camp" => {
-                        // camp_green is a KN compatibility alias, not the K4
-                        // editor's green option (whose stored id is camp_yellow).
-                        ensure!(
-                            self.program.semantics != RuntimeSemantics::Kitten4
-                                || field(b, "role_camp") != "camp_green",
-                            "unsupported Kitten 4 camp camp_green at {}",
-                            b["id"]
-                        );
-                        Op::Camp(camp_code(field(b, "role_camp")).with_context(|| {
-                            format!("unknown camp {} at {}", field(b, "role_camp"), b["id"])
-                        })?)
+                        let id = field(b, "role_camp");
+                        if self.program.semantics != RuntimeSemantics::Kitten4 {
+                            ensure!(camp_code(id).is_some(), "unknown camp {id} at {}", b["id"]);
+                        }
+                        let index = self.program.strings.len();
+                        self.program.strings.push(id.into());
+                        Op::Camp(index)
                     }
                     "self_stress_animation" => {
                         self.emit(
@@ -4398,7 +4590,22 @@ impl Compiler {
                         }
                     }
                     "wait" => Op::Wait(self.arg(b, "time")?),
-                    "wait_until" => Op::WaitUntil(self.condition(input(b, "condition")?)?),
+                    "wait_until" => {
+                        let begin = self.program.ops.len();
+                        let condition = self.condition(input(b, "condition")?)?;
+                        if self.program.ops.len() == begin {
+                            Op::WaitUntil(condition)
+                        } else {
+                            let gate = self.emit(Op::Branch(condition, 0), b);
+                            let done = self.emit(Op::Jump(0), b);
+                            self.program.ops[gate] = Op::Branch(condition, self.program.ops.len());
+                            self.emit(Op::Yield, b);
+                            self.emit(Op::Jump(begin), b);
+                            self.program.ops[done] = Op::Jump(self.program.ops.len());
+                            block = b.get("next");
+                            continue;
+                        }
+                    }
                     "self_broadcast" | "self_broadcast_with_param" | "self_broadcast_and_wait" => {
                         Op::Broadcast(
                             self.value(input(b, "message")?)?,
@@ -4481,14 +4688,14 @@ impl Compiler {
                     | "repeat_forever"
                     | "repeat_forever_until"
                     | "controls_while" => {
-                        let begin = self.program.ops.len();
+                        let mut begin = self.program.ops.len();
                         if kind == "repeat_n_times" {
                             let n = self.arg(b, "times")?;
-                            self.emit(Op::Repeat(n, 0), b);
+                            begin = self.emit(Op::Repeat(n, 0), b);
                         } else if kind == "repeat_forever_until" {
                             let c = self.condition(input(b, "condition")?)?;
-                            let gate = self.emit(Op::Branch(c, begin + 2), b);
-                            debug_assert_eq!(gate, begin);
+                            let gate = self.program.ops.len();
+                            self.emit(Op::Branch(c, gate + 2), b);
                             self.emit(Op::Jump(0), b);
                         } else if kind == "controls_while" {
                             // Official main-vendors.07f7dd7e.js:6183639 converts
@@ -4795,6 +5002,7 @@ pub struct SpeechCommand {
 }
 #[derive(Clone, Debug, Serialize)]
 pub struct Frame {
+    pub cloud_ui: cloud_ui::CloudUi,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub extension_requests: Vec<crate::extensions::ExtensionRequest>,
     /// Ct.unset_brush_target can move the detached pen plane below media.
@@ -4814,6 +5022,9 @@ pub struct Frame {
     pub audio_commands: Vec<AudioCommand>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub speech_commands: Vec<SpeechCommand>,
+    /// Host requests produced by K4 device blocks, such as browser vibration.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub k4_media_output: Vec<MediaOutput>,
     /// Sprite ids back to front, sent when layers change or clones appear.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<Vec<String>>,
@@ -4863,13 +5074,17 @@ pub struct Engine {
     trace_filter: Option<BTreeSet<String>>,
     trace_truncated: bool,
     warp_iterations: u32,
+    kn_warp: kn_warp::Slice,
     cloud: cloud::State,
     scheduler_tick: u64,
     k4_frames: u64,
+    k4_shake_clock: k4_shake::Clock,
     k4_media: k4_media::State,
     kn_panel: kn_panel::State,
+    kn_local: kn_local::State,
     oracle_events: Option<Vec<Value>>,
     evaluation_cache: Vec<BTreeMap<(bool, usize), VecDeque<Cell>>>,
+    parameter_pool: parameter_pool::ParameterPool,
     physics: Option<Box<physics::Physics>>,
     pub program: Program,
     jit: Option<Box<jit::Jit>>,
@@ -4885,6 +5100,8 @@ pub struct Engine {
     slots: Vec<f64>,
     lists: Vec<List>,
     values: Vec<Option<Cell>>,
+    /// Globals created by executed K4 UUID property reads, not declarations.
+    k4_property_globals: BTreeMap<String, Cell>,
     pressed: std::collections::BTreeSet<String>,
     released: BTreeSet<String>,
     mouse: [f64; 2],
@@ -4927,6 +5144,10 @@ pub struct Engine {
     /// Drawable sprites of the active scene, back to front (stage excluded).
     order: Vec<usize>,
     current_scene: usize,
+    /// K4's logical scene changes before the transition completion callback
+    /// changes its running group. KN always keeps these two fields together.
+    running_scene: usize,
+    scene_activation: Option<k4_drawing::SceneActivation>,
     /// Saved draw order of every scene (the active one lives in `order`).
     scene_orders: Vec<Vec<usize>>,
     scene_changed: bool,
@@ -4935,12 +5156,14 @@ pub struct Engine {
     order_dirty: bool,
     removed: Vec<String>,
     free_slots: Vec<usize>,
+    k4_pending_disposals: Vec<usize>,
     clone_serial: u64,
     clones: usize,
     /// Per-frame creation counts and monotonic clone numbers (not variable storage).
     clone_counts: BTreeMap<usize, u32>,
     clone_orders: BTreeMap<usize, u32>,
     clone_layers: BTreeMap<usize, Vec<usize>>,
+    clone_index: clone_index::CloneIndex,
     asks: VecDeque<AskRequest>,
     stage_dialogs: VecDeque<StageDialogRequest>,
     next_ask: u64,
@@ -5072,6 +5295,9 @@ impl Engine {
         for (i, id) in self.program.list_names.iter().enumerate() {
             variables.insert(id.clone(), serde_json::json!(self.list_values(i)));
         }
+        for (id, value) in self.lazy_k4_property_globals() {
+            variables.insert(id.clone(), serde_json::json!(value));
+        }
         let entity_variables: BTreeMap<_, _> = self
             .sprites
             .iter()
@@ -5092,7 +5318,37 @@ impl Engine {
     }
 
     pub fn active_tasks(&self) -> usize {
-        self.tasks.iter().filter(|t| self.task_active(t)).count() + self.kn_timers.len()
+        self.tasks.iter().filter(|t| self.task_active(t)).count()
+            + self.kn_timers.len()
+            + usize::from(self.scene_activation.is_some())
+    }
+    /// Full native-preview render observation, in active-scene painter order.
+    /// Unlike advance(), this does not step physics, consume deltas, or clear
+    /// dirty flags. World-space soft vertices must not receive a sprite transform.
+    pub(crate) fn studio_render_snapshot(&self) -> (String, String, Vec<Sprite>) {
+        let sprites = self
+            .order
+            .iter()
+            .copied()
+            .filter_map(|actor| {
+                let sprite = &self.sprites[actor];
+                if !sprite.alive || sprite.stage || sprite.scene != self.current_scene {
+                    return None;
+                }
+                let mut drawn = sprite.clone();
+                drawn.direction -= self.program.costume_turn;
+                if drawn.flip_x {
+                    drawn.size_x = -drawn.size_x;
+                }
+                if drawn.flip_y {
+                    drawn.size_y = -drawn.size_y;
+                }
+                drawn.soft_mesh = self.physics_soft_mesh(actor);
+                Some(drawn)
+            })
+            .collect();
+        let scene = &self.program.scenes[self.current_scene];
+        (scene.id.clone(), scene.name.clone(), sprites)
     }
     /// Scene-bound K4 tasks and KN when tasks suspend outside their scene.
     /// K4 global Start remains runnable regardless of its owner's scene.
@@ -5101,7 +5357,7 @@ impl Engine {
             && (!(task.kn_when
                 || (self.program.semantics == RuntimeSemantics::Kitten4 && !task.global_start))
                 || (self.sprites[task.actor].alive
-                    && self.sprites[task.actor].scene == self.current_scene))
+                    && self.sprites[task.actor].scene == self.running_scene))
     }
     fn task_runnable(&self, task: &Task) -> bool {
         self.task_active(task)
@@ -5136,13 +5392,18 @@ impl Engine {
                 )
             })
             .collect();
-        let variables: BTreeMap<_, _> = self
+        let mut variables: BTreeMap<_, _> = self
             .program
             .variable_names
             .iter()
             .enumerate()
             .map(|(index, id)| (id.clone(), self.global_value(index)))
             .collect();
+        variables.extend(
+            self.lazy_k4_property_globals()
+                .iter()
+                .map(|(id, value)| (id.clone(), value.clone())),
+        );
         let lists: BTreeMap<_, _> = self
             .program
             .list_names
@@ -5173,18 +5434,59 @@ impl Engine {
             .list_names
             .iter()
             .position(|n| n == id)
-            .map_or(Cell::Null, |i| Cell::List(self.lists[i].clone()))
+            .map_or_else(
+                || {
+                    self.k4_property_globals
+                        .get(id)
+                        .cloned()
+                        .unwrap_or(Cell::Null)
+                },
+                |i| Cell::List(self.lists[i].clone()),
+            )
     }
+    /// Current typed private variable of a live entity; unknown IDs return Null.
+    pub fn entity_variable_value(&self, entity: &str, id: &str) -> Cell {
+        let Some(slot) = self
+            .program
+            .actor_variable_names
+            .iter()
+            .position(|name| name == id)
+        else {
+            return Cell::Null;
+        };
+        self.sprites
+            .iter()
+            .find(|a| a.alive && a.id == entity)
+            .and_then(|actor| actor.variables.get(&slot))
+            .cloned()
+            .unwrap_or(Cell::Null)
+    }
+    /// Current group of a live actor, including clones (not scenes).
+    pub fn actor_group(&self, id: &str) -> Option<&str> {
+        self.sprites
+            .iter()
+            .find(|a| a.alive && !a.stage && a.id == id)
+            .and_then(|a| a.camp.id())
+    }
+
     /// Current text of a global scalar variable by id.
     pub fn variable_text(&self, id: &str) -> String {
         self.program
             .variable_names
             .iter()
             .position(|n| n == id)
-            .map_or_else(String::new, |i| {
-                self.global_value(i)
-                    .text_with_js_nonfinite(self.program.semantics == RuntimeSemantics::KnCurrent)
-            })
+            .map_or_else(
+                || {
+                    self.k4_property_globals
+                        .get(id)
+                        .map_or_else(String::new, Cell::text)
+                },
+                |i| {
+                    self.global_value(i).text_with_js_nonfinite(
+                        self.program.semantics == RuntimeSemantics::KnCurrent,
+                    )
+                },
+            )
     }
     pub fn list_values(&self, index: usize) -> Vec<Cell> {
         self.lists[index].borrow().clone()
@@ -5223,13 +5525,9 @@ impl Engine {
     }
     pub fn new(program: Program) -> Self {
         let _timing = crate::import_perf::span("engine_init_jit");
-        // Extensions retain their interpreter-only safety boundary; private
-        // variables use entity-aware native helpers and no longer disable JIT.
-        let jit = if program.extension_calls.is_empty() {
-            jit::Jit::new(program.ops.len())
-        } else {
-            None
-        };
+        // Extension calls are native-region exit points.  They do not disable
+        // JIT for unrelated instructions in the same Program.
+        let jit = jit::Jit::new(program.ops.len());
         let slots = program.initial.clone();
         let lists = program
             .initial_lists
@@ -5267,16 +5565,20 @@ impl Engine {
             speech_commands: vec![],
             speech_config: [0.0, 10.0, 10.0, 10.0],
             cloud: cloud::State::default(),
+            k4_property_globals: BTreeMap::new(),
             videos: program.videos.clone(),
             next_video_generation: 1,
             video_above_pen: false,
             scheduler_tick: 0,
             k4_frames: 0,
+            k4_shake_clock: k4_shake::Clock::default(),
             k4_media: k4_media::State::default(),
             kn_panel: kn_panel::State::default(),
+            kn_local: kn_local::State::default(),
             trace_filter: None,
             trace_truncated: false,
             warp_iterations: 0,
+            kn_warp: kn_warp::Slice::default(),
             oracle_events: None,
             physics: None,
             pen_rasters: vec![None; program.scenes.len()],
@@ -5321,6 +5623,7 @@ impl Engine {
             reset: true,
             value_error: None,
             evaluation_cache: vec![],
+            parameter_pool: parameter_pool::ParameterPool::default(),
             stopped: false,
             restart: false,
             reporter_depth: 0,
@@ -5330,6 +5633,8 @@ impl Engine {
             jit_yield: false,
             order,
             current_scene,
+            running_scene: current_scene,
+            scene_activation: None,
             scene_orders,
             scene_changed: true,
             next_transition: None,
@@ -5337,11 +5642,13 @@ impl Engine {
             order_dirty: true,
             removed: vec![],
             free_slots: vec![],
+            k4_pending_disposals: vec![],
             clone_serial: 0,
             clones: 0,
             clone_counts: BTreeMap::new(),
             clone_orders: BTreeMap::new(),
             clone_layers: BTreeMap::new(),
+            clone_index: clone_index::CloneIndex::default(),
             asks: VecDeque::new(),
             stage_dialogs: VecDeque::new(),
             next_ask: 1,
@@ -5361,10 +5668,13 @@ impl Engine {
     }
     pub fn start(&mut self) {
         self.extensions.clear();
+        self.kn_local = kn_local::State::default();
+        self.k4_property_globals.clear();
         self.videos.clone_from(&self.program.videos);
         self.video_above_pen = false;
         let cloud_values = self.cloud_restart_values();
         self.cloud.ranking = None;
+        self.cloud.ranking_value = None;
         self.physics = None;
         self.slots.clone_from(&self.program.initial);
         self.lists = self
@@ -5407,6 +5717,8 @@ impl Engine {
         self.dirty.resize(self.sprites.len(), true);
         self.scene_orders = initial_orders(&self.program);
         self.current_scene = self.program.initial_scene;
+        self.running_scene = self.current_scene;
+        self.scene_activation = None;
         self.order = self.scene_orders[self.current_scene].clone();
         self.scene_changed = true;
         self.next_transition = None;
@@ -5414,11 +5726,13 @@ impl Engine {
         self.order_dirty = true;
         self.removed.clear();
         self.free_slots.clear();
+        self.k4_pending_disposals.clear();
         self.clone_serial = 0;
         self.clones = 0;
         self.clone_counts.clear();
         self.clone_orders.clear();
         self.clone_layers.clear();
+        self.clone_index = clone_index::CloneIndex::default();
         self.asks.clear();
         self.stage_dialogs.clear();
         self.image_stamps.clear();
@@ -5436,6 +5750,7 @@ impl Engine {
         self.initialize_legacy_physics();
         self.time = 0.0;
         self.k4_frames = 0;
+        self.k4_shake_clock.reset();
         self.k4_media.reset();
         self.kn_panel.reset();
         self.timer = 0.0;
@@ -5458,11 +5773,16 @@ impl Engine {
         self.bump_state.clear();
         self.pen_rasters.iter_mut().for_each(|r| *r = None);
         let scene_id = self.program.scenes[self.current_scene].id.clone();
+        // K4's Start action is queued before running_group_activated. Preserve
+        // that creation order even when scene entities precede actors in source.
+        if self.program.semantics == RuntimeSemantics::Kitten4 {
+            self.dispatch(|event| matches!(event, ScriptEvent::K4GlobalStart));
+        }
+        let k4 = self.program.semantics == RuntimeSemantics::Kitten4;
         self.dispatch(|event| {
-            matches!(
-                event,
-                ScriptEvent::Start | ScriptEvent::K4GlobalStart | ScriptEvent::K4SceneActivate
-            ) || matches!(event, ScriptEvent::K4Backdrop(id) if id == &scene_id)
+            matches!(event, ScriptEvent::Start | ScriptEvent::K4SceneActivate)
+                || (!k4 && matches!(event, ScriptEvent::K4GlobalStart))
+                || matches!(event, ScriptEvent::K4Backdrop(id) if id == &scene_id)
         });
         // Originals only. Clone when behaviour has no official oracle yet;
         // do not infer clone responders from other event types.
@@ -5627,7 +5947,7 @@ impl Engine {
         }
     }
     fn in_active_scene(&self, actor: usize) -> bool {
-        self.program.sprites[actor].scene == self.current_scene
+        self.program.sprites[actor].scene == self.running_scene
     }
     /// Live sprite indices running an actor's scripts: the original and its clones.
     fn instances(&self, actor: usize) -> Vec<usize> {
@@ -5825,6 +6145,8 @@ impl Engine {
     /// numeric leaves and arithmetic stay here, everything else is out of line.
     #[inline(always)]
     fn node(&mut self, pc: usize, actor: usize) -> f64 {
+        #[cfg(feature = "interp-profile")]
+        let _profile = interp_profile::span("node", &self.program.expressions[pc]);
         if self.program.deep_values.is_empty() {
             return self.node_one::<false>(pc, actor);
         }
@@ -5947,6 +6269,8 @@ impl Engine {
     }
     #[inline(never)]
     fn node_slow(&mut self, pc: usize, actor: usize) -> f64 {
+        #[cfg(feature = "interp-profile")]
+        let _profile = interp_profile::span("node_slow", &self.program.expressions[pc]);
         match self.program.expressions[pc] {
             ExprOp::Constant(n) => n,
             ExprOp::Slot(s) => self.slots[s],
@@ -5986,6 +6310,7 @@ impl Engine {
             ExprOp::KnActorParameter(parameter, property) => {
                 self.kn_actor_parameter_property(parameter, actor, property)
             }
+            ExprOp::KnVoiceVolume => self.kn_voice_volume(),
             ExprOp::Costume(target) => {
                 let target = if target == usize::MAX { actor } else { target };
                 let sprite = &self.sprites[target];
@@ -6041,11 +6366,7 @@ impl Engine {
             }
             ExprOp::CloneCount(target) => {
                 let origin = self.sprites[if target == usize::MAX { actor } else { target }].origin;
-                (0..self.sprites.len())
-                    .filter(|&i| {
-                        self.sprites[i].alive && self.sprites[i].origin == origin && i != origin
-                    })
-                    .count() as f64
+                self.clone_index.slots(origin).len() as f64
             }
             ExprOp::CloneIndex => self.sprites[actor].clone_index as f64,
             ExprOp::PhysicsProperty(property) => self.physics_property(actor, property),
@@ -6058,9 +6379,8 @@ impl Engine {
                 let other = if other == usize::MAX { actor } else { other };
                 let hit = if subject == usize::MAX {
                     self.touching(actor, other)
-                } else if (TARGET_CAMP - 3..=TARGET_CAMP).contains(&subject) {
-                    let camp = (TARGET_CAMP - subject) as u8;
-                    let members: Vec<usize> = self.camp_members(camp).collect();
+                } else if is_camp_target(subject) {
+                    let members: Vec<usize> = self.camp_members(subject).collect();
                     members.into_iter().any(|i| self.touching(i, other))
                 } else {
                     // An actor subject includes its clones (official getActorIdsFromOption).
@@ -6076,9 +6396,8 @@ impl Engine {
             ExprOp::TouchingColor(subject, color) => {
                 let hit = if subject == usize::MAX {
                     self.touching_color(actor, color)
-                } else if (TARGET_CAMP - 3..=TARGET_CAMP).contains(&subject) {
-                    let members: Vec<usize> =
-                        self.camp_members((TARGET_CAMP - subject) as u8).collect();
+                } else if is_camp_target(subject) {
+                    let members: Vec<usize> = self.camp_members(subject).collect();
                     members.into_iter().any(|i| self.touching_color(i, color))
                 } else {
                     let origin = self.sprites[subject].origin;
@@ -6174,6 +6493,8 @@ impl Engine {
     /// waits inside it do not suspend (it must produce a value now); runaway
     /// bodies and deep recursion become value errors instead of hangs.
     fn call_reporter(&mut self, procedure: usize, args: usize, actor: usize) -> Cell {
+        #[cfg(feature = "interp-profile")]
+        let _profile = interp_profile::span("call_reporter", &());
         if self.value_error.is_some() {
             return Cell::Null;
         }
@@ -6182,7 +6503,7 @@ impl Engine {
             return Cell::Null;
         }
         let count = self.program.call_arguments[args].len();
-        let mut parameters = Vec::with_capacity(count);
+        let mut parameters = self.parameter_pool.take(count);
         for k in 0..count {
             let value = self.program.call_arguments[args][k];
             parameters.push(self.eval_value(value, actor));
@@ -6229,7 +6550,8 @@ impl Engine {
         while task.calls.len() > depth {
             let call = task.calls.pop().unwrap();
             task.pc = call.pc;
-            task.parameters = call.parameters;
+            let parameters = std::mem::replace(&mut task.parameters, call.parameters);
+            self.parameter_pool.recycle(parameters);
             task.loops.truncate(call.loops);
             task.ranges.truncate(call.ranges);
         }
@@ -6320,23 +6642,11 @@ impl Engine {
         let Some(geometry) = self.geometry(i) else {
             return false;
         };
-        let Some((u, v)) = geometry.uv(x, y) else {
-            return false;
-        };
-        if !(0.0..1.0).contains(&u) || !(0.0..1.0).contains(&v) {
-            return false;
-        }
-        match &geometry.costume.mask {
-            None => true,
-            Some((mw, mh, bits)) => {
-                let (px, py) = ((u * *mw as f64) as usize, (v * *mh as f64) as usize);
-                let bit = py * mw + px;
-                bits.get(bit / 8)
-                    .is_some_and(|byte| byte >> (bit % 8) & 1 == 1)
-            }
-        }
+        geometry.contains(x, y)
     }
     fn touching(&self, subject: usize, other: usize) -> bool {
+        #[cfg(feature = "interp-profile")]
+        let _profile = interp_profile::span("touching", &());
         let a = &self.sprites[subject];
         if !a.alive || !a.visible {
             return false;
@@ -6361,11 +6671,9 @@ impl Engine {
                     _ => r >= w,
                 }
             }
-            camp if (TARGET_CAMP - 3..=TARGET_CAMP).contains(&camp) => {
-                let camp = (TARGET_CAMP - camp) as u8;
-                self.camp_members(camp)
-                    .any(|j| j != subject && self.sprites[j].visible && self.overlap(subject, j))
-            }
+            camp if is_camp_target(camp) => self
+                .camp_members(camp)
+                .any(|j| j != subject && self.sprites[j].visible && self.overlap(subject, j)),
             other => {
                 let origin = self.sprites[if other == usize::MAX { subject } else { other }].origin;
                 (0..self.sprites.len()).any(|j| {
@@ -6380,8 +6688,13 @@ impl Engine {
     }
     /// Sampled pixel overlap inside the intersection of both bounds.
     fn overlap(&self, a: usize, b: usize) -> bool {
-        let (al, ar, ab, at) = self.bounds(a);
-        let (bl, br, bb, bt) = self.bounds(b);
+        // Geometry is immutable during sampling. A missing costume never contains
+        // a point, even when its fallback bounds intersect the other sprite.
+        let (Some(a), Some(b)) = (self.geometry(a), self.geometry(b)) else {
+            return false;
+        };
+        let (al, ar, ab, at) = a.bounds();
+        let (bl, br, bb, bt) = b.bounds();
         let (l, r, bottom, t) = (al.max(bl), ar.min(br), ab.max(bb), at.min(bt));
         if l > r || bottom > t {
             return false;
@@ -6393,7 +6706,7 @@ impl Engine {
             let y = bottom + (iy as f64 + 0.5) * (t - bottom) / ny as f64;
             for ix in 0..nx {
                 let x = l + (ix as f64 + 0.5) * (r - l) / nx as f64;
-                if self.contains(a, x, y) && self.contains(b, x, y) {
+                if a.contains(x, y) && b.contains(x, y) {
                     return true;
                 }
             }
@@ -6761,28 +7074,23 @@ impl Engine {
     }
     /// K4 only finishes activation hats on exit; other scene-bound tasks suspend
     /// and clones/properties persist. KN retains its existing exit policy.
-    /// This does not change scheduler order or the activation dispatch phase.
+    /// K4 visual ownership changes now; activation waits for completion.
     fn switch_scene(&mut self, target: usize) {
         // zi reattaches the shared media container at scene child index 1.
         self.video_above_pen = false;
         let old = self.current_scene;
-        for task in 0..self.tasks.len() {
-            if self.sprites[self.tasks[task].actor].scene == old
-                && if self.program.semantics == RuntimeSemantics::Kitten4 {
-                    matches!(
-                        self.program.scripts.get(self.tasks[task].script),
-                        Some(Script {
-                            event: ScriptEvent::K4SceneActivate,
-                            ..
-                        })
-                    )
-                } else {
-                    !self.tasks[task].global_start && !self.tasks[task].kn_when
-                }
-            {
-                self.finish_task(task);
-            }
-        }
+        let deferred =
+            self.program.semantics == RuntimeSemantics::Kitten4 && self.next_transition.is_some();
+        let outgoing = deferred.then(|| self.transition_scene(old));
+        // Visual scene ownership changes immediately, independently of the
+        // callback-driven running group (a1xw/Nt and RegisterEvent adapter).
+        self.scene_activation = deferred.then(|| {
+            k4_drawing::SceneActivation::new(
+                target,
+                &self.next_transition.as_ref().unwrap().kind,
+                self.time,
+            )
+        });
         for i in 0..self.sprites.len() {
             if self.program.semantics != RuntimeSemantics::Kitten4
                 && self.sprites[i].alive
@@ -6802,18 +7110,44 @@ impl Engine {
         self.order = self.scene_orders[target].clone();
         self.current_scene = target;
         if self.program.semantics == RuntimeSemantics::Kitten4 {
-            // Official adapter clears the old entity down on scene switch.
             self.input_targets.clear();
             self.input_clicks.clear();
         }
         self.order_dirty = true;
         self.scene_changed = true;
         self.transition = self.next_transition.clone();
+        if let Some(transition) = &mut self.transition {
+            transition.outgoing = outgoing;
+        }
         for i in 0..self.sprites.len() {
             if self.sprites[i].scene == target && self.sprites[i].alive {
                 self.dirty[i] = true;
             }
         }
+        if !deferred {
+            self.activate_scene(target);
+        }
+    }
+    fn activate_scene(&mut self, target: usize) {
+        let old = self.running_scene;
+        for task in 0..self.tasks.len() {
+            if self.sprites[self.tasks[task].actor].scene == old
+                && if self.program.semantics == RuntimeSemantics::Kitten4 {
+                    matches!(
+                        self.program.scripts.get(self.tasks[task].script),
+                        Some(Script {
+                            event: ScriptEvent::K4SceneActivate,
+                            ..
+                        })
+                    )
+                } else {
+                    !self.tasks[task].global_start && !self.tasks[task].kn_when
+                }
+            {
+                self.finish_task(task);
+            }
+        }
+        self.running_scene = target;
         let scene_id = self.program.scenes[target].id.clone();
         self.dispatch(|event| {
             matches!(event, ScriptEvent::Start | ScriptEvent::K4SceneActivate)
@@ -7103,10 +7437,15 @@ impl Engine {
     }
     /// Sprites selected by a collision subject/target: one actor with its clones,
     /// or every live actor of a camp in the active scene.
-    fn camp_members(&self, camp: u8) -> impl Iterator<Item = usize> + '_ {
+    fn camp_members(&self, target: usize) -> impl Iterator<Item = usize> + '_ {
         (0..self.sprites.len()).filter(move |&i| {
             let a = &self.sprites[i];
-            a.alive && !a.stage && a.camp == camp && a.scene == self.current_scene
+            let member = if target >= TARGET_CAMP - 3 {
+                a.camp.is_standard((TARGET_CAMP - target) as u8)
+            } else {
+                a.camp.id() == Some(self.program.strings[TARGET_CAMP - 4 - target].as_str())
+            };
+            a.alive && !a.stage && member && a.scene == self.current_scene
         })
     }
     /// on_bump_actor: compare each instance's contact with the previous check and
@@ -7177,6 +7516,8 @@ impl Engine {
             .collect()
     }
     fn read_actor_variable(&mut self, actor: usize, slot: usize) -> Cell {
+        #[cfg(feature = "interp-profile")]
+        let _profile = interp_profile::span("read_actor_variable", &());
         if let Some(value) = self
             .sprites
             .get(actor)
@@ -7208,6 +7549,8 @@ impl Engine {
         }
     }
     fn clone_sprite(&mut self, source: usize, split: Option<(f64, f64)>) -> Result<()> {
+        #[cfg(feature = "interp-profile")]
+        let _profile = interp_profile::span("clone_sprite", &());
         ensure!(!self.sprites[source].stage, "the stage cannot be cloned");
         ensure!(
             self.program.semantics != RuntimeSemantics::Kitten4
@@ -7218,9 +7561,6 @@ impl Engine {
             return Ok(());
         }
         let origin = self.sprites[source].origin;
-        let live = (0..self.sprites.len())
-            .filter(|&i| self.sprites[i].alive && self.sprites[i].origin == origin && i != origin)
-            .count();
         if self.program.semantics == RuntimeSemantics::Kitten4 {
             // Official iNFq clone_entity: per-entity, per-frame guard uses >300,
             // so the 301st creation succeeds. This is NOT a live clone cap.
@@ -7229,18 +7569,25 @@ impl Engine {
                 return Ok(());
             }
             *count += 1;
-        } else if live >= 300 {
+        }
+        let live = {
+            #[cfg(feature = "interp-profile")]
+            let _profile = interp_profile::span("clone_scan", &());
+            self.clone_index.slots(origin).len()
+        };
+        if self.program.semantics != RuntimeSemantics::Kitten4 && live >= 300 {
             return Ok(());
         }
         // Official RuntimeDataImpl/clone_created evicts the oldest clone when
         // per_entity_clone_limit (512 in Kitten 4) is exceeded, not the newest.
         if self.program.semantics == RuntimeSemantics::Kitten4
             && live >= 512
-            && let Some(oldest) = (0..self.sprites.len())
-                .filter(|&i| {
-                    self.sprites[i].alive && self.sprites[i].origin == origin && i != origin
-                })
-                .min_by_key(|&i| self.sprites[i].clone_index)
+            && let Some(oldest) = self
+                .clone_index
+                .slots(origin)
+                .iter()
+                .copied()
+                .min_by_key(|&i| (self.sprites[i].clone_index, i))
         {
             self.delete_clone(oldest);
         }
@@ -7276,6 +7623,7 @@ impl Engine {
             self.sprites.len() - 1
         };
         self.dirty[index] = true;
+        self.clone_index.insert(origin, index);
         if self.program.semantics == RuntimeSemantics::Kitten4 {
             self.clone_legacy_physics_body(source, index);
         }
@@ -7338,6 +7686,7 @@ impl Engine {
         Ok(())
     }
     fn delete_clone(&mut self, index: usize) {
+        self.k4_pending_disposals.retain(|&actor| actor != index);
         if !self.sprites[index].alive {
             return;
         }
@@ -7349,6 +7698,7 @@ impl Engine {
             }
         }
         let sprite = &mut self.sprites[index];
+        self.clone_index.remove(sprite.origin, index);
         sprite.alive = false;
         sprite.variables.clear();
         sprite.visible = false;
@@ -7477,8 +7827,16 @@ impl Engine {
             t => (self.sprites[t].x, self.sprites[t].y),
         }
     }
+    pub(super) fn take_parameters(&mut self, count: usize) -> Vec<Cell> {
+        self.parameter_pool.take(count)
+    }
+    pub(super) fn recycle_parameters(&mut self, parameters: Vec<Cell>) {
+        self.parameter_pool.recycle(parameters);
+    }
     #[inline]
     fn global_value(&self, i: usize) -> Cell {
+        #[cfg(feature = "interp-profile")]
+        let _profile = interp_profile::span("global_value", &());
         match &self.values[i] {
             Some(Cell::Undefined | Cell::Null)
                 if self.program.semantics == RuntimeSemantics::KnCurrent =>
@@ -7491,6 +7849,8 @@ impl Engine {
     }
     #[inline]
     fn local_value(&self, i: usize) -> Cell {
+        #[cfg(feature = "interp-profile")]
+        let _profile = interp_profile::span("local_value", &());
         let t = &self.tasks[self.current_task];
         match &t.local_values[i] {
             Some(value) => value.clone(),
@@ -7498,12 +7858,42 @@ impl Engine {
         }
     }
     fn resolve_list(&mut self, list: ListRef) -> Option<List> {
+        #[cfg(feature = "interp-profile")]
+        let _profile = interp_profile::span("resolve_list", &list);
         let value = match list {
             ListRef::Global(i) => return Some(self.lists[i as usize].clone()),
             ListRef::Local(i) => self.local_value(i as usize),
             ListRef::Variable(i) => self.global_value(i as usize),
             ListRef::Expression(i) => {
-                self.eval_value(i as usize, self.tasks[self.current_task].actor)
+                let actor = self.tasks[self.current_task].actor;
+                // Nested list reads very often end in an entity variable or
+                // parameter. Avoid entering the composite Cell evaluator for
+                // those leaves. Deep evaluation must still consume its scoped
+                // operand queue, including duplicate/side-effecting operands.
+                let expression = self.program.values[i as usize];
+                if self.program.deep_values.is_empty()
+                    && matches!(
+                        expression,
+                        ValueExpr::ActorVariable(_, _, None) | ValueExpr::Parameter(_)
+                    )
+                {
+                    #[cfg(feature = "interp-profile")]
+                    let _profile = interp_profile::span("value", &expression);
+                    match expression {
+                        ValueExpr::ActorVariable(target, slot, None) => self.read_actor_variable(
+                            if target == usize::MAX { actor } else { target },
+                            slot,
+                        ),
+                        ValueExpr::Parameter(slot) => self.tasks[self.current_task]
+                            .parameters
+                            .get(slot)
+                            .cloned()
+                            .unwrap_or(Cell::Number(f64::NAN)),
+                        _ => unreachable!(),
+                    }
+                } else {
+                    self.eval_value(i as usize, actor)
+                }
             }
         };
         if let Cell::List(v) = value {
@@ -7602,14 +7992,23 @@ impl Engine {
             ValueExpr::KnPanel(reporter) => {
                 children.extend(reporter.children().into_iter().map(|i| (true, i)))
             }
+            ValueExpr::KnCloneProperty(property) => children.push((
+                true,
+                self.program.kn_clone_properties[property as usize].index,
+            )),
             ValueExpr::K4Property(property) => {
+                let property = &self.program.k4_properties[property as usize];
                 children.extend(property.index.map(|i| (true, i)));
             }
-            ValueExpr::K4Media(reporter) => {
-                children.extend(reporter.children().into_iter().map(|i| (true, i)))
-            }
+            ValueExpr::K4Media(reporter) => children.extend(
+                self.program.k4_media[reporter as usize]
+                    .children()
+                    .into_iter()
+                    .map(|i| (true, i)),
+            ),
             ValueExpr::OfflineMicrobitMap(args) => {
-                children.extend(args.map(|i| (true, i)));
+                let args = &self.program.value_args[args.start as usize..][..args.len as usize];
+                children.extend(args.iter().map(|&i| (true, i)));
             }
             ValueExpr::OfflineMicrobitLed(args) => {
                 children.extend(args.map(|i| (true, i)));
@@ -7673,6 +8072,8 @@ impl Engine {
         children
     }
     fn eval_value_one<const PREPARED: bool>(&mut self, i: usize, actor: usize) -> Cell {
+        #[cfg(feature = "interp-profile")]
+        let _profile = interp_profile::span("value", &self.program.values[i]);
         // Keep dispatch and the ordinary evaluator in one function. The deep
         // walker specializes away this prelude after preparing its operands.
         if !PREPARED {
@@ -7690,30 +8091,6 @@ impl Engine {
         }
         // Only strings/list references are cloned; numeric expressions stay unboxed.
         match self.program.values[i] {
-            ValueExpr::ObjectLiteral(span) => self.eval_object_literal(span, actor),
-            ValueExpr::ObjectKeys(object) => {
-                let object = self.eval_value(object, actor);
-                self.eval_object_keys(object)
-            }
-            ValueExpr::JsonParse(value) => {
-                let value = self.eval_value(value, actor);
-                self.eval_json_parse(value)
-            }
-            ValueExpr::JsonStringify(value) => {
-                let value = self.eval_value(value, actor);
-                self.eval_json_stringify(value)
-            }
-            ValueExpr::ObjectGet(object, key) => {
-                let object = self.eval_value(object, actor);
-                let key = self.eval_value(key, actor);
-                self.eval_object_get(object, key)
-            }
-            ValueExpr::ObjectSet(object, key, value) => {
-                let object = self.eval_value(object, actor);
-                let key = self.eval_value(key, actor);
-                let value = self.eval_value(value, actor);
-                self.eval_object_set(object, key, value)
-            }
             ValueExpr::Kitten4Add(a, b) => {
                 // Offline player's math_arithmetic uses JS + whenever
                 // either operand is not a number (see docs/kitten4-run-errors.md).
@@ -7726,8 +8103,12 @@ impl Engine {
                     b,
                     Cell::Text(_) | Cell::List(_) | Cell::Costume(_) | Cell::Midi(_)
                 ) {
+                    #[cfg(feature = "interp-profile")]
+                    let _profile = interp_profile::span("add_text", &());
                     Cell::concat(&a, &b)
                 } else {
+                    #[cfg(feature = "interp-profile")]
+                    let _profile = interp_profile::span("add_scalar", &());
                     Cell::Number(a.number() + b.number())
                 }
             }
@@ -7735,50 +8116,7 @@ impl Engine {
                 let input = self.eval_value(input, actor);
                 Cell::Bool(matches!(input,Cell::Number(n) if n==n.floor()))
             }
-            ValueExpr::Calculate(input) => {
-                let input = self.eval_value(input, actor);
-                match input {
-                    Cell::Text(text) => match calculate::evaluate(&text) {
-                        Ok(value) => value,
-                        Err(()) => {
-                            self.value_error
-                                .get_or_insert_with(|| "block_bad_math_expression".into());
-                            Cell::Number(f64::NAN)
-                        }
-                    },
-                    _ => {
-                        // The official lexer iterates input.length: numbers do
-                        // not get string-coerced and fail at postfix evaluation.
-                        self.value_error
-                            .get_or_insert_with(|| "block_bad_math_expression".into());
-                        Cell::Number(f64::NAN)
-                    }
-                }
-            }
             ValueExpr::Number(e) => Cell::Number(self.eval(e, actor)),
-            ValueExpr::OfflineOcrCheck(i) => {
-                // KN evaluates the query even when the OCR cache is absent.
-                // No producer is supported in this explicit offline profile.
-                let _ = self.eval_value(i, actor);
-                Cell::Bool(false)
-            }
-            ValueExpr::OfflineMicrobitMap(args) => {
-                // Official extension checks connectivity before its formula.
-                // Socket evaluation still precedes the domain function call.
-                // Evidence: docs/kn-microbit-map.md.
-                for i in args {
-                    let _ = self.eval_value(i, actor);
-                }
-                Cell::Number(f64::NAN)
-            }
-            ValueExpr::OfflineMicrobitLed(args) => {
-                // Official disconnected guard returns false, but sockets still
-                // evaluate in panel order before the domain call. No LED backend.
-                for i in args {
-                    let _ = self.eval_value(i, actor);
-                }
-                Cell::Bool(false)
-            }
             ValueExpr::Constant(v) => self.program.constants[v].clone(),
             ValueExpr::Global(i) => self.global_value(i),
             ValueExpr::ActorVariable(target, slot, index) => {
@@ -7880,7 +8218,6 @@ impl Engine {
                         .unwrap_or(Cell::Text("".into()))
                 })
             }
-            ValueExpr::Ranking(show) => Cell::Bool(show == self.cloud.ranking.is_some()),
             ValueExpr::Item(r, e) => {
                 let at = e.map(|e| self.eval(e, actor));
                 if let Some(at) = at {
@@ -7990,7 +8327,7 @@ impl Engine {
             ValueExpr::Convert(i, number) => {
                 let v = self.eval_value(i, actor);
                 if self.program.semantics == RuntimeSemantics::KnCurrent {
-                    return kn_conversion::convert(v, number);
+                    return self.eval_kn_conversion(v, number);
                 }
                 if number {
                     // Official KN main.8ccf2442.js convertType (1633578):
@@ -8042,20 +8379,6 @@ impl Engine {
             ValueExpr::IsNumber(i, finite) => Cell::Bool(
                 matches!(self.eval_value(i, actor), Cell::Number(n) if if finite { n.is_finite() } else { n.is_nan() }),
             ),
-            ValueExpr::Encode64(i) => {
-                Cell::Text(kn_helpers::encode64(&self.eval_value(i, actor).text()).into())
-            }
-            ValueExpr::Decode64(i) => {
-                Cell::Text(kn_helpers::decode64(&self.eval_value(i, actor).text()).into())
-            }
-            ValueExpr::ParseFloat(i) => {
-                Cell::Number(kn_helpers::parse_float(&self.eval_value(i, actor).text()))
-            }
-            ValueExpr::ParseInt(i, radix) => {
-                let text = self.eval_value(i, actor).text();
-                let radix = self.eval_value(radix, actor).number();
-                Cell::Number(kn_helpers::parse_int(&text, radix))
-            }
             ValueExpr::Logic(a, b, and) => {
                 let a = self.eval_value(a, actor);
                 let b = self.eval_value(b, actor);
@@ -8115,161 +8438,7 @@ impl Engine {
                 }
             }
             ValueExpr::CallReturn(procedure, args) => self.call_reporter(procedure, args, actor),
-            ValueExpr::K4Screen(value, stay) => {
-                let value = self.eval_value(value, actor);
-                Cell::Bool(stay == (self.find_scene(&value) == Some(self.current_scene)))
-            }
-            ValueExpr::CostumeName(target) => {
-                let target = if target == usize::MAX { actor } else { target };
-                let id = self.sprites[target].style.as_deref().unwrap_or("");
-                Cell::Text(
-                    self.program
-                        .style_names
-                        .get(id)
-                        .map_or(id, String::as_str)
-                        .into(),
-                )
-            }
-            ValueExpr::CostumeLiteral(id) => {
-                Cell::Costume(self.program.strings[id].as_str().into())
-            }
-            ValueExpr::CloneProperty(target, index, attribute) => {
-                let origin = self.sprites[if target == usize::MAX { actor } else { target }].origin;
-                let wanted = self.eval(index, actor);
-                let found = (0..self.sprites.len()).find(|&i| {
-                    let a = &self.sprites[i];
-                    a.alive && a.origin == origin && f64::from(a.clone_index) == wanted
-                });
-                match found {
-                    None => Cell::Number(f64::NAN),
-                    Some(i) => {
-                        let a = &self.sprites[i];
-                        match attribute {
-                            32..=35 => Cell::Number(self.kn_property(
-                                i,
-                                actor,
-                                match attribute {
-                                    32 => kn_appearance::Property::Width,
-                                    33 => kn_appearance::Property::Height,
-                                    34 => kn_appearance::Property::Direction,
-                                    _ => kn_appearance::Property::Style,
-                                },
-                            )),
-                            0 | 1 => {
-                                let coordinate = if attribute == 0 { a.x } else { a.y };
-                                Cell::Number(
-                                    if self.program.semantics == RuntimeSemantics::Kitten4 {
-                                        k4_round(coordinate)
-                                    } else {
-                                        coordinate
-                                    },
-                                )
-                            }
-                            2 => Cell::Number(
-                                a.styles
-                                    .iter()
-                                    .position(|id| Some(id) == a.style.as_ref())
-                                    .map_or(0.0, |i| (i + 1) as f64),
-                            ),
-                            3 => Cell::Number(k4_round(
-                                180.0 - (a.direction + 90.0).rem_euclid(360.0),
-                            )),
-                            5 | 16 => Cell::Number(k4_round(a.scale * a.size_x / 100.0)),
-                            17 => Cell::Number(k4_round(a.scale * a.size_y / 100.0)),
-                            8 => Cell::Number(if a.visible {
-                                (1.0 - a.opacity) * 100.0
-                            } else {
-                                100.0
-                            }),
-                            9 => Cell::Number(a.effects[2] + 100.0),
-                            7 | 10..=13 => Cell::Number(a.effects[(attribute - 7) as usize]),
-                            // ASCII scope=7 is still an explicit unsupported
-                            // effect; retain its default instead of indexing
-                            // past the seven supported effect slots.
-                            14 => Cell::Number(0.0),
-                            _ => {
-                                let id = a.style.as_deref().unwrap_or("");
-                                let name =
-                                    self.program.style_names.get(id).map_or(id, String::as_str);
-                                Cell::Text(name.into())
-                            }
-                        }
-                    }
-                }
-            }
-            ValueExpr::BumpProperty(attribute) => {
-                let other = self.tasks[self.current_task].bumped;
-                match self.sprites.get(other).filter(|a| a.alive) {
-                    None => Cell::Number(f64::NAN),
-                    Some(a) => Cell::Number(match attribute {
-                        0 => a.x,
-                        1 => a.y,
-                        2 => a
-                            .styles
-                            .iter()
-                            .position(|id| Some(id) == a.style.as_ref())
-                            .map_or(0.0, |i| (i + 1) as f64),
-                        3 => f64::from(a.camp),
-                        4 => f64::from(a.clone_index),
-                        5..=7 => a.scale,
-                        8 => a.direction,
-                        n => {
-                            let scope = (n - 10) as usize;
-                            if scope == 1 {
-                                (1.0 - a.opacity) * 100.0
-                            } else {
-                                a.effects[scope]
-                            }
-                        }
-                    }),
-                }
-            }
             ValueExpr::K4Frames => Cell::Number(self.k4_frames as f64),
-            ValueExpr::K4LegacyChoice => {
-                self.value_error = Some(
-                    if self.sprites[actor].stage {
-                        "K4 choice used in scene"
-                    } else {
-                        "K4 legacy choice returned undefined"
-                    }
-                    .into(),
-                );
-                Cell::Null
-            }
-            ValueExpr::K4Media(reporter) => self.eval_k4_media(reporter, actor),
-            ValueExpr::KnPanel(reporter) => self.eval_kn_panel(reporter, actor),
-            ValueExpr::K4Property(property) => self.eval_k4_property(property, actor),
-            ValueExpr::K4DomainError(message) => {
-                let message = self.eval_value(message, actor).text();
-                self.value_error = Some(format!("K4 domain error: {message}"));
-                Cell::Null
-            }
-            ValueExpr::Answer => self.answer.clone(),
-            ValueExpr::SceneId => {
-                Cell::Text(self.program.scenes[self.current_scene].id.as_str().into())
-            }
-            ValueExpr::Choice(index) => {
-                if index {
-                    Cell::Number(self.choice.0)
-                } else {
-                    self.choice.1.clone()
-                }
-            }
-            ValueExpr::WeekText => {
-                const DAYS: [&str; 7] = [
-                    "星期日",
-                    "星期一",
-                    "星期二",
-                    "星期三",
-                    "星期四",
-                    "星期五",
-                    "星期六",
-                ];
-                let now = self
-                    .virtual_epoch
-                    .map_or_else(wall_time, |epoch| epoch + self.time);
-                Cell::Text(DAYS[local_time(now, self.tz_offset_min)[4] as usize].into())
-            }
             ValueExpr::Compare(a, b, op) => {
                 let a = self.eval_value(a, actor);
                 let b = self.eval_value(b, actor);
@@ -8301,6 +8470,36 @@ impl Engine {
                 };
                 Cell::Bool(result)
             }
+            cold @ (ValueExpr::ObjectLiteral(..)
+            | ValueExpr::ObjectKeys(..)
+            | ValueExpr::JsonParse(..)
+            | ValueExpr::JsonStringify(..)
+            | ValueExpr::ObjectGet(..)
+            | ValueExpr::ObjectSet(..)
+            | ValueExpr::Calculate(..)
+            | ValueExpr::OfflineOcrCheck(..)
+            | ValueExpr::OfflineMicrobitMap(..)
+            | ValueExpr::OfflineMicrobitLed(..)
+            | ValueExpr::Ranking(..)
+            | ValueExpr::Encode64(..)
+            | ValueExpr::Decode64(..)
+            | ValueExpr::ParseFloat(..)
+            | ValueExpr::ParseInt(..)
+            | ValueExpr::K4Screen(..)
+            | ValueExpr::CostumeName(..)
+            | ValueExpr::CostumeLiteral(..)
+            | ValueExpr::CloneProperty(..)
+            | ValueExpr::KnCloneProperty(..)
+            | ValueExpr::BumpProperty(..)
+            | ValueExpr::K4LegacyChoice
+            | ValueExpr::K4Media(..)
+            | ValueExpr::KnPanel(..)
+            | ValueExpr::K4Property(..)
+            | ValueExpr::K4DomainError(..)
+            | ValueExpr::Answer
+            | ValueExpr::SceneId
+            | ValueExpr::Choice(..)
+            | ValueExpr::WeekText) => self.eval_value_cold(cold, actor),
         }
     }
     fn assign(&mut self, target: Target, value: Cell) {
@@ -8395,7 +8594,8 @@ impl Engine {
         self.advance_with(dt, max_instructions, budget, 1)
     }
     /// Use a fixed UTC epoch (2000-01-01) for calendar reporters and ignore the
-    /// wall-clock execution budget. Timer/waits already use the supplied dt.
+    /// wall-clock execution budget and KN's 4 ms warp slice. KN still yields
+    /// at its deterministic iteration limit. Timer/waits use the supplied dt.
     /// Instruction/output limits remain deterministic safety bounds. This does
     /// not attach a cloud backend, load assets, or synthesize external input.
     pub fn use_virtual_clock(&mut self) {
@@ -8414,7 +8614,10 @@ impl Engine {
         budget: Duration,
         max_ticks: usize,
     ) -> Result<Frame> {
+        #[cfg(feature = "interp-profile")]
+        let _profile = interp_profile::span("advance", &());
         ensure!(dt.is_finite(), "frame delta must be finite");
+        let cloud_frame = self.begin_cloud_frame()?;
         self.sequence += 1;
         let started = Instant::now();
         let mut count = 0;
@@ -8427,6 +8630,9 @@ impl Engine {
             exceeded = self.tick(dt, max_instructions, budget, started, &mut count)?;
             ticks += 1;
             dt = 0.0;
+            if exceeded || ticks >= max_ticks.max(1) {
+                break;
+            }
             let visible = !self.lines.is_empty()
                 || !self.text_stamps.is_empty()
                 || !self.pen_fills.is_empty()
@@ -8440,50 +8646,46 @@ impl Engine {
                 || !self.removed.is_empty()
                 || self.dirty.iter().any(|d| *d);
             let runnable = self.tasks.iter().any(|t| self.task_runnable(t));
-            if exceeded
-                || visible
-                || !runnable
-                || ticks >= max_ticks.max(1)
-                || (self.virtual_epoch.is_none() && started.elapsed() >= budget)
+            if visible || !runnable || (self.virtual_epoch.is_none() && started.elapsed() >= budget)
             {
                 break;
             }
         }
         let execute_us = started.elapsed().as_micros();
+        #[cfg(feature = "interp-profile")]
+        let _profile = interp_profile::span("build_frame", &());
         let scene = self.current_scene;
         let costume_turn = self.program.costume_turn;
         // Only the active scene is drawn; other scenes keep their dirty marks.
-        let sprites = self
-            .sprites
-            .iter()
-            .zip(&mut self.dirty)
-            .filter_map(|(a, dirty)| {
-                if !*dirty || (a.scene != scene && a.alive) {
-                    return None;
+        let mut sprites = Vec::new();
+        for actor in 0..self.sprites.len() {
+            let a = &self.sprites[actor];
+            if !self.dirty[actor] || (a.scene != scene && a.alive) {
+                continue;
+            }
+            self.dirty[actor] = false;
+            if a.alive {
+                let mut drawn = a.clone_for_frame();
+                drawn.direction -= costume_turn;
+                // JSON maps nonfinite numbers to null. Hide invalid geometry
+                // on the wire, without changing the VM's logical state.
+                if ![a.x, a.y, a.direction, a.scale, a.size_x, a.size_y]
+                    .iter()
+                    .all(|n| n.is_finite())
+                {
+                    drawn.visible = false;
                 }
-                *dirty = false;
-                a.alive.then(|| {
-                    let mut drawn = a.clone();
-                    drawn.direction -= costume_turn;
-                    // JSON maps nonfinite numbers to null. Hide invalid geometry
-                    // on the wire, without changing the VM's logical state.
-                    if ![a.x, a.y, a.direction, a.scale, a.size_x, a.size_y]
-                        .iter()
-                        .all(|n| n.is_finite())
-                    {
-                        drawn.visible = false;
-                    }
-                    if a.flip_x {
-                        drawn.size_x = -drawn.size_x;
-                    }
-                    if a.flip_y {
-                        drawn.size_y = -drawn.size_y;
-                    }
-                    drawn
-                })
-            })
-            .collect();
-        self.flush_cloud()?;
+                if a.flip_x {
+                    drawn.size_x = -drawn.size_x;
+                }
+                if a.flip_y {
+                    drawn.size_y = -drawn.size_y;
+                }
+                drawn.soft_mesh = self.physics_soft_mesh(actor);
+                sprites.push(drawn);
+            }
+        }
+        self.flush_cloud(cloud_frame.as_ref())?;
         Ok(Frame {
             extension_requests: self.extension_requests(),
             video_above_pen: self.video_above_pen && self.pen_layer == 0,
@@ -8501,6 +8703,7 @@ impl Engine {
             logs: std::mem::take(&mut self.logs),
             audio_commands: std::mem::take(&mut self.audio_commands),
             speech_commands: std::mem::take(&mut self.speech_commands),
+            k4_media_output: self.take_k4_media_output(),
             order: std::mem::take(&mut self.order_dirty).then(|| {
                 self.order
                     .iter()
@@ -8515,6 +8718,7 @@ impl Engine {
             stage_dialog: self.pending_stage_dialog().cloned(),
             image_stamps: std::mem::take(&mut self.image_stamps),
             monitors: self.monitor_values(),
+            cloud_ui: self.cloud_ui(),
             clear: std::mem::take(&mut self.clear),
             active: self.active_tasks(),
             instructions: count,
@@ -8524,8 +8728,14 @@ impl Engine {
         })
     }
     fn warp_iteration_yields(&mut self) -> bool {
-        if self.program.semantics != RuntimeSemantics::Kitten4 || self.reporter_depth != 0 {
+        // Reporter evaluation is currently synchronous, not a resumable task.
+        // KN's official reporter warp can suspend; see docs/kn-warp.md for the
+        // known gap. Do not count a boundary whose yield cannot be honored.
+        if self.reporter_depth != 0 {
             return false;
+        }
+        if self.program.semantics == RuntimeSemantics::KnCurrent {
+            return self.kn_warp.iteration_yields(self.virtual_epoch.is_some());
         }
         // Lcae/OptiRunner.step_iteration_yield tests > before incrementing.
         let yielding = self.warp_iterations > 10_000;
@@ -8537,6 +8747,8 @@ impl Engine {
     /// (or finishes) for this tick.
     #[inline(always)]
     fn exec(&mut self, index: usize, pc: usize, op: Op, actor: usize) -> Result<bool> {
+        #[cfg(feature = "interp-profile")]
+        let _profile = interp_profile::span("op", &op);
         if self.program.semantics == RuntimeSemantics::Kitten4
             && self.sprites[actor].stage
             && matches!(
@@ -8638,77 +8850,32 @@ impl Engine {
                     return Ok(false);
                 }
             }
-            Op::CloudSet(binding, value, change, decrease) => {
-                let value = self.eval_value(value, actor);
-                self.cloud_set(binding, value, change, decrease);
-            }
-            Op::CloudList(binding, action, at, value) => {
-                let at = at.map(|e| self.eval_value(e, actor));
-                let value = value.map(|v| self.eval_value(v, actor));
-                self.cloud_list(binding, action, at, value);
-            }
-            Op::Ranking(binding, show) => {
-                if !show || (binding.is_some() && self.cloud.ranking.is_none()) {
-                    self.cloud.ranking = binding;
-                }
-            }
-            Op::LegacyPhysics(command, value) => {
-                let value = self.eval_value(value, actor);
-                let number = if matches!(
-                    command,
-                    physics::Command::LegacyMass
-                        | physics::Command::LegacyGravityOrientation
-                        | physics::Command::Flexibility
-                ) {
-                    match value {
-                        Cell::Number(n) => n,
-                        _ => f64::NAN,
-                    }
-                } else {
-                    value.number()
-                };
-                self.physics_command(actor, command, [number, 0.0, 0.0])?;
-            }
-            Op::K4Media(command) => {
-                return self.exec_k4_media(index, actor, command);
-            }
-            Op::KnPanel(command) => {
-                return self.exec_kn_panel(index, actor, command);
-            }
-            Op::LegacyPhysicsVector(command, value, dir) => {
-                let number = |v| match v {
-                    Cell::Number(n) => n,
-                    _ => f64::NAN,
-                };
-                let values = [
-                    number(self.eval_value(value, actor)),
-                    number(self.eval_value(dir, actor)),
-                    0.0,
-                ];
-                self.physics_command(actor, command, values)?;
-            }
-            Op::PhysicsVelocity(value, dir) => {
-                let number = |v| match v {
-                    Cell::Number(n) => n,
-                    _ => f64::NAN,
-                };
-                let values = [
-                    number(self.eval_value(value, actor)),
-                    number(self.eval_value(dir, actor)),
-                    0.0,
-                ];
-                self.physics_command(actor, physics::Command::LegacyVelocity, values)?;
-            }
-            Op::Physics(command, a, dir, time) => {
-                let values = [
-                    self.eval(a, actor),
-                    self.eval(dir, actor),
-                    self.eval(time, actor),
-                ];
-                let duration = self.physics_command(actor, command, values)?;
-                if let Some(duration) = duration {
-                    self.tasks[index].wake = self.time + duration;
-                    return Ok(false);
+            cold_op @ (Op::CloudSet(..)
+            | Op::CloudList(..)
+            | Op::Ranking(..)
+            | Op::LegacyPhysics(..)
+            | Op::LegacyPhysicsVector(..)
+            | Op::PhysicsVelocity(..)
+            | Op::Physics(..)
+            | Op::K4Media(_)
+            | Op::KnPanel(_)
+            | Op::Extension(_)
+            | Op::Audio(..)
+            | Op::AudioProperty(..)
+            | Op::AudioWait(_)
+            | Op::Speech(..)
+            | Op::SpeechConfig(_)
+            | Op::Video(..)
+            | Op::KnAwaitVoice
+            | Op::KnTimer(..)
+            | Op::KnClearTimer(_)
+            | Op::Tell(..)
+            | Op::Ask(..)
+            | Op::StageDialog(..)
+            | Op::K4DomainError(_)
+            | Op::K4LegacyChoice) => {
+                if let Some(continuing) = self.exec_cold(index, pc, cold_op, actor)? {
+                    return Ok(continuing);
                 }
             }
             Op::SetActorVariable(slot, value) => {
@@ -8777,7 +8944,6 @@ impl Engine {
                     self.assign(target, value);
                 }
             }
-            Op::Extension(call) => return self.exec_extension(index, actor, call),
             Op::Move(e) => {
                 let n = self.eval(e, actor);
                 // Nonfinite motion is a no-op, but a failed input must still
@@ -8867,6 +9033,7 @@ impl Engine {
                 }
             }
             Op::Visible(v) => self.sprites[actor].visible = v,
+            Op::LegacyCostume(value) => self.set_legacy_costume(actor, value, pc)?,
             Op::Style(value) => {
                 let value = self.eval_value(value, actor);
                 let styles = &self.sprites[actor].styles;
@@ -8925,7 +9092,12 @@ impl Engine {
             Op::Opacity(value) => {
                 let transparency = self.eval(value, actor);
                 if transparency.is_finite() {
-                    self.sprites[actor].opacity = 1.0 - transparency.clamp(0.0, 100.0) / 100.0;
+                    self.sprites[actor].opacity =
+                        if self.program.semantics == RuntimeSemantics::KnCurrent {
+                            ((100.0 - transparency) / 100.0).clamp(0.0, 1.0)
+                        } else {
+                            1.0 - transparency.clamp(0.0, 100.0) / 100.0
+                        };
                 }
             }
             Op::PenLayer(layer) => {
@@ -9011,11 +9183,6 @@ impl Engine {
                     self.timer_origin_ms = self.clock_ms - self.timer * 1000.0;
                 }
             }
-            Op::K4DomainError(message) => {
-                let message = self.eval_value(message, actor).text();
-                bail!("K4 domain error: {message}");
-            }
-            Op::K4LegacyChoice => ensure!(!self.sprites[actor].stage, "K4 choice used in scene"),
             Op::TimerVisible(visible) => self.timer_visible = visible,
             Op::ResetBlockTimer => self.block_timer.reset(self.time),
             Op::Execute(value) => {
@@ -9286,74 +9453,6 @@ impl Engine {
                     self.logs.push(self.program.strings[i].clone());
                 }
             }
-            Op::Audio(i, play) => {
-                let audio = self.eval_value(i, actor);
-                if !play {
-                    for id in self.audio.stop(&audio) {
-                        self.audio_finished(id);
-                    }
-                }
-                self.audio_commands.push(AudioCommand {
-                    audio,
-                    play,
-                    wait: None,
-                    property: None,
-                });
-            }
-            Op::SpeechConfig(config) => self.speech_config = config,
-            Op::Speech(value, blocking) => {
-                let text = self.eval_value(value, actor).text();
-                // No headless TTS duration can be inferred from text. As with a
-                // failed official online synthesis, no playback lock is taken.
-                let wait = (blocking && self.audio.browser && !text.is_empty()).then(|| {
-                    let wait = self.next_audio_wait;
-                    self.next_audio_wait += 1;
-                    self.audio_waits.push((self.tasks[index].id, wait));
-                    self.tasks[index].pending += 1;
-                    wait
-                });
-                self.speech_commands.push(SpeechCommand {
-                    before_audio: self.audio_commands.len(),
-                    language: (self.program.semantics == RuntimeSemantics::Kitten4)
-                        .then(|| self.k4_speech_language(&text).to_owned()),
-                    text,
-                    config: self.speech_config,
-                    kitten4: self.program.semantics == RuntimeSemantics::Kitten4,
-                    wait,
-                });
-                if wait.is_some() {
-                    return Ok(false);
-                }
-            }
-            Op::AudioProperty(audio, value, rate, change, decrease) => {
-                // The official audio module checks typeof, without numeric coercion.
-                if let Cell::Number(value) = self.eval_value(value, actor)
-                    && !value.is_nan()
-                    && (!change || value.is_finite())
-                {
-                    let audio = self.eval_value(audio, actor);
-                    let value = if value.is_finite() {
-                        value / 100.0 * if change && decrease { -1.0 } else { 1.0 }
-                    } else if value.is_sign_positive() {
-                        if rate { 4.0 } else { 1.0 }
-                    } else if rate {
-                        0.05
-                    } else {
-                        0.0
-                    };
-                    self.audio.property(&audio, rate, change, value);
-                    self.audio_commands.push(AudioCommand {
-                        audio,
-                        play: false,
-                        wait: None,
-                        property: Some(AudioProperty {
-                            rate,
-                            change,
-                            value,
-                        }),
-                    });
-                }
-            }
             Op::LogNumber(e) => {
                 let n = self.eval(e, actor);
                 if self.logs.len() < 1024 {
@@ -9413,22 +9512,9 @@ impl Engine {
                     return Ok(false);
                 }
             }
-            Op::KnTimer(delay, repeat) => {
-                let milliseconds = self.eval_value(delay, actor).number();
-                ensure!(
-                    self.kn_timers
-                        .insert(self.time, self.scheduler_tick, milliseconds, repeat, ())
-                        .is_some(),
-                    "KN timer limit exceeded"
-                );
-            }
-            Op::KnClearTimer(value) => {
-                let id = self.eval_value(value, actor).number();
-                self.kn_timers.cancel(id);
-            }
             Op::Call(procedure, args) => {
                 let count = self.program.call_arguments[args].len();
-                let mut parameters = Vec::with_capacity(count);
+                let mut parameters = self.parameter_pool.take(count);
                 for k in 0..count {
                     let value = self.program.call_arguments[args][k];
                     parameters.push(self.eval_value(value, actor));
@@ -9455,7 +9541,8 @@ impl Engine {
                 let task = &mut self.tasks[index];
                 let call = task.calls.pop().context("invalid procedure return")?;
                 task.pc = call.pc;
-                task.parameters = call.parameters;
+                let parameters = std::mem::replace(&mut task.parameters, call.parameters);
+                self.parameter_pool.recycle(parameters);
                 task.loops.truncate(call.loops);
                 task.ranges.truncate(call.ranges);
             }
@@ -9522,7 +9609,17 @@ impl Engine {
                     if scope == 1 {
                         let ghost = (1.0 - a.opacity) * 100.0;
                         let ghost = if change { ghost + v } else { v };
-                        a.opacity = 1.0 - ghost.clamp(0.0, 100.0) / 100.0;
+                        a.opacity = if self.program.semantics == RuntimeSemantics::KnCurrent {
+                            // Official setTargetAlphaEffect: subtraction before
+                            // division matters at the two-decimal rounding tie.
+                            if change {
+                                (a.opacity - v / 100.0).clamp(0.0, 1.0)
+                            } else {
+                                ((100.0 - v) / 100.0).clamp(0.0, 1.0)
+                            }
+                        } else {
+                            1.0 - ghost.clamp(0.0, 100.0) / 100.0
+                        };
                     } else {
                         let slot = &mut a.effects[scope as usize];
                         let next = if change {
@@ -9589,8 +9686,10 @@ impl Engine {
                 if let Cell::Number(duration) = duration
                     && duration > 0.0
                 {
-                    self.tasks[index].anim =
-                        Some(Anim::Shake(k4_shake::Shake::new(self.time, duration)));
+                    self.tasks[index].anim = Some(Anim::Shake(k4_shake::Shake::new(
+                        self.k4_shake_clock.now(),
+                        duration,
+                    )));
                 }
             }
             Op::Glide(spec) => {
@@ -9657,11 +9756,19 @@ impl Engine {
                 self.start_entity_visibility(index, actor, targets, duration, show);
             }
             Op::AnimStep => {
+                if matches!(self.tasks[index].anim, Some(Anim::Shake(_))) {
+                    self.tasks[index].pc = pc;
+                    return Ok(false);
+                }
+                if self.entity_visibility_blocked(index) {
+                    self.tasks[index].pc = pc;
+                    return Ok(false);
+                }
                 let Some(anim) = self.tasks[index].anim.clone() else {
                     return Ok(true);
                 };
                 let (start, duration) = match anim {
-                    Anim::Shake(ref shake) => (shake.start, shake.duration),
+                    Anim::Shake(_) => unreachable!("shake advances at frame end"),
                     Anim::Glide {
                         start, duration, ..
                     }
@@ -9679,14 +9786,7 @@ impl Engine {
                 };
                 self.dirty[actor] = true;
                 match anim {
-                    Anim::Shake(mut shake) => {
-                        let delta = shake.step(self.time);
-                        let old = (self.sprites[actor].x, self.sprites[actor].y);
-                        self.sprites[actor].x += delta.0;
-                        self.sprites[actor].y += delta.1;
-                        self.line(actor, old);
-                        self.tasks[index].anim = Some(Anim::Shake(shake));
-                    }
+                    Anim::Shake(_) => unreachable!("shake advances at frame end"),
                     Anim::EntityVisibility { targets, show, .. } => {
                         self.update_entity_visibility(&targets, show, t);
                     }
@@ -9710,34 +9810,6 @@ impl Engine {
                     return Ok(false);
                 }
                 self.tasks[index].anim = None;
-            }
-            Op::Tell(target, start, wait) => {
-                let target = if target == usize::MAX { actor } else { target };
-                ensure!(
-                    self.tasks.len() < 4096,
-                    "task limit exceeded at {}",
-                    self.program.sources[pc]
-                );
-                let script = Script {
-                    start,
-                    hat: self.program.sources[pc].clone(),
-                    actor: target,
-                    event: ScriptEvent::Start,
-                };
-                let mut task = Task::new(self.next_task_id, &script, &self.program);
-                self.next_task_id += 1;
-                task.locals.clone_from(&self.tasks[index].locals);
-                task.local_values
-                    .clone_from(&self.tasks[index].local_values);
-                if wait {
-                    task.waiter = Some(self.tasks[index].id);
-                    self.tasks[index].pending += 1;
-                }
-                self.ready.push_back(self.tasks.len());
-                self.tasks.push(task);
-                if wait {
-                    return Ok(false);
-                }
             }
             Op::Restart => {
                 self.restart = true;
@@ -9763,40 +9835,9 @@ impl Engine {
                     self.dirty[actor] = true;
                 }
             }
-            Op::StageDialog(text, target) => {
-                let text = self.eval_value(text, actor).text();
-                self.stage_dialog(actor, target, text, index);
-                return Ok(false);
-            }
             Op::CloseDialog => {
                 self.sprites[actor].dialog = None;
                 self.dirty[actor] = true;
-            }
-            Op::Ask(question, choices) => {
-                let question = self.eval_value(question, actor).text();
-                let choices = choices.map(|span| {
-                    (span.start..span.start + span.len)
-                        .map(|k| {
-                            let value = self.program.value_args[k as usize];
-                            self.eval_value(value, actor).text()
-                        })
-                        .collect()
-                });
-                self.asks.push_back(AskRequest {
-                    id: self.next_ask,
-                    sprite: if self.sprites[actor].stage {
-                        String::new()
-                    } else {
-                        self.sprites[actor].id.clone()
-                    },
-                    question,
-                    choices,
-                    task: self.tasks[index].id,
-                });
-                self.next_ask += 1;
-                // Suspended until the viewer answers (see Engine::answer).
-                self.tasks[index].pending += 1;
-                return Ok(false);
             }
             Op::Camp(camp) => {
                 ensure!(
@@ -9805,7 +9846,8 @@ impl Engine {
                     "K4 domain error: use_actor_blocks_in_scene at block {}",
                     self.program.sources[pc]
                 );
-                self.sprites[actor].camp = camp;
+                self.sprites[actor].camp =
+                    RoleCamp::new(&self.program.strings[camp], self.program.semantics);
             }
             Op::Emphasis(_) | Op::Transition(..) => {
                 if !self.sprites[actor].stage {
@@ -9888,33 +9930,6 @@ impl Engine {
                     });
                 }
             }
-            Op::Video(value, action) => {
-                let id = self.eval_value(value, actor).text();
-                self.video_action(&id, action, index);
-                if self.tasks[index].pending > 0 {
-                    return Ok(false);
-                }
-            }
-            Op::AudioWait(value) => {
-                let audio = self.eval_value(value, actor);
-                let wait = self.next_audio_wait;
-                self.next_audio_wait += 1;
-                if !self.audio.play(&audio, wait) && !self.audio.browser && self.logs.len() < 1024 {
-                    self.logs.push(format!(
-                        "音频 {} 时长未知：CLI 按加载失败降级，下一 tick 继续",
-                        audio.text()
-                    ));
-                }
-                self.audio_commands.push(AudioCommand {
-                    audio,
-                    play: true,
-                    wait: Some(wait),
-                    property: None,
-                });
-                self.audio_waits.push((self.tasks[index].id, wait));
-                self.tasks[index].pending += 1;
-                return Ok(false);
-            }
             Op::Monitor(monitor, visible) => {
                 if self.monitors.len() <= monitor {
                     self.monitors.resize(monitor + 1, false);
@@ -9927,8 +9942,12 @@ impl Engine {
                 if self.program.semantics == RuntimeSemantics::Kitten4 {
                     kind = k4_drawing::transition_kind(&kind, &direction);
                 }
-                self.next_transition = (!matches!(kind.as_str(), "" | "none"))
-                    .then_some(Transition { direction, kind });
+                self.next_transition =
+                    (!matches!(kind.as_str(), "" | "none")).then_some(Transition {
+                        direction,
+                        kind,
+                        outgoing: None,
+                    });
             }
             Op::SwitchScene(value) => {
                 let value = self.eval_value(value, actor);
@@ -9942,7 +9961,8 @@ impl Engine {
                 if target != self.current_scene {
                     self.switch_scene(target);
                     if self.program.semantics == RuntimeSemantics::KnCurrent
-                        || !self.tasks[index].global_start
+                        || (!self.tasks[index].global_start
+                            && self.sprites[actor].scene != self.running_scene)
                     {
                         return Ok(false);
                     }
@@ -9950,12 +9970,12 @@ impl Engine {
             }
             Op::DisposeClone => {
                 if self.sprites[actor].clone_index > 0 {
-                    self.delete_clone(actor);
+                    self.request_entity_disposal(actor);
                     return Ok(false);
                 }
             }
             Op::DisposeSelf => {
-                self.delete_clone(actor);
+                self.request_entity_disposal(actor);
                 return Ok(false);
             }
             Op::Layer(movement) => {
@@ -9998,7 +10018,19 @@ impl Engine {
         started: Instant,
         total_count: &mut usize,
     ) -> Result<bool> {
+        #[cfg(feature = "interp-profile")]
+        let _profile = interp_profile::span("tick", &());
         self.scheduler_tick += 1;
+        self.prune_extensions()?;
+        if let Some(activation) = self.scene_activation.as_ref()
+            && activation.completed(self.time)
+        {
+            let target = activation.target;
+            self.scene_activation = None;
+            self.activate_scene(target);
+        }
+        self.k4_shake_clock.tick(dt);
+        self.dispose_requested_entities();
         for id in self.audio.tick(dt) {
             self.audio_finished(id);
         }
@@ -10028,18 +10060,21 @@ impl Engine {
         self.clone_counts.clear();
         self.step_physics(dt);
         self.check_bumps();
+        self.dispatch_k4_devices();
         self.dispatch_held_keys();
         self.dispatch_pointer_states();
         let mut count = *total_count;
         let mut exceeded = false;
         let total = self.tasks.len();
+        #[cfg(feature = "interp-profile")]
+        let ready_profile = interp_profile::span("ready_queue", &());
         self.ready.clear();
-        self.ready
-            .extend((0..total).map(|i| (self.cursor + i) % total));
         if self.program.semantics == RuntimeSemantics::Kitten4 {
+            // The total key below discards cursor rotation. Task IDs are unique.
+            self.ready.extend(0..total);
             // iNFq/get_interpreter_sorters + reverse step_code traversal:
             // listeners first, newest frame first, stable creation order last.
-            self.ready.make_contiguous().sort_by_key(|&index| {
+            self.ready.make_contiguous().sort_by_cached_key(|&index| {
                 let task = &self.tasks[index];
                 let listener = self
                     .program
@@ -10048,7 +10083,12 @@ impl Engine {
                     .is_some_and(|s| matches!(s.event, ScriptEvent::Broadcast(..)));
                 (!listener, std::cmp::Reverse(task.created), task.id)
             });
+        } else {
+            self.ready
+                .extend((0..total).map(|i| (self.cursor + i) % total));
         }
+        #[cfg(feature = "interp-profile")]
+        drop(ready_profile);
         while let Some(index) = self.ready.pop_front() {
             if self.restart {
                 break;
@@ -10060,6 +10100,9 @@ impl Engine {
             self.trace_task("resume", index, None);
             self.current_task = index;
             self.warp_iterations = 0;
+            if self.program.semantics == RuntimeSemantics::KnCurrent {
+                self.kn_warp.reset();
+            }
             let mut clock_due = false;
             let mut since_clock = 0usize;
             loop {
@@ -10129,6 +10172,9 @@ impl Engine {
                 task.wait_finished = true;
             }
         }
+        self.tick_k4_shake();
+        self.tick_entity_visibility(dt);
+        self.synchronize_soft_physics_geometry();
         // Rebase the round-robin cursor when finished tasks are compacted. Wait
         // dependencies use stable IDs, never indices into this compacted vector.
         self.cursor = if exceeded {

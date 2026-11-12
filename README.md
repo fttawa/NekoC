@@ -20,7 +20,7 @@ Kitten 4 目标和 Kitten N 共用同一个 TypeScript 前端，另外加了原�
 cargo run --release --bin web -- samples/native-studio.bcmkn
 ```
 
-打开 **http://127.0.0.1:4173**，打开或拖入 Kitten N `.bcmkn` / Kitten 4 `.bcm` 作品，就可以编辑积木、在 Rust 字节码虚拟机里运行，并按原格式导出。
+打开 **<http://127.0.0.1:4173>**，打开或拖入 Kitten N `.bcmkn` / Kitten 4 `.bcm` 作品，就可以编辑积木、在 Rust 字节码虚拟机里运行，并按原格式导出。
 
 - 舞台用 WebGL2 渲染，画笔采用二进制增量更新和常驻 GPU 画布。可以试试 `samples/web-pen-stress.bcmkn`（一万段画笔线）。
 - 导入导出会原样保留暂不支持的积木；快速虚拟机遇到不支持的执行特性会报告出来。
@@ -78,7 +78,7 @@ node tools/editor-compat.mjs hello.bcmkn
 | `decompile <input.bcmkn> --out <output.ts>` | 把 `.bcmkn` 反编译成 TypeScript |
 | `inspect <input> --out <report.json>` | 查看 Kitten N / Kitten 4 作品结构 |
 | `validate <input>` | 校验 Kitten N / Kitten 4 作品结构 |
-| `run <input.bcmkn> --ticks 30 [--event click]` | 运行并输出快照 |
+| `run <input.bcmkn\|input.bcm> --ticks 30 [--event click]` | 默认用 Engine（默认 JIT）无头运行并输出快照；`--legacy-runtime` 保留旧解释器 |
 | `run-scenario <input.bcmkn> <scenario.json>` | 运行场景测试 |
 | `watch <input.ts> --template <t> --out <out>` | 监视文件变化并自动重新编译 |
 | `diff <left.bcmkn> <right.bcmkn>` | 结构对比 |
@@ -252,13 +252,17 @@ nekoc compile-ts input.ts --out output.json --optimize
 
 ## 运行时
 
-NekoC 带有根据官方实现逆向整理的 Kitten N 运行时，可以直接运行 `.bcmkn`：
+`nekoc run` 默认使用与 Web 播放器、性能/兼容统计相同的 `engine::Engine`（默认 JIT），支持 Kitten N `.bcmkn` 和 Kitten 4 `.bcm`。这是无头执行，不创建窗口、播放声音或下载资源；需要可视化请使用 Web Studio。
 
 ```bash
 nekoc run project.bcmkn --ticks 30
 nekoc run project.bcmkn --ticks 1 --event click:100,200
 nekoc run project.bcmkn --ticks 1 --event key-down:space
+nekoc run project.bcm --frames 60 --seed 42 --out snapshot.json
+nekoc run project.bcmkn --legacy-runtime --ticks 30
 ```
+
+Engine 每 tick 固定推进 1/60 秒，默认 seed 为 1，快照标识为 `nekoc-engine-run-v1`。旧解释器是 30 Hz，快照、调度和事件语义不同；旧 `--expect` 文件请配合 `--legacy-runtime`，不会自动回退。`run-scenario` / `compile-ts-scenario` 仍使用旧解释器。选项、输出格式、云模拟及限制见 **[CLI 无头运行](docs/cli-run.md)**。
 
 ### 场景测试
 
@@ -365,7 +369,7 @@ NekoC/
 - ✅ 场景测试、监视模式、优化器、source map
 - ✅ 覆盖面较广的 TS 语法：递归、数组和字符串方法、`try/catch` 等，见[实测支持情况](docs/ts-support-audit.md)
 - ✅ 带类型定义的 Self API
-- ✅ Kitten 4 播放器：按官方离线内核逐帧对齐调度、场景、克隆、私有/云变量、声音、视频、物理和画笔；积木无缺失、无 stub
+- ✅ Kitten 4 播放器：以指定 hash 的官方离线内核核对调度、场景、克隆、变量、媒体、物理和画笔；审计清单映射入口无缺失、无 stub，但设备降级、partial 和未验证语义仍存在。[在线/离线取证](docs/compatibility/k4-online-vs-offline.md)仅证明指定发布物及三份作品的受控状态一致，不代表完整线上兼容
 - ✅ 扩展接口 v1（Rust / JS）
 
 ## 仓库约定
