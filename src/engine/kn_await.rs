@@ -18,10 +18,15 @@ fn asynchronous(kind: &str) -> bool {
     )
 }
 
-fn contains(block: &Value) -> bool {
+fn extension_reporter(kind: &str) -> bool {
+    matches!(kind, "nekoc_extension_reporter" | "nekoc_extension_boolean")
+}
+
+fn contains(block: &Value, kn: bool) -> bool {
     let mut pending = vec![block];
     while let Some(node) = pending.pop() {
-        if asynchronous(node["type"].as_str().unwrap_or("")) {
+        let kind = node["type"].as_str().unwrap_or("");
+        if extension_reporter(kind) || (kn && asynchronous(kind)) {
             return true;
         }
         pending.extend(
@@ -36,7 +41,7 @@ fn contains(block: &Value) -> bool {
 
 impl Compiler {
     pub(super) fn kn_await_value(&mut self, block: &Value) -> Result<Option<usize>> {
-        if self.program.semantics != RuntimeSemantics::KnCurrent || !contains(block) {
+        if !contains(block, self.program.semantics == RuntimeSemantics::KnCurrent) {
             return Ok(None);
         }
         self.kn_await_tree(block, 0).map(Some)
@@ -45,6 +50,9 @@ impl Compiler {
     fn kn_await_tree(&mut self, block: &Value, depth: usize) -> Result<usize> {
         ensure!(depth < 256, "KN asynchronous expression exceeds 256 levels");
         let kind = block["type"].as_str().unwrap_or("");
+        if extension_reporter(kind) {
+            return self.extension_reporter(block);
+        }
         if asynchronous(kind) {
             let result = if kind == "get_voice_volume" {
                 self.emit(Op::KnAwaitVoice, block);
@@ -63,7 +71,7 @@ impl Compiler {
         }
         // Non-async subtrees still get evaluated at their original point, before
         // later siblings can suspend or mutate referenced variables.
-        if !contains(block) {
+        if !contains(block, self.program.semantics == RuntimeSemantics::KnCurrent) {
             return self.value(block);
         }
         let mut shallow = block.clone();
@@ -82,7 +90,7 @@ impl Compiler {
         result
     }
 
-    fn save_await_value(&mut self, value: usize, block: &Value) -> usize {
+    pub(super) fn save_await_value(&mut self, value: usize, block: &Value) -> usize {
         // Compiler-only temporary: cannot alias author script-variable names.
         let slot = self.program.local_count;
         self.program.local_count += 1;

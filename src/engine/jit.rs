@@ -623,6 +623,11 @@ impl Engine {
         value: impl Fn(usize) -> bool,
     ) -> bool {
         match op {
+            // Extension handlers are trusted host callbacks and may allocate,
+            // suspend the task, or mutate the registry-owned state.  Execute
+            // the instruction through the interpreter gateway, then leave the
+            // native region before any cached pointer is reused.
+            Op::Extension(_) => true,
             Op::Call(_, args) => self.program.call_arguments[args].iter().any(|&v| !value(v)),
             Op::Branch(e, _) => !pure(e.end as usize - 1),
             Op::AppendList(list, v) => {

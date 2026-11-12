@@ -3,47 +3,67 @@
 作者：fttawa；日期：2026-11-12。
 基线：`da8dc9c5c414a4b32c9239c33df437d6d8322cf1`（原任务开始时最新 `oc/integrate`）。
 本页补充[总评分卡](scorecard.md)的“可扩展性”维度，不改变适配、兼容性、性能三维的证据或历史数字。
-依据为同轮只读源码调查；接口存在不等于运行通过、生态成熟、安全隔离或平台发布就绪。
+第三方与非扩展部分依据为同轮只读源码调查；NekoC 扩展部分另按当前 v2 实现更新，
+不把 v2 追记到原测量二进制。接口存在不等于运行通过、生态成熟、安全隔离或平台发布就绪。
 不设置缺少权重依据的总分，不把“未验证”当零分，也不宣称 NekoC 四维全面领先。
 
 ## 能力矩阵与判断口径
 
 | 对照 | 扩展与创作事实 | 评分时必须保留的边界 |
 |---|---|---|
-| NekoC | Rust/JS 显式积木契约、云 backend trait、TS→Kitten、CLI、多宿主源码 | v1 仅命令；含扩展调用的整个 Program 禁 JIT；无插件沙箱；内置云仅本地 |
+| NekoC | Rust/JS 显式积木契约、v2 schema、reporter/Boolean/hat、云 backend trait、TS→Kitten、CLI、多宿主源码 | v2 向后兼容 v1；capability 非 OS 沙箱；无稳定动态库 ABI、插件 IR 注入或独立进程强抢占；编辑器面板未自动接入 |
 | HateNeko 0.4.0 | Lua 原语模块注册、可替换 host、KN→Lua 编译及 `.love` 打包 | 不是“完全不可扩展”；未发现同级版本化第三方契约/云 backend，不证明其他版本不存在 |
 | kitten2scratch | Kitten→SB3 CLI，可修改映射源码 | 是转换器而非独立 VM；不能把 TurboWarp 扩展能力当成转换保真 |
-| TurboWarp | URL 扩展、metadata、多种积木类型、worker/iframe/unsandboxed、云 provider | 契约比 NekoC v1 更宽；Scratch 扩展不自动兼容 Kitten |
+| TurboWarp | URL 扩展、metadata、多种积木类型、worker/iframe/unsandboxed、云 provider | 生态和隔离选项仍更宽；Scratch 扩展不自动兼容 Kitten |
 | K4-ULTRA | v2 manifest、目录/`.k4ultra`、积木/生成器/runtime 注册 | 应引用实际 v2 loader；旧 K4Ext 扫描入口已禁用；权限 wrapper 不证明强隔离 |
 | bcm_convertor | 在线/离线播放器封装与 Android WebView 模板 | 分发平台不等于独立内核、TS 前端或积木插件 ABI |
 
 ## 1. NekoC：有明确宿主契约，但不能无条件授予“完整插件生态”
 
-### 自定义积木与生命周期
+### 自定义积木、表达式与生命周期
 
-- [`BlockSchema` / `API_VERSION=1`](../src/extensions.rs#L7-L74) 声明 opcode、参数、返回、blocking、network。
-  [`Extension::call`](../src/extensions.rs#L126-L144) 返回 `Ready(Value)` 或 `Pending`；请求包含 ID、参数和 actor。
-- [`ExtensionRegistry`](../src/extensions.rs#L159-L194) 显式注册、拒绝重复、限制容量，remote 必须 blocking。
+- [`BlockSchema` / `API_VERSION=2`](../src/extensions.rs#L7-L175) 向后兼容 v1，增加可选 `kind`（command/reporter/boolean/hat）
+  与 `metadata {name,category}`；`parameters` 仍为 `{name,value_type}`。`SUPPORTED_API_VERSIONS=[2,1]`
+  协商最高共同版，v2 字段不会静默降级到 v1。[`Extension::call`](../src/extensions.rs#L214-L225)
+  返回 `Ready(Value)` 或 `Pending`；请求包含 ID、参数和 actor。
+- [`ExtensionRegistry`](../src/extensions.rs#L242-L302) 显式注册、拒绝重复、限制容量，remote command/reporter/boolean 必须 blocking；
+  `register_hat` 注册无 handler 的 hat。
   [`Program::compile_with_extensions`](../src/engine.rs#L913-L945) 在编译时快照注册表；默认编译使用空表，作品不能自行加载 URL/动态库。
-- **v1 仅命令积木**：[`Compiler::extension_call`](../src/engine/extensions.rs#L33-L72) 可把返回值写入已声明全局，
-  不提供任意私有/局部写入或嵌套 reporter；[`exec_extension`](../src/engine/extensions.rs#L75-L152) 拒绝 reporter procedure 内执行扩展命令。
-- [`complete_extension` / `prune_extensions`](../src/engine/extensions.rs#L154-L201) 校验完成结果、清理停止任务，
+- v1 命令仍可把返回值写入已声明全局；v2 reporter/Boolean 的 canonical type 是
+  `nekoc_extension_reporter`/`nekoc_extension_boolean`，通过异步 lowering 写任务局部值，
+  保留嵌套同级操作数执行顺序且不重复执行。仍不提供 reporter procedure 内扩展调用。
+- hat 使用 `nekoc_extension_hat` 的 `opcode` 字段及 `next`/`statements.DO` 体；
+  [`Engine::emit_extension_event`](../src/engine/extensions.rs#L105-L132) 只向 active scene（含克隆）排队，
+  payload 通过 `self_listen_value` 暴露，任务上限 4096。
+- [`complete_extension` / `prune_extensions`](../src/engine/extensions.rs#L269-L332) 校验完成结果、清理停止任务，
   [`State::clear`](../src/engine/extensions.rs#L26-L30) 保留递增 ID，防旧回包污染重启后的调用。
-- **已编译指令含扩展调用时，整个 Program 禁用 JIT**，并非仅扩展单条指令回退：
-  [`Engine::new`](../src/engine.rs#L5518-L5526)。因此默认 JIT 的历史基准不能直接授予插件作品。
-- 值契约限 JSON 标量/列表：[`schema 校验`](../src/extensions.rs#L36-L123)、[`cell_json`](../src/engine/extensions.rs#L205-L241)
+- `Op::Extension` 是 reentrant 尾部 helper：经 `exec` 执行后离开 native region，不再因 Program 含扩展而整体禁用 JIT；
+  Ready 非 blocking、blocking、Pending 的调度与指令预算仍保留。
+- 值契约限 JSON 标量/列表：[`schema 校验`](../src/extensions.rs#L65-L211)、[`cell_json`](../src/engine/extensions.rs#L345-L382)
   拒绝对象、undefined、非有限数和循环/过深列表；深度、列表长度和字节预算有上限。
+
+### 调用策略与安全边界
+
+- [`CallPolicy`](../src/extensions.rs#L35-L63) timeout 默认 1s，范围 1ms..60s；`Propagate` 是默认且保留 v1 fail-fast，
+  `Report` 记录 logs 仅结束调用任务，`DefaultValue` 记录 logs 并以 typed neutral result 继续。
+  Rust 同步 handler 捕获 unwind panic，并在返回后检测超时，但不能强杀不返回的函数。
+- Pending 使用 `Instant` 的 wall timeout，即使 virtual clock 存在也按墙钟处理。JS 使用 AbortSignal/timer、
+  忽略迟到 Promise，无法抢占同步 JS；Web v2 默认 Report 不关闭连接，v1 Propagate 保留关闭行为。
 
 ### JS 桥与安全
 
-- [`web/ExtensionRegistry`](../web/extensions.js#L14-L37) 只接受 blocking、拒绝声明 network；
-  [`ExtensionSession`](../web/extensions.js#L39-L65) 提供 Promise、请求去重、AbortSignal、结果复制和错误回传。
-- [`PlayerConnection`](../web/player.js#L6-L55) 用私有项目快照握手并在后续帧回送结果；
+- [`web/ExtensionRegistry`](../web/extensions.js#L22-L72) 的可调用积木只接受 blocking、拒绝声明 network；
+  hat 以 `registry.register(hatSchema)` 注册且不带 handler。`palette()` 按 metadata 自动生成面板描述，
+  **捆绑编辑器 UI 尚未自动接入**，宿主仍须自行接线。
+  [`ExtensionSession`](../web/extensions.js#L74-L123) 提供 Promise、去重、AbortSignal、结果复制及错误回传。
+- [`PlayerConnection`](../web/player.js#L6-L65) 用私有项目快照握手并在后续帧回送结果；
+  保留封套 `nekoc_extension_handshake:1`，增加 `extension_api_versions`，ready 返回 `extension_api_version`；
+  `player.emitExtension` 随后续帧发送 hat 事件。
   [`player_socket`](../src/bin/web.rs#L547-L578) 只接 schema 和调用数据，不执行作品携带的 JS 文本。
-- **无不可信插件沙箱**：[`set_allow_network` 注释](../src/extensions.rs#L164-L166) 明确是 capability policy，非 OS 隔离。
+- **无不可信插件沙箱**：[`set_allow_network` 注释](../src/extensions.rs#L255-L258) 明确是 capability policy，非 OS 隔离。
   可信 Rust/JS handler 仍有宿主权限；`network=false` 不阻止 handler 自行使用网络。
-- [接口限制](extensions.md#安全边界与未验证范围)：无稳定动态库 ABI/跨进程插件保证；无自动积木面板、内置调用超时或插件 IR 注入。
-  JS 取消需 handler 配合，不能强杀；官方播放器及第三方编辑器对私有积木的处理未验证。
+- [接口限制](extensions.md#安全边界与未验证范围)：capability 不是 OS 沙箱；无独立进程强抢占、稳定动态库 ABI 或插件 IR 注入。
+  JS 取消需 handler 配合，不能强杀；官方播放器及真实第三方编辑器对私有积木的处理未验证。
 - `ts/` 调查未找到此私有调用的 DSL 注册入口，不能声称 TS 已能自动声明上述插件。
 
 ## 2. 云后端：可替换，不等于官方联网云
@@ -90,7 +110,8 @@
   [扩展映射说明](https://github.com/CodeManTeam/kitten2scratch/blob/3b2dc03044e958b8052e947eebae09f2ec24ed5c/README.md#L68-L75) 是修改源码，不是独立执行插件契约。
 - TurboWarp [`ExtensionManager`](https://github.com/TurboWarp/scratch-vm/blob/0cb82afe62506f3d9f2ff849c95593f0473b5d2c/src/extension-support/extension-manager.js#L161-L254)
   提供内建/URL 注册及 worker、iframe、unsandboxed 分支；[`BlockType`](https://github.com/TurboWarp/scratch-vm/blob/0cb82afe62506f3d9f2ff849c95593f0473b5d2c/src/extension-support/block-type.js#L5-L57)
-  包含 reporter/Boolean/hat/event/loop 等，**契约比 NekoC v1 命令积木更宽**。
+  包含 reporter/Boolean/hat/event/loop 等；NekoC 当前 v2 已补 reporter/Boolean/hat，
+  但这不等于对齐 TurboWarp 的全部积木类型、生态或隔离选项。
 - [`SecurityManager`](https://github.com/TurboWarp/scratch-vm/blob/0cb82afe62506f3d9f2ff849c95593f0473b5d2c/src/extension-support/tw-security-manager.js#L36-L50)
   默认 worker、拒绝作品自动加载；不可把 URL 能力说成默认任意执行，也不可把 unsandboxed 叫强隔离。
 - [`Cloud.setProvider`](https://github.com/TurboWarp/scratch-vm/blob/0cb82afe62506f3d9f2ff849c95593f0473b5d2c/src/io/cloud.js#L68-L111) 是明确云边界，非 Kitten 云协议证明。
@@ -104,7 +125,7 @@
 - 实际 build 版 [`loadExtension:170–271`](https://github.com/JXW666NB/K4-ULTRA/blob/e6465b1c23479bde68b5811b8f8f27fb26724053/resources/app/build/extension-loader-v2.js#L170-L271)
   读取 manifest、注册积木/工具栏、generator/runtime；241、253行确有 `new Function`。
   [`scanExtensions:292–346`](https://github.com/JXW666NB/K4-ULTRA/blob/e6465b1c23479bde68b5811b8f8f27fb26724053/resources/app/build/extension-loader-v2.js#L292-L346) 支持 `.k4ultra` ZIP；目录模式须 `devMode=true`，不是默认任意目录扫描。
-- 其 UI→生成器→domain 插件链比 NekoC v1 范围更广；权限 wrapper 在执行代码之后包装函数，不证明顶层代码隔离。
+- 其 UI→生成器→domain 插件链仍比 NekoC 当前宿主 schema/palette 描述更完整；权限 wrapper 在执行代码之后包装函数，不证明顶层代码隔离。
   未运行 loader/桌面壳、未验证权限安全或插件随作品分发；不要混用 `dev/` 同名文件的行号。
 
 ### bcm_convertor：封装与分发不重复计为内核
@@ -117,5 +138,6 @@
 ## 验证边界
 
 本页仅整理静态依据：未运行测试、构建、性能任务或第三方代码，未新增通过计数、兼容率或速度比。
+扩展验收结果见 `OC-REPORT.md`；本页不把接口存在写成验收通过。
 现有[扩展测试入口](../tests/extensions.rs)与[JS 测试入口](../tests/extensions.test.mjs)是可复核线索，不是本轮通过记录。
-最终判断：NekoC 有可组合的创作/宿主接口，但插件契约宽度、沙箱、联网服务和平台验证仍有限；不能由接口数量推出四维全面领先。
+最终判断：NekoC 已有向后兼容 v1 的 v2 可组合创作/宿主接口，但插件契约、沙箱、联网服务、编辑器往返和平台验证仍有限；不能由接口数量推出四维全面领先。

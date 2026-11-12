@@ -47,6 +47,29 @@ cargo test --test jit_differential
 - Next/RangeNext/WarpIteration 的专用 helper 执行一次边界，维护循环栈和原有 warp 计数；真正 yield 时设置 `jit_yield` 并立刻退款后续指令，调度器结束当前 pass。K4 末次 yielding 迭代、KN Range 末次差异和无进展错误均保留。只是消除 tier 往返，不删除让出或放宽预算。
 - 直接的 clone/tell、场景切换等仍退出 region；可能重分配 native 缓存数组的 reporter 只允许上述尾部 gateway。列表 split 的纯值构造不改数组地址，可由 evaluator 在非重入 native helper 中执行。
 
+## 自定义扩展的 JIT 边界（当前 v2）
+
+- **不再因为已编译 Program 含扩展调用而整体关闭 JIT**。`Op::Extension` 被分类为 reentrant，
+  通过尾部 helper 调用通用 `exec`，执行后立即退出 native region；不读取可能已失效的缓存指针，也不探索后继。
+  调度器随后按实际 PC 和任务状态选择 tier，其他指令仍可使用 JIT。
+- helper 保留解释器的 continuation/yield 结果及指令预算：nonblocking + Ready 在同 tick 继续，
+  blocking + Ready 写结果后让出，Pending 只挂起调用任务、完成后再调度。不以 tier 切换绕过让出、重复调用或多扣/少扣预算。
+- v2 canonical `nekoc_extension_reporter`/`nekoc_extension_boolean` 经异步 lowering 写任务局部值，
+  挂起前保存同级操作数的原求值顺序和结果，不因恢复重算已有副作用；Rust 支持 Ready/Pending，JS 远程调用均 blocking。
+  reporter procedure 内仍不支持扩展调用，不能把这个异步路径当成同步 `call_reporter` 的扩展支持。
+- `nekoc_extension_hat` 由宿主事件排队，`Engine::emit_extension_event` 仅针对 active scene（含克隆），
+  payload 经 `self_listen_value` 读取，任务上限4096。事件排队不是把插件代码内联到 region。
+- 计数仍按上文区分 `native_ops`、`delegated_ops` 与 helper；扩展走 native region gateway 不代表 handler
+  已编成机器码，也不提供插件 IR 注入。历史语料/无扩展基准的比例和耗时不追记为当前 v2 扩展的性能结果。
+- 调用超时是额外安全边界而非 JIT fuel：`CallPolicy` 默认1s（1ms..60s），Pending按 `Instant` 墙钟计时，
+  即使 virtual clock 也不改变。Rust捕获unwind panic并在返回后检查耗时，不能强杀不返回的函数；
+  JS AbortSignal/timer忽略迟到Promise，但不能抢占同步JS。capability不是OS沙箱，也无独立进程强抢占或稳定动态库ABI。
+  默认 `Propagate` 保留v1 fail-fast；`Report` 记logs仅结束调用任务，`DefaultValue` 记logs并以中性typed result继续。
+  Web协商v2默认Report，调用错误不因此关闭连接；v1仍Propagate。错误策略不放宽调度或指令预算。
+
+完整 schema、版本协商、JS 面板描述与边界见 [扩展 API](extensions.md)。当前变更的**验收结果见 `OC-REPORT.md`**；
+本页不新增通过计数，不把本地解释器/JIT差分当官方私有积木兼容、真实第三方编辑器往返或ARM真机证明。
+
 ## 官方证据与未验证
 
 本次复核本地只读 `src/player/build/player_v2.2d180c468559fbd29528.js.orig`，SHA-256 为 `0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160`。以下是 UTF-8 解码后 JS 字符偏移（0-based），不是字节偏移：
