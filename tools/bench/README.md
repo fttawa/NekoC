@@ -61,6 +61,110 @@ node tools/bench/run.mjs --runtime both --fixtures dist/bench/prepared --corpus 
   速度比较必须先核对工作量和状态，不支持/加载失败绝不能写成 0 ms。
 - HateNeko 是 KN/Love2D 后端，不能把 K4 输入默认为同语义；使用下面独立的 KN 套件。
 
+## 官方 KN 七项 runner（独立受控入口）
+
+`tools/bench/official.mjs` 是 K4 oracle，`tools/bench/kn-ab.mjs` 是 native 历史
+AB；官方 KN 使用独立的 `tools/bench/official-kn.mjs`。它不复制官方包：只读
+`--bundle-dir`（或 `KN_OFFICIAL_BUNDLE_DIR`）下的三个 bundle，
+并在启动前核对以下固定 SHA-256：
+
+```text
+main.8ccf2442.js  58123fcf43cf793d19372fc822750f9899a4375404de61c541f06e915c2b8165
+crc_libs.8196dbd1.js  462bb78dc75f99002dfe628d15211941469aa01d71e12890327eedcdb142f8a7
+main-vendors.07f7dd7e.js  38183ab8a9620f33fef75f1bd1f90ee26b492e7b6ded8b6b065fc052e7948f68
+```
+
+本地缓存路径依据 [KN 源码调查](../../docs/kitten-n-runtime-findings.md)，必须通过
+`--bundle-dir` 或 `KN_OFFICIAL_BUNDLE_DIR` 显式提供；本会话中记录的默认历史路径
+`D:/AppData/Local/Temp/opencode/nekoc-kitenn/runtime-source/` 不存在，因此不会隐式采用。
+本轮已核实可用的只读缓存是 `E:/nekoc-wt/hncompat2/dist/hncompat2-official/`，三个hash均匹配。
+三个固定 bundle 都必须在该目录中存在并匹配 SHA-256；不会自动复制/下载主包、运行包或
+vendors。编辑器 HTML、其他 UI 依赖仍需网络；
+不是全离线播放器，也没有将任何第三方源码/作品放入跟踪目录。
+
+先准备七份输入并做官方编辑器结构检查（不计时，但会启动浏览器）：
+
+```powershell
+$env:NEKOC_NODE_MODULES='D:/AppData/Local/Temp/opencode/nekoc-kitenn/node_modules'
+node tools/bench/official-kn.mjs --bundle-dir D:/path/to/read-only-kn-bundles --prepare-only
+```
+
+测量由调用方在确认机器空闲后统一执行：
+
+```powershell
+node tools/bench/official-kn.mjs --fixtures dist/bench/official-kn/fixtures --bundle-dir D:/path/to/read-only-kn-bundles --native-binary dist/bench/bin/native.exe --out dist/bench/official-kn-run
+```
+
+如需把默认真实墙钟退化单独留档（额外 native 诊断，不参与官方比较），显式增加
+`--native-wall-clock-binary dist/bench/bin/native.exe`。该行要求返回
+`deterministic=false`，与正式 `--native-binary` 的 `deterministic=true` 分列保存，
+不会混入任何比值。
+
+每个 repeat 使用全新 Edge、独立 worker 硬超时；安装 rAF 透传包装后正常 bootstrap，
+Start 前收拢/取消尚未执行的原生 rAF，之后仅手动推进 rAF 批次。每批使用固定
+`dt=1/60`、callback 安全上限4096（超限失败，不延后部分 callback 冒充一帧），
+并且必须恰好有一次有效 `RuntimeManager.update`。未经受控批次的 update 不执行，
+结束后不再推进。官方 `config.deterministic={seconds_per_update:1/60}` 关闭4ms墙钟
+切片，保留原始每 interpreter step 的30000循环尾/50000过程调用预算；配置不符失败。
+这不是默认在线编辑器性能。源码位置/hash复用 [KN warp证据](../../docs/kn-warp.md)，
+正式计时不包装循环/过程热点进行逐积木统计。
+另传 `--diagnostic` 会启动独立的无计时诊断，包装 `OptiRunner.step` 和
+`step_iteration_yield`，记录逐update循环尾、单step最大循环尾及边界返回数。
+数值/列表/字符串可检查固定批次；这是官方单边证据，native没有同单位逐批诊断，
+所以仍不产生双边等工作量证书。不得把诊断成本计入正式样本。
+
+只计原始同步 `manager.update`（不含协议、外层绘制、最终快照）；10预热+60测量，
+三次独立运行，全部样本、input/binary/harness/bundle hashes、浏览器版本、配置和
+page/console/runtime 错误保留在 `results.json` 及各 `*-official.json`。
+worker 每帧计时结束后持久化已完成样本，失败/超时不记成0，不删除慢帧。
+已有 `results.json` 的输出目录拒绝重跑覆盖，重新测量应指定新的 `--out`。
+硬杀 worker 可能遗留浏览器，需人工检查，不会主动杀掉其他任务。
+
+最终投影完整保留全局带类型值/列表、当前场景、全部存活角色/clone及其prototype、
+位置/旋转/双轴scale/造型/可见性、各存活实体的所有声明私有值；没有长列表截断。
+undefined/非有限数/循环引用有标签，未知actor API/漏项失败而非回退成空表。
+比较时clone按prototype/属性/私有值多重集匹配，不要求临时ID拼写相等；native
+`oracle_snapshot` 旋转保持原样；官方stage的弧度heading转换为 `90-heading*180/PI`。
+该约定经真实浏览器非零位置/角度smoke检查；官方可能折叠整圈而native保留整圈，
+此类差异不忽略。几何 `-0` 规范为0，变量中的 `-0` 仍带标签并拒绝不保型的native比较。
+数值容差为 `1e-9*max(1,abs(a),abs(b))`，不忽略真实字段。
+
+`--native-binary` 仅可选地附加同输入 native 诊断；官方 KN runner 默认不生成跨
+内核比值。正式附带 native 时 runner 强制传 `--deterministic`，并要求返回
+`deterministic=true`；这与官方 `config.deterministic` 一样关闭 KN 4ms warp 墙钟切片。
+默认真实墙钟 native 退化不混入正式结果，应作为独立诊断另行记录。即使两边都为
+deterministic，当前也没有每批工作量证书，所以CLI**不会输出比值**；完整投影
+一致也只记录 `projection_equal`，不授予工作量资格。比例工具函数还要求完整样本、
+无错误、明确等工作量认证；画笔因同步绘制/增量输出边界不等始终不可比。
+这不是任务栈、像素、音频、输入、逐帧全过程或全面兼容认证。
+
+Windows每次worker/native启动前复用`assertIdle()`排除已知cargo/rustc/perf-bench/love
+竞争任务，只读检查、不杀进程；检查不是系统独占锁。所有写入限制本worktree的dist，
+并拒绝输出路径经过junction/symlink。不要并发改输入、bundle或输出。
+
+只跑工具契约测试（不会启动官方七项套件或 Rust 构建）：
+
+```powershell
+node --test tests/official-kn-bench.test.mjs tests/kn-bench-fixtures.test.mjs
+```
+
+## KN 历史 / 当前 native 五轮 AB
+
+```powershell
+node tools/bench/kn-ab.mjs dist/bench/kn-ab/latest-before.exe dist/bench/kn-ab/latest-final.exe dist/bench/kn-ab/fixtures dist/bench/kn-ab/latest-final
+node tools/bench/kn-evidence.mjs
+```
+
+固定10预热+60测量、五轮独立进程AB/BA，默认真实4ms时钟（不传deterministic），
+每次前后检查竞争任务、输入/二进制hash、完整最终状态。中断后同命令只复用完整双边对；
+恢复重新计算摘要和状态相等性，参数、输入、二进制身份不一致即拒绝。
+输出仅允许本worktree的 `dist/`，拒绝junction/symlink。不删除失败日志或慢样本。
+历史源码可用 `git archive` 解到 `dist/bench/kn-ab/snapshots/`；共享Cargo target构建
+不同快照时先 `cargo clean --release -p nekoc`，否则mtime可能使旧产物被错误复用。
+历史、引入边界与最终候选是三组不同配对，不能拿独立批次相除宣称优化幅度。
+`kn-evidence.mjs`重新从本轮固定位置的完整原始数组计算中位数和状态hash，
+写入 `docs/knperf-evidence.json`；缺失套件不冒充完成，不包含第三方源码或作品。
+
 ## HateNeko / KN 同场实测
 
 ```powershell

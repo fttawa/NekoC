@@ -19,6 +19,9 @@ struct Args {
     seed: u64,
     #[arg(long)]
     interpreter: bool,
+    /// Controlled benchmark only: disable host-time budgets, retain loop limits.
+    #[arg(long)]
+    deterministic: bool,
 }
 
 #[cfg(windows)]
@@ -80,6 +83,9 @@ fn main() -> Result<()> {
     if args.interpreter {
         engine.disable_jit();
     }
+    if args.deterministic {
+        engine.use_virtual_clock();
+    }
     engine.set_random_seed(args.seed);
     let start = Instant::now();
     engine.start();
@@ -121,6 +127,7 @@ fn main() -> Result<()> {
         "{}",
         json!({"schema":"nekoc-performance-v1", "runtime":"nekoc",
         "input":args.input,"seed":args.seed,"warmup":args.warmup,"frames":args.frames,
+        "deterministic":args.deterministic,
         "import_ms":import_ms,"start_ms":start_ms,"frame_ms":frame_ms,"warmup_ms":warmup_ms,
         "peak_rss_bytes":peak_rss,"instructions":instructions,"pen_lines":lines,
         "active_frames":active_frames,"final_state":final_state})

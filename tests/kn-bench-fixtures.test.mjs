@@ -3,6 +3,7 @@ import { readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { fixtures, writeKnFixtures } from "../tools/bench/kn-fixtures.mjs";
+import { workloadContract } from "../tools/bench/official-kn.mjs";
 
 const names = ["numeric", "list", "string", "clones", "broadcast", "recursion", "pen"];
 function blocks(value) {
@@ -22,6 +23,13 @@ test("KN benchmarks use native generator blocks with K4-equivalent batch sizes",
     assert.equal(start.next.type, "repeat_forever");
     assert.equal(start.next.statements.DO.type, "warp");
     const all = blocks(project);
+    const contract = workloadContract(name, project, 60);
+    assert.equal(contract.certified, ["numeric", "list", "string"].includes(name));
+    if (contract.certified) {
+      const changed = structuredClone(project);
+      changed.projectName += " changed";
+      assert.equal(workloadContract(name, changed, 60).certified, false);
+    }
     assert.equal(new Set(all.map(block => block.id)).size, all.length, name);
     const repeat = all.find(block => block.type === "repeat_n_times");
     assert.equal(Number(repeat.inputs.times.fields.NUM), counts[name]);
