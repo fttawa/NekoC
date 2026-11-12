@@ -1,16 +1,16 @@
 {
   "manifest_version": 3,
   "name": "Neko Rust · PICKCAT 播放器",
-  "version": "0.1.5",
-  "description": "用本机 Rust VM + WebGL2 播放 PICKCAT 的 Kitten N 作品。需要启动本机 Neko 后端。",
+  "version": "0.2.0",
+  "description": "用本机 Rust VM + WebGL2 播放 PICKCAT 的 Kitten N 与 Kitten 4 作品。需要启动本机 Neko 后端。",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyTw+m0hkucb7ZE0/TusctD6V803odu8VqbZdSzP4uaWmF5ZnlAikqlqh/FdSky3Rb+Hli+MdkDL9dLiMAeYQ/NTFEFEnq2Wq4To+dCUNroDklsGH3+tZnuGqrgOJCTlmumgZcA0NqMKV+NjWJ0WEcNwYeBnlBaOlXO3B1tvmF76NUPEID1ExPigz4/MLPHZI/LZ4MJnXYS/f0EtKOzPE+Vc4jkCDfk+BDAGmnCgBzClHJ511PFeJVELYXLWqMRfCdonA2+VLf8hCiXWxsX+dXIKk6arzdwTqRPkGPJHZFiHWNsx9hqtN8FiDVyf3NzDmK1wkxnONhgwEz5FBAm8DQQIDAQAB",
   "permissions": ["storage"],
-  "host_permissions": ["http://127.0.0.1/*", "https://creation.bcmcdn.com/*"],
+  "host_permissions": ["http://127.0.0.1/*", "https://creation.bcmcdn.com/*", "https://creation.codemao.cn/*"],
   "content_scripts": [
     {"matches": ["https://pickcat.dao3.fun/*"], "js": ["content.js"], "run_at": "document_start"},
-    {"matches": ["https://kn.codemao.cn/player*"], "js": ["capture.js"], "run_at": "document_start", "all_frames": true, "world": "MAIN"}
+    {"matches": ["https://kn.codemao.cn/player*", "https://player.codemao.cn/new/*"], "js": ["capture.js"], "run_at": "document_start", "all_frames": true, "world": "MAIN"}
   ],
   "web_accessible_resources": [{"resources": ["play.html"], "matches": ["https://pickcat.dao3.fun/*"]}],
-  "content_security_policy": {"extension_pages": "script-src 'self'; object-src 'none'; connect-src 'self' http://127.0.0.1:* ws://127.0.0.1:* https://api-creation.codemao.cn https://creation.bcmcdn.com; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; style-src 'self' 'unsafe-inline'"},
+  "content_security_policy": {"extension_pages": "script-src 'self'; object-src 'none'; connect-src 'self' http://127.0.0.1:* ws://127.0.0.1:* https://api-creation.codemao.cn https://creation.bcmcdn.com https://creation.codemao.cn; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; style-src 'self' 'unsafe-inline'"},
   "action": {"default_title": "Neko Rust 播放器", "default_popup": "popup.html"}
 }

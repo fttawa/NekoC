@@ -72,6 +72,13 @@ test('project demand detection is data-only and bundled extension ships the modu
   assert.match(await readFile(new URL('../tools/build-extension.mjs',import.meta.url),'utf8'),/'kn-microphone.js'/);
 });
 
+test('project scan survives lists far larger than the call stack allows',()=>{
+  // 大模型作品的列表可达几十万项；展开成 push 参数会抛 Maximum call stack size exceeded。
+  const weights=new Array(1_000_000).fill(0.5);
+  assert.equal(needsMicrophone({variables:{w:{value:weights}},actors:[]}),false);
+  assert.equal(needsMicrophone({variables:{w:{value:weights}},actors:[{next:{type:'get_voice_volume'}}]}),true);
+});
+
 test('existing player host frame transports unavailable zero without extension schema',async()=>{
   const previous=globalThis.WebSocket;let socket;
   globalThis.WebSocket=class {

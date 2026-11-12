@@ -1,6 +1,8 @@
 # PICKCAT Rust 播放器扩展
 
-在 PICKCAT 作品页或论坛帖子内使用 **本机 Rust VM + WebGL2** 替换 Kitten N 原播放器。支持 Chrome / Edge 的 Manifest V3 扩展。
+在 PICKCAT 作品页或论坛帖子内使用 **本机 Rust VM + WebGL2** 替换 Kitten N 和 Kitten 4 原播放器。支持 Chrome / Edge 的 Manifest V3 扩展。
+
+**0.2.0 Kitten 4 接管**：PICKCAT 为 Kitten 4 作品嵌入的官方播放器 `https://player.codemao.cn/new/<作品编号>` 也会被接管。扩展读取官方播放器自己请求成功的 `kitten/r2/work/player/load` 公开响应，从 `creation.codemao.cn` 下载发布的 JSON 源文件，由本机后端转换为 Rust VM 项目运行。切回原版、sandbox 保留、缓存恢复与 Kitten N 相同。Kitten 3（`player.codemao.cn/old/...`）仍使用原播放器。
 
 ## 安装与使用
 
@@ -26,7 +28,7 @@
 
 ## 实现
 
-- PICKCAT 顶层 content script 只接管已经出现的 `https://kn.codemao.cn/player?...&workId=...` iframe；网站的登录、实名与游玩时段提示保持由网站处理。
+- PICKCAT 顶层 content script 只接管已经出现的 `https://kn.codemao.cn/player?...&workId=...`（Kitten N）或 `https://player.codemao.cn/new/<id>`（Kitten 4）iframe；网站的登录、实名与游玩时段提示保持由网站处理。
 - 官方 Kitten N iframe 内的 MAIN-world 脚本观察其**已成功返回**的公开作品详情响应，优先读取可用的 `source_urls`，再回退到 `bcm_url`。官方请求自行完成签名和账号处理，扩展不重建签名，也不保存凭据。
 - 顶层脚本检查消息来源、实际 iframe 窗口、作品编号和 CDN 域名，然后导航同一个 iframe 到扩展打包的播放器；切回时恢复原始 URL，因此不会同时播放两套运行时。
 - 请求缓存资源的探测消息只携带类型和作品编号，允许发送给导航中的窗口；在 iframe 加载完成后再次探测。官方脚本只接受 PICKCAT 父窗口且编号匹配的请求，资源回复仍限定 PICKCAT 域名；顶层仍严格校验官方来源，不放宽资源消息验证。
@@ -35,7 +37,9 @@
 - 项目 UTF-8 / WebSocket 首包上限为 64 MiB，随后帧请求限制为 64 KiB，维持一问一答的有界传输。这份作品为 24,289,660 个 JS 字符，实际 UTF-8 文件 **45,249,638 字节（43.15 MiB）**。
 - 新增文本拆分与表达式列表操作，保持数字 token 转换、空白字符串与深复制；音频命令按 VM 执行顺序传到浏览器，暂停保留播放位置，重玩/退出停止声音。
 
-目前自动接管范围是 **PICKCAT 内的 Kitten N 官方播放器**。其他编辑器类型仍使用网站原播放器。仍不支持的积木会显示具体兼容诊断。
+- Kitten 4 官方播放器内同一脚本观察 `api-creation.codemao.cn/kitten/r2/work/player/load/<id>` 的成功响应，只接受 `creation.codemao.cn` 上的 `source_urls`；扩展页面按作品类型校验资源域名，Kitten 4 JSON 交给 `/api/import-player` 转换。
+
+目前自动接管范围是 **PICKCAT 内的 Kitten N 与 Kitten 4 官方播放器**。Kitten 3 等其他编辑器类型仍使用网站原播放器。仍不支持的积木会显示具体兼容诊断。
 
 ### 0.1.1：星垒兼容更新
 
@@ -45,7 +49,7 @@
 - `projects/starhold/starhold.bcmkn` 已通过标题、松开 Enter、鼠标选关、点击建塔、升级、开波、暂停/恢复和自然战斗验证；5 秒窗口控制器更新约 60/s，绘制更新率另计。
 - 验证命令：`node tools/verify-web-starhold.mjs`，报告见 `docs/starhold-web-verification.json`。
 
-从 0.1.0 升级时请关闭旧后端窗口、重新运行新版启动脚本；从 0.1.1 ~ 0.1.4 升级到 0.1.5，只需替换扩展目录，在浏览器扩展管理页点击扩展的「重新加载」，再刷新作品页和论坛页。直接加载 `E:\nekoc\dist\pickcat-rust` 时该目录已由构建更新。当前扩展版本为 **0.1.5**。
+从 0.1.0 升级时请关闭旧后端窗口、重新运行新版启动脚本；从 0.1.1 及以后版本升级到 0.2.0，只需替换扩展目录，在浏览器扩展管理页点击扩展的「重新加载」，再刷新作品页和论坛页（0.2.0 新增 `creation.codemao.cn` 访问权限，浏览器可能要求确认）。直接加载 `E:\nekoc\dist\pickcat-rust` 时该目录已由构建更新。当前扩展版本为 **0.2.0**。
 
 **2026-11-03 Rust 后端兼容更新**：补齐广播/带参数接收/广播并等待、带参数语句过程、四种停止范围、条件等待、列表查找/包含及常用角色查询。此次扩展版本仍为0.1.3，但**必须替换并重启新版后端**，仅重载扩展不会更新VM。详细支持范围、真实作品验证与剩余缺口见 [web-compatibility.md](web-compatibility.md)。当前仓库的 `samples/pen_polyhedron.bcmkn` 已修复前缀取反输入丢失；旧下载文件需要重新导入修正版。
 
@@ -60,6 +64,7 @@ $env:NEKOC_NODE_MODULES='D:\AppData\Local\Temp\opencode\nekoc-kitenn\node_module
 node tools/verify-extension.mjs
 node tools/verify-extension-overlay.mjs
 node tools/verify-extension-sources.mjs
+node tools/verify-extension-k4.mjs
 # 后端构建完成后，打包扩展与独立 Windows 后端：
 pwsh -File tools/package-extension.ps1
 ```
@@ -73,5 +78,6 @@ pwsh -File tools/package-extension.ps1
 - 已登录的真实 PICKCAT 页面尚未直接验证；`verify-extension.mjs` 不模拟作品执行或资源响应，只模拟网站播放器容器。
 - `verify-extension-overlay.mjs` 使用可控页面和资源响应验证导航时序：延迟加载的初始空白 iframe、非官方来源消息拒绝、fetch/XHR 捕获、加载后启用的缓存恢复、原版切换和 SPA 替换；作品仍交给真实 Rust 后端执行。另检查提示自动消失、FPS 右下角定位、点击穿透、暂停显示与全屏可见性。报告见 `docs/pickcat-extension-overlay-verification.json`。
 - `verify-extension-sources.mjs` 验证真实发布作品 `335008960`（正多面体）的编码资源下载、解码、旋转、E 切换面数、Space 暂停/恢复；验证真实公开论坛文章 `01a19bdd-b240-7985-a80e-2a753101aaca` 的懒加载内嵌播放器、Enter 启动 ASCII PV 和音频、FPS 与原版恢复。原 iframe 的 sandbox 保留；报告见 `docs/pickcat-extension-sources-verification.json`。正多面体作品页容器使用测试页面，论坛文章直接使用真实页面。
+- `verify-extension-k4.mjs` 在测试页面中嵌入真实官方 Kitten 4 播放器（默认公开作品 `186831447`「旋转大师（多人联机）」，可用 `NEKOC_K4_WORK` 指定），断言接管参数为 `kind=k4`、资源来自 `creation.codemao.cn`、作品在 Rust 中持续运行，并验证切回原版恢复原 URL 与 sandbox 后可再次接管。报告写入 `dist/verify-extension-k4/`（可用 `NEKOC_VERIFY_OUT` 改写）。
 
 截图和完整测量写入 `D:/AppData/Local/Temp/opencode/neko-extension-validation/`；归档结果见 `docs/pickcat-extension-verification.json`。

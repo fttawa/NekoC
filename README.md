@@ -30,7 +30,7 @@ cargo run --release --bin web -- samples/native-studio.bcmkn
 
 ### PICKCAT 浏览器扩展
 
-运行 `start-rust-backend.cmd`，再把 `dist/pickcat-rust` 作为已解压的扩展加载到 Chrome / Edge。它会把 PICKCAT 上的 Kitten N 播放器换成本地的 Rust 播放器，带 FPS 显示、性能设置和切回原播放器的开关。
+运行 `start-rust-backend.cmd`，再把 `dist/pickcat-rust` 作为已解压的扩展加载到 Chrome / Edge。它会把 PICKCAT 上的 Kitten N 和 Kitten 4 播放器换成本地的 Rust 播放器，带 FPS 显示、性能设置和切回原播放器的开关。
 
 构建扩展用 `node tools/build-extension.mjs`，详见 **[安装与验证](docs/pickcat-extension.md)**。
 
