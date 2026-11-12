@@ -42,6 +42,7 @@ impl Sprite {
             size: self.size,
             fill_color: self.fill_color,
             fill_path: None,
+            soft_mesh: self.soft_mesh.clone(),
         }
     }
 }
