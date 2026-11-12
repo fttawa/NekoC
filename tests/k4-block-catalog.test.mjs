@@ -10,7 +10,8 @@ import { corpusFrequency, mappingStatus, markdownReport, officialInventory, rust
 import { drawingMainPaths, physicsMainPaths, propertyMainPaths, serviceTypes } from "../tools/compat/k4-partial-6-scope.mjs";
 import { round7MainPaths } from "../tools/compat/k4-partial-7-scope.mjs";
 
-const currentSemantics = type => cloudDataTypes.has(type) ? "offline-oracle-verified" : physicsMainPaths.has(type) || propertyMainPaths.has(type) || drawingMainPaths.has(type) || round7MainPaths.has(type) ? "main-path-verified" : "partial";
+const audioMainPaths = new Set(["play_audio", "play_audio_and_wait", "set_volume_or_rate", "change_volume_or_rate", "stop_all_audios"]);
+const currentSemantics = type => cloudDataTypes.has(type) || audioMainPaths.has(type) ? "offline-oracle-verified" : physicsMainPaths.has(type) || propertyMainPaths.has(type) || drawingMainPaths.has(type) || round7MainPaths.has(type) ? "main-path-verified" : "partial";
 const currentStatus = type => serviceTypes.has(type) && !cloudDataTypes.has(type) ? "设备降级" : "已实现";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");

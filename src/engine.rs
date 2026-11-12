@@ -342,7 +342,7 @@ enum Op {
     Clear,
     Audio(usize, bool),
     Video(usize, video::Action),
-    AudioProperty(usize, usize, bool, bool, bool),
+    AudioProperty(usize, usize, bool, bool, bool, bool),
     Speech(usize, bool),
     SpeechConfig([f64; 4]),
     ClearList(ListRef),
@@ -4641,6 +4641,7 @@ impl Compiler {
                             rate,
                             kind == "change_volume_or_rate_2",
                             field(b, "increase") == "decrease",
+                            field(b, "legacy_change") == "true",
                         )
                     }
                     "procedures_2_callnoreturn" => {
@@ -5022,6 +5023,10 @@ pub struct Frame {
     pub audio_commands: Vec<AudioCommand>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub speech_commands: Vec<SpeechCommand>,
+    /// K4 device/audio outputs produced during this update.  This is additive
+    /// so existing KN/K4 audio command consumers remain wire-compatible.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub k4_media: Vec<MediaOutput>,
     /// Sprite ids back to front, sent when layers change or clones appear.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<Vec<String>>,
@@ -5852,6 +5857,7 @@ impl Engine {
     /// Web players use actual end/error events. CLI VMs use the simulation clock.
     pub fn use_browser_audio(&mut self) {
         self.audio.browser = true;
+        self.k4_media.set_frame_only(true);
     }
     /// Moves a draggable sprite (player drag gesture).
     pub fn drag(&mut self, id: &str, x: f64, y: f64) {
@@ -8616,6 +8622,7 @@ impl Engine {
         ensure!(dt.is_finite(), "frame delta must be finite");
         let cloud_frame = self.begin_cloud_frame()?;
         self.sequence += 1;
+        self.k4_media.begin_frame();
         let started = Instant::now();
         let mut count = 0;
         let mut ticks = 0;
@@ -8700,6 +8707,11 @@ impl Engine {
             logs: std::mem::take(&mut self.logs),
             audio_commands: std::mem::take(&mut self.audio_commands),
             speech_commands: std::mem::take(&mut self.speech_commands),
+            k4_media: if self.audio.browser {
+                self.k4_media.take_frame_output()
+            } else {
+                vec![]
+            },
             order: std::mem::take(&mut self.order_dirty).then(|| {
                 self.order
                     .iter()

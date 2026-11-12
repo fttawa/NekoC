@@ -205,6 +205,34 @@ fn midi_object_identity_serialization_and_numbered_key_boundaries() {
 }
 
 #[test]
+fn midi_outputs_are_carried_by_the_frame_for_browser_hosts() {
+    let mut vm = engine(
+        false,
+        false,
+        vec![start(vec![block(
+            "midi_play_num_note",
+            json!({}),
+            json!({"num_note":num(40.0),"beats":num(0.5)}),
+        )])],
+    );
+    // Browser/frame consumers do not call the compatibility take API.  Opt
+    // into the explicit frame-only contract so that queue cannot accumulate.
+    vm.use_browser_audio();
+    let frame = vm
+        .advance(1.0 / 60.0, 100_000, Duration::from_secs(1))
+        .unwrap();
+    assert_eq!(frame.k4_media.len(), 1);
+    let output = serde_json::to_value(&frame.k4_media).unwrap();
+    assert_eq!(output[0]["seconds"], 0.375);
+    assert!(vm.take_k4_media_output().is_empty());
+    let next = vm
+        .advance(1.0 / 60.0, 100_000, Duration::from_secs(1))
+        .unwrap();
+    assert!(next.k4_media.is_empty());
+    assert!(vm.take_k4_media_output().is_empty());
+}
+
+#[test]
 fn midi_objects_bypass_numeric_key_conversion_and_invalid_beats_do_not_wait() {
     for publish in [false, true] {
         for interpreted in [false, true] {

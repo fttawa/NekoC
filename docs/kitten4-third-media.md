@@ -130,11 +130,12 @@ kitten4.rs 只注册 `mod media_devices` 并在 lower_block early hook 调
 媒体回归包含合成 workspace/published、解释器/默认 JIT 双路径；最终统一验证结果见根目录交付报告。
 `tests/project-audio.test.mjs` 另验证 language 消费、旧帧 fallback 与 KN 隔离；不代表真实音色或语音服务实测。
 
-### 重要：当前 viewer 未接宿主 API
+### 当前 viewer 的媒体输出接线
 
-**本轮交付是 VM 语义与宿主边界，不是真实浏览器设备实现。**
+**本轮仍不宣称真实设备全等，但 K4 的媒体输出已经接入 Frame 和 Web viewer。**
 媒体 pending/output 尚未接入 Frame/viewer；现有 TTS 的 language 字段已接入。因此：
 
+- `Frame.k4_media` 发送 MIDI/录音播放/震动增量；Web viewer 通过 `use_browser_audio()` 使用 frame-only 契约，目前消费 MIDI 并使用本地 WebAudio 音源。它不等于官方钢琴 MP3 的音色或声学一致性。
 - headless `MediaOutput::Midi` 不会自动发声，PlayRecord 不会自行播放，Vibrate 不会振动。
 - 默认 camera=false 只复现失败路径；设为 true 后，如无人调用 complete API，脚本将一直等待。
 - 语音对话、识别与结果展示请求没有 viewer UI 来完成，仍会阻塞。不得为了让作品跑完自动填空/成功。
@@ -142,7 +143,7 @@ kitten4.rs 只注册 `mod media_devices` 并在 lower_block early hook 调
 - `set_speaking_language` 会设置 viewer 请求语言，但可用音色、发音质量与回调链依赖浏览器，保持 partial。
 - 即使 Rust 合成测试全部通过，也只证明 engine 公共 API 合同，不证明设备/browser parity。
 
-建议后续单独接入：Frame additive 输出媒体请求与命令；viewer 显示权限/录音/扫码 UI 并按 id 回包；
+仍需后续接入：viewer 显示权限/录音/扫码 UI 并按 id 回包；
 MIDI 钢琴键索引接合法自有音源；录音 token/URL 接播放；震动请求接 capability-checked navigator.vibrate；
 现有 TTS 语言字段已接线，不需要再重复添加。
 

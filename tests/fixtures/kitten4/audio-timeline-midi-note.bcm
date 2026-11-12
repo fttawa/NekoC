@@ -1,0 +1,352 @@
+{
+  "hidden_toolbox": {
+    "toolbox": [],
+    "blocks": []
+  },
+  "work_source_label": 1,
+  "version": 25,
+  "application_version": "4.11.20",
+  "work_type": "KITTEN",
+  "size": {
+    "width": 960,
+    "height": 720
+  },
+  "type": 1,
+  "project_name": "NekoC original K4 audio timeline midi-note",
+  "theatre": {
+    "current_entity": "20000000-0000-4000-8000-000000000001",
+    "current_scene": "10000000-0000-4000-8000-000000000001",
+    "scenes_order": [
+      "10000000-0000-4000-8000-000000000001"
+    ],
+    "scenes": {
+      "10000000-0000-4000-8000-000000000001": {
+        "id": "10000000-0000-4000-8000-000000000001",
+        "name": "Background A",
+        "styles": [
+          "background"
+        ],
+        "current_style_id": "background",
+        "x": 0,
+        "y": 0,
+        "scale": 100,
+        "rotation": 0,
+        "rotation_type": 0,
+        "draggable": false,
+        "visible": true,
+        "workspace_offset": {
+          "x": 40,
+          "y": 40
+        },
+        "block_data_json": {
+          "blocks": {},
+          "connections": {},
+          "comments": {}
+        },
+        "actors": [
+          "20000000-0000-4000-8000-000000000001"
+        ],
+        "screen_name": "Scene A",
+        "group_order": [
+          "group"
+        ]
+      }
+    },
+    "actors": {
+      "20000000-0000-4000-8000-000000000001": {
+        "id": "20000000-0000-4000-8000-000000000001",
+        "name": "Probe",
+        "styles": [
+          "costume-a"
+        ],
+        "current_style_id": "costume-a",
+        "x": 0,
+        "y": 0,
+        "scale": 100,
+        "rotation": 0.5235987755982988,
+        "rotation_type": 0,
+        "draggable": false,
+        "visible": false,
+        "workspace_offset": {
+          "x": 40,
+          "y": 40
+        },
+        "block_data_json": {
+          "blocks": {
+            "generated-1": {
+              "type": "start_on_click",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-1",
+              "parent_id": null,
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-2": {
+              "type": "midi_play_note",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "beats": ""
+              },
+              "fields": {
+                "note": "39"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-2",
+              "parent_id": "generated-1",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-3": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0.08"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-3",
+              "parent_id": "generated-2",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-4": {
+              "type": "variables_set",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "VALUE": ""
+              },
+              "fields": {
+                "VAR": "after"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "generated-4",
+              "parent_id": "generated-2",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-5": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "1"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-5",
+              "parent_id": "generated-4",
+              "location": [
+                0,
+                0
+              ]
+            }
+          },
+          "connections": {
+            "generated-1": {
+              "generated-2": {
+                "type": "next"
+              }
+            },
+            "generated-2": {
+              "generated-3": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "beats"
+              },
+              "generated-4": {
+                "type": "next"
+              }
+            },
+            "generated-3": {},
+            "generated-4": {
+              "generated-5": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "VALUE"
+              }
+            },
+            "generated-5": {}
+          },
+          "comments": {}
+        },
+        "scene": "10000000-0000-4000-8000-000000000001",
+        "lock": false,
+        "editable_in_tuition_mode": true,
+        "user_change_r_c": false
+      }
+    },
+    "groups": {
+      "group": {
+        "id": "group",
+        "name": "",
+        "is_fold": false,
+        "is_group": false,
+        "actors": [
+          "20000000-0000-4000-8000-000000000001"
+        ],
+        "scene": "10000000-0000-4000-8000-000000000001",
+        "visible": true
+      }
+    },
+    "styles": {
+      "background": {
+        "id": "background",
+        "name": "background",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NjAiIGhlaWdodD0iNzIwIj48cmVjdCB3aWR0aD0iOTYwIiBoZWlnaHQ9IjcyMCIgZmlsbD0iI2Q4ZTdmMCIvPjwvc3ZnPg==",
+        "rotate_center": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "costume-a": {
+        "id": "costume-a",
+        "name": "asymmetric",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MCIgaGVpZ2h0PSI0MCI+PHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjZTg0MDMwIi8+PHJlY3Qgd2lkdGg9IjIwIiBoZWlnaHQ9IjE1IiBmaWxsPSIjMjBiMDYwIi8+PC9zdmc+",
+        "rotate_center": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    },
+    "videos": {},
+    "timer": {}
+  },
+  "variables": {
+    "after": {
+      "id": "after",
+      "name": "after",
+      "value": 0,
+      "is_global": true
+    },
+    "stopped": {
+      "id": "stopped",
+      "name": "stopped",
+      "value": 0,
+      "is_global": true
+    }
+  },
+  "variable_order": [
+    "after",
+    "stopped"
+  ],
+  "cloud_variables": {},
+  "audio": {
+    "71000000-0000-4000-8000-000000000001": {
+      "id": "71000000-0000-4000-8000-000000000001",
+      "name": "Tone A",
+      "url": "data:audio/wav;base64,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",
+      "volume": 0.4,
+      "playback_rate": 1
+    },
+    "71000000-0000-4000-8000-000000000002": {
+      "id": "71000000-0000-4000-8000-000000000002",
+      "name": "Tone B",
+      "url": "data:audio/wav;base64,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",
+      "volume": 0.4,
+      "playback_rate": 1
+    }
+  },
+  "audio_order": [
+    "71000000-0000-4000-8000-000000000001",
+    "71000000-0000-4000-8000-000000000002"
+  ],
+  "midimusic": [],
+  "midi_order": [],
+  "matrix": {},
+  "models": {},
+  "toolbox": {
+    "current_type": "event",
+    "pen": false
+  },
+  "toolbox_order": [
+    "event",
+    "control",
+    "action",
+    "appearance",
+    "sensing",
+    "operator",
+    "data"
+  ],
+  "last_toolbox_order": [],
+  "hardware_type": "",
+  "is_partial": false,
+  "ai_lab": {},
+  "broadcasts": {},
+  "painter": {
+    "color": []
+  }
+}
