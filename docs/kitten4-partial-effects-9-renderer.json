@@ -1,7 +1,7 @@
 {
   "schema": "nekoc-k4-partial-effects-9-renderer-v1",
   "scope": "shader isolation only: native official getters feed NekoC renderer, NOT NekoC VM evidence; full canvas, no masks, tolerance 8",
-  "rendererLfSha256": "b834bea3f26c08607ac690af6b131bd0ca66307419404c0a12accf6ba418343a",
+  "rendererLfSha256": "fb4919eecfc4c4dedbb9db00502e520c4675f4da4ab71d9d4d528c6aadec1b44",
   "cases": {
     "all-no-ripple": {
       "sha256": "2f376a635a52b5b35bf800a3eb4086e5a7eaf176705ebbbc3d38bdbe95ab5713",
@@ -2129,14 +2129,14 @@
           "sha256": "4164d67795238f64d035f473418236038ae475ae36032a967cba16ede263735f"
         },
         {
-          "name": "vendors.d00f4bd454a6352e9d71.js",
-          "source": "vendors.d00f4bd454a6352e9d71.js",
-          "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
-        },
-        {
           "name": "player_v2.2d180c468559fbd29528.js",
           "source": "player_v2.2d180c468559fbd29528.js.orig",
           "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160"
+        },
+        {
+          "name": "vendors.d00f4bd454a6352e9d71.js",
+          "source": "vendors.d00f4bd454a6352e9d71.js",
+          "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
         },
         {
           "name": "9.c396696e9dc71e25b012.js",
@@ -2827,14 +2827,14 @@
           "sha256": "4164d67795238f64d035f473418236038ae475ae36032a967cba16ede263735f"
         },
         {
-          "name": "vendors.d00f4bd454a6352e9d71.js",
-          "source": "vendors.d00f4bd454a6352e9d71.js",
-          "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
-        },
-        {
           "name": "player_v2.2d180c468559fbd29528.js",
           "source": "player_v2.2d180c468559fbd29528.js.orig",
           "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160"
+        },
+        {
+          "name": "vendors.d00f4bd454a6352e9d71.js",
+          "source": "vendors.d00f4bd454a6352e9d71.js",
+          "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
         },
         {
           "name": "9.c396696e9dc71e25b012.js",

@@ -508,9 +508,10 @@ void main(){vec2 p=vec2(uv.x,1.-uv.y)*extent;vec2 d=p-extent*.5;float r=length(d
     if(frame.removed?.length){const gone=new Set(frame.removed);this.sprites=this.sprites.filter(a=>!gone.has(a.id));this.spriteIndices=new Map(this.sprites.map((a,i)=>[a.id,i]));changed=true;}
     if(Array.isArray(frame.order)){this.actorOrder=frame.order;changed=true;}
     for(const a of frame.sprites){
+      if(a.soft_mesh!=null)validateSoftMesh(a.soft_mesh);
       if(a.id===this.sceneId){changed ||= a.style!==this.backdrop||JSON.stringify(a)!==JSON.stringify(this.backgroundState);this.backdrop=a.style;this.backgroundState=a;continue;}
       const index=this.spriteIndices.get(a.id),old=index===undefined?null:this.sprites[index];
-      changed ||= !old||['style','x','y','direction','scale','visible','opacity','size_x','size_y','rotation_type'].some(k=>a[k]!==old[k])||String(a.effects)!==String(old.effects);
+      changed ||= !old||['style','x','y','direction','scale','visible','opacity','size_x','size_y','rotation_type'].some(k=>a[k]!==old[k])||String(a.effects)!==String(old.effects)||JSON.stringify(a.soft_mesh)!==JSON.stringify(old.soft_mesh);
       if(index===undefined){this.spriteIndices.set(a.id,this.sprites.length);this.sprites.push(a);}else this.sprites[index]=a;
     }
     this.changed = changed || !!frame.clear || lines.length>0 || stamps.length>0;
@@ -610,7 +611,7 @@ void main(){vec2 p=vec2(uv.x,1.-uv.y)*extent;vec2 d=p-extent*.5;float r=length(d
     gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,canvas);
     const rgba=ctx.getImageData(0,0,canvas.width,canvas.height).data,alpha=new Uint8Array(canvas.width*canvas.height);
     for(let i=0;i<alpha.length;i++)alpha[i]=rgba[i*4+3];
-    item={texture,width:canvas.width,height:canvas.height,alpha};
+    item={texture,source:canvas,width:canvas.width,height:canvas.height,alpha};
     this.spriteTexts.set(key,item);
     if(this.spriteTexts.size>256){const [oldKey,old]=this.spriteTexts.entries().next().value;gl.deleteTexture(old.texture);this.spriteTexts.delete(oldKey);}
     return item;
@@ -736,6 +737,30 @@ void main(){vec2 p=vec2(uv.x,1.-uv.y)*extent;vec2 d=p-extent*.5;float r=length(d
     gl.uniform2f(u.texSize,texSize?.[0]||Math.abs(width)||1,texSize?.[1]||Math.abs(height)||1);
     gl.uniform2f(u.repeatUV,repeatUV?.[0]||0,repeatUV?.[1]||0);
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,texture); gl.drawArrays(gl.TRIANGLES,0,6); this.stats.drawCalls++;
+  }
+
+  drawSoftMesh(a,image){
+    const mesh=a.soft_mesh;
+    if(!mesh.triangles.length||!mesh.vertices.length)return;
+    const sx=this.canvas.width/this.width,sy=this.canvas.height/this.height;
+    let left=Infinity,right=-Infinity,top=Infinity,bottom=-Infinity;
+    for(const [x,y]of mesh.vertices){const px=(this.width/2+x)*sx,py=(this.height/2-y)*sy;left=Math.min(left,px);right=Math.max(right,px);top=Math.min(top,py);bottom=Math.max(bottom,py);}
+    left=Math.floor(left)-1;right=Math.ceil(right)+1;top=Math.floor(top)-1;bottom=Math.ceil(bottom)+1;
+    // Keep offstage geometry in the filter input, as with ordinary sprites.
+    const pad=a.effects?.[5]>0?20*Math.max(sx,sy):0;
+    if(right+pad<=0||bottom+pad<=0||left-pad>=this.canvas.width||top-pad>=this.canvas.height)return;
+    const gl=this.gl,limit=gl.getParameter(gl.MAX_TEXTURE_SIZE);
+    if(right-left>limit||bottom-top>limit)throw Error('Soft mesh exceeds GPU texture limit');
+    const canvas=this.softCanvas??=document.createElement('canvas');
+    canvas.width=right-left;canvas.height=bottom-top;
+    const ctx=canvas.getContext('2d');
+    drawSoftMeshTriangles(ctx,image.source,mesh,sx,sy,this.canvas.width/2-left,this.canvas.height/2-top);
+    const texture=this.softTexture??=this.makeTexture(1,1);
+    gl.bindTexture(gl.TEXTURE_2D,texture);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,true);
+    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,canvas);
+    // Effects operate on the deformed raster. This is an independent partial
+    // implementation, not a claim of official triangle-edge/subpixel parity.
+    this.drawTexture(texture,(left+right)/2/sx-this.width/2,this.height/2-(top+bottom)/2/sy,canvas.width/sx,canvas.height/sy,0,[1,1,1,a.opacity??1],a.effects,[canvas.width,canvas.height],null,{x:a.x,y:a.y});
   }
 
   drawK4SpatialTexture(texture,x,y,width,height,angle,tint,e,texSize,repeatUV,filterCenter){
@@ -885,6 +910,7 @@ void main(){vec2 p=vec2(uv.x,1.-uv.y)*extent;vec2 d=p-extent*.5;float r=length(d
       const a=sprites[spriteIndices.get(actorOrder[i])];if(!a)continue;
       if(!a.visible)continue;
       const image=this.spriteImage(a);
+      if(image&&a.soft_mesh&&image.source){this.drawSoftMesh(a,image);continue;}
       if(image){const {x,y,width,height,angle}=actorGeometry(a,image,this.kitten4);
         this.drawTexture(image.texture,x,y,width,height,angle,[1,1,1,a.opacity??1],a.effects,[image.width,image.height],null,{x:a.x,y:a.y});}
     }
@@ -898,6 +924,11 @@ void main(){vec2 p=vec2(uv.x,1.-uv.y)*extent;vec2 d=p-extent*.5;float r=length(d
       // the ghost-effect opacity (docs/input.md and docs/input-kn.md).
       if(!a?.visible||!a.scale)continue;
       const image=this.spriteImage(a);if(!image)continue;
+      if(a.soft_mesh){
+        const uv=softMeshUVAt(a.soft_mesh,x,y,image);
+        if(uv)return a.id;
+        continue;
+      }
       const {x:cx,y:cy,width,height,angle}=actorGeometry(a,image,this.kitten4);if(!width||!height||![cx,cy,width,height,angle].every(Number.isFinite))continue;
       const c=Math.cos(angle),s=Math.sin(angle),dx=x-cx,dy=y-cy;
       const px=Math.floor((c*dx-s*dy)*image.width/width+image.width/2),py=Math.floor(image.height/2-(s*dx+c*dy)*image.height/height);
@@ -908,6 +939,53 @@ void main(){vec2 p=vec2(uv.x,1.-uv.y)*extent;vec2 d=p-extent*.5;float r=length(d
 }
 
 const NO_EFFECTS=[0,0,0,0,0,0,0];
+
+// The mesh wire is additive: old frames need no field; an omitted field in a
+// later complete sprite snapshot removes the deformation. Bound allocations and
+// reject malformed indices before any Canvas/GPU work.
+export function validateSoftMesh(mesh){
+  if(!mesh||!Array.isArray(mesh.vertices)||mesh.vertices.length>65536||
+    !Array.isArray(mesh.triangles)||mesh.triangles.length>131072||
+    !mesh.vertices.every(v=>Array.isArray(v)&&v.length===4&&v.every(Number.isFinite)&&Math.abs(v[0])<=1e9&&Math.abs(v[1])<=1e9&&v[2]>=0&&v[2]<=1&&v[3]>=0&&v[3]<=1)||
+    !mesh.triangles.every(t=>Array.isArray(t)&&t.length===3&&t.every(i=>Number.isInteger(i)&&i>=0&&i<mesh.vertices.length)))throw Error('损坏的柔体网格');
+  return mesh;
+}
+
+// Original Canvas2D affine texture mapping. UVs are top-left based, while world
+// y is up. Clip in destination pixels before mapping source pixels onto it.
+// Degenerate UV/world triangles have no renderable area and are skipped.
+export function drawSoftMeshTriangles(ctx,source,mesh,sx=1,sy=1,ox=0,oy=0){
+  for(const triangle of mesh.triangles){
+    const p=triangle.map(i=>mesh.vertices[i]);
+    const [a,b,c]=p.map(([x,y,u,v])=>[ox+x*sx,oy-y*sy,u*source.width,v*source.height]);
+    const u1=b[2]-a[2],v1=b[3]-a[3],u2=c[2]-a[2],v2=c[3]-a[3],det=u1*v2-u2*v1;
+    const x1=b[0]-a[0],y1=b[1]-a[1],x2=c[0]-a[0],y2=c[1]-a[1];
+    if(Math.abs(det)<1e-12||Math.abs(x1*y2-x2*y1)<1e-12)continue;
+    const m0=(x1*v2-x2*v1)/det,m1=(y1*v2-y2*v1)/det;
+    const m2=(x2*u1-x1*u2)/det,m3=(y2*u1-y1*u2)/det;
+    ctx.save();
+    try{
+      ctx.setTransform(1,0,0,1,0,0);ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.lineTo(c[0],c[1]);ctx.closePath();ctx.clip();
+      ctx.setTransform(m0,m1,m2,m3,a[0]-m0*a[2]-m2*a[3],a[1]-m1*a[2]-m3*a[3]);ctx.drawImage(source,0,0);
+    }finally{ctx.restore();}
+  }
+}
+
+// Barycentric hit testing follows deformed triangles, not the old sprite quad.
+// Inspect all overlapping triangles so transparent texels pass through.
+export function softMeshUVAt(mesh,x,y,image){
+  for(let i=mesh.triangles.length-1;i>=0;i--){
+    const [a,b,c]=mesh.triangles[i].map(index=>mesh.vertices[index]);
+    const bx=b[0]-a[0],by=b[1]-a[1],cx=c[0]-a[0],cy=c[1]-a[1],det=bx*cy-cx*by;
+    if(Math.abs(det)<1e-12)continue;
+    const dx=x-a[0],dy=y-a[1],s=(dx*cy-cx*dy)/det,t=(bx*dy-dx*by)/det;
+    if(s<0||t<0||s+t>1)continue;
+    const u=a[2]+s*(b[2]-a[2])+t*(c[2]-a[2]),v=a[3]+s*(b[3]-a[3])+t*(c[3]-a[3]);
+    const px=Math.min(image.width-1,Math.max(0,Math.floor(u*image.width))),py=Math.min(image.height-1,Math.max(0,Math.floor(v*image.height)));
+    if(image.alpha[py*image.width+px]>0)return [u,v];
+  }
+  return null;
+}
 // RGB at the centre of each costume-info cell (same <=128x128 grid as the mask).
 function cellColors(rgba,width,height){
   const mw=Math.min(width,128),mh=Math.min(height,128),out=new Uint8Array(mw*mh*3);

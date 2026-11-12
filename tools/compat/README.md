@@ -166,6 +166,10 @@ K4 partial 第二轮的 41 份仓库原创离线探针与保留边界：
 [ASCII最终投影](../../docs/kitten4-partial-effects-9.md)、
 [shake显式原点](../../docs/kitten4-shake-9.md)。本轮保持54项partial，不将负例升级。
 
+soft 后续进展见[粒子近似与逐帧误差](../../docs/kitten4-soft.md)及
+[矩形首帧零步长阻塞的 CDP 实测](../../docs/kitten4-soft-blocked-investigation.md)。
+粒子/渲染网格通道不等于官方形变兼容，相关两项仍为 partial。
+
 ## 联网、安全与未验证范围
 
 默认外部 HTTP、WebSocket、Service Worker 均禁用；记录所有外部请求的方法、URL、类型和动作。

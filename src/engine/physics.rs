@@ -78,6 +78,50 @@ mod tests {
     }
 
     #[test]
+    fn soft_frame_end_pose_disable_and_failed_rebuild_refresh_mesh_and_sensor() {
+        let mut e = engine();
+        let id = e.sprites[1].style.clone().unwrap();
+        e.sprites[1].rotation_type = 0;
+        e.set_costume(
+            &id,
+            Costume {
+                width: 72.0,
+                height: 72.0,
+                mask: Some((8, 8, vec![255; 8])),
+                ..Default::default()
+            },
+        );
+        command(&mut e, 1, Command::Soft, [0.0; 3]);
+        e.synchronize_soft_physics_geometry();
+        let before = e.physics_soft_mesh(1).unwrap().vertices[0];
+        e.sprites[1].x += 123.0;
+        e.sprites[1].y -= 45.0;
+        e.synchronize_soft_physics_geometry();
+        let after = e.physics_soft_mesh(1).unwrap().vertices[0];
+        assert!((after[0] - before[0] - 123.0).abs() < 1e-9);
+        assert!((after[1] - before[1] + 45.0).abs() < 1e-9);
+        e.sprites[1].visible = false;
+        e.sprites[1].scale = 0.0;
+        e.synchronize_soft_physics_geometry();
+        assert!(e.physics_soft_mesh(1).is_none());
+        let world = &e.physics.as_ref().unwrap().worlds[&e.sprites[1].scene];
+        assert!(!world.colliders[world.actors[&1].collider].is_sensor());
+        e.sprites[1].visible = true;
+        e.sprites[1].scale = 100.0;
+        e.synchronize_soft_physics_geometry();
+        assert!(e.physics_soft_mesh(1).is_some());
+        e.sprites[1].flip_x = true;
+        e.synchronize_soft_physics_geometry();
+        assert!(e.physics_soft_mesh(1).is_none());
+        e.sprites[1].flip_x = false;
+        e.synchronize_soft_physics_geometry();
+        assert!(e.physics_soft_mesh(1).is_some());
+        command(&mut e, 1, Command::Hard, [0.0; 3]);
+        let world = &e.physics.as_ref().unwrap().worlds[&e.sprites[1].scene];
+        assert!(!world.colliders[world.actors[&1].collider].is_sensor());
+    }
+
+    #[test]
     fn legacy_velocity_does_not_allocate_and_checks_finite_before_scene_error() {
         let mut e = engine();
         command(&mut e, 1, Command::LegacyVelocity, [99.0, 0.0, 0.0]);
@@ -782,9 +826,10 @@ struct Body {
     shape: (Option<String>, f64, f64),
     forces: Vec<(u64, Vector<f64>)>,
     // Official adapter keeps this on rigid actors too. It only changes the
-    // particle group when an elastic body actually exists (not implemented).
+    // particle group when an elastic body actually exists.
     strength: f64,
     soft: soft::Lifecycle,
+    particles: Option<soft::Particles>,
 }
 #[derive(Default)]
 struct Filters(BTreeSet<(usize, usize)>, BTreeSet<usize>);
@@ -992,7 +1037,8 @@ impl World {
                 }
                 body.set_body_type(kind, true);
             }
-            self.colliders[b.collider].set_sensor(b.forceable && !b.collidable);
+            self.colliders[b.collider]
+                .set_sensor(b.particles.is_some() || (b.forceable && !b.collidable));
         }
     }
 }
@@ -1190,6 +1236,7 @@ impl Engine {
                 forces: vec![],
                 strength: 2.5,
                 soft: soft::Lifecycle::default(),
+                particles: None,
             },
         );
     }
@@ -1343,8 +1390,8 @@ impl Engine {
             Command::LegacyMass => Command::Mass,
             other => other,
         };
-        // The soft solver is still a rigid fallback, but texture idempotence
-        // and geometry-rebuild velocity loss are tracked independently below.
+        // Particle allocation is deferred to the frame-end geometry hook so a
+        // same-script velocity command supplies the initial group velocity.
         let scene = self.sprites[actor].scene;
         let world = self
             .physics
@@ -1365,10 +1412,16 @@ impl Engine {
         };
         match command {
             Command::Soft | Command::Hard => {
+                self.dirty[actor] = true;
                 state.soft.set_elastic(
                     matches!(command, Command::Soft),
                     self.sprites[actor].visible && (state.forceable || state.collidable),
                 );
+                if matches!(command, Command::Hard) {
+                    state.particles = None;
+                    world.colliders[state.collider]
+                        .set_sensor(state.forceable && !state.collidable);
+                }
             }
             Command::Forceable(enabled) => {
                 // Adapter flags are synchronous, but update_body_state applies
@@ -1531,6 +1584,13 @@ impl Engine {
             }
             _ => {}
         }
+        if matches!(
+            command,
+            Command::Speed | Command::LegacyVelocity | Command::LegacyVelocityVector
+        ) && let Some(particles) = &mut state.particles
+        {
+            particles.set_velocity(*world.bodies[state.handle].linvel());
+        }
         Ok(None)
     }
     pub(super) fn physics_property(&mut self, actor: usize, property: Property) -> f64 {
@@ -1602,6 +1662,10 @@ impl Engine {
                     body.set_position(position, true);
                 }
                 let new_signature = signature(a);
+                if !soft_geometry_supported(self, actor) {
+                    b.particles = None;
+                    w.colliders[b.collider].set_sensor(b.forceable && !b.collidable);
+                }
                 if b.soft
                     .synchronize(body.is_enabled(), b.shape != new_signature)
                 {
@@ -1609,6 +1673,13 @@ impl Engine {
                     // a texture-mode switch it does not transfer old velocities.
                     // Do not claim this rigid fallback reproduces deformation.
                     soft_rebuilds.insert(actor);
+                }
+                if let Some(particles) = &mut b.particles {
+                    if !body.is_enabled() {
+                        b.particles = None;
+                    } else {
+                        particles.transform(position);
+                    }
                 }
                 if b.shape != new_signature {
                     w.colliders[b.collider].set_shape(geometry(self, actor));
@@ -1634,6 +1705,9 @@ impl Engine {
             while w.remainder + 1e-10 >= STEP {
                 for b in w.actors.values_mut() {
                     let body = &mut w.bodies[b.handle];
+                    if b.particles.is_some() {
+                        continue;
+                    }
                     if body.is_enabled() && body.is_dynamic() && !body.is_sleeping() {
                         // Pcni/Island.Solve integrates forces once, then caps
                         // translation to 2 physics units (20px), rotation pi/2.
@@ -1687,6 +1761,48 @@ impl Engine {
                         w.bodies[handle].set_linvel(velocity, false);
                     }
                 }
+                for (&actor, state) in &mut w.actors {
+                    let Some(particles) = &mut state.particles else {
+                        continue;
+                    };
+                    self.dirty[actor] = true;
+                    let body = &w.bodies[state.handle];
+                    let gravity = w.gravity
+                        + body
+                            .user_force()
+                            .component_mul(&body.mass_properties().effective_inv_mass);
+                    particles.step(STEP, gravity, state.strength, |_, point, velocity| {
+                        for (handle, collider) in w.colliders.iter() {
+                            let other = collider.user_data as usize;
+                            if handle == state.collider
+                                || !collider.is_enabled()
+                                || collider.is_sensor()
+                                || w.filters.0.contains(&(actor, other))
+                                || w.filters.0.contains(&(other, actor))
+                            {
+                                continue;
+                            }
+                            let pose = Isometry::translation(point.x, point.y);
+                            if let Ok(Some(contact)) = rapier2d_f64::parry::query::contact(
+                                &pose,
+                                &Ball::new(1.2),
+                                collider.position(),
+                                collider.shape(),
+                                0.0,
+                            ) {
+                                let normal = contact.normal1.into_inner();
+                                *point += normal * contact.dist;
+                                let inward = velocity.dot(&normal);
+                                if inward > 0.0 {
+                                    *velocity -= normal * inward;
+                                }
+                            }
+                        }
+                    });
+                    let body = &mut w.bodies[state.handle];
+                    body.set_position(particles.pose, false);
+                    body.set_linvel(particles.velocity(), false);
+                }
                 for b in w.actors.values_mut() {
                     w.bodies[b.handle].reset_forces(false);
                     // An actor-ticker force becomes visible to the next world
@@ -1710,9 +1826,11 @@ impl Engine {
             // Soft reconstruction belongs to the actor ticker after the last
             // world integration, as observed at rebuild fixture update 31.
             for actor in soft_rebuilds {
-                let body = &mut w.bodies[w.actors[&actor].handle];
+                let state = w.actors.get_mut(&actor).unwrap();
+                let body = &mut w.bodies[state.handle];
                 body.set_linvel(Vector::zeros(), true);
                 body.set_angvel(0.0, true);
+                state.particles = soft_particles(self, actor, *body.position(), Vector::zeros());
             }
             w.synchronize_body_types();
             for (&actor, b) in &w.actors {
@@ -1816,7 +1934,7 @@ impl Engine {
         let b = w.actors.get(&other)?;
         Some(hit(b.collider))
     }
-    /// Diagnostic lifecycle only. No particle/deformation compatibility claim.
+    /// Diagnostic state; the approximation is not certified as LiquidFun equal.
     pub fn physics_soft_snapshot(&self, actor: usize) -> Option<Value> {
         self.physics
             .as_ref()?
@@ -1824,7 +1942,30 @@ impl Engine {
             .get(&self.sprites.get(actor)?.scene)?
             .actors
             .get(&actor)
-            .map(|body| body.soft.snapshot())
+            .map(|body| {
+                let mut snapshot = body.soft.snapshot();
+                if let Some(particles) = &body.particles {
+                    snapshot["model"] = Value::from("particle-approximation");
+                    snapshot["deformationImplemented"] = Value::from(true);
+                    snapshot["certification"] = Value::from("partial");
+                    snapshot["particles"] = particles.snapshot();
+                }
+                snapshot
+            })
+    }
+    pub fn physics_soft_mesh(&self, actor: usize) -> Option<super::SoftMesh> {
+        let sprite = self.sprites.get(actor)?;
+        if !sprite.visible || !sprite.alive || !soft_geometry_supported(self, actor) {
+            return None;
+        }
+        let state = self
+            .physics
+            .as_ref()?
+            .worlds
+            .get(&sprite.scene)?
+            .actors
+            .get(&actor)?;
+        Some(state.particles.as_ref()?.mesh())
     }
     /// Scripts mutate geometry after the world ticker has integrated. Mirror
     /// the observed same-update change listener without another world step.
@@ -1841,6 +1982,16 @@ impl Engine {
                 let next = signature(sprite);
                 let enabled =
                     sprite.alive && sprite.visible && (state.forceable || state.collidable);
+                let pose = Isometry::new(
+                    vector![sprite.x / PIXELS, sprite.y / PIXELS],
+                    (90.0 - sprite.direction).to_radians(),
+                );
+                world.bodies[state.handle].set_position(pose, true);
+                if !enabled || !soft_geometry_supported(self, actor) {
+                    state.particles = None;
+                } else if let Some(particles) = &mut state.particles {
+                    particles.transform(pose);
+                }
                 if state.soft.synchronize(enabled, state.shape != next) {
                     world.colliders[state.collider].set_shape(geometry(self, actor));
                     let body = &mut world.bodies[state.handle];
@@ -1848,9 +1999,62 @@ impl Engine {
                     body.set_linvel(Vector::zeros(), true);
                     body.set_angvel(0.0, true);
                     state.shape = next;
+                    state.particles = None;
                 }
+                if enabled && state.particles.is_none() {
+                    let body = &world.bodies[state.handle];
+                    state.particles = soft_particles(self, actor, *body.position(), *body.linvel());
+                    if state.particles.is_some() {
+                        world.colliders[state.collider].set_sensor(true);
+                    }
+                }
+                world.colliders[state.collider].set_sensor(
+                    state.particles.is_some() || (state.forceable && !state.collidable),
+                );
             }
         }
         self.physics = Some(physics);
     }
+}
+
+fn soft_particles(
+    engine: &Engine,
+    actor: usize,
+    pose: Isometry<f64>,
+    velocity: Vector<f64>,
+) -> Option<soft::Particles> {
+    let sprite = &engine.sprites[actor];
+    if !soft_geometry_supported(engine, actor) {
+        return None;
+    }
+    let costume = sprite
+        .style
+        .as_ref()
+        .and_then(|id| engine.program.costumes.get(id))?;
+    soft::Particles::new(
+        Some(costume),
+        [
+            sprite.scale * sprite.size_x / 100000.0,
+            sprite.scale * sprite.size_y / 100000.0,
+        ],
+        pose,
+        velocity,
+    )
+}
+
+fn soft_geometry_supported(engine: &Engine, actor: usize) -> bool {
+    let sprite = &engine.sprites[actor];
+    // Unsupported local-coordinate policies explicitly retain the old fallback
+    // rather than attaching a mirrored/pivoted texture to the wrong silhouette.
+    !(sprite.flip_x
+        || sprite.flip_y
+        || sprite.rotation_type != 0
+        || sprite.scale <= 0.0
+        || sprite.size_x <= 0.0
+        || sprite.size_y <= 0.0
+        || sprite
+            .style
+            .as_ref()
+            .and_then(|id| engine.program.costumes.get(id))
+            .is_none_or(|costume| costume.center_point != [0.0; 2]))
 }

@@ -33,6 +33,9 @@ struct Args {
     block_filter: Vec<String>,
     #[arg(long)]
     interpreter: bool,
+    /// Include live soft particle diagnostics; never used to drive simulation.
+    #[arg(long)]
+    soft: bool,
     /// Include the canonical project and actual web renderer frame deltas.
     #[arg(long)]
     render: bool,
@@ -244,7 +247,19 @@ fn main() -> Result<()> {
             "frame {frame} exceeded execution budget"
         );
         if !args.render_only {
-            frames.push(engine.oracle_snapshot(frame));
+            let mut snapshot = engine.oracle_snapshot(frame);
+            if args.soft {
+                let soft: Vec<_> = (0..engine.program.sprites.len())
+                    .filter_map(|actor| {
+                        engine
+                            .physics_soft_snapshot(actor)
+                            .map(|state| (actor.to_string(), state))
+                    })
+                    .collect();
+                snapshot["soft"] =
+                    serde_json::to_value(soft.into_iter().collect::<serde_json::Map<_, _>>())?;
+            }
+            frames.push(snapshot);
         }
         if args.render {
             render_frames.push(json!({"frame": update, "lines": update.lines}));

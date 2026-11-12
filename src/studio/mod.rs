@@ -4,3 +4,6 @@ pub mod player;
 
 #[cfg(feature = "studio")]
 pub mod app;
+
+#[cfg(feature = "studio")]
+mod renderer;

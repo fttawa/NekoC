@@ -497,6 +497,14 @@ enum PenLayer {
     Relative(usize, bool),
 }
 
+/// Optional deformable costume geometry on the frame wire. Positions use the
+/// same world pixels as Sprite x/y (y up); UV (0,0) is the costume's top left.
+#[derive(Clone, Debug, Serialize, serde::Deserialize)]
+pub struct SoftMesh {
+    pub vertices: Vec<[f64; 4]>,
+    pub triangles: Vec<[usize; 3]>,
+}
+
 #[derive(Clone, Debug, Serialize)]
 pub struct Sprite {
     pub id: String,
@@ -526,6 +534,9 @@ pub struct Sprite {
     /// Text the sprite is rendered as (self_text_effect_text), replacing its costume.
     /// Always serialized so leaving text mode reaches the renderer as `null`.
     pub text: Option<SpriteText>,
+    /// Rendering-only snapshot; the VM's stored sprites keep this unset.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub soft_mesh: Option<SoftMesh>,
     #[serde(skip)]
     styles: Vec<String>,
     /// Standard KN camp or the exact K4 group string; copied on clone.
@@ -1327,6 +1338,7 @@ impl Program {
                 dialog: None,
                 draggable: false,
                 text: None,
+                soft_mesh: None,
                 styles: owner_styles(scene_value),
                 camp: RoleCamp::Standard(0),
                 text_style: (36.0, 0),
@@ -1376,6 +1388,7 @@ impl Program {
                     dialog: None,
                     draggable: actor["draggable"].as_bool().unwrap_or(false),
                     text: None,
+                    soft_mesh: None,
                     styles: owner_styles(actor),
                     // The K4 project loader does not restore a serialized actor
                     // group; only the runtime setter assigns one (camp-4 probes).
@@ -5294,6 +5307,34 @@ impl Engine {
             + self.kn_timers.len()
             + usize::from(self.scene_activation.is_some())
     }
+    /// Full native-preview render observation, in active-scene painter order.
+    /// Unlike advance(), this does not step physics, consume deltas, or clear
+    /// dirty flags. World-space soft vertices must not receive a sprite transform.
+    pub(crate) fn studio_render_snapshot(&self) -> (String, String, Vec<Sprite>) {
+        let sprites = self
+            .order
+            .iter()
+            .copied()
+            .filter_map(|actor| {
+                let sprite = &self.sprites[actor];
+                if !sprite.alive || sprite.stage || sprite.scene != self.current_scene {
+                    return None;
+                }
+                let mut drawn = sprite.clone();
+                drawn.direction -= self.program.costume_turn;
+                if drawn.flip_x {
+                    drawn.size_x = -drawn.size_x;
+                }
+                if drawn.flip_y {
+                    drawn.size_y = -drawn.size_y;
+                }
+                drawn.soft_mesh = self.physics_soft_mesh(actor);
+                Some(drawn)
+            })
+            .collect();
+        let scene = &self.program.scenes[self.current_scene];
+        (scene.id.clone(), scene.name.clone(), sprites)
+    }
     /// Scene-bound K4 tasks and KN when tasks suspend outside their scene.
     /// K4 global Start remains runnable regardless of its owner's scene.
     fn task_active(&self, task: &Task) -> bool {
@@ -8553,7 +8594,8 @@ impl Engine {
             .sprites
             .iter()
             .zip(&mut self.dirty)
-            .filter_map(|(a, dirty)| {
+            .enumerate()
+            .filter_map(|(actor, (a, dirty))| {
                 if !*dirty || (a.scene != scene && a.alive) {
                     return None;
                 }
@@ -8575,8 +8617,16 @@ impl Engine {
                     if a.flip_y {
                         drawn.size_y = -drawn.size_y;
                     }
-                    drawn
+                    (actor, drawn)
                 })
+            })
+            .collect::<Vec<_>>();
+        // End the mutable dirty-field borrow before asking physics for geometry.
+        let sprites = sprites
+            .into_iter()
+            .map(|(actor, mut drawn)| {
+                drawn.soft_mesh = self.physics_soft_mesh(actor);
+                drawn
             })
             .collect();
         self.flush_cloud()?;
