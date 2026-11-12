@@ -29,13 +29,6 @@ fn transition_completion_changes_running_group_after_strict_endpoint() {
             let actual = engine.oracle_snapshot((index + 1) as u32);
             assert_eq!(actual["current_scene_id"], expected["current_scene_id"]);
             for key in ["tail", "activated", "oldTicks", "newTicks"] {
-                // Existing no-transition start/activation ordering is a known
-                // negative; don't silently bless it or change the common scheduler.
-                if name == "none-left" && key == "oldTicks" {
-                    assert_eq!(actual["variables"][key].as_f64(), Some(1.0));
-                    assert_eq!(expected["variables"][key].as_f64(), Some(0.0));
-                    continue;
-                }
                 assert_eq!(
                     actual["variables"][key].as_f64(),
                     expected["variables"][key].as_f64(),

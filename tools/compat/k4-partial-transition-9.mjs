@@ -42,8 +42,8 @@ export async function transition9Fixtures(){
   }return cases;
 }
 
-export async function recordTransition9(name,project){
-  const source=await readFile('web/renderer.js','utf8'),pen=await readFile('web/pen-k4.js','utf8'),pixels=[],events=[];
+export async function recordTransition9(name,project,{rendererSource,onInspect,initialFrame,targetFrame}={}){
+  const source=rendererSource??await readFile('web/renderer.js','utf8'),pen=await readFile('web/pen-k4.js','utf8'),pixels=[],events=[];
   const {observations,trace}=await recordPartialTransition3(project,{
     beforeStart:async page=>{
       await page.route('**/transition9-renderer.js',r=>r.fulfill({contentType:'application/javascript',body:source}));
@@ -61,18 +61,20 @@ export async function recordTransition9(name,project){
         const scenes=stage.core.scenes,original=scenes.set_one_scene_visible;
         scenes.set_one_scene_visible=function(id){window.__transition9Events.push({phase:'ticker-completion',ms:window.__transitionNow,id});return original.call(this,id);};
       },project);
+      if(initialFrame)await page.evaluate(frame=>window.__transition9Renderer.apply(frame,new Float32Array()),initialFrame);
     },
     onSample:async(page,frame)=>{
-      pixels.push(await page.evaluate(({frame,name,scenes})=>{
+      await onInspect?.(page,frame);
+      pixels.push(await page.evaluate(({frame,name,scenes,targetFrame})=>{
         const [kind,direction]=name.split('-'),r=window.__transition9Renderer;
-        if(frame===1)r.apply({scene:scenes[1],transition:{kind,direction},sprites:[],order:[]},new Float32Array());else{r.dirty=true;r.render();}
+        if(frame===1)r.apply({scene:scenes[1],transition:{kind,direction},sprites:[],order:[],...targetFrame},new Float32Array());else{r.dirty=true;r.render();}
         const stage=window.__k4OracleRequire('a1xw').a();for(const id of scenes)stage.get_scene_by_id(id).on_tick();
         const app=stage.core.app.get_app();app.renderer.render(app.stage);
         const read=source=>{const c=document.createElement('canvas');c.width=source.width;c.height=source.height;const ctx=c.getContext('2d');ctx.fillStyle='white';ctx.fillRect(0,0,c.width,c.height);ctx.drawImage(source,0,0);return ctx.getImageData(0,0,c.width,c.height).data;};
         const a=read(app.view),b=read(r.canvas);if(a.length!==b.length)throw Error('canvas dimensions differ');
         let changedPixels=0,sum=0,max=0;for(let i=0;i<a.length;i+=4){let d=0;for(let k=0;k<3;k++){const x=Math.abs(a[i+k]-b[i+k]);sum+=x;d=Math.max(d,x);}max=Math.max(max,d);if(d>8)changedPixels++;}
         return {frame,ms:window.__transitionNow,pixels:a.length/4,changedPixels,mae:sum/(a.length/4*3),maxChannelDifference:max,tolerance:8};
-      },{frame,name,scenes:project.theatre.scenes_order}));
+      },{frame,name,scenes:project.theatre.scenes_order,targetFrame}));
       if(frame===65)events.push(...await page.evaluate(()=>window.__transition9Events));
     },
   });

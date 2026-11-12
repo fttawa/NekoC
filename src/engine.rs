@@ -5769,11 +5769,16 @@ impl Engine {
         self.bump_state.clear();
         self.pen_rasters.iter_mut().for_each(|r| *r = None);
         let scene_id = self.program.scenes[self.current_scene].id.clone();
+        // K4's Start action is queued before running_group_activated. Preserve
+        // that creation order even when scene entities precede actors in source.
+        if self.program.semantics == RuntimeSemantics::Kitten4 {
+            self.dispatch(|event| matches!(event, ScriptEvent::K4GlobalStart));
+        }
+        let k4 = self.program.semantics == RuntimeSemantics::Kitten4;
         self.dispatch(|event| {
-            matches!(
-                event,
-                ScriptEvent::Start | ScriptEvent::K4GlobalStart | ScriptEvent::K4SceneActivate
-            ) || matches!(event, ScriptEvent::K4Backdrop(id) if id == &scene_id)
+            matches!(event, ScriptEvent::Start | ScriptEvent::K4SceneActivate)
+                || (!k4 && matches!(event, ScriptEvent::K4GlobalStart))
+                || matches!(event, ScriptEvent::K4Backdrop(id) if id == &scene_id)
         });
         // Originals only. Clone when behaviour has no official oracle yet;
         // do not infer clone responders from other event types.

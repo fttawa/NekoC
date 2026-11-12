@@ -13,8 +13,8 @@ test('colour-effect probe is reproducible with only original inline artwork',asy
 test('WebGL K4 matrices preserve alpha and filter order without changing KN hue',{
   skip:!process.env.K4_VISUAL_BROWSER,
 },async()=>{
-  const source=await readFile('web/renderer.js','utf8');
-  const server=createServer((req,res)=>{res.setHeader('Content-Type',req.url==='/renderer.js'?'application/javascript':'text/html');res.end(req.url==='/renderer.js'?source:'<!doctype html><canvas></canvas>');});
+  const sources={'/renderer.js':await readFile('web/renderer.js','utf8'),'/pen-k4.js':await readFile('web/pen-k4.js','utf8')};
+  const server=createServer((req,res)=>{res.setHeader('Content-Type',sources[req.url]?'application/javascript':'text/html');res.end(sources[req.url]||'<!doctype html><canvas></canvas>');});
   await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
   let browser;
   try{
