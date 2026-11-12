@@ -3,17 +3,36 @@
 use super::{Anim, Engine};
 
 #[derive(Default)]
-pub(super) struct Clock(Option<f64>);
+pub(super) struct Clock {
+    origin_ms: f64,
+    current_ms: Option<f64>,
+}
 
 impl Clock {
     pub fn tick(&mut self, dt: f64) {
         // Like ClockImpl after clear: the first update establishes an origin.
-        // Our deterministic origin is zero, not the oracle's arbitrary 1024ms.
-        self.0 = Some(self.0.map_or(0.0, |now| now + dt * 1000.0));
+        // Default zero is deterministic; callers may explicitly match the
+        // independent official wall-clock origin for same-input diagnostics.
+        self.current_ms = Some(
+            self.current_ms
+                .map_or(self.origin_ms, |now| now + dt * 1000.0),
+        );
     }
 
     pub fn now(&self) -> f64 {
-        self.0.unwrap_or(0.0)
+        self.current_ms.unwrap_or(self.origin_ms)
+    }
+
+    pub fn reset(&mut self) {
+        self.current_ms = None;
+    }
+
+    pub fn configure(&mut self, origin_ms: f64) -> bool {
+        if !origin_ms.is_finite() || self.current_ms.is_some() {
+            return false;
+        }
+        self.origin_ms = origin_ms;
+        true
     }
 }
 
@@ -71,6 +90,17 @@ impl Shake {
 }
 
 impl Engine {
+    /// Set the independent K4 shake clock's diagnostic input before its first
+    /// update. `start()` resets elapsed time but preserves this explicit origin.
+    /// Does not change global timers or claim wall-clock synchronization.
+    pub fn set_k4_shake_clock_origin_ms(&mut self, origin_ms: f64) -> anyhow::Result<()> {
+        anyhow::ensure!(
+            self.k4_shake_clock.configure(origin_ms),
+            "shake clock origin must be finite and configured before the first update"
+        );
+        Ok(())
+    }
+
     /// Shake owns a blocking task, not a script-phase animation. Removing it at
     /// frame end makes AnimStep resume on the next update, never the end frame.
     /// No physics/body behavior is implemented here.

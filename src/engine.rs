@@ -5114,6 +5114,10 @@ pub struct Engine {
     /// Drawable sprites of the active scene, back to front (stage excluded).
     order: Vec<usize>,
     current_scene: usize,
+    /// K4's logical scene changes before the transition completion callback
+    /// changes its running group. KN always keeps these two fields together.
+    running_scene: usize,
+    scene_activation: Option<k4_drawing::SceneActivation>,
     /// Saved draw order of every scene (the active one lives in `order`).
     scene_orders: Vec<Vec<usize>>,
     scene_changed: bool,
@@ -5283,7 +5287,9 @@ impl Engine {
     }
 
     pub fn active_tasks(&self) -> usize {
-        self.tasks.iter().filter(|t| self.task_active(t)).count() + self.kn_timers.len()
+        self.tasks.iter().filter(|t| self.task_active(t)).count()
+            + self.kn_timers.len()
+            + usize::from(self.scene_activation.is_some())
     }
     /// Scene-bound K4 tasks and KN when tasks suspend outside their scene.
     /// K4 global Start remains runnable regardless of its owner's scene.
@@ -5292,7 +5298,7 @@ impl Engine {
             && (!(task.kn_when
                 || (self.program.semantics == RuntimeSemantics::Kitten4 && !task.global_start))
                 || (self.sprites[task.actor].alive
-                    && self.sprites[task.actor].scene == self.current_scene))
+                    && self.sprites[task.actor].scene == self.running_scene))
     }
     fn task_runnable(&self, task: &Task) -> bool {
         self.task_active(task)
@@ -5571,6 +5577,8 @@ impl Engine {
             jit_yield: false,
             order,
             current_scene,
+            running_scene: current_scene,
+            scene_activation: None,
             scene_orders,
             scene_changed: true,
             next_transition: None,
@@ -5651,6 +5659,8 @@ impl Engine {
         self.dirty.resize(self.sprites.len(), true);
         self.scene_orders = initial_orders(&self.program);
         self.current_scene = self.program.initial_scene;
+        self.running_scene = self.current_scene;
+        self.scene_activation = None;
         self.order = self.scene_orders[self.current_scene].clone();
         self.scene_changed = true;
         self.next_transition = None;
@@ -5681,7 +5691,7 @@ impl Engine {
         self.initialize_legacy_physics();
         self.time = 0.0;
         self.k4_frames = 0;
-        self.k4_shake_clock = k4_shake::Clock::default();
+        self.k4_shake_clock.reset();
         self.k4_media.reset();
         self.kn_panel.reset();
         self.timer = 0.0;
@@ -5873,7 +5883,7 @@ impl Engine {
         }
     }
     fn in_active_scene(&self, actor: usize) -> bool {
-        self.program.sprites[actor].scene == self.current_scene
+        self.program.sprites[actor].scene == self.running_scene
     }
     /// Live sprite indices running an actor's scripts: the original and its clones.
     fn instances(&self, actor: usize) -> Vec<usize> {
@@ -7004,28 +7014,22 @@ impl Engine {
     }
     /// K4 only finishes activation hats on exit; other scene-bound tasks suspend
     /// and clones/properties persist. KN retains its existing exit policy.
-    /// This does not change scheduler order or the activation dispatch phase.
+    /// K4 visual ownership changes now; activation waits for completion.
     fn switch_scene(&mut self, target: usize) {
         // zi reattaches the shared media container at scene child index 1.
         self.video_above_pen = false;
         let old = self.current_scene;
-        for task in 0..self.tasks.len() {
-            if self.sprites[self.tasks[task].actor].scene == old
-                && if self.program.semantics == RuntimeSemantics::Kitten4 {
-                    matches!(
-                        self.program.scripts.get(self.tasks[task].script),
-                        Some(Script {
-                            event: ScriptEvent::K4SceneActivate,
-                            ..
-                        })
-                    )
-                } else {
-                    !self.tasks[task].global_start && !self.tasks[task].kn_when
-                }
-            {
-                self.finish_task(task);
-            }
-        }
+        let deferred =
+            self.program.semantics == RuntimeSemantics::Kitten4 && self.next_transition.is_some();
+        // Visual scene ownership changes immediately, independently of the
+        // callback-driven running group (a1xw/Nt and RegisterEvent adapter).
+        self.scene_activation = deferred.then(|| {
+            k4_drawing::SceneActivation::new(
+                target,
+                &self.next_transition.as_ref().unwrap().kind,
+                self.time,
+            )
+        });
         for i in 0..self.sprites.len() {
             if self.program.semantics != RuntimeSemantics::Kitten4
                 && self.sprites[i].alive
@@ -7045,7 +7049,6 @@ impl Engine {
         self.order = self.scene_orders[target].clone();
         self.current_scene = target;
         if self.program.semantics == RuntimeSemantics::Kitten4 {
-            // Official adapter clears the old entity down on scene switch.
             self.input_targets.clear();
             self.input_clicks.clear();
         }
@@ -7057,6 +7060,30 @@ impl Engine {
                 self.dirty[i] = true;
             }
         }
+        if !deferred {
+            self.activate_scene(target);
+        }
+    }
+    fn activate_scene(&mut self, target: usize) {
+        let old = self.running_scene;
+        for task in 0..self.tasks.len() {
+            if self.sprites[self.tasks[task].actor].scene == old
+                && if self.program.semantics == RuntimeSemantics::Kitten4 {
+                    matches!(
+                        self.program.scripts.get(self.tasks[task].script),
+                        Some(Script {
+                            event: ScriptEvent::K4SceneActivate,
+                            ..
+                        })
+                    )
+                } else {
+                    !self.tasks[task].global_start && !self.tasks[task].kn_when
+                }
+            {
+                self.finish_task(task);
+            }
+        }
+        self.running_scene = target;
         let scene_id = self.program.scenes[target].id.clone();
         self.dispatch(|event| {
             matches!(event, ScriptEvent::Start | ScriptEvent::K4SceneActivate)
@@ -9803,7 +9830,8 @@ impl Engine {
                 if target != self.current_scene {
                     self.switch_scene(target);
                     if self.program.semantics == RuntimeSemantics::KnCurrent
-                        || !self.tasks[index].global_start
+                        || (!self.tasks[index].global_start
+                            && self.sprites[actor].scene != self.running_scene)
                     {
                         return Ok(false);
                     }
@@ -9860,6 +9888,13 @@ impl Engine {
         total_count: &mut usize,
     ) -> Result<bool> {
         self.scheduler_tick += 1;
+        if let Some(activation) = self.scene_activation.as_ref()
+            && activation.completed(self.time)
+        {
+            let target = activation.target;
+            self.scene_activation = None;
+            self.activate_scene(target);
+        }
         self.k4_shake_clock.tick(dt);
         self.dispose_requested_entities();
         for id in self.audio.tick(dt) {
@@ -9997,6 +10032,7 @@ impl Engine {
         }
         self.tick_k4_shake();
         self.tick_entity_visibility(dt);
+        self.synchronize_soft_physics_geometry();
         // Rebase the round-robin cursor when finished tasks are compacted. Wait
         // dependencies use stable IDs, never indices into this compacted vector.
         self.cursor = if exceeded {

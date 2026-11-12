@@ -1,0 +1,120 @@
+{
+  "schema": "nekoc-k4-soft-comparison-9-v1",
+  "label": "delayed-rebuild-before-frame-end-hook",
+  "maskScope": "Canvas-decoded 128x120 alpha mask for 160x120 image (CLI limit); no rendered soft deformation",
+  "executableSha256": "3e912d515fea8ffba16057def9dc7100c79523620514dfa972fbe623d327187b",
+  "cases": {
+    "coast": {
+      "default": {
+        "frames": 90,
+        "maxPositionPx": 0.022848032797689655,
+        "maxRotationDeg": 0.02477300188468637,
+        "worst": {
+          "frame": 12,
+          "key": "x",
+          "got": 33.33333333333335,
+          "expected": 33.35618136613104
+        },
+        "deformationImplemented": false,
+        "certification": "partial"
+      },
+      "interpreter": {
+        "frames": 90,
+        "maxPositionPx": 0.022848032797689655,
+        "maxRotationDeg": 0.02477300188468637,
+        "worst": {
+          "frame": 12,
+          "key": "x",
+          "got": 33.33333333333335,
+          "expected": 33.35618136613104
+        },
+        "deformationImplemented": false,
+        "certification": "partial"
+      }
+    },
+    "impact-25": {
+      "default": {
+        "frames": 120,
+        "maxPositionPx": 6.65454846434011,
+        "maxRotationDeg": 0.949104464315042,
+        "worst": {
+          "frame": 56,
+          "key": "y",
+          "got": -300.01001379664285,
+          "expected": -293.35546533230274
+        },
+        "deformationImplemented": false,
+        "certification": "partial"
+      },
+      "interpreter": {
+        "frames": 120,
+        "maxPositionPx": 6.65454846434011,
+        "maxRotationDeg": 0.949104464315042,
+        "worst": {
+          "frame": 56,
+          "key": "y",
+          "got": -300.01001379664285,
+          "expected": -293.35546533230274
+        },
+        "deformationImplemented": false,
+        "certification": "partial"
+      }
+    },
+    "impact-90": {
+      "default": {
+        "frames": 120,
+        "maxPositionPx": 11.217378142843355,
+        "maxRotationDeg": 8.336086481515302,
+        "worst": {
+          "frame": 120,
+          "key": "x",
+          "got": 6.46455545344482e-16,
+          "expected": 11.217378142843355
+        },
+        "deformationImplemented": false,
+        "certification": "partial"
+      },
+      "interpreter": {
+        "frames": 120,
+        "maxPositionPx": 11.217378142843355,
+        "maxRotationDeg": 8.336086481515302,
+        "worst": {
+          "frame": 120,
+          "key": "x",
+          "got": 6.46455545344482e-16,
+          "expected": 11.217378142843355
+        },
+        "deformationImplemented": false,
+        "certification": "partial"
+      }
+    },
+    "rebuild": {
+      "default": {
+        "frames": 90,
+        "maxPositionPx": 3.2136968532892496,
+        "maxRotationDeg": 0.02760411888157939,
+        "worst": {
+          "frame": 83,
+          "key": "x",
+          "got": 100.00000000000001,
+          "expected": 96.78630314671076
+        },
+        "deformationImplemented": false,
+        "certification": "partial"
+      },
+      "interpreter": {
+        "frames": 90,
+        "maxPositionPx": 3.2136968532892496,
+        "maxRotationDeg": 0.02760411888157939,
+        "worst": {
+          "frame": 83,
+          "key": "x",
+          "got": 100.00000000000001,
+          "expected": 96.78630314671076
+        },
+        "deformationImplemented": false,
+        "certification": "partial"
+      }
+    }
+  }
+}

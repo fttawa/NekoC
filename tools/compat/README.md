@@ -156,6 +156,16 @@ K4 partial 第二轮的 41 份仓库原创离线探针与保留边界：
 [shake帧尾与原点边界](../../docs/kitten4-shake-8.md)。仅boundary两项新增主路径认证；
 滤镜组合/ripple与shake原点相关负例仍公开，不冒充全等。
 
+第九轮场景过渡：
+[distort双截图、连续全画布与完成回调](../../docs/kitten4-partial-transition-9.md)。
+14份原创夹具各65帧，完成后下一update激活；纹理残差及none启动顺序负例仍保留，
+不把受控performance时钟外推为真实浏览器时钟认证。
+
+第九轮完整范围与未完成项见[总览](../../docs/kitten4-partial-9.md)，另有
+[soft粒子/重建](../../docs/kitten4-partial-physics-9.md)、
+[ASCII最终投影](../../docs/kitten4-partial-effects-9.md)、
+[shake显式原点](../../docs/kitten4-shake-9.md)。本轮保持54项partial，不将负例升级。
+
 ## 联网、安全与未验证范围
 
 默认外部 HTTP、WebSocket、Service Worker 均禁用；记录所有外部请求的方法、URL、类型和动作。

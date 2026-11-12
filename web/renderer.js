@@ -39,9 +39,14 @@ export function sampleTransition(transition,ms,width,height){
     else{incoming.alpha=quadOut(Math.max(0,ms)/500);outgoing.alpha=1-incoming.alpha;}
   }else if(kind==='none'||!kind)result.active=false;
   else if(kind==='distort'){
-    // A separate screenshot/filter pipeline is required; do not misrepresent it
-    // as a fade. This branch remains unsupported in the compositor.
-    result.active=false;result.unsupported=true;
+    // Two frozen full-stage screenshots, with independently delayed tweens.
+    // The outgoing tween retains its last (unclamped) overshoot until cleanup.
+    const out=quadOut(Math.max(0,Math.min(ms,transition.outEnd??ms))/500);
+    const into=quadOut(Math.max(0,ms-100)/500);
+    outgoing.alpha=1-out;incoming.alpha=into;
+    outgoing.angle=-227.8*Math.PI/180*out;
+    incoming.angle=189*Math.PI/180*(1-into);
+    result.active=ms<=600;result.screenshots=true;
   }else{
     // Unknown names never invoke official completion. Logical scene changes,
     // while the previous scene stays visible (no tween is scheduled).
@@ -107,9 +112,9 @@ outColor=c*vec4(tint.rgb*alpha,alpha);}`;
 // actor first: cells remain aligned to the filter rectangle, even on rotation.
 const K4_FILTER_VERTEX = `#version 300 es
 precision highp float;
-uniform vec2 stageSize;uniform vec2 position;uniform vec2 dimensions;uniform float angle;
-out vec2 uv;${QUAD}
-void main(){vec2 p=corner();uv=vec2(p.x,1.-p.y);gl_Position=vec4(((p-.5)*dimensions+position)/(stageSize*.5),0.,1.);}`;
+uniform vec2 stageSize;uniform vec2 position;uniform vec2 dimensions;uniform float angle;uniform vec2 origin;uniform vec2 extent;
+out vec2 uv;
+void main(){vec2 corners[6]=vec2[6](vec2(0,0),vec2(1,0),vec2(1,1),vec2(0,0),vec2(1,1),vec2(0,1));vec2 p=corners[gl_VertexID];uv=p*dimensions/extent;vec2 scale=vec2(2.,-2.)/stageSize;vec2 translation=vec2(-1.,1.)+position*scale;gl_Position=vec4((origin+p*dimensions)*scale+translation,0.,1.);}`;
 const K4_SPATIAL_FRAGMENT = `#version 300 es
 precision highp float;
 uniform sampler2D image;uniform vec2 extent;uniform vec2 center;uniform vec2 origin;
@@ -139,7 +144,7 @@ if(ascii){float gray=(outColor.r+outColor.g+outColor.b)/3.;int level=0;
  ivec2 dotPosition=ivec2(floor((cell*2.-1.)*vec2(4.,-4.)+2.5));
  if(any(lessThan(dotPosition,ivec2(0)))||any(greaterThan(dotPosition,ivec2(4))))outColor=vec4(0.);
  else outColor*=float((glyphRow(level,dotPosition.y)>>uint(dotPosition.x))&1u);
-}}`;
+ }}`;
 
 function program(gl, vertex, fragment) {
   const shaders = [[gl.VERTEX_SHADER, vertex], [gl.FRAGMENT_SHADER, fragment]].map(([type, source]) => {
@@ -358,7 +363,40 @@ export class StageRenderer {
 
   clearSceneTransition(){
     if(!this.sceneTransition)return;
+    for(const surface of this.sceneTransition.screenshots||[]){
+      this.gl.deleteFramebuffer(surface.framebuffer);this.gl.deleteTexture(surface.texture);
+    }
     this.sceneTransition=null;this.dirty=true;
+  }
+
+  drawDistortTransition(transition,state){
+    const gl=this.gl,w=this.canvas.width,h=this.canvas.height;
+    if(!transition.screenshots){
+      const surfaces=[];
+      try{
+        for(const scene of [transition.old,this]){
+          const surface=this.makeSurface(w,h);surfaces.push(surface);
+          this.drawScene(surface.framebuffer,scene);
+        }
+      }catch(error){for(const s of surfaces){gl.deleteFramebuffer(s.framebuffer);gl.deleteTexture(s.texture);}throw error;}
+      transition.screenshots=surfaces;
+    }
+    if(!this.distortProgram){
+      // Original shader derived from radial inverse mapping; native evidence:
+      // a1xw/Et screenshot lifetime, lvVU/TwistFilter radius and squared falloff.
+      this.distortProgram=program(gl,TEXTURE_VERTEX,`#version 300 es
+precision highp float;uniform sampler2D image;uniform vec2 extent;uniform float turn;uniform float alpha;in vec2 uv;out vec4 outColor;
+void main(){vec2 p=vec2(uv.x,1.-uv.y)*extent;vec2 d=p-extent*.5;float r=length(d);float radius=min(extent.x,extent.y);float t=max(0.,1.-r/radius);float a=t*t*turn;float c=cos(a),s=sin(a);p=extent*.5+vec2(c*d.x-s*d.y,s*d.x+c*d.y);vec2 q=p/extent;outColor=(q.x<0.||q.y<0.||q.x>1.||q.y>1.)?vec4(0.):texture(image,vec2(q.x,1.-q.y))*alpha;}`);
+      this.distortUniform=Object.fromEntries(['stageSize','position','dimensions','angle','image','extent','turn','alpha'].map(k=>[k,gl.getUniformLocation(this.distortProgram,k)]));
+    }
+    // The destination scene remains live underneath both screenshot sprites.
+    this.drawScene();
+    const u=this.distortUniform;
+    gl.useProgram(this.distortProgram);gl.uniform2f(u.stageSize,this.width,this.height);gl.uniform2f(u.position,0,0);
+    gl.uniform2f(u.dimensions,this.width,this.height);gl.uniform1f(u.angle,0);gl.uniform1i(u.image,0);gl.uniform2f(u.extent,w,h);
+    for(const [i,s]of [state.outgoing,state.incoming].entries()){
+      gl.uniform1f(u.turn,s.angle);gl.uniform1f(u.alpha,s.alpha);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,transition.screenshots[i].texture);gl.drawArrays(gl.TRIANGLES,0,6);this.stats.drawCalls++;
+    }
   }
 
   // Device pixels per stage unit at the stage's current on-screen size, in half steps.
@@ -763,14 +801,22 @@ export class StageRenderer {
           input=output;
         }
         const output=1-input,u=this.k4SpatialUniform;
-        gl.bindFramebuffer(gl.FRAMEBUFFER,surfaces[output].framebuffer);gl.viewport(0,0,fw,fh);gl.disable(gl.SCISSOR_TEST);gl.clear(gl.COLOR_BUFFER_BIT);gl.enable(gl.SCISSOR_TEST);
-        gl.useProgram(this.k4Spatial);gl.uniform2f(u.stageSize,fw,fh);gl.uniform2f(u.position,0,0);gl.uniform2f(u.dimensions,fw,fh);gl.uniform1f(u.angle,0);gl.uniform1i(u.image,0);
+        const direct=ascii&&!transform;
+        if(direct){gl.bindFramebuffer(gl.FRAMEBUFFER,target);gl.viewport(...viewport);gl.scissor(left,this.canvas.height-frameBottom,activeW,activeH);}
+        else{gl.bindFramebuffer(gl.FRAMEBUFFER,surfaces[output].framebuffer);gl.viewport(0,0,fw,fh);gl.disable(gl.SCISSOR_TEST);gl.clear(gl.COLOR_BUFFER_BIT);gl.enable(gl.SCISSOR_TEST);}
+        // Last ASCII pass uses the destination's projection, rather than an
+        // extra POT raster/copy. Integer cell edges otherwise drift by a pixel
+        // through a different UV interpolation (see round-9 paired evidence).
+        // Keep the old transformed-copy path during scene transitions until
+        // inherited alpha / filter-grid movement has its own paired evidence.
+        gl.useProgram(this.k4Spatial);gl.uniform2f(u.stageSize,direct?this.canvas.width:fw,direct?this.canvas.height:fh);gl.uniform2f(u.position,direct?0:-left,direct?0:-top);gl.uniform2f(u.dimensions,activeW,activeH);gl.uniform1f(u.angle,0);gl.uniform1i(u.image,0);
         gl.uniform2f(u.extent,fw,fh);gl.uniform2f(u.center,(this.width/2+(filterCenter?.x??x))*sx-left,(this.height/2-(filterCenter?.y??y))*sy-top);
         gl.uniform2f(u.origin,left,top);
         gl.uniform1f(u.amount,twist?amount*10*Math.PI/180:amount*sx);gl.uniform1f(u.radius,Math.hypot(w,h)/2*sx);gl.uniform1i(u.twist,twist?1:0);
         gl.uniform1i(u.ascii,ascii?1:0);
         gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,surfaces[input].texture);gl.drawArrays(gl.TRIANGLES,0,6);this.stats.drawCalls++;input=output;
       }
+      if(e[7]>=1&&!transform)return;
       gl.bindFramebuffer(gl.FRAMEBUFFER,target);gl.viewport(...viewport);this.sceneTransform=transform;
       gl.scissor(left,this.canvas.height-frameBottom,activeW,activeH);
       this.drawTexture(surfaces[input].texture,(left+right)/2/sx-this.width/2,this.height/2-(top+bottom)/2/sy,fw/sx,fh/sy,0,[1,1,1,1],[0,0,0,0,0,0,e[7]>=1?0:e[6]]);
@@ -783,8 +829,14 @@ export class StageRenderer {
     if (!this.dirty || this.lost || !this.penTexture) return;
     const gl=this.gl,started=performance.now(); if(resetStats)this.stats.drawCalls=0;
     const transition=this.sceneTransition;
+    if(transition&&transitionKind(transition.transition)==='distort'){
+      const elapsed=this.transitionClock()-transition.start;
+      if(elapsed>500&&transition.transition.outEnd===undefined)transition.transition={...transition.transition,outEnd:elapsed};
+    }
     const state=transition&&sampleTransition(transition.transition,this.transitionClock()-transition.start,this.width,this.height);
-    if(transition&&state.active){
+    if(transition&&state.active&&state.screenshots){
+      this.drawDistortTransition(transition,state);
+    }else if(transition&&state.active){
       // Keep the leaving scene's actors/pen/backdrop alive, not a CSS transform
       // of the destination canvas. Incoming content is refreshed every frame.
       gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl.viewport(0,0,this.canvas.width,this.canvas.height);
@@ -795,8 +847,6 @@ export class StageRenderer {
       if(transition.incomingOnTop){draw(transition.old,state.outgoing);draw(this,state.incoming);}
       else{draw(this,state.incoming);draw(transition.old,state.outgoing);}
     }else{
-      // Distort still deliberately falls back to the live scene: its native
-      // screenshot filters/padding have not been pixel-validated (see evidence).
       if(transition)this.clearSceneTransition();
       this.drawScene();
     }

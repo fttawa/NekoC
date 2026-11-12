@@ -8,6 +8,8 @@ use std::collections::{BTreeMap, BTreeSet};
 
 #[path = "physics_shape.rs"]
 mod shape;
+#[path = "physics_soft.rs"]
+mod soft;
 
 const STEP: f64 = 1.0 / 60.0;
 const PIXELS: f64 = 10.0;
@@ -246,6 +248,27 @@ mod tests {
         command(&mut e, other, Command::Filter(1, true), [0.0; 3]);
         e.step_physics(STEP);
         assert_eq!(e.physics_touching(1, other), Some(true));
+    }
+
+    #[test]
+    fn soft_geometry_frame_end_hook_clears_velocity_without_another_integration() {
+        let mut e = engine();
+        command(&mut e, 1, Command::Gravity, [0.0; 3]);
+        command(&mut e, 1, Command::Soft, [0.0; 3]);
+        command(&mut e, 1, Command::Speed, [2.0, 0.0, 0.0]);
+        e.step_physics(STEP);
+        e.step_physics(STEP);
+        let position = (e.sprites[1].x, e.sprites[1].y);
+        e.sprites[1].scale *= 1.5;
+        e.synchronize_soft_physics_geometry();
+        assert_eq!(e.physics_soft_snapshot(1).unwrap()["generation"], 2);
+        assert_eq!(e.physics_property(1, Property::Speed), 0.0);
+        assert_eq!((e.sprites[1].x, e.sprites[1].y), position);
+        command(&mut e, 1, Command::Soft, [0.0; 3]);
+        command(&mut e, 1, Command::Flexibility, [90.0, 0.0, 0.0]);
+        e.synchronize_soft_physics_geometry();
+        assert_eq!(e.physics_soft_snapshot(1).unwrap()["generation"], 2);
+        assert_eq!(e.physics_property(1, Property::Flexibility), 90.0);
     }
 
     #[test]
@@ -761,6 +784,7 @@ struct Body {
     // Official adapter keeps this on rigid actors too. It only changes the
     // particle group when an elastic body actually exists (not implemented).
     strength: f64,
+    soft: soft::Lifecycle,
 }
 #[derive(Default)]
 struct Filters(BTreeSet<(usize, usize)>, BTreeSet<usize>);
@@ -845,6 +869,7 @@ impl World {
         let body = &self.bodies[state.handle];
         let collider = &self.colliders[state.collider];
         if state.rotate
+            || state.soft.elastic()
             || !body.is_dynamic()
             || !body.is_enabled()
             || body.is_sleeping()
@@ -1164,6 +1189,7 @@ impl Engine {
                 shape: signature(a),
                 forces: vec![],
                 strength: 2.5,
+                soft: soft::Lifecycle::default(),
             },
         );
     }
@@ -1317,12 +1343,8 @@ impl Engine {
             Command::LegacyMass => Command::Mass,
             other => other,
         };
-        // Soft remains a documented rigid fallback, not a particle simulation.
-        // Flexibility below implements the official rigid-adapter metadata and
-        // reporter only; changing it must not fake a deformation or restitution.
-        if matches!(command, Command::Soft) {
-            return Ok(None);
-        }
+        // The soft solver is still a rigid fallback, but texture idempotence
+        // and geometry-rebuild velocity loss are tracked independently below.
         let scene = self.sprites[actor].scene;
         let world = self
             .physics
@@ -1342,6 +1364,12 @@ impl Engine {
             ]
         };
         match command {
+            Command::Soft | Command::Hard => {
+                state.soft.set_elastic(
+                    matches!(command, Command::Soft),
+                    self.sprites[actor].visible && (state.forceable || state.collidable),
+                );
+            }
             Command::Forceable(enabled) => {
                 // Adapter flags are synchronous, but update_body_state applies
                 // the actual body type on the PIXI ticker, only while enabled.
@@ -1557,6 +1585,7 @@ impl Engine {
             if scene != self.current_scene {
                 continue;
             }
+            let mut soft_rebuilds = BTreeSet::new();
             for (&actor, b) in &mut w.actors {
                 let a = &self.sprites[actor];
                 let body = &mut w.bodies[b.handle];
@@ -1571,6 +1600,14 @@ impl Engine {
                     body.set_position(position, true);
                 }
                 let new_signature = signature(a);
+                if b.soft
+                    .synchronize(body.is_enabled(), b.shape != new_signature)
+                {
+                    // Official soft init creates a fresh particle group. Unlike
+                    // a texture-mode switch it does not transfer old velocities.
+                    // Do not claim this rigid fallback reproduces deformation.
+                    soft_rebuilds.insert(actor);
+                }
                 if b.shape != new_signature {
                     w.colliders[b.collider].set_shape(geometry(self, actor));
                     // A rebuilt silhouette changes area and inertia even when
@@ -1668,6 +1705,13 @@ impl Engine {
             // loses one last integration on disable, and starts one too early
             // on enable. Original official probes: partial-physics-7 forceable
             // and the unchanged partial-physics-6 membership replay.
+            // Soft reconstruction belongs to the actor ticker after the last
+            // world integration, as observed at rebuild fixture update 31.
+            for actor in soft_rebuilds {
+                let body = &mut w.bodies[w.actors[&actor].handle];
+                body.set_linvel(Vector::zeros(), true);
+                body.set_angvel(0.0, true);
+            }
             w.synchronize_body_types();
             for (&actor, b) in &w.actors {
                 let body = &w.bodies[b.handle];
@@ -1769,5 +1813,42 @@ impl Engine {
         }
         let b = w.actors.get(&other)?;
         Some(hit(b.collider))
+    }
+    /// Diagnostic lifecycle only. No particle/deformation compatibility claim.
+    pub fn physics_soft_snapshot(&self, actor: usize) -> Option<Value> {
+        self.physics
+            .as_ref()?
+            .worlds
+            .get(&self.sprites.get(actor)?.scene)?
+            .actors
+            .get(&actor)
+            .map(|body| body.soft.snapshot())
+    }
+    /// Scripts mutate geometry after the world ticker has integrated. Mirror
+    /// the observed same-update change listener without another world step.
+    pub(super) fn synchronize_soft_physics_geometry(&mut self) {
+        let Some(mut physics) = self.physics.take() else {
+            return;
+        };
+        if let Some(world) = physics.worlds.get_mut(&self.current_scene) {
+            for (&actor, state) in &mut world.actors {
+                if !state.soft.elastic() {
+                    continue;
+                }
+                let sprite = &self.sprites[actor];
+                let next = signature(sprite);
+                let enabled =
+                    sprite.alive && sprite.visible && (state.forceable || state.collidable);
+                if state.soft.synchronize(enabled, state.shape != next) {
+                    world.colliders[state.collider].set_shape(geometry(self, actor));
+                    let body = &mut world.bodies[state.handle];
+                    body.recompute_mass_properties_from_colliders(&world.colliders);
+                    body.set_linvel(Vector::zeros(), true);
+                    body.set_angvel(0.0, true);
+                    state.shape = next;
+                }
+            }
+        }
+        self.physics = Some(physics);
     }
 }

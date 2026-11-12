@@ -42,7 +42,7 @@ test('slide, bounce, fade, none and invalid names match all 715 recorded contain
   assert.equal(count, 715);
 });
 
-test('normalization, endpoint cleanup and unresolved distort are explicit', () => {
+test('normalization, endpoint cleanup and screenshot distort are explicit', () => {
   assert.equal(transitionKind({ kind: 'slide_left', direction: 'right' }), 'slide_left');
   assert.equal(transitionKind({ kind: 'bounce', direction: 'up' }), 'bounce_up');
   assert.equal(transitionKind({ kind: 'fadeInOut' }), 'fade_in_out');
@@ -51,7 +51,7 @@ test('normalization, endpoint cleanup and unresolved distort are explicit', () =
   assert.equal(sampleTransition({ kind: 'slide_left' }, 500.01, 320, 240).active, false);
   assert.equal(sampleTransition({ kind: 'bounce_left' }, 1000, 320, 240).active, true);
   assert.equal(sampleTransition({ kind: 'bounce_left' }, 1000.01, 320, 240).active, false);
-  assert.equal(sampleTransition({ kind: 'distort' }, 0, 320, 240).unsupported, true);
+  assert.equal(sampleTransition({ kind: 'distort' }, 0, 320, 240).screenshots, true);
   assert.equal(sampleTransition({ kind: 'custom' }, 100000, 320, 240).stalled, true);
 });
 

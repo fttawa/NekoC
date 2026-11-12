@@ -1,0 +1,3498 @@
+{
+  "ascii-twist": {
+    "fixtureSha256": "716665d3daef234278f7761abc534176a5f0d435cf3db423735e01de48d0142c",
+    "samples": [
+      {
+        "frame": 1,
+        "index": 4,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 377,
+          "y": 275,
+          "width": 232,
+          "height": 184
+        },
+        "outputSize": null,
+        "projection": [
+          0.0020833334419876337,
+          0,
+          0,
+          0,
+          -0.0027777778450399637,
+          0,
+          -1,
+          1,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ],
+        "vertex": [
+          377,
+          275,
+          609,
+          275,
+          609,
+          459,
+          377,
+          459
+        ],
+        "uv": [
+          0,
+          0,
+          0.90625,
+          0,
+          0.90625,
+          0.71875,
+          0,
+          0.71875
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 2,
+        "index": 4,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 377,
+          "y": 275,
+          "width": 232,
+          "height": 184
+        },
+        "outputSize": null,
+        "projection": [
+          0.0020833334419876337,
+          0,
+          0,
+          0,
+          -0.0027777778450399637,
+          0,
+          -1,
+          1,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ],
+        "vertex": [
+          377,
+          275,
+          609,
+          275,
+          609,
+          459,
+          377,
+          459
+        ],
+        "uv": [
+          0,
+          0,
+          0.90625,
+          0,
+          0.90625,
+          0.71875,
+          0,
+          0.71875
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 3,
+        "index": 4,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 377,
+          "y": 275,
+          "width": 232,
+          "height": 184
+        },
+        "outputSize": [
+          256,
+          256
+        ],
+        "projection": [
+          0.008620689623057842,
+          0,
+          0,
+          0,
+          0.010869565419852734,
+          0,
+          -4.25,
+          -3.9891304969787598,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ],
+        "vertex": [
+          377,
+          275,
+          609,
+          275,
+          609,
+          459,
+          377,
+          459
+        ],
+        "uv": [
+          0,
+          0,
+          0.90625,
+          0,
+          0.90625,
+          0.71875,
+          0,
+          0.71875
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 3,
+        "index": 6,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 377,
+          "y": 275,
+          "width": 232,
+          "height": 184
+        },
+        "outputSize": null,
+        "projection": [
+          0.0020833334419876337,
+          0,
+          0,
+          0,
+          -0.0027777778450399637,
+          0,
+          -1,
+          1,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ],
+        "vertex": [
+          377,
+          275,
+          609,
+          275,
+          609,
+          459,
+          377,
+          459
+        ],
+        "uv": [
+          0,
+          0,
+          0.90625,
+          0,
+          0.90625,
+          0.71875,
+          0,
+          0.71875
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 4,
+        "index": 4,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 377,
+          "y": 275,
+          "width": 232,
+          "height": 184
+        },
+        "outputSize": [
+          256,
+          256
+        ],
+        "projection": [
+          0.008620689623057842,
+          0,
+          0,
+          0,
+          0.010869565419852734,
+          0,
+          -4.25,
+          -3.9891304969787598,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ],
+        "vertex": [
+          377,
+          275,
+          609,
+          275,
+          609,
+          459,
+          377,
+          459
+        ],
+        "uv": [
+          0,
+          0,
+          0.90625,
+          0,
+          0.90625,
+          0.71875,
+          0,
+          0.71875
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 4,
+        "index": 6,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 377,
+          "y": 275,
+          "width": 232,
+          "height": 184
+        },
+        "outputSize": null,
+        "projection": [
+          0.0020833334419876337,
+          0,
+          0,
+          0,
+          -0.0027777778450399637,
+          0,
+          -1,
+          1,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ],
+        "vertex": [
+          377,
+          275,
+          609,
+          275,
+          609,
+          459,
+          377,
+          459
+        ],
+        "uv": [
+          0,
+          0,
+          0.90625,
+          0,
+          0.90625,
+          0.71875,
+          0,
+          0.71875
+        ],
+        "fragmentPrecision": "mediump"
+      }
+    ],
+    "assets": [
+      {
+        "name": "player_v2__3ffeebbd0c789e8d9422.css",
+        "source": "player_v2__3ffeebbd0c789e8d9422.css",
+        "sha256": "39e8e70b124b604831773893cdc95931cdee3eaea52c6dd69f33f5781d48b45a"
+      },
+      {
+        "name": "runtime.f42f527f119e09010b85.js",
+        "source": "runtime.f42f527f119e09010b85.js",
+        "sha256": "4164d67795238f64d035f473418236038ae475ae36032a967cba16ede263735f"
+      },
+      {
+        "name": "player_v2.2d180c468559fbd29528.js",
+        "source": "player_v2.2d180c468559fbd29528.js.orig",
+        "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160"
+      },
+      {
+        "name": "vendors.d00f4bd454a6352e9d71.js",
+        "source": "vendors.d00f4bd454a6352e9d71.js",
+        "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
+      },
+      {
+        "name": "9.c396696e9dc71e25b012.js",
+        "source": "9.c396696e9dc71e25b012.js",
+        "sha256": "5758343310c47596d56e954aa05fa76a546080c8bf4fefd41cac0042794d6195"
+      },
+      {
+        "name": "14.c95e6f2ddd61fb701d0e.js",
+        "source": "14.c95e6f2ddd61fb701d0e.js",
+        "sha256": "d3ce91c9113463db4c0988210caeb1be2ddc508499d5c53a8e73a13b5f440175"
+      },
+      {
+        "name": "11.477512e6f03fd2f6f3c5.js",
+        "source": "11.477512e6f03fd2f6f3c5.js",
+        "sha256": "e81bfe3462cc3e79a70ba016ddee2a372a31480d3f52964952e1d21f3a490f91"
+      }
+    ],
+    "errors": [],
+    "pageErrors": [],
+    "externalRequests": [
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+        "method": "GET",
+        "resourceType": "script",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+        "method": "GET",
+        "resourceType": "image",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://collection.codemao.cn/report/kitten",
+        "method": "POST",
+        "resourceType": "ping",
+        "action": "blocked"
+      },
+      {
+        "url": "https://collection.codemao.cn/report/sysinfo",
+        "method": "POST",
+        "resourceType": "ping",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+        "method": "GET",
+        "resourceType": "script",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+        "method": "GET",
+        "resourceType": "image",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/player-icons/mob%EF%BC%8Ficn_keyboard_nor.png",
+        "method": "GET",
+        "resourceType": "image",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/player-icons/mob_icn_reset.png",
+        "method": "GET",
+        "resourceType": "image",
+        "action": "blocked"
+      }
+    ]
+  },
+  "ascii-offstage": {
+    "fixtureSha256": "47cd2657329475d1bd607ebb3015811a2cf45228cb6b0b215daf87475a5c30de",
+    "samples": [
+      {
+        "frame": 1,
+        "index": 6,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 834,
+          "y": 608,
+          "width": 192,
+          "height": 144
+        },
+        "outputSize": null,
+        "projection": [
+          0.0020833334419876337,
+          0,
+          0,
+          0,
+          -0.0027777778450399637,
+          0,
+          -1,
+          1,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          834,
+          608
+        ],
+        "vertex": [
+          834,
+          608,
+          1026,
+          608,
+          1026,
+          752,
+          834,
+          752
+        ],
+        "uv": [
+          0,
+          0,
+          0.75,
+          0,
+          0.75,
+          0.5625,
+          0,
+          0.5625
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 2,
+        "index": 6,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 834,
+          "y": 608,
+          "width": 192,
+          "height": 144
+        },
+        "outputSize": null,
+        "projection": [
+          0.0020833334419876337,
+          0,
+          0,
+          0,
+          -0.0027777778450399637,
+          0,
+          -1,
+          1,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          834,
+          608
+        ],
+        "vertex": [
+          834,
+          608,
+          1026,
+          608,
+          1026,
+          752,
+          834,
+          752
+        ],
+        "uv": [
+          0,
+          0,
+          0.75,
+          0,
+          0.75,
+          0.5625,
+          0,
+          0.5625
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 3,
+        "index": 4,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 814,
+          "y": 588,
+          "width": 232,
+          "height": 184
+        },
+        "outputSize": [
+          256,
+          256
+        ],
+        "projection": [
+          0.008620689623057842,
+          0,
+          0,
+          0,
+          0.010869565419852734,
+          0,
+          -8.017241477966309,
+          -7.3913044929504395,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          814,
+          588
+        ],
+        "vertex": [
+          814,
+          588,
+          1046,
+          588,
+          1046,
+          772,
+          814,
+          772
+        ],
+        "uv": [
+          0,
+          0,
+          0.90625,
+          0,
+          0.90625,
+          0.71875,
+          0,
+          0.71875
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 3,
+        "index": 6,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 814,
+          "y": 588,
+          "width": 232,
+          "height": 184
+        },
+        "outputSize": null,
+        "projection": [
+          0.0020833334419876337,
+          0,
+          0,
+          0,
+          -0.0027777778450399637,
+          0,
+          -1,
+          1,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          814,
+          588
+        ],
+        "vertex": [
+          814,
+          588,
+          1046,
+          588,
+          1046,
+          772,
+          814,
+          772
+        ],
+        "uv": [
+          0,
+          0,
+          0.90625,
+          0,
+          0.90625,
+          0.71875,
+          0,
+          0.71875
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 4,
+        "index": 4,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 814,
+          "y": 588,
+          "width": 232,
+          "height": 184
+        },
+        "outputSize": [
+          256,
+          256
+        ],
+        "projection": [
+          0.008620689623057842,
+          0,
+          0,
+          0,
+          0.010869565419852734,
+          0,
+          -8.017241477966309,
+          -7.3913044929504395,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          814,
+          588
+        ],
+        "vertex": [
+          814,
+          588,
+          1046,
+          588,
+          1046,
+          772,
+          814,
+          772
+        ],
+        "uv": [
+          0,
+          0,
+          0.90625,
+          0,
+          0.90625,
+          0.71875,
+          0,
+          0.71875
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 4,
+        "index": 6,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 814,
+          "y": 588,
+          "width": 232,
+          "height": 184
+        },
+        "outputSize": null,
+        "projection": [
+          0.0020833334419876337,
+          0,
+          0,
+          0,
+          -0.0027777778450399637,
+          0,
+          -1,
+          1,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          814,
+          588
+        ],
+        "vertex": [
+          814,
+          588,
+          1046,
+          588,
+          1046,
+          772,
+          814,
+          772
+        ],
+        "uv": [
+          0,
+          0,
+          0.90625,
+          0,
+          0.90625,
+          0.71875,
+          0,
+          0.71875
+        ],
+        "fragmentPrecision": "mediump"
+      }
+    ],
+    "assets": [
+      {
+        "name": "player_v2__3ffeebbd0c789e8d9422.css",
+        "source": "player_v2__3ffeebbd0c789e8d9422.css",
+        "sha256": "39e8e70b124b604831773893cdc95931cdee3eaea52c6dd69f33f5781d48b45a"
+      },
+      {
+        "name": "player_v2.2d180c468559fbd29528.js",
+        "source": "player_v2.2d180c468559fbd29528.js.orig",
+        "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160"
+      },
+      {
+        "name": "vendors.d00f4bd454a6352e9d71.js",
+        "source": "vendors.d00f4bd454a6352e9d71.js",
+        "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
+      },
+      {
+        "name": "runtime.f42f527f119e09010b85.js",
+        "source": "runtime.f42f527f119e09010b85.js",
+        "sha256": "4164d67795238f64d035f473418236038ae475ae36032a967cba16ede263735f"
+      },
+      {
+        "name": "9.c396696e9dc71e25b012.js",
+        "source": "9.c396696e9dc71e25b012.js",
+        "sha256": "5758343310c47596d56e954aa05fa76a546080c8bf4fefd41cac0042794d6195"
+      },
+      {
+        "name": "14.c95e6f2ddd61fb701d0e.js",
+        "source": "14.c95e6f2ddd61fb701d0e.js",
+        "sha256": "d3ce91c9113463db4c0988210caeb1be2ddc508499d5c53a8e73a13b5f440175"
+      },
+      {
+        "name": "11.477512e6f03fd2f6f3c5.js",
+        "source": "11.477512e6f03fd2f6f3c5.js",
+        "sha256": "e81bfe3462cc3e79a70ba016ddee2a372a31480d3f52964952e1d21f3a490f91"
+      }
+    ],
+    "errors": [],
+    "pageErrors": [],
+    "externalRequests": [
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+        "method": "GET",
+        "resourceType": "script",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+        "method": "GET",
+        "resourceType": "image",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://collection.codemao.cn/report/kitten",
+        "method": "POST",
+        "resourceType": "ping",
+        "action": "blocked"
+      },
+      {
+        "url": "https://collection.codemao.cn/report/sysinfo",
+        "method": "POST",
+        "resourceType": "ping",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+        "method": "GET",
+        "resourceType": "script",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+        "method": "GET",
+        "resourceType": "image",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/player-icons/mob%EF%BC%8Ficn_keyboard_nor.png",
+        "method": "GET",
+        "resourceType": "image",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/player-icons/mob_icn_reset.png",
+        "method": "GET",
+        "resourceType": "image",
+        "action": "blocked"
+      }
+    ]
+  },
+  "all-no-ripple": {
+    "fixtureSha256": "2f376a635a52b5b35bf800a3eb4086e5a7eaf176705ebbbc3d38bdbe95ab5713",
+    "samples": [
+      {
+        "frame": 1,
+        "index": 0,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 397,
+          "y": 295,
+          "width": 192,
+          "height": 144
+        },
+        "outputSize": null,
+        "projection": [
+          0.0020833334419876337,
+          0,
+          0,
+          0,
+          -0.0027777778450399637,
+          0,
+          -1,
+          1,
+          1
+        ],
+        "filterArea": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "vertex": [
+          -1,
+          -1,
+          1,
+          -1,
+          1,
+          1,
+          -1,
+          1
+        ],
+        "uv": [
+          0,
+          0,
+          1,
+          0,
+          1,
+          1,
+          0,
+          1
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 2,
+        "index": 0,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 397,
+          "y": 295,
+          "width": 192,
+          "height": 144
+        },
+        "outputSize": null,
+        "projection": [
+          0.0020833334419876337,
+          0,
+          0,
+          0,
+          -0.0027777778450399637,
+          0,
+          -1,
+          1,
+          1
+        ],
+        "filterArea": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "vertex": [
+          -1,
+          -1,
+          1,
+          -1,
+          1,
+          1,
+          -1,
+          1
+        ],
+        "uv": [
+          0,
+          0,
+          1,
+          0,
+          1,
+          1,
+          0,
+          1
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 3,
+        "index": 0,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 397,
+          "y": 295,
+          "width": 192,
+          "height": 144
+        },
+        "outputSize": null,
+        "projection": [
+          0.0020833334419876337,
+          0,
+          0,
+          0,
+          -0.0027777778450399637,
+          0,
+          -1,
+          1,
+          1
+        ],
+        "filterArea": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "vertex": [
+          -1,
+          -1,
+          1,
+          -1,
+          1,
+          1,
+          -1,
+          1
+        ],
+        "uv": [
+          0,
+          0,
+          1,
+          0,
+          1,
+          1,
+          0,
+          1
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 4,
+        "index": 0,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 397,
+          "y": 295,
+          "width": 192,
+          "height": 144
+        },
+        "outputSize": null,
+        "projection": [
+          0.0020833334419876337,
+          0,
+          0,
+          0,
+          -0.0027777778450399637,
+          0,
+          -1,
+          1,
+          1
+        ],
+        "filterArea": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "vertex": [
+          -1,
+          -1,
+          1,
+          -1,
+          1,
+          1,
+          -1,
+          1
+        ],
+        "uv": [
+          0,
+          0,
+          1,
+          0,
+          1,
+          1,
+          0,
+          1
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 5,
+        "index": 0,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 397,
+          "y": 295,
+          "width": 192,
+          "height": 144
+        },
+        "outputSize": [
+          256,
+          256
+        ],
+        "projection": [
+          0.010416666977107525,
+          0,
+          0,
+          0,
+          0.013888888992369175,
+          0,
+          -5.135416507720947,
+          -5.097222328186035,
+          1
+        ],
+        "filterArea": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "vertex": [
+          -1,
+          -1,
+          1,
+          -1,
+          1,
+          1,
+          -1,
+          1
+        ],
+        "uv": [
+          0,
+          0,
+          1,
+          0,
+          1,
+          1,
+          0,
+          1
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 5,
+        "index": 1,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 397,
+          "y": 295,
+          "width": 192,
+          "height": 144
+        },
+        "outputSize": null,
+        "projection": [
+          0.0020833334419876337,
+          0,
+          0,
+          0,
+          -0.0027777778450399637,
+          0,
+          -1,
+          1,
+          1
+        ],
+        "filterArea": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "vertex": [
+          -1,
+          -1,
+          1,
+          -1,
+          1,
+          1,
+          -1,
+          1
+        ],
+        "uv": [
+          0,
+          0,
+          1,
+          0,
+          1,
+          1,
+          0,
+          1
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 6,
+        "index": 0,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 397,
+          "y": 295,
+          "width": 192,
+          "height": 144
+        },
+        "outputSize": [
+          256,
+          256
+        ],
+        "projection": [
+          0.010416666977107525,
+          0,
+          0,
+          0,
+          0.013888888992369175,
+          0,
+          -5.135416507720947,
+          -5.097222328186035,
+          1
+        ],
+        "filterArea": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "vertex": [
+          -1,
+          -1,
+          1,
+          -1,
+          1,
+          1,
+          -1,
+          1
+        ],
+        "uv": [
+          0,
+          0,
+          1,
+          0,
+          1,
+          1,
+          0,
+          1
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 6,
+        "index": 1,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 397,
+          "y": 295,
+          "width": 192,
+          "height": 144
+        },
+        "outputSize": null,
+        "projection": [
+          0.0020833334419876337,
+          0,
+          0,
+          0,
+          -0.0027777778450399637,
+          0,
+          -1,
+          1,
+          1
+        ],
+        "filterArea": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "vertex": [
+          -1,
+          -1,
+          1,
+          -1,
+          1,
+          1,
+          -1,
+          1
+        ],
+        "uv": [
+          0,
+          0,
+          1,
+          0,
+          1,
+          1,
+          0,
+          1
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 7,
+        "index": 0,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 397,
+          "y": 295,
+          "width": 192,
+          "height": 144
+        },
+        "outputSize": [
+          256,
+          256
+        ],
+        "projection": [
+          0.010416666977107525,
+          0,
+          0,
+          0,
+          0.013888888992369175,
+          0,
+          -5.135416507720947,
+          -5.097222328186035,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          397,
+          295
+        ],
+        "vertex": [
+          -1,
+          -1,
+          1,
+          -1,
+          1,
+          1,
+          -1,
+          1
+        ],
+        "uv": [
+          0,
+          0,
+          1,
+          0,
+          1,
+          1,
+          0,
+          1
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 7,
+        "index": 1,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 397,
+          "y": 295,
+          "width": 192,
+          "height": 144
+        },
+        "outputSize": [
+          256,
+          256
+        ],
+        "projection": [
+          0.010416666977107525,
+          0,
+          0,
+          0,
+          0.013888888992369175,
+          0,
+          -5.135416507720947,
+          -5.097222328186035,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          397,
+          295
+        ],
+        "vertex": [
+          -1,
+          -1,
+          1,
+          -1,
+          1,
+          1,
+          -1,
+          1
+        ],
+        "uv": [
+          0,
+          0,
+          1,
+          0,
+          1,
+          1,
+          0,
+          1
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 7,
+        "index": 2,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 397,
+          "y": 295,
+          "width": 192,
+          "height": 144
+        },
+        "outputSize": null,
+        "projection": [
+          0.0020833334419876337,
+          0,
+          0,
+          0,
+          -0.0027777778450399637,
+          0,
+          -1,
+          1,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          397,
+          295
+        ],
+        "vertex": [
+          397,
+          295,
+          589,
+          295,
+          589,
+          439,
+          397,
+          439
+        ],
+        "uv": [
+          0,
+          0,
+          0.75,
+          0,
+          0.75,
+          0.5625,
+          0,
+          0.5625
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 8,
+        "index": 0,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 397,
+          "y": 295,
+          "width": 192,
+          "height": 144
+        },
+        "outputSize": [
+          256,
+          256
+        ],
+        "projection": [
+          0.010416666977107525,
+          0,
+          0,
+          0,
+          0.013888888992369175,
+          0,
+          -5.135416507720947,
+          -5.097222328186035,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          397,
+          295
+        ],
+        "vertex": [
+          397,
+          295,
+          589,
+          295,
+          589,
+          439,
+          397,
+          439
+        ],
+        "uv": [
+          0,
+          0,
+          0.75,
+          0,
+          0.75,
+          0.5625,
+          0,
+          0.5625
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 8,
+        "index": 1,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 397,
+          "y": 295,
+          "width": 192,
+          "height": 144
+        },
+        "outputSize": [
+          256,
+          256
+        ],
+        "projection": [
+          0.010416666977107525,
+          0,
+          0,
+          0,
+          0.013888888992369175,
+          0,
+          -5.135416507720947,
+          -5.097222328186035,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          397,
+          295
+        ],
+        "vertex": [
+          397,
+          295,
+          589,
+          295,
+          589,
+          439,
+          397,
+          439
+        ],
+        "uv": [
+          0,
+          0,
+          0.75,
+          0,
+          0.75,
+          0.5625,
+          0,
+          0.5625
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 8,
+        "index": 2,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 397,
+          "y": 295,
+          "width": 192,
+          "height": 144
+        },
+        "outputSize": null,
+        "projection": [
+          0.0020833334419876337,
+          0,
+          0,
+          0,
+          -0.0027777778450399637,
+          0,
+          -1,
+          1,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          397,
+          295
+        ],
+        "vertex": [
+          397,
+          295,
+          589,
+          295,
+          589,
+          439,
+          397,
+          439
+        ],
+        "uv": [
+          0,
+          0,
+          0.75,
+          0,
+          0.75,
+          0.5625,
+          0,
+          0.5625
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 9,
+        "index": 0,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 377,
+          "y": 275,
+          "width": 232,
+          "height": 184
+        },
+        "outputSize": [
+          256,
+          256
+        ],
+        "projection": [
+          0.008620689623057842,
+          0,
+          0,
+          0,
+          0.010869565419852734,
+          0,
+          -4.25,
+          -3.9891304969787598,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ],
+        "vertex": [
+          397,
+          295,
+          589,
+          295,
+          589,
+          439,
+          397,
+          439
+        ],
+        "uv": [
+          0,
+          0,
+          0.75,
+          0,
+          0.75,
+          0.5625,
+          0,
+          0.5625
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 9,
+        "index": 1,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 377,
+          "y": 275,
+          "width": 232,
+          "height": 184
+        },
+        "outputSize": [
+          256,
+          256
+        ],
+        "projection": [
+          0.008620689623057842,
+          0,
+          0,
+          0,
+          0.010869565419852734,
+          0,
+          -4.25,
+          -3.9891304969787598,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ],
+        "vertex": [
+          397,
+          295,
+          589,
+          295,
+          589,
+          439,
+          397,
+          439
+        ],
+        "uv": [
+          0,
+          0,
+          0.75,
+          0,
+          0.75,
+          0.5625,
+          0,
+          0.5625
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 9,
+        "index": 2,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 377,
+          "y": 275,
+          "width": 232,
+          "height": 184
+        },
+        "outputSize": [
+          256,
+          256
+        ],
+        "projection": [
+          0.008620689623057842,
+          0,
+          0,
+          0,
+          0.010869565419852734,
+          0,
+          -4.25,
+          -3.9891304969787598,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ],
+        "vertex": [
+          377,
+          275,
+          609,
+          275,
+          609,
+          459,
+          377,
+          459
+        ],
+        "uv": [
+          0,
+          0,
+          0.90625,
+          0,
+          0.90625,
+          0.71875,
+          0,
+          0.71875
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 9,
+        "index": 4,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 377,
+          "y": 275,
+          "width": 232,
+          "height": 184
+        },
+        "outputSize": null,
+        "projection": [
+          0.0020833334419876337,
+          0,
+          0,
+          0,
+          -0.0027777778450399637,
+          0,
+          -1,
+          1,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ],
+        "vertex": [
+          377,
+          275,
+          609,
+          275,
+          609,
+          459,
+          377,
+          459
+        ],
+        "uv": [
+          0,
+          0,
+          0.90625,
+          0,
+          0.90625,
+          0.71875,
+          0,
+          0.71875
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 10,
+        "index": 0,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 377,
+          "y": 275,
+          "width": 232,
+          "height": 184
+        },
+        "outputSize": [
+          256,
+          256
+        ],
+        "projection": [
+          0.008620689623057842,
+          0,
+          0,
+          0,
+          0.010869565419852734,
+          0,
+          -4.25,
+          -3.9891304969787598,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ],
+        "vertex": [
+          377,
+          275,
+          609,
+          275,
+          609,
+          459,
+          377,
+          459
+        ],
+        "uv": [
+          0,
+          0,
+          0.90625,
+          0,
+          0.90625,
+          0.71875,
+          0,
+          0.71875
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 10,
+        "index": 1,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 377,
+          "y": 275,
+          "width": 232,
+          "height": 184
+        },
+        "outputSize": [
+          256,
+          256
+        ],
+        "projection": [
+          0.008620689623057842,
+          0,
+          0,
+          0,
+          0.010869565419852734,
+          0,
+          -4.25,
+          -3.9891304969787598,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ],
+        "vertex": [
+          377,
+          275,
+          609,
+          275,
+          609,
+          459,
+          377,
+          459
+        ],
+        "uv": [
+          0,
+          0,
+          0.90625,
+          0,
+          0.90625,
+          0.71875,
+          0,
+          0.71875
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 10,
+        "index": 2,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 377,
+          "y": 275,
+          "width": 232,
+          "height": 184
+        },
+        "outputSize": [
+          256,
+          256
+        ],
+        "projection": [
+          0.008620689623057842,
+          0,
+          0,
+          0,
+          0.010869565419852734,
+          0,
+          -4.25,
+          -3.9891304969787598,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ],
+        "vertex": [
+          377,
+          275,
+          609,
+          275,
+          609,
+          459,
+          377,
+          459
+        ],
+        "uv": [
+          0,
+          0,
+          0.90625,
+          0,
+          0.90625,
+          0.71875,
+          0,
+          0.71875
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 10,
+        "index": 4,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 377,
+          "y": 275,
+          "width": 232,
+          "height": 184
+        },
+        "outputSize": null,
+        "projection": [
+          0.0020833334419876337,
+          0,
+          0,
+          0,
+          -0.0027777778450399637,
+          0,
+          -1,
+          1,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ],
+        "vertex": [
+          377,
+          275,
+          609,
+          275,
+          609,
+          459,
+          377,
+          459
+        ],
+        "uv": [
+          0,
+          0,
+          0.90625,
+          0,
+          0.90625,
+          0.71875,
+          0,
+          0.71875
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 11,
+        "index": 0,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 377,
+          "y": 275,
+          "width": 232,
+          "height": 184
+        },
+        "outputSize": [
+          256,
+          256
+        ],
+        "projection": [
+          0.008620689623057842,
+          0,
+          0,
+          0,
+          0.010869565419852734,
+          0,
+          -4.25,
+          -3.9891304969787598,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ],
+        "vertex": [
+          377,
+          275,
+          609,
+          275,
+          609,
+          459,
+          377,
+          459
+        ],
+        "uv": [
+          0,
+          0,
+          0.90625,
+          0,
+          0.90625,
+          0.71875,
+          0,
+          0.71875
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 11,
+        "index": 1,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 377,
+          "y": 275,
+          "width": 232,
+          "height": 184
+        },
+        "outputSize": [
+          256,
+          256
+        ],
+        "projection": [
+          0.008620689623057842,
+          0,
+          0,
+          0,
+          0.010869565419852734,
+          0,
+          -4.25,
+          -3.9891304969787598,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ],
+        "vertex": [
+          377,
+          275,
+          609,
+          275,
+          609,
+          459,
+          377,
+          459
+        ],
+        "uv": [
+          0,
+          0,
+          0.90625,
+          0,
+          0.90625,
+          0.71875,
+          0,
+          0.71875
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 11,
+        "index": 2,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 377,
+          "y": 275,
+          "width": 232,
+          "height": 184
+        },
+        "outputSize": [
+          256,
+          256
+        ],
+        "projection": [
+          0.008620689623057842,
+          0,
+          0,
+          0,
+          0.010869565419852734,
+          0,
+          -4.25,
+          -3.9891304969787598,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ],
+        "vertex": [
+          377,
+          275,
+          609,
+          275,
+          609,
+          459,
+          377,
+          459
+        ],
+        "uv": [
+          0,
+          0,
+          0.90625,
+          0,
+          0.90625,
+          0.71875,
+          0,
+          0.71875
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 11,
+        "index": 4,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 377,
+          "y": 275,
+          "width": 232,
+          "height": 184
+        },
+        "outputSize": [
+          256,
+          256
+        ],
+        "projection": [
+          0.008620689623057842,
+          0,
+          0,
+          0,
+          0.010869565419852734,
+          0,
+          -4.25,
+          -3.9891304969787598,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ],
+        "vertex": [
+          377,
+          275,
+          609,
+          275,
+          609,
+          459,
+          377,
+          459
+        ],
+        "uv": [
+          0,
+          0,
+          0.90625,
+          0,
+          0.90625,
+          0.71875,
+          0,
+          0.71875
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 11,
+        "index": 5,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 377,
+          "y": 275,
+          "width": 232,
+          "height": 184
+        },
+        "outputSize": null,
+        "projection": [
+          0.0020833334419876337,
+          0,
+          0,
+          0,
+          -0.0027777778450399637,
+          0,
+          -1,
+          1,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ],
+        "vertex": [
+          377,
+          275,
+          609,
+          275,
+          609,
+          459,
+          377,
+          459
+        ],
+        "uv": [
+          0,
+          0,
+          0.90625,
+          0,
+          0.90625,
+          0.71875,
+          0,
+          0.71875
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 12,
+        "index": 0,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 377,
+          "y": 275,
+          "width": 232,
+          "height": 184
+        },
+        "outputSize": [
+          256,
+          256
+        ],
+        "projection": [
+          0.008620689623057842,
+          0,
+          0,
+          0,
+          0.010869565419852734,
+          0,
+          -4.25,
+          -3.9891304969787598,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ],
+        "vertex": [
+          377,
+          275,
+          609,
+          275,
+          609,
+          459,
+          377,
+          459
+        ],
+        "uv": [
+          0,
+          0,
+          0.90625,
+          0,
+          0.90625,
+          0.71875,
+          0,
+          0.71875
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 12,
+        "index": 1,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 377,
+          "y": 275,
+          "width": 232,
+          "height": 184
+        },
+        "outputSize": [
+          256,
+          256
+        ],
+        "projection": [
+          0.008620689623057842,
+          0,
+          0,
+          0,
+          0.010869565419852734,
+          0,
+          -4.25,
+          -3.9891304969787598,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ],
+        "vertex": [
+          377,
+          275,
+          609,
+          275,
+          609,
+          459,
+          377,
+          459
+        ],
+        "uv": [
+          0,
+          0,
+          0.90625,
+          0,
+          0.90625,
+          0.71875,
+          0,
+          0.71875
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 12,
+        "index": 2,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 377,
+          "y": 275,
+          "width": 232,
+          "height": 184
+        },
+        "outputSize": [
+          256,
+          256
+        ],
+        "projection": [
+          0.008620689623057842,
+          0,
+          0,
+          0,
+          0.010869565419852734,
+          0,
+          -4.25,
+          -3.9891304969787598,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ],
+        "vertex": [
+          377,
+          275,
+          609,
+          275,
+          609,
+          459,
+          377,
+          459
+        ],
+        "uv": [
+          0,
+          0,
+          0.90625,
+          0,
+          0.90625,
+          0.71875,
+          0,
+          0.71875
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 12,
+        "index": 4,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 377,
+          "y": 275,
+          "width": 232,
+          "height": 184
+        },
+        "outputSize": [
+          256,
+          256
+        ],
+        "projection": [
+          0.008620689623057842,
+          0,
+          0,
+          0,
+          0.010869565419852734,
+          0,
+          -4.25,
+          -3.9891304969787598,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ],
+        "vertex": [
+          377,
+          275,
+          609,
+          275,
+          609,
+          459,
+          377,
+          459
+        ],
+        "uv": [
+          0,
+          0,
+          0.90625,
+          0,
+          0.90625,
+          0.71875,
+          0,
+          0.71875
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 12,
+        "index": 5,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 377,
+          "y": 275,
+          "width": 232,
+          "height": 184
+        },
+        "outputSize": null,
+        "projection": [
+          0.0020833334419876337,
+          0,
+          0,
+          0,
+          -0.0027777778450399637,
+          0,
+          -1,
+          1,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ],
+        "vertex": [
+          377,
+          275,
+          609,
+          275,
+          609,
+          459,
+          377,
+          459
+        ],
+        "uv": [
+          0,
+          0,
+          0.90625,
+          0,
+          0.90625,
+          0.71875,
+          0,
+          0.71875
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 13,
+        "index": 0,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 377,
+          "y": 275,
+          "width": 232,
+          "height": 184
+        },
+        "outputSize": [
+          256,
+          256
+        ],
+        "projection": [
+          0.008620689623057842,
+          0,
+          0,
+          0,
+          0.010869565419852734,
+          0,
+          -4.25,
+          -3.9891304969787598,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ],
+        "vertex": [
+          377,
+          275,
+          609,
+          275,
+          609,
+          459,
+          377,
+          459
+        ],
+        "uv": [
+          0,
+          0,
+          0.90625,
+          0,
+          0.90625,
+          0.71875,
+          0,
+          0.71875
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 13,
+        "index": 1,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 377,
+          "y": 275,
+          "width": 232,
+          "height": 184
+        },
+        "outputSize": [
+          256,
+          256
+        ],
+        "projection": [
+          0.008620689623057842,
+          0,
+          0,
+          0,
+          0.010869565419852734,
+          0,
+          -4.25,
+          -3.9891304969787598,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ],
+        "vertex": [
+          377,
+          275,
+          609,
+          275,
+          609,
+          459,
+          377,
+          459
+        ],
+        "uv": [
+          0,
+          0,
+          0.90625,
+          0,
+          0.90625,
+          0.71875,
+          0,
+          0.71875
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 13,
+        "index": 2,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 377,
+          "y": 275,
+          "width": 232,
+          "height": 184
+        },
+        "outputSize": [
+          256,
+          256
+        ],
+        "projection": [
+          0.008620689623057842,
+          0,
+          0,
+          0,
+          0.010869565419852734,
+          0,
+          -4.25,
+          -3.9891304969787598,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ],
+        "vertex": [
+          377,
+          275,
+          609,
+          275,
+          609,
+          459,
+          377,
+          459
+        ],
+        "uv": [
+          0,
+          0,
+          0.90625,
+          0,
+          0.90625,
+          0.71875,
+          0,
+          0.71875
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 13,
+        "index": 4,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 377,
+          "y": 275,
+          "width": 232,
+          "height": 184
+        },
+        "outputSize": [
+          256,
+          256
+        ],
+        "projection": [
+          0.008620689623057842,
+          0,
+          0,
+          0,
+          0.010869565419852734,
+          0,
+          -4.25,
+          -3.9891304969787598,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ],
+        "vertex": [
+          377,
+          275,
+          609,
+          275,
+          609,
+          459,
+          377,
+          459
+        ],
+        "uv": [
+          0,
+          0,
+          0.90625,
+          0,
+          0.90625,
+          0.71875,
+          0,
+          0.71875
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 13,
+        "index": 5,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 377,
+          "y": 275,
+          "width": 232,
+          "height": 184
+        },
+        "outputSize": [
+          256,
+          256
+        ],
+        "projection": [
+          0.008620689623057842,
+          0,
+          0,
+          0,
+          0.010869565419852734,
+          0,
+          -4.25,
+          -3.9891304969787598,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ],
+        "vertex": [
+          377,
+          275,
+          609,
+          275,
+          609,
+          459,
+          377,
+          459
+        ],
+        "uv": [
+          0,
+          0,
+          0.90625,
+          0,
+          0.90625,
+          0.71875,
+          0,
+          0.71875
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 13,
+        "index": 6,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 377,
+          "y": 275,
+          "width": 232,
+          "height": 184
+        },
+        "outputSize": null,
+        "projection": [
+          0.0020833334419876337,
+          0,
+          0,
+          0,
+          -0.0027777778450399637,
+          0,
+          -1,
+          1,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ],
+        "vertex": [
+          377,
+          275,
+          609,
+          275,
+          609,
+          459,
+          377,
+          459
+        ],
+        "uv": [
+          0,
+          0,
+          0.90625,
+          0,
+          0.90625,
+          0.71875,
+          0,
+          0.71875
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 14,
+        "index": 0,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 377,
+          "y": 275,
+          "width": 232,
+          "height": 184
+        },
+        "outputSize": [
+          256,
+          256
+        ],
+        "projection": [
+          0.008620689623057842,
+          0,
+          0,
+          0,
+          0.010869565419852734,
+          0,
+          -4.25,
+          -3.9891304969787598,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ],
+        "vertex": [
+          377,
+          275,
+          609,
+          275,
+          609,
+          459,
+          377,
+          459
+        ],
+        "uv": [
+          0,
+          0,
+          0.90625,
+          0,
+          0.90625,
+          0.71875,
+          0,
+          0.71875
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 14,
+        "index": 1,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 377,
+          "y": 275,
+          "width": 232,
+          "height": 184
+        },
+        "outputSize": [
+          256,
+          256
+        ],
+        "projection": [
+          0.008620689623057842,
+          0,
+          0,
+          0,
+          0.010869565419852734,
+          0,
+          -4.25,
+          -3.9891304969787598,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ],
+        "vertex": [
+          377,
+          275,
+          609,
+          275,
+          609,
+          459,
+          377,
+          459
+        ],
+        "uv": [
+          0,
+          0,
+          0.90625,
+          0,
+          0.90625,
+          0.71875,
+          0,
+          0.71875
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 14,
+        "index": 2,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 377,
+          "y": 275,
+          "width": 232,
+          "height": 184
+        },
+        "outputSize": [
+          256,
+          256
+        ],
+        "projection": [
+          0.008620689623057842,
+          0,
+          0,
+          0,
+          0.010869565419852734,
+          0,
+          -4.25,
+          -3.9891304969787598,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ],
+        "vertex": [
+          377,
+          275,
+          609,
+          275,
+          609,
+          459,
+          377,
+          459
+        ],
+        "uv": [
+          0,
+          0,
+          0.90625,
+          0,
+          0.90625,
+          0.71875,
+          0,
+          0.71875
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 14,
+        "index": 4,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 377,
+          "y": 275,
+          "width": 232,
+          "height": 184
+        },
+        "outputSize": [
+          256,
+          256
+        ],
+        "projection": [
+          0.008620689623057842,
+          0,
+          0,
+          0,
+          0.010869565419852734,
+          0,
+          -4.25,
+          -3.9891304969787598,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ],
+        "vertex": [
+          377,
+          275,
+          609,
+          275,
+          609,
+          459,
+          377,
+          459
+        ],
+        "uv": [
+          0,
+          0,
+          0.90625,
+          0,
+          0.90625,
+          0.71875,
+          0,
+          0.71875
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 14,
+        "index": 5,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 377,
+          "y": 275,
+          "width": 232,
+          "height": 184
+        },
+        "outputSize": [
+          256,
+          256
+        ],
+        "projection": [
+          0.008620689623057842,
+          0,
+          0,
+          0,
+          0.010869565419852734,
+          0,
+          -4.25,
+          -3.9891304969787598,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ],
+        "vertex": [
+          377,
+          275,
+          609,
+          275,
+          609,
+          459,
+          377,
+          459
+        ],
+        "uv": [
+          0,
+          0,
+          0.90625,
+          0,
+          0.90625,
+          0.71875,
+          0,
+          0.71875
+        ],
+        "fragmentPrecision": "mediump"
+      },
+      {
+        "frame": 14,
+        "index": 6,
+        "inputSize": [
+          256,
+          256
+        ],
+        "inputFrame": {
+          "x": 377,
+          "y": 275,
+          "width": 232,
+          "height": 184
+        },
+        "outputSize": null,
+        "projection": [
+          0.0020833334419876337,
+          0,
+          0,
+          0,
+          -0.0027777778450399637,
+          0,
+          -1,
+          1,
+          1
+        ],
+        "filterArea": [
+          256,
+          256,
+          377,
+          275
+        ],
+        "vertex": [
+          377,
+          275,
+          609,
+          275,
+          609,
+          459,
+          377,
+          459
+        ],
+        "uv": [
+          0,
+          0,
+          0.90625,
+          0,
+          0.90625,
+          0.71875,
+          0,
+          0.71875
+        ],
+        "fragmentPrecision": "mediump"
+      }
+    ],
+    "assets": [
+      {
+        "name": "player_v2__3ffeebbd0c789e8d9422.css",
+        "source": "player_v2__3ffeebbd0c789e8d9422.css",
+        "sha256": "39e8e70b124b604831773893cdc95931cdee3eaea52c6dd69f33f5781d48b45a"
+      },
+      {
+        "name": "runtime.f42f527f119e09010b85.js",
+        "source": "runtime.f42f527f119e09010b85.js",
+        "sha256": "4164d67795238f64d035f473418236038ae475ae36032a967cba16ede263735f"
+      },
+      {
+        "name": "player_v2.2d180c468559fbd29528.js",
+        "source": "player_v2.2d180c468559fbd29528.js.orig",
+        "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160"
+      },
+      {
+        "name": "vendors.d00f4bd454a6352e9d71.js",
+        "source": "vendors.d00f4bd454a6352e9d71.js",
+        "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
+      },
+      {
+        "name": "9.c396696e9dc71e25b012.js",
+        "source": "9.c396696e9dc71e25b012.js",
+        "sha256": "5758343310c47596d56e954aa05fa76a546080c8bf4fefd41cac0042794d6195"
+      },
+      {
+        "name": "14.c95e6f2ddd61fb701d0e.js",
+        "source": "14.c95e6f2ddd61fb701d0e.js",
+        "sha256": "d3ce91c9113463db4c0988210caeb1be2ddc508499d5c53a8e73a13b5f440175"
+      },
+      {
+        "name": "11.477512e6f03fd2f6f3c5.js",
+        "source": "11.477512e6f03fd2f6f3c5.js",
+        "sha256": "e81bfe3462cc3e79a70ba016ddee2a372a31480d3f52964952e1d21f3a490f91"
+      }
+    ],
+    "errors": [],
+    "pageErrors": [],
+    "externalRequests": [
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+        "method": "GET",
+        "resourceType": "script",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+        "method": "GET",
+        "resourceType": "image",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://collection.codemao.cn/report/kitten",
+        "method": "POST",
+        "resourceType": "ping",
+        "action": "blocked"
+      },
+      {
+        "url": "https://collection.codemao.cn/report/sysinfo",
+        "method": "POST",
+        "resourceType": "ping",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://pv.sohu.com/cityjson?ie=utf-8",
+        "method": "GET",
+        "resourceType": "script",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/variable-1582192414.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kn/build/asset/icon_confirm_48939.png",
+        "method": "GET",
+        "resourceType": "image",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/stage_dialog-1576674019214.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/kitten/audio_img-1579413740328.json",
+        "method": "GET",
+        "resourceType": "xhr",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/player-icons/mob%EF%BC%8Ficn_keyboard_nor.png",
+        "method": "GET",
+        "resourceType": "image",
+        "action": "blocked"
+      },
+      {
+        "url": "https://kn-cdn.codemao.cn/player-icons/mob_icn_reset.png",
+        "method": "GET",
+        "resourceType": "image",
+        "action": "blocked"
+      }
+    ]
+  }
+}

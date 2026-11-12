@@ -23,6 +23,35 @@ pub(super) fn transition_kind(kind: &str, direction: &str) -> String {
     }
 }
 
+/// Offline deterministic adapter for a1xw/Et's independent animation clock.
+/// Completion runs after an update's screenshot/ticker; activation scripts run
+/// in the following update. Unknown names have no tween and never complete.
+pub(super) struct SceneActivation {
+    pub target: usize,
+    start: f64,
+    duration: Option<f64>,
+}
+impl SceneActivation {
+    pub fn new(target: usize, kind: &str, start: f64) -> Self {
+        let duration = match kind {
+            "fade_in_out" | "slide_up" | "slide_down" | "slide_left" | "slide_right" => Some(0.5),
+            "bounce_up" | "bounce_down" | "bounce_left" | "bounce_right" => Some(1.0),
+            "distort" => Some(0.6),
+            _ => None,
+        };
+        Self {
+            target,
+            start,
+            duration,
+        }
+    }
+    pub fn completed(&self, now: f64) -> bool {
+        // Roundoff of cumulative f64 dt must not turn an exact endpoint into
+        // the strict `elapsed > duration` completion sample.
+        self.duration.is_some_and(|d| now - self.start > d + 1e-12)
+    }
+}
+
 impl Engine {
     /// Rt.set_pen_down tests both stored coordinates for JS truthiness. With
     /// either coordinate zero a repeated pen-down draws another dot; away from

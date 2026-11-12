@@ -6,16 +6,18 @@ import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { partialEffects7Fixtures } from './k4-partial-effects-7-fixtures.mjs';
 import { partialEffects8Fixtures } from './k4-partial-effects-8-fixtures.mjs';
+import { partialEffects9Fixtures } from './k4-partial-effects-9-fixtures.mjs';
 import { runOracle, saveJson } from './k4-oracle.mjs';
 import { pixelDifference } from './k4-visual.mjs';
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
-const source=await readFile('web/renderer.js','utf8');
-const round8=process.argv.includes('--round8'),names=process.argv.slice(2).filter(n=>n!=='--round8'),round=round8?8:7;
+const sourceArg=process.argv.find(a=>a.startsWith('--source='));
+const source=await readFile(sourceArg?sourceArg.slice(9):'web/renderer.js','utf8');
+const round9=process.argv.includes('--round9'),round8=process.argv.includes('--round8'),names=process.argv.slice(2).filter(n=>!n.startsWith('--')),round=round9?9:round8?8:7;
 const report={schema:`nekoc-k4-partial-effects-${round}-renderer-v1`,scope:'shader isolation only: native official getters feed NekoC renderer, NOT NekoC VM evidence; full canvas, no masks, tolerance 8',rendererLfSha256:hash(source.replace(/\r\n/g,'\n')),cases:{}};
-for(const [name,spec]of Object.entries(await (round8?partialEffects8Fixtures():partialEffects7Fixtures()))){
+for(const [name,spec]of Object.entries(await (round9?partialEffects9Fixtures():round8?partialEffects8Fixtures():partialEffects7Fixtures()))){
   if(name.startsWith('scene-'))continue; // scene cases use the real-VM runner only
   if(names.length&&!names.includes(name))continue;
-  const dir=`dist/partial-effects-${round}/renderer/${name}`;await mkdir(dir,{recursive:true});
+   const dir=`dist/partial-effects-${round}/${sourceArg?'baseline-renderer':'renderer'}/${name}`;await mkdir(dir,{recursive:true});
   let nekoPage;const frames=[],observations=[],filterSamples=[];
   const trace=await runOracle(spec.project,{virtualTime:true,blocks:true,frames:spec.frames,seed:1,
     beforeStart:async page=>{
@@ -56,11 +58,12 @@ for(const [name,spec]of Object.entries(await (round8?partialEffects8Fixtures():p
       const [a,b]=await Promise.all([capture(nekoPage,false),capture(page,true)]);
       filterSamples.push(...await page.evaluate(()=>window.__effects7Filters.splice(0)));
       if(a.width!==b.width||a.height!==b.height)throw Error('Canvas size mismatch');
-      frames.push({frame,width:a.width,height:a.height,...pixelDifference(Buffer.from(a.rgba,'base64'),Buffer.from(b.rgba,'base64'),8)});
+      const aa=Buffer.from(a.rgba,'base64'),bb=Buffer.from(b.rgba,'base64');
+      frames.push({frame,width:a.width,height:a.height,...pixelDifference(aa,bb,8),additionalTolerances:Object.fromEntries([0,1].map(t=>[t,pixelDifference(aa,bb,t)]))});
       for(const [label,img]of [['nekoc',a],['official',b]])await writeFile(path.join(dir,`${frame}-${label}.png`),Buffer.from(img.png,'base64'));
     }});
   await saveJson(path.join(dir,'diagnostics.json'),trace.diagnostics);
   report.cases[name]={sha256:hash(JSON.stringify(spec.project,null,2)+'\n'),observations,frames,filterSamples,errors:trace.errors,events:trace.events.filter(e=>e.event==='block'),assets:trace.diagnostics.assets,pageErrors:trace.diagnostics.pageErrors,externalRequests:trace.diagnostics.externalRequests};
   console.log(name,frames.map(f=>`${f.frame}:${f.changedPixels}`).join(','));
-  await saveJson(`docs/kitten4-partial-effects-${round}-renderer.json`,report);
+  await saveJson(`docs/kitten4-partial-effects-${round}-${sourceArg?'baseline':'renderer'}.json`,report);
 }
