@@ -90,6 +90,10 @@ fn main() -> Result<()> {
     let mut active_frames = 0usize;
     let mut warmup_ms = Vec::with_capacity(args.warmup);
     for frame in 0..args.warmup + args.frames {
+        #[cfg(feature = "interp-profile")]
+        if frame == args.warmup {
+            nekoc::engine::interp_profile::reset();
+        }
         let start = Instant::now();
         let update = engine.advance(1.0 / 60.0, 200_000_000, Duration::from_secs(10))?;
         let ms = start.elapsed().as_secs_f64() * 1000.0;
@@ -110,6 +114,8 @@ fn main() -> Result<()> {
     }
     // Read before the diagnostic snapshot allocates. Each invocation is a fresh process.
     let peak_rss = peak_rss_bytes();
+    #[cfg(feature = "interp-profile")]
+    eprintln!("{}", nekoc::engine::interp_profile::snapshot());
     let final_state = engine.oracle_snapshot((args.warmup + args.frames) as u32);
     println!(
         "{}",
