@@ -4,6 +4,7 @@ import test from 'node:test';
 import { baseline, serviceTypes, physicsMainPaths, propertyMainPaths, drawingMainPaths } from '../tools/compat/k4-partial-6-scope.mjs';
 import { remainingRound7, round7MainPaths, scope7Markdown } from '../tools/compat/k4-partial-7-scope.mjs';
 import { round8MainPaths } from '../tools/compat/k4-partial-8-scope.mjs';
+import { cloudDataTypes } from '../tools/compat/k4-block-catalog.mjs';
 
 test('round 7 accounts for all 28 remaining A types and only promotes measured main paths', () => {
   const report = JSON.parse(fs.readFileSync('docs/kitten4-block-coverage.json', 'utf8'));
@@ -15,8 +16,8 @@ test('round 7 accounts for all 28 remaining A types and only promotes measured m
   for (const [type, count] of Object.entries(baseline)) {
     assert.equal(rows.get(type).occurrences, count);
     if (serviceTypes.has(type)) {
-      assert.equal(rows.get(type).status, '设备降级');
-      assert.equal(rows.get(type).semantics, 'partial');
+      assert.equal(rows.get(type).status, cloudDataTypes.has(type) ? '已实现' : '设备降级');
+      assert.equal(rows.get(type).semantics, cloudDataTypes.has(type) ? 'offline-oracle-verified' : 'partial');
     }
   }
   for (const type of remainingRound7) {
@@ -33,6 +34,7 @@ test('round 7 accounts for all 28 remaining A types and only promotes measured m
     assert.equal(rows.get(type).semantics, 'partial', type);
   }
   const historical=structuredClone(report);
+  for(const row of historical.rows)if(cloudDataTypes.has(row.type))row.semantics='partial';
   for(const row of historical.rows)if(['self_set_boundary','physics2_set_boundary'].includes(row.type))row.semantics='partial';
   assert.equal(fs.readFileSync('docs/kitten4-partial-7.md', 'utf8').replaceAll('\r\n', '\n'), scope7Markdown(historical));
 });

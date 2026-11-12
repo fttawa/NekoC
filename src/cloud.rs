@@ -18,6 +18,12 @@ pub struct CloudKey {
 pub trait CloudBackend: Send + Sync {
     fn load(&self, key: &CloudKey) -> Result<Option<Value>>;
     fn store(&self, key: &CloudKey, value: &Value) -> Result<()>;
+    /// Optional frame-scoped exclusive view. Hosts hold it from refresh through
+    /// commit, so read/modify/write blocks cannot lose concurrent process writes.
+    /// Adapters without this facility use last-commit-wins frame snapshots.
+    fn lock_frame(&self) -> Result<Option<std::sync::Arc<dyn CloudBackend>>> {
+        Ok(None)
+    }
 }
 
 #[derive(Default)]
@@ -49,18 +55,15 @@ struct FileData {
     values: BTreeMap<String, Value>,
 }
 
-/// Share one instance between local sessions. Serializes threads in this process;
-/// multiple processes writing the same file are deliberately unsupported.
+/// Local-machine shared state. An OS lock on a stable sidecar file serializes
+/// readers/writers across processes, including replacement of the data file.
+/// The sidecar must not be removed while any player uses this profile.
 pub struct FileCloudBackend {
     path: PathBuf,
-    lock: Mutex<()>,
 }
 impl FileCloudBackend {
     pub fn new(path: PathBuf) -> Self {
-        Self {
-            path,
-            lock: Mutex::new(()),
-        }
+        Self { path }
     }
     fn read(&self) -> Result<FileData> {
         match std::fs::read(&self.path) {
@@ -77,15 +80,8 @@ impl FileCloudBackend {
             Err(e) => Err(e).context("reading local cloud file"),
         }
     }
-}
-impl CloudBackend for FileCloudBackend {
-    fn load(&self, key: &CloudKey) -> Result<Option<Value>> {
-        let _guard = self.lock.lock().unwrap();
-        Ok(self.read()?.values.remove(&serde_json::to_string(key)?))
-    }
-    fn store(&self, key: &CloudKey, value: &Value) -> Result<()> {
+    fn write(&self, key: &CloudKey, value: &Value) -> Result<()> {
         use std::io::Write;
-        let _guard = self.lock.lock().unwrap();
         let mut data = self.read()?;
         data.values
             .insert(serde_json::to_string(key)?, value.clone());
@@ -101,6 +97,48 @@ impl CloudBackend for FileCloudBackend {
         file.persist(&self.path)
             .context("persisting local cloud file")?;
         Ok(())
+    }
+}
+
+struct LockedFileCloudBackend {
+    backend: FileCloudBackend,
+    // Closing the handle releases the lock, including on early VM errors.
+    _lock: std::fs::File,
+}
+impl CloudBackend for LockedFileCloudBackend {
+    fn load(&self, key: &CloudKey) -> Result<Option<Value>> {
+        Ok(self
+            .backend
+            .read()?
+            .values
+            .remove(&serde_json::to_string(key)?))
+    }
+    fn store(&self, key: &CloudKey, value: &Value) -> Result<()> {
+        self.backend.write(key, value)
+    }
+}
+impl CloudBackend for FileCloudBackend {
+    fn load(&self, key: &CloudKey) -> Result<Option<Value>> {
+        self.lock_frame()?.unwrap().load(key)
+    }
+    fn store(&self, key: &CloudKey, value: &Value) -> Result<()> {
+        self.lock_frame()?.unwrap().store(key, value)
+    }
+    fn lock_frame(&self) -> Result<Option<std::sync::Arc<dyn CloudBackend>>> {
+        let mut path = self.path.as_os_str().to_os_string();
+        path.push(".lock");
+        let lock = std::fs::OpenOptions::new()
+            .read(true)
+            .write(true)
+            .create(true)
+            .truncate(false)
+            .open(PathBuf::from(path))
+            .context("opening local cloud lock")?;
+        lock.lock().context("locking local cloud profile")?;
+        Ok(Some(std::sync::Arc::new(LockedFileCloudBackend {
+            backend: Self::new(self.path.clone()),
+            _lock: lock,
+        })))
     }
 }
 

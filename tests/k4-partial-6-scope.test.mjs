@@ -6,6 +6,7 @@ import { baseline, drawingMainPaths, physicsMainPaths, propertyMainPaths, servic
 import { round7MainPaths } from "../tools/compat/k4-partial-7-scope.mjs";
 import { round8MainPaths } from "../tools/compat/k4-partial-8-scope.mjs";
 import { optionFrequency } from "../tools/compat/k4-partial-6-options.mjs";
+import { cloudDataTypes } from "../tools/compat/k4-block-catalog.mjs";
 
 test("all 95 original partial types are explicitly partitioned, without promoting device fallback", () => {
   const report = JSON.parse(fs.readFileSync("docs/kitten4-block-coverage.json", "utf8"));
@@ -15,8 +16,8 @@ test("all 95 original partial types are explicitly partitioned, without promotin
   assert.equal(serviceTypes.size, serviceGroups.flatMap(group => group.types).length);
   for (const type of serviceTypes) {
     assert.ok(Object.hasOwn(baseline, type));
-    assert.equal(rows.get(type).status, "设备降级", type);
-    assert.equal(rows.get(type).semantics, "partial", type);
+    assert.equal(rows.get(type).status, cloudDataTypes.has(type) ? "已实现" : "设备降级", type);
+    assert.equal(rows.get(type).semantics, cloudDataTypes.has(type) ? "offline-oracle-verified" : "partial", type);
   }
   for (const type of [...physicsMainPaths, ...propertyMainPaths, ...drawingMainPaths]) {
     assert.ok(!serviceTypes.has(type));

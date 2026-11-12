@@ -6,12 +6,12 @@ import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { corpusFrequency, mappingStatus, markdownReport, officialInventory, rustDispatch,
-  rustFunction, webpackModules } from "../tools/compat/k4-block-catalog.mjs";
+  rustFunction, webpackModules, cloudDataTypes } from "../tools/compat/k4-block-catalog.mjs";
 import { drawingMainPaths, physicsMainPaths, propertyMainPaths, serviceTypes } from "../tools/compat/k4-partial-6-scope.mjs";
 import { round7MainPaths } from "../tools/compat/k4-partial-7-scope.mjs";
 
-const currentSemantics = type => physicsMainPaths.has(type) || propertyMainPaths.has(type) || drawingMainPaths.has(type) || round7MainPaths.has(type) ? "main-path-verified" : "partial";
-const currentStatus = type => serviceTypes.has(type) ? "设备降级" : "已实现";
+const currentSemantics = type => cloudDataTypes.has(type) ? "offline-oracle-verified" : physicsMainPaths.has(type) || propertyMainPaths.has(type) || drawingMainPaths.has(type) || round7MainPaths.has(type) ? "main-path-verified" : "partial";
+const currentStatus = type => serviceTypes.has(type) && !cloudDataTypes.has(type) ? "设备降级" : "已实现";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 function temporary(t) {

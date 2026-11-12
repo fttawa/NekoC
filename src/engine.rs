@@ -8574,6 +8574,7 @@ impl Engine {
         #[cfg(feature = "interp-profile")]
         let _profile = interp_profile::span("advance", &());
         ensure!(dt.is_finite(), "frame delta must be finite");
+        let cloud_frame = self.begin_cloud_frame()?;
         self.sequence += 1;
         let started = Instant::now();
         let mut count = 0;
@@ -8652,7 +8653,7 @@ impl Engine {
                 drawn
             })
             .collect();
-        self.flush_cloud()?;
+        self.flush_cloud(cloud_frame.as_ref())?;
         Ok(Frame {
             extension_requests: self.extension_requests(),
             video_above_pen: self.video_above_pen && self.pen_layer == 0,

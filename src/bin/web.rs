@@ -125,6 +125,10 @@ struct Args {
     #[cfg(feature = "desktop")]
     #[arg(long)]
     export_exe: Option<PathBuf>,
+    /// Open the native window with the same host-selected cloud profile.
+    #[cfg(feature = "desktop")]
+    #[arg(long)]
+    desktop: bool,
 }
 fn header(name: &str, value: &str) -> Header {
     Header::from_bytes(name, value).unwrap()
@@ -721,7 +725,7 @@ mod desktop {
         Ok(listener(0)?.local_addr()?.port())
     }
 
-    pub fn run(project: Json) -> Result<()> {
+    pub fn run(project: Json, cloud: CloudSession) -> Result<()> {
         let title = project
             .get("projectName")
             .and_then(Value::as_str)
@@ -729,7 +733,9 @@ mod desktop {
             .to_owned();
         let port = app_port(&project)?;
         std::thread::spawn(move || {
-            let _ = serve(project, port);
+            if let Err(error) = serve_with_cloud(project, port, cloud) {
+                eprintln!("native player server: {error:#}");
+            }
         });
         let event_loop = EventLoop::new();
         let window = WindowBuilder::new()
@@ -758,11 +764,11 @@ mod desktop {
     }
 }
 fn main() -> Result<()> {
+    let args = Args::parse();
     #[cfg(feature = "desktop")]
     if let Some(project) = desktop::embedded_project()? {
-        return desktop::run(project);
+        return desktop::run(project, CloudSession::new(args.cloud));
     }
-    let args = Args::parse();
     let initial = if let Some(path) = args.input {
         nekoc::project::load_project(path)?.value
     } else {
@@ -773,6 +779,10 @@ fn main() -> Result<()> {
         desktop::export(&initial, output)?;
         println!("{}", output.display());
         return Ok(());
+    }
+    #[cfg(feature = "desktop")]
+    if args.desktop {
+        return desktop::run(initial, CloudSession::new(args.cloud));
     }
     serve_with_cloud(initial, args.port, CloudSession::new(args.cloud))
 }
@@ -801,10 +811,6 @@ impl CloudSession {
         }
         Ok(())
     }
-}
-#[cfg(feature = "desktop")]
-fn serve(initial: Json, port: u16) -> Result<()> {
-    serve_with_cloud(initial, port, CloudSession::default())
 }
 fn serve_with_cloud(initial: Json, port: u16, cloud: CloudSession) -> Result<()> {
     let mut imports = ImportCache::default();

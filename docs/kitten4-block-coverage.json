@@ -8,10 +8,10 @@
   "compiledOwners": 4529,
   "count": 377,
   "counts": {
-    "已实现": 247,
+    "已实现": 259,
     "stub": 0,
     "缺失": 0,
-    "设备降级": 130
+    "设备降级": 118
   },
   "audit": {
     "tables": [
@@ -1035,7 +1035,7 @@
       "semantics": "main-path-verified",
       "mapping": [
         "src/kitten4.rs:559 (lower_block)",
-        "src/engine.rs:4293 (kitten4_legacy_)"
+        "src/engine.rs:4311 (kitten4_legacy_)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
@@ -1925,7 +1925,7 @@
       "status": "已实现",
       "semantics": "main-path-verified",
       "mapping": [
-        "src/engine/physics.rs:735 (parse)"
+        "src/engine/physics.rs:779 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
@@ -2085,16 +2085,21 @@
           "table": "cloud_variables_get"
         }
       ],
-      "status": "设备降级",
-      "semantics": "partial",
+      "status": "已实现",
+      "semantics": "offline-oracle-verified",
       "mapping": [
         "src/kitten4.rs:627 (lower_block)"
       ],
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
+        "k4cloud新增5件原创夹具138个连续官方update，17个类型均有真实block事件；公私标量/全部列表操作、PIXI监视器与DOM排行榜loading壳均已取证，双VM逐帧回归已通过，见 k4cloud-offline.md、k4cloud-coverage.md。在线服务、监视器布局/交互及排行榜壳仍未认证",
         "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
-        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md",
+        "离线数据积木本体：k4cloud 5项、kitten4_cloud 11项、kitten4_partial_cloud_2 7项双VM回归通过；0/[]初值、公私计算、类型/长度/索引、列表别名逐帧约束。显隐和排行榜五项仍partial，不声明舞台像素全等"
+      ],
+      "unverifiedBoundaries": [
+        "仅固定官方包匿名离线数据分支；未验证在线身份/权限、服务端数据、重连与孤立UTF-16 surrogate；本机共享后端是独立测试协议，不是官方联网认证"
       ],
       "occurrences": 296
     },
@@ -2192,7 +2197,7 @@
       "semantics": "main-path-verified",
       "mapping": [
         "src/kitten4.rs:538 (lower_block)",
-        "src/engine.rs:4289 (kitten4_set_velocity)"
+        "src/engine.rs:4307 (kitten4_set_velocity)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
@@ -2350,7 +2355,7 @@
       "status": "已实现",
       "semantics": "main-path-verified",
       "mapping": [
-        "src/engine/physics.rs:736 (parse)"
+        "src/engine/physics.rs:780 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
@@ -2474,16 +2479,21 @@
           "table": "cloud_variables_get"
         }
       ],
-      "status": "设备降级",
-      "semantics": "partial",
+      "status": "已实现",
+      "semantics": "offline-oracle-verified",
       "mapping": [
         "src/kitten4.rs:595 (lower_block)"
       ],
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
+        "k4cloud新增5件原创夹具138个连续官方update，17个类型均有真实block事件；公私标量/全部列表操作、PIXI监视器与DOM排行榜loading壳均已取证，双VM逐帧回归已通过，见 k4cloud-offline.md、k4cloud-coverage.md。在线服务、监视器布局/交互及排行榜壳仍未认证",
         "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
-        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md",
+        "离线数据积木本体：k4cloud 5项、kitten4_cloud 11项、kitten4_partial_cloud_2 7项双VM回归通过；0/[]初值、公私计算、类型/长度/索引、列表别名逐帧约束。显隐和排行榜五项仍partial，不声明舞台像素全等"
+      ],
+      "unverifiedBoundaries": [
+        "仅固定官方包匿名离线数据分支；未验证在线身份/权限、服务端数据、重连与孤立UTF-16 surrogate；本机共享后端是独立测试协议，不是官方联网认证"
       ],
       "occurrences": 159
     },
@@ -2651,16 +2661,21 @@
           "table": "cloud_variables_get"
         }
       ],
-      "status": "设备降级",
-      "semantics": "partial",
+      "status": "已实现",
+      "semantics": "offline-oracle-verified",
       "mapping": [
         "src/kitten4.rs:596 (lower_block)"
       ],
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
+        "k4cloud新增5件原创夹具138个连续官方update，17个类型均有真实block事件；公私标量/全部列表操作、PIXI监视器与DOM排行榜loading壳均已取证，双VM逐帧回归已通过，见 k4cloud-offline.md、k4cloud-coverage.md。在线服务、监视器布局/交互及排行榜壳仍未认证",
         "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
-        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md",
+        "离线数据积木本体：k4cloud 5项、kitten4_cloud 11项、kitten4_partial_cloud_2 7项双VM回归通过；0/[]初值、公私计算、类型/长度/索引、列表别名逐帧约束。显隐和排行榜五项仍partial，不声明舞台像素全等"
+      ],
+      "unverifiedBoundaries": [
+        "仅固定官方包匿名离线数据分支；未验证在线身份/权限、服务端数据、重连与孤立UTF-16 surrogate；本机共享后端是独立测试协议，不是官方联网认证"
       ],
       "occurrences": 114
     },
@@ -2674,16 +2689,21 @@
           "table": "cloud_variables_get"
         }
       ],
-      "status": "设备降级",
-      "semantics": "partial",
+      "status": "已实现",
+      "semantics": "offline-oracle-verified",
       "mapping": [
         "src/kitten4.rs:461 (cloud_list)"
       ],
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
+        "k4cloud新增5件原创夹具138个连续官方update，17个类型均有真实block事件；公私标量/全部列表操作、PIXI监视器与DOM排行榜loading壳均已取证，双VM逐帧回归已通过，见 k4cloud-offline.md、k4cloud-coverage.md。在线服务、监视器布局/交互及排行榜壳仍未认证",
         "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
-        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md",
+        "离线数据积木本体：k4cloud 5项、kitten4_cloud 11项、kitten4_partial_cloud_2 7项双VM回归通过；0/[]初值、公私计算、类型/长度/索引、列表别名逐帧约束。显隐和排行榜五项仍partial，不声明舞台像素全等"
+      ],
+      "unverifiedBoundaries": [
+        "仅固定官方包匿名离线数据分支；未验证在线身份/权限、服务端数据、重连与孤立UTF-16 surrogate；本机共享后端是独立测试协议，不是官方联网认证"
       ],
       "occurrences": 110
     },
@@ -2741,7 +2761,7 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/engine/physics.rs:763 (parse)"
+        "src/engine/physics.rs:807 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
@@ -2923,16 +2943,21 @@
           "table": "cloud_variables_get"
         }
       ],
-      "status": "设备降级",
-      "semantics": "partial",
+      "status": "已实现",
+      "semantics": "offline-oracle-verified",
       "mapping": [
         "src/kitten4.rs:597 (lower_block)"
       ],
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
+        "k4cloud新增5件原创夹具138个连续官方update，17个类型均有真实block事件；公私标量/全部列表操作、PIXI监视器与DOM排行榜loading壳均已取证，双VM逐帧回归已通过，见 k4cloud-offline.md、k4cloud-coverage.md。在线服务、监视器布局/交互及排行榜壳仍未认证",
         "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
-        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md",
+        "离线数据积木本体：k4cloud 5项、kitten4_cloud 11项、kitten4_partial_cloud_2 7项双VM回归通过；0/[]初值、公私计算、类型/长度/索引、列表别名逐帧约束。显隐和排行榜五项仍partial，不声明舞台像素全等"
+      ],
+      "unverifiedBoundaries": [
+        "仅固定官方包匿名离线数据分支；未验证在线身份/权限、服务端数据、重连与孤立UTF-16 surrogate；本机共享后端是独立测试协议，不是官方联网认证"
       ],
       "occurrences": 83
     },
@@ -3055,7 +3080,7 @@
       "status": "已实现",
       "semantics": "main-path-verified",
       "mapping": [
-        "src/engine/physics.rs:757 (parse)"
+        "src/engine/physics.rs:801 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
@@ -3143,7 +3168,7 @@
       "status": "已实现",
       "semantics": "main-path-verified",
       "mapping": [
-        "src/engine/physics.rs:740 (parse)"
+        "src/engine/physics.rs:784 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
@@ -3250,7 +3275,7 @@
       "semantics": "main-path-verified",
       "mapping": [
         "src/kitten4.rs:489 (lower_block)",
-        "src/engine.rs:3867 (kitten4_entity_visibility)"
+        "src/engine.rs:3885 (kitten4_entity_visibility)"
       ],
       "limitations": [
         "第五轮17份原创夹具408官方帧：渐变尾部update相位、竞争alpha斜率叠加、取消调用方冻结、隐藏清理held指针、零/负/NaN/Infinity时长已实测；见 kitten4-partial-visibility-5.md。第五轮曾记录的克隆删除一帧差异已由第七轮修复；场景/悬空UUID/非60Hz与完整手势边界未验证",
@@ -3402,7 +3427,7 @@
       "status": "已实现",
       "semantics": "main-path-verified",
       "mapping": [
-        "src/engine/physics.rs:758 (parse)"
+        "src/engine/physics.rs:802 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
@@ -3549,7 +3574,7 @@
       "status": "已实现",
       "semantics": "main-path-verified",
       "mapping": [
-        "src/engine/physics.rs:747 (parse)"
+        "src/engine/physics.rs:791 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
@@ -3592,16 +3617,21 @@
           "table": "cloud_variables_get"
         }
       ],
-      "status": "设备降级",
-      "semantics": "partial",
+      "status": "已实现",
+      "semantics": "offline-oracle-verified",
       "mapping": [
         "src/kitten4.rs:599 (lower_block)"
       ],
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
+        "k4cloud新增5件原创夹具138个连续官方update，17个类型均有真实block事件；公私标量/全部列表操作、PIXI监视器与DOM排行榜loading壳均已取证，双VM逐帧回归已通过，见 k4cloud-offline.md、k4cloud-coverage.md。在线服务、监视器布局/交互及排行榜壳仍未认证",
         "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
-        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md",
+        "离线数据积木本体：k4cloud 5项、kitten4_cloud 11项、kitten4_partial_cloud_2 7项双VM回归通过；0/[]初值、公私计算、类型/长度/索引、列表别名逐帧约束。显隐和排行榜五项仍partial，不声明舞台像素全等"
+      ],
+      "unverifiedBoundaries": [
+        "仅固定官方包匿名离线数据分支；未验证在线身份/权限、服务端数据、重连与孤立UTF-16 surrogate；本机共享后端是独立测试协议，不是官方联网认证"
       ],
       "occurrences": 32
     },
@@ -3655,16 +3685,21 @@
           "table": "cloud_variables_get"
         }
       ],
-      "status": "设备降级",
-      "semantics": "partial",
+      "status": "已实现",
+      "semantics": "offline-oracle-verified",
       "mapping": [
         "src/kitten4.rs:461 (cloud_list)"
       ],
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
+        "k4cloud新增5件原创夹具138个连续官方update，17个类型均有真实block事件；公私标量/全部列表操作、PIXI监视器与DOM排行榜loading壳均已取证，双VM逐帧回归已通过，见 k4cloud-offline.md、k4cloud-coverage.md。在线服务、监视器布局/交互及排行榜壳仍未认证",
         "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
-        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md",
+        "离线数据积木本体：k4cloud 5项、kitten4_cloud 11项、kitten4_partial_cloud_2 7项双VM回归通过；0/[]初值、公私计算、类型/长度/索引、列表别名逐帧约束。显隐和排行榜五项仍partial，不声明舞台像素全等"
+      ],
+      "unverifiedBoundaries": [
+        "仅固定官方包匿名离线数据分支；未验证在线身份/权限、服务端数据、重连与孤立UTF-16 surrogate；本机共享后端是独立测试协议，不是官方联网认证"
       ],
       "occurrences": 28
     },
@@ -3681,7 +3716,7 @@
       "status": "已实现",
       "semantics": "main-path-verified",
       "mapping": [
-        "src/engine/physics.rs:762 (parse)"
+        "src/engine/physics.rs:806 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
@@ -3725,16 +3760,21 @@
           "table": "cloud_variables_get"
         }
       ],
-      "status": "设备降级",
-      "semantics": "partial",
+      "status": "已实现",
+      "semantics": "offline-oracle-verified",
       "mapping": [
         "src/kitten4.rs:600 (lower_block)"
       ],
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
+        "k4cloud新增5件原创夹具138个连续官方update，17个类型均有真实block事件；公私标量/全部列表操作、PIXI监视器与DOM排行榜loading壳均已取证，双VM逐帧回归已通过，见 k4cloud-offline.md、k4cloud-coverage.md。在线服务、监视器布局/交互及排行榜壳仍未认证",
         "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
-        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md",
+        "离线数据积木本体：k4cloud 5项、kitten4_cloud 11项、kitten4_partial_cloud_2 7项双VM回归通过；0/[]初值、公私计算、类型/长度/索引、列表别名逐帧约束。显隐和排行榜五项仍partial，不声明舞台像素全等"
+      ],
+      "unverifiedBoundaries": [
+        "仅固定官方包匿名离线数据分支；未验证在线身份/权限、服务端数据、重连与孤立UTF-16 surrogate；本机共享后端是独立测试协议，不是官方联网认证"
       ],
       "occurrences": 24
     },
@@ -3791,7 +3831,7 @@
       "status": "已实现",
       "semantics": "main-path-verified",
       "mapping": [
-        "src/engine/physics.rs:761 (parse)"
+        "src/engine/physics.rs:805 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
@@ -3878,7 +3918,7 @@
       "status": "已实现",
       "semantics": "main-path-verified",
       "mapping": [
-        "src/engine/physics.rs:739 (parse)"
+        "src/engine/physics.rs:783 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
@@ -4070,7 +4110,7 @@
       "status": "已实现",
       "semantics": "main-path-verified",
       "mapping": [
-        "src/engine/physics.rs:756 (parse)"
+        "src/engine/physics.rs:800 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
@@ -4102,6 +4142,7 @@
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
+        "k4cloud新增5件原创夹具138个连续官方update，17个类型均有真实block事件；公私标量/全部列表操作、PIXI监视器与DOM排行榜loading壳均已取证，双VM逐帧回归已通过，见 k4cloud-offline.md、k4cloud-coverage.md。在线服务、监视器布局/交互及排行榜壳仍未认证",
         "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
         "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
@@ -4125,6 +4166,7 @@
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
+        "k4cloud新增5件原创夹具138个连续官方update，17个类型均有真实block事件；公私标量/全部列表操作、PIXI监视器与DOM排行榜loading壳均已取证，双VM逐帧回归已通过，见 k4cloud-offline.md、k4cloud-coverage.md。在线服务、监视器布局/交互及排行榜壳仍未认证",
         "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
         "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
@@ -4160,16 +4202,21 @@
           "table": "cloud_variables_get"
         }
       ],
-      "status": "设备降级",
-      "semantics": "partial",
+      "status": "已实现",
+      "semantics": "offline-oracle-verified",
       "mapping": [
         "src/kitten4.rs:461 (cloud_list)"
       ],
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
+        "k4cloud新增5件原创夹具138个连续官方update，17个类型均有真实block事件；公私标量/全部列表操作、PIXI监视器与DOM排行榜loading壳均已取证，双VM逐帧回归已通过，见 k4cloud-offline.md、k4cloud-coverage.md。在线服务、监视器布局/交互及排行榜壳仍未认证",
         "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
-        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md",
+        "离线数据积木本体：k4cloud 5项、kitten4_cloud 11项、kitten4_partial_cloud_2 7项双VM回归通过；0/[]初值、公私计算、类型/长度/索引、列表别名逐帧约束。显隐和排行榜五项仍partial，不声明舞台像素全等"
+      ],
+      "unverifiedBoundaries": [
+        "仅固定官方包匿名离线数据分支；未验证在线身份/权限、服务端数据、重连与孤立UTF-16 surrogate；本机共享后端是独立测试协议，不是官方联网认证"
       ],
       "occurrences": 11
     },
@@ -4214,6 +4261,7 @@
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
+        "k4cloud新增5件原创夹具138个连续官方update，17个类型均有真实block事件；公私标量/全部列表操作、PIXI监视器与DOM排行榜loading壳均已取证，双VM逐帧回归已通过，见 k4cloud-offline.md、k4cloud-coverage.md。在线服务、监视器布局/交互及排行榜壳仍未认证",
         "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
         "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
@@ -4450,16 +4498,21 @@
           "table": "cloud_variables_get"
         }
       ],
-      "status": "设备降级",
-      "semantics": "partial",
+      "status": "已实现",
+      "semantics": "offline-oracle-verified",
       "mapping": [
         "src/kitten4.rs:461 (cloud_list)"
       ],
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
+        "k4cloud新增5件原创夹具138个连续官方update，17个类型均有真实block事件；公私标量/全部列表操作、PIXI监视器与DOM排行榜loading壳均已取证，双VM逐帧回归已通过，见 k4cloud-offline.md、k4cloud-coverage.md。在线服务、监视器布局/交互及排行榜壳仍未认证",
         "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
-        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md",
+        "离线数据积木本体：k4cloud 5项、kitten4_cloud 11项、kitten4_partial_cloud_2 7项双VM回归通过；0/[]初值、公私计算、类型/长度/索引、列表别名逐帧约束。显隐和排行榜五项仍partial，不声明舞台像素全等"
+      ],
+      "unverifiedBoundaries": [
+        "仅固定官方包匿名离线数据分支；未验证在线身份/权限、服务端数据、重连与孤立UTF-16 surrogate；本机共享后端是独立测试协议，不是官方联网认证"
       ],
       "occurrences": 3
     },
@@ -4498,7 +4551,7 @@
       "status": "已实现",
       "semantics": "partial",
       "mapping": [
-        "src/engine/physics.rs:770 (parse)"
+        "src/engine/physics.rs:814 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
@@ -4559,7 +4612,7 @@
       "status": "已实现",
       "semantics": "main-path-verified",
       "mapping": [
-        "src/engine/physics.rs:759 (parse)"
+        "src/engine/physics.rs:803 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
@@ -4656,6 +4709,7 @@
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
+        "k4cloud新增5件原创夹具138个连续官方update，17个类型均有真实block事件；公私标量/全部列表操作、PIXI监视器与DOM排行榜loading壳均已取证，双VM逐帧回归已通过，见 k4cloud-offline.md、k4cloud-coverage.md。在线服务、监视器布局/交互及排行榜壳仍未认证",
         "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
         "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
@@ -4942,16 +4996,21 @@
           "table": "cloud_variables_get"
         }
       ],
-      "status": "设备降级",
-      "semantics": "partial",
+      "status": "已实现",
+      "semantics": "offline-oracle-verified",
       "mapping": [
         "src/kitten4.rs:461 (cloud_list)"
       ],
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
+        "k4cloud新增5件原创夹具138个连续官方update，17个类型均有真实block事件；公私标量/全部列表操作、PIXI监视器与DOM排行榜loading壳均已取证，双VM逐帧回归已通过，见 k4cloud-offline.md、k4cloud-coverage.md。在线服务、监视器布局/交互及排行榜壳仍未认证",
         "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
-        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md",
+        "离线数据积木本体：k4cloud 5项、kitten4_cloud 11项、kitten4_partial_cloud_2 7项双VM回归通过；0/[]初值、公私计算、类型/长度/索引、列表别名逐帧约束。显隐和排行榜五项仍partial，不声明舞台像素全等"
+      ],
+      "unverifiedBoundaries": [
+        "仅固定官方包匿名离线数据分支；未验证在线身份/权限、服务端数据、重连与孤立UTF-16 surrogate；本机共享后端是独立测试协议，不是官方联网认证"
       ],
       "occurrences": 0
     },
@@ -4965,16 +5024,21 @@
           "table": "cloud_variables_get"
         }
       ],
-      "status": "设备降级",
-      "semantics": "partial",
+      "status": "已实现",
+      "semantics": "offline-oracle-verified",
       "mapping": [
         "src/kitten4.rs:598 (lower_block)"
       ],
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
+        "k4cloud新增5件原创夹具138个连续官方update，17个类型均有真实block事件；公私标量/全部列表操作、PIXI监视器与DOM排行榜loading壳均已取证，双VM逐帧回归已通过，见 k4cloud-offline.md、k4cloud-coverage.md。在线服务、监视器布局/交互及排行榜壳仍未认证",
         "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
-        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
+        "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md",
+        "离线数据积木本体：k4cloud 5项、kitten4_cloud 11项、kitten4_partial_cloud_2 7项双VM回归通过；0/[]初值、公私计算、类型/长度/索引、列表别名逐帧约束。显隐和排行榜五项仍partial，不声明舞台像素全等"
+      ],
+      "unverifiedBoundaries": [
+        "仅固定官方包匿名离线数据分支；未验证在线身份/权限、服务端数据、重连与孤立UTF-16 surrogate；本机共享后端是独立测试协议，不是官方联网认证"
       ],
       "occurrences": 0
     },
@@ -5724,6 +5788,7 @@
       "limitations": [
         "云值/榜单使用本地状态或可选后端；不保证官方联网、权限、持久化和排名 UI 一致",
         "第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md",
+        "k4cloud新增5件原创夹具138个连续官方update，17个类型均有真实block事件；公私标量/全部列表操作、PIXI监视器与DOM排行榜loading壳均已取证，双VM逐帧回归已通过，见 k4cloud-offline.md、k4cloud-coverage.md。在线服务、监视器布局/交互及排行榜壳仍未认证",
         "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
         "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
@@ -6871,7 +6936,7 @@
       "status": "已实现",
       "semantics": "main-path-verified",
       "mapping": [
-        "src/engine.rs:2925 (physics2_get_property)"
+        "src/engine.rs:2943 (physics2_get_property)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
@@ -6897,7 +6962,7 @@
       "status": "已实现",
       "semantics": "main-path-verified",
       "mapping": [
-        "src/engine/physics.rs:760 (parse)"
+        "src/engine/physics.rs:804 (parse)"
       ],
       "limitations": [
         "刚体兼容层：求解器/轮廓与官方不同；flexibility 实现硬体 strength adapter，软体粒子形变仍未实现，见 kitten4-third-physics.md",
