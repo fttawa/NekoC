@@ -44,9 +44,13 @@ export async function loadWork(backend,status){
     throw Error(`无法连接 Rust 后端：${backend}\n请在电脑运行 start-rust-backend.cmd，然后点击「重连」。`);
   }
   reportStatus('Rust 已连接 · 下载中');status('正在下载本站作品…');
-  const id=new URLSearchParams(location.search).get('workId');
+  const params=new URLSearchParams(location.search),id=params.get('workId');
   if(!/^\d+$/.test(id||''))throw Error('作品编号无效');
-  const url=new URL(new URLSearchParams(location.search).get('bcm'));
-  if(url.origin!=='https://creation.bcmcdn.com')throw Error('作品资源地址暂不支持');
+  // Kitten N sources come from creation.bcmcdn.com (often encrypted); Kitten 4 published
+  // works are plain JSON on creation.codemao.cn and are converted by the backend import.
+  const sourceOrigin={kn:'https://creation.bcmcdn.com',k4:'https://creation.codemao.cn'}[params.get('kind')||'kn'];
+  if(!sourceOrigin)throw Error('作品类型暂不支持');
+  const url=new URL(params.get('bcm'));
+  if(url.origin!==sourceOrigin)throw Error('作品资源地址暂不支持');
   const project=await json(url.href);status('正在编译作品…');return project;
 }

@@ -1,4 +1,5 @@
-// Kitten N published sources: JSON, or reversed base64 of IV(12) + AES-GCM ciphertext/tag.
+// Published sources: JSON (Kitten 4 and some Kitten N), or for Kitten N reversed base64 of
+// IV(12) + AES-GCM ciphertext/tag.
 // Format compatibility follows the official player's BcmHelpers.toDecryptBcmString.
 // The format key is SHA-256 of byte values 0..30; it is not an account credential.
 export async function decodeProject(text){
