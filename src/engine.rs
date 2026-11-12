@@ -740,6 +740,7 @@ enum ScriptEvent {
     Broadcast(usize, bool),
     /// on_bump_actor: (other actor, 0 start / 1 move / 2 end).
     Bump(usize, u8),
+    Extension(String),
 }
 
 /// A scene ("running group"): its stage entity and actors (front to back).
@@ -3243,6 +3244,7 @@ impl Compiler {
                     self.value(input(root, "message")?)?,
                     kind == "self_listen_with_param",
                 ),
+                "nekoc_extension_hat" => self.extension_hat(root)?,
                 "on_running_group_activated" | "start_on_click" => {
                     let sprite = &self.program.sprites[actor];
                     let key = (
@@ -3399,6 +3401,7 @@ impl Compiler {
                     | ScriptEvent::Bump(..)
                     | ScriptEvent::Pointer(..)
                     | ScriptEvent::K4Backdrop(_)
+                    | ScriptEvent::Extension(_)
             ) {
                 root["statements"]
                     .get("DO")
@@ -5517,13 +5520,9 @@ impl Engine {
     }
     pub fn new(program: Program) -> Self {
         let _timing = crate::import_perf::span("engine_init_jit");
-        // Extensions retain their interpreter-only safety boundary; private
-        // variables use entity-aware native helpers and no longer disable JIT.
-        let jit = if program.extension_calls.is_empty() {
-            jit::Jit::new(program.ops.len())
-        } else {
-            None
-        };
+        // Extension calls are native-region exit points.  They do not disable
+        // JIT for unrelated instructions in the same Program.
+        let jit = jit::Jit::new(program.ops.len());
         let slots = program.initial.clone();
         let lists = program
             .initial_lists
@@ -10008,6 +10007,7 @@ impl Engine {
         #[cfg(feature = "interp-profile")]
         let _profile = interp_profile::span("tick", &());
         self.scheduler_tick += 1;
+        self.prune_extensions()?;
         if let Some(activation) = self.scene_activation.as_ref()
             && activation.completed(self.time)
         {

@@ -463,6 +463,16 @@ fn frame_bytes(vm: &mut Engine, payload: &Value) -> Result<Vec<u8>> {
                         vm.complete_extension(id, result)?;
                     }
                 }
+                Some("extension_event") => {
+                    let opcode = event["opcode"]
+                        .as_str()
+                        .context("extension event missing opcode")?;
+                    let value = event
+                        .get("value")
+                        .context("extension event missing value")?
+                        .clone();
+                    vm.emit_extension_event(opcode, value)?;
+                }
                 Some("drag") => {
                     if let (Some(target), Some(x), Some(y)) = (
                         event["target"].as_str(),
@@ -545,6 +555,7 @@ fn player_socket(request: Request, project: Option<Json>, cloud: CloudSession) -
         let result = (|| -> Result<()> {
             // Private players supply their own snapshot on this connection; no global import race.
             let mut registry = nekoc::extensions::ExtensionRegistry::new();
+            let mut extension_api_version = None;
             let project = if let Some(project) = project {
                 project
             } else {
@@ -555,6 +566,24 @@ fn player_socket(request: Request, project: Option<Json>, cloud: CloudSession) -
                     let schemas: Vec<nekoc::extensions::BlockSchema> =
                         serde_json::from_value(project["extensions"].clone())?;
                     ensure!(schemas.len() <= 256, "too many remote extensions");
+                    let versions: Vec<u32> = if project.get("extension_api_versions").is_some() {
+                        serde_json::from_value(project["extension_api_versions"].clone())?
+                    } else {
+                        vec![1]
+                    };
+                    ensure!(versions.len() <= 16, "too many extension API versions");
+                    let version = nekoc::extensions::negotiate_version(&versions)?;
+                    ensure!(
+                        schemas.iter().all(|schema| schema.api_version <= version),
+                        "extension schema exceeds negotiated API version"
+                    );
+                    extension_api_version = Some(version);
+                    if version == 2 {
+                        registry.set_call_policy(nekoc::extensions::CallPolicy {
+                            errors: nekoc::extensions::ErrorPolicy::Report,
+                            ..Default::default()
+                        })?;
+                    }
                     // No network opt-in on the wire: project data cannot grant capabilities.
                     for schema in schemas {
                         registry.register_remote(schema)?;
@@ -577,7 +606,8 @@ fn player_socket(request: Request, project: Option<Json>, cloud: CloudSession) -
             cloud.attach(&mut vm)?;
             vm.start();
             socket.send(Message::Text(
-                json!({"ready":true,"stats":stats}).to_string(),
+                json!({"ready":true,"stats":stats,"extension_api_version":extension_api_version})
+                    .to_string(),
             ))?;
             loop {
                 match socket.read()? {

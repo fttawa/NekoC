@@ -2,9 +2,70 @@
 use anyhow::{Context, Result, bail, ensure};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use std::{collections::BTreeMap, rc::Rc};
+use std::{collections::BTreeMap, rc::Rc, time::Duration};
 
-pub const API_VERSION: u32 = 1;
+pub const API_VERSION: u32 = 2;
+pub const SUPPORTED_API_VERSIONS: [u32; 2] = [2, 1];
+
+/// Select the highest common version; never silently downgrade a v2 schema.
+pub fn negotiate_version(versions: &[u32]) -> Result<u32> {
+    SUPPORTED_API_VERSIONS
+        .into_iter()
+        .find(|version| versions.contains(version))
+        .context("no common extension API version")
+}
+
+#[derive(Clone, Copy, Debug, Default, Deserialize, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum BlockKind {
+    #[default]
+    Command,
+    Reporter,
+    Boolean,
+    Hat,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct BlockMetadata {
+    pub name: String,
+    pub category: String,
+}
+
+/// Fail-fast remains available for v1 hosts. Report stops only the calling task;
+/// DefaultValue reports the error and continues with a typed neutral result.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum ErrorPolicy {
+    #[default]
+    Propagate,
+    Report,
+    DefaultValue,
+}
+
+#[derive(Clone, Copy, Debug)]
+pub struct CallPolicy {
+    pub timeout: Duration,
+    pub errors: ErrorPolicy,
+}
+
+impl Default for CallPolicy {
+    fn default() -> Self {
+        Self {
+            timeout: Duration::from_secs(1),
+            errors: ErrorPolicy::Propagate,
+        }
+    }
+}
+
+impl CallPolicy {
+    pub fn validate(self) -> Result<()> {
+        ensure!(
+            self.timeout >= Duration::from_millis(1) && self.timeout <= Duration::from_secs(60),
+            "extension timeout must be between 1 ms and 60 s"
+        );
+        Ok(())
+    }
+}
 
 #[derive(Clone, Copy, Debug, Deserialize, Serialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
@@ -71,14 +132,46 @@ pub struct BlockSchema {
     pub blocking: bool,
     #[serde(default)]
     pub network: bool,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub kind: Option<BlockKind>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub metadata: Option<BlockMetadata>,
 }
 
 impl BlockSchema {
     pub fn validate(&self) -> Result<()> {
         ensure!(
-            self.api_version == API_VERSION,
+            SUPPORTED_API_VERSIONS.contains(&self.api_version),
             "unsupported extension API version"
         );
+        ensure!(
+            self.api_version == 2 || (self.kind.is_none() && self.metadata.is_none()),
+            "v2 extension fields require API version 2"
+        );
+        if let Some(metadata) = &self.metadata {
+            ensure!(
+                !metadata.name.is_empty()
+                    && metadata.name.len() <= 128
+                    && !metadata.category.is_empty()
+                    && metadata.category.len() <= 128,
+                "invalid extension block metadata"
+            );
+        }
+        match self.block_kind() {
+            BlockKind::Command => {}
+            BlockKind::Reporter => ensure!(
+                self.returns.is_some(),
+                "extension reporter needs a return type"
+            ),
+            BlockKind::Boolean => ensure!(
+                self.returns == Some(ValueType::Boolean),
+                "extension boolean must return boolean"
+            ),
+            BlockKind::Hat => ensure!(
+                self.returns.is_none() && !self.blocking && self.parameters.is_empty(),
+                "extension hat cannot have parameters, return values or blocking calls"
+            ),
+        }
         ensure!(
             self.opcode.len() <= 128 && self.opcode.contains('.'),
             "extension opcode needs a namespace"
@@ -98,6 +191,20 @@ impl BlockSchema {
             );
         }
         Ok(())
+    }
+
+    pub fn block_kind(&self) -> BlockKind {
+        self.kind.unwrap_or_default()
+    }
+
+    pub fn default_result(&self) -> Value {
+        match self.returns {
+            Some(ValueType::Number) => Value::from(0),
+            Some(ValueType::String) => Value::String(String::new()),
+            Some(ValueType::Boolean) => Value::Bool(false),
+            Some(ValueType::List) => Value::Array(Vec::new()),
+            Some(ValueType::Any) | None => Value::Null,
+        }
     }
 
     pub fn validate_arguments(&self, arguments: &[Value]) -> Result<()> {
@@ -123,7 +230,9 @@ impl BlockSchema {
     }
 }
 
-/// Trusted host code. Never called concurrently; must return promptly.
+/// Trusted host code. Never called concurrently; must return promptly. The host
+/// catches unwinding panics and rejects over-budget results, but cannot preempt
+/// a synchronous handler. Blocking I/O belongs in a Pending host job.
 /// Pending is completed using Engine::complete_extension with the supplied ID.
 pub trait Extension: std::fmt::Debug {
     fn call(&self, request: &ExtensionRequest) -> Result<CallResult>;
@@ -154,6 +263,7 @@ pub(crate) struct Entry {
 pub struct ExtensionRegistry {
     pub(crate) entries: BTreeMap<String, Entry>,
     allow_network: bool,
+    pub(crate) policy: CallPolicy,
 }
 
 impl ExtensionRegistry {
@@ -166,13 +276,42 @@ impl ExtensionRegistry {
         self.allow_network = allow;
     }
 
+    pub fn set_call_policy(&mut self, policy: CallPolicy) -> Result<()> {
+        policy.validate()?;
+        self.policy = policy;
+        Ok(())
+    }
+
+    /// Detached metadata for editor/palette generation, including v1 entries.
+    pub fn schemas(&self) -> Vec<BlockSchema> {
+        self.entries
+            .values()
+            .map(|entry| entry.schema.clone())
+            .collect()
+    }
+
+    pub fn register_hat(&mut self, schema: BlockSchema) -> Result<()> {
+        ensure!(
+            schema.block_kind() == BlockKind::Hat,
+            "expected extension hat"
+        );
+        self.insert(schema, None)
+    }
+
     pub fn register(&mut self, schema: BlockSchema, handler: Rc<dyn Extension>) -> Result<()> {
+        ensure!(
+            schema.block_kind() != BlockKind::Hat,
+            "extension hats use register_hat"
+        );
         self.insert(schema, Some(handler))
     }
 
     /// Browser-backed blocks always cross a frame boundary and must be blocking.
     pub fn register_remote(&mut self, schema: BlockSchema) -> Result<()> {
-        ensure!(schema.blocking, "remote extensions must be blocking");
+        ensure!(
+            schema.blocking || schema.block_kind() == BlockKind::Hat,
+            "remote extensions must be blocking"
+        );
         self.insert(schema, None)
     }
 
@@ -201,7 +340,7 @@ pub struct JsonParse;
 impl JsonParse {
     pub fn schema(blocking: bool) -> BlockSchema {
         BlockSchema {
-            api_version: API_VERSION,
+            api_version: 1,
             opcode: "example.json.parse".into(),
             parameters: vec![Parameter {
                 name: "text".into(),
@@ -210,6 +349,8 @@ impl JsonParse {
             returns: Some(ValueType::Any),
             blocking,
             network: false,
+            kind: None,
+            metadata: None,
         }
     }
 }

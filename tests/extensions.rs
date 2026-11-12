@@ -123,7 +123,7 @@ fn rejects_invalid_schemas_capabilities_inputs_results_and_nonblocking_pending()
     let mut r = ExtensionRegistry::new();
     let mut s = JsonParse::schema(false);
     assert!(r.register_remote(s.clone()).is_err());
-    s.api_version = 2;
+    s.api_version = 3;
     assert!(r.register(s.clone(), Rc::new(JsonParse)).is_err());
     s = JsonParse::schema(false);
     s.network = true;

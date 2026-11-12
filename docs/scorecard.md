@@ -7,6 +7,8 @@
 本轮浏览器为Edge `157.0.4341.46`，历史多轮为`.42`，浏览器更新也是历史性能比较的混杂因素。
 本轮只做测量与文档，不改运行时；本页不使用缺少权重依据的“总分”或把未知项当零分。
 所有数值均以本页的命令编号、日期与基线定位；历史官方证据明确另列版本与来源。
+扩展 API 的当前能力/限制另按 v2 实现更新，不改变上述测量身份、历史性能数字或门禁记录；
+扩展验收结果见 `OC-REPORT.md`，不能把本页历史基线追记为 v2 验收。
 
 **目前不能宣称在适配、兼容性、性能、可扩展性四维全面超过官方或其他项目。**
 导入/执行映射不等于完整兼容，短窗终态一致不等于全程输入、调度、像素与音频一致；
@@ -17,7 +19,7 @@
 | 适配 | N增加KN/TS与可嵌入Rust宿主；K4全作品替代未认证 | 原生KN导入存在；设备/服务不完整 | N同时接K4/KN；H有Lua/Love宿主 | 直接导入避开所测SB3转换损失；壳平台数不当内核数 |
 | 兼容性 | 有限官方主路径/离线探针证据，42 partial保留 | 300名称无缺失不等于官方全集或全语义支持 | 精确41件短窗与既有官方裁定分列 | TW本体与转换器不能混为一谈；其他壳未全作品复测 |
 | 性能 | 四项计算探针有配对耗时比，其余不授予倍数 | 缺历史正式runner；单独探索不能冒充历史复测 | 本轮三项可比，递归不等；KN数值存在历史退化风险 | 转换有损项不可排名；K4-ULTRA完整路径未验证 |
-| 可扩展性 | N有显式宿主契约；官方第三方契约对齐未验证 | 本地trait不能代替官方设备/服务 | H同样有模块/host边界，不能说完全不可扩展 | TW积木契约、K4-ULTRA插件链更宽；N无插件沙箱且扩展Program禁JIT |
+| 可扩展性 | N有v2宿主契约并兼容v1；官方第三方契约对齐未验证 | 本地trait不能代替官方设备/服务 | H同样有模块/host边界，不能说完全不可扩展 | N已支持reporter/Boolean/hat和JIT尾部helper；TW生态/K4-ULTRA插件链仍有差距，N无OS沙箱 |
 
 ## 测量身份、复现命令与口径
 
@@ -217,7 +219,7 @@ H含Love窗口/驱动/绘制，不算内存效率比。H只计`rt.step`，不含
 不删除递归不利样本、不用两次一致覆盖一次不等；具体少一批的墙钟/调度根因**未验证**。
 KN数值比历史N约0.02551ms慢，本轮约0.11771ms；输入hash已确认相同，但前后版本/本机状态未作历史AB交替配对，
 **记录为性能风险，不能宣称集成后全面无退化，也不把差距全归于系统噪声**。
-字符串比历史改善不构成所有字符组合、所有作品或插件禁JIT路径的保证。
+字符串比历史改善不构成所有字符组合、所有作品或当前 v2 扩展 helper 路径的保证。
 
 ### 官方 KN 七项的证据缺口
 
@@ -294,20 +296,35 @@ Node进程maxRSS不当浏览器播放器内存。K4-ULTRA及bcm_convertor未运�
 ## 维度四：可扩展性
 
 本维度按源码可定位的扩展合同比较，不使用“有插件所以性能/兼容更好”的推断。
-完整函数、行号、固定第三方源码链接见 [可扩展性依据](scorecard-extensibility.md)（同日、同基线静态审查，不是宿主实测）。
+完整函数、固定第三方源码链接见 [可扩展性依据](scorecard-extensibility.md)。第三方/非扩展调查沿用原基线，
+NekoC 扩展限制按当前 v2 实现更新；静态接口调查不是宿主实测，也不改变本页性能基线。
 
 | 对照 | NekoC 的可核验扩展点 | 对照的可核验事实 | 判断与差距 |
 |---|---|---|---|
 | 官方K4 | `Extension::call` / `compile_with_extensions`；`CloudBackend`；TS→`.bcm`；多宿主 | 固定官方包有 domain/responder/compiler 注册体系，C4定位可查；本轮未核验面向第三方的稳定插件契约 | N有明确可信宿主API；不能据未查到官方契约宣称官方不能扩展 |
 | 官方KN | TS→`.bcmkn`、inspect/decompile/pack/watch等CLI；Web/原生/Android源码 | [官方面板](kn-panel-audit.md)可配置扩展/硬件；[官方源码审计](kitten-n-source-audit.json) | 官方设备/服务路径不能由本地降级替代；第三方插件ABI横向对齐未验证 |
-| HateNeko 0.4.0 | 版本化Rust/JS命令积木与可替换本地云trait | Lua `registry.build`、`rt.set_host/load/build_f`、KN→Lua/`.love`工具 | H不是“不可扩展”；本轮未发现同级云trait证据，不外推其他版本 |
-| TurboWarp | v1命令积木，异步pending/complete；默认不从作品加载任意代码 | `ExtensionManager`有URL/worker/iframe/unsandboxed；`BlockType`含reporter/hat/event；`Cloud.setProvider` | **N的积木契约较窄，不能声称可扩展性全面领先**；TW生态不等于转换保真 |
-| K4-ULTRA | 宿主预注册schema，无自动积木面板 | 实际v2 loader含manifest、目录/`.k4ultra`、UI积木/生成器/runtime注册 | v2链比N v1宽；旧扫描入口立即return，不能拿死路径证明运行行为 |
+| HateNeko 0.4.0 | NekoC 当前为版本化Rust/JS v2积木（兼容v1）与可替换本地云trait | Lua `registry.build`、`rt.set_host/load/build_f`、KN→Lua/`.love`工具 | H不是“不可扩展”；本轮未发现同级云trait证据，不外推其他版本；N未移植HateNeko |
+| TurboWarp | command/reporter/boolean/hat，异步pending/complete及宿主事件；默认不从作品加载任意代码 | `ExtensionManager`有URL/worker/iframe/unsandboxed；`BlockType`含reporter/hat/event；`Cloud.setProvider` | N已扩大表达式/事件契约，仍未对齐全部类型、生态和隔离选项；不能声称可扩展性全面领先，TW生态不等于转换保真 |
+| K4-ULTRA | 宿主预注册schema，metadata驱动`palette()`面板描述；捆绑编辑器UI未自动接入 | 实际v2 loader含manifest、目录/`.k4ultra`、UI积木/生成器/runtime注册 | 其UI→生成器→runtime链仍更完整；旧扫描入口立即return，不能拿死路径证明运行行为 |
 | bcm_convertor | 自有Rust VM、TS前端、多宿主与打包入口 | 官方URL/Electron封装、离线JSON注入、Android WebView模板 | 后者是分发能力，不重复当独立内核性能优势；N的Android本轮未真机验证 |
 
-必须保留的N侧限制：含扩展调用的**整个Program关闭JIT**，不是只回退一条指令；
-v1只支持命令及写已声明全局，JSON标量/列表不涵盖任意对象/undefined/非有限数；
-capability并非OS沙箱，没有内置插件超时或自动面板。普通CLI `run`仍走旧`runtime::run_project`，
+当前N侧扩展契约：`API_VERSION=2`、支持 `[2,1]` 最高共同版协商；v2 schema 不降级。
+`BlockSchema` 可选 `kind`（command/reporter/boolean/hat）及 `metadata {name,category}`，参数仍为 `{name,value_type}`。
+Web 封套仍为 `nekoc_extension_handshake:1`，通过 `extension_api_versions`/ready 的 `extension_api_version` 协商。
+reporter/Boolean 异步 lowering 写任务局部值，保留嵌套操作数执行顺序、不重复执行；Rust 支持 Ready/Pending，
+JS 远程可调用积木均 blocking。hat 用 `register_hat` 或 JS 无 handler 的 `register`，`emit_extension_event`/
+`player.emitExtension` 向当前场景（含克隆）排队，以 `self_listen_value` 读取 payload，任务上限4096。
+
+**不再整Program关闭JIT**：`Op::Extension` 经 reentrant 尾部 helper 调用 `exec` 后退出 native region，
+保留 Ready 非blocking、blocking、Pending 的调度及指令预算；不把 handler 编成机器码。
+`CallPolicy` timeout 默认1s、范围1ms..60s；默认 `Propagate` 保留v1 fail-fast，`Report` 记logs仅结束调用任务，
+`DefaultValue` 记logs并以中性typed result继续。Web v2默认Report，不因调用错误关闭连接，v1仍Propagate。
+
+必须保留的N侧限制：reporter procedure 仍不能执行扩展调用；显式结果目标只支持已声明全局，
+JSON标量/列表不涵盖任意对象/undefined/非有限数。Rust只捕获unwind panic，返回后检查超时，不能强杀不返回的函数；
+Pending按`Instant`墙钟计时，virtual_clock也不例外。JS timer/AbortSignal忽略迟到Promise但不能抢占同步JS。
+capability并非OS沙箱，无独立进程强抢占、稳定动态库ABI或插件IR注入；自动生成面板描述不等于捆绑编辑器UI已接入。
+不声称官方私有积木兼容，真实第三方编辑器往返及ARM真机未验证。普通CLI `run`仍走旧`runtime::run_project`，
 不能套用本页`engine::Engine`默认JIT数字。Web是本机Rust服务+前端，不是纯浏览器WASM；
 desktop/Android是不同壳，存在源码不等于本轮验收。TS为DSL子集，`await`不提供Promise调度。
 内置云仅Memory/File，本地profile不等于官方登录，多key逐次store也不是全有或全无事务。
