@@ -89,7 +89,7 @@ fn code_api_aliases_are_identical_to_native_reporters() {
     for jit in [false, true] {
         let logs = step(&mut vm(&p, jit));
         assert_eq!(logs.len(), 30);
-        for pair in logs.chunks_exact(2) {
+        for pair in logs.as_chunks::<2>().0 {
             assert_eq!(pair[0], pair[1]);
         }
         assert_eq!(&logs[8..12], ["123.46", "123.46", "56.79", "56.79"]);
@@ -144,7 +144,7 @@ fn named_effect_code_api_aliases_map_to_the_official_numeric_effects() {
     for jit in [false, true] {
         let logs = step(&mut vm(&p, jit));
         assert_eq!(logs.len(), 21);
-        for (index, triple) in logs.chunks_exact(3).enumerate() {
+        for (index, triple) in logs.as_chunks::<3>().0.iter().enumerate() {
             assert_eq!(triple[0], triple[1], "named effect {index}");
             assert_eq!(triple[0], triple[2], "native effect {index}");
             assert_ne!(triple[0], "0", "effect {index} must not be the default");

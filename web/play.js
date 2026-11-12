@@ -46,7 +46,7 @@ function syncControls(){
 function clearKeys(){input?.release();}
 function resetMeter(){updates=0;draws=0;sampleStart=performance.now();drawFps=0;updateFps=0;}
 function pause(message='已暂停'){
-  running=false;audio.pause();renderer?.pauseMedia();clearKeys();resetMeter();status(message);syncControls();
+  running=false;connection?.pauseDevice();audio.pause();renderer?.pauseMedia();clearKeys();resetMeter();status(message);syncControls();
 }
 async function closeRuntime(){
   running=false;epoch++;clearKeys();connection?.close();connection=null;
@@ -81,10 +81,11 @@ async function install(report){
 }
 async function launch(){
   if(!playable)return;
+  if(connection?.ready)void connection.requestDevicePermission();
   if(!connection?.ready){
     input?.reset();
     feedback.progress('正在连接运行时…');
-    const next=new PlayerConnection();connection=next;await next.open(project,backend);sendCostumes=true;overlay.reset();
+    const next=new PlayerConnection();connection=next;const devicePermission=next.requestDevicePermission();await next.open(project,backend);void devicePermission;sendCostumes=true;overlay.reset();
     // Opt-in observation before any scheduler tick, not an extra simulation frame.
     if(new URLSearchParams(location.search).has('compare'))window.nekoCompareZero=await next.snapshot();
     epoch++;lastFrame=null;totalUpdates=0;
@@ -126,7 +127,7 @@ async function advance(dt){
     roundtripMs=performance.now()-start;
     // Draw pen deltas now; the stage is composited once on the next display frame.
     const {frame,lines}=decodeFrame(buffer);renderer.apply(frame,lines,false);overlay.apply(frame);lastFrame=frame;
-    audio.apply(frame);
+    audio.apply(frame);connection?.applyFrame(frame);
     updates++;totalUpdates++;if(renderer.changed)draws++;
   }catch(error){
     if(token!==epoch)return;

@@ -1855,6 +1855,9 @@ impl Engine {
     /// No synthetic events are generated in headless execution. `portrait`
     /// corresponds to the orientation captured when the official domain loads.
     pub fn set_physics_device_orientation(&mut self, beta: f64, gamma: f64, portrait: bool) {
+        if self.stopped {
+            return;
+        }
         let Some(p) = self.physics.as_mut() else {
             return;
         };
