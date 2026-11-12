@@ -1549,6 +1549,8 @@ impl Engine {
     // per tick, not once per VM instruction; it is not a cold-physics claim.
     #[inline(never)]
     pub(super) fn step_physics(&mut self, dt: f64) {
+        #[cfg(feature = "interp-profile")]
+        let _profile = super::interp_profile::span("step_physics", &());
         if self.stopped || dt <= 0.0 || self.physics.is_none() {
             return;
         }

@@ -59,6 +59,8 @@ impl Cell {
     /// Freeze all other values now, especially lists which reporters may mutate
     /// later. Only the immutable bytes, never their conversion, are deferred.
     pub fn concat(a: &Self, b: &Self) -> Self {
+        #[cfg(feature = "interp-profile")]
+        let _profile = super::interp_profile::span("concat", &());
         let a = match a {
             Self::Text(text) => text.clone(),
             _ => a.text().into(),
@@ -215,7 +217,23 @@ impl Cell {
     }
     /// K4 oiyH/logic_compare calls lodash isEqual (Y+p1), not JS ===.
     /// List search still uses `equals`/`index_in` and reference identity.
+    #[inline]
     pub fn k4_equals(&self, other: &Self) -> bool {
+        #[cfg(feature = "interp-profile")]
+        let _profile = super::interp_profile::span("k4_equals", &());
+        // Scalar equality never needs a traversal stack or cloned operands.
+        // Keep the structural walker out of callers' scalar hot paths.
+        match (self, other) {
+            (Self::Number(a), Self::Number(b)) => a == b || (a.is_nan() && b.is_nan()),
+            (Self::Costume(a), Self::Costume(b)) => a == b,
+            (Self::List(_), Self::List(_))
+            | (Self::Object(_), Self::Object(_))
+            | (Self::Midi(_), Self::Midi(_)) => self.k4_equals_structural(other),
+            _ => self.equals(other),
+        }
+    }
+    #[inline(never)]
+    fn k4_equals_structural(&self, other: &Self) -> bool {
         // Explicit work stack avoids recursive comparison overflow. Track only
         // the active path, as lodash does, so shared lists need not alias alike.
         let mut work = vec![Some((self.clone(), other.clone()))];
@@ -300,6 +318,37 @@ impl Cell {
 #[cfg(test)]
 mod equality_tests {
     use super::*;
+
+    #[test]
+    fn scalar_fast_path_matches_structural_walker_for_every_cell_pair() {
+        let values = [
+            Cell::Number(0.0),
+            Cell::Number(-0.0),
+            Cell::Number(17.0),
+            Cell::Number(f64::NAN),
+            Cell::Number(f64::INFINITY),
+            Cell::Number(f64::NEG_INFINITY),
+            Cell::Bool(false),
+            Cell::Bool(true),
+            Cell::Text("17".into()),
+            Cell::Text(Text::concat(&"a".into(), &"中".into())),
+            Cell::Text("a中".into()),
+            Cell::Text("a文".into()),
+            Cell::Null,
+            Cell::Undefined,
+            Cell::Costume("same-id".into()),
+            Cell::Costume("same-id".into()),
+            Cell::Costume("other-id".into()),
+            Cell::List(Rc::new(RefCell::new(vec![Cell::Number(f64::NAN)]))),
+            Cell::Object(Rc::new(RefCell::new(vec![("x".into(), Cell::Bool(true))]))),
+            Cell::Midi(Rc::new(Cell::Number(1.0))),
+        ];
+        for a in &values {
+            for b in &values {
+                assert_eq!(a.k4_equals(b), a.k4_equals_structural(b), "{a:?}/{b:?}");
+            }
+        }
+    }
 
     #[test]
     fn k4_structural_equality_does_not_change_strict_search() {

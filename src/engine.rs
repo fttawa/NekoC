@@ -6,9 +6,12 @@ use serde::Serialize;
 use serde_json::Value;
 mod calculate;
 mod cloud;
+mod collision_geometry;
 mod extensions;
 mod input;
 mod interp_exec_cold;
+#[cfg(feature = "interp-profile")]
+pub mod interp_profile;
 #[cfg(test)]
 mod interp_tests;
 mod interp_value_cold;
@@ -6071,6 +6074,8 @@ impl Engine {
     /// numeric leaves and arithmetic stay here, everything else is out of line.
     #[inline(always)]
     fn node(&mut self, pc: usize, actor: usize) -> f64 {
+        #[cfg(feature = "interp-profile")]
+        let _profile = interp_profile::span("node", &self.program.expressions[pc]);
         if self.program.deep_values.is_empty() {
             return self.node_one::<false>(pc, actor);
         }
@@ -6193,6 +6198,8 @@ impl Engine {
     }
     #[inline(never)]
     fn node_slow(&mut self, pc: usize, actor: usize) -> f64 {
+        #[cfg(feature = "interp-profile")]
+        let _profile = interp_profile::span("node_slow", &self.program.expressions[pc]);
         match self.program.expressions[pc] {
             ExprOp::Constant(n) => n,
             ExprOp::Slot(s) => self.slots[s],
@@ -6419,6 +6426,8 @@ impl Engine {
     /// waits inside it do not suspend (it must produce a value now); runaway
     /// bodies and deep recursion become value errors instead of hangs.
     fn call_reporter(&mut self, procedure: usize, args: usize, actor: usize) -> Cell {
+        #[cfg(feature = "interp-profile")]
+        let _profile = interp_profile::span("call_reporter", &());
         if self.value_error.is_some() {
             return Cell::Null;
         }
@@ -6565,23 +6574,11 @@ impl Engine {
         let Some(geometry) = self.geometry(i) else {
             return false;
         };
-        let Some((u, v)) = geometry.uv(x, y) else {
-            return false;
-        };
-        if !(0.0..1.0).contains(&u) || !(0.0..1.0).contains(&v) {
-            return false;
-        }
-        match &geometry.costume.mask {
-            None => true,
-            Some((mw, mh, bits)) => {
-                let (px, py) = ((u * *mw as f64) as usize, (v * *mh as f64) as usize);
-                let bit = py * mw + px;
-                bits.get(bit / 8)
-                    .is_some_and(|byte| byte >> (bit % 8) & 1 == 1)
-            }
-        }
+        geometry.contains(x, y)
     }
     fn touching(&self, subject: usize, other: usize) -> bool {
+        #[cfg(feature = "interp-profile")]
+        let _profile = interp_profile::span("touching", &());
         let a = &self.sprites[subject];
         if !a.alive || !a.visible {
             return false;
@@ -6623,8 +6620,13 @@ impl Engine {
     }
     /// Sampled pixel overlap inside the intersection of both bounds.
     fn overlap(&self, a: usize, b: usize) -> bool {
-        let (al, ar, ab, at) = self.bounds(a);
-        let (bl, br, bb, bt) = self.bounds(b);
+        // Geometry is immutable during sampling. A missing costume never contains
+        // a point, even when its fallback bounds intersect the other sprite.
+        let (Some(a), Some(b)) = (self.geometry(a), self.geometry(b)) else {
+            return false;
+        };
+        let (al, ar, ab, at) = a.bounds();
+        let (bl, br, bb, bt) = b.bounds();
         let (l, r, bottom, t) = (al.max(bl), ar.min(br), ab.max(bb), at.min(bt));
         if l > r || bottom > t {
             return false;
@@ -6636,7 +6638,7 @@ impl Engine {
             let y = bottom + (iy as f64 + 0.5) * (t - bottom) / ny as f64;
             for ix in 0..nx {
                 let x = l + (ix as f64 + 0.5) * (r - l) / nx as f64;
-                if self.contains(a, x, y) && self.contains(b, x, y) {
+                if a.contains(x, y) && b.contains(x, y) {
                     return true;
                 }
             }
@@ -7425,6 +7427,8 @@ impl Engine {
             .collect()
     }
     fn read_actor_variable(&mut self, actor: usize, slot: usize) -> Cell {
+        #[cfg(feature = "interp-profile")]
+        let _profile = interp_profile::span("read_actor_variable", &());
         if let Some(value) = self
             .sprites
             .get(actor)
@@ -7728,6 +7732,8 @@ impl Engine {
     }
     #[inline]
     fn global_value(&self, i: usize) -> Cell {
+        #[cfg(feature = "interp-profile")]
+        let _profile = interp_profile::span("global_value", &());
         match &self.values[i] {
             Some(Cell::Undefined | Cell::Null)
                 if self.program.semantics == RuntimeSemantics::KnCurrent =>
@@ -7740,6 +7746,8 @@ impl Engine {
     }
     #[inline]
     fn local_value(&self, i: usize) -> Cell {
+        #[cfg(feature = "interp-profile")]
+        let _profile = interp_profile::span("local_value", &());
         let t = &self.tasks[self.current_task];
         match &t.local_values[i] {
             Some(value) => value.clone(),
@@ -7747,6 +7755,8 @@ impl Engine {
         }
     }
     fn resolve_list(&mut self, list: ListRef) -> Option<List> {
+        #[cfg(feature = "interp-profile")]
+        let _profile = interp_profile::span("resolve_list", &list);
         let value = match list {
             ListRef::Global(i) => return Some(self.lists[i as usize].clone()),
             ListRef::Local(i) => self.local_value(i as usize),
@@ -7931,6 +7941,8 @@ impl Engine {
         children
     }
     fn eval_value_one<const PREPARED: bool>(&mut self, i: usize, actor: usize) -> Cell {
+        #[cfg(feature = "interp-profile")]
+        let _profile = interp_profile::span("value", &self.program.values[i]);
         // Keep dispatch and the ordinary evaluator in one function. The deep
         // walker specializes away this prelude after preparing its operands.
         if !PREPARED {
@@ -7960,8 +7972,12 @@ impl Engine {
                     b,
                     Cell::Text(_) | Cell::List(_) | Cell::Costume(_) | Cell::Midi(_)
                 ) {
+                    #[cfg(feature = "interp-profile")]
+                    let _profile = interp_profile::span("add_text", &());
                     Cell::concat(&a, &b)
                 } else {
+                    #[cfg(feature = "interp-profile")]
+                    let _profile = interp_profile::span("add_scalar", &());
                     Cell::Number(a.number() + b.number())
                 }
             }
@@ -8596,6 +8612,8 @@ impl Engine {
     /// (or finishes) for this tick.
     #[inline(always)]
     fn exec(&mut self, index: usize, pc: usize, op: Op, actor: usize) -> Result<bool> {
+        #[cfg(feature = "interp-profile")]
+        let _profile = interp_profile::span("op", &op);
         if self.program.semantics == RuntimeSemantics::Kitten4
             && self.sprites[actor].stage
             && matches!(

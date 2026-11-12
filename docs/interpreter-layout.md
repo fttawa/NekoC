@@ -2,6 +2,9 @@
 
 本次只重排 Rust 实现，不改变积木语义、JIT 阈值、默认配置或调度规则。
 
+后续 interp2 的函数级诊断、标量比较与单次碰撞几何复用见
+[interpreter-profiling.md](interpreter-profiling.md)；本页下述性能表保留 interp 的历史结果。
+
 ## 分类依据
 
 以历史 `jit7` 的全53件语料、60帧、seed 1/6/42动态计数筛选必须保留的路径：

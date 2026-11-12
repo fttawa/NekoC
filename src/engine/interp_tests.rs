@@ -40,6 +40,64 @@ fn exec_at(engine: &mut Engine, pc: usize) -> Result<bool> {
 }
 
 #[test]
+fn simple_value_leaves_preserve_prepared_cache_and_numeric_mirrors() {
+    let mut e = engine(vec![Op::Halt], RuntimeSemantics::Kitten4);
+    e.program.values = vec![
+        ValueExpr::Constant(0),
+        ValueExpr::Global(0),
+        ValueExpr::Local(0),
+        ValueExpr::Parameter(0),
+        ValueExpr::Payload,
+        ValueExpr::Parameter(1),
+    ];
+    e.tasks[0].parameters = vec![Cell::Bool(true)];
+    e.tasks[0].payload = Cell::Text("payload".into());
+    e.slots[0] = -0.0;
+    e.tasks[0].locals[0] = 17.0;
+    let actor = e.tasks[0].actor;
+    for i in 0..e.program.values.len() {
+        let ordinary = e.eval_value(i, actor);
+        // Mark an unrelated root so eval_value uses the cache-aware entry.
+        e.program.deep_values.insert(usize::MAX);
+        let mut cache = BTreeMap::new();
+        cache.insert((true, i), VecDeque::from([Cell::Text("cached".into())]));
+        e.evaluation_cache.push(cache);
+        assert_eq!(e.eval_value(i, actor).text(), "cached");
+        // Consuming the queue once must not memoize repeated evaluation.
+        let next = e.eval_value(i, actor);
+        assert_eq!(ordinary.text(), next.text(), "leaf {i}");
+        assert_eq!(
+            std::mem::discriminant(&ordinary),
+            std::mem::discriminant(&next)
+        );
+        if i == 1 {
+            assert!(matches!(next, Cell::Number(n) if n == 0.0 && n.is_sign_negative()));
+        }
+        e.evaluation_cache.pop();
+        e.program.deep_values.clear();
+    }
+    e.values[0] = Some(Cell::Text("global-text".into()));
+    e.tasks[0].local_values[0] = Some(Cell::Bool(false));
+    assert!(matches!(e.eval_value(1, actor), Cell::Text(t) if t.as_ref() == "global-text"));
+    assert!(matches!(e.eval_value(2, actor), Cell::Bool(false)));
+    for semantics in [RuntimeSemantics::Kitten4, RuntimeSemantics::KnCurrent] {
+        e.program.semantics = semantics;
+        for value in [Cell::Null, Cell::Undefined] {
+            e.values[0] = Some(value.clone());
+            let actual = e.eval_value(1, actor);
+            if semantics == RuntimeSemantics::KnCurrent {
+                assert!(matches!(actual, Cell::Number(0.0)));
+            } else {
+                assert_eq!(
+                    std::mem::discriminant(&actual),
+                    std::mem::discriminant(&value)
+                );
+            }
+        }
+    }
+}
+
+#[test]
 fn hot_and_cold_fallthrough_take_pending_value_error_at_original_source() {
     for semantics in [RuntimeSemantics::KnCurrent, RuntimeSemantics::Kitten4] {
         for op in [Op::SetValue(Target::Global(0), 0), Op::Ranking(None, false)] {
