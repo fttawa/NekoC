@@ -4,6 +4,40 @@
 KN 0.27.4；HateNeko 0.4.0 / Love2D 11.5 只是第三方对照。
 没有参考或移植 HateNeko 实现，没有改动作品或官方运行时。
 
+> 后续整合复测：2026-11-12，`oc/scorecard` 基线`da8dc9c`，见[总评分卡](../scorecard.md)。
+> 下文保留hncompat2原始dev观察、官方长程里程碑与原门禁身份；新轮为release短跑，
+> 不把旧官方里程碑冒充本轮重新测量，不把观察相等当全作品/输入/音频兼容率。
+
+## 最新integrate短跑复测（scorecard）
+
+2026-11-12，测量提交`da8dc9c5c414a4b32c9239c33df437d6d8322cf1`，release/default JIT。
+沿用精确历史41件manifest、逐输入SHA-256、12次update、无预热、一次双边独立进程；
+HateNeko仍为0.4.0 / Love2D11.5。命令：
+
+```powershell
+node tools/bench/hateneko.mjs --compat-only --manifest docs/kncompat-hateneko-evidence.json --binary dist/bench/scorecard/bin/perf-bench.exe --normalize-private --out dist/bench/scorecard/compat41
+# 空闲guard中断后同参数加 --resume
+```
+
+| 指标 | 本轮release复测 | hncompat2原轮dev观察 |
+|---|---:|---:|
+| NekoC运行成功 | 41/41 | 41/41 |
+| H无报告错误／缺原语 | 40/41 | 40/41 |
+| 原始最终观察投影相等 | 18/41 | 18/41 |
+| 私有默认副本归一化后相等 | 18/41 | 18/41 |
+| 双边运行但原始不等 | 22 | 22 |
+| H unsupported | 1 | 1 |
+
+相等项集合未变；未增加全局字段排除，不静默删除计时/RNG字段。
+N固定二进制SHA-256为`d888cd791d26b7e3efebd8bc3975b126576f809cfb731e8da29fefa774d534ec`；
+`binary_unchanged=true`、`reference.unchanged=true`。原始记录为
+`dist/bench/scorecard/compat41/results.json`；本轮紧凑归档见[scorecard证据](../scorecard-evidence.json)。
+外部Cargo/Clippy及k4effects11的jit-corpus触发guard后等待空窗续跑，没有关闭保护。
+
+下文互斥裁定仍为既有官方证据约束的**18和H一致、20官方支持N、0本轮修复、3无法裁定**；
+本轮仅重测短窗，不冒称重跑600update或595秒官方长程，也不将旧官方裁定扩展为全作品认证。
+本轮完整门禁另见[总评分卡](../scorecard.md#本轮质量门禁)，下文门禁保持hncompat2原轮身份。
+
 ## 口径
 
 - **原始一致**沿用原比较器的观察投影：全局带类型变量/列表、场景、角色多重集、
