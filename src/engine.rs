@@ -8,6 +8,10 @@ mod calculate;
 mod cloud;
 mod extensions;
 mod input;
+mod interp_exec_cold;
+#[cfg(test)]
+mod interp_tests;
+mod interp_value_cold;
 mod jit;
 mod jit_observation;
 mod k4_clock;
@@ -7944,30 +7948,6 @@ impl Engine {
         }
         // Only strings/list references are cloned; numeric expressions stay unboxed.
         match self.program.values[i] {
-            ValueExpr::ObjectLiteral(span) => self.eval_object_literal(span, actor),
-            ValueExpr::ObjectKeys(object) => {
-                let object = self.eval_value(object, actor);
-                self.eval_object_keys(object)
-            }
-            ValueExpr::JsonParse(value) => {
-                let value = self.eval_value(value, actor);
-                self.eval_json_parse(value)
-            }
-            ValueExpr::JsonStringify(value) => {
-                let value = self.eval_value(value, actor);
-                self.eval_json_stringify(value)
-            }
-            ValueExpr::ObjectGet(object, key) => {
-                let object = self.eval_value(object, actor);
-                let key = self.eval_value(key, actor);
-                self.eval_object_get(object, key)
-            }
-            ValueExpr::ObjectSet(object, key, value) => {
-                let object = self.eval_value(object, actor);
-                let key = self.eval_value(key, actor);
-                let value = self.eval_value(value, actor);
-                self.eval_object_set(object, key, value)
-            }
             ValueExpr::Kitten4Add(a, b) => {
                 // Offline player's math_arithmetic uses JS + whenever
                 // either operand is not a number (see docs/kitten4-run-errors.md).
@@ -7989,50 +7969,7 @@ impl Engine {
                 let input = self.eval_value(input, actor);
                 Cell::Bool(matches!(input,Cell::Number(n) if n==n.floor()))
             }
-            ValueExpr::Calculate(input) => {
-                let input = self.eval_value(input, actor);
-                match input {
-                    Cell::Text(text) => match calculate::evaluate(&text) {
-                        Ok(value) => value,
-                        Err(()) => {
-                            self.value_error
-                                .get_or_insert_with(|| "block_bad_math_expression".into());
-                            Cell::Number(f64::NAN)
-                        }
-                    },
-                    _ => {
-                        // The official lexer iterates input.length: numbers do
-                        // not get string-coerced and fail at postfix evaluation.
-                        self.value_error
-                            .get_or_insert_with(|| "block_bad_math_expression".into());
-                        Cell::Number(f64::NAN)
-                    }
-                }
-            }
             ValueExpr::Number(e) => Cell::Number(self.eval(e, actor)),
-            ValueExpr::OfflineOcrCheck(i) => {
-                // KN evaluates the query even when the OCR cache is absent.
-                // No producer is supported in this explicit offline profile.
-                let _ = self.eval_value(i, actor);
-                Cell::Bool(false)
-            }
-            ValueExpr::OfflineMicrobitMap(args) => {
-                // Official extension checks connectivity before its formula.
-                // Socket evaluation still precedes the domain function call.
-                // Evidence: docs/kn-microbit-map.md.
-                for k in args.start..args.start + args.len {
-                    let _ = self.eval_value(self.program.value_args[k as usize], actor);
-                }
-                Cell::Number(f64::NAN)
-            }
-            ValueExpr::OfflineMicrobitLed(args) => {
-                // Official disconnected guard returns false, but sockets still
-                // evaluate in panel order before the domain call. No LED backend.
-                for i in args {
-                    let _ = self.eval_value(i, actor);
-                }
-                Cell::Bool(false)
-            }
             ValueExpr::Constant(v) => self.program.constants[v].clone(),
             ValueExpr::Global(i) => self.global_value(i),
             ValueExpr::ActorVariable(target, slot, index) => {
@@ -8134,7 +8071,6 @@ impl Engine {
                         .unwrap_or(Cell::Text("".into()))
                 })
             }
-            ValueExpr::Ranking(show) => Cell::Bool(show == self.cloud.ranking.is_some()),
             ValueExpr::Item(r, e) => {
                 let at = e.map(|e| self.eval(e, actor));
                 if let Some(at) = at {
@@ -8296,20 +8232,6 @@ impl Engine {
             ValueExpr::IsNumber(i, finite) => Cell::Bool(
                 matches!(self.eval_value(i, actor), Cell::Number(n) if if finite { n.is_finite() } else { n.is_nan() }),
             ),
-            ValueExpr::Encode64(i) => {
-                Cell::Text(kn_helpers::encode64(&self.eval_value(i, actor).text()).into())
-            }
-            ValueExpr::Decode64(i) => {
-                Cell::Text(kn_helpers::decode64(&self.eval_value(i, actor).text()).into())
-            }
-            ValueExpr::ParseFloat(i) => {
-                Cell::Number(kn_helpers::parse_float(&self.eval_value(i, actor).text()))
-            }
-            ValueExpr::ParseInt(i, radix) => {
-                let text = self.eval_value(i, actor).text();
-                let radix = self.eval_value(radix, actor).number();
-                Cell::Number(kn_helpers::parse_int(&text, radix))
-            }
             ValueExpr::Logic(a, b, and) => {
                 let a = self.eval_value(a, actor);
                 let b = self.eval_value(b, actor);
@@ -8369,171 +8291,7 @@ impl Engine {
                 }
             }
             ValueExpr::CallReturn(procedure, args) => self.call_reporter(procedure, args, actor),
-            ValueExpr::K4Screen(value, stay) => {
-                let value = self.eval_value(value, actor);
-                Cell::Bool(stay == (self.find_scene(&value) == Some(self.current_scene)))
-            }
-            ValueExpr::CostumeName(target) => {
-                let target = if target == usize::MAX { actor } else { target };
-                let id = self.sprites[target].style.as_deref().unwrap_or("");
-                Cell::Text(
-                    self.program
-                        .style_names
-                        .get(id)
-                        .map_or(id, String::as_str)
-                        .into(),
-                )
-            }
-            ValueExpr::CostumeLiteral(id) => {
-                Cell::Costume(self.program.strings[id].as_str().into())
-            }
-            ValueExpr::CloneProperty(target, index, attribute) => {
-                let origin = self.sprites[if target == usize::MAX { actor } else { target }].origin;
-                let wanted = self.eval(index, actor);
-                let found = (0..self.sprites.len()).find(|&i| {
-                    let a = &self.sprites[i];
-                    a.alive && a.origin == origin && f64::from(a.clone_index) == wanted
-                });
-                match found {
-                    None => Cell::Number(f64::NAN),
-                    Some(i) => {
-                        let a = &self.sprites[i];
-                        match attribute {
-                            32..=35 => Cell::Number(self.kn_property(
-                                i,
-                                actor,
-                                match attribute {
-                                    32 => kn_appearance::Property::Width,
-                                    33 => kn_appearance::Property::Height,
-                                    34 => kn_appearance::Property::Direction,
-                                    _ => kn_appearance::Property::Style,
-                                },
-                            )),
-                            0 | 1 => {
-                                let coordinate = if attribute == 0 { a.x } else { a.y };
-                                Cell::Number(
-                                    if self.program.semantics == RuntimeSemantics::Kitten4 {
-                                        k4_round(coordinate)
-                                    } else {
-                                        coordinate
-                                    },
-                                )
-                            }
-                            2 => Cell::Number(
-                                a.styles
-                                    .iter()
-                                    .position(|id| Some(id) == a.style.as_ref())
-                                    .map_or(0.0, |i| (i + 1) as f64),
-                            ),
-                            3 => Cell::Number(k4_round(
-                                180.0 - (a.direction + 90.0).rem_euclid(360.0),
-                            )),
-                            5 | 16 => Cell::Number(k4_round(a.scale * a.size_x / 100.0)),
-                            17 => Cell::Number(k4_round(a.scale * a.size_y / 100.0)),
-                            8 => Cell::Number(if a.visible {
-                                (1.0 - a.opacity) * 100.0
-                            } else {
-                                100.0
-                            }),
-                            9 => Cell::Number(a.effects[2] + 100.0),
-                            7 | 10..=13 => Cell::Number(a.effects[(attribute - 7) as usize]),
-                            // ASCII scope=7 is still an explicit unsupported
-                            // effect; retain its default instead of indexing
-                            // past the seven supported effect slots.
-                            14 => Cell::Number(0.0),
-                            _ => {
-                                let id = a.style.as_deref().unwrap_or("");
-                                let name =
-                                    self.program.style_names.get(id).map_or(id, String::as_str);
-                                Cell::Text(name.into())
-                            }
-                        }
-                    }
-                }
-            }
-            ValueExpr::KnCloneProperty(property) => {
-                let property = self.program.kn_clone_properties[property as usize];
-                self.eval_kn_clone_property(property, actor)
-            }
-            ValueExpr::BumpProperty(attribute) => {
-                let other = self.tasks[self.current_task].bumped;
-                match self.sprites.get(other).filter(|a| a.alive) {
-                    None => Cell::Number(f64::NAN),
-                    Some(a) => Cell::Number(match attribute {
-                        0 => a.x,
-                        1 => a.y,
-                        2 => a
-                            .styles
-                            .iter()
-                            .position(|id| Some(id) == a.style.as_ref())
-                            .map_or(0.0, |i| (i + 1) as f64),
-                        3 => a.camp.number(),
-                        4 => f64::from(a.clone_index),
-                        5..=7 => a.scale,
-                        8 => a.direction,
-                        n => {
-                            let scope = (n - 10) as usize;
-                            if scope == 1 {
-                                (1.0 - a.opacity) * 100.0
-                            } else {
-                                a.effects[scope]
-                            }
-                        }
-                    }),
-                }
-            }
             ValueExpr::K4Frames => Cell::Number(self.k4_frames as f64),
-            ValueExpr::K4LegacyChoice => {
-                self.value_error = Some(
-                    if self.sprites[actor].stage {
-                        "K4 choice used in scene"
-                    } else {
-                        "K4 legacy choice returned undefined"
-                    }
-                    .into(),
-                );
-                Cell::Null
-            }
-            ValueExpr::K4Media(reporter) => {
-                let reporter = self.program.k4_media[reporter as usize];
-                self.eval_k4_media(reporter, actor)
-            }
-            ValueExpr::KnPanel(reporter) => self.eval_kn_panel(reporter, actor),
-            ValueExpr::K4Property(property) => {
-                let property = self.program.k4_properties[property as usize];
-                self.eval_k4_property(property, actor)
-            }
-            ValueExpr::K4DomainError(message) => {
-                let message = self.eval_value(message, actor).text();
-                self.value_error = Some(format!("K4 domain error: {message}"));
-                Cell::Null
-            }
-            ValueExpr::Answer => self.answer.clone(),
-            ValueExpr::SceneId => {
-                Cell::Text(self.program.scenes[self.current_scene].id.as_str().into())
-            }
-            ValueExpr::Choice(index) => {
-                if index {
-                    Cell::Number(self.choice.0)
-                } else {
-                    self.choice.1.clone()
-                }
-            }
-            ValueExpr::WeekText => {
-                const DAYS: [&str; 7] = [
-                    "星期日",
-                    "星期一",
-                    "星期二",
-                    "星期三",
-                    "星期四",
-                    "星期五",
-                    "星期六",
-                ];
-                let now = self
-                    .virtual_epoch
-                    .map_or_else(wall_time, |epoch| epoch + self.time);
-                Cell::Text(DAYS[local_time(now, self.tz_offset_min)[4] as usize].into())
-            }
             ValueExpr::Compare(a, b, op) => {
                 let a = self.eval_value(a, actor);
                 let b = self.eval_value(b, actor);
@@ -8565,6 +8323,36 @@ impl Engine {
                 };
                 Cell::Bool(result)
             }
+            cold @ (ValueExpr::ObjectLiteral(..)
+            | ValueExpr::ObjectKeys(..)
+            | ValueExpr::JsonParse(..)
+            | ValueExpr::JsonStringify(..)
+            | ValueExpr::ObjectGet(..)
+            | ValueExpr::ObjectSet(..)
+            | ValueExpr::Calculate(..)
+            | ValueExpr::OfflineOcrCheck(..)
+            | ValueExpr::OfflineMicrobitMap(..)
+            | ValueExpr::OfflineMicrobitLed(..)
+            | ValueExpr::Ranking(..)
+            | ValueExpr::Encode64(..)
+            | ValueExpr::Decode64(..)
+            | ValueExpr::ParseFloat(..)
+            | ValueExpr::ParseInt(..)
+            | ValueExpr::K4Screen(..)
+            | ValueExpr::CostumeName(..)
+            | ValueExpr::CostumeLiteral(..)
+            | ValueExpr::CloneProperty(..)
+            | ValueExpr::KnCloneProperty(..)
+            | ValueExpr::BumpProperty(..)
+            | ValueExpr::K4LegacyChoice
+            | ValueExpr::K4Media(..)
+            | ValueExpr::KnPanel(..)
+            | ValueExpr::K4Property(..)
+            | ValueExpr::K4DomainError(..)
+            | ValueExpr::Answer
+            | ValueExpr::SceneId
+            | ValueExpr::Choice(..)
+            | ValueExpr::WeekText) => self.eval_value_cold(cold, actor),
         }
     }
     fn assign(&mut self, target: Target, value: Cell) {
@@ -8909,77 +8697,32 @@ impl Engine {
                     return Ok(false);
                 }
             }
-            Op::CloudSet(binding, value, change, decrease) => {
-                let value = self.eval_value(value, actor);
-                self.cloud_set(binding, value, change, decrease);
-            }
-            Op::CloudList(binding, action, at, value) => {
-                let at = at.map(|e| self.eval_value(e, actor));
-                let value = value.map(|v| self.eval_value(v, actor));
-                self.cloud_list(binding, action, at, value);
-            }
-            Op::Ranking(binding, show) => {
-                if !show || (binding.is_some() && self.cloud.ranking.is_none()) {
-                    self.cloud.ranking = binding;
-                }
-            }
-            Op::LegacyPhysics(command, value) => {
-                let value = self.eval_value(value, actor);
-                let number = if matches!(
-                    command,
-                    physics::Command::LegacyMass
-                        | physics::Command::LegacyGravityOrientation
-                        | physics::Command::Flexibility
-                ) {
-                    match value {
-                        Cell::Number(n) => n,
-                        _ => f64::NAN,
-                    }
-                } else {
-                    value.number()
-                };
-                self.physics_command(actor, command, [number, 0.0, 0.0])?;
-            }
-            Op::K4Media(command) => {
-                return self.exec_k4_media(index, actor, command);
-            }
-            Op::KnPanel(command) => {
-                return self.exec_kn_panel(index, actor, command);
-            }
-            Op::LegacyPhysicsVector(command, value, dir) => {
-                let number = |v| match v {
-                    Cell::Number(n) => n,
-                    _ => f64::NAN,
-                };
-                let values = [
-                    number(self.eval_value(value, actor)),
-                    number(self.eval_value(dir, actor)),
-                    0.0,
-                ];
-                self.physics_command(actor, command, values)?;
-            }
-            Op::PhysicsVelocity(value, dir) => {
-                let number = |v| match v {
-                    Cell::Number(n) => n,
-                    _ => f64::NAN,
-                };
-                let values = [
-                    number(self.eval_value(value, actor)),
-                    number(self.eval_value(dir, actor)),
-                    0.0,
-                ];
-                self.physics_command(actor, physics::Command::LegacyVelocity, values)?;
-            }
-            Op::Physics(command, a, dir, time) => {
-                let values = [
-                    self.eval(a, actor),
-                    self.eval(dir, actor),
-                    self.eval(time, actor),
-                ];
-                let duration = self.physics_command(actor, command, values)?;
-                if let Some(duration) = duration {
-                    self.tasks[index].wake = self.time + duration;
-                    return Ok(false);
+            cold_op @ (Op::CloudSet(..)
+            | Op::CloudList(..)
+            | Op::Ranking(..)
+            | Op::LegacyPhysics(..)
+            | Op::LegacyPhysicsVector(..)
+            | Op::PhysicsVelocity(..)
+            | Op::Physics(..)
+            | Op::K4Media(_)
+            | Op::KnPanel(_)
+            | Op::Extension(_)
+            | Op::Audio(..)
+            | Op::AudioProperty(..)
+            | Op::AudioWait(_)
+            | Op::Speech(..)
+            | Op::SpeechConfig(_)
+            | Op::Video(..)
+            | Op::KnAwaitVoice
+            | Op::KnTimer(..)
+            | Op::KnClearTimer(_)
+            | Op::Tell(..)
+            | Op::Ask(..)
+            | Op::StageDialog(..)
+            | Op::K4DomainError(_)
+            | Op::K4LegacyChoice) => {
+                if let Some(continuing) = self.exec_cold(index, pc, cold_op, actor)? {
+                    return Ok(continuing);
                 }
             }
             Op::SetActorVariable(slot, value) => {
@@ -9048,7 +8791,6 @@ impl Engine {
                     self.assign(target, value);
                 }
             }
-            Op::Extension(call) => return self.exec_extension(index, actor, call),
             Op::Move(e) => {
                 let n = self.eval(e, actor);
                 // Nonfinite motion is a no-op, but a failed input must still
@@ -9288,21 +9030,10 @@ impl Engine {
                     self.timer_origin_ms = self.clock_ms - self.timer * 1000.0;
                 }
             }
-            Op::K4DomainError(message) => {
-                let message = self.eval_value(message, actor).text();
-                bail!("K4 domain error: {message}");
-            }
-            Op::K4LegacyChoice => ensure!(!self.sprites[actor].stage, "K4 choice used in scene"),
             Op::TimerVisible(visible) => self.timer_visible = visible,
             Op::ResetBlockTimer => self.block_timer.reset(self.time),
             Op::Execute(value) => {
                 self.eval_value(value, actor);
-            }
-            Op::KnAwaitVoice => {
-                if !self.kn_voice_resolved() {
-                    self.tasks[index].pc = pc;
-                    return Ok(false);
-                }
             }
             Op::ClearList(list) => {
                 if let Some(list) = self.resolve_list(list) {
@@ -9569,74 +9300,6 @@ impl Engine {
                     self.logs.push(self.program.strings[i].clone());
                 }
             }
-            Op::Audio(i, play) => {
-                let audio = self.eval_value(i, actor);
-                if !play {
-                    for id in self.audio.stop(&audio) {
-                        self.audio_finished(id);
-                    }
-                }
-                self.audio_commands.push(AudioCommand {
-                    audio,
-                    play,
-                    wait: None,
-                    property: None,
-                });
-            }
-            Op::SpeechConfig(config) => self.speech_config = config,
-            Op::Speech(value, blocking) => {
-                let text = self.eval_value(value, actor).text();
-                // No headless TTS duration can be inferred from text. As with a
-                // failed official online synthesis, no playback lock is taken.
-                let wait = (blocking && self.audio.browser && !text.is_empty()).then(|| {
-                    let wait = self.next_audio_wait;
-                    self.next_audio_wait += 1;
-                    self.audio_waits.push((self.tasks[index].id, wait));
-                    self.tasks[index].pending += 1;
-                    wait
-                });
-                self.speech_commands.push(SpeechCommand {
-                    before_audio: self.audio_commands.len(),
-                    language: (self.program.semantics == RuntimeSemantics::Kitten4)
-                        .then(|| self.k4_speech_language(&text).to_owned()),
-                    text,
-                    config: self.speech_config,
-                    kitten4: self.program.semantics == RuntimeSemantics::Kitten4,
-                    wait,
-                });
-                if wait.is_some() {
-                    return Ok(false);
-                }
-            }
-            Op::AudioProperty(audio, value, rate, change, decrease) => {
-                // The official audio module checks typeof, without numeric coercion.
-                if let Cell::Number(value) = self.eval_value(value, actor)
-                    && !value.is_nan()
-                    && (!change || value.is_finite())
-                {
-                    let audio = self.eval_value(audio, actor);
-                    let value = if value.is_finite() {
-                        value / 100.0 * if change && decrease { -1.0 } else { 1.0 }
-                    } else if value.is_sign_positive() {
-                        if rate { 4.0 } else { 1.0 }
-                    } else if rate {
-                        0.05
-                    } else {
-                        0.0
-                    };
-                    self.audio.property(&audio, rate, change, value);
-                    self.audio_commands.push(AudioCommand {
-                        audio,
-                        play: false,
-                        wait: None,
-                        property: Some(AudioProperty {
-                            rate,
-                            change,
-                            value,
-                        }),
-                    });
-                }
-            }
             Op::LogNumber(e) => {
                 let n = self.eval(e, actor);
                 if self.logs.len() < 1024 {
@@ -9695,19 +9358,6 @@ impl Engine {
                 if self.tasks[index].done {
                     return Ok(false);
                 }
-            }
-            Op::KnTimer(delay, repeat) => {
-                let milliseconds = self.eval_value(delay, actor).number();
-                ensure!(
-                    self.kn_timers
-                        .insert(self.time, self.scheduler_tick, milliseconds, repeat, ())
-                        .is_some(),
-                    "KN timer limit exceeded"
-                );
-            }
-            Op::KnClearTimer(value) => {
-                let id = self.eval_value(value, actor).number();
-                self.kn_timers.cancel(id);
             }
             Op::Call(procedure, args) => {
                 let count = self.program.call_arguments[args].len();
@@ -10007,34 +9657,6 @@ impl Engine {
                 }
                 self.tasks[index].anim = None;
             }
-            Op::Tell(target, start, wait) => {
-                let target = if target == usize::MAX { actor } else { target };
-                ensure!(
-                    self.tasks.len() < 4096,
-                    "task limit exceeded at {}",
-                    self.program.sources[pc]
-                );
-                let script = Script {
-                    start,
-                    hat: self.program.sources[pc].clone(),
-                    actor: target,
-                    event: ScriptEvent::Start,
-                };
-                let mut task = Task::new(self.next_task_id, &script, &self.program);
-                self.next_task_id += 1;
-                task.locals.clone_from(&self.tasks[index].locals);
-                task.local_values
-                    .clone_from(&self.tasks[index].local_values);
-                if wait {
-                    task.waiter = Some(self.tasks[index].id);
-                    self.tasks[index].pending += 1;
-                }
-                self.ready.push_back(self.tasks.len());
-                self.tasks.push(task);
-                if wait {
-                    return Ok(false);
-                }
-            }
             Op::Restart => {
                 self.restart = true;
                 return Ok(false);
@@ -10059,40 +9681,9 @@ impl Engine {
                     self.dirty[actor] = true;
                 }
             }
-            Op::StageDialog(text, target) => {
-                let text = self.eval_value(text, actor).text();
-                self.stage_dialog(actor, target, text, index);
-                return Ok(false);
-            }
             Op::CloseDialog => {
                 self.sprites[actor].dialog = None;
                 self.dirty[actor] = true;
-            }
-            Op::Ask(question, choices) => {
-                let question = self.eval_value(question, actor).text();
-                let choices = choices.map(|span| {
-                    (span.start..span.start + span.len)
-                        .map(|k| {
-                            let value = self.program.value_args[k as usize];
-                            self.eval_value(value, actor).text()
-                        })
-                        .collect()
-                });
-                self.asks.push_back(AskRequest {
-                    id: self.next_ask,
-                    sprite: if self.sprites[actor].stage {
-                        String::new()
-                    } else {
-                        self.sprites[actor].id.clone()
-                    },
-                    question,
-                    choices,
-                    task: self.tasks[index].id,
-                });
-                self.next_ask += 1;
-                // Suspended until the viewer answers (see Engine::answer).
-                self.tasks[index].pending += 1;
-                return Ok(false);
             }
             Op::Camp(camp) => {
                 ensure!(
@@ -10184,33 +9775,6 @@ impl Engine {
                         },
                     });
                 }
-            }
-            Op::Video(value, action) => {
-                let id = self.eval_value(value, actor).text();
-                self.video_action(&id, action, index);
-                if self.tasks[index].pending > 0 {
-                    return Ok(false);
-                }
-            }
-            Op::AudioWait(value) => {
-                let audio = self.eval_value(value, actor);
-                let wait = self.next_audio_wait;
-                self.next_audio_wait += 1;
-                if !self.audio.play(&audio, wait) && !self.audio.browser && self.logs.len() < 1024 {
-                    self.logs.push(format!(
-                        "音频 {} 时长未知：CLI 按加载失败降级，下一 tick 继续",
-                        audio.text()
-                    ));
-                }
-                self.audio_commands.push(AudioCommand {
-                    audio,
-                    play: true,
-                    wait: Some(wait),
-                    property: None,
-                });
-                self.audio_waits.push((self.tasks[index].id, wait));
-                self.tasks[index].pending += 1;
-                return Ok(false);
             }
             Op::Monitor(monitor, visible) => {
                 if self.monitors.len() <= monitor {

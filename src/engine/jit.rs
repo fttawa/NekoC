@@ -441,6 +441,11 @@ impl Engine {
         (used > 0 || self.jit_error.is_some()).then_some(used)
     }
 
+    // Compilation owns large Cranelift temporaries. Never inline these into
+    // jit_try/tick: even a disabled JIT would otherwise pay their stack frame.
+    // Native execution stays on the ordinary hot jit_run path.
+    #[cold]
+    #[inline(never)]
     fn jit_compile(&mut self, entry: usize) {
         let _timing = crate::import_perf::span("jit_compile_hot");
         let timing = self.jit.as_ref().and_then(|jit| jit.timing.clone());

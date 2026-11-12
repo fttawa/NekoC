@@ -1544,6 +1544,10 @@ impl Engine {
         }
         self.physics_property(actor, property)
     }
+    // Keep Rapier's world-step temporaries out of the interpreter's tick frame,
+    // including projects that never allocate a physics world. This runs once
+    // per tick, not once per VM instruction; it is not a cold-physics claim.
+    #[inline(never)]
     pub(super) fn step_physics(&mut self, dt: f64) {
         if self.stopped || dt <= 0.0 || self.physics.is_none() {
             return;
