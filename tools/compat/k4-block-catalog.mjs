@@ -449,6 +449,12 @@ export function mappingStatus(root, rows) {
         limitations.push("第二轮原创官方离线实测默认 voice/scan、falsy translate 与 midi 对象最终值；异步帧相位、在线及实际设备未验证，见 kitten4-partial-text-2.md");
       }
     }
+    if (['on_mobile_click_btn','on_mobile_shake','on_mobile_slide','on_mobile_slope','on_shake','on_tilt','shock_duration','shock_for_n_times','set_gravity_by_orientation'].includes(row.type) && evidence.length) {
+      limitations.push('第十二轮设备输入边界：显式 mobile action、按钮状态、方向重力换算与 vibrate 输出均有原创夹具/官方逐帧对照；raw devicemotion 不在指定官方包中自行转 shake/tilt；真实硬件权限、控制器传输、Rapier 物理轨迹及 busy 等待边界仍为 partial，见 kitten4-device.md。');
+    }
+    if (row.type === 'self_shake' && evidence.length) {
+      limitations.push('第十二轮设备专项复验：self_shake 两个 Clock origin 的官方逐帧位移/后继恢复一致；物理刚体、竞争取消及真实墙钟仍未验证，见 kitten4-device.md。');
+    }
     if (["block_on_break", "mouse_on_emit", "player_position_on_change", "incompatible_block", "incompatible_output_block"].includes(row.type) && evidence.length) {
       limitations.push("实现该固定官方包的抛错边界（枚举旧事件无 domain handler）；不是可工作的新增事件，不静默执行或忽略");
     }

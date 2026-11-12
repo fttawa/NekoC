@@ -139,17 +139,19 @@ fn engine(publish: bool, interpreted: bool, roots: Vec<Value>) -> Engine {
     vm.start();
     vm
 }
-fn tick(vm: &mut Engine) {
+fn tick(vm: &mut Engine) -> nekoc::engine::Frame {
     vm.advance(1.0 / 60.0, 100_000, Duration::from_secs(1))
-        .unwrap();
+        .unwrap()
 }
 fn result(vm: &Engine) -> Cell {
     vm.variable_value("result")
 }
-fn advance(vm: &mut Engine, n: usize) {
+fn advance(vm: &mut Engine, n: usize) -> Vec<nekoc::engine::MediaOutput> {
+    let mut output = Vec::new();
     for _ in 0..n {
-        tick(vm);
+        output.extend(tick(vm).k4_media_output);
     }
+    output
 }
 
 #[test]
@@ -175,9 +177,9 @@ fn midi_object_identity_serialization_and_numbered_key_boundaries() {
                         set(num(7.0)),
                     ])],
                 );
-                tick(&mut vm);
+                let frame = tick(&mut vm);
                 assert_eq!(result(&vm).number(), 0.0);
-                let output = serde_json::to_value(vm.take_k4_media_output()).unwrap();
+                let output = serde_json::to_value(frame.k4_media_output).unwrap();
                 assert_eq!(output[0]["key"], expected);
                 assert_eq!(output[0]["seconds"], 0.75);
                 advance(&mut vm, 60);
@@ -230,8 +232,7 @@ fn midi_objects_bypass_numeric_key_conversion_and_invalid_beats_do_not_wait() {
                     set(num(9.0)),
                 ])],
             );
-            tick(&mut vm);
-            let output = serde_json::to_value(vm.take_k4_media_output()).unwrap();
+            let output = serde_json::to_value(tick(&mut vm).k4_media_output).unwrap();
             assert_eq!(output[0]["key"], "5");
             assert_eq!(output[0]["fade_seconds"], 0.2);
             advance(&mut vm, 20);
@@ -287,8 +288,7 @@ fn direct_note_uses_parse_int_and_rejects_out_of_range_numbered_inputs() {
                     set(num(3.0)),
                 ])],
             );
-            tick(&mut vm);
-            let output = serde_json::to_value(vm.take_k4_media_output()).unwrap();
+            let output = serde_json::to_value(tick(&mut vm).k4_media_output).unwrap();
             assert_eq!(output.as_array().unwrap().len(), 1);
             assert_eq!(output[0]["key"], 16.0);
             advance(&mut vm, 20);
@@ -358,8 +358,7 @@ fn recording_is_separate_and_play_is_nonblocking() {
             let request = vm.pending_k4_media().pop().unwrap();
             assert_eq!(request.text, "Record");
             assert!(vm.complete_k4_media(request.id, "synthetic-recording-token"));
-            advance(&mut vm, 3);
-            let output = serde_json::to_value(vm.take_k4_media_output()).unwrap();
+            let output = serde_json::to_value(advance(&mut vm, 3)).unwrap();
             assert_eq!(output[0]["recording"], "synthetic-recording-token");
             assert_eq!(result(&vm).text(), "");
         }
@@ -540,10 +539,10 @@ fn offline_translation_fallback_and_language_selection_and_vibration() {
                     )),
                 ])],
             );
-            tick(&mut vm);
+            let frame = tick(&mut vm);
             assert_eq!(result(&vm).text(), "猫".repeat(200));
             assert_eq!(vm.k4_speech_language("test"), "ja");
-            let output = serde_json::to_value(vm.take_k4_media_output()).unwrap();
+            let output = serde_json::to_value(frame.k4_media_output).unwrap();
             assert_eq!(output[0]["pattern_ms"], json!([100.0, 100.0, 100.0, 100.0]));
             assert_eq!(output[1]["pattern_ms"], json!([300.0]));
             assert!(vm.pending_k4_media().is_empty());
@@ -592,6 +591,68 @@ fn button_root_restarts_only_after_body_and_one_frame_state_is_cleared() {
             vm.k4_mobile_button("phone-a", "down", "A");
             tick(&mut vm);
             assert_eq!(result(&vm).number(), 6.0);
+        }
+    }
+}
+
+#[test]
+fn raw_motion_is_not_a_fabricated_mobile_service_event_and_restart_clears_it() {
+    for publish in [false, true] {
+        for interpreted in [false, true] {
+            let mut hat = block("on_shake", json!({}), json!({}));
+            hat["next"] = set(num(1.0));
+            let mut vm = engine(publish, interpreted, vec![hat]);
+            assert!(vm.k4_device_motion_sample().is_none());
+            vm.inject_k4_device(nekoc::device::DeviceInput::Motion {
+                x: 100.0,
+                y: -100.0,
+                z: 9.8,
+            });
+            tick(&mut vm);
+            assert_eq!(vm.k4_device_motion_sample(), Some([100.0, -100.0, 9.8]));
+            assert_eq!(result(&vm).number(), 0.0);
+            vm.k4_device_motion(f64::NAN, 0.0, 0.0);
+            assert_eq!(vm.k4_device_motion_sample(), Some([100.0, -100.0, 9.8]));
+            vm.inject_k4_device(nekoc::device::DeviceInput::Event {
+                action: "on_shake".into(),
+                device: String::new(),
+                value: String::new(),
+            });
+            tick(&mut vm);
+            assert_eq!(result(&vm).number(), 1.0);
+            vm.start();
+            assert!(vm.k4_device_motion_sample().is_none());
+        }
+    }
+}
+
+#[test]
+fn frame_drains_nonblocking_vibration_once_and_preserves_raw_duration() {
+    for publish in [false, true] {
+        for interpreted in [false, true] {
+            let mut vm = engine(
+                publish,
+                interpreted,
+                vec![start(vec![
+                    block("shock_for_n_times", json!({}), json!({"times":num(-1.0)})),
+                    block("shock_for_n_times", json!({}), json!({"times":num(1.01)})),
+                    block("shock_duration", json!({}), json!({"duration":num(-0.5)})),
+                    set(num(7.0)),
+                ])],
+            );
+            let first = tick(&mut vm);
+            assert_eq!(result(&vm).number(), 7.0);
+            let output = serde_json::to_value(&first.k4_media_output).unwrap();
+            assert_eq!(
+                output,
+                json!([
+                    {"kind":"vibrate","pattern_ms":[]},
+                    {"kind":"vibrate","pattern_ms":[100.0,100.0,100.0,100.0]},
+                    {"kind":"vibrate","pattern_ms":[-500.0]}
+                ])
+            );
+            assert!(vm.take_k4_media_output().is_empty());
+            assert!(tick(&mut vm).k4_media_output.is_empty());
         }
     }
 }

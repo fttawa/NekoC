@@ -46,6 +46,32 @@ pub enum InputAction {
         y: f64,
         pointer_type: Option<PointerType>,
     },
+    #[serde(rename = "device_motion")]
+    DeviceMotion {
+        x: f64,
+        y: f64,
+        z: f64,
+    },
+    #[serde(rename = "device_orientation")]
+    DeviceOrientation {
+        beta: f64,
+        gamma: f64,
+        portrait: bool,
+    },
+    #[serde(rename = "device_event")]
+    DeviceEvent {
+        action: String,
+        #[serde(default)]
+        device: String,
+        #[serde(default)]
+        value: String,
+    },
+    #[serde(rename = "mobile_button")]
+    MobileButton {
+        device: String,
+        event: String,
+        button: String,
+    },
 }
 
 #[derive(Clone, Debug, Deserialize)]
@@ -77,6 +103,17 @@ impl InputScript {
                 }
                 _ => {}
             }
+            match &event.action {
+                InputAction::DeviceMotion { x, y, z } => ensure!(
+                    x.is_finite() && y.is_finite() && z.is_finite(),
+                    "invalid device motion"
+                ),
+                InputAction::DeviceOrientation { beta, gamma, .. } => ensure!(
+                    beta.is_finite() && gamma.is_finite(),
+                    "invalid device orientation"
+                ),
+                _ => {}
+            }
             frame = event.frame;
             time = event.time_ms;
         }
@@ -106,35 +143,35 @@ impl InputReplay {
     ) {
         while let Some(event) = script.events.get(self.at).filter(|e| e.frame == frame) {
             self.at += 1;
-            match event.action {
+            match &event.action {
                 InputAction::Keydown { key_code } => engine.key_event(&key_code.to_string(), true),
                 InputAction::Keyup { key_code } => engine.key_event(&key_code.to_string(), false),
                 InputAction::Pointerdown { x, y, .. } => {
-                    let target = engine.hit_test(x, y).unwrap_or("").to_owned();
+                    let target = engine.hit_test(*x, *y).unwrap_or("").to_owned();
                     self.pointer = Some(Pointer {
                         target: target.clone(),
-                        last: [x, y],
-                        start: [x, y],
+                        last: [*x, *y],
+                        start: [*x, *y],
                         time_ms: event.time_ms,
                     });
-                    engine.pointer_event(&target, "mouse_down", x, y);
+                    engine.pointer_event(&target, "mouse_down", *x, *y);
                 }
                 InputAction::Pointermove { x, y, .. } => {
-                    engine.set_mouse(x, y);
+                    engine.set_mouse(*x, *y);
                     if let Some(p) = &mut self.pointer
                         && x.abs() <= engine.program.width / 2.0
                         && y.abs() <= engine.program.height / 2.0
                     {
-                        engine.drag_by(&p.target, x - p.last[0], y - p.last[1]);
-                        p.last = [x, y];
+                        engine.drag_by(&p.target, *x - p.last[0], *y - p.last[1]);
+                        p.last = [*x, *y];
                     }
                 }
                 InputAction::Pointerup { x, y, .. } => {
-                    engine.set_mouse(x, y);
-                    let target = engine.hit_test(x, y).unwrap_or("").to_owned();
+                    engine.set_mouse(*x, *y);
+                    let target = engine.hit_test(*x, *y).unwrap_or("").to_owned();
                     if let Some(p) = self.pointer.take() {
-                        let dx = x - p.start[0];
-                        let dy = y - p.start[1];
+                        let dx = *x - p.start[0];
+                        let dy = *y - p.start[1];
                         let elapsed = event.time_ms - p.time_ms;
                         // The offline replay canvas has 1 CSS pixel per stage
                         // unit (web StageInput uses its actual CSS coordinates).
@@ -151,22 +188,62 @@ impl InputReplay {
                             });
                         }
                         if p.target != target {
-                            engine.pointer_event(&p.target, "", x, y);
+                            engine.pointer_event(&p.target, "", *x, *y);
                         }
-                        let inside = x >= -engine.program.width / 2.0
-                            && x < engine.program.width / 2.0
-                            && y <= engine.program.height / 2.0
-                            && y > -engine.program.height / 2.0;
-                        engine.pointer_event(&target, if inside { "mouse_up" } else { "" }, x, y);
+                        let inside = *x >= -engine.program.width / 2.0
+                            && *x < engine.program.width / 2.0
+                            && *y <= engine.program.height / 2.0
+                            && *y > -engine.program.height / 2.0;
+                        engine.pointer_event(&target, if inside { "mouse_up" } else { "" }, *x, *y);
                         if inside && p.target == target && event.time_ms - p.time_ms < 1000.0 {
-                            engine.pointer_event(&target, "mouse_click", x, y);
+                            engine.pointer_event(&target, "mouse_click", *x, *y);
                         }
                     }
                 }
                 InputAction::Pointercancel { x, y, .. } => {
                     if let Some(p) = self.pointer.take() {
-                        engine.pointer_event(&p.target, "", x, y);
+                        engine.pointer_event(&p.target, "", *x, *y);
                     }
+                }
+                InputAction::DeviceMotion { x, y, z } => {
+                    engine.inject_k4_device(crate::device::DeviceInput::Motion {
+                        x: *x,
+                        y: *y,
+                        z: *z,
+                    });
+                }
+                InputAction::DeviceOrientation {
+                    beta,
+                    gamma,
+                    portrait,
+                } => {
+                    engine.inject_k4_device(crate::device::DeviceInput::Orientation {
+                        beta: *beta,
+                        gamma: *gamma,
+                        portrait: *portrait,
+                    });
+                }
+                InputAction::DeviceEvent {
+                    action,
+                    device,
+                    value,
+                } => {
+                    engine.inject_k4_device(crate::device::DeviceInput::Event {
+                        action: action.clone(),
+                        device: device.clone(),
+                        value: value.clone(),
+                    });
+                }
+                InputAction::MobileButton {
+                    device,
+                    event,
+                    button,
+                } => {
+                    engine.inject_k4_device(crate::device::DeviceInput::Button {
+                        device: device.clone(),
+                        event: event.clone(),
+                        button: button.clone(),
+                    });
                 }
             }
         }
