@@ -79,7 +79,7 @@ void main(){uv=corner();vec2 p=(uv-.5)*dimensions;float c=cos(angle),s=sin(angle
 // Sprite effects by native scope: fxA = (color, brightness, pixelate, ripple),
 // fxB = (twist, grayscale). Textures are premultiplied; colour effects unpremultiply.
 const TEXTURE_FRAGMENT = `#version 300 es
-precision highp float;uniform sampler2D image;uniform vec4 tint;uniform vec4 fxA;uniform vec2 fxB;uniform vec2 texSize;uniform vec2 repeatUV;uniform bool kitten4;in vec2 uv;out vec4 outColor;
+precision highp float;uniform sampler2D image;uniform vec4 tint;uniform bool packedTint;uniform vec4 fxA;uniform vec2 fxB;uniform vec3 hueWeights;uniform vec2 saturationWeights;uniform vec2 texSize;uniform vec2 repeatUV;uniform bool kitten4;in vec2 uv;out vec4 outColor;
 vec3 hsv(vec3 c){vec4 K=vec4(0.,-1./3.,2./3.,-1.);vec4 p=mix(vec4(c.bg,K.wz),vec4(c.gb,K.xy),step(c.b,c.g));vec4 q=mix(vec4(p.xyw,c.r),vec4(c.r,p.yzx),step(p.x,c.r));float d=q.x-min(q.w,q.y);return vec3(abs(q.z+(q.w-q.y)/(6.*d+1e-10)),d/(q.x+1e-10),q.x);}
 vec3 rgb(vec3 c){vec3 p=abs(fract(c.xxx+vec3(1.,2./3.,1./3.))*6.-3.);return c.z*mix(vec3(1.),clamp(p-1.,0.,1.),c.y);}
 void main(){vec2 p=uv;
@@ -96,9 +96,9 @@ if(kitten4&&(fxA.x!=0.||fxA.y!=0.||fxB.y>0.)){c=floor(c*alpha*255.+.5)/255.;alph
 // Each pass clamps/quantizes its premultiplied RGBA8 intermediate, not RGB.
 // See docs/kitten4-visual3.md. KN retains its existing HSV/weighted-gray policy.
 if(kitten4&&c.a>0.){vec3 r=c.rgb/c.a;
-if(fxA.x!=0.){float a=radians(fxA.x),co=cos(a),si=sin(a)/sqrt(3.),v=(1.-co)/3.;r=vec3(dot(r,vec3(co+v,v-si,v+si)),dot(r,vec3(v+si,co+v,v-si)),dot(r,vec3(v-si,v+si,co+v)));r=floor(clamp(r*c.a,0.,1.)*255.+.5)/255./c.a;}
+if(fxA.x!=0.){r=vec3(dot(r,hueWeights),dot(r,hueWeights.zxy),dot(r,hueWeights.yzx));r=floor(clamp(r*c.a,0.,1.)*255.+.5)/255./c.a;}
 if(fxA.y!=0.)r=floor(clamp((r+clamp(fxA.y/100.,-1.,1.))*c.a,0.,1.)*255.+.5)/255./c.a;
-if(fxB.y>0.)r=mix(r,vec3((r.r+r.g+r.b)/3.),clamp(fxB.y/100.,0.,1.));
+if(fxB.y>0.)r=vec3(dot(r,saturationWeights.xyy),dot(r,saturationWeights.yxy),dot(r,saturationWeights.yyx));
 c.rgb=r*c.a;
 }else{
 if(c.a>0.&&(fxA.x!=0.||fxB.y>0.)){vec3 r=c.rgb/c.a;
@@ -106,7 +106,7 @@ if(fxA.x!=0.){vec3 h=hsv(r);h.x=fract(h.x+fxA.x/200.);r=rgb(h);}
 if(fxB.y>0.){r=mix(r,vec3(dot(r,vec3(.299,.587,.114))),clamp(fxB.y/100.,0.,1.));}
 c.rgb=r*c.a;}
 if(fxA.y!=0.){c.rgb=clamp(c.rgb+fxA.y/100.*c.a,0.,c.a);}}
-outColor=c*vec4(tint.rgb*alpha,alpha);}`;
+outColor=c*(packedTint?tint:vec4(tint.rgb*alpha,alpha));}`;
 
 // Original screen-space resampling passes. K4 filters rasterize the transformed
 // actor first: cells remain aligned to the filter rectangle, even on rotation.
@@ -134,7 +134,7 @@ uint glyphRow(int level,int row){
 }
 void main(){vec2 q=uv*extent;
 vec2 cell=mod(q+origin,amount)/amount;
-if(twist){vec2 d=q-center;float r=length(d);if(r<radius){float a=amount*pow(1.-r/radius,2.),s=sin(a),c=cos(a);d=vec2(c*d.x-s*d.y,s*d.x+c*d.y);}q=clamp(center+d,vec2(.5),extent-.5);}
+if(twist){vec2 d=q-center;float r=length(d);if(r<radius){float falloff=(radius-r)/radius;float a=falloff*falloff*amount,s=sin(a),c=cos(a);d=vec2(c*d.x-s*d.y,s*d.x+c*d.y);}q=clamp(center+d,vec2(.5),extent-.5);}
 else q=floor((q+origin)/amount)*amount-origin;
 if(!twist)q=max(q,vec2(.5));
 vec2 p=vec2(q.x/extent.x,1.-q.y/extent.y);
@@ -144,7 +144,19 @@ if(ascii){float gray=(outColor.r+outColor.g+outColor.b)/3.;int level=0;
  ivec2 dotPosition=ivec2(floor((cell*2.-1.)*vec2(4.,-4.)+2.5));
  if(any(lessThan(dotPosition,ivec2(0)))||any(greaterThan(dotPosition,ivec2(4))))outColor=vec4(0.);
  else outColor*=float((glyphRow(level,dotPosition.y)>>uint(dotPosition.x))&1u);
- }}`;
+  }}`;
+
+// Independent three-channel affine matrix pass. Keep rasterization, each colour
+// operation and its RGBA8 storage separate; no gamma conversion is involved.
+const K4_COLOR_FRAGMENT = `#version 300 es
+precision highp float;
+uniform sampler2D image;uniform vec3 rowR;uniform vec3 rowG;uniform vec3 rowB;uniform float bias;
+in vec2 uv;out vec4 outColor;
+void main(){vec4 c=texture(image,vec2(uv.x,1.-uv.y));vec3 straight=c.a>0.?c.rgb/c.a:c.rgb;
+vec3 result=vec3(rowR.x*straight.r,rowG.x*straight.r,rowB.x*straight.r);
+result+=vec3(rowR.y*straight.g,rowG.y*straight.g,rowB.y*straight.g);
+result+=vec3(rowR.z*straight.b,rowG.z*straight.b,rowB.z*straight.b);
+outColor=vec4((result+bias)*c.a,c.a);}`;
 
 function program(gl, vertex, fragment) {
   const shaders = [[gl.VERTEX_SHADER, vertex], [gl.FRAGMENT_SHADER, fragment]].map(([type, source]) => {
@@ -181,8 +193,10 @@ export class StageRenderer {
     this.gl = gl; this.pen = program(gl, PEN_VERTEX, PEN_FRAGMENT); this.texture = program(gl, TEXTURE_VERTEX, TEXTURE_FRAGMENT);
     this.k4Spatial = program(gl,K4_FILTER_VERTEX,K4_SPATIAL_FRAGMENT);
     this.k4SpatialUniform=Object.fromEntries(['stageSize','position','dimensions','angle','image','extent','center','origin','amount','radius','twist','ascii'].map(k=>[k,gl.getUniformLocation(this.k4Spatial,k)]));
+    this.k4Color=program(gl,K4_FILTER_VERTEX,K4_COLOR_FRAGMENT);
+    this.k4ColorUniform=Object.fromEntries(['stageSize','position','dimensions','extent','origin','image','rowR','rowG','rowB','bias'].map(k=>[k,gl.getUniformLocation(this.k4Color,k)]));
     this.penSize = gl.getUniformLocation(this.pen, 'stageSize');
-    this.uniform = Object.fromEntries(['stageSize', 'position', 'dimensions', 'angle', 'image', 'tint', 'fxA', 'fxB', 'texSize', 'repeatUV', 'kitten4'].map(k => [k, gl.getUniformLocation(this.texture, k)]));
+    this.uniform = Object.fromEntries(['stageSize', 'position', 'dimensions', 'angle', 'image', 'tint', 'packedTint', 'fxA', 'fxB', 'hueWeights', 'saturationWeights', 'texSize', 'repeatUV', 'kitten4'].map(k => [k, gl.getUniformLocation(this.texture, k)]));
     this.vao = gl.createVertexArray(); this.buffer = gl.createBuffer(); this.bufferCapacity = 0;
     gl.bindVertexArray(this.vao); gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
     for (const [location, count, offset] of [[0,4,0], [1,1,16], [2,4,20]]) {
@@ -263,7 +277,14 @@ export class StageRenderer {
         gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,image);
         // One alpha byte per pixel allows transparent costume regions to pass clicks through.
         const hit=document.createElement('canvas');hit.width=image.naturalWidth;hit.height=image.naturalHeight;
-        const ctx=hit.getContext('2d',{willReadFrequently:true});ctx.drawImage(image,0,0);
+        const ctx=hit.getContext('2d',this.kitten4?undefined:{willReadFrequently:true});
+        if(this.kitten4&&/^data:image\/svg\+xml/i.test(style.url)){
+          // Explicit source/destination rectangles select the SVG raster path
+          // observed in native SVGResource; the 3-argument overload differs at
+          // diagonal antialiasing edges in Chromium.
+          ctx.drawImage(image,0,0,image.naturalWidth,image.naturalHeight,0,0,hit.width,hit.height);
+          gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,hit);
+        }else ctx.drawImage(image,0,0);
         const rgba=ctx.getImageData(0,0,hit.width,hit.height).data,alpha=new Uint8Array(hit.width*hit.height);
         for(let i=0;i<alpha.length;i++)alpha[i]=rgba[i*4+3];
         this.images.set(id,{texture,src:image.src,source:hit,width:image.naturalWidth,height:image.naturalHeight,centerPoint,adaptive:style.adaptive!==false,alpha,rgb:cellColors(rgba,hit.width,hit.height)});
@@ -366,6 +387,8 @@ export class StageRenderer {
     for(const surface of this.sceneTransition.screenshots||[]){
       this.gl.deleteFramebuffer(surface.framebuffer);this.gl.deleteTexture(surface.texture);
     }
+    const input=this.sceneTransition.filterInput;
+    if(input){this.gl.deleteFramebuffer(input.framebuffer);this.gl.deleteTexture(input.texture);}
     this.sceneTransition=null;this.dirty=true;
   }
 
@@ -384,18 +407,30 @@ export class StageRenderer {
     if(!this.distortProgram){
       // Original shader derived from radial inverse mapping; native evidence:
       // a1xw/Et screenshot lifetime, lvVU/TwistFilter radius and squared falloff.
-      this.distortProgram=program(gl,TEXTURE_VERTEX,`#version 300 es
-precision highp float;uniform sampler2D image;uniform vec2 extent;uniform float turn;uniform float alpha;in vec2 uv;out vec4 outColor;
-void main(){vec2 p=vec2(uv.x,1.-uv.y)*extent;vec2 d=p-extent*.5;float r=length(d);float radius=min(extent.x,extent.y);float t=max(0.,1.-r/radius);float a=t*t*turn;float c=cos(a),s=sin(a);p=extent*.5+vec2(c*d.x-s*d.y,s*d.x+c*d.y);vec2 q=p/extent;outColor=(q.x<0.||q.y<0.||q.x>1.||q.y>1.)?vec4(0.):texture(image,vec2(q.x,1.-q.y))*alpha;}`);
-      this.distortUniform=Object.fromEntries(['stageSize','position','dimensions','angle','image','extent','turn','alpha'].map(k=>[k,gl.getUniformLocation(this.distortProgram,k)]));
+      this.distortProgram=program(gl,K4_FILTER_VERTEX,`#version 300 es
+precision highp float;uniform sampler2D image;uniform vec2 extent;uniform vec2 center;uniform vec2 origin;uniform float radius;uniform float turn;in vec2 uv;out vec4 outColor;
+void main(){vec2 p=uv*extent+origin;vec2 d=p-center;float r=length(d);if(r<radius){float t=(radius-r)/radius;float a=t*t*turn;float c=cos(a),s=sin(a);d=vec2(c*d.x-s*d.y,s*d.x+c*d.y);}vec2 q=(center+d-origin)/extent;outColor=texture(image,vec2(q.x,1.-q.y));}`);
+      this.distortUniform=Object.fromEntries(['stageSize','position','dimensions','image','extent','center','origin','radius','turn'].map(k=>[k,gl.getUniformLocation(this.distortProgram,k)]));
     }
     // The destination scene remains live underneath both screenshot sprites.
     this.drawScene();
+    // Native screenshot sprites rasterize world alpha BEFORE the twist, into a
+    // padded RGBA8 filter input. Multiplying after interpolation is not equal.
+    const sx=w/this.width,sy=h/this.height,pad=10;
+    const fw=2**Math.ceil(Math.log2(w+2*pad*sx)),fh=2**Math.ceil(Math.log2(h+2*pad*sy));
+    if(!transition.filterInput)transition.filterInput=this.makeSurface(fw,fh);
     const u=this.distortUniform;
-    gl.useProgram(this.distortProgram);gl.uniform2f(u.stageSize,this.width,this.height);gl.uniform2f(u.position,0,0);
-    gl.uniform2f(u.dimensions,this.width,this.height);gl.uniform1f(u.angle,0);gl.uniform1i(u.image,0);gl.uniform2f(u.extent,w,h);
     for(const [i,s]of [state.outgoing,state.incoming].entries()){
-      gl.uniform1f(u.turn,s.angle);gl.uniform1f(u.alpha,s.alpha);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,transition.screenshots[i].texture);gl.drawArrays(gl.TRIANGLES,0,6);this.stats.drawCalls++;
+      gl.bindFramebuffer(gl.FRAMEBUFFER,transition.filterInput.framebuffer);gl.viewport(0,0,fw,fh);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);
+      const stageW=this.width,stageH=this.height;this.width=fw/sx;this.height=fh/sy;
+      const alpha=Math.max(0,Math.min(1,s.alpha)),rgb=Math.round(alpha*255)/255;
+      try{this.drawTexture(transition.screenshots[i].texture,pad+stageW/2-this.width/2,this.height/2-pad-stageH/2,stageW,stageH,0,[rgb,rgb,rgb,Math.floor(alpha*255)/255],null,null,null,null,true);}
+      finally{this.width=stageW;this.height=stageH;}
+      gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl.viewport(0,0,w,h);
+      gl.useProgram(this.distortProgram);gl.uniform2f(u.stageSize,w,h);gl.uniform2f(u.position,0,0);
+      gl.uniform2f(u.dimensions,w+2*pad*sx,h+2*pad*sy);gl.uniform1i(u.image,0);gl.uniform2f(u.extent,fw,fh);
+      gl.uniform2f(u.origin,-pad*sx,-pad*sy);gl.uniform2f(u.center,w/2,h/2);gl.uniform1f(u.radius,Math.min(w,h));
+      gl.uniform1f(u.turn,s.angle);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,transition.filterInput.texture);gl.drawArrays(gl.TRIANGLES,0,6);this.stats.drawCalls++;
     }
   }
 
@@ -726,14 +761,17 @@ void main(){vec2 p=vec2(uv.x,1.-uv.y)*extent;vec2 d=p-extent*.5;float r=length(d
     this.drawTexture(texture,(left+right)/2/sx-this.width/2,this.height/2-(top+bottom)/2/sy,canvas.width/sx,canvas.height/sy);
   }
 
-  drawTexture(texture,x,y,width,height,angle=0,tint=[1,1,1,1],effects=null,texSize=null,repeatUV=null,filterCenter=null) {
+  drawTexture(texture,x,y,width,height,angle=0,tint=[1,1,1,1],effects=null,texSize=null,repeatUV=null,filterCenter=null,packedTint=false) {
     if(this.kitten4&&effects&&(effects[3]>=1||effects[5]>0||effects[7]>=1)&&!this.k4Filtering)return this.drawK4SpatialTexture(texture,x,y,width,height,angle,tint,effects,texSize,repeatUV,filterCenter);
     if(this.sceneTransform){const t=this.sceneTransform;x+=t.x;y-=t.y;tint=[tint[0],tint[1],tint[2],tint[3]*t.alpha];}
     const gl=this.gl,u=this.uniform,e=effects||NO_EFFECTS;
     gl.useProgram(this.texture); gl.uniform2f(u.stageSize,this.width,this.height); gl.uniform2f(u.position,x,y);
     gl.uniform2f(u.dimensions,width,height); gl.uniform1f(u.angle,angle); gl.uniform1i(u.image,0);
     gl.uniform1i(u.kitten4,this.kitten4?1:0);
+    gl.uniform1i(u.packedTint,packedTint?1:0);
     gl.uniform4fv(u.tint,tint);gl.uniform4f(u.fxA,e[0],e[2],e[3],e[4]);gl.uniform2f(u.fxB,e[5],e[6]);
+    const theta=e[0]*Math.PI/180,co=Math.cos(theta),base=(1-co)/3,skew=Math.sin(theta)/Math.sqrt(3),gray=Math.min(1,Math.max(0,e[6]/100));
+    gl.uniform3f(u.hueWeights,co+base,base-skew,base+skew);gl.uniform2f(u.saturationWeights,1-2*gray/3,gray/3);
     gl.uniform2f(u.texSize,texSize?.[0]||Math.abs(width)||1,texSize?.[1]||Math.abs(height)||1);
     gl.uniform2f(u.repeatUV,repeatUV?.[0]||0,repeatUV?.[1]||0);
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,texture); gl.drawArrays(gl.TRIANGLES,0,6); this.stats.drawCalls++;
@@ -765,6 +803,8 @@ void main(){vec2 p=vec2(uv.x,1.-uv.y)*extent;vec2 d=p-extent*.5;float r=length(d
 
   drawK4SpatialTexture(texture,x,y,width,height,angle,tint,e,texSize,repeatUV,filterCenter){
     const gl=this.gl,sx=this.canvas.width/this.width,sy=this.canvas.height/this.height;
+    const inherited=this.sceneTransform;
+    if(inherited){filterCenter??={x,y};x+=inherited.x;y-=inherited.y;tint=[...tint.slice(0,3),tint[3]*inherited.alpha];}
     const c=Math.cos(angle),s=Math.sin(angle),w=Math.abs(width),h=Math.abs(height),pad=e[5]>0?20:0;
     const halfX=(Math.abs(c)*w+Math.abs(s)*h)/2,halfY=(Math.abs(s)*w+Math.abs(c)*h)/2;
     // Filter input is not stage-clipped: a twist can bring offstage pixels back
@@ -780,7 +820,7 @@ void main(){vec2 p=vec2(uv.x,1.-uv.y)*extent;vec2 d=p-extent*.5;float r=length(d
     const maxTextureSize=gl.getParameter(gl.MAX_TEXTURE_SIZE);
     if(!Number.isFinite(fw)||!Number.isFinite(fh)||fw>maxTextureSize||fh>maxTextureSize)throw Error('K4 filter input exceeds GPU texture limit');
     const right=left+fw,bottom=top+fh;
-    const target=gl.getParameter(gl.FRAMEBUFFER_BINDING),viewport=gl.getParameter(gl.VIEWPORT),transform=this.sceneTransform;
+    const target=gl.getParameter(gl.FRAMEBUFFER_BINDING),viewport=gl.getParameter(gl.VIEWPORT);
     const scissor=gl.isEnabled(gl.SCISSOR_TEST),scissorBox=gl.getParameter(gl.SCISSOR_BOX);
     const cache=this.k4FilterCache??=new Map(),key=`${fw}x${fh}`,bytes=fw*fh*8;
     let entry=cache.get(key);
@@ -809,31 +849,44 @@ void main(){vec2 p=vec2(uv.x,1.-uv.y)*extent;vec2 d=p-extent*.5;float r=length(d
       // clip-space stage clipping would discard the offstage source geometry.
       const stageW=this.width,stageH=this.height;
       this.width=fw/sx;this.height=fh/sy;
-      try{this.drawTexture(texture,x-((left+right)/2/sx-stageW/2),y-(stageH/2-(top+bottom)/2/sy),width,height,angle,tint,[e[0],0,e[2],0,0,0,0],texSize,repeatUV);}
+      // Native batch packs RGB by nearest byte but alpha by truncation. They
+      // differ at e.g. 65% opacity; preserve both instead of a single scalar.
+      const inputTint=repeatUV?tint:[...tint.slice(0,3).map(v=>Math.round(v*tint[3]*255)/255),Math.floor(tint[3]*255)/255];
+      try{this.drawTexture(texture,x-((left+right)/2/sx-stageW/2),y-(stageH/2-(top+bottom)/2/sy),width,height,angle,inputTint,null,texSize,repeatUV,null,!repeatUV);}
       finally{this.width=stageW;this.height=stageH;}
       gl.enable(gl.SCISSOR_TEST);gl.scissor(0,fh-activeH,activeW,activeH);
       let input=0;
+      const colorPass=(scope,value)=>{
+        const output=1-input,u=this.k4ColorUniform;
+        gl.bindFramebuffer(gl.FRAMEBUFFER,surfaces[output].framebuffer);gl.viewport(0,0,fw,fh);gl.disable(gl.SCISSOR_TEST);gl.clear(gl.COLOR_BUFFER_BIT);gl.enable(gl.SCISSOR_TEST);
+        gl.useProgram(this.k4Color);gl.uniform2f(u.stageSize,fw,fh);gl.uniform2f(u.position,-left,-top);gl.uniform2f(u.origin,left,top);gl.uniform2f(u.dimensions,activeW,activeH);gl.uniform2f(u.extent,fw,fh);gl.uniform1i(u.image,0);
+        let rows=[[1,0,0],[0,1,0],[0,0,1]],bias=0;
+        if(scope===0){const t=value/180*Math.PI,c=Math.cos(t),v=(1-c)/3,s=Math.sqrt(1/3)*Math.sin(t);rows=[[c+v,v-s,v+s],[v+s,c+v,v-s],[v-s,v+s,c+v]];}
+        if(scope===2)bias=Math.min(1,Math.max(-1,value/100));
+        if(scope===6){const gray=Math.min(1,Math.max(0,value/100)),diagonal=1-2*gray/3,off=gray/3;rows=[[diagonal,off,off],[off,diagonal,off],[off,off,diagonal]];}
+        gl.uniform3fv(u.rowR,rows[0]);gl.uniform3fv(u.rowG,rows[1]);gl.uniform3fv(u.rowB,rows[2]);gl.uniform1f(u.bias,bias);
+        gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,surfaces[input].texture);gl.drawArrays(gl.TRIANGLES,0,6);this.stats.drawCalls++;input=output;
+      };
+      // Rasterization and colour filtering are separate RGBA8 passes: applying
+      // a matrix to the unrounded texture sample moves ASCII luminance bins.
+      if(e[0]!==0)colorPass(0,e[0]);
+      if(e[2]!==0)colorPass(2,e[2]);
       for(const [kind,amount]of [[0,e[3]],[1,e[5]],[2,e[7]]]){
         if(!(amount>0))continue;
         const twist=kind===1,ascii=kind===2;
         // Saturation precedes ASCII in the native filter chain.
         if(ascii&&e[6]>0){
-          const output=1-input;
-          gl.bindFramebuffer(gl.FRAMEBUFFER,surfaces[output].framebuffer);gl.viewport(0,0,fw,fh);gl.disable(gl.SCISSOR_TEST);gl.clear(gl.COLOR_BUFFER_BIT);gl.enable(gl.SCISSOR_TEST);
-          this.width=fw/sx;this.height=fh/sy;
-          try{this.drawTexture(surfaces[input].texture,0,0,fw/sx,fh/sy,0,[1,1,1,1],[0,0,0,0,0,0,e[6]]);}
-          finally{this.width=stageW;this.height=stageH;}
-          input=output;
+          colorPass(6,e[6]);
         }
         const output=1-input,u=this.k4SpatialUniform;
-        const direct=ascii&&!transform;
+         const direct=ascii;
         if(direct){gl.bindFramebuffer(gl.FRAMEBUFFER,target);gl.viewport(...viewport);gl.scissor(left,this.canvas.height-frameBottom,activeW,activeH);}
         else{gl.bindFramebuffer(gl.FRAMEBUFFER,surfaces[output].framebuffer);gl.viewport(0,0,fw,fh);gl.disable(gl.SCISSOR_TEST);gl.clear(gl.COLOR_BUFFER_BIT);gl.enable(gl.SCISSOR_TEST);}
         // Last ASCII pass uses the destination's projection, rather than an
         // extra POT raster/copy. Integer cell edges otherwise drift by a pixel
         // through a different UV interpolation (see round-9 paired evidence).
-        // Keep the old transformed-copy path during scene transitions until
-        // inherited alpha / filter-grid movement has its own paired evidence.
+         // Container translation/alpha already entered the input raster; do not
+         // apply them a second time to the final filtered quad.
         gl.useProgram(this.k4Spatial);gl.uniform2f(u.stageSize,direct?this.canvas.width:fw,direct?this.canvas.height:fh);gl.uniform2f(u.position,direct?0:-left,direct?0:-top);gl.uniform2f(u.dimensions,activeW,activeH);gl.uniform1f(u.angle,0);gl.uniform1i(u.image,0);
         gl.uniform2f(u.extent,fw,fh);gl.uniform2f(u.center,(this.width/2+(filterCenter?.x??x))*sx-left,(this.height/2-(filterCenter?.y??y))*sy-top);
         gl.uniform2f(u.origin,left,top);
@@ -841,11 +894,11 @@ void main(){vec2 p=vec2(uv.x,1.-uv.y)*extent;vec2 d=p-extent*.5;float r=length(d
         gl.uniform1i(u.ascii,ascii?1:0);
         gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,surfaces[input].texture);gl.drawArrays(gl.TRIANGLES,0,6);this.stats.drawCalls++;input=output;
       }
-      if(e[7]>=1&&!transform)return;
-      gl.bindFramebuffer(gl.FRAMEBUFFER,target);gl.viewport(...viewport);this.sceneTransform=transform;
+      if(e[7]>=1)return;
+      gl.bindFramebuffer(gl.FRAMEBUFFER,target);gl.viewport(...viewport);
       gl.scissor(left,this.canvas.height-frameBottom,activeW,activeH);
       this.drawTexture(surfaces[input].texture,(left+right)/2/sx-this.width/2,this.height/2-(top+bottom)/2/sy,fw/sx,fh/sy,0,[1,1,1,1],[0,0,0,0,0,0,e[7]>=1?0:e[6]]);
-    }finally{this.sceneTransform=transform;this.k4Filtering=false;gl.bindFramebuffer(gl.FRAMEBUFFER,target);gl.viewport(...viewport);gl.scissor(...scissorBox);if(!scissor)gl.disable(gl.SCISSOR_TEST);}
+    }finally{this.sceneTransform=inherited;this.k4Filtering=false;gl.bindFramebuffer(gl.FRAMEBUFFER,target);gl.viewport(...viewport);gl.scissor(...scissorBox);if(!scissor)gl.disable(gl.SCISSOR_TEST);}
   }
 
   render(resetStats=true) {

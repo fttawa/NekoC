@@ -1,0 +1,150 @@
+{
+  "schema": "nekoc-k4-effects-10-source-v1",
+  "file": "src/player/build/player_v2.2d180c468559fbd29528.js.orig",
+  "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160",
+  "offsetUnit": "0-based UTF-16 code units after UTF-8 decoding; NOT file byte offsets",
+  "anchors": {
+    "batch": {
+      "offset": 1457165,
+      "anchorSha256": "6c11a50921f6a782f0629ec4af8582b36c232bca4e6280bd357531a4038f4ebb",
+      "windowLength": 256,
+      "windowSha256": "a56302298ac7a72f77924ac332a44586466183889d6acc6ca2aa4474e5d67868"
+    },
+    "packedColor": {
+      "offset": 1281514,
+      "anchorSha256": "5572ad3e7dc4ca43798445f26949692305b30886ea85433c4a0fc9894ba6c54c",
+      "windowLength": 256,
+      "windowSha256": "de9e2fedc3a78cba51b31a15381f12313320b57d9c10b63972fa358d04539177"
+    },
+    "matrixShader": {
+      "offset": 1574197,
+      "anchorSha256": "63854b9fcec1deffd92cc0bcbd067afd4b1203bb846d94333c8d25a2fd2b3653",
+      "windowLength": 256,
+      "windowSha256": "32689ca1cb80d07b778aebb0ac17e8246371e1aa195a49ba54ea34e5c991427e"
+    },
+    "hue": {
+      "offset": 1577306,
+      "anchorSha256": "75c8539d1c06e8ce963d2a1c3a540a89a9913dc1dfe2f0d99f89ca7f045ba34f",
+      "windowLength": 256,
+      "windowSha256": "eb82fa9d02887542cc1b7d4e116a7e509b0d2656b5a15ad7c50cc66e45c4d32f"
+    },
+    "svgCanvas": {
+      "offset": 1356656,
+      "anchorSha256": "1c8623fbeaab77d6889912387982af655a8e11cc79d7ef04ee99524ca808afe9",
+      "windowLength": 256,
+      "windowSha256": "4f71a92b5fe66bfb72d13d1cf952b3d4cbd20c337900bfebc33935b0f60a5bc6"
+    },
+    "svgRaster": {
+      "offset": 1357962,
+      "anchorSha256": "b831153f4955a77a0e51d3b86063c7133ac91565c3c49a3211dac8f58f3886ef",
+      "windowLength": 256,
+      "windowSha256": "ab8d3dd96ef8854248738eacbdb08c369fa79bbbe15c1daac1ae1aa235589cac"
+    },
+    "distort": {
+      "offset": 789964,
+      "anchorSha256": "d4d228b4cace300723eea2bb1c52f84923b5fb176c95ef60a02f9af9bda8f043",
+      "windowLength": 256,
+      "windowSha256": "edc47c9493a1dc426d291f01278be6a9b0fe42209ffb17f807113f10b8915d6b"
+    },
+    "startActivation": {
+      "offset": 1728353,
+      "anchorSha256": "4893f272f7476b8373c75ff9c4cc743946bb876d2e7d53681b1511a0f9ac2003",
+      "windowLength": 256,
+      "windowSha256": "38cdddc1b7ed2be0c982a6fd613310113a525f9d3e07d85771a78c4a44600307"
+    }
+  },
+  "startOrder": {
+    "scope": "native runtime events, original none-left fixture, three updates, controlled clock",
+    "fixtureSha256": "7585490fcc320d761a4902c70b6ccdc8a9f5dd41495a6e0e920949bef0ec253a",
+    "starts": [
+      {
+        "frame": 1,
+        "event": "start",
+        "entity": "20000000-0000-4000-8000-000000000001",
+        "hat": "start",
+        "priorities": {
+          "creation_counter": 0,
+          "frame_created": 0,
+          "responder_priority": 50
+        },
+        "limits": {
+          "warpIterations": 10000,
+          "procedureCalls": 50000,
+          "deterministic": true
+        }
+      },
+      {
+        "frame": 1,
+        "event": "start",
+        "entity": "10000000-0000-4000-8000-000000000001",
+        "hat": "old-activate",
+        "priorities": {
+          "creation_counter": 1,
+          "frame_created": 0,
+          "responder_priority": 50
+        },
+        "limits": {
+          "warpIterations": 10000,
+          "procedureCalls": 50000,
+          "deterministic": true
+        }
+      },
+      {
+        "frame": 2,
+        "event": "start",
+        "entity": "10000000-0000-4000-8000-000000000002",
+        "hat": "new-activate",
+        "priorities": {
+          "creation_counter": 2,
+          "frame_created": 1,
+          "responder_priority": 50
+        },
+        "limits": {
+          "warpIterations": 10000,
+          "procedureCalls": 50000,
+          "deterministic": true
+        }
+      }
+    ],
+    "oldActivationResumes": 0,
+    "errors": [],
+    "assets": [
+      {
+        "name": "player_v2__3ffeebbd0c789e8d9422.css",
+        "source": "player_v2__3ffeebbd0c789e8d9422.css",
+        "sha256": "39e8e70b124b604831773893cdc95931cdee3eaea52c6dd69f33f5781d48b45a"
+      },
+      {
+        "name": "runtime.f42f527f119e09010b85.js",
+        "source": "runtime.f42f527f119e09010b85.js",
+        "sha256": "4164d67795238f64d035f473418236038ae475ae36032a967cba16ede263735f"
+      },
+      {
+        "name": "player_v2.2d180c468559fbd29528.js",
+        "source": "player_v2.2d180c468559fbd29528.js.orig",
+        "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160"
+      },
+      {
+        "name": "vendors.d00f4bd454a6352e9d71.js",
+        "source": "vendors.d00f4bd454a6352e9d71.js",
+        "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
+      },
+      {
+        "name": "9.c396696e9dc71e25b012.js",
+        "source": "9.c396696e9dc71e25b012.js",
+        "sha256": "5758343310c47596d56e954aa05fa76a546080c8bf4fefd41cac0042794d6195"
+      },
+      {
+        "name": "14.c95e6f2ddd61fb701d0e.js",
+        "source": "14.c95e6f2ddd61fb701d0e.js",
+        "sha256": "d3ce91c9113463db4c0988210caeb1be2ddc508499d5c53a8e73a13b5f440175"
+      },
+      {
+        "name": "11.477512e6f03fd2f6f3c5.js",
+        "source": "11.477512e6f03fd2f6f3c5.js",
+        "sha256": "e81bfe3462cc3e79a70ba016ddee2a372a31480d3f52964952e1d21f3a490f91"
+      }
+    ],
+    "externalAllowed": 0
+  }
+}
