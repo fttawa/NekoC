@@ -1,10 +1,11 @@
 // Bounded request/response over one connection; no queued frame history.
 import {playerExtensions,SUPPORTED_API_VERSIONS,negotiateVersion} from './extensions.js';
 import {KnMicrophone,needsMicrophone} from './kn-microphone.js';
+import {K4DeviceHost} from './k4-device.js';
 export class PlayerConnection {
-  constructor(extensions=playerExtensions){this.extensions=extensions;this.extensionSession=null;this.socket=null;this.pending=null;this.ready=false;this.openReject=null;this.timer=null;this.microphone=null;}
+  constructor(extensions=playerExtensions,device=new K4DeviceHost()){this.extensions=extensions;this.extensionSession=null;this.socket=null;this.pending=null;this.ready=false;this.openReject=null;this.timer=null;this.microphone=null;this.device=device;}
   async open(project=null,base=location.origin){
-    this.close();
+    if(this.socket||this.ready||this.pending||this.microphone)this.close();
     const schemas=this.extensions.schemas();
     const usesV2=schemas.some(schema=>schema.api_version===2);
     if(schemas.length&&!project)throw Error('Extensions require a private player project snapshot');
@@ -47,6 +48,14 @@ export class PlayerConnection {
     if(!this.ready||!this.extensionSession)throw Error('运行时尚未连接');
     this.extensionSession.emit(opcode,value);
   }
+  requestDevicePermission(){return this.device?.requestPermission?.()||Promise.resolve('unavailable');}
+  pauseDevice(){this.device?.stop?.();}
+  sendDeviceEvent(...args){return this.device?.sendDeviceEvent?.(...args)||false;}
+  sendButton(...args){return this.device?.sendButton?.(...args)||false;}
+  sendSlide(...args){return this.device?.sendSlide?.(...args)||false;}
+  sendSlope(...args){return this.device?.sendSlope?.(...args)||false;}
+  sendShake(...args){return this.device?.sendShake?.(...args)||false;}
+  applyFrame(frame){this.device?.apply(frame);}
   frame(payload){
     if(!this.ready)return Promise.reject(Error('运行时尚未连接'));
     if(this.pending)return Promise.reject(Error('已有运行帧等待响应'));
@@ -57,10 +66,12 @@ export class PlayerConnection {
         const events=[...(payload.events||[])];
         // Backend accepts at most 256 events. Preserve input order and requeue
         // excess extension completions and hat events together.
+        const deviceAvailable=Math.max(0,256-events.length);
+        if(!payload.debug_snapshot)events.push(...(this.device?.take?.(deviceAvailable)||[]));
         const available=Math.max(0,256-events.length),sent=results.splice(0,available);
         if(results.length)this.extensionSession.results.unshift(...results);
         const input=this.microphone&&!payload.debug_snapshot?{...payload,kn_microphone:this.microphone.snapshot()}:payload;
-        this.socket.send(JSON.stringify(sent.length?{...input,events:[...events,...sent]}:input));
+        this.socket.send(JSON.stringify(events.length||sent.length?{...input,events:[...events,...sent]}:input));
       }catch(error){this.fail(error);}
     });
   }
@@ -68,6 +79,7 @@ export class PlayerConnection {
   snapshot(){return this.frame({debug_snapshot:true});}
   fail(error){
     this.microphone?.close();this.microphone=null;
+    this.device?.close?.();
     this.extensionSession?.close();this.extensionSession=null;
     this.ready=false;clearTimeout(this.timer);this.openReject?.(error);this.openReject=null;
     this.pending?.reject(error);this.pending=null;

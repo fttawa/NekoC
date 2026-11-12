@@ -5022,6 +5022,9 @@ pub struct Frame {
     pub audio_commands: Vec<AudioCommand>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub speech_commands: Vec<SpeechCommand>,
+    /// Host requests produced by K4 device blocks, such as browser vibration.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub k4_media_output: Vec<MediaOutput>,
     /// Sprite ids back to front, sent when layers change or clones appear.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<Vec<String>>,
@@ -8700,6 +8703,7 @@ impl Engine {
             logs: std::mem::take(&mut self.logs),
             audio_commands: std::mem::take(&mut self.audio_commands),
             speech_commands: std::mem::take(&mut self.speech_commands),
+            k4_media_output: self.take_k4_media_output(),
             order: std::mem::take(&mut self.order_dirty).then(|| {
                 self.order
                     .iter()
@@ -10056,6 +10060,7 @@ impl Engine {
         self.clone_counts.clear();
         self.step_physics(dt);
         self.check_bumps();
+        self.dispatch_k4_devices();
         self.dispatch_held_keys();
         self.dispatch_pointer_states();
         let mut count = *total_count;

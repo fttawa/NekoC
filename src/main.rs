@@ -92,6 +92,9 @@ enum Command {
         /// Fixed Engine PRNG seed (default: 1).
         #[arg(long, conflicts_with = "legacy_runtime")]
         seed: Option<u64>,
+        /// Replay frame-indexed nekoc-input-v1 host inputs.
+        #[arg(long, conflicts_with = "legacy_runtime")]
+        input_script: Option<PathBuf>,
         #[command(flatten)]
         cloud: nekoc::cloud::CloudOptions,
         #[arg(long = "event")]
@@ -408,6 +411,7 @@ fn main() -> Result<()> {
             ticks,
             legacy_runtime,
             seed,
+            input_script,
             cloud,
             events,
             out,
@@ -431,7 +435,20 @@ fn main() -> Result<()> {
                     nekoc::runtime::run_project_with_events(&project.value, &events, ticks)?;
                 nekoc::runtime::snapshot_to_json(&snapshot)
             } else {
-                nekoc::cli_run::run(&project.value, ticks, &events, seed.unwrap_or(1), &cloud)?
+                let script = input_script
+                    .map(|path| -> Result<nekoc::input::InputScript> {
+                        let text = std::fs::read_to_string(path)?;
+                        Ok(serde_json::from_str(text.trim_start_matches('\u{feff}'))?)
+                    })
+                    .transpose()?;
+                nekoc::cli_run::run_with_input(
+                    &project.value,
+                    ticks,
+                    &events,
+                    seed.unwrap_or(1),
+                    &cloud,
+                    script.as_ref(),
+                )?
             };
             if let Some(expect) = expect {
                 let expected: serde_json::Value = serde_json::from_slice(&std::fs::read(&expect)?)?;

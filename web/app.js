@@ -9,7 +9,7 @@ const audio=new ProjectAudio(message=>log(message,true),id=>input?.push({kind:'a
 let overlay=null,sendCostumes=false;
 window.addEventListener('pointerdown',()=>audio.unlock(),{capture:true});
 window.addEventListener('keydown',()=>audio.unlock(),{capture:true});
-window.addEventListener('pagehide',()=>audio.stop());
+window.addEventListener('pagehide',()=>{player?.close();audio.stop();});
 const $=s=>document.querySelector(s);
 for(const id of ['pause','stop','undo','redo'])$(`#${id}`).setAttribute('aria-label',$(`#${id}`).title);
 const palette=[
@@ -156,11 +156,15 @@ function renderPalette(){
 function compiled(stats){$('#compile-status').textContent=`编译就绪 · ${kitten4()?'Kitten4 · ':''}Rust 运行时`;$('#instruction-count').textContent=`${stats.instructions} OPS · ${stats.expression_ops} EXPR`;}
 async function start(resume=true){
   if(starting)return starting;
-  starting=startRuntime(resume).finally(()=>{starting=null;});return starting;
+  // Request inside the play gesture, before the project upload or a pending
+  // frame can consume transient browser user activation.
+  if(!started)player=new PlayerConnection();
+  if(resume)void player?.requestDevicePermission?.();
+  starting=startRuntime(resume).catch(error=>{if(!started)player?.close();throw error;}).finally(()=>{starting=null;});return starting;
 }
 async function startRuntime(resume=true){
   if(running)return;await inFlight;
-  if(!started){await api('project',project);audio.load(project);player=new PlayerConnection();const ready=await player.open(playerExtensions.schemas().length||needsMicrophone(project)?project:null);compiled(ready.stats);started=true;sendCostumes=true;overlay?.reset();epoch++;input.reset();lastFrame=null;lastBytes=0;history=[];pipeline.completedFrames=0;renderEditor();renderPalette();}
+  if(!started){await api('project',project);audio.load(project);const ready=await player.open(playerExtensions.schemas().length||needsMicrophone(project)?project:null);compiled(ready.stats);started=true;sendCostumes=true;overlay?.reset();epoch++;input.reset();lastFrame=null;lastBytes=0;history=[];pipeline.completedFrames=0;renderEditor();renderPalette();}
   frames=0;fpsStart=performance.now();fps=0;
    running=resume;if(resume){audio.resume();renderer.pauseMedia(false);}else{audio.pause();renderer.pauseMedia();}lastTick=performance.now();state(resume?'运行中':'已暂停');$('#stage').focus();
 }
@@ -172,11 +176,11 @@ async function nextFrame(dt){
    buffer=await player.frame({dt,...input.take(),costumes,videos:renderer.videoInfo(),utc_offset:-new Date().getTimezoneOffset()});}catch(error){if(token!==epoch)return;throw error;}if(token!==epoch)return;
   pipeline.roundtripMs=performance.now()-start;
   const decodeStart=performance.now(),{frame,lines}=decodeFrame(buffer);pipeline.decodeMs=performance.now()-decodeStart;lastBytes=buffer.byteLength;lastFrame=frame;
-   renderer.apply(frame,lines);overlay?.apply(frame);audio.apply(frame);for(const message of frame.logs)log(message);
+   renderer.apply(frame,lines);overlay?.apply(frame);audio.apply(frame);player?.applyFrame(frame);for(const message of frame.logs)log(message);
   timerLabel.hidden=!frame.timer_visible;if(frame.timer_visible)timerLabel.textContent=`计时器 ${frame.timer.toFixed(2)}`;
   pipeline.completedFrames++;frames++;
 }
-function handleError(error){running=false;audio.pause();renderer.pauseMedia();state('已暂停');log(error.message,true);$('#compile-status').textContent=error.message;notify(error.message);}
+function handleError(error){running=false;player?.pauseDevice();audio.pause();renderer.pauseMedia();state('已暂停');log(error.message,true);$('#compile-status').textContent=error.message;notify(error.message);}
 function monitor(now){
   if(now-fpsStart>=1000){fps=frames*1000/(now-fpsStart);frames=0;fpsStart=now;}
   if(now-lastMonitor<250)return;lastMonitor=now;
@@ -212,7 +216,7 @@ async function loadProject(value){
   window.nekoImportReport=report;
 }
 $('#run').onclick=()=>start().catch(handleError);
-$('#pause').onclick=()=>{running=false;audio.pause();renderer.pauseMedia();input.release();state('已暂停');};
+$('#pause').onclick=()=>{running=false;player?.pauseDevice();audio.pause();renderer.pauseMedia();input.release();state('已暂停');};
 $('#stop').onclick=()=>stop().catch(handleError);
 $('#step').onclick=async()=>{const button=$('#step');if(button.disabled)return;button.disabled=true;
   try{running=false;audio.pause();renderer.pauseMedia();await start(false);running=false;audio.pause();renderer.pauseMedia();await inFlight;inFlight=nextFrame(1/60);await inFlight;inFlight=null;state('单步完成');}

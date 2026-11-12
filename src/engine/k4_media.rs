@@ -92,6 +92,9 @@ pub(super) struct State {
     language: String,
     button: Option<(String, String, String)>,
     camera_available: bool,
+    motion: Option<[f64; 3]>,
+    device_events: Vec<Event>,
+    orientations: Vec<(f64, f64, bool)>,
 }
 
 impl State {
@@ -104,6 +107,8 @@ impl State {
     }
     pub(super) fn clear_frame(&mut self) {
         self.button = None;
+        self.device_events.clear();
+        self.orientations.clear();
     }
 }
 
@@ -500,22 +505,102 @@ impl Engine {
         if self.stopped {
             return;
         }
-        for script in 0..self.program.scripts.len() {
-            let spec = &self.program.scripts[script];
-            if !matches!(&spec.event, ScriptEvent::K4Media(e) if e.matches(action, device, value))
-                || !self.in_active_scene(spec.actor)
-            {
-                continue;
-            }
-            for target in self.instances(spec.actor) {
-                if !self
-                    .tasks
-                    .iter()
-                    .any(|t| !t.done && t.script == script && t.actor == target)
+        if self.k4_media.device_events.len() < 4096 {
+            self.k4_media.device_events.push(Event {
+                action: action.into(),
+                device: device.into(),
+                value: value.into(),
+            });
+        }
+    }
+
+    /// RuntimeManager.update_actions evaluates Action responders before
+    /// Dynamic responders. A Dynamic trigger receives the entire frame queue,
+    /// not only actions with its own ID (official mixed-input probe).
+    pub(super) fn dispatch_k4_devices(&mut self) {
+        // Official rAF/world ticker integrates the previous gravity before
+        // the update sees the new DOM orientation (device-gravity probe).
+        for (beta, gamma, portrait) in std::mem::take(&mut self.k4_media.orientations) {
+            self.set_physics_device_orientation(beta, gamma, portrait);
+        }
+        if self.stopped || self.k4_media.device_events.is_empty() {
+            return;
+        }
+        for dynamic in [false, true] {
+            for script in 0..self.program.scripts.len() {
+                let spec = &self.program.scripts[script];
+                let ScriptEvent::K4Media(filter) = &spec.event else {
+                    continue;
+                };
+                if filter.action.starts_with("on_mobile_") != dynamic
+                    || !self.in_active_scene(spec.actor)
                 {
-                    self.spawn(script, target);
+                    continue;
+                }
+                let events = &self.k4_media.device_events;
+                let matched = if dynamic {
+                    events.iter().any(|e| e.action == filter.action)
+                        && events
+                            .iter()
+                            .any(|e| filter.matches(&filter.action, &e.device, &e.value))
+                } else {
+                    events
+                        .iter()
+                        .any(|e| filter.matches(&e.action, &e.device, &e.value))
+                };
+                if !matched {
+                    continue;
+                }
+                for target in self.instances(spec.actor) {
+                    if !self
+                        .tasks
+                        .iter()
+                        .any(|t| !t.done && t.script == script && t.actor == target)
+                    {
+                        self.spawn(script, target);
+                    }
                 }
             }
+        }
+    }
+
+    /// Store a browser DeviceMotion sample. K4's official player does not
+    /// classify `devicemotion` itself; mobile shake is an explicit service
+    /// event, so raw samples never synthesize an official hat.
+    pub fn k4_device_motion(&mut self, x: f64, y: f64, z: f64) {
+        if x.is_finite() && y.is_finite() && z.is_finite() && !self.stopped {
+            self.k4_media.motion = Some([x, y, z]);
+        }
+    }
+
+    /// Last finite raw acceleration sample. No sample means no real device
+    /// data has been supplied; it must not be confused with a stationary phone.
+    pub fn k4_device_motion_sample(&self) -> Option<[f64; 3]> {
+        self.k4_media.motion
+    }
+
+    pub fn inject_k4_device(&mut self, input: crate::device::DeviceInput) {
+        match input {
+            crate::device::DeviceInput::Motion { x, y, z } => self.k4_device_motion(x, y, z),
+            crate::device::DeviceInput::Orientation {
+                beta,
+                gamma,
+                portrait,
+            } => {
+                if !self.stopped && self.k4_media.orientations.len() < 4096 {
+                    self.k4_media.orientations.push((beta, gamma, portrait));
+                }
+            }
+            crate::device::DeviceInput::Event {
+                action,
+                device,
+                value,
+            } => self.k4_device_event(&action, &device, &value),
+            crate::device::DeviceInput::Button {
+                device,
+                event,
+                button,
+            } => self.k4_mobile_button(&device, &event, &button),
         }
     }
 

@@ -14,6 +14,9 @@ struct Args {
     frames: u32,
     #[arg(long, default_value_t = 1)]
     seed: u64,
+    /// Match the independent official shake clock for controlled diagnostics.
+    #[arg(long)]
+    shake_clock_origin_ms: Option<f64>,
     /// Replay nekoc-input-v1 DOM events before each numbered update.
     #[arg(long)]
     input_script: Option<PathBuf>,
@@ -127,6 +130,9 @@ fn main() -> Result<()> {
     }
     let mut engine = Engine::new(program);
     engine.use_virtual_clock();
+    if let Some(origin) = args.shake_clock_origin_ms {
+        engine.set_k4_shake_clock_origin_ms(origin)?;
+    }
     if let Some(file) = &args.videos {
         let videos: serde_json::Value = serde_json::from_slice(&std::fs::read(file)?)?;
         for video in videos.as_array().context("expected video metadata array")? {
@@ -248,6 +254,9 @@ fn main() -> Result<()> {
         );
         if !args.render_only {
             let mut snapshot = engine.oracle_snapshot(frame);
+            if !update.k4_media_output.is_empty() {
+                snapshot["k4_media_output"] = serde_json::to_value(&update.k4_media_output)?;
+            }
             if args.soft {
                 let soft: Vec<_> = (0..engine.program.sprites.len())
                     .filter_map(|actor| {

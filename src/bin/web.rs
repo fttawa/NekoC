@@ -511,6 +511,54 @@ fn frame_bytes(vm: &mut Engine, payload: &Value) -> Result<Vec<u8>> {
                         vm.pointer_event(event["target"].as_str().unwrap_or(""), state, x, y);
                     }
                 }
+                Some("device_motion") => {
+                    if let (Some(x), Some(y), Some(z)) = (
+                        event["x"].as_f64(),
+                        event["y"].as_f64(),
+                        event["z"].as_f64(),
+                    ) {
+                        vm.inject_k4_device(nekoc::device::DeviceInput::Motion { x, y, z });
+                    }
+                }
+                Some("device_orientation") => {
+                    if let (Some(beta), Some(gamma), Some(portrait)) = (
+                        event["beta"].as_f64(),
+                        event["gamma"].as_f64(),
+                        event["portrait"].as_bool(),
+                    ) {
+                        vm.inject_k4_device(nekoc::device::DeviceInput::Orientation {
+                            beta,
+                            gamma,
+                            portrait,
+                        });
+                    }
+                }
+                Some("device_event") => {
+                    if let (Some(action), Some(device), Some(value)) = (
+                        event["action"].as_str(),
+                        event["device"].as_str(),
+                        event["value"].as_str(),
+                    ) {
+                        vm.inject_k4_device(nekoc::device::DeviceInput::Event {
+                            action: action.into(),
+                            device: device.into(),
+                            value: value.into(),
+                        });
+                    }
+                }
+                Some("mobile_button") => {
+                    if let (Some(device), Some(button_event), Some(button)) = (
+                        event["device"].as_str(),
+                        event["event"].as_str(),
+                        event["button"].as_str(),
+                    ) {
+                        vm.inject_k4_device(nekoc::device::DeviceInput::Button {
+                            device: device.into(),
+                            event: button_event.into(),
+                            button: button.into(),
+                        });
+                    }
+                }
                 _ => {}
             }
         }
@@ -963,6 +1011,10 @@ fn serve_with_cloud(initial: Json, port: u16, cloud: CloudSession) -> Result<()>
                 "/kn-microphone.js" => Some((
                     "text/javascript",
                     include_bytes!("../../web/kn-microphone.js").as_slice(),
+                )),
+                "/k4-device.js" => Some((
+                    "text/javascript; charset=utf-8",
+                    include_bytes!("../../web/k4-device.js").as_slice(),
                 )),
                 "/audio.js" => Some((
                     "text/javascript",

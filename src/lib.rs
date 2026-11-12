@@ -5,6 +5,7 @@ pub mod bcmkn_compiler;
 pub mod cli_run;
 pub mod cloud;
 pub mod decompile;
+pub mod device;
 pub mod diff;
 pub mod engine;
 pub mod extensions;
