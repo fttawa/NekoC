@@ -521,13 +521,13 @@ export function mappingStatus(root, rows) {
       limitations.push(`第八轮主路径：${round8.scope}；见 ${round8.evidence}。${round8.boundary}`);
     }
     if(['self_set_effect_2','self_change_effect_3','self_set_effect','self_change_effect','self_change_effect_2'].includes(row.type)){
-      limitations.push('第八轮真实VM 34件262对全画布，RGB容差0/1/8分列；ASCII独立/场景及场景/舞台外twist已修复；ripple素材条件未验证、ASCII组合仍有负例，setter仍partial。见 kitten4-partial-effects-8.md');
+      limitations.push('第八轮历史证据：真实VM 34件262对全画布，RGB容差0/1/8分列；ASCII独立/场景及场景/舞台外twist已修复，历史组合负例见 kitten4-partial-effects-8.md；当前修复与边界见第十一轮');
     }
     if(row.type==='self_shake')limitations.push('第八轮修复帧尾归位和下一update续接，零时钟原点六件240帧双VM全变量/x/y一致；官方原点改变浮点严格阈值，保留partial。见 kitten4-shake-8.md');
-    if(row.type==='set_scene_transition')limitations.push('第九轮14件910个连续官方update/全画布：补distort双截图扭曲与100ms延迟，修复完成回调前运行组提前切换；严格端点后下一update激活。纹理栅格仍有残差，none启动顺序有负例，真实时钟/竞争切场未验证，仍partial。见 kitten4-partial-transition-9.md');
+    if(row.type==='set_scene_transition')limitations.push('第九轮14件910个连续官方update/全画布：补distort双截图扭曲与100ms延迟，修复完成回调前运行组提前切换；严格端点后下一update激活。历史纹理与none负例已由第十轮修复；真实时钟/竞争切场未验证。见 kitten4-partial-transition-9.md 与 kitten4-partial-effects-11.md');
     if(row.type==='self_shake')limitations.push('第九轮4夹具×4原点共640官方update；新增显式shake时钟原点配置，同原点JIT/解释器全部typed变量与坐标逐帧一致，重启保留配置；真实墙钟原点默认不同及物理/并发边界仍partial。见 kitten4-shake-9.md');
     if(['physics2_set_texture','physics2_set_flexibility'].includes(row.type))limitations.push('第九轮4件420官方update记录粒子与组身份，修复重复soft幂等及scale帧尾重建清速；未实现粒子求解/soft滤镜。impact25/90的刚体点位误差下界分别3.386681/16.340179px，矩形输入首帧超时未验证，不升级。见 kitten4-partial-physics-9.md');
-    if(['self_set_effect_2','self_change_effect_3','self_set_effect','self_change_effect','self_change_effect_2'].includes(row.type))limitations.push('第九轮修复ASCII最终投影的多余POT复制；9件64对完整画布中60对RGB容差8零超差，twist与舞台外组合负例消除；全链仍65像素、hue仍1像素负例，ripple缺素材例外，仍partial。见 kitten4-partial-effects-9.md');
+    if(['self_set_effect_2','self_change_effect_3','self_set_effect','self_change_effect','self_change_effect_2'].includes(row.type))limitations.push('第九/十轮消除ASCII最终投影、全链65像素及hue1像素历史负例；第十一轮修复slide两倍输入范围裁剪与distort离屏ASCII投影，并发送同update切场边界滤镜快照。ripple缺素材例外，最终主路径验证与边界见 kitten4-partial-effects-11.md');
     // Helpful VM anchors for special rewrites without blanket string matching.
     const target = { set_actor_as: "kitten4_legacy_", set_velocity: "kitten4_set_velocity", set_entity_show_hide: "kitten4_entity_visibility" }[row.type];
     if (target && evidence.length) evidence.push(...engineAt(target));

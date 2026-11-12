@@ -1,0 +1,1342 @@
+{
+  "schema": "nekoc-k4-transition-11-vm-v1",
+  "scope": "real NekoC VM and official VM; controlled native ticker, 68 consecutive full canvas frames; no masks, RGB tolerance 8",
+  "rendererLfSha256": "eb5f51230e59c5fc695cd489e173282803d568d3b0b3eb54b623692679e028a3",
+  "executableSha256": "6a470144af8f2b587545d1cdc4019979c8209c00f358465f4669e27f210855f9",
+  "sha256": "c4742b8071a8f195faeb84e37e2c17e02caff54838dad409eac974701c6ca140",
+  "file": "tests/fixtures/kitten4/partial-transition-11-slide-up-out.bcm",
+  "status": "captured",
+  "audioMetadata": true,
+  "frames": [
+    {
+      "frame": 1,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 0,
+      "changedPercent": 0,
+      "mae": 0.00000771604938271605,
+      "rmse": 0.002777777777777778,
+      "psnr": 99.25685362402484,
+      "tolerance": 8
+    },
+    {
+      "frame": 2,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 0,
+      "changedPercent": 0,
+      "mae": 0.00000771604938271605,
+      "rmse": 0.002777777777777778,
+      "psnr": 99.25685362402484,
+      "tolerance": 8
+    },
+    {
+      "frame": 3,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 119025,
+      "changedPercent": 17.220052083333336,
+      "mae": 14.658703703703704,
+      "rmse": 41.61009699198139,
+      "psnr": 15.746829046228852,
+      "tolerance": 8
+    },
+    {
+      "frame": 4,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 110254,
+      "changedPercent": 15.951099537037036,
+      "mae": 13.451644965277778,
+      "rmse": 40.5788225388332,
+      "psnr": 15.964814786426187,
+      "tolerance": 8
+    },
+    {
+      "frame": 5,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 96143,
+      "changedPercent": 13.909577546296296,
+      "mae": 12.128270158179012,
+      "rmse": 39.525564893990364,
+      "psnr": 16.193241898155332,
+      "tolerance": 8
+    },
+    {
+      "frame": 6,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 102796,
+      "changedPercent": 14.872106481481481,
+      "mae": 12.84332706404321,
+      "rmse": 40.400652713536495,
+      "psnr": 16.0030359759733,
+      "tolerance": 8
+    },
+    {
+      "frame": 7,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 88731,
+      "changedPercent": 12.837239583333334,
+      "mae": 12.218675733024691,
+      "rmse": 40.67916535075737,
+      "psnr": 15.94336293766647,
+      "tolerance": 8
+    },
+    {
+      "frame": 8,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 89612,
+      "changedPercent": 12.964699074074074,
+      "mae": 12.545541087962963,
+      "rmse": 41.40127241802829,
+      "psnr": 15.790529831847373,
+      "tolerance": 8
+    },
+    {
+      "frame": 9,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 90357,
+      "changedPercent": 13.072482638888888,
+      "mae": 12.912748360339506,
+      "rmse": 42.192848409257394,
+      "psnr": 15.62602670300137,
+      "tolerance": 8
+    },
+    {
+      "frame": 10,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 91777,
+      "changedPercent": 13.277922453703702,
+      "mae": 13.070632233796296,
+      "rmse": 42.44759941940071,
+      "psnr": 15.573740924800525,
+      "tolerance": 8
+    },
+    {
+      "frame": 11,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 90888,
+      "changedPercent": 13.149305555555554,
+      "mae": 13.0405859375,
+      "rmse": 42.50234004882286,
+      "psnr": 15.56254677599557,
+      "tolerance": 8
+    },
+    {
+      "frame": 12,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 108469,
+      "changedPercent": 15.692853009259258,
+      "mae": 14.731723572530864,
+      "rmse": 43.84797312646712,
+      "psnr": 15.291813150800085,
+      "tolerance": 8
+    },
+    {
+      "frame": 13,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 90881,
+      "changedPercent": 13.148292824074073,
+      "mae": 13.08670669367284,
+      "rmse": 42.371680972981004,
+      "psnr": 15.589289734461229,
+      "tolerance": 8
+    },
+    {
+      "frame": 14,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 89639,
+      "changedPercent": 12.968605324074073,
+      "mae": 13.056169945987655,
+      "rmse": 42.22982460796816,
+      "psnr": 15.618418054985487,
+      "tolerance": 8
+    },
+    {
+      "frame": 15,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 87811,
+      "changedPercent": 12.704137731481483,
+      "mae": 12.672365933641975,
+      "rmse": 41.59813643263614,
+      "psnr": 15.749326109197794,
+      "tolerance": 8
+    },
+    {
+      "frame": 16,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 86267,
+      "changedPercent": 12.480758101851851,
+      "mae": 12.240593653549382,
+      "rmse": 40.78525450988331,
+      "psnr": 15.920740073587679,
+      "tolerance": 8
+    },
+    {
+      "frame": 17,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 84109,
+      "changedPercent": 12.168547453703704,
+      "mae": 12.065145158179012,
+      "rmse": 40.422452579601774,
+      "psnr": 15.99835040407718,
+      "tolerance": 8
+    },
+    {
+      "frame": 18,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 84490,
+      "changedPercent": 12.223668981481481,
+      "mae": 11.622124324845679,
+      "rmse": 39.57814140535939,
+      "psnr": 16.181695692195653,
+      "tolerance": 8
+    },
+    {
+      "frame": 19,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 80247,
+      "changedPercent": 11.609809027777777,
+      "mae": 11.230116222993827,
+      "rmse": 38.886021453065915,
+      "psnr": 16.33493338001523,
+      "tolerance": 8
+    },
+    {
+      "frame": 20,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 75584,
+      "changedPercent": 10.935185185185185,
+      "mae": 10.409527391975308,
+      "rmse": 37.42723819302883,
+      "psnr": 16.667047986391005,
+      "tolerance": 8
+    },
+    {
+      "frame": 21,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 71465,
+      "changedPercent": 10.339265046296296,
+      "mae": 9.618983892746913,
+      "rmse": 35.97604755641781,
+      "psnr": 17.01053463567342,
+      "tolerance": 8
+    },
+    {
+      "frame": 22,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 62931,
+      "changedPercent": 9.104600694444445,
+      "mae": 8.926338734567901,
+      "rmse": 34.71677836491428,
+      "psnr": 17.32001527124946,
+      "tolerance": 8
+    },
+    {
+      "frame": 23,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 57993,
+      "changedPercent": 8.390190972222221,
+      "mae": 7.96116512345679,
+      "rmse": 32.74264063894057,
+      "psnr": 17.82852957651007,
+      "tolerance": 8
+    },
+    {
+      "frame": 24,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 52019,
+      "changedPercent": 7.5258969907407405,
+      "mae": 7.243721064814815,
+      "rmse": 31.147922248170687,
+      "psnr": 18.262221969995128,
+      "tolerance": 8
+    },
+    {
+      "frame": 25,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 47127,
+      "changedPercent": 6.818142361111111,
+      "mae": 6.316690779320988,
+      "rmse": 29.070986863178106,
+      "psnr": 18.861608111242358,
+      "tolerance": 8
+    },
+    {
+      "frame": 26,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 42555,
+      "changedPercent": 6.156684027777778,
+      "mae": 5.369739583333334,
+      "rmse": 26.671035738728694,
+      "psnr": 19.610005981885394,
+      "tolerance": 8
+    },
+    {
+      "frame": 27,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 33807,
+      "changedPercent": 4.891059027777778,
+      "mae": 4.637871817129629,
+      "rmse": 24.826645579481063,
+      "psnr": 20.232442721199728,
+      "tolerance": 8
+    },
+    {
+      "frame": 28,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 29249,
+      "changedPercent": 4.231626157407407,
+      "mae": 3.7339390432098765,
+      "rmse": 22.178310847071312,
+      "psnr": 21.212234285248815,
+      "tolerance": 8
+    },
+    {
+      "frame": 29,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 23150,
+      "changedPercent": 3.349247685185185,
+      "mae": 3.0141999421296295,
+      "rmse": 19.776346104841704,
+      "psnr": 22.207882527855386,
+      "tolerance": 8
+    },
+    {
+      "frame": 30,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 18563,
+      "changedPercent": 2.6856192129629632,
+      "mae": 2.0697984182098765,
+      "rmse": 16.062626848949094,
+      "psnr": 24.01447220114077,
+      "tolerance": 8
+    },
+    {
+      "frame": 31,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 14088,
+      "changedPercent": 2.0381944444444446,
+      "mae": 1.1761704282407408,
+      "rmse": 11.617357333571825,
+      "psnr": 26.828656651678546,
+      "tolerance": 8
+    },
+    {
+      "frame": 32,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 5460,
+      "changedPercent": 0.7899305555555556,
+      "mae": 0.4632132523148148,
+      "rmse": 6.823087854793341,
+      "psnr": 31.45118434193687,
+      "tolerance": 8
+    },
+    {
+      "frame": 33,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 0,
+      "changedPercent": 0,
+      "mae": 0,
+      "rmse": 0,
+      "psnr": null,
+      "tolerance": 8
+    },
+    {
+      "frame": 34,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 0,
+      "changedPercent": 0,
+      "mae": 0,
+      "rmse": 0,
+      "psnr": null,
+      "tolerance": 8
+    },
+    {
+      "frame": 35,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 0,
+      "changedPercent": 0,
+      "mae": 0,
+      "rmse": 0,
+      "psnr": null,
+      "tolerance": 8
+    },
+    {
+      "frame": 36,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 0,
+      "changedPercent": 0,
+      "mae": 0,
+      "rmse": 0,
+      "psnr": null,
+      "tolerance": 8
+    },
+    {
+      "frame": 37,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 0,
+      "changedPercent": 0,
+      "mae": 0,
+      "rmse": 0,
+      "psnr": null,
+      "tolerance": 8
+    },
+    {
+      "frame": 38,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 0,
+      "changedPercent": 0,
+      "mae": 0,
+      "rmse": 0,
+      "psnr": null,
+      "tolerance": 8
+    },
+    {
+      "frame": 39,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 0,
+      "changedPercent": 0,
+      "mae": 0,
+      "rmse": 0,
+      "psnr": null,
+      "tolerance": 8
+    },
+    {
+      "frame": 40,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 0,
+      "changedPercent": 0,
+      "mae": 0,
+      "rmse": 0,
+      "psnr": null,
+      "tolerance": 8
+    },
+    {
+      "frame": 41,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 0,
+      "changedPercent": 0,
+      "mae": 0,
+      "rmse": 0,
+      "psnr": null,
+      "tolerance": 8
+    },
+    {
+      "frame": 42,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 0,
+      "changedPercent": 0,
+      "mae": 0,
+      "rmse": 0,
+      "psnr": null,
+      "tolerance": 8
+    },
+    {
+      "frame": 43,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 0,
+      "changedPercent": 0,
+      "mae": 0,
+      "rmse": 0,
+      "psnr": null,
+      "tolerance": 8
+    },
+    {
+      "frame": 44,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 0,
+      "changedPercent": 0,
+      "mae": 0,
+      "rmse": 0,
+      "psnr": null,
+      "tolerance": 8
+    },
+    {
+      "frame": 45,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 0,
+      "changedPercent": 0,
+      "mae": 0,
+      "rmse": 0,
+      "psnr": null,
+      "tolerance": 8
+    },
+    {
+      "frame": 46,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 0,
+      "changedPercent": 0,
+      "mae": 0,
+      "rmse": 0,
+      "psnr": null,
+      "tolerance": 8
+    },
+    {
+      "frame": 47,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 0,
+      "changedPercent": 0,
+      "mae": 0,
+      "rmse": 0,
+      "psnr": null,
+      "tolerance": 8
+    },
+    {
+      "frame": 48,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 0,
+      "changedPercent": 0,
+      "mae": 0,
+      "rmse": 0,
+      "psnr": null,
+      "tolerance": 8
+    },
+    {
+      "frame": 49,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 0,
+      "changedPercent": 0,
+      "mae": 0,
+      "rmse": 0,
+      "psnr": null,
+      "tolerance": 8
+    },
+    {
+      "frame": 50,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 0,
+      "changedPercent": 0,
+      "mae": 0,
+      "rmse": 0,
+      "psnr": null,
+      "tolerance": 8
+    },
+    {
+      "frame": 51,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 0,
+      "changedPercent": 0,
+      "mae": 0,
+      "rmse": 0,
+      "psnr": null,
+      "tolerance": 8
+    },
+    {
+      "frame": 52,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 0,
+      "changedPercent": 0,
+      "mae": 0,
+      "rmse": 0,
+      "psnr": null,
+      "tolerance": 8
+    },
+    {
+      "frame": 53,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 0,
+      "changedPercent": 0,
+      "mae": 0,
+      "rmse": 0,
+      "psnr": null,
+      "tolerance": 8
+    },
+    {
+      "frame": 54,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 0,
+      "changedPercent": 0,
+      "mae": 0,
+      "rmse": 0,
+      "psnr": null,
+      "tolerance": 8
+    },
+    {
+      "frame": 55,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 0,
+      "changedPercent": 0,
+      "mae": 0,
+      "rmse": 0,
+      "psnr": null,
+      "tolerance": 8
+    },
+    {
+      "frame": 56,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 0,
+      "changedPercent": 0,
+      "mae": 0,
+      "rmse": 0,
+      "psnr": null,
+      "tolerance": 8
+    },
+    {
+      "frame": 57,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 0,
+      "changedPercent": 0,
+      "mae": 0,
+      "rmse": 0,
+      "psnr": null,
+      "tolerance": 8
+    },
+    {
+      "frame": 58,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 0,
+      "changedPercent": 0,
+      "mae": 0,
+      "rmse": 0,
+      "psnr": null,
+      "tolerance": 8
+    },
+    {
+      "frame": 59,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 0,
+      "changedPercent": 0,
+      "mae": 0,
+      "rmse": 0,
+      "psnr": null,
+      "tolerance": 8
+    },
+    {
+      "frame": 60,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 0,
+      "changedPercent": 0,
+      "mae": 0,
+      "rmse": 0,
+      "psnr": null,
+      "tolerance": 8
+    },
+    {
+      "frame": 61,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 0,
+      "changedPercent": 0,
+      "mae": 0,
+      "rmse": 0,
+      "psnr": null,
+      "tolerance": 8
+    },
+    {
+      "frame": 62,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 0,
+      "changedPercent": 0,
+      "mae": 0,
+      "rmse": 0,
+      "psnr": null,
+      "tolerance": 8
+    },
+    {
+      "frame": 63,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 0,
+      "changedPercent": 0,
+      "mae": 0,
+      "rmse": 0,
+      "psnr": null,
+      "tolerance": 8
+    },
+    {
+      "frame": 64,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 0,
+      "changedPercent": 0,
+      "mae": 0,
+      "rmse": 0,
+      "psnr": null,
+      "tolerance": 8
+    },
+    {
+      "frame": 65,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 0,
+      "changedPercent": 0,
+      "mae": 0,
+      "rmse": 0,
+      "psnr": null,
+      "tolerance": 8
+    },
+    {
+      "frame": 66,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 0,
+      "changedPercent": 0,
+      "mae": 0,
+      "rmse": 0,
+      "psnr": null,
+      "tolerance": 8
+    },
+    {
+      "frame": 67,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 0,
+      "changedPercent": 0,
+      "mae": 0,
+      "rmse": 0,
+      "psnr": null,
+      "tolerance": 8
+    },
+    {
+      "frame": 68,
+      "width": 960,
+      "height": 720,
+      "overlay": false,
+      "videoBounds": {
+        "nekoc": [],
+        "official": []
+      },
+      "scope": "canvas",
+      "pixels": 691200,
+      "maskedPixels": 0,
+      "changedPixels": 0,
+      "changedPercent": 0,
+      "mae": 0,
+      "rmse": 0,
+      "psnr": null,
+      "tolerance": 8
+    }
+  ],
+  "artifacts": "dist\\k4effects11\\visual\\partial-transition-11-slide-up-out.bcm",
+  "kernelAssets": [
+    {
+      "name": "player_v2__3ffeebbd0c789e8d9422.css",
+      "source": "player_v2__3ffeebbd0c789e8d9422.css",
+      "sha256": "39e8e70b124b604831773893cdc95931cdee3eaea52c6dd69f33f5781d48b45a"
+    },
+    {
+      "name": "runtime.f42f527f119e09010b85.js",
+      "source": "runtime.f42f527f119e09010b85.js",
+      "sha256": "4164d67795238f64d035f473418236038ae475ae36032a967cba16ede263735f"
+    },
+    {
+      "name": "player_v2.2d180c468559fbd29528.js",
+      "source": "player_v2.2d180c468559fbd29528.js.orig",
+      "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160"
+    },
+    {
+      "name": "vendors.d00f4bd454a6352e9d71.js",
+      "source": "vendors.d00f4bd454a6352e9d71.js",
+      "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
+    },
+    {
+      "name": "9.c396696e9dc71e25b012.js",
+      "source": "9.c396696e9dc71e25b012.js",
+      "sha256": "5758343310c47596d56e954aa05fa76a546080c8bf4fefd41cac0042794d6195"
+    },
+    {
+      "name": "14.c95e6f2ddd61fb701d0e.js",
+      "source": "14.c95e6f2ddd61fb701d0e.js",
+      "sha256": "d3ce91c9113463db4c0988210caeb1be2ddc508499d5c53a8e73a13b5f440175"
+    },
+    {
+      "name": "11.477512e6f03fd2f6f3c5.js",
+      "source": "11.477512e6f03fd2f6f3c5.js",
+      "sha256": "e81bfe3462cc3e79a70ba016ddee2a372a31480d3f52964952e1d21f3a490f91"
+    }
+  ]
+}

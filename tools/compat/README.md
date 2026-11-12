@@ -166,6 +166,11 @@ K4 partial 第二轮的 41 份仓库原创离线探针与保留边界：
 [ASCII最终投影](../../docs/kitten4-partial-effects-9.md)、
 [shake显式原点](../../docs/kitten4-shake-9.md)。本轮保持54项partial，不将负例升级。
 
+第十轮 [ASCII量化、过渡栅格与启动顺序](../../docs/kitten4-partial-effects-10.md)
+修复既有ASCII全链/hue与无滤镜distort。第十一轮
+[slide/distort滤镜继承](../../docs/kitten4-partial-effects-11.md)补齐两倍输入范围裁剪、
+截图目标投影和同update离场状态快照；历史证据不覆盖重录，当前像素证据单独绑定renderer身份。
+
 soft 后续进展见[粒子近似与逐帧误差](../../docs/kitten4-soft.md)及
 [矩形首帧零步长阻塞的 CDP 实测](../../docs/kitten4-soft-blocked-investigation.md)。
 粒子/渲染网格通道不等于官方形变兼容，相关两项仍为 partial。

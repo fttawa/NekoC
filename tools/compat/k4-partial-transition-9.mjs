@@ -42,7 +42,7 @@ export async function transition9Fixtures(){
   }return cases;
 }
 
-export async function recordTransition9(name,project,{rendererSource,onInspect,initialFrame,targetFrame}={}){
+export async function recordTransition9(name,project,{rendererSource,onInspect,beforeStart,initialFrame,targetFrame}={}){
   const source=rendererSource??await readFile('web/renderer.js','utf8'),pen=await readFile('web/pen-k4.js','utf8'),pixels=[],events=[];
   const {observations,trace}=await recordPartialTransition3(project,{
     beforeStart:async page=>{
@@ -62,6 +62,7 @@ export async function recordTransition9(name,project,{rendererSource,onInspect,i
         scenes.set_one_scene_visible=function(id){window.__transition9Events.push({phase:'ticker-completion',ms:window.__transitionNow,id});return original.call(this,id);};
       },project);
       if(initialFrame)await page.evaluate(frame=>window.__transition9Renderer.apply(frame,new Float32Array()),initialFrame);
+      await beforeStart?.(page);
     },
     onSample:async(page,frame)=>{
       await onInspect?.(page,frame);

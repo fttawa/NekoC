@@ -1,0 +1,435 @@
+{
+  "schema": "nekoc-k4-partial-effects-11-filters-v1",
+  "scope": "Real NekoC VM vs official VM; every consecutive frame, full canvas, white composite, RGB tolerance 8, no masks",
+  "name": "self_change_effect-actor-isolated",
+  "type": "self_change_effect",
+  "target": "actor",
+  "mode": "isolated",
+  "scopes": [
+    0,
+    1,
+    2,
+    3,
+    5,
+    6,
+    7
+  ],
+  "artwork": "round-10 / round-9 / round-8 all-no-ripple",
+  "limitations": [
+    "ripple (scope 4) excluded: official displacement asset unavailable",
+    "Fixed inputs only; no whole-type coverage upgrade",
+    "Neutral inputs are sampled, not assumed pixel-equivalent to clear; ASCII change steps=0 is a no-op probe"
+  ],
+  "coverageStatus": "partial",
+  "executable": "target/debug/k4-trace.exe",
+  "executableSha256": "87950085a31a19fdcb7a31ba2564f58b237e92850490fe9efda65c5933e2a461",
+  "rendererLfSha256": "eb5f51230e59c5fc695cd489e173282803d568d3b0b3eb54b623692679e028a3",
+  "fixtureSha256": "9cb21fc8bb62621df3d772047fa589af8422b96af8be98fb4868af2fbf4afff7",
+  "sha256": "9cb21fc8bb62621df3d772047fa589af8422b96af8be98fb4868af2fbf4afff7",
+  "captureFrames": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    52,
+    53,
+    54,
+    55,
+    56,
+    57,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63,
+    64,
+    65,
+    66,
+    67,
+    68,
+    69,
+    70,
+    71,
+    72,
+    73,
+    74,
+    75,
+    76,
+    77,
+    78,
+    79,
+    80,
+    81,
+    82,
+    83,
+    84,
+    85,
+    86,
+    87,
+    88,
+    89,
+    90,
+    91,
+    92,
+    93,
+    94
+  ],
+  "pixelTolerance": 8,
+  "operations": [
+    {
+      "id": "clear11-1",
+      "phase": "baseline",
+      "type": "self_clear_effects"
+    },
+    {
+      "id": "effect11-3",
+      "phase": "isolated",
+      "type": "self_change_effect",
+      "scope": 0,
+      "input": "steps",
+      "value": 65
+    },
+    {
+      "id": "clear11-5",
+      "phase": "isolate-next-scope",
+      "type": "self_clear_effects"
+    },
+    {
+      "id": "effect11-7",
+      "phase": "isolated",
+      "type": "self_change_effect",
+      "scope": 1,
+      "input": "steps",
+      "value": 35
+    },
+    {
+      "id": "clear11-9",
+      "phase": "isolate-next-scope",
+      "type": "self_clear_effects"
+    },
+    {
+      "id": "effect11-11",
+      "phase": "isolated",
+      "type": "self_change_effect",
+      "scope": 2,
+      "input": "steps",
+      "value": 25
+    },
+    {
+      "id": "clear11-13",
+      "phase": "isolate-next-scope",
+      "type": "self_clear_effects"
+    },
+    {
+      "id": "effect11-15",
+      "phase": "isolated",
+      "type": "self_change_effect",
+      "scope": 3,
+      "input": "steps",
+      "value": 9
+    },
+    {
+      "id": "clear11-17",
+      "phase": "isolate-next-scope",
+      "type": "self_clear_effects"
+    },
+    {
+      "id": "effect11-19",
+      "phase": "isolated",
+      "type": "self_change_effect",
+      "scope": 5,
+      "input": "steps",
+      "value": 40
+    },
+    {
+      "id": "clear11-21",
+      "phase": "isolate-next-scope",
+      "type": "self_clear_effects"
+    },
+    {
+      "id": "effect11-23",
+      "phase": "isolated",
+      "type": "self_change_effect",
+      "scope": 6,
+      "input": "steps",
+      "value": 60
+    },
+    {
+      "id": "clear11-25",
+      "phase": "isolate-next-scope",
+      "type": "self_clear_effects"
+    },
+    {
+      "id": "effect11-27",
+      "phase": "isolated",
+      "type": "self_change_effect",
+      "scope": 7,
+      "input": "steps",
+      "value": 8
+    },
+    {
+      "id": "clear11-29",
+      "phase": "isolate-next-scope",
+      "type": "self_clear_effects"
+    },
+    {
+      "id": "clear11-31",
+      "phase": "before-neutral",
+      "type": "self_clear_effects"
+    },
+    {
+      "id": "effect11-33",
+      "phase": "neutral-input",
+      "type": "self_change_effect",
+      "scope": 0,
+      "input": "steps",
+      "value": 0
+    },
+    {
+      "id": "clear11-35",
+      "phase": "neutral-isolate-next-scope",
+      "type": "self_clear_effects"
+    },
+    {
+      "id": "effect11-37",
+      "phase": "neutral-input",
+      "type": "self_change_effect",
+      "scope": 1,
+      "input": "steps",
+      "value": 0
+    },
+    {
+      "id": "clear11-39",
+      "phase": "neutral-isolate-next-scope",
+      "type": "self_clear_effects"
+    },
+    {
+      "id": "effect11-41",
+      "phase": "neutral-input",
+      "type": "self_change_effect",
+      "scope": 2,
+      "input": "steps",
+      "value": 0
+    },
+    {
+      "id": "clear11-43",
+      "phase": "neutral-isolate-next-scope",
+      "type": "self_clear_effects"
+    },
+    {
+      "id": "effect11-45",
+      "phase": "neutral-input",
+      "type": "self_change_effect",
+      "scope": 3,
+      "input": "steps",
+      "value": 0
+    },
+    {
+      "id": "clear11-47",
+      "phase": "neutral-isolate-next-scope",
+      "type": "self_clear_effects"
+    },
+    {
+      "id": "effect11-49",
+      "phase": "neutral-input",
+      "type": "self_change_effect",
+      "scope": 5,
+      "input": "steps",
+      "value": 0
+    },
+    {
+      "id": "clear11-51",
+      "phase": "neutral-isolate-next-scope",
+      "type": "self_clear_effects"
+    },
+    {
+      "id": "effect11-53",
+      "phase": "neutral-input",
+      "type": "self_change_effect",
+      "scope": 6,
+      "input": "steps",
+      "value": 0
+    },
+    {
+      "id": "clear11-55",
+      "phase": "neutral-isolate-next-scope",
+      "type": "self_clear_effects"
+    },
+    {
+      "id": "effect11-57",
+      "phase": "neutral-input",
+      "type": "self_change_effect",
+      "scope": 7,
+      "input": "steps",
+      "value": 0
+    },
+    {
+      "id": "clear11-59",
+      "phase": "neutral-isolate-next-scope",
+      "type": "self_clear_effects"
+    },
+    {
+      "id": "clear11-61",
+      "phase": "before-reset",
+      "type": "self_clear_effects"
+    },
+    {
+      "id": "effect11-63",
+      "phase": "reset-after-clear",
+      "type": "self_change_effect",
+      "scope": 0,
+      "input": "steps",
+      "value": 65
+    },
+    {
+      "id": "clear11-65",
+      "phase": "reset-isolate-next-scope",
+      "type": "self_clear_effects"
+    },
+    {
+      "id": "effect11-67",
+      "phase": "reset-after-clear",
+      "type": "self_change_effect",
+      "scope": 1,
+      "input": "steps",
+      "value": 35
+    },
+    {
+      "id": "clear11-69",
+      "phase": "reset-isolate-next-scope",
+      "type": "self_clear_effects"
+    },
+    {
+      "id": "effect11-71",
+      "phase": "reset-after-clear",
+      "type": "self_change_effect",
+      "scope": 2,
+      "input": "steps",
+      "value": 25
+    },
+    {
+      "id": "clear11-73",
+      "phase": "reset-isolate-next-scope",
+      "type": "self_clear_effects"
+    },
+    {
+      "id": "effect11-75",
+      "phase": "reset-after-clear",
+      "type": "self_change_effect",
+      "scope": 3,
+      "input": "steps",
+      "value": 9
+    },
+    {
+      "id": "clear11-77",
+      "phase": "reset-isolate-next-scope",
+      "type": "self_clear_effects"
+    },
+    {
+      "id": "effect11-79",
+      "phase": "reset-after-clear",
+      "type": "self_change_effect",
+      "scope": 5,
+      "input": "steps",
+      "value": 40
+    },
+    {
+      "id": "clear11-81",
+      "phase": "reset-isolate-next-scope",
+      "type": "self_clear_effects"
+    },
+    {
+      "id": "effect11-83",
+      "phase": "reset-after-clear",
+      "type": "self_change_effect",
+      "scope": 6,
+      "input": "steps",
+      "value": 60
+    },
+    {
+      "id": "clear11-85",
+      "phase": "reset-isolate-next-scope",
+      "type": "self_clear_effects"
+    },
+    {
+      "id": "effect11-87",
+      "phase": "reset-after-clear",
+      "type": "self_change_effect",
+      "scope": 7,
+      "input": "steps",
+      "value": 8
+    },
+    {
+      "id": "clear11-89",
+      "phase": "reset-isolate-next-scope",
+      "type": "self_clear_effects"
+    },
+    {
+      "id": "clear11-91",
+      "phase": "final",
+      "type": "self_clear_effects"
+    }
+  ],
+  "file": "tests/fixtures/kitten4/partial-effects-11-self_change_effect-actor-isolated.bcm",
+  "status": "unverified",
+  "error": "Executable, renderer or fixture changed during capture",
+  "frames": [],
+  "artifacts": "dist\\k4effects11\\filters\\partial-effects-11-self_change_effect-actor-isolated.bcm",
+  "fullCanvasCaptureComplete": false,
+  "identitiesStable": false,
+  "pixelsAgree": false,
+  "summary": {
+    "comparedFrames": 0,
+    "differentFrames": 0,
+    "maxChangedPixels": null,
+    "maxMae": null
+  }
+}

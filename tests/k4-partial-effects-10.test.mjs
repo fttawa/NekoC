@@ -7,7 +7,7 @@ const hash=b=>createHash('sha256').update(b).digest('hex');
 test('round 10 actual VM fixes full ASCII chain and hue without masks or tolerance changes',async()=>{
   const report=JSON.parse(await readFile('docs/kitten4-partial-effects-10-pixels.json','utf8'));
   const isolated=JSON.parse(await readFile('docs/kitten4-partial-effects-10-renderer.json','utf8'));
-  assert.equal(report.rendererLfSha256,hash((await readFile('web/renderer.js','utf8')).replaceAll('\r\n','\n')));
+  assert.equal(report.rendererLfSha256,'0bbee910e20a704dc9dcc085028336fb9b5b07a767693f6da24b449444510327','historical integrated round 10 renderer');
   assert.equal(isolated.rendererLfSha256,report.rendererLfSha256);
   let frames=0;
   for(const [name,spec]of Object.entries(await partialEffects10Fixtures())){

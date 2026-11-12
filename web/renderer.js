@@ -112,9 +112,9 @@ outColor=c*(packedTint?tint:vec4(tint.rgb*alpha,alpha));}`;
 // actor first: cells remain aligned to the filter rectangle, even on rotation.
 const K4_FILTER_VERTEX = `#version 300 es
 precision highp float;
-uniform vec2 stageSize;uniform vec2 position;uniform vec2 dimensions;uniform float angle;uniform vec2 origin;uniform vec2 extent;
+uniform vec2 stageSize;uniform vec2 position;uniform vec2 dimensions;uniform float angle;uniform vec2 origin;uniform vec2 extent;uniform bool flipOutput;
 out vec2 uv;
-void main(){vec2 corners[6]=vec2[6](vec2(0,0),vec2(1,0),vec2(1,1),vec2(0,0),vec2(1,1),vec2(0,1));vec2 p=corners[gl_VertexID];uv=p*dimensions/extent;vec2 scale=vec2(2.,-2.)/stageSize;vec2 translation=vec2(-1.,1.)+position*scale;gl_Position=vec4((origin+p*dimensions)*scale+translation,0.,1.);}`;
+void main(){vec2 corners[6]=vec2[6](vec2(0,0),vec2(1,0),vec2(1,1),vec2(0,0),vec2(1,1),vec2(0,1));vec2 p=corners[gl_VertexID];uv=p*dimensions/extent;vec2 scale=vec2(2.,-2.)/stageSize;vec2 translation=vec2(-1.,1.)+position*scale;gl_Position=vec4((origin+p*dimensions)*scale+translation,0.,1.);if(flipOutput)gl_Position.y=-gl_Position.y;}`;
 const K4_SPATIAL_FRAGMENT = `#version 300 es
 precision highp float;
 uniform sampler2D image;uniform vec2 extent;uniform vec2 center;uniform vec2 origin;
@@ -192,7 +192,7 @@ export class StageRenderer {
     if (!gl) throw Error('需要支持 WebGL 2 的浏览器。');
     this.gl = gl; this.pen = program(gl, PEN_VERTEX, PEN_FRAGMENT); this.texture = program(gl, TEXTURE_VERTEX, TEXTURE_FRAGMENT);
     this.k4Spatial = program(gl,K4_FILTER_VERTEX,K4_SPATIAL_FRAGMENT);
-    this.k4SpatialUniform=Object.fromEntries(['stageSize','position','dimensions','angle','image','extent','center','origin','amount','radius','twist','ascii'].map(k=>[k,gl.getUniformLocation(this.k4Spatial,k)]));
+    this.k4SpatialUniform=Object.fromEntries(['stageSize','position','dimensions','angle','image','extent','center','origin','amount','radius','twist','ascii','flipOutput'].map(k=>[k,gl.getUniformLocation(this.k4Spatial,k)]));
     this.k4Color=program(gl,K4_FILTER_VERTEX,K4_COLOR_FRAGMENT);
     this.k4ColorUniform=Object.fromEntries(['stageSize','position','dimensions','extent','origin','image','rowR','rowG','rowB','bias'].map(k=>[k,gl.getUniformLocation(this.k4Color,k)]));
     this.penSize = gl.getUniformLocation(this.pen, 'stageSize');
@@ -365,9 +365,17 @@ export class StageRenderer {
       this.clearSceneTransition();
       if(transition&&transitionKind(transition)!=='none'){
         const kind=transitionKind(transition);
-        const old={sceneId:this.sceneId,backdrop:this.backdrop,backgroundState:this.backgroundState,
+         const old={sceneId:this.sceneId,backdrop:this.backdrop,backgroundState:this.backgroundState,
           sprites:this.sprites,spriteIndices:new Map(this.spriteIndices),actorOrder:this.actorOrder,
-          penTexture:this.penTexture,penLayer:this.penLayer};
+           penTexture:this.penTexture,penLayer:this.penLayer};
+         const snapshot=transition.outgoing;
+         if(snapshot?.scene===old.sceneId){
+           old.backgroundState=snapshot.sprites.find(a=>a.id===old.sceneId)??old.backgroundState;
+           old.backdrop=old.backgroundState?.style??old.backdrop;
+           old.sprites=snapshot.sprites.filter(a=>a.id!==old.sceneId);
+           old.spriteIndices=new Map(old.sprites.map((a,i)=>[a.id,i]));
+           old.actorOrder=snapshot.order;old.penLayer=snapshot.pen_layer;
+         }
         this.sceneTransition={transition,start:this.transitionClock(),old,
           // Scene order is the project order except bounce, which raises entry.
           incomingOnTop:kind.startsWith('bounce_')||Object.keys(this.scenes).indexOf(sceneId)>Object.keys(this.scenes).indexOf(this.sceneId)};
@@ -391,6 +399,8 @@ export class StageRenderer {
     }
     const input=this.sceneTransition.filterInput;
     if(input){this.gl.deleteFramebuffer(input.framebuffer);this.gl.deleteTexture(input.texture);}
+    const ascii=this.sceneTransition.asciiOutput;
+    if(ascii){this.gl.deleteFramebuffer(ascii.framebuffer);this.gl.deleteTexture(ascii.texture);}
     this.sceneTransition=null;this.dirty=true;
   }
 
@@ -870,8 +880,10 @@ void main(){vec2 p=uv*extent+origin;vec2 d=p-center;float r=length(d);if(r<radiu
     const halfX=(Math.abs(c)*w+Math.abs(s)*h)/2,halfY=(Math.abs(s)*w+Math.abs(c)*h)/2;
     // Filter input is not stage-clipped: a twist can bring offstage pixels back
     // into view. Native background TilingSprites keep the same 20px padding.
-    const left=Math.floor((this.width/2+x-halfX-pad)*sx),top=Math.floor((this.height/2-y-halfY-pad)*sy);
-    const frameRight=Math.ceil((this.width/2+x+halfX+pad)*sx),frameBottom=Math.ceil((this.height/2-y+halfY+pad)*sy);
+    // The offline K4 filter manager fits to a twice-stage rectangle, not the
+    // visible stage. A sliding parent's offstage bounds still affect grid UVs.
+    const left=Math.floor(Math.max(-this.width/2,this.width/2+x-halfX-pad)*sx),top=Math.floor(Math.max(-this.height/2,this.height/2-y-halfY-pad)*sy);
+    const frameRight=Math.ceil(Math.min(this.width*1.5,this.width/2+x+halfX+pad)*sx),frameBottom=Math.ceil(Math.min(this.height*1.5,this.height/2-y+halfY+pad)*sy);
     if(frameRight<=0||frameBottom<=0||left>=this.canvas.width||top>=this.canvas.height)return;
     const activeW=frameRight-left,activeH=frameBottom-top;if(activeW<=0||activeH<=0)return;
     // Native intermediate textures come from a power-of-two pool. Sampling the
@@ -941,7 +953,14 @@ void main(){vec2 p=uv*extent+origin;vec2 d=p-center;float r=length(d);if(r<radiu
         }
         const output=1-input,u=this.k4SpatialUniform;
          const direct=ascii;
-        if(direct){gl.bindFramebuffer(gl.FRAMEBUFFER,target);gl.viewport(...viewport);gl.scissor(left,this.canvas.height-frameBottom,activeW,activeH);}
+         const screenshot=direct&&target&&this.sceneScreenshot;
+         // Native RenderTextures use an upward projection; the default canvas
+         // uses a downward one. Rasterize ASCII in the destination orientation
+         // before copying it back to our consistently downward scene surface.
+         // Reversing only UVs after rasterization shifts exact glyph cell edges.
+         const asciiOutput=screenshot&&(this.sceneTransition.asciiOutput??=this.makeSurface(this.canvas.width,this.canvas.height));
+         if(screenshot){gl.bindFramebuffer(gl.FRAMEBUFFER,asciiOutput.framebuffer);gl.viewport(...viewport);gl.disable(gl.SCISSOR_TEST);gl.clear(gl.COLOR_BUFFER_BIT);}
+         else if(direct){gl.bindFramebuffer(gl.FRAMEBUFFER,target);gl.viewport(...viewport);gl.scissor(left,this.canvas.height-frameBottom,activeW,activeH);}
         else{gl.bindFramebuffer(gl.FRAMEBUFFER,surfaces[output].framebuffer);gl.viewport(0,0,fw,fh);gl.disable(gl.SCISSOR_TEST);gl.clear(gl.COLOR_BUFFER_BIT);gl.enable(gl.SCISSOR_TEST);}
         // Last ASCII pass uses the destination's projection, rather than an
         // extra POT raster/copy. Integer cell edges otherwise drift by a pixel
@@ -952,8 +971,10 @@ void main(){vec2 p=uv*extent+origin;vec2 d=p-center;float r=length(d);if(r<radiu
         gl.uniform2f(u.extent,fw,fh);gl.uniform2f(u.center,(this.width/2+(filterCenter?.x??x))*sx-left,(this.height/2-(filterCenter?.y??y))*sy-top);
         gl.uniform2f(u.origin,left,top);
         gl.uniform1f(u.amount,twist?amount*10*Math.PI/180:amount*sx);gl.uniform1f(u.radius,Math.hypot(w,h)/2*sx);gl.uniform1i(u.twist,twist?1:0);
-        gl.uniform1i(u.ascii,ascii?1:0);
-        gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,surfaces[input].texture);gl.drawArrays(gl.TRIANGLES,0,6);this.stats.drawCalls++;input=output;
+         gl.uniform1i(u.ascii,ascii?1:0);
+         gl.uniform1i(u.flipOutput,screenshot?1:0);
+         gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,surfaces[input].texture);gl.drawArrays(gl.TRIANGLES,0,6);this.stats.drawCalls++;input=output;
+         if(screenshot){gl.bindFramebuffer(gl.FRAMEBUFFER,target);gl.viewport(...viewport);this.drawTexture(asciiOutput.texture,0,0,this.width,-this.height);}
       }
       if(e[7]>=1)return;
       gl.bindFramebuffer(gl.FRAMEBUFFER,target);gl.viewport(...viewport);
@@ -995,6 +1016,7 @@ void main(){vec2 p=uv*extent+origin;vec2 d=p-center;float r=length(d);if(r<radiu
   drawScene(framebuffer=null,state=this,transform=null,clear=true){
     const gl=this.gl;
     this.sceneTransform=transform;
+    this.sceneScreenshot=!!framebuffer;
     try{
     gl.bindFramebuffer(gl.FRAMEBUFFER,framebuffer);gl.viewport(0,0,this.canvas.width,this.canvas.height);
     // Scene layers must stay transparent: white is the stage clear colour, not
@@ -1028,7 +1050,7 @@ void main(){vec2 p=uv*extent+origin;vec2 d=p-center;float r=length(d);if(r<radiu
       if(image){const {x,y,width,height,angle}=actorGeometry(a,image,this.kitten4);
         this.drawTexture(image.texture,x,y,width,height,angle,[1,1,1,a.opacity??1],a.effects,[image.width,image.height],null,{x:a.x,y:a.y});}
     }
-    }finally{this.sceneTransform=null;}
+    }finally{this.sceneTransform=null;this.sceneScreenshot=false;}
   }
 
   hitTest(x,y){

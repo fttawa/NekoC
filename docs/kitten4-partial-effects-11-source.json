@@ -1,0 +1,252 @@
+{
+  "schema": "nekoc-k4-effects-11-source-v1",
+  "file": "src/player/build/player_v2.2d180c468559fbd29528.js.orig",
+  "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160",
+  "byteLength": 1855324,
+  "decodedLength": 1851805,
+  "offsetUnit": "0-based UTF-16 code units after UTF-8 decoding; NOT file byte offsets",
+  "hashEncoding": "SHA-256 of original file bytes for sha256; UTF-8 re-encoding of the exact decoded slice for anchorSha256/windowSha256",
+  "sourcePolicy": "Read-only identity-pinned official input; metadata, hashes and independently worded mechanism notes only. No source excerpts, copied function bodies, execution or runtime capture.",
+  "anchors": {
+    "tweenCreate": {
+      "offset": 786189,
+      "anchorLength": 16,
+      "anchorSha256": "81309c59a036f9513268f8ce8e1efd0aff3fea5bc1f39f18b621d2ff35b53ec3",
+      "windowLength": 1006,
+      "windowSha256": "733f940dee9471a378537f4946452f7acbf95ed85f9886b799656d47dd9eb1a4"
+    },
+    "tweenTo": {
+      "offset": 787195,
+      "anchorLength": 12,
+      "anchorSha256": "d7a990b5e0c0f9f5e7a3bcbd02c613b0b40e45005fba7ec15c68b2a318c8ac7f",
+      "windowLength": 129,
+      "windowSha256": "0bb7ee4dbe7d58a8a97e168da3778f777444bf89d05aa7845fc15794b1210b7b"
+    },
+    "tweenFromTo": {
+      "offset": 787518,
+      "anchorLength": 19,
+      "anchorSha256": "95d4d0e007f95d6ee943b5d29ee2fc352f0f1b779e770d73c420f805c54e06df",
+      "windowLength": 156,
+      "windowSha256": "01703d84db73216683aa38fd7a014226ff6fac94b78e9065cbc8015629f20f34"
+    },
+    "slide": {
+      "offset": 789066,
+      "anchorLength": 28,
+      "anchorSha256": "5ddbce0fbaf5c8b967c2ad34b31bb263387614b4f2e41f7b2950e0264b64a576",
+      "windowLength": 424,
+      "windowSha256": "4b150df1d6d3dbba5cd93b61289b2a6c27e7fe355fdca9fef9bedae48783fcb7"
+    },
+    "distort": {
+      "offset": 789964,
+      "anchorLength": 28,
+      "anchorSha256": "d4d228b4cace300723eea2bb1c52f84923b5fb176c95ef60a02f9af9bda8f043",
+      "windowLength": 1024,
+      "windowSha256": "f4fb6a596a41ca49ea177d320870a49d8acd70eb947fee9bca9377a3ec5232c6"
+    },
+    "filterPushOverride": {
+      "offset": 1598609,
+      "anchorLength": 32,
+      "anchorSha256": "991e5190f3bcac79ae95ede78e3c3bc26a075d47849a1170c353704ac5985553",
+      "windowLength": 1438,
+      "windowSha256": "9aa49a7b5aa03995eba95f9ff621304849b4a5326f15b5a25ff7c0b301069e93"
+    },
+    "filterClipDoubleStage": {
+      "offset": 1599132,
+      "anchorLength": 52,
+      "anchorSha256": "9ddfd3633baa1a61d4fce9d8c9bd5bb559fd87d67232d9d474343a45613f633d",
+      "windowLength": 256,
+      "windowSha256": "4c7ebdf56c13b50bce5cb1324cfbd248ea81c43fd6b8be06846db6ad8b2f5299"
+    },
+    "roundFrame": {
+      "offset": 1386850,
+      "anchorLength": 43,
+      "anchorSha256": "76bff9177862e4685479ca5639022b4b99fb96b1fbd072c3adcc7be41a552a6b",
+      "windowLength": 320,
+      "windowSha256": "699fcd1a14c8cfcbac0db640169f691d8ae2cd9c544096d588afce47c12a9dae"
+    },
+    "legacyQuadMap": {
+      "offset": 1380071,
+      "anchorLength": 42,
+      "anchorSha256": "061770c022e3a5a85aebf46dbd5b0007689bb84ec64f1c02d438addbebb44c0d",
+      "windowLength": 480,
+      "windowSha256": "df39898ae8992fe4bf260c937098823e24b9cfa8abb99e4206fb67bd380185e8"
+    },
+    "applyFilter": {
+      "offset": 1385192,
+      "anchorLength": 30,
+      "anchorSha256": "e9dd7f669be50a5026f93ed0924e395b255e2559d2587bfed1dbe84ca39bd714",
+      "windowLength": 365,
+      "windowSha256": "756a9d7302e62e3f2a4243dd6901ff8d7d5f4520324c00dc00533d4bf5d494ad"
+    },
+    "projectionUpdate": {
+      "offset": 1427418,
+      "anchorLength": 58,
+      "anchorSha256": "9214bf98c150fe024f3ad4ad7f462323eb22f37c2d6c468a99816e5ca3119ad6",
+      "windowLength": 462,
+      "windowSha256": "5f69d6be46f6cb30482d08a72ac8eafed88f8f7de14ba81393ccd1fd74a9390e"
+    },
+    "projectionCalculate": {
+      "offset": 1427880,
+      "anchorLength": 50,
+      "anchorSha256": "6463bbcd332a1f5e2506338d1d1672b82a3000b4d8021b4677decb00b0b8ea4f",
+      "windowLength": 256,
+      "windowSha256": "1494659eea15c21af5514081822f2a2f75dc6bd71667c5addf3aaf8bbcfaf5ce"
+    },
+    "renderTextureBind": {
+      "offset": 1428339,
+      "anchorLength": 54,
+      "anchorSha256": "185bb65136fd61bd5095b4e7423bc11e22a76e782d07e0cb0fcb54154fbc07ac",
+      "windowLength": 800,
+      "windowSha256": "2b8b3668f8b67bc73831e71ebbf2769edaf51dabfa5aa4d44f3422ef7503518a"
+    },
+    "renderTextureProjectionUpdate": {
+      "offset": 1428897,
+      "anchorLength": 41,
+      "anchorSha256": "2b0eea661e1980a47591e6e1dde27d2ad23ed048199e84ab368089df81699615",
+      "windowLength": 256,
+      "windowSha256": "a2bb215c73be408072f4113dc34cfe2153155ff87651ee89498a5756f3361fd0"
+    },
+    "renderTextureViewportY": {
+      "offset": 1428823,
+      "anchorLength": 37,
+      "anchorSha256": "8669f3577aa2c5f0576846e05f7a301602e67b14b13c5362b029b7618d45e71f",
+      "windowLength": 256,
+      "windowSha256": "93869c43d94894865535a7867bde0cdf5ed83e95f6c942c8c874ef6822f86243"
+    },
+    "filterBindAndClear": {
+      "offset": 1384440,
+      "anchorLength": 39,
+      "anchorSha256": "f4065a5b03fed5cf55948d1c2569dea487ad80508b3a8572464e891e4d7aa8f0",
+      "windowLength": 740,
+      "windowSha256": "100863e71c8d1f3ce6b8e7d4d9eac7843836d25d5ff198275fa89419f681fa9c"
+    },
+    "filterLegacyGlobals": {
+      "offset": 1383442,
+      "anchorLength": 32,
+      "anchorSha256": "e91b0a42539fad1ddf7b0d11a401fedd262374222e1cf8d1f535e9ad543189fc",
+      "windowLength": 640,
+      "windowSha256": "f1c9b4e98b2129ed9221609ba7d561d4465c3e229ce598b7c0bb012377e0c1e4"
+    },
+    "getEffectFilter": {
+      "offset": 793395,
+      "anchorLength": 21,
+      "anchorSha256": "f01531cfac156ecaabd9e0f6e60c7202d1ee7f49f51d1e143dc1ca02b13b6292",
+      "windowLength": 640,
+      "windowSha256": "95597f0bf4d34497219779feb9f6fa48ee70b7286d808aa20c05884f809c4fed"
+    },
+    "disableEffects": {
+      "offset": 796653,
+      "anchorLength": 18,
+      "anchorSha256": "db9f5f21ae1954c10a0e864a648e940865735422e6c337b118b0591e0bf84c04",
+      "windowLength": 256,
+      "windowSha256": "dd16fc9995024abe23c4b5e52ba7b6c3d6bd859ee966038d9dc5248ca0268231"
+    },
+    "updateTwistOffset": {
+      "offset": 792444,
+      "anchorLength": 31,
+      "anchorSha256": "889a764328170a76a22e17e30f5b3931e4fa6568f649592357e4309b3a66dc16",
+      "windowLength": 256,
+      "windowSha256": "76e811366888ebe2147007450d61c15e0831d20eb068835ce0821b426f234ab9"
+    },
+    "setTwist": {
+      "offset": 795853,
+      "anchorLength": 13,
+      "anchorSha256": "a17df1ff10b2b832b5ca52fbc4dddeae4e19ad489bc29eddf9eb2b58ef110019",
+      "windowLength": 320,
+      "windowSha256": "45262119fb0d7aef6321eafc3b055ee201ccb8bce2e90d078d0ee1bfa51d3694"
+    },
+    "scissorY": {
+      "offset": 1425907,
+      "anchorLength": 31,
+      "anchorSha256": "0ba73966d9c1125743ca7f055e12db0ffbf731518d4d35bb1e0132ff1d76008b",
+      "windowLength": 256,
+      "windowSha256": "2958bc720152573f5550649b58ec8a984ef1b2e89739b085afe49396a504477c"
+    }
+  },
+  "mechanisms": {
+    "slide": {
+      "anchors": [
+        "slide",
+        "tweenCreate",
+        "tweenTo"
+      ],
+      "notes": [
+        "The incoming scene is made visible and starts one view width or height offscreen. Down/up place it above/below; left/right place it right/left.",
+        "Outgoing and incoming moves both start immediately and last 0.5 seconds, using QUAD easing. Chained to calls register independent concurrent tweens, not sequential timeline segments."
+      ]
+    },
+    "distort": {
+      "anchors": [
+        "distort",
+        "tweenCreate",
+        "tweenFromTo"
+      ],
+      "notes": [
+        "The full stage is rendered twice into view-sized render textures, with outgoing and incoming scene visibility switched between captures.",
+        "The two snapshot sprites have centered anchors. Twist filters use the minimum view dimension as radius, view center as offset, and padding 10.",
+        "Outgoing alpha falls from 1 to 0 and twist changes from 0 to -227.8 degrees over 0.5 seconds. Incoming alpha rises from 0 to 1 and twist changes from 189 degrees to 0 over 0.5 seconds, each with a 0.1-second delay from its registration.",
+        "Each from_to call applies its initial state immediately, then registers an independent tween. Its optional final argument is a delay in seconds; it is not an absolute insertion position in a sequential timeline."
+      ]
+    },
+    "filterCapture": {
+      "anchors": [
+        "filterPushOverride",
+        "filterClipDoubleStage",
+        "roundFrame",
+        "filterBindAndClear"
+      ],
+      "notes": [
+        "The later Bn prototype assignment replaces the earlier filter push implementation; compatibility must follow this override rather than the original method.",
+        "Across filters, resolution is the minimum, padding is the maximum, autoFit is the conjunction, and legacy is the disjunction.",
+        "The source frame begins as filterArea or target bounds and receives padding. With autoFit, the allowed rectangle has twice the current render-target sourceFrame width and height, with its origin shifted by half the original width and height, preserving its center. This is 2x stage extent only when the current sourceFrame is the full stage.",
+        "An active projection transform is inverted for the clipping rectangle before fitting. roundFrame maps the source frame through source/destination coordinates and an eligible transform, rounds outward at the current target resolution, and maps back. Non-axis-aligned transforms skip that rounding.",
+        "The filter capture preserves previous source/destination frames and projection transform, clears the projection transform for capture, binds a zero-origin destination sized to the rounded source frame, and clears transparent.",
+        "bindAndClear restores the saved projection transform only when returning to the preceding stack render target; a filterFrame is rebound with its matching zero-origin destination."
+      ]
+    },
+    "projectionY": {
+      "anchors": [
+        "renderTextureBind",
+        "renderTextureViewportY",
+        "renderTextureProjectionUpdate",
+        "projectionUpdate",
+        "projectionCalculate",
+        "scissorY"
+      ],
+      "notes": [
+        "renderTexture.bind chooses a framebuffer for an offscreen render texture and no framebuffer for the screen; the fourth projection.update argument is true only without that framebuffer.",
+        "calculateProjection uses that screen flag to select the Y sign. Before any optional projection transform, screen rendering has Y scale -2/sourceHeight and Y translation 1 + 2*sourceY/sourceHeight. Offscreen rendering has Y scale +2/sourceHeight and Y translation -1 - 2*sourceY/sourceHeight. X scale is +2/sourceWidth for both.",
+        "Thus increasing world Y moves downward in screen clip space, but upward in offscreen clip space. This is the render-target projection convention, not evidence of an unconditional image flip to apply to every texture.",
+        "Screen-only viewport and scissor handling also convert Y relative to the view or renderer height; the render-texture paths omit those conversions.",
+        "Projection update can append an additional transform. The saved/restored filter projection state and render-target convention must be considered together when interpreting stage snapshots and filter quads."
+      ]
+    },
+    "legacyFilterQuad": {
+      "anchors": [
+        "legacyQuadMap",
+        "applyFilter",
+        "filterLegacyGlobals"
+      ],
+      "notes": [
+        "applyFilter binds and clears the destination, supplies the input texture and global uniforms, then selects the legacy or modern quad path.",
+        "The legacy quad is mapped from the input texture frame and filterFrame. Vertex positions span the source-frame rectangle including its origin; UVs start at zero and span source-frame width/texture-frame width and height/texture-frame height, with no explicit Y reversal in this mapping.",
+        "Legacy drawing uses indexed triangles; the non-legacy path uses a triangle strip. Legacy filterArea carries pooled destination dimensions and source-frame origin, while filterClamp aliases inputClamp.",
+        "The clamp bounds use half-pixel offsets derived from the resolution-scaled pooled texture size, and limit the upper edge to the source-frame fraction of that texture."
+      ]
+    },
+    "effectLifecycle": {
+      "anchors": [
+        "getEffectFilter",
+        "disableEffects",
+        "updateTwistOffset",
+        "setTwist"
+      ],
+      "notes": [
+        "Effect filters are cached by effect index. Acquiring one enables it, and a newly created entry rebuilds the target filter list from populated entries in index order.",
+        "disable_effects disables existing filter objects and resets the exposed default values, rather than removing the cached filter list.",
+        "Twist offset converts the target position to view-centered coordinates, reversing target Y. It updates only for an enabled twist filter and is refreshed on relevant position changes.",
+        "set_twist clamps the exposed amount to 0..100, converts ten times that amount from degrees to the angle representation, sets radius to the half-width/half-height diagonal, and refreshes the offset."
+      ]
+    }
+  }
+}

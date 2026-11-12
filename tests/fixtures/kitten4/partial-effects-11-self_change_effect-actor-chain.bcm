@@ -1,0 +1,3460 @@
+{
+  "hidden_toolbox": {
+    "toolbox": [],
+    "blocks": []
+  },
+  "work_source_label": 1,
+  "version": 25,
+  "application_version": "4.11.20",
+  "work_type": "KITTEN",
+  "size": {
+    "width": 960,
+    "height": 720
+  },
+  "type": 1,
+  "project_name": "NekoC effects 11 self_change_effect-actor-chain",
+  "theatre": {
+    "current_entity": "20000000-0000-4000-8000-000000000001",
+    "current_scene": "10000000-0000-4000-8000-000000000001",
+    "scenes_order": [
+      "10000000-0000-4000-8000-000000000001"
+    ],
+    "scenes": {
+      "10000000-0000-4000-8000-000000000001": {
+        "id": "10000000-0000-4000-8000-000000000001",
+        "name": "Background A",
+        "styles": [
+          "background"
+        ],
+        "current_style_id": "background",
+        "x": 0,
+        "y": 0,
+        "scale": 100,
+        "rotation": 0,
+        "rotation_type": 0,
+        "draggable": false,
+        "visible": true,
+        "workspace_offset": {
+          "x": 40,
+          "y": 40
+        },
+        "block_data_json": {
+          "blocks": {},
+          "connections": {},
+          "comments": {}
+        },
+        "actors": [
+          "20000000-0000-4000-8000-000000000001"
+        ],
+        "screen_name": "Scene A",
+        "group_order": [
+          "group"
+        ]
+      }
+    },
+    "actors": {
+      "20000000-0000-4000-8000-000000000001": {
+        "id": "20000000-0000-4000-8000-000000000001",
+        "name": "Probe",
+        "styles": [
+          "costume-a"
+        ],
+        "current_style_id": "costume-a",
+        "x": 13,
+        "y": -7,
+        "scale": 200,
+        "rotation": 0,
+        "rotation_type": 0,
+        "draggable": false,
+        "visible": true,
+        "workspace_offset": {
+          "x": 40,
+          "y": 40
+        },
+        "block_data_json": {
+          "blocks": {
+            "start11": {
+              "type": "start_on_click",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "start11",
+              "parent_id": null,
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clear11-1": {
+              "type": "self_clear_effects",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "clear11-1",
+              "parent_id": "start11",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "wait11-2": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "wait11-2",
+              "parent_id": "clear11-1",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-1": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-1",
+              "parent_id": "wait11-2",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "effect11-3": {
+              "type": "self_change_effect",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "steps": ""
+              },
+              "fields": {
+                "scope": "0"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "effect11-3",
+              "parent_id": "wait11-2",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-2": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "65"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-2",
+              "parent_id": "effect11-3",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "wait11-4": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "wait11-4",
+              "parent_id": "effect11-3",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-3": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-3",
+              "parent_id": "wait11-4",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "effect11-5": {
+              "type": "self_change_effect",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "steps": ""
+              },
+              "fields": {
+                "scope": "1"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "effect11-5",
+              "parent_id": "wait11-4",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-4": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "35"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-4",
+              "parent_id": "effect11-5",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "wait11-6": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "wait11-6",
+              "parent_id": "effect11-5",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-5": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-5",
+              "parent_id": "wait11-6",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "effect11-7": {
+              "type": "self_change_effect",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "steps": ""
+              },
+              "fields": {
+                "scope": "2"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "effect11-7",
+              "parent_id": "wait11-6",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-6": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "25"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-6",
+              "parent_id": "effect11-7",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "wait11-8": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "wait11-8",
+              "parent_id": "effect11-7",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-7": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-7",
+              "parent_id": "wait11-8",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "effect11-9": {
+              "type": "self_change_effect",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "steps": ""
+              },
+              "fields": {
+                "scope": "3"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "effect11-9",
+              "parent_id": "wait11-8",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-8": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "9"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-8",
+              "parent_id": "effect11-9",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "wait11-10": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "wait11-10",
+              "parent_id": "effect11-9",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-9": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-9",
+              "parent_id": "wait11-10",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "effect11-11": {
+              "type": "self_change_effect",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "steps": ""
+              },
+              "fields": {
+                "scope": "5"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "effect11-11",
+              "parent_id": "wait11-10",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-10": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "40"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-10",
+              "parent_id": "effect11-11",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "wait11-12": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "wait11-12",
+              "parent_id": "effect11-11",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-11": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-11",
+              "parent_id": "wait11-12",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "effect11-13": {
+              "type": "self_change_effect",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "steps": ""
+              },
+              "fields": {
+                "scope": "6"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "effect11-13",
+              "parent_id": "wait11-12",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-12": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "60"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-12",
+              "parent_id": "effect11-13",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "wait11-14": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "wait11-14",
+              "parent_id": "effect11-13",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-13": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-13",
+              "parent_id": "wait11-14",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "effect11-15": {
+              "type": "self_change_effect",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "steps": ""
+              },
+              "fields": {
+                "scope": "7"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "effect11-15",
+              "parent_id": "wait11-14",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-14": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "8"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-14",
+              "parent_id": "effect11-15",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "wait11-16": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "wait11-16",
+              "parent_id": "effect11-15",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-15": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-15",
+              "parent_id": "wait11-16",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clear11-17": {
+              "type": "self_clear_effects",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "clear11-17",
+              "parent_id": "wait11-16",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "wait11-18": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "wait11-18",
+              "parent_id": "clear11-17",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-16": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-16",
+              "parent_id": "wait11-18",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "effect11-19": {
+              "type": "self_change_effect",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "steps": ""
+              },
+              "fields": {
+                "scope": "0"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "effect11-19",
+              "parent_id": "wait11-18",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-17": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-17",
+              "parent_id": "effect11-19",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "wait11-20": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "wait11-20",
+              "parent_id": "effect11-19",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-18": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-18",
+              "parent_id": "wait11-20",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "effect11-21": {
+              "type": "self_change_effect",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "steps": ""
+              },
+              "fields": {
+                "scope": "1"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "effect11-21",
+              "parent_id": "wait11-20",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-19": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-19",
+              "parent_id": "effect11-21",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "wait11-22": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "wait11-22",
+              "parent_id": "effect11-21",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-20": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-20",
+              "parent_id": "wait11-22",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "effect11-23": {
+              "type": "self_change_effect",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "steps": ""
+              },
+              "fields": {
+                "scope": "2"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "effect11-23",
+              "parent_id": "wait11-22",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-21": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-21",
+              "parent_id": "effect11-23",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "wait11-24": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "wait11-24",
+              "parent_id": "effect11-23",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-22": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-22",
+              "parent_id": "wait11-24",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "effect11-25": {
+              "type": "self_change_effect",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "steps": ""
+              },
+              "fields": {
+                "scope": "3"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "effect11-25",
+              "parent_id": "wait11-24",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-23": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-23",
+              "parent_id": "effect11-25",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "wait11-26": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "wait11-26",
+              "parent_id": "effect11-25",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-24": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-24",
+              "parent_id": "wait11-26",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "effect11-27": {
+              "type": "self_change_effect",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "steps": ""
+              },
+              "fields": {
+                "scope": "5"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "effect11-27",
+              "parent_id": "wait11-26",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-25": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-25",
+              "parent_id": "effect11-27",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "wait11-28": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "wait11-28",
+              "parent_id": "effect11-27",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-26": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-26",
+              "parent_id": "wait11-28",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "effect11-29": {
+              "type": "self_change_effect",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "steps": ""
+              },
+              "fields": {
+                "scope": "6"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "effect11-29",
+              "parent_id": "wait11-28",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-27": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-27",
+              "parent_id": "effect11-29",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "wait11-30": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "wait11-30",
+              "parent_id": "effect11-29",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-28": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-28",
+              "parent_id": "wait11-30",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "effect11-31": {
+              "type": "self_change_effect",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "steps": ""
+              },
+              "fields": {
+                "scope": "7"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "effect11-31",
+              "parent_id": "wait11-30",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-29": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-29",
+              "parent_id": "effect11-31",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "wait11-32": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "wait11-32",
+              "parent_id": "effect11-31",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-30": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-30",
+              "parent_id": "wait11-32",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clear11-33": {
+              "type": "self_clear_effects",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "clear11-33",
+              "parent_id": "wait11-32",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "wait11-34": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "wait11-34",
+              "parent_id": "clear11-33",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-31": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-31",
+              "parent_id": "wait11-34",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "effect11-35": {
+              "type": "self_change_effect",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "steps": ""
+              },
+              "fields": {
+                "scope": "0"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "effect11-35",
+              "parent_id": "wait11-34",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-32": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "65"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-32",
+              "parent_id": "effect11-35",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "wait11-36": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "wait11-36",
+              "parent_id": "effect11-35",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-33": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-33",
+              "parent_id": "wait11-36",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "effect11-37": {
+              "type": "self_change_effect",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "steps": ""
+              },
+              "fields": {
+                "scope": "1"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "effect11-37",
+              "parent_id": "wait11-36",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-34": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "35"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-34",
+              "parent_id": "effect11-37",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "wait11-38": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "wait11-38",
+              "parent_id": "effect11-37",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-35": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-35",
+              "parent_id": "wait11-38",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "effect11-39": {
+              "type": "self_change_effect",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "steps": ""
+              },
+              "fields": {
+                "scope": "2"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "effect11-39",
+              "parent_id": "wait11-38",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-36": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "25"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-36",
+              "parent_id": "effect11-39",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "wait11-40": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "wait11-40",
+              "parent_id": "effect11-39",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-37": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-37",
+              "parent_id": "wait11-40",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "effect11-41": {
+              "type": "self_change_effect",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "steps": ""
+              },
+              "fields": {
+                "scope": "3"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "effect11-41",
+              "parent_id": "wait11-40",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-38": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "9"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-38",
+              "parent_id": "effect11-41",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "wait11-42": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "wait11-42",
+              "parent_id": "effect11-41",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-39": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-39",
+              "parent_id": "wait11-42",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "effect11-43": {
+              "type": "self_change_effect",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "steps": ""
+              },
+              "fields": {
+                "scope": "5"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "effect11-43",
+              "parent_id": "wait11-42",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-40": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "40"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-40",
+              "parent_id": "effect11-43",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "wait11-44": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "wait11-44",
+              "parent_id": "effect11-43",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-41": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-41",
+              "parent_id": "wait11-44",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "effect11-45": {
+              "type": "self_change_effect",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "steps": ""
+              },
+              "fields": {
+                "scope": "6"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "effect11-45",
+              "parent_id": "wait11-44",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-42": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "60"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-42",
+              "parent_id": "effect11-45",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "wait11-46": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "wait11-46",
+              "parent_id": "effect11-45",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-43": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-43",
+              "parent_id": "wait11-46",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "effect11-47": {
+              "type": "self_change_effect",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "steps": ""
+              },
+              "fields": {
+                "scope": "7"
+              },
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "effect11-47",
+              "parent_id": "wait11-46",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-44": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "8"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-44",
+              "parent_id": "effect11-47",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "wait11-48": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "wait11-48",
+              "parent_id": "effect11-47",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-45": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-45",
+              "parent_id": "wait11-48",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "clear11-49": {
+              "type": "self_clear_effects",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "clear11-49",
+              "parent_id": "wait11-48",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "wait11-50": {
+              "type": "wait",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {
+                "time": ""
+              },
+              "fields": {},
+              "field_constraints": {},
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": false,
+              "id": "wait11-50",
+              "parent_id": "clear11-49",
+              "location": [
+                0,
+                0
+              ]
+            },
+            "generated-46": {
+              "type": "math_number",
+              "comment": null,
+              "is_shadow": false,
+              "collapsed": false,
+              "disabled": false,
+              "deletable": true,
+              "movable": true,
+              "editable": true,
+              "visible": "visible",
+              "shadows": {},
+              "fields": {
+                "NUM": "0"
+              },
+              "field_constraints": {
+                "NUM": {
+                  "min": null,
+                  "max": null,
+                  "precision": 0,
+                  "mod": null
+                }
+              },
+              "field_extra_attr": {},
+              "mutation": "",
+              "is_output": true,
+              "id": "generated-46",
+              "parent_id": "wait11-50",
+              "location": [
+                0,
+                0
+              ]
+            }
+          },
+          "connections": {
+            "start11": {
+              "clear11-1": {
+                "type": "next"
+              }
+            },
+            "clear11-1": {
+              "wait11-2": {
+                "type": "next"
+              }
+            },
+            "wait11-2": {
+              "generated-1": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              },
+              "effect11-3": {
+                "type": "next"
+              }
+            },
+            "generated-1": {},
+            "effect11-3": {
+              "generated-2": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "steps"
+              },
+              "wait11-4": {
+                "type": "next"
+              }
+            },
+            "generated-2": {},
+            "wait11-4": {
+              "generated-3": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              },
+              "effect11-5": {
+                "type": "next"
+              }
+            },
+            "generated-3": {},
+            "effect11-5": {
+              "generated-4": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "steps"
+              },
+              "wait11-6": {
+                "type": "next"
+              }
+            },
+            "generated-4": {},
+            "wait11-6": {
+              "generated-5": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              },
+              "effect11-7": {
+                "type": "next"
+              }
+            },
+            "generated-5": {},
+            "effect11-7": {
+              "generated-6": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "steps"
+              },
+              "wait11-8": {
+                "type": "next"
+              }
+            },
+            "generated-6": {},
+            "wait11-8": {
+              "generated-7": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              },
+              "effect11-9": {
+                "type": "next"
+              }
+            },
+            "generated-7": {},
+            "effect11-9": {
+              "generated-8": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "steps"
+              },
+              "wait11-10": {
+                "type": "next"
+              }
+            },
+            "generated-8": {},
+            "wait11-10": {
+              "generated-9": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              },
+              "effect11-11": {
+                "type": "next"
+              }
+            },
+            "generated-9": {},
+            "effect11-11": {
+              "generated-10": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "steps"
+              },
+              "wait11-12": {
+                "type": "next"
+              }
+            },
+            "generated-10": {},
+            "wait11-12": {
+              "generated-11": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              },
+              "effect11-13": {
+                "type": "next"
+              }
+            },
+            "generated-11": {},
+            "effect11-13": {
+              "generated-12": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "steps"
+              },
+              "wait11-14": {
+                "type": "next"
+              }
+            },
+            "generated-12": {},
+            "wait11-14": {
+              "generated-13": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              },
+              "effect11-15": {
+                "type": "next"
+              }
+            },
+            "generated-13": {},
+            "effect11-15": {
+              "generated-14": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "steps"
+              },
+              "wait11-16": {
+                "type": "next"
+              }
+            },
+            "generated-14": {},
+            "wait11-16": {
+              "generated-15": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              },
+              "clear11-17": {
+                "type": "next"
+              }
+            },
+            "generated-15": {},
+            "clear11-17": {
+              "wait11-18": {
+                "type": "next"
+              }
+            },
+            "wait11-18": {
+              "generated-16": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              },
+              "effect11-19": {
+                "type": "next"
+              }
+            },
+            "generated-16": {},
+            "effect11-19": {
+              "generated-17": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "steps"
+              },
+              "wait11-20": {
+                "type": "next"
+              }
+            },
+            "generated-17": {},
+            "wait11-20": {
+              "generated-18": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              },
+              "effect11-21": {
+                "type": "next"
+              }
+            },
+            "generated-18": {},
+            "effect11-21": {
+              "generated-19": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "steps"
+              },
+              "wait11-22": {
+                "type": "next"
+              }
+            },
+            "generated-19": {},
+            "wait11-22": {
+              "generated-20": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              },
+              "effect11-23": {
+                "type": "next"
+              }
+            },
+            "generated-20": {},
+            "effect11-23": {
+              "generated-21": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "steps"
+              },
+              "wait11-24": {
+                "type": "next"
+              }
+            },
+            "generated-21": {},
+            "wait11-24": {
+              "generated-22": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              },
+              "effect11-25": {
+                "type": "next"
+              }
+            },
+            "generated-22": {},
+            "effect11-25": {
+              "generated-23": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "steps"
+              },
+              "wait11-26": {
+                "type": "next"
+              }
+            },
+            "generated-23": {},
+            "wait11-26": {
+              "generated-24": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              },
+              "effect11-27": {
+                "type": "next"
+              }
+            },
+            "generated-24": {},
+            "effect11-27": {
+              "generated-25": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "steps"
+              },
+              "wait11-28": {
+                "type": "next"
+              }
+            },
+            "generated-25": {},
+            "wait11-28": {
+              "generated-26": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              },
+              "effect11-29": {
+                "type": "next"
+              }
+            },
+            "generated-26": {},
+            "effect11-29": {
+              "generated-27": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "steps"
+              },
+              "wait11-30": {
+                "type": "next"
+              }
+            },
+            "generated-27": {},
+            "wait11-30": {
+              "generated-28": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              },
+              "effect11-31": {
+                "type": "next"
+              }
+            },
+            "generated-28": {},
+            "effect11-31": {
+              "generated-29": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "steps"
+              },
+              "wait11-32": {
+                "type": "next"
+              }
+            },
+            "generated-29": {},
+            "wait11-32": {
+              "generated-30": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              },
+              "clear11-33": {
+                "type": "next"
+              }
+            },
+            "generated-30": {},
+            "clear11-33": {
+              "wait11-34": {
+                "type": "next"
+              }
+            },
+            "wait11-34": {
+              "generated-31": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              },
+              "effect11-35": {
+                "type": "next"
+              }
+            },
+            "generated-31": {},
+            "effect11-35": {
+              "generated-32": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "steps"
+              },
+              "wait11-36": {
+                "type": "next"
+              }
+            },
+            "generated-32": {},
+            "wait11-36": {
+              "generated-33": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              },
+              "effect11-37": {
+                "type": "next"
+              }
+            },
+            "generated-33": {},
+            "effect11-37": {
+              "generated-34": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "steps"
+              },
+              "wait11-38": {
+                "type": "next"
+              }
+            },
+            "generated-34": {},
+            "wait11-38": {
+              "generated-35": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              },
+              "effect11-39": {
+                "type": "next"
+              }
+            },
+            "generated-35": {},
+            "effect11-39": {
+              "generated-36": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "steps"
+              },
+              "wait11-40": {
+                "type": "next"
+              }
+            },
+            "generated-36": {},
+            "wait11-40": {
+              "generated-37": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              },
+              "effect11-41": {
+                "type": "next"
+              }
+            },
+            "generated-37": {},
+            "effect11-41": {
+              "generated-38": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "steps"
+              },
+              "wait11-42": {
+                "type": "next"
+              }
+            },
+            "generated-38": {},
+            "wait11-42": {
+              "generated-39": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              },
+              "effect11-43": {
+                "type": "next"
+              }
+            },
+            "generated-39": {},
+            "effect11-43": {
+              "generated-40": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "steps"
+              },
+              "wait11-44": {
+                "type": "next"
+              }
+            },
+            "generated-40": {},
+            "wait11-44": {
+              "generated-41": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              },
+              "effect11-45": {
+                "type": "next"
+              }
+            },
+            "generated-41": {},
+            "effect11-45": {
+              "generated-42": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "steps"
+              },
+              "wait11-46": {
+                "type": "next"
+              }
+            },
+            "generated-42": {},
+            "wait11-46": {
+              "generated-43": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              },
+              "effect11-47": {
+                "type": "next"
+              }
+            },
+            "generated-43": {},
+            "effect11-47": {
+              "generated-44": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "steps"
+              },
+              "wait11-48": {
+                "type": "next"
+              }
+            },
+            "generated-44": {},
+            "wait11-48": {
+              "generated-45": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              },
+              "clear11-49": {
+                "type": "next"
+              }
+            },
+            "generated-45": {},
+            "clear11-49": {
+              "wait11-50": {
+                "type": "next"
+              }
+            },
+            "wait11-50": {
+              "generated-46": {
+                "type": "input",
+                "input_type": "value",
+                "input_name": "time"
+              }
+            },
+            "generated-46": {}
+          },
+          "comments": {}
+        },
+        "scene": "10000000-0000-4000-8000-000000000001",
+        "lock": false,
+        "editable_in_tuition_mode": true,
+        "user_change_r_c": false
+      }
+    },
+    "groups": {
+      "group": {
+        "id": "group",
+        "name": "",
+        "is_fold": false,
+        "is_group": false,
+        "actors": [
+          "20000000-0000-4000-8000-000000000001"
+        ],
+        "scene": "10000000-0000-4000-8000-000000000001",
+        "visible": true
+      }
+    },
+    "styles": {
+      "background": {
+        "id": "background",
+        "name": "background",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NjAiIGhlaWdodD0iNzIwIj48cmVjdCB3aWR0aD0iOTYwIiBoZWlnaHQ9IjcyMCIgZmlsbD0iI2Q4ZTdmMCIvPjwvc3ZnPg==",
+        "rotate_center": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "costume-a": {
+        "id": "costume-a",
+        "name": "asymmetric",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NiIgaGVpZ2h0PSI3MiI+PHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjgiIGhlaWdodD0iMTIiIGZpbGw9IiNkOTNkNTQiIG9wYWNpdHk9IjAuNDUiLz48cmVjdCB4PSIxMiIgeT0iMCIgd2lkdGg9IjEyIiBoZWlnaHQ9IjEyIiBmaWxsPSIjMzk3NmM4IiBvcGFjaXR5PSIxIi8+PHJlY3QgeD0iMjQiIHk9IjAiIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgZmlsbD0iI2U3YjMyYSIgb3BhY2l0eT0iMSIvPjxyZWN0IHg9IjM2IiB5PSIwIiB3aWR0aD0iMTIiIGhlaWdodD0iMTIiIGZpbGw9IiMyMzg5NjMiIG9wYWNpdHk9IjEiLz48cmVjdCB4PSI0OCIgeT0iMCIgd2lkdGg9IjEyIiBoZWlnaHQ9IjEyIiBmaWxsPSIjZDkzZDU0IiBvcGFjaXR5PSIxIi8+PHJlY3QgeD0iNjAiIHk9IjAiIHdpZHRoPSI4IiBoZWlnaHQ9IjEyIiBmaWxsPSIjMzk3NmM4IiBvcGFjaXR5PSIxIi8+PHJlY3QgeD0iNzIiIHk9IjAiIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgZmlsbD0iI2U3YjMyYSIgb3BhY2l0eT0iMSIvPjxyZWN0IHg9Ijg0IiB5PSIwIiB3aWR0aD0iMTIiIGhlaWdodD0iMTIiIGZpbGw9IiMyMzg5NjMiIG9wYWNpdHk9IjAuNDUiLz48cmVjdCB4PSIwIiB5PSIxMiIgd2lkdGg9IjEyIiBoZWlnaHQ9IjEyIiBmaWxsPSIjZDkzZDU0IiBvcGFjaXR5PSIxIi8+PHJlY3QgeD0iMTIiIHk9IjEyIiB3aWR0aD0iMTIiIGhlaWdodD0iMTIiIGZpbGw9IiMzOTc2YzgiIG9wYWNpdHk9IjEiLz48cmVjdCB4PSIyNCIgeT0iMTIiIHdpZHRoPSI4IiBoZWlnaHQ9IjEyIiBmaWxsPSIjZTdiMzJhIiBvcGFjaXR5PSIxIi8+PHJlY3QgeD0iMzYiIHk9IjEyIiB3aWR0aD0iMTIiIGhlaWdodD0iMTIiIGZpbGw9IiMyMzg5NjMiIG9wYWNpdHk9IjEiLz48cmVjdCB4PSI0OCIgeT0iMTIiIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgZmlsbD0iI2Q5M2Q1NCIgb3BhY2l0eT0iMSIvPjxyZWN0IHg9IjYwIiB5PSIxMiIgd2lkdGg9IjEyIiBoZWlnaHQ9IjEyIiBmaWxsPSIjMzk3NmM4IiBvcGFjaXR5PSIxIi8+PHJlY3QgeD0iNzIiIHk9IjEyIiB3aWR0aD0iMTIiIGhlaWdodD0iMTIiIGZpbGw9IiNlN2IzMmEiIG9wYWNpdHk9IjAuNDUiLz48cmVjdCB4PSI4NCIgeT0iMTIiIHdpZHRoPSI4IiBoZWlnaHQ9IjEyIiBmaWxsPSIjMjM4OTYzIiBvcGFjaXR5PSIxIi8+PHJlY3QgeD0iMCIgeT0iMjQiIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgZmlsbD0iI2Q5M2Q1NCIgb3BhY2l0eT0iMSIvPjxyZWN0IHg9IjEyIiB5PSIyNCIgd2lkdGg9IjEyIiBoZWlnaHQ9IjEyIiBmaWxsPSIjMzk3NmM4IiBvcGFjaXR5PSIxIi8+PHJlY3QgeD0iMjQiIHk9IjI0IiB3aWR0aD0iMTIiIGhlaWdodD0iMTIiIGZpbGw9IiNlN2IzMmEiIG9wYWNpdHk9IjEiLz48cmVjdCB4PSIzNiIgeT0iMjQiIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgZmlsbD0iIzIzODk2MyIgb3BhY2l0eT0iMSIvPjxyZWN0IHg9IjQ4IiB5PSIyNCIgd2lkdGg9IjgiIGhlaWdodD0iMTIiIGZpbGw9IiNkOTNkNTQiIG9wYWNpdHk9IjEiLz48cmVjdCB4PSI2MCIgeT0iMjQiIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgZmlsbD0iIzM5NzZjOCIgb3BhY2l0eT0iMC40NSIvPjxyZWN0IHg9IjcyIiB5PSIyNCIgd2lkdGg9IjEyIiBoZWlnaHQ9IjEyIiBmaWxsPSIjZTdiMzJhIiBvcGFjaXR5PSIxIi8+PHJlY3QgeD0iODQiIHk9IjI0IiB3aWR0aD0iMTIiIGhlaWdodD0iMTIiIGZpbGw9IiMyMzg5NjMiIG9wYWNpdHk9IjEiLz48cmVjdCB4PSIwIiB5PSIzNiIgd2lkdGg9IjEyIiBoZWlnaHQ9IjEyIiBmaWxsPSIjZDkzZDU0IiBvcGFjaXR5PSIxIi8+PHJlY3QgeD0iMTIiIHk9IjM2IiB3aWR0aD0iOCIgaGVpZ2h0PSIxMiIgZmlsbD0iIzM5NzZjOCIgb3BhY2l0eT0iMSIvPjxyZWN0IHg9IjI0IiB5PSIzNiIgd2lkdGg9IjEyIiBoZWlnaHQ9IjEyIiBmaWxsPSIjZTdiMzJhIiBvcGFjaXR5PSIxIi8+PHJlY3QgeD0iMzYiIHk9IjM2IiB3aWR0aD0iMTIiIGhlaWdodD0iMTIiIGZpbGw9IiMyMzg5NjMiIG9wYWNpdHk9IjEiLz48cmVjdCB4PSI0OCIgeT0iMzYiIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgZmlsbD0iI2Q5M2Q1NCIgb3BhY2l0eT0iMC40NSIvPjxyZWN0IHg9IjYwIiB5PSIzNiIgd2lkdGg9IjEyIiBoZWlnaHQ9IjEyIiBmaWxsPSIjMzk3NmM4IiBvcGFjaXR5PSIxIi8+PHJlY3QgeD0iNzIiIHk9IjM2IiB3aWR0aD0iOCIgaGVpZ2h0PSIxMiIgZmlsbD0iI2U3YjMyYSIgb3BhY2l0eT0iMSIvPjxyZWN0IHg9Ijg0IiB5PSIzNiIgd2lkdGg9IjEyIiBoZWlnaHQ9IjEyIiBmaWxsPSIjMjM4OTYzIiBvcGFjaXR5PSIxIi8+PHJlY3QgeD0iMCIgeT0iNDgiIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgZmlsbD0iI2Q5M2Q1NCIgb3BhY2l0eT0iMSIvPjxyZWN0IHg9IjEyIiB5PSI0OCIgd2lkdGg9IjEyIiBoZWlnaHQ9IjEyIiBmaWxsPSIjMzk3NmM4IiBvcGFjaXR5PSIxIi8+PHJlY3QgeD0iMjQiIHk9IjQ4IiB3aWR0aD0iMTIiIGhlaWdodD0iMTIiIGZpbGw9IiNlN2IzMmEiIG9wYWNpdHk9IjEiLz48cmVjdCB4PSIzNiIgeT0iNDgiIHdpZHRoPSI4IiBoZWlnaHQ9IjEyIiBmaWxsPSIjMjM4OTYzIiBvcGFjaXR5PSIwLjQ1Ii8+PHJlY3QgeD0iNDgiIHk9IjQ4IiB3aWR0aD0iMTIiIGhlaWdodD0iMTIiIGZpbGw9IiNkOTNkNTQiIG9wYWNpdHk9IjEiLz48cmVjdCB4PSI2MCIgeT0iNDgiIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgZmlsbD0iIzM5NzZjOCIgb3BhY2l0eT0iMSIvPjxyZWN0IHg9IjcyIiB5PSI0OCIgd2lkdGg9IjEyIiBoZWlnaHQ9IjEyIiBmaWxsPSIjZTdiMzJhIiBvcGFjaXR5PSIxIi8+PHJlY3QgeD0iODQiIHk9IjQ4IiB3aWR0aD0iMTIiIGhlaWdodD0iMTIiIGZpbGw9IiMyMzg5NjMiIG9wYWNpdHk9IjEiLz48cmVjdCB4PSIwIiB5PSI2MCIgd2lkdGg9IjgiIGhlaWdodD0iMTIiIGZpbGw9IiNkOTNkNTQiIG9wYWNpdHk9IjEiLz48cmVjdCB4PSIxMiIgeT0iNjAiIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgZmlsbD0iIzM5NzZjOCIgb3BhY2l0eT0iMSIvPjxyZWN0IHg9IjI0IiB5PSI2MCIgd2lkdGg9IjEyIiBoZWlnaHQ9IjEyIiBmaWxsPSIjZTdiMzJhIiBvcGFjaXR5PSIwLjQ1Ii8+PHJlY3QgeD0iMzYiIHk9IjYwIiB3aWR0aD0iMTIiIGhlaWdodD0iMTIiIGZpbGw9IiMyMzg5NjMiIG9wYWNpdHk9IjEiLz48cmVjdCB4PSI0OCIgeT0iNjAiIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgZmlsbD0iI2Q5M2Q1NCIgb3BhY2l0eT0iMSIvPjxyZWN0IHg9IjYwIiB5PSI2MCIgd2lkdGg9IjgiIGhlaWdodD0iMTIiIGZpbGw9IiMzOTc2YzgiIG9wYWNpdHk9IjEiLz48cmVjdCB4PSI3MiIgeT0iNjAiIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgZmlsbD0iI2U3YjMyYSIgb3BhY2l0eT0iMSIvPjxyZWN0IHg9Ijg0IiB5PSI2MCIgd2lkdGg9IjEyIiBoZWlnaHQ9IjEyIiBmaWxsPSIjMjM4OTYzIiBvcGFjaXR5PSIxIi8+PHJlY3QgeD0iOSIgeT0iMTciIHdpZHRoPSIxMSIgaGVpZ2h0PSIyOSIgZmlsbD0iI2ZmZiIvPjxyZWN0IHg9IjcxIiB5PSI0IiB3aWR0aD0iNyIgaGVpZ2h0PSI1NyIgZmlsbD0iIzE0MjgzNiIvPjwvc3ZnPg==",
+        "rotate_center": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    },
+    "videos": {},
+    "timer": {}
+  },
+  "variables": {},
+  "variable_order": [],
+  "cloud_variables": {},
+  "audio": {},
+  "audio_order": [],
+  "midimusic": [],
+  "midi_order": [],
+  "matrix": {},
+  "models": {},
+  "toolbox": {
+    "current_type": "event",
+    "pen": false
+  },
+  "toolbox_order": [
+    "event",
+    "control",
+    "action",
+    "appearance",
+    "sensing",
+    "operator",
+    "data"
+  ],
+  "last_toolbox_order": [],
+  "hardware_type": "",
+  "is_partial": false,
+  "ai_lab": {},
+  "broadcasts": {},
+  "painter": {
+    "color": []
+  }
+}
