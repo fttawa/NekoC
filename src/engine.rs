@@ -39,6 +39,7 @@ mod kn_services;
 mod kn_warp;
 mod legacy_costume;
 pub use kn_panel::{GlobalAnimationRequest, PanelNotice};
+mod clone_index;
 mod parameter_pool;
 mod physics;
 mod role_camp;
@@ -5152,6 +5153,7 @@ pub struct Engine {
     clone_counts: BTreeMap<usize, u32>,
     clone_orders: BTreeMap<usize, u32>,
     clone_layers: BTreeMap<usize, Vec<usize>>,
+    clone_index: clone_index::CloneIndex,
     asks: VecDeque<AskRequest>,
     stage_dialogs: VecDeque<StageDialogRequest>,
     next_ask: u64,
@@ -5640,6 +5642,7 @@ impl Engine {
             clone_counts: BTreeMap::new(),
             clone_orders: BTreeMap::new(),
             clone_layers: BTreeMap::new(),
+            clone_index: clone_index::CloneIndex::default(),
             asks: VecDeque::new(),
             stage_dialogs: VecDeque::new(),
             next_ask: 1,
@@ -5722,6 +5725,7 @@ impl Engine {
         self.clone_counts.clear();
         self.clone_orders.clear();
         self.clone_layers.clear();
+        self.clone_index = clone_index::CloneIndex::default();
         self.asks.clear();
         self.stage_dialogs.clear();
         self.image_stamps.clear();
@@ -6350,11 +6354,7 @@ impl Engine {
             }
             ExprOp::CloneCount(target) => {
                 let origin = self.sprites[if target == usize::MAX { actor } else { target }].origin;
-                (0..self.sprites.len())
-                    .filter(|&i| {
-                        self.sprites[i].alive && self.sprites[i].origin == origin && i != origin
-                    })
-                    .count() as f64
+                self.clone_index.slots(origin).len() as f64
             }
             ExprOp::CloneIndex => self.sprites[actor].clone_index as f64,
             ExprOp::PhysicsProperty(property) => self.physics_property(actor, property),
@@ -7557,11 +7557,7 @@ impl Engine {
         let live = {
             #[cfg(feature = "interp-profile")]
             let _profile = interp_profile::span("clone_scan", &());
-            (0..self.sprites.len())
-                .filter(|&i| {
-                    self.sprites[i].alive && self.sprites[i].origin == origin && i != origin
-                })
-                .count()
+            self.clone_index.slots(origin).len()
         };
         if self.program.semantics != RuntimeSemantics::Kitten4 && live >= 300 {
             return Ok(());
@@ -7570,11 +7566,12 @@ impl Engine {
         // per_entity_clone_limit (512 in Kitten 4) is exceeded, not the newest.
         if self.program.semantics == RuntimeSemantics::Kitten4
             && live >= 512
-            && let Some(oldest) = (0..self.sprites.len())
-                .filter(|&i| {
-                    self.sprites[i].alive && self.sprites[i].origin == origin && i != origin
-                })
-                .min_by_key(|&i| self.sprites[i].clone_index)
+            && let Some(oldest) = self
+                .clone_index
+                .slots(origin)
+                .iter()
+                .copied()
+                .min_by_key(|&i| (self.sprites[i].clone_index, i))
         {
             self.delete_clone(oldest);
         }
@@ -7610,6 +7607,7 @@ impl Engine {
             self.sprites.len() - 1
         };
         self.dirty[index] = true;
+        self.clone_index.insert(origin, index);
         if self.program.semantics == RuntimeSemantics::Kitten4 {
             self.clone_legacy_physics_body(source, index);
         }
@@ -7684,6 +7682,7 @@ impl Engine {
             }
         }
         let sprite = &mut self.sprites[index];
+        self.clone_index.remove(sprite.origin, index);
         sprite.alive = false;
         sprite.variables.clear();
         sprite.visible = false;
@@ -7850,7 +7849,35 @@ impl Engine {
             ListRef::Local(i) => self.local_value(i as usize),
             ListRef::Variable(i) => self.global_value(i as usize),
             ListRef::Expression(i) => {
-                self.eval_value(i as usize, self.tasks[self.current_task].actor)
+                let actor = self.tasks[self.current_task].actor;
+                // Nested list reads very often end in an entity variable or
+                // parameter. Avoid entering the composite Cell evaluator for
+                // those leaves. Deep evaluation must still consume its scoped
+                // operand queue, including duplicate/side-effecting operands.
+                let expression = self.program.values[i as usize];
+                if self.program.deep_values.is_empty()
+                    && matches!(
+                        expression,
+                        ValueExpr::ActorVariable(_, _, None) | ValueExpr::Parameter(_)
+                    )
+                {
+                    #[cfg(feature = "interp-profile")]
+                    let _profile = interp_profile::span("value", &expression);
+                    match expression {
+                        ValueExpr::ActorVariable(target, slot, None) => self.read_actor_variable(
+                            if target == usize::MAX { actor } else { target },
+                            slot,
+                        ),
+                        ValueExpr::Parameter(slot) => self.tasks[self.current_task]
+                            .parameters
+                            .get(slot)
+                            .cloned()
+                            .unwrap_or(Cell::Number(f64::NAN)),
+                        _ => unreachable!(),
+                    }
+                } else {
+                    self.eval_value(i as usize, actor)
+                }
             }
         };
         if let Cell::List(v) = value {
@@ -8613,45 +8640,34 @@ impl Engine {
         let scene = self.current_scene;
         let costume_turn = self.program.costume_turn;
         // Only the active scene is drawn; other scenes keep their dirty marks.
-        let sprites = self
-            .sprites
-            .iter()
-            .zip(&mut self.dirty)
-            .enumerate()
-            .filter_map(|(actor, (a, dirty))| {
-                if !*dirty || (a.scene != scene && a.alive) {
-                    return None;
+        let mut sprites = Vec::new();
+        for actor in 0..self.sprites.len() {
+            let a = &self.sprites[actor];
+            if !self.dirty[actor] || (a.scene != scene && a.alive) {
+                continue;
+            }
+            self.dirty[actor] = false;
+            if a.alive {
+                let mut drawn = a.clone_for_frame();
+                drawn.direction -= costume_turn;
+                // JSON maps nonfinite numbers to null. Hide invalid geometry
+                // on the wire, without changing the VM's logical state.
+                if ![a.x, a.y, a.direction, a.scale, a.size_x, a.size_y]
+                    .iter()
+                    .all(|n| n.is_finite())
+                {
+                    drawn.visible = false;
                 }
-                *dirty = false;
-                a.alive.then(|| {
-                    let mut drawn = a.clone_for_frame();
-                    drawn.direction -= costume_turn;
-                    // JSON maps nonfinite numbers to null. Hide invalid geometry
-                    // on the wire, without changing the VM's logical state.
-                    if ![a.x, a.y, a.direction, a.scale, a.size_x, a.size_y]
-                        .iter()
-                        .all(|n| n.is_finite())
-                    {
-                        drawn.visible = false;
-                    }
-                    if a.flip_x {
-                        drawn.size_x = -drawn.size_x;
-                    }
-                    if a.flip_y {
-                        drawn.size_y = -drawn.size_y;
-                    }
-                    (actor, drawn)
-                })
-            })
-            .collect::<Vec<_>>();
-        // End the mutable dirty-field borrow before asking physics for geometry.
-        let sprites = sprites
-            .into_iter()
-            .map(|(actor, mut drawn)| {
+                if a.flip_x {
+                    drawn.size_x = -drawn.size_x;
+                }
+                if a.flip_y {
+                    drawn.size_y = -drawn.size_y;
+                }
                 drawn.soft_mesh = self.physics_soft_mesh(actor);
-                drawn
-            })
-            .collect();
+                sprites.push(drawn);
+            }
+        }
         self.flush_cloud()?;
         Ok(Frame {
             extension_requests: self.extension_requests(),
@@ -10028,12 +10044,12 @@ impl Engine {
         #[cfg(feature = "interp-profile")]
         let ready_profile = interp_profile::span("ready_queue", &());
         self.ready.clear();
-        self.ready
-            .extend((0..total).map(|i| (self.cursor + i) % total));
         if self.program.semantics == RuntimeSemantics::Kitten4 {
+            // The total key below discards cursor rotation. Task IDs are unique.
+            self.ready.extend(0..total);
             // iNFq/get_interpreter_sorters + reverse step_code traversal:
             // listeners first, newest frame first, stable creation order last.
-            self.ready.make_contiguous().sort_by_key(|&index| {
+            self.ready.make_contiguous().sort_by_cached_key(|&index| {
                 let task = &self.tasks[index];
                 let listener = self
                     .program
@@ -10042,6 +10058,9 @@ impl Engine {
                     .is_some_and(|s| matches!(s.event, ScriptEvent::Broadcast(..)));
                 (!listener, std::cmp::Reverse(task.created), task.id)
             });
+        } else {
+            self.ready
+                .extend((0..total).map(|i| (self.cursor + i) % total));
         }
         #[cfg(feature = "interp-profile")]
         drop(ready_profile);

@@ -20,6 +20,7 @@ use cranelift_jit::{JITBuilder, JITModule};
 use cranelift_module::{Linkage, Module, default_libcall_names};
 use std::collections::{BTreeMap, BTreeSet};
 
+mod analysis;
 mod entries;
 mod parameters;
 mod runtime;
@@ -457,10 +458,10 @@ impl Engine {
                 // Only leaders can enter independently: each owns its fuel
                 // deduction. Share code/guard storage without replacing older
                 // entries, and still recheck pointers/boxed writes on every run.
-                for pc in entries {
+                for (pc, reentrant) in entries {
                     if jit.regions[pc].is_none() {
                         jit.regions[pc] = Some(region.clone());
-                        if self.jit_reentrant(self.program.ops[pc]) {
+                        if reentrant {
                             jit.terminal_runs[pc] = 1;
                         }
                     }
@@ -530,6 +531,15 @@ impl Engine {
     fn jit_delegable(&self, op: Op) -> bool {
         let pure = |e: Expr| self.jit_pure_expr(e.end as usize - 1);
         let value = |v: usize| self.jit_pure_value(v);
+        self.jit_delegable_with(op, pure, value)
+    }
+
+    fn jit_delegable_with(
+        &self,
+        op: Op,
+        pure: impl Fn(Expr) -> bool,
+        value: impl Fn(usize) -> bool,
+    ) -> bool {
         let list = |r: ListRef| match r {
             ListRef::Expression(v) => value(v as usize),
             _ => true,
@@ -564,10 +574,20 @@ impl Engine {
 
     /// Whether native code can run `op` without leaving the VM's control flow.
     fn jit_supported(&self, op: Op) -> bool {
-        if self.jit_reentrant(op) {
-            return true;
-        }
-        let pure = |e: Expr| self.jit_pure_expr(e.end as usize - 1);
+        self.jit_reentrant(op)
+            || self.jit_supported_non_reentrant_with(
+                op,
+                |e: Expr| self.jit_pure_expr(e.end as usize - 1),
+                |op| self.jit_delegable(op),
+            )
+    }
+
+    fn jit_supported_non_reentrant_with(
+        &self,
+        op: Op,
+        pure: impl Fn(Expr) -> bool,
+        delegable: impl Fn(Op) -> bool,
+    ) -> bool {
         match op {
             Op::Set(_, e)
             | Op::SetLocal(_, e)
@@ -581,7 +601,7 @@ impl Engine {
             }
             Op::Jump(_) | Op::Break(..) => true,
             Op::Next(..) | Op::RangeNext(..) | Op::WarpIteration => true,
-            other => self.jit_delegable(other),
+            other => delegable(other),
         }
     }
 
@@ -589,18 +609,26 @@ impl Engine {
     /// never the normal numeric lowering. Keep this whitelist narrow: adding a
     /// scheduling opcode here also requires preserving exec's continuation flag.
     fn jit_reentrant(&self, op: Op) -> bool {
+        self.jit_reentrant_with(
+            op,
+            |root| self.jit_pure_expr(root),
+            |v| self.jit_pure_value(v),
+        )
+    }
+
+    fn jit_reentrant_with(
+        &self,
+        op: Op,
+        pure: impl Fn(usize) -> bool,
+        value: impl Fn(usize) -> bool,
+    ) -> bool {
         match op {
-            Op::Call(_, args) => self.program.call_arguments[args]
-                .iter()
-                .any(|&v| !self.jit_pure_value(v)),
-            Op::Branch(e, _) => !self.jit_pure_expr(e.end as usize - 1),
+            Op::Call(_, args) => self.program.call_arguments[args].iter().any(|&v| !value(v)),
+            Op::Branch(e, _) => !pure(e.end as usize - 1),
             Op::AppendList(list, v) => {
-                !self.jit_pure_value(v)
-                    || matches!(list, ListRef::Expression(v) if !self.jit_pure_value(v as usize))
+                !value(v) || matches!(list, ListRef::Expression(v) if !value(v as usize))
             }
-            Op::SetValue(_, v) | Op::ReturnValue(v) | Op::Kitten4Change(_, v, _) => {
-                !self.jit_pure_value(v)
-            }
+            Op::SetValue(_, v) | Op::ReturnValue(v) | Op::Kitten4Change(_, v, _) => !value(v),
             _ => false,
         }
     }
@@ -1802,8 +1830,15 @@ impl Gen<'_, '_> {
         self.b.ins().jump(next, &[]);
     }
 
-    fn op(&mut self, pc: usize, op: Op, blocks: &BTreeMap<usize, Block>, remaining: i64) {
-        if self.engine.jit_reentrant(op) {
+    fn op(
+        &mut self,
+        pc: usize,
+        op: Op,
+        reentrant: bool,
+        blocks: &BTreeMap<usize, Block>,
+        remaining: i64,
+    ) {
+        if reentrant {
             let helper = match op {
                 Op::Call(..) => h_call as *const () as usize,
                 Op::AppendList(..) => h_append_cell as *const () as usize,
@@ -2012,7 +2047,7 @@ fn is_straight(op: Op) -> bool {
 
 struct BuiltRegion {
     context: cranelift_codegen::Context,
-    entries: Vec<usize>,
+    entries: Vec<(usize, bool)>,
     written_slots: Vec<usize>,
     written_locals: Vec<usize>,
 }
@@ -2021,7 +2056,8 @@ struct BuiltRegion {
 // checked on the CI host without ever executing foreign machine code.
 fn build_region(engine: &Engine, entry: usize, conv: CallConv) -> Option<BuiltRegion> {
     let ops = &engine.program.ops;
-    if !engine.jit_supported(ops[entry]) {
+    let analysis = analysis::Analysis::new(engine);
+    if !analysis.classify(entry).supported {
         return None;
     }
     // Discover the region; a leader starts a fuel-accounted chunk.
@@ -2036,12 +2072,12 @@ fn build_region(engine: &Engine, entry: usize, conv: CallConv) -> Option<BuiltRe
         if region.contains(&pc) || exits.contains(&pc) {
             continue;
         }
-        if pc >= ops.len() || !engine.jit_supported(ops[pc]) || region.len() >= MAX_REGION_OPS {
+        if pc >= ops.len() || !analysis.classify(pc).supported || region.len() >= MAX_REGION_OPS {
             exits.insert(pc);
             continue;
         }
         region.insert(pc);
-        if engine.jit_reentrant(ops[pc]) {
+        if analysis.classify(pc).reentrant {
             // Tail evaluation can invalidate every pointer. Do not explore its
             // successors or treat its typed writes as boxing exemptions for an
             // earlier numeric write's entry guard.
@@ -2086,6 +2122,7 @@ fn build_region(engine: &Engine, entry: usize, conv: CallConv) -> Option<BuiltRe
         }
     }
 
+    let chunk_lengths = analysis.chunk_lengths(&region, &leaders);
     let returns: Vec<usize> = returns.into_iter().take(16).collect();
     let none = i64::from(none_tag()?);
     let mut signature = Signature::new(conv);
@@ -2120,7 +2157,10 @@ fn build_region(engine: &Engine, entry: usize, conv: CallConv) -> Option<BuiltRe
             .chain(exits.iter())
             .map(|&pc| (pc, b.create_block()))
             .collect();
-        entries = entries::dispatch(&mut b, entry_pc, &leaders, &region, &blocks);
+        entries = entries::dispatch(&mut b, entry_pc, &leaders, &region, &blocks)
+            .into_iter()
+            .map(|pc| (pc, analysis.classify(pc).reentrant))
+            .collect();
         for &pc in &exits {
             b.switch_to_block(blocks[&pc]);
             let value = b.ins().iconst(types::I64, pc as i64);
@@ -2143,15 +2183,7 @@ fn build_region(engine: &Engine, entry: usize, conv: CallConv) -> Option<BuiltRe
         for &pc in &region {
             g.b.switch_to_block(blocks[&pc]);
             // This op plus the rest of its chunk: charged at a leader, refunded on exit.
-            let mut last = pc;
-            while !engine.jit_reentrant(ops[last])
-                && is_straight(ops[last])
-                && region.contains(&(last + 1))
-                && !leaders.contains(&(last + 1))
-            {
-                last += 1;
-            }
-            let remaining = (last - pc + 1) as i64;
+            let remaining = chunk_lengths[&pc];
             if leaders.contains(&pc) {
                 let fuel =
                     g.b.ins()
@@ -2169,7 +2201,13 @@ fn build_region(engine: &Engine, entry: usize, conv: CallConv) -> Option<BuiltRe
                 g.b.switch_to_block(run);
                 g.b.ins().store(MemFlags::trusted(), after, ctx, OFF_FUEL);
             }
-            g.op(pc, ops[pc], &blocks, remaining);
+            g.op(
+                pc,
+                ops[pc],
+                analysis.classify(pc).reentrant,
+                &blocks,
+                remaining,
+            );
         }
         b.seal_all_blocks();
         b.finalize();
@@ -2182,7 +2220,7 @@ fn build_region(engine: &Engine, entry: usize, conv: CallConv) -> Option<BuiltRe
     })
 }
 
-fn compile(jit: &mut Jit, engine: &Engine, entry: usize) -> Option<(Region, Vec<usize>)> {
+fn compile(jit: &mut Jit, engine: &Engine, entry: usize) -> Option<(Region, Vec<(usize, bool)>)> {
     let BuiltRegion {
         mut context,
         entries,

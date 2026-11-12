@@ -98,6 +98,58 @@ fn simple_value_leaves_preserve_prepared_cache_and_numeric_mirrors() {
 }
 
 #[test]
+fn list_resolution_leaves_preserve_identity_errors_and_prepared_queues() {
+    let mut e = engine(vec![Op::Halt], RuntimeSemantics::Kitten4);
+    e.program.actor_variable_names = vec!["list-root".into()];
+    let list = Rc::new(RefCell::new(vec![Cell::Number(17.0)]));
+    e.sprites[1].variables.insert(0, Cell::List(list.clone()));
+    e.tasks[0].parameters = vec![Cell::List(list.clone())];
+    e.program.values = vec![
+        ValueExpr::ActorVariable(usize::MAX, 0, None),
+        ValueExpr::ActorVariable(1, 0, None),
+        ValueExpr::Parameter(0),
+        ValueExpr::Parameter(1),
+    ];
+    for i in 0..3 {
+        assert!(Rc::ptr_eq(
+            &e.resolve_list(ListRef::Expression(i)).unwrap(),
+            &list
+        ));
+        e.program.deep_values.insert(usize::MAX);
+        let cached = Rc::new(RefCell::new(vec![Cell::Bool(true)]));
+        e.evaluation_cache.push(BTreeMap::from([(
+            (true, i as usize),
+            VecDeque::from([Cell::List(cached.clone()), Cell::List(list.clone())]),
+        )]));
+        assert!(Rc::ptr_eq(
+            &e.resolve_list(ListRef::Expression(i)).unwrap(),
+            &cached
+        ));
+        assert!(Rc::ptr_eq(
+            &e.resolve_list(ListRef::Expression(i)).unwrap(),
+            &list
+        ));
+        e.evaluation_cache.pop();
+        e.program.deep_values.clear();
+    }
+    assert!(e.resolve_list(ListRef::Expression(3)).is_none());
+    assert!(
+        e.value_error
+            .take()
+            .unwrap()
+            .starts_with("list operation received a non-list")
+    );
+    e.sprites[1].alive = false;
+    assert!(e.resolve_list(ListRef::Expression(0)).is_none());
+    assert!(
+        e.value_error
+            .take()
+            .unwrap()
+            .starts_with("entity_variable_operation_out_of_scope")
+    );
+}
+
+#[test]
 fn hot_and_cold_fallthrough_take_pending_value_error_at_original_source() {
     for semantics in [RuntimeSemantics::KnCurrent, RuntimeSemantics::Kitten4] {
         for op in [Op::SetValue(Target::Global(0), 0), Op::Ranking(None, false)] {
