@@ -1,6 +1,44 @@
 {
   "schema": "nekoc-knwarp2-evidence-v1",
   "baseline": "7d641540a6af460518963d06be2c45c87b07a9c3",
+  "postmerge": {
+    "integrate": "071c56c",
+    "merge_commit": "25343193d58bf8cd328698e58d9aab2b9da039fb",
+    "raw": "dist/knwarp2/postmerge/ab/results.json",
+    "sha256": "eed725cb8bbe5293f27ea24e36a383dfa53faa04ec73096e8a91a6509d082a2c",
+    "binaries": {
+      "before": {
+        "file": "E:\\nekoc-wt\\knwarp2\\dist\\knwarp2\\postmerge\\before.exe",
+        "sha256": "0ec3a6940ab4c5d58f3c2398178f16023b48283c91d0bd4126f7ba534785954d"
+      },
+      "after": {
+        "file": "E:\\nekoc-wt\\knwarp2\\dist\\knwarp2\\postmerge\\after.exe",
+        "sha256": "3cb1865ac63efe6594978f4e26dfd66a00822aeb413c47980d754a5fc14f5d3b"
+      }
+    },
+    "summary": [
+      { "name": "broadcast.bcmkn", "before_ms": 0.1853733333333333, "after_ms": 0.18442999999999996, "change_percent": -0.5088829748975177, "final_state_equal": true },
+      { "name": "clones.bcmkn", "before_ms": 0.11514333333333336, "after_ms": 0.1143666666666667, "change_percent": -0.6745216107460261, "final_state_equal": true },
+      { "name": "list.bcmkn", "before_ms": 0.2547683333333333, "after_ms": 0.23275166666666672, "change_percent": -8.641838009695057, "final_state_equal": true },
+      { "name": "numeric.bcmkn", "before_ms": 0.11322333333333336, "after_ms": 0.036383333333333316, "change_percent": -67.86586981482029, "final_state_equal": true },
+      { "name": "pen.bcmkn", "before_ms": 0.1832383333333333, "after_ms": 0.10950833333333335, "change_percent": -40.237213828984096, "final_state_equal": true },
+      { "name": "recursion.bcmkn", "before_ms": 0.035794999999999993, "after_ms": 0.031845000000000005, "change_percent": -11.035060762676318, "final_state_equal": true },
+      { "name": "string.bcmkn", "before_ms": 0.21823999999999993, "after_ms": 0.2259166666666666, "change_percent": 3.5175342130987275, "final_state_equal": true }
+    ],
+    "pairs": 35,
+    "all_final_state_equal": true,
+    "gates": {
+      "rust": { "passed": 959, "failed": 0, "ignored": 1 },
+      "tools": { "tests": 733, "passed": 667, "failed": 0, "skipped": 66 },
+      "corpus_seeds": [1, 6, 42],
+      "corpus_ran_per_seed": 52,
+      "jit_differences_per_seed": 0,
+      "jit_completed_60_per_seed": 52,
+      "jit_known_error": "214725822",
+      "deterministic_pairs_equal": 42
+    },
+    "idle_guard": "kn-ab assertIdle before/after each side; incomplete attempts retained separately"
+  },
   "initial": {
     "raw": "dist/knwarp2/ab/results.json",
     "sha256": "ff6a0aa02dd86066943d155f0272a1487b4f8b461c693b2250756c1e41e1e95b",

@@ -16,6 +16,7 @@
   计数上限仍可更早让出。要推导附加延迟 ≤0.1ms，须另有 `T≤100μs/31` 的条件。
   采样决定在 loop-tail 作出，不修改循环完成/继续/后继指令的执行约定。
 - 测试使用可注入的合成时钟枚举32个相位和快转慢/突发过期；不使用 sleep。
+  快速循环单独覆盖剩余0/1/49999/50000ns的最终窗口，防止慢路径锁定掩盖该分支。
   `kn_sampled_wall_slice_is_shared_when_native_and_interpreted_tails_alternate`
   让 JIT 与解释器双向交替，覆盖 repeat/range/forever 尾、最终/继续分支，
   并断言没有退到通用委托。已有 gateway 测试继续验证后继退款和恢复不重放。

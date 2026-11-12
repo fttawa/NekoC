@@ -133,4 +133,34 @@ mod tests {
         }
         assert_eq!(checks.interval, 1);
     }
+
+    #[test]
+    fn final_window_checks_every_tail_even_when_the_cost_estimate_is_fast() {
+        let start = Instant::now();
+        for left in [0, 1, FINAL_WINDOW_NS - 1, FINAL_WINDOW_NS] {
+            let mut checks = ClockChecks::new(start);
+            for tail in 1..=63 {
+                if checks.due() {
+                    checks.observe(
+                        start + Duration::from_nanos(u64::from(tail) * 10),
+                        tail,
+                        start + Duration::from_millis(4),
+                    );
+                }
+            }
+            assert_eq!(checks.interval, MAX_INTERVAL);
+            for _ in 0..MAX_INTERVAL - 1 {
+                assert!(!checks.due());
+            }
+            assert!(checks.due());
+            let now = start + Duration::from_nanos(950);
+            // The policy accepts an explicit deadline: moving it in this
+            // isolated test keeps the measured batch fast, so interval=1 must
+            // come from the final-window branch, not the slow-path lock.
+            checks.observe(now, 95, now + Duration::from_nanos(left));
+            assert_eq!(checks.slowest_ns, 10);
+            assert_eq!(checks.interval, 1);
+            assert!(checks.due());
+        }
+    }
 }
