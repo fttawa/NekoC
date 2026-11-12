@@ -1,7 +1,7 @@
 {
   "schema": "nekoc-k4-transition-10-v1",
   "scope": "native official VM + independent NekoC renderer input; controlled 60Hz performance clock; 65 consecutive full canvas samples, no mask",
-  "rendererLfSha256": "5949f909fbc02ee4f425a7aa0eab6be2f8494214b1133bb519b1a4f24c22b3c1",
+  "rendererLfSha256": "0bbee910e20a704dc9dcc085028336fb9b5b07a767693f6da24b449444510327",
   "sha256": "4662f590a51d0f47ef048da181601ccc1eea2388a41b9f73a4802d4a93bd3623",
   "observations": [
     {

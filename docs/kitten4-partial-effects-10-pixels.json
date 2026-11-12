@@ -1,12 +1,12 @@
 {
   "schema": "nekoc-k4-partial-effects-10-pixels-v1",
   "scope": "real NekoC VM vs official VM; full canvas, no masks; RGB tolerances 0,1,8",
-  "executableSha256": "0a31f37eac65ae4ed399a4ef7fc945ed448ef737e6e9db14a2101acd0f008d40",
-  "rendererLfSha256": "5949f909fbc02ee4f425a7aa0eab6be2f8494214b1133bb519b1a4f24c22b3c1",
+  "executableSha256": "693645d0ce90c2d1c8b27defc748d53f5415ca868ef938170f76133b5740ce2f",
+  "rendererLfSha256": "0bbee910e20a704dc9dcc085028336fb9b5b07a767693f6da24b449444510327",
   "cases": {
     "all-no-ripple": {
       "sha256": "2f376a635a52b5b35bf800a3eb4086e5a7eaf176705ebbbc3d38bdbe95ab5713",
-      "rendererLfSha256": "5949f909fbc02ee4f425a7aa0eab6be2f8494214b1133bb519b1a4f24c22b3c1",
+      "rendererLfSha256": "0bbee910e20a704dc9dcc085028336fb9b5b07a767693f6da24b449444510327",
       "file": "tests/fixtures/kitten4/partial-effects-9-all-no-ripple.bcm",
       "status": "captured",
       "audioMetadata": true,
@@ -676,6 +676,11 @@
           "sha256": "39e8e70b124b604831773893cdc95931cdee3eaea52c6dd69f33f5781d48b45a"
         },
         {
+          "name": "vendors.d00f4bd454a6352e9d71.js",
+          "source": "vendors.d00f4bd454a6352e9d71.js",
+          "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
+        },
+        {
           "name": "runtime.f42f527f119e09010b85.js",
           "source": "runtime.f42f527f119e09010b85.js",
           "sha256": "4164d67795238f64d035f473418236038ae475ae36032a967cba16ede263735f"
@@ -684,11 +689,6 @@
           "name": "player_v2.2d180c468559fbd29528.js",
           "source": "player_v2.2d180c468559fbd29528.js.orig",
           "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160"
-        },
-        {
-          "name": "vendors.d00f4bd454a6352e9d71.js",
-          "source": "vendors.d00f4bd454a6352e9d71.js",
-          "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
         },
         {
           "name": "9.c396696e9dc71e25b012.js",
@@ -709,7 +709,7 @@
     },
     "ascii-offstage": {
       "sha256": "47cd2657329475d1bd607ebb3015811a2cf45228cb6b0b215daf87475a5c30de",
-      "rendererLfSha256": "5949f909fbc02ee4f425a7aa0eab6be2f8494214b1133bb519b1a4f24c22b3c1",
+      "rendererLfSha256": "0bbee910e20a704dc9dcc085028336fb9b5b07a767693f6da24b449444510327",
       "file": "tests/fixtures/kitten4/partial-effects-9-ascii-offstage.bcm",
       "status": "captured",
       "audioMetadata": true,
@@ -974,14 +974,14 @@
           "sha256": "4164d67795238f64d035f473418236038ae475ae36032a967cba16ede263735f"
         },
         {
-          "name": "player_v2.2d180c468559fbd29528.js",
-          "source": "player_v2.2d180c468559fbd29528.js.orig",
-          "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160"
-        },
-        {
           "name": "vendors.d00f4bd454a6352e9d71.js",
           "source": "vendors.d00f4bd454a6352e9d71.js",
           "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
+        },
+        {
+          "name": "player_v2.2d180c468559fbd29528.js",
+          "source": "player_v2.2d180c468559fbd29528.js.orig",
+          "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160"
         },
         {
           "name": "9.c396696e9dc71e25b012.js",
@@ -1002,7 +1002,7 @@
     },
     "ascii-hue": {
       "sha256": "872d802ef7fd083132169e7667eec4863509368214119442aeb8277942648402",
-      "rendererLfSha256": "5949f909fbc02ee4f425a7aa0eab6be2f8494214b1133bb519b1a4f24c22b3c1",
+      "rendererLfSha256": "0bbee910e20a704dc9dcc085028336fb9b5b07a767693f6da24b449444510327",
       "file": "tests/fixtures/kitten4/partial-effects-9-ascii-hue.bcm",
       "status": "captured",
       "audioMetadata": true,
@@ -1267,14 +1267,14 @@
           "sha256": "4164d67795238f64d035f473418236038ae475ae36032a967cba16ede263735f"
         },
         {
-          "name": "vendors.d00f4bd454a6352e9d71.js",
-          "source": "vendors.d00f4bd454a6352e9d71.js",
-          "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
-        },
-        {
           "name": "player_v2.2d180c468559fbd29528.js",
           "source": "player_v2.2d180c468559fbd29528.js.orig",
           "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160"
+        },
+        {
+          "name": "vendors.d00f4bd454a6352e9d71.js",
+          "source": "vendors.d00f4bd454a6352e9d71.js",
+          "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
         },
         {
           "name": "9.c396696e9dc71e25b012.js",
@@ -1295,7 +1295,7 @@
     },
     "ascii-alpha": {
       "sha256": "c06deee3d53822316f4867f45c4b4a67e662a44ae429f4f17b15f9aad9548cfb",
-      "rendererLfSha256": "5949f909fbc02ee4f425a7aa0eab6be2f8494214b1133bb519b1a4f24c22b3c1",
+      "rendererLfSha256": "0bbee910e20a704dc9dcc085028336fb9b5b07a767693f6da24b449444510327",
       "file": "tests/fixtures/kitten4/partial-effects-9-ascii-alpha.bcm",
       "status": "captured",
       "audioMetadata": true,
@@ -1588,7 +1588,7 @@
     },
     "ascii-brightness": {
       "sha256": "9e326e61cddba68059351f40620e5fce17aaeada8cc7249e752573992e6b307e",
-      "rendererLfSha256": "5949f909fbc02ee4f425a7aa0eab6be2f8494214b1133bb519b1a4f24c22b3c1",
+      "rendererLfSha256": "0bbee910e20a704dc9dcc085028336fb9b5b07a767693f6da24b449444510327",
       "file": "tests/fixtures/kitten4/partial-effects-9-ascii-brightness.bcm",
       "status": "captured",
       "audioMetadata": true,
@@ -1853,14 +1853,14 @@
           "sha256": "4164d67795238f64d035f473418236038ae475ae36032a967cba16ede263735f"
         },
         {
-          "name": "player_v2.2d180c468559fbd29528.js",
-          "source": "player_v2.2d180c468559fbd29528.js.orig",
-          "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160"
-        },
-        {
           "name": "vendors.d00f4bd454a6352e9d71.js",
           "source": "vendors.d00f4bd454a6352e9d71.js",
           "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
+        },
+        {
+          "name": "player_v2.2d180c468559fbd29528.js",
+          "source": "player_v2.2d180c468559fbd29528.js.orig",
+          "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160"
         },
         {
           "name": "9.c396696e9dc71e25b012.js",
@@ -1881,7 +1881,7 @@
     },
     "ascii-pixelate": {
       "sha256": "b88554972dc769185d2404aa027754571b618e218526aca2b01c23a0d8638c5f",
-      "rendererLfSha256": "5949f909fbc02ee4f425a7aa0eab6be2f8494214b1133bb519b1a4f24c22b3c1",
+      "rendererLfSha256": "0bbee910e20a704dc9dcc085028336fb9b5b07a767693f6da24b449444510327",
       "file": "tests/fixtures/kitten4/partial-effects-9-ascii-pixelate.bcm",
       "status": "captured",
       "audioMetadata": true,
@@ -2146,14 +2146,14 @@
           "sha256": "4164d67795238f64d035f473418236038ae475ae36032a967cba16ede263735f"
         },
         {
-          "name": "player_v2.2d180c468559fbd29528.js",
-          "source": "player_v2.2d180c468559fbd29528.js.orig",
-          "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160"
-        },
-        {
           "name": "vendors.d00f4bd454a6352e9d71.js",
           "source": "vendors.d00f4bd454a6352e9d71.js",
           "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
+        },
+        {
+          "name": "player_v2.2d180c468559fbd29528.js",
+          "source": "player_v2.2d180c468559fbd29528.js.orig",
+          "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160"
         },
         {
           "name": "9.c396696e9dc71e25b012.js",
@@ -2174,7 +2174,7 @@
     },
     "ascii-twist": {
       "sha256": "716665d3daef234278f7761abc534176a5f0d435cf3db423735e01de48d0142c",
-      "rendererLfSha256": "5949f909fbc02ee4f425a7aa0eab6be2f8494214b1133bb519b1a4f24c22b3c1",
+      "rendererLfSha256": "0bbee910e20a704dc9dcc085028336fb9b5b07a767693f6da24b449444510327",
       "file": "tests/fixtures/kitten4/partial-effects-9-ascii-twist.bcm",
       "status": "captured",
       "audioMetadata": true,
@@ -2439,14 +2439,14 @@
           "sha256": "4164d67795238f64d035f473418236038ae475ae36032a967cba16ede263735f"
         },
         {
-          "name": "player_v2.2d180c468559fbd29528.js",
-          "source": "player_v2.2d180c468559fbd29528.js.orig",
-          "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160"
-        },
-        {
           "name": "vendors.d00f4bd454a6352e9d71.js",
           "source": "vendors.d00f4bd454a6352e9d71.js",
           "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
+        },
+        {
+          "name": "player_v2.2d180c468559fbd29528.js",
+          "source": "player_v2.2d180c468559fbd29528.js.orig",
+          "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160"
         },
         {
           "name": "9.c396696e9dc71e25b012.js",
@@ -2467,7 +2467,7 @@
     },
     "ascii-saturate": {
       "sha256": "977b96e1a4fdc37cf33f8dcec72028840d626486865ceeed091629f79ff92141",
-      "rendererLfSha256": "5949f909fbc02ee4f425a7aa0eab6be2f8494214b1133bb519b1a4f24c22b3c1",
+      "rendererLfSha256": "0bbee910e20a704dc9dcc085028336fb9b5b07a767693f6da24b449444510327",
       "file": "tests/fixtures/kitten4/partial-effects-9-ascii-saturate.bcm",
       "status": "captured",
       "audioMetadata": true,
@@ -2760,7 +2760,7 @@
     },
     "ascii-twist-fractional": {
       "sha256": "b8e9f362033b50eb51863bb2ed2f41dc4b3113539c1458188180f54924aadc4d",
-      "rendererLfSha256": "5949f909fbc02ee4f425a7aa0eab6be2f8494214b1133bb519b1a4f24c22b3c1",
+      "rendererLfSha256": "0bbee910e20a704dc9dcc085028336fb9b5b07a767693f6da24b449444510327",
       "file": "tests/fixtures/kitten4/partial-effects-9-ascii-twist-fractional.bcm",
       "status": "captured",
       "audioMetadata": true,
@@ -3025,14 +3025,14 @@
           "sha256": "4164d67795238f64d035f473418236038ae475ae36032a967cba16ede263735f"
         },
         {
-          "name": "vendors.d00f4bd454a6352e9d71.js",
-          "source": "vendors.d00f4bd454a6352e9d71.js",
-          "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
-        },
-        {
           "name": "player_v2.2d180c468559fbd29528.js",
           "source": "player_v2.2d180c468559fbd29528.js.orig",
           "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160"
+        },
+        {
+          "name": "vendors.d00f4bd454a6352e9d71.js",
+          "source": "vendors.d00f4bd454a6352e9d71.js",
+          "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
         },
         {
           "name": "9.c396696e9dc71e25b012.js",

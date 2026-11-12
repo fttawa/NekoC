@@ -1,7 +1,7 @@
 {
   "schema": "nekoc-k4-transition-10-v1",
   "scope": "native official VM + independent NekoC renderer input; controlled 60Hz performance clock; 65 consecutive full canvas samples, no mask",
-  "rendererLfSha256": "5949f909fbc02ee4f425a7aa0eab6be2f8494214b1133bb519b1a4f24c22b3c1",
+  "rendererLfSha256": "0bbee910e20a704dc9dcc085028336fb9b5b07a767693f6da24b449444510327",
   "sha256": "90faa48326b1429748e96043bcc8d20e5168ce0b1f204a9a3b49e47c8f950cd8",
   "observations": [
     {
@@ -4325,14 +4325,14 @@
       "sha256": "4164d67795238f64d035f473418236038ae475ae36032a967cba16ede263735f"
     },
     {
-      "name": "vendors.d00f4bd454a6352e9d71.js",
-      "source": "vendors.d00f4bd454a6352e9d71.js",
-      "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
-    },
-    {
       "name": "player_v2.2d180c468559fbd29528.js",
       "source": "player_v2.2d180c468559fbd29528.js.orig",
       "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160"
+    },
+    {
+      "name": "vendors.d00f4bd454a6352e9d71.js",
+      "source": "vendors.d00f4bd454a6352e9d71.js",
+      "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
     },
     {
       "name": "9.c396696e9dc71e25b012.js",
