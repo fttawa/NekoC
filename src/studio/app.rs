@@ -777,6 +777,9 @@ impl Studio {
                     }
                 }
             }
+            if let Some(overlay) = &snapshot.native_overlay {
+                super::overlay_renderer::paint(ui, rect, scale, overlay);
+            }
         }
         if response.clicked() {
             response.request_focus();

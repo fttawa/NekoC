@@ -17,12 +17,14 @@
 | `show_hide_cloud_list` | partial | monitors | monitors: PIXI 文本、部件 visible、bounds、截图 |
 | `show_hide_cloud_variable` | partial | monitors | monitors: PIXI 文本、部件 visible、bounds、截图 |
 | `cloud_lists_is_exist` | offline-oracle-verified | list | 逐帧 typed 变量/列表；不声明像素相等 |
-| `show_ranking` | partial | ranking | ranking: Redux show/var_id/value、DOM loading、截图 |
+| `show_ranking` | partial | ranking | ranking: Redux show/var_id/value、DOM loading、截图；k4cloudui 逐帧 DOM 对比，原生像素未验证 |
 | `cloud_lists_index_of` | offline-oracle-verified | list | 逐帧 typed 变量/列表；不声明像素相等 |
-| `is_ranking_show_hide` | partial | ranking | ranking: Redux show/var_id/value、DOM loading、截图 |
+| `is_ranking_show_hide` | partial | ranking | ranking: Redux show/var_id/value、DOM loading、截图；k4cloudui 逐帧 DOM 对比，原生像素未验证 |
 | `cloud_lists_get` | offline-oracle-verified | list | 逐帧 typed 变量/列表；不声明像素相等 |
 | `cloud_lists_insert_value` | offline-oracle-verified | list | 逐帧 typed 变量/列表；不声明像素相等 |
-| `hide_ranking` | partial | ranking | ranking: Redux show/var_id/value、DOM loading、截图 |
+| `hide_ranking` | partial | ranking | ranking: Redux show/var_id/value、DOM loading、截图；k4cloudui 逐帧 DOM 对比，原生像素未验证 |
+
+补充 UI 实测见 [k4cloudui.md](k4cloudui.md)：105帧，舞台超差像素保留原始统计，排行榜单独比DOM结构与文字；原生像素未验证，5项不升级。
 
 ## 升级规则
 

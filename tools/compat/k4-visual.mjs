@@ -73,8 +73,15 @@ async function capture(page,official){
     [...document.querySelectorAll('.neko-overlay > :not(.neko-monitors), .neko-monitor')]
       .some(e=>e.getClientRects().length));
   if(overlay){
+    // Ranking is DOM in the official player too; compare it separately, not
+    // against the official PIXI-only screenshot. Other stage overlays stay in.
+    const ranking=page.locator('.neko-ranking');
+    const rankingStyle=await ranking.count()?await ranking.getAttribute('style'):null;
+    if(rankingStyle!==null)await ranking.evaluate(e=>{e.style.visibility='hidden';});
     await page.evaluate(()=>{window.renderer.dirty=true;window.renderer.render();});
-    const png=(await page.locator('#box').screenshot({animations:'disabled',caret:'hide',scale:'css'})).toString('base64');
+    let png;
+    try{png=(await page.locator('#box').screenshot({animations:'disabled',caret:'hide',scale:'css'})).toString('base64');}
+    finally{if(rankingStyle!==null)await ranking.evaluate((e,style)=>e.setAttribute('style',style),rankingStyle);}
     return page.evaluate(async png=>{
       const image=new Image();image.src='data:image/png;base64,'+png;await image.decode();
       const canvas=document.createElement('canvas');canvas.width=image.width;canvas.height=image.height;
@@ -157,9 +164,10 @@ export async function visualWork(input,options){
          const audioFile=path.join(artifact,'audio-durations.json');await saveJson(audioFile,audios.filter(a=>a.loaded&&Number.isFinite(a.duration)&&a.duration>0).map(({id,duration})=>({id,duration})));
          rendered=JSON.parse(await command(exe,[...args,'--costumes',path.resolve(file),'--videos',path.resolve(videoFile),...(audioMetadata?['--audios',path.resolve(audioFile)]:[])]));
       },
-      onFrame:async(page,frame)=>{
+       onFrame:async(page,frame)=>{
         const delta=rendered.frames[frame-1];
-        await nekoPage.evaluate(({frame,lines})=>{window.renderer.videoStates=frame.videos||[];window.renderer.apply(frame,new Float32Array(lines));window.overlay.apply(frame);window.overlay.update();},delta);
+         await nekoPage.evaluate(({frame,lines})=>{window.renderer.videoStates=frame.videos||[];window.renderer.apply(frame,new Float32Array(lines));window.overlay.apply(frame);window.overlay.update();},delta);
+         await options.onComparedFrame?.({page,nekoPage,frame,delta});
         if(!options.captureFrames.includes(frame))return;
         const [a,b]=await Promise.all([capture(nekoPage,false),capture(page,true)]);
         if(a.width!==b.width||a.height!==b.height)throw Error(`Canvas size mismatch: NekoC ${a.width}x${a.height}, official ${b.width}x${b.height}`);

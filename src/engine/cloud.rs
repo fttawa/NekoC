@@ -16,6 +16,7 @@ pub(super) struct Binding {
 #[derive(Default)]
 pub(super) struct State {
     pub ranking: Option<usize>,
+    pub ranking_value: Option<f64>,
     backend: Option<Arc<dyn CloudBackend>>,
     namespace: String,
     user: String,

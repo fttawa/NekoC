@@ -208,6 +208,8 @@ export class StageRenderer {
     this.videos=new Map();this.mediaPaused=false;
     this.kitten4 = Object.hasOwn(project,'_nekocKitten4');
     this.monitorDeclarations=project.variables?.variablesDict||{};
+    this.cloudDeclarations=project._nekocKitten4?.source?.cloud_variables||{};
+    this.cloudListViews=new Map();
     this.monitorOwners={...project.scenes?.scenesDict,...project.actors?.actorsDict};
     const gl = this.gl;
     for(const entry of this.k4FilterCache?.values()||[])for(const surface of entry.surfaces){gl.deleteFramebuffer(surface.framebuffer);gl.deleteTexture(surface.texture);}
@@ -620,10 +622,13 @@ void main(){vec2 p=vec2(uv.x,1.-uv.y)*extent;vec2 d=p-extent*.5;float r=length(d
 
   // K4 $n/ti: saved positions are top-left anchors in stage coordinates, not
   // a flex list. Original Canvas drawing of the common scalar skin; no vendor
-  // textures or fonts bundled. Icon/list skins retain the generic DOM fallback.
-  monitorCanvas(monitor){
-    const state=this.monitorDeclarations?.[monitor.id];
-    if(!this.kitten4||monitor.list||!state||state.theme!=='common')return null;
+   // textures or fonts bundled. Non-cloud list/icon skins retain DOM fallback.
+  monitorCanvas(monitor,ui){
+    const cloud=this.cloudDeclarations?.[monitor.id];
+    const state=cloud||this.monitorDeclarations?.[monitor.id];
+    if(!this.kitten4||!state)return null;
+    if(cloud&&monitor.list)return this.cloudListCanvas(monitor,state,ui?.lists?.[monitor.id]||[]);
+    if(monitor.list||(state.theme||'common')!=='common')return null;
     const canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');
     const font='18px "NotoSansCJKsc-Medium", "NotoSansCJKsc"';ctx.font=font;
     const prefix=state.current_entity?`${this.monitorOwners?.[state.current_entity]?.name||''}·`:'';
@@ -641,6 +646,62 @@ void main(){vec2 p=vec2(uv.x,1.-uv.y)*extent;vec2 d=p-extent*.5;float r=length(d
     canvas.className='neko-monitor k4-common';
     canvas.style.cssText=`position:absolute;display:block;border:0;border-radius:0;background:transparent;max-width:none;left:calc(${this.width/2+position.x} * var(--neko-unit));top:calc(${this.height/2-position.y} * var(--neko-unit));width:calc(${width*scale} * var(--neko-unit));height:calc(${height*scale} * var(--neko-unit))`;
     canvas.setAttribute('aria-label',`${prefix}${monitor.name}: ${monitor.value}`);
+    return canvas;
+  }
+
+  cloudListCanvas(monitor,state,items){
+    // Independent Canvas skin from measured PIXI geometry (Yn/di), not vendor assets.
+    const canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');
+    const bodyWidth=170+Math.max(0,state.offset?.x||0),bodyHeight=180+Math.floor(Math.max(0,state.offset?.y||0)/45)*45;
+    const width=bodyWidth+18,height=bodyHeight+68;
+    canvas.width=width;canvas.height=height;
+    const rounded=(x,y,w,h,r,color)=>{ctx.fillStyle=color;ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill();};
+    rounded(1,1,width-2,height-2,20,'#ffaa2f');
+    ctx.strokeStyle='#ccc';ctx.lineWidth=2;ctx.stroke();
+    const font='500 20px "PingFangSC-Medium", "PingFang SC"';ctx.font=font;
+    const ellipsis=(text,max)=>{text=String(text);if(Math.ceil(ctx.measureText(text).width)<=max)return text;let result='';for(const c of text){if(Math.ceil(ctx.measureText(result+c).width)+Math.ceil(ctx.measureText('...').width)>max)break;result+=c;}return result+'...';};
+    const title=ellipsis(monitor.name,bodyWidth-32),titleWidth=Math.ceil(ctx.measureText(title).width);
+    const textureText=(text,x,y,color)=>{
+      const lines=String(text).split(/\r\n|\r|\n/),font=ctx.font;
+      const texture=document.createElement('canvas'),tc=texture.getContext('2d');tc.font=font;
+      texture.width=Math.max(6,...lines.map(line=>Math.ceil(tc.measureText(line).width)));
+      const lineHeight=font.startsWith('500')?25:23;texture.height=lineHeight*lines.length;
+      tc.font=font;tc.fillStyle=color;lines.forEach((line,i)=>tc.fillText(line,0,(font.startsWith('500')?20:18)+i*lineHeight));
+      ctx.drawImage(texture,x,y);
+    };
+    textureText(title,1+(bodyWidth+16-titleWidth)/2,13,'#fff');
+    rounded(9,59,bodyWidth,bodyHeight,10,'#fff');
+    ctx.save();ctx.clip();
+    const rows=bodyHeight/45;
+    const view=this.cloudListViews.get(monitor.id)||{index:0,hadItems:false};
+    view.hadItems||=items.length>0;
+    let index=Math.max(0,Math.min(Math.max(0,items.length-rows),view.index));this.cloudListViews.set(monitor.id,view);
+    const paint=()=>{
+      ctx.clearRect(9,59,bodyWidth,bodyHeight);ctx.fillStyle='#fff';ctx.fillRect(9,59,bodyWidth,bodyHeight);
+      if(!items.length){ctx.font='bold 16px "STHeitiSC-Medium", "Microsoft YaHei"';ctx.fillStyle='#000';ctx.fillText('空',9+bodyWidth/2-8,85);if(!view.hadItems)rounded(9,69,5,112,2.5,'#a3afbf4d');return;}
+      ctx.font='bold 17.5px "STHeitiSC-Medium", "Microsoft YaHei"';
+      const orderWidth=ctx.measureText(String(Math.min(index+rows,items.length))).width;
+      for(let r=0;r<rows;r++){
+        const at=index+r,y=59+r*45;
+        ctx.fillStyle=r%2?'#f4f5f7':'#fff';ctx.fillRect(9,y,bodyWidth,45);
+        if(at>=items.length)continue;
+        ctx.fillStyle='#0000007f';ctx.fillText(String(at+1),14,y+29);
+        textureText(ellipsis(items[at],bodyWidth-10-45-orderWidth),29+orderWidth,y+11,'#43372e');
+      }
+      if(items.length>rows){const range=bodyHeight-150,step=range/(items.length-rows);rounded(9+bodyWidth-10,69+index*step,5,112,2.5,'#a3afbf4d');}
+    };
+    paint();ctx.restore();
+    // The resize affordance is an original triangle, not an embedded texture.
+    ctx.fillStyle='#000';ctx.beginPath();ctx.moveTo(166,228);ctx.lineTo(174,219);ctx.lineTo(176,219);ctx.lineTo(176,229);ctx.lineTo(166,229);ctx.closePath();ctx.fill();
+    const position=state.position||{x:10-this.width/2,y:this.height/2-10};
+    canvas.className='neko-monitor k4-cloud-list';
+    canvas.style.cssText=`position:absolute;display:block;border:0;border-radius:0;background:transparent;max-width:none;pointer-events:auto;left:calc(${this.width/2+position.x-1} * var(--neko-unit));top:calc(${this.height/2-position.y-1} * var(--neko-unit));width:calc(${width} * var(--neko-unit));height:calc(${height} * var(--neko-unit))`;
+    canvas.setAttribute('aria-label',`${monitor.name}: ${items.length} items`);
+    let dragY;
+    canvas.onpointerdown=e=>{e.stopPropagation();dragY=e.clientY;canvas.setPointerCapture(e.pointerId);};
+    canvas.onpointermove=e=>{if(dragY===undefined)return;e.stopPropagation();const delta=Math.trunc((dragY-e.clientY)/(45*canvas.clientWidth/width));if(delta){index=Math.max(0,Math.min(Math.max(0,items.length-rows),index+delta));view.index=index;dragY=e.clientY;ctx.save();ctx.beginPath();ctx.roundRect(9,59,bodyWidth,bodyHeight,10);ctx.clip();paint();ctx.restore();}};
+    canvas.onpointerup=e=>{e.stopPropagation();dragY=undefined;};
+    canvas.onpointercancel=()=>{dragY=undefined;};
     return canvas;
   }
 

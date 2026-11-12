@@ -24,9 +24,7 @@ impl Engine {
                 self.cloud_list(binding, action, at, value);
             }
             Op::Ranking(binding, show) => {
-                if !show || (binding.is_some() && self.cloud.ranking.is_none()) {
-                    self.cloud.ranking = binding;
-                }
+                self.show_cloud_ranking(binding, show);
             }
             Op::LegacyPhysics(command, value) => {
                 let value = self.eval_value(value, actor);

@@ -491,6 +491,7 @@ fn frame_bytes(vm: &mut Engine, payload: &Value) -> Result<Vec<u8>> {
                         vm.stage_dialog_click(id);
                     }
                 }
+                Some("ranking_close") => vm.close_cloud_ranking(),
                 Some("pointer") => {
                     if let (Some(state), Some(x), Some(y)) = (
                         event["state"].as_str(),

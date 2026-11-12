@@ -20,10 +20,10 @@ for (const row of rows) {
   }).map(([name]) => name);
   if (!names.length) throw new Error(`No actual official block event for ${row.type}`);
   const visual = /show_hide_cloud/.test(row.type) ? 'monitors: PIXI 文本、部件 visible、bounds、截图' :
-    /ranking/.test(row.type) ? 'ranking: Redux show/var_id/value、DOM loading、截图' : '逐帧 typed 变量/列表；不声明像素相等';
+    /ranking/.test(row.type) ? 'ranking: Redux show/var_id/value、DOM loading、截图；k4cloudui 逐帧 DOM 对比，原生像素未验证' : '逐帧 typed 变量/列表；不声明像素相等';
   lines.push(`| \`${row.type}\` | ${row.semantics} | ${names.join('、')} | ${visual} |`);
 }
-lines.push('', '## 升级规则', '',
+lines.push('', '补充 UI 实测见 [k4cloudui.md](k4cloudui.md)：105帧，舞台超差像素保留原始统计，排行榜单独比DOM结构与文字；原生像素未验证，5项不升级。', '', '## 升级规则', '',
   '- 全表来源：`tools/compat/k4-block-catalog.mjs::mappingStatus`。显式lowering不代表一致性；cloudDataTypes精确列出12项经双VM回归的数据域，赋予offline-oracle-verified。其余云UI保持partial。Markdown/JSON全表均由生成器更新。',
   '- 本视图要求 `executedBlocks` 里出现真实官方 block event，而非只在夹具 JSON 中出现块名。17 个 cloud/ranking 类型均实际执行，5 件夹具共 138 update。',
   '- 官方离线证据 ≠ NekoC 已通过。本轮主会话已运行cargo test --all-targets（k4cloud 5项、既有云18项均通过）；UI类未有本地浏览器等价证明，不能升级。单凭本视图或JS自检不得升级。',

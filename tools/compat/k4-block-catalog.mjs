@@ -396,6 +396,7 @@ export function mappingStatus(root, rows) {
     if (cloud && evidence.length) {
       limitations.push("第二轮 7 份原创夹具/56 帧离线实测：数组增减 primitive 转换、列表别名、严格索引与 undefined 项读取已回归；在线权限/并发/重连及孤立 surrogate 未验证，见 kitten4-partial-cloud-2.md");
       limitations.push("k4cloud新增5件原创夹具138个连续官方update，17个类型均有真实block事件；公私标量/全部列表操作、PIXI监视器与DOM排行榜loading壳均已取证，双VM逐帧回归已通过，见 k4cloud-offline.md、k4cloud-coverage.md。在线服务、监视器布局/交互及排行榜壳仍未认证");
+      limitations.push("k4cloudui补105帧PIXI像素与排行榜DOM结构/文字对比，Web和原生已有匿名loading壳；监视器RGB容差8仍有非零残差、原生像素未验证，5项UI仍partial，见 k4cloudui.md / k4cloudui-evidence.json");
     }
     if (["set_actor_as", "physics2_enable_force", "set_velocity", "physics2_set_actor_as", "physics2_set_speed"].includes(row.type) && evidence.length) {
       limitations.push("第二轮 7 份原创物理夹具/210 帧官方实测：旧 exit 即时 static 清速、新 forceable/ticker 延迟和禁用动态体保速已修正；不声明跨求解器等价，见 kitten4-physics-partial.md");

@@ -15,7 +15,7 @@ const read = (id, value) => b('variables_set', { VAR: id }, { VALUE: value });
 const change = (id, value, method = 'increase') => b('change_cloud_variable', { valname: id, method }, { n: value });
 const item = (type, index) => list('get_value', { TYPE: type }, index === undefined ? {} : { INDEX: num(index) });
 
-export async function k4cloudFixtures() {
+export async function k4cloudFixtures({ ui = false } = {}) {
   const base = (await visualFixtures()).upright;
   const schema = (await readJson('docs/kitten4-block-schema.json')).blocks;
   const cases = {};
@@ -63,8 +63,31 @@ export async function k4cloudFixtures() {
     [b('show_ranking', { VAR: '?' }), read('invalid-shown', b('is_ranking_show_hide', { VAL: 'show' }))],
     [b('hide_ranking')],
   ];
+  if (ui) {
+    cases['ui-empty-rows'] = [
+      [b('show_hide_cloud_list', { VAR: 'items', FUNC: 'show' })],
+      [list('append', { POS: 'last' }, { VALUE: text('') })],
+      [list('append', { POS: 'last' }, { VALUE: text('A\nB') })],
+      [list('append', { POS: 'last' }, { VALUE: text('长文本 Long row 01234567890123456789') })],
+      [list('append', { POS: 'last' }, { VALUE: num(42) })],
+      [list('append', { POS: 'last' }, { VALUE: text('fifth') }), list('append', { POS: 'last' }, { VALUE: text('sixth') })],
+      [list('delete', { TYPE: 'all' })],
+      [b('show_hide_cloud_list', { VAR: 'items', FUNC: 'hide' })],
+    ];
+    cases['ui-ranking-values'] = [
+      [set('personal', num(42)), b('show_ranking', { VAR: 'personal' })],
+      [set('personal', num(99))],
+      [b('show_ranking', { VAR: 'shared' })],
+      [b('hide_ranking')],
+      [set('personal', text('123')), b('show_ranking', { VAR: 'personal' })],
+      [b('hide_ranking')],
+      [set('shared', num(12345678901)), b('show_ranking', { VAR: 'shared' })],
+      [b('hide_ranking')],
+    ];
+  }
   const result = {};
   for (const [name, steps] of Object.entries(cases)) {
+    if (ui && !name.startsWith('ui-')) continue;
     const project = structuredClone(base);
     project.project_name = `NekoC k4cloud ${name}`;
     project.cloud_variables = Object.fromEntries([['shared', 'public', 18], ['personal', 'private', 82], ['items', 'public_list', 146]].map(([id, type, y]) =>

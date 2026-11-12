@@ -6,6 +6,7 @@ use serde::Serialize;
 use serde_json::Value;
 mod calculate;
 mod cloud;
+pub mod cloud_ui;
 mod collision_geometry;
 mod extensions;
 mod input;
@@ -4996,6 +4997,7 @@ pub struct SpeechCommand {
 }
 #[derive(Clone, Debug, Serialize)]
 pub struct Frame {
+    pub cloud_ui: cloud_ui::CloudUi,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub extension_requests: Vec<crate::extensions::ExtensionRequest>,
     /// Ct.unset_brush_target can move the detached pen plane below media.
@@ -5668,6 +5670,7 @@ impl Engine {
         self.video_above_pen = false;
         let cloud_values = self.cloud_restart_values();
         self.cloud.ranking = None;
+        self.cloud.ranking_value = None;
         self.physics = None;
         self.slots.clone_from(&self.program.initial);
         self.lists = self
@@ -8701,6 +8704,7 @@ impl Engine {
             stage_dialog: self.pending_stage_dialog().cloned(),
             image_stamps: std::mem::take(&mut self.image_stamps),
             monitors: self.monitor_values(),
+            cloud_ui: self.cloud_ui(),
             clear: std::mem::take(&mut self.clear),
             active: self.active_tasks(),
             instructions: count,

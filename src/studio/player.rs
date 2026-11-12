@@ -1,3 +1,4 @@
+use super::overlay::{NativeOverlay, OverlayCatalog};
 use crate::engine::{Costume, Dialog, Engine, Program, SoftMesh, Sprite};
 use crate::runtime::{
     ActorState, DialogState, PenState, Runtime, RuntimeEvent, RuntimeSnapshot, RuntimeValue,
@@ -23,6 +24,7 @@ pub struct PreviewSnapshot {
     pub native_sprites: Option<Vec<NativeSprite>>,
     pub native_lines: Vec<[f32; 9]>,
     pub pen_layer: usize,
+    pub native_overlay: Option<NativeOverlay>,
 }
 
 /// Detached rendering fields only: Engine Sprite contains private Rc-backed VM
@@ -82,6 +84,7 @@ impl From<RuntimeSnapshot> for PreviewSnapshot {
             native_sprites: None,
             native_lines: vec![],
             pen_layer: 0,
+            native_overlay: None,
         }
     }
 }
@@ -92,17 +95,22 @@ struct NativePreview {
     engine: Engine,
     snapshot: PreviewSnapshot,
     mouse: [f64; 2],
+    overlays: OverlayCatalog,
 }
 
 impl NativePreview {
     fn new(project: &Value) -> Result<Self> {
         let engine = Engine::new(Program::compile(project)?);
         let state = Runtime::from_project(project)?.snapshot();
+        let overlays = OverlayCatalog::new(project);
+        let initial_overlay = overlays.initial(&engine);
         let mut preview = Self {
             engine,
             snapshot: state.into(),
             mouse: [0.0; 2],
+            overlays,
         };
+        preview.snapshot.native_overlay = Some(initial_overlay);
         preview.observe();
         Ok(preview)
     }
@@ -218,6 +226,7 @@ impl NativePreview {
                 .map(|v| <[f32; 9]>::try_from(v).unwrap()),
         );
         self.snapshot.pen_layer = frame.pen_layer;
+        self.snapshot.native_overlay = Some(self.overlays.frame(frame.monitors, &self.engine));
         self.snapshot.state.logs.extend(frame.logs);
         self.snapshot.state.ticks += 1;
         self.observe();
@@ -422,6 +431,59 @@ mod tests {
         assert_eq!(snapshot.ticks, 1);
         assert_eq!(snapshot.actors.len(), 1);
         assert!(snapshot.native_sprites.is_some());
+    }
+
+    #[test]
+    fn native_cloud_widgets_follow_official_frames_without_stepping_to_observe() {
+        let evidence: Value =
+            serde_json::from_str(include_str!("../../docs/k4cloudui-evidence.json")).unwrap();
+        for name in ["monitors", "ranking", "ui-empty-rows", "ui-ranking-values"] {
+            let source = crate::json::from_str(
+                &std::fs::read_to_string(format!("tests/fixtures/kitten4/k4cloud-{name}.bcm"))
+                    .unwrap(),
+            )
+            .unwrap();
+            let project = crate::kitten4::to_neko(&source).unwrap();
+            let mut preview = NativePreview::new(&project).unwrap();
+            preview.engine.start();
+            for expected in evidence["cases"][name]["frames"].as_array().unwrap() {
+                let snapshot = preview.tick(&[]).unwrap();
+                let overlay = snapshot.native_overlay.unwrap();
+                let official = &expected["official"];
+                let ids: Vec<_> = overlay
+                    .monitors
+                    .iter()
+                    .map(|m| m.monitor.id.as_str())
+                    .collect();
+                let wanted: Vec<_> = official["widgets"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .filter(|w| w["visible"] == true)
+                    .map(|w| w["id"].as_str().unwrap())
+                    .collect();
+                assert_eq!(ids, wanted, "{name} frame {}", expected["frame"]);
+                assert_eq!(
+                    overlay.ranking.is_some(),
+                    official["ranking"]["show"] == true
+                );
+                if let Some(ranking) = overlay.ranking {
+                    assert_eq!(ranking.score, official["ranking"]["value"].as_f64());
+                }
+                for monitor in overlay.monitors.iter().filter(|m| m.monitor.list) {
+                    let wanted: Vec<_> = official["items"]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .map(|v| match v {
+                            Value::String(s) => s.clone(),
+                            _ => v.to_string(),
+                        })
+                        .collect();
+                    assert_eq!(monitor.items.as_ref().unwrap(), &wanted);
+                }
+            }
+        }
     }
 
     #[cfg(feature = "studio")]
