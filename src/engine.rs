@@ -8554,6 +8554,19 @@ impl Engine {
         }
         value
     }
+    /// `self_move_to` after its operands are evaluated; shared by exec and the
+    /// JIT's position helper so both paths have identical effects.
+    #[inline]
+    fn set_position(&mut self, actor: usize, x: f64, y: f64, old: (f64, f64)) {
+        // Official K4 Tn6a/z/c ignores each nonfinite axis independently.
+        if x.is_finite() {
+            self.sprites[actor].x = x;
+        }
+        if y.is_finite() {
+            self.sprites[actor].y = y;
+        }
+        self.line(actor, old);
+    }
     fn line(&mut self, actor: usize, old: (f64, f64)) {
         let a = &mut self.sprites[actor];
         // Official a1xw/Rt records position changes independently of pen down.
@@ -8984,14 +8997,7 @@ impl Engine {
             Op::Position(x, y) => {
                 let x = self.eval(x, actor);
                 let y = self.eval(y, actor);
-                // Official K4 Tn6a/z/c ignores each nonfinite axis independently.
-                if x.is_finite() {
-                    self.sprites[actor].x = x;
-                }
-                if y.is_finite() {
-                    self.sprites[actor].y = y;
-                }
-                self.line(actor, old);
+                self.set_position(actor, x, y, old);
             }
             Op::X(e) => {
                 let value = self.eval(e, actor);

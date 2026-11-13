@@ -864,6 +864,33 @@ unsafe extern "C" fn h_exec(c: *mut NativeContext, pc: u64) -> u64 {
     }
 }
 
+/// `self_move_to` whose operands generated code already evaluated. Only used
+/// for strictly numeric operands (no side effects, cannot fail), so evaluating
+/// them before the output-limit check is unobservable. Same effects and exit
+/// codes as `h_transfer` running exec(Position).
+unsafe extern "C" fn h_position(c: *mut NativeContext, pc: u64, x: f64, y: f64) -> u64 {
+    let c = unsafe { &mut *c };
+    let _timing = timing::span(c.timing.as_ref(), "helper/position", pc as usize);
+    let engine = unsafe { &mut *c.engine };
+    if engine.output_limit_reached() {
+        return u64::MAX;
+    }
+    let pc = pc as usize;
+    engine.tasks[c.index].pc = pc + 1;
+    let actor = c.actor;
+    let old = (engine.sprites[actor].x, engine.sprites[actor].y);
+    engine.dirty[actor] = true;
+    engine.set_position(actor, x, y, old);
+    if let Some(error) = engine.value_error.take() {
+        engine.jit_error = Some(anyhow!("{error} at block {}", engine.program.sources[pc]));
+        return u64::MAX - 1;
+    }
+    if engine.output_limit_reached() {
+        return u64::MAX - 2;
+    }
+    unsafe { h_pc(c) }
+}
+
 /// Returns the new pc, MAX for an unexecuted op, MAX-1 for an executed error.
 unsafe extern "C" fn h_transfer(c: *mut NativeContext, pc: u64) -> u64 {
     match unsafe { h_exec(c, pc) } {
@@ -1007,6 +1034,22 @@ struct Gen<'a, 'b> {
 }
 
 impl Gen<'_, '_> {
+    /// Constants, numeric variables and arithmetic only: evaluation has no side
+    /// effects and cannot raise an error.
+    fn strictly_numeric(&self, e: Expr) -> bool {
+        let root = e.end as usize - 1;
+        (self.engine.program.expression_starts[root] as usize..=root).all(|i| {
+            matches!(
+                self.engine.program.expressions[i],
+                ExprOp::Constant(_)
+                    | ExprOp::Slot(_)
+                    | ExprOp::Local(_)
+                    | ExprOp::Binary(_)
+                    | ExprOp::Unary(_)
+            )
+        })
+    }
+
     /// Report an expression error at the instruction that evaluated it, before
     /// any successor runs. K4 assignments check before writing their target.
     fn check_error(&mut self, pc: usize, remaining: i64) {
@@ -1025,19 +1068,7 @@ impl Gen<'_, '_> {
             | Op::Repeat(e, _) => Some(e),
             _ => None,
         };
-        if expr.is_some_and(|e| {
-            let root = e.end as usize - 1;
-            (self.engine.program.expression_starts[root] as usize..=root).all(|i| {
-                matches!(
-                    self.engine.program.expressions[i],
-                    ExprOp::Constant(_)
-                        | ExprOp::Slot(_)
-                        | ExprOp::Local(_)
-                        | ExprOp::Binary(_)
-                        | ExprOp::Unary(_)
-                )
-            })
-        }) {
+        if expr.is_some_and(|e| self.strictly_numeric(e)) {
             return;
         }
         let site = self.b.ins().iconst(types::I64, pc as i64);
@@ -1602,16 +1633,25 @@ impl Gen<'_, '_> {
 
     /// Dedicated instruction helpers share MAX / MAX-1 exit sentinels.
     fn transfer_with(&mut self, helper: usize, pc: usize, remaining: i64) -> Value {
+        self.transfer_with_args(helper, pc, remaining, &[], &[])
+    }
+
+    /// `transfer_with` for a helper taking extra operands after (ctx, pc).
+    fn transfer_with_args(
+        &mut self,
+        helper: usize,
+        pc: usize,
+        remaining: i64,
+        types_extra: &[types::Type],
+        extra: &[Value],
+    ) -> Value {
         let at = self.b.ins().iconst(types::I64, pc as i64);
         let ctx = self.ctx;
-        let next = self
-            .call(
-                helper,
-                &[types::I64, types::I64],
-                Some(types::I64),
-                &[ctx, at],
-            )
-            .unwrap();
+        let mut params = vec![types::I64, types::I64];
+        params.extend_from_slice(types_extra);
+        let mut args = vec![ctx, at];
+        args.extend_from_slice(extra);
+        let next = self.call(helper, &params, Some(types::I64), &args).unwrap();
         let failed = self.b.ins().icmp_imm(IntCC::Equal, next, -1);
         let ok = self.b.create_block();
         let exit = self.b.create_block();
@@ -2054,6 +2094,18 @@ impl Gen<'_, '_> {
                     &[ctx, pop],
                 );
                 self.b.ins().jump(block(target), &[]);
+            }
+            Op::Position(x, y) if self.strictly_numeric(x) && self.strictly_numeric(y) => {
+                let x = self.expr(x.end as usize - 1);
+                let y = self.expr(y.end as usize - 1);
+                self.transfer_with_args(
+                    h_position as *const () as usize,
+                    pc,
+                    remaining,
+                    &[types::F64, types::F64],
+                    &[x, y],
+                );
+                self.b.ins().jump(block(pc + 1), &[]);
             }
             _ => {
                 self.transfer(pc, remaining);
