@@ -2516,3 +2516,21 @@ fn pen_clear_removes_colour_and_other_projects_keep_no_raster() {
     let plain = project(movement(10.0));
     assert!(!Program::compile(&plain).unwrap().uses_color);
 }
+
+#[test]
+fn broadcast_matches_literal_and_computed_listener_messages_alike() {
+    let mut p = project(broadcast("self_broadcast", text("go")));
+    add_hat(&mut p, listener("go", log_value(text("literal")), false));
+    add_hat(&mut p, listener("gox", log_value(text("near miss")), false));
+    add_hat(
+        &mut p,
+        json!({"type":"self_listen","inputs":{"message":{"type":"text_join",
+            "inputs":{"ADD0":text("g"),"ADD1":text("o")}}},
+            "statements":{"DO":log_value(text("computed"))}}),
+    );
+    let mut vm = Engine::new(Program::compile(&p).unwrap());
+    vm.start();
+    let mut logs = (0..3).flat_map(|_| frame(&mut vm).logs).collect::<Vec<_>>();
+    logs.sort();
+    assert_eq!(logs, ["computed", "literal"]);
+}
