@@ -6052,7 +6052,9 @@ impl Engine {
         if message == "?" {
             return Ok(());
         }
-        self.received.insert(message.clone());
+        if !self.received.contains(&message) {
+            self.received.insert(message.clone());
+        }
         let parent = self.current_task;
         // Evaluate listener expressions in the sender context; each receiver gets
         // fresh script locals and its own payload slot (list identity is preserved).
@@ -6064,7 +6066,16 @@ impl Engine {
             if !self.in_active_scene(actor) {
                 continue;
             }
-            if self.eval_value(value, actor).text() != message {
+            // A literal message name (the usual case) needs no evaluation or
+            // allocation; anything else is evaluated in the sender context.
+            let matches = if let ValueExpr::Constant(c) = self.program.values[value]
+                && let Cell::Text(text) = &self.program.constants[c]
+            {
+                **text == *message
+            } else {
+                self.eval_value(value, actor).text() == message
+            };
+            if !matches {
                 continue;
             }
             for target in self.instances(actor) {
