@@ -21,6 +21,7 @@ pub mod kitten4;
 pub mod kitten4_compiler;
 pub mod optimizer;
 pub mod pack;
+pub mod player;
 pub mod project;
 pub mod runtime;
 pub mod scenario;

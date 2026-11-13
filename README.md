@@ -110,6 +110,7 @@ node tools/editor-compat.mjs hello.bcmkn
 - **[Kitten 4 积木覆盖](docs/kitten4-block-coverage.md)** / **[Kitten N 积木覆盖](docs/kn-block-coverage.md)**：逐个积木的实现、部分语义和设备降级状态。
 - **[性能基准](docs/performance.md)**：与官方离线 Kitten 4 内核、HateNeko 的同场实测，含计量边界和不可比项。
 - **[扩展接口](docs/extensions.md)**：用 Rust trait 或 JS 注册自定义积木和设备。
+- **[播放器后端 SDK](docs/player-sdk.md)**：`nekoc::player`，把播放器运行时接到任意宿主（WebSocket、stdio、桌面壳、无头测试），含线上协议和帧格式。
 - **[源码分析与最初的原生原型](docs/kitten-n-rust-rewrite.md)**：源码梳理和第一阶段重写记录；主界面之后已迁到 Web Studio。
 - **[RGB 画笔显示器](modules/pen-display/README.md)**：RGB888 帧缓冲，可配置分辨率和目标刷新率；[可运行示例](samples/pen_display.bcmkn)。
 - **[全舞台快速单角色渲染器](samples/pen_display_fast.bcmkn)**：896×560 舞台单位下的增量 RGB 画笔绘制；[源码](samples/pen_display_fast.ts)、[运行时源码分析](docs/kitten-n-runtime-findings.md)。
