@@ -2,9 +2,13 @@ use anyhow::{Context, Result, bail, ensure};
 use clap::Parser;
 use nekoc::engine::{Engine, Program};
 use nekoc::json::Json;
+use nekoc::player::{
+    Handshake, KITTEN4_METADATA, MAX_FRAME_REQUEST_BYTES, MAX_PROJECT_BYTES, PROTOCOL_VERSION,
+    Player, Reply, check_project_shape, import as import_project, is_kitten4_project,
+};
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
-use std::{path::PathBuf, time::Duration};
+use std::path::PathBuf;
 use tiny_http::{Header, Method, Request, Response, Server, StatusCode};
 use tungstenite::{
     Message, WebSocket,
@@ -110,8 +114,6 @@ impl ImportCache {
 }
 
 const EXTENSION_ORIGIN: &str = "chrome-extension://aghbhbjmpgklpbgoeopacommcdjmeghj";
-const MAX_PROJECT_BYTES: usize = 64 * 1024 * 1024;
-const MAX_FRAME_REQUEST_BYTES: usize = 32 * 1024 * 1024;
 
 #[derive(Parser)]
 #[command(about = "NekoC Web Studio — Rust bytecode VM + incremental WebGL2 renderer")]
@@ -161,156 +163,6 @@ fn body(request: &mut Request) -> Result<Json> {
     ensure!(bytes.len() <= MAX_PROJECT_BYTES, "project exceeds 64 MiB");
     nekoc::json::from_slice(&bytes)
 }
-const KITTEN4_METADATA: &str = "_nekocKitten4";
-
-mod base64_mask {
-    /// Standard base64 (no line breaks); None on any invalid character.
-    pub fn decode(text: &str) -> Option<Vec<u8>> {
-        let value = |c: u8| -> Option<u32> {
-            Some(match c {
-                b'A'..=b'Z' => c - b'A',
-                b'a'..=b'z' => c - b'a' + 26,
-                b'0'..=b'9' => c - b'0' + 52,
-                b'+' => 62,
-                b'/' => 63,
-                _ => return None,
-            } as u32)
-        };
-        let bytes = text.trim_end_matches('=').as_bytes();
-        let mut out = Vec::with_capacity(bytes.len() * 3 / 4);
-        for chunk in bytes.chunks(4) {
-            let mut n = 0;
-            for (i, &c) in chunk.iter().enumerate() {
-                n |= value(c)? << (18 - 6 * i);
-            }
-            out.push((n >> 16) as u8);
-            if chunk.len() > 2 {
-                out.push((n >> 8) as u8);
-            }
-            if chunk.len() > 3 {
-                out.push(n as u8);
-            }
-        }
-        Some(out)
-    }
-}
-
-fn is_kitten4_project(project: &Value) -> bool {
-    project.get(KITTEN4_METADATA).is_some()
-}
-
-// Check the editor's structural requirements before diagnostics or runtime code
-// traverses the document. Unsupported opcodes remain importable and exportable.
-fn check_project_shape(project: &Value) -> Result<()> {
-    ensure!(project.is_object(), "expected project object");
-    if let Some(tool) = project.get("toolType") {
-        ensure!(
-            tool == "KN",
-            "编辑器需要规范 KN JSON；Kitten4 .bcm 请使用导入"
-        );
-    }
-    for path in ["/scenes/scenesDict", "/actors/actorsDict"] {
-        ensure!(
-            project.pointer(path).is_some_and(Value::is_object),
-            "project requires object {path}"
-        );
-    }
-    for path in [
-        "/scenes/scenesDict",
-        "/actors/actorsDict",
-        "/procedures/proceduresDict",
-    ] {
-        if let Some(owners) = project.pointer(path) {
-            let owners = owners
-                .as_object()
-                .with_context(|| format!("expected object {path}"))?;
-            for (id, owner) in owners {
-                ensure!(owner.is_object(), "expected object {path}/{id}");
-                if let Some(blocks) = owner.get("nekoBlockJsonList") {
-                    let blocks = blocks
-                        .as_array()
-                        .context("nekoBlockJsonList must be an array")?;
-                    for block in blocks {
-                        check_block_shape(block, 0)?;
-                    }
-                }
-                if let Some(ids) = owner.get("actorIds") {
-                    ensure!(
-                        ids.as_array()
-                            .is_some_and(|ids| ids.iter().all(Value::is_string)),
-                        "actorIds must be an array of strings"
-                    );
-                }
-            }
-        }
-    }
-    if let Some(metadata) = project.get(KITTEN4_METADATA) {
-        ensure!(
-            metadata.is_object(),
-            "Kitten4 保真元数据 {KITTEN4_METADATA} 必须是对象"
-        );
-    }
-    Ok(())
-}
-
-fn check_block_shape(block: &Value, depth: usize) -> Result<()> {
-    let mut pending = vec![(block, depth)];
-    while let Some((block, depth)) = pending.pop() {
-        ensure!(
-            depth <= nekoc::json::MAX_BLOCK_DEPTH,
-            "block nesting exceeds {} at block {} ({})",
-            nekoc::json::MAX_BLOCK_DEPTH,
-            block["id"],
-            block["type"]
-        );
-        ensure!(
-            block.is_object() && block["type"].is_string(),
-            "block must be an object with a string type"
-        );
-        if let Some(fields) = block.get("fields") {
-            ensure!(fields.is_object(), "block fields must be an object");
-        }
-        for key in ["inputs", "statements"] {
-            if let Some(children) = block.get(key) {
-                let children = children
-                    .as_object()
-                    .with_context(|| format!("block {key} must be an object"))?;
-                for child in children.values() {
-                    if key == "statements" && child.is_null() {
-                        continue;
-                    }
-                    pending.push((child, depth + 1));
-                }
-            }
-        }
-        if let Some(next) = block.get("next").filter(|v| !v.is_null()) {
-            pending.push((next, depth));
-        }
-    }
-    Ok(())
-}
-
-fn import_project(value: Json) -> Result<(Json, Json)> {
-    let value = if nekoc::kitten4::is_kitten4(&value) {
-        nekoc::kitten4::to_neko(&value)?
-    } else {
-        value
-    };
-    check_project_shape(&value)?;
-    let (value, mut report) = nekoc::bcmkn::import(value)?;
-    if is_kitten4_project(&value) {
-        // Reject forged/incomplete provenance before it becomes the active project.
-        nekoc::kitten4::from_neko(&value)?;
-        report["format"] = json!("kitten4-json");
-    }
-    report["export_extension"] = json!(if is_kitten4_project(&value) {
-        "bcm"
-    } else {
-        "bcmkn"
-    });
-    report["editor_format"] = json!("bcmkn-json");
-    Ok((value, Json::new(report)))
-}
 
 fn edited_project(value: Json, previous: &Value) -> Result<Json> {
     check_project_shape(&value)?;
@@ -336,249 +188,6 @@ fn export_project(value: &Value) -> Result<Json> {
         Ok(exported)
     }
 }
-fn frame_budget(payload: &Value) -> Duration {
-    // Playback settings are per request/connection; existing editor requests use 4ms.
-    Duration::from_secs_f64(
-        payload["budget_ms"]
-            .as_f64()
-            .filter(|value| value.is_finite())
-            .unwrap_or(4.0)
-            .clamp(1.0, 16.0)
-            / 1000.0,
-    )
-}
-
-fn frame_bytes(vm: &mut Engine, payload: &Value) -> Result<Vec<u8>> {
-    if let Some(microphone) = payload.get("kn_microphone") {
-        match microphone["status"].as_str() {
-            Some("ready") => vm.set_kn_voice_volume(Some(
-                microphone["value"]
-                    .as_f64()
-                    .context("ready KN microphone sample requires a number")?,
-            ))?,
-            Some("pending") => vm.set_kn_voice_pending(),
-            Some("denied" | "unavailable") => vm.set_kn_voice_volume(Some(0.0))?,
-            _ => bail!("invalid KN microphone status"),
-        }
-    }
-    if let Some(pressed) = payload["pressed"].as_array() {
-        vm.set_pressed_keys(
-            pressed
-                .iter()
-                .take(256)
-                .filter_map(Value::as_str)
-                .map(str::to_owned),
-        );
-    }
-    if let Some(keys) = payload["keys"].as_array() {
-        for key in keys.iter().take(64).filter_map(Value::as_str) {
-            vm.key(key);
-        }
-    }
-    // Costume sizes and opacity masks, measured once by the viewer after decoding.
-    if let Some(costumes) = payload["costumes"].as_array() {
-        for costume in costumes.iter().take(4096) {
-            let (Some(id), Some(width), Some(height)) = (
-                costume["id"].as_str(),
-                costume["width"].as_f64(),
-                costume["height"].as_f64(),
-            ) else {
-                continue;
-            };
-            let mask = (|| {
-                use base64_mask::decode;
-                let (w, h) = (
-                    costume["mask_width"].as_u64()?,
-                    costume["mask_height"].as_u64()?,
-                );
-                let bits = decode(costume["mask"].as_str()?)?;
-                (w * h <= 512 * 512 && bits.len() as u64 >= (w * h).div_ceil(8))
-                    .then_some((w as usize, h as usize, bits))
-            })();
-            // RGB per mask cell, only sent when the project senses colours.
-            let rgb = mask.as_ref().and_then(|(w, h, _)| {
-                let rgb = base64_mask::decode(costume["rgb"].as_str()?)?;
-                (rgb.len() == w * h * 3).then_some(rgb)
-            });
-            vm.set_costume(
-                id,
-                nekoc::engine::Costume {
-                    width,
-                    height,
-                    center_point: nekoc::engine::Costume::center_point_from_json(
-                        &costume["centerPoint"],
-                    ),
-                    mask,
-                    rgb,
-                },
-            );
-        }
-    }
-    if let Some(videos) = payload["videos"].as_array() {
-        for video in videos.iter().take(4096) {
-            if let (Some(id), Some(duration)) = (video["id"].as_str(), video["duration"].as_f64()) {
-                vm.set_video_duration(id, duration);
-                if let (Some(width), Some(height)) =
-                    (video["width"].as_f64(), video["height"].as_f64())
-                {
-                    vm.set_video_metadata(id, duration, width, height);
-                }
-            }
-        }
-    }
-    if let Some(offset) = payload["utc_offset"].as_f64() {
-        vm.set_utc_offset(offset);
-    }
-    if let (Some(x), Some(y)) = (
-        payload["mouse"]["x"].as_f64(),
-        payload["mouse"]["y"].as_f64(),
-    ) {
-        vm.set_mouse(x, y);
-    }
-    if let Some(events) = payload["events"].as_array() {
-        for event in events.iter().take(256) {
-            match event["kind"].as_str() {
-                Some("key") => {
-                    if let (Some(key), Some(down)) =
-                        (event["key"].as_str(), event["down"].as_bool())
-                    {
-                        vm.key_event(key, down);
-                    }
-                }
-                Some("audio_done") => {
-                    if let Some(id) = event["id"].as_u64() {
-                        vm.audio_finished(id);
-                    }
-                }
-                Some("extension_result") => {
-                    if let Some(id) = event["id"].as_u64() {
-                        let result = if let Some(error) = event["error"].as_str() {
-                            Err(error.to_owned())
-                        } else {
-                            Ok(event
-                                .get("value")
-                                .context("extension result missing value")?
-                                .clone())
-                        };
-                        vm.complete_extension(id, result)?;
-                    }
-                }
-                Some("extension_event") => {
-                    let opcode = event["opcode"]
-                        .as_str()
-                        .context("extension event missing opcode")?;
-                    let value = event
-                        .get("value")
-                        .context("extension event missing value")?
-                        .clone();
-                    vm.emit_extension_event(opcode, value)?;
-                }
-                Some("drag") => {
-                    if let (Some(target), Some(x), Some(y)) = (
-                        event["target"].as_str(),
-                        event["x"].as_f64(),
-                        event["y"].as_f64(),
-                    ) {
-                        vm.drag(target, x, y);
-                    }
-                }
-                Some("swipe") => {
-                    if let Some(direction) = event["direction"].as_str() {
-                        vm.swipe(direction);
-                    }
-                }
-                Some("answer") => {
-                    if let Some(id) = event["id"].as_u64() {
-                        vm.answer(
-                            id,
-                            event["text"].as_str().unwrap_or(""),
-                            event["choice"].as_u64().map(|c| c as usize),
-                        );
-                    }
-                }
-                Some("stage_dialog_click") => {
-                    if let Some(id) = event["id"].as_u64() {
-                        vm.stage_dialog_click(id);
-                    }
-                }
-                Some("ranking_close") => vm.close_cloud_ranking(),
-                Some("pointer") => {
-                    if let (Some(state), Some(x), Some(y)) = (
-                        event["state"].as_str(),
-                        event["x"].as_f64(),
-                        event["y"].as_f64(),
-                    ) {
-                        vm.pointer_event(event["target"].as_str().unwrap_or(""), state, x, y);
-                    }
-                }
-                Some("device_motion") => {
-                    if let (Some(x), Some(y), Some(z)) = (
-                        event["x"].as_f64(),
-                        event["y"].as_f64(),
-                        event["z"].as_f64(),
-                    ) {
-                        vm.inject_k4_device(nekoc::device::DeviceInput::Motion { x, y, z });
-                    }
-                }
-                Some("device_orientation") => {
-                    if let (Some(beta), Some(gamma), Some(portrait)) = (
-                        event["beta"].as_f64(),
-                        event["gamma"].as_f64(),
-                        event["portrait"].as_bool(),
-                    ) {
-                        vm.inject_k4_device(nekoc::device::DeviceInput::Orientation {
-                            beta,
-                            gamma,
-                            portrait,
-                        });
-                    }
-                }
-                Some("device_event") => {
-                    if let (Some(action), Some(device), Some(value)) = (
-                        event["action"].as_str(),
-                        event["device"].as_str(),
-                        event["value"].as_str(),
-                    ) {
-                        vm.inject_k4_device(nekoc::device::DeviceInput::Event {
-                            action: action.into(),
-                            device: device.into(),
-                            value: value.into(),
-                        });
-                    }
-                }
-                Some("mobile_button") => {
-                    if let (Some(device), Some(button_event), Some(button)) = (
-                        event["device"].as_str(),
-                        event["event"].as_str(),
-                        event["button"].as_str(),
-                    ) {
-                        vm.inject_k4_device(nekoc::device::DeviceInput::Button {
-                            device: device.into(),
-                            event: button_event.into(),
-                            button: button.into(),
-                        });
-                    }
-                }
-                _ => {}
-            }
-        }
-    }
-    // Opt-in: keep running ticks that produced no visible change (max 16 per frame).
-    let ticks = if payload["coalesce"].as_bool() == Some(true) {
-        16
-    } else {
-        1
-    };
-    let frame = vm.advance_with(
-        payload["dt"].as_f64().unwrap_or(1.0 / 60.0),
-        usize::MAX,
-        frame_budget(payload),
-        ticks,
-    )?;
-    let bytes = nekoc::engine::encode_frame(&frame)?;
-    vm.recycle_lines(frame.lines);
-    Ok(bytes)
-}
 fn player_socket(request: Request, project: Option<Json>, cloud: CloudSession) -> Result<()> {
     let key = request
         .headers()
@@ -602,44 +211,12 @@ fn player_socket(request: Request, project: Option<Json>, cloud: CloudSession) -
         let mut socket = WebSocket::from_raw_socket(stream, Role::Server, Some(config));
         let result = (|| -> Result<()> {
             // Private players supply their own snapshot on this connection; no global import race.
-            let mut registry = nekoc::extensions::ExtensionRegistry::new();
-            let mut extension_api_version = None;
-            let project = if let Some(project) = project {
-                project
+            let handshake = if let Some(project) = project {
+                Handshake::new(project)
             } else {
                 let message = socket.read()?;
                 ensure!(message.is_text(), "expected project JSON handshake");
-                let mut project = nekoc::json::from_str(message.to_text()?)?;
-                if project["nekoc_extension_handshake"] == 1 {
-                    let schemas: Vec<nekoc::extensions::BlockSchema> =
-                        serde_json::from_value(project["extensions"].clone())?;
-                    ensure!(schemas.len() <= 256, "too many remote extensions");
-                    let versions: Vec<u32> = if project.get("extension_api_versions").is_some() {
-                        serde_json::from_value(project["extension_api_versions"].clone())?
-                    } else {
-                        vec![1]
-                    };
-                    ensure!(versions.len() <= 16, "too many extension API versions");
-                    let version = nekoc::extensions::negotiate_version(&versions)?;
-                    ensure!(
-                        schemas.iter().all(|schema| schema.api_version <= version),
-                        "extension schema exceeds negotiated API version"
-                    );
-                    extension_api_version = Some(version);
-                    if version == 2 {
-                        registry.set_call_policy(nekoc::extensions::CallPolicy {
-                            errors: nekoc::extensions::ErrorPolicy::Report,
-                            ..Default::default()
-                        })?;
-                    }
-                    // No network opt-in on the wire: project data cannot grant capabilities.
-                    for schema in schemas {
-                        registry.register_remote(schema)?;
-                    }
-                    project = nekoc::json::Json::new(project["project"].take());
-                }
-                check_project_shape(&project)?;
-                project
+                Handshake::parse(message.to_text()?)?
             };
             // Frame requests are small, except the one-time costume info (opacity
             // masks, plus per-cell RGB for colour sensing) which can reach megabytes.
@@ -647,28 +224,14 @@ fn player_socket(request: Request, project: Option<Json>, cloud: CloudSession) -
                 config.max_message_size = Some(MAX_FRAME_REQUEST_BYTES);
                 config.max_frame_size = Some(MAX_FRAME_REQUEST_BYTES);
             });
-            let program = Program::compile_with_extensions(&project, &registry)?;
-            let stats = program.stats();
-            let mut vm = Engine::new(program);
-            vm.use_browser_audio();
-            cloud.attach(&mut vm)?;
-            vm.start();
-            socket.send(Message::Text(
-                json!({"ready":true,"stats":stats,"extension_api_version":extension_api_version})
-                    .to_string(),
-            ))?;
+            let mut player = Player::load_with(handshake, |vm| cloud.attach(vm))?;
+            socket.send(Message::Text(player.ready_message()))?;
             loop {
                 match socket.read()? {
-                    Message::Text(text) => {
-                        let payload = nekoc::json::from_str(&text)?;
-                        if payload["debug_snapshot"] == true {
-                            socket.send(Message::Text(
-                                json!({"snapshot":vm.debug_snapshot()}).to_string(),
-                            ))?;
-                        } else {
-                            socket.send(Message::Binary(frame_bytes(&mut vm, &payload)?))?;
-                        }
-                    }
+                    Message::Text(text) => match player.handle(&text)? {
+                        Reply::Text(text) => socket.send(Message::Text(text))?,
+                        Reply::Binary(bytes) => socket.send(Message::Binary(bytes))?,
+                    },
                     Message::Close(_) => {
                         let _ = socket.flush();
                         return Ok(());
@@ -679,9 +242,7 @@ fn player_socket(request: Request, project: Option<Json>, cloud: CloudSession) -
             }
         })();
         if let Err(error) = result {
-            let _ = socket.send(Message::Text(
-                json!({"error":format!("{error:#}")}).to_string(),
-            ));
+            let _ = socket.send(Message::Text(nekoc::player::error_message(&error)));
             let _ = socket.close(None);
         }
     });
@@ -904,7 +465,7 @@ fn serve_with_cloud(initial: Json, port: u16, cloud: CloudSession) -> Result<()>
     println!(
         "NekoC Web Studio: http://127.0.0.1:{port}\nRust VM / binary frame transport / WebGL2 persistent pen surface"
     );
-    let mut engine: Option<Engine> = None;
+    let mut engine: Option<Player> = None;
     for mut request in server.incoming_requests() {
         let url = request.url().to_owned();
         // Same-origin local API. Do not expose filesystem operations to the page.
@@ -945,7 +506,9 @@ fn serve_with_cloud(initial: Json, port: u16, cloud: CloudSession) -> Result<()>
                     request,
                     200,
                     "application/json",
-                    br#"{"ok":true,"player_protocol":2}"#.to_vec(),
+                    json!({"ok":true,"player_protocol":PROTOCOL_VERSION})
+                        .to_string()
+                        .into_bytes(),
                 );
                 continue;
             }
@@ -1114,11 +677,7 @@ fn serve_with_cloud(initial: Json, port: u16, cloud: CloudSession) -> Result<()>
                     let compiled = Program::compile(&project)?;
                     let stats = compiled.stats();
                     if url == "/api/start" {
-                        let mut vm = Engine::new(compiled);
-                        vm.use_browser_audio();
-                        cloud.attach(&mut vm)?;
-                        vm.start();
-                        engine = Some(vm);
+                        engine = Some(Player::start(compiled, |vm| cloud.attach(vm))?);
                     }
                     json!({"ok":true,"stats":stats})
                 }
@@ -1127,8 +686,8 @@ fn serve_with_cloud(initial: Json, port: u16, cloud: CloudSession) -> Result<()>
                     json!({"ok":true})
                 }
                 "/api/frame" => {
-                    let vm = engine.as_mut().context("runtime is not started")?;
-                    let bytes = frame_bytes(vm, &payload)?;
+                    let player = engine.as_mut().context("runtime is not started")?;
+                    let bytes = player.frame_json(&payload)?;
                     return Ok(("application/octet-stream".into(), bytes));
                 }
                 _ => bail!("unknown endpoint {url}"),
@@ -1160,65 +719,25 @@ mod tests {
             cloud_user: "alice".into(),
             ..Default::default()
         });
-        let make = |text: &str| {
+        let make = |text: &str, cloud: &CloudSession| {
             let source = nekoc::json::from_str(text).unwrap();
-            Engine::new(Program::compile(&nekoc::kitten4::to_neko(&source).unwrap()).unwrap())
+            let program = Program::compile(&nekoc::kitten4::to_neko(&source).unwrap()).unwrap();
+            Player::start(program, |vm| cloud.attach(vm)).unwrap()
         };
-        let mut writer = make(include_str!(
-            "../../tests/fixtures/kitten4/cloud-writes.bcm"
-        ));
-        cloud.attach(&mut writer).unwrap();
-        writer.start();
-        frame_bytes(
-            &mut writer,
-            &json!({"cloud_file":"not-authorized.json","cloud_namespace":"other"}),
-        )
-        .unwrap();
-        let mut reader = make(include_str!(
-            "../../tests/fixtures/kitten4/cloud-defaults.bcm"
-        ));
-        cloud.clone().attach(&mut reader).unwrap();
-        reader.start();
-        frame_bytes(&mut reader, &json!({})).unwrap();
-        assert_eq!(reader.variable_text("public"), "room/message");
-        assert_eq!(reader.variable_text("private"), "7");
-    }
-
-    #[test]
-    fn frame_registers_pivot_with_costume_mask() {
-        for (pivot, expected) in [
-            (json!({"x":10,"y":6}), [10.0, 6.0]),
-            (json!({"x":"bad","y":6}), [0.0, 6.0]),
-            (Value::Null, [0.0, 0.0]),
-        ] {
-            let mut project = nekoc::studio::document::Document::blank().value().clone();
-            project["actors"]["actorsDict"]["nekoc-default-actor"]["nekoBlockJsonList"] = json!([{
-                "type":"on_running_group_activated","next":{
-                    "type":"console_log","inputs":{"console_log":{
-                        "type":"bump_into","fields":{"sprite":"__self","sprite1":"--mouse"}
-                    }}
-                }
-            }]);
-            let mut vm = Engine::new(Program::compile(&project).unwrap());
-            vm.start();
-            let payload = json!({"mouse":{"x":-expected[0]-5.0,"y":expected[1]+3.0},"costumes":[{
-                "id":"nekoc-costume","width":20,"height":12,"centerPoint":pivot,
-                "mask_width":2,"mask_height":1,"mask":"AQ=="
-            }]});
-            // The frame budget is wall-clock; a slow runner may need more than
-            // one frame to reach the log, so collect a few frames' worth.
-            let mut logs = Vec::new();
-            for _ in 0..10 {
-                let bytes = frame_bytes(&mut vm, &payload).unwrap();
-                let len = u32::from_le_bytes(bytes[..4].try_into().unwrap()) as usize;
-                let frame: Value = serde_json::from_slice(&bytes[4..4 + len]).unwrap();
-                logs.extend(frame["logs"].as_array().unwrap().iter().cloned());
-                if !logs.is_empty() {
-                    break;
-                }
-            }
-            assert_eq!(logs, [json!("1")]);
-        }
+        let mut writer = make(
+            include_str!("../../tests/fixtures/kitten4/cloud-writes.bcm"),
+            &cloud,
+        );
+        writer
+            .frame_json(&json!({"cloud_file":"not-authorized.json","cloud_namespace":"other"}))
+            .unwrap();
+        let mut reader = make(
+            include_str!("../../tests/fixtures/kitten4/cloud-defaults.bcm"),
+            &cloud.clone(),
+        );
+        reader.frame_json(&json!({})).unwrap();
+        assert_eq!(reader.engine().variable_text("public"), "room/message");
+        assert_eq!(reader.engine().variable_text("private"), "7");
     }
 
     #[test]
@@ -1302,20 +821,6 @@ mod tests {
         let previous = cache.0.as_ref().unwrap().response.clone();
         assert!(cache.import(json!({"toolType":"wrong"})).is_err());
         assert_eq!(cache.0.as_ref().unwrap().response, previous);
-    }
-
-    #[test]
-    fn playback_budget_is_bounded_and_editor_default_is_preserved() {
-        for (payload, millis) in [
-            (json!({}), 4),
-            (json!({"budget_ms":"bad"}), 4),
-            (json!({"budget_ms":0}), 1),
-            (json!({"budget_ms":-100}), 1),
-            (json!({"budget_ms":8}), 8),
-            (json!({"budget_ms":1e100}), 16),
-        ] {
-            assert_eq!(frame_budget(&payload), Duration::from_millis(millis));
-        }
     }
 
     #[test]
