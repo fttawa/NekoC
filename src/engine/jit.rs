@@ -864,10 +864,12 @@ unsafe extern "C" fn h_exec(c: *mut NativeContext, pc: u64) -> u64 {
     }
 }
 
-/// `self_move_to` whose operands generated code already evaluated. Only used
-/// for strictly numeric operands (no side effects, cannot fail), so evaluating
-/// them before the output-limit check is unobservable. Same effects and exit
-/// codes as `h_transfer` running exec(Position).
+/// `self_move_to` whose operands generated code already evaluated (pure
+/// expressions, reporters included). Evaluating them before the output-limit
+/// check cannot double-evaluate: region entry checks the limit, every helper
+/// that produces output leaves the region with MAX-2 right after, and pure
+/// reporters produce none, so the early MAX return below is defensive only.
+/// Same effects and exit codes as `h_transfer` running exec(Position).
 unsafe extern "C" fn h_position(c: *mut NativeContext, pc: u64, x: f64, y: f64) -> u64 {
     let c = unsafe { &mut *c };
     let _timing = timing::span(c.timing.as_ref(), "helper/position", pc as usize);
@@ -2122,7 +2124,12 @@ impl Gen<'_, '_> {
                 );
                 self.b.ins().jump(block(target), &[]);
             }
-            Op::Position(x, y) if self.strictly_numeric(x) && self.strictly_numeric(y) => {
+            // Like exec: evaluate x then y (pure reporters included, as for
+            // Set), move, and only then report a pending value error.
+            Op::Position(x, y)
+                if self.engine.jit_pure_expr(x.end as usize - 1)
+                    && self.engine.jit_pure_expr(y.end as usize - 1) =>
+            {
                 let x = self.expr(x.end as usize - 1);
                 let y = self.expr(y.end as usize - 1);
                 self.transfer_with_args(
