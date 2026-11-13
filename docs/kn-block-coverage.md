@@ -94,10 +94,10 @@
 
 | # | 类型 | VM状态 | 官方面板证据类别 | VM/编译位置 | 测试源码线索 | 限制／未验证 |
 | ---: | --- | --- | --- | --- | --- | --- |
-| 1 | `__break__` | 有执行路径／未完整验证 | 官方代码API／非同名积木 | `src/engine.rs:4745` | T15 | 官方类型声明/API 伪名；编辑器实际积木为 break。此分派仅为兼容输入，非同名积木支持 |
+| 1 | `__break__` | 有执行路径／未完整验证 | 官方代码API／非同名积木 | `src/engine.rs:4746` | T15 | 官方类型声明/API 伪名；编辑器实际积木为 break。此分派仅为兼容输入，非同名积木支持 |
 | 2 | `_array_literal` | 有执行路径／未完整验证 | 已注册／本次面板未列出 | `src/engine.rs:2002`<br>`src/engine.rs:2820` | T15, T16, T31 | 官方 Object.values 与 items0… 已核实；NekoC 保留输入顺序/类型，完整参数绑定差分未验证 |
-| 3 | `_break_statement` | 有执行路径／未完整验证 | 已注册／本次面板未列出 | `src/engine.rs:4745` | T15 | 官方注册/JS 转换已验证；KN 原生播放中的嵌套退出与调度差分未验证 |
-| 4 | `_continue_statement` | 有执行路径／未完整验证 | 已注册／本次面板未列出 | `src/engine.rs:4753` | T15, T34 | 官方注册/JS 转换已验证；KN 原生播放中的作用域与调度差分未验证 |
+| 3 | `_break_statement` | 有执行路径／未完整验证 | 已注册／本次面板未列出 | `src/engine.rs:4746` | T15 | 官方注册/JS 转换已验证；KN 原生播放中的嵌套退出与调度差分未验证 |
+| 4 | `_continue_statement` | 有执行路径／未完整验证 | 已注册／本次面板未列出 | `src/engine.rs:4754` | T15, T34 | 官方注册/JS 转换已验证；KN 原生播放中的作用域与调度差分未验证 |
 | 5 | `_execute` | 有执行路径／未完整验证 | 已注册／本次面板未列出 | `src/engine.rs:3693` | T15, T33 | 官方域函数空体；NekoC 先求值 action 再丢弃结果，完整官方输入求值管线差分未验证 |
 | 6 | `_object_get` | 有执行路径／未完整验证 | 已注册／本次面板未列出 | `src/engine.rs:2004`<br>`src/engine.rs:2820` | T16, T18, T19, T21, T23, T24, T27, T33, T38 | KN 共享引用对象；属性缺失保留 undefined，完整 JS 原型链及特殊键未验证 |
 | 7 | `_object_literal` | 有执行路径／未完整验证 | 已注册／本次面板未列出 | `src/engine.rs:2003`<br>`src/engine.rs:2820` | T16, T23, T38 | KN 共享引用对象；官方字面量/属性读写有限样例有证据，完整 JS 原型链及全部 JSON 边界未验证 |
@@ -137,8 +137,8 @@
 | 41 | `clear_all_effects` | 有执行路径／未完整验证 | 普通面板配置／默认未隐藏 | `src/engine.rs:3947` | T35 | 有路径；完整语义未验证 |
 | 42 | `clear_drawing` | 有执行路径／未完整验证 | 普通面板配置／默认未隐藏 | `src/engine.rs:4474` | T7, T35 | 有路径；完整语义未验证 |
 | 43 | `close_self_dialog` | 有执行路径／未完整验证 | 普通面板配置／默认未隐藏 | `src/engine.rs:4126` | T13, T35 | 有路径；完整语义未验证 |
-| 44 | `console_log` | 有执行路径／未完整验证 | 普通面板配置／默认未隐藏 | `src/engine.rs:4650` | T2, T4, T6, T7, T13, T14, T15, T16, T17, T18, T19, T20, T21, T24, T27, T32, T33, T34, T35 | 有路径；完整语义未验证 |
-| 45 | `controls_while` | 有执行路径／未完整验证 | 已注册／本次面板未列出 | `src/engine.rs:4687` | T12, T15, T33, T34 | 官方注册/JS 转换已验证；NekoC 前测循环有回归，KN 原生播放调度差分未验证 |
+| 44 | `console_log` | 有执行路径／未完整验证 | 普通面板配置／默认未隐藏 | `src/engine.rs:4651` | T2, T4, T6, T7, T13, T14, T15, T16, T17, T18, T19, T20, T21, T24, T27, T32, T33, T34, T35 | 有路径；完整语义未验证 |
+| 45 | `controls_while` | 有执行路径／未完整验证 | 已注册／本次面板未列出 | `src/engine.rs:4688` | T12, T15, T33, T34 | 官方注册/JS 转换已验证；NekoC 前测循环有回归，KN 原生播放调度差分未验证 |
 | 46 | `convert_type` | 有执行路径／未完整验证 | 普通面板配置／默认未隐藏 | `src/engine.rs:2331`<br>`src/engine.rs:2820` | T6, T7, T16, T31, T35 | 常见类型/空值/列表对象的官方0.27.4主路径配对，见 docs/kn-partial2-timers.md；未验证边界：callable原型、Symbol、稀疏数组、孤立UTF-16及错误UI |
 | 47 | `coordinate_of_sprite` | 有执行路径／未完整验证 | 普通面板配置／默认未隐藏 | `src/engine.rs:2907` | T7, T20, T29, T35 | 有路径；完整语义未验证 |
 | 48 | `create_stage_dialog` | 有执行路径／未完整验证 | 普通面板配置／默认未隐藏 | `src/engine.rs:4100`<br>`src/engine.rs:4108` | T35 | 有路径；完整语义未验证 |
@@ -273,9 +273,9 @@
 | 177 | `received_broadcast` | 有执行路径／未完整验证 | 普通面板配置／默认未隐藏 | `src/engine.rs:2058`<br>`src/engine.rs:2820` | T7, T35 | 有路径；完整语义未验证 |
 | 178 | `recognize_body_part` | 部分语义 | 可配置面板／默认隐藏 | `src/engine.rs:1946`<br>`src/engine.rs:2726` | T24 | 仅无检测结果时 false；检测后端未实现 |
 | 179 | `recognize_gesture` | 部分语义 | 可配置面板／默认隐藏 | `src/engine.rs:1946`<br>`src/engine.rs:2726` | T24 | 仅无检测结果时 false；检测后端未实现 |
-| 180 | `repeat_forever` | 有执行路径／未完整验证 | 普通面板配置／默认未隐藏 | `src/engine.rs:4687` | T7, T15, T32, T34, T35, T39 | 有路径；完整语义未验证 |
-| 181 | `repeat_forever_until` | 有执行路径／未完整验证 | 普通面板配置／默认未隐藏 | `src/engine.rs:4687` | T7, T33, T34, T35 | 有路径；完整语义未验证 |
-| 182 | `repeat_n_times` | 有执行路径／未完整验证 | 普通面板配置／默认未隐藏 | `src/engine.rs:4687` | T1, T4, T6, T7, T9, T12, T14, T15, T16, T17, T18, T19, T20, T21, T23, T24, T27, T33, T34, T35, T38, T39 | 有路径；完整语义未验证 |
+| 180 | `repeat_forever` | 有执行路径／未完整验证 | 普通面板配置／默认未隐藏 | `src/engine.rs:4688` | T7, T12, T15, T32, T34, T35, T39 | 有路径；完整语义未验证 |
+| 181 | `repeat_forever_until` | 有执行路径／未完整验证 | 普通面板配置／默认未隐藏 | `src/engine.rs:4688` | T7, T33, T34, T35 | 有路径；完整语义未验证 |
+| 182 | `repeat_n_times` | 有执行路径／未完整验证 | 普通面板配置／默认未隐藏 | `src/engine.rs:4688` | T1, T4, T6, T7, T9, T12, T14, T15, T16, T17, T18, T19, T20, T21, T23, T24, T27, T33, T34, T35, T38, T39 | 有路径；完整语义未验证 |
 | 183 | `replace_list_item` | 有执行路径／未完整验证 | 普通面板配置／默认未隐藏 | `src/engine.rs:4498` | T7, T12, T35, T38 | 有路径；完整语义未验证 |
 | 184 | `reset_timer` | 有执行路径／未完整验证 | 已注册／本次面板未列出 | `src/engine.rs:3695` | T15 | 只重置独立 block timer，不改变舞台计时器；官方墙钟与 VM 仿真时钟差异未验证 |
 | 185 | `restart` | 有执行路径／未完整验证 | 普通面板配置／默认未隐藏 | `src/engine.rs:4066` | T7, T12, T35 | 有路径；完整语义未验证 |
@@ -374,7 +374,7 @@
 | 278 | `timer` | 有执行路径／未完整验证 | 普通面板配置／默认未隐藏 | `src/engine.rs:2898` | T7, T15, T35 | 有路径；完整语义未验证 |
 | 279 | `translate` | 部分语义 | 普通面板配置／默认未隐藏 | `src/engine.rs:3630` | T27 | 仅离线传输失败/空白提前返回；成功翻译与对话框未实现，Promise 相位未验证 |
 | 280 | `translate_result` | 部分语义 | 普通面板配置／默认未隐藏 | `src/engine.rs:1901`<br>`src/engine.rs:2717` | T24, T25, T27 | 仅离线失败/空白返回空文本并求值输入；成功翻译后端未实现，Promise 相位未验证 |
-| 281 | `traverse_number` | 有执行路径／未完整验证 | 普通面板配置／默认未隐藏 | `src/engine.rs:4714` | T7, T12, T15, T34, T35 | 有路径；完整语义未验证 |
+| 281 | `traverse_number` | 有执行路径／未完整验证 | 普通面板配置／默认未隐藏 | `src/engine.rs:4715` | T7, T12, T15, T34, T35 | 有路径；完整语义未验证 |
 | 282 | `traverse_number_param` | 元数据 | 已注册／本次面板未列出 | `src/engine.rs:1765 (compiler metadata)` | T7, T12, T15, T34, T35 | 非独立指令；由过程/循环编译消费 |
 | 283 | `traverse_number_value` | 有执行路径／未完整验证 | 已注册／本次面板未列出 | `src/engine.rs:2877` | T3, T7, T35 | 有路径；完整语义未验证 |
 | 284 | `update_ranking` | 部分语义 | 可配置面板／默认隐藏 | `src/engine.rs:3630` | T24, T27 | 仅本地未发布作品的无榜单提前返回；真实分数提交/持久化未实现 |
@@ -392,7 +392,7 @@
 | 296 | `wand_direction_when` | 部分语义 | 官方硬件扩展定义／未安装 | `src/engine.rs:3232` | T33 | 仅无硬件后端时注册休眠事件并验证事件体；自然设备事件不触发，真实派发未实现 |
 | 297 | `wand_reset_position` | 部分语义 | 官方硬件扩展定义／未安装 | `src/engine.rs:3581` | T33 | 仅无连接 Promise 早退，求值输入后下一 update 继续；真实设备未实现，完整微任务/调度组合未验证 |
 | 298 | `wand_rotation` | 部分语义 | 官方硬件扩展定义／未安装 | `src/engine.rs:1910`<br>`src/engine.rs:2726` | T19 | 仅空硬件 Map 时同步 numeric NaN；真实旋转与未连接提示 UI 未实现 |
-| 299 | `warp` | 有执行路径／未完整验证 | 可配置面板／默认隐藏 | `src/engine.rs:4672` | T1, T4, T6, T7, T9, T12, T14, T15, T17, T19, T23, T34, T35, T38, T39 | 有路径；完整语义未验证 |
+| 299 | `warp` | 有执行路径／未完整验证 | 可配置面板／默认隐藏 | `src/engine.rs:4673` | T1, T4, T6, T7, T9, T12, T14, T15, T17, T19, T23, T34, T35, T38, T39 | 有路径；完整语义未验证 |
 | 300 | `when` | 有执行路径／未完整验证 | 普通面板配置／默认未隐藏 | `src/engine.rs:3242`<br>`src/engine.rs:4413` | T7, T35 | 有路径；完整语义未验证 |
 
 ## 复现与更新
