@@ -182,18 +182,22 @@ pub(super) unsafe extern "C" fn h_next(c: *mut NativeContext, pc: u64) -> u64 {
     let Op::Next(target, false) = engine.program.ops[pc as usize] else {
         return unsafe { h_boundary(c, pc) };
     };
-    if engine.jit_profile.is_some()
+    let index = unsafe { (*c).index };
+    // Decide on the counter first: final iterations (common in short loops)
+    // go straight to the gateway without paying for the other checks twice.
+    if !engine.tasks[index]
+        .loops
+        .last()
+        .is_some_and(|&left| left > 1)
+        || engine.jit_profile.is_some()
         || engine.value_error.is_some()
         || unsafe { (*c).timing.is_some() }
         || engine.output_limit_reached()
     {
         return unsafe { h_boundary(c, pc) };
     }
-    let task = &mut engine.tasks[unsafe { (*c).index }];
-    match task.loops.last_mut() {
-        Some(left) if *left > 1 => *left -= 1,
-        _ => return unsafe { h_boundary(c, pc) },
-    }
+    let task = &mut engine.tasks[index];
+    *task.loops.last_mut().unwrap() -= 1;
     task.pc = target;
     if engine.warp_iteration_yields() {
         engine.jit_yield = true;
