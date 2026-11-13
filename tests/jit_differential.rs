@@ -2070,3 +2070,31 @@ fn unprofiled_native_repeat_tails_match_the_interpreter() {
         assert_eq!(vm.variable_text("last"), "NaN");
     }
 }
+
+#[test]
+fn hot_move_to_with_list_item_operands_matches_the_interpreter() {
+    use serde_json::json;
+    for k4 in [false, true] {
+        let list = json!({"type":"pure_list_get","fields":{"list":"items"}});
+        let index = json!({"type":"logic_ternary","inputs":{
+            "condition":{"type":"logic_compare","fields":{"OP":"GT"},"inputs":{"A":get("tick"),"B":num(850.0)}},
+            "ifTrue":num(9.0),"ifFalse":num(2.0)
+        }});
+        let body = chain(vec![
+            json!({"type":"change_variables","fields":{"variable":"tick"},"inputs":{"value":num(1.0)}}),
+            // Both operands are reporters: x reads a list item (out of range
+            // after tick 850), y the counter. Evaluation order and the error
+            // site must match exec.
+            json!({"type":"self_move_to","inputs":{
+                "x":{"type":"list_item","fields":{"item":"any"},"inputs":{"list":list,"list_index":index}},
+                "y":get("tick")}}),
+            set("after", get("tick")),
+        ]);
+        let mut p = private_project(body, json!(0), k4);
+        p["variables"]["variablesDict"]["items"] =
+            json!({"id":"items","type":"list","isGlobal":true,"value":[3, 7]});
+        let vm = compare_hot(&p, k4.then_some("lists_get_value_bad_index"));
+        assert_eq!(vm.variable_text("tick"), if k4 { "851" } else { "900" });
+        assert_eq!(vm.variable_text("after"), if k4 { "850" } else { "900" });
+    }
+}

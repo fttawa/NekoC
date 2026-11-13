@@ -2122,7 +2122,12 @@ impl Gen<'_, '_> {
                 );
                 self.b.ins().jump(block(target), &[]);
             }
-            Op::Position(x, y) if self.strictly_numeric(x) && self.strictly_numeric(y) => {
+            // Like exec: evaluate x then y (pure reporters included, as for
+            // Set), move, and only then report a pending value error.
+            Op::Position(x, y)
+                if self.engine.jit_pure_expr(x.end as usize - 1)
+                    && self.engine.jit_pure_expr(y.end as usize - 1) =>
+            {
                 let x = self.expr(x.end as usize - 1);
                 let y = self.expr(y.end as usize - 1);
                 self.transfer_with_args(
