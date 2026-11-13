@@ -44,6 +44,7 @@ mod clone_index;
 mod parameter_pool;
 mod physics;
 mod role_camp;
+mod slot_map;
 mod sprite_copy;
 mod stage_dialog;
 mod value;
@@ -565,7 +566,7 @@ pub struct Sprite {
     alive: bool,
     /// Independent per-entity cells. Clone creation deep-copies the current table.
     #[serde(skip)]
-    variables: BTreeMap<usize, Cell>,
+    variables: slot_map::SlotMap,
     #[serde(skip)]
     scene: usize,
     #[serde(skip)]
@@ -1354,7 +1355,7 @@ impl Program {
                 clone_index: 0,
                 empty_code: false,
                 alive: true,
-                variables: BTreeMap::new(),
+                variables: slot_map::SlotMap::new(),
                 scene: scene_index,
                 stage: true,
                 pen: false,
@@ -1416,7 +1417,7 @@ impl Program {
                     clone_index: 0,
                     empty_code: false,
                     alive: true,
-                    variables: BTreeMap::new(),
+                    variables: slot_map::SlotMap::new(),
                     scene: scene_index,
                     stage: false,
                     pen: false,
@@ -7514,7 +7515,7 @@ impl Engine {
     }
     /// Shared inheritance hook for clone/split implementations. Never copy defaults:
     /// official UserVariableImpl.clone_entity_variables copies the live source table.
-    fn copy_actor_variables(&self, source: usize) -> BTreeMap<usize, Cell> {
+    fn copy_actor_variables(&self, source: usize) -> slot_map::SlotMap {
         self.sprites[source]
             .variables
             .iter()
