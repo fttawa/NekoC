@@ -1,6 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {ProjectAudio} from '../web/audio.js';
+import {K4DeviceHost} from '../web/k4-device.js';
+import {PlayerConnection} from '../web/player.js';
+import {ExtensionRegistry} from '../web/extensions.js';
 
 // Synthetic browser-host tests, not official runtime or acoustic evidence.
 function setup(t) {
@@ -130,6 +133,24 @@ test('MIDI ignores null, fractional and out-of-range keys and avoids zero-length
   for(const key of [null,-1,87.5,88])audio.apply({k4_media:[{kind:'midi',key,seconds:.1,fade_seconds:.2}]});
   audio.apply({k4_media:[{kind:'midi',key:87,seconds:.1,fade_seconds:.2}]});
   assert.equal(oscillators.length,1);assert.ok(ramps.some(([kind,,time])=>kind==='ramp'&&time===4.1));
+});
+
+test('shared media frame routes MIDI and vibration once through the viewer consumers',t=>{
+  const {audio,errors}=setup(t),previous=globalThis.AudioContext,oscillators=[],vibrations=[];
+  class Oscillator {constructor(){this.frequency={value:0};oscillators.push(this);}connect(node){return node;}start(){}stop(){}disconnect(){}}
+  class Gain {constructor(){this.gain={setValueAtTime(){},linearRampToValueAtTime(){}};}connect(node){return node;}disconnect(){}}
+  class Context {constructor(){this.currentTime=0;this.destination={};}createOscillator(){return new Oscillator();}createGain(){return new Gain();}resume(){return Promise.resolve();}close(){return Promise.resolve();}}
+  globalThis.AudioContext=Context;
+  const host=new K4DeviceHost({navigator:{vibrate(pattern){vibrations.push(pattern);return true;}}});
+  const player=new PlayerConnection(new ExtensionRegistry(),host);
+  t.after(()=>{player.close();if(previous)globalThis.AudioContext=previous;else delete globalThis.AudioContext;});
+  const output=[{kind:'vibrate',pattern_ms:[250]},{kind:'midi',key:39,beats:.5,seconds:.375,fade_seconds:.375}];
+  const frame=JSON.parse(JSON.stringify({k4_media:output,k4_media_output:output})),saved=structuredClone(frame);
+  audio.resume();audio.apply(frame);player.applyFrame(frame);
+  assert.equal(oscillators.length,1);assert.deepEqual(vibrations,[[250]]);
+  assert.deepEqual(frame,saved);assert.deepEqual(errors,[]);
+  audio.apply({});player.applyFrame({});
+  assert.equal(oscillators.length,1);assert.deepEqual(vibrations,[[250]]);
 });
 
 test('MIDI context follows pause, unlock/resume, and stop lifecycle',async t=>{

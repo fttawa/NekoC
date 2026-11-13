@@ -235,6 +235,48 @@ fn midi_outputs_are_carried_by_the_frame_for_browser_hosts() {
 }
 
 #[test]
+fn browser_and_native_frames_deliver_midi_and_vibration_once() {
+    for publish in [false, true] {
+        for interpreted in [false, true] {
+            for browser in [false, true] {
+                let mut vm = engine(
+                    publish,
+                    interpreted,
+                    vec![start(vec![
+                        block("shock_duration", json!({}), json!({"duration":num(0.25)})),
+                        block(
+                            "midi_play_num_note",
+                            json!({}),
+                            json!({"num_note":num(40.0),"beats":num(0.5)}),
+                        ),
+                    ])],
+                );
+                if browser {
+                    vm.use_browser_audio();
+                }
+                let frame = tick(&mut vm);
+                let output = serde_json::to_value(&frame.k4_media_output).unwrap();
+                assert_eq!(output.as_array().unwrap().len(), 2);
+                assert_eq!(output[0], json!({"kind":"vibrate","pattern_ms":[250.0]}));
+                assert_eq!(output[1]["kind"], "midi");
+                assert_eq!(output[1]["key"], 39.0);
+                assert_eq!(output[1]["seconds"], 0.375);
+                if browser {
+                    assert_eq!(serde_json::to_value(&frame.k4_media).unwrap(), output);
+                } else {
+                    assert!(frame.k4_media.is_empty());
+                }
+                assert!(vm.take_k4_media_output().is_empty());
+                let next = tick(&mut vm);
+                assert!(next.k4_media.is_empty());
+                assert!(next.k4_media_output.is_empty());
+                assert!(vm.take_k4_media_output().is_empty());
+            }
+        }
+    }
+}
+
+#[test]
 fn midi_objects_bypass_numeric_key_conversion_and_invalid_beats_do_not_wait() {
     for publish in [false, true] {
         for interpreted in [false, true] {

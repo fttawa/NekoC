@@ -450,7 +450,7 @@ export function mappingStatus(root, rows) {
     }
     if (thirdMedia.has(row.type) && evidence.length) {
       semantics = "partial";
-      limitations.push("媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 的 MIDI 仅本地 WebAudio oscillator fallback，未验证官方 MP3/fade 竞态及音色；摄像头/录音/语音识别/设备硬件未接入，TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md");
+      limitations.push("媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 的 MIDI 仅本地 WebAudio oscillator fallback，未验证官方 MP3/fade 竞态及音色；浏览器传感器/震动桥已接线但真实设备效果未认证，摄像头/录音/语音识别 UI 和手机配对未接入；TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md、kitten4-device.md");
       if (["get_voice_answer", "get_recognition_result", "midi_get", "translate_result"].includes(row.type)) {
         limitations.push("第二轮原创官方离线实测默认 voice/scan、falsy translate 与 midi 对象最终值；异步帧相位、在线及实际设备未验证，见 kitten4-partial-text-2.md");
       }

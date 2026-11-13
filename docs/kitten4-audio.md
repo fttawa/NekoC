@@ -32,11 +32,11 @@ vendor Howler `HlzF` 的 `Howl.play` 位于 `48170`，`_inactiveSound` 位于 `6
 
 - 引擎继续以 `audio_commands` 表达普通资源声音；资源 volume/rate 是共享属性，正在播放和后续播放都收到同一资源的更新。
 - `play_audio_and_wait` 在 headless 模式按已知资源时长和资源速率推进确定性时钟；浏览器模式只接受真实 `audio_done`，stop 会释放对应等待。
-- `Frame.k4_media` 是 K4 设备输出的 additive 增量字段。MIDI 输出包含 `key`、`beats`、`seconds` 和 `fade_seconds`；旧的 `take_k4_media_output()` 宿主 API 同时保留。
+- `Frame.k4_media` 是浏览器音频的 additive 增量字段；浏览器模式下，`Frame.k4_media_output` 提供相同一批媒体输出供设备宿主消费。`web/audio.js` 仅处理 `midi`，`web/k4-device.js` 仅处理 `vibrate`，不能把两字段拼接后重复执行。MIDI 输出包含 `key`、`beats`、`seconds` 和 `fade_seconds`。
 - `web/audio.js` 消费 MIDI 事件时创建独立 oscillator/gain voice，频率按 `27.5 * 2^(key/12)` 映射 A0 起点。它是本地无资源音源的播放器实现，不宣称与官方钢琴 MP3 的音色或声学波形相同。
 - Web 播放的资源 voice 仍按资源 ID 复用空闲实例；属性更新按 `voice.id` 检查，避免重叠实例的键名（例如 `tone#1`）误创建额外 voice。
 - legacy `change_volume_or_rate` 与 `_2` 分开：旧入口接受正负 Infinity 后在资源处钳制，`_2` 的 change 忽略非有限 number。输出使用有限饱和增量保留符号，避免 JSON 非有限值丢失或把负无限增量误当零。
-- `use_browser_audio()` 同时启用 frame-only 媒体输出，避免未调用旧 take API 的 Web 宿主重复积累输出。原生宿主默认仍使用旧队列；两种队列均保留 1024 上限，浏览器 MIDI 同时 voice 上限为 128。
+- `use_browser_audio()` 同时启用 frame-only 媒体输出，避免未调用旧 take API 的 Web 宿主重复积累输出。原生宿主的 `advance()` 将兼容队列排入 `Frame.k4_media_output`，`k4_media` 留空；旧 `take_k4_media_output()` API 保留，但不能在已交付的帧后再次取得同一批输出。单帧/未消费队列上限均为 1024，浏览器 MIDI 同时 voice 上限为 128。
 
 ## 原创回归与未验证项
 
@@ -45,7 +45,7 @@ vendor Howler `HlzF` 的 `Howl.play` 位于 `48170`，`_inactiveSound` 位于 `6
 - volume `[0,1]`、rate `[0.05,4]` 的引擎属性路径及动态速率等待；
 - 同资源重播、逆序结束、资源级属性共享、stop/replay 的旧回调隔离；
 - MIDI 数字键边界、MIDI 对象 id、80 BPM 时长、解释器/JIT 路径和 `Frame.k4_media` 传递；
-- Web 音频 voice 复用、错误/结束回调隔离以及 MIDI WebAudio 事件参数。
+- Web 音频 voice 复用、错误/结束回调隔离以及 MIDI WebAudio 事件参数；workspace/published、解释器/JIT、browser/native 的同帧 MIDI+震动交付和下一帧不重放；Web 两消费者分别执行一次且不改写帧。
 
 这些测试不是官方实现的替代物。以下明确未验证：
 
