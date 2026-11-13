@@ -2007,11 +2007,37 @@ fn unprofiled_native_repeat_tails_match_the_interpreter() {
                 "y":get("x")}}),
         ]),
     )}});
+    // A disconnected micro:bit volume is undefined; KN list_item reads it as NaN,
+    // both by index (h_assign_item) and as the last item (h_assign_last_item).
+    p["variables"]["variablesDict"]["bag"] =
+        serde_json::json!({"id":"bag","type":"list","value":[],"isGlobal":true});
+    for id in ["second", "last"] {
+        p["variables"]["variablesDict"][id] =
+            serde_json::json!({"id":id,"value":0,"isGlobal":true});
+    }
+    let bag = serde_json::json!({"type":"pure_list_get","fields":{"list":"bag"}});
+    let last = serde_json::json!({"type":"list_item","fields":{"item":"last"},
+        "inputs":{"list":bag.clone(),"list_index":num(1.0)}});
+    let reading = chain(vec![
+        append(bag.clone(), num(5.0)),
+        append(
+            bag.clone(),
+            serde_json::json!({"type":"microbit_get_volume"}),
+        ),
+        // Forever, so the loop is still hot after the other scripts have used
+        // the first frames' compile budget.
+        serde_json::json!({"type":"repeat_forever","statements":{"DO":{"type":"warp",
+        "statements":{"DO":repeat(
+            700.0,
+            chain(vec![set("second", item(bag.clone(), 2.0)), set("last", last)]),
+        )}}}}),
+    ]);
     p["actors"]["actorsDict"]["nekoc-default-actor"]["nekoBlockJsonList"] = serde_json::json!([
         {"type":"on_running_group_activated","next":{"type":"repeat_forever",
             "statements":{"DO":counting}}},
         {"type":"on_running_group_activated","next":{"type":"self_pen_down","next":{
-            "type":"repeat_forever","statements":{"DO":drawing}}}}
+            "type":"repeat_forever","statements":{"DO":drawing}}}},
+        {"type":"on_running_group_activated","next":reading}
     ]);
     let mut a = engine(&p, false);
     let mut b = engine(&p, true);
@@ -2039,4 +2065,8 @@ fn unprofiled_native_repeat_tails_match_the_interpreter() {
     let passes = state["variables"]["frames"].as_f64().unwrap();
     assert!(passes > 0.0 && passes < 60.0, "{passes}");
     assert!(lines > 0);
+    for vm in [&a, &b] {
+        assert_eq!(vm.variable_text("second"), "NaN");
+        assert_eq!(vm.variable_text("last"), "NaN");
+    }
 }

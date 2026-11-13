@@ -979,12 +979,31 @@ unsafe extern "C" fn h_assign_item(c: *mut NativeContext, target: u64, list: u64
     let _timing = timing::span(c.timing.as_ref(), "helper/assign-item", target as usize);
     let engine = unsafe { &mut *c.engine };
     engine.check_list_index(at);
+    assign_item(engine, target, list, Some(at));
+}
+/// `target = last item of list`; same target encoding as `h_assign_item`.
+unsafe extern "C" fn h_assign_last_item(c: *mut NativeContext, target: u64, list: u64) {
+    let c = unsafe { &mut *c };
+    let _timing = timing::span(c.timing.as_ref(), "helper/assign-item", target as usize);
+    assign_item(unsafe { &mut *c.engine }, target, list, None);
+}
+/// Shared body of the assign-item helpers, mirroring `ValueExpr::Item` in
+/// `eval_value_one` followed by `Op::SetValue`.
+fn assign_item(engine: &mut Engine, target: u64, list: u64, at: Option<f64>) {
     let cell = engine
         .resolve_list(key_list(list))
         .map_or(Cell::Null, |list| {
             let values = list.borrow();
-            let index = read_list_index(at, values.len(), engine.program.semantics);
+            let index = at.map_or_else(
+                || values.len().checked_sub(1),
+                |at| read_list_index(at, values.len(), engine.program.semantics),
+            );
             match index.and_then(|i| values.get(i)) {
+                Some(Cell::Undefined)
+                    if engine.program.semantics == RuntimeSemantics::KnCurrent =>
+                {
+                    Cell::Number(f64::NAN)
+                }
                 Some(cell) => cell.clone(),
                 None => {
                     if engine.program.semantics == RuntimeSemantics::Kitten4
@@ -1863,8 +1882,8 @@ impl Gen<'_, '_> {
         remaining: i64,
     ) {
         let next = blocks[&(pc + 1)];
-        if let ValueExpr::Item(list, Some(e)) = self.engine.program.values[v] {
-            let at = self.expr(e.end as usize - 1);
+        if let ValueExpr::Item(list, e) = self.engine.program.values[v] {
+            let at = e.map(|e| self.expr(e.end as usize - 1));
             let encoded = match target {
                 Target::Global(s) => (s as i64) << 1,
                 Target::Local(s) => ((s as i64) << 1) | 1,
@@ -1872,12 +1891,20 @@ impl Gen<'_, '_> {
             let encoded = self.b.ins().iconst(types::I64, encoded);
             let list = self.b.ins().iconst(types::I64, list_key(list) as i64);
             let ctx = self.ctx;
-            self.call(
-                h_assign_item as *const () as usize,
-                &[types::I64, types::I64, types::I64, types::F64],
-                None,
-                &[ctx, encoded, list, at],
-            );
+            match at {
+                Some(at) => self.call(
+                    h_assign_item as *const () as usize,
+                    &[types::I64, types::I64, types::I64, types::F64],
+                    None,
+                    &[ctx, encoded, list, at],
+                ),
+                None => self.call(
+                    h_assign_last_item as *const () as usize,
+                    &[types::I64, types::I64, types::I64],
+                    None,
+                    &[ctx, encoded, list],
+                ),
+            };
             self.check_error(pc, remaining);
             self.b.ins().jump(next, &[]);
             return;
