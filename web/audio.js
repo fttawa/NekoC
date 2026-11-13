@@ -4,6 +4,7 @@ export class ProjectAudio {
   constructor(onError=()=>{},onDone=()=>{}) {
     this.onError=onError;this.onDone=onDone;this.voices=new Map();this.settings=new Map();
     this.paused=true;this.serial=0;this.speech=new Set();this.resources={};this.order=[];
+    this.midiContext=null;this.midiVoices=new Set();
   }
   load(project) {
     this.stop();this.resources=project.audios?.audiosDict||{};
@@ -13,6 +14,7 @@ export class ProjectAudio {
     // play() itself must run in the user gesture; an unrelated AudioContext does
     // not unlock HTMLAudio. Keep blocked waits alive so the gesture can retry.
     for(const voice of this.voices.values())if(voice.wanted&&!this.paused)this.play(voice);
+    if(!this.paused)this.midiContext?.resume?.().catch(()=>{});
   }
   resolve(value) {
     if(typeof value==='number')return this.resources[this.order[Math.round(value)-1]];
@@ -50,6 +52,7 @@ export class ProjectAudio {
   apply(frame) {
     if(frame.reset){const paused=this.paused;this.stop();this.paused=paused;if(!paused)globalThis.speechSynthesis?.resume();}
     const commands=frame.audio_commands||[],speech=frame.speech_commands||[];
+    for(const command of frame.k4_media||[])if(command.kind==='midi')this.playMidi(command);
     for(let i=0;i<=commands.length;i++) {
       for(const command of speech)if((command.before_audio??commands.length)===i)this.speak(command);
       if(i===commands.length)break;
@@ -61,7 +64,7 @@ export class ProjectAudio {
           const id=this.resourceId(resource),config=this.config(resource),key=rate?'playbackRate':'volume';
           config[key]=clamp((change?config[key]:0)+value,rate?.05:0,rate?4:1);
           // Retain one idle voice, but do not start playback for a property edit.
-          if(!this.voices.has(id))this.createVoice(resource);
+          if(![...this.voices.values()].some(voice=>voice.id===id))this.createVoice(resource);
           for(const voice of this.voices.values())if(voice.id===id)voice.element[key]=config[key];
         }
         continue;
@@ -148,9 +151,41 @@ export class ProjectAudio {
     for(const item of [...this.speech]){if(notify)item.done();else this.speech.delete(item);}
     globalThis.speechSynthesis?.cancel();
   }
-  pause(){this.paused=true;for(const voice of this.voices.values())voice.element.pause();globalThis.speechSynthesis?.pause();}
+  playMidi(command) {
+    // Rust emits a number for numeric keys and a string for midi_get object
+    // ids.  Do not use Number(null): a missing/null key must not become A0.
+    const rawKey=command.key;
+    const key=typeof rawKey==='number'?rawKey:
+      typeof rawKey==='string'&&rawKey.trim()!==''?Number(rawKey):NaN;
+    const seconds=Number(command.seconds);
+    if(!Number.isInteger(key)||key<0||key>87||!Number.isFinite(seconds)||seconds<=0)return;
+    const Context=globalThis.AudioContext||globalThis.webkitAudioContext;
+    if(!Context){this.onError('此浏览器不支持 MIDI 音频');return;}
+    if(this.midiVoices.size>=128){this.onError('同时播放 MIDI 音符超过 128，已忽略新的音符');return;}
+    this.midiContext??=new Context();
+    const context=this.midiContext;
+    const oscillator=context.createOscillator(),gain=context.createGain();
+    const now=context.currentTime,stop=now+seconds;
+    oscillator.type='sine';oscillator.frequency.value=27.5*2**(key/12);
+    gain.gain.setValueAtTime(1,now);
+    // The official piano request uses a fade of max(.2, seconds).  The local
+    // oscillator is only a fallback, not the official piano sample/voice.
+    // Start the fade before stop so linearRampToValueAtTime never has a
+    // zero-length interval when fade >= the note duration.
+    const fadeSeconds=Math.max(.2,seconds);
+    const fadeStart=Math.max(now,stop-fadeSeconds);
+    if(stop>fadeStart){
+      gain.gain.setValueAtTime(1,fadeStart);
+      gain.gain.linearRampToValueAtTime(.01,stop);
+    }
+    oscillator.connect(gain).connect(context.destination);this.midiVoices.add(oscillator);
+    oscillator.onended=()=>{this.midiVoices.delete(oscillator);oscillator.disconnect();gain.disconnect();};
+    oscillator.start(now);oscillator.stop(stop);
+    if(this.paused)context.suspend().catch(()=>{});else context.resume().catch(()=>{});
+  }
+  pause(){this.paused=true;for(const voice of this.voices.values())voice.element.pause();this.midiContext?.suspend?.().catch(()=>{});globalThis.speechSynthesis?.pause();}
   resume(){
-    this.paused=false;for(const voice of this.voices.values())if(voice.wanted)this.play(voice);
+    this.paused=false;for(const voice of this.voices.values())if(voice.wanted)this.play(voice);this.midiContext?.resume?.().catch(()=>{});
     globalThis.speechSynthesis?.resume();
     for(const item of this.speech)if(!item.started&&item.utterance){item.started=true;speechSynthesis.speak(item.utterance);}
   }
@@ -162,6 +197,8 @@ export class ProjectAudio {
       voice.element.removeAttribute('src');voice.element.load();
     }
     this.voices.clear();this.settings.clear();this.limitReported=false;
+    for(const oscillator of this.midiVoices)try{oscillator.stop();}catch{};
+    this.midiVoices.clear();this.midiContext?.close?.().catch(()=>{});this.midiContext=null;
   }
   snapshot(){return [...this.voices].map(([id,v])=>({id,wanted:v.wanted,paused:v.element.paused,time:v.element.currentTime,ready:v.element.readyState}));}
 }

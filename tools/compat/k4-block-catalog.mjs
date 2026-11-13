@@ -302,6 +302,7 @@ export function rustDispatch(source, name, file = "fixture.rs", options = {}) {
 }
 
 export function mappingStatus(root, rows) {
+  const audioEvidence = fs.existsSync(path.join(root, "docs/kitten4-audio-timeline-evidence.json"));
   const file = "src/kitten4.rs", source = fs.readFileSync(path.join(root, file), "utf8");
   const aliasFile = "src/kitten4/aliases.rs", alias = fs.readFileSync(path.join(root, aliasFile), "utf8");
   const direct = rustDispatch(source, "translate", file, { selectors: ["native.as_str()"] });
@@ -436,7 +437,12 @@ export function mappingStatus(root, rows) {
     }
     if (["play_audio", "play_audio_and_wait", "set_volume_or_rate", "change_volume_or_rate", "stop_all_audios"].includes(row.type) && evidence.length) {
       semantics = "partial";
-      limitations.push("legacy 音频已回归：动态目标及有符号增量已纠偏；严格 ID、非有限增量、内部 lock/improvise、微信录音分支仍有限制，见 kitten4-audio-aliases.md");
+      limitations.push("legacy 音频已有动态目标及有符号增量回归；历史调查与未验证边界见 kitten4-audio-aliases.md，当前专项见 kitten4-audio.md");
+    }
+    if (audioEvidence && ["play_audio", "play_audio_and_wait", "set_volume_or_rate", "change_volume_or_rate", "stop_all_audios"].includes(row.type) && evidence.length) {
+      semantics = "offline-oracle-verified";
+      limitations.push("K4 原创音频夹具已在指定离线官方包采样，并与 NekoC 事件/等待轨迹回归；资源加载、Howler 同 update 竞态、微信录音分支和其他播放器版本未验证，见 kitten4-audio.md");
+      limitations.push("官方 play/stop/volume/rate 资源级主路径已对照；不扩展为声学波形、音色或任意自定义内部 lock/improvise 参数一致");
     }
     if (row.type === "text_indexOf" && evidence.length) {
       semantics = "partial";
@@ -444,7 +450,7 @@ export function mappingStatus(root, rows) {
     }
     if (thirdMedia.has(row.type) && evidence.length) {
       semantics = "partial";
-      limitations.push("媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md");
+      limitations.push("媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 的 MIDI 仅本地 WebAudio oscillator fallback，未验证官方 MP3/fade 竞态及音色；浏览器传感器/震动桥已接线但真实设备效果未认证，摄像头/录音/语音识别 UI 和手机配对未接入；TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md、kitten4-device.md");
       if (["get_voice_answer", "get_recognition_result", "midi_get", "translate_result"].includes(row.type)) {
         limitations.push("第二轮原创官方离线实测默认 voice/scan、falsy translate 与 midi 对象最终值；异步帧相位、在线及实际设备未验证，见 kitten4-partial-text-2.md");
       }

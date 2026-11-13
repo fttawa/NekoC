@@ -6,6 +6,8 @@ import { remainingRound7, round7MainPaths, scope7Markdown } from '../tools/compa
 import { round8MainPaths } from '../tools/compat/k4-partial-8-scope.mjs';
 import { cloudDataTypes } from '../tools/compat/k4-block-catalog.mjs';
 
+const audioMainPaths = new Set(['play_audio', 'play_audio_and_wait', 'set_volume_or_rate', 'change_volume_or_rate', 'stop_all_audios']);
+
 test('round 7 accounts for all 28 remaining A types and only promotes measured main paths', () => {
   const report = JSON.parse(fs.readFileSync('docs/kitten4-block-coverage.json', 'utf8'));
   const rows = new Map(report.rows.map(row => [row.type, row]));
@@ -22,7 +24,8 @@ test('round 7 accounts for all 28 remaining A types and only promotes measured m
   }
   for (const type of remainingRound7) {
     const row = rows.get(type);
-    assert.equal(row.semantics, round7MainPaths.has(type)||round8MainPaths.has(type) ? 'main-path-verified' : 'partial', type);
+    assert.equal(row.semantics, round7MainPaths.has(type) || round8MainPaths.has(type) || audioMainPaths.has(type) ?
+      (audioMainPaths.has(type) ? 'offline-oracle-verified' : 'main-path-verified') : 'partial', type);
     if (round7MainPaths.has(type)) {
       assert.ok(!previous.has(type));
       assert.ok(!serviceTypes.has(type));
@@ -35,6 +38,7 @@ test('round 7 accounts for all 28 remaining A types and only promotes measured m
   }
   const historical=structuredClone(report);
   for(const row of historical.rows)if(cloudDataTypes.has(row.type))row.semantics='partial';
+  for(const row of historical.rows)if(audioMainPaths.has(row.type))row.semantics='partial';
   for(const row of historical.rows)if(['self_set_boundary','physics2_set_boundary'].includes(row.type))row.semantics='partial';
   assert.equal(fs.readFileSync('docs/kitten4-partial-7.md', 'utf8').replaceAll('\r\n', '\n'), scope7Markdown(historical));
 });

@@ -86,6 +86,10 @@ pub(super) struct State {
     scanner: VecDeque<MediaRequest>,
     scan_results: Vec<MediaRequest>,
     output: Vec<MediaOutput>,
+    frame_output: Vec<MediaOutput>,
+    /// Browser hosts can opt into frame-only delivery.  The default remains
+    /// the historical take API, so native hosts do not silently lose output.
+    frame_only: bool,
     voice: String,
     recording: String,
     scan: String,
@@ -101,14 +105,53 @@ impl State {
     pub(super) fn reset(&mut self) {
         let serial = self.serial;
         let camera = self.camera_available;
+        let frame_only = self.frame_only;
         *self = Self::default();
         self.serial = serial;
         self.camera_available = camera;
+        self.frame_only = frame_only;
     }
     pub(super) fn clear_frame(&mut self) {
         self.button = None;
         self.device_events.clear();
         self.orientations.clear();
+    }
+
+    pub(super) fn begin_frame(&mut self) {
+        // In frame-only mode the legacy queue is deliberately discarded at
+        // the start of each update.  This is opt-in because old native hosts
+        // still rely on take_k4_media_output() retaining events until taken.
+        if self.frame_only {
+            self.output.clear();
+        }
+        self.frame_output.clear();
+    }
+
+    pub(super) fn take_frame_output(&mut self) -> Vec<MediaOutput> {
+        std::mem::take(&mut self.frame_output)
+    }
+
+    pub(super) fn set_frame_only(&mut self, enabled: bool) {
+        self.frame_only = enabled;
+        if enabled {
+            self.output.clear();
+        }
+    }
+
+    fn emit(&mut self, output: MediaOutput) -> Result<()> {
+        ensure!(
+            self.frame_output.len() < 1024,
+            "too many K4 media outputs in one frame"
+        );
+        if !self.frame_only {
+            ensure!(
+                self.output.len() < 1024,
+                "too many unconsumed K4 media outputs"
+            );
+            self.output.push(output.clone());
+        }
+        self.frame_output.push(output);
+        Ok(())
     }
 }
 
@@ -269,19 +312,23 @@ impl Engine {
                         _ => return Ok(true),
                     }
                 } else {
-                    Cell::Number(parse_note(&note.text()))
+                    let key = parse_note(&note.text());
+                    if !valid_midi_key(key) {
+                        return Ok(true);
+                    }
+                    Cell::Number(key)
                 };
+                if !midi_cell_key_is_valid(&key) {
+                    return Ok(true);
+                }
                 let seconds = beats * 0.75;
-                ensure!(
-                    self.k4_media.output.len() < 1024,
-                    "too many unconsumed K4 media outputs"
-                );
-                self.k4_media.output.push(MediaOutput::Midi {
+                let output = MediaOutput::Midi {
                     key,
                     beats,
                     seconds,
                     fade_seconds: seconds.max(0.2),
-                });
+                };
+                self.k4_media.emit(output)?;
                 return Ok(self.k4_midi_wait(index, seconds));
             }
             Command::Language(i) => {
@@ -344,13 +391,10 @@ impl Engine {
             Command::PlayRecord => {
                 let recording = &self.k4_media.recording;
                 if !recording.is_empty() && recording != "undefined" && recording != "null" {
-                    ensure!(
-                        self.k4_media.output.len() < 1024,
-                        "too many unconsumed K4 media outputs"
-                    );
-                    self.k4_media.output.push(MediaOutput::PlayRecord {
+                    let output = MediaOutput::PlayRecord {
                         recording: recording.clone(),
-                    });
+                    };
+                    self.k4_media.emit(output)?;
                 }
             }
             Command::Vibrate(i, count) => {
@@ -364,13 +408,8 @@ impl Engine {
                 } else {
                     vec![1000.0 * n]
                 };
-                ensure!(
-                    self.k4_media.output.len() < 1024,
-                    "too many unconsumed K4 media outputs"
-                );
-                self.k4_media
-                    .output
-                    .push(MediaOutput::Vibrate { pattern_ms });
+                let output = MediaOutput::Vibrate { pattern_ms };
+                self.k4_media.emit(output)?;
             }
             Command::Translate(text, language) => {
                 let _ = self.eval_value(text, actor);
@@ -491,6 +530,8 @@ impl Engine {
         self.k4_media.camera_available = available;
     }
     pub fn take_k4_media_output(&mut self) -> Vec<MediaOutput> {
+        // Compatibility API.  In frame-only mode this is intentionally empty;
+        // frame hosts consume Frame.k4_media instead.
         std::mem::take(&mut self.k4_media.output)
     }
 
@@ -665,6 +706,19 @@ fn parse_note(text: &str) -> f64 {
         any = true;
     }
     if any { sign * value } else { f64::NAN }
+}
+
+fn valid_midi_key(key: f64) -> bool {
+    key.is_finite() && key.fract() == 0.0 && (0.0..=87.0).contains(&key)
+}
+
+fn midi_cell_key_is_valid(key: &Cell) -> bool {
+    match key {
+        Cell::Number(key) => valid_midi_key(*key),
+        Cell::Text(text) => valid_midi_key(parse_note(text)),
+        Cell::Midi(id) => midi_cell_key_is_valid(id),
+        _ => false,
+    }
 }
 
 fn recognition(text: &str) -> Cell {

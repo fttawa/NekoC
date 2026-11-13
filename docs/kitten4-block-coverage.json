@@ -4990,14 +4990,15 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "offline-oracle-verified",
       "mapping": [
         "src/kitten4.rs:718 (lower_block)",
         "src/kitten4/audio_aliases.rs:22 (lower_audio_alias)"
       ],
       "limitations": [
-        "legacy 音频已回归：动态目标及有符号增量已纠偏；严格 ID、非有限增量、内部 lock/improvise、微信录音分支仍有限制，见 kitten4-audio-aliases.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "legacy 音频已有动态目标及有符号增量回归；历史调查与未验证边界见 kitten4-audio-aliases.md，当前专项见 kitten4-audio.md",
+        "K4 原创音频夹具已在指定离线官方包采样，并与 NekoC 事件/等待轨迹回归；资源加载、Howler 同 update 竞态、微信录音分支和其他播放器版本未验证，见 kitten4-audio.md",
+        "官方 play/stop/volume/rate 资源级主路径已对照；不扩展为声学波形、音色或任意自定义内部 lock/improvise 参数一致"
       ],
       "occurrences": 0
     },
@@ -5281,7 +5282,7 @@
         "src/kitten4/media_devices.rs:12 (lower_media_devices)"
       ],
       "limitations": [
-        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 的 MIDI 仅本地 WebAudio oscillator fallback，未验证官方 MP3/fade 竞态及音色；浏览器传感器/震动桥已接线但真实设备效果未认证，摄像头/录音/语音识别 UI 和手机配对未接入；TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md、kitten4-device.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
         "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
@@ -5651,7 +5652,7 @@
         "src/kitten4/media_devices.rs:63 (lower_media_devices)"
       ],
       "limitations": [
-        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 的 MIDI 仅本地 WebAudio oscillator fallback，未验证官方 MP3/fade 竞态及音色；浏览器传感器/震动桥已接线但真实设备效果未认证，摄像头/录音/语音识别 UI 和手机配对未接入；TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md、kitten4-device.md",
         "第二轮原创官方离线实测默认 voice/scan、falsy translate 与 midi 对象最终值；异步帧相位、在线及实际设备未验证，见 kitten4-partial-text-2.md",
         "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
         "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
@@ -5738,7 +5739,7 @@
         "src/kitten4/media_devices.rs:62 (lower_media_devices)"
       ],
       "limitations": [
-        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 的 MIDI 仅本地 WebAudio oscillator fallback，未验证官方 MP3/fade 竞态及音色；浏览器传感器/震动桥已接线但真实设备效果未认证，摄像头/录音/语音识别 UI 和手机配对未接入；TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md、kitten4-device.md",
         "第二轮原创官方离线实测默认 voice/scan、falsy translate 与 midi 对象最终值；异步帧相位、在线及实际设备未验证，见 kitten4-partial-text-2.md",
         "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
         "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
@@ -6649,7 +6650,7 @@
         "src/kitten4/media_devices.rs:61 (lower_media_devices)"
       ],
       "limitations": [
-        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 的 MIDI 仅本地 WebAudio oscillator fallback，未验证官方 MP3/fade 竞态及音色；浏览器传感器/震动桥已接线但真实设备效果未认证，摄像头/录音/语音识别 UI 和手机配对未接入；TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md、kitten4-device.md",
         "第二轮原创官方离线实测默认 voice/scan、falsy translate 与 midi 对象最终值；异步帧相位、在线及实际设备未验证，见 kitten4-partial-text-2.md",
         "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
         "第七轮主路径：字符串/数组有效搜索、MIDI id对象与纯等待调度，144个官方update全变量逐帧双模式对比；见 kitten4-partial-data-7.md。边界不计作完整语义认证"
@@ -6680,7 +6681,7 @@
         "src/kitten4/media_devices.rs:16 (lower_media_devices)"
       ],
       "limitations": [
-        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 的 MIDI 仅本地 WebAudio oscillator fallback，未验证官方 MP3/fade 竞态及音色；浏览器传感器/震动桥已接线但真实设备效果未认证，摄像头/录音/语音识别 UI 和手机配对未接入；TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md、kitten4-device.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
         "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
@@ -6702,7 +6703,7 @@
         "src/kitten4/media_devices.rs:17 (lower_media_devices)"
       ],
       "limitations": [
-        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 的 MIDI 仅本地 WebAudio oscillator fallback，未验证官方 MP3/fade 竞态及音色；浏览器传感器/震动桥已接线但真实设备效果未认证，摄像头/录音/语音识别 UI 和手机配对未接入；TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md、kitten4-device.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
         "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
@@ -6729,7 +6730,7 @@
         "src/kitten4/media_devices.rs:18 (lower_media_devices)"
       ],
       "limitations": [
-        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 的 MIDI 仅本地 WebAudio oscillator fallback，未验证官方 MP3/fade 竞态及音色；浏览器传感器/震动桥已接线但真实设备效果未认证，摄像头/录音/语音识别 UI 和手机配对未接入；TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md、kitten4-device.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
         "第七轮主路径：字符串/数组有效搜索、MIDI id对象与纯等待调度，144个官方update全变量逐帧双模式对比；见 kitten4-partial-data-7.md。边界不计作完整语义认证"
       ],
@@ -6818,7 +6819,7 @@
         "src/kitten4/media_devices.rs:65 (lower_media_devices)"
       ],
       "limitations": [
-        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 的 MIDI 仅本地 WebAudio oscillator fallback，未验证官方 MP3/fade 竞态及音色；浏览器传感器/震动桥已接线但真实设备效果未认证，摄像头/录音/语音识别 UI 和手机配对未接入；TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md、kitten4-device.md",
         "第十二轮设备输入边界：显式 mobile action、按钮状态、方向重力换算与 vibrate 输出均有原创夹具/官方逐帧对照；raw devicemotion 不在指定官方包中自行转 shake/tilt；真实硬件权限、控制器传输、Rapier 物理轨迹及 busy 等待边界仍为 partial，见 kitten4-device.md。",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
         "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
@@ -6840,7 +6841,7 @@
         "src/kitten4/media_devices.rs:20 (lower_media_devices)"
       ],
       "limitations": [
-        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 的 MIDI 仅本地 WebAudio oscillator fallback，未验证官方 MP3/fade 竞态及音色；浏览器传感器/震动桥已接线但真实设备效果未认证，摄像头/录音/语音识别 UI 和手机配对未接入；TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md、kitten4-device.md",
         "第十二轮设备输入边界：显式 mobile action、按钮状态、方向重力换算与 vibrate 输出均有原创夹具/官方逐帧对照；raw devicemotion 不在指定官方包中自行转 shake/tilt；真实硬件权限、控制器传输、Rapier 物理轨迹及 busy 等待边界仍为 partial，见 kitten4-device.md。",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
         "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
@@ -6862,7 +6863,7 @@
         "src/kitten4/media_devices.rs:21 (lower_media_devices)"
       ],
       "limitations": [
-        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 的 MIDI 仅本地 WebAudio oscillator fallback，未验证官方 MP3/fade 竞态及音色；浏览器传感器/震动桥已接线但真实设备效果未认证，摄像头/录音/语音识别 UI 和手机配对未接入；TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md、kitten4-device.md",
         "第十二轮设备输入边界：显式 mobile action、按钮状态、方向重力换算与 vibrate 输出均有原创夹具/官方逐帧对照；raw devicemotion 不在指定官方包中自行转 shake/tilt；真实硬件权限、控制器传输、Rapier 物理轨迹及 busy 等待边界仍为 partial，见 kitten4-device.md。",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
         "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
@@ -6884,7 +6885,7 @@
         "src/kitten4/media_devices.rs:22 (lower_media_devices)"
       ],
       "limitations": [
-        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 的 MIDI 仅本地 WebAudio oscillator fallback，未验证官方 MP3/fade 竞态及音色；浏览器传感器/震动桥已接线但真实设备效果未认证，摄像头/录音/语音识别 UI 和手机配对未接入；TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md、kitten4-device.md",
         "第十二轮设备输入边界：显式 mobile action、按钮状态、方向重力换算与 vibrate 输出均有原创夹具/官方逐帧对照；raw devicemotion 不在指定官方包中自行转 shake/tilt；真实硬件权限、控制器传输、Rapier 物理轨迹及 busy 等待边界仍为 partial，见 kitten4-device.md。",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
         "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
@@ -6912,7 +6913,7 @@
         "src/kitten4/media_devices.rs:23 (lower_media_devices)"
       ],
       "limitations": [
-        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 的 MIDI 仅本地 WebAudio oscillator fallback，未验证官方 MP3/fade 竞态及音色；浏览器传感器/震动桥已接线但真实设备效果未认证，摄像头/录音/语音识别 UI 和手机配对未接入；TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md、kitten4-device.md",
         "第十二轮设备输入边界：显式 mobile action、按钮状态、方向重力换算与 vibrate 输出均有原创夹具/官方逐帧对照；raw devicemotion 不在指定官方包中自行转 shake/tilt；真实硬件权限、控制器传输、Rapier 物理轨迹及 busy 等待边界仍为 partial，见 kitten4-device.md。",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
         "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
@@ -6940,7 +6941,7 @@
         "src/kitten4/media_devices.rs:24 (lower_media_devices)"
       ],
       "limitations": [
-        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 的 MIDI 仅本地 WebAudio oscillator fallback，未验证官方 MP3/fade 竞态及音色；浏览器传感器/震动桥已接线但真实设备效果未认证，摄像头/录音/语音识别 UI 和手机配对未接入；TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md、kitten4-device.md",
         "第十二轮设备输入边界：显式 mobile action、按钮状态、方向重力换算与 vibrate 输出均有原创夹具/官方逐帧对照；raw devicemotion 不在指定官方包中自行转 shake/tilt；真实硬件权限、控制器传输、Rapier 物理轨迹及 busy 等待边界仍为 partial，见 kitten4-device.md。",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
         "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
@@ -7016,7 +7017,7 @@
         "src/kitten4/media_devices.rs:25 (lower_media_devices)"
       ],
       "limitations": [
-        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 的 MIDI 仅本地 WebAudio oscillator fallback，未验证官方 MP3/fade 竞态及音色；浏览器传感器/震动桥已接线但真实设备效果未认证，摄像头/录音/语音识别 UI 和手机配对未接入；TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md、kitten4-device.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
         "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
@@ -7033,14 +7034,15 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "offline-oracle-verified",
       "mapping": [
         "src/kitten4.rs:702 (lower_block)",
         "src/kitten4/audio_aliases.rs:12 (lower_audio_alias)"
       ],
       "limitations": [
-        "legacy 音频已回归：动态目标及有符号增量已纠偏；严格 ID、非有限增量、内部 lock/improvise、微信录音分支仍有限制，见 kitten4-audio-aliases.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "legacy 音频已有动态目标及有符号增量回归；历史调查与未验证边界见 kitten4-audio-aliases.md，当前专项见 kitten4-audio.md",
+        "K4 原创音频夹具已在指定离线官方包采样，并与 NekoC 事件/等待轨迹回归；资源加载、Howler 同 update 竞态、微信录音分支和其他播放器版本未验证，见 kitten4-audio.md",
+        "官方 play/stop/volume/rate 资源级主路径已对照；不扩展为声学波形、音色或任意自定义内部 lock/improvise 参数一致"
       ],
       "occurrences": 0
     },
@@ -7055,15 +7057,16 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "offline-oracle-verified",
       "mapping": [
         "src/kitten4.rs:702 (lower_block)",
         "src/kitten4/audio_aliases.rs:12 (lower_audio_alias)",
         "src/kitten4/audio_aliases.rs:13 (lower_audio_alias)"
       ],
       "limitations": [
-        "legacy 音频已回归：动态目标及有符号增量已纠偏；严格 ID、非有限增量、内部 lock/improvise、微信录音分支仍有限制，见 kitten4-audio-aliases.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "legacy 音频已有动态目标及有符号增量回归；历史调查与未验证边界见 kitten4-audio-aliases.md，当前专项见 kitten4-audio.md",
+        "K4 原创音频夹具已在指定离线官方包采样，并与 NekoC 事件/等待轨迹回归；资源加载、Howler 同 update 竞态、微信录音分支和其他播放器版本未验证，见 kitten4-audio.md",
+        "官方 play/stop/volume/rate 资源级主路径已对照；不扩展为声学波形、音色或任意自定义内部 lock/improvise 参数一致"
       ],
       "occurrences": 0
     },
@@ -7271,7 +7274,7 @@
         "src/kitten4/media_devices.rs:26 (lower_media_devices)"
       ],
       "limitations": [
-        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 的 MIDI 仅本地 WebAudio oscillator fallback，未验证官方 MP3/fade 竞态及音色；浏览器传感器/震动桥已接线但真实设备效果未认证，摄像头/录音/语音识别 UI 和手机配对未接入；TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md、kitten4-device.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
         "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
@@ -7293,7 +7296,7 @@
         "src/kitten4/media_devices.rs:27 (lower_media_devices)"
       ],
       "limitations": [
-        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 的 MIDI 仅本地 WebAudio oscillator fallback，未验证官方 MP3/fade 竞态及音色；浏览器传感器/震动桥已接线但真实设备效果未认证，摄像头/录音/语音识别 UI 和手机配对未接入；TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md、kitten4-device.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
         "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
@@ -8034,7 +8037,7 @@
         "src/kitten4/media_devices.rs:28 (lower_media_devices)"
       ],
       "limitations": [
-        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 的 MIDI 仅本地 WebAudio oscillator fallback，未验证官方 MP3/fade 竞态及音色；浏览器传感器/震动桥已接线但真实设备效果未认证，摄像头/录音/语音识别 UI 和手机配对未接入；TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md、kitten4-device.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
         "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
@@ -8099,15 +8102,16 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "offline-oracle-verified",
       "mapping": [
         "src/kitten4.rs:718 (lower_block)",
         "src/kitten4.rs:721 (lower_block)",
         "src/kitten4/audio_aliases.rs:21 (lower_audio_alias)"
       ],
       "limitations": [
-        "legacy 音频已回归：动态目标及有符号增量已纠偏；严格 ID、非有限增量、内部 lock/improvise、微信录音分支仍有限制，见 kitten4-audio-aliases.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "legacy 音频已有动态目标及有符号增量回归；历史调查与未验证边界见 kitten4-audio-aliases.md，当前专项见 kitten4-audio.md",
+        "K4 原创音频夹具已在指定离线官方包采样，并与 NekoC 事件/等待轨迹回归；资源加载、Howler 同 update 竞态、微信录音分支和其他播放器版本未验证，见 kitten4-audio.md",
+        "官方 play/stop/volume/rate 资源级主路径已对照；不扩展为声学波形、音色或任意自定义内部 lock/improvise 参数一致"
       ],
       "occurrences": 0
     },
@@ -8169,7 +8173,7 @@
         "src/kitten4/media_devices.rs:29 (lower_media_devices)"
       ],
       "limitations": [
-        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 的 MIDI 仅本地 WebAudio oscillator fallback，未验证官方 MP3/fade 竞态及音色；浏览器传感器/震动桥已接线但真实设备效果未认证，摄像头/录音/语音识别 UI 和手机配对未接入；TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md、kitten4-device.md",
         "第十二轮设备输入边界：显式 mobile action、按钮状态、方向重力换算与 vibrate 输出均有原创夹具/官方逐帧对照；raw devicemotion 不在指定官方包中自行转 shake/tilt；真实硬件权限、控制器传输、Rapier 物理轨迹及 busy 等待边界仍为 partial，见 kitten4-device.md。",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
         "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
@@ -8192,7 +8196,7 @@
         "src/kitten4/media_devices.rs:30 (lower_media_devices)"
       ],
       "limitations": [
-        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 的 MIDI 仅本地 WebAudio oscillator fallback，未验证官方 MP3/fade 竞态及音色；浏览器传感器/震动桥已接线但真实设备效果未认证，摄像头/录音/语音识别 UI 和手机配对未接入；TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md、kitten4-device.md",
         "第十二轮设备输入边界：显式 mobile action、按钮状态、方向重力换算与 vibrate 输出均有原创夹具/官方逐帧对照；raw devicemotion 不在指定官方包中自行转 shake/tilt；真实硬件权限、控制器传输、Rapier 物理轨迹及 busy 等待边界仍为 partial，见 kitten4-device.md。",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
         "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
@@ -8297,13 +8301,14 @@
         }
       ],
       "status": "已实现",
-      "semantics": "partial",
+      "semantics": "offline-oracle-verified",
       "mapping": [
         "src/kitten4.rs:707 (lower_block)"
       ],
       "limitations": [
-        "legacy 音频已回归：动态目标及有符号增量已纠偏；严格 ID、非有限增量、内部 lock/improvise、微信录音分支仍有限制，见 kitten4-audio-aliases.md",
-        "静态分派证据；未逐字段、错误路径、时序与官方差分验证"
+        "legacy 音频已有动态目标及有符号增量回归；历史调查与未验证边界见 kitten4-audio-aliases.md，当前专项见 kitten4-audio.md",
+        "K4 原创音频夹具已在指定离线官方包采样，并与 NekoC 事件/等待轨迹回归；资源加载、Howler 同 update 竞态、微信录音分支和其他播放器版本未验证，见 kitten4-audio.md",
+        "官方 play/stop/volume/rate 资源级主路径已对照；不扩展为声学波形、音色或任意自定义内部 lock/improvise 参数一致"
       ],
       "occurrences": 0
     },
@@ -8408,7 +8413,7 @@
         "src/kitten4/media_devices.rs:31 (lower_media_devices)"
       ],
       "limitations": [
-        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 的 MIDI 仅本地 WebAudio oscillator fallback，未验证官方 MP3/fade 竞态及音色；浏览器传感器/震动桥已接线但真实设备效果未认证，摄像头/录音/语音识别 UI 和手机配对未接入；TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md、kitten4-device.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
         "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
@@ -8431,7 +8436,7 @@
         "src/kitten4/media_devices.rs:64 (lower_media_devices)"
       ],
       "limitations": [
-        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 的 MIDI 仅本地 WebAudio oscillator fallback，未验证官方 MP3/fade 竞态及音色；浏览器传感器/震动桥已接线但真实设备效果未认证，摄像头/录音/语音识别 UI 和手机配对未接入；TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md、kitten4-device.md",
         "第二轮原创官方离线实测默认 voice/scan、falsy translate 与 midi 对象最终值；异步帧相位、在线及实际设备未验证，见 kitten4-partial-text-2.md",
         "已有指定输入离线实测；完整剩余边界见专项说明，不声称全语义一致",
         "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
@@ -8454,7 +8459,7 @@
         "src/kitten4/media_devices.rs:33 (lower_media_devices)"
       ],
       "limitations": [
-        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 的 MIDI 仅本地 WebAudio oscillator fallback，未验证官方 MP3/fade 竞态及音色；浏览器传感器/震动桥已接线但真实设备效果未认证，摄像头/录音/语音识别 UI 和手机配对未接入；TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md、kitten4-device.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
         "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
@@ -8476,7 +8481,7 @@
         "src/kitten4/media_devices.rs:34 (lower_media_devices)"
       ],
       "limitations": [
-        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 的 MIDI 仅本地 WebAudio oscillator fallback，未验证官方 MP3/fade 竞态及音色；浏览器传感器/震动桥已接线但真实设备效果未认证，摄像头/录音/语音识别 UI 和手机配对未接入；TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md、kitten4-device.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
         "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],
@@ -8498,7 +8503,7 @@
         "src/kitten4/media_devices.rs:35 (lower_media_devices)"
       ],
       "limitations": [
-        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 尚未接入摄像头/录音/语音识别/MIDI/设备硬件，不能宣称实际设备效果；现有 TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md",
+        "媒体/设备 host 契约：MIDI 时长、阻塞请求、完成结果与显式事件已有回归；viewer 的 MIDI 仅本地 WebAudio oscillator fallback，未验证官方 MP3/fade 竞态及音色；浏览器传感器/震动桥已接线但真实设备效果未认证，摄像头/录音/语音识别 UI 和手机配对未接入；TTS language 已接线但音色不等价，翻译仅离线失败 fallback，见 kitten4-third-media.md、kitten4-device.md",
         "静态分派证据；未逐字段、错误路径、时序与官方差分验证",
         "B类设备/服务降级：仅本地状态、失败fallback或显式宿主请求；不虚构设备/在线成功，逐项无设备行为见 kitten4-partial-6.md"
       ],

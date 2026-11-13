@@ -334,6 +334,45 @@ fn legacy_audio_properties_reject_text_and_boolean_instead_of_coercing() {
 }
 
 #[test]
+fn legacy_infinite_rate_changes_clamp_but_modern_changes_ignore_them() {
+    for source in SOURCES {
+        for (value, legacy_seconds) in [("Infinity", 0.025), ("-Infinity", 2.0)] {
+            for modern in [false, true] {
+                let kind = if modern {
+                    "change_volume_or_rate_2"
+                } else {
+                    "change_volume_or_rate"
+                };
+                let native = project(
+                    source,
+                    vec![
+                        probe(
+                            kind,
+                            json!({"audio":AUDIO,"audio_key":"rate"}),
+                            json!({"audio":text(AUDIO),"audio_value":block("math_number",json!({"NUM":value}),json!({}))}),
+                        ),
+                        block("play_audio_and_wait", json!({"audio":AUDIO}), json!({})),
+                    ],
+                );
+                let canonical = imported(&native, "change_volume_or_rate_2");
+                for interpreted in [false, true] {
+                    let mut vm = engine(&canonical, interpreted, false);
+                    let frame = tick(&mut vm, 0.0);
+                    assert_eq!(frame.audio_commands.len(), if modern { 1 } else { 2 });
+                    let seconds = if modern { 0.1 } else { legacy_seconds };
+                    for _ in 0..7 {
+                        tick(&mut vm, seconds / 8.0);
+                        assert_eq!(vm.variable_text("after"), "0");
+                    }
+                    tick(&mut vm, seconds / 8.0);
+                    assert_eq!(vm.variable_text("after"), "1");
+                }
+            }
+        }
+    }
+}
+
+#[test]
 fn legacy_rate_changes_affect_wait_duration_and_clamp_at_resource_boundary() {
     // It at factory 32879 clamps rate to .05..4. Signed legacy change is
     // applied to the existing rate (1 here), not a percentage of that rate.

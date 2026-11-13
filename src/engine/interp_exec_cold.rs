@@ -136,15 +136,20 @@ impl Engine {
                     return Ok(Some(false));
                 }
             }
-            Op::AudioProperty(audio, value, rate, change, decrease) => {
+            Op::AudioProperty(audio, value, rate, change, decrease, legacy_change) => {
                 // The official audio module checks typeof, without numeric coercion.
                 if let Cell::Number(value) = self.eval_value(value, actor)
                     && !value.is_nan()
-                    && (!change || value.is_finite())
+                    && (!change || legacy_change || value.is_finite())
                 {
                     let audio = self.eval_value(audio, actor);
                     let value = if value.is_finite() {
                         value / 100.0 * if change && decrease { -1.0 } else { 1.0 }
+                    } else if change {
+                        // Keep the signed delta until the shared resource
+                        // clamp. Encoding -Infinity as zero would incorrectly
+                        // leave a legacy change at its previous setting.
+                        f64::MAX.copysign(value)
                     } else if value.is_sign_positive() {
                         if rate { 4.0 } else { 1.0 }
                     } else if rate {
