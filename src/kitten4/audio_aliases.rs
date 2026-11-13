@@ -30,6 +30,7 @@ pub(super) fn lower_audio_alias(block: &mut Value, _targets: &Targets) -> bool {
                 block["inputs"]["audio"] = json!({"type":"text","fields":{"TEXT":audio}});
             }
             put_field(block, "increase", "increase");
+            put_field(block, "legacy_change", "true");
             "change_volume_or_rate_2"
         }
         // Static play/set and stop_all_audios use the existing lower_block arms.

@@ -1,0 +1,1480 @@
+{
+  "schema": "nekoc-k4-audio-timeline-v1",
+  "fps": 60,
+  "scope": "diagnostic WebAudio currentTime/end timers; original domain + Howler; not native wall-clock/acoustic parity",
+  "cases": {
+    "properties": {
+      "fixture": "tests/fixtures/kitten4/audio-timeline-properties.bcm",
+      "sha256": "cbd0b6e89752ed9a8cf0da4336c4bbaf5f848bc338e6a116b7ec3a60553de6a7",
+      "events": [
+        {
+          "frame": 1,
+          "action": "set_volume",
+          "args": [
+            "71000000-0000-4000-8000-000000000001",
+            0
+          ]
+        },
+        {
+          "frame": 1,
+          "action": "set_volume",
+          "args": [
+            "71000000-0000-4000-8000-000000000001",
+            1
+          ]
+        },
+        {
+          "frame": 1,
+          "action": "set_volume",
+          "args": [
+            "71000000-0000-4000-8000-000000000001",
+            0.7
+          ]
+        },
+        {
+          "frame": 1,
+          "action": "set_rate",
+          "args": [
+            "71000000-0000-4000-8000-000000000001",
+            0.05
+          ]
+        },
+        {
+          "frame": 1,
+          "action": "set_rate",
+          "args": [
+            "71000000-0000-4000-8000-000000000001",
+            4
+          ]
+        },
+        {
+          "frame": 1,
+          "action": "set_rate",
+          "args": [
+            "71000000-0000-4000-8000-000000000001",
+            1.5
+          ]
+        },
+        {
+          "frame": 1,
+          "action": "play",
+          "args": [
+            "71000000-0000-4000-8000-000000000001",
+            null,
+            null
+          ]
+        }
+      ],
+      "officialVariables": [
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        }
+      ],
+      "vmVariables": [
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        }
+      ],
+      "variablesEqual": true,
+      "errors": [],
+      "pageErrors": [],
+      "externalAllowed": 0
+    },
+    "overlap": {
+      "fixture": "tests/fixtures/kitten4/audio-timeline-overlap.bcm",
+      "sha256": "76e228b6ad2d951d9102bc41e0f921879eec7168bfe932450a9089dd1084ff37",
+      "events": [
+        {
+          "frame": 1,
+          "action": "play",
+          "args": [
+            "71000000-0000-4000-8000-000000000001",
+            null,
+            null
+          ]
+        },
+        {
+          "frame": 1,
+          "action": "play",
+          "args": [
+            "71000000-0000-4000-8000-000000000001",
+            null,
+            null
+          ]
+        },
+        {
+          "frame": 1,
+          "action": "play",
+          "args": [
+            "71000000-0000-4000-8000-000000000002",
+            null,
+            null
+          ]
+        }
+      ],
+      "officialVariables": [
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        }
+      ],
+      "vmVariables": [
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        }
+      ],
+      "variablesEqual": true,
+      "errors": [],
+      "pageErrors": [],
+      "externalAllowed": 0
+    },
+    "natural": {
+      "fixture": "tests/fixtures/kitten4/audio-timeline-natural.bcm",
+      "sha256": "00affecbe28ec6fcb21bfd45c9a0863a94a7dd632d4a8704db1425441b5351c5",
+      "events": [
+        {
+          "frame": 1,
+          "action": "set_rate",
+          "args": [
+            "71000000-0000-4000-8000-000000000001",
+            2
+          ]
+        },
+        {
+          "frame": 1,
+          "action": "play",
+          "args": [
+            "71000000-0000-4000-8000-000000000001"
+          ]
+        }
+      ],
+      "officialVariables": [
+        {
+          "after": 0,
+          "stopped": 0
+        },
+        {
+          "after": 0,
+          "stopped": 0
+        },
+        {
+          "after": 0,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        }
+      ],
+      "vmVariables": [
+        {
+          "after": 0,
+          "stopped": 0
+        },
+        {
+          "after": 0,
+          "stopped": 0
+        },
+        {
+          "after": 0,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        }
+      ],
+      "variablesEqual": true,
+      "errors": [],
+      "pageErrors": [],
+      "externalAllowed": 0
+    },
+    "stop-waits": {
+      "fixture": "tests/fixtures/kitten4/audio-timeline-stop-waits.bcm",
+      "sha256": "79befa0babc19550c88529448be82d44180e4553065980cd7e063f30f55354ac",
+      "events": [
+        {
+          "frame": 1,
+          "action": "play",
+          "args": [
+            "71000000-0000-4000-8000-000000000001"
+          ]
+        },
+        {
+          "frame": 3,
+          "action": "stop",
+          "args": [
+            "71000000-0000-4000-8000-000000000001"
+          ]
+        },
+        {
+          "frame": 3,
+          "action": "stop",
+          "args": []
+        }
+      ],
+      "officialVariables": [
+        {
+          "after": 0,
+          "stopped": 0
+        },
+        {
+          "after": 0,
+          "stopped": 0
+        },
+        {
+          "after": 0,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        }
+      ],
+      "vmVariables": [
+        {
+          "after": 0,
+          "stopped": 0
+        },
+        {
+          "after": 0,
+          "stopped": 0
+        },
+        {
+          "after": 0,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        }
+      ],
+      "variablesEqual": true,
+      "errors": [],
+      "pageErrors": [],
+      "externalAllowed": 0
+    },
+    "stop-overlap": {
+      "fixture": "tests/fixtures/kitten4/audio-timeline-stop-overlap.bcm",
+      "sha256": "e08038834a7361503076aa59b0f319019bdaafda2fbcc6af55c23247aa5d738e",
+      "events": [
+        {
+          "frame": 1,
+          "action": "play",
+          "args": [
+            "71000000-0000-4000-8000-000000000001",
+            null,
+            null
+          ]
+        },
+        {
+          "frame": 1,
+          "action": "play",
+          "args": [
+            "71000000-0000-4000-8000-000000000001"
+          ]
+        },
+        {
+          "frame": 1,
+          "action": "play",
+          "args": [
+            "71000000-0000-4000-8000-000000000002",
+            null,
+            null
+          ]
+        },
+        {
+          "frame": 3,
+          "action": "stop",
+          "args": [
+            "71000000-0000-4000-8000-000000000001"
+          ]
+        },
+        {
+          "frame": 3,
+          "action": "stop",
+          "args": []
+        }
+      ],
+      "officialVariables": [
+        {
+          "after": 0,
+          "stopped": 0
+        },
+        {
+          "after": 0,
+          "stopped": 0
+        },
+        {
+          "after": 0,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        }
+      ],
+      "vmVariables": [
+        {
+          "after": 0,
+          "stopped": 0
+        },
+        {
+          "after": 0,
+          "stopped": 0
+        },
+        {
+          "after": 0,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        },
+        {
+          "after": 1,
+          "stopped": 1
+        }
+      ],
+      "variablesEqual": true,
+      "errors": [],
+      "pageErrors": [],
+      "externalAllowed": 0
+    },
+    "midi-note": {
+      "fixture": "tests/fixtures/kitten4/audio-timeline-midi-note.bcm",
+      "sha256": "6a4b397166638d4faca41bf0f15822217704ed7e6626cfbbd0ea2abc4e62b761",
+      "events": [
+        {
+          "frame": 1,
+          "action": "load",
+          "args": [
+            "midi1",
+            "https://kn-cdn.codemao.cn/kitten/midi/piano/C4.mp3",
+            true
+          ]
+        }
+      ],
+      "officialVariables": [
+        {
+          "after": 0,
+          "stopped": 0
+        },
+        {
+          "after": 0,
+          "stopped": 0
+        },
+        {
+          "after": 0,
+          "stopped": 0
+        },
+        {
+          "after": 0,
+          "stopped": 0
+        },
+        {
+          "after": 0,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        }
+      ],
+      "vmVariables": [
+        {
+          "after": 0,
+          "stopped": 0
+        },
+        {
+          "after": 0,
+          "stopped": 0
+        },
+        {
+          "after": 0,
+          "stopped": 0
+        },
+        {
+          "after": 0,
+          "stopped": 0
+        },
+        {
+          "after": 0,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        }
+      ],
+      "variablesEqual": true,
+      "errors": [],
+      "pageErrors": [],
+      "externalAllowed": 0
+    },
+    "midi-number": {
+      "fixture": "tests/fixtures/kitten4/audio-timeline-midi-number.bcm",
+      "sha256": "28ba60d8bddae879d208fb0b2886265d21935de9e1a372d7eac7e57f44f4d014",
+      "events": [
+        {
+          "frame": 1,
+          "action": "load",
+          "args": [
+            "midi1",
+            "https://kn-cdn.codemao.cn/kitten/midi/piano/C8.mp3",
+            true
+          ]
+        }
+      ],
+      "officialVariables": [
+        {
+          "after": 0,
+          "stopped": 0
+        },
+        {
+          "after": 0,
+          "stopped": 0
+        },
+        {
+          "after": 0,
+          "stopped": 0
+        },
+        {
+          "after": 0,
+          "stopped": 0
+        },
+        {
+          "after": 0,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        }
+      ],
+      "vmVariables": [
+        {
+          "after": 0,
+          "stopped": 0
+        },
+        {
+          "after": 0,
+          "stopped": 0
+        },
+        {
+          "after": 0,
+          "stopped": 0
+        },
+        {
+          "after": 0,
+          "stopped": 0
+        },
+        {
+          "after": 0,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        }
+      ],
+      "variablesEqual": true,
+      "errors": [],
+      "pageErrors": [],
+      "externalAllowed": 0
+    },
+    "midi-invalid": {
+      "fixture": "tests/fixtures/kitten4/audio-timeline-midi-invalid.bcm",
+      "sha256": "ca71e258a64d53caf42730e4e837723dd4b7da0e83602e410f4dcc0235164dd3",
+      "events": [],
+      "officialVariables": [
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        }
+      ],
+      "vmVariables": [
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        },
+        {
+          "after": 1,
+          "stopped": 0
+        }
+      ],
+      "variablesEqual": true,
+      "errors": [],
+      "pageErrors": [],
+      "externalAllowed": 0
+    }
+  },
+  "assets": [
+    {
+      "name": "player_v2__3ffeebbd0c789e8d9422.css",
+      "source": "player_v2__3ffeebbd0c789e8d9422.css",
+      "sha256": "39e8e70b124b604831773893cdc95931cdee3eaea52c6dd69f33f5781d48b45a"
+    },
+    {
+      "name": "runtime.f42f527f119e09010b85.js",
+      "source": "runtime.f42f527f119e09010b85.js",
+      "sha256": "4164d67795238f64d035f473418236038ae475ae36032a967cba16ede263735f"
+    },
+    {
+      "name": "player_v2.2d180c468559fbd29528.js",
+      "source": "player_v2.2d180c468559fbd29528.js.orig",
+      "sha256": "0f7933d51266add6cbad0682b9531036dc1c8daf8c522cde4243744376ce4160"
+    },
+    {
+      "name": "vendors.d00f4bd454a6352e9d71.js",
+      "source": "vendors.d00f4bd454a6352e9d71.js",
+      "sha256": "9f484cedbde10bcb82958aaf6cdeb24e40d5b52c3e825e027564402dd7977867"
+    },
+    {
+      "name": "9.c396696e9dc71e25b012.js",
+      "source": "9.c396696e9dc71e25b012.js",
+      "sha256": "5758343310c47596d56e954aa05fa76a546080c8bf4fefd41cac0042794d6195"
+    },
+    {
+      "name": "14.c95e6f2ddd61fb701d0e.js",
+      "source": "14.c95e6f2ddd61fb701d0e.js",
+      "sha256": "d3ce91c9113463db4c0988210caeb1be2ddc508499d5c53a8e73a13b5f440175"
+    },
+    {
+      "name": "11.477512e6f03fd2f6f3c5.js",
+      "source": "11.477512e6f03fd2f6f3c5.js",
+      "sha256": "e81bfe3462cc3e79a70ba016ddee2a372a31480d3f52964952e1d21f3a490f91"
+    }
+  ]
+}

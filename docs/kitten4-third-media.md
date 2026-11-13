@@ -26,7 +26,7 @@ domain 指属性起点；不是字节或整包偏移。调查只读 factory.toSt
 | `get_recognition_result` | Tn6a@66019 | 初始空文本；成功扫码结果按严格十进制规则转数值，前导零等保留文本。桌面路径；微信载入器未仿真。 |
 | `get_voice_answer` | xQfl@29026 | 独立的语音识别答案，不能错误别名到普通问答。严格十进制转数值，否则文本；初始空文本。 |
 | `midi_get` | xQfl@28986 | 每次产生新 `{id: midi}` 对象（Cell::Midi），保留字段原类型与对象身份，不用列表或数字代替。 |
-| `midi_play_note` | xQfl@28306；Qeyy@1409 | note 用 JS parseInt 风格解析；beats 必须实际 Number、有限且 >0；80 BPM，阻塞相应时长，输出宿主 MIDI 请求。不验证 note 是否在键域，官方也未验证。 |
+| `midi_play_note` | xQfl@28306；Qeyy@1409 | note 用 JS parseInt 风格解析；beats 必须实际 Number、有限且 >0；80 BPM，阻塞相应时长，输出宿主 MIDI 请求。仅 0..87 的整数键有效；不等同官方钢琴采样发声认证，最新证据见 kitten4-audio.md。 |
 | `midi_play_num_note` | xQfl@28559 | `{id:...}` 直接取 id；普通输入必须实际 Number，Math.round 后范围 0..100，再夹到 1..88 并减 1。无效值不播放不等待。beats 同上。null 明确运行错误，不用零替代。 |
 | `midi_wait` | xQfl@28229；Qeyy@1448 | Number 拍数转 0.75 秒/拍；非 Number 为 0，但仍经过 K4 wait yield。NaN/非有限极端调度未做官方逐帧验证。 |
 | `on_mobile_click_btn` | Tn6a@58661；注册元数据 Tn6a@90260 附近 | 状态 reporter：device、btn_event_type 严格文本匹配，type 大写后比较；无事件 false。带 body 的根转既有 K4 when-style 单线程循环，一帧状态需 tick 末清理。与官方 restart_when_finished 的同帧相位仍为 partial。 |
@@ -119,7 +119,7 @@ kitten4.rs 只注册 `mod media_devices` 并在 lower_block early hook 调
 - `complete_k4_media(id, result) -> bool`：成功只完成一次；未知/取消/迟到 id false。
   录音结果是宿主 token，扫码/识别结果是文本；无回复保持阻塞，不假设设备成功。
 - `set_k4_camera_available(bool)`：明确能力探测，不默认真实 camera 存在。
-- `take_k4_media_output()`：取 MIDI/录音播放/震动命令，不包含采样数据。
+- `Frame.k4_media_output`：`advance()` 交付 MIDI/录音播放/震动命令，不包含采样数据；兼容 `take_k4_media_output()` API 保留，但已交付到 Frame 的命令不会重复出队。
 - `k4_device_event(action, device, value)`：五个真实事件；动态 slide/slope device/type
   非空且严格匹配；本实现 busy responder 不重复生成线程。
 - `k4_mobile_button(device,event,kind)`：一帧按钮状态，不自动映射键盘。
@@ -130,20 +130,22 @@ kitten4.rs 只注册 `mod media_devices` 并在 lower_block early hook 调
 媒体回归包含合成 workspace/published、解释器/默认 JIT 双路径；最终统一验证结果见根目录交付报告。
 `tests/project-audio.test.mjs` 另验证 language 消费、旧帧 fallback 与 KN 隔离；不代表真实音色或语音服务实测。
 
-### 重要：当前 viewer 未接宿主 API
+### 当前 viewer 的媒体输出接线
 
-**本轮交付是 VM 语义与宿主边界，不是真实浏览器设备实现。**
-媒体 pending/output 尚未接入 Frame/viewer；现有 TTS 的 language 字段已接入。因此：
+**本轮仍不宣称真实设备全等，但 K4 的媒体输出已经接入 Frame 和 Web viewer。**
+媒体输出已接入 Frame；pending 请求仍需宿主按 id 完成，viewer 没有完整请求 UI。现有 TTS 的 language 字段已接入。因此：
 
+- Web viewer 通过 `use_browser_audio()` 使用 frame-only 契约：`Frame.k4_media` 与 `Frame.k4_media_output` 提供相同一批增量，音频宿主仅消费前者的 MIDI，设备宿主仅消费后者的震动；两字段不是应拼接的两个队列。MIDI 使用本地 WebAudio 音源，不等于官方钢琴 MP3 的音色或声学一致性；录音播放尚无 viewer 实现。
+- `web/k4-device.js` 已桥接权限探测、真实 motion/orientation 事件和 capability-checked `navigator.vibrate`。缺失/拒绝能力不伪造成功或零值传感数据，真实硬件效果仍未认证，见 `kitten4-device.md`。
 - headless `MediaOutput::Midi` 不会自动发声，PlayRecord 不会自行播放，Vibrate 不会振动。
 - 默认 camera=false 只复现失败路径；设为 true 后，如无人调用 complete API，脚本将一直等待。
 - 语音对话、识别与结果展示请求没有 viewer UI 来完成，仍会阻塞。不得为了让作品跑完自动填空/成功。
-- 手机事件只由显式 API 输入，viewer 没有手机配对或设备传感桥，无法自动产生 shake/tilt/slide 等输入。
+- 手机按钮/slide/slope/shake 只由显式 API 输入，viewer 没有手机配对传输；raw motion 不自动伪造 shake/tilt/slide 事件。
 - `set_speaking_language` 会设置 viewer 请求语言，但可用音色、发音质量与回调链依赖浏览器，保持 partial。
 - 即使 Rust 合成测试全部通过，也只证明 engine 公共 API 合同，不证明设备/browser parity。
 
-建议后续单独接入：Frame additive 输出媒体请求与命令；viewer 显示权限/录音/扫码 UI 并按 id 回包；
-MIDI 钢琴键索引接合法自有音源；录音 token/URL 接播放；震动请求接 capability-checked navigator.vibrate；
+仍需后续接入：viewer 显示权限/录音/扫码 UI 并按 id 回包；
+MIDI 钢琴键索引接合法自有采样音源；录音 token/URL 接播放；手机控制器配对传输；
 现有 TTS 语言字段已接线，不需要再重复添加。
 
 测试包括：MIDI 对象与键边界、invalid/string beats、不等待无效音符、80 BPM 阻塞、
@@ -155,4 +157,4 @@ strict voice/scan 结果、录音 token 隔离、无 camera 不锁/有 camera �
 联网翻译成功分支和缓存、官方错误提示 UI、TTS 前后回调链、所有跨场景/克隆/取消/
 同帧重入差分、无效 filter 动态求值、JS 孤立 surrogate 精确存储。
 请求队列上限 256、振动次数上限 4096、未消费输出上限 1024 是本地安全界限，超限报错。
-`take_k4_media_output` 需宿主定期排空；宿主从未消费时不会自动执行硬件效果。
+宿主需消费 `advance()` 返回的媒体输出；headless 引擎不会自动执行硬件效果。浏览器无需额外排空旧 take 队列。
