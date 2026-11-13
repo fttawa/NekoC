@@ -30,6 +30,8 @@ use runtime::{h_append_cell, h_boundary, h_call, h_reentrant, h_return};
 /// Interpreted executions of one pc before it is compiled.
 const HOT_THRESHOLD: u16 = 500;
 const COLD_NEVER: u16 = u16::MAX;
+/// Regions compiled per frame at most; the rest wait for later frames.
+const COMPILES_PER_FRAME: u16 = 2;
 const MAX_REGION_OPS: usize = 48;
 /// A terminal entry can only call Rust and leave. Keep a small real-native
 /// sample, then prefer the interpreter instead of paying a trampoline forever.
@@ -96,6 +98,7 @@ pub(super) struct Jit {
     hot: Vec<u16>,
     terminal_runs: Vec<u8>,
     next_name: usize,
+    compiles_left: u16,
     timing: Option<timing::Handle>,
 }
 
@@ -151,7 +154,11 @@ impl Jit {
             return None;
         }
         let mut flags = settings::builder();
-        flags.set("opt_level", "speed").ok()?;
+        // Regions are small and compiled while the work runs: Cranelift's
+        // optimizer cost ~19% more compile time for no measurable corpus gain.
+        // Keep the default backtracking register allocator; single_pass was
+        // faster to compile but its code slowed heavy works by ~30%.
+        flags.set("opt_level", "none").ok()?;
         let isa = cranelift_native::builder()
             .ok()?
             .finish(settings::Flags::new(flags))
@@ -163,12 +170,20 @@ impl Jit {
             hot: vec![0; ops],
             terminal_runs: vec![0; ops],
             next_name: 0,
+            compiles_left: COMPILES_PER_FRAME,
             timing: timing::from_env(),
         }))
     }
 }
 
 impl Engine {
+    /// Called once per frame: refills the per-frame compile allowance.
+    pub(super) fn jit_begin_frame(&mut self) {
+        if let Some(jit) = self.jit.as_mut() {
+            jit.compiles_left = COMPILES_PER_FRAME;
+        }
+    }
+
     /// Opt-in counters. Native ops include delegated ops; node calls are reporter
     /// evaluations, not instructions, and must not be added to the denominator.
     pub fn enable_jit_profile(&mut self) {
@@ -352,10 +367,19 @@ impl Engine {
             if *hot == COLD_NEVER {
                 return None;
             }
-            *hot += 1;
             if *hot < HOT_THRESHOLD {
+                *hot += 1;
+                if *hot < HOT_THRESHOLD {
+                    return None;
+                }
+            }
+            // Spread compilation over frames so one frame never stalls on many
+            // regions at once. The count is deterministic; a deferred pc stays
+            // hot and compiles on a later frame.
+            if jit.compiles_left == 0 {
                 return None;
             }
+            jit.compiles_left -= 1;
             self.jit_compile(pc);
         }
         let used = self.jit_run(index, pc, actor, left);

@@ -1911,3 +1911,55 @@ fn hot_reentrant_reporter_errors_done_and_restart_stop_at_the_same_boundary() {
         }
     }
 }
+
+/// Many loops turn hot in the same frame. Compilation is spread over frames
+/// (at most two regions per frame) so one frame never stalls on all of them,
+/// and the result stays identical to the interpreter.
+#[test]
+fn hot_regions_compile_over_several_frames() {
+    let ids: Vec<String> = (0..6).map(|i| format!("v{i}")).collect();
+    let mut p = nekoc::studio::document::Document::blank().value().clone();
+    for id in &ids {
+        p["variables"]["variablesDict"][id] =
+            serde_json::json!({"id":id,"value":0,"isGlobal":true});
+    }
+    // One script per loop: each script's code is its own region.
+    let scripts: Vec<Value> = ids
+        .iter()
+        .map(|id| {
+            let body = serde_json::json!({"type":"repeat_n_times","inputs":{"times":num(900.0)},
+                "statements":{"DO":set(id, serde_json::json!({"type":"math_arithmetic",
+                    "fields":{"type":"add"},"inputs":{"A":get(id),"B":num(1.0)}}))}});
+            serde_json::json!({"type":"on_running_group_activated","next":{"type":"repeat_forever",
+                "statements":{"DO":{"type":"warp","statements":{"DO":body}}}}})
+        })
+        .collect();
+    p["actors"]["actorsDict"]["nekoc-default-actor"]["nekoBlockJsonList"] = Value::Array(scripts);
+    let mut a = engine(&p, false);
+    let mut b = engine(&p, true);
+    b.enable_jit_profile();
+    let mut regions = vec![];
+    for _ in 0..6 {
+        let x = a
+            .advance(1.0 / 60.0, 1_000_000, Duration::from_secs(5))
+            .unwrap();
+        let y = b
+            .advance(1.0 / 60.0, 1_000_000, Duration::from_secs(5))
+            .unwrap();
+        assert_eq!(
+            normalized(&encode_frame(&x).unwrap()),
+            normalized(&encode_frame(&y).unwrap())
+        );
+        assert_eq!(a.debug_snapshot(), b.debug_snapshot());
+        regions.push(b.jit_profile()["regions"].as_u64().unwrap());
+    }
+    let mut previous = 0;
+    for &count in &regions {
+        assert!(count - previous <= 2, "{regions:?}");
+        previous = count;
+    }
+    assert!(
+        regions[5] >= 6,
+        "every loop is eventually compiled: {regions:?}"
+    );
+}

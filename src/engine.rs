@@ -8626,6 +8626,7 @@ impl Engine {
         let cloud_frame = self.begin_cloud_frame()?;
         self.sequence += 1;
         self.k4_media.begin_frame();
+        self.jit_begin_frame();
         let started = Instant::now();
         let mut count = 0;
         let mut ticks = 0;
