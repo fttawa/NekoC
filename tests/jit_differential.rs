@@ -1998,6 +1998,13 @@ fn unprofiled_native_repeat_tails_match_the_interpreter() {
         chain(vec![
             inc("x"),
             serde_json::json!({"type":"self_move_to","inputs":{"x":get("x"),"y":num(0.0)}}),
+            // (x - x) / 0 is NaN: that axis keeps its value, y still moves.
+            serde_json::json!({"type":"self_move_to","inputs":{
+                "x":{"type":"math_arithmetic","fields":{"type":"divide"},"inputs":{
+                    "A":{"type":"math_arithmetic","fields":{"type":"minus"},
+                        "inputs":{"A":get("x"),"B":get("x")}},
+                    "B":num(0.0)}},
+                "y":get("x")}}),
         ]),
     )}});
     p["actors"]["actorsDict"]["nekoc-default-actor"]["nekoBlockJsonList"] = serde_json::json!([
