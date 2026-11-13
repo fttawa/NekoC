@@ -109,7 +109,7 @@ fn main() -> Result<()> {
     let mut files = std::fs::read_dir(&args.corpus)?
         .map(|e| Ok(e?.path()))
         .collect::<Result<Vec<_>>>()?;
-    files.retain(|p| p.extension().is_some_and(|e| e == "bcm"));
+    files.retain(|p| p.extension().is_some_and(|e| e == "bcm" || e == "bcmkn"));
     if !args.only.is_empty() {
         files.retain(|p| {
             p.file_stem()
@@ -131,7 +131,12 @@ fn main() -> Result<()> {
         let id = file.file_stem().unwrap().to_string_lossy().into_owned();
         let result = (|| {
             let loaded = nekoc::project::load_project(&file)?;
-            let project = nekoc::kitten4::to_neko(&loaded.value)?;
+            // Kitten N works are already in the engine's input format.
+            let project = if file.extension().is_some_and(|e| e == "bcmkn") {
+                loaded.value
+            } else {
+                nekoc::kitten4::to_neko(&loaded.value)?
+            };
             measure(&project, &args)
         })();
         let report = match result {

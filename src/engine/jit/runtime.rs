@@ -173,6 +173,40 @@ pub(super) unsafe extern "C" fn h_append_cell(c: *mut NativeContext, pc: u64) ->
     finish(c, pc)
 }
 
+/// Repeat tail fast path, same contract as `h_boundary`. A non-final,
+/// non-yielding `Next` only decrements its counter and counts one warp
+/// iteration; everything else (profiling, output limit, pending error, final
+/// iteration) takes the full gateway, so behaviour is identical.
+pub(super) unsafe extern "C" fn h_next(c: *mut NativeContext, pc: u64) -> u64 {
+    let engine = unsafe { &mut *(*c).engine };
+    let Op::Next(target, false) = engine.program.ops[pc as usize] else {
+        return unsafe { h_boundary(c, pc) };
+    };
+    let index = unsafe { (*c).index };
+    // Decide on the counter first: final iterations (common in short loops)
+    // go straight to the gateway without paying for the other checks twice.
+    if !engine.tasks[index]
+        .loops
+        .last()
+        .is_some_and(|&left| left > 1)
+        || engine.jit_profile.is_some()
+        || engine.value_error.is_some()
+        || unsafe { (*c).timing.is_some() }
+        || engine.output_limit_reached()
+    {
+        return unsafe { h_boundary(c, pc) };
+    }
+    let task = &mut engine.tasks[index];
+    *task.loops.last_mut().unwrap() -= 1;
+    task.pc = target;
+    if engine.warp_iteration_yields() {
+        engine.jit_yield = true;
+        u64::MAX - 2
+    } else {
+        target as u64
+    }
+}
+
 /// Execute a scheduling boundary exactly once. KN and K4 use the same gateway
 /// but separate policies in warp_iteration_yields. MAX-2 means executed and yielded;
 /// the generated region must refund later instructions and immediately return.
