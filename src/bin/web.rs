@@ -1201,17 +1201,23 @@ mod tests {
             }]);
             let mut vm = Engine::new(Program::compile(&project).unwrap());
             vm.start();
-            let bytes = frame_bytes(
-                &mut vm,
-                &json!({"mouse":{"x":-expected[0]-5.0,"y":expected[1]+3.0},"costumes":[{
-                    "id":"nekoc-costume","width":20,"height":12,"centerPoint":pivot,
-                    "mask_width":2,"mask_height":1,"mask":"AQ=="
-                }]}),
-            )
-            .unwrap();
-            let len = u32::from_le_bytes(bytes[..4].try_into().unwrap()) as usize;
-            let frame: Value = serde_json::from_slice(&bytes[4..4 + len]).unwrap();
-            assert_eq!(frame["logs"], json!(["1"]));
+            let payload = json!({"mouse":{"x":-expected[0]-5.0,"y":expected[1]+3.0},"costumes":[{
+                "id":"nekoc-costume","width":20,"height":12,"centerPoint":pivot,
+                "mask_width":2,"mask_height":1,"mask":"AQ=="
+            }]});
+            // The frame budget is wall-clock; a slow runner may need more than
+            // one frame to reach the log, so collect a few frames' worth.
+            let mut logs = Vec::new();
+            for _ in 0..10 {
+                let bytes = frame_bytes(&mut vm, &payload).unwrap();
+                let len = u32::from_le_bytes(bytes[..4].try_into().unwrap()) as usize;
+                let frame: Value = serde_json::from_slice(&bytes[4..4 + len]).unwrap();
+                logs.extend(frame["logs"].as_array().unwrap().iter().cloned());
+                if !logs.is_empty() {
+                    break;
+                }
+            }
+            assert_eq!(logs, [json!("1")]);
         }
     }
 

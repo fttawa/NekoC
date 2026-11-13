@@ -339,6 +339,17 @@ pen 探针（3 次中位数）0.0737 → **0.0597 ms**（jit2 0.0505）；全语
 broadcast 探针（3 次中位数）0.186 → **0.136 ms**（jit2 0.163）；全语料 3 轮 200 帧合计
 11.94 → 11.86 ms，噪声内。
 
+## list 探针：剩余差距在线性查找，不再追（2026-11-13）
+
+list 探针的 `listIndexOf(-1)` 编译为 `list_index_of`，查找值永远不在列表里，每轮都要扫完
+最多 1000 项，每帧约 50 万次比较。`Cell::index_in` 已按 4 项一批比较数值，每次约 0.44 ns，
+接近内存带宽，探针 0.230 ms 对 jit2 0.221 ms 的 4% 差距不值得为它特化。
+
+顺带把 `变量 = 列表最后一项` 从通用 `exec` 改为 `h_assign_last_item`，与按序号取项的
+`h_assign_item` 共用实现。共用时修正了一处既有差异：KN 下取到 undefined 元素时，解释器
+给 NaN，原 JIT helper 却直接赋 undefined。不开 profile 的差分测试加入断开连接的 micro:bit
+音量（undefined），两种取法都检查；去掉 NaN 映射的变异会被它抓到。
+
 ## 结论与适用范围
 
 本次以 `oc/integrate` 的 `146fd4f` 为优化基线，提供可复现的 release/headless 基准，

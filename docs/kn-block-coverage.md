@@ -216,7 +216,7 @@
 | 120 | `microbit_button_when` | 部分语义 | 官方硬件扩展定义／未安装 | `src/engine.rs:3233` | T18, T33 | 仅无硬件后端时注册休眠事件并验证事件体；自然设备事件不触发，真实派发未实现 |
 | 121 | `microbit_change_bpm` | 部分语义 | 官方硬件扩展定义／未安装 | `src/engine.rs:3622` | T19 | 仅空硬件 Map 时同步早退并求值 offset；真实设备节拍与未连接提示 UI 未实现 |
 | 122 | `microbit_compass_heading` | 部分语义 | 官方硬件扩展定义／未安装 | `src/engine.rs:1911`<br>`src/engine.rs:2727` | T33 | 仅无连接 Promise 兑现为 numeric NaN；子表达式逐次跨 update 恢复，真实传感器未实现，复杂过程/调度组合未验证 |
-| 123 | `microbit_get_volume` | 部分语义 | 官方硬件扩展定义／未安装 | `src/engine.rs:1911`<br>`src/engine.rs:2727` | T19 | 仅空硬件 Map 时同步 undefined，不是音量 0/NaN；真实设备与未连接提示 UI 未实现 |
+| 123 | `microbit_get_volume` | 部分语义 | 官方硬件扩展定义／未安装 | `src/engine.rs:1911`<br>`src/engine.rs:2727` | T12, T19 | 仅空硬件 Map 时同步 undefined，不是音量 0/NaN；真实设备与未连接提示 UI 未实现 |
 | 124 | `microbit_is_gesture` | 部分语义 | 官方硬件扩展定义／未安装 | `src/engine.rs:1911`<br>`src/engine.rs:2727` | T18 | 仅无microbit连接时boolean false；真实设备手势未实现 |
 | 125 | `microbit_led_clear` | 部分语义 | 官方硬件扩展定义／未安装 | `src/engine.rs:3582` | T33 | 仅无连接 Promise 早退，求值输入后下一 update 继续；真实设备未实现，完整微任务/调度组合未验证 |
 | 126 | `microbit_led_is_plot` | 部分语义 | 官方硬件扩展定义／未安装 | `src/engine.rs:1941`<br>`src/engine.rs:2727` | T18 | 仅无microbit连接时顺序求值x/y后boolean false；真实LED查询未实现 |
