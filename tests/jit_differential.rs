@@ -1963,3 +1963,73 @@ fn hot_regions_compile_over_several_frames() {
         "every loop is eventually compiled: {regions:?}"
     );
 }
+
+/// Native repeat tails take a fast path when profiling is off. Run without a
+/// profile (so that path is the one under test) through nested final
+/// iterations, KN's count-only warp yields (tail 30002 under the virtual
+/// clock) and pen output, comparing every frame with the interpreter.
+#[test]
+fn unprofiled_native_repeat_tails_match_the_interpreter() {
+    let inc = |id: &str| {
+        set(
+            id,
+            serde_json::json!({"type":"math_arithmetic","fields":{"type":"add"},
+                "inputs":{"A":get(id),"B":num(1.0)}}),
+        )
+    };
+    let repeat = |times: f64, body: Value| {
+        serde_json::json!({"type":"repeat_n_times","inputs":{"times":num(times)},
+            "statements":{"DO":body}})
+    };
+    let mut p = nekoc::studio::document::Document::blank().value().clone();
+    for id in ["inner", "outer", "frames", "x"] {
+        p["variables"]["variablesDict"][id] =
+            serde_json::json!({"id":id,"value":0,"isGlobal":true});
+    }
+    let counting = chain(vec![
+        serde_json::json!({"type":"warp","statements":{"DO":repeat(
+            50.0,
+            chain(vec![repeat(1500.0, inc("inner")), inc("outer")]),
+        )}}),
+        inc("frames"),
+    ]);
+    let drawing = serde_json::json!({"type":"warp","statements":{"DO":repeat(
+        700.0,
+        chain(vec![
+            inc("x"),
+            serde_json::json!({"type":"self_move_to","inputs":{"x":get("x"),"y":num(0.0)}}),
+        ]),
+    )}});
+    p["actors"]["actorsDict"]["nekoc-default-actor"]["nekoBlockJsonList"] = serde_json::json!([
+        {"type":"on_running_group_activated","next":{"type":"repeat_forever",
+            "statements":{"DO":counting}}},
+        {"type":"on_running_group_activated","next":{"type":"self_pen_down","next":{
+            "type":"repeat_forever","statements":{"DO":drawing}}}}
+    ]);
+    let mut a = engine(&p, false);
+    let mut b = engine(&p, true);
+    let mut lines = 0;
+    for frame in 0..120 {
+        let x = a
+            .advance(1.0 / 60.0, 10_000_000, Duration::from_secs(5))
+            .unwrap();
+        let y = b
+            .advance(1.0 / 60.0, 10_000_000, Duration::from_secs(5))
+            .unwrap();
+        assert_eq!(
+            normalized(&encode_frame(&x).unwrap()),
+            normalized(&encode_frame(&y).unwrap()),
+            "frame {frame}"
+        );
+        assert_eq!(a.debug_snapshot(), b.debug_snapshot(), "frame {frame}");
+        lines += y.lines.len();
+        a.recycle_lines(x.lines);
+        b.recycle_lines(y.lines);
+    }
+    let state = b.debug_snapshot();
+    // Each warp runs 75,050 tails, so KN yields inside it and one pass of the
+    // forever body spans several frames; it must still have completed passes.
+    let passes = state["variables"]["frames"].as_f64().unwrap();
+    assert!(passes > 0.0 && passes < 60.0, "{passes}");
+    assert!(lines > 0);
+}

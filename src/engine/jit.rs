@@ -25,7 +25,7 @@ mod entries;
 mod parameters;
 mod runtime;
 mod timing;
-use runtime::{h_append_cell, h_boundary, h_call, h_reentrant, h_return};
+use runtime::{h_append_cell, h_boundary, h_call, h_next, h_reentrant, h_return};
 
 /// Interpreted executions of one pc before it is compiled.
 const HOT_THRESHOLD: u16 = 500;
@@ -1955,7 +1955,12 @@ impl Gen<'_, '_> {
                     .brif(entered, block(pc + 1), &[], block(end), &[]);
             }
             Op::Next(target, _) | Op::RangeNext(target, _) => {
-                let next = self.transfer_with(h_boundary as *const () as usize, pc, remaining);
+                let helper = if matches!(op, Op::Next(_, false)) {
+                    h_next as *const () as usize
+                } else {
+                    h_boundary as *const () as usize
+                };
+                let next = self.transfer_with(helper, pc, remaining);
                 let again = self.b.ins().icmp_imm(IntCC::Equal, next, target as i64);
                 self.b
                     .ins()
