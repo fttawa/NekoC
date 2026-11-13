@@ -337,9 +337,9 @@ Points towards the specified angle.
 pointTowards(0); // Face right
 ```
 
-### `rotateAround(degrees, radius, centerX, centerY)`
+### `rotateAround(target, degrees)`
 
-Rotates around a center point.
+Rotates around another sprite (`target` is a sprite name, or `"--self"`).
 
 ### `faceTo(target)` / `setFaceTo(target)`
 
@@ -524,9 +524,9 @@ Gets the number of clones.
 
 Gets the current clone's index.
 
-### `cloneProperty(sprite, attribute, index)`
+### `cloneProperty(sprite, index, attribute)`
 
-Gets a property of a specific clone.
+Gets a property (`"x"`, `"y"`, …) of the clone at `index`.
 
 ## Screen
 

@@ -18,10 +18,7 @@ function socialText(x: number,y: number,text: NekoValue,size: number): void {
 defineProc("td social init",[],()=>{warp(()=>{
   setVar("cloudEnabled",0);setVar("cloudStatus","云端未配置 / 本地会话");
   if(socialV("tdSocialReady")!==1) {
-    // randInt is supported by NekoC (native random_num), absent from its d.ts.
-    // @ts-expect-error Native compiler builtin.
     setVar("socialId",randInt(100000,999999));
-    // @ts-expect-error Native compiler builtin.
     setVar("socialSession",randInt(100000000,999999999));
     setVar("tdSocialRun",0);setVar("tdSocialRunActive",0);setVar("tdSocialRunLevel",0);
     setVar("socialRecordedRun",0);setVar("socialRecordCount",0);

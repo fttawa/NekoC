@@ -4,16 +4,17 @@
 // ---------------------------------------------------------------------------
 
 type NekoPrimitive = string | number | boolean;
-type NekoValue = NekoPrimitive | NekoExpression<unknown>;
-
-interface NekoExpression<T = unknown> {
-  readonly __nekocExpression?: T;
-}
+/**
+ * Block values are plain values at the type level, so `getVar("n") + 1` and
+ * comparisons type-check like ordinary TS. Kitten N converts at run time.
+ */
+type NekoExpression<T = any> = T;
+type NekoValue = any;
 
 type NekoStatementBody = () => void;
 type NekoTestBody = () => void | Promise<void>;
 
-interface NekoExpect<T = unknown> {
+interface NekoExpect<T = any> {
   toBe(expected: T): void;
   toEqual(expected: unknown): void;
   toBeTruthy(): void;
@@ -31,11 +32,26 @@ interface StageOptions {
 }
 
 interface SpriteOptions {
+  /** Image URL of the single costume. Use `costumes` for several. */
   costume?: string | null;
+  /** Several costumes, switched with nextStyle()/setStyle(name). The first is shown at start. */
+  costumes?: Array<string | CostumeOptions>;
   x?: number;
   y?: number;
   scale?: number;
+  rotation?: number;
   visible?: boolean;
+  draggable?: boolean;
+  /** Costume pivot in pixels from the image's top-left corner. */
+  centerX?: number;
+  centerY?: number;
+}
+
+interface CostumeOptions {
+  name?: string;
+  url: string;
+  centerX?: number;
+  centerY?: number;
 }
 
 interface ScreenOptions {
@@ -48,7 +64,7 @@ interface ScreenOptions {
 
 type ListItemMode = "any" | "last" | string;
 
-interface NekoVariableHandle<T = unknown> {
+interface NekoVariableHandle<T = any> {
   get(): NekoExpression<T>;
   set(value: NekoValue): void;
   change(delta: NekoValue): void;
@@ -56,7 +72,7 @@ interface NekoVariableHandle<T = unknown> {
   hide(): void;
 }
 
-interface NekoListHandle<T = unknown> {
+interface NekoListHandle<T = any> {
   add(value: NekoValue): void;
   append(value: NekoValue): void;
   insert(index: NekoValue, value: NekoValue): void;
@@ -100,7 +116,7 @@ interface NekoSpriteSelf {
   glideChangeY(delta: NekoValue): void;
   turn(degrees: NekoValue): void;
   pointTowards(degrees: NekoValue): void;
-  rotateAround(degrees: NekoValue, radius: NekoValue, centerX: NekoValue, centerY: NekoValue): void;
+  rotateAround(target: string, degrees: NekoValue): void;
   faceTo(target: string): void;
   setFaceTo(target: string): void;
   moveToTarget(target: string): void;
@@ -190,7 +206,7 @@ interface NekoSpriteSelf {
   repeatUntil(condition: NekoValue, body: NekoStatementBody): void;
   forRange(variable: string, from: NekoValue, to: NekoValue, by: NekoValue, body: NekoStatementBody): void;
   breakLoop(): void;
-  stop(): void;
+  stop(option?: string): void;
   restart(): void;
   warp(body: NekoStatementBody): void;
   tell(target: string, body: NekoStatementBody): void;
@@ -201,10 +217,10 @@ interface NekoSpriteSelf {
   // --- Variables ---
   setVar(name: string, value: NekoValue): void;
   changeVar(name: string, delta: NekoValue): void;
-  getVar<T = unknown>(name: string): NekoExpression<T>;
+  getVar<T = any>(name: string): NekoExpression<T>;
   showVariable(name: string): void;
   hideVariable(name: string): void;
-  var<T = unknown>(name: string): NekoVariableHandle<T>;
+  var<T = any>(name: string): NekoVariableHandle<T>;
   scriptVars(...names: string[]): void;
 
   // --- Lists ---
@@ -215,7 +231,7 @@ interface NekoSpriteSelf {
   copyList(name: NekoValue, targetName: string): void;
   showList(name: string): void;
   hideList(name: string): void;
-  list<T = unknown>(name: string): NekoListHandle<T>;
+  list<T = any>(name: string): NekoListHandle<T>;
 
   // --- Console ---
   consoleLog(value: NekoValue): void;
@@ -241,11 +257,14 @@ declare function keyButton(key: string, label: string, visible?: boolean): void;
 declare function onKey(key: string, body: NekoStatementBody): void;
 declare function onKey(key: string, state: string, body: NekoStatementBody): void;
 declare function onMessage(message: string, body: NekoStatementBody): void;
+/** `parameter` names the broadcast value, read with messageValue(parameter). */
+declare function onMessage(message: string, parameter: string, body: NekoStatementBody): void;
 declare function when(condition: NekoValue, body: NekoStatementBody): void;
 declare function onBumpActor(target: string, body: NekoStatementBody): void;
+declare function onBumpActor(target: string, self: string, actor: string, body: NekoStatementBody): void;
 
 declare function test(name: string, body: NekoTestBody): void;
-declare function expect<T = unknown>(actual: T): NekoExpect<T>;
+declare function expect<T = any>(actual: T): NekoExpect<T>;
 
 declare function defineProc(name: string, params: string[], body: NekoStatementBody): void;
 declare function defineReporter(name: string, params: string[], body: NekoStatementBody): void;
@@ -327,7 +346,7 @@ declare function repeatTimes(times: NekoValue, body: NekoStatementBody): void;
 declare function repeatUntil(condition: NekoValue, body: NekoStatementBody): void;
 declare function forRange(variable: string, from: NekoValue, to: NekoValue, by: NekoValue, body: NekoStatementBody): void;
 declare function breakLoop(): void;
-declare function stop(): void;
+declare function stop(option?: string): void;
 declare function restart(): void;
 declare function warp(body: NekoStatementBody): void;
 declare function tell(target: string, body: NekoStatementBody): void;
@@ -341,15 +360,15 @@ declare function scriptVars(...names: string[]): void;
 // Global expression functions
 // ---------------------------------------------------------------------------
 
-declare function getVar<T = unknown>(name: string): NekoExpression<T>;
-declare function scriptVar<T = unknown>(name: string): NekoExpression<T>;
-declare function messageValue<T = unknown>(name: string): NekoExpression<T>;
-declare function param<T = unknown>(name: string): NekoExpression<T>;
-declare function actorParam<T = unknown>(name: string, attribute: string): NekoExpression<T>;
-declare function callReporter<T = unknown>(name: string, ...args: NekoValue[]): NekoExpression<T>;
-declare function receivedBroadcast<T = unknown>(message: string): NekoExpression<T>;
-declare function bumpActorValue<T = unknown>(sprite: string, attribute: string): NekoExpression<T>;
-declare function rangeValue<T = unknown>(name: string): NekoExpression<T>;
+declare function getVar<T = any>(name: string): NekoExpression<T>;
+declare function scriptVar<T = any>(name: string): NekoExpression<T>;
+declare function messageValue<T = any>(name: string): NekoExpression<T>;
+declare function param<T = any>(name: string): NekoExpression<T>;
+declare function actorParam<T = any>(name: string, attribute: string): NekoExpression<T>;
+declare function callReporter<T = any>(name: string, ...args: NekoValue[]): NekoExpression<T>;
+declare function receivedBroadcast<T = any>(message: string): NekoExpression<T>;
+declare function bumpActorValue<T = any>(sprite: string, attribute: string): NekoExpression<T>;
+declare function rangeValue<T = any>(name: string): NekoExpression<T>;
 declare function xOf(sprite: string): NekoExpression<number>;
 declare function yOf(sprite: string): NekoExpression<number>;
 declare function distanceTo(target: string): NekoExpression<number>;
@@ -370,11 +389,81 @@ declare function touchingColor(sprite: string, color: string): NekoExpression<bo
 declare function outOfBoundary(boundary: string): NekoExpression<boolean>;
 declare function cloneCount(sprite: string): NekoExpression<number>;
 declare function currentCloneIndex(): NekoExpression<number>;
-declare function cloneProperty(sprite: string, attribute: string, index: NekoValue): NekoExpression<number>;
+declare function cloneProperty(sprite: string, index: NekoValue, attribute: string): NekoExpression<number>;
 declare function touchingBodyPart(sprite: string, bodyPart: string): NekoExpression<boolean>;
-declare function getList<T = unknown>(name: string): NekoExpression<T[]>;
-declare function listItem<T = unknown>(name: string, mode: ListItemMode, index: NekoValue): NekoExpression<T>;
+declare function getList<T = any>(name: string): NekoExpression<T[]>;
+declare function listItem<T = any>(name: string, mode: ListItemMode, index: NekoValue): NekoExpression<T>;
 declare function listLength(name: string): NekoExpression<number>;
 declare function listIndexOf(name: string, value: NekoValue): NekoExpression<number>;
 declare function listContains(name: string, value: NekoValue): NekoExpression<boolean>;
 declare function tempList(...items: NekoValue[]): NekoExpression<unknown[]>;
+
+// ---------------------------------------------------------------------------
+// Block-style operators (same blocks the native operators compile to)
+// ---------------------------------------------------------------------------
+
+declare function add(a: NekoValue, b: NekoValue): number;
+declare function sub(a: NekoValue, b: NekoValue): number;
+declare function mul(a: NekoValue, b: NekoValue): number;
+declare function div(a: NekoValue, b: NekoValue): number;
+declare function mod(a: NekoValue, b: NekoValue): number;
+declare function pow(a: NekoValue, b: NekoValue): number;
+declare function eq(a: NekoValue, b: NekoValue): boolean;
+declare function neq(a: NekoValue, b: NekoValue): boolean;
+declare function lt(a: NekoValue, b: NekoValue): boolean;
+declare function lte(a: NekoValue, b: NekoValue): boolean;
+declare function gt(a: NekoValue, b: NekoValue): boolean;
+declare function gte(a: NekoValue, b: NekoValue): boolean;
+declare function and(a: NekoValue, b: NekoValue): boolean;
+declare function or(a: NekoValue, b: NekoValue): boolean;
+declare function not(a: NekoValue): boolean;
+declare function bool(value: boolean): boolean;
+declare function toBoolean(value: NekoValue): boolean;
+declare function toString(value: NekoValue): string;
+declare function randInt(min: NekoValue, max: NekoValue): number;
+declare function divisibleBy(a: NekoValue, b: NekoValue): boolean;
+declare function numberProperty(value: NekoValue, property: string): boolean;
+declare function ifThen(condition: NekoValue, body: NekoStatementBody): void;
+declare function ifElse(condition: NekoValue, then: NekoStatementBody, otherwise: NekoStatementBody): void;
+
+// ---------------------------------------------------------------------------
+// More statements (also available as self.<name> inside sprite bodies)
+// ---------------------------------------------------------------------------
+
+declare function move(steps: NekoValue): void;
+declare function glideTo(x: NekoValue, y: NekoValue, seconds?: NekoValue): void;
+declare function glideChangeX(delta: NekoValue, seconds?: NekoValue): void;
+declare function glideChangeY(delta: NekoValue, seconds?: NekoValue): void;
+declare function rotateAround(target: string, degrees: NekoValue): void;
+declare function contains(text: NekoValue, part: NekoValue): boolean;
+declare function length(text: NekoValue): number;
+declare function faceTo(target: string): void;
+declare function setFaceTo(target: string): void;
+declare function moveToTarget(target: string): void;
+declare function moveToTargetSprite(target: string): void;
+declare function bounceOffEdge(): void;
+declare function setRotationType(type: string): void;
+declare function appearWith(direction: string, animation: string, duration?: string): void;
+declare function fadeVisibility(time: NekoValue, showHide: string): void;
+declare function stageDialog(sprite: string, text: NekoValue): void;
+declare function setSize(type: string, value: NekoValue): void;
+declare function changeSize(type: string, delta: NekoValue): void;
+declare function setText(text: NekoValue): void;
+declare function setTextSize(size: NekoValue): void;
+declare function setTextColor(color: string): void;
+declare function setLayer(layer: string, target?: string): void;
+declare function setCamp(camp: string): void;
+declare function stressAnimation(animation: string): void;
+declare function globalAnimation(animation: string): void;
+declare function createClone(sprite?: string): void;
+declare function imageStamp(): void;
+declare function setPenLayer(layer: string, target?: string): void;
+declare function setScreenTransition(direction: string, type: string): void;
+declare function showRanking(type: string): void;
+declare function hideRanking(type: string): void;
+declare function faceToBodyPart(bodyPart: string): void;
+declare function mouseTrigger(...args: string[]): boolean;
+declare function faceTiltAngle(...args: string[]): number;
+declare function bodyPartAppearance(...args: string[]): number;
+
+declare const console: { log(...values: NekoValue[]): void };
