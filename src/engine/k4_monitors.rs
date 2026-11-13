@@ -4,13 +4,16 @@ use super::*;
 
 // Existing Frame representation: one line per item, capped to 100 items. Private
 // lists must use the same rendering contract as globals, not JS Array.toString.
+// Rebuilt every frame while the widget is visible: append into one buffer
+// rather than allocating a String per item and joining them.
 pub(super) fn list_text(items: &[Cell]) -> String {
-    let mut text = items
-        .iter()
-        .take(100)
-        .map(Cell::text)
-        .collect::<Vec<_>>()
-        .join("\n");
+    let mut text = String::new();
+    for (i, item) in items.iter().take(100).enumerate() {
+        if i > 0 {
+            text.push('\n');
+        }
+        item.append_text(&mut text);
+    }
     if items.len() > 100 {
         text.push_str("\n…");
     }
@@ -58,5 +61,46 @@ impl Compiler {
             self.program.initial_monitors.push(var["visible"] == true);
         }
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn list_text_matches_joining_each_item_text() {
+        let nested = Cell::List(Rc::new(RefCell::new(vec![
+            Cell::Number(1.5),
+            Cell::Null,
+            Cell::Text("x".into()),
+        ])));
+        let mut items = vec![
+            Cell::Number(-0.0),
+            Cell::Number(1e21),
+            Cell::Number(f64::NAN),
+            Cell::Number(f64::NEG_INFINITY),
+            Cell::Bool(true),
+            Cell::Text("a\nb".into()),
+            Cell::Text("".into()),
+            Cell::Null,
+            Cell::Undefined,
+            nested,
+        ];
+        for len in [0, 1, items.len()] {
+            let joined = items[..len]
+                .iter()
+                .map(Cell::text)
+                .collect::<Vec<_>>()
+                .join("\n");
+            assert_eq!(list_text(&items[..len]), joined, "{len}");
+        }
+        items.extend((0..95).map(|i| Cell::Number(i as f64)));
+        let joined = items[..100]
+            .iter()
+            .map(Cell::text)
+            .collect::<Vec<_>>()
+            .join("\n");
+        assert_eq!(list_text(&items), joined + "\n…");
     }
 }
