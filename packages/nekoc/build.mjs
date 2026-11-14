@@ -42,7 +42,7 @@ await writeFile(path.join(dist, "nodejs/package.json"), `${JSON.stringify({ type
 
 const frontend = path.join(dist, "frontend");
 await mkdir(frontend, { recursive: true });
-for (const name of ["compile-ts.mjs", "share-objects.mjs", "kitten-n.mjs", "portable-path.mjs", "nekoc.d.ts"]) {
+for (const name of ["compile-ts.mjs", "share-objects.mjs", "kitten-n.mjs", "portable-path.mjs", "tsstr-types.mjs", "tsstr-numeric.mjs", "nekoc.d.ts"]) {
   await copyFile(path.join(root, "ts", name), path.join(frontend, name));
 }
 

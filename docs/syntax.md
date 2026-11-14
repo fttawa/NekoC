@@ -45,6 +45,54 @@ unsupported. See [object lowering and evidence](ts-share-objects.md) and
 [the support audit](ts-support-audit.md) for target-specific limitations,
 timer cancellation, numeric globals and array factories.
 
+### String addition and numeric conversion
+
+`+` and `+=` use the TypeScript checker's operand types, including string
+annotations, function returns, tuple slots, `string[]` elements and object
+properties. A known
+string operand selects concatenation. Without one, `any`, mixed unions and
+non-primitive operands are rejected: use `String(value)` for concatenation,
+or supply an accurate numeric type for arithmetic. Type assertions describe values; they
+do not perform conversions.
+Variable/property reads use their declared types, not control-flow narrowing:
+TypeScript does not track all callback or alias writes. A declared mixed union
+such as `string | number` is therefore rejected for ambiguous addition even
+after an assignment or a type guard; use `String(value)` to request concatenation.
+This protection also applies through parentheses, non-null assertions,
+`satisfies`, and conditional/logical expressions; these do not turn a declared
+mixed union into a runtime guarantee of a single primitive type.
+Object property `++` / `--` requires a statically numeric property; string and
+`any` properties are rejected because native addition can concatenate strings.
+
+`parseInt` and `parseFloat` currently accept **literal primitive arguments
+only** (including parenthesized/asserted literals and a literal `parseInt`
+radix). They are evaluated using JavaScript's prefix-parsing rules, not by
+converting the whole string and truncating. For example, `parseInt("42px")`
+is `42`, `parseInt("11", 2)` is `3`, and `parseFloat("1.5em")` is `1.5`.
+Dynamic arguments, including variable reads, produce a compile error; no
+approximate parser is emitted. `Number` literal conversions use JS rules too;
+dynamic `Number(value)` and unary `+value` accept statically numeric or boolean
+operands only.
+Dynamic string/`any` conversion is rejected because the native KN conversion
+block preserves some invalid strings instead of returning JS `NaN`.
+`String(value)` uses the native string conversion block.
+Literal conversions/parsing whose result is negative zero are rejected, including
+`parseInt("-0px")`, `parseFloat("-0")`, `Number("-0")` and `+"-0"`.
+The official player does not preserve the sign of emitted negative-zero number
+blocks. Native `-0` literals and dynamic negation still have this underlying
+known limitation; this is not a promise of full signed-zero JS semantics.
+
+Loose equality between statically known string/number/boolean operands of
+different types inserts numeric conversions, whereas `===` / `!==` retain
+the native non-coercing comparison. Cross-type loose equality requires any string
+operand to be a literal convertible to a non-NaN number; dynamic/invalid numeric
+strings produce a compile error instead of a native conversion error. Loose
+equality with `any`, mixed unions or non-primitive operands is rejected; use
+explicit conversions or strict equality. This is
+not a complete implementation of JS equality: native KN equality considers
+`NaN` equal to itself. That remains a known difference; the verified coercion
+case is `"5" == 5`.
+
 ### Function Declarations (Inlined)
 
 ```ts

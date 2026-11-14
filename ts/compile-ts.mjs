@@ -8,6 +8,8 @@ const defaultHost = { readFile: (name) => { try { return fs?.readFileSync(name, 
 import ts from "typescript";
 import { keyboardCode, effectCode, mathFunctionCode } from "./kitten-n.mjs";
 import { objectTypes, validateObjectOperations } from "./share-objects.mjs";
+import { createExpressionTypes } from "./tsstr-types.mjs";
+import { evaluateStaticNumericCall } from "./tsstr-numeric.mjs";
 
 /** A compile error. `location` is { file, line, column } (1-based) when known. */
 export class CompileError extends Error {
@@ -113,7 +115,7 @@ class WorkspaceCompiler {
     this.helperCount = 0;
     // Variables initialised with a string; `+` on them joins text.
     this.stringVariables = new Set();
-    STRING_VARIABLES = this.stringVariables;
+    this.typeSourceFiles = new Map([[this.entryPath, sourceFile]]);
     this.loopDepth = 0;
     this.loopBodyNext = false;
     this.tryStack = [];
@@ -136,6 +138,19 @@ class WorkspaceCompiler {
 
   compile(sourceFile) {
     this.loadImports(sourceFile, this.entryPath);
+    this.expressionType = createExpressionTypes(this.typeSourceFiles,
+      this.host.readFile(DECLARATIONS) ?? defaultHost.readFile(DECLARATIONS) ?? "", path,
+      name => this.host.readFile(name) ?? defaultHost.readFile(name));
+    // Callback bodies are copied into generated helper ASTs below. Validate
+    // user additions before copying so an any/union type cannot lose its type
+    // information and accidentally fall back to numeric helper lowering.
+    const validateAddition = node => {
+      if (ts.isBinaryExpression(node) && [ts.SyntaxKind.PlusToken, ts.SyntaxKind.PlusEqualsToken].includes(node.operatorToken.kind)) {
+        this.additionIsString(node.left, node.right);
+      }
+      ts.forEachChild(node, validateAddition);
+    };
+    for (const file of this.typeSourceFiles.values()) validateAddition(file);
     this.synthesizeHelpers(sourceFile);
     this.prepareShareObjects();
 
@@ -297,6 +312,7 @@ class WorkspaceCompiler {
       );
       rejectParseDiagnostics(moduleSourceFile);
       this.objectSourceFiles.push(moduleSourceFile);
+      this.typeSourceFiles.set(resolvedPath, moduleSourceFile);
       this.loadImports(moduleSourceFile, resolvedPath);
       this.synthesizeHelpers(moduleSourceFile);
       exports = this.collectModuleExports(moduleSourceFile);
@@ -531,8 +547,8 @@ class WorkspaceCompiler {
       }
       return false;
     };
-    const functions = [...this.inlineFunctions].sort(([, a], [, b]) =>
-      Number(a.body.getSourceFile().fileName.startsWith("__nekoc_")) - Number(b.body.getSourceFile().fileName.startsWith("__nekoc_")));
+    const generated = fn => Number(functionSourceFile(fn).fileName.startsWith("__nekoc_"));
+    const functions = [...this.inlineFunctions].sort(([, a], [, b]) => generated(a) - generated(b));
     for (const [name, fn] of functions) {
       if (this.objectSlots.size && reaches(name, name)) {
         let mutableObjectState = false;
@@ -658,6 +674,7 @@ class WorkspaceCompiler {
   // callback as its own function; shared helpers are added only when used.
   synthesizeHelpers(sourceFile) {
     const parts = [];
+    const callbackBodies = new Map();
     const globals = {
       "Math.sign": "function __jsSign(__jsSignX) { if (__jsSignX === 0) return __jsSignX; if (__jsSignX > 0) return 1; if (__jsSignX < 0) return -1; return __jsSignX; }",
       "Math.cbrt": "function __jsCbrt(__jsCbrtX) { if (__jsCbrtX < 0) return -Math.pow(-__jsCbrtX, 1 / 3); return Math.pow(__jsCbrtX, 1 / 3); }",
@@ -679,6 +696,7 @@ class WorkspaceCompiler {
         const n = ++this.helperCount;
         const name = `__arrayFrom${n}`;
         const cb = `__arrayFromCallback${n}`;
+        callbackBodies.set(cb, callback.body);
         const params = callback.parameters.map(p => {
           if (!ts.isIdentifier(p.name)) this.unsupported(p, "Array.from mapper parameters must be simple names");
           return p.name.text;
@@ -755,6 +773,8 @@ class WorkspaceCompiler {
         for (const helper of [`__timerCallback${n}`, name, worker]) {
           this.helperSourceOrigins.set(helper, { call: node, ...(helper === `__timerCallback${n}` ? { callback } : {}) });
         }
+        callbackBodies.set(`__timerCallback${n}`, ts.isBlock(callback.body) ? callback.body
+          : ts.factory.createBlock([ts.factory.createExpressionStatement(callback.body)]));
         parts.push(`function __timerCallback${n}() ${body}
         function ${name}(__timerMs${n}) {
           const ${token} = {active: true, delay: Math.max(0, __timerMs${n}) / 1000};
@@ -780,7 +800,7 @@ class WorkspaceCompiler {
         used.add(method);
         const callback = node.arguments[0];
         if (CALLBACK_METHODS.has(method) && callback && (ts.isArrowFunction(callback) || ts.isFunctionExpression(callback))) {
-          parts.push(this.synthesizeCallbackHelper(node, method, callback, sourceFile));
+          parts.push(this.synthesizeCallbackHelper(node, method, callback, sourceFile, callbackBodies));
         }
       }
       ts.forEachChild(node, visit);
@@ -823,6 +843,11 @@ class WorkspaceCompiler {
       const origin = this.helperSourceOrigins.get(statement.name?.text);
       if (origin) this.mapHelperOrigin(statement, origin);
       this.registerInlineFunction(statement);
+      // Keep user callback nodes bound to the original checker. Re-parsing a
+      // string callback as an untyped helper loses contextual parameter and
+      // return types (for example string[].map(x => x + x)).
+      const originalBody = callbackBodies.get(statement.name?.text);
+      if (originalBody) this.inlineFunctions.get(statement.name.text).body = originalBody;
     }
   }
 
@@ -841,7 +866,7 @@ class WorkspaceCompiler {
     visit(statement);
   }
 
-  synthesizeCallbackHelper(call, method, callback, sourceFile) {
+  synthesizeCallbackHelper(call, method, callback, sourceFile, callbackBodies) {
     const n = ++this.helperCount;
     const params = callback.parameters.map((param) => {
       if (!ts.isIdentifier(param.name)) this.unsupported(param, "Callback parameters must be simple names");
@@ -864,6 +889,8 @@ class WorkspaceCompiler {
     }
     const cb = `__cb${n}`;
     this.objectCallbackBodies.set(cb, callback.body);
+    callbackBodies.set(cb, statementBody && !ts.isBlock(callback.body)
+      ? ts.factory.createBlock([ts.factory.createExpressionStatement(callback.body)]) : callback.body);
     const name = `__${method}${n}`;
     this.helperSourceOrigins.set(cb, { callback, call });
     this.helperSourceOrigins.set(name, { call });
@@ -1577,7 +1604,7 @@ class WorkspaceCompiler {
     this.registerBlockVariable(declaration.name, variableName);
     if (declaration.initializer && this.isArrayExpression(declaration.initializer)) {
       this.arrayVariables.add(variableName);
-    } else if (declaration.initializer && this.isBoundStringExpression(declaration.initializer)) {
+    } else if (declaration.initializer && this.isStringExpression(declaration.initializer)) {
       this.stringVariables.add(variableName);
     }
     if ((declaration.parent.flags & ts.NodeFlags.Const) && declaration.initializer
@@ -2160,8 +2187,8 @@ class WorkspaceCompiler {
     let valueId;
     if (spec.kind === "assign") {
       valueId = this.compileExpression(expression.right, id);
-    } else if (spec.operator === "add" && this.isBoundStringExpression(expression.right)) {
-      // s += "text" appends.
+    } else if (spec.operator === "add" && this.additionIsString(expression.left, expression.right)) {
+      // Either operand can make += a string concatenation, including s += 1.
       valueId = this.compileTextJoin([{ expression: expression.left }, { expression: expression.right }], id);
     } else {
       valueId = this.compileVariableArithmeticExpression(variableName, expression.right, id, spec.operator);
@@ -2180,9 +2207,18 @@ class WorkspaceCompiler {
 
   compileUpdateExpression(expression, parentId) {
     if (ts.isPropertyAccessExpression(expression.operand) || ts.isElementAccessExpression(expression.operand)) {
-      return this.compileAssignmentExpression(ts.factory.createBinaryExpression(expression.operand,
+      const kind = this.expressionType?.(expression.operand);
+      if (kind && kind !== "number") {
+        this.unsupported(expression.operand, "Property updates support statically numeric operands only; dynamic string/any conversion is not supported");
+      }
+      const assignment = ts.factory.createBinaryExpression(expression.operand,
         expression.operator === ts.SyntaxKind.PlusPlusToken ? ts.SyntaxKind.PlusEqualsToken : ts.SyntaxKind.MinusEqualsToken,
-        ts.factory.createNumericLiteral(1)), parentId);
+        ts.factory.createNumericLiteral(1));
+      if ((ts.isPropertyAccessExpression(expression.operand) && !["self", "this"].includes(expression.operand.expression.getText()))
+        || (ts.isElementAccessExpression(expression.operand) && !this.isArrayExpression(expression.operand.expression))) {
+        return this.compileObjectAssignment(assignment, parentId, true);
+      }
+      return this.compileAssignmentExpression(assignment, parentId);
     }
     if (!ts.isIdentifier(expression.operand)) {
       this.unsupported(expression.operand, "Only simple variable updates are supported");
@@ -3590,9 +3626,27 @@ class WorkspaceCompiler {
     if (this.globalHelpers?.has(name)) {
       const arity = name === "Math.atan2" ? 2 : 1;
       if (call.arguments.length !== arity) this.unsupported(call, `${name} expects ${arity} argument(s)`);
-      const argument = this.resolveExpressionBinding(call.arguments[0]);
-      if (name === "Number.isInteger" && (this.isBoundStringExpression(call.arguments[0]) || [ts.SyntaxKind.TrueKeyword, ts.SyntaxKind.FalseKeyword].includes(argument.kind))) {
-        return this.compileExpression(ts.factory.createFalse(), parentId);
+      if (name === "Number.isInteger") {
+        const argument = call.arguments[0];
+        const kind = this.expressionType?.(argument);
+        const resolved = this.resolveExpressionBinding(argument);
+        // Runs the surrogate check before folding a string index away.
+        const boundString = this.isBoundStringExpression(argument);
+        if (boundString || this.isStringExpression(argument) || kind === "boolean"
+          || [ts.SyntaxKind.TrueKeyword, ts.SyntaxKind.FalseKeyword].includes(resolved.kind)) {
+          // A string/boolean is never an integer. Do not lower to `x === 0`:
+          // logic_compare coerces "0" and false to 0.
+          // s[i] may be undefined in JS; keep the bracket-read bounds rule.
+          if (ts.isElementAccessExpression(stripParens(resolved)) && !boundString && kind !== "boolean") {
+            this.unsupported(argument, "String index must be a provably in-bounds integer on a constant string; possibly undefined string reads are not supported (use charAt for empty-string semantics)");
+          }
+          if (isSideEffectFreeRead(argument)) return this.compileExpression(ts.factory.createFalse(), parentId);
+          // `argument and false` evaluates a call exactly once and is always false.
+          const id = this.addBlock({ type: "logic_operation", parent_id: parentId, fields: { type: "and" }, is_output: true });
+          this.connectInput(id, this.compileExpression(argument, id), "A", "value");
+          this.connectInput(id, this.compileExpression(ts.factory.createFalse(), id), "B", "value");
+          return id;
+        }
       }
       return this.compileExpressionCall(ts.factory.createCallExpression(ts.factory.createIdentifier(this.globalHelpers.get(name)), undefined,
         call.arguments), parentId);
@@ -3607,14 +3661,30 @@ class WorkspaceCompiler {
       return this.compileMathCall(call, name.slice(5), parentId);
     }
     if (["Number", "parseFloat", "String", "parseInt"].includes(name)) {
+      if (this.globalVariables.has(name) || this.inlineFunctions.has(name) || this.functionProcedures.has(name)
+        || this.functionParams?.has(name) || this.lookupExpressionBinding(name)) {
+        this.unsupported(call, `Shadowing the builtin ${name} is not supported`);
+      }
+      const folded = evaluateStaticNumericCall(call);
+      if (folded) {
+        if (Object.is(folded.value, -0)) {
+          this.unsupported(call, "Negative zero from numeric conversion/parsing is not supported by the official Kitten N player");
+        }
+        return this.addBlock({ type: "math_number", parent_id: parentId, fields: { NUM: String(folded.value) }, is_output: true });
+      }
+      if (name === "parseInt" || name === "parseFloat") {
+        this.unsupported(call, `${name} supports only literal primitive arguments (and literal radix); dynamic prefix parsing is not supported`);
+      }
+      if (call.arguments.length !== 1) this.unsupported(call, `${name} expects one argument when not constant`);
+      if (name === "Number") {
+        return this.compileNumericOperand(call.arguments[0], parentId);
+      }
       const convert = (parent) => {
         const id = this.addBlock({ type: "convert_type", parent_id: parent, fields: { type: name === "String" ? "string" : "number" }, is_output: true });
         this.connectInput(id, this.compileExpression(call.arguments[0], id), "text", "value");
         return id;
       };
-      if (name !== "parseInt") return convert(parentId);
-      // parseInt: integer part (toward zero) of the numeric value.
-      return this.compileTruncate(convert, parentId);
+      return convert(parentId);
     }
     if (isMemberCallName(name, "getVar")) {
       return this.compileVariableGet(parentId, call.arguments[0]);
@@ -4347,8 +4417,8 @@ class WorkspaceCompiler {
     const propertyName = expression.name.text;
     // s[i].length still routes through the string index check, which rejects unproven indices.
     const stringIndex = ts.isElementAccessExpression(stripParens(expression.expression))
-      && this.isBoundStringExpression(stripParens(expression.expression).expression);
-    if (propertyName === "length" && (this.isArrayExpression(expression.expression) || this.isBoundStringExpression(expression.expression) || stringIndex || this.objectTypes?.string(expression.expression))) {
+      && this.isStringExpression(stripParens(expression.expression).expression);
+    if (propertyName === "length" && (this.isArrayExpression(expression.expression) || this.isStringExpression(expression.expression) || stringIndex)) {
       return this.compileLength(expression.expression, parentId);
     }
     if (ts.isIdentifier(expression.expression) && expression.expression.text === "Math") {
@@ -4374,7 +4444,7 @@ class WorkspaceCompiler {
   prepareShareObjects() {
     // Include synthesized timer/callback bodies in the same type-query program.
     const files = new Set(this.objectSourceFiles);
-    for (const fn of this.inlineFunctions.values()) files.add(fn.body.getSourceFile());
+    for (const fn of this.inlineFunctions.values()) files.add(functionSourceFile(fn));
     this.objectTypes = objectTypes([...files], this.objectTypeOrigins);
     for (const file of files) validateObjectOperations(file, this.objectTypes, (node, message) => this.unsupported(node, message));
     const literals = [];
@@ -4495,7 +4565,7 @@ class WorkspaceCompiler {
     return this.compileExpression(ts.factory.createElementAccessExpression(ts.factory.createIdentifier(this.objectHeap), index), parentId);
   }
 
-  compileObjectAssignment(expression, parentId) {
+  compileObjectAssignment(expression, parentId, numericUpdate = false) {
     const left = expression.left;
     this.checkObjectProperty(left);
     const spec = assignmentOperatorSpec(expression.operatorToken.kind);
@@ -4527,8 +4597,19 @@ class WorkspaceCompiler {
       divide: ts.SyntaxKind.SlashToken, mod: ts.SyntaxKind.PercentToken, power: ts.SyntaxKind.AsteriskAsteriskToken };
     const read = ts.factory.createElementAccessExpression(ts.factory.createIdentifier(this.objectHeap), this.objectIndex(obj, key));
     const value = spec.kind === "assign" ? expression.right : ts.factory.createBinaryExpression(read, operators[spec.operator], expression.right);
-    const stringAdd = spec.operator === "add" && (this.objectTypes.string(left) || this.objectTypes.string(expression.right) || this.isBoundStringExpression(expression.right));
-    this.connectInput(id, stringAdd ? this.compileTextJoin([{ expression: read }, { expression: expression.right }], id) : this.compileExpression(value, id), "list_item_value", "value");
+    let valueId;
+    if (numericUpdate) {
+      // ++/-- always perform numeric arithmetic, even when the property is a
+      // string. They must not inherit the overloaded += concatenation rule.
+      valueId = this.addBlock({ type: "math_arithmetic", parent_id: id, fields: { type: spec.operator }, is_output: true });
+      this.connectInput(valueId, this.compileExpression(read, valueId), "A", "value");
+      this.connectInput(valueId, this.compileExpression(expression.right, valueId), "B", "value");
+    } else {
+      const stringAdd = spec.operator === "add" && (this.objectTypes.string(left) || this.objectTypes.string(expression.right)
+        || this.additionIsString(left, expression.right));
+      valueId = stringAdd ? this.compileTextJoin([{ expression: read }, { expression: expression.right }], id) : this.compileExpression(value, id);
+    }
+    this.connectInput(id, valueId, "list_item_value", "value");
     this.connectNext(first, id);
     const atomic = this.addBlock({ type: "warp", parent_id: parentId });
     this.connectInput(atomic, first, "DO", "statement");
@@ -4558,7 +4639,7 @@ class WorkspaceCompiler {
   }
 
   compileElementAccessExpression(expression, parentId) {
-    if (this.objectHeap && !this.isArrayExpression(expression.expression) && !this.isBoundStringExpression(expression.expression) && !this.objectTypes?.string(expression.expression)) {
+    if (this.objectHeap && !this.isArrayExpression(expression.expression) && !this.isStringExpression(expression.expression)) {
       return this.compileObjectAccess(expression, parentId);
     }
     if (ts.isIdentifier(expression.expression) && ts.isStringLiteral(expression.argumentExpression)) {
@@ -4574,7 +4655,7 @@ class WorkspaceCompiler {
     }
     // s[i] is a character; anything else is read as a list (a[i] -> item i + 1).
     const target = expression.expression;
-    if (this.isBoundStringExpression(target) || this.objectTypes?.string(target)) {
+    if (this.isStringExpression(target)) {
       if (!this.isBoundStringExpression(expression)) {
         this.unsupported(expression, "String index must be a provably in-bounds integer on a constant string; possibly undefined string reads are not supported (use charAt for empty-string semantics)");
       }
@@ -4886,7 +4967,7 @@ class WorkspaceCompiler {
       return id;
     }
     if (op === ts.SyntaxKind.PlusToken) {
-      return this.compileExpression(expression.operand, parentId);
+      return this.compileNumericOperand(expression.operand, parentId);
     }
     if (op === ts.SyntaxKind.TildeToken) {
       const value = constantNumber(expression);
@@ -4974,14 +5055,57 @@ class WorkspaceCompiler {
     return id;
   }
 
+  isStringExpression(node) {
+    const kind = this.expressionType?.(node);
+    if (kind) return kind === "string";
+    // Synthesized helper nodes have no checker type: fall back to string
+    // variables, inline aliases and share-object property types.
+    return isStringExpression(node, name => this.lookupStringBinding(name), undefined, child => {
+      const childKind = child === node ? undefined : this.expressionType?.(child);
+      if (childKind) return childKind === "string";
+      return (ts.isIdentifier(child) && this.stringVariables.has(child.text)) || Boolean(this.objectTypes?.string(child));
+    });
+  }
+
+  compileBooleanNumber(node, parentId) {
+    const id = this.addBlock({ type: "logic_ternary", parent_id: parentId, is_output: true });
+    this.connectInput(id, this.compileExpression(node, id), "condition", "value");
+    this.connectInput(id, this.compileExpression(ts.factory.createNumericLiteral(1), id), "ifTrue", "value");
+    this.connectInput(id, this.compileExpression(ts.factory.createNumericLiteral(0), id), "ifFalse", "value");
+    return id;
+  }
+
+  compileNumericOperand(node, parentId) {
+    const folded = evaluateStaticNumericCall(ts.factory.createCallExpression(ts.factory.createIdentifier("Number"), undefined, [node]));
+    if (folded) {
+      if (Object.is(folded.value, -0)) {
+        this.unsupported(node, "Negative zero from numeric conversion/parsing is not supported by the official Kitten N player");
+      }
+      return this.addBlock({ type: "math_number", parent_id: parentId, fields: { NUM: String(folded.value) }, is_output: true });
+    }
+    const kind = this.expressionType?.(node);
+    if (kind === "number") return this.compileExpression(node, parentId);
+    if (kind === "boolean") return this.compileBooleanNumber(node, parentId);
+    // Official convert_type preserves invalid numeric strings instead of
+    // returning JS NaN (main.8ccf2442.js, module 46501). Do not approximate.
+    this.unsupported(node, "Number/unary + supports literal primitives or statically number/boolean arguments only; dynamic string/any conversion is not supported");
+  }
+
+  additionIsString(left, right) {
+    const a = this.expressionType?.(left), b = this.expressionType?.(right);
+    if (a === "string" || b === "string") return true;
+    if (a === "unknown" || b === "unknown") {
+      this.unsupported(left, "Cannot determine JavaScript + / += semantics for any, union or non-primitive operands; use explicit String(...) or an accurate numeric type");
+    }
+    return this.isStringExpression(left) || this.isStringExpression(right);
+  }
+
   compileNativeBinaryExpression(expression, parentId) {
     const operator = expression.operatorToken.kind;
     // `+` joins text when either side is statically a string; chains like
     // "a" + x + "b" flatten into one join.
-    const resolve = name => this.lookupStringBinding(name);
-    const typed = node => Boolean(this.objectTypes?.string(node));
-    if (operator === ts.SyntaxKind.PlusToken && isStringExpression(expression, resolve, undefined, typed)) {
-      return this.compileTextJoin(flattenStringConcat(expression, resolve, typed).map((part) => (
+    if (operator === ts.SyntaxKind.PlusToken && this.additionIsString(expression.left, expression.right)) {
+      return this.compileTextJoin(flattenStringConcat(expression, node => this.isStringExpression(node)).map((part) => (
         ts.isStringLiteral(part) || ts.isNoSubstitutionTemplateLiteral(part) ? { text: part.text } : { expression: part }
       )), parentId);
     }
@@ -5002,8 +5126,29 @@ class WorkspaceCompiler {
       ...(spec.fields ? { fields: spec.fields } : {}),
       is_output: true,
     });
-    const leftId = this.compileExpression(expression.left, id);
-    const rightId = this.compileExpression(expression.right, id);
+    const loose = operator === ts.SyntaxKind.EqualsEqualsToken || operator === ts.SyntaxKind.ExclamationEqualsToken;
+    const a = this.expressionType?.(expression.left), b = this.expressionType?.(expression.right);
+    if (loose && (a === "unknown" || b === "unknown")) {
+      this.unsupported(expression, "Cannot determine JavaScript loose equality for any, union or non-primitive operands; use explicit conversions or strict equality");
+    }
+    // KN's deep equality helper does not coerce string/number types (official
+    // crc_libs.8196dbd1.js, module 70542 -> 18111). JS abstract equality does.
+    const coerce = loose && a && b && a !== b && a !== "unknown" && b !== "unknown";
+    const operand = node => {
+      if (!coerce) return this.compileExpression(node, id);
+      if (this.expressionType?.(node) === "boolean") return this.compileBooleanNumber(node, id);
+      if (this.expressionType?.(node) === "string") {
+        const numeric = evaluateStaticNumericCall(ts.factory.createCallExpression(ts.factory.createIdentifier("Number"), undefined, [node]));
+        if (!numeric || Number.isNaN(numeric.value)) {
+          this.unsupported(node, "Loose string equality currently requires a literal convertible to a non-NaN number; dynamic/invalid numeric strings are not supported");
+        }
+      }
+      const convert = this.addBlock({ type: "convert_type", parent_id: id, fields: { type: "number" }, is_output: true });
+      this.connectInput(convert, this.compileExpression(node, convert), "text", "value");
+      return convert;
+    };
+    const leftId = operand(expression.left);
+    const rightId = operand(expression.right);
     this.connectInput(id, leftId, spec.leftInput, "value");
     this.connectInput(id, rightId, spec.rightInput, "value");
     return id;
@@ -5371,6 +5516,12 @@ const BITWISE_OPERATORS = new Set([
   ts.SyntaxKind.GreaterThanGreaterThanGreaterThanToken,
 ]);
 
+// Expression callbacks run as a synthesized block without a parent; the
+// wrapped statement still belongs to the user source file.
+function functionSourceFile(fn) {
+  return fn.body.getSourceFile() ?? fn.body.statements?.[0]?.expression?.getSourceFile();
+}
+
 function stripParens(node) {
   while (node && (ts.isParenthesizedExpression(node) || ts.isAsExpression(node) && !isStringType(node.type)
     || ts.isNonNullExpression(node) || ts.isSatisfiesExpression(node))) {
@@ -5385,7 +5536,6 @@ function isStringType(type) {
 
 // Statically string-valued: literals, templates, `x as string`, text
 // reporters, or a `+` with a string side.
-let STRING_VARIABLES = new Set();
 const STRING_METHODS = new Set(["replace", "replaceAll", "trim", "trimStart", "trimEnd", "toUpperCase", "toLowerCase",
   "padStart", "padEnd", "repeat", "charAt", "substring", "join"]);
 
@@ -5399,7 +5549,6 @@ function isStringExpression(node, resolve, visited = new Set(), isTypedString = 
     const bound = resolve(node.text);
     if (bound) return isStringExpression(bound, resolve, visited, isTypedString);
   }
-  if (ts.isIdentifier(node) && STRING_VARIABLES.has(node.text)) return true;
   if (ts.isAsExpression(node) && isStringType(node.type)) return true;
   if (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node) || ts.isTemplateExpression(node)) return true;
   if (ts.isCallExpression(node) && ts.isIdentifier(node.expression)
@@ -5449,11 +5598,11 @@ function constantStringValue(node, resolve, visited = new Set()) {
   return null;
 }
 
-function flattenStringConcat(node, resolve, isTypedString) {
+function flattenStringConcat(node, isString) {
   const inner = stripParens(node);
   if (ts.isBinaryExpression(inner) && inner.operatorToken.kind === ts.SyntaxKind.PlusToken
-    && isStringExpression(inner, resolve, undefined, isTypedString)) {
-    return [...flattenStringConcat(inner.left, resolve, isTypedString), ...flattenStringConcat(inner.right, resolve, isTypedString)];
+    && isString(inner)) {
+    return [...flattenStringConcat(inner.left, isString), ...flattenStringConcat(inner.right, isString)];
   }
   return [node];
 }
@@ -5939,6 +6088,23 @@ function isRuntimeReference(node, parent) {
   if ((ts.isVariableDeclaration(parent) || ts.isParameter(parent) || ts.isFunctionDeclaration(parent))
     && parent.name === node) return false;
   return true;
+}
+
+// Literals and name/property/index reads built only from such reads: dropping
+// the expression cannot skip a call, assignment or update.
+function isSideEffectFreeRead(node) {
+  node = stripParens(node);
+  if (ts.isAsExpression(node) || ts.isNonNullExpression(node) || ts.isSatisfiesExpression(node)) {
+    return isSideEffectFreeRead(node.expression);
+  }
+  if (ts.isIdentifier(node) || ts.isStringLiteral(node) || ts.isNumericLiteral(node)
+    || ts.isNoSubstitutionTemplateLiteral(node)
+    || node.kind === ts.SyntaxKind.TrueKeyword || node.kind === ts.SyntaxKind.FalseKeyword) return true;
+  if (ts.isPropertyAccessExpression(node)) return isSideEffectFreeRead(node.expression);
+  if (ts.isElementAccessExpression(node)) {
+    return isSideEffectFreeRead(node.expression) && isSideEffectFreeRead(node.argumentExpression);
+  }
+  return false;
 }
 
 function isConstantDefault(node) {

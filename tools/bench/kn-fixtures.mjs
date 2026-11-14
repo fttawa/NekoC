@@ -8,11 +8,11 @@ import { promisify } from "node:util";
 
 const root = fileURLToPath(new URL("../../", import.meta.url));
 const compile = promisify(execFile);
-const increment = 'setVar("log", getVar("log") + 1);';
+const increment = 'setVar("log", (getVar("log") as number) + 1);';
 // Match the per-iteration work and batch sizes in fixtures.mjs. The outer
 // forever yields between batches; only the individual batch runs in warp.
 const sources = {
-  numeric: 'repeatTimes(4000, () => { setVar("log", (getVar("log") + 1) * 0.999); });',
+  numeric: 'repeatTimes(4000, () => { setVar("log", ((getVar("log") as number) + 1) * 0.999); });',
   list: `deleteListItem("result", "all", 1);
     repeatTimes(1000, () => {
       appendList("result", getVar("log"));
@@ -53,7 +53,7 @@ function source(name, body) {
   }
   if (name === "broadcast") code += `onMessage("bench", () => { ${increment} });\n`.repeat(12);
   if (name === "recursion") code += `defineProc("recur", [], () => {
-    setVar("depth", getVar("depth") + 1);
+    setVar("depth", (getVar("depth") as number) + 1);
     ${increment}
     if (getVar("depth") < 20) callProc("recur");
     setVar("depth", getVar("depth") - 1);

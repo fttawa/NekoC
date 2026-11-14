@@ -5,8 +5,9 @@
 
 type NekoPrimitive = string | number | boolean;
 /**
- * Block values are plain values at the type level, so `getVar("n") + 1` and
- * comparisons type-check like ordinary TS. Kitten N converts at run time.
+ * Block values are plain values at the type level. Addition needs statically
+ * known operand types; use `(getVar("n") as number) + 1` for a known numeric
+ * block variable, or `String(getVar("n")) + "!"` for explicit concatenation.
  */
 type NekoExpression<T = any> = T;
 type NekoValue = any;

@@ -116,8 +116,11 @@ test("inline caller names cannot be captured by default or optional bindings", (
 test("omitted optional parameters read by later defaults reject instead of becoming zero", () => {
   for (const body of ["return b;", "if (b > 0) return b; return 0;"]) {
     assert.throws(() => compile(`function f(a?: number, b = a + 1) { ${body} }
-      onStart(() => { console.log(f()); });`), /Omitted optional parameter a.*use a default parameter/);
+      onStart(() => { console.log(f()); });`), /Omitted optional parameter a.*use a default parameter|Cannot determine JavaScript \+ \/ \+= semantics/);
   }
+  // Without the + type ambiguity, the omitted read itself is reported.
+  assert.throws(() => compile(`function f(a?: number, b = a) { return b; }
+    onStart(() => { console.log(f()); });`), /Omitted optional parameter a.*use a default parameter|Default parameter b requires/);
 });
 
 test("erased types do not observe optional parameter values", () => {

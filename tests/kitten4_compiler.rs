@@ -195,7 +195,7 @@ fn compiled_dynamic_headings_evaluate_correctly_in_native_arithmetic() {
         r#"onStart(() => {
         setVar("heading", 0);
         setVar("turnBy", 0);
-        pointTowards(getVar("heading") + 30);
+        pointTowards((getVar("heading") as number) + 30);
         turn(getVar("turnBy") * 2);
     });"#,
     )

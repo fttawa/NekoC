@@ -220,7 +220,7 @@ fn imported_functions_and_explicit_procedures_keep_template_ids() {
         });
         onStart(() => { setVar("result", readExisting()); callProc("use existing"); });"#,
         &with_existing(),
-        r#"export function readExisting() { return getVar("native-variable-id") + listLength("native-list-id"); }"#,
+        r#"export function readExisting() { return (getVar("native-variable-id") as number) + listLength("native-list-id"); }"#,
     );
     for value in [&report, &p] {
         assert!(fields(value, "variable").contains(&"native-variable-id"));
