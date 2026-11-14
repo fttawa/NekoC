@@ -87,7 +87,6 @@ class WorkspaceCompiler {
     this.stringVariables = new Set();
     STRING_VARIABLES = this.stringVariables;
     this.loopDepth = 0;
-    this.loopBodyNext = false;
     this.tryStack = [];
     this.rangeBindings = [];
     this.resources = {
@@ -1326,24 +1325,6 @@ class WorkspaceCompiler {
 
   compileStatementList(statements, parentIdForChildren) {
     return controlFlow.statementList(this, statements, parentIdForChildren);
-  }
-
-  compileIfContinue(statement, rest, parentId) {
-    const thenStatements = this.statementBodyStatements(statement.thenStatement).slice(0, -1);
-    const id = this.addBlock({
-      type: "controls_if",
-      parent_id: parentId,
-      ...(rest.length ? { mutation: '<mutation xmlns="http://www.w3.org/1999/xhtml" else="1"></mutation>' } : {}),
-    });
-    this.connectInput(id, this.compileExpression(statement.expression, id), "IF0", "value");
-    const first = this.compileStatementList(thenStatements, id);
-    if (first) this.connectInput(id, first, "DO0", "statement");
-    if (rest.length) {
-      this.loopBodyNext = true;
-      const elseFirst = this.compileStatementList(rest, id);
-      if (elseFirst) this.connectInput(id, elseFirst, "ELSE", "statement");
-    }
-    return id;
   }
 
   // The official loader resolves a parameter reporter through the param id in
@@ -4403,57 +4384,11 @@ class WorkspaceCompiler {
         is_output: true,
       });
     }
-    if (op === ts.SyntaxKind.PlusPlusToken || op === ts.SyntaxKind.MinusMinusToken) {
-      const delta = op === ts.SyntaxKind.PlusPlusToken ? 1 : -1;
-      if (ts.isIdentifier(expression.operand)) {
-        const varName = expression.operand.text;
-        const changeId = this.addBlock({
-          type: "change_variables",
-          parent_id: parentId,
-          fields: {
-            variable: varName,
-            method: delta > 0 ? "increase" : "decrease",
-          },
-        });
-        const valueId = this.addBlock({
-          type: "math_number",
-          parent_id: changeId,
-          fields: { NUM: "1" },
-          is_output: true,
-        });
-        this.connectInput(changeId, valueId, "value", "value");
-        return changeId;
-      }
-    }
     return this.compileExpression(expression.operand, parentId);
   }
 
   compilePostfixUnaryExpression(expression, parentId) {
-    const op = expression.operator;
-    if (this.isUpdateExpression(expression)) return updateValue(this, expression, parentId);
-    if (op === ts.SyntaxKind.PlusPlusToken || op === ts.SyntaxKind.MinusMinusToken) {
-      const delta = op === ts.SyntaxKind.PlusPlusToken ? 1 : -1;
-      if (ts.isIdentifier(expression.operand)) {
-        const varName = expression.operand.text;
-        const changeId = this.addBlock({
-          type: "change_variables",
-          parent_id: parentId,
-          fields: {
-            variable: varName,
-            method: delta > 0 ? "increase" : "decrease",
-          },
-        });
-        const valueId = this.addBlock({
-          type: "math_number",
-          parent_id: changeId,
-          fields: { NUM: "1" },
-          is_output: true,
-        });
-        this.connectInput(changeId, valueId, "value", "value");
-        return changeId;
-      }
-    }
-    return this.compileExpression(expression.operand, parentId);
+    return updateValue(this, expression, parentId);
   }
 
   compileArrayLiteralExpression(expression, parentId) {
@@ -4783,13 +4718,6 @@ function selfVariableHandleCall(call) {
     methodName: call.expression.name.text,
     nameArg: receiver.arguments[0],
   };
-}
-
-function ifEndsWithContinue(statement) {
-  if (!ts.isIfStatement(statement) || statement.elseStatement) return false;
-  const body = ts.isBlock(statement.thenStatement) ? statement.thenStatement.statements : [statement.thenStatement];
-  const last = body.at(-1);
-  return Boolean(last && ts.isContinueStatement(last) && !last.label);
 }
 
 function constantInitialValue(node) {
@@ -5177,16 +5105,8 @@ function optionalBooleanOption(options, name, defaultValue, compiler, node) {
   return booleanLiteralValue(value, compiler);
 }
 
-// Visits statements, skipping nested loops, switches and functions (whose
-// break statements belong to them).
 function procedureParamIds(spec) {
   return new Map(spec.params.filter((param) => param.type === "String").map((param) => [param.name, param.id]));
-}
-
-function visitOutsideLoops(node, visit) {
-  visit(node);
-  if (ts.isFunctionLike(node) || ts.isIterationStatement(node, false) || ts.isSwitchStatement(node)) return;
-  ts.forEachChild(node, (child) => visitOutsideLoops(child, visit));
 }
 
 // Visits a function body without descending into nested functions.

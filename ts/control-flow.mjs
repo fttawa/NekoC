@@ -44,7 +44,6 @@ function guard(c, parent, compile, continuing = null) {
 }
 
 export function statementList(c, statements, parent) {
-  c.loopBodyNext = false;
   return chain(c, Array.from(statements, statement => guard(c, parent, p => c.compileStatement(statement, p))));
 }
 
