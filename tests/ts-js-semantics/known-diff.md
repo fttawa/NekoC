@@ -20,5 +20,15 @@ explicit compile error (`baseline.mjs` `errors`). Explicit rejections that
 stand in for JS behavior include `+`, `+=` and `==` on `any`/union
 operands, regular expressions, generators, `for...in` and BigInt.
 
+The tsfeat merge reclassified lexical shadowing, static function arguments,
+nested declarations/function expressions, assigned scalar parameters, IIFEs, hoisted calls,
+comma/assignment expressions, static nullish comparisons and `typeof`, supported
+formatting/UTF-16 operations, negative string slices and constant JSON folding
+as matches after executing the cases against Node. Dynamic JSON stays a compile
+error. The extra-016 probe's top-level function refers to an event-local `g`;
+unique lexical names now reject that inaccessible binding instead of capturing
+its former global runtime storage. This is an explicit compile error, not a new
+known difference.
+
 The baseline values above are frozen evidence for regression detection, not a
 claim that these behaviors are desirable or permanently unsupported.

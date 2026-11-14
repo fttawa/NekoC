@@ -1,3 +1,6 @@
+// tell targets a named actor in the official editor's actor dropdown.
+sprite("receiver", {}, self => {});
+
 onStart(() => {
   setVar("i", 0);
   repeatTimes(3, () => {
@@ -14,10 +17,10 @@ onStart(() => {
   warp(() => {
     setVar("fast", 1);
   });
-  tell("--self", () => {
+  tell("receiver", () => {
     setVar("told", 1);
   });
-  tellAndWait("--self", () => {
+  tellAndWait("receiver", () => {
     setVar("syncTold", 1);
   });
   stop("1");

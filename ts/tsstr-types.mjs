@@ -132,8 +132,10 @@ export function createExpressionTypes(files, declarations = "", path = portableP
   const expressionKind = node => {
     // Factory nodes and generated helpers have no bound symbols. Their existing
     // lowering rules remain in charge; do not ask TS to bind synthetic nodes.
+    // Transformed nodes map back to the parsed file the checker knows.
+    node = node && ts.getOriginalNode(node);
     const file = node?.getSourceFile?.();
-    if (!file || !files.has(path.resolve(file.fileName)) || node.pos < 0) return null;
+    if (!file || sources.get(path.resolve(file.fileName)) !== file || node.pos < 0) return null;
     // These wrappers do not convert the value. In particular satisfies must
     // not fall back to TS's potentially stale flow type for its operand.
     if (ts.isParenthesizedExpression(node) || ts.isNonNullExpression(node)
@@ -159,5 +161,38 @@ export function createExpressionTypes(files, declarations = "", path = portableP
     // declared mixed union must not become a promise of string concatenation.
     return classify(declaredReadType(node) ?? checker.getTypeAtLocation(node));
   };
-  return expressionKind;
+  // tsfeat transforms share unchanged nodes with these parsed files and
+  // re-parent them onto the lowered tree, where the checker would crash.
+  // Classify every parsed expression once, under its parsed parents.
+  const kinds = new WeakMap();
+  withParsedParents(files.values(), () => {
+    const visit = node => {
+      if (ts.isExpression(node)) kinds.set(node, expressionKind(node));
+      ts.forEachChild(node, visit);
+    };
+    for (const file of files.values()) visit(file);
+  });
+  return node => {
+    const original = node && ts.getOriginalNode(node);
+    return kinds.has(original) ? kinds.get(original) : null;
+  };
+}
+
+// Temporarily give parsed files their own parent links back, then restore
+// whatever links the lowered trees had set on the shared nodes.
+export function withParsedParents(files, fn) {
+  const saved = [];
+  const visit = (node, parent) => {
+    if (node.parent !== parent) {
+      saved.push([node, node.parent]);
+      node.parent = parent;
+    }
+    ts.forEachChild(node, child => visit(child, node));
+  };
+  for (const file of files) visit(file, undefined);
+  try {
+    return fn();
+  } finally {
+    for (let i = saved.length - 1; i >= 0; i--) saved[i][0].parent = saved[i][1];
+  }
 }

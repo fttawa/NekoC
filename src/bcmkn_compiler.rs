@@ -221,6 +221,7 @@ pub fn assemble_workspace_bcmkn(
     }
     inject_sprite_resources(&mut project, sprites)?;
     inject_procedures(&mut project, procedures);
+    rewrite_tell_actor_names(&mut project);
     project["projectName"] = Value::String(name.to_owned());
 
     crate::key_buttons::annotate(&mut project, workspace_report.get("keyButtons"));
@@ -731,6 +732,48 @@ fn inject_sprite_resources(project: &mut Value, sprites: Vec<CompiledSprite>) ->
     }
 
     Ok(())
+}
+
+// The VM accepts actor names, while the editor's tell dropdown persists IDs.
+// Resolve unique names after allocation so template/id collisions are handled.
+fn rewrite_tell_actor_names(project: &mut Value) {
+    let mut names = BTreeMap::new();
+    let mut ambiguous = BTreeSet::new();
+    let ids = dictionary_ids(project, "/actors/actorsDict");
+    if let Some(actors) = project
+        .pointer("/actors/actorsDict")
+        .and_then(Value::as_object)
+    {
+        for (id, actor) in actors {
+            if let Some(name) = actor.get("name").and_then(Value::as_str)
+                && names.insert(name.to_owned(), id.clone()).is_some()
+            {
+                ambiguous.insert(name.to_owned());
+            }
+        }
+    }
+    names.retain(|name, _| !ambiguous.contains(name) && !ids.contains(name));
+    let mut pending = vec![project];
+    while let Some(value) = pending.pop() {
+        match value {
+            Value::Object(object) => {
+                if matches!(
+                    object.get("type").and_then(Value::as_str),
+                    Some("tell" | "sync_tell")
+                ) && let Some(sprite) =
+                    object.get_mut("fields").and_then(|f| f.get_mut("sprite"))
+                    && let Some(id) = sprite.as_str().and_then(|name| names.get(name))
+                {
+                    *sprite = Value::String(id.clone());
+                }
+                pending.extend(object.values_mut());
+            }
+            Value::Array(items) => {
+                pending.extend(items);
+            }
+            _ => {}
+        }
+    }
 }
 
 fn rewrite_screen_references(blocks: &mut [Value], screens: &[CompiledScreen]) {

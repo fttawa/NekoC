@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import path from "node:path";
 import { compileFile, checkFile } from "../ts/compile-ts.mjs";
+import { assertJsLogs } from "./ts-runtime.mjs";
 
 const entry = path.resolve("virtual/tsdiag.ts");
 function compile(source, files = {}) {
@@ -78,15 +79,16 @@ test("default parameters can use earlier constant arguments", () => {
 
 // Defaults are expanded at the call site and evaluated once there (see the
 // tsctrl execution test), so they are accepted only when their names mean
-// the same at the call: no parameter reads and no locally shadowed names.
-test("parameter-reading or call-site-shadowed defaults reject instead of replaying", () => {
+// the same at the call. Parameter reads remain unsafe; tsfeat unique names
+// keep caller locals from shadowing the default's file-level bindings.
+test("parameter-reading defaults reject and uniquely named caller locals preserve defaults", () => {
   assert.throws(() => compile(`let n = 0;
     function bump() { n += 1; return n; }
     function f(a: number, b = a + bump()) { return b + b; }
     onStart(() => { console.log(f(n++)); });`), /reads parameters or a name shadowed at the call site/);
-  assert.throws(() => compile(`function bump() { return 1; }
+  assertJsLogs(`function bump() { return 1; }
     function f(b = bump()) { return b; }
-    onStart(() => { const bump = 2; console.log(f()); });`), /reads parameters or a name shadowed at the call site/);
+    onStart(() => { const bump = 2; console.log(f()); });`);
   for (const value of ["bump()", "n", "0 || 7", "0 ?? 7", '"a" + 1']) {
     assert.doesNotThrow(() => compile(`let n = 0; function bump() { n += 1; return n; }
       function f(b = ${value}) { return b; }
@@ -102,20 +104,21 @@ test("unused optional arguments may be omitted, observed undefined rejects clear
       onStart(() => { console.log(f()); });`;
     const result = checkFile(entry, { types: false, host: { readFile: () => source } });
     assert.equal(result.ok, false);
-    assert.match(result.diagnostics[0].message, /Omitted optional parameter b.*use a default parameter/);
+    assert.match(result.diagnostics[0].message, /Omitted optional parameter b.*use a default parameter|null\/undefined values are supported only in static comparisons/);
   }
 });
 
-test("inline caller names cannot be captured by default or optional bindings", () => {
+test("uniquely named default, optional and local bindings preserve caller values", () => {
+  // tsfeat unique naming removes the former inline binding capture.
   for (const parameter of ["b = 1", "b?: number"]) {
-    assert.throws(() => compile(`let b = 10; function f(a: number, ${parameter}) { return a; }
-      onStart(() => { console.log(f(b)); });`), /Inline parameter binding cycle or capture/);
+    assertJsLogs(`let b = 10; function f(a: number, ${parameter}) { return a; }
+      onStart(() => { console.log(f(b)); });`);
   }
-  assert.throws(() => compile(`let b = 10; function f(a: number, b = 1) { return a; }
+  assertJsLogs(`let b = 10; function f(a: number, b = 1) { return a; }
     function g(x: number) { return f(x); }
-    onStart(() => { console.log(g(b)); });`), /Inline parameter binding cycle or capture/);
-  assert.throws(() => compile(`let x = 10; function f(a: number, b = 1) { const x = 1; return a; }
-    onStart(() => { console.log(f(x)); });`), /Inline parameter binding cycle or capture/);
+    onStart(() => { console.log(g(b)); });`);
+  assertJsLogs(`let x = 10; function f(a: number, b = 1) { const x = 1; return a; }
+    onStart(() => { console.log(f(x)); });`);
 });
 
 test("omitted optional parameters read by later defaults reject instead of becoming zero", () => {

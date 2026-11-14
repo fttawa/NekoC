@@ -31,7 +31,7 @@ const cases = [
   [7, "forged read", `const fake=1 as unknown as {x:number};const real={x:7};console.log(fake.x);`, /shape.*recursively/],
   [7, "forged write", `const fake=1 as unknown as {x:number};const real={x:7};fake.x=9;`, /shape.*recursively/],
   [7, "generic forge", `function cast<T>(v:T){return v as {x:number};}const real={x:7};console.log(cast(1).x);`, /shape.*recursively/],
-  [7, "uninitialized", `let a:{x:number};const real={x:7};console.log(a.x);`, /initialized at declaration/],
+  [7, "uninitialized", `let a:{x:number};const real={x:7};console.log(a.x);`, /initialized at declaration|Reading a null\/undefined variable/],
   [7, "missing return", `function get():{x:number}{if(false)return {x:1};}const real={x:7};console.log(get().x);`, /every path/],
   [7, "throw initialization", `function fail(){throw 1;return 2;}try{const a={x:fail()};}catch(e){}const b={x:7};console.log(b.x);`, /Throw.*explicit scalar status/],
   [8, "String array", `const a=[{x:7}];console.log(String(a));`, /coercion/],

@@ -8,15 +8,20 @@ const defaultHost = { readFile: (name) => { try { return fs?.readFileSync(name, 
 import ts from "typescript";
 import { keyboardCode, effectCode, mathFunctionCode } from "./kitten-n.mjs";
 import { objectTypes, validateObjectOperations } from "./share-objects.mjs";
-import { createExpressionTypes } from "./tsstr-types.mjs";
+import { createExpressionTypes, withParsedParents } from "./tsstr-types.mjs";
 import { evaluateStaticNumericCall } from "./tsstr-numeric.mjs";
 import { boxedValue, evaluatedChoice, evaluatedStatement, evaluatedValue, lazyChoice, nonNullishBinding, returnChoice, updateValue } from "./control-expressions.mjs";
 import * as controlFlow from "./control-flow.mjs";
+import { lowerTsValues } from "./tsfeat-values.mjs";
+import { lowerTsSequences } from "./tsfeat-sequences.mjs";
+import { lowerTsFeatures } from "./tsfeat-lowering.mjs";
+import { lowerTsMethods } from "./tsfeat-methods.mjs";
 
 /** A compile error. `location` is { file, line, column } (1-based) when known. */
 export class CompileError extends Error {
   constructor(message, location = null, code = "NEKOC") {
-    super(message);
+    // Report user names, not the unique names tsfeat lowering gave them.
+    super(String(message).replace(/__nekoc_ts_\d+_(?=[\w$])/g, ""));
     this.name = "CompileError";
     this.location = location;
     this.code = code;
@@ -56,6 +61,15 @@ function rejectParseDiagnostics(sourceFile) {
   const error = new CompileError(first.message, { file: first.file, line: first.line, column: first.column }, first.code);
   error.diagnostics = items;
   throw error;
+}
+
+function lowerFrontendFeatures(sourceFile) {
+  try {
+    return lowerTsFeatures(lowerTsSequences(lowerTsValues(lowerTsMethods(sourceFile))));
+  } catch (error) {
+    if (error instanceof CompileError) throw error;
+    throw new CompileError(error.message, error.location ?? nodeLocation(sourceFile));
+  }
 }
 
 // Global flag the implicit start script sets once top-level initialization ran.
@@ -120,7 +134,9 @@ class WorkspaceCompiler {
     this.helperCount = 0;
     // Variables initialised with a string; `+` on them joins text.
     this.stringVariables = new Set();
-    this.typeSourceFiles = new Map([[this.entryPath, sourceFile]]);
+    // Type queries use the last parsed file: tsfeat transforms may leave
+    // synthesized nodes that the TypeScript checker cannot bind.
+    this.typeSourceFiles = new Map([[this.entryPath, ts.getOriginalNode(sourceFile)]]);
     this.loopDepth = 0;
     this.tryStack = [];
     this.rangeBindings = [];
@@ -350,7 +366,7 @@ class WorkspaceCompiler {
       }
       this.loadedModules.add(resolvedPath);
       const sourceText = this.host.readFile(resolvedPath);
-      const moduleSourceFile = ts.createSourceFile(
+      let moduleSourceFile = ts.createSourceFile(
         resolvedPath,
         sourceText,
         ts.ScriptTarget.Latest,
@@ -358,9 +374,18 @@ class WorkspaceCompiler {
         ts.ScriptKind.TS,
       );
       rejectParseDiagnostics(moduleSourceFile);
+      moduleSourceFile = lowerFrontendFeatures(moduleSourceFile);
       this.objectSourceFiles.push(moduleSourceFile);
-      this.typeSourceFiles.set(resolvedPath, moduleSourceFile);
+      this.typeSourceFiles.set(resolvedPath, ts.getOriginalNode(moduleSourceFile));
       this.loadImports(moduleSourceFile, resolvedPath);
+      // Lifted nested functions and method helpers remain module-private, but
+      // exported wrappers still call them. Register their transitive bodies
+      // before planning procedures, rather than silently dropping those calls.
+      for (const statement of moduleSourceFile.statements) {
+        if (this.isInlineFunctionDefinition(statement) && !hasExportModifier(statement)) {
+          this.registerInlineFunction(statement);
+        }
+      }
       this.synthesizeHelpers(moduleSourceFile);
       exports = this.collectModuleExports(moduleSourceFile);
       this.moduleExports.set(resolvedPath, exports);
@@ -1731,6 +1756,9 @@ class WorkspaceCompiler {
   compileStatement(statement, parentId) {
     this.currentStatementNode = statement;
     if (this.isTypeOnlyStatement(statement)) return null;
+    if (ts.isBlock(statement)) {
+      return this.compileStatementList(Array.from(statement.statements), parentId);
+    }
     if (ts.isExpressionStatement(statement)) {
       return this.compileStatementExpression(statement.expression, parentId);
     }
@@ -3618,7 +3646,7 @@ class WorkspaceCompiler {
       fields: { item: mode },
     });
     this.connectListInput(id, "list", stringLiteralValue(listNameArg, this));
-    if (mode !== "all") {
+    if (mode === "any") {
       const indexId = this.compileExpression(indexArg, id);
       this.connectInput(id, indexId, "list_index", "value");
     }
@@ -3971,6 +3999,11 @@ class WorkspaceCompiler {
         check(this.sourceFile);
       }
       return this.compileExpression(knownArray ? ts.factory.createTrue() : ts.factory.createFalse(), parentId);
+    }
+    if (name === "JSON.stringify") {
+      // The editor has a JSON.stringify reporter (docs/kn-objects-official.json),
+      // but the Kitten N share player does not register it.
+      this.unsupported(call, "JSON.stringify is not available in the Kitten N share player; build the text with String(...) and +");
     }
     const factory = this.helperCalls.get(call);
     if (factory?.factoryArgs) return this.compileExpressionCall(ts.factory.createCallExpression(
@@ -4429,8 +4462,8 @@ class WorkspaceCompiler {
     }
   }
 
-  // Math.* follows the official converter: trig in radians (math_trig_rad),
-  // abs/sqrt/log/exp via math_function, rounding via math_round.
+  // Math.* uses radians; the share player only has degree-based trig blocks.
+  // Convert at the boundary without duplicating evaluation of the argument.
   compileMathCall(call, method, parentId) {
     const args = call.arguments;
     const unary = (type, fields, argument = args[0]) => (parent) => {
@@ -4448,9 +4481,20 @@ class WorkspaceCompiler {
       case "abs": case "sqrt": case "exp": case "log": case "log10":
         arity(1);
         return unary("math_function", { type: mathFunctionCode({ log: "ln", log10: "log" }[method] ?? method) })(parentId);
-      case "sin": case "cos": case "tan": case "asin": case "acos": case "atan":
+      case "sin": case "cos": case "tan": case "asin": case "acos": case "atan": {
         arity(1);
-        return unary("math_trig_rad", { type: method })(parentId);
+        const inverse = method.startsWith("a");
+        const scale = (parent, value, factor) => {
+          const id = this.addBlock({ type: "math_arithmetic", parent_id: parent, fields: { type: "multiply" }, is_output: true });
+          this.connectInput(id, value(id), "A", "value");
+          this.connectInput(id, this.addBlock({ type: "math_number", parent_id: id, fields: { NUM: String(factor) }, is_output: true }), "B", "value");
+          return id;
+        };
+        return inverse
+          ? scale(parentId, unary("math_arc_trig", { type: method }), Math.PI / 180)
+          : unary("math_trig", { type: method }, parent => scale(parent,
+            id => this.compileExpression(args[0], id), 180 / Math.PI))(parentId);
+      }
       case "trunc":
         arity(1);
         return this.compileTruncate(args[0], parentId);
@@ -4953,8 +4997,13 @@ class WorkspaceCompiler {
     // Include synthesized timer/callback bodies in the same type-query program.
     const files = new Set(this.objectSourceFiles);
     for (const fn of this.inlineFunctions.values()) files.add(functionSourceFile(fn));
-    this.objectTypes = objectTypes([...files], this.objectTypeOrigins);
-    for (const file of files) validateObjectOperations(file, this.objectTypes, (node, message) => this.unsupported(node, message));
+    const typeFiles = [...new Set([...files].map(file => ts.getOriginalNode(file)))];
+    // Type snapshots and validation walk the parsed trees; tsfeat lowering
+    // re-parented their shared nodes, so restore parsed parents meanwhile.
+    withParsedParents(typeFiles, () => {
+      this.objectTypes = objectTypes(typeFiles, this.objectTypeOrigins);
+      for (const file of typeFiles) validateObjectOperations(file, this.objectTypes, (node, message) => this.unsupported(node, message));
+    });
     const literals = [];
     const arrays = [];
     const visit = node => {
@@ -5038,8 +5087,10 @@ class WorkspaceCompiler {
   }
 
   compileObjectLiteral(expression, parentId) {
-    // Loop-variable renaming rebuilds literals; their original node is planned.
-    const name = this.objectFactories.get(expression) ?? this.objectFactories.get(ts.getOriginalNode(expression));
+    // Successive lowering/loop-renaming passes can put the planned literal
+    // between this node and the parsed root. Check every original link.
+    let name;
+    for (let node = expression; node && !name; node = node.original) name = this.objectFactories.get(node);
     if (!name) this.unsupported(expression, "Object literal was not planned for the share player");
     const args = expression.properties.map(property => ts.isShorthandPropertyAssignment(property) ? property.name : property.initializer);
     return this.compileExpressionCall(ts.factory.createCallExpression(ts.factory.createIdentifier(name), undefined, args), parentId);
@@ -5054,7 +5105,7 @@ class WorkspaceCompiler {
     }
     // A literal *type* does not make an expression pure: key() or keys[index()]
     // must never disappear when the access is replaced with a fixed heap slot.
-    const constantIdentifier = ts.isIdentifier(argument) && this.objectTypes.checker.getSymbolAtLocation(argument)?.declarations?.some(declaration =>
+    const constantIdentifier = ts.isIdentifier(argument) && this.objectTypes.symbol(argument)?.declarations?.some(declaration =>
       ts.isVariableDeclaration(declaration) && declaration.initializer
       && ts.isVariableDeclarationList(declaration.parent) && (declaration.parent.flags & ts.NodeFlags.Const));
     const signedNumber = ts.isPrefixUnaryExpression(argument) && ts.isNumericLiteral(argument.operand)
@@ -5554,7 +5605,7 @@ class WorkspaceCompiler {
     if (op === ts.SyntaxKind.TildeToken) {
       const value = constantNumber(expression);
       if (value === null) {
-        this.unsupported(expression, "Bitwise operators work only on constant numbers (Kitten N has no bitwise blocks)");
+        this.unsupported(expression, "Variable bitwise operators are not supported (32-bit arithmetic emulation requires up to 32 steps per operation); use constant operands or explicit bounded arithmetic");
       }
       return this.addBlock({ type: "math_number", parent_id: parentId, fields: { NUM: String(value) }, is_output: true });
     }
@@ -5635,6 +5686,9 @@ class WorkspaceCompiler {
 
   compileNativeBinaryExpression(expression, parentId) {
     const operator = expression.operatorToken.kind;
+    if (operator === ts.SyntaxKind.EqualsToken || operator === ts.SyntaxKind.CommaToken) {
+      this.unsupported(expression, "Assignment/comma values in this position are not supported; split them into separate statements in the same branch or loop body");
+    }
     if (operator === ts.SyntaxKind.AmpersandAmpersandToken || operator === ts.SyntaxKind.BarBarToken) {
       return lazyChoice(this, expression.left,
         operator === ts.SyntaxKind.AmpersandAmpersandToken ? expression.right : null,
@@ -5662,7 +5716,7 @@ class WorkspaceCompiler {
     if (BITWISE_OPERATORS.has(operator)) {
       const value = constantNumber(expression);
       if (value === null) {
-        this.unsupported(expression.operatorToken, "Bitwise operators work only on constant numbers (Kitten N has no bitwise blocks)");
+        this.unsupported(expression.operatorToken, "Variable bitwise operators are not supported (32-bit arithmetic emulation requires up to 32 steps per operation); use constant operands or explicit bounded arithmetic");
       }
       return this.addBlock({ type: "math_number", parent_id: parentId, fields: { NUM: String(value) }, is_output: true });
     }
@@ -6590,7 +6644,7 @@ export function compileFile(inputPath, host = defaultHost) {
   try {
     const sourceText = host.readFile(path.resolve(inputPath));
     if (typeof sourceText !== "string") fail(`Unable to read ${inputPath}`);
-    const sourceFile = ts.createSourceFile(
+    let sourceFile = ts.createSourceFile(
       inputPath,
       sourceText,
       ts.ScriptTarget.Latest,
@@ -6598,6 +6652,7 @@ export function compileFile(inputPath, host = defaultHost) {
       ts.ScriptKind.TS,
     );
     rejectParseDiagnostics(sourceFile);
+    sourceFile = lowerFrontendFeatures(sourceFile);
     compiler = new WorkspaceCompiler(inputPath, sourceFile, host);
     return compiler.compile(sourceFile);
   } catch (error) {

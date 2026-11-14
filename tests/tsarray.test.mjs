@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { assertJsLogs } from "./ts-runtime.mjs";
 import { compileFile, checkFile, CompileError } from "../ts/compile-ts.mjs";
 import { spawnSync } from "node:child_process";
 import { mkdirSync, writeFileSync, readFileSync } from "node:fs";
@@ -63,13 +64,10 @@ const cases = [
   ["string actual restores caller after expansion", "function id(s) { return s; } onStart(() => { const s = 'abc'; console.log(id(s.length)); console.log(s+1); });"],
 ];
 
-// After integrating tsdiag, these stay explicit compile errors: a callee local
-// shares the runtime name of the caller variable, and defaults must expand to
-// constants (tests/ts-js-semantics/known-diff.md).
+// Defaults reading formals still require constant expansion. tsfeat unique
+// naming now keeps callee locals separate from caller strings.
 const rejected = new Map([
   ["default parameter uses earlier formal", /Default parameter y requires a literal or constant numeric expression/],
-  ["caller string with callee local", /Inline parameter binding cycle or capture/],
-  ["caller string nested callee local", /Inline parameter binding cycle or capture/],
 ]);
 
 for (const [name, source] of cases) test(`tsarray: compiles ${name}`, () => {
@@ -80,6 +78,7 @@ for (const [name, source] of cases) test(`tsarray: compiles ${name}`, () => {
   const report = compile(source);
   assert.ok(report.summary.scripts >= 1);
   assert.ok(blocks(report).length > 1);
+  if (["caller string with callee local", "caller string nested callee local"].includes(name)) assertJsLogs(source);
 });
 
 test("tsarray: array reads use share-player list blocks", () => {

@@ -90,7 +90,8 @@
 - **T41**：[tests/string_concat_regression.rs](../tests/string_concat_regression.rs)（源码引用，执行状态见上文）
 - **T42**：[tests/studio.rs](../tests/studio.rs)（源码引用，执行状态见上文）
 - **T43**：[tests/tsctrl_runtime.rs](../tests/tsctrl_runtime.rs)（源码引用，执行状态见上文）
-- **T44**：[tests/video.rs](../tests/video.rs)（源码引用，执行状态见上文）
+- **T44**：[tests/tsfeat.rs](../tests/tsfeat.rs)（源码引用，执行状态见上文）
+- **T45**：[tests/video.rs](../tests/video.rs)（源码引用，执行状态见上文）
 
 ## 全量逐项表（300 行）
 
@@ -359,7 +360,7 @@
 | 259 | `sprite_on_tap` | 有执行路径／未完整验证 | 普通面板配置／默认未隐藏 | `src/engine.rs:3327` | T5, T9, T37 | 有路径；完整语义未验证 |
 | 260 | `stamp` | 有执行路径／未完整验证 | 普通面板配置／默认未隐藏 | `src/engine.rs:4554`<br>`src/engine.rs:4580` | T9, T37 | 有路径；完整语义未验证 |
 | 261 | `start_as_a_mirror` | 有执行路径／未完整验证 | 普通面板配置／默认未隐藏 | `src/engine.rs:3280` | T1, T9, T14 | 有路径；完整语义未验证 |
-| 262 | `start_on_click` | 有执行路径／未完整验证 | 已注册／本次面板未列出 | `src/engine.rs:3265` | T8, T9, T12, T37, T44 | 有路径；完整语义未验证 |
+| 262 | `start_on_click` | 有执行路径／未完整验证 | 已注册／本次面板未列出 | `src/engine.rs:3265` | T8, T9, T12, T37, T45 | 有路径；完整语义未验证 |
 | 263 | `stop` | 有执行路径／未完整验证 | 普通面板配置／默认未隐藏 | `src/engine.rs:4635` | T2, T9, T10, T11, T14, T16, T17, T37 | 有路径；完整语义未验证 |
 | 264 | `stop_audio` | 有执行路径／未完整验证 | 普通面板配置／默认未隐藏 | `src/engine.rs:4490` | T2, T9, T37 | 有路径；完整语义未验证 |
 | 265 | `stop_robot2_master_motor` | 部分语义 | 官方硬件扩展定义／未安装 | `src/engine.rs:3596` | T35 | 仅无连接 Promise 早退，求值输入后下一 update 继续；真实设备未实现，完整微任务/调度组合未验证 |
@@ -367,8 +368,8 @@
 | 267 | `stop_robot_master_motor` | 部分语义 | 官方硬件扩展定义／未安装 | `src/engine.rs:3596` | T35 | 仅无连接 Promise 早退，求值输入后下一 update 继续；真实设备未实现，完整微任务/调度组合未验证 |
 | 268 | `style_of_sprite` | 有执行路径／未完整验证 | 普通面板配置／默认未隐藏 | `src/engine.rs:2962` | T22, T31, T37 | 有路径；完整语义未验证 |
 | 269 | `switch_to_screen` | 有执行路径／未完整验证 | 普通面板配置／默认未隐藏 | `src/engine.rs:4088` | T9, T37 | 有路径；完整语义未验证 |
-| 270 | `sync_tell` | 有执行路径／未完整验证 | 可配置面板／默认隐藏 | `src/engine.rs:4437` | T1, T9, T14, T37 | 有路径；完整语义未验证 |
-| 271 | `tell` | 有执行路径／未完整验证 | 可配置面板／默认隐藏 | `src/engine.rs:4437` | T37 | 有路径；完整语义未验证 |
+| 270 | `sync_tell` | 有执行路径／未完整验证 | 可配置面板／默认隐藏 | `src/engine.rs:4437` | T1, T9, T14, T37, T44 | 有路径；完整语义未验证 |
+| 271 | `tell` | 有执行路径／未完整验证 | 可配置面板／默认隐藏 | `src/engine.rs:4437` | T37, T44 | 有路径；完整语义未验证 |
 | 272 | `temporary_list` | 有执行路径／未完整验证 | 可配置面板／默认隐藏 | `src/engine.rs:2216` | T9, T14, T37 | 有路径；完整语义未验证 |
 | 273 | `text_contain` | 有执行路径／未完整验证 | 普通面板配置／默认未隐藏 | `src/engine.rs:2066`<br>`src/engine.rs:2835` | T9, T37 | 有路径；完整语义未验证 |
 | 274 | `text_join` | 有执行路径／未完整验证 | 普通面板配置／默认未隐藏 | `src/engine.rs:2216`<br>`src/engine.rs:2835` | T9, T37, T41 | 有路径；完整语义未验证 |

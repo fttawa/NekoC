@@ -4,10 +4,9 @@ Complete reference for all functions and APIs available in NekoC TypeScript proj
 
 ## TypeScript arrays
 
-- `a[i]` uses zero-based computed property access and returns `undefined` for
-  missing entries, rather than Kitten N's one-based `list_item` NaN fallback.
-  Direct `String(a[i])` preserves `"undefined"`; storing an undefined value in a
-  KN variable still follows KN's variable normalization, not full JS semantics.
+- `a[i]` reads the zero-based element with the share-player `list_item` block.
+  A missing entry yields Kitten N's empty value (`NaN`), not JavaScript
+  `undefined` (known difference core-162).
 - `a[i] = value`, `+=`, `-=`, `*=`, `/=`, `%=`, `**=` are supported for existing
   elements. Compound assignments evaluate the target, index and old value once.
   User writes require a dense literal initializer (including direct aliases) and
@@ -53,6 +52,16 @@ Complete reference for all functions and APIs available in NekoC TypeScript proj
   one) containing only arrays, preserving one level of elements. Other input
   shapes/depths produce a compile error instead of a wrong result.
   Parentheses and array type assertions do not change these shape checks.
+
+For standard JavaScript expression/method support (including static formatting,
+UTF-16 constants and constant-folded `JSON.stringify(value)`), see
+[Additional expressions and methods](syntax.md#additional-expressions-and-methods).
+These use the standard TypeScript library signatures, not additional NekoC globals.
+Dynamic `JSON.stringify` is a compile error because the share player has no
+corresponding block. Local bindings and parameters receive unique names, so
+caller/callee shadowing preserves lexical identity, including caller-safe
+defaults. Recursive scalar locals use per-call frames; recursive captures and
+function-argument specialization remain compile errors.
 
 ## Global Events
 

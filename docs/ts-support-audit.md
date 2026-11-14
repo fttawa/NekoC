@@ -22,11 +22,13 @@
   - 递归函数的返回类型要写出来（如 `function sum(n: number): number`），否则 TS 推断为 `any`，`+` 会报错。
   - `return c ? a : b` 只计算被选中的分支，所以 `n < 2 ? n : fib(n - 1) + fib(n - 2)` 这种写法能正常结束。
 - 箭头函数常量，如 `const f = (x) => x + 1`，规则同上。
+- 局部变量和参数会先改成全局唯一名，词法块、循环、调用方和被调用方的同名变量互不遮蔽。支持嵌套函数、函数表达式和静态可知的函数实参；可变捕获、逃逸函数值、递归捕获和递归函数参数特化明确报错。
 - 内联调用的实参只计算一次，按顺序在函数体之前计算（没用到的参数也会计算）；数组实参按引用传递，函数里 `a.push(x)` 会改到调用方的数组。
 - 默认参数 `function f(x, y = 10)`：常量默认值在调用处展开；`y = next()`、`y = settings.size` 这类默认值在调用处按参数顺序计算一次，前提是不读任何参数、用到的名字在定义处和调用处指同一个文件级变量或函数，否则编译报错。
 - 有返回值的函数也可以单独作为一条语句调用，返回值会被丢弃。
-- 不能给参数重新赋值（`n = n - 1`），编译时报错；先复制到局部变量。
+- 可以给标量参数重新赋值（`n = n - 1`）：前端生成局部副本，递归时副本和其他标量局部变量都放在每次调用独立的帧中。函数值参数不允许重新赋值。
 - `defineProc`、`param()`、`callProc`、`defineReporter`、`returnValue`、`callReporter`。
+- `tell` / `tellAndWait` 的唯一角色名在组装时转换成实际分配的角色 ID，避免编辑器把目标下拉框重置成 `?`。
 
 ### 控制流
 
@@ -49,8 +51,13 @@
 - `??`：只接受能静态证明不是空值的数字、字符串、布尔操作数（`let a = 0; a ?? 7` 得 `0`）；其他可能为空的操作数编译报错，不会当成"或"。
 - `a++`、`++a`、`a--`、`--a` 可以用在表达式里（限可变的简单变量）。
 - 位运算 `& | ^ ~ << >> >>>`：只支持两边都是常量，编译时直接算出结果。
+- 逗号表达式支持语句、声明初值、返回值，以及 `for` 的初始化和步进；`continue` 后仍执行完整步进。条件表达式和循环条件中的逗号明确报错，避免把每轮求值错误提升到循环外。
+- `null`、未初始化局部变量的静态比较和 `typeof` 在值可证明不变时折叠；运行时空值存储和读取明确报错。
+- 常量 `toFixed`、进制 `toString`、`isNaN` / `Number.isNaN`、`charCodeAt` / `String.fromCharCode`、字符串 `at` / `slice` 按 JS 折叠；动态十进制 `toString()` 和常量边界的字符串 `slice` 也支持，其他动态变体明确报错。
+- `JSON.stringify` 只支持常量折叠（包括嵌套数组字面量和 JS 转义）；非常量以及 replacer/spacing 参数明确报错。分享播放器不支持 JSON 报告器，不生成该积木。
 - `Math.floor / ceil / round / trunc / abs / sqrt / exp / log / log10 / pow / max / min / random`、`Math.sin / cos / tan / asin / acos / atan`（弧度）、`Math.PI`、`Math.E` 等常量。
   - `Math.max` / `Math.min` / `Math.trunc` 的每个参数只计算一次，按从左到右的顺序。
+  - 标准三角函数在弧度和角度间换算，使用分享播放器支持的 `math_trig` / `math_arc_trig`，不生成缺失的 `math_trig_rad`；实参只计算一次。
 - `Number()`、`parseFloat()`、`parseInt()`（取整数部分）、`String()`。
 - 新增 `Math.sign / cbrt / log2 / hypot / atan2`。`sign / cbrt / log2 / atan2` 通过辅助自制积木保存实参，避免重复执行实参表达式；`hypot` 内联为 `Math.sqrt(Math.pow(a, 2) + …)`，每个实参只计算一次。以有限数字为支持范围；`atan2` 不保留负零象限，`hypot` 不承诺 Infinity/NaN 特殊组合的 JS 语义。
 - `Number.isInteger` 支持数字输入；直接文本、布尔字面量返回 false。Kitten N 比较会做类型转换，动态混合类型输入和非有限数不保证 JS 语义。
@@ -96,19 +103,19 @@
 ## 编译时报错（Kitten N 没有对应概念）
 
 - 对象解构、可选链 `?.`、一般 `new X()`（包括 `Map`、`Set`、`Date`、`Promise`）、`class` 实例和对象方法调用。
-- `typeof`、`in`、`instanceof`。
-- 剩余参数 `...args`、给函数参数重新赋值。
+- 动态 `typeof`、`in`、`instanceof`。
+- 剩余参数 `...args`、给函数值参数重新赋值。
 - 变量参与的位运算。
 - `for...in`、动态字符串的 `for...of`、生成器 `function*`、正则表达式。
 - `+`、`+=`、`==` 用在 `any`、混合联合类型或非原始值上（见上文"字符串"）。
-- 读参数、或用到在调用处被局部变量遮蔽的名字的非常量默认参数。
-- `JSON.stringify / parse`、`String.fromCharCode / charCodeAt` 等尚无可靠实现的全局/方法；没有借 Rust 专有运行时扩展输出不兼容作品。clamp 可写 `Math.min(hi, Math.max(lo, x))`。
+- 读取参数的非常量默认值，以及不能证明定义处和调用处绑定一致的默认值；调用处同名局部变量已由唯一命名隔离。
+- 非常量 `JSON.stringify`、`JSON.parse` 和动态 `String.fromCharCode / charCodeAt` 等缺少分享播放器实现的全局/方法。clamp 可写 `Math.min(hi, Math.max(lo, x))`。
 
 ## 能编译，但和 JS 不完全一样
 
 - 读数组越界下标得到 `NaN`，不是 `undefined`（Kitten N 没有 undefined）。
 - 报告器自制积木的递归深度上限是 200 层，更深的递归会报运行时错误。
-- 事件脚本里的 `let` 仍是全局变量：同时运行的两个脚本用同名变量会互相影响（函数局部变量已按调用分帧）。
+- 事件回调的同一局部声明在多次并发调用之间仍共享存储；不同声明已唯一命名，普通函数局部变量按调用分帧。
 - `async` / `await`：`await` 会被直接去掉，不支持真正的异步。
 
 逐条对照 Node 的语料结果见 `tests/ts-js-semantics/known-diff.md`。

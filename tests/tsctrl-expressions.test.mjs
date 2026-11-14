@@ -184,6 +184,25 @@ onStart(()=>{r1=f(); r2=g(); r3=h(); r4=k(); r5=s();});`);
   assert.equal(v["kn-var-r5"], "a1");
 });
 
+test("Math trig uses share-player degree blocks with radian semantics and one evaluation", () => {
+  const source = `let calls=0; let s=0; let c=0; let t=0; let a=0; let b=0; let d=0;
+function next(x:number){calls++;return x;}
+onStart(()=>{s=Math.sin(next(0.7));c=Math.cos(next(-0.4));t=Math.tan(next(0.2));
+  a=Math.asin(next(0.3));b=Math.acos(next(-0.8));d=Math.atan(next(1.2));});`;
+  const report = compileFile("virtual/trig.ts", { readFile: () => source });
+  const blocks = [report.workspaceData, ...report.procedures.map(p => p.workspaceData)]
+    .flatMap(workspace => Object.values(workspace.blocks));
+  assert.ok(!blocks.some(block => block.type === "math_trig_rad"));
+  assert.ok(blocks.some(block => block.type === "math_trig"));
+  assert.ok(blocks.some(block => block.type === "math_arc_trig"));
+  const v = execute(source);
+  for (const [name, expected] of Object.entries({
+    s: Math.sin(0.7), c: Math.cos(-0.4), t: Math.tan(0.2),
+    a: Math.asin(0.3), b: Math.acos(-0.8), d: Math.atan(1.2),
+  })) assert.ok(Math.abs(v[`kn-var-${name}`] - expected) < 1e-12, name);
+  assert.equal(v["kn-var-calls"], 6);
+});
+
 test("tsctrl: nested statement wrappers freeze method and default arguments", () => {
   const v = execute(`let a=[1,2]; let result=0;
 function next(){return a.pop();}

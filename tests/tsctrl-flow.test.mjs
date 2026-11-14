@@ -4,6 +4,7 @@ import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { compileFile } from "../ts/compile-ts.mjs";
+import { assertJsLogs } from "./ts-runtime.mjs";
 
 const bin = path.resolve("target/debug", process.platform === "win32" ? "nekoc.exe" : "nekoc");
 const compile = source => compileFile("virtual/tsctrl-flow.ts", { readFile: () => source });
@@ -115,14 +116,22 @@ onStart(()=>{
   for(let r=0.5;r<3;r++) fractions+=r;
 });`, { product: 15, nonlinear: 28, fractions: 4.5 });
 
-test("tsctrl-flow: loop bindings cannot silently read a shadowed parameter or range", () => {
+test("tsctrl-flow: uniquely named loop bindings preserve shadowed parameters and ranges", () => {
+  // tsfeat unique names remove the old runtime-name collisions.
   for (const source of [
     "function f(n:number) { if(n<0)return 0; for(let n=0;n<3;n++)console.log(n); return n; } console.log(f(1));",
     "function f(n:number) { if(n<0)return 0; for(const n of [1,2])console.log(n); return n; } console.log(f(1));",
     "onStart(()=>{for(let i=0;i<3;i++){for(const i of [1,2])console.log(i);}});",
     "let limit=3; onStart(()=>{for(let i=0;i<limit;i++){let i=7;console.log(i);}});",
     "let limit=3; onStart(()=>{for(let i=0;i<limit;i++){for(let i=0;i<limit;i++)console.log(i);}});",
-  ]) assert.throws(() => compile(source), /Loop variable shadowing/);
+  ]) assertJsLogs(source);
+});
+
+test("tsctrl-flow: comma for headers execute in order and continue runs every increment", () => {
+  assertJsLogs(`let i=0; let j=0; let trace="";
+    onStart(()=>{for(i=1,j=5;i<j;i++,j-=2){trace+=i+":"+j+";";continue;}console.log(trace);console.log(i);console.log(j);});`);
+  // A test comma needs repeated evaluation; it must never be hoisted once.
+  assert.throws(() => compile("let i=0; onStart(()=>{for(;(i++,i<3);)console.log(i);});"), /Comma expressions.*repeated evaluation/);
 });
 
 vm("tsctrl-flow: disjoint general loops and repeated inline calls have distinct storage", `

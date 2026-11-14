@@ -95,6 +95,18 @@ case is `"5" == 5`.
 
 ### Function Declarations (Inlined)
 
+Lexical blocks and shadowed local names are supported. Nested declarations,
+`const f = function (...) { ... }`, variable-bound arrows and statically known
+function arguments are lowered to named functions/specializations. Declaration
+calls may precede the declaration; variable-initialized functions must be called
+after initialization. Reassigned scalar parameters use local copies. Mutable
+captures, escaping function values and rest parameters are rejected with
+alternatives (pass explicit scalar parameters or an array). Unique local and
+parameter names preserve lexical shadowing across inline calls and loop scopes.
+Recursive scalar locals and reassigned scalar parameters use per-call frames;
+recursive captures, function-argument specialization and statement-call cloning
+are rejected with an iterative alternative.
+
 ```ts
 function double(x: number) {
   return x * 2;
@@ -120,6 +132,28 @@ onStart(() => {
   // body
 });
 ```
+
+### Additional expressions and methods
+
+- Chained simple-variable assignments and comma expressions are supported as
+  statements, declaration initializers and return values. Top-level comma
+  expressions in `for` initializers/increments are lowered in place, including
+  every increment after `continue`. Commas in conditional operands or loop tests
+  are compile errors; split them into statements in the corresponding body.
+- `null`/uninitialized `let` comparisons and `typeof` fold when values are
+  statically known and unchanged. Runtime nullish storage is rejected: use a
+  concrete initialized value plus an explicit validity/type flag.
+- Constant `toFixed`, numeric `toString(radix)`, `isNaN`, `Number.isNaN`,
+  `charCodeAt`, `String.fromCharCode`, string `at` and `slice` follow JS semantics.
+  Dynamic numeric decimal `toString()` and string `slice` with constant bounds
+  (including negative bounds) are also supported. Other dynamic variants give
+  explicit diagnostics rather than approximate formatting or UTF-16 behavior.
+- `JSON.stringify(value)` supports constant folding only, including nested array
+  literals and JS JSON escaping. Dynamic values produce a compile error because
+  the share player has no JSON reporter. Replacer/spacing arguments are rejected.
+- `delete` is rejected: JS array deletion leaves a hole, unlike `splice(i, 1)`.
+  Variable bitwise operations remain rejected; use constant operands or bounded
+  arithmetic rather than expanding a 32-step emulation for each operation.
 
 ### If/Else
 
@@ -371,7 +405,9 @@ Stripped to just `expr`.
 delete obj.prop;
 ```
 
-Returns `true`.
+Rejected: JS deletion can create sparse arrays or remove initialized object
+properties. Use `splice(i, 1)` to remove an array element, or an explicit validity
+flag when indices must stay stable.
 
 ### Ternary
 
@@ -379,11 +415,14 @@ Returns `true`.
 setVar("label", score > 100 ? "high" : "low");
 ```
 
-Compiles to `logic_ternary`. As in the official runtime both branches are evaluated.
+Compiles to a reporter procedure with statement-level branches. Only the selected
+branch is evaluated; the share-player-unsupported `logic_ternary` is never emitted.
 
 ### Math
 
 `Math.floor/ceil/round/trunc/abs/sqrt/exp/log/log10/pow/max/min/random`, radian `Math.sin/cos/tan/asin/acos/atan`, and constants such as `Math.PI` map to math blocks.
+Trigonometric calls convert radians to/from the share player's degree-based
+`math_trig` / `math_arc_trig` blocks, evaluating their argument once.
 
 ### Strings and Arrays
 
@@ -440,16 +479,16 @@ Not supported (Kitten N has no objects); they are compile errors.
 | `if (cond) { }` | `controls_if` |
 | `if (cond) { } else { }` | `controls_if` with ELSE |
 | `while (cond) { }` | `repeat_forever_until` (not cond) |
-| `for (let i = 0; i < n; i++) { }` | `traverse_number` (guarded by `if` when bounds are not constant) |
-| `for (const x of arr) { }` | `repeat_n_times` with list access |
-| `do { } while (cond)` | `repeat_forever` with a trailing `if not cond: break` |
-| `switch (x) { case: ... }` | `controls_if` / else-if chain |
+| `for (let i = 0; i < n; i++) { }` | compact traversal for constant integer ranges with a read-only index; otherwise a live while condition and explicit increment |
+| `for (const x of arr) { }` | list traversal with the source evaluated once |
+| `do { } while (cond)` | loop body followed by its test, including continue paths |
+| `switch (x) { case: ... }` | one-time discriminant and branch state preserving fallthrough |
 | `break` | `break` |
-| `continue` | rest of the loop body moved into an else branch |
-| `c ? a : b` | `logic_ternary` |
+| `continue` | completion flags skip the remaining body, then run the matching increment/test |
+| `c ? a : b` | reporter procedure with lazy `controls_if` branches |
 | `return expr` | `procedures_2_return_value` |
-| `throw` | `stop` |
-| `try { } catch { }` | Try body only |
+| `throw` | local exception completion; uncaught/cross-function throws are compile errors |
+| `try { } catch { }` | completion state transfers the thrown value to the local catch |
 
 ## Type Handling
 
@@ -490,8 +529,8 @@ const arr = ["a", "b"];
   call; otherwise they are compile errors. An
   omitted optional parameter may be used only when its value is not observed;
   use a default parameter when `undefined` must be tested.
-  Inline calls whose arguments would capture a callee parameter name are
-  rejected; rename the caller variable or use a non-inline function.
+  Local variables and parameters receive unique names before call lowering, so
+  same-named caller locals do not capture callee parameters or default bindings.
   String defaults support inline string operations; functions lowered to custom
   procedures reject string defaults because their parameter types cannot be
   specialized per call.

@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import path from "node:path";
 import { CompileError, checkFile, compileFile } from "../ts/compile-ts.mjs";
+import { assertJsLogs } from "./ts-runtime.mjs";
 
 const entry = path.resolve("virtual/knobject-review-codegen/main.ts");
 const hostFor = source => ({ readFile: name => name === entry ? source : undefined });
@@ -224,8 +225,9 @@ test("review 9: file-level object defaults read the same binding at the call sit
   // `.a` is a property name, not the formal a; substitution must keep it.
   const report = compileSource(`const fallback = {a: 3}; function read(a: number, b: number = fallback.a) { return b; } console.log(read(1));`);
   assert.ok(workspaces(report).some(workspace => Object.values(workspace.blocks).some(block => block.type === "list_item")));
-  assertRejected(`const fallback = {a: 3}; function read(a: number, b: number = fallback.a) { return b; }
-onStart(() => { const fallback = {a: 4}; console.log(read(1)); });`, /Default parameter b requires a literal or constant numeric expression|Variable shadowing/, 2);
+  // tsfeat unique names preserve the file-level object despite a caller local.
+  assertJsLogs(`const fallback = {a: 3}; function read(a: number, b: number = fallback.a) { return b; }
+onStart(() => { const fallback = {a: 4}; console.log(read(1)); });`);
 });
 
 test("review 9: scalar inline defaults keep their existing callee binding behavior", () => {

@@ -50,12 +50,19 @@ export function objectTypes(sourceFiles, origins = new WeakMap()) {
   // types while the source tree still has its original parents; querying the
   // checker after lowering can otherwise crash inside TypeScript.
   const originalTypes = new WeakMap();
+  const originalSymbols = new WeakMap();
   const snapshot = node => {
     if (ts.isExpression(node)) originalTypes.set(node, checker.getTypeAtLocation(node));
+    if (ts.isIdentifier(node)) originalSymbols.set(node, checker.getSymbolAtLocation(node));
     ts.forEachChild(node, snapshot);
   };
   for (const file of sourceFiles) snapshot(file);
-  const type = node => node ? originalTypes.get(origins.get(node) ?? node) ?? null : null;
+  const symbol = node => node ? originalSymbols.get(node) ?? originalSymbols.get(ts.getOriginalNode(node)) : undefined;
+  const type = node => {
+    if (!node) return null;
+    const source = origins.get(node) ?? node;
+    return originalTypes.get(source) ?? originalTypes.get(ts.getOriginalNode(source)) ?? null;
+  };
   const array = node => {
     const t = type(node);
     return !!t && (checker.isArrayType(t) || checker.isTupleType(t));
@@ -118,7 +125,7 @@ export function objectTypes(sourceFiles, origins = new WeakMap()) {
       || [...state.targets].some(node => byNode.get(node)?.yields))) { state.yields = true; changed = true; }
   }
   const unsafeLocals = new Set([...functions.values()].filter(s => s.locals && s.yields).map(s => s.node));
-  return { array, object, objectType, contains, key, string, type, checker, dataObjects, unsafeLocals };
+  return { array, object, objectType, contains, key, string, type, symbol, checker, dataObjects, unsafeLocals };
 }
 
 export function validateObjectOperations(file, types, reject) {
