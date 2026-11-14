@@ -432,5 +432,8 @@ const arr = ["a", "b"];
   string (including inline parameter/local aliases and immutable literal names).
   Out-of-bounds or unproven reads are rejected rather than treating possible
   `undefined` as text; use `charAt` when empty-string fallback is intended.
+  Even in-bounds bracket reads are rejected when the selected UTF-16 code unit
+  is a high or low surrogate: the current UTF-8 runtime cannot preserve isolated
+  surrogates. Other BMP characters in the same string remain indexable.
 - Enums: `enum Foo { ... }` (registered as variables)
 - Classes: `class Foo { ... }` (registered as variables)

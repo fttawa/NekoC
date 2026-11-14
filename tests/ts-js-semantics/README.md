@@ -18,11 +18,14 @@ third-party project.
   baseline mapping and explained in `known-diff.md`.
 
 The declaration fixes made after that baseline are represented separately in
-`runtime-extra.mjs` (26 cases). They cover omitted/undefined/zero defaults,
+`runtime-extra.mjs` (44 cases: 36 matches and 8 explicit compile errors). They cover omitted/undefined/zero defaults,
 chained defaults referring to earlier parameters, recursive defaults, local
 type/interface/declare declarations, type-only namespaces, overloads, string
 default operations, indexed character type propagation and integer predicates,
-and property names that are not lexical variable reads.
+boolean default/alias integer predicates, BMP indices around surrogate pairs,
+explicit rejection of isolated surrogate reads, and property names that are not lexical variable reads.
+Rejected probes whose Node output contains isolated surrogates retain exact
+UTF-16 units in `nodeUtf16`, not an invalid Rust UTF-8 string in `node`.
 
 ## Runner
 

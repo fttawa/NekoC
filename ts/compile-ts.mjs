@@ -3499,7 +3499,8 @@ class WorkspaceCompiler {
     if (this.globalHelpers?.has(name)) {
       const arity = name === "Math.atan2" ? 2 : 1;
       if (call.arguments.length !== arity) this.unsupported(call, `${name} expects ${arity} argument(s)`);
-      if (name === "Number.isInteger" && (this.isBoundStringExpression(call.arguments[0]) || [ts.SyntaxKind.TrueKeyword, ts.SyntaxKind.FalseKeyword].includes(call.arguments[0].kind))) {
+      const argument = this.resolveExpressionBinding(call.arguments[0]);
+      if (name === "Number.isInteger" && (this.isBoundStringExpression(call.arguments[0]) || [ts.SyntaxKind.TrueKeyword, ts.SyntaxKind.FalseKeyword].includes(argument.kind))) {
         return this.compileExpression(ts.factory.createFalse(), parentId);
       }
       return this.compileExpressionCall(ts.factory.createCallExpression(ts.factory.createIdentifier(this.globalHelpers.get(name)), undefined,
@@ -4106,6 +4107,18 @@ class WorkspaceCompiler {
 
   lookupStringBinding(name) {
     return this.lookupExpressionBinding(name) ?? this.constStringLiterals.get(name);
+  }
+
+  resolveExpressionBinding(node) {
+    const visited = new Set();
+    node = stripParens(node);
+    while (ts.isIdentifier(node) && !visited.has(node)) {
+      visited.add(node);
+      const bound = this.lookupExpressionBinding(node.text);
+      if (!bound) break;
+      node = stripParens(bound);
+    }
+    return node;
   }
 
   lookupRangeBinding(name) {
@@ -5193,7 +5206,13 @@ function constantStringValue(node, resolve, visited = new Set()) {
       indexNode = stripParens(bound);
     }
     const index = indexNode ? constantNumber(indexNode) : null;
-    if (target !== null && Number.isInteger(index) && index >= 0 && index < target.length) return target[index];
+    if (target !== null && Number.isInteger(index) && index >= 0 && index < target.length) {
+      const unit = target.charCodeAt(index);
+      if (unit >= 0xD800 && unit <= 0xDFFF) {
+        fail("String index produces an isolated UTF-16 surrogate; the current string model cannot preserve it", nodeLocation(node));
+      }
+      return target[index];
+    }
   }
   return null;
 }

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { originalCases, allCases, nodeExpected } from "./ts-js-semantics/prepare.mjs";
+import { originalCases, allCases, nodeExpected, prepareCases } from "./ts-js-semantics/prepare.mjs";
 
 test("245 synthetic TS/JS probes have explicit, actionable baseline statuses", () => {
   assert.equal(originalCases.length, 245);
@@ -19,4 +19,15 @@ test("245 synthetic TS/JS probes have explicit, actionable baseline statuses", (
 test("Node oracle registers onStart before dispatch instead of reporting a missing host", () => {
   assert.equal(nodeExpected(originalCases.find(c => c.id === "extra-009")), "104");
   assert.equal(nodeExpected(originalCases.find(c => c.id === "extra-017")), "5");
+});
+
+test("rejected surrogate probes preserve exact Node UTF-16 units without invalid UTF-8 strings", () => {
+  for (const [index, unit] of [[0, 0xD83D], [1, 0xDE00]]) {
+    const [result] = prepareCases([{ id: `surrogate-${index}`, name: "surrogate", cat: "transport",
+      top: `function f(a = "😀") { return a[${index}] + "x"; }`, body: "out = f();", status: "compile-error" }]);
+    assert.deepEqual(result.nodeUtf16, [unit, 120]);
+    assert.equal(result.node, undefined);
+    assert.match(result.compileError, /isolated UTF-16 surrogate/);
+    assert.ok(!/[\uD800-\uDFFF]/u.test(JSON.stringify(result)));
+  }
 });

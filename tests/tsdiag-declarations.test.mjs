@@ -200,3 +200,37 @@ test("Number.isInteger resolves string defaults and indexed aliases before numer
     assert.ok(types.includes("logic_boolean"));
   }
 });
+
+test("isolated surrogate bracket reads fail at compile time for both UTF-16 halves", () => {
+  for (const index of [0, 1]) {
+    for (const body of [`return a[${index}];`, `return a[${index}].length;`,
+      `return a[${index}] + "x";`, `const x = a[${index}]; return x + "x";`,
+      `return Number.isInteger(a[${index}]);`]) {
+      assert.throws(() => compile(`function f(a = "😀") { ${body} }
+        onStart(() => { console.log(f(undefined)); });`), error => {
+        assert.match(error.message, /String index produces an isolated UTF-16 surrogate/);
+        assert.equal(path.resolve(error.location.file), entry);
+        assert.equal(error.location.line, 1);
+        return true;
+      });
+    }
+  }
+  for (const index of [0, 3]) {
+    assert.doesNotThrow(() => compile(`function f(a = "猫😀狗") { return a[${index}] + a[${index}].length; }
+      onStart(() => { console.log(f()); });`));
+  }
+});
+
+test("Number.isInteger resolves boolean defaults and local aliases without math_round", () => {
+  for (const value of ["true", "false"]) {
+    for (const argument of ["", "undefined"]) {
+      for (const body of ["return Number.isInteger(a);", "const x = a; const y = x; return Number.isInteger(y);"]) {
+        const report = compile(`function f(a = ${value}) { ${body} }
+          onStart(() => { console.log(f(${argument})); });`);
+        const types = Object.values(report.workspaceData.blocks).map(block => block.type);
+        assert.ok(!types.includes("math_round"), types.join(","));
+        assert.ok(types.includes("logic_boolean"));
+      }
+    }
+  }
+});

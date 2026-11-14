@@ -47,7 +47,14 @@ export function prepareCases(cases = allCases) {
   return cases.map(c => {
     const result = { id: c.id, name: `${c.cat}/${c.name}`, status: c.status,
       expectedError: c.error, expectedVm: c.value, baselineNode: c.node };
-    try { result.node = nodeExpected(c); }
+    try {
+      const value = nodeExpected(c);
+      // JSON permits escaped lone surrogates, but Rust UTF-8 strings cannot
+      // decode them. Preserve exact JS code units as data for rejected probes.
+      if (/[\uD800-\uDFFF]/u.test(value)) {
+        result.nodeUtf16 = Array.from({ length: value.length }, (_, i) => value.charCodeAt(i));
+      } else result.node = value;
+    }
     catch (error) { result.nodeError = error.message; }
     try {
       const filename = path.resolve(`tests/ts-js-semantics/${c.id}.ts`);

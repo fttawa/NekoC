@@ -65,7 +65,7 @@ fn run_corpus() {
         String::from_utf8_lossy(&output.stderr)
     );
     let cases: Vec<Value> = serde_json::from_slice(&std::fs::read(prepared).unwrap()).unwrap();
-    assert_eq!(cases.len(), 271);
+    assert_eq!(cases.len(), 289);
     let mut failures = Vec::new();
     for c in cases {
         let label = format!("{} {}", c["id"], c["name"]);
