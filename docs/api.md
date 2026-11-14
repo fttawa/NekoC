@@ -212,6 +212,10 @@ changeVar("lives", -1);
 
 ### `getVar<T>(name)`
 
+The default value type is `any`. For `+` / `+=`, supply a known primitive type
+(`getVar<number>("score")` or `getVar("score") as number`) or use explicit
+`String(...)` concatenation; ambiguous dynamic addition is a compile error.
+
 Gets a variable value.
 
 ```ts

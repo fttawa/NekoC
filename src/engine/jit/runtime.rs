@@ -185,10 +185,10 @@ pub(super) unsafe extern "C" fn h_next(c: *mut NativeContext, pc: u64) -> u64 {
     let index = unsafe { (*c).index };
     // Decide on the counter first: final iterations (common in short loops)
     // go straight to the gateway without paying for the other checks twice.
-    if !engine.tasks[index]
+    if engine.tasks[index]
         .loops
         .last()
-        .is_some_and(|&left| left > 1)
+        .is_none_or(|&left| left <= 1)
         || engine.jit_profile.is_some()
         || engine.value_error.is_some()
         || unsafe { (*c).timing.is_some() }

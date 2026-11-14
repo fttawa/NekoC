@@ -20,8 +20,8 @@ onStart(() => {
 });
 
 onClick(() => {
-  setVar("combo", getVar("combo") + 1);
-  setVar("score", getVar("score") + getVar("combo") * 10);
+  setVar("combo", (getVar("combo") as number) + 1);
+  setVar("score", (getVar("score") as number) + getVar("combo") * 10);
   if (getVar("combo") > getVar("maxCombo")) {
     setVar("maxCombo", getVar("combo"));
   }
