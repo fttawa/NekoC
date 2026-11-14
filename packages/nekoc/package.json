@@ -5,10 +5,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fttawa/NekoC.git",
+    "url": "git+https://github.com/NekoX-Lab/NekoC.git",
     "directory": "packages/nekoc"
   },
-  "homepage": "https://github.com/fttawa/NekoC/tree/main/packages/nekoc#readme",
+  "homepage": "https://github.com/NekoX-Lab/NekoC/tree/main/packages/nekoc#readme",
   "keywords": [
     "kitten",
     "codemao",
