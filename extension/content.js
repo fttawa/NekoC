@@ -7,7 +7,7 @@
     dismissInjectionHint();
     const host=document.createElement('div');host.dataset.nekoInjection='';
     const shadow=host.attachShadow({mode:'open'}),style=document.createElement('style');
-    style.textContent=':host{position:fixed;left:20px;bottom:20px;z-index:2147483647;pointer-events:none;font:12px system-ui}div{padding:12px 16px;border:1px solid #53694f;border-radius:10px;background:#142019f2;color:#d8ecd0;box-shadow:0 6px 24px #0003}strong{display:block;font-size:13px;margin-bottom:5px}span{color:#a2b39e}';
+    style.textContent=':host{position:fixed;left:20px;bottom:20px;z-index:2147483647;pointer-events:none;font:12px system-ui}div{padding:12px 16px;border:1px solid #4a4a4e;border-radius:10px;background:#161617f2;color:#ececec;box-shadow:0 6px 24px #0003}strong{display:block;font-size:13px;margin-bottom:5px}span{color:#a0a0a4}';
     const box=document.createElement('div'),title=document.createElement('strong'),detail=document.createElement('span');
     title.textContent='✓ Neko 扩展已植入';detail.textContent='等待网页播放器 · 出现后自动接管';
     box.setAttribute('role','status');box.append(title,detail);shadow.append(style,box);document.documentElement.append(host);
@@ -67,7 +67,7 @@
       // Only an existing, website-authorized official player can be replaced.
       const toolbar=document.createElement('div');toolbar.dataset.nekoRust='';
       const shadow=toolbar.attachShadow({mode:'open'});
-      const style=document.createElement('style');style.textContent=':host{position:absolute;right:8px;top:5px;z-index:40;display:block;font:11px system-ui}div{display:flex;align-items:center;gap:8px;max-width:190px;background:#17221eee;color:#c9e0c1;border:1px solid #425442;border-radius:6px;padding:4px 6px}span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}button{flex:none;border:0;border-radius:4px;background:#b6d7a8;color:#192c1a;font:11px system-ui;cursor:pointer;padding:4px 8px}';
+      const style=document.createElement('style');style.textContent=':host{position:absolute;right:8px;top:5px;z-index:40;display:block;font:11px system-ui}div{display:flex;align-items:center;gap:8px;max-width:190px;background:#161617ee;color:#e6e6e6;border:1px solid #3a3a3d;border-radius:6px;padding:4px 6px}span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}button{flex:none;border:0;border-radius:4px;background:#f2f2f2;color:#111112;font:11px system-ui;cursor:pointer;padding:4px 8px}';
       const row=document.createElement('div'),label=document.createElement('span'),button=document.createElement('button');
       row.append(label,button);shadow.append(style,row);frame.parentElement.append(toolbar);
       const record={frame,id,kind,original:frame.src,toolbar,label,button,page:location.pathname,rust:false,resource:null,auto:true};records.set(frame,record);

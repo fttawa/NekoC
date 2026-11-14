@@ -189,9 +189,9 @@ function monitor(now){
   $('#roundtrip').textContent=`${pipeline.roundtripMs.toFixed(2)} ms`;$('#decode-time').textContent=`${pipeline.decodeMs.toFixed(2)} ms`;
   $('#gpu-time').textContent=renderer.stats.gpuMs==null?'不可用':`${renderer.stats.gpuMs.toFixed(2)} ms`;
   history.push(lastFrame?Number(lastFrame.execute_us)/1000:0);if(history.length>80)history.shift();
-  const canvas=$('#chart'),ctx=canvas.getContext('2d'),w=canvas.width,h=canvas.height;ctx.clearRect(0,0,w,h);ctx.strokeStyle='#e3e6df';ctx.lineWidth=1;
+  const canvas=$('#chart'),ctx=canvas.getContext('2d'),w=canvas.width,h=canvas.height;ctx.clearRect(0,0,w,h);ctx.strokeStyle='#e3e3e3';ctx.lineWidth=1;
   for(let y=12;y<h;y+=16){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
-  ctx.beginPath();history.forEach((v,i)=>{const x=i/79*w,y=h-5-Math.min(v,8)/8*(h-10);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});ctx.strokeStyle='#2f7d4e';ctx.lineWidth=2;ctx.stroke();
+  ctx.beginPath();history.forEach((v,i)=>{const x=i/79*w,y=h-5-Math.min(v,8)/8*(h-10);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});ctx.strokeStyle='#1a1a1a';ctx.lineWidth=2;ctx.stroke();
 }
 function loop(now){
   if(running&&!inFlight){const dt=Math.min((now-lastTick)/1000,.25);lastTick=now;inFlight=nextFrame(dt).catch(handleError).finally(()=>{inFlight=null;});}
