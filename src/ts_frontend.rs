@@ -2,6 +2,46 @@ use anyhow::{Context, Result, bail};
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
+/// Directories searched for the frontend scripts, in order: `NEKOC_FRONTEND`,
+/// `frontend/` beside the executable (prebuilt packages), then the source
+/// tree's `ts/` (cargo builds).
+fn frontend_dirs(override_dir: Option<PathBuf>, executable: Option<PathBuf>) -> Vec<PathBuf> {
+    override_dir
+        .into_iter()
+        .chain(
+            executable
+                .as_deref()
+                .and_then(Path::parent)
+                .map(|dir| dir.join("frontend")),
+        )
+        .chain([PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("ts")])
+        .collect()
+}
+
+fn frontend_script(name: &str) -> Result<PathBuf> {
+    let dirs = frontend_dirs(
+        std::env::var_os("NEKOC_FRONTEND").map(PathBuf::from),
+        std::env::current_exe().ok(),
+    );
+    if let Some(script) = dirs.iter().map(|dir| dir.join(name)).find(|p| p.is_file()) {
+        return Ok(script);
+    }
+    bail!(
+        "TypeScript frontend {name} not found; keep frontend/ beside the nekoc executable or set NEKOC_FRONTEND to its directory (searched {})",
+        dirs.iter()
+            .map(|dir| dir.display().to_string())
+            .collect::<Vec<_>>()
+            .join(", ")
+    )
+}
+
+fn node_error(script: &Path) -> String {
+    format!(
+        "failed to run {} with node; install Node.js 18 or newer and put node on PATH",
+        script.display()
+    )
+}
+
 pub fn compile_ts(input: impl AsRef<Path>, output: impl AsRef<Path>) -> Result<()> {
     compile_ts_with_sidecars(input, output, None::<&Path>, None::<&Path>)
 }
@@ -22,16 +62,14 @@ pub fn compile_ts_with_sidecars(
 ) -> Result<()> {
     let input = input.as_ref();
     let output = output.as_ref();
-    let script = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("ts")
-        .join("compile-ts.mjs");
+    let script = frontend_script("compile-ts.mjs")?;
 
     let status = Command::new("node")
         .arg(&script)
         .arg(input)
         .arg(output)
         .status()
-        .with_context(|| format!("failed to run TypeScript frontend at {}", script.display()))?;
+        .with_context(|| node_error(&script))?;
 
     if !status.success() {
         bail!("TypeScript frontend failed with status {status}");
@@ -83,9 +121,7 @@ pub struct FrontendCheck {
 /// Kitten N compile, without producing a project.
 pub fn check_ts(input: impl AsRef<Path>, types: bool) -> Result<FrontendCheck> {
     let input = input.as_ref();
-    let script = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("ts")
-        .join("compile-ts.mjs");
+    let script = frontend_script("compile-ts.mjs")?;
     let report_file = tempfile::Builder::new()
         .prefix("nekoc-check-")
         .suffix(".json")
@@ -99,7 +135,7 @@ pub fn check_ts(input: impl AsRef<Path>, types: bool) -> Result<FrontendCheck> {
     let output = command
         .arg(input)
         .output()
-        .with_context(|| format!("failed to run TypeScript frontend at {}", script.display()))?;
+        .with_context(|| node_error(&script))?;
     let stdout = String::from_utf8_lossy(&output.stdout);
     let result: serde_json::Value = serde_json::from_str(stdout.trim()).with_context(|| {
         format!(
@@ -125,24 +161,37 @@ pub fn check_ts(input: impl AsRef<Path>, types: bool) -> Result<FrontendCheck> {
 
 pub fn test_ts(input: impl AsRef<Path>) -> Result<()> {
     let input = input.as_ref();
-    let script = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("ts")
-        .join("test-ts.mjs");
+    let script = frontend_script("test-ts.mjs")?;
 
     let status = Command::new("node")
         .arg(&script)
         .arg(input)
         .status()
-        .with_context(|| {
-            format!(
-                "failed to run TypeScript test runner at {}",
-                script.display()
-            )
-        })?;
+        .with_context(|| node_error(&script))?;
 
     if !status.success() {
         bail!("TypeScript tests failed with status {status}");
     }
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn frontend_search_order() {
+        let dirs = frontend_dirs(
+            Some(PathBuf::from("custom")),
+            Some(PathBuf::from("bundle").join("nekoc")),
+        );
+        assert_eq!(dirs[0], PathBuf::from("custom"));
+        assert_eq!(dirs[1], PathBuf::from("bundle").join("frontend"));
+        assert_eq!(
+            dirs[2],
+            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("ts")
+        );
+        assert_eq!(frontend_dirs(None, None).len(), 1);
+    }
 }
