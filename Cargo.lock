@@ -2746,7 +2746,7 @@ dependencies = [
 
 [[package]]
 name = "nekoc"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "anyhow",
  "assert_cmd",
@@ -2783,7 +2783,7 @@ dependencies = [
 
 [[package]]
 name = "nekoc-wasm"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "js-sys",
  "nekoc",
