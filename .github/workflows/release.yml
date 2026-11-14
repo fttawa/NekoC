@@ -61,7 +61,7 @@ jobs:
             dist/releases/*.tar.gz
           if-no-files-found: error
 
-  # Platform independent: the @nekox-lab/nekoc npm tarball and the browser extension.
+  # Platform independent: the @fttawa/nekoc npm tarball and the browser extension.
   web:
     runs-on: ubuntu-latest
     steps:

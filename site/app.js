@@ -1,4 +1,4 @@
-// 在线编译页：@nekox-lab/nekoc 的浏览器版负责检查和编译，
+// 在线编译页：@fttawa/nekoc 的浏览器版负责检查和编译，
 // play/play.html（wasm 后端）负责运行。
 const $=selector=>document.querySelector(selector);
 const samples=await(await fetch('samples/index.json')).json();

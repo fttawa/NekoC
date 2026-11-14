@@ -55,10 +55,10 @@ test("release workflow keeps draft releases tag-only, ships npm + extension, exc
 test("checksums cover npm tarballs and archives", async () => {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), "nekoc-sums-"));
   try {
-    for (const name of ["a.zip", "b.tar.gz", "nekox-lab-nekoc-1.0.0.tgz", "notes.txt"]) await fs.writeFile(path.join(dir, name), name);
+    for (const name of ["a.zip", "b.tar.gz", "fttawa-nekoc-1.0.0.tgz", "notes.txt"]) await fs.writeFile(path.join(dir, name), name);
     await checksums(dir);
     const names = (await fs.readFile(path.join(dir, "SHA256SUMS.txt"), "utf8")).trim().split("\n").map(line => line.split("  ")[1]);
-    assert.deepEqual(names, ["a.zip", "b.tar.gz", "nekox-lab-nekoc-1.0.0.tgz"]);
+    assert.deepEqual(names, ["a.zip", "b.tar.gz", "fttawa-nekoc-1.0.0.tgz"]);
   } finally {
     await fs.rm(dir, { recursive: true, force: true });
   }

@@ -1,12 +1,49 @@
 {
-  "name": "@nekox-lab/nekoc",
+  "name": "@fttawa/nekoc",
   "version": "0.4.0",
+  "description": "TypeScript → 编程猫 Kitten N (.bcmkn) 编译器与播放器（WASM，无需 Rust）",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fttawa/NekoC.git",
+    "directory": "packages/nekoc"
+  },
+  "homepage": "https://github.com/fttawa/NekoC/tree/main/packages/nekoc#readme",
+  "keywords": [
+    "kitten",
+    "codemao",
+    "bcmkn",
+    "typescript",
+    "compiler",
+    "wasm"
+  ],
   "type": "module",
   "types": "./index.d.ts",
-  "exports": { ".": { "types": "./index.d.ts", "browser": "./browser.mjs", "node": "./index.mjs", "default": "./browser.mjs" } },
-  "bin": { "nekoc": "./bin/nekoc.mjs" },
-  "files": ["*.mjs", "*.d.ts", "bin", "dist"],
-  "scripts": { "build": "node build.mjs", "test": "node --test --test-concurrency=1 test/*.test.mjs" },
-  "dependencies": { "typescript": "~5.9.3" },
-  "engines": { "node": ">=22" }
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "browser": "./browser.mjs",
+      "node": "./index.mjs",
+      "default": "./browser.mjs"
+    }
+  },
+  "bin": {
+    "nekoc": "./bin/nekoc.mjs"
+  },
+  "files": [
+    "*.mjs",
+    "*.d.ts",
+    "bin",
+    "dist"
+  ],
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "node --test --test-concurrency=1 test/*.test.mjs"
+  },
+  "dependencies": {
+    "typescript": "~5.9.3"
+  },
+  "engines": {
+    "node": ">=22"
+  }
 }

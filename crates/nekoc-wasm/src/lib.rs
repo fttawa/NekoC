@@ -1,4 +1,4 @@
-//! wasm-bindgen surface of NekoC for `@nekox-lab/nekoc`. All values cross the
+//! wasm-bindgen surface of NekoC for `@fttawa/nekoc`. All values cross the
 //! boundary as JSON text; the JS side owns the TypeScript frontend.
 use nekoc::{bcmkn_compiler, check, json, player, validate as structure};
 use wasm_bindgen::prelude::*;
