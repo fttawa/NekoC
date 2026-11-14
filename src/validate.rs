@@ -30,11 +30,72 @@ pub fn build_report(value: &Value) -> Result<Value> {
     validate_style_references(value, &mut issues);
     validate_scenes(value, &mut issues);
     validate_screen_references(value, &mut issues);
+    validate_procedure_parameters(value, &mut issues);
 
     Ok(json!({
         "ok": issues.is_empty(),
         "issues": issues,
     }))
+}
+
+/// The official runtime resolves a `procedures_2_parameter` through the param id
+/// in its mutation (`id="..."`), which must name one of the procedure's params and
+/// its `procedures_2_stable_parameter` block; otherwise the project stops at start
+/// with `procedure_no_such_parameter`. Same rule as tools/editor-compat.mjs.
+fn validate_procedure_parameters(value: &Value, issues: &mut Vec<Value>) {
+    fn walk<'a>(value: &'a Value, blocks: &mut Vec<&'a Value>) {
+        match value {
+            Value::Array(items) => items.iter().for_each(|item| walk(item, blocks)),
+            Value::Object(map) => {
+                if map.get("type").is_some_and(Value::is_string) {
+                    blocks.push(value);
+                }
+                map.values().for_each(|item| walk(item, blocks));
+            }
+            _ => {}
+        }
+    }
+    let Some(procedures) = value
+        .pointer("/procedures/proceduresDict")
+        .and_then(Value::as_object)
+    else {
+        return;
+    };
+    for (procedure_id, procedure) in procedures {
+        let param_ids: BTreeSet<&str> = procedure["params"]
+            .as_array()
+            .into_iter()
+            .flatten()
+            .filter_map(|param| param["id"].as_str())
+            .collect();
+        let mut blocks = Vec::new();
+        walk(&procedure["nekoBlockJsonList"], &mut blocks);
+        let defined: BTreeSet<&str> = blocks
+            .iter()
+            .filter(|block| block["type"] == "procedures_2_stable_parameter")
+            .filter_map(|block| block["id"].as_str())
+            .collect();
+        for block in blocks
+            .iter()
+            .filter(|block| block["type"] == "procedures_2_parameter")
+        {
+            let id = block["mutation"].as_str().and_then(|mutation| {
+                let start = mutation.find("id=\"")? + 4;
+                let len = mutation[start..].find('"')?;
+                Some(&mutation[start..start + len])
+            });
+            if !id.is_some_and(|id| param_ids.contains(id) && defined.contains(id)) {
+                issues.push(json!({
+                    "kind": "procedure_no_such_parameter",
+                    "owner_kind": "procedure",
+                    "owner_id": procedure_id,
+                    "block_id": block["id"],
+                    "param": block.pointer("/fields/param_name"),
+                    "param_id": id,
+                }));
+            }
+        }
+    }
 }
 
 fn validate_style_references(value: &Value, issues: &mut Vec<Value>) {

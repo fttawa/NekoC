@@ -51,6 +51,38 @@ enum Command {
         #[arg(long)]
         optimize: bool,
     },
+    /// Type and Kitten N compatibility check without writing a project
+    /// (TS/JS sources, .bcmkn, .bcm). Exits 1 when there are errors.
+    Check {
+        input: PathBuf,
+        /// Print `{ok, diagnostics}` as JSON on stdout.
+        #[arg(long)]
+        json: bool,
+        /// Skip the TypeScript type check (compatibility only).
+        #[arg(long)]
+        no_types: bool,
+        /// Template work for TS sources (default: bundled empty Kitten N work).
+        #[arg(long)]
+        template: Option<PathBuf>,
+    },
+    /// Compile a TS/JS (or .nk.ts) work to .bcmkn. Stage, sprites and costumes
+    /// come from stage()/screen()/sprite() in the source; no template needed.
+    Build {
+        input: PathBuf,
+        /// Output path (default: next to the input, `game.nk.ts` -> `game.bcmkn`).
+        #[arg(short, long)]
+        out: Option<PathBuf>,
+        /// Template work to start from (default: bundled empty Kitten N work).
+        #[arg(long)]
+        template: Option<PathBuf>,
+        #[arg(long)]
+        optimize: bool,
+        /// Only check (same as `nekoc check`), do not write the project.
+        #[arg(long)]
+        check: bool,
+        #[arg(long, requires = "check")]
+        json: bool,
+    },
     CompileTsBcmkn {
         input: PathBuf,
         #[arg(long)]
@@ -276,6 +308,30 @@ impl From<CliRuntimeEvent> for nekoc::runtime::RuntimeEvent {
     }
 }
 
+/// Prints diagnostics (or JSON with `--json`) and exits 1 when there are errors.
+fn run_check(
+    input: &std::path::Path,
+    json: bool,
+    types: bool,
+    template: Option<&std::path::Path>,
+) -> Result<()> {
+    let report = nekoc::check::check_file(input, &nekoc::check::CheckOptions { types, template })?;
+    if json {
+        println!("{}", serde_json::to_string(&report)?);
+    } else {
+        for diagnostic in &report.diagnostics {
+            eprintln!("{diagnostic}");
+        }
+        if report.ok {
+            eprintln!("{}: ok", input.display());
+        }
+    }
+    if !report.ok {
+        std::process::exit(1);
+    }
+    Ok(())
+}
+
 fn parse_mouse_coordinates(value: &str) -> std::result::Result<(f64, f64), String> {
     let (x, y) = value
         .split_once(',')
@@ -354,6 +410,56 @@ fn main() -> Result<()> {
             } else {
                 nekoc::ts_frontend::compile_ts_with_sidecars(input, out, emit_ir, emit_analysis)?;
             }
+        }
+        Command::Check {
+            input,
+            json,
+            no_types,
+            template,
+        } => run_check(&input, json, !no_types, template.as_deref())?,
+        Command::Build {
+            input,
+            out,
+            template,
+            optimize,
+            check,
+            json,
+        } => {
+            if check {
+                run_check(&input, json, true, template.as_deref())?;
+                return Ok(());
+            }
+            let out = out.unwrap_or_else(|| {
+                input.with_file_name(format!(
+                    "{}.bcmkn",
+                    nekoc::bcmkn_compiler::project_name(&input)
+                ))
+            });
+            let workspace_file = tempfile::NamedTempFile::new()?;
+            nekoc::ts_frontend::compile_ts(&input, workspace_file.path())?;
+            let mut report: serde_json::Value =
+                serde_json::from_str(&std::fs::read_to_string(workspace_file.path())?)?;
+            if optimize {
+                report = nekoc::optimizer::optimize_report(&report);
+            }
+            let template = match template {
+                Some(path) => nekoc::project::load_project(path)?.value,
+                None => nekoc::bcmkn_compiler::default_template(),
+            };
+            let project = nekoc::bcmkn_compiler::assemble_workspace_bcmkn(
+                &report,
+                &nekoc::bcmkn_compiler::project_name(&input),
+                template,
+            )?;
+            let validation = nekoc::validate::build_report(&project)?;
+            if validation["ok"] != true {
+                bail!(
+                    "compiled project failed validation: {}",
+                    validation["issues"]
+                );
+            }
+            std::fs::write(&out, nekoc::json::to_vec(&project)?)?;
+            eprintln!("Built {} -> {}", input.display(), out.display());
         }
         Command::CompileTsBcmkn {
             input,

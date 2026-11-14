@@ -1,24 +1,41 @@
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import ts from "typescript";
 import { keyboardCode, effectCode, mathFunctionCode } from "./kitten-n.mjs";
 
-const [inputPath, outputPath] = process.argv.slice(2);
+/** A compile error. `location` is { file, line, column } (1-based) when known. */
+export class CompileError extends Error {
+  constructor(message, location = null, code = "NEKOC") {
+    super(message);
+    this.name = "CompileError";
+    this.location = location;
+    this.code = code;
+  }
+}
 
-function fail(message) {
-  console.error(message);
-  process.exit(1);
+function fail(message, location = null, code = "NEKOC") {
+  throw new CompileError(message, location, code);
+}
+
+function nodeLocation(node) {
+  const sourceFile = node?.getSourceFile?.();
+  if (!sourceFile || typeof node.pos !== "number" || node.pos < 0) return null;
+  const { line, character } = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile));
+  return { file: sourceFile.fileName, line: line + 1, column: character + 1 };
 }
 
 function rejectParseDiagnostics(sourceFile) {
   const diagnostics = sourceFile.parseDiagnostics ?? [];
   if (!diagnostics.length) return;
+  const first = diagnostics[0];
+  const { line, character } = sourceFile.getLineAndCharacterOfPosition(first.start ?? 0);
   fail(diagnostics.map((diagnostic) => {
     const start = diagnostic.start ?? 0;
     const { line, character } = sourceFile.getLineAndCharacterOfPosition(start);
     const message = ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n");
     return `${sourceFile.fileName}:${line + 1}:${character + 1}: TS${diagnostic.code}: ${message}`;
-  }).join("\n"));
+  }).join("\n"), { file: sourceFile.fileName, line: line + 1, column: character + 1 }, `TS${first.code}`);
 }
 
 class WorkspaceCompiler {
@@ -48,6 +65,7 @@ class WorkspaceCompiler {
     // Constant initial values of top-level let/const, written into the
     // project's variable table (they hold before any script runs).
     this.initialValues = {};
+    this.constStringLiterals = new Map();
     this.keyButtons = [];
     this.enumValues = new Map();
     // Variables initialised with an array (a list value held in a variable).
@@ -263,6 +281,11 @@ class WorkspaceCompiler {
       if (declaration.initializer) {
         const value = constantInitialValue(declaration.initializer, this);
         this.initialValues[declaration.name.text] = value;
+        // A top-level `const NAME = "..."` can also stand in for a literal where
+        // one is required (resource URLs, sprite and message names).
+        if ((statement.declarationList.flags & ts.NodeFlags.Const) && ts.isStringLiteral(declaration.initializer)) {
+          this.constStringLiterals.set(declaration.name.text, declaration.initializer);
+        }
         if (typeof value === "string") this.stringVariables.add(declaration.name.text);
       }
     });
@@ -791,8 +814,10 @@ class WorkspaceCompiler {
       y: optionalNumberOption(options, "y", 0, this, call.arguments[1]),
       scale: optionalNumberOption(options, "scale", 100, this, call.arguments[1]),
       visible: optionalBooleanOption(options, "visible", true, this, call.arguments[1]),
+      rotation: optionalNumberOption(options, "rotation", 0, this, call.arguments[1]),
       centerX: optionalNumberOption(options, "centerX", 0, this, call.arguments[1]),
       centerY: optionalNumberOption(options, "centerY", 0, this, call.arguments[1]),
+      ...(options.has("costumes") ? { costumes: costumeListOption(options.get("costumes"), this) } : {}),
       workspaceData: workspace.workspaceData,
       summary: workspace.summary,
     });
@@ -1364,7 +1389,8 @@ class WorkspaceCompiler {
           return this.compileShowHideListByNameArg(parentId, listHandleCall.nameArg, "hide");
       }
     }
-    switch (name) {
+    // self.<api>(...) inside a sprite body is the same block as the global <api>(...).
+    switch (selfApiName(name)) {
       case "setVar":
         return this.compileSetVar(call, parentId);
       case "changeVar":
@@ -2619,7 +2645,8 @@ class WorkspaceCompiler {
     return this.addBlock({
       type: "stop",
       parent_id: parentId,
-      fields: { scope: stringLiteralValue(call.arguments[0], this) },
+      // No argument stops the current script, as documented.
+      fields: { scope: call.arguments.length ? stringLiteralValue(call.arguments[0], this) : "1" },
     });
   }
 
@@ -3175,7 +3202,7 @@ class WorkspaceCompiler {
       const method = this.compileMethodCall(call, parentId);
       if (method) return method;
     }
-    switch (name) {
+    switch (selfApiName(name)) {
       case "getVar":
         return this.compileVariableGet(parentId, call.arguments[0]);
       case "scriptVar":
@@ -4510,7 +4537,7 @@ class WorkspaceCompiler {
     const suffix = node && typeof node.pos === "number" && node.pos >= 0 && node.getSourceFile?.() === this.sourceFile
       ? ` at offset ${node.getStart(this.sourceFile)}`
       : "";
-    fail(`${message}${suffix}`);
+    fail(`${message}${suffix}`, nodeLocation(node));
   }
 }
 
@@ -4527,6 +4554,10 @@ function calleeName(expression) {
 
 function isMemberCallName(name, memberName) {
   return typeof name === "string" && name.endsWith(`.${memberName}`);
+}
+
+function selfApiName(name) {
+  return typeof name === "string" && /^self\.[A-Za-z_$][\w$]*$/.test(name) ? name.slice(5) : name;
 }
 
 function memberCallName(name) {
@@ -4854,7 +4885,7 @@ function stringLiteralValue(node, compiler) {
   const visited = new Set();
   while (node && ts.isIdentifier(node) && !visited.has(node)) {
     visited.add(node);
-    const bound = compiler.lookupExpressionBinding(node.text);
+    const bound = compiler.lookupExpressionBinding(node.text) ?? compiler.constStringLiterals?.get(node.text);
     if (!bound) break;
     node = bound;
   }
@@ -4894,6 +4925,32 @@ function propertyNameText(name, compiler) {
     return name.text;
   }
   compiler.unsupported(name, "Only identifier, string, or number option names are supported");
+}
+
+// sprite({ costumes: ["a.png", { name: "run", url: "b.png", centerX: 32 }] })
+function costumeListOption(node, compiler) {
+  if (!ts.isArrayLiteralExpression(node) || node.elements.length === 0) {
+    compiler.unsupported(node, "costumes must be a non-empty array of URLs or { name?, url, centerX?, centerY? }");
+  }
+  const names = new Set();
+  return node.elements.map((element) => {
+    let costume;
+    if (ts.isObjectLiteralExpression(element)) {
+      const options = objectLiteralOptions(element, compiler);
+      if (!options.has("url")) compiler.unsupported(element, "costume needs a url");
+      costume = { url: stringLiteralValue(options.get("url"), compiler) };
+      if (options.has("name")) costume.name = stringLiteralValue(options.get("name"), compiler);
+      if (options.has("centerX")) costume.centerX = numericLiteralValue(options.get("centerX"), compiler);
+      if (options.has("centerY")) costume.centerY = numericLiteralValue(options.get("centerY"), compiler);
+    } else {
+      costume = { url: stringLiteralValue(element, compiler) };
+    }
+    if (costume.name !== undefined) {
+      if (names.has(costume.name)) compiler.unsupported(element, `Duplicate costume name: ${costume.name}`);
+      names.add(costume.name);
+    }
+    return costume;
+  });
 }
 
 function optionalStringOption(options, name, defaultValue, compiler, node) {
@@ -5033,11 +5090,8 @@ function booleanLiteralValue(node, compiler) {
   compiler.unsupported(node, "Expected a boolean literal");
 }
 
-function main() {
-  if (!inputPath || !outputPath) {
-    fail("usage: node compile-ts.mjs <input.ts> <output.json>");
-  }
-
+/** Compiles a TS/JS entry file (and its relative imports) to a workspace report. Throws CompileError. */
+export function compileFile(inputPath) {
   const sourceText = fs.readFileSync(inputPath, "utf8");
   const sourceFile = ts.createSourceFile(
     inputPath,
@@ -5047,10 +5101,108 @@ function main() {
     ts.ScriptKind.TS,
   );
   rejectParseDiagnostics(sourceFile);
+  return new WorkspaceCompiler(inputPath, sourceFile).compile(sourceFile);
+}
 
-  const compiler = new WorkspaceCompiler(inputPath, sourceFile);
-  const report = compiler.compile(sourceFile);
+const DECLARATIONS = fileURLToPath(new URL("./nekoc.d.ts", import.meta.url));
+
+/** Type-checks an entry file against ts/nekoc.d.ts. Returns diagnostics for user files only. */
+export function checkTypes(inputPath) {
+  const program = ts.createProgram([DECLARATIONS, inputPath], {
+    noEmit: true,
+    target: ts.ScriptTarget.ES2020,
+    module: ts.ModuleKind.ESNext,
+    moduleResolution: ts.ModuleResolutionKind.Bundler,
+    allowImportingTsExtensions: true,
+    allowJs: true,
+    checkJs: true,
+    lib: ["lib.es2020.d.ts"],
+    types: [],
+    skipLibCheck: true,
+    strict: false,
+  });
+  const declarations = path.resolve(DECLARATIONS);
+  return ts.getPreEmitDiagnostics(program)
+    .filter((diagnostic) => !diagnostic.file || path.resolve(diagnostic.file.fileName) !== declarations)
+    .map((diagnostic) => {
+      let location = {};
+      if (diagnostic.file) {
+        const { line, character } = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start ?? 0);
+        location = { file: diagnostic.file.fileName, line: line + 1, column: character + 1 };
+      }
+      return {
+        severity: diagnostic.category === ts.DiagnosticCategory.Error ? "error" : "warning",
+        source: "types",
+        code: `TS${diagnostic.code}`,
+        message: ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n"),
+        ...location,
+      };
+    });
+}
+
+/**
+ * Check mode: type check plus Kitten N compatibility (the full compile), no output file.
+ * Returns { ok, diagnostics, report } where report is the workspace report when compilation succeeded.
+ */
+export function checkFile(inputPath, { types = true } = {}) {
+  const diagnostics = types ? checkTypes(inputPath) : [];
+  let report = null;
+  try {
+    report = compileFile(inputPath);
+  } catch (error) {
+    if (!(error instanceof CompileError)) throw error;
+    diagnostics.push({
+      severity: "error",
+      source: error.code.startsWith("TS") ? "syntax" : "compat",
+      code: error.code,
+      message: error.message,
+      ...(error.location ?? { file: inputPath }),
+    });
+  }
+  return { ok: !diagnostics.some((d) => d.severity === "error"), diagnostics, report };
+}
+
+export function formatDiagnostic(d) {
+  const where = d.line ? `${d.file}:${d.line}:${d.column}` : d.file ?? "";
+  return `${where}: ${d.severity} ${d.code}: ${d.message}`;
+}
+
+function main(argv) {
+  const flags = new Set(argv.filter((arg) => arg.startsWith("--") && !arg.includes("=")));
+  const reportOut = argv.find((arg) => arg.startsWith("--report-out="))?.slice("--report-out=".length);
+  const [inputPath, outputPath] = argv.filter((arg) => !arg.startsWith("--"));
+  if (flags.has("--check")) {
+    if (!inputPath) {
+      console.error("usage: node compile-ts.mjs --check [--json] [--no-types] [--report-out=<file>] <input.ts>");
+      process.exit(2);
+    }
+    const result = checkFile(inputPath, { types: !flags.has("--no-types") });
+    if (reportOut && result.report) {
+      fs.writeFileSync(reportOut, `${JSON.stringify(result.report)}\n`, "utf8");
+    }
+    if (flags.has("--json")) {
+      console.log(JSON.stringify({ ok: result.ok, diagnostics: result.diagnostics }));
+    } else {
+      result.diagnostics.forEach((d) => console.error(formatDiagnostic(d)));
+      if (result.ok) console.error(`${inputPath}: ok`);
+    }
+    process.exit(result.ok ? 0 : 1);
+  }
+  if (!inputPath || !outputPath) {
+    console.error("usage: node compile-ts.mjs <input.ts> <output.json>\n       node compile-ts.mjs --check [--json] <input.ts>");
+    process.exit(2);
+  }
+  let report;
+  try {
+    report = compileFile(inputPath);
+  } catch (error) {
+    if (!(error instanceof CompileError)) throw error;
+    console.error(error.message);
+    process.exit(1);
+  }
   fs.writeFileSync(outputPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
 }
 
-main();
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  main(process.argv.slice(2));
+}

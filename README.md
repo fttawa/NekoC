@@ -51,6 +51,18 @@ onStart(() => {
 ```
 
 ```bash
+nekoc build hello.ts
+```
+
+`build` 不需要模板作品：舞台、角色、造型和初始坐标都可以写在同一个 `.nk.ts` 文件里声明（见 [samples/stage_demo.nk.ts](samples/stage_demo.nk.ts)）。只检查、不出包：
+
+```bash
+nekoc check hello.ts --json
+```
+
+`check` 依次做类型检查（对照 `ts/nekoc.d.ts`）、Kitten N 兼容检查和作品结构检查，每条诊断都带文件、行号、列号，适合 AI 反复修改后重跑。`.bcmkn` / `.bcm` 也可以直接 `check`。需要沿用已有作品的素材时，仍可用 `--template`：
+
+```bash
 nekoc compile-ts-bcmkn hello.ts --template samples/kitten-n-0.27.4.bcmkn --out hello.bcmkn
 ```
 
@@ -71,6 +83,8 @@ node tools/editor-compat.mjs hello.bcmkn
 
 | 命令 | 说明 |
 |------|------|
+| `check <input> [--json] [--no-types] [--template <t>]` | 只做类型、兼容和结构检查，不写文件；有错误时退出码为 1 |
+| `build <input.ts> [-o <out.bcmkn>] [--template <t>] [--optimize]` | 编译成 `.bcmkn`；不给模板时用内置空作品，默认输出到源文件旁边 |
 | `compile-ts <input.ts> --out <output.json>` | 把 TS 编译成工作区 JSON |
 | `compile-ts-bcmkn <input.ts> --template <template.bcmkn> --out <out.bcmkn>` | 把 TS 编译成 `.bcmkn` |
 | `compile-ts-kitten4 <input.ts> --out <out.bcm> [--template <template.bcm>]` | 把 TS 编译成原生 Kitten 4 `.bcm` |
@@ -98,6 +112,7 @@ node tools/editor-compat.mjs hello.bcmkn
 
 ## 文档
 
+- **[llms.txt](llms.txt)**：给 AI 用的精简说明：语法子集、舞台声明、API 和 check/build/run 迭代流程。在仓库里改代码的智能体另见 **[AGENTS.md](AGENTS.md)**。
 - **[支持的 TypeScript 写法](docs/syntax.md)**：所有支持的语法结构。
 - **[TS 写法支持情况（实测）](docs/ts-support-audit.md)**：逐条编译运行核对过的支持范围、限制和写法建议。
 - **[API 参考](docs/api.md)**：事件、变量、列表、运动、外观、特效、画笔、克隆、侦测等全部函数。
