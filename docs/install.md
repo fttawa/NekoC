@@ -23,7 +23,16 @@
 
 校验值不一致就不要运行。解压后整个目录一起使用，不要只复制 exe：`frontend/` 必须在 `nekoc` 旁边。
 
-## 使用
+## 直接运行
+
+- Windows：双击 `start.cmd`。
+- macOS / Linux：运行 `./start.sh`。
+
+脚本会启动本机后端（带 JIT），并在浏览器里打开 <http://127.0.0.1:4173/play>。把 `works/` 里的示例作品（《方界》《Pencraft》《星垒》、小语言模型）拖进播放器就能运行。关掉窗口或按 Ctrl+C，后端就停止。
+
+`extension/` 是 PICKCAT 浏览器扩展：在扩展管理页选「加载已解压的扩展程序」，再选择这个目录。见 [pickcat-extension.md](pickcat-extension.md)。
+
+## 命令行
 
 编译 TypeScript 需要 **Node.js 18 或更高版本**在 PATH 里。TypeScript 前端是 JavaScript，包里已经带上它和 `typescript`，不需要 `npm install`。只运行作品（`run`、`web`）不需要 Node。
 

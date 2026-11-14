@@ -22,7 +22,39 @@ export const samples = [
   "pen_display.bcmkn", "pen_display_fast.bcmkn", "pen_display_columns.bcmkn",
   "three_body.bcmkn", "kitten4-demo.bcm",
 ];
+// Showcase works from the NekoX-Lab/nekoc-works checkout (NEKOC_WORKS_DIR),
+// shipped as works/<file> so the package can be tried straight away.
+export const works = [
+  "fangjie/fangjie.bcmkn", "pencraft/pencraft.bcmkn", "starhold/starhold.bcmkn", "tiny-lm/tiny_lm.bcmkn",
+];
 const root = fileURLToPath(new URL("../", import.meta.url));
+
+// Double-click launchers: start the local Rust backend and open the player.
+const url = "http://127.0.0.1:4173/play";
+export const launchers = {
+  windows: ["start.cmd", [
+    "@echo off",
+    "cd /d \"%~dp0\"",
+    "echo NekoC: " + url,
+    "echo Close this window to stop the backend.",
+    `start "" cmd /c "timeout /t 2 /nobreak >nul & start ${url}"`,
+    "web.exe --port 4173",
+    "pause",
+    "",
+  ].join("\r\n")],
+  unix: ["start.sh", [
+    "#!/bin/sh",
+    "cd \"$(dirname \"$0\")\" || exit 1",
+    `echo "NekoC: ${url} (Ctrl+C stops the backend)"`,
+    `(sleep 2; if command -v open >/dev/null 2>&1; then open ${url}; elif command -v xdg-open >/dev/null 2>&1; then xdg-open ${url}; fi) >/dev/null 2>&1 &`,
+    "exec ./web --port 4173",
+    "",
+  ].join("\n")],
+};
+
+async function copyTree(source, destination) {
+  await fs.cp(source, destination, { recursive: true, errorOnExist: false });
+}
 
 export async function checksums(directory) {
   const names = (await fs.readdir(directory)).filter(n => /\.(zip|tar\.gz|tgz)$/.test(n)).sort();
@@ -76,6 +108,17 @@ export async function packageRelease(target, binDir, output = path.join(root, "d
     await copy("README.md");
     await copy("llms.txt");
     await copy("LICENSE");
+    const [launcher, script] = launchers[target.includes("windows") ? "windows" : "unix"];
+    await fs.writeFile(path.join(bundle, launcher), script);
+    if (!target.includes("windows")) await fs.chmod(path.join(bundle, launcher), 0o755);
+    // Optional extras, always present in CI release builds.
+    const extension = process.env.NEKOC_EXTENSION_DIR;
+    if (extension) await copyTree(path.resolve(extension), path.join(bundle, "extension"));
+    const worksDir = process.env.NEKOC_WORKS_DIR;
+    if (worksDir) {
+      await fs.mkdir(path.join(bundle, "works"));
+      for (const file of works) await fs.copyFile(path.resolve(worksDir, file), path.join(bundle, "works", path.basename(file)));
+    }
     await fs.writeFile(path.join(bundle, "BUILD-INFO.json"), JSON.stringify({
       version, commit, target, builtAt: new Date().toISOString(),
     }, null, 2) + "\n");
