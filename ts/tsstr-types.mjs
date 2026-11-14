@@ -110,7 +110,6 @@ export function createExpressionTypes(files, declarations = "", path = portableP
     return "unknown";
   };
   const declaredReadType = node => {
-    if (ts.isParenthesizedExpression(node) || ts.isNonNullExpression(node)) return declaredReadType(node.expression);
     let symbol;
     if (ts.isIdentifier(node) || ts.isPropertyAccessExpression(node)) {
       symbol = checker.getSymbolAtLocation(ts.isPropertyAccessExpression(node) ? node.name : node);
@@ -126,13 +125,35 @@ export function createExpressionTypes(files, declarations = "", path = portableP
     const declaration = symbol?.valueDeclaration ?? symbol?.declarations?.[0];
     return declaration ? checker.getTypeOfSymbolAtLocation(symbol, declaration) : null;
   };
-  return node => {
+  const expressionKind = node => {
     // Factory nodes and generated helpers have no bound symbols. Their existing
     // lowering rules remain in charge; do not ask TS to bind synthetic nodes.
     const file = node?.getSourceFile?.();
     if (!file || !files.has(path.resolve(file.fileName)) || node.pos < 0) return null;
+    // These wrappers do not convert the value. In particular satisfies must
+    // not fall back to TS's potentially stale flow type for its operand.
+    if (ts.isParenthesizedExpression(node) || ts.isNonNullExpression(node)
+      || ts.isSatisfiesExpression(node)) return expressionKind(node.expression);
+    const commonKind = (left, right) => {
+      const a = expressionKind(left), b = expressionKind(right);
+      return a === b ? a : "unknown";
+    };
+    // Preserve declared-type uncertainty through value-selecting expressions,
+    // rather than accepting their narrowed result type from the checker.
+    if (ts.isConditionalExpression(node)) return commonKind(node.whenTrue, node.whenFalse);
+    if (ts.isBinaryExpression(node)) {
+      const operator = node.operatorToken.kind;
+      if ([ts.SyntaxKind.AmpersandAmpersandToken, ts.SyntaxKind.BarBarToken,
+        ts.SyntaxKind.QuestionQuestionToken].includes(operator)) return commonKind(node.left, node.right);
+      if (operator === ts.SyntaxKind.PlusToken) {
+        const a = expressionKind(node.left), b = expressionKind(node.right);
+        if (a === "string" || b === "string") return "string";
+        if (a === "unknown" || b === "unknown") return "unknown";
+      }
+    }
     // TS flow narrowing does not track callback/alias writes. A read of a
     // declared mixed union must not become a promise of string concatenation.
     return classify(declaredReadType(node) ?? checker.getTypeAtLocation(node));
   };
+  return expressionKind;
 }

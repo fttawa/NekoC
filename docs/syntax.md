@@ -49,6 +49,9 @@ Variable/property reads use their declared types, not control-flow narrowing:
 TypeScript does not track all callback or alias writes. A declared mixed union
 such as `string | number` is therefore rejected for ambiguous addition even
 after an assignment or a type guard; use `String(value)` to request concatenation.
+This protection also applies through parentheses, non-null assertions,
+`satisfies`, and conditional/logical expressions; these do not turn a declared
+mixed union into a runtime guarantee of a single primitive type.
 Object property `++` / `--` requires a statically numeric property; string and
 `any` properties are rejected because native addition can concatenate strings.
 

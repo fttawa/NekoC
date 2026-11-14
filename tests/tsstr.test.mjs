@@ -67,6 +67,29 @@ test("tsstr callback and alias writes cannot invalidate a mixed-union addition d
   }
 });
 
+test("tsstr transparent wrappers and derived expressions preserve declared union uncertainty", () => {
+  const variants = value => [
+    `(${value} satisfies string | number)`,
+    `(((${value})! satisfies string | number)!)`,
+    `((${value} satisfies string | number) satisfies string | number)`,
+    `(true ? ${value} : ${value})`,
+    `(${value} || ${value})`, `(${value} && ${value})`, `(${value} ?? ${value})`,
+    `(true ? (${value} satisfies string | number) : ${value})`,
+  ];
+  for (const [setup, value] of [
+    ['let x: string | number = 0; x = "1"; [1].forEach(() => { x = 1; });', "x"],
+    ['const o: {x: string | number} = {x: 0}; o.x = "1"; const alias = o; alias.x = 1;', "o.x"],
+  ]) {
+    for (const expression of variants(value)) {
+      assert.throws(() => compile(`onStart(() => { ${setup} setVar("out", ${expression} + 2); });`), /Cannot determine JavaScript/, expression);
+    }
+    assert.doesNotThrow(() => compile(`onStart(() => { ${setup} setVar("out", String(${value}) + 2); });`));
+  }
+  for (const expression of ['("a" satisfies string)', '(true ? "a" : "b")']) {
+    assert.doesNotThrow(() => compile(`onStart(() => { setVar("out", ${expression} + 2); });`));
+  }
+});
+
 test("tsstr Number.isInteger keeps non-numeric argument evaluation exactly once", () => {
   for (const returnType of ["string", "boolean"]) {
     const report = compile(`let called = 0; function f(): ${returnType} { called += 1; return ${returnType === "string" ? '"x"' : 'true'}; }
