@@ -1,6 +1,10 @@
-import fs from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { portablePath } from "./portable-path.mjs";
+const isNode = typeof process !== "undefined" && !!process.versions?.node;
+const nodeImport = (name) => import(name);
+const fs = isNode ? (await nodeImport("node:fs")).default : null;
+const path = isNode ? (await nodeImport("node:path")).default : portablePath;
+const fileURLToPath = isNode ? (await nodeImport("node:url")).fileURLToPath : (url) => new URL(url).pathname;
+const defaultHost = { readFile: (name) => { try { return fs?.readFileSync(name, "utf8"); } catch { return undefined; } } };
 import ts from "typescript";
 import { keyboardCode, effectCode, mathFunctionCode } from "./kitten-n.mjs";
 
@@ -42,7 +46,8 @@ function rejectParseDiagnostics(sourceFile) {
 const STARTUP_READY = "__nekoc_ready";
 
 class WorkspaceCompiler {
-  constructor(source, sourceFile) {
+  constructor(source, sourceFile, host) {
+    this.host = host;
     this.source = source;
     this.sourceFile = sourceFile;
     this.entryPath = path.resolve(source);
@@ -237,7 +242,7 @@ class WorkspaceCompiler {
         this.unsupported(importNode, `Circular imports are not supported: ${resolvedPath}`);
       }
       this.loadedModules.add(resolvedPath);
-      const sourceText = fs.readFileSync(resolvedPath, "utf8");
+      const sourceText = this.host.readFile(resolvedPath);
       const moduleSourceFile = ts.createSourceFile(
         resolvedPath,
         sourceText,
@@ -301,7 +306,7 @@ class WorkspaceCompiler {
       `${basePath}.ts`,
       path.join(basePath, "index.ts"),
     ];
-    const resolved = candidates.find((candidate) => fs.existsSync(candidate) && fs.statSync(candidate).isFile());
+    const resolved = candidates.find((candidate) => typeof this.host.readFile(candidate) === "string");
     if (!resolved) {
       fail(`Unable to resolve import ${modulePath} from ${fromPath}`);
     }
@@ -5347,8 +5352,9 @@ function booleanLiteralValue(node, compiler) {
 }
 
 /** Compiles a TS/JS entry file (and its relative imports) to a workspace report. Throws CompileError. */
-export function compileFile(inputPath) {
-  const sourceText = fs.readFileSync(inputPath, "utf8");
+export function compileFile(inputPath, host = defaultHost) {
+  const sourceText = host.readFile(path.resolve(inputPath));
+  if (typeof sourceText !== "string") fail(`Unable to read ${inputPath}`);
   const sourceFile = ts.createSourceFile(
     inputPath,
     sourceText,
@@ -5357,14 +5363,14 @@ export function compileFile(inputPath) {
     ts.ScriptKind.TS,
   );
   rejectParseDiagnostics(sourceFile);
-  return new WorkspaceCompiler(inputPath, sourceFile).compile(sourceFile);
+  return new WorkspaceCompiler(inputPath, sourceFile, host).compile(sourceFile);
 }
 
 const DECLARATIONS = fileURLToPath(new URL("./nekoc.d.ts", import.meta.url));
 
 /** Type-checks an entry file against ts/nekoc.d.ts. Returns diagnostics for user files only. */
-export function checkTypes(inputPath) {
-  const program = ts.createProgram([DECLARATIONS, inputPath], {
+export function checkTypes(inputPath, host) {
+  const options = {
     noEmit: true,
     target: ts.ScriptTarget.ES2020,
     module: ts.ModuleKind.ESNext,
@@ -5376,7 +5382,23 @@ export function checkTypes(inputPath) {
     types: [],
     skipLibCheck: true,
     strict: false,
-  });
+  };
+  let compilerHost;
+  if (host) {
+    compilerHost = {
+      readFile: (name) => host.readFile(path.resolve(name)),
+      fileExists: (name) => typeof host.readFile(path.resolve(name)) === "string",
+      getSourceFile(name, languageVersion) {
+        const text = this.readFile(name);
+        return typeof text === "string" ? ts.createSourceFile(name, text, languageVersion, true) : undefined;
+      },
+      getDefaultLibFileName: () => path.resolve("/lib.es2020.d.ts"),
+      writeFile() {}, getCurrentDirectory: () => path.resolve("/"),
+      getDirectories: () => [], getCanonicalFileName: (name) => name,
+      useCaseSensitiveFileNames: () => true, getNewLine: () => "\n",
+    };
+  }
+  const program = ts.createProgram([DECLARATIONS, path.resolve(inputPath)], options, compilerHost);
   const declarations = path.resolve(DECLARATIONS);
   return ts.getPreEmitDiagnostics(program)
     .filter((diagnostic) => !diagnostic.file || path.resolve(diagnostic.file.fileName) !== declarations)
@@ -5400,11 +5422,11 @@ export function checkTypes(inputPath) {
  * Check mode: type check plus Kitten N compatibility (the full compile), no output file.
  * Returns { ok, diagnostics, report } where report is the workspace report when compilation succeeded.
  */
-export function checkFile(inputPath, { types = true } = {}) {
-  const diagnostics = types ? checkTypes(inputPath) : [];
+export function checkFile(inputPath, { types = true, host } = {}) {
+  const diagnostics = types ? checkTypes(inputPath, host) : [];
   let report = null;
   try {
-    report = compileFile(inputPath);
+    report = compileFile(inputPath, host);
   } catch (error) {
     if (!(error instanceof CompileError)) throw error;
     diagnostics.push({
@@ -5459,6 +5481,9 @@ function main(argv) {
   fs.writeFileSync(outputPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+// Compare real paths: Node resolves symlinks for import.meta.url but not for
+// argv[1] (macOS temp dirs live under /var -> /private/var).
+const realPath = (file) => { try { return fs.realpathSync(file); } catch { return path.resolve(file); } };
+if (isNode && process.argv[1] && realPath(process.argv[1]) === realPath(fileURLToPath(import.meta.url))) {
   main(process.argv.slice(2));
 }

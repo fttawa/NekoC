@@ -66,10 +66,11 @@ try{
   await page.locator('[data-neko-rust]').getByRole('button',{name:'切回原版'}).click();
   await page.waitForFunction(()=>document.querySelector('iframe').src.startsWith('https://kn.codemao.cn/player'));
   assert.equal(await page.locator('iframe').count(),1);
-  await page.locator('[data-neko-rust]').getByRole('button',{name:'切换 Rust'}).click();frame=await rustFrame();
+  await page.locator('[data-neko-rust]').getByRole('button',{name:'切换 Neko'}).click();frame=await rustFrame();
   assert.ok(await frame.evaluate(()=>window.nekoPlayDiagnostics().running));
   report.tests.push('Original/Rust toggle uses one iframe and restores original exact URL');
   const popup=await context.newPage();await popup.goto(`${origin}/popup.html`);
+  await popup.locator('input[name=engine][value=rust]').check();
   await popup.locator('#port').fill('4199');await popup.locator('#save').click();
   frame=await rustFrame();assert.match(await frame.locator('#notice-text').innerText(),/无法连接 Rust 后端/);
   await page.screenshot({path:`${output}/offline.png`});

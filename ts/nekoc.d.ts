@@ -45,6 +45,7 @@ interface SpriteOptions {
   x?: number;
   y?: number;
   scale?: number;
+  /** Initial direction in degrees. */
   rotation?: number;
   visible?: boolean;
   /** Costume pivot in pixels from the image's top-left corner. */

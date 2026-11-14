@@ -26,6 +26,7 @@ pub struct Diagnostic {
 }
 
 impl Diagnostic {
+    #[cfg(not(target_arch = "wasm32"))]
     fn from_frontend(value: &Value) -> Self {
         let text = |key: &str| value[key].as_str().unwrap_or_default().to_owned();
         Self {
@@ -75,6 +76,7 @@ impl Default for CheckOptions<'_> {
     }
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 fn is_project_file(input: &Path) -> bool {
     matches!(
         input.extension().and_then(|ext| ext.to_str()),
@@ -82,6 +84,8 @@ fn is_project_file(input: &Path) -> bool {
     )
 }
 
+/// Checks a TS/JS source (through the Node frontend) or a project file.
+#[cfg(not(target_arch = "wasm32"))]
 pub fn check_file(input: &Path, options: &CheckOptions) -> Result<CheckReport> {
     let mut diagnostics = Vec::new();
     let project = if is_project_file(input) {
@@ -105,7 +109,10 @@ pub fn check_file(input: &Path, options: &CheckOptions) -> Result<CheckReport> {
         }
     };
     if let Some(project) = project {
-        project_diagnostics(&project, input, &mut diagnostics)?;
+        diagnostics.extend(project_diagnostics(
+            &project,
+            Some(&input.display().to_string()),
+        )?);
     }
     Ok(CheckReport {
         ok: !diagnostics.iter().any(|d| d.severity == "error"),
@@ -113,7 +120,10 @@ pub fn check_file(input: &Path, options: &CheckOptions) -> Result<CheckReport> {
     })
 }
 
-fn project_diagnostics(project: &Value, input: &Path, out: &mut Vec<Diagnostic>) -> Result<()> {
+/// Structural problems the official editor or runtime would reject, as
+/// `project` diagnostics. Shared by `nekoc check` and the wasm package.
+pub fn project_diagnostics(project: &Value, file: Option<&str>) -> Result<Vec<Diagnostic>> {
+    let mut out = Vec::new();
     let report = crate::validate::build_report(project)?;
     for issue in report["issues"].as_array().into_iter().flatten() {
         let kind = issue["kind"].as_str().unwrap_or("project_issue");
@@ -129,10 +139,10 @@ fn project_diagnostics(project: &Value, input: &Path, out: &mut Vec<Diagnostic>)
                 .as_str()
                 .map(str::to_owned)
                 .unwrap_or_else(|| details.to_string()),
-            file: Some(input.display().to_string()),
+            file: file.map(str::to_owned),
             line: None,
             column: None,
         });
     }
-    Ok(())
+    Ok(out)
 }

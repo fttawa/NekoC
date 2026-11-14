@@ -37,13 +37,13 @@
   }
   function restore(record){
     record.rust=false;record.frame.src=record.original;
-    record.button.textContent='切换 Rust';record.label.textContent='原播放器';
+    record.button.textContent='切换 Neko';record.label.textContent='原播放器';
   }
   function activate(record){
     if(!record.resource){record.label.textContent='等待原播放器资源…';return;}
     record.rust=true;record.frame.src=rustURL(record);
     dismissInjectionHint();
-    record.button.textContent='切回原版';record.label.textContent='Rust 连接中…';
+    record.button.textContent='切回原版';record.label.textContent='Neko 载入中…';
   }
   function cleanup(record,restoreFrame){
     record.frame.removeEventListener('load',record.onLoad);
@@ -76,7 +76,7 @@
         if(record.rust){record.auto=false;restore(record);}
         else{record.auto=true;activate(record);if(!record.resource)requestResource(record);}
       };
-      button.textContent='切换 Rust';activate(record);
+      button.textContent='切换 Neko';activate(record);
       requestResource(record); // Also recover cached details when enabling on an already loaded player.
     }
   }
@@ -101,6 +101,6 @@
   chrome.storage.onChanged.addListener((changes,area)=>{
     if(area!=='local')return;
     if(changes.enabled){enabled=changes.enabled.newValue;schedule();}
-    if(changes.port)for(const record of records.values())if(record.rust)activate(record);
+    if(changes.port||changes.engine)for(const record of records.values())if(record.rust)activate(record);
   });
 })();

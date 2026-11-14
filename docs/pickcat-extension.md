@@ -1,12 +1,21 @@
-# PICKCAT Rust 播放器扩展
+# PICKCAT Neko 播放器扩展
 
-在 PICKCAT 作品页或论坛帖子内使用 **本机 Rust VM + WebGL2** 替换 Kitten N 和 Kitten 4 原播放器。支持 Chrome / Edge 的 Manifest V3 扩展。
+在 PICKCAT 作品页或论坛帖子内使用 **Neko VM + WebGL2** 替换 Kitten N 和 Kitten 4 原播放器。支持 Chrome / Edge 的 Manifest V3 扩展。
+
+**0.3.0 WASM 与本机后端切换**：扩展自带 WASM 版 VM，默认直接在浏览器里运行，**不需要启动任何本机程序**。工具栏弹窗的「运行方式」可随时切换：
+
+| 运行方式 | 需要 | 说明 |
+| --- | --- | --- |
+| WASM（默认） | 无 | VM 在扩展的 Web Worker 里运行，不阻塞画面。没有 JIT，重计算作品会慢一些。 |
+| 本机 Rust 后端 | 运行 `start-rust-backend.cmd` | 原生 VM，默认启用 JIT。端口在弹窗里设置。 |
+
+切换后已接管的播放器会自动按新方式重新载入。两种方式使用同一套播放器协议（[player-sdk.md](player-sdk.md)），画面、输入、音频行为一致。扩展页面 CSP 增加了 `'wasm-unsafe-eval'`，只用于编译扩展自带的 wasm 模块。
 
 **0.2.0 Kitten 4 接管**：PICKCAT 为 Kitten 4 作品嵌入的官方播放器 `https://player.codemao.cn/new/<作品编号>` 也会被接管。扩展读取官方播放器自己请求成功的 `kitten/r2/work/player/load` 公开响应，从 `creation.codemao.cn` 下载发布的 JSON 源文件，由本机后端转换为 Rust VM 项目运行。切回原版、sandbox 保留、缓存恢复与 Kitten N 相同。Kitten 3（`player.codemao.cn/old/...`）仍使用原播放器。
 
 ## 安装与使用
 
-1. 双击仓库根目录的 `start-rust-backend.cmd`，保持窗口打开。默认后端为 `http://127.0.0.1:4173`。
+1. （仅本机后端方式需要）双击仓库根目录的 `start-rust-backend.cmd`，保持窗口打开。默认后端为 `http://127.0.0.1:4173`。
    - 首次没有可执行文件时，脚本会调用 Cargo 编译；源码更新后执行 `cargo build --release --bin web`。
    - 分发包 `dist/neko-pickcat-windows.zip` 已包含 Windows 后端，解压后运行其中的 `start-rust-backend.cmd` 即可。
 2. Edge 打开 `edge://extensions`，Chrome 打开 `chrome://extensions`，开启「开发人员模式」。
@@ -16,7 +25,7 @@
 5. 登录并满足网站的播放条件。原播放器正常取得作品资源后，扩展自动替换为 Neko 播放器。
 6. 「衛星 ASCII PV」显示初始化 100% 后，**点击画面，按 Enter** 播放；作品内 **Q** 停止。
 
-播放器右上角显示连接状态与「切回原版 / 切换 Rust」。播放器内保留导入、性能设置、FPS、暂停、重玩、全屏。离线时提示启动后端，点击「重连」重试。
+播放器右上角显示运行状态与「切回原版 / 切换 Neko」，FPS 旁的标记显示 `WASM` 或 `RUST`。播放器内保留导入、性能设置、FPS、暂停、重玩、全屏。本机后端方式离线时提示启动后端，点击「重连」重试，或在弹窗改用 WASM。
 
 **0.1.3 资源与论坛修复**：支持官方详情中的 `source_urls`（`bcm_url` 可能为空），自动识别普通 JSON 与 Kitten N 编码文件；支持 `/forum/post/...` 文章中的懒加载、sandbox 内嵌播放器。提前点击「切换 Rust」会继续等待资源并接管；详情不含可用资源时显示明确状态。
 
@@ -24,7 +33,7 @@
 
 同时修复 iframe 尚未完成导航时的 `postMessage` 来源不匹配报错；在原播放器已经加载完成后启用扩展，也能从缓存详情中接管。
 
-扩展工具栏弹窗可关闭自动替换或设置本机端口。更换端口时也需要用 `web.exe --port 端口号` 启动后端。
+扩展工具栏弹窗可关闭自动替换、选择运行方式或设置本机端口。更换端口时也需要用 `web.exe --port 端口号` 启动后端。
 
 ## 实现
 
@@ -56,6 +65,7 @@
 ## 构建和验证
 
 ```powershell
+node packages/nekoc/build.mjs   # 生成扩展自带的 wasm（需要 wasm-bindgen CLI，见 packages/nekoc/README.md）
 node tools/build-extension.mjs
 cargo build --release --bin web
 cargo test --bin web --test engine --test bcmkn_web --test web_kitten4 --target-dir target/web-validation

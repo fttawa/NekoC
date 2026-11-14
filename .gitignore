@@ -17,6 +17,7 @@
 *.validate.json
 __pycache__/
 /dist/
+/packages/nekoc/dist/
 
 # qwen-mini：训练数据、权重和构建产物不入库
 /projects/qwen-mini/data/

@@ -5,6 +5,29 @@ on:
   pull_request:
 
 jobs:
+  wasm:
+    runs-on: ubuntu-latest
+    env:
+      CARGO_INCREMENTAL: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+          components: clippy
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo clippy --target wasm32-unknown-unknown -p nekoc-wasm -- -D warnings
+      # The CLI must match the wasm-bindgen version in Cargo.lock.
+      - run: cargo install wasm-bindgen-cli --locked --version "$(awk '/^name = "wasm-bindgen"$/ { getline; gsub(/version = |"/, ""); print }' Cargo.lock)"
+      - run: npm ci --ignore-scripts
+      - run: node packages/nekoc/build.mjs
+      - run: npm --prefix packages/nekoc test
+      - run: node tools/build-pages.mjs dist/pages
+      - run: node tools/build-extension.mjs dist/pickcat-rust
   test:
     runs-on: windows-latest
 

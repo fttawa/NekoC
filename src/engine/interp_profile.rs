@@ -2,7 +2,8 @@
 //!
 //! Counts are exact for instrumented entries. Timings include instrumentation
 //! overhead and must not be compared with normal release benchmark timings.
-use std::{cell::RefCell, collections::BTreeMap, fmt, fmt::Debug, time::Instant};
+use std::{cell::RefCell, collections::BTreeMap, fmt, fmt::Debug};
+use web_time::Instant;
 
 #[derive(Default, serde::Serialize)]
 struct Entry {

@@ -3,6 +3,7 @@ mod audio;
 pub mod bcmkn;
 pub mod bcmkn_compiler;
 pub mod check;
+#[cfg(not(target_arch = "wasm32"))]
 pub mod cli_run;
 pub mod cloud;
 pub mod decompile;
@@ -19,6 +20,7 @@ mod js_number;
 pub mod json;
 pub mod key_buttons;
 pub mod kitten4;
+#[cfg(not(target_arch = "wasm32"))]
 pub mod kitten4_compiler;
 pub mod optimizer;
 pub mod pack;
@@ -27,7 +29,9 @@ pub mod project;
 pub mod runtime;
 pub mod scenario;
 pub mod source_audit;
+#[cfg(not(target_arch = "wasm32"))]
 pub mod studio;
+#[cfg(not(target_arch = "wasm32"))]
 pub mod ts_frontend;
 pub mod validate;
 pub mod workspace;

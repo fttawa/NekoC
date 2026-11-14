@@ -4,6 +4,10 @@ version = "0.3.0"
 edition = "2024"
 default-run = "nekoc"
 
+[workspace]
+members = ["crates/nekoc-wasm"]
+resolver = "2"
+
 [features]
 default = []
 jit-timing = []
@@ -19,25 +23,27 @@ required-features = ["studio"]
 [dependencies]
 anyhow = "1"
 clap = { version = "4", features = ["derive"] }
-notify = "7"
-notify-debouncer-mini = "0.5"
 serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1", features = ["float_roundtrip", "unbounded_depth", "preserve_order"] }
-serde_stacker = "0.1"
-stacker = "0.1"
 sha2 = "0.10"
 regex = "1"
 rapier2d-f64 = { version = "0.22", default-features = false, features = ["dim2", "f64"] }
 ryu-js = "1"
-tempfile = "3"
-tiny_http = "0.12"
-socket2 = "0.6"
-tungstenite = { version = "0.24", default-features = false, features = ["handshake"] }
+web-time = "1"
 eframe = { version = "0.33.3", optional = true, default-features = false, features = ["default_fonts", "glow", "x11", "wayland"] }
 egui_extras = { version = "0.33.3", optional = true, features = ["file", "http", "image", "svg"] }
 image = { version = "0.25", optional = true, default-features = false, features = ["png", "jpeg", "gif", "webp"] }
 base64 = { version = "0.22", optional = true }
 percent-encoding = { version = "2", optional = true }
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+notify = "7"
+notify-debouncer-mini = "0.5"
+serde_stacker = "0.1"
+stacker = "0.1"
+tempfile = "3"
+tiny_http = "0.12"
+socket2 = "0.6"
+tungstenite = { version = "0.24", default-features = false, features = ["handshake"] }
 cranelift-codegen = "0.132.3"
 cranelift-frontend = "0.132.3"
 cranelift-jit = "0.132.3"

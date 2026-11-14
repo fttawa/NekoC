@@ -730,7 +730,7 @@ sprite("player", {
 | `costume` | One costume URL (named after the sprite). |
 | `costumes` | Costume list: URL strings or `{ name?, url, centerX?, centerY? }`. Unnamed entries get the sprite name, then `name2`, `name3`… Names must be unique. The first costume is the starting one. |
 | `centerX`, `centerY` | Default rotation center for costumes that do not set their own. |
-| `x`, `y`, `scale`, `rotation`, `visible` | Initial state. |
+| `x`, `y`, `scale`, `rotation`, `visible` | Initial state. `rotation` is the starting direction in degrees (radians in the saved work). |
 
 Resource strings must be literals or top-level `const` string literals.
 

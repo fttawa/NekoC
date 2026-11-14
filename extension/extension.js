@@ -1,17 +1,27 @@
 import {decodeProject} from './resource.js';
-export async function backendURL(){
-  const {port}=await chrome.storage.local.get({port:4173});
-  return `http://127.0.0.1:${Number.isInteger(port)&&port>0&&port<65536?port:4173}`;
+import {httpBackend,wasmBackend} from './backend.js';
+// engine 'wasm' runs the VM inside the extension; 'rust' uses the local backend.
+export async function settings(){
+  const {engine,port}=await chrome.storage.local.get({engine:'wasm',port:4173});
+  return {engine:engine==='rust'?'rust':'wasm',port:Number.isInteger(port)&&port>0&&port<65536?port:4173};
 }
+let engine='wasm';
+export async function backend(){
+  const current=await settings();engine=current.engine;
+  return engine==='rust'?httpBackend(`http://127.0.0.1:${current.port}`):wasmBackend();
+}
+const engineName=()=>engine==='rust'?'本机 Rust':'WASM';
+const labels={connected:'已连接',downloading:'已连接 · 下载中',lost:'连接中断',failed:'未连接'};
 let takeoverShown=false,takeoverTimer=null;
-export function reportStatus(status){
+export function reportStatus(state){
+  const status=`${engineName()} ${labels[state]}`;
   if(parent!==window)parent.postMessage({type:'neko-rust-status',status},'https://pickcat.dao3.fun');
-  if(status==='Rust 已连接'&&!takeoverShown){
+  if(state==='connected'&&!takeoverShown){
     takeoverShown=true;
     const hint=document.querySelector('#takeover-hint');
-    if(hint){hint.textContent='✓ Rust 已接管播放器';hint.hidden=false;takeoverTimer=setTimeout(()=>{hint.hidden=true;},4000);}
+    if(hint){hint.textContent=`✓ ${engineName()} 已接管播放器`;hint.hidden=false;takeoverTimer=setTimeout(()=>{hint.hidden=true;},4000);}
   }
-  if(status==='Rust 未连接'||status==='Rust 连接中断'){
+  if(state==='failed'||state==='lost'){
     clearTimeout(takeoverTimer);takeoverShown=false;
     const hint=document.querySelector('#takeover-hint');if(hint)hint.hidden=true;
   }
@@ -33,17 +43,19 @@ export async function loadWork(backend,status){
   const style=document.createElement('link');style.rel='stylesheet';style.href='./embedded.css';document.head.append(style);
   const viewport=document.querySelector('#viewport');
   const fps=document.querySelector('.fps-tile');fps.id='extension-fps';
-  const badge=document.createElement('span');badge.className='engine-badge';badge.textContent='RUST';fps.prepend(badge);
+  const badge=document.createElement('span');badge.className='engine-badge';badge.textContent=backend.kind==='rust'?'RUST':'WASM';fps.prepend(badge);
   viewport.append(fps);
   const hint=document.createElement('div');hint.id='takeover-hint';hint.hidden=true;hint.setAttribute('role','status');viewport.append(hint);
-  status('正在连接本机 Rust…');
-  try{
-    const response=await fetch(`${backend}/api/health`,{signal:AbortSignal.timeout(4000)});
-    if(!response.ok||(await response.json()).player_protocol!==2)throw Error('version');
-  }catch{
-    throw Error(`无法连接 Rust 后端：${backend}\n请在电脑运行 start-rust-backend.cmd，然后点击「重连」。`);
+  if(backend.kind==='rust'){
+    status('正在连接本机 Rust…');
+    try{
+      const response=await fetch(`${backend.origin}/api/health`,{signal:AbortSignal.timeout(4000)});
+      if(!response.ok||(await response.json()).player_protocol!==2)throw Error('version');
+    }catch{
+      throw Error(`无法连接 Rust 后端：${backend.origin}\n请在电脑运行 start-rust-backend.cmd，然后点击「重连」；或在扩展弹窗里改用 WASM。`);
+    }
   }
-  reportStatus('Rust 已连接 · 下载中');status('正在下载本站作品…');
+  reportStatus('downloading');status('正在下载本站作品…');
   const params=new URLSearchParams(location.search),id=params.get('workId');
   if(!/^\d+$/.test(id||''))throw Error('作品编号无效');
   // Kitten N sources come from creation.bcmcdn.com (often encrypted); Kitten 4 published

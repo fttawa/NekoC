@@ -5,13 +5,17 @@ import {ProjectAudio} from './audio.js';
 import {StageInput} from './input.js';
 import {StageOverlay} from './overlay.js';
 import {PlayerFeedback} from './player-feedback.js';
+import {httpBackend,wasmBackend} from './backend.js';
 
 const extension=location.protocol==='chrome-extension:'?await import('./extension.js'):null;
+const params=new URLSearchParams(location.search);
 // Exported executables: stage and performance settings only.
-const app=new URLSearchParams(location.search).has('app');
-document.body.classList.toggle('native',new URLSearchParams(location.search).has('native'));
+const app=params.has('app');
+document.body.classList.toggle('native',params.has('native'));
 if(app){document.body.classList.add('app');document.querySelector('#settings').hidden=true;document.querySelector('#settings-toggle').setAttribute('aria-expanded','false');}
-const backend=extension?await extension.backendURL():location.origin;
+// ?engine=wasm (or the static site's meta tag) runs the VM in this browser.
+const wasm=params.get('engine')==='wasm'||document.querySelector('meta[name=nekoc-engine]')?.content==='wasm';
+const backend=extension?await extension.backend():wasm?wasmBackend():httpBackend(location.origin);
 
 const $=selector=>document.querySelector(selector);
 const canvas=$('#stage'),shell=$('#player-shell');
@@ -27,12 +31,7 @@ try{
   for(const key of Object.keys(settings))if(choices[key].includes(saved[key]))settings[key]=saved[key];
 }catch{/* Storage can be unavailable in private browsing. */}
 
-async function api(path,data){
-  const response=await fetch(`${backend}/api/${path}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data),signal:AbortSignal.timeout(60000)});
-  let value;
-  try{value=await response.json();}catch{throw Error(response.ok?'服务返回了无效的作品数据':`请求失败：HTTP ${response.status}`);}
-  if(!response.ok)throw Error(value.error||`HTTP ${response.status}`);return value;
-}
+const api=(path,data)=>backend.api(path,data);
 function notice(message){feedback.notice(message);}
 function status(message){$('#status').textContent=message;}
 function syncControls(){
@@ -91,7 +90,7 @@ async function launch(){
     epoch++;lastFrame=null;totalUpdates=0;
   }
   clearKeys();resetMeter();running=true;lastTick=performance.now();nextDue=lastTick;queueMicrotask(pump);
-  audio.resume();renderer.pauseMedia(false);extension?.reportStatus('Rust 已连接');
+  audio.resume();renderer.pauseMedia(false);extension?.reportStatus('connected');
   status('运行中');focusStage();syncControls();
 }
 function focusStage(){
@@ -111,12 +110,19 @@ async function importFile(file){
     let value;
     try{value=JSON.parse((await file.text()).replace(/^\uFEFF/,''));}
     catch(error){throw Error(`无法读取作品「${file.name}」：${error.message}`);}
-    feedback.progress('正在检查作品兼容性…');
-    const report=await api('import-player',value);
-    await install(report);
-    if(playable)await launch();
+    await importValue(value);
   });
 }
+async function importValue(value){
+  feedback.progress('正在检查作品兼容性…');
+  await install(await api('import-player',value));
+  if(playable)await launch();
+}
+// A same-origin page (the online compiler) can hand over a project object.
+window.addEventListener('message',event=>{
+  if(event.origin!==location.origin||event.data?.type!=='nekoc-play'||app)return;
+  void action(async()=>{pause('正在导入…');await importValue(event.data.project);});
+});
 async function advance(dt){
   const token=epoch,start=performance.now();
   try{
@@ -132,7 +138,7 @@ async function advance(dt){
   }catch(error){
     if(token!==epoch)return;
     epoch++;connection?.close();connection=null;pause('运行已中断');notice(error.message);
-    extension?.reportStatus('Rust 连接中断');
+    extension?.reportStatus('lost');
   }
 }
 function monitor(now){
@@ -231,17 +237,25 @@ try{
   input=new StageInput(canvas,renderer,()=>running&&!busy);
   overlay=new StageOverlay($('#stage-box'),renderer,event=>{input.push(event);queueMicrotask(()=>{if(running)focusStage();});});
   renderer.onError=message=>{if(!busy)pause('渲染提示');feedback.resourceError(message);};
-  feedback.progress('正在读取作品…');
-  const value=extension?await extension.loadWork(backend,status):await(async()=>{
-    const response=await fetch('/api/project',{signal:AbortSignal.timeout(60000)});
-    if(!response.ok)throw Error(`读取作品失败：HTTP ${response.status}`);
-    return response.json();
-  })();
-  feedback.progress('正在检查作品兼容性…');
-  await install(await api('import-player',value));
-  if((extension||app)&&playable)await launch();
-}catch(error){notice(`读取作品失败：${error.message}`);status(extension?'连接或载入失败 · 请重试': '读取失败 · 请导入作品重试');extension?.reportStatus('Rust 未连接');}
-finally{feedback.finish();busy=false;syncControls();requestAnimationFrame(loop);}
+  // A static wasm page starts empty unless ?src= names a project URL.
+  const source=extension||backend.kind==='rust'?'/api/project':params.get('src');
+  if(source){
+    feedback.progress('正在读取作品…');
+    const value=extension?await extension.loadWork(backend,status):await(async()=>{
+      const response=await fetch(new URL(source,location.href),{signal:AbortSignal.timeout(60000)});
+      if(!response.ok)throw Error(`读取作品失败：HTTP ${response.status}`);
+      return response.json();
+    })();
+    feedback.progress('正在检查作品兼容性…');
+    await install(await api('import-player',value));
+    if((extension||app)&&playable)await launch();
+  }
+}catch(error){notice(`读取作品失败：${error.message}`);status(extension?'连接或载入失败 · 请重试': '读取失败 · 请导入作品重试');extension?.reportStatus('failed');}
+finally{
+  feedback.finish();busy=false;syncControls();requestAnimationFrame(loop);
+  // Embedded in the online compiler: ready to receive a nekoc-play message.
+  if(!extension&&window.parent!==window)window.parent.postMessage({type:'nekoc-player-ready'},location.origin);
+}
 
 // Read-only test/performance snapshot; the standalone page never builds editor DOM.
 window.nekoPlayDiagnostics=()=>({running,busy,playable,settings:{...settings},frame:lastFrame,totalUpdates,drawFps,updateFps,

@@ -1,6 +1,6 @@
 //! Wall-clock-only sampling policy. See docs/kn-warp-sampling.md for the
 //! conditional time bound and the unconditional (31 extra tails) bound.
-use std::time::Instant;
+use web_time::Instant;
 
 const MAX_INTERVAL: u32 = 32;
 const TARGET_NS: u64 = 25_000;

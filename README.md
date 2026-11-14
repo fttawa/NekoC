@@ -32,11 +32,19 @@ cargo run --release --bin web -- samples/native-studio.bcmkn
 
 ### PICKCAT 浏览器扩展
 
-运行 `start-rust-backend.cmd`，再把 `dist/pickcat-rust` 作为已解压的扩展加载到 Chrome / Edge。它会把 PICKCAT 上的 Kitten N 和 Kitten 4 播放器换成本地的 Rust 播放器，带 FPS 显示、性能设置和切回原播放器的开关。
+把 `dist/pickcat-rust` 作为已解压的扩展加载到 Chrome / Edge。它会把 PICKCAT 上的 Kitten N 和 Kitten 4 播放器换成 Neko 播放器，带 FPS 显示、性能设置和切回原播放器的开关。默认用扩展自带的 WASM 运行，不需要本机程序；在扩展弹窗里可以切换到本机 Rust 后端（先运行 `start-rust-backend.cmd`，有 JIT，更快）。
 
-构建扩展用 `node tools/build-extension.mjs`，详见 **[安装与验证](docs/pickcat-extension.md)**。
+构建扩展用 `node packages/nekoc/build.mjs && node tools/build-extension.mjs`，详见 **[安装与验证](docs/pickcat-extension.md)**。
+
+### 在线编译
+
+GitHub Pages 上的在线编译页在浏览器里完成类型检查、编译和 WASM 运行，代码不会上传，还能下载 `.bcmkn`。本地生成站点：`node packages/nekoc/build.mjs && node tools/build-pages.mjs`，输出在 `dist/pages`。独立播放器 `play.html?engine=wasm` 同样不需要后端。
 
 ### TypeScript 编译器
+
+不想安装 Rust/cargo？纯 JS + WebAssembly 包见
+[`@nekox-lab/nekoc`](packages/nekoc/README.md)（源码已提供，暂未发布到 npm）。
+已构建的包在 Node.js / 浏览器内完成编译、检查和无头运行。
 
 ```bash
 npm install

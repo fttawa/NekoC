@@ -114,7 +114,8 @@ fn build_generates_actors_costumes_and_positions_without_a_template() {
         .find(|actor| actor["name"] == "cat")
         .unwrap();
     assert_eq!(actor["position"], json!({ "x": -50.0, "y": 30.0 }));
-    assert_eq!(actor["rotation"], 45.0);
+    // Degrees in the DSL, radians in the editor format (the engine reads it back as 45°).
+    assert_eq!(actor["rotation"], std::f64::consts::FRAC_PI_4);
     let styles: Vec<&Value> = actor["styles"]
         .as_array()
         .unwrap()

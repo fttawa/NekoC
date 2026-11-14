@@ -1,8 +1,12 @@
-use crate::{project, ts_frontend};
+use crate::project;
+#[cfg(not(target_arch = "wasm32"))]
+use crate::ts_frontend;
 use anyhow::{Context, Result, ensure};
 use serde_json::{Map, Value, json};
 use std::collections::{BTreeMap, BTreeSet};
-use std::path::{Path, PathBuf};
+use std::path::Path;
+#[cfg(not(target_arch = "wasm32"))]
+use std::path::PathBuf;
 
 struct CompiledProcedure {
     id: String,
@@ -105,6 +109,7 @@ struct CompiledScreen {
     backdrop: Option<String>,
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 pub fn compile_ts_bcmkn(
     input: impl AsRef<Path>,
     template: impl AsRef<Path>,
@@ -700,7 +705,8 @@ fn inject_sprite_resources(project: &mut Value, sprites: Vec<CompiledSprite>) ->
             "position": {"x": sprite.x, "y": sprite.y},
             "scale": sprite.scale,
             "locked": false,
-            "rotation": sprite.rotation,
+            // The editor stores radians; the stage DSL takes degrees like the direction blocks.
+            "rotation": sprite.rotation.to_radians(),
             "nekoBlockJsonList": sprite.blocks,
             "visible": sprite.visible,
             "workspaceScrollXy": {"x": 0, "y": 30},
@@ -1216,12 +1222,14 @@ fn get_path_mut<'a>(mut value: &'a mut Value, path: &[&str]) -> Option<&'a mut V
     Some(value)
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 fn read_json_file(path: &Path) -> Result<crate::json::Json> {
     let text = std::fs::read_to_string(path)
         .with_context(|| format!("failed to read JSON file {}", path.display()))?;
     crate::json::from_str(&text).with_context(|| format!("invalid JSON in {}", path.display()))
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 fn temp_workspace_path(output: &Path) -> PathBuf {
     let mut path = output.to_owned();
     path.set_extension("workspace.tmp.json");

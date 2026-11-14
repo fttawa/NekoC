@@ -1,5 +1,6 @@
 //! Opt-in, thread-local import timings. Normal player calls do not read the clock.
-use std::{cell::RefCell, collections::BTreeMap, time::Instant};
+use std::{cell::RefCell, collections::BTreeMap};
+use web_time::Instant;
 
 thread_local! {
     static TIMINGS: RefCell<Option<BTreeMap<&'static str, f64>>> = const { RefCell::new(None) };

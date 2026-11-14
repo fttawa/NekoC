@@ -91,21 +91,26 @@ pub fn discard(value: Value) {
 // Retained for legacy diagnostic/json! conversions. Parsing and ownership of
 // deep project trees use explicit stacks; this is not their depth mechanism.
 pub(crate) fn expanded<T>(f: impl FnOnce() -> T) -> T {
-    thread_local! { static ACTIVE: std::cell::Cell<bool> = const { std::cell::Cell::new(false) }; }
-    struct Reset;
-    impl Drop for Reset {
-        fn drop(&mut self) {
-            ACTIVE.set(false);
+    #[cfg(target_arch = "wasm32")]
+    return f();
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        thread_local! { static ACTIVE: std::cell::Cell<bool> = const { std::cell::Cell::new(false) }; }
+        struct Reset;
+        impl Drop for Reset {
+            fn drop(&mut self) {
+                ACTIVE.set(false);
+            }
         }
+        if ACTIVE.get() {
+            return f();
+        }
+        stacker::grow(64 * 1024 * 1024, || {
+            ACTIVE.set(true);
+            let _reset = Reset;
+            f()
+        })
     }
-    if ACTIVE.get() {
-        return f();
-    }
-    stacker::grow(64 * 1024 * 1024, || {
-        ACTIVE.set(true);
-        let _reset = Reset;
-        f()
-    })
 }
 
 pub fn clone_value(value: &Value) -> Value {
@@ -486,7 +491,10 @@ pub fn to_vec(value: &impl Serialize) -> Result<Vec<u8>> {
     expanded(|| {
         let mut bytes = Vec::new();
         let mut ser = serde_json::Serializer::new(&mut bytes);
+        #[cfg(not(target_arch = "wasm32"))]
         value.serialize(serde_stacker::Serializer::new(&mut ser))?;
+        #[cfg(target_arch = "wasm32")]
+        value.serialize(&mut ser)?;
         Ok(bytes)
     })
 }
@@ -495,7 +503,10 @@ pub fn to_vec_pretty(value: &impl Serialize) -> Result<Vec<u8>> {
     expanded(|| {
         let mut bytes = Vec::new();
         let mut ser = serde_json::Serializer::pretty(&mut bytes);
+        #[cfg(not(target_arch = "wasm32"))]
         value.serialize(serde_stacker::Serializer::new(&mut ser))?;
+        #[cfg(target_arch = "wasm32")]
+        value.serialize(&mut ser)?;
         Ok(bytes)
     })
 }

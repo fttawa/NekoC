@@ -2777,7 +2777,19 @@ dependencies = [
  "tempfile",
  "tiny_http",
  "tungstenite",
+ "web-time",
  "wry",
+]
+
+[[package]]
+name = "nekoc-wasm"
+version = "0.3.0"
+dependencies = [
+ "js-sys",
+ "nekoc",
+ "serde",
+ "serde_json",
+ "wasm-bindgen",
 ]
 
 [[package]]

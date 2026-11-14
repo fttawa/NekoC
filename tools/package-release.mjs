@@ -25,7 +25,7 @@ export const samples = [
 const root = fileURLToPath(new URL("../", import.meta.url));
 
 export async function checksums(directory) {
-  const names = (await fs.readdir(directory)).filter(n => /\.(zip|tar\.gz)$/.test(n)).sort();
+  const names = (await fs.readdir(directory)).filter(n => /\.(zip|tar\.gz|tgz)$/.test(n)).sort();
   if (!names.length) throw new Error("No release archives found");
   const lines = await Promise.all(names.map(async name =>
     `${createHash("sha256").update(await fs.readFile(path.join(directory, name))).digest("hex")}  ${name}\n`));
@@ -35,7 +35,7 @@ export async function checksums(directory) {
 // The frontend is plain ESM that only imports `typescript`, which has no
 // dependencies of its own. Ship the sources plus the parts of the typescript
 // package it loads at runtime: no bundler, no npm install for users.
-export const frontendFiles = ["compile-ts.mjs", "test-ts.mjs", "kitten-n.mjs", "nekoc.d.ts"];
+export const frontendFiles = ["compile-ts.mjs", "test-ts.mjs", "kitten-n.mjs", "portable-path.mjs", "nekoc.d.ts"];
 const typescriptFiles = ["package.json", "LICENSE.txt", "ThirdPartyNoticeText.txt", "lib/typescript.js"];
 
 async function copyFrontend(copy) {

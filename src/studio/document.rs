@@ -1,5 +1,6 @@
 use anyhow::{Context, Result, bail, ensure};
 use serde_json::{Value, json};
+#[cfg(not(target_arch = "wasm32"))]
 use std::path::Path;
 
 /// Preserve the original JSON, including fields not yet understood by the editor.
@@ -80,6 +81,7 @@ impl Document {
         }
     }
 
+    #[cfg(not(target_arch = "wasm32"))]
     pub fn save(&mut self, path: &Path) -> Result<()> {
         let bytes = crate::json::to_vec_pretty(&self.value)?;
         let parent = path

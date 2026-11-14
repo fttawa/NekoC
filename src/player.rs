@@ -55,6 +55,23 @@ pub fn import(value: Json) -> Result<(Json, Json)> {
     Ok((value, Json::new(report)))
 }
 
+/// 播放器 `/api/extension-check`：`{project, extensions}` 能否带这些远程扩展积木编译。
+/// 返回 `{"ok":true,"stats":…}`。
+pub fn check_extensions(payload: &Value) -> Result<Value> {
+    check_project_shape(&payload["project"])?;
+    let schemas: Vec<BlockSchema> = serde_json::from_value(payload["extensions"].clone())?;
+    ensure!(
+        schemas.len() <= MAX_EXTENSIONS,
+        "too many remote extensions"
+    );
+    let mut registry = ExtensionRegistry::new();
+    for schema in schemas {
+        registry.register_remote(schema)?;
+    }
+    let compiled = Program::compile_with_extensions(&payload["project"], &registry)?;
+    Ok(json!({"ok":true,"stats":compiled.stats()}))
+}
+
 /// 在诊断或运行时遍历作品之前，先检查编辑器要求的结构。
 /// 不支持的 opcode 不算错误，照样能导入、导出。
 pub fn check_project_shape(project: &Value) -> Result<()> {

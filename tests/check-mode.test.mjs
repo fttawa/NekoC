@@ -66,3 +66,20 @@ test("top-level string consts stand in for literal resource URLs", () => {
     assert.match(JSON.stringify(result.report), /https:\/\/example\.com\/a\.png/);
   });
 });
+
+test("frontend CLI runs when started through a symlinked directory", async () => {
+  const { execFileSync } = await import("node:child_process");
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "nekoc-link-"));
+  try {
+    // macOS temp dirs are reached through /var -> /private/var; a junction or
+    // symlink to ts/ reproduces argv[1] differing from import.meta.url.
+    const link = path.join(dir, "frontend");
+    fs.symlinkSync(path.resolve("ts"), link, process.platform === "win32" ? "junction" : "dir");
+    const file = path.join(dir, "main.ts");
+    fs.writeFileSync(file, 'onStart(() => { console.log("hi"); });\n');
+    const output = execFileSync(process.execPath, [path.join(link, "compile-ts.mjs"), "--check", "--json", file], { encoding: "utf8" });
+    assert.ok(Array.isArray(JSON.parse(output).diagnostics), output);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
