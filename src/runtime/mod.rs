@@ -425,6 +425,8 @@ struct ProcedureFrame<'a> {
     after: Option<&'a Value>,
     procedure_values: BTreeMap<String, RuntimeValue>,
     warped: bool,
+    loop_depth: usize,
+    continuation_depth: usize,
 }
 
 #[derive(Debug, Clone)]

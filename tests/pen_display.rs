@@ -4,6 +4,35 @@ use std::fs;
 use tempfile::tempdir;
 
 #[test]
+fn statement_argument_helpers_return_before_resuming_caller_loops() {
+    let dir = tempdir().unwrap();
+    let input = dir.path().join("statement-loop.ts");
+    let output = dir.path().join("statement-loop.bcmkn");
+    fs::write(
+        &input,
+        r#"
+let out=0; let value=1;
+function add(x:number) { if(x>0) out+=x; }
+onStart(()=>{for(let i=0;i<3;i++){add(value);value++;}out+=100;});
+"#,
+    )
+    .unwrap();
+    bcmkn_compiler::compile_ts_bcmkn(
+        input,
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("samples/kitten-n-0.27.4.bcmkn"),
+        &output,
+    )
+    .unwrap();
+    let p = project::load_project(output).unwrap().value;
+    assert_eq!(validate::build_report(&p).unwrap()["ok"], true);
+    let reference = runtime::run_project(&p, 1).unwrap();
+    assert_eq!(
+        serde_json::to_value(reference).unwrap()["variables"]["kn-var-out"],
+        106.0
+    );
+}
+
+#[test]
 fn fast_display_compiles_and_draws_only_queued_rectangles() {
     let dir = tempdir().unwrap();
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));

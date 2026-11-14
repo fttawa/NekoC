@@ -18,11 +18,12 @@
 - 简单函数（若干局部声明加一个 `return`，或者没有 `return` 的语句函数）调用时内联展开。
 - 递归函数（包括互相递归）、带多个 `return` 或提前 `return` 的函数，会自动编译成自制积木：
   - 返回值的编译成有返回值的积木，不返回值的编译成普通积木。
-  - 参数每次调用独立，递归安全；但函数里用 `let` / `const` 声明的局部变量是所有调用共用的，在递归调用之后还要用的值请放进参数。
-  - `return c ? a : b` 会编译成"如果 c 返回 a，否则返回 b"，所以 `n < 2 ? n : fib(n - 1) + fib(n - 2)` 这种写法能正常结束。
-  - 有返回值的函数只能用在表达式里，不能单独作为一条语句调用。
+  - 参数和函数里的 `let` / `const` 局部变量每次调用独立：包装积木为每次调用分配一个列表帧，递归调用之后局部变量的值不会被覆盖。报告器递归深度上限是 200 层。
+  - 递归函数的返回类型要写出来（如 `function sum(n: number): number`），否则 TS 推断为 `any`，`+` 会报错。
+  - `return c ? a : b` 只计算被选中的分支，所以 `n < 2 ? n : fib(n - 1) + fib(n - 2)` 这种写法能正常结束。
 - 箭头函数常量，如 `const f = (x) => x + 1`，规则同上。
-- 默认参数 `function f(x, y = 10)`。
+- 内联调用的实参只计算一次，按顺序在函数体之前计算（没用到的参数也会计算）；数组实参按引用传递，函数里 `a.push(x)` 会改到调用方的数组。
+- 默认参数 `function f(x, y = 10)`：常量默认值在调用处展开；`y = next()`、`y = settings.size` 这类默认值在调用处按参数顺序计算一次，前提是不读任何参数、用到的名字在定义处和调用处指同一个文件级变量或函数，否则编译报错。
 - 有返回值的函数也可以单独作为一条语句调用，返回值会被丢弃。
 - 不能给参数重新赋值（`n = n - 1`），编译时报错；先复制到局部变量。
 - `defineProc`、`param()`、`callProc`、`defineReporter`、`returnValue`、`callReporter`。
@@ -31,33 +32,32 @@
 
 - `if / else if / else`。
 - `while`、`do...while`（至少执行一次）、`repeat(n, ...)`、`repeatTimes`、`repeatUntil`、`forever`、`warp`。
-- `for (let i = a; i < / <= n; i++ 或 i += k)`，以及倒数 `for (let i = a; i > / >= n; i-- 或 i -= k)`。
-  - 上下界可以是变量；起点越过终点时一次都不执行（和 JS 一样）。
-- `for (const x of ...)`：可以遍历数组字面量、数组变量和 `self.list("名字")`（或 `.get()`）。
-- `break`：能跳出 `while`、`for`、`for-of`、`do...while`、`forever`、`repeat`、`repeatUntil`。
-- `continue`：可以写在循环体的最后，或者写成直接位于循环体里的 `if (...) { ...; continue; }`。
-- `switch`：编译成"如果 / 否则如果 / 否则"链。
-  - 连续的空 `case` 会合并（`case 1: case 2:`）。
-  - 每个 `case` 要以 `break` 或 `return` 结尾，不支持贯穿到下一个 `case`。
-- `try / catch / finally`：try 块里直接写的 `throw` 会跳到 catch，`catch (e)` 拿到抛出的值（`new Error("x")` 拿到 `"x"`）。
-  - `throw` 写在 try 里的嵌套循环中、或写在被调用的函数里时，会停止脚本，不会被 catch 接住。
-  - 带 catch 的 try 块里不能用 `break` / `continue`。
+- 一般 `for` 循环：每轮重新计算条件，支持小数起点、变量步长、`i *= 2`、复杂条件、多个循环变量、循环体里改循环变量和 `for (;;)`。常量整数范围且循环变量只读时仍用紧凑的遍历积木。
+- `for (const x of ...)`：可以遍历数组字面量、已知数组变量和 `self.list("名字")`（或 `.get()`），被遍历的值只计算一次；字符串字面量按 Unicode 码点遍历。
+- `break`：能跳出各种循环，也能写在 `switch` 的任意位置；带标签的 `break` 能跳出外层循环或带标签的块。
+- `continue`：可以写在嵌套的 `if` 和 `switch` 里；`for` 的步进和 `do...while` 的条件仍会执行。
+- `switch`：支持贯穿和条件 `break`，判别值只计算一次。
+- `try / catch`：try 里嵌套循环和条件中的 `throw` 都会跳到本地的 catch，`catch (e)` 拿到抛出的值（`new Error("x")` 拿到 `"x"`）。
+  - 跨函数的异常和没有 catch 接住的 `throw` 编译报错，不会悄悄变成"停止"。
+  - `try/finally` 里有 `return` / `break` / `continue` / `throw` 时编译报错（未实现每种完成方式都执行 finally）。
 
 ### 表达式
 
 - 算术 `+ - * / % **`、一元负号。`%` 和 JS 一样（`-7 % 3` 得 `-1`），官方积木也是这样算的。
-- 比较、`&&`、`||`、`!`、`??`。
-- 三元 `c ? a : b`：编译成官方的 `logic_ternary` 积木。和官方运行时一样，两边都会先算出来再选，所以分支里不要放有副作用的调用。
+- 比较、`!`。
+- `&&`、`||`、三元 `c ? a : b`：编译成带"如果/否则"分支的报告器自制积木，只计算被选中的一边，结果是操作数本身（和 JS 一样，`0 || "x"` 得 `"x"`）。不使用分享播放器缺失的 `logic_ternary`。
+- `??`：只接受能静态证明不是空值的数字、字符串、布尔操作数（`let a = 0; a ?? 7` 得 `0`）；其他可能为空的操作数编译报错，不会当成"或"。
+- `a++`、`++a`、`a--`、`--a` 可以用在表达式里（限可变的简单变量）。
 - 位运算 `& | ^ ~ << >> >>>`：只支持两边都是常量，编译时直接算出结果。
 - `Math.floor / ceil / round / trunc / abs / sqrt / exp / log / log10 / pow / max / min / random`、`Math.sin / cos / tan / asin / acos / atan`（弧度）、`Math.PI`、`Math.E` 等常量。
-  - `Math.max` / `Math.min` 的参数会被算两次，参数里不要放有副作用的调用。
+  - `Math.max` / `Math.min` / `Math.trunc` 的每个参数只计算一次，按从左到右的顺序。
 - `Number()`、`parseFloat()`、`parseInt()`（取整数部分）、`String()`。
 - 新增 `Math.sign / cbrt / log2 / hypot / atan2`。`sign / cbrt / log2 / atan2` 通过辅助自制积木保存实参，避免重复执行实参表达式；`hypot` 内联为 `Math.sqrt(Math.pow(a, 2) + …)`，每个实参只计算一次。以有限数字为支持范围；`atan2` 不保留负零象限，`hypot` 不承诺 Infinity/NaN 特殊组合的 JS 语义。
 - `Number.isInteger` 支持数字输入；直接文本、布尔字面量返回 false。Kitten N 比较会做类型转换，动态混合类型输入和非有限数不保证 JS 语义。
 
 ### 字符串
 
-- `+` 拼接：只要一边能确定是字符串（字面量、模板字符串、字符串变量、`as string`、`join()` 等），整条 `+` 链都会编译成"连接"积木。两边都是 `getVar(...)` 这种不知道类型的值时按数字相加，需要拼接请写 `join()` 或 `as string`。
+- `+` / `+=`：按 TS 类型检查器给出的操作数类型决定。有一边是字符串（字面量、模板字符串、`string` 标注、函数返回值、元组位、`string[]` 元素、对象属性等）就编译成"连接"积木；`any`、混合联合类型（如 `string | number`）和非原始值编译报错，拼接请写 `String(x)`，相加请给出准确的数字类型（如 `getVar<number>("x")`）。
 - 模板字符串 `` `n=${x}` ``。
 - `.length`、`s[i]`、`s.charAt(i)`、`s.slice(a, b)`、`s.substring(a, b)`（不支持负数下标）、`s.includes(x)`、`s.split(sep)`。
 - `indexOf`、`lastIndexOf`、`startsWith`、`endsWith`、`replace`、`replaceAll`、`trim`、`trimStart`、`trimEnd`、`repeat`、`padStart`、`padEnd`、`toUpperCase`、`toLowerCase`（只转换英文字母）、`concat`。
@@ -68,7 +68,7 @@
 ### 数组（列表值）
 
 - 用数组字面量、`split()`、`tempList()` 初始化的变量是列表。
-- 支持 `a[i]`（读第 i + 1 项）、`a[i] = v`、`a.length`、`a.push(x)`、`a.includes(x)`。
+- 支持 `a[i]`（读第 i + 1 项）、`a[i] = v`、`a.length`、`a.push(x)`、`a.includes(x)`。读越界下标得到 Kitten N 的空值 `NaN`，不是 JS 的 `undefined`。
 - `map`、`filter`、`forEach`、`reduce`（需要初始值）、`find`（找不到时返回空字符串）、`findIndex`、`some`、`every`、`sort`（可带比较函数，原地排序）、`indexOf`、`lastIndexOf`、`join`、`concat`、`slice`、`reverse`、`pop`、`shift`、`unshift`、`splice`。可以链式调用，如 `a.map(...).filter(...).join(",")`。
   - 回调里可以使用外面的变量；但不能使用外层自制积木（递归函数等）的参数，需要先复制到变量。
   - 作为语句写的 `a.reverse()` 会把结果写回 `a`；写在表达式里的 `reverse()` 返回新数组，不改原数组。
@@ -77,10 +77,10 @@
 
 ### 数据对象
 
-- `{k: value}`、简写 `{k}`、嵌套数据对象，属性读取 `obj.k` / `obj[key]`、赋值和 `+= / -= / *= / /= / %= / **=`，以及语句位置的属性 `++ / --`。
-- 使用官方 `_object_literal`（`items`、`key0/value0` 等）、`_object_get` / `_object_set`（`computed="true"`、`obj/key/value`）积木，别名保留对象身份。复合赋值的目标和键各求值一次。
-- 对象属性的 `+` / `+=` 仍受类型推断限制：无法确认属性是文本时按数字处理，文本追加请写 `obj.s = String(obj.s) + "text"`。赋值的临时引用使用共享变量，不保证同一调用点跨 `wait` 重入安全。
-- 空键、`__proto__`、计算字面量键、对象方法、访问器、展开和解构明确报错；没有原型、类实例语义。缺失属性服从 Kitten N 未定义值转换规则，不是完整 JS undefined。
+- `{k: value}`、简写 `{k}`、嵌套数据对象，属性读取 `obj.k` / `obj[key]`（键必须是编译期常量）、赋值和 `+= / -= / *= / /= / %= / **=`，以及语句位置的属性 `++ / --`。
+- 对象存成隐藏全局列表堆里的数字引用，只用分享播放器支持的列表积木，不用 `_object_*` 积木。别名、数组里的对象、函数参数和返回值都保留对象身份；复合赋值的目标和键各求值一次。详见 `docs/ts-share-objects.md`。
+- 用到对象的程序里，函数编译成自制积木而不是内联展开；递归函数里修改或新建对象、以及递归局部变量要改写成循环。对象堆在重新开始前不回收。
+- 缺失/可选属性、动态键、对象转换/打印/JSON、`delete`、表达式里的属性 `++` 明确报错；空键、`__proto__`、对象方法、访问器、展开和解构也报错。没有原型、类实例语义。
 
 ### 定时器
 
@@ -99,20 +99,22 @@
 - `typeof`、`in`、`instanceof`。
 - 剩余参数 `...args`、给函数参数重新赋值。
 - 变量参与的位运算。
-- `continue` 写在嵌套的 `if` 里面、`switch` 贯穿到下一个 `case`、`case` 中间的 `break`、带标签的 `continue`。
-- `JSON.stringify / parse`、`String.fromCharCode / charCodeAt` 等尚无可靠实现的全局/方法；没有借 Rust 专有运行时扩展输出不兼容作品。clamp 可写 `Math.min(hi, Math.max(lo, x))`，仍需注意现有 max/min 对实参重复求值的限制。
+- `for...in`、动态字符串的 `for...of`、生成器 `function*`、正则表达式。
+- `+`、`+=`、`==` 用在 `any`、混合联合类型或非原始值上（见上文"字符串"）。
+- 读参数、或用到在调用处被局部变量遮蔽的名字的非常量默认参数。
+- `JSON.stringify / parse`、`String.fromCharCode / charCodeAt` 等尚无可靠实现的全局/方法；没有借 Rust 专有运行时扩展输出不兼容作品。clamp 可写 `Math.min(hi, Math.max(lo, x))`。
 
 ## 能编译，但和 JS 不完全一样
 
-- 三元两边都会先算；`Math.max` / `Math.min` 的参数会算两次。
-- `??` 按"或"处理（Kitten N 没有 null / undefined，没赋值的变量是 0）。
-- `for` 循环起点是小数时会被取整。
-- 两边都看不出类型时，`+` 按数字相加。
-- 所有 `let` 都是全局变量：同时运行的两个脚本用同名变量会互相影响，递归函数里的局部变量也是共用的。
-- 生成器 `function*`、`async` / `await`：`await` 会被直接去掉，不支持真正的异步。
+- 读数组越界下标得到 `NaN`，不是 `undefined`（Kitten N 没有 undefined）。
+- 报告器自制积木的递归深度上限是 200 层，更深的递归会报运行时错误。
+- 事件脚本里的 `let` 仍是全局变量：同时运行的两个脚本用同名变量会互相影响（函数局部变量已按调用分帧）。
+- `async` / `await`：`await` 会被直接去掉，不支持真正的异步。
+
+逐条对照 Node 的语料结果见 `tests/ts-js-semantics/known-diff.md`。
 
 ## 写法建议
 
 - 状态用 `setVar` / `getVar`，或者顶层 `let`；数据放进列表或数组变量。
-- 递归函数里，递归调用之后还要用的值放进参数，不要放进局部变量。
-- 字符串拼接时，让 `+` 的某一边能看出是字符串，或者直接用模板字符串、`join()`。
+- 递归函数写出返回类型。
+- 字符串拼接时，让 `+` 的某一边能看出是字符串，或者直接用模板字符串、`String(x)`、`join()`。

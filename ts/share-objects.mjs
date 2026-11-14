@@ -1,5 +1,7 @@
 import ts from "typescript";
 
+const REGEX_MESSAGE = "Regular expressions are not supported; use string methods such as includes, indexOf or split";
+
 // Host-only type queries; no filesystem or standard library is required in WASM.
 export function objectTypes(sourceFiles, origins = new WeakMap()) {
   const normalize = name => name.replaceAll("\\", "/");
@@ -227,7 +229,13 @@ export function validateObjectOperations(file, types, reject) {
         && types.object(node.right) && erased(types.type(node.left))) {
       reject(node, "Object aliases must preserve their static shape; replace any/unknown with an explicit object type");
     }
+    // A RegExp is a host object, not a planned data object; say so instead of
+    // reporting its methods as missing properties.
+    if (ts.isRegularExpressionLiteral(node)) reject(node, REGEX_MESSAGE);
     if ((ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) && types.object(node.expression)) {
+      let receiver = node.expression;
+      while (ts.isParenthesizedExpression(receiver)) receiver = receiver.expression;
+      if (ts.isRegularExpressionLiteral(receiver)) reject(receiver, REGEX_MESSAGE);
       const target = types.type(node.expression);
       const key = ts.isPropertyAccessExpression(node) ? node.name.text : types.key(node.argumentExpression);
       if (target.isUnion()) reject(node, "Object union/missing reference property access is not supported (including pop/shift/find); use an initialized single shape and indexed access after an explicit selection check instead");

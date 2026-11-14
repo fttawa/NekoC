@@ -7,8 +7,9 @@ third-party project.
 
 ## Statuses and baseline
 
-`baseline.mjs` records the main-branch baseline at
-`4e64c70a848088a6506f8b4979545d085625fef8`. Every original case gets one of:
+`baseline.mjs` started from the main-branch baseline at
+`4e64c70a848088a6506f8b4979545d085625fef8` and now records the state after the
+fix/ts-semantics integration. Every original case gets one of:
 
 * `match`: Node's deterministic oracle and the bytecode VM agree.
 * `compile-error`: compilation is expected to fail; `error` is the required

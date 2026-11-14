@@ -76,32 +76,32 @@ const booleanReporters = [
   ['touchingBodyPart("--self", "nose")', "bump_into_body_part"],
   ["true", "logic_boolean"],
   ["1 === 2", "logic_compare"],
-  ["true && false", "logic_operation"],
   ["!true", "logic_negate"],
   ['contains("abc", "b")', "text_contain"],
   ['listContains("items", 1)', "list_is_exist"],
 ];
 
+// Boolean-shaped reporters reach procedure sockets through a round reporter
+// procedure (kn-proc-choice-*) that returns them; logic_ternary is not
+// available in the share player.
 function assertBoxedReporter(report, type) {
   let count = 0;
   for (const workspace of workspaces(report)) {
     for (const reporter of Object.values(workspace.blocks).filter(block => block.type === type)) {
       const parents = Object.entries(workspace.connections).flatMap(([id, children]) =>
-        children[reporter.id] ? [[workspace.blocks[id], children[reporter.id]]] : []);
-      const [box, connection] = parents.find(([parent]) => parent.type === "logic_ternary") ?? [];
-      assert.ok(box, `${type} must connect to an any-shaped ternary, never directly to a procedure socket`);
-      assert.equal(connection.input_name, "condition");
+        children[reporter.id] ? [workspace.blocks[id]] : []);
+      const box = parents.find(parent => parent.type === "procedures_2_return_value");
+      assert.ok(box, `${type} must be returned by a reporter procedure, never connected directly to a procedure socket`);
       assert.equal(reporter.parent_id, box.id, "block parent and connection owner must agree");
-      for (const [name, expected] of [["ifTrue", true], ["ifFalse", false]]) {
-        const branch = input(workspace, box.id, name);
-        assert.equal(branch.type, "variables_get");
-        assert.equal(report.initialValues[branch.fields.variable], expected, "boxing preserves boolean values, not strings");
-      }
-      assert.ok(Object.entries(workspace.connections).some(([id, children]) => children[box.id]
-        && /^procedures_2_call/.test(workspace.blocks[id].type)), "procedure must consume the box");
+      const definition = Object.values(workspace.blocks).find(block => block.type === "procedures_2_defnoreturn");
+      assert.match(definition?.fields.NAME ?? "", /^kn-proc-choice-/);
+      const calls = workspaces(report).flatMap(other => Object.values(other.blocks))
+        .filter(block => block.type === "procedures_2_callreturn" && block.fields.NAME === definition.fields.NAME);
+      assert.equal(calls.length, 1, "the box is called once");
       count++;
     }
   }
+  assert.ok(!workspaces(report).some(workspace => Object.values(workspace.blocks).some(block => block.type === "logic_ternary")));
   assert.equal(count, 1, "the reporter must be evaluated exactly once");
 }
 
@@ -111,6 +111,20 @@ for (const [expression, type] of booleanReporters) {
   });
   test(`review 2: ordinary procedure argument boxes the actual ${type} output shape`, () => {
     assertBoxedReporter(compileSource(`function echo(value: boolean): boolean { if (value) return value; return value; } console.log(echo(${expression}));`), type);
+  });
+}
+
+// && keeps JS value semantics (returns an operand, short-circuits), so it is a
+// lazy kn-proc-choice reporter rather than a Boolean-only logic_operation.
+for (const source of [
+  "const object = {flag: true && false}; console.log(object.flag);",
+  "function echo(value: boolean): boolean { if (value) return value; return value; } console.log(echo(true && false));",
+]) {
+  test(`review 2: && in a procedure socket is a lazy reporter procedure: ${source.slice(0, 30)}`, () => {
+    const blocks = workspaces(compileSource(source)).flatMap(workspace => Object.values(workspace.blocks));
+    assert.ok(!blocks.some(block => block.type === "logic_ternary" || block.type === "logic_operation"));
+    assert.ok(blocks.some(block => block.type === "procedures_2_defnoreturn" && /^kn-proc-choice-/.test(block.fields.NAME)
+      && blocks.some(other => other.type === "controls_if" && other.parent_id === block.id)));
   });
 }
 
@@ -206,9 +220,12 @@ test("review 9: explicitly supplied argument bypasses a parameter-dependent defa
   compileSource(`const object = {x: 3}; function read(a: {x: number}, b: number = a.x) { return b; } console.log(read(object, object.x));`);
 });
 
-test("review 9: non-constant object defaults reject instead of reading in the caller scope", () => {
-  assertRejected(`const fallback = {a: 3}; function read(a: number, b: number = fallback.a) { return b; } console.log(read(1));`,
-    /Default parameter b requires a literal or constant numeric expression/, 1);
+test("review 9: file-level object defaults read the same binding at the call site", () => {
+  // `.a` is a property name, not the formal a; substitution must keep it.
+  const report = compileSource(`const fallback = {a: 3}; function read(a: number, b: number = fallback.a) { return b; } console.log(read(1));`);
+  assert.ok(workspaces(report).some(workspace => Object.values(workspace.blocks).some(block => block.type === "list_item")));
+  assertRejected(`const fallback = {a: 3}; function read(a: number, b: number = fallback.a) { return b; }
+onStart(() => { const fallback = {a: 4}; console.log(read(1)); });`, /Default parameter b requires a literal or constant numeric expression|Variable shadowing/, 2);
 });
 
 test("review 9: scalar inline defaults keep their existing callee binding behavior", () => {

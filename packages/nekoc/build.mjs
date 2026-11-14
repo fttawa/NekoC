@@ -7,6 +7,7 @@ import { copyFile, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promi
 import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { frontendFiles } from "../../tools/package-release.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, "../..");
@@ -42,7 +43,9 @@ await writeFile(path.join(dist, "nodejs/package.json"), `${JSON.stringify({ type
 
 const frontend = path.join(dist, "frontend");
 await mkdir(frontend, { recursive: true });
-for (const name of ["compile-ts.mjs", "share-objects.mjs", "kitten-n.mjs", "portable-path.mjs", "tsstr-types.mjs", "tsstr-numeric.mjs", "nekoc.d.ts"]) {
+// Same frontend module list as the release bundle, so new ts/*.mjs modules
+// cannot be shipped in one package and missing from the other.
+for (const name of frontendFiles.filter(name => name !== "test-ts.mjs")) {
   await copyFile(path.join(root, "ts", name), path.join(frontend, name));
 }
 

@@ -103,7 +103,9 @@ function double(x: number) {
 
 Simple functions (local declarations plus one final `return`, or statement functions without `return`) are inlined at compile time, except in programs using data objects, where custom procedures preserve argument evaluation and object allocation identity.
 
-Recursive functions (including mutual recursion) and functions with early or multiple `return`s compile to Kitten N custom procedures. Parameters are per call; `let`/`const` locals inside them are shared by all calls. `return c ? a : b` is lowered to if/else so recursion terminates.
+Expression inlining uses stable reporter parameters for effectful arguments and local initializers: they execute once, in declaration order, before the body uses them (including unused or short-circuited parameters). Statement inlining similarly freezes nonconstant arguments in normal-procedure parameters, including omitted trailing defaults and unused arguments, before running the body. Literal names and constant aliases remain available to compile-time resource/name APIs. Explicit named-variable APIs (`getVar`, `setVar`, `changeVar`, and variable handles) always address project variables, even when a function has a same-named lexical local.
+
+Recursive functions (including mutual recursion) and functions with early or multiple `return`s compile to Kitten N custom procedures. Parameters and mutable `let`/`const` locals are per call: a wrapper allocates a fresh list frame for the implementation. Generated temporaries and lazy expression helpers share that invocation's frame. The native reporter evaluator still has a 200-call safety guard (not the official KN stack limit); wrappers and expression helpers count toward it.
 
 ```ts
 function fib(n: number): number {
@@ -148,7 +150,7 @@ for (let i = 10; i > 0; i -= 2) {
 }
 ```
 
-Counting up uses `<`/`<=` with `i++`, `i += k` or `i = i + k`; counting down uses `>`/`>=` with `i--`, `i -= k` or `i = i - k`. Bounds may be variables; a loop whose start is already past its end runs zero times.
+General loops use a live while condition and explicit increment. Fractional starts, variable steps, `i *= 2`, complex conditions, multiple declarations/increments, body writes to the induction variable, existing variables and `for (;;) { ... }` are supported. Conditions are reevaluated each iteration. Constant integer ranges with a read-only induction variable retain the compact traversal-block optimization.
 
 ### For...Of Loops
 
@@ -161,7 +163,7 @@ for (const item of self.list("scores")) {
 }
 ```
 
-Works over array literals, array variables and project lists (`self.list("name")`).
+Works over array literals, known array variables and project lists (`self.list("name")`); the iterable is evaluated once. Literal strings iterate Unicode code points. Dynamic string iteration and `for...in` property-key enumeration currently produce explicit compile errors instead of being treated as list-value iteration.
 
 ### Do...While Loops
 
@@ -197,7 +199,7 @@ for (let i = 0; i < 10; i++) {
 }
 ```
 
-Supported as the last statement of a loop body, or as `if (...) { ...; continue; }` directly in a loop body (the rest of the body becomes the else branch).
+Supported inside nested conditionals and switches. For increments and do/while tests still execute after `continue`. Labeled continue must target an enclosing loop.
 
 ### Try/Catch
 
@@ -209,7 +211,7 @@ try {
 }
 ```
 
-> **Note:** Only throws written directly in the try block reach the catch block; others stop the script.
+Local throws inside nested loops and conditionals unwind to the enclosing catch. Exceptions across function boundaries and uncaught throws are compile errors. Abrupt completion (`return`, `break`, `continue`, `throw`) in a try/finally construct is rejected because finally-on-every-completion is not implemented.
 
 ### Return Statements
 
@@ -225,7 +227,7 @@ function getValue() {
 throw new Error("Something went wrong");
 ```
 
-> **Note:** Outside a try block with catch, throw compiles to a `stop` block.
+> **Note:** Outside a local try block with catch, throw produces a compile diagnostic; it never silently becomes `stop`.
 
 ### Break Statements
 
@@ -237,7 +239,7 @@ forever(() => {
 });
 ```
 
-`break` works in `while`, `for`, `for...of`, `do...while`, `forever`, `repeat` and `repeatUntil`. In `switch` it may only end a case.
+`break` works in loops and anywhere inside a switch case. Switch supports fall-through and conditional breaks; its discriminant is evaluated once and later case expressions are skipped after the first match.
 
 ### Labeled Statements
 
@@ -249,7 +251,11 @@ outer: for (let i = 0; i < 10; i++) {
 }
 ```
 
-> **Note:** Labels are stripped during compilation.
+Labels are preserved as control targets. Labeled break can leave nested loops or a labeled block without stopping the statements that follow that target.
+
+### Lazy Values and Updates
+
+`&&`, `||` and `?:` compile to reporter procedures containing statement-level branches, evaluating only the selected operand and preserving its value. `Math.max`, `Math.min`, `Math.trunc` and boolean-to-number conversion use the same reporter shape: each argument is evaluated once, and no `logic_ternary` (missing from the share player) is emitted. Value-producing `a++`, `++a`, `a--`, `--a` support mutable simple variables; parameter/property updates in expression slots are rejected. `??` currently accepts statically non-nullish numeric, string or boolean operands, including a binding whose declarations and assignments all prove primitive literals; other nullable operands are compile errors, not truthiness tests (`let a = 0; a ?? 7` remains `0`).
 
 ### Empty Statements
 
@@ -477,7 +483,11 @@ const arr = ["a", "b"];
   contain only interfaces/type aliases are stripped. A namespace with runtime
   values is rejected because Kitten N has no namespace value model.
 - Default parameters with constant defaults (including an earlier constant
-  parameter), such as `function f(a, b = 1)`, are expanded at each call. An
+  parameter), such as `function f(a, b = 1)`, are expanded at each call.
+  Other defaults, such as `b = next()` or `b = settings.size`, are evaluated
+  once at the call, in argument order, when they read no parameter and every
+  name they use means the same file-level binding at the definition and at the
+  call; otherwise they are compile errors. An
   omitted optional parameter may be used only when its value is not observed;
   use a default parameter when `undefined` must be tested.
   Inline calls whose arguments would capture a callee parameter name are

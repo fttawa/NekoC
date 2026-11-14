@@ -175,7 +175,9 @@ test("tsarray: task cases execute with JS results", () => {
     assert.equal(result.status, 0, result.stderr);
     return result.stdout;
   };
-  const expected = [["5,1"], ["1,10,9"], ["321", "321"], ["undefined"], ["3"], ["1,2,3"], ["0"], ["4"], ["5,6"], ["3"], ["true", "false"], ["6"], ["9", "0"], ["1", "5"], ["3", "undefined"], ["8"], ["7"], ["2", "4", "3"], ["3"], ["1,2"], ["23"], ["23"], ["23"], ["item:1,item:2"], ["1,1"], ["4,5"], ["6"], ["6"], ["1,2,3"], ["2,3"], ["23"]];
+  // Out-of-range reads keep the Kitten N list_item empty value (NaN), not JS
+  // undefined: known difference core-162 in tests/ts-js-semantics/known-diff.md.
+  const expected = [["5,1"], ["1,10,9"], ["321", "321"], ["NaN"], ["3"], ["1,2,3"], ["0"], ["4"], ["5,6"], ["3"], ["true", "false"], ["6"], ["9", "0"], ["1", "5"], ["3", "NaN"], ["8"], ["7"], ["2", "4", "3"], ["3"], ["1,2"], ["23"], ["23"], ["23"], ["item:1,item:2"], ["1,1"], ["4,5"], ["6"], ["6"], ["1,2,3"], ["2,3"], ["23"]];
   expected.push(["1", "12"], ["p1", "3"], ["p1", "5"], ["3"], ["3"], ["1,2,3"], ["6"], ["item:1,item:2"]);
   expected.push(["a1"], ["3"], ["a"], ["a1", "1", "a"], ["abc1", "3", "a"], ["1"], ["1"], ["b!"], ["ab!"]);
   expected.push(["abc1", "3", "a"], ["10,7"], ["3", "abc1"]);

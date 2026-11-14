@@ -8,6 +8,7 @@ mod calculate;
 mod cloud;
 pub mod cloud_ui;
 mod collision_geometry;
+mod error_location;
 mod extensions;
 mod input;
 mod interp_exec_cold;
@@ -2114,6 +2115,14 @@ impl Compiler {
                 self.constant(Cell::Bool(field(b, "BOOL").eq_ignore_ascii_case("true")))
             }
             "mouse_down" if self.program.semantics == RuntimeSemantics::KnCurrent => {
+                let expression = self.expr(b)?;
+                let value = self.program.values.len();
+                self.program.values.push(ValueExpr::Number(expression));
+                ValueExpr::Boolean(value)
+            }
+            // A Boolean reporter: as a value it is true/false (like the
+            // tree-walking runtime), not the numeric 1/0 used in arithmetic.
+            "divisible_by" => {
                 let expression = self.expr(b)?;
                 let value = self.program.values.len();
                 self.program.values.push(ValueExpr::Number(expression));
@@ -6525,6 +6534,7 @@ impl Engine {
             return Cell::Null;
         }
         if self.reporter_depth >= 200 {
+            // Native host-stack safety guard, not a verified official KN limit.
             self.value_error = Some("reporter procedure recursion exceeds 200".into());
             return Cell::Null;
         }
@@ -10042,7 +10052,7 @@ impl Engine {
         }
         if self.value_error.is_some() {
             let error = self.value_error.take().unwrap_or_default();
-            bail!("{error} at block {}", self.program.sources[pc]);
+            bail!(error_location::at_block(&error, &self.program.sources[pc]));
         }
         // Nonfinite arithmetic is not a VM error. Input guards above implement
         // the official setters; finite arithmetic can still overflow naturally.

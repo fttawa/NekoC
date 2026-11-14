@@ -76,16 +76,21 @@ test("default parameters can use earlier constant arguments", () => {
   assert.ok(numbers(report).includes(3));
 });
 
-test("side-effecting or scope-dependent defaults reject instead of replaying", () => {
+// Defaults are expanded at the call site and evaluated once there (see the
+// tsctrl execution test), so they are accepted only when their names mean
+// the same at the call: no parameter reads and no locally shadowed names.
+test("parameter-reading or call-site-shadowed defaults reject instead of replaying", () => {
   assert.throws(() => compile(`let n = 0;
     function bump() { n += 1; return n; }
-    function f(b = bump()) { return b + b; }
-    onStart(() => { console.log(f()); });`), /side-effecting defaults are not supported/);
-  assert.throws(() => compile(`let a = 5; function f(b = a) { return b; }
-    onStart(() => { console.log(f()); });`), /requires a literal or constant numeric expression/);
-  for (const value of ['0 || 7', '0 ?? 7', '"a" + 1']) {
-    assert.throws(() => compile(`function f(b = ${value}) { return b; }
-      onStart(() => { console.log(f()); });`), /requires a literal or constant numeric expression/);
+    function f(a: number, b = a + bump()) { return b + b; }
+    onStart(() => { console.log(f(n++)); });`), /reads parameters or a name shadowed at the call site/);
+  assert.throws(() => compile(`function bump() { return 1; }
+    function f(b = bump()) { return b; }
+    onStart(() => { const bump = 2; console.log(f()); });`), /reads parameters or a name shadowed at the call site/);
+  for (const value of ["bump()", "n", "0 || 7", "0 ?? 7", '"a" + 1']) {
+    assert.doesNotThrow(() => compile(`let n = 0; function bump() { n += 1; return n; }
+      function f(b = ${value}) { return b; }
+      onStart(() => { console.log(f()); });`), value);
   }
 });
 
@@ -199,7 +204,15 @@ test("Number.isInteger resolves string defaults and indexed aliases before numer
     "const x = a[0]; return Number.isInteger(x);"]) {
     const report = compile(`function f(a = "42") { ${body} }
       onStart(() => { console.log(f(undefined)); });`);
-    const types = Object.values(report.workspaceData.blocks).map(block => block.type);
+    // Evaluated inline locals move the check into a reporter procedure, which
+    // lives in its own workspace; inspect every workspace.
+    const found = [];
+    (function collect(value) {
+      if (!value || typeof value !== "object") return;
+      if (value.blocks && value.connections) found.push(value);
+      for (const child of Object.values(value)) collect(child);
+    })(report);
+    const types = found.flatMap(workspace => Object.values(workspace.blocks)).map(block => block.type);
     assert.ok(!types.includes("math_round"), types.join(","));
     assert.ok(types.includes("logic_boolean"));
   }
