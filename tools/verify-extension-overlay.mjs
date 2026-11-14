@@ -83,7 +83,7 @@ try{
   await page.evaluate(url=>document.querySelector('iframe').contentWindow.eval(`parent.postMessage(${JSON.stringify({type:'neko-project-resource',id:'123',url})},'*')`),bcm);
   await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
   assert.equal(await page.locator('iframe').getAttribute('src'),official);
-  await page.locator('[data-neko-rust]').getByRole('button',{name:'切换 Rust'}).click();
+  await page.locator('[data-neko-rust]').getByRole('button',{name:'切换 Neko'}).click();
   releaseNavigation();let frame=await rustFrame();
   await frame.locator('#takeover-hint').waitFor({state:'visible'});
   await frame.waitForFunction(()=>Number(document.querySelector('#fps').textContent)>0);
@@ -101,7 +101,7 @@ try{
   report.tests.push('Takeover confirmation dismisses; live drawing FPS is bottom-right and click-through, visible in fullscreen, dash when paused and resumes');
   await page.locator('[data-neko-rust]').getByRole('button',{name:'切回原版'}).click();await officialFrame();
   assert.equal(await page.locator('iframe').count(),1);
-  assert.equal(await page.locator('[data-neko-rust]').getByRole('button',{name:'切换 Rust'}).count(),1);
+  assert.equal(await page.locator('[data-neko-rust]').getByRole('button',{name:'切换 Neko'}).count(),1);
   const popup=await context.newPage();await popup.goto(`${origin}/popup.html`);
   await popup.locator('#enabled').uncheck();await page.waitForFunction(()=>!document.querySelector('[data-neko-rust]'));
   const requestsBefore=detailRequests,loadsBefore=officialLoads;

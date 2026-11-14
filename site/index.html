@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>NekoC 在线编译</title>
+<meta name="description" content="在浏览器里把 TypeScript 编译成编程猫 Kitten N 作品（.bcmkn）并直接运行。">
+<link rel="icon" href="logo.svg">
+<link rel="stylesheet" href="style.css">
+<script type="importmap">{"imports":{"typescript":"./vendor/typescript.mjs"}}</script>
+</head>
+<body>
+<header class="bar">
+  <a class="brand" href="https://github.com/NekoX-Lab/NekoC"><img src="logo.svg" alt="" width="28" height="28"><span>NekoC</span><small>在线编译</small></a>
+  <label class="sample">示例 <select id="sample"></select></label>
+  <div class="actions">
+    <button id="check">检查</button>
+    <button id="run" class="primary">编译并运行</button>
+    <button id="download" disabled>下载 .bcmkn</button>
+  </div>
+</header>
+<main>
+  <section class="editor">
+    <div class="file"><input id="filename" value="main.nk.ts" spellcheck="false" aria-label="文件名"><span id="state">正在载入编译器…</span></div>
+    <textarea id="code" spellcheck="false" aria-label="TypeScript 代码"></textarea>
+    <ol id="diagnostics" aria-label="诊断" hidden></ol>
+  </section>
+  <section class="stage">
+    <iframe id="player" title="作品播放器" src="play/play.html" allow="fullscreen; autoplay; microphone"></iframe>
+  </section>
+</main>
+<footer>全部在本机浏览器里完成：TypeScript 类型检查、编译和 WASM 运行，代码不会上传。<a href="https://github.com/NekoX-Lab/NekoC/blob/main/docs/syntax.md">语法</a> · <a href="https://github.com/NekoX-Lab/NekoC/releases">下载命令行版</a></footer>
+<script type="module" src="app.js"></script>
+</body>
+</html>

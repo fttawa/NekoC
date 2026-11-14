@@ -1,7 +1,11 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><link rel="stylesheet" href="popup.css"><title>Neko Rust</title></head><body>
-<h1>Neko <span>RUST PLAYER</span></h1><p>用本机 Rust 运行 PICKCAT 的 Kitten N / Kitten 4 作品</p>
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><link rel="stylesheet" href="popup.css"><title>Neko 播放器</title></head><body>
+<h1>Neko <span>PLAYER</span></h1><p>用 Neko 运行 PICKCAT 的 Kitten N / Kitten 4 作品</p>
 <label class="switch"><input type="checkbox" id="enabled" checked> 自动替换网页播放器</label>
+<fieldset class="engine"><legend>运行方式</legend>
+<label><input type="radio" name="engine" value="wasm" checked> WASM（浏览器内，免安装）</label>
+<label><input type="radio" name="engine" value="rust"> 本机 Rust 后端（更快，支持 JIT）</label>
+</fieldset>
 <label class="port">本机端口 <input type="number" id="port" min="1" max="65535" value="4173"></label>
-<button id="save">保存并检查连接</button><p id="status" role="status">检查后端…</p>
-<div class="help">先运行 <code>start-rust-backend.cmd</code>。<br>支持作品页和论坛帖子内嵌播放器，原播放器出现后自动接管。播放器右上角可切回原版。</div>
+<button id="save">保存</button><p id="status" role="status"></p>
+<div class="help">WASM 不需要任何本机程序。本机后端需要先运行 <code>start-rust-backend.cmd</code>。<br>支持作品页和论坛帖子内嵌播放器，原播放器出现后自动接管。播放器右上角可切回原版。</div>
 <script src="popup.js" type="module"></script></body></html>

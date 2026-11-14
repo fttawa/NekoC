@@ -2,19 +2,19 @@
 import {playerExtensions,SUPPORTED_API_VERSIONS,negotiateVersion} from './extensions.js';
 import {KnMicrophone,needsMicrophone} from './kn-microphone.js';
 import {K4DeviceHost} from './k4-device.js';
+import {httpBackend} from './backend.js';
 export class PlayerConnection {
   constructor(extensions=playerExtensions,device=new K4DeviceHost()){this.extensions=extensions;this.extensionSession=null;this.socket=null;this.pending=null;this.ready=false;this.openReject=null;this.timer=null;this.microphone=null;this.device=device;}
-  async open(project=null,base=location.origin){
+  // backend: an object from backend.js; a string is the local Rust backend origin.
+  async open(project=null,backend=location.origin){
     if(this.socket||this.ready||this.pending||this.microphone)this.close();
     const schemas=this.extensions.schemas();
     const usesV2=schemas.some(schema=>schema.api_version===2);
     if(schemas.length&&!project)throw Error('Extensions require a private player project snapshot');
     this.extensionSession=this.extensions.session();
     if(project&&needsMicrophone(project)){this.microphone=new KnMicrophone();void this.microphone.start();}
-    const url=new URL(project?'/api/player-private':'/api/player',base);
-    url.protocol=url.protocol==='https:'?'wss:':'ws:';
-    const socket=new WebSocket(url);
-    this.socket=socket;socket.binaryType='arraybuffer';
+    const socket=(typeof backend==='string'?httpBackend(backend):backend).connect(project);
+    this.socket=socket;
     return new Promise((resolve,reject)=>{
       this.openReject=reject;
       this.timer=setTimeout(()=>this.fail(Error('运行时连接超时')),30000);

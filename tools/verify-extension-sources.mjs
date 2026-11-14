@@ -46,7 +46,7 @@ try{
   await page.locator('[data-neko-rust]').getByRole('button',{name:'切回原版'}).click();
   assert.equal(await page.locator('iframe').getAttribute('src'),cubeURL);
   assert.equal(await page.locator('iframe').getAttribute('sandbox'),'allow-scripts allow-same-origin');
-  await page.locator('[data-neko-rust]').getByRole('button',{name:'切换 Rust'}).click();frame=await rustFrame();
+  await page.locator('[data-neko-rust]').getByRole('button',{name:'切换 Neko'}).click();frame=await rustFrame();
   report.tests.push('Encoded work restores original URL and sandbox; Rust can retake the same iframe');
   await page.goto('https://pickcat.dao3.fun/forum/post/01a19bdd-b240-7985-a80e-2a753101aaca');
   await page.locator('iframe').waitFor();await page.locator('iframe').scrollIntoViewIfNeeded();frame=await rustFrame();

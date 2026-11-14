@@ -37,7 +37,7 @@ test("packaging rejects unsupported targets before writing output", async () => 
   await assert.rejects(packageRelease("invalid", "missing"), /Usage/);
 });
 
-test("release workflow keeps draft releases tag-only and excludes Android/extension packages", async () => {
+test("release workflow keeps draft releases tag-only, ships npm + extension, excludes Android", async () => {
   const workflow = await fs.readFile(new URL("../.github/workflows/release.yml", import.meta.url), "utf8");
   for (const target of targets) assert.ok(workflow.includes(`target: ${target}`), target);
   assert.match(workflow, /workflow_dispatch:/);
@@ -45,7 +45,23 @@ test("release workflow keeps draft releases tag-only and excludes Android/extens
   assert.match(workflow, /github.event_name == 'push' && startsWith\(github.ref, 'refs\/tags\/v'\)/);
   assert.match(workflow, /gh release create .* --draft/);
   assert.match(workflow, /node tools\/package-release\.mjs/);
-  assert.doesNotMatch(workflow, /package-extension|build-extension|\.apk|gradle/);
+  // The wasm npm tarball and the extension zip are smoke tested and checksummed with the binaries.
+  assert.match(workflow, /npm pack --ignore-scripts/);
+  assert.match(workflow, /node tools\/build-extension\.mjs/);
+  assert.match(workflow, /needs: \[build, web\]/);
+  assert.doesNotMatch(workflow, /package-extension|\.apk|gradle/);
+});
+
+test("checksums cover npm tarballs and archives", async () => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "nekoc-sums-"));
+  try {
+    for (const name of ["a.zip", "b.tar.gz", "nekox-lab-nekoc-1.0.0.tgz", "notes.txt"]) await fs.writeFile(path.join(dir, name), name);
+    await checksums(dir);
+    const names = (await fs.readFile(path.join(dir, "SHA256SUMS.txt"), "utf8")).trim().split("\n").map(line => line.split("  ")[1]);
+    assert.deepEqual(names, ["a.zip", "b.tar.gz", "nekox-lab-nekoc-1.0.0.tgz"]);
+  } finally {
+    await fs.rm(dir, { recursive: true, force: true });
+  }
 });
 
 test("frontend sources import nothing beyond node builtins, typescript and each other", async () => {

@@ -41,7 +41,7 @@ try{
   await page.locator('[data-neko-rust]').getByRole('button',{name:'切回原版'}).click();
   assert.equal(await page.locator('iframe').getAttribute('src'),playerURL);
   assert.equal(await page.locator('iframe').getAttribute('sandbox'),'allow-scripts allow-same-origin');
-  await page.locator('[data-neko-rust]').getByRole('button',{name:'切换 Rust'}).click();frame=await rustFrame();
+  await page.locator('[data-neko-rust]').getByRole('button',{name:'切换 Neko'}).click();frame=await rustFrame();
   report.tests.push('Original K4 player URL and sandbox restored; Rust retakes the same iframe');
   assert.deepEqual(report.errors,[]);
   await writeFile(`${output}/verification.json`,JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));

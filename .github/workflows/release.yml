@@ -61,8 +61,51 @@ jobs:
             dist/releases/*.tar.gz
           if-no-files-found: error
 
+  # Platform independent: the @nekox-lab/nekoc npm tarball and the browser extension.
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      # The CLI must match the wasm-bindgen version in Cargo.lock.
+      - run: cargo install wasm-bindgen-cli --locked --version "$(awk '/^name = "wasm-bindgen"$/ { getline; gsub(/version = |"/, ""); print }' Cargo.lock)"
+      - run: npm ci --ignore-scripts
+      - run: node packages/nekoc/build.mjs
+      - run: npm --prefix packages/nekoc test
+      - name: Pack the npm package and the extension
+        run: |
+          mkdir -p dist/releases
+          version="${GITHUB_REF_NAME#v}"
+          if [ "${GITHUB_REF_TYPE}" != tag ]; then version="$(node -p 'require("./packages/nekoc/package.json").version')"; fi
+          (cd packages/nekoc && npm pack --ignore-scripts --pack-destination ../../dist/releases)
+          node tools/build-extension.mjs dist/pickcat-rust
+          (cd dist/pickcat-rust && zip -qr "../releases/nekoc-pickcat-extension-${version}.zip" .)
+      # Install the tarball the way a user would (outside the checkout) and compile a sample.
+      - name: Smoke test the npm package
+        run: |
+          smoke="$RUNNER_TEMP/npm-smoke"
+          mkdir -p "$smoke" && cp samples/stage_demo.nk.ts "$smoke/"
+          cd "$smoke" && npm init -y >/dev/null
+          npm install --ignore-scripts "$GITHUB_WORKSPACE"/dist/releases/*.tgz
+          npx nekoc check stage_demo.nk.ts
+          npx nekoc build stage_demo.nk.ts -o stage_demo.bcmkn
+          npx nekoc run stage_demo.bcmkn --frames 120 | grep -q "cat done"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-web
+          path: |
+            dist/releases/*.tgz
+            dist/releases/*.zip
+          if-no-files-found: error
+
   collect:
-    needs: build
+    needs: [build, web]
     runs-on: ubuntu-latest
     permissions:
       contents: write

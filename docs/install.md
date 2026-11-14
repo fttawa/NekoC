@@ -39,7 +39,18 @@ Windows 上把 `./nekoc` 换成 `.\nekoc.exe`。
 
 前端查找顺序：环境变量 `NEKOC_FRONTEND` 指定的目录 → 可执行文件旁的 `frontend/` → 源码构建时的 `ts/`。目录里缺少需要的脚本就继续往后找。
 
-包内 `BUILD-INFO.json` 记录版本、commit、target 和构建时间，反馈问题时请附上。Android APK 和浏览器扩展单独发布。
+包内 `BUILD-INFO.json` 记录版本、commit、target 和构建时间，反馈问题时请附上。Android APK 单独发布。
+
+## 不依赖平台的包
+
+同一个 Release 还有：
+
+| 文件 | 用途 |
+| --- | --- |
+| `nekox-lab-nekoc-<版本>.tgz` | [`@nekox-lab/nekoc`](../packages/nekoc/README.md) npm 包：WASM 版编译器和播放器，Node.js 22+ 或浏览器，不需要 Rust。`npm install ./nekox-lab-nekoc-<版本>.tgz` 后用 `npx nekoc check/build/run`。 |
+| `nekoc-pickcat-extension-<版本>.zip` | PICKCAT 浏览器扩展，解压后在扩展管理页「加载解压缩的扩展」。默认用 WASM 运行，见 [pickcat-extension.md](pickcat-extension.md)。 |
+
+不想安装任何东西，可以直接用 GitHub Pages 上的在线编译页。
 
 ## 维护者：打包
 
@@ -52,4 +63,4 @@ node tools/smoke-release.mjs dist/releases/nekoc-<版本>-x86_64-pc-windows-msvc
 
 - `package-release.mjs <target> <二进制目录> [输出目录]` 只打包，不编译。它复制 `nekoc`、`web`、`ts/` 下的前端、`typescript` 包里运行时用到的文件（`lib/typescript.js`、`lib.*.d.ts`、许可证）、精选文档和示例。`RELEASE_VERSION` 可以覆盖 Cargo 版本号。
 - `smoke-release.mjs` 把包解压到仓库外的临时目录，依次运行 check、build、run、test，验证类型报错和 `NEKOC_FRONTEND` 覆盖。用 `NEKOC_SMOKE_TEMP` 指定临时目录的父目录；父目录的上级里不能有 `node_modules`，以免借用开发机上的依赖。
-- `.github/workflows/release.yml`：推送 `v*` tag 后，在六个平台的原生 runner 上构建并冒烟测试，全部通过后汇总 `SHA256SUMS.txt`，创建 **draft Release**，由人检查后发布。手动运行只产出 Actions artifacts。
+- `.github/workflows/release.yml`：推送 `v*` tag 后，在六个平台的原生 runner 上构建并冒烟测试，另有一个 Linux job 构建 wasm、打 npm 包（安装到仓库外冒烟测试）和扩展 zip；全部通过后汇总 `SHA256SUMS.txt`，创建 **draft Release**，由人检查后发布。手动运行只产出 Actions artifacts。
