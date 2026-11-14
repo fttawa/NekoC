@@ -5481,6 +5481,9 @@ function main(argv) {
   fs.writeFileSync(outputPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
 }
 
-if (isNode && process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+// Compare real paths: Node resolves symlinks for import.meta.url but not for
+// argv[1] (macOS temp dirs live under /var -> /private/var).
+const realPath = (file) => { try { return fs.realpathSync(file); } catch { return path.resolve(file); } };
+if (isNode && process.argv[1] && realPath(process.argv[1]) === realPath(fileURLToPath(import.meta.url))) {
   main(process.argv.slice(2));
 }
