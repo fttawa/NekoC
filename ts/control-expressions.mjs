@@ -31,17 +31,18 @@ export function nonNullishBinding(c, expression, literal) {
 // Capture only procedure/range parameters. Ordinary variables stay live reads
 // inside the selected branch; the enclosing function later binds its locals
 // to the shared invocation frame. Inputs are evaluated before entering helpers.
-function reporter(c, input, parent, build, boxed = false) {
+function reporter(c, input, parent, build, boxed = false, statement = false) {
   const serial = ++c.helperCount;
   const id = `kn-proc-choice-${serial}`;
   const valueName = `__choiceValue${serial}`;
+  const valueNames = statement ? input.map((_, index) => `${valueName}_${index}`) : [valueName];
   const captures = [...new Set([...(c.functionParams ?? []), ...c.rangeBindings])];
-  const names = boxed ? captures : [valueName, ...captures];
-  const spec = { id, name: id, type: "ROUND", params: [
+  const names = boxed ? captures : [...valueNames, ...captures];
+  const spec = { id, name: id, type: statement ? "NORMAL" : "ROUND", params: [
     { id: `${id}-label`, name: id, type: "Label" },
     ...names.map((name, index) => ({ id: `${id}-param-${index}`, name, type: "String" })),
   ] };
-  const call = c.compileProcedureCallArgs(spec, [...(boxed ? [] : [input]), ...captures.map(name => ts.factory.createIdentifier(name))], parent, true);
+  const call = c.compileProcedureCallArgs(spec, [...(boxed ? [] : statement ? input : [input]), ...captures.map(name => ts.factory.createIdentifier(name))], parent, !statement);
   const saved = [c.blocks, c.connections, c.functionParams, c.currentProcedureParams, c.rangeBindings,
     c.flowScopes, c.tryStack, c.loopDepth, c.currentStatementNode];
   c.blocks = {};
@@ -68,7 +69,8 @@ function reporter(c, input, parent, build, boxed = false) {
         fields: { param_name: param.name } });
       c.connectInput(definition, block, `PARAMS${index}`, "value");
     });
-    c.connectInput(definition, build(valueName, definition), "STACK", "statement");
+    const body = build(statement ? valueNames : valueName, definition);
+    if (body) c.connectInput(definition, body, "STACK", "statement");
     c.procedures.push({ ...spec, workspaceData: { blocks: c.blocks, connections: c.connections, comments: {} } });
   } finally {
     [c.blocks, c.connections, c.functionParams, c.currentProcedureParams, c.rangeBindings,
@@ -91,6 +93,13 @@ export function evaluatedValue(c, expression, parent, compile) {
     c.connectInput(ret, compile(ts.factory.createIdentifier(value), ret), "VALUE", "value");
     return ret;
   });
+}
+
+// A normal procedure freezes a statement-call argument before running the
+// remaining arguments/body, including when that argument is never used.
+export function evaluatedStatement(c, expressions, parent, compile) {
+  return reporter(c, expressions, parent, (values, definition) =>
+    compile(values.map(value => ts.factory.createIdentifier(value)), definition), false, true);
 }
 
 // A null branch denotes the already evaluated condition value (&& / ||).

@@ -172,7 +172,9 @@ test('all procedures compile as zero-argument native definitions with explicit w
     execFileSync(process.execPath,[path.join(root,'ts/compile-ts.mjs'),path.join(root,'modules/tower-defense/core.ts'),output],{cwd:root});
     const workspace=JSON.parse(fs.readFileSync(output,'utf8'));
     assert.equal(workspace.procedures.filter(p=>!p.id.startsWith('kn-proc-choice-')).length,definitions.length);
-    assert.ok(workspace.summary.procedures<200,'lazy expression helpers remain bounded');
+    const argumentHelpers=workspace.procedures.filter(p=>p.id.startsWith('kn-proc-choice-')&&p.type==='NORMAL');
+    assert.ok(workspace.summary.procedures-argumentHelpers.length<200,'lazy expression helpers remain bounded');
+    assert.ok(argumentHelpers.length<100,'statement argument capture helpers remain bounded');
     const blockCounts=workspace.procedures.map(proc=>Object.keys(proc.workspaceData.blocks).length);
     assert.ok(blockCounts.every(count=>count>1),'each native procedure has an emitted body');
     const totalBlocks=blockCounts.reduce((a,b)=>a+b,0);

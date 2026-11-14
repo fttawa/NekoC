@@ -317,6 +317,8 @@ impl<'a> super::Thread<'a> {
                         after: block.get("next"),
                         procedure_values: previous_values,
                         warped: self.warped,
+                        loop_depth: self.loops.len(),
+                        continuation_depth: self.continuations.len(),
                     });
                     self.current = Some(body);
                 } else {
@@ -937,6 +939,14 @@ impl<'a> super::Thread<'a> {
             if let Some(next) = next {
                 self.current = Some(next);
                 return;
+            } else if self.procedure_frames.last().is_some_and(|frame| {
+                frame.loop_depth == self.loops.len()
+                    && frame.continuation_depth == self.continuations.len()
+            }) {
+                let frame = self.procedure_frames.pop().unwrap();
+                self.procedure_values = frame.procedure_values;
+                self.warped = frame.warped;
+                next = frame.after;
             } else if self
                 .continuations
                 .last()

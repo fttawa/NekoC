@@ -129,11 +129,55 @@ onStart(()=>{result=f(a);});`);
   assert.equal(v["kn-var-a"], 2);
 });
 
-test("tsctrl: statement inline calls reject effectful arguments instead of replaying them", () => {
-  for (const source of [
-    'let a=0; function f(x:number){console.log(x+x);} onStart(()=>{f(a++);});',
-    'let a=0; function next(){a++;return a;} function f(x:number){console.log(x+x);} onStart(()=>{f(next());});',
-  ]) assert.throws(() => compileFile("virtual/inline-effect.ts", { readFile: () => source }), /Effectful arguments/);
+test("tsctrl: statement calls evaluate explicit and default effectful arguments once", () => {
+  for (const argument of ["a++", "next()", ""]) {
+    const v = execute(`let a=0; let result=0;
+function next(){a++;return a;}
+function f(x:number=next()){result=x*10+x;}
+onStart(()=>{f(${argument});});`);
+    assert.equal(v["kn-var-result"], argument === "a++" ? 0 : 11);
+    assert.equal(v["kn-var-a"], 1);
+  }
+});
+
+test("tsctrl: statement arguments snapshot reads and execute unused array methods in order", () => {
+  const v = execute(`let a=[1,2,3]; let source=1; let repeated=0; let snapshot=0; let order=0;
+function twice(x:number){repeated=x*10+x;}
+function ignored(x:number){source++;}
+function read(x:number){source++;snapshot=x;}
+function pair(x:number,y:number){order=x*10+y;}
+onStart(()=>{twice(a.pop());ignored(a.pop());read(source);pair(source++,source++);});`);
+  assert.equal(v["kn-var-repeated"], 33);
+  assert.equal(v["kn-var-snapshot"], 2);
+  assert.equal(v["kn-var-order"], 34);
+  assert.equal(v["kn-var-source"], 5);
+  assert.deepEqual(v["kn-var-a"], [1]);
+});
+
+test("tsctrl: nested statement wrappers freeze method and default arguments", () => {
+  const v = execute(`let a=[1,2]; let result=0;
+function next(){return a.pop();}
+function f(x:number=next()){result=x*10+x;}
+function outer(y:number){f(y);}
+function empty(x:number){}
+onStart(()=>{outer(next());f();a.push(3);empty(next());});`);
+  assert.equal(v["kn-var-result"], 11);
+  assert.deepEqual(v["kn-var-a"], []);
+});
+
+test("tsctrl: evaluated inline locals preserve literal names without dropping other effects", () => {
+  const v = execute(`let result=0; let hits=0;
+function next(){hits++;return hits;}
+function f(){let unused=next();let name="named";let alias=name;return getVar(alias);}
+onStart(()=>{setVar("named",42);result=f();});`);
+  assert.equal(v["kn-var-result"], 42);
+  assert.equal(v["kn-var-hits"], 1);
+  assert.doesNotThrow(() => compileFile("virtual/local-name.ts", { readFile: () =>
+    'function f(){let name="named";return getVar(name);} onStart(()=>{console.log(f());});' }));
+  const list = execute(`let result=0;
+function f(){let name="values";return listItem(name,"any",1);}
+onStart(()=>{appendList("values",42);result=f();});`);
+  assert.equal(list["kn-var-result"], 42);
 });
 
 test("tsctrl: evaluated inline calls retain literal names through outer parameter bindings", () => {

@@ -7,7 +7,7 @@ const fileURLToPath = isNode ? (await nodeImport("node:url")).fileURLToPath : (u
 const defaultHost = { readFile: (name) => { try { return fs?.readFileSync(name, "utf8"); } catch { return undefined; } } };
 import ts from "typescript";
 import { keyboardCode, effectCode, mathFunctionCode } from "./kitten-n.mjs";
-import { boxedValue, evaluatedValue, lazyChoice, nonNullishBinding, updateValue } from "./control-expressions.mjs";
+import { boxedValue, evaluatedStatement, evaluatedValue, lazyChoice, nonNullishBinding, updateValue } from "./control-expressions.mjs";
 import * as controlFlow from "./control-flow.mjs";
 
 /** A compile error. `location` is { file, line, column } (1-based) when known. */
@@ -1956,30 +1956,11 @@ class WorkspaceCompiler {
   }
 
   compileInlineStatementFunction(call, parentId, name) {
-    // Statement expansion has no expression reporter in which to freeze
-    // effectful arguments. Reject these instead of duplicating/dropping them.
-    const inspecting = new Set();
-    const effectful = node => {
-      if (this.isUpdateExpression(node)
-        || (ts.isBinaryExpression(node) && assignmentOperatorSpec(node.operatorToken.kind))) return true;
-      if (ts.isCallExpression(node)) {
-        const name = calleeName(node.expression);
-        if (["setVar", "changeVar", "appendList", "replaceListItem", "deleteListItem", "randInt", "random"].includes(name)) return true;
-        const target = this.inlineFunctions.get(name);
-        if (target && !inspecting.has(name)) {
-          inspecting.add(name);
-          const effect = effectful(target.body);
-          inspecting.delete(name);
-          if (effect) return true;
-        }
-      }
-      let found = false;
-      ts.forEachChild(node, child => { found ||= effectful(child); });
-      return found;
-    };
-    if (call.arguments.some(effectful)) this.unsupported(call, "Effectful arguments to inline statement functions are not supported; evaluate them into variables first");
-    return this.withInlineFunctionCall(call, name, () => {
-      const fn = this.inlineFunctions.get(name);
+    const fn = this.inlineFunctions.get(name);
+    const args = this.functionArguments(fn, call);
+    const bindings = new Map();
+    const body = parent => {
+      if (this.inlineCallStack.includes(name)) this.unsupported(call, `Recursive inline function calls are not supported: ${name}`);
       if (!ts.isBlock(fn.body)) {
         this.unsupported(call, `Statement function ${name} must use a block body`);
       }
@@ -1987,7 +1968,26 @@ class WorkspaceCompiler {
       if (statements.some((statement) => ts.isReturnStatement(statement))) {
         this.unsupported(call, `Statement function ${name} cannot contain return`);
       }
-      return this.compileStatementList(statements, parentId);
+      this.inlineCallStack.push(name);
+      this.expressionBindings.push(bindings);
+      try { return this.compileStatementList(statements, parent); }
+      finally { this.expressionBindings.pop(); this.inlineCallStack.pop(); }
+    };
+    const inputs = [];
+    const params = [];
+    args.forEach((expression, index) => {
+      const constant = this.inlineConstantExpression(expression);
+      if (constant) {
+        bindings.set(fn.params[index], constant);
+      } else {
+        inputs.push(expression);
+        params.push(fn.params[index]);
+      }
+    });
+    if (!inputs.length) return body(parentId);
+    return evaluatedStatement(this, inputs, parentId, (values, definition) => {
+      params.forEach((param, index) => bindings.set(param, values[index]));
+      return body(definition);
     });
   }
 
@@ -3862,6 +3862,12 @@ class WorkspaceCompiler {
         const localName = declaration.name.text;
         if (this.lookupExpressionBinding(localName)) this.unsupported(declaration.name, `Inline function local shadowing is not supported: ${localName}`);
         if (expressionContainsIdentifier(declaration.initializer, localName)) this.unsupported(declaration.initializer, `Inline function local cannot reference itself: ${localName}`);
+        const constant = this.inlineConstantExpression(declaration.initializer);
+        if (constant) {
+          bound.set(localName, constant);
+          try { return local(index + 1, p); }
+          finally { bound.delete(localName); }
+        }
         return evaluatedValue(this, declaration.initializer, p, (value, ret) => {
           bound.set(localName, value);
           try { return local(index + 1, ret); }
@@ -3873,16 +3879,9 @@ class WorkspaceCompiler {
     };
     const argument = (index, parent) => {
       if (index === args.length) return body(parent);
-      let expression = args[index];
-      const seen = new Set();
-      while (ts.isIdentifier(expression) && !seen.has(expression.text)) {
-        seen.add(expression.text);
-        const value = this.lookupExpressionBinding(expression.text);
-        if (!value) break;
-        expression = value;
-      }
+      const expression = this.inlineConstantExpression(args[index]);
       // Preserve compile-time resource/name literals for DSL expression wrappers.
-      if (constantInitialValue(expression) !== null) {
+      if (expression) {
         bound.set(fn.params[index], expression);
         return argument(index + 1, parent);
       }
@@ -3892,6 +3891,48 @@ class WorkspaceCompiler {
       });
     };
     return argument(0, parentId);
+  }
+
+  inlineConstantExpression(expression) {
+    const seen = new Set();
+    expression = stripParens(expression);
+    while (ts.isIdentifier(expression) && !seen.has(expression.text)) {
+      seen.add(expression.text);
+      const value = this.lookupExpressionBinding(expression.text);
+      if (!value) break;
+      expression = stripParens(value);
+    }
+    if (constantInitialValue(expression) !== null) return expression;
+    // Preserve the existing numeric block folder for pure imported wrappers
+    // such as rgb(...). Probe in an isolated workspace, never execute effects.
+    const inspecting = new Set();
+    const pure = node => {
+      if (this.isUpdateExpression(node) || (ts.isBinaryExpression(node) && assignmentOperatorSpec(node.operatorToken.kind))) return false;
+      if (ts.isCallExpression(node)) {
+        const name = calleeName(node.expression);
+        const fn = this.inlineFunctions.get(name);
+        if (fn) {
+          if (inspecting.has(name)) return false;
+          inspecting.add(name);
+          const safe = pure(fn.body);
+          inspecting.delete(name);
+          if (!safe) return false;
+        } else if (!["add", "sub", "mul", "div", "mod", "floor", "ceil", "mathFunc", "Math.floor", "Math.ceil", "Math.abs"].includes(name)) return false;
+      }
+      let safe = true;
+      ts.forEachChild(node, child => { safe &&= pure(child); });
+      return safe;
+    };
+    if (!ts.isCallExpression(expression) || !pure(expression)) return null;
+    const saved = [this.blocks, this.connections, this.sourceMap, this.procedures];
+    this.blocks = {}; this.connections = {}; this.sourceMap = {}; this.procedures = [];
+    try {
+      const id = this.compileExpression(expression, null);
+      const block = this.blocks[id];
+      return block.type === "math_number" ? ts.factory.createNumericLiteral(block.fields.NUM) : null;
+    } finally {
+      [this.blocks, this.connections, this.sourceMap, this.procedures] = saved;
+    }
   }
 
   compileInlineExpressionFunctionBlock(call, parentId, name, statements) {
