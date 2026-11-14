@@ -31,6 +31,18 @@ fn compile_commands_match_check_diagnostics_with_one_based_locations() {
             2,
             3,
         ),
+        (
+            "map-callback",
+            "// comment\nonStart(() => {\n const a = [1];\n a.map(x => missingApi(x));\n});\n",
+            4,
+            13,
+        ),
+        (
+            "timer-callback",
+            "// comment\nonStart(() => {\n setTimeout(() => {\n  missingApi();\n }, 10);\n});\n",
+            4,
+            3,
+        ),
     ] {
         let input = dir.path().join(format!("{name}.ts"));
         fs::write(&input, source).unwrap();

@@ -15,4 +15,11 @@ export const cases = [
   c("local declare", "", "declare const unused: number; out = 5;"),
   c("type namespace", "namespace Types { export interface P { x: number } export type N = number; }", "out = 6;"),
   c("overload", "function f(x: number): number; function f(x: number) { return x + 1; }", "out = f(7);"),
+  c("string default plus", 'function f(a = "4") { return a + 1; }', "out = f(undefined);"),
+  c("string default length", 'function f(a = "abc") { return a.length; }', "out = f(undefined);"),
+  c("string default numeric prefix", 'function f(a = "4") { return 1 + 2 + a + 3; }', "out = f();"),
+  c("string default index", 'function f(a = "abc") { return a[1]; }', "out = f();"),
+  c("argument property name", "let obj = {x: 2}; function f(x: number) { return x + 1; }", "out = f(obj.x);"),
+  c("argument object key", "function f(x: {x: number}) { return x.x; }", "out = f({x: 2});"),
+  c("optional property name", "function f(b?: number) { return ({b: 1}).b; }", "out = f();"),
 ];

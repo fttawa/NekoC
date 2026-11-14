@@ -425,5 +425,8 @@ const arr = ["a", "b"];
   use a default parameter when `undefined` must be tested.
   Inline calls whose arguments would capture a callee parameter name are
   rejected; rename the caller variable or use a non-inline function.
+  String defaults support inline string operations; functions lowered to custom
+  procedures reject string defaults because their parameter types cannot be
+  specialized per call.
 - Enums: `enum Foo { ... }` (registered as variables)
 - Classes: `class Foo { ... }` (registered as variables)

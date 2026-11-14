@@ -22,7 +22,14 @@ function fail(message, location = null, code = "NEKOC") {
   throw new CompileError(message, location, code);
 }
 
+const helperOrigins = new WeakMap();
+
 function nodeLocation(node) {
+  const origin = node && helperOrigins.get(node);
+  if (origin) {
+    const { line, character } = origin.file.getLineAndCharacterOfPosition(origin.offset);
+    return { file: origin.file.fileName, line: line + 1, column: character + 1 };
+  }
   const sourceFile = node?.getSourceFile?.();
   if (!sourceFile || typeof node.pos !== "number" || node.pos < 0) return null;
   const { line, character } = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile));
@@ -85,6 +92,7 @@ class WorkspaceCompiler {
     this.arrayVariables = new Set();
     // Call nodes of callback methods (a.map(x => ...)) -> helper function name.
     this.helperCalls = new Map();
+    this.helperSourceOrigins = new Map();
     this.helperCount = 0;
     // Variables initialised with a string; `+` on them joins text.
     this.stringVariables = new Set();
@@ -263,6 +271,7 @@ class WorkspaceCompiler {
       );
       rejectParseDiagnostics(moduleSourceFile);
       this.loadImports(moduleSourceFile, resolvedPath);
+      this.synthesizeHelpers(moduleSourceFile);
       exports = this.collectModuleExports(moduleSourceFile);
       this.moduleExports.set(resolvedPath, exports);
     }
@@ -607,7 +616,7 @@ class WorkspaceCompiler {
       "Math.atan2": "function __jsAtan2(__jsAtanY, __jsAtanX) { if (__jsAtanX > 0) return Math.atan(__jsAtanY / __jsAtanX); if (__jsAtanX < 0) { if (__jsAtanY < 0) return Math.atan(__jsAtanY / __jsAtanX) - Math.PI; return Math.atan(__jsAtanY / __jsAtanX) + Math.PI; } if (__jsAtanY > 0) return Math.PI / 2; if (__jsAtanY < 0) return -Math.PI / 2; return 0; }",
     };
     const globalNames = { "Math.sign": "__jsSign", "Math.cbrt": "__jsCbrt", "Math.log2": "__jsLog2", "Math.atan2": "__jsAtan2", "Number.isInteger": "__jsIsInteger" };
-    this.globalHelpers = new Map();
+    this.globalHelpers ??= new Map();
     const used = new Set();
     const visit = (node) => {
       if (ts.isCallExpression(node) && calleeName(node.expression) === "Array.from") {
@@ -635,6 +644,8 @@ class WorkspaceCompiler {
           }
         }
         const body = ts.isBlock(callback.body) ? callback.body.getText(sourceFile) : `{ return ${callback.body.getText(sourceFile)}; }`;
+        this.helperSourceOrigins.set(cb, { callback, call: node });
+        this.helperSourceOrigins.set(name, { call: node });
         parts.push(`function ${cb}(${params.join(",")}) ${body}
           function ${name}(__arrayFromLength${n}) { const __arrayFromOut${n} = []; let __arrayFromIndex${n} = 0;
             while (__arrayFromIndex${n} < Math.floor(Math.max(0, __arrayFromLength${n}))) {
@@ -651,6 +662,7 @@ class WorkspaceCompiler {
           if (length !== null && (!Number.isInteger(length) || length < 0)) this.unsupported(target, "Array length must be a finite nonnegative integer");
           const n = ++this.helperCount;
           const name = `__arrayFill${n}`;
+          this.helperSourceOrigins.set(name, { call: node });
           parts.push(`function ${name}(__arrayFillLength${n}, __arrayFillValue${n}) {
             const __arrayFillOut${n} = []; let __arrayFillIndex${n} = 0;
             while (__arrayFillIndex${n} < __arrayFillLength${n}) { __arrayFillOut${n}.push(__arrayFillValue${n}); __arrayFillIndex${n}++; }
@@ -690,6 +702,9 @@ class WorkspaceCompiler {
         const token = `__timerToken${n}`;
         const received = `__timerReceived${n}`;
         const body = ts.isBlock(callback.body) ? callback.body.getText(sourceFile) : `{ ${callback.body.getText(sourceFile)}; }`;
+        for (const helper of [`__timerCallback${n}`, name, worker]) {
+          this.helperSourceOrigins.set(helper, { call: node, ...(helper === `__timerCallback${n}` ? { callback } : {}) });
+        }
         parts.push(`function __timerCallback${n}() ${body}
         function ${name}(__timerMs${n}) {
           const ${token} = {active: true, delay: Math.max(0, __timerMs${n}) / 1000};
@@ -707,6 +722,7 @@ class WorkspaceCompiler {
           `onMessage(${JSON.stringify(message)}, ${JSON.stringify(received)}, () => { ${worker}(messageValue(${JSON.stringify(received)})); });`,
           ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
         this.generatedEvents.push(event.statements[0].expression);
+        this.mapHelperOrigin(event, { call: node });
         this.helperCalls.set(node, { name, timer: true });
       }
       if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression)) {
@@ -731,12 +747,31 @@ class WorkspaceCompiler {
         for (const name of METHOD_HELPERS[method]) need(name);
       }
     }
-    for (const name of needed) parts.push(SHARED_HELPERS[name].source);
+    for (const name of needed) {
+      if (!this.inlineFunctions.has(name)) parts.push(SHARED_HELPERS[name].source);
+    }
     if (!parts.length) return;
     const helperFile = ts.createSourceFile("__nekoc_helpers.ts", parts.join("\n"), ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
     for (const statement of helperFile.statements) {
+      const origin = this.helperSourceOrigins.get(statement.name?.text);
+      if (origin) this.mapHelperOrigin(statement, origin);
       this.registerInlineFunction(statement);
     }
+  }
+
+  mapHelperOrigin(statement, { callback, call }) {
+    const file = call.getSourceFile();
+    const copied = callback?.body.getText(file);
+    const helperFile = statement.getSourceFile();
+    const start = copied ? helperFile.text.indexOf(copied, statement.body.getStart(helperFile)) : -1;
+    const visit = node => {
+      const position = node.getStart(helperFile);
+      const offset = start >= 0 && position >= start && position < start + copied.length
+        ? callback.body.getStart(file) + position - start : call.getStart(file);
+      helperOrigins.set(node, { file, offset });
+      ts.forEachChild(node, visit);
+    };
+    visit(statement);
   }
 
   synthesizeCallbackHelper(call, method, callback, sourceFile) {
@@ -762,6 +797,8 @@ class WorkspaceCompiler {
     }
     const cb = `__cb${n}`;
     const name = `__${method}${n}`;
+    this.helperSourceOrigins.set(cb, { callback, call });
+    this.helperSourceOrigins.set(name, { call });
     const args = (...names) => names.slice(0, params.length).join(", ");
     const x = `__x${n}`;
     const i = `__i${n}`;
@@ -863,6 +900,9 @@ class WorkspaceCompiler {
         // Other expressions can replay side effects or depend on KN coercion.
         if (!isConstantDefault(args[i])) {
           this.unsupported(call, `Default parameter ${fn.params[i]} requires a literal or constant numeric expression (or earlier constant arguments); side-effecting defaults are not supported`);
+        }
+        if (ts.isStringLiteral(stripParens(args[i])) && this.functionProcedures.has(fn.name)) {
+          this.unsupported(call, `String default parameter ${fn.params[i]} requires an inline function; string defaults in custom procedures are not supported`);
         }
       } else if (fn.optional?.[i]) {
         // This TS lowering has no general undefined-value representation.
@@ -1028,6 +1068,7 @@ class WorkspaceCompiler {
     this.currentScreen = screen;
     try {
       body.forEach((statement) => {
+        if (this.isTypeOnlyStatement(statement)) return;
         if (ts.isExpressionStatement(statement) && ts.isCallExpression(statement.expression)) {
           const callName = calleeName(statement.expression.expression);
           if (callName === "sprite") {
@@ -1082,6 +1123,7 @@ class WorkspaceCompiler {
 
     try {
       statements.forEach((statement) => {
+        if (this.isTypeOnlyStatement(statement)) return;
         if (ts.isExpressionStatement(statement) && ts.isCallExpression(statement.expression)) {
           this.compileTopLevelCall(statement.expression);
           return;
@@ -4043,15 +4085,19 @@ class WorkspaceCompiler {
     if (visited.has(expression)) return false;
     visited.add(expression);
     let found = false;
-    const visit = node => {
+    const visit = (node, parent) => {
       if (found || ts.isTypeNode(node)) return;
-      if (ts.isIdentifier(node)) {
+      if (ts.isIdentifier(node) && isRuntimeReference(node, parent)) {
         const bound = this.lookupExpressionBinding(node.text);
         found = names.has(node.text) || Boolean(bound && this.inlineArgumentCaptures(bound, names, visited));
-      } else ts.forEachChild(node, visit);
+      } else ts.forEachChild(node, child => visit(child, node));
     };
     visit(expression);
     return found;
+  }
+
+  isBoundStringExpression(node) {
+    return isStringExpression(node, name => this.lookupExpressionBinding(name));
   }
 
   lookupRangeBinding(name) {
@@ -4187,7 +4233,7 @@ class WorkspaceCompiler {
 
   compilePropertyAccessExpression(expression, parentId) {
     const propertyName = expression.name.text;
-    if (propertyName === "length" && (this.isArrayExpression(expression.expression) || isStringExpression(expression.expression))) {
+    if (propertyName === "length" && (this.isArrayExpression(expression.expression) || this.isBoundStringExpression(expression.expression))) {
       return this.compileLength(expression.expression, parentId);
     }
     if (ts.isIdentifier(expression.expression) && expression.expression.text === "Math") {
@@ -4266,7 +4312,7 @@ class WorkspaceCompiler {
   }
 
   compileElementAccessExpression(expression, parentId) {
-    if (!this.isArrayExpression(expression.expression) && !isStringExpression(expression.expression)) {
+    if (!this.isArrayExpression(expression.expression) && !this.isBoundStringExpression(expression.expression)) {
       return this.compileObjectAccess(expression, parentId);
     }
     if (ts.isIdentifier(expression.expression) && ts.isStringLiteral(expression.argumentExpression)) {
@@ -4282,7 +4328,7 @@ class WorkspaceCompiler {
     }
     // s[i] is a character; anything else is read as a list (a[i] -> item i + 1).
     const target = expression.expression;
-    if (isStringExpression(target)) {
+    if (this.isBoundStringExpression(target)) {
       const id = this.addBlock({
         type: "text_select",
         parent_id: parentId,
@@ -4679,8 +4725,8 @@ class WorkspaceCompiler {
     const operator = expression.operatorToken.kind;
     // `+` joins text when either side is statically a string; chains like
     // "a" + x + "b" flatten into one join.
-    if (operator === ts.SyntaxKind.PlusToken && (isStringExpression(expression.left) || isStringExpression(expression.right))) {
-      return this.compileTextJoin(flattenStringConcat(expression).map((part) => (
+    if (operator === ts.SyntaxKind.PlusToken && this.isBoundStringExpression(expression)) {
+      return this.compileTextJoin(flattenStringConcat(expression, name => this.lookupExpressionBinding(name)).map((part) => (
         ts.isStringLiteral(part) || ts.isNoSubstitutionTemplateLiteral(part) ? { text: part.text } : { expression: part }
       )), parentId);
     }
@@ -5088,9 +5134,15 @@ let STRING_VARIABLES = new Set();
 const STRING_METHODS = new Set(["replace", "replaceAll", "trim", "trimStart", "trimEnd", "toUpperCase", "toLowerCase",
   "padStart", "padEnd", "repeat", "charAt", "substring", "join"]);
 
-function isStringExpression(node) {
+function isStringExpression(node, resolve, visited = new Set()) {
   node = stripParens(node);
   if (!node) return false;
+  if (visited.has(node)) return false;
+  visited.add(node);
+  if (ts.isIdentifier(node) && resolve) {
+    const bound = resolve(node.text);
+    if (bound) return isStringExpression(bound, resolve, visited);
+  }
   if (ts.isIdentifier(node) && STRING_VARIABLES.has(node.text)) return true;
   if (ts.isAsExpression(node) && isStringType(node.type)) return true;
   if (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node) || ts.isTemplateExpression(node)) return true;
@@ -5099,16 +5151,16 @@ function isStringExpression(node) {
   if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression)
     && STRING_METHODS.has(node.expression.name.text)) return true;
   if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.PlusToken) {
-    return isStringExpression(node.left) || isStringExpression(node.right);
+    return isStringExpression(node.left, resolve, visited) || isStringExpression(node.right, resolve, visited);
   }
   return false;
 }
 
-function flattenStringConcat(node) {
+function flattenStringConcat(node, resolve) {
   const inner = stripParens(node);
   if (ts.isBinaryExpression(inner) && inner.operatorToken.kind === ts.SyntaxKind.PlusToken
-    && isStringExpression(inner)) {
-    return [...flattenStringConcat(inner.left), ...flattenStringConcat(inner.right)];
+    && isStringExpression(inner, resolve)) {
+    return [...flattenStringConcat(inner.left, resolve), ...flattenStringConcat(inner.right, resolve)];
   }
   return [node];
 }
@@ -5576,14 +5628,24 @@ export function compileErrorDiagnostics(error, file) {
 
 function runtimeContainsIdentifier(expression, name) {
   let found = false;
-  function visit(node) {
+  function visit(node, parent) {
     if (found || ts.isTypeNode(node) || ts.isInterfaceDeclaration(node) || ts.isTypeAliasDeclaration(node)
       || node.modifiers?.some(modifier => modifier.kind === ts.SyntaxKind.DeclareKeyword)) return;
-    if (ts.isIdentifier(node) && node.text === name) found = true;
-    else ts.forEachChild(node, visit);
+    if (ts.isIdentifier(node) && node.text === name && isRuntimeReference(node, parent)) found = true;
+    else ts.forEachChild(node, child => visit(child, node));
   }
   visit(expression);
   return found;
+}
+
+function isRuntimeReference(node, parent) {
+  if (!parent) return true;
+  if (ts.isPropertyAccessExpression(parent) && parent.name === node) return false;
+  if ((ts.isPropertyAssignment(parent) || ts.isMethodDeclaration(parent)
+    || ts.isPropertyDeclaration(parent) || ts.isPropertySignature(parent)) && parent.name === node) return false;
+  if ((ts.isVariableDeclaration(parent) || ts.isParameter(parent) || ts.isFunctionDeclaration(parent))
+    && parent.name === node) return false;
+  return true;
 }
 
 function isConstantDefault(node) {

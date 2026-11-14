@@ -125,3 +125,38 @@ test("erased types do not observe optional parameter values", () => {
     onStart(() => { console.log(f()); });`);
   assert.ok(numbers(report).includes(1));
 });
+
+test("resource callbacks erase type declarations before checking runtime statements", () => {
+  const types = `interface I { x: number }; type N = number; declare const unused: number;
+    namespace Types { export type T = number; }`;
+  const report = compile(`screen("main", {}, () => { ${types}
+    sprite("s", {}, () => { ${types} onStart(() => { console.log(1); }); });
+  });`);
+  assert.equal(report.resources.screens[0].sprites[0].summary.scripts, 1);
+  for (const wrapper of [body => `sprite("s", {}, () => { ${body} });`,
+    body => `screen("main", {}, () => { ${body} });`]) {
+    assert.throws(() => compile(wrapper("namespace Values { export const x = 1; }")), /Namespaces containing runtime values/);
+  }
+});
+
+test("property names are not lexical reads but shorthand and computed keys remain reads", () => {
+  assert.doesNotThrow(() => compile(`let obj = {x: 2}; function f(x: number) { return x + 1; }
+    onStart(() => { console.log(f(obj.x)); });`));
+  assert.doesNotThrow(() => compile(`function f(x: {x: number}) { return x.x; }
+    onStart(() => { console.log(f({x: 2})); });`));
+  assert.doesNotThrow(() => compile(`function f(b?: number) { return ({b: 1}).b; }
+    onStart(() => { console.log(f()); });`));
+  for (const expression of ["({b})", "({x: 1})[b]"]) {
+    assert.throws(() => compile(`function f(b?: number) { return ${expression}; }
+      onStart(() => { console.log(f()); });`), /Omitted optional parameter b/);
+  }
+  for (const expression of ["({x})", "obj[x]"]) {
+    assert.throws(() => compile(`let x = 1; let obj = {a: 2}; function f(x: any) { return x; }
+      onStart(() => { console.log(f(${expression})); });`), /Inline parameter binding cycle or capture/);
+  }
+});
+
+test("custom procedure string defaults reject when binding types cannot be specialized", () => {
+  assert.throws(() => compile(`function f(a = "abc") { if (a.length > 0) return a.length; return 0; }
+    onStart(() => { console.log(f(undefined)); });`), /String default parameter a requires an inline function/);
+});

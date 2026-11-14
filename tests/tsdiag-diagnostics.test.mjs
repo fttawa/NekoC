@@ -16,6 +16,8 @@ const cases = [
   { name: "syntax", source: "// heading\nonStart(() => {\n  let value = ;\n});\n", line: 3, column: 15 },
   { name: "import", source: '// heading\n  import { absent } from "./missing";\n', line: 2, column: 3 },
   { name: "missing-argument", source: '// heading\n  onStart();\n', line: 2, column: 3 },
+  { name: "map-callback", source: '// comment\nonStart(() => {\n const a = [1];\n a.map(x => missingApi(x));\n});\n', line: 4, column: 13 },
+  { name: "timer-callback", source: '// comment\nonStart(() => {\n setTimeout(() => {\n  missingApi();\n }, 10);\n});\n', line: 4, column: 3 },
 ];
 
 function withFiles(files, run) {
@@ -58,7 +60,8 @@ for (const fixture of cases) {
 test("imported files retain their own source locations for compat, parse and resolution errors", () => {
   const imported = [
     { source: "// heading\nexport function helper() {\n  missingApi();\n}\n", line: 3, column: 3 },
-    cases[1], cases[2],
+    cases[1], cases[2], ...cases.slice(4).map(fixture => ({ ...fixture,
+      source: fixture.source.replace("onStart(() => {", "export function helper() {").replace(/\}\);\n$/, "}\n") })),
   ];
   for (const fixture of imported) {
     withFiles({ "main.ts": 'import { helper } from "./lib";\nonStart(() => { helper(); });\n', "lib.ts": fixture.source }, dir => {
@@ -76,6 +79,13 @@ test("all parse errors remain separate structured diagnostics without embedded f
       ["syntax", "TS1109", 1, 9, "Expression expected."],
       ["syntax", "TS1109", 2, 9, "Expression expected."],
     ]);
+  });
+});
+
+test("helper synthesis in imported and entry files shares helper definitions", () => {
+  withFiles({ "main.ts": 'import { helper } from "./lib"; onStart(() => { console.log(helper() + Math.sign(2)); console.log([1].reverse()); });',
+    "lib.ts": 'export function helper() { console.log([2].reverse()); return Math.sign(1); }' }, dir => {
+    assert.doesNotThrow(() => compileFile(path.join(dir, "main.ts")));
   });
 });
 

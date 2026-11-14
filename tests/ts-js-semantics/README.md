@@ -18,9 +18,10 @@ third-party project.
   baseline mapping and explained in `known-diff.md`.
 
 The declaration fixes made after that baseline are represented separately in
-`runtime-extra.mjs` (13 cases). They cover omitted/undefined/zero defaults,
+`runtime-extra.mjs` (20 cases). They cover omitted/undefined/zero defaults,
 chained defaults referring to earlier parameters, recursive defaults, local
-type/interface/declare declarations, type-only namespaces, and overloads.
+type/interface/declare declarations, type-only namespaces, overloads, string
+default operations, and property names that are not lexical variable reads.
 
 ## Runner
 
