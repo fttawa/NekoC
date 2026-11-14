@@ -44,7 +44,7 @@ test("tsstr imported string returns use the same bound ASTs", () => {
   assert.ok(blocks.some(b => b.type === "text_join"));
 });
 
-test("tsstr any and unresolved unions fail explicitly; narrowing and conversions work", () => {
+test("tsstr any and declared mixed unions fail explicitly; conversions work", () => {
   for (const body of [
     'let a: any = 1; setVar("out", a + 2);',
     'let a: any = ""; a += 1;',
@@ -54,7 +54,33 @@ test("tsstr any and unresolved unions fail explicitly; narrowing and conversions
   assert.throws(() => compile('function f(x: string | number) { return x + 1; } onStart(() => { setVar("out", f(1)); });'), /Cannot determine JavaScript/);
   assert.throws(() => compile('function f(x: any) { return x + x; } onStart(() => { setVar("out", f(1)); });'), /Cannot determine JavaScript/);
   assert.doesNotThrow(() => compile('onStart(() => { let a: any = 1; setVar("out", String(a) + 2); let n = 1; setVar("n", Number(n) + 2); });'));
-  assert.doesNotThrow(() => compile('onStart(() => { let a: string | number = "x"; setVar("out", a + 2); });'));
+  assert.throws(() => compile('onStart(() => { let a: string | number = "x"; setVar("out", a + 2); });'), /Cannot determine JavaScript/);
+});
+
+test("tsstr callback and alias writes cannot invalidate a mixed-union addition decision", () => {
+  for (const operator of ["+", "+="]) {
+    for (const body of [
+      `let x: string | number = 0; x = "1"; [1].forEach(() => { x = 1; }); ${operator === "+" ? 'setVar("out", (x) + 2)' : 'x += 2' };`,
+      `const o: {x: string | number} = {x: 0}; o.x = "1"; const alias = o; alias.x = 1; ${operator === "+" ? 'setVar("out", o.x + 2)' : 'o.x += 2'};`,
+      `const o: {x: string | number} = {x: 0}; o["x"] = "1"; const alias = o; alias.x = 1; ${operator === "+" ? 'setVar("out", o["x"] + 2)' : 'o["x"] += 2'};`,
+    ]) assert.throws(() => compile(`onStart(() => { ${body} });`), /Cannot determine JavaScript/);
+  }
+});
+
+test("tsstr Number.isInteger keeps non-numeric argument evaluation exactly once", () => {
+  for (const returnType of ["string", "boolean"]) {
+    const report = compile(`let called = 0; function f(): ${returnType} { called += 1; return ${returnType === "string" ? '"x"' : 'true'}; }
+      onStart(() => { setVar("result", Number.isInteger(f())); setVar("out", called); });`);
+    const all = Object.values(report.workspaceData.blocks);
+    assert.equal(all.filter(b => b.type === "procedures_2_callreturn" && b.fields.NAME === "kn-proc-fn-f").length, 1);
+  }
+  assert.throws(() => compile('onStart(() => { const o = { get value() { return "x"; } }; setVar("out", Number.isInteger(o.value)); });'), /Object methods, accessors and spread are not supported/);
+});
+
+test("tsstr negative-zero numeric parsing/conversion results fail explicitly", () => {
+  for (const value of ['parseInt("-0px")', 'parseInt("-0")', 'parseFloat("-0")', 'Number("-0")', '+"-0"', 'parseInt("-0.9")', 'parseFloat("-1e-9999")']) {
+    assert.throws(() => compile(`onStart(() => { setVar("out", "" + 1 / ${value}); });`), /Negative zero from numeric conversion\/parsing/);
+  }
 });
 
 test("tsstr concatenation preserves numeric grouping and nested string grouping", () => {

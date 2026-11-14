@@ -129,6 +129,9 @@ fn typed_callbacks_and_property_addition_match_in_engine() {
         &input,
         r#"
 function g(): string { return "a"; }
+let called = 0;
+function effectfulString(): string { called += 1; return "x"; }
+function effectfulBoolean(): boolean { called += 1; return true; }
 onStart(() => {
     const strings: string[] = ["x", "y"];
     setVar("out_map", strings.map(x => { return x + x; }).join(""));
@@ -144,6 +147,9 @@ onStart(() => {
     counter.s++;
     setVar("out_increment", counter.s);
     setVar("out_unary", Number(+"42") === 42);
+    setVar("integer_string", Number.isInteger(effectfulString()));
+    setVar("integer_boolean", Number.isInteger(effectfulBoolean()));
+    setVar("integer_calls", called);
 });
 "#,
     )
@@ -168,6 +174,9 @@ onStart(() => {
         ("out_property", "101"),
         ("out_increment", "11"),
         ("out_unary", "true"),
+        ("integer_string", "false"),
+        ("integer_boolean", "false"),
+        ("integer_calls", "2"),
     ] {
         assert_eq!(
             vm.variable_text(&format!("kn-var-{name}")),

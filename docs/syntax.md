@@ -45,6 +45,10 @@ string operand selects concatenation. Without one, `any`, mixed unions and
 non-primitive operands are rejected: use `String(value)` for concatenation,
 or supply an accurate numeric type for arithmetic. Type assertions describe values; they
 do not perform conversions.
+Variable/property reads use their declared types, not control-flow narrowing:
+TypeScript does not track all callback or alias writes. A declared mixed union
+such as `string | number` is therefore rejected for ambiguous addition even
+after an assignment or a type guard; use `String(value)` to request concatenation.
 Object property `++` / `--` requires a statically numeric property; string and
 `any` properties are rejected because native addition can concatenate strings.
 
@@ -60,6 +64,11 @@ operands only.
 Dynamic string/`any` conversion is rejected because the native KN conversion
 block preserves some invalid strings instead of returning JS `NaN`.
 `String(value)` uses the native string conversion block.
+Literal conversions/parsing whose result is negative zero are rejected, including
+`parseInt("-0px")`, `parseFloat("-0")`, `Number("-0")` and `+"-0"`.
+The official player does not preserve the sign of emitted negative-zero number
+blocks. Native `-0` literals and dynamic negation still have this underlying
+known limitation; this is not a promise of full signed-zero JS semantics.
 
 Loose equality between statically known string/number/boolean operands of
 different types inserts numeric conversions, whereas `===` / `!==` retain

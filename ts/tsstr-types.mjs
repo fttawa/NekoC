@@ -109,11 +109,30 @@ export function createExpressionTypes(files, declarations = "", path = portableP
     if (type.flags & ts.TypeFlags.BooleanLike) return "boolean";
     return "unknown";
   };
+  const declaredReadType = node => {
+    if (ts.isParenthesizedExpression(node) || ts.isNonNullExpression(node)) return declaredReadType(node.expression);
+    let symbol;
+    if (ts.isIdentifier(node) || ts.isPropertyAccessExpression(node)) {
+      symbol = checker.getSymbolAtLocation(ts.isPropertyAccessExpression(node) ? node.name : node);
+    } else if (ts.isElementAccessExpression(node)) {
+      const target = checker.getTypeAtLocation(node.expression);
+      const key = node.argumentExpression;
+      if (ts.isStringLiteral(key) || ts.isNumericLiteral(key)) symbol = checker.getPropertyOfType(target, key.text);
+      if (!symbol) {
+        const index = checker.getTypeAtLocation(key);
+        return checker.getIndexTypeOfType(target, index.flags & ts.TypeFlags.NumberLike ? ts.IndexKind.Number : ts.IndexKind.String);
+      }
+    }
+    const declaration = symbol?.valueDeclaration ?? symbol?.declarations?.[0];
+    return declaration ? checker.getTypeOfSymbolAtLocation(symbol, declaration) : null;
+  };
   return node => {
     // Factory nodes and generated helpers have no bound symbols. Their existing
     // lowering rules remain in charge; do not ask TS to bind synthetic nodes.
     const file = node?.getSourceFile?.();
     if (!file || !files.has(path.resolve(file.fileName)) || node.pos < 0) return null;
-    return classify(checker.getTypeAtLocation(node));
+    // TS flow narrowing does not track callback/alias writes. A read of a
+    // declared mixed union must not become a promise of string concatenation.
+    return classify(declaredReadType(node) ?? checker.getTypeAtLocation(node));
   };
 }

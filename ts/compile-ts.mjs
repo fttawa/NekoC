@@ -3398,8 +3398,16 @@ class WorkspaceCompiler {
     if (this.globalHelpers?.has(name)) {
       const arity = name === "Math.atan2" ? 2 : 1;
       if (call.arguments.length !== arity) this.unsupported(call, `${name} expects ${arity} argument(s)`);
-      if (name === "Number.isInteger" && (this.isStringExpression(call.arguments[0]) || [ts.SyntaxKind.TrueKeyword, ts.SyntaxKind.FalseKeyword].includes(call.arguments[0].kind))) {
-        return this.compileExpression(ts.factory.createFalse(), parentId);
+      if (name === "Number.isInteger") {
+        const argument = call.arguments[0];
+        const kind = this.expressionType?.(argument);
+        if (this.isStringExpression(argument) || kind === "boolean"
+          || [ts.SyntaxKind.TrueKeyword, ts.SyntaxKind.FalseKeyword].includes(argument.kind)) {
+          // Native EQ is non-coercing: a string/boolean cannot equal numeric
+          // zero. Unlike folding to false, this evaluates the argument once.
+          return this.compileNativeBinaryExpression(ts.factory.createBinaryExpression(argument,
+            ts.SyntaxKind.EqualsEqualsEqualsToken, ts.factory.createNumericLiteral(0)), parentId);
+        }
       }
       return this.compileExpressionCall(ts.factory.createCallExpression(ts.factory.createIdentifier(this.globalHelpers.get(name)), undefined,
         call.arguments), parentId);
@@ -3421,7 +3429,7 @@ class WorkspaceCompiler {
       const folded = evaluateStaticNumericCall(call);
       if (folded) {
         if (Object.is(folded.value, -0)) {
-          return this.compileExpression(ts.factory.createPrefixUnaryExpression(ts.SyntaxKind.MinusToken, ts.factory.createNumericLiteral(0)), parentId);
+          this.unsupported(call, "Negative zero from numeric conversion/parsing is not supported by the official Kitten N player");
         }
         return this.addBlock({ type: "math_number", parent_id: parentId, fields: { NUM: String(folded.value) }, is_output: true });
       }
@@ -4633,7 +4641,7 @@ class WorkspaceCompiler {
     const folded = evaluateStaticNumericCall(ts.factory.createCallExpression(ts.factory.createIdentifier("Number"), undefined, [node]));
     if (folded) {
       if (Object.is(folded.value, -0)) {
-        return this.compileExpression(ts.factory.createPrefixUnaryExpression(ts.SyntaxKind.MinusToken, ts.factory.createNumericLiteral(0)), parentId);
+        this.unsupported(node, "Negative zero from numeric conversion/parsing is not supported by the official Kitten N player");
       }
       return this.addBlock({ type: "math_number", parent_id: parentId, fields: { NUM: String(folded.value) }, is_output: true });
     }
