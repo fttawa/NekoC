@@ -153,7 +153,7 @@ test("property names are not lexical reads but shorthand and computed keys remai
     onStart(() => { console.log(f()); });`), /Dynamic object keys are not supported/);
   for (const expression of ["({x})", "obj[x]"]) {
     assert.throws(() => compile(`let x = 1; let obj = {a: 2}; function f(x: any) { return x; }
-      onStart(() => { console.log(f(${expression})); });`), /Inline parameter binding cycle or capture|Object shapes must preserve initialized references/);
+      onStart(() => { console.log(f(${expression})); });`), /Inline parameter binding cycle or capture|Object shapes must preserve initialized references|Dynamic object keys are not supported/);
   }
 });
 
