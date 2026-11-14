@@ -700,7 +700,8 @@ fn inject_sprite_resources(project: &mut Value, sprites: Vec<CompiledSprite>) ->
             "position": {"x": sprite.x, "y": sprite.y},
             "scale": sprite.scale,
             "locked": false,
-            "rotation": sprite.rotation,
+            // The editor stores radians; the stage DSL takes degrees like the direction blocks.
+            "rotation": sprite.rotation.to_radians(),
             "nekoBlockJsonList": sprite.blocks,
             "visible": sprite.visible,
             "workspaceScrollXy": {"x": 0, "y": 30},
