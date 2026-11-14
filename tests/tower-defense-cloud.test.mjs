@@ -75,7 +75,8 @@ test('standalone DSL emits bounded native procedures and no network or cloud opc
     const output=path.join(temp,'workspace.json');
     execFileSync(process.execPath,[path.join(root,'ts/compile-ts.mjs'),modulePath,output],{cwd:root});
     const workspace=JSON.parse(fs.readFileSync(output,'utf8'));
-    assert.equal(workspace.summary.procedures,definitions.length);
+    assert.equal(workspace.procedures.filter(p=>!p.id.startsWith('kn-proc-choice-')).length,definitions.length);
+    assert.ok(workspace.summary.procedures<200,'lazy expression helpers remain bounded');
     assert.equal(workspace.summary.scripts,0,'parent owns all controller/event wiring');
     const blocks=workspace.procedures.flatMap(p=>Object.values(p.workspaceData.blocks));
     assert.ok(blocks.length>100&&blocks.length<6000,`unexpected expansion: ${blocks.length}`);

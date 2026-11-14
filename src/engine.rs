@@ -8,6 +8,7 @@ mod calculate;
 mod cloud;
 pub mod cloud_ui;
 mod collision_geometry;
+mod error_location;
 mod extensions;
 mod input;
 mod interp_exec_cold;
@@ -6525,6 +6526,7 @@ impl Engine {
             return Cell::Null;
         }
         if self.reporter_depth >= 200 {
+            // Native host-stack safety guard, not a verified official KN limit.
             self.value_error = Some("reporter procedure recursion exceeds 200".into());
             return Cell::Null;
         }
@@ -10042,7 +10044,7 @@ impl Engine {
         }
         if self.value_error.is_some() {
             let error = self.value_error.take().unwrap_or_default();
-            bail!("{error} at block {}", self.program.sources[pc]);
+            bail!(error_location::at_block(&error, &self.program.sources[pc]));
         }
         // Nonfinite arithmetic is not a VM error. Input guards above implement
         // the official setters; finite arithmetic can still overflow naturally.
