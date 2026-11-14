@@ -111,6 +111,25 @@ class WorkspaceCompiler {
       ts.forEachChild(node, collectArrays);
     };
     collectArrays(sourceFile);
+    // Helpers are compiled before event bodies: preserve captured string types
+    // (including aliases) before lowering their + expressions.
+    for (let pass = 0; pass < this.arrayDeclarations.size; pass++) {
+      for (const [name, declaration] of this.callbackCaptures) {
+        const kind = this.arrayScalarKind(declaration.initializer);
+        let changed = false;
+        const scan = node => {
+          if (ts.isBinaryExpression(node) && ts.isIdentifier(stripParens(node.left))
+            && stripParens(node.left).text === name && assignmentOperatorSpec(node.operatorToken.kind)
+            || this.isUpdateExpression(node) && ts.isIdentifier(node.operand) && node.operand.text === name) changed = true;
+          ts.forEachChild(node, scan);
+        };
+        scan(sourceFile);
+        if (changed && kind === "string") {
+          this.unsupported(declaration, "Captured scalar type must remain statically stable");
+        }
+        if (kind === "string") this.stringVariables.add(name);
+      }
+    }
 
     const startup = [];
     const explicitStarts = [];
@@ -135,6 +154,17 @@ class WorkspaceCompiler {
       }
     });
     this.planFunctionProcedures();
+    const validateWrites = node => {
+      if (ts.isBinaryExpression(node) && ts.isElementAccessExpression(node.left)
+        && assignmentOperatorSpec(node.operatorToken.kind) && this.isArrayExpression(node.left.expression)) this.checkArrayWrite(node);
+      if (this.isUpdateExpression(node) && ts.isElementAccessExpression(node.operand)
+        && this.isArrayExpression(node.operand.expression)) {
+        this.checkArrayWrite({ left: node.operand, pos: node.pos, end: node.end, getSourceFile: () => this.sourceFile });
+        if (this.arrayElementKind(node.operand.expression) !== "number") this.unsupported(node, "Array ++/-- requires known numeric elements");
+      }
+      ts.forEachChild(node, validateWrites);
+    };
+    validateWrites(sourceFile);
     for (const entry of this.functionProcedures.values()) {
       this.compileFunctionProcedure(entry);
     }
@@ -496,6 +526,11 @@ class WorkspaceCompiler {
   // Parameters are per call (procedure parameters); locals declared with
   // let/const are ordinary variables shared by every call.
   compileFunctionProcedure({ fn, spec, returnsValue }) {
+    const savedStrings = new Set(this.stringVariables);
+    for (const param of fn.params) this.stringVariables.delete(param);
+    visitFunctionBody(fn.body, node => {
+      if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name)) this.stringVariables.delete(node.name.text);
+    });
     const saved = [this.blocks, this.connections, this.expressionBindings, this.inlineCallStack,
       this.rangeBindings, this.loopDepth, this.functionParams, this.tryStack, this.currentProcedureParams];
     this.tryStack = [];
@@ -547,6 +582,8 @@ class WorkspaceCompiler {
         workspaceData: { blocks: this.blocks, connections: this.connections, comments: {} },
       });
     } finally {
+      this.stringVariables.clear();
+      for (const name of savedStrings) this.stringVariables.add(name);
       [this.blocks, this.connections, this.expressionBindings, this.inlineCallStack,
         this.rangeBindings, this.loopDepth, this.functionParams, this.tryStack, this.currentProcedureParams] = saved;
     }
@@ -716,7 +753,7 @@ class WorkspaceCompiler {
         if (!ts.isVariableStatement(statement)) continue;
         for (const declaration of statement.declarationList.declarations) {
           if (ts.isIdentifier(declaration.name) && !params.includes(declaration.name.text)
-            && expressionContainsIdentifier(callback.body, declaration.name.text)) {
+            && callbackReferencesName(callback, declaration.name.text)) {
             for (let owner = declaration.parent; owner; owner = owner.parent) {
               if (ts.isFunctionDeclaration(owner) || ts.isArrowFunction(owner) && ts.isVariableDeclaration(owner.parent)) {
                 this.unsupported(callback, "Callbacks cannot capture locals of an inline function; use an event-local or top-level variable");
@@ -732,7 +769,7 @@ class WorkspaceCompiler {
     for (let outer = call.parent; outer; outer = outer.parent) {
       if (ts.isFunctionLike(outer) && outer !== callback) {
         for (const param of outer.parameters ?? []) {
-          if (ts.isIdentifier(param.name) && expressionContainsIdentifier(callback.body, param.name.text)
+          if (ts.isIdentifier(param.name) && callbackReferencesName(callback, param.name.text)
             && !params.includes(param.name.text)) {
             this.unsupported(callback, `Callbacks cannot use the parameter ${param.name.text} of an enclosing function; copy it into a variable first`);
           }
@@ -1966,6 +2003,7 @@ class WorkspaceCompiler {
       this.unsupported(expression.left.name, `Unsupported self property assignment: ${propertyName}`);
     }
     if (ts.isElementAccessExpression(expression.left) && this.isArrayExpression(expression.left.expression)) {
+      this.checkArrayWrite(expression);
       if (expression.operatorToken.kind !== ts.SyntaxKind.EqualsToken) return this.compileArrayCompoundAssignment(expression, parentId);
       // a[i] = v -> replace item i + 1
       const id = this.addBlock({ type: "replace_list_item", parent_id: parentId, fields: { item: "any" } });
@@ -2015,6 +2053,224 @@ class WorkspaceCompiler {
     );
   }
 
+  arrayLiteralFor(node, seen = new Set()) {
+    node = stripParens(node);
+    if (!node || seen.has(node)) return null;
+    seen.add(node);
+    if (ts.isArrayLiteralExpression(node)) return node;
+    if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression)
+      && ["reverse", "sort"].includes(node.expression.name.text)) return this.arrayLiteralFor(node.expression.expression, seen);
+    if (!ts.isIdentifier(node)) return null;
+    return this.arrayLiteralFor(this.lookupExpressionBinding(node.text)
+      ?? this.arrayDeclarations.get(node.text)?.initializer, seen);
+  }
+
+  arrayElementKind(node) {
+    const literal = this.arrayLiteralFor(node);
+    if (!literal || !literal.elements.length) return null;
+    let kind = null;
+    if (literal.elements.every(element => this.arrayScalarKind(element) === "string")) kind = "string";
+    if (literal.elements.every(element => this.arrayScalarKind(element) === "number")) kind = "number";
+    if (!kind) return null;
+    const scan = child => {
+      if (ts.isIdentifier(child) && this.arrayLiteralFor(child) === literal) {
+        let ref = child, parent = child.parent;
+        while (parent && stripParens(parent) === stripParens(ref)) { ref = parent; parent = parent.parent; }
+        if (parent && (ts.isCallExpression(parent) && parent.arguments.includes(ref)
+          || ts.isReturnStatement(parent) || ts.isArrayLiteralExpression(parent)
+          || ts.isPropertyAssignment(parent) && parent.initializer === ref)) kind = null;
+      }
+      if (ts.isCallExpression(child) && ts.isPropertyAccessExpression(child.expression)
+        && this.arrayLiteralFor(child.expression.expression) === literal
+        && ["push", "unshift", "splice"].includes(child.expression.name.text)) kind = null;
+      if (ts.isBinaryExpression(child) && ts.isElementAccessExpression(child.left)
+        && this.arrayLiteralFor(child.left.expression) === literal && assignmentOperatorSpec(child.operatorToken.kind)) {
+        if (child.operatorToken.kind === ts.SyntaxKind.EqualsToken && this.arrayScalarKind(child.right) !== kind
+          || child.operatorToken.kind === ts.SyntaxKind.PlusEqualsToken && kind === "number"
+            && this.arrayScalarKind(child.right) !== "number"
+          || ![ts.SyntaxKind.EqualsToken, ts.SyntaxKind.PlusEqualsToken].includes(child.operatorToken.kind) && kind === "string") kind = null;
+      }
+      ts.forEachChild(child, scan);
+    };
+    scan(this.sourceFile);
+    return kind;
+  }
+
+  arrayScalarKind(node, seen = new Set()) {
+    node = stripParens(node);
+    if (!node || seen.has(node)) return null;
+    seen.add(node);
+    if (ts.isIdentifier(node)) {
+      const bound = this.lookupExpressionBinding(node.text);
+      if (bound) return this.arrayScalarKind(bound, seen);
+      const declaration = this.arrayDeclarations.get(node.text);
+      let changed = false;
+      const scan = child => {
+        if (ts.isBinaryExpression(child) && ts.isIdentifier(stripParens(child.left))
+          && stripParens(child.left).text === node.text && assignmentOperatorSpec(child.operatorToken.kind)
+          || this.isUpdateExpression(child) && ts.isIdentifier(child.operand) && child.operand.text === node.text) changed = true;
+        ts.forEachChild(child, scan);
+      };
+      scan(this.sourceFile);
+      if (changed) return null;
+      return declaration?.type?.kind === ts.SyntaxKind.NumberKeyword ? "number"
+        : declaration?.type?.kind === ts.SyntaxKind.StringKeyword ? "string"
+          : this.arrayScalarKind(declaration?.initializer, seen);
+    }
+    if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.PlusToken) {
+      const left = this.arrayScalarKind(node.left, new Set(seen));
+      const right = this.arrayScalarKind(node.right, new Set(seen));
+      if (left === "string" || right === "string") return "string";
+    } else if (isStringExpression(node)) return "string";
+    if (constantNumber(node) !== null) return "number";
+    if (ts.isBinaryExpression(node) && [ts.SyntaxKind.PlusToken, ts.SyntaxKind.MinusToken,
+      ts.SyntaxKind.AsteriskToken, ts.SyntaxKind.SlashToken, ts.SyntaxKind.PercentToken,
+      ts.SyntaxKind.AsteriskAsteriskToken].includes(node.operatorToken.kind)
+      && this.arrayScalarKind(node.left, new Set(seen)) === "number"
+      && this.arrayScalarKind(node.right, new Set(seen)) === "number") return "number";
+    return null;
+  }
+
+  arrayLengthChanged(target) {
+    const literal = this.arrayLiteralFor(target);
+    if (!literal) return true;
+    let changed = false;
+    const scan = node => {
+      if (ts.isIdentifier(node) && this.arrayLiteralFor(node) === literal) {
+        let ref = node, parent = node.parent;
+        while (parent && stripParens(parent) === stripParens(ref)) { ref = parent; parent = parent.parent; }
+        if (parent && (ts.isCallExpression(parent) && parent.arguments.includes(ref)
+          || ts.isReturnStatement(parent) || ts.isArrayLiteralExpression(parent)
+          || ts.isPropertyAssignment(parent) && parent.initializer === ref
+          || ts.isBinaryExpression(parent) && parent.left === ref && assignmentOperatorSpec(parent.operatorToken.kind))) changed = true;
+        if (parent && ts.isPropertyAccessExpression(parent) && parent.expression === ref) {
+          const use = parent.parent;
+          if (ts.isCallExpression(use) && use.expression === parent
+            && ["push", "pop", "shift", "unshift", "splice"].includes(parent.name.text)
+            || parent.name.text === "length" && (ts.isBinaryExpression(use) && use.left === parent
+              && assignmentOperatorSpec(use.operatorToken.kind) || this.isUpdateExpression(use))) changed = true;
+        }
+      }
+      ts.forEachChild(node, scan);
+    };
+    scan(this.sourceFile);
+    return changed;
+  }
+
+  checkArrayWrite(expression) {
+    // Synthesized helpers implement their own bounded loops. User writes must
+    // prove a dense, existing index; KN replace_list_item otherwise truncates
+    // fractional indices or appends instead of making JS sparse properties.
+    if (expression.pos < 0 || expression.getSourceFile?.() !== this.sourceFile) return;
+    const target = expression.left.expression;
+    const literal = this.arrayLiteralFor(target);
+    const size = literal?.elements.length;
+    if (literal?.elements.some(element => ts.isOmittedExpression(element) || ts.isSpreadElement(element))) {
+      this.unsupported(expression.left, "Array writes do not support holes or spread initializers");
+    }
+    const interval = (node, seen = new Set()) => {
+      node = stripParens(node);
+      if (!node || seen.has(node)) return null;
+      seen = new Set(seen).add(node);
+      const value = constantNumber(node);
+      if (value !== null) return Number.isInteger(value) ? [value, value] : null;
+      if (ts.isPropertyAccessExpression(node) && node.name.text === "length") {
+        const length = this.arrayLiteralFor(node.expression)?.elements.length;
+        return length === undefined || this.arrayLengthChanged(node.expression) ? null : [length, length];
+      }
+      if (ts.isBinaryExpression(node)) {
+        const a = interval(node.left, seen), b = interval(node.right, seen);
+        if (!a || !b) return null;
+        if (node.operatorToken.kind === ts.SyntaxKind.PlusToken) return [a[0] + b[0], a[1] + b[1]];
+        if (node.operatorToken.kind === ts.SyntaxKind.MinusToken) return [a[0] - b[1], a[1] - b[0]];
+      }
+      if (ts.isIdentifier(node)) {
+        const declaration = this.arrayDeclarations.get(node.text);
+        if (!declaration?.initializer) return null;
+        const list = declaration.parent, loop = list?.parent;
+        if (ts.isForStatement(loop) && loop.initializer === list && loop.condition
+          && ts.isBinaryExpression(loop.condition) && ts.isIdentifier(loop.condition.left)
+          && loop.condition.left.text === node.text && loop.condition.operatorToken.kind === ts.SyntaxKind.LessThanToken
+          && loop.incrementor && this.isUpdateExpression(loop.incrementor)
+          && loop.incrementor.operator === ts.SyntaxKind.PlusPlusToken
+          && ts.isIdentifier(loop.incrementor.operand) && loop.incrementor.operand.text === node.text) {
+          let changed = false;
+          const scan = child => {
+            if (ts.isBinaryExpression(child) && ts.isIdentifier(stripParens(child.left))
+              && stripParens(child.left).text === node.text && assignmentOperatorSpec(child.operatorToken.kind)
+              || this.isUpdateExpression(child) && ts.isIdentifier(child.operand) && child.operand.text === node.text) changed = true;
+            ts.forEachChild(child, scan);
+          };
+          scan(loop.statement);
+          const from = interval(declaration.initializer, seen), to = interval(loop.condition.right, seen);
+          return !changed && from && to ? [from[0], to[1] - 1] : null;
+        }
+        let changed = false;
+        const visit = child => {
+          if (ts.isBinaryExpression(child) && ts.isIdentifier(child.left) && child.left.text === node.text
+            && assignmentOperatorSpec(child.operatorToken.kind) || this.isUpdateExpression(child)
+            && ts.isIdentifier(child.operand) && child.operand.text === node.text) changed = true;
+          ts.forEachChild(child, visit);
+        };
+        visit(this.sourceFile);
+        return changed ? null : interval(declaration.initializer, seen);
+      }
+      if (ts.isCallExpression(node) && ts.isIdentifier(node.expression)) {
+        const fn = this.inlineFunctions.get(node.expression.text);
+        if (fn && ts.isBlock(fn.body)) {
+          const returns = [];
+          let effects = false;
+          visitFunctionBody(fn.body, child => {
+            if (ts.isReturnStatement(child)) returns.push(child.expression);
+            if (ts.isCallExpression(child) || ts.isBinaryExpression(child) && !ts.isIdentifier(child.left)
+              && assignmentOperatorSpec(child.operatorToken.kind)
+              || ts.isBinaryExpression(child) && assignmentOperatorSpec(child.operatorToken.kind)
+                && this.arrayLiteralFor(child.left)
+              || this.isUpdateExpression(child) && !ts.isIdentifier(child.operand)) effects = true;
+          });
+          if (!effects && returns.length === 1 && returns[0] && constantNumber(returns[0]) !== null) return interval(returns[0], seen);
+        }
+      }
+      return null;
+    };
+    let resized = false;
+    const aliases = new Set();
+    for (const [name, declaration] of this.arrayDeclarations) {
+      if (literal && this.arrayLiteralFor(declaration.initializer) === literal) aliases.add(name);
+    }
+    const scan = node => {
+      if (node.pos >= expression.end) {
+        let loopEnd = -1;
+        for (let parent = expression.left; parent; parent = parent.parent) {
+          if (ts.isIterationStatement(parent, false)) loopEnd = parent.end;
+        }
+        let callback = expression.left;
+        while (callback && !ts.isFunctionLike(callback)) callback = callback.parent;
+        const repeated = callback?.parent && ts.isCallExpression(callback.parent) && ts.isPropertyAccessExpression(callback.parent.expression)
+          && CALLBACK_METHODS.has(callback.parent.expression.name.text);
+        if (!repeated && node.pos >= loopEnd) return;
+      }
+      if (ts.isIdentifier(node) && aliases.has(node.text)) {
+        let ref = node, p = node.parent;
+        while (p && (ts.isParenthesizedExpression(p) || ts.isAsExpression(p) || ts.isNonNullExpression(p))) { ref = p; p = p.parent; }
+        if (ts.isPropertyAccessExpression(p) && ["pop", "shift", "splice", "length"].includes(p.name.text)
+          && (ts.isCallExpression(p.parent) && p.parent.expression === p || ts.isBinaryExpression(p.parent) && p.parent.left === p
+            && assignmentOperatorSpec(p.parent.operatorToken.kind)
+            || this.isUpdateExpression(p.parent))) resized = true;
+        if (ts.isCallExpression(p) && p.arguments.includes(ref)) resized = true;
+        if ((ts.isPropertyAssignment(p) && p.initializer === ref) || ts.isArrayLiteralExpression(p)
+          || ts.isReturnStatement(p)) resized = true;
+        if (ts.isBinaryExpression(p) && p.left === ref && assignmentOperatorSpec(p.operatorToken.kind)) resized = true;
+      }
+      ts.forEachChild(node, scan);
+    };
+    scan(this.sourceFile);
+    const range = interval(expression.left.argumentExpression);
+    if (size === undefined || resized || !range || range[0] < 0 || range[1] >= size) {
+      this.unsupported(expression.left, "Array writes require a provably nonnegative integer index within existing elements of a stable dense literal array");
+    }
+  }
+
   compileArrayCompoundAssignment(expression, parentId) {
     const f = ts.factory;
     const n = this.nextId;
@@ -2032,6 +2288,13 @@ class WorkspaceCompiler {
     const element = f.createElementAccessExpression(target, index);
     const read = assign(old, element);
     this.connectNext(second, read);
+    if (operator === ts.SyntaxKind.PlusToken && this.arrayScalarKind(expression.right) === "string") {
+      this.stringVariables.add(old.text);
+    } else if (operator === ts.SyntaxKind.PlusToken) {
+      const kind = this.arrayElementKind(expression.left.expression);
+      if (kind === "string") this.stringVariables.add(old.text);
+      else if (kind !== "number" || this.arrayScalarKind(expression.right) !== "number") this.unsupported(expression, "Array += requires known number or string elements; dynamic element types are not supported");
+    }
     const last = assign(element, f.createBinaryExpression(old, operator, expression.right));
     this.connectNext(read, last);
     return first;
@@ -4012,11 +4275,18 @@ class WorkspaceCompiler {
     fn.params.forEach((param, index) => {
       bindings.set(param, args[index]);
     });
+    const savedStrings = new Set(this.stringVariables);
+    for (const param of fn.params) this.stringVariables.delete(param);
+    visitFunctionBody(fn.body, node => {
+      if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name)) this.stringVariables.delete(node.name.text);
+    });
     this.inlineCallStack.push(name);
     this.expressionBindings.push(bindings);
     try {
       return compile();
     } finally {
+      this.stringVariables.clear();
+      for (const variable of savedStrings) this.stringVariables.add(variable);
       this.expressionBindings.pop();
       this.inlineCallStack.pop();
     }
@@ -4410,13 +4680,15 @@ class WorkspaceCompiler {
   // String and array methods: s.includes / slice / substring / charAt /
   // split, a.length via compileLength.
   checkArrayLiteralStable(call, target) {
+    target = stripParens(target);
     if (!ts.isIdentifier(target)) return;
     const declaration = this.arrayDeclarations.get(target.text);
     let unsafe = false;
     const visit = node => {
       if (ts.isIdentifier(node) && node.text === target.text && node !== declaration?.name) {
-        const parent = node.parent;
-        const safeMember = ts.isPropertyAccessExpression(parent) && parent.expression === node
+        let reference = node, parent = node.parent;
+        while (parent && stripParens(parent) === stripParens(reference)) { reference = parent; parent = parent.parent; }
+        const safeMember = ts.isPropertyAccessExpression(parent) && parent.expression === reference
           && ["length", "flat"].includes(parent.name.text)
           && !(ts.isBinaryExpression(parent.parent) && parent.parent.left === parent
             && assignmentOperatorSpec(parent.parent.operatorToken.kind))
@@ -4430,7 +4702,8 @@ class WorkspaceCompiler {
   }
 
   checkReduceNonempty(call, target) {
-    const literal = ts.isArrayLiteralExpression(target) ? target : this.arrayDeclarations.get(target.text)?.initializer;
+    target = stripParens(target);
+    const literal = stripParens(ts.isArrayLiteralExpression(target) ? target : this.arrayDeclarations.get(target.text)?.initializer);
     if (!literal || !ts.isArrayLiteralExpression(literal) || !literal.elements.length
       || literal.elements.some(element => ts.isOmittedExpression(element) || ts.isSpreadElement(element))) {
       this.unsupported(call, "reduce without an initial value requires a statically nonempty array; pass an initial value otherwise");
@@ -4441,10 +4714,16 @@ class WorkspaceCompiler {
       let escapes = false;
       const visit = node => {
         if (ts.isIdentifier(node) && node.text === target.text) {
-          const parent = node.parent;
+          let reference = node;
+          let parent = node.parent;
+          while (parent && (ts.isParenthesizedExpression(parent) || ts.isAsExpression(parent)
+            || ts.isNonNullExpression(parent) || ts.isSatisfiesExpression(parent))) {
+            reference = parent;
+            parent = parent.parent;
+          }
           const declaration = this.arrayDeclarations.get(target.text);
-          const safeRead = ts.isElementAccessExpression(parent) && parent.expression === node;
-          const safeMember = ts.isPropertyAccessExpression(parent) && parent.expression === node
+          const safeRead = ts.isElementAccessExpression(parent) && parent.expression === reference;
+          const safeMember = ts.isPropertyAccessExpression(parent) && parent.expression === reference
             && (["length", "join", "indexOf", "includes", "at"].includes(parent.name.text) || parent === call.expression)
             && !(ts.isBinaryExpression(parent.parent) && parent.parent.left === parent && assignmentOperatorSpec(parent.parent.operatorToken.kind))
             && !this.isUpdateExpression(parent.parent);
@@ -4496,9 +4775,10 @@ class WorkspaceCompiler {
           return helper("__arr_at", args[0]);
         case "flat": {
           if (args.length > 1 || args[0] && constantNumber(args[0]) !== 1) this.unsupported(call, "flat supports depth 1 only");
-          const literalTarget = ts.isArrayLiteralExpression(target) ? target : this.arrayDeclarations.get(target.text)?.initializer;
+          const normalized = stripParens(target);
+          const literalTarget = stripParens(ts.isArrayLiteralExpression(normalized) ? normalized : this.arrayDeclarations.get(normalized.text)?.initializer);
           if (!literalTarget || !ts.isArrayLiteralExpression(literalTarget)
-            || !literalTarget.elements.every(element => ts.isArrayLiteralExpression(element))) {
+            || !literalTarget.elements.every(element => ts.isArrayLiteralExpression(stripParens(element)))) {
             this.unsupported(call, "flat requires an array literal (or variable initialized with one) containing only arrays");
           }
           this.checkArrayLiteralStable(call, target);
@@ -5270,6 +5550,47 @@ function assignmentOperatorSpec(operator) {
     default:
       return null;
   }
+}
+
+// Only free value references count as captures: `.length`, declaration names
+// and callback-local bindings are not references to an enclosing variable.
+function callbackReferencesName(callback, name) {
+  const declares = node => {
+    if (!node) return false;
+    if (ts.isIdentifier(node)) return node.text === name;
+    if (ts.isArrayBindingPattern(node) || ts.isObjectBindingPattern(node)) {
+      return node.elements.some(element => ts.isBindingElement(element) && declares(element.name));
+    }
+    return false;
+  };
+  const visit = (node, shadowed = false) => {
+    if (!node) return false;
+    if (ts.isFunctionLike(node)) {
+      shadowed ||= node.parameters.some(param => declares(param.name));
+    }
+    if (ts.isBlock(node)) {
+      shadowed ||= node.statements.some(statement => ts.isVariableStatement(statement)
+        && statement.declarationList.declarations.some(declaration => declares(declaration.name)));
+    }
+    if (ts.isForStatement(node) && node.initializer && ts.isVariableDeclarationList(node.initializer)) {
+      shadowed ||= node.initializer.declarations.some(declaration => declares(declaration.name));
+    }
+    if ((ts.isForOfStatement(node) || ts.isForInStatement(node)) && ts.isVariableDeclarationList(node.initializer)) {
+      const local = shadowed || node.initializer.declarations.some(declaration => declares(declaration.name));
+      return visit(node.expression, shadowed) || visit(node.statement, local);
+    }
+    if (ts.isIdentifier(node) && node.text === name && !shadowed) {
+      const parent = node.parent;
+      if (!(ts.isPropertyAccessExpression(parent) && parent.name === node)
+        && !(ts.isPropertyAssignment(parent) && parent.name === node)
+        && !(ts.isVariableDeclaration(parent) && parent.name === node)
+        && !(ts.isParameter(parent) && parent.name === node)) return true;
+    }
+    let found = false;
+    ts.forEachChild(node, child => { if (visit(child, shadowed)) found = true; });
+    return found;
+  };
+  return visit(callback);
 }
 
 function expressionContainsIdentifier(expression, name) {

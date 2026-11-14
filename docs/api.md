@@ -10,6 +10,15 @@ Complete reference for all functions and APIs available in NekoC TypeScript proj
   KN variable still follows KN's variable normalization, not full JS semantics.
 - `a[i] = value`, `+=`, `-=`, `*=`, `/=`, `%=`, `**=` are supported for existing
   elements. Compound assignments evaluate the target, index and old value once.
+  User writes require a dense literal initializer (including direct aliases) and
+  a provably in-range nonnegative integer index: constants, stable numeric locals,
+  or bounded increasing `for` indices and their `+`/`-` expressions. Unknown,
+  negative, fractional and sparse writes produce a located compile error.
+  `+=` preserves statically known string elements or string right operands;
+  unknown/mixed element types without a string right operand are rejected.
+  Element `++`/`--` requires known numeric elements. Length-changing calls,
+  escapes and element-type-changing mutations can invalidate these proofs;
+  these checks are conservative, not a general TypeScript flow analysis.
 - `a.length = 0` clears the same list, including aliases. Other length/property
   assignments are rejected; sparse array writes are not supported.
 - `reverse()` mutates and returns the same array. Default `sort()` is stable,
@@ -26,6 +35,11 @@ Complete reference for all functions and APIs available in NekoC TypeScript proj
 - Inline array callbacks can read enclosing event-local variables. Capturing
   enclosing inline-function parameters or locals is rejected; use an event-local
   or top-level variable instead.
+  Captured string declarations and aliases retain their type before helper
+  compilation. Property names and callback-local bindings are not captures.
+  Callback parameters and locals shadow outer string type information.
+  Captured string declarations must have a statically stable type;
+  reassigned captured strings are conservatively rejected.
 - `reduce(callback)` uses the first item as its initial accumulator and starts
   callback indices at 1. A nonempty literal initializer must be provable and
   must not escape through aliases or mutating calls; otherwise supply an initial
@@ -33,6 +47,7 @@ Complete reference for all functions and APIs available in NekoC TypeScript proj
 - `flat()` / `flat(1)` supports an array literal (or a variable initialized with
   one) containing only arrays, preserving one level of elements. Other input
   shapes/depths produce a compile error instead of a wrong result.
+  Parentheses and array type assertions do not change these shape checks.
 
 ## Global Events
 
