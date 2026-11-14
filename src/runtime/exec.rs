@@ -39,7 +39,7 @@ impl<'a> super::Thread<'a> {
         }
 
         self.yielded = false;
-        let started = std::time::Instant::now();
+        let started = web_time::Instant::now();
         let mut budget = 10_000;
         while budget > 0 && !self.done && !self.yielded && self.wait_ticks == 0 {
             budget -= 1;

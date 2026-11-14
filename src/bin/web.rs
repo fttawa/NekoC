@@ -660,19 +660,7 @@ fn serve_with_cloud(initial: Json, port: u16, cloud: CloudSession) -> Result<()>
                     json!({"project":packed,"report":report})
                 }
                 "/api/validate" => nekoc::validate::build_report(&project)?,
-                "/api/extension-check" => {
-                    check_project_shape(&payload["project"])?;
-                    let schemas: Vec<nekoc::extensions::BlockSchema> =
-                        serde_json::from_value(payload["extensions"].clone())?;
-                    ensure!(schemas.len() <= 256, "too many remote extensions");
-                    let mut registry = nekoc::extensions::ExtensionRegistry::new();
-                    for schema in schemas {
-                        registry.register_remote(schema)?;
-                    }
-                    let compiled =
-                        Program::compile_with_extensions(&payload["project"], &registry)?;
-                    json!({"ok":true,"stats":compiled.stats()})
-                }
+                "/api/extension-check" => nekoc::player::check_extensions(&payload)?,
                 "/api/compile" | "/api/start" => {
                     let compiled = Program::compile(&project)?;
                     let stats = compiled.stats();

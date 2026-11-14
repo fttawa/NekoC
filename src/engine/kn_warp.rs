@@ -1,6 +1,7 @@
 //! KN's per-interpreter-step warp slice. This is deliberately separate from the
 //! K4 counter: the two released runtimes have different limits.
-use std::time::{Duration, Instant};
+use std::time::Duration;
+use web_time::Instant;
 
 #[path = "kn_warp_sampling.rs"]
 mod sampling;

@@ -16,6 +16,10 @@ pub mod interp_profile;
 #[cfg(test)]
 mod interp_tests;
 mod interp_value_cold;
+#[cfg(not(target_arch = "wasm32"))]
+mod jit;
+#[cfg(target_arch = "wasm32")]
+#[path = "engine/jit_disabled.rs"]
 mod jit;
 mod jit_observation;
 mod k4_clock;
@@ -59,11 +63,12 @@ pub use stage_dialog::StageDialogRequest;
 use std::{cell::RefCell, rc::Rc};
 use std::{
     collections::{BTreeMap, BTreeSet, VecDeque},
-    time::{Duration, Instant},
+    time::Duration,
 };
 pub use value::{Cell, Text};
 use value::{List, ListRef, Span, Target, ValueExpr};
 pub use video::VideoState;
+use web_time::Instant;
 
 #[derive(Clone, Copy, Debug)]
 enum Binary {
@@ -5094,6 +5099,7 @@ pub struct Engine {
     physics: Option<Box<physics::Physics>>,
     pub program: Program,
     jit: Option<Box<jit::Jit>>,
+    #[cfg(not(target_arch = "wasm32"))]
     jit_profile: Option<jit::Profile>,
     jit_error: Option<anyhow::Error>,
     /// A native boundary already executed and must yield this scheduler pass.
@@ -5331,6 +5337,7 @@ impl Engine {
     /// Full native-preview render observation, in active-scene painter order.
     /// Unlike advance(), this does not step physics, consume deltas, or clear
     /// dirty flags. World-space soft vertices must not receive a sprite transform.
+    #[cfg(not(target_arch = "wasm32"))]
     pub(crate) fn studio_render_snapshot(&self) -> (String, String, Vec<Sprite>) {
         let sprites = self
             .order
@@ -5598,8 +5605,8 @@ impl Engine {
             released: BTreeSet::new(),
             mouse: [0.0; 2],
             pen_layer: 0,
-            random_state: std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
+            random_state: web_time::SystemTime::now()
+                .duration_since(web_time::UNIX_EPOCH)
                 .map_or(1, |t| t.as_nanos() as u64)
                 | 1,
             sprites,
@@ -5634,6 +5641,7 @@ impl Engine {
             restart: false,
             reporter_depth: 0,
             jit,
+            #[cfg(not(target_arch = "wasm32"))]
             jit_profile: None,
             jit_error: None,
             jit_yield: false,
@@ -7845,9 +7853,11 @@ impl Engine {
             t => (self.sprites[t].x, self.sprites[t].y),
         }
     }
+    #[cfg(not(target_arch = "wasm32"))]
     pub(super) fn take_parameters(&mut self, count: usize) -> Vec<Cell> {
         self.parameter_pool.take(count)
     }
+    #[cfg(not(target_arch = "wasm32"))]
     pub(super) fn recycle_parameters(&mut self, parameters: Vec<Cell>) {
         self.parameter_pool.recycle(parameters);
     }
@@ -10279,8 +10289,8 @@ pub fn encode_frame(frame: &Frame) -> Result<Vec<u8>> {
 
 /// [year, month, date, -, weekday (Sunday 0), hour, minute, second] in local time.
 fn wall_time() -> f64 {
-    std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
+    web_time::SystemTime::now()
+        .duration_since(web_time::UNIX_EPOCH)
         .map_or(0.0, |d| d.as_secs_f64())
 }
 

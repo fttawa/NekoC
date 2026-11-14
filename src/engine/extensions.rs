@@ -1,7 +1,7 @@
 //! Extension compiler/execution boundary, isolated from built-in scheduling.
 use super::*;
 use crate::extensions::{BlockKind, BlockSchema, CallResult, ErrorPolicy, ExtensionRequest};
-use std::time::Instant;
+use web_time::Instant;
 
 #[derive(Clone, Debug)]
 pub(super) struct Call {
