@@ -65,6 +65,7 @@ class WorkspaceCompiler {
     // Constant initial values of top-level let/const, written into the
     // project's variable table (they hold before any script runs).
     this.initialValues = {};
+    this.constStringLiterals = new Map();
     this.keyButtons = [];
     this.enumValues = new Map();
     // Variables initialised with an array (a list value held in a variable).
@@ -280,6 +281,11 @@ class WorkspaceCompiler {
       if (declaration.initializer) {
         const value = constantInitialValue(declaration.initializer, this);
         this.initialValues[declaration.name.text] = value;
+        // A top-level `const NAME = "..."` can also stand in for a literal where
+        // one is required (resource URLs, sprite and message names).
+        if ((statement.declarationList.flags & ts.NodeFlags.Const) && ts.isStringLiteral(declaration.initializer)) {
+          this.constStringLiterals.set(declaration.name.text, declaration.initializer);
+        }
         if (typeof value === "string") this.stringVariables.add(declaration.name.text);
       }
     });
@@ -808,8 +814,10 @@ class WorkspaceCompiler {
       y: optionalNumberOption(options, "y", 0, this, call.arguments[1]),
       scale: optionalNumberOption(options, "scale", 100, this, call.arguments[1]),
       visible: optionalBooleanOption(options, "visible", true, this, call.arguments[1]),
+      rotation: optionalNumberOption(options, "rotation", 0, this, call.arguments[1]),
       centerX: optionalNumberOption(options, "centerX", 0, this, call.arguments[1]),
       centerY: optionalNumberOption(options, "centerY", 0, this, call.arguments[1]),
+      ...(options.has("costumes") ? { costumes: costumeListOption(options.get("costumes"), this) } : {}),
       workspaceData: workspace.workspaceData,
       summary: workspace.summary,
     });
@@ -1381,7 +1389,8 @@ class WorkspaceCompiler {
           return this.compileShowHideListByNameArg(parentId, listHandleCall.nameArg, "hide");
       }
     }
-    switch (name) {
+    // self.<api>(...) inside a sprite body is the same block as the global <api>(...).
+    switch (selfApiName(name)) {
       case "setVar":
         return this.compileSetVar(call, parentId);
       case "changeVar":
@@ -2636,7 +2645,8 @@ class WorkspaceCompiler {
     return this.addBlock({
       type: "stop",
       parent_id: parentId,
-      fields: { scope: stringLiteralValue(call.arguments[0], this) },
+      // No argument stops the current script, as documented.
+      fields: { scope: call.arguments.length ? stringLiteralValue(call.arguments[0], this) : "1" },
     });
   }
 
@@ -3192,7 +3202,7 @@ class WorkspaceCompiler {
       const method = this.compileMethodCall(call, parentId);
       if (method) return method;
     }
-    switch (name) {
+    switch (selfApiName(name)) {
       case "getVar":
         return this.compileVariableGet(parentId, call.arguments[0]);
       case "scriptVar":
@@ -4546,6 +4556,10 @@ function isMemberCallName(name, memberName) {
   return typeof name === "string" && name.endsWith(`.${memberName}`);
 }
 
+function selfApiName(name) {
+  return typeof name === "string" && /^self\.[A-Za-z_$][\w$]*$/.test(name) ? name.slice(5) : name;
+}
+
 function memberCallName(name) {
   if (typeof name !== "string") {
     return null;
@@ -4871,7 +4885,7 @@ function stringLiteralValue(node, compiler) {
   const visited = new Set();
   while (node && ts.isIdentifier(node) && !visited.has(node)) {
     visited.add(node);
-    const bound = compiler.lookupExpressionBinding(node.text);
+    const bound = compiler.lookupExpressionBinding(node.text) ?? compiler.constStringLiterals?.get(node.text);
     if (!bound) break;
     node = bound;
   }
@@ -4911,6 +4925,32 @@ function propertyNameText(name, compiler) {
     return name.text;
   }
   compiler.unsupported(name, "Only identifier, string, or number option names are supported");
+}
+
+// sprite({ costumes: ["a.png", { name: "run", url: "b.png", centerX: 32 }] })
+function costumeListOption(node, compiler) {
+  if (!ts.isArrayLiteralExpression(node) || node.elements.length === 0) {
+    compiler.unsupported(node, "costumes must be a non-empty array of URLs or { name?, url, centerX?, centerY? }");
+  }
+  const names = new Set();
+  return node.elements.map((element) => {
+    let costume;
+    if (ts.isObjectLiteralExpression(element)) {
+      const options = objectLiteralOptions(element, compiler);
+      if (!options.has("url")) compiler.unsupported(element, "costume needs a url");
+      costume = { url: stringLiteralValue(options.get("url"), compiler) };
+      if (options.has("name")) costume.name = stringLiteralValue(options.get("name"), compiler);
+      if (options.has("centerX")) costume.centerX = numericLiteralValue(options.get("centerX"), compiler);
+      if (options.has("centerY")) costume.centerY = numericLiteralValue(options.get("centerY"), compiler);
+    } else {
+      costume = { url: stringLiteralValue(element, compiler) };
+    }
+    if (costume.name !== undefined) {
+      if (names.has(costume.name)) compiler.unsupported(element, `Duplicate costume name: ${costume.name}`);
+      names.add(costume.name);
+    }
+    return costume;
+  });
 }
 
 function optionalStringOption(options, name, defaultValue, compiler, node) {

@@ -704,19 +704,38 @@ stage({
 
 ### `sprite(name, options, body?)`
 
-Declares a sprite.
+Declares a sprite. `nekoc build` turns each declaration into an actor with
+its costumes, position, scale and rotation, so no template work is needed.
 
 ```ts
+const IDLE = "https://example.com/idle.png";
+
 sprite("player", {
-  costume: "https://example.com/player.png",
+  costumes: [
+    { name: "idle", url: IDLE, centerX: 64, centerY: 64 },
+    "https://example.com/walk.png", // named player2
+  ],
   x: 0,
   y: 0,
   scale: 100,
+  rotation: 90,
   visible: true,
-}, () => {
-  onStart(() => { ... });
+}, (self) => {
+  self.onStart(() => { self.nextStyle(); });
 });
 ```
+
+| Option | Meaning |
+|--------|---------|
+| `costume` | One costume URL (named after the sprite). |
+| `costumes` | Costume list: URL strings or `{ name?, url, centerX?, centerY? }`. Unnamed entries get the sprite name, then `name2`, `name3`… Names must be unique. The first costume is the starting one. |
+| `centerX`, `centerY` | Default rotation center for costumes that do not set their own. |
+| `x`, `y`, `scale`, `rotation`, `visible` | Initial state. |
+
+Resource strings must be literals or top-level `const` string literals.
+
+Inside the body, `self.<api>(...)` calls the same API as the global name, for
+example `self.nextStyle()`, `self.changeX(10)` or `self.stop()`.
 
 ### `screen(name, options, body)`
 

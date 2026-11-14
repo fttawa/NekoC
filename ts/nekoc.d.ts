@@ -41,7 +41,6 @@ interface SpriteOptions {
   scale?: number;
   rotation?: number;
   visible?: boolean;
-  draggable?: boolean;
   /** Costume pivot in pixels from the image's top-left corner. */
   centerX?: number;
   centerY?: number;

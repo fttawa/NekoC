@@ -72,6 +72,57 @@ pub fn compile_ts_with_sidecars(
     Ok(())
 }
 
+/// Result of the frontend's check mode: `{ok, diagnostics}` plus the workspace
+/// report when the source compiled.
+pub struct FrontendCheck {
+    pub diagnostics: Vec<serde_json::Value>,
+    pub report: Option<serde_json::Value>,
+}
+
+/// Runs `compile-ts.mjs --check --json`: type check against nekoc.d.ts plus the
+/// Kitten N compile, without producing a project.
+pub fn check_ts(input: impl AsRef<Path>, types: bool) -> Result<FrontendCheck> {
+    let input = input.as_ref();
+    let script = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("ts")
+        .join("compile-ts.mjs");
+    let report_file = tempfile::Builder::new()
+        .prefix("nekoc-check-")
+        .suffix(".json")
+        .tempfile()?;
+    let mut command = Command::new("node");
+    command.arg(&script).arg("--check").arg("--json");
+    if !types {
+        command.arg("--no-types");
+    }
+    command.arg(format!("--report-out={}", report_file.path().display()));
+    let output = command
+        .arg(input)
+        .output()
+        .with_context(|| format!("failed to run TypeScript frontend at {}", script.display()))?;
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let result: serde_json::Value = serde_json::from_str(stdout.trim()).with_context(|| {
+        format!(
+            "TypeScript frontend check failed: {}",
+            String::from_utf8_lossy(&output.stderr).trim()
+        )
+    })?;
+    let diagnostics = result["diagnostics"]
+        .as_array()
+        .cloned()
+        .unwrap_or_default();
+    let report_text = std::fs::read_to_string(report_file.path())?;
+    let report = if report_text.trim().is_empty() {
+        None
+    } else {
+        Some(serde_json::from_str(&report_text)?)
+    };
+    Ok(FrontendCheck {
+        diagnostics,
+        report,
+    })
+}
+
 pub fn test_ts(input: impl AsRef<Path>) -> Result<()> {
     let input = input.as_ref();
     let script = PathBuf::from(env!("CARGO_MANIFEST_DIR"))

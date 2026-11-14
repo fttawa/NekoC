@@ -2,6 +2,7 @@ pub mod analysis;
 mod audio;
 pub mod bcmkn;
 pub mod bcmkn_compiler;
+pub mod check;
 pub mod cli_run;
 pub mod cloud;
 pub mod decompile;

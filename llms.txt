@@ -1,0 +1,105 @@
+# NekoC
+
+> NekoC compiles a subset of TypeScript into Codemao Kitten N works (`.bcmkn`, block projects) and runs Kitten N / Kitten 4 works headlessly. One `.nk.ts` file can declare the stage, sprites, costumes and all logic. Write plain TS; the compiler turns it into official blocks that open in the Kitten N editor.
+
+## Workflow for AI agents
+
+1. Write `game.nk.ts`.
+2. `nekoc check game.nk.ts --json` — type check (against `ts/nekoc.d.ts`), Kitten N compatibility check, project structure check. Writes nothing. Exit code 1 on errors. Each diagnostic: `{severity, source: "syntax"|"types"|"compat"|"project", code, message, file, line, column}`. Fix and re-run until `{"ok": true}`.
+3. `nekoc build game.nk.ts` → `game.bcmkn` next to the source (`-o` to change). No template needed.
+4. `nekoc run game.bcmkn --ticks 120` — headless run, 60 ticks per second, prints a JSON snapshot (`logs` holds `console.log` output, plus variables, lists, actors). Add `--event key-down:space` or `--event click:100,200` to simulate input.
+5. Optional, needs Playwright: `node tools/editor-compat.mjs game.bcmkn` loads the work in the official online editor; `ok: true` means it opens cleanly.
+6. Optional: `nekoc test game.nk.ts` runs `test(...)` blocks at compile time.
+
+## A complete file
+
+```ts
+const CAT = "https://creation.bcmcdn.com/922/user-files/d2ViXzIwMDJfMTc5ODgyNTlfMzIwOTgxODA1XzE3ODI2MjI4MDAwMDBfRnR3U0xVSjFuU2lkN29neWstTmlzR1hPeHlNYw==.png";
+
+stage({ name: "catch", backdrop: "https://static.codemao.cn/neko/img_stage_defult_portrait.png" });
+
+let score = 0;            // top-level let/const = global variable
+
+function bonus(level: number): number {
+  return level * 10;      // simple functions are inlined; recursive ones become custom blocks
+}
+
+sprite("cat", {
+  costumes: [{ name: "idle", url: CAT, centerX: 64, centerY: 64 }],
+  x: 0, y: -150, scale: 80,
+}, (self) => {
+  self.onStart(() => {
+    forever(() => {
+      if (keyPressed("left")) self.changeX(-8);
+      if (keyPressed("right")) self.changeX(8);
+      wait(0.02);
+    });
+  });
+  onMessage("hit", () => {
+    score += bonus(2);
+    self.say(`score ${score}`, 1);
+  });
+});
+
+onStart(() => {
+  for (let i = 0; i < 3; i++) {
+    wait(1);
+    broadcastAndWait("hit");   // broadcast() would not wait for the handlers
+  }
+  console.log(score);          // 60 (nekoc run --ticks 480)
+});
+```
+
+## Stage declaration
+
+- `stage({ name?, backdrop? })` — stage name and background URL.
+- `sprite(name, options, (self) => { ... })` — creates an actor. Options: `costume` (one URL) or `costumes` (array of URL strings or `{ name?, url, centerX?, centerY? }`; first one is the start costume; unnamed ones become `name`, `name2`, …; names unique), `centerX`, `centerY`, `x`, `y`, `scale` (percent), `rotation` (degrees), `visible`.
+- `screen(name, { backdrop }, () => { sprite(...) })` — extra screens; switch with `switchScreen(name)`.
+- Resource strings must be string literals or top-level `const` string literals.
+- Inside a sprite body, event and action calls belong to that sprite. `self.xxx(...)` is the same as `xxx(...)` there (`self.onStart`, `self.changeX`, `self.nextStyle`, `self.say`, `self.stop`, …).
+- Stage coordinates: center is (0, 0), x right, y up; default stage is 900×562 (landscape).
+
+## Supported TypeScript
+
+- `let`/`const`, numbers, strings, booleans, template literals, arrays (`a[i]`, `a[i] = v`, `a.length`, `push`, `includes`, `map`, `filter`, `forEach`, `reduce`, `find`, `findIndex`, `some`, `every`, `sort`, `indexOf`, `join`, `concat`, `slice`, `reverse`, `pop`, `shift`, `unshift`, `splice`), array destructuring.
+- Strings: `.length`, `s[i]`, `charAt`, `slice`, `substring`, `includes`, `split`, `indexOf`, `startsWith`, `endsWith`, `replace`, `replaceAll`, `trim`, `repeat`, `padStart`, `padEnd`, `toUpperCase`, `toLowerCase`.
+- `Math.floor/ceil/round/trunc/abs/sqrt/exp/log/log10/pow/max/min/random/sin/cos/tan/asin/acos/atan/PI` (radians, like JS).
+- `if/else`, `while`, `do/while`, C-style `for`, `for...of`, `switch`, `break`, `continue`, labels, ternary, `??`, `try/catch` with `throw`.
+- Functions: declarations, default parameters, recursion (custom blocks), `import`/`export` between project files, enums. Types, interfaces, `as`, `!`, `satisfies` are stripped.
+- `console.log(x)` writes to the run log.
+- Not supported (compile errors): class instances, object values and object destructuring, `new Map/Set`, closures as values, `instanceof`/`in`, generators, real async (`async`/`await` are stripped). Kitten N has numbers, strings, booleans and lists only.
+
+## Events
+
+`onStart(body)`, `onClick(body)` (sprite clicked), `onKey(key, state?, body)` (`"space"`, `"up"`, `"a"`…; state `"down"`/`"up"`), `onMessage(message, body)`, `when(condition, body)`, `onBumpActor(target, body)`.
+
+## Control
+
+`wait(seconds)`, `waitUntil(cond)`, `forever(body)`, `repeatTimes(n, body)`, `repeatUntil(cond, body)`, `forRange(name, from, to, step, body)`, `breakLoop()`, `stop(option?)` (no argument: this script; `"0"`: everything), `restart()`, `warp(body)` (run without frame yields), `broadcast(message, value?)`, `broadcastAndWait(message)`, `switchScreen(name)`.
+
+## Sprite actions
+
+Motion: `moveSteps(n)`, `moveTo(x, y)`, `setX(x)`, `setY(y)`, `changeX(dx)`, `changeY(dy)`, `glideTo(x, y, seconds)`, `turn(deg)`, `pointTowards(deg)`, `faceTo(target)`, `bounceOffEdge()`, `setRotationType(type)`.
+Looks: `show()`, `hide()`, `say(text, seconds?)` (with seconds the script waits), `ask(text)` + `answer()`, `setScale(p)`, `changeScale(d)`, `nextStyle()`, `setStyle(nameOrIndex)`, `setEffect(name, v)`, `changeEffect(name, d)`, `clearEffects()`, `setLayer(...)`.
+Pen: `penDown()`, `penUp()`, `setPenColor(color)`, `setPenSize(n)`, `clearDrawing()`, `stampText(...)`.
+Clones: `createClone(sprite?)`, `deleteClone()`, `cloneCount(sprite)`, `currentCloneIndex()` (0 in the original).
+
+## Sensing and values
+
+`keyPressed(key)`, `mouseX()`, `mouseY()`, `timerValue()`, `timerStart()`, `timeNow(unit)`, `touching(sprite, target)`, `distanceTo(target)`, `xOf(sprite)`, `styleOf(sprite)`, `randInt(min, max)`.
+Named variables and lists (useful across sprites or for editor-visible data): `setVar(name, v)`, `changeVar(name, d)`, `getVar(name)`, `appendList(name, v)`, `getList(name)`, `listItem(name, mode, index)`, `listLength(name)`. Plain TS variables are usually simpler.
+Custom blocks: `defineProc(name, params, body)`, `defineReporter(name, params, body)` — or just write functions.
+
+## Tests
+
+```ts
+test("bonus", () => { expect(bonus(3)).toBe(30); });
+```
+
+## Reference
+
+- Full API: docs/api.md
+- Syntax details: docs/syntax.md
+- Type declarations (source of truth for signatures): ts/nekoc.d.ts
+- Runner options: docs/cli-run.md
+- Example: samples/stage_demo.nk.ts

@@ -15,14 +15,88 @@ struct CompiledProcedure {
 struct CompiledSprite {
     name: String,
     screen_id: Option<String>,
-    costume: Option<String>,
+    /// At least one; the first is shown at start.
+    costumes: Vec<CompiledCostume>,
     x: f64,
     y: f64,
     scale: f64,
+    rotation: f64,
     visible: bool,
+    blocks: Vec<Value>,
+}
+
+struct CompiledCostume {
+    name: String,
+    url: String,
     center_x: f64,
     center_y: f64,
-    blocks: Vec<Value>,
+}
+
+/// A sprite resource from the frontend report: either `costume` + `centerX/Y`
+/// (one costume) or `costumes: [{name?, url, centerX?, centerY?}]`.
+fn compiled_sprite(sprite: &Value, screen_id: Option<String>) -> Result<CompiledSprite> {
+    let name = sprite
+        .get("name")
+        .and_then(Value::as_str)
+        .context("compiled sprite resource is missing name")?
+        .to_owned();
+    let number = |value: &Value, key: &str, default: f64| {
+        value.get(key).and_then(Value::as_f64).unwrap_or(default)
+    };
+    let mut costumes = Vec::new();
+    if let Some(list) = sprite.get("costumes").and_then(Value::as_array) {
+        for (index, costume) in list.iter().enumerate() {
+            costumes.push(CompiledCostume {
+                name: costume
+                    .get("name")
+                    .and_then(Value::as_str)
+                    .map(ToOwned::to_owned)
+                    .unwrap_or_else(|| {
+                        if index == 0 {
+                            name.clone()
+                        } else {
+                            format!("{name}{}", index + 1)
+                        }
+                    }),
+                url: costume
+                    .get("url")
+                    .and_then(Value::as_str)
+                    .with_context(|| format!("costume {index} of sprite {name} is missing url"))?
+                    .to_owned(),
+                center_x: number(costume, "centerX", number(sprite, "centerX", 0.0)),
+                center_y: number(costume, "centerY", number(sprite, "centerY", 0.0)),
+            });
+        }
+    }
+    if costumes.is_empty() {
+        costumes.push(CompiledCostume {
+            name: name.clone(),
+            url: sprite
+                .get("costume")
+                .and_then(Value::as_str)
+                .unwrap_or_default()
+                .to_owned(),
+            center_x: number(sprite, "centerX", 0.0),
+            center_y: number(sprite, "centerY", 0.0),
+        });
+    }
+    let workspace_data = sprite
+        .get("workspaceData")
+        .context("compiled sprite resource is missing workspaceData")?;
+    Ok(CompiledSprite {
+        blocks: workspace_data_to_neko_blocks(workspace_data)?,
+        screen_id,
+        costumes,
+        x: number(sprite, "x", 0.0),
+        y: number(sprite, "y", 0.0),
+        scale: number(sprite, "scale", 100.0),
+        rotation: number(sprite, "rotation", 0.0),
+        visible: sprite
+            .get("visible")
+            .and_then(Value::as_bool)
+            .unwrap_or(true),
+        name,
+    })
 }
 
 struct CompiledScreen {
@@ -56,8 +130,30 @@ pub fn compile_workspace_bcmkn(
     template: impl AsRef<Path>,
     output: impl AsRef<Path>,
 ) -> Result<()> {
-    let input = input.as_ref();
     let output = output.as_ref();
+    let template = project::load_project(template)?.value;
+    let project =
+        assemble_workspace_bcmkn(workspace_report, &project_name(input.as_ref()), template)?;
+    let bytes = crate::json::to_vec(&project)?;
+    std::fs::write(output, bytes)
+        .with_context(|| format!("failed to write output {}", output.display()))?;
+    project::load_project(output)?;
+    Ok(())
+}
+
+/// The template used when none is given: an empty Kitten N 0.27.4 work.
+pub const DEFAULT_TEMPLATE: &str = include_str!("../samples/kitten-n-0.27.4.bcmkn");
+
+pub fn default_template() -> crate::json::Json {
+    crate::json::from_str(DEFAULT_TEMPLATE).expect("bundled template is valid JSON")
+}
+
+/// Builds the .bcmkn project for a compiled workspace report in memory.
+pub fn assemble_workspace_bcmkn(
+    workspace_report: &Value,
+    name: &str,
+    template: crate::json::Json,
+) -> Result<crate::json::Json> {
     let workspace_data = workspace_report
         .get("workspaceData")
         .context("compiled TypeScript report is missing workspaceData")?;
@@ -71,7 +167,7 @@ pub fn compile_workspace_bcmkn(
         first.insert("location".to_owned(), json!([80, 120]));
     }
 
-    let mut project = project::load_project(template)?.value;
+    let mut project = template;
     clear_all_scripts(&mut project);
     if has_registered_resources {
         reset_template_for_registered_resources(&mut project)?;
@@ -120,15 +216,10 @@ pub fn compile_workspace_bcmkn(
     }
     inject_sprite_resources(&mut project, sprites)?;
     inject_procedures(&mut project, procedures);
-    project["projectName"] = Value::String(project_name(input));
+    project["projectName"] = Value::String(name.to_owned());
 
     crate::key_buttons::annotate(&mut project, workspace_report.get("keyButtons"));
-    let bytes = crate::json::to_vec(&project)?;
-    std::fs::write(output, bytes)
-        .with_context(|| format!("failed to write output {}", output.display()))?;
-    project::load_project(output)?;
-
-    Ok(())
+    Ok(project)
 }
 
 fn compiled_procedures_from_report(report: &Value) -> Result<Vec<CompiledProcedure>> {
@@ -185,37 +276,7 @@ fn compiled_sprites_from_report(report: &Value) -> Result<Vec<CompiledSprite>> {
 
     sprites
         .iter()
-        .map(|sprite| {
-            let name = sprite
-                .get("name")
-                .and_then(Value::as_str)
-                .context("compiled sprite resource is missing name")?
-                .to_owned();
-            let costume = sprite
-                .get("costume")
-                .and_then(Value::as_str)
-                .map(ToOwned::to_owned);
-            let workspace_data = sprite
-                .get("workspaceData")
-                .context("compiled sprite resource is missing workspaceData")?;
-            let blocks = workspace_data_to_neko_blocks(workspace_data)?;
-
-            Ok(CompiledSprite {
-                name,
-                screen_id: None,
-                costume,
-                x: sprite.get("x").and_then(Value::as_f64).unwrap_or(0.0),
-                y: sprite.get("y").and_then(Value::as_f64).unwrap_or(0.0),
-                scale: sprite.get("scale").and_then(Value::as_f64).unwrap_or(100.0),
-                visible: sprite
-                    .get("visible")
-                    .and_then(Value::as_bool)
-                    .unwrap_or(true),
-                center_x: sprite.get("centerX").and_then(Value::as_f64).unwrap_or(0.0),
-                center_y: sprite.get("centerY").and_then(Value::as_f64).unwrap_or(0.0),
-                blocks,
-            })
-        })
+        .map(|sprite| compiled_sprite(sprite, None))
         .collect()
 }
 
@@ -256,35 +317,7 @@ fn compiled_screens_from_report(
 
         if let Some(screen_sprites) = screen.get("sprites").and_then(Value::as_array) {
             for sprite in screen_sprites {
-                let name = sprite
-                    .get("name")
-                    .and_then(Value::as_str)
-                    .context("compiled screen sprite resource is missing name")?
-                    .to_owned();
-                let costume = sprite
-                    .get("costume")
-                    .and_then(Value::as_str)
-                    .map(ToOwned::to_owned);
-                let workspace_data = sprite
-                    .get("workspaceData")
-                    .context("compiled screen sprite resource is missing workspaceData")?;
-                let blocks = workspace_data_to_neko_blocks(workspace_data)?;
-
-                sprites.push(CompiledSprite {
-                    name,
-                    screen_id: Some(id.clone()),
-                    costume,
-                    x: sprite.get("x").and_then(Value::as_f64).unwrap_or(0.0),
-                    y: sprite.get("y").and_then(Value::as_f64).unwrap_or(0.0),
-                    scale: sprite.get("scale").and_then(Value::as_f64).unwrap_or(100.0),
-                    visible: sprite
-                        .get("visible")
-                        .and_then(Value::as_bool)
-                        .unwrap_or(true),
-                    center_x: sprite.get("centerX").and_then(Value::as_f64).unwrap_or(0.0),
-                    center_y: sprite.get("centerY").and_then(Value::as_f64).unwrap_or(0.0),
-                    blocks,
-                });
+                sprites.push(compiled_sprite(sprite, Some(id.clone()))?);
             }
         }
 
@@ -645,27 +678,36 @@ fn inject_sprite_resources(project: &mut Value, sprites: Vec<CompiledSprite>) ->
         );
         let id_part = sanitize_id_part(&sprite.name);
         let actor_id = allocate_id(&format!("nekoc-actor-{id_part}"), &mut actor_ids);
-        let style_id = allocate_id(&format!("nekoc-style-{id_part}"), &mut style_ids);
-
-        project["styles"]["stylesDict"][&style_id] = json!({
-            "id": style_id,
-            "url": sprite.costume.unwrap_or_default(),
-            "name": sprite.name,
-            "centerPoint": {"x": sprite.center_x, "y": sprite.center_y},
-        });
+        let mut actor_styles = Vec::new();
+        for (index, costume) in sprite.costumes.iter().enumerate() {
+            let base = if index == 0 {
+                format!("nekoc-style-{id_part}")
+            } else {
+                format!("nekoc-style-{id_part}-{}", index + 1)
+            };
+            let style_id = allocate_id(&base, &mut style_ids);
+            project["styles"]["stylesDict"][&style_id] = json!({
+                "id": style_id,
+                "url": costume.url,
+                "name": costume.name,
+                "centerPoint": {"x": costume.center_x, "y": costume.center_y},
+            });
+            actor_styles.push(Value::String(style_id));
+        }
+        let style_id = actor_styles[0].clone();
         project["actors"]["actorsDict"][&actor_id] = json!({
             "id": actor_id,
             "position": {"x": sprite.x, "y": sprite.y},
             "scale": sprite.scale,
             "locked": false,
-            "rotation": 0,
+            "rotation": sprite.rotation,
             "nekoBlockJsonList": sprite.blocks,
             "visible": sprite.visible,
             "workspaceScrollXy": {"x": 0, "y": 30},
             "deletable": true,
             "editable": true,
             "name": sprite.name,
-            "styles": [style_id],
+            "styles": actor_styles,
             "currentStyleId": style_id,
             "comments": {},
         });
@@ -1186,10 +1228,11 @@ fn temp_workspace_path(output: &Path) -> PathBuf {
     path
 }
 
-fn project_name(input: &Path) -> String {
-    input
+/// `game.ts` and `game.nk.ts` are both named `game`.
+pub fn project_name(input: &Path) -> String {
+    let stem = input
         .file_stem()
         .and_then(|stem| stem.to_str())
-        .unwrap_or("compiled")
-        .to_owned()
+        .unwrap_or("compiled");
+    stem.strip_suffix(".nk").unwrap_or(stem).to_owned()
 }
