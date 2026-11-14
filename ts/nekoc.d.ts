@@ -12,6 +12,24 @@ type NekoPrimitive = string | number | boolean;
 type NekoExpression<T = any> = T;
 type NekoValue = any;
 
+// Native JS array syntax supported by the frontend: element reads (including
+// undefined for out-of-bounds), compound element assignments, length = 0,
+// reverse/sort in place, rest destructuring, and callback local captures.
+// flat currently requires an all-array literal initializer and depth 1;
+// reduce without an initial value requires a provably nonempty literal array.
+// User element writes require a provably existing integer index in a stable
+// dense literal array; unknown/mixed += element types require a string RHS.
+// Element ++/-- requires known numeric elements; mutation/escape may invalidate
+// static length and element-type proofs.
+// Deferred function mutations are considered regardless of declaration order;
+// parentheses, as, non-null and satisfies wrappers do not hide array mutations.
+interface Array<T> {
+  at(index: number): T | undefined;
+}
+interface ReadonlyArray<T> {
+  at(index: number): T | undefined;
+}
+
 type NekoStatementBody = () => void;
 /** Cooperative Kitten N timer handle; delays are milliseconds, frame-quantized. */
 interface NekoTimer { readonly active: boolean; readonly delay: number; }
