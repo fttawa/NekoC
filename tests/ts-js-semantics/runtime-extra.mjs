@@ -22,4 +22,10 @@ export const cases = [
   c("argument property name", "let obj = {x: 2}; function f(x: number) { return x + 1; }", "out = f(obj.x);"),
   c("argument object key", "function f(x: {x: number}) { return x.x; }", "out = f({x: 2});"),
   c("optional property name", "function f(b?: number) { return ({b: 1}).b; }", "out = f();"),
+  c("string index plus", 'function f(a = "42") { return a[0] + 1; }', "out = f(undefined);"),
+  c("string index length", 'function f(a = "42") { return a[0].length; }', "out = f(undefined);"),
+  c("local string index plus", 'function f(a = "42") { const x = a[0]; return x + 1; }', "out = f(undefined);"),
+  c("string default integer", 'function f(a = "4") { return Number.isInteger(a); }', "out = f(undefined);"),
+  c("string index integer", 'function f(a = "42") { return Number.isInteger(a[0]); }', "out = f();"),
+  c("nested string index", 'function f(a = "42", i = 0) { return a[i][0] + 1; }', "out = f();"),
 ];

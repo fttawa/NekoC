@@ -428,5 +428,9 @@ const arr = ["a", "b"];
   String defaults support inline string operations; functions lowered to custom
   procedures reject string defaults because their parameter types cannot be
   specialized per call.
+  String bracket reads require a provably in-bounds integer index on a constant
+  string (including inline parameter/local aliases and immutable literal names).
+  Out-of-bounds or unproven reads are rejected rather than treating possible
+  `undefined` as text; use `charAt` when empty-string fallback is intended.
 - Enums: `enum Foo { ... }` (registered as variables)
 - Classes: `class Foo { ... }` (registered as variables)

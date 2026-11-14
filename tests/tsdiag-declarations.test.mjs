@@ -160,3 +160,43 @@ test("custom procedure string defaults reject when binding types cannot be speci
   assert.throws(() => compile(`function f(a = "abc") { if (a.length > 0) return a.length; return 0; }
     onStart(() => { console.log(f(undefined)); });`), /String default parameter a requires an inline function/);
 });
+
+test("indexed string results retain text lowering through operations and aliases", () => {
+  for (const [body, expected] of [
+    ["return a[0] + 1;", "text_join"],
+    ["return a[0].length;", "text_length"],
+    ["const x = a[0]; return x + 1;", "text_join"],
+  ]) {
+    const report = compile(`let out: any = 0; function f(a = "42") { ${body} }
+      onStart(() => { out = f(undefined); });`);
+    const types = Object.values(report.workspaceData.blocks).map(block => block.type);
+    assert.ok(types.includes(expected), types.join(","));
+    assert.ok(types.includes("text_select"));
+    assert.ok(!types.includes("_object_get"));
+  }
+});
+
+test("possibly undefined string bracket reads reject instead of becoming empty text", () => {
+  for (const body of ["return a[2] + 1;", "return a[-1];", "return a[0.5];",
+    "return a[0 / 0];", "return a[1 / 0];", "return a[2].length;",
+    "const x = a[2]; return x + 1;", "return Number.isInteger(a[2]);"]) {
+    assert.throws(() => compile(`function f(a = "42") { ${body} }
+      onStart(() => { console.log(f()); });`), /String index must be a provably in-bounds integer/);
+  }
+  for (const top of ['let text = "42"; let i = 0;', 'const text = "42"; let i = 0;']) {
+    assert.throws(() => compile(`${top} onStart(() => { console.log(text[i] + 1); });`),
+      /String index must be a provably in-bounds integer/);
+  }
+  assert.doesNotThrow(() => compile('const text = "42"; onStart(() => { console.log(text[0] + 1); });'));
+});
+
+test("Number.isInteger resolves string defaults and indexed aliases before numeric helpers", () => {
+  for (const body of ["return Number.isInteger(a);", "return Number.isInteger(a[0]);",
+    "const x = a[0]; return Number.isInteger(x);"]) {
+    const report = compile(`function f(a = "42") { ${body} }
+      onStart(() => { console.log(f(undefined)); });`);
+    const types = Object.values(report.workspaceData.blocks).map(block => block.type);
+    assert.ok(!types.includes("math_round"), types.join(","));
+    assert.ok(types.includes("logic_boolean"));
+  }
+});

@@ -1501,8 +1501,12 @@ class WorkspaceCompiler {
     this.registerBlockVariable(declaration.name, variableName);
     if (declaration.initializer && this.isArrayExpression(declaration.initializer)) {
       this.arrayVariables.add(variableName);
-    } else if (declaration.initializer && isStringExpression(declaration.initializer)) {
+    } else if (declaration.initializer && this.isBoundStringExpression(declaration.initializer)) {
       this.stringVariables.add(variableName);
+    }
+    if ((declaration.parent.flags & ts.NodeFlags.Const) && declaration.initializer
+      && ts.isStringLiteral(declaration.initializer)) {
+      this.constStringLiterals.set(variableName, declaration.initializer);
     }
     const id = this.addBlock({
       type: "variables_set",
@@ -2080,7 +2084,7 @@ class WorkspaceCompiler {
     let valueId;
     if (spec.kind === "assign") {
       valueId = this.compileExpression(expression.right, id);
-    } else if (spec.operator === "add" && isStringExpression(expression.right)) {
+    } else if (spec.operator === "add" && this.isBoundStringExpression(expression.right)) {
       // s += "text" appends.
       valueId = this.compileTextJoin([{ expression: expression.left }, { expression: expression.right }], id);
     } else {
@@ -3495,7 +3499,7 @@ class WorkspaceCompiler {
     if (this.globalHelpers?.has(name)) {
       const arity = name === "Math.atan2" ? 2 : 1;
       if (call.arguments.length !== arity) this.unsupported(call, `${name} expects ${arity} argument(s)`);
-      if (name === "Number.isInteger" && (isStringExpression(call.arguments[0]) || [ts.SyntaxKind.TrueKeyword, ts.SyntaxKind.FalseKeyword].includes(call.arguments[0].kind))) {
+      if (name === "Number.isInteger" && (this.isBoundStringExpression(call.arguments[0]) || [ts.SyntaxKind.TrueKeyword, ts.SyntaxKind.FalseKeyword].includes(call.arguments[0].kind))) {
         return this.compileExpression(ts.factory.createFalse(), parentId);
       }
       return this.compileExpressionCall(ts.factory.createCallExpression(ts.factory.createIdentifier(this.globalHelpers.get(name)), undefined,
@@ -4097,7 +4101,11 @@ class WorkspaceCompiler {
   }
 
   isBoundStringExpression(node) {
-    return isStringExpression(node, name => this.lookupExpressionBinding(name));
+    return isStringExpression(node, name => this.lookupStringBinding(name));
+  }
+
+  lookupStringBinding(name) {
+    return this.lookupExpressionBinding(name) ?? this.constStringLiterals.get(name);
   }
 
   lookupRangeBinding(name) {
@@ -4329,6 +4337,9 @@ class WorkspaceCompiler {
     // s[i] is a character; anything else is read as a list (a[i] -> item i + 1).
     const target = expression.expression;
     if (this.isBoundStringExpression(target)) {
+      if (!this.isBoundStringExpression(expression)) {
+        this.unsupported(expression, "String index must be a provably in-bounds integer on a constant string; possibly undefined string reads are not supported (use charAt for empty-string semantics)");
+      }
       const id = this.addBlock({
         type: "text_select",
         parent_id: parentId,
@@ -4726,7 +4737,7 @@ class WorkspaceCompiler {
     // `+` joins text when either side is statically a string; chains like
     // "a" + x + "b" flatten into one join.
     if (operator === ts.SyntaxKind.PlusToken && this.isBoundStringExpression(expression)) {
-      return this.compileTextJoin(flattenStringConcat(expression, name => this.lookupExpressionBinding(name)).map((part) => (
+      return this.compileTextJoin(flattenStringConcat(expression, name => this.lookupStringBinding(name)).map((part) => (
         ts.isStringLiteral(part) || ts.isNoSubstitutionTemplateLiteral(part) ? { text: part.text } : { expression: part }
       )), parentId);
     }
@@ -5150,10 +5161,41 @@ function isStringExpression(node, resolve, visited = new Set()) {
     && ["join", "selectText", "answer", "String"].includes(node.expression.text)) return true;
   if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression)
     && STRING_METHODS.has(node.expression.name.text)) return true;
+  if (ts.isElementAccessExpression(node) && isStringExpression(node.expression, resolve, visited)) {
+    return constantStringValue(node, resolve) !== null;
+  }
   if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.PlusToken) {
     return isStringExpression(node.left, resolve, visited) || isStringExpression(node.right, resolve, visited);
   }
   return false;
+}
+
+// Only proven characters are strings: JS bracket access can instead be undefined.
+// Resolve immutable literals and inline aliases, never mutable runtime variables.
+function constantStringValue(node, resolve, visited = new Set()) {
+  node = stripParens(node);
+  if (!node || visited.has(node)) return null;
+  visited.add(node);
+  if (ts.isIdentifier(node) && resolve) {
+    const bound = resolve(node.text);
+    return bound ? constantStringValue(bound, resolve, visited) : null;
+  }
+  if (ts.isAsExpression(node)) return constantStringValue(node.expression, resolve, visited);
+  if (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)) return node.text;
+  if (ts.isElementAccessExpression(node)) {
+    const target = constantStringValue(node.expression, resolve, visited);
+    let indexNode = stripParens(node.argumentExpression);
+    const indices = new Set();
+    while (indexNode && ts.isIdentifier(indexNode) && resolve && !indices.has(indexNode)) {
+      indices.add(indexNode);
+      const bound = resolve(indexNode.text);
+      if (!bound) break;
+      indexNode = stripParens(bound);
+    }
+    const index = indexNode ? constantNumber(indexNode) : null;
+    if (target !== null && Number.isInteger(index) && index >= 0 && index < target.length) return target[index];
+  }
+  return null;
 }
 
 function flattenStringConcat(node, resolve) {
