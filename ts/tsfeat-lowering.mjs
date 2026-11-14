@@ -340,10 +340,11 @@ export function lowerTsFeatures(sourceFile) {
     return [...from.calls].some(next => next === target || reaches(next, target, seen));
   };
   for (const record of records) {
+    record.recursive = reaches(record, record);
     if (isExported(record) && record.slots.size) {
       fail(record.node, "Exported higher-order functions cannot be specialized across modules; move the call into the same module or export a wrapper with explicit scalar parameters instead");
     }
-    if (!reaches(record, record)) continue;
+    if (!record.recursive) continue;
     // Plain recursive locals get per-call frames in the compiler; only the
     // lifted parameters for captures and function arguments stay shared.
     if (record.captures.size || record.slots.size) {
@@ -361,13 +362,15 @@ export function lowerTsFeatures(sourceFile) {
       if (ts.isReturnStatement(node) && nearestFunction(node) === record.node) hasReturn = true;
       if (ts.isVariableDeclaration(node) && nearestFunction(node) === record.node && !aliases.has(node) && !resolve(node.initializer)) hasLocal = true;
     });
-    record.cloneCalls = ts.isBlock(record.node.body) && !hasReturn && hasLocal;
+    // Recursive statement functions become backend procedures with per-call
+    // frames; cloning their static calls would expand the cycle indefinitely.
+    record.cloneCalls = !record.recursive && ts.isBlock(record.node.body) && !hasReturn && hasLocal;
   }
   changed = true;
   while (changed) {
     changed = false;
     for (const record of records) {
-      if (!record.cloneCalls && [...record.calls].some(target => target.cloneCalls)) {
+      if (!record.recursive && !record.cloneCalls && [...record.calls].some(target => target.cloneCalls)) {
         record.cloneCalls = true;
         changed = true;
       }

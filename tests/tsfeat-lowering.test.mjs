@@ -215,6 +215,9 @@ test("recursive scalar locals and assigned parameters use tsctrl per-call frames
     "function sum(n: number): number { if (n <= 0) return 0; return n + sum(n - 1); } console.log(sum(4));",
     "function f(n: number): number { let x = n; if (n > 0) return f(n - 1) + x; return x; } console.log(f(4));",
     "function f(n: number): number { n--; if (n > 0) return f(n); return n; } console.log(f(4));",
+    "function f(n: number) { let x = n; if (n > 0) f(n - 1); console.log(x); } f(4);",
+    "function log(n: number) { let saved = n; console.log(saved); } function f(n: number) { let x = n; if (n > 0) f(n - 1); log(x); } f(3);",
+    "function f(n: number) { let saved = n; if (n > 0) g(n - 1); console.log(saved); } function g(n: number) { let saved = n; if (n > 0) f(n - 1); console.log(saved); } f(4);",
   ]) {
     run(code);
     assertJsLogs(code);
@@ -225,7 +228,7 @@ test("recursive captures, function slots and reentrant call cloning reject clear
   for (const code of [
     "function outer(n: number) { function f(x: number) { if (x > 0) return f(x-1)+n; return n; } return f(2); }",
     "function f(fn: (n: number) => number, n: number) { n--; if (n > 0) return f(fn,n); return fn(n); }",
-    "function f(n: number) { const local = n; if (n > 0) [n-1].forEach(next => f(next)); console.log(local); } f(2);",
+    "function apply(fn, n: number) { fn(n); } function f(n: number) { const local = n; if (n > 0) apply(f, n - 1); console.log(local); } f(2);",
   ]) assert.throws(() => lower(code), /Recursive.*iterative loop/);
 });
 

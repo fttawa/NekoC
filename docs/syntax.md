@@ -104,8 +104,9 @@ captures, escaping function values and rest parameters are rejected with
 alternatives (pass explicit scalar parameters or an array). Unique local and
 parameter names preserve lexical shadowing across inline calls and loop scopes.
 Recursive scalar locals and reassigned scalar parameters use per-call frames;
-recursive captures, function-argument specialization and statement-call cloning
-are rejected with an iterative alternative.
+ordinary statement functions, including mutual recursion, use these frames too.
+Recursive captures and function-argument specialization are rejected with an
+iterative alternative.
 
 ```ts
 function double(x: number) {
