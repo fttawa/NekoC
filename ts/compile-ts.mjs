@@ -32,14 +32,18 @@ function nodeLocation(node) {
 function rejectParseDiagnostics(sourceFile) {
   const diagnostics = sourceFile.parseDiagnostics ?? [];
   if (!diagnostics.length) return;
-  const first = diagnostics[0];
-  const { line, character } = sourceFile.getLineAndCharacterOfPosition(first.start ?? 0);
-  fail(diagnostics.map((diagnostic) => {
-    const start = diagnostic.start ?? 0;
-    const { line, character } = sourceFile.getLineAndCharacterOfPosition(start);
-    const message = ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n");
-    return `${sourceFile.fileName}:${line + 1}:${character + 1}: TS${diagnostic.code}: ${message}`;
-  }).join("\n"), { file: sourceFile.fileName, line: line + 1, column: character + 1 }, `TS${first.code}`);
+  const items = diagnostics.map((diagnostic) => {
+    const { line, character } = sourceFile.getLineAndCharacterOfPosition(diagnostic.start ?? 0);
+    return {
+      severity: "error", source: "syntax", code: `TS${diagnostic.code}`,
+      message: ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n"),
+      file: sourceFile.fileName, line: line + 1, column: character + 1,
+    };
+  });
+  const first = items[0];
+  const error = new CompileError(first.message, { file: first.file, line: first.line, column: first.column }, first.code);
+  error.diagnostics = items;
+  throw error;
 }
 
 // Global flag the implicit start script sets once top-level initialization ran.
@@ -65,6 +69,7 @@ class WorkspaceCompiler {
     this.functionProcedures = new Map();
     this.functionParams = null;
     this.expressionBindings = [];
+    this.resolvingBindings = new Set();
     this.inlineCallStack = [];
     this.loadedModules = new Set();
     this.moduleExports = new Map();
@@ -105,6 +110,7 @@ class WorkspaceCompiler {
     const startup = [];
     const explicitStarts = [];
     sourceFile.statements.forEach((statement) => {
+      if (this.isTypeOnlyStatement(statement)) return;
       if (ts.isImportDeclaration(statement)) {
         return;
       }
@@ -130,6 +136,7 @@ class WorkspaceCompiler {
     }
 
     sourceFile.statements.forEach((statement) => {
+      if (this.isTypeOnlyStatement(statement)) return;
       if (ts.isImportDeclaration(statement)) {
         return;
       }
@@ -194,7 +201,10 @@ class WorkspaceCompiler {
       const waitReady = ts.factory.createExpressionStatement(ts.factory.createCallExpression(
         ts.factory.createIdentifier("waitUntil"), undefined,
         [ts.factory.createBinaryExpression(ready, ts.SyntaxKind.EqualsEqualsEqualsToken, ts.factory.createNumericLiteral(1))]));
-      for (const call of explicitStarts) compileStart([waitReady, ...callbackBody(call.arguments[0], this)]);
+      for (const call of explicitStarts) {
+        this.currentStatementNode = call;
+        compileStart([waitReady, ...callbackBody(call.arguments[0], this)]);
+      }
     } else {
       for (const call of explicitStarts) this.compileTopLevelCall(call);
     }
@@ -225,11 +235,12 @@ class WorkspaceCompiler {
       if (!ts.isImportDeclaration(statement)) {
         return;
       }
+      if (this.isTypeOnlyStatement(statement)) return;
       const modulePath = this.importModuleSpecifier(statement);
       if (!modulePath.startsWith(".")) {
         this.unsupported(statement, `Only relative imports are supported: ${modulePath}`);
       }
-      const resolvedPath = this.resolveImportPath(fromPath, modulePath);
+      const resolvedPath = this.resolveImportPath(fromPath, modulePath, statement);
       this.loadModule(resolvedPath, statement);
     });
   }
@@ -272,6 +283,7 @@ class WorkspaceCompiler {
   collectModuleExports(sourceFile) {
     const exports = new Map();
     sourceFile.statements.forEach((statement) => {
+      if (this.isTypeOnlyStatement(statement)) return;
       if (!hasExportModifier(statement)) {
         return;
       }
@@ -296,10 +308,12 @@ class WorkspaceCompiler {
     if (!clause || clause.name || !clause.namedBindings || !ts.isNamedImports(clause.namedBindings)) {
       this.unsupported(statement, "Only named imports are supported");
     }
-    return clause.namedBindings.elements.map((element) => element.name.text);
+    return clause.namedBindings.elements
+      .filter((element) => !element.isTypeOnly)
+      .map((element) => element.name.text);
   }
 
-  resolveImportPath(fromPath, modulePath) {
+  resolveImportPath(fromPath, modulePath, importNode) {
     const basePath = path.resolve(path.dirname(fromPath), modulePath);
     const candidates = [
       basePath,
@@ -308,16 +322,52 @@ class WorkspaceCompiler {
     ];
     const resolved = candidates.find((candidate) => typeof this.host.readFile(candidate) === "string");
     if (!resolved) {
-      fail(`Unable to resolve import ${modulePath} from ${fromPath}`);
+      fail(`Unable to resolve import ${modulePath} from ${fromPath}`, nodeLocation(importNode));
     }
     return resolved;
   }
 
   isInlineFunctionDefinition(statement) {
     if (ts.isFunctionDeclaration(statement)) {
-      return true;
+      return Boolean(statement.body);
     }
     return this.inlineArrowFunctionDeclaration(statement) !== null;
+  }
+
+  // TypeScript erases these declarations; do not register variables or
+  // procedures for ambient values or overload signatures.
+  isTypeOnlyStatement(statement) {
+    if (ts.isEmptyStatement(statement) || ts.isInterfaceDeclaration(statement) || ts.isTypeAliasDeclaration(statement)
+      || statement.modifiers?.some(modifier => modifier.kind === ts.SyntaxKind.DeclareKeyword)) return true;
+    if (ts.isImportDeclaration(statement)) {
+      const clause = statement.importClause;
+      return Boolean(clause?.isTypeOnly || (!clause?.name && clause?.namedBindings
+        && ts.isNamedImports(clause.namedBindings)
+        && clause.namedBindings.elements.every(element => element.isTypeOnly)));
+    }
+    if (ts.isExportDeclaration(statement)) {
+      return Boolean(statement.isTypeOnly || (statement.exportClause && ts.isNamedExports(statement.exportClause)
+        && statement.exportClause.elements.every(element => element.isTypeOnly)));
+    }
+    if (ts.isFunctionDeclaration(statement) && !statement.body) {
+      const siblings = statement.parent?.statements ?? [];
+      const index = Array.from(siblings).indexOf(statement);
+      if (Array.from(siblings).slice(index + 1).some(candidate => ts.isFunctionDeclaration(candidate)
+        && candidate.name?.text === statement.name?.text && candidate.body)) return true;
+      this.unsupported(statement, "Function overload signatures need a following implementation (or declare)");
+    }
+    if (ts.isModuleDeclaration(statement)) {
+      const body = statement.body;
+      if (!body) return true;
+      if (ts.isModuleDeclaration(body)) {
+        if (this.isTypeOnlyStatement(body)) return true;
+      } else if (ts.isModuleBlock(body) && body.statements.every(member =>
+        (ts.isInterfaceDeclaration(member) || ts.isTypeAliasDeclaration(member) || ts.isEmptyStatement(member)
+          || (ts.isModuleDeclaration(member) && !member.modifiers?.some(modifier => modifier.kind === ts.SyntaxKind.DeclareKeyword)))
+        && this.isTypeOnlyStatement(member))) return true;
+      this.unsupported(statement, "Namespaces containing runtime values are not supported; use a type-only namespace or top-level declarations");
+    }
+    return false;
   }
 
   isGlobalVariableDeclaration(statement) {
@@ -412,6 +462,7 @@ class WorkspaceCompiler {
         return param.name.text;
       }),
       defaults: params.map((param) => param.initializer ?? null),
+      optional: params.map((param) => Boolean(param.questionToken)),
       body,
     });
   }
@@ -452,7 +503,7 @@ class WorkspaceCompiler {
         }
       });
       if (!ts.isBlock(fn.body)) returnsValue = true;
-      const statements = ts.isBlock(fn.body) ? Array.from(fn.body.statements) : [];
+      const statements = ts.isBlock(fn.body) ? Array.from(fn.body.statements).filter(statement => !this.isTypeOnlyStatement(statement)) : [];
       const simpleExpression = !ts.isBlock(fn.body) || (
         statements.length > 0
         && ts.isReturnStatement(statements.at(-1)) && statements.at(-1).expression
@@ -790,11 +841,41 @@ class WorkspaceCompiler {
     if (args.length > fn.params.length) {
       this.unsupported(call, `Function ${fn.name} expects at most ${fn.params.length} arguments but got ${args.length}`);
     }
-    for (let i = args.length; i < fn.params.length; i++) {
-      if (!fn.defaults?.[i]) {
+    for (let i = 0; i < fn.params.length; i++) {
+      const omitted = i >= args.length;
+      const argument = args[i] && stripParens(args[i]);
+      const explicitUndefined = argument && ts.isIdentifier(argument) && argument.text === "undefined"
+        && !this.globalVariables.has("undefined") && !this.lookupExpressionBinding("undefined")
+        && !this.functionParams?.has("undefined");
+      if (!omitted && !explicitUndefined) continue;
+      if (fn.defaults?.[i]) {
+        // A default can refer to an earlier parameter. Substitute only those
+        // names, not names from the caller's unrelated scope.
+        const earlier = new Map(fn.params.slice(0, i).map((name, index) => [name, args[index]]));
+        const transformed = ts.transform(fn.defaults[i], [context => {
+          const visit = node => ts.isIdentifier(node) && earlier.has(node.text)
+            ? earlier.get(node.text) : ts.visitEachChild(node, visit, context);
+          return root => ts.visitNode(root, visit);
+        }]);
+        args[i] = transformed.transformed[0];
+        transformed.dispose();
+        // Restrict expansion to literals and constant numeric expressions.
+        // Other expressions can replay side effects or depend on KN coercion.
+        if (!isConstantDefault(args[i])) {
+          this.unsupported(call, `Default parameter ${fn.params[i]} requires a literal or constant numeric expression (or earlier constant arguments); side-effecting defaults are not supported`);
+        }
+      } else if (fn.optional?.[i]) {
+        // This TS lowering has no general undefined-value representation.
+        // An unused optional slot can be filled arbitrarily, but an observable
+        // missing value must not turn silently into 0 or an empty string.
+        if (runtimeContainsIdentifier(fn.body, fn.params[i])
+          || fn.defaults.slice(i + 1).some(value => value && runtimeContainsIdentifier(value, fn.params[i]))) {
+          this.unsupported(call, `Omitted optional parameter ${fn.params[i]} is read by ${fn.name}; use a default parameter (undefined values are not supported)`);
+        }
+        args[i] = ts.factory.createNumericLiteral(0);
+      } else if (omitted) {
         this.unsupported(call, `Function ${fn.name} expects ${fn.params.length} arguments but got ${call.arguments.length}`);
       }
-      args.push(fn.defaults[i]);
     }
     return args;
   }
@@ -860,6 +941,7 @@ class WorkspaceCompiler {
   }
 
   compileTopLevelCall(call) {
+    this.currentStatementNode = call;
     const name = calleeName(call.expression);
     if (isMemberCallName(name, "onStart")) {
       return this.compileNextHat(call, "on_running_group_activated", 0);
@@ -1293,6 +1375,7 @@ class WorkspaceCompiler {
 
   compileStatement(statement, parentId) {
     this.currentStatementNode = statement;
+    if (this.isTypeOnlyStatement(statement)) return null;
     if (ts.isExpressionStatement(statement)) {
       return this.compileStatementExpression(statement.expression, parentId);
     }
@@ -1881,7 +1964,7 @@ class WorkspaceCompiler {
       if (!ts.isBlock(fn.body)) {
         this.unsupported(call, `Statement function ${name} must use a block body`);
       }
-      const statements = Array.from(fn.body.statements);
+      const statements = Array.from(fn.body.statements).filter(statement => !this.isTypeOnlyStatement(statement));
       if (statements.some((statement) => ts.isReturnStatement(statement))) {
         this.unsupported(call, `Statement function ${name} cannot contain return`);
       }
@@ -3183,7 +3266,15 @@ class WorkspaceCompiler {
     if (ts.isIdentifier(expression)) {
       const boundExpression = this.lookupExpressionBinding(expression.text);
       if (boundExpression) {
-        return this.compileExpression(boundExpression, parentId);
+        if (this.resolvingBindings.has(boundExpression)) {
+          this.unsupported(expression, `Inline parameter binding cycle for ${expression.text}; rename the caller variable or use a non-inline function`);
+        }
+        this.resolvingBindings.add(boundExpression);
+        try {
+          return this.compileExpression(boundExpression, parentId);
+        } finally {
+          this.resolvingBindings.delete(boundExpression);
+        }
       }
       if (this.functionParams?.has(expression.text)) {
         return this.compileParameterGet(expression.text, parentId, expression);
@@ -3862,7 +3953,7 @@ class WorkspaceCompiler {
       if (!ts.isBlock(fn.body)) {
         return this.compileExpression(fn.body, parentId);
       }
-      const statements = Array.from(fn.body.statements);
+      const statements = Array.from(fn.body.statements).filter(statement => !this.isTypeOnlyStatement(statement));
       return this.compileInlineExpressionFunctionBlock(call, parentId, name, statements);
     });
   }
@@ -3905,6 +3996,25 @@ class WorkspaceCompiler {
     }
     const fn = this.inlineFunctions.get(name);
     const args = this.functionArguments(fn, call);
+    // Argument ASTs are expanded under the callee's binding map. Until the
+    // inliner carries lexical environments, reject captures rather than
+    // silently substituting a callee parameter/default for a caller variable.
+    const capturedNames = new Set(fn.params);
+    if (ts.isBlock(fn.body)) {
+      for (const statement of fn.body.statements) {
+        if (ts.isVariableStatement(statement) && !this.isTypeOnlyStatement(statement)) {
+          for (const declaration of statement.declarationList.declarations) {
+            if (ts.isIdentifier(declaration.name)) capturedNames.add(declaration.name.text);
+          }
+        }
+      }
+    }
+    for (const argument of args) {
+      if (!ts.isArrowFunction(stripParens(argument)) && !ts.isFunctionExpression(stripParens(argument))
+        && this.inlineArgumentCaptures(argument, capturedNames)) {
+        this.unsupported(call, "Inline parameter binding cycle or capture; rename the caller variable or use a non-inline function");
+      }
+    }
     const bindings = new Map();
     fn.params.forEach((param, index) => {
       bindings.set(param, args[index]);
@@ -3927,6 +4037,21 @@ class WorkspaceCompiler {
       }
     }
     return null;
+  }
+
+  inlineArgumentCaptures(expression, names, visited = new Set()) {
+    if (visited.has(expression)) return false;
+    visited.add(expression);
+    let found = false;
+    const visit = node => {
+      if (found || ts.isTypeNode(node)) return;
+      if (ts.isIdentifier(node)) {
+        const bound = this.lookupExpressionBinding(node.text);
+        found = names.has(node.text) || Boolean(bound && this.inlineArgumentCaptures(bound, names, visited));
+      } else ts.forEachChild(node, visit);
+    };
+    visit(expression);
+    return found;
   }
 
   lookupRangeBinding(name) {
@@ -4798,10 +4923,7 @@ class WorkspaceCompiler {
   }
 
   unsupported(node, message) {
-    const suffix = node && typeof node.pos === "number" && node.pos >= 0 && node.getSourceFile?.() === this.sourceFile
-      ? ` at offset ${node.getStart(this.sourceFile)}`
-      : "";
-    fail(`${message}${suffix}`, nodeLocation(node));
+    fail(message, nodeLocation(node) ?? nodeLocation(this.currentStatementNode) ?? nodeLocation(this.sourceFile));
   }
 }
 
@@ -5429,20 +5551,50 @@ export function checkFile(inputPath, { types = true, host } = {}) {
     report = compileFile(inputPath, host);
   } catch (error) {
     if (!(error instanceof CompileError)) throw error;
-    diagnostics.push({
-      severity: "error",
-      source: error.code.startsWith("TS") ? "syntax" : "compat",
-      code: error.code,
-      message: error.message,
-      ...(error.location ?? { file: inputPath }),
-    });
+    for (const item of compileErrorDiagnostics(error, inputPath)) {
+      const duplicate = item.source === "syntax" && diagnostics.some(existing =>
+        existing.source === "types" && existing.severity === item.severity
+        && existing.code === item.code && existing.message === item.message
+        && existing.line === item.line && existing.column === item.column
+        && existing.file && item.file && path.resolve(existing.file) === path.resolve(item.file));
+      if (!duplicate) diagnostics.push(item);
+    }
   }
   return { ok: !diagnostics.some((d) => d.severity === "error"), diagnostics, report };
 }
 
+/** Structured compile diagnostics, with messages kept separate from source locations. */
+export function compileErrorDiagnostics(error, file) {
+  return error.diagnostics ?? [{
+    severity: "error",
+    source: error.code.startsWith("TS") ? "syntax" : "compat",
+    code: error.code,
+    message: error.message,
+    ...(error.location ?? (file ? { file } : {})),
+  }];
+}
+
+function runtimeContainsIdentifier(expression, name) {
+  let found = false;
+  function visit(node) {
+    if (found || ts.isTypeNode(node) || ts.isInterfaceDeclaration(node) || ts.isTypeAliasDeclaration(node)
+      || node.modifiers?.some(modifier => modifier.kind === ts.SyntaxKind.DeclareKeyword)) return;
+    if (ts.isIdentifier(node) && node.text === name) found = true;
+    else ts.forEachChild(node, visit);
+  }
+  visit(expression);
+  return found;
+}
+
+function isConstantDefault(node) {
+  node = stripParens(node);
+  return constantNumber(node) !== null || ts.isStringLiteral(node)
+    || node.kind === ts.SyntaxKind.TrueKeyword || node.kind === ts.SyntaxKind.FalseKeyword;
+}
+
 export function formatDiagnostic(d) {
-  const where = d.line ? `${d.file}:${d.line}:${d.column}` : d.file ?? "";
-  return `${where}: ${d.severity} ${d.code}: ${d.message}`;
+  const where = d.file ? d.line && d.column ? `${d.file}:${d.line}:${d.column}` : d.file : "";
+  return `${where ? `${where}: ` : ""}${d.severity} ${d.code}: ${d.message}`;
 }
 
 function main(argv) {
@@ -5475,7 +5627,7 @@ function main(argv) {
     report = compileFile(inputPath);
   } catch (error) {
     if (!(error instanceof CompileError)) throw error;
-    console.error(error.message);
+    compileErrorDiagnostics(error, inputPath).forEach((d) => console.error(formatDiagnostic(d)));
     process.exit(1);
   }
   fs.writeFileSync(outputPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");

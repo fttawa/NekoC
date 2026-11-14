@@ -38,7 +38,7 @@ Engine 输出的 `schema` 是 **`nekoc-engine-run-v1`**，基于完整、非消�
 
 - `sequence`、`time`、`scene`：VM 更新序号、模拟秒数、当前场景 ID。
 - `actors`：所有存活非舞台角色（含克隆），包括坐标、`direction`（VM 原始朝向）、可见性、缩放/造型和私有变量。不是旧快照的 `rotation`。
-- `variables` / `lists`：按 ID 区分标量与列表，保留 Engine 的类型值；非有限数按现有 JSON 编码序列化。
+- `variables` / `lists`：按 ID 区分标量与列表，保留有限数字的 JSON 数字表示；非有限数分别写成字符串 `"NaN"`、`"Infinity"`、`"-Infinity"`，不再与 `null` 混淆。同样适用于角色私有变量及变量中的嵌套列表/对象；这些字符串不区分同名的普通文本。
 - `variable_names`、`logs`、`active_threads`、`ticks`、`seed`、`budget_yields`：显示名、累计日志及执行统计。
 - `ask` / `stage_dialog`：最后一帧尚未完成的询问/舞台对话；CLI 不自动作答。
 - `extension_requests`：累计宿主扩展请求；默认未注册自定义扩展，不授权网络/设备。

@@ -416,5 +416,14 @@ const arr = ["a", "b"];
 - Type-only imports/exports: `import type { ... }`
 - Interfaces: `interface Foo { ... }` (stripped)
 - Type aliases: `type Foo = ...` (stripped)
+- Ambient declarations (`declare`), overload signatures, and namespaces that
+  contain only interfaces/type aliases are stripped. A namespace with runtime
+  values is rejected because Kitten N has no namespace value model.
+- Default parameters with constant defaults (including an earlier constant
+  parameter), such as `function f(a, b = 1)`, are expanded at each call. An
+  omitted optional parameter may be used only when its value is not observed;
+  use a default parameter when `undefined` must be tested.
+  Inline calls whose arguments would capture a callee parameter name are
+  rejected; rename the caller variable or use a non-inline function.
 - Enums: `enum Foo { ... }` (registered as variables)
 - Classes: `class Foo { ... }` (registered as variables)
