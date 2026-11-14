@@ -78,6 +78,8 @@ class WorkspaceCompiler {
     this.enumValues = new Map();
     // Variables initialised with an array (a list value held in a variable).
     this.arrayVariables = new Set();
+    this.arrayDeclarations = new Map();
+    this.callbackCaptures = new Map();
     // Call nodes of callback methods (a.map(x => ...)) -> helper function name.
     this.helperCalls = new Map();
     this.helperCount = 0;
@@ -101,6 +103,14 @@ class WorkspaceCompiler {
   compile(sourceFile) {
     this.loadImports(sourceFile, this.entryPath);
     this.synthesizeHelpers(sourceFile);
+    const collectArrays = (node) => {
+      if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name)) {
+        this.arrayDeclarations.set(node.name.text, node);
+        if (this.callbackCaptures.get(node.name.text) === node) this.globalVariables.add(node.name.text);
+      }
+      ts.forEachChild(node, collectArrays);
+    };
+    collectArrays(sourceFile);
 
     const startup = [];
     const explicitStarts = [];
@@ -559,6 +569,7 @@ class WorkspaceCompiler {
     this.globalHelpers = new Map();
     const used = new Set();
     const visit = (node) => {
+      if (ts.isArrayBindingPattern(node) && node.elements.some(element => element.dotDotDotToken)) used.add("slice");
       if (ts.isCallExpression(node) && calleeName(node.expression) === "Array.from") {
         const [options, callback] = node.arguments;
         if (!options || !ts.isObjectLiteralExpression(options) || options.properties.length !== 1
@@ -700,6 +711,25 @@ class WorkspaceCompiler {
       : statementBody ? `{ ${callback.body.getText(sourceFile)}; }` : `{ return ${callback.body.getText(sourceFile)}; }`;
     // Callback params cannot reach parameters of an enclosing custom block.
     for (let outer = call.parent; outer; outer = outer.parent) {
+      if (!ts.isBlock(outer)) continue;
+      for (const statement of outer.statements) {
+        if (!ts.isVariableStatement(statement)) continue;
+        for (const declaration of statement.declarationList.declarations) {
+          if (ts.isIdentifier(declaration.name) && !params.includes(declaration.name.text)
+            && expressionContainsIdentifier(callback.body, declaration.name.text)) {
+            for (let owner = declaration.parent; owner; owner = owner.parent) {
+              if (ts.isFunctionDeclaration(owner) || ts.isArrowFunction(owner) && ts.isVariableDeclaration(owner.parent)) {
+                this.unsupported(callback, "Callbacks cannot capture locals of an inline function; use an event-local or top-level variable");
+              }
+            }
+            const previous = this.callbackCaptures.get(declaration.name.text);
+            if (previous && previous !== declaration) this.unsupported(declaration, `Variable shadowing is not supported: ${declaration.name.text}`);
+            this.callbackCaptures.set(declaration.name.text, declaration);
+          }
+        }
+      }
+    }
+    for (let outer = call.parent; outer; outer = outer.parent) {
       if (ts.isFunctionLike(outer) && outer !== callback) {
         for (const param of outer.parameters ?? []) {
           if (ts.isIdentifier(param.name) && expressionContainsIdentifier(callback.body, param.name.text)
@@ -727,8 +757,11 @@ class WorkspaceCompiler {
         helper = `function ${name}(__arrL) { ${loop(`${cb}(${args(x, i, "__arrL")});`)} }`;
         break;
       case "reduce":
-        if (call.arguments.length < 2) this.unsupported(call, "reduce needs an initial value: a.reduce((acc, x) => ..., init)");
-        helper = `function ${name}(__arrL, __init${n}) { let __acc${n} = __init${n}; ${loop(`__acc${n} = ${cb}(${args(`__acc${n}`, x, i, "__arrL")});`)} return __acc${n}; }`;
+        if (call.arguments.length < 2) {
+          helper = `function ${name}(__arrL) { let __acc${n} = __arrL[0]; let ${i} = 1; while (${i} < __arrL.length) { __acc${n} = ${cb}(${args(`__acc${n}`, `__arrL[${i}]`, i, "__arrL")}); ${i}++; } return __acc${n}; }`;
+        } else {
+          helper = `function ${name}(__arrL, __init${n}) { let __acc${n} = __init${n}; ${loop(`__acc${n} = ${cb}(${args(`__acc${n}`, x, i, "__arrL")});`)} return __acc${n}; }`;
+        }
         break;
       case "find":
         helper = `function ${name}(__arrL) { ${loop(`if (${cb}(${args(x, i, "__arrL")})) { return ${x}; }`)} return ""; }`;
@@ -748,7 +781,7 @@ class WorkspaceCompiler {
       default:
         this.unsupported(call, `Unsupported callback method ${method}`);
     }
-    this.helperCalls.set(call, { name, extra: method === "reduce" ? [call.arguments[1]] : [] });
+    this.helperCalls.set(call, { name, extra: method === "reduce" && call.arguments.length > 1 ? [call.arguments[1]] : [], reduceNoInitial: method === "reduce" && call.arguments.length < 2 });
     return `function ${cb}(${params.join(", ")}) ${body}\n${helper}`;
   }
 
@@ -759,6 +792,13 @@ class WorkspaceCompiler {
   }
 
   compileHelperCall(name, target, args, parentId, asExpression = true) {
+    if (ts.isArrayLiteralExpression(stripParens(target))) {
+      // The editor rejects an Array-only temporary_list in a procedure's
+      // scalar parameter socket. Computed access has an untyped output while
+      // retaining the same array reference and evaluating the literal once.
+      target = ts.factory.createElementAccessExpression(
+        ts.factory.createArrayLiteralExpression([target]), ts.factory.createNumericLiteral(0));
+    }
     const call = this.helperCall(name, target, args);
     if (this.functionProcedures.has(name)) {
       return this.compileFunctionProcedureCall(call, parentId, asExpression);
@@ -1354,7 +1394,7 @@ class WorkspaceCompiler {
         firstId = blockId;
       }
       if (previousId) {
-        this.connectNext(previousId, blockId);
+        this.connectNext(this.chainTail(previousId), blockId);
       }
       previousId = blockId;
     });
@@ -1397,15 +1437,20 @@ class WorkspaceCompiler {
   }
 
   registerBlockVariable(node, variableName) {
-    if (this.lookupRangeBinding(variableName) || this.globalVariables.has(variableName)) {
+    const capturedDeclaration = this.callbackCaptures.get(variableName)?.name === node;
+    if (this.lookupRangeBinding(variableName) || (this.globalVariables.has(variableName) && !capturedDeclaration)) {
       this.unsupported(node, `Variable shadowing is not supported: ${variableName}`);
     }
+    if (capturedDeclaration) this.callbackCaptures.delete(variableName);
     this.globalVariables.add(variableName);
   }
 
   compileArrayDestructuring(declaration, parentId) {
-    let firstId = null;
-    let previousId = null;
+    if (!declaration.initializer) this.unsupported(declaration, "Array destructuring needs an initializer");
+    const f = ts.factory;
+    const target = f.createIdentifier(`__arrDestructure${this.nextId}`);
+    const firstId = this.compileAssignmentExpression(f.createBinaryExpression(target, ts.SyntaxKind.EqualsToken, declaration.initializer), parentId);
+    let previousId = firstId;
     const elements = declaration.name.elements;
     for (let i = 0; i < elements.length; i++) {
       const elem = elements[i];
@@ -1416,36 +1461,24 @@ class WorkspaceCompiler {
       } else if (ts.isIdentifier(elem)) {
         varName = elem.text;
       } else {
-        continue;
+        this.unsupported(elem, "Nested array destructuring is not supported");
       }
+      if (elem.initializer) this.unsupported(elem, "Array destructuring defaults are not supported");
       this.registerBlockVariable(elem, varName);
       const id = this.addBlock({
         type: "variables_set",
         parent_id: parentId,
         fields: { variable: varName },
       });
-      if (declaration.initializer) {
-        const listGetId = this.addBlock({
-          type: "list_item",
-          parent_id: id,
-          is_output: true,
-        });
-        const listId = this.compileExpression(declaration.initializer, listGetId);
-        this.connectInput(listGetId, listId, "list", "value");
-        const indexId = this.addBlock({
-          type: "math_number",
-          parent_id: listGetId,
-          fields: { NUM: String(i + 1) },
-          is_output: true,
-        });
-        this.connectInput(listGetId, indexId, "list_index", "value");
-        this.connectInput(id, listGetId, "value", "value");
-      }
-      if (!firstId) firstId = id;
+      const valueId = elem.dotDotDotToken
+        ? this.compileHelperCall("__arr_slice", target, [f.createNumericLiteral(i), f.createPropertyAccessExpression(target, "length")], id)
+        : this.compileElementAccessExpression(f.createElementAccessExpression(target, f.createNumericLiteral(i)), id);
+      if (elem.dotDotDotToken) this.arrayVariables.add(varName);
+      this.connectInput(id, valueId, "value", "value");
       if (previousId) this.connectNext(previousId, id);
       previousId = id;
     }
-    return firstId || this.addBlock({ type: "restart", parent_id: parentId });
+    return firstId;
   }
 
   compileObjectDestructuring(declaration) {
@@ -1906,6 +1939,15 @@ class WorkspaceCompiler {
   }
 
   compileAssignmentExpression(expression, parentId) {
+    if (ts.isPropertyAccessExpression(expression.left) && this.isArrayExpression(expression.left.expression)) {
+      if (expression.left.name.text !== "length" || expression.operatorToken.kind !== ts.SyntaxKind.EqualsToken
+        || constantNumber(expression.right) !== 0) {
+        this.unsupported(expression, "Array property assignment supports only a.length = 0; use element assignments or splice otherwise");
+      }
+      const id = this.addBlock({ type: "delete_list_item", parent_id: parentId, fields: { item: "all" } });
+      this.connectInput(id, this.compileExpression(expression.left.expression, id), "list", "value");
+      return id;
+    }
     if ((ts.isPropertyAccessExpression(expression.left) && !["self", "this"].includes(expression.left.expression.getText()))
       || (ts.isElementAccessExpression(expression.left) && !this.isArrayExpression(expression.left.expression))) {
       return this.compileObjectAssignment(expression, parentId);
@@ -1923,8 +1965,8 @@ class WorkspaceCompiler {
       }
       this.unsupported(expression.left.name, `Unsupported self property assignment: ${propertyName}`);
     }
-    if (ts.isElementAccessExpression(expression.left) && this.isArrayExpression(expression.left.expression)
-      && expression.operatorToken.kind === ts.SyntaxKind.EqualsToken) {
+    if (ts.isElementAccessExpression(expression.left) && this.isArrayExpression(expression.left.expression)) {
+      if (expression.operatorToken.kind !== ts.SyntaxKind.EqualsToken) return this.compileArrayCompoundAssignment(expression, parentId);
       // a[i] = v -> replace item i + 1
       const id = this.addBlock({ type: "replace_list_item", parent_id: parentId, fields: { item: "any" } });
       this.connectInput(id, this.compileExpression(expression.left.expression, id), "list", "value");
@@ -1971,6 +2013,28 @@ class WorkspaceCompiler {
       (expression.operator === ts.SyntaxKind.PlusPlusToken ||
         expression.operator === ts.SyntaxKind.MinusMinusToken)
     );
+  }
+
+  compileArrayCompoundAssignment(expression, parentId) {
+    const f = ts.factory;
+    const n = this.nextId;
+    const target = f.createIdentifier(`__arrTarget${n}`);
+    const index = f.createIdentifier(`__arrayIndex${n}`);
+    const old = f.createIdentifier(`__arrayOld${n}`);
+    const assign = (left, right) => this.compileAssignmentExpression(f.createBinaryExpression(left, ts.SyntaxKind.EqualsToken, right), parentId);
+    const first = assign(target, expression.left.expression);
+    const second = assign(index, expression.left.argumentExpression);
+    this.connectNext(first, second);
+    const operators = { add: ts.SyntaxKind.PlusToken, minus: ts.SyntaxKind.MinusToken, multiply: ts.SyntaxKind.AsteriskToken,
+      divide: ts.SyntaxKind.SlashToken, mod: ts.SyntaxKind.PercentToken, power: ts.SyntaxKind.AsteriskAsteriskToken };
+    const operator = operators[assignmentOperatorSpec(expression.operatorToken.kind)?.operator];
+    if (!operator) this.unsupported(expression, "Unsupported array compound assignment operator");
+    const element = f.createElementAccessExpression(target, index);
+    const read = assign(old, element);
+    this.connectNext(second, read);
+    const last = assign(element, f.createBinaryExpression(old, operator, expression.right));
+    this.connectNext(read, last);
+    return first;
   }
 
   compileUpdateExpression(expression, parentId) {
@@ -3183,7 +3247,16 @@ class WorkspaceCompiler {
     if (ts.isIdentifier(expression)) {
       const boundExpression = this.lookupExpressionBinding(expression.text);
       if (boundExpression) {
-        return this.compileExpression(boundExpression, parentId);
+        // Arguments belong to the caller's scope, even when formal and actual
+        // identifiers have the same name (f(a) with formal a).
+        const index = this.expressionBindings.findLastIndex(scope => scope.has(expression.text));
+        const saved = this.expressionBindings;
+        const binding = saved[index];
+        if (binding.callerScope?.has(expression.text)) {
+          this.expressionBindings = saved.slice(0, index);
+        }
+        try { return this.compileExpression(boundExpression, parentId); }
+        finally { this.expressionBindings = saved; }
       }
       if (this.functionParams?.has(expression.text)) {
         return this.compileParameterGet(expression.text, parentId, expression);
@@ -3346,6 +3419,35 @@ class WorkspaceCompiler {
 
   compileExpressionCall(call, parentId) {
     const name = calleeName(call.expression);
+    if (name === "Array.isArray") {
+      if (call.arguments.length !== 1) this.unsupported(call, "Array.isArray expects one argument");
+      const arg = stripParens(call.arguments[0]);
+      const knownArray = this.isArrayExpression(arg);
+      if (!knownArray && !(isStringExpression(arg) || constantNumber(arg) !== null
+        || [ts.SyntaxKind.TrueKeyword, ts.SyntaxKind.FalseKeyword].includes(arg.kind))) {
+        this.unsupported(call, "Array.isArray requires a statically known array or primitive value");
+      }
+      let effect = false;
+      const visit = node => {
+        if (ts.isCallExpression(node) || ts.isNewExpression(node) || ts.isBinaryExpression(node)
+          || this.isUpdateExpression(node) || ts.isSpreadElement(node)
+          || (ts.isIdentifier(node) && this.lookupExpressionBinding(node.text))) effect = true;
+        ts.forEachChild(node, visit);
+      };
+      visit(arg);
+      if (effect) this.unsupported(call, "Array.isArray cannot discard side effects; store the argument in a variable first");
+      if (ts.isIdentifier(arg)) {
+        const check = node => {
+          if (ts.isBinaryExpression(node) && ts.isIdentifier(node.left) && node.left.text === arg.text
+            && assignmentOperatorSpec(node.operatorToken.kind)) {
+            this.unsupported(call, "Array.isArray cannot fold a reassigned variable; use a variable with a stable type");
+          }
+          ts.forEachChild(node, check);
+        };
+        check(this.sourceFile);
+      }
+      return this.compileExpression(knownArray ? ts.factory.createTrue() : ts.factory.createFalse(), parentId);
+    }
     const factory = this.helperCalls.get(call);
     if (factory?.factoryArgs) return this.compileExpressionCall(ts.factory.createCallExpression(
       ts.factory.createIdentifier(factory.name), undefined, factory.factoryArgs), parentId);
@@ -3906,6 +4008,7 @@ class WorkspaceCompiler {
     const fn = this.inlineFunctions.get(name);
     const args = this.functionArguments(fn, call);
     const bindings = new Map();
+    bindings.callerScope = new Set(fn.params.slice(0, call.arguments.length));
     fn.params.forEach((param, index) => {
       bindings.set(param, args[index]);
     });
@@ -4169,9 +4272,12 @@ class WorkspaceCompiler {
       this.connectInput(id, this.compilePlusOne(expression.argumentExpression, id), "end_index", "value");
       return id;
     }
-    const id = this.addBlock({ type: "list_item", parent_id: parentId, fields: { item: "any" }, is_output: true });
-    this.connectInput(id, this.compileExpression(target, id), "list", "value");
-    this.connectInput(id, this.compilePlusOne(expression.argumentExpression, id), "list_index", "value");
+    // Computed property access preserves undefined and nested list values;
+    // list_item applies KN's numeric normalization to those values.
+    const id = this.addBlock({ type: "_object_get", parent_id: parentId,
+      mutation: '<mutation xmlns="http://www.w3.org/1999/xhtml" computed="true"></mutation>', is_output: true });
+    this.connectInput(id, this.compileExpression(target, id), "obj", "value");
+    this.connectInput(id, this.compileExpression(expression.argumentExpression, id), "key", "value");
     return id;
   }
 
@@ -4187,17 +4293,31 @@ class WorkspaceCompiler {
     return id;
   }
 
-  isArrayExpression(node) {
+  isArrayExpression(node, seen = new Set()) {
     node = stripParens(node);
+    if (!node || seen.has(node)) return false;
+    seen.add(node);
     if (this.helperCalls.get(node)?.factoryArgs) return true;
     if (ts.isArrayLiteralExpression(node)) return true;
-    if (ts.isIdentifier(node)) return this.arrayVariables.has(node.text) || node.text.startsWith("__arr");
+    if (ts.isIdentifier(node)) {
+      const binding = this.lookupExpressionBinding(node.text);
+      if (binding) {
+        const saved = this.expressionBindings;
+        const index = saved.findLastIndex(scope => scope.has(node.text));
+        this.expressionBindings = saved[index].callerScope?.has(node.text) ? saved.slice(0, index) : saved;
+        try { return this.isArrayExpression(binding, seen); } finally { this.expressionBindings = saved; }
+      }
+      const declaration = this.arrayDeclarations.get(node.text);
+      return Boolean(this.arrayVariables.has(node.text) || node.text.startsWith("__arr")
+        || declaration?.type && ts.isArrayTypeNode(declaration.type)
+        || declaration?.initializer && this.isArrayExpression(declaration.initializer, seen));
+    }
     if (ts.isCallExpression(node)) {
       const name = calleeName(node.expression);
       if (ts.isPropertyAccessExpression(node.expression)) {
         const method = node.expression.name.text;
         if (["map", "filter"].includes(method)) return true;
-        if (["concat", "slice", "reverse", "sort"].includes(method) && this.isArrayExpression(node.expression.expression)) return true;
+        if (["concat", "slice", "reverse", "sort", "flat"].includes(method) && this.isArrayExpression(node.expression.expression)) return true;
       }
       if (ts.isPropertyAccessExpression(node.expression) && node.expression.name.text === "split") return true;
       return name === "splitText" || name === "tempList" || forOfListName(node) !== null && ts.isPropertyAccessExpression(node.expression);
@@ -4242,6 +4362,7 @@ class WorkspaceCompiler {
     const method = call.expression.name.text;
     const synthesized = this.helperCalls.get(call);
     if (synthesized) {
+      if (synthesized.reduceNoInitial) this.checkReduceNonempty(call, target);
       return this.compileHelperCall(synthesized.name, target, synthesized.extra, parentId, false);
     }
     if (!this.isArrayExpression(target)) {
@@ -4275,8 +4396,7 @@ class WorkspaceCompiler {
         return chainAll(ids);
       }
       case "reverse":
-        if (!ts.isIdentifier(target)) this.unsupported(call, "reverse() as a statement needs an array variable");
-        return this.compileReverseInPlace(target, parentId);
+        return this.compileHelperCall("__arr_reverse", target, [], parentId, false);
       case "sort": case "pop": case "shift": {
         const id = this.addBlock({ type: "variables_set", parent_id: parentId, fields: { variable: "__discard" } });
         this.globalVariables.add("__discard");
@@ -4287,14 +4407,56 @@ class WorkspaceCompiler {
     return undefined;
   }
 
-  compileReverseInPlace(target, parentId) {
-    const id = this.addBlock({ type: "variables_set", parent_id: parentId, fields: { variable: target.text } });
-    this.connectInput(id, this.compileHelperCall("__arr_reverse", target, [], id), "value", "value");
-    return id;
-  }
-
   // String and array methods: s.includes / slice / substring / charAt /
   // split, a.length via compileLength.
+  checkArrayLiteralStable(call, target) {
+    if (!ts.isIdentifier(target)) return;
+    const declaration = this.arrayDeclarations.get(target.text);
+    let unsafe = false;
+    const visit = node => {
+      if (ts.isIdentifier(node) && node.text === target.text && node !== declaration?.name) {
+        const parent = node.parent;
+        const safeMember = ts.isPropertyAccessExpression(parent) && parent.expression === node
+          && ["length", "flat"].includes(parent.name.text)
+          && !(ts.isBinaryExpression(parent.parent) && parent.parent.left === parent
+            && assignmentOperatorSpec(parent.parent.operatorToken.kind))
+          && !this.isUpdateExpression(parent.parent);
+        if (!safeMember) unsafe = true;
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(this.sourceFile);
+    if (unsafe) this.unsupported(call, "flat requires a structurally stable array literal without aliases or mutations");
+  }
+
+  checkReduceNonempty(call, target) {
+    const literal = ts.isArrayLiteralExpression(target) ? target : this.arrayDeclarations.get(target.text)?.initializer;
+    if (!literal || !ts.isArrayLiteralExpression(literal) || !literal.elements.length
+      || literal.elements.some(element => ts.isOmittedExpression(element) || ts.isSpreadElement(element))) {
+      this.unsupported(call, "reduce without an initial value requires a statically nonempty array; pass an initial value otherwise");
+    }
+    if (ts.isIdentifier(target)) {
+      // There is no native TypeError block. Reject possibly empty inputs,
+      // including escapes through aliases, instead of silently returning NaN.
+      let escapes = false;
+      const visit = node => {
+        if (ts.isIdentifier(node) && node.text === target.text) {
+          const parent = node.parent;
+          const declaration = this.arrayDeclarations.get(target.text);
+          const safeRead = ts.isElementAccessExpression(parent) && parent.expression === node;
+          const safeMember = ts.isPropertyAccessExpression(parent) && parent.expression === node
+            && (["length", "join", "indexOf", "includes", "at"].includes(parent.name.text) || parent === call.expression)
+            && !(ts.isBinaryExpression(parent.parent) && parent.parent.left === parent && assignmentOperatorSpec(parent.parent.operatorToken.kind))
+            && !this.isUpdateExpression(parent.parent);
+          if (node !== declaration?.name && !safeRead && !safeMember) escapes = true;
+        }
+        ts.forEachChild(node, visit);
+      };
+      visit(this.sourceFile);
+      if (escapes) this.unsupported(call, "reduce without an initial value cannot prove this array stays nonempty; pass an initial value");
+    }
+  }
+
   compileMethodCall(call, parentId) {
     if (!ts.isPropertyAccessExpression(call.expression)) return null;
     const target = call.expression.expression;
@@ -4305,6 +4467,7 @@ class WorkspaceCompiler {
     const helper = (name, ...extra) => this.compileHelperCall(name, target, extra, parentId);
     const synthesized = this.helperCalls.get(call);
     if (synthesized) {
+      if (synthesized.reduceNoInitial) this.checkReduceNonempty(call, target);
       return this.compileHelperCall(synthesized.name, target, synthesized.extra, parentId);
     }
     if (this.isArrayExpression(target)) {
@@ -4328,6 +4491,19 @@ class WorkspaceCompiler {
           }
           return helper("__arr_slice", args[0] ?? literal(0), args[1] ?? lengthOf());
         case "reverse": return helper("__arr_reverse");
+        case "at":
+          if (args.length !== 1) this.unsupported(call, "Array.at expects one index");
+          return helper("__arr_at", args[0]);
+        case "flat": {
+          if (args.length > 1 || args[0] && constantNumber(args[0]) !== 1) this.unsupported(call, "flat supports depth 1 only");
+          const literalTarget = ts.isArrayLiteralExpression(target) ? target : this.arrayDeclarations.get(target.text)?.initializer;
+          if (!literalTarget || !ts.isArrayLiteralExpression(literalTarget)
+            || !literalTarget.elements.every(element => ts.isArrayLiteralExpression(element))) {
+            this.unsupported(call, "flat requires an array literal (or variable initialized with one) containing only arrays");
+          }
+          this.checkArrayLiteralStable(call, target);
+          return helper("__arr_flat");
+        }
         case "pop": return helper("__arr_pop");
         case "shift": return helper("__arr_shift");
         case "sort": return helper("__arr_sort");
@@ -4908,11 +5084,15 @@ const SHARED_HELPERS = {
   __arr_join: { source: `function __arr_join(__arrL, __sep) { let __jS = ""; let __jK = 0; for (const __jX of __arrL) { if (__jK > 0) { __jS = join(__jS, __sep); } __jS = join(__jS, __jX); __jK++; } return __jS; }` },
   __arr_concat: { source: `function __arr_concat(__arrL, __arrB) { const __cO = []; for (const __cX of __arrL) { __cO.push(__cX); } for (const __cY of __arrB) { __cO.push(__cY); } return __cO; }` },
   __arr_slice: { source: `function __arr_slice(__arrL, __sFrom, __sTo) { const __sO = []; for (let __sK = __sFrom; __sK < __sTo; __sK++) { __sO.push(__arrL[__sK]); } return __sO; }` },
-  __arr_reverse: { source: `function __arr_reverse(__arrL) { const __rO = []; for (let __rK = __arrL.length - 1; __rK >= 0; __rK--) { __rO.push(__arrL[__rK]); } return __rO; }` },
+  __arr_reverse: { source: `function __arr_reverse(__arrL) { let __rK = 0; while (__rK < Math.floor(__arrL.length / 2)) { const __rV = __arrL[__rK]; __arrL[__rK] = __arrL[__arrL.length - 1 - __rK]; __arrL[__arrL.length - 1 - __rK] = __rV; __rK++; } return __arrL; }` },
+  __arr_at: { source: `function __arr_at(__arrL, __atIndex) { let __atI = Math.trunc(__atIndex); if (!(__atI >= 0) && !(__atI < 0)) { __atI = 0; } if (__atI < 0) { __atI = __arrL.length + __atI; } return __arrL[__atI]; }` },
+  __arr_flat: { source: `function __arr_flat(__arrL) { const __flatOut = []; let __flatI = 0; while (__flatI < __arrL.length) { const __arrFlatItem = __arrL[__flatI]; let __flatJ = 0; while (__flatJ < __arrFlatItem.length) { __flatOut.push(__arrFlatItem[__flatJ]); __flatJ++; } __flatI++; } return __flatOut; }` },
   __arr_lastIndexOf: { source: `function __arr_lastIndexOf(__arrL, __lV) { for (let __lK = __arrL.length - 1; __lK >= 0; __lK--) { if (__arrL[__lK] === __lV) { return __lK; } } return -1; }` },
   __arr_pop: { source: `function __arr_pop(__arrL) { const __pV = __arrL[__arrL.length - 1]; __listDeleteLast(__arrL); return __pV; }` },
   __arr_shift: { source: `function __arr_shift(__arrL) { const __hV = __arrL[0]; __listDelete(__arrL, 1); return __hV; }` },
-  __arr_sort: { source: sortHelper("__arr_sort", "__arrL[__bD] > __vD", "D") },
+  // Official convert_type(type=string) calls String(value); logic_compare
+  // GT uses JS > (crc_libs.8196dbd1.js, module 70542, offset 820058).
+  __arr_sort: { source: sortHelper("__arr_sort", 'String(__arrL[__bD]) > String(__vD)', "D") },
   __str_indexOf: { source: `function __str_indexOf(__s, __t, __from) { for (let __iK = __from; __iK <= length(__s) - length(__t); __iK++) { if (selectText(__s, __iK + 1, __iK + length(__t)) === __t) { return __iK; } } return -1; }` },
   __str_lastIndexOf: { source: `function __str_lastIndexOf(__s, __t) { for (let __lK = length(__s) - length(__t); __lK >= 0; __lK--) { if (selectText(__s, __lK + 1, __lK + length(__t)) === __t) { return __lK; } } return -1; }` },
   __str_startsWith: { source: `function __str_startsWith(__s, __t) { return selectText(__s, 1, length(__t)) === __t; }` },
@@ -4932,6 +5112,7 @@ const SHARED_HELPERS = {
 // Method name -> shared helpers it may need (array or string form).
 const METHOD_HELPERS = {
   join: ["__arr_join"], concat: ["__arr_concat"], slice: ["__arr_slice"], reverse: ["__arr_reverse"],
+  at: ["__arr_at"], flat: ["__arr_flat"],
   lastIndexOf: ["__arr_lastIndexOf", "__str_lastIndexOf"], pop: ["__arr_pop"], shift: ["__arr_shift"],
   sort: ["__arr_sort"], indexOf: ["__str_indexOf"], startsWith: ["__str_startsWith"], endsWith: ["__str_endsWith"],
   replace: ["__str_replace"], replaceAll: ["__str_replaceAll"], trim: ["__str_trim"], trimStart: ["__str_trimStart"],
@@ -5353,17 +5534,28 @@ function booleanLiteralValue(node, compiler) {
 
 /** Compiles a TS/JS entry file (and its relative imports) to a workspace report. Throws CompileError. */
 export function compileFile(inputPath, host = defaultHost) {
-  const sourceText = host.readFile(path.resolve(inputPath));
-  if (typeof sourceText !== "string") fail(`Unable to read ${inputPath}`);
-  const sourceFile = ts.createSourceFile(
-    inputPath,
-    sourceText,
-    ts.ScriptTarget.Latest,
-    true,
-    ts.ScriptKind.TS,
-  );
-  rejectParseDiagnostics(sourceFile);
-  return new WorkspaceCompiler(inputPath, sourceFile, host).compile(sourceFile);
+  let compiler;
+  try {
+    const sourceText = host.readFile(path.resolve(inputPath));
+    if (typeof sourceText !== "string") fail(`Unable to read ${inputPath}`);
+    const sourceFile = ts.createSourceFile(
+      inputPath,
+      sourceText,
+      ts.ScriptTarget.Latest,
+      true,
+      ts.ScriptKind.TS,
+    );
+    rejectParseDiagnostics(sourceFile);
+    compiler = new WorkspaceCompiler(inputPath, sourceFile, host);
+    return compiler.compile(sourceFile);
+  } catch (error) {
+    if (error instanceof CompileError) {
+      error.location ??= nodeLocation(compiler?.currentStatementNode) ?? { file: inputPath, line: 1, column: 1 };
+      throw error;
+    }
+    fail(`Internal compiler error: ${error?.message ?? String(error)}`, nodeLocation(compiler?.currentStatementNode)
+      ?? { file: inputPath, line: 1, column: 1 }, "NEKOC_INTERNAL");
+  }
 }
 
 const DECLARATIONS = fileURLToPath(new URL("./nekoc.d.ts", import.meta.url));
@@ -5423,12 +5615,17 @@ export function checkTypes(inputPath, host) {
  * Returns { ok, diagnostics, report } where report is the workspace report when compilation succeeded.
  */
 export function checkFile(inputPath, { types = true, host } = {}) {
-  const diagnostics = types ? checkTypes(inputPath, host) : [];
+  const diagnostics = [];
   let report = null;
   try {
+    if (types) diagnostics.push(...checkTypes(inputPath, host));
     report = compileFile(inputPath, host);
   } catch (error) {
-    if (!(error instanceof CompileError)) throw error;
+    if (!(error instanceof CompileError)) {
+      diagnostics.push({ severity: "error", source: "compat", code: "NEKOC_INTERNAL",
+        message: `Internal compiler error: ${error?.message ?? String(error)}`, file: inputPath, line: 1, column: 1 });
+      return { ok: false, diagnostics, report };
+    }
     diagnostics.push({
       severity: "error",
       source: error.code.startsWith("TS") ? "syntax" : "compat",
@@ -5475,7 +5672,7 @@ function main(argv) {
     report = compileFile(inputPath);
   } catch (error) {
     if (!(error instanceof CompileError)) throw error;
-    console.error(error.message);
+    console.error(formatDiagnostic({ severity: "error", code: error.code, message: error.message, ...error.location }));
     process.exit(1);
   }
   fs.writeFileSync(outputPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");

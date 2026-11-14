@@ -2,6 +2,38 @@
 
 Complete reference for all functions and APIs available in NekoC TypeScript projects.
 
+## TypeScript arrays
+
+- `a[i]` uses zero-based computed property access and returns `undefined` for
+  missing entries, rather than Kitten N's one-based `list_item` NaN fallback.
+  Direct `String(a[i])` preserves `"undefined"`; storing an undefined value in a
+  KN variable still follows KN's variable normalization, not full JS semantics.
+- `a[i] = value`, `+=`, `-=`, `*=`, `/=`, `%=`, `**=` are supported for existing
+  elements. Compound assignments evaluate the target, index and old value once.
+- `a.length = 0` clears the same list, including aliases. Other length/property
+  assignments are rejected; sparse array writes are not supported.
+- `reverse()` mutates and returns the same array. Default `sort()` is stable,
+  in-place and compares string representations lexicographically; custom inline
+  comparators remain supported. Sparse arrays and undefined sort keys have not
+  been verified.
+- `const [head, ...tail] = value` evaluates `value` once and copies the remaining
+  elements into a new list. Nested/default destructuring is rejected.
+- `a.at(index)` supports negative indices and truncates fractional indices.
+  The ES2020 declaration set includes this frontend-supported method.
+- `Array.isArray(value)` folds statically known arrays and primitive literals;
+  unknown types and arguments whose evaluation would have side effects are
+  rejected (store the result in a variable first).
+- Inline array callbacks can read enclosing event-local variables. Capturing
+  enclosing inline-function parameters or locals is rejected; use an event-local
+  or top-level variable instead.
+- `reduce(callback)` uses the first item as its initial accumulator and starts
+  callback indices at 1. A nonempty literal initializer must be provable and
+  must not escape through aliases or mutating calls; otherwise supply an initial
+  value. This prevents empty-input TypeErrors from becoming silent wrong values.
+- `flat()` / `flat(1)` supports an array literal (or a variable initialized with
+  one) containing only arrays, preserving one level of elements. Other input
+  shapes/depths produce a compile error instead of a wrong result.
+
 ## Global Events
 
 ### `onStart(body)`
