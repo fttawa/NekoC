@@ -47,7 +47,7 @@ Windows 上把 `./nekoc` 换成 `.\nekoc.exe`。
 
 | 文件 | 用途 |
 | --- | --- |
-| `nekox-lab-nekoc-<版本>.tgz` | [`@nekox-lab/nekoc`](../packages/nekoc/README.md) npm 包：WASM 版编译器和播放器，Node.js 22+ 或浏览器，不需要 Rust。`npm install ./nekox-lab-nekoc-<版本>.tgz` 后用 `npx nekoc check/build/run`。 |
+| `fttawa-nekoc-<版本>.tgz` | [`@fttawa/nekoc`](../packages/nekoc/README.md) npm 包：WASM 版编译器和播放器，Node.js 22+ 或浏览器，不需要 Rust。`npm install ./fttawa-nekoc-<版本>.tgz` 后用 `npx nekoc check/build/run`。 |
 | `nekoc-pickcat-extension-<版本>.zip` | PICKCAT 浏览器扩展，解压后在扩展管理页「加载解压缩的扩展」。默认用 WASM 运行，见 [pickcat-extension.md](pickcat-extension.md)。 |
 
 不想安装任何东西，可以直接用 GitHub Pages 上的在线编译页。

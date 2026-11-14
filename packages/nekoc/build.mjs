@@ -1,4 +1,4 @@
-// Builds dist/ for @nekox-lab/nekoc: the wasm module with Node and web
+// Builds dist/ for @fttawa/nekoc: the wasm module with Node and web
 // bindings, the TypeScript frontend sources and the declaration files the
 // type checker reads. Needs the wasm32-unknown-unknown target and the
 // wasm-bindgen CLI matching Cargo.lock (WASM_BINDGEN or PATH).
@@ -52,4 +52,5 @@ for (const name of await readdir(libDir)) {
 }
 resources["nekoc.d.ts"] = await readFile(path.join(root, "ts/nekoc.d.ts"), "utf8");
 await writeFile(path.join(dist, "resources.mjs"), `export default ${JSON.stringify(resources)};\n`);
+await copyFile(path.join(root, "LICENSE"), path.join(dist, "LICENSE"));
 console.log(`built ${path.relative(root, dist)}`);

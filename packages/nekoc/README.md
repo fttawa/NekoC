@@ -1,7 +1,7 @@
-# @nekox-lab/nekoc
+# @fttawa/nekoc
 
 用 Node.js 或浏览器把 TypeScript 编译为 Kitten N `.bcmkn`，检查代码、运行作品。
-使用已构建的包**不需要 Rust、cargo 或原生扩展**。本包暂不发布。
+使用已构建的包**不需要 Rust、cargo 或原生扩展**。安装：`npm install @fttawa/nekoc`。
 运行时 npm 依赖只有 TypeScript。官方编辑器兼容检查另需开发环境提供 Playwright
 及可用浏览器，不是本包的运行时依赖。
 
@@ -17,7 +17,7 @@
 ## Node.js 22+
 
 ```js
-import { compile, check, createPlayer, importProject, validate } from '@nekox-lab/nekoc';
+import { compile, check, createPlayer, importProject, validate } from '@fttawa/nekoc';
 
 const files = { '/main.ts': 'onStart(() => { console.log("hello"); });' };
 console.log(check('/main.ts', { files })); // { ok, diagnostics }

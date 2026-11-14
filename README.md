@@ -43,7 +43,7 @@ GitHub Pages 上的在线编译页在浏览器里完成类型检查、编译和 
 ### TypeScript 编译器
 
 不想安装 Rust/cargo？纯 JS + WebAssembly 包见
-[`@nekox-lab/nekoc`](packages/nekoc/README.md)（源码已提供，暂未发布到 npm）。
+[`@fttawa/nekoc`](packages/nekoc/README.md)：`npm install @fttawa/nekoc`。
 已构建的包在 Node.js / 浏览器内完成编译、检查和无头运行。
 
 ```bash
