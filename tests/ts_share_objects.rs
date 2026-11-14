@@ -178,3 +178,15 @@ fn callback_type_aliases_keep_their_original_module_scope() {
         assert_eq!(logs(&project, jit), ["a2"], "jit={jit}");
     }
 }
+
+#[test]
+fn review_string_boolean_and_array_method_values_match_in_both_tiers() {
+    let project = compile(include_str!("fixtures/knobject-review-valid.ts"));
+    for jit in [false, true] {
+        assert_eq!(
+            logs(&project, jit),
+            ["a2", "a3", "a4", "a5", "true", "true", "true", "1"],
+            "jit={jit}"
+        );
+    }
+}

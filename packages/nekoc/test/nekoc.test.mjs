@@ -75,6 +75,25 @@ test("share-player objects compile and execute through the packaged memory front
   assert.ok(invalid.diagnostics.some(d => /Dynamic object keys/.test(d.message)));
 });
 
+test("reviewed object string, boolean and array-method semantics survive WASM packaging", () => {
+  const source = fs.readFileSync(path.join(root, "tests/fixtures/knobject-review-valid.ts"), "utf8");
+  const player = createPlayer(importProject(compile("/review.ts", {files: {"/review.ts": source}}).bcmkn).project);
+  const logs = [];
+  try {
+    for (let n = 0; n < 120; n++) logs.push(...decodeFrame(player.handle({dt: 1 / 60, budget_ms: 100})).logs);
+  } finally { player.free(); }
+  assert.deepEqual(logs, ["a2", "a3", "a4", "a5", "true", "true", "true", "1"]);
+  for (const source of [
+    `function f(n:number){const box={x:n};wait(.05);console.log(box.x);}onStart(()=>f(1));onStart(()=>f(2));`,
+    `const a=[{x:7}];const b:unknown[]=a;console.log(String(b[0]));`,
+    `const a=1 as unknown as {x:number};const real={x:7};console.log(a.x);`,
+  ]) {
+    const result = check("/rejected.ts", {files: {"/rejected.ts": source}});
+    assert.equal(result.ok, false);
+    assert.ok(result.diagnostics.some(d => /local state|shape/.test(d.message)));
+  }
+});
+
 for (const name of ["variables", "custom_procedures", "control_flow"]) {
   test(`wasm/native exact project and player log parity: ${name}`, () => {
     const input = `samples/${name}.ts`;

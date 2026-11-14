@@ -46,6 +46,22 @@ function rejectParseDiagnostics(sourceFile) {
 // Global flag the implicit start script sets once top-level initialization ran.
 const STARTUP_READY = "__nekoc_ready";
 
+// Boolean-only output checks from the official 0.27.4 block definitions
+// (main.8ccf2442.js). These are socket shapes, not TypeScript return types:
+// convert_type, variables_get and procedure reporters also return booleans but
+// have scalar/any-shaped outputs and must not be treated as hexagonal blocks.
+const BOOLEAN_OUTPUT_TYPES = new Set(`
+  logic_boolean procedure_boolean logic_compare logic_operation logic_negate
+  divisible_by math_number_property text_contain list_is_exist
+  check_key mouse_down bump_into bump_into_color out_of_boundary
+  recognize_body_part bump_into_body_part check_tilt_direction_of_face recognize_gesture
+  check_emotion check_gender check_face_shape bcm_translator_text_return_boolean_block
+  catbit_button_is_pressed catbit_usb_button_is_pressed
+  kittenbit_button_is_pressed kittenbit_gesture_is kittenbit_infrared_is
+  kittenbit_gyroscope_is kittenbit_led_is_plot microbit_button_is_pressed
+  microbit_logo_is_pressed microbit_is_gesture microbit_led_is_plot wand_button_is_pressed
+`.trim().split(/\s+/));
+
 class WorkspaceCompiler {
   constructor(source, sourceFile, host) {
     this.host = host;
@@ -825,6 +841,13 @@ class WorkspaceCompiler {
 
   compileFunctionProcedureCall(call, parentId, asExpression) {
     const { fn, spec, returnsValue } = this.functionProcedures.get(calleeName(call.expression));
+    for (let i = call.arguments.length; i < fn.params.length; i++) {
+      const initializer = fn.defaults?.[i];
+      if (!initializer) continue;
+      if (this.parameterDependentDefaults.has(initializer)) {
+        this.unsupported(call, `Default value for parameter ${fn.params[i]} of function ${fn.name} depends on another parameter, which is not supported for procedure calls; pass the argument explicitly`);
+      }
+    }
     const args = this.functionArguments(fn, call);
     if (asExpression && !returnsValue) {
       this.unsupported(call, `Function ${spec.name} does not return a value`);
@@ -2852,11 +2875,11 @@ class WorkspaceCompiler {
         return;
       }
       const valueId = this.compileExpression(argument, id);
-      const booleanTypes = new Set(["logic_boolean", "logic_compare", "logic_operation", "logic_negate", "list_is_exist", "text_contain"]);
-      if (this.objectHeap && booleanTypes.has(this.blocks[valueId]?.type)) {
+      if (BOOLEAN_OUTPUT_TYPES.has(this.blocks[valueId]?.type)) {
         // Procedure string/any sockets reject boolean-shaped blocks in the
         // official editor. An any-shaped ternary preserves the boolean value.
         const box = this.addBlock({ type: "logic_ternary", parent_id: id, is_output: true });
+        this.blocks[valueId].parent_id = box;
         this.connectInput(box, valueId, "condition", "value");
         for (const [input, value] of [["ifTrue", true], ["ifFalse", false]]) {
           const variable = `__nekocObjectBoolean${value}`;
@@ -4165,6 +4188,28 @@ class WorkspaceCompiler {
     const files = new Set(this.objectSourceFiles);
     for (const fn of this.inlineFunctions.values()) files.add(fn.body.getSourceFile());
     this.objectTypes = objectTypes([...files], this.objectTypeOrigins);
+    // Snapshot lexical parameter references before object-free programs discard
+    // their type queries. Property names such as fallback.a are not references
+    // to the parameter a, and must not trigger the procedure-default diagnostic.
+    this.parameterDependentDefaults = new WeakSet();
+    const findDefaults = node => {
+      if (ts.isParameter(node) && node.initializer) {
+        const visit = node => {
+          if (ts.isIdentifier(node)) {
+            const symbol = this.objectTypes.checker.getSymbolAtLocation(node);
+            if (symbol?.declarations?.some(declaration => parameters.includes(declaration))) {
+              this.parameterDependentDefaults.add(initializer);
+            }
+          }
+          ts.forEachChild(node, visit);
+        };
+        const parameters = node.parent.parameters;
+        const initializer = node.initializer;
+        visit(initializer);
+      }
+      ts.forEachChild(node, findDefaults);
+    };
+    for (const file of files) findDefaults(file);
     for (const file of files) validateObjectOperations(file, this.objectTypes, (node, message) => this.unsupported(node, message));
     const literals = [];
     const arrays = [];
@@ -4256,7 +4301,23 @@ class WorkspaceCompiler {
   }
 
   objectKey(expression) {
-    const key = ts.isPropertyAccessExpression(expression) ? expression.name.text : this.objectTypes.key(expression.argumentExpression);
+    if (ts.isPropertyAccessExpression(expression)) return expression.name.text;
+    let argument = expression.argumentExpression;
+    while (argument && (ts.isParenthesizedExpression(argument) || ts.isAsExpression(argument)
+      || ts.isTypeAssertionExpression(argument) || ts.isNonNullExpression(argument) || ts.isSatisfiesExpression(argument))) {
+      argument = argument.expression;
+    }
+    // A literal *type* does not make an expression pure: key() or keys[index()]
+    // must never disappear when the access is replaced with a fixed heap slot.
+    const constantIdentifier = ts.isIdentifier(argument) && this.objectTypes.checker.getSymbolAtLocation(argument)?.declarations?.some(declaration =>
+      ts.isVariableDeclaration(declaration) && declaration.initializer
+      && ts.isVariableDeclarationList(declaration.parent) && (declaration.parent.flags & ts.NodeFlags.Const));
+    const signedNumber = ts.isPrefixUnaryExpression(argument) && ts.isNumericLiteral(argument.operand)
+      && [ts.SyntaxKind.PlusToken, ts.SyntaxKind.MinusToken].includes(argument.operator);
+    if (!ts.isStringLiteralLike(argument) && !ts.isNumericLiteral(argument) && !signedNumber && !constantIdentifier) {
+      this.unsupported(expression.argumentExpression, "Dynamic object keys are not supported: keys must be side-effect-free constants; use a string/number literal or a const identifier, or evaluate other key expressions separately and switch over constant keys");
+    }
+    const key = this.objectTypes.key(argument);
     if (key === null) this.unsupported(expression, "Dynamic object keys are not supported by the share player; use obj.x / obj[\"x\"] or switch over constant keys");
     return key;
   }
@@ -4748,9 +4809,9 @@ class WorkspaceCompiler {
     const operator = expression.operatorToken.kind;
     // `+` joins text when either side is statically a string; chains like
     // "a" + x + "b" flatten into one join.
-    if (operator === ts.SyntaxKind.PlusToken && (isStringExpression(expression.left) || isStringExpression(expression.right)
-      || this.objectTypes?.string(expression.left) || this.objectTypes?.string(expression.right))) {
-      return this.compileTextJoin(flattenStringConcat(expression).map((part) => (
+    const isString = node => isStringExpression(node, node => this.objectTypes?.string(node));
+    if (operator === ts.SyntaxKind.PlusToken && isString(expression)) {
+      return this.compileTextJoin(flattenStringConcat(expression, isString).map((part) => (
         ts.isStringLiteral(part) || ts.isNoSubstitutionTemplateLiteral(part) ? { text: part.text } : { expression: part }
       )), parentId);
     }
@@ -5161,7 +5222,8 @@ let STRING_VARIABLES = new Set();
 const STRING_METHODS = new Set(["replace", "replaceAll", "trim", "trimStart", "trimEnd", "toUpperCase", "toLowerCase",
   "padStart", "padEnd", "repeat", "charAt", "substring", "join"]);
 
-function isStringExpression(node) {
+function isStringExpression(node, isTypedString = () => false) {
+  if (node && isTypedString(node)) return true;
   node = stripParens(node);
   if (!node) return false;
   if (ts.isIdentifier(node) && STRING_VARIABLES.has(node.text)) return true;
@@ -5172,16 +5234,16 @@ function isStringExpression(node) {
   if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression)
     && STRING_METHODS.has(node.expression.name.text)) return true;
   if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.PlusToken) {
-    return isStringExpression(node.left) || isStringExpression(node.right);
+    return isStringExpression(node.left, isTypedString) || isStringExpression(node.right, isTypedString);
   }
   return false;
 }
 
-function flattenStringConcat(node) {
+function flattenStringConcat(node, isString = isStringExpression) {
   const inner = stripParens(node);
   if (ts.isBinaryExpression(inner) && inner.operatorToken.kind === ts.SyntaxKind.PlusToken
-    && isStringExpression(inner)) {
-    return [...flattenStringConcat(inner.left), ...flattenStringConcat(inner.right)];
+    && isString(inner)) {
+    return [...flattenStringConcat(inner.left, isString), ...flattenStringConcat(inner.right, isString)];
   }
   return [node];
 }
