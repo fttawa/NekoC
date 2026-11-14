@@ -92,3 +92,54 @@ test("tsctrl: generated expression helpers have editor-compatible parameter iden
     assert.ok(blocks.some((b) => b.type === "procedures_2_return_value" && b.mutation.includes('items="1"')));
   }
 });
+
+test("tsctrl: inline arguments evaluate once before lazy bodies, including unused parameters", () => {
+  const v = execute(`let repeated=0; let unused=0; let short=0; let order=0; let state=0;
+function twice(x:number) { return x && x; }
+function ignored(x:number) { return 7; }
+function right(x:number) { return 0 && x; }
+function pair(x:number,y:number) { return x*10+y; }
+onStart(()=>{
+  let a=1; repeated=twice(a++)*10+a;
+  let b=0; unused=ignored(b++)*10+b;
+  let c=0; short=right(c++)*10+c;
+  let d=1; order=pair(d++,d++)*10+d;
+});`);
+  assert.equal(v["kn-var-repeated"], 12);
+  assert.equal(v["kn-var-unused"], 71);
+  assert.equal(v["kn-var-short"], 1);
+  assert.equal(v["kn-var-order"], 123);
+});
+
+test("tsctrl: effectful inline local initializers execute once even if unused", () => {
+  const v = execute(`let result=0; let hits=0;
+function next() { hits++; return hits; }
+function f(x:number) { let unused=next(); let saved=next(); return saved+saved+x; }
+onStart(()=>{result=f(1);});`);
+  assert.equal(v["kn-var-result"], 5);
+  assert.equal(v["kn-var-hits"], 2);
+});
+
+test("tsctrl: inline arguments snapshot reads before a body mutates their source", () => {
+  const v = execute(`let result=0; let a=1;
+function bump(){a++;return 10;}
+function f(x:number){let saved=x;return bump()+saved+x;}
+onStart(()=>{result=f(a);});`);
+  assert.equal(v["kn-var-result"], 12);
+  assert.equal(v["kn-var-a"], 2);
+});
+
+test("tsctrl: statement inline calls reject effectful arguments instead of replaying them", () => {
+  for (const source of [
+    'let a=0; function f(x:number){console.log(x+x);} onStart(()=>{f(a++);});',
+    'let a=0; function next(){a++;return a;} function f(x:number){console.log(x+x);} onStart(()=>{f(next());});',
+  ]) assert.throws(() => compileFile("virtual/inline-effect.ts", { readFile: () => source }), /Effectful arguments/);
+});
+
+test("tsctrl: evaluated inline calls retain literal names through outer parameter bindings", () => {
+  const v = execute(`let result=0;
+function read(name:string){return getVar(name);}
+function outer(name:string){result=read(name);}
+onStart(()=>{setVar("named",42);outer("named");});`);
+  assert.equal(v["kn-var-result"], 42);
+});

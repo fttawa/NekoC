@@ -83,6 +83,16 @@ export function boxedValue(c, expression, parent) {
   return reporter(c, null, parent, (_, definition) => c.compileReturn(expression, definition), true);
 }
 
+// A value binding inside an inline expression must be evaluated before its
+// uses, even when the body ignores it or puts it behind a short circuit.
+export function evaluatedValue(c, expression, parent, compile) {
+  return reporter(c, expression, parent, (value, definition) => {
+    const ret = c.addReturnValueBlock(definition);
+    c.connectInput(ret, compile(ts.factory.createIdentifier(value), ret), "VALUE", "value");
+    return ret;
+  });
+}
+
 // A null branch denotes the already evaluated condition value (&& / ||).
 export function lazyChoice(c, condition, whenTrue, whenFalse, parent) {
   return reporter(c, condition, parent, (value, definition) => {

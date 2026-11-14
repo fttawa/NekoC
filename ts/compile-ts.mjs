@@ -7,7 +7,7 @@ const fileURLToPath = isNode ? (await nodeImport("node:url")).fileURLToPath : (u
 const defaultHost = { readFile: (name) => { try { return fs?.readFileSync(name, "utf8"); } catch { return undefined; } } };
 import ts from "typescript";
 import { keyboardCode, effectCode, mathFunctionCode } from "./kitten-n.mjs";
-import { boxedValue, lazyChoice, nonNullishBinding, updateValue } from "./control-expressions.mjs";
+import { boxedValue, evaluatedValue, lazyChoice, nonNullishBinding, updateValue } from "./control-expressions.mjs";
 import * as controlFlow from "./control-flow.mjs";
 
 /** A compile error. `location` is { file, line, column } (1-based) when known. */
@@ -61,6 +61,7 @@ class WorkspaceCompiler {
     this.scriptCount = 0;
     this.procedureSpecs = new Map();
     this.procedures = [];
+    this.namedVariableBlocks = new WeakSet();
     this.inlineFunctions = new Map();
     // Functions that cannot be inlined (recursive, or with early/multiple
     // returns) compile to custom blocks: name -> { fn, spec, returnsValue }.
@@ -493,10 +494,12 @@ class WorkspaceCompiler {
   compileFunctionProcedure({ fn, spec, returnsValue }) {
     const saved = [this.blocks, this.connections, this.expressionBindings, this.inlineCallStack,
       this.rangeBindings, this.loopDepth, this.functionParams, this.tryStack, this.currentProcedureParams,
-      this.globalVariables, this.arrayVariables];
+      this.globalVariables, this.arrayVariables, this.stringVariables, STRING_VARIABLES];
     const outerVariables = this.globalVariables;
     this.globalVariables = new Set(outerVariables);
-    this.arrayVariables = new Set([...this.arrayVariables, ...fn.arrayParams]);
+    this.arrayVariables = new Set(this.arrayVariables);
+    this.stringVariables = new Set(this.stringVariables);
+    STRING_VARIABLES = this.stringVariables;
     // Existing expression/assignment emitters can continue to resolve ordinary
     // variable names. Rebind their emitted blocks below, rather than rewriting
     // expressions (including lazy helper bodies) a second time.
@@ -515,7 +518,12 @@ class WorkspaceCompiler {
       ts.forEachChild(node, collect);
     };
     collect(fn.body);
-    for (const name of declared) this.globalVariables.delete(name);
+    for (const name of [...declared, ...fn.params]) {
+      if (declared.has(name)) this.globalVariables.delete(name);
+      this.arrayVariables.delete(name);
+      this.stringVariables.delete(name);
+    }
+    for (const name of fn.arrayParams) this.arrayVariables.add(name);
     const beforeProcedures = this.procedures.length;
     const frameName = "__nekocFrame";
     if (fn.params.includes(frameName) || declared.has(frameName)) {
@@ -594,6 +602,10 @@ class WorkspaceCompiler {
             return id;
           };
           for (const [id, block] of Object.entries(this.blocks)) {
+            if (this.namedVariableBlocks.has(block)) {
+              outerVariables.add(block.fields.variable);
+              continue;
+            }
             const slot = slots.get(block.fields?.variable);
             if (!slot || !["variables_get", "variables_set", "change_variables"].includes(block.type)) continue;
             const kind = block.type;
@@ -660,7 +672,7 @@ class WorkspaceCompiler {
     } finally {
       [this.blocks, this.connections, this.expressionBindings, this.inlineCallStack,
         this.rangeBindings, this.loopDepth, this.functionParams, this.tryStack, this.currentProcedureParams,
-        this.globalVariables, this.arrayVariables] = saved;
+        this.globalVariables, this.arrayVariables, this.stringVariables, STRING_VARIABLES] = saved;
     }
   }
 
@@ -1944,6 +1956,28 @@ class WorkspaceCompiler {
   }
 
   compileInlineStatementFunction(call, parentId, name) {
+    // Statement expansion has no expression reporter in which to freeze
+    // effectful arguments. Reject these instead of duplicating/dropping them.
+    const inspecting = new Set();
+    const effectful = node => {
+      if (this.isUpdateExpression(node)
+        || (ts.isBinaryExpression(node) && assignmentOperatorSpec(node.operatorToken.kind))) return true;
+      if (ts.isCallExpression(node)) {
+        const name = calleeName(node.expression);
+        if (["setVar", "changeVar", "appendList", "replaceListItem", "deleteListItem", "randInt", "random"].includes(name)) return true;
+        const target = this.inlineFunctions.get(name);
+        if (target && !inspecting.has(name)) {
+          inspecting.add(name);
+          const effect = effectful(target.body);
+          inspecting.delete(name);
+          if (effect) return true;
+        }
+      }
+      let found = false;
+      ts.forEachChild(node, child => { found ||= effectful(child); });
+      return found;
+    };
+    if (call.arguments.some(effectful)) this.unsupported(call, "Effectful arguments to inline statement functions are not supported; evaluate them into variables first");
     return this.withInlineFunctionCall(call, name, () => {
       const fn = this.inlineFunctions.get(name);
       if (!ts.isBlock(fn.body)) {
@@ -1968,6 +2002,9 @@ class WorkspaceCompiler {
       parent_id: parentId,
       fields: { variable: stringLiteralValue(nameArg, this) },
     });
+    // Explicit named-variable API blocks must never be rebound to a lexical
+    // frame slot, even when their project name matches a local declaration.
+    this.namedVariableBlocks.add(this.blocks[id]);
     const valueId = this.compileExpression(valueArg, id);
     this.connectInput(id, valueId, "value", "value");
     return id;
@@ -2123,6 +2160,7 @@ class WorkspaceCompiler {
         parent_id: parentId,
         fields: { variable: stringLiteralValue(nameArg, this), method: "increase" },
       });
+      this.namedVariableBlocks.add(this.blocks[id]);
       const valueId = this.compileExpression(valueArg, id);
       this.connectInput(id, valueId, "value", "value");
       return id;
@@ -2137,6 +2175,7 @@ class WorkspaceCompiler {
         method,
       },
     });
+    this.namedVariableBlocks.add(this.blocks[id]);
     const valueId = this.addBlock({
       type: "math_number",
       parent_id: id,
@@ -3757,15 +3796,40 @@ class WorkspaceCompiler {
   }
 
   compileVariableGet(parentId, nameArg) {
-    return this.addBlock({
+    const id = this.addBlock({
       type: "variables_get",
       parent_id: parentId,
       fields: { variable: stringLiteralValue(nameArg, this) },
       is_output: true,
     });
+    this.namedVariableBlocks.add(this.blocks[id]);
+    return id;
   }
 
   compileInlineExpressionFunction(call, parentId, name) {
+    const fn = this.inlineFunctions.get(name);
+    const inspecting = new Set();
+    const hasEvaluation = node => {
+      if (ts.isCallExpression(node)) {
+        const called = calleeName(node.expression);
+        const target = this.inlineFunctions.get(called);
+        if (target) {
+          if (inspecting.has(called)) return true;
+          inspecting.add(called);
+          const effect = hasEvaluation(target.body);
+          inspecting.delete(called);
+          if (effect) return true;
+        } else if (called === "Math.random" || (!called.startsWith("Math.") && !["add", "sub", "mul", "div", "mod", "floor", "ceil", "round", "abs", "sqrt", "mathFunc", "Number", "String", "Boolean"].includes(called))) return true;
+      }
+      if (this.isUpdateExpression(node)
+        || (ts.isBinaryExpression(node) && assignmentOperatorSpec(node.operatorToken.kind))) return true;
+      let found = false;
+      ts.forEachChild(node, child => { found ||= hasEvaluation(child); });
+      return found;
+    };
+    if (this.functionArguments(fn, call).some(hasEvaluation) || hasEvaluation(fn.body)) {
+      return this.compileEvaluatedInlineExpression(call, parentId, name);
+    }
     return this.withInlineFunctionCall(call, name, () => {
       const fn = this.inlineFunctions.get(name);
       if (!ts.isBlock(fn.body)) {
@@ -3774,6 +3838,60 @@ class WorkspaceCompiler {
       const statements = Array.from(fn.body.statements);
       return this.compileInlineExpressionFunctionBlock(call, parentId, name, statements);
     });
+  }
+
+  compileEvaluatedInlineExpression(call, parentId, name) {
+    const fn = this.inlineFunctions.get(name);
+    const args = this.functionArguments(fn, call);
+    const bound = new Map();
+    const statements = ts.isBlock(fn.body) ? Array.from(fn.body.statements) : [];
+    const locals = statements.slice(0, -1).flatMap(statement => {
+      if (!ts.isVariableStatement(statement)) this.unsupported(statement, `Expression function ${name} supports only local declarations before return`);
+      return Array.from(statement.declarationList.declarations);
+    });
+    const result = ts.isBlock(fn.body) ? statements.at(-1)?.expression : fn.body;
+    if (!result) this.unsupported(call, `Expression function ${name} must end with a return expression`);
+    const body = parent => {
+      if (this.inlineCallStack.includes(name)) this.unsupported(call, `Recursive inline function calls are not supported: ${name}`);
+      this.inlineCallStack.push(name);
+      this.expressionBindings.push(bound);
+      const local = (index, p) => {
+        if (index === locals.length) return this.compileExpression(result, p);
+        const declaration = locals[index];
+        if (!ts.isIdentifier(declaration.name) || !declaration.initializer) this.unsupported(declaration, "Inline function locals must be initialized simple names");
+        const localName = declaration.name.text;
+        if (this.lookupExpressionBinding(localName)) this.unsupported(declaration.name, `Inline function local shadowing is not supported: ${localName}`);
+        if (expressionContainsIdentifier(declaration.initializer, localName)) this.unsupported(declaration.initializer, `Inline function local cannot reference itself: ${localName}`);
+        return evaluatedValue(this, declaration.initializer, p, (value, ret) => {
+          bound.set(localName, value);
+          try { return local(index + 1, ret); }
+          finally { bound.delete(localName); }
+        });
+      };
+      try { return local(0, parent); }
+      finally { this.expressionBindings.pop(); this.inlineCallStack.pop(); }
+    };
+    const argument = (index, parent) => {
+      if (index === args.length) return body(parent);
+      let expression = args[index];
+      const seen = new Set();
+      while (ts.isIdentifier(expression) && !seen.has(expression.text)) {
+        seen.add(expression.text);
+        const value = this.lookupExpressionBinding(expression.text);
+        if (!value) break;
+        expression = value;
+      }
+      // Preserve compile-time resource/name literals for DSL expression wrappers.
+      if (constantInitialValue(expression) !== null) {
+        bound.set(fn.params[index], expression);
+        return argument(index + 1, parent);
+      }
+      return evaluatedValue(this, args[index], parent, (value, ret) => {
+        bound.set(fn.params[index], value);
+        return argument(index + 1, ret);
+      });
+    };
+    return argument(0, parentId);
   }
 
   compileInlineExpressionFunctionBlock(call, parentId, name, statements) {

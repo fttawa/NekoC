@@ -109,3 +109,49 @@ function total(a:number[]) { let s=0; for(const x of a) s+=x; return s; }
 onStart(()=>{result=total([1,2,3]);});`);
   assert.equal(variables["kn-var-result"], 6);
 });
+
+test("procedure string metadata cannot contaminate outer or sibling numeric bindings", () => {
+  const variables = execute(`let result=0; let saved=10;
+function unused(n:number) { let saved="hello"; if(n===0)return saved; return saved; }
+function text(n:number) { let a="x"; if(n===0)return a; return a; }
+function sum(n:number) { let a=n; if(n===0)return a; return a+sum(n-1); }
+onStart(()=>{result=(saved+1)*100+sum(4);});`);
+  assert.equal(variables["kn-var-result"], 1110);
+});
+
+test("numeric procedure locals clear shadowed outer string and array metadata", () => {
+  const variables = execute(`let result=0; let saved="outside";
+function f(n:number) { let saved=n; if(n===0)return saved+1; return saved+1; }
+onStart(()=>{result=f(2);});`);
+  assert.equal(variables["kn-var-result"], 3);
+});
+
+test("named variable APIs with lexical local collisions keep project-global identity", () => {
+  const variables = execute(`let result=0; let saved=90; let read=0;
+function f(n:number) {
+  let saved=n;
+  read=getVar("saved");
+  setVar("saved",50);
+  changeVar("saved",5);
+  if(n===0)return saved;
+  return true ? saved : 999;
+}
+onStart(()=>{result=f(2)*100+saved;});`);
+  assert.equal(variables["kn-var-result"], 255);
+  assert.equal(variables["kn-var-saved"], 55);
+  assert.equal(variables["kn-var-read"], 90);
+});
+
+test("named handle APIs and lazy helpers preserve globals despite local collisions", () => {
+  const variables = execute(`let result=0; let saved=90;
+function f(n:number) {
+  let saved=n;
+  self.var("saved").set(40);
+  self.var("saved").change(5);
+  if(n===0)return saved;
+  return saved*100+(true ? getVar("saved") : 0);
+}
+onStart(()=>{result=f(2);});`);
+  assert.equal(variables["kn-var-result"], 245);
+  assert.equal(variables["kn-var-saved"], 45);
+});

@@ -46,6 +46,8 @@ function double(x: number) {
 
 Simple functions (local declarations plus one final `return`, or statement functions without `return`) are inlined at compile time.
 
+Expression inlining uses stable reporter parameters for effectful arguments and local initializers: they execute once, in declaration order, before the body uses them (including unused or short-circuited parameters). Effectful arguments to inline statement functions are currently rejected; evaluate them into variables before the call. Explicit named-variable APIs (`getVar`, `setVar`, `changeVar`, and variable handles) always address project variables, even when a function has a same-named lexical local.
+
 Recursive functions (including mutual recursion) and functions with early or multiple `return`s compile to Kitten N custom procedures. Parameters and mutable `let`/`const` locals are per call: a wrapper allocates a fresh list frame for the implementation. Generated temporaries and lazy expression helpers share that invocation's frame. The native reporter evaluator still has a 200-call safety guard (not the official KN stack limit); wrappers and expression helpers count toward it.
 
 ```ts
