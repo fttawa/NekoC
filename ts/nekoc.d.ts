@@ -12,6 +12,12 @@ type NekoExpression<T = any> = T;
 type NekoValue = any;
 
 type NekoStatementBody = () => void;
+/** Cooperative Kitten N timer handle; delays are milliseconds, frame-quantized. */
+interface NekoTimer { readonly active: boolean; readonly delay: number; }
+declare function setTimeout(callback: () => void, ms?: number): NekoTimer;
+declare function setInterval(callback: () => void, ms?: number): NekoTimer;
+declare function clearTimeout(handle: NekoTimer): void;
+declare function clearInterval(handle: NekoTimer): void;
 type NekoTestBody = () => void | Promise<void>;
 
 interface NekoExpect<T = any> {
