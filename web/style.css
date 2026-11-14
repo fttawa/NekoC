@@ -1,7 +1,7 @@
 /* Neko Studio — flat bento layout: solid tiles on a tinted canvas, no shadows. */
 :root{
-  --canvas:#eceee8;--tile:#fff;--tile-2:#f5f6f2;--ink:#1d2621;--ink-2:#4b564f;--muted:#828b84;--line:#e3e6df;
-  --accent:#2f7d4e;--accent-ink:#fff;--accent-soft:#dff0e5;--warn:#b5482f;--radius:18px;--radius-sm:10px;--gap:12px;
+  --canvas:#ececec;--tile:#fff;--tile-2:#f6f6f6;--ink:#1a1a1a;--ink-2:#4a4a4a;--muted:#838383;--line:#e3e3e3;
+  --accent:#1a1a1a;--accent-ink:#fff;--accent-soft:#e8e8e8;--warn:#b5482f;--radius:18px;--radius-sm:10px;--gap:12px;
   font-family:Inter,"Segoe UI","Microsoft YaHei",sans-serif;color:var(--ink);background:var(--canvas);font-synthesis:none;
 }
 *{box-sizing:border-box}
@@ -17,7 +17,7 @@ i{display:inline-block}
 
 .tile{background:var(--tile);border-radius:var(--radius);padding:18px;min-width:0}
 .primary{background:var(--accent);color:var(--accent-ink);padding:10px 18px;font-weight:600}
-.primary:hover:not(:disabled){background:#276b42}
+.primary:hover:not(:disabled){background:#3a3a3a}
 .primary span{font-size:11px;margin-right:6px}
 .ghost{background:var(--tile-2);color:var(--ink-2);padding:10px 14px;text-decoration:none;font-size:13px;display:inline-flex;align-items:center;gap:6px}
 .ghost:hover:not(:disabled){background:var(--accent-soft);color:var(--accent)}
@@ -47,7 +47,7 @@ main.bento{flex:1;display:grid;grid-template-columns:270px minmax(360px,1fr) 460
 .resources{flex-shrink:0;max-height:42%;overflow:auto}
 .resources .eyebrow:first-of-type{margin-top:0}
 .entity{width:100%;text-align:left;display:flex;align-items:center;gap:10px;padding:8px;margin-top:6px;font-size:13px;background:var(--tile-2)}
-.entity:hover{background:#eceee8}
+.entity:hover{background:#ececec}
 .entity.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
 .entity .thumb{width:32px;height:32px;display:grid;place-items:center;background:var(--tile);border-radius:8px;color:var(--accent);flex-shrink:0}
 .thumb img{max-width:26px;max-height:26px}
@@ -78,7 +78,7 @@ main.bento{flex:1;display:grid;grid-template-columns:270px minmax(360px,1fr) 460
 .workspace-context .eyebrow{margin:0}
 .workspace-context h1{font-size:22px;font-weight:700;letter-spacing:-.5px;margin-top:4px}
 .context-note{font-size:12px;color:var(--muted)}
-.block-canvas{overflow:auto;flex:1;margin:0 12px;padding:18px;border-radius:14px;background:var(--tile-2) radial-gradient(#d9ddd4 1px,transparent 1px) 0 0/20px 20px}
+.block-canvas{overflow:auto;flex:1;margin:0 12px;padding:18px;border-radius:14px;background:var(--tile-2) radial-gradient(#d8d8d8 1px,transparent 1px) 0 0/20px 20px}
 .stack{width:max-content;min-width:230px;margin-bottom:26px;position:relative}
 .block{width:max-content;min-width:215px;padding:11px 14px;background:var(--bg,#dcebfb);border-radius:10px;position:relative;margin-top:3px;font-size:13px;color:var(--ink,#1f4f82);cursor:pointer;border-left:4px solid var(--border,#9cc3ef)}
 .block.selected{outline:2px solid var(--accent);outline-offset:2px;z-index:2}

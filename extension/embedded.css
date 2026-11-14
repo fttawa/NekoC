@@ -15,10 +15,10 @@
 .embedded .settings-head{padding:6px 8px}
 .embedded .setting small{display:none}
 .embedded #notice{bottom:52px}
-.embedded #extension-fps{position:absolute;right:10px;bottom:10px;z-index:2;display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:10px;background:#10261ae8;pointer-events:none;user-select:none}
+.embedded #extension-fps{position:absolute;right:10px;bottom:10px;z-index:2;display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:10px;background:#111112e8;pointer-events:none;user-select:none}
 .embedded #extension-fps .eyebrow{font-size:9px}
 .embedded #extension-fps strong{font-size:18px;letter-spacing:0}
 .embedded #extension-fps .hint{display:none}
 .embedded #extension-fps .engine-badge{font-size:9px;font-weight:700;letter-spacing:1.5px;color:var(--accent)}
-.embedded #takeover-hint{position:absolute;left:50%;top:12px;transform:translateX(-50%);z-index:3;max-width:calc(100% - 24px);padding:9px 14px;border-radius:10px;background:#1f3627f2;color:#d7edce;font-size:12px;white-space:nowrap;pointer-events:none}
+.embedded #takeover-hint{position:absolute;left:50%;top:12px;transform:translateX(-50%);z-index:3;max-width:calc(100% - 24px);padding:9px 14px;border-radius:10px;background:#1f1f21f2;color:#f2f2f2;font-size:12px;white-space:nowrap;pointer-events:none}
 @media(max-width:600px){.embedded #status{display:none}.embedded .eyebrow{display:none}}

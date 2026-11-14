@@ -15,7 +15,7 @@ await rm(output,{recursive:true,force:true});
 for(const dir of ['play/wasm','nekoc','vendor','samples'])await mkdir(path.join(output,dir),{recursive:true});
 
 for(const file of ['index.html','app.js','style.css'])await copyFile(path.join(root,'site',file),path.join(output,file));
-await writeFile(path.join(output,'logo.svg'),'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#b6d7a8"/><text x="16" y="23" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="700" fill="#192c1a">n</text></svg>\n');
+await writeFile(path.join(output,'logo.svg'),'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#f2f2f2"/><text x="16" y="23" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="700" fill="#111112">n</text></svg>\n');
 
 // 播放器：静态站固定使用 wasm 后端，资源路径改为相对路径。
 for(const file of ['play.js','play.css','player-feedback.js','player.js','backend.js','wasm-worker.js','extensions.js','kn-microphone.js','k4-device.js','renderer.js','pen-k4.js','audio.js','input.js','overlay.js'])

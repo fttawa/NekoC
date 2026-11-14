@@ -2,19 +2,19 @@
 // variable monitors. Shared by the editor, the standalone player and the extension.
 const STYLE = `
 .neko-overlay{position:absolute;inset:0;pointer-events:none;overflow:hidden;font-family:inherit;container-type:size}
-.neko-bubble{position:absolute;transform:translate(-50%,-100%);max-width:42%;padding:7px 11px;border-radius:12px;background:#fff;color:#1d2330;
-  border:2px solid #1d2330;font-size:clamp(10px,2.1cqw,16px);line-height:1.35;white-space:pre-wrap;overflow-wrap:anywhere;text-align:center}
-.neko-bubble::after{content:"";position:absolute;left:50%;bottom:-9px;width:12px;height:12px;background:#fff;border:2px solid #1d2330;border-top:0;border-left:0;transform:translateX(-50%) rotate(45deg)}
-.neko-bubble.think{border-radius:999px;border-style:dashed}.neko-bubble.think::after{border-radius:50%;bottom:-14px;width:8px;height:8px;border:2px solid #1d2330;transform:translateX(-50%)}
+.neko-bubble{position:absolute;transform:translate(-50%,-100%);max-width:42%;padding:7px 11px;border-radius:12px;background:#fff;color:#1a1a1a;
+  border:2px solid #1a1a1a;font-size:clamp(10px,2.1cqw,16px);line-height:1.35;white-space:pre-wrap;overflow-wrap:anywhere;text-align:center}
+.neko-bubble::after{content:"";position:absolute;left:50%;bottom:-9px;width:12px;height:12px;background:#fff;border:2px solid #1a1a1a;border-top:0;border-left:0;transform:translateX(-50%) rotate(45deg)}
+.neko-bubble.think{border-radius:999px;border-style:dashed}.neko-bubble.think::after{border-radius:50%;bottom:-14px;width:8px;height:8px;border:2px solid #1a1a1a;transform:translateX(-50%)}
 .neko-monitors{position:absolute;left:8px;top:8px;display:flex;flex-direction:column;gap:6px;align-items:flex-start}
-.neko-monitor{display:flex;gap:8px;align-items:stretch;background:#f4f6f1;border:1px solid #c9d3c4;border-radius:6px;font-size:12px;color:#1d2330;overflow:hidden;max-width:46cqw}
-.neko-monitor b{font-weight:600;padding:4px 0 4px 8px}.neko-monitor span{background:#2f7d4e;color:#fff;padding:4px 8px;font-variant-numeric:tabular-nums;white-space:pre;max-height:30cqh;overflow:auto}
-.neko-monitor.list span{background:#fff;color:#1d2330;border-left:1px solid #c9d3c4}
-.neko-ask{position:absolute;left:12px;right:12px;bottom:12px;pointer-events:auto;background:#fff;color:#1d2330;border:1px solid #c9d3c4;border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px;box-shadow:0 6px 24px #0003}
+.neko-monitor{display:flex;gap:8px;align-items:stretch;background:#f4f4f4;border:1px solid #cfcfcf;border-radius:6px;font-size:12px;color:#1a1a1a;overflow:hidden;max-width:46cqw}
+.neko-monitor b{font-weight:600;padding:4px 0 4px 8px}.neko-monitor span{background:#1a1a1a;color:#fff;padding:4px 8px;font-variant-numeric:tabular-nums;white-space:pre;max-height:30cqh;overflow:auto}
+.neko-monitor.list span{background:#fff;color:#1a1a1a;border-left:1px solid #cfcfcf}
+.neko-ask{position:absolute;left:12px;right:12px;bottom:12px;pointer-events:auto;background:#fff;color:#1a1a1a;border:1px solid #cfcfcf;border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px;box-shadow:0 6px 24px #0003}
 .neko-ask p{margin:0;font-size:14px;white-space:pre-wrap}
-.neko-ask-row{display:flex;gap:8px}.neko-ask input{flex:1;min-width:0;font:inherit;font-size:14px;padding:8px 10px;border:1px solid #b9c4b4;border-radius:8px;outline:none;background:#fff;color:#1d2330;color-scheme:light}
-.neko-ask input:focus{border-color:#2f7d4e}.neko-ask button{font:inherit;font-size:13px;padding:8px 14px;border-radius:8px;border:1px solid #2f7d4e;background:#2f7d4e;color:#fff;cursor:pointer}
-.neko-ask .choices{display:flex;flex-wrap:wrap;gap:8px}.neko-ask .choices button{background:#f4f6f1;color:#1d2330;border-color:#c9d3c4}.neko-ask .choices button:hover{border-color:#2f7d4e}
+.neko-ask-row{display:flex;gap:8px}.neko-ask input{flex:1;min-width:0;font:inherit;font-size:14px;padding:8px 10px;border:1px solid #bdbdbd;border-radius:8px;outline:none;background:#fff;color:#1a1a1a;color-scheme:light}
+.neko-ask input:focus{border-color:#1a1a1a}.neko-ask button{font:inherit;font-size:13px;padding:8px 14px;border-radius:8px;border:1px solid #1a1a1a;background:#1a1a1a;color:#fff;cursor:pointer}
+.neko-ask .choices{display:flex;flex-wrap:wrap;gap:8px}.neko-ask .choices button{background:#f4f4f4;color:#1a1a1a;border-color:#cfcfcf}.neko-ask .choices button:hover{border-color:#1a1a1a}
 .neko-stage-dialog{position:absolute;left:calc(12 * var(--neko-unit));right:calc(12 * var(--neko-unit));bottom:calc(12 * var(--neko-unit));height:calc(180 * var(--neko-unit));pointer-events:auto;background:#fff;color:#333;font-family:"Microsoft YaHei",sans-serif;cursor:pointer}
 .neko-stage-dialog::before{content:"";position:absolute;inset:calc(-1 * var(--neko-unit));border:calc(2 * var(--neko-unit)) solid #d9d6ce;border-radius:calc(5 * var(--neko-unit));pointer-events:none}
 .neko-stage-dialog img{position:absolute;left:calc(20 * var(--neko-unit));top:50%;transform:translateY(-50%);object-fit:contain}
