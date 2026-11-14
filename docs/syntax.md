@@ -12,6 +12,30 @@ const name = "player";
 let x = 10 + 20;
 ```
 
+Ordinary top-level statements and nonconstant initializers are supported:
+
+```ts
+const values = [1, 2].map(x => x * 2);
+const state = {count: 0};
+state.count += 1;
+console.log(values.join(","));
+const timer = setInterval(() => { state.count += 1; }, 100);
+setTimeout(() => { clearInterval(timer); }, 1000);
+```
+
+Constants still initialize the project variable table. Other top-level code runs
+in source order in an implicit start script. Explicit `onStart` handlers remain
+separate, concurrent start scripts; each first waits until that initialization
+has finished (a generated `__nekoc_ready` flag). Separate sprite workspaces are
+not covered by this initialization barrier. Timers use cooperative broadcast
+scripts and millisecond-to-second waits, not the browser event loop.
+
+Data objects support literal properties, nested/aliased values, `obj.key` and
+`obj[key]` reads, assignment and arithmetic compound assignment. Methods,
+prototypes, accessors, spread and destructuring remain unsupported. See
+[the support audit](ts-support-audit.md) for target-specific limitations,
+timer cancellation, numeric globals and array factories.
+
 ### Function Declarations (Inlined)
 
 ```ts

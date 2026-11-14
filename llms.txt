@@ -67,7 +67,11 @@ onStart(() => {
 - `if/else`, `while`, `do/while`, C-style `for`, `for...of`, `switch`, `break`, `continue`, labels, ternary, `??`, `try/catch` with `throw`.
 - Functions: declarations, default parameters, recursion (custom blocks), `import`/`export` between project files, enums. Types, interfaces, `as`, `!`, `satisfies` are stripped.
 - `console.log(x)` writes to the run log.
-- Not supported (compile errors): class instances, object values and object destructuring, `new Map/Set`, closures as values, `instanceof`/`in`, generators, real async (`async`/`await` are stripped). Kitten N has numbers, strings, booleans and lists only.
+- Plain objects: `{ x: 1, nested: { n: 2 } }`, `p.x`, `p["x"]`, `p.x += 1`, `p.n++` (data properties only).
+- Top-level statements run at startup in source order; `onStart` handlers start after them and run concurrently.
+- Timers: `setTimeout(cb, ms)`, `setInterval(cb, ms)`, `clearTimeout(h)`, `clearInterval(h)` (frame-quantized, root workspace only, callbacks cannot capture function parameters).
+- Also `Math.sign/cbrt/log2/hypot/atan2`, `Number.isInteger`, `Array.from({ length: n }, (_, i) => …)`, `Array(n).fill(v)`.
+- Not supported (compile errors): class instances, object methods/getters/spread, object destructuring, `new Map/Set/Date/Promise`, closures as values, `instanceof`/`in`, `?.`, `JSON`, generators, real async (`async`/`await` are stripped). Values are numbers, strings, booleans, lists and plain objects.
 
 ## Events
 

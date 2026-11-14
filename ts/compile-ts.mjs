@@ -38,6 +38,9 @@ function rejectParseDiagnostics(sourceFile) {
   }).join("\n"), { file: sourceFile.fileName, line: line + 1, column: character + 1 }, `TS${first.code}`);
 }
 
+// Global flag the implicit start script sets once top-level initialization ran.
+const STARTUP_READY = "__nekoc_ready";
+
 class WorkspaceCompiler {
   constructor(source, sourceFile) {
     this.source = source;
@@ -86,12 +89,16 @@ class WorkspaceCompiler {
       screens: [],
     };
     this.currentScreen = null;
+    this.runtimeInitializers = new Set();
+    this.generatedEvents = [];
   }
 
   compile(sourceFile) {
     this.loadImports(sourceFile, this.entryPath);
     this.synthesizeHelpers(sourceFile);
 
+    const startup = [];
+    const explicitStarts = [];
     sourceFile.statements.forEach((statement) => {
       if (ts.isImportDeclaration(statement)) {
         return;
@@ -125,6 +132,12 @@ class WorkspaceCompiler {
         return;
       }
       if (this.isGlobalVariableDeclaration(statement)) {
+        for (const declaration of statement.declarationList.declarations) {
+          if (this.runtimeInitializers.has(declaration)) {
+            startup.push(ts.factory.createExpressionStatement(ts.factory.createBinaryExpression(
+              declaration.name, ts.SyntaxKind.EqualsToken, declaration.initializer)));
+          }
+        }
         return;
       }
       if (ts.isEnumDeclaration(statement)) {
@@ -138,11 +151,48 @@ class WorkspaceCompiler {
         if (calleeName(statement.expression.expression) === "test") {
           return;
         }
-        this.compileTopLevelCall(statement.expression);
+        const name = calleeName(statement.expression.expression);
+        if (name === "onStart" || isMemberCallName(name, "onStart")) {
+          explicitStarts.push(statement.expression);
+        } else if (["defineProc", "defineReporter", "keyButton", "stage", "screen", "sprite", "onClick", "onKey", "onMessage", "when", "onBumpActor"].includes(name)) {
+          this.compileTopLevelCall(statement.expression);
+        } else {
+          startup.push(statement);
+        }
         return;
       }
-      this.unsupported(statement, "Only top-level DSL calls are supported");
+      if (ts.isInterfaceDeclaration(statement) || ts.isTypeAliasDeclaration(statement) || ts.isEmptyStatement(statement)) return;
+      startup.push(statement);
     });
+    for (const call of this.generatedEvents) this.compileTopLevelCall(call);
+    if (startup.length) {
+      // Top-level statements form their own start script. Explicit onStart
+      // handlers stay separate scripts so they still run concurrently (one
+      // may loop forever), but each first waits for initialization to finish.
+      const ready = ts.factory.createIdentifier(STARTUP_READY);
+      const setReady = value => ts.factory.createExpressionStatement(ts.factory.createBinaryExpression(
+        ready, ts.SyntaxKind.EqualsToken, ts.factory.createNumericLiteral(value)));
+      const compileStart = statements => {
+        const entry = this.addBlock({ type: "on_running_group_activated", parent_id: null });
+        this.scriptCount++;
+        const first = this.compileStatementList(statements, entry);
+        if (first) this.connectNext(entry, first);
+      };
+      if (explicitStarts.length) {
+        this.globalVariables.add(STARTUP_READY);
+        this.initialValues[STARTUP_READY] = 0;
+        // Reset first in case the variable kept a value from an earlier run.
+        startup.unshift(setReady(0));
+        startup.push(setReady(1));
+      }
+      compileStart(startup);
+      const waitReady = ts.factory.createExpressionStatement(ts.factory.createCallExpression(
+        ts.factory.createIdentifier("waitUntil"), undefined,
+        [ts.factory.createBinaryExpression(ready, ts.SyntaxKind.EqualsEqualsEqualsToken, ts.factory.createNumericLiteral(1))]));
+      for (const call of explicitStarts) compileStart([waitReady, ...callbackBody(call.arguments[0], this)]);
+    } else {
+      for (const call of explicitStarts) this.compileTopLevelCall(call);
+    }
 
     return {
       source: this.source,
@@ -279,8 +329,11 @@ class WorkspaceCompiler {
       }
       this.globalVariables.add(declaration.name.text);
       if (declaration.initializer) {
-        const value = constantInitialValue(declaration.initializer, this);
-        this.initialValues[declaration.name.text] = value;
+        // Non-constant initializers run at startup (see compile()).
+        const value = constantInitialValue(declaration.initializer);
+        if (value === null) this.runtimeInitializers.add(declaration);
+        else this.initialValues[declaration.name.text] = value;
+        if (this.isArrayExpression(declaration.initializer)) this.arrayVariables.add(declaration.name.text);
         // A top-level `const NAME = "..."` can also stand in for a literal where
         // one is required (resource URLs, sprite and message names).
         if ((statement.declarationList.flags & ts.NodeFlags.Const) && ts.isStringLiteral(declaration.initializer)) {
@@ -490,8 +543,116 @@ class WorkspaceCompiler {
   // callback as its own function; shared helpers are added only when used.
   synthesizeHelpers(sourceFile) {
     const parts = [];
+    const globals = {
+      "Math.sign": "function __jsSign(__jsSignX) { if (__jsSignX === 0) return __jsSignX; if (__jsSignX > 0) return 1; if (__jsSignX < 0) return -1; return __jsSignX; }",
+      "Math.cbrt": "function __jsCbrt(__jsCbrtX) { if (__jsCbrtX < 0) return -Math.pow(-__jsCbrtX, 1 / 3); return Math.pow(__jsCbrtX, 1 / 3); }",
+      "Math.log2": "function __jsLog2(__jsLog2X) { return Math.log(__jsLog2X) / Math.LN2; }",
+      "Number.isInteger": "function __jsIsInteger(__jsIntegerX) { return __jsIntegerX === Math.trunc(__jsIntegerX); }",
+      "Math.atan2": "function __jsAtan2(__jsAtanY, __jsAtanX) { if (__jsAtanX > 0) return Math.atan(__jsAtanY / __jsAtanX); if (__jsAtanX < 0) { if (__jsAtanY < 0) return Math.atan(__jsAtanY / __jsAtanX) - Math.PI; return Math.atan(__jsAtanY / __jsAtanX) + Math.PI; } if (__jsAtanY > 0) return Math.PI / 2; if (__jsAtanY < 0) return -Math.PI / 2; return 0; }",
+    };
+    const globalNames = { "Math.sign": "__jsSign", "Math.cbrt": "__jsCbrt", "Math.log2": "__jsLog2", "Math.atan2": "__jsAtan2", "Number.isInteger": "__jsIsInteger" };
+    this.globalHelpers = new Map();
     const used = new Set();
     const visit = (node) => {
+      if (ts.isCallExpression(node) && calleeName(node.expression) === "Array.from") {
+        const [options, callback] = node.arguments;
+        if (!options || !ts.isObjectLiteralExpression(options) || options.properties.length !== 1
+          || !ts.isPropertyAssignment(options.properties[0]) || options.properties[0].name.getText(sourceFile) !== "length"
+          || !callback || !(ts.isArrowFunction(callback) || ts.isFunctionExpression(callback)) || node.arguments.length !== 2) {
+          this.unsupported(node, "Array.from supports ({length: n}, inlineMapper) only");
+        }
+        const n = ++this.helperCount;
+        const name = `__arrayFrom${n}`;
+        const cb = `__arrayFromCallback${n}`;
+        const params = callback.parameters.map(p => {
+          if (!ts.isIdentifier(p.name)) this.unsupported(p, "Array.from mapper parameters must be simple names");
+          return p.name.text;
+        });
+        if (params.length > 2) this.unsupported(callback, "Array.from mapper expects at most two parameters");
+        for (let outer = node.parent; outer; outer = outer.parent) {
+          if (ts.isFunctionLike(outer)) {
+            for (const param of outer.parameters ?? []) {
+              if (ts.isIdentifier(param.name) && !params.includes(param.name.text) && expressionContainsIdentifier(callback.body, param.name.text)) {
+                this.unsupported(callback, `Array.from mapper cannot capture function parameter ${param.name.text}; copy it into a variable first`);
+              }
+            }
+          }
+        }
+        const body = ts.isBlock(callback.body) ? callback.body.getText(sourceFile) : `{ return ${callback.body.getText(sourceFile)}; }`;
+        parts.push(`function ${cb}(${params.join(",")}) ${body}
+          function ${name}(__arrayFromLength${n}) { const __arrayFromOut${n} = []; let __arrayFromIndex${n} = 0;
+            while (__arrayFromIndex${n} < Math.floor(Math.max(0, __arrayFromLength${n}))) {
+              __arrayFromOut${n}.push(${cb}(${["0", `__arrayFromIndex${n}`].slice(0, params.length).join(",")}));
+              __arrayFromIndex${n}++;
+            } return __arrayFromOut${n}; }`);
+        this.helperCalls.set(node, { name, factoryArgs: [options.properties[0].initializer] });
+      }
+      if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression) && node.expression.name.text === "fill") {
+        const target = node.expression.expression;
+        if ((ts.isCallExpression(target) || ts.isNewExpression(target)) && calleeName(target.expression) === "Array") {
+          if (target.arguments?.length !== 1 || node.arguments.length !== 1) this.unsupported(node, "Array(n).fill(v) expects one length and one fill value");
+          const length = constantNumber(target.arguments[0]);
+          if (length !== null && (!Number.isInteger(length) || length < 0)) this.unsupported(target, "Array length must be a finite nonnegative integer");
+          const n = ++this.helperCount;
+          const name = `__arrayFill${n}`;
+          parts.push(`function ${name}(__arrayFillLength${n}, __arrayFillValue${n}) {
+            const __arrayFillOut${n} = []; let __arrayFillIndex${n} = 0;
+            while (__arrayFillIndex${n} < __arrayFillLength${n}) { __arrayFillOut${n}.push(__arrayFillValue${n}); __arrayFillIndex${n}++; }
+            return __arrayFillOut${n}; }`);
+          this.helperCalls.set(node, { name, factoryArgs: [target.arguments[0], node.arguments[0]] });
+        }
+      }
+      if (ts.isCallExpression(node)) {
+        const name = calleeName(node.expression);
+        if (Object.hasOwn(globals, name) && !this.globalHelpers.has(name)) {
+          parts.push(globals[name]);
+          this.globalHelpers.set(name, globalNames[name]);
+        }
+      }
+      if (ts.isCallExpression(node) && ["setTimeout", "setInterval"].includes(calleeName(node.expression))) {
+        const callback = node.arguments[0];
+        if (!callback || !(ts.isArrowFunction(callback) || ts.isFunctionExpression(callback)) || node.arguments.length > 2) {
+          this.unsupported(node, "Timers expect an inline callback and optional delay in milliseconds");
+        }
+        if (callback.parameters.length) this.unsupported(callback, "Timer callbacks cannot have parameters");
+        for (let outer = node.parent; outer; outer = outer.parent) {
+          if (ts.isCallExpression(outer) && calleeName(outer.expression) === "sprite") {
+            this.unsupported(node, "Timers inside sprite workspaces are not supported yet; schedule them in the root workspace");
+          }
+          if (ts.isFunctionLike(outer)) {
+            for (const param of outer.parameters ?? []) {
+              if (ts.isIdentifier(param.name) && expressionContainsIdentifier(callback.body, param.name.text)) {
+                this.unsupported(callback, `Timer callbacks cannot capture function parameter ${param.name.text}; copy it into a variable first`);
+              }
+            }
+          }
+        }
+        const n = ++this.helperCount;
+        const name = `__timerStart${n}`;
+        const worker = `__timerWorker${n}`;
+        const message = `__nekoc_timer_${n}`;
+        const token = `__timerToken${n}`;
+        const received = `__timerReceived${n}`;
+        const body = ts.isBlock(callback.body) ? callback.body.getText(sourceFile) : `{ ${callback.body.getText(sourceFile)}; }`;
+        parts.push(`function __timerCallback${n}() ${body}
+        function ${name}(__timerMs${n}) {
+          const ${token} = {active: true, delay: Math.max(0, __timerMs${n}) / 1000};
+          broadcast(${JSON.stringify(message)}, ${token}); return ${token};
+        }
+        function ${worker}(__timerArg${n}) {
+          while (__timerArg${n}.active) {
+            wait(__timerArg${n}.delay);
+            if (!__timerArg${n}.active) return;
+            ${calleeName(node.expression) === "setTimeout" ? `__timerArg${n}.active = false;` : ""}
+            __timerCallback${n}();
+          }
+        }`);
+        const event = ts.createSourceFile(`__timer_event${n}.ts`,
+          `onMessage(${JSON.stringify(message)}, ${JSON.stringify(received)}, () => { ${worker}(messageValue(${JSON.stringify(received)})); });`,
+          ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+        this.generatedEvents.push(event.statements[0].expression);
+        this.helperCalls.set(node, { name, timer: true });
+      }
       if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression)) {
         const method = node.expression.name.text;
         used.add(method);
@@ -1283,7 +1444,7 @@ class WorkspaceCompiler {
   }
 
   compileObjectDestructuring(declaration) {
-    this.unsupported(declaration.name, "Object destructuring is not supported (Kitten N has no object values); use separate variables");
+    this.unsupported(declaration.name, "Object destructuring is not supported; read properties explicitly");
   }
 
   compileStatementExpression(expression, parentId) {
@@ -1308,6 +1469,16 @@ class WorkspaceCompiler {
 
   compileStatementCall(call, parentId) {
     const name = calleeName(call.expression);
+    if (name === "clearInterval" || name === "clearTimeout") {
+      if (call.arguments.length !== 1) this.unsupported(call, `${name} expects one timer handle`);
+      const target = ts.factory.createPropertyAccessExpression(call.arguments[0], "active");
+      return this.compileObjectAssignment(ts.factory.createBinaryExpression(target, ts.SyntaxKind.EqualsToken, ts.factory.createFalse()), parentId);
+    }
+    if (this.helperCalls.get(call)?.timer) {
+      const id = this.addBlock({ type: "variables_set", parent_id: parentId, fields: { variable: "__discardTimer" } });
+      this.connectInput(id, this.compileExpressionCall(call, id), "value", "value");
+      return id;
+    }
     switch (memberCallName(name)) {
       case "setVar":
         return this.compileSetVar(call, parentId);
@@ -1730,6 +1901,10 @@ class WorkspaceCompiler {
   }
 
   compileAssignmentExpression(expression, parentId) {
+    if ((ts.isPropertyAccessExpression(expression.left) && !["self", "this"].includes(expression.left.expression.getText()))
+      || (ts.isElementAccessExpression(expression.left) && !this.isArrayExpression(expression.left.expression))) {
+      return this.compileObjectAssignment(expression, parentId);
+    }
     if (ts.isPropertyAccessExpression(expression.left)) {
       const propertyName = expression.left.name.text;
       if (propertyName === "x") {
@@ -1794,6 +1969,11 @@ class WorkspaceCompiler {
   }
 
   compileUpdateExpression(expression, parentId) {
+    if (ts.isPropertyAccessExpression(expression.operand) || ts.isElementAccessExpression(expression.operand)) {
+      return this.compileAssignmentExpression(ts.factory.createBinaryExpression(expression.operand,
+        expression.operator === ts.SyntaxKind.PlusPlusToken ? ts.SyntaxKind.PlusEqualsToken : ts.SyntaxKind.MinusEqualsToken,
+        ts.factory.createNumericLiteral(1)), parentId);
+    }
     if (!ts.isIdentifier(expression.operand)) {
       this.unsupported(expression.operand, "Only simple variable updates are supported");
     }
@@ -3151,7 +3331,7 @@ class WorkspaceCompiler {
       this.unsupported(expression, `new ${what}() is not supported: Kitten N has no objects (use variables, arrays or lists)`);
     }
     if (ts.isObjectLiteralExpression(expression)) {
-      this.unsupported(expression, "Object literals are not supported: Kitten N has no objects (use separate variables)");
+      return this.compileObjectLiteral(expression, parentId);
     }
     if (ts.isBinaryExpression(expression) && [ts.SyntaxKind.InKeyword, ts.SyntaxKind.InstanceOfKeyword].includes(expression.operatorToken.kind)) {
       this.unsupported(expression.operatorToken, "in / instanceof are not supported: Kitten N has no objects");
@@ -3161,6 +3341,34 @@ class WorkspaceCompiler {
 
   compileExpressionCall(call, parentId) {
     const name = calleeName(call.expression);
+    const factory = this.helperCalls.get(call);
+    if (factory?.factoryArgs) return this.compileExpressionCall(ts.factory.createCallExpression(
+      ts.factory.createIdentifier(factory.name), undefined, factory.factoryArgs), parentId);
+    if (name === "Math.hypot") {
+      // Inline sqrt(a² + b² + …) so no list is passed to a custom block (the
+      // editor drops list reporters plugged into procedure arguments).
+      const f = ts.factory;
+      const square = arg => f.createCallExpression(f.createPropertyAccessExpression(f.createIdentifier("Math"), "pow"), undefined, [arg, f.createNumericLiteral(2)]);
+      if (!call.arguments.length) return this.compileExpression(f.createNumericLiteral(0), parentId);
+      const sum = call.arguments.map(square).reduce((a, b) => f.createBinaryExpression(a, ts.SyntaxKind.PlusToken, b));
+      const replacement = f.createCallExpression(f.createPropertyAccessExpression(f.createIdentifier("Math"), "sqrt"), undefined, [sum]);
+      return this.compileExpression(replacement, parentId);
+    }
+    if (this.globalHelpers?.has(name)) {
+      const arity = name === "Math.atan2" ? 2 : 1;
+      if (call.arguments.length !== arity) this.unsupported(call, `${name} expects ${arity} argument(s)`);
+      if (name === "Number.isInteger" && (isStringExpression(call.arguments[0]) || [ts.SyntaxKind.TrueKeyword, ts.SyntaxKind.FalseKeyword].includes(call.arguments[0].kind))) {
+        return this.compileExpression(ts.factory.createFalse(), parentId);
+      }
+      return this.compileExpressionCall(ts.factory.createCallExpression(ts.factory.createIdentifier(this.globalHelpers.get(name)), undefined,
+        call.arguments), parentId);
+    }
+    const timer = this.helperCalls.get(call);
+    if (timer?.timer) {
+      const replacement = ts.factory.createCallExpression(ts.factory.createIdentifier(timer.name), undefined,
+        [call.arguments[1] ?? ts.factory.createNumericLiteral(0)]);
+      return this.compileExpressionCall(replacement, parentId);
+    }
     if (name?.startsWith("Math.")) {
       return this.compileMathCall(call, name.slice(5), parentId);
     }
@@ -3849,7 +4057,7 @@ class WorkspaceCompiler {
 
   compilePropertyAccessExpression(expression, parentId) {
     const propertyName = expression.name.text;
-    if (propertyName === "length") {
+    if (propertyName === "length" && (this.isArrayExpression(expression.expression) || isStringExpression(expression.expression))) {
       return this.compileLength(expression.expression, parentId);
     }
     if (ts.isIdentifier(expression.expression) && expression.expression.text === "Math") {
@@ -3869,21 +4077,68 @@ class WorkspaceCompiler {
         ? this.addBlock({ type: "math_number", parent_id: parentId, fields: { NUM: String(value) }, is_output: true })
         : this.addBlock({ type: "text", parent_id: parentId, fields: { TEXT: value }, is_output: true });
     }
-    if (ts.isIdentifier(expression.expression)) {
-      const objName = expression.expression.text;
-      if (this.globalVariables.has(objName)) {
-        return this.addBlock({
-          type: "variables_get",
-          parent_id: parentId,
-          fields: { variable: `${objName}_${propertyName}` },
-          is_output: true,
-        });
+    return this.compileObjectAccess(expression, parentId);
+  }
+
+  compileObjectLiteral(expression, parentId) {
+    const id = this.addBlock({ type: "_object_literal", parent_id: parentId,
+      mutation: `<mutation xmlns="http://www.w3.org/1999/xhtml" items="${expression.properties.length}"></mutation>`, is_output: true });
+    expression.properties.forEach((property, index) => {
+      if (!ts.isPropertyAssignment(property) && !ts.isShorthandPropertyAssignment(property)) {
+        this.unsupported(property, "Object methods, accessors and spread are not supported; use data properties");
       }
-    }
-    return this.compileExpression(expression.expression, parentId);
+      const name = property.name;
+      if (ts.isComputedPropertyName(name)) this.unsupported(name, "Computed literal keys are not supported; assign obj[key] after construction");
+      const key = name.text;
+      if (!key || key === "__proto__") this.unsupported(name, "Empty object keys and __proto__ are not supported by Kitten N object literals");
+      const keyId = this.addBlock({ type: "text", parent_id: id, fields: { TEXT: key }, is_output: true });
+      this.connectInput(id, keyId, `key${index}`, "value");
+      this.connectInput(id, this.compileExpression(ts.isShorthandPropertyAssignment(property) ? name : property.initializer, id), `value${index}`, "value");
+    });
+    return id;
+  }
+
+  objectKey(expression) {
+    return ts.isPropertyAccessExpression(expression) ? ts.factory.createStringLiteral(expression.name.text) : expression.argumentExpression;
+  }
+
+  compileObjectAccess(expression, parentId) {
+    if (expression.questionDotToken) this.unsupported(expression, "Optional property access is not supported");
+    const id = this.addBlock({ type: "_object_get", parent_id: parentId,
+      mutation: '<mutation xmlns="http://www.w3.org/1999/xhtml" computed="true"></mutation>', is_output: true });
+    this.connectInput(id, this.compileExpression(expression.expression, id), "obj", "value");
+    this.connectInput(id, this.compileExpression(this.objectKey(expression), id), "key", "value");
+    return id;
+  }
+
+  compileObjectAssignment(expression, parentId) {
+    const left = expression.left;
+    const spec = assignmentOperatorSpec(expression.operatorToken.kind);
+    // Cache reference components so objExpr()[keyExpr()] += rhs runs each once.
+    const n = this.nextId;
+    const obj = ts.factory.createIdentifier(`__objectTarget${n}`);
+    const key = ts.factory.createIdentifier(`__objectKey${n}`);
+    const assign = (target, value) => this.compileAssignmentExpression(ts.factory.createBinaryExpression(target, ts.SyntaxKind.EqualsToken, value), parentId);
+    const first = assign(obj, left.expression);
+    const second = assign(key, this.objectKey(left));
+    this.connectNext(first, second);
+    const id = this.addBlock({ type: "_object_set", parent_id: parentId,
+      mutation: '<mutation xmlns="http://www.w3.org/1999/xhtml" computed="true"></mutation>' });
+    this.connectInput(id, this.compileExpression(obj, id), "obj", "value");
+    this.connectInput(id, this.compileExpression(key, id), "key", "value");
+    const operators = { add: ts.SyntaxKind.PlusToken, minus: ts.SyntaxKind.MinusToken, multiply: ts.SyntaxKind.AsteriskToken,
+      divide: ts.SyntaxKind.SlashToken, mod: ts.SyntaxKind.PercentToken, power: ts.SyntaxKind.AsteriskAsteriskToken };
+    const value = spec.kind === "assign" ? expression.right : ts.factory.createBinaryExpression(
+      ts.factory.createElementAccessExpression(obj, key), operators[spec.operator], expression.right);
+    this.connectInput(id, this.compileExpression(value, id), "value", "value");
+    this.connectNext(second, id);
+    return first;
   }
 
   compileElementAccessExpression(expression, parentId) {
+    if (!this.isArrayExpression(expression.expression) && !isStringExpression(expression.expression)) {
+      return this.compileObjectAccess(expression, parentId);
+    }
     if (ts.isIdentifier(expression.expression) && ts.isStringLiteral(expression.argumentExpression)) {
       const varName = `${expression.expression.text}_${expression.argumentExpression.text}`;
       if (this.globalVariables.has(varName)) {
@@ -3929,6 +4184,7 @@ class WorkspaceCompiler {
 
   isArrayExpression(node) {
     node = stripParens(node);
+    if (this.helperCalls.get(node)?.factoryArgs) return true;
     if (ts.isArrayLiteralExpression(node)) return true;
     if (ts.isIdentifier(node)) return this.arrayVariables.has(node.text) || node.text.startsWith("__arr");
     if (ts.isCallExpression(node)) {
@@ -4274,9 +4530,12 @@ class WorkspaceCompiler {
   }
 
   compileArrayLiteralExpression(expression, parentId) {
+    // The editor sizes the item inputs from this mutation; without it the
+    // ITEMn connections are dropped when the work is opened.
     const id = this.addBlock({
       type: "temporary_list",
       parent_id: parentId,
+      mutation: `<mutation xmlns="http://www.w3.org/1999/xhtml" items="${expression.elements.length}"></mutation>`,
       is_output: true,
     });
     for (let i = 0; i < expression.elements.length; i++) {
@@ -4589,15 +4848,12 @@ function ifEndsWithContinue(statement) {
   return Boolean(last && ts.isContinueStatement(last) && !last.label);
 }
 
-function constantInitialValue(node, compiler) {
+function constantInitialValue(node) {
   const inner = stripParens(node);
   if (ts.isStringLiteral(inner) || ts.isNoSubstitutionTemplateLiteral(inner)) return inner.text;
   if (inner.kind === ts.SyntaxKind.TrueKeyword) return true;
   if (inner.kind === ts.SyntaxKind.FalseKeyword) return false;
   const value = constantNumber(inner);
-  if (value === null) {
-    compiler.unsupported(node, "Top-level variables need a constant initial value (number, string or boolean); assign other values in onStart");
-  }
   return value;
 }
 
