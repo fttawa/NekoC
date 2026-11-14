@@ -28,7 +28,7 @@
     }
   },
   "bin": {
-    "nekoc": "./bin/nekoc.mjs"
+    "nekoc": "bin/nekoc.mjs"
   },
   "files": [
     "*.mjs",
