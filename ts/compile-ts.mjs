@@ -23,7 +23,14 @@ function fail(message, location = null, code = "NEKOC") {
   throw new CompileError(message, location, code);
 }
 
+const helperOrigins = new WeakMap();
+
 function nodeLocation(node) {
+  const origin = node && helperOrigins.get(node);
+  if (origin) {
+    const { line, character } = origin.file.getLineAndCharacterOfPosition(origin.offset);
+    return { file: origin.file.fileName, line: line + 1, column: character + 1 };
+  }
   const sourceFile = node?.getSourceFile?.();
   if (!sourceFile || typeof node.pos !== "number" || node.pos < 0) return null;
   const { line, character } = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile));
@@ -33,14 +40,18 @@ function nodeLocation(node) {
 function rejectParseDiagnostics(sourceFile) {
   const diagnostics = sourceFile.parseDiagnostics ?? [];
   if (!diagnostics.length) return;
-  const first = diagnostics[0];
-  const { line, character } = sourceFile.getLineAndCharacterOfPosition(first.start ?? 0);
-  fail(diagnostics.map((diagnostic) => {
-    const start = diagnostic.start ?? 0;
-    const { line, character } = sourceFile.getLineAndCharacterOfPosition(start);
-    const message = ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n");
-    return `${sourceFile.fileName}:${line + 1}:${character + 1}: TS${diagnostic.code}: ${message}`;
-  }).join("\n"), { file: sourceFile.fileName, line: line + 1, column: character + 1 }, `TS${first.code}`);
+  const items = diagnostics.map((diagnostic) => {
+    const { line, character } = sourceFile.getLineAndCharacterOfPosition(diagnostic.start ?? 0);
+    return {
+      severity: "error", source: "syntax", code: `TS${diagnostic.code}`,
+      message: ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n"),
+      file: sourceFile.fileName, line: line + 1, column: character + 1,
+    };
+  });
+  const first = items[0];
+  const error = new CompileError(first.message, { file: first.file, line: first.line, column: first.column }, first.code);
+  error.diagnostics = items;
+  throw error;
 }
 
 // Global flag the implicit start script sets once top-level initialization ran.
@@ -82,6 +93,7 @@ class WorkspaceCompiler {
     this.functionProcedures = new Map();
     this.functionParams = null;
     this.expressionBindings = [];
+    this.resolvingBindings = new Set();
     this.inlineCallStack = [];
     this.loadedModules = new Set();
     this.moduleExports = new Map();
@@ -97,6 +109,7 @@ class WorkspaceCompiler {
     this.arrayVariables = new Set();
     // Call nodes of callback methods (a.map(x => ...)) -> helper function name.
     this.helperCalls = new Map();
+    this.helperSourceOrigins = new Map();
     this.helperCount = 0;
     // Variables initialised with a string; `+` on them joins text.
     this.stringVariables = new Set();
@@ -131,6 +144,7 @@ class WorkspaceCompiler {
       ts.factory.createIdentifier(this.objectHeap), ts.SyntaxKind.EqualsToken, ts.factory.createArrayLiteralExpression())));
     const explicitStarts = [];
     sourceFile.statements.forEach((statement) => {
+      if (this.isTypeOnlyStatement(statement)) return;
       if (ts.isImportDeclaration(statement)) {
         return;
       }
@@ -156,6 +170,7 @@ class WorkspaceCompiler {
     }
 
     sourceFile.statements.forEach((statement) => {
+      if (this.isTypeOnlyStatement(statement)) return;
       if (ts.isImportDeclaration(statement)) {
         return;
       }
@@ -220,7 +235,10 @@ class WorkspaceCompiler {
       const waitReady = ts.factory.createExpressionStatement(ts.factory.createCallExpression(
         ts.factory.createIdentifier("waitUntil"), undefined,
         [ts.factory.createBinaryExpression(ready, ts.SyntaxKind.EqualsEqualsEqualsToken, ts.factory.createNumericLiteral(1))]));
-      for (const call of explicitStarts) compileStart([waitReady, ...callbackBody(call.arguments[0], this)]);
+      for (const call of explicitStarts) {
+        this.currentStatementNode = call;
+        compileStart([waitReady, ...callbackBody(call.arguments[0], this)]);
+      }
     } else {
       for (const call of explicitStarts) this.compileTopLevelCall(call);
     }
@@ -251,11 +269,12 @@ class WorkspaceCompiler {
       if (!ts.isImportDeclaration(statement)) {
         return;
       }
+      if (this.isTypeOnlyStatement(statement)) return;
       const modulePath = this.importModuleSpecifier(statement);
       if (!modulePath.startsWith(".")) {
         this.unsupported(statement, `Only relative imports are supported: ${modulePath}`);
       }
-      const resolvedPath = this.resolveImportPath(fromPath, modulePath);
+      const resolvedPath = this.resolveImportPath(fromPath, modulePath, statement);
       this.loadModule(resolvedPath, statement);
     });
   }
@@ -279,6 +298,7 @@ class WorkspaceCompiler {
       rejectParseDiagnostics(moduleSourceFile);
       this.objectSourceFiles.push(moduleSourceFile);
       this.loadImports(moduleSourceFile, resolvedPath);
+      this.synthesizeHelpers(moduleSourceFile);
       exports = this.collectModuleExports(moduleSourceFile);
       this.moduleExports.set(resolvedPath, exports);
     }
@@ -299,6 +319,7 @@ class WorkspaceCompiler {
   collectModuleExports(sourceFile) {
     const exports = new Map();
     sourceFile.statements.forEach((statement) => {
+      if (this.isTypeOnlyStatement(statement)) return;
       if (!hasExportModifier(statement)) {
         return;
       }
@@ -323,10 +344,12 @@ class WorkspaceCompiler {
     if (!clause || clause.name || !clause.namedBindings || !ts.isNamedImports(clause.namedBindings)) {
       this.unsupported(statement, "Only named imports are supported");
     }
-    return clause.namedBindings.elements.map((element) => element.name.text);
+    return clause.namedBindings.elements
+      .filter((element) => !element.isTypeOnly)
+      .map((element) => element.name.text);
   }
 
-  resolveImportPath(fromPath, modulePath) {
+  resolveImportPath(fromPath, modulePath, importNode) {
     const basePath = path.resolve(path.dirname(fromPath), modulePath);
     const candidates = [
       basePath,
@@ -335,16 +358,52 @@ class WorkspaceCompiler {
     ];
     const resolved = candidates.find((candidate) => typeof this.host.readFile(candidate) === "string");
     if (!resolved) {
-      fail(`Unable to resolve import ${modulePath} from ${fromPath}`);
+      fail(`Unable to resolve import ${modulePath} from ${fromPath}`, nodeLocation(importNode));
     }
     return resolved;
   }
 
   isInlineFunctionDefinition(statement) {
     if (ts.isFunctionDeclaration(statement)) {
-      return true;
+      return Boolean(statement.body);
     }
     return this.inlineArrowFunctionDeclaration(statement) !== null;
+  }
+
+  // TypeScript erases these declarations; do not register variables or
+  // procedures for ambient values or overload signatures.
+  isTypeOnlyStatement(statement) {
+    if (ts.isEmptyStatement(statement) || ts.isInterfaceDeclaration(statement) || ts.isTypeAliasDeclaration(statement)
+      || statement.modifiers?.some(modifier => modifier.kind === ts.SyntaxKind.DeclareKeyword)) return true;
+    if (ts.isImportDeclaration(statement)) {
+      const clause = statement.importClause;
+      return Boolean(clause?.isTypeOnly || (!clause?.name && clause?.namedBindings
+        && ts.isNamedImports(clause.namedBindings)
+        && clause.namedBindings.elements.every(element => element.isTypeOnly)));
+    }
+    if (ts.isExportDeclaration(statement)) {
+      return Boolean(statement.isTypeOnly || (statement.exportClause && ts.isNamedExports(statement.exportClause)
+        && statement.exportClause.elements.every(element => element.isTypeOnly)));
+    }
+    if (ts.isFunctionDeclaration(statement) && !statement.body) {
+      const siblings = statement.parent?.statements ?? [];
+      const index = Array.from(siblings).indexOf(statement);
+      if (Array.from(siblings).slice(index + 1).some(candidate => ts.isFunctionDeclaration(candidate)
+        && candidate.name?.text === statement.name?.text && candidate.body)) return true;
+      this.unsupported(statement, "Function overload signatures need a following implementation (or declare)");
+    }
+    if (ts.isModuleDeclaration(statement)) {
+      const body = statement.body;
+      if (!body) return true;
+      if (ts.isModuleDeclaration(body)) {
+        if (this.isTypeOnlyStatement(body)) return true;
+      } else if (ts.isModuleBlock(body) && body.statements.every(member =>
+        (ts.isInterfaceDeclaration(member) || ts.isTypeAliasDeclaration(member) || ts.isEmptyStatement(member)
+          || (ts.isModuleDeclaration(member) && !member.modifiers?.some(modifier => modifier.kind === ts.SyntaxKind.DeclareKeyword)))
+        && this.isTypeOnlyStatement(member))) return true;
+      this.unsupported(statement, "Namespaces containing runtime values are not supported; use a type-only namespace or top-level declarations");
+    }
+    return false;
   }
 
   isGlobalVariableDeclaration(statement) {
@@ -439,6 +498,7 @@ class WorkspaceCompiler {
         return param.name.text;
       }),
       defaults: params.map((param) => param.initializer ?? null),
+      optional: params.map((param) => Boolean(param.questionToken)),
       body,
     });
   }
@@ -497,7 +557,7 @@ class WorkspaceCompiler {
         }
       });
       if (!ts.isBlock(fn.body)) returnsValue = true;
-      const statements = ts.isBlock(fn.body) ? Array.from(fn.body.statements) : [];
+      const statements = ts.isBlock(fn.body) ? Array.from(fn.body.statements).filter(statement => !this.isTypeOnlyStatement(statement)) : [];
       const simpleExpression = !ts.isBlock(fn.body) || (
         statements.length > 0
         && ts.isReturnStatement(statements.at(-1)) && statements.at(-1).expression
@@ -606,7 +666,7 @@ class WorkspaceCompiler {
       "Math.atan2": "function __jsAtan2(__jsAtanY, __jsAtanX) { if (__jsAtanX > 0) return Math.atan(__jsAtanY / __jsAtanX); if (__jsAtanX < 0) { if (__jsAtanY < 0) return Math.atan(__jsAtanY / __jsAtanX) - Math.PI; return Math.atan(__jsAtanY / __jsAtanX) + Math.PI; } if (__jsAtanY > 0) return Math.PI / 2; if (__jsAtanY < 0) return -Math.PI / 2; return 0; }",
     };
     const globalNames = { "Math.sign": "__jsSign", "Math.cbrt": "__jsCbrt", "Math.log2": "__jsLog2", "Math.atan2": "__jsAtan2", "Number.isInteger": "__jsIsInteger" };
-    this.globalHelpers = new Map();
+    this.globalHelpers ??= new Map();
     const used = new Set();
     const visit = (node) => {
       if (ts.isCallExpression(node) && calleeName(node.expression) === "Array.from") {
@@ -634,6 +694,8 @@ class WorkspaceCompiler {
           }
         }
         const body = ts.isBlock(callback.body) ? callback.body.getText(sourceFile) : `{ return ${callback.body.getText(sourceFile)}; }`;
+        this.helperSourceOrigins.set(cb, { callback, call: node });
+        this.helperSourceOrigins.set(name, { call: node });
         parts.push(`function ${cb}(${params.join(",")}) ${body}
           function ${name}(__arrayFromLength${n}) { const __arrayFromOut${n} = []; let __arrayFromIndex${n} = 0;
             while (__arrayFromIndex${n} < Math.floor(Math.max(0, __arrayFromLength${n}))) {
@@ -650,6 +712,7 @@ class WorkspaceCompiler {
           if (length !== null && (!Number.isInteger(length) || length < 0)) this.unsupported(target, "Array length must be a finite nonnegative integer");
           const n = ++this.helperCount;
           const name = `__arrayFill${n}`;
+          this.helperSourceOrigins.set(name, { call: node });
           parts.push(`function ${name}(__arrayFillLength${n}, __arrayFillValue${n}) {
             const __arrayFillOut${n} = []; let __arrayFillIndex${n} = 0;
             while (__arrayFillIndex${n} < __arrayFillLength${n}) { __arrayFillOut${n}.push(__arrayFillValue${n}); __arrayFillIndex${n}++; }
@@ -689,6 +752,9 @@ class WorkspaceCompiler {
         const token = `__timerToken${n}`;
         const received = `__timerReceived${n}`;
         const body = ts.isBlock(callback.body) ? callback.body.getText(sourceFile) : `{ ${callback.body.getText(sourceFile)}; }`;
+        for (const helper of [`__timerCallback${n}`, name, worker]) {
+          this.helperSourceOrigins.set(helper, { call: node, ...(helper === `__timerCallback${n}` ? { callback } : {}) });
+        }
         parts.push(`function __timerCallback${n}() ${body}
         function ${name}(__timerMs${n}) {
           const ${token} = {active: true, delay: Math.max(0, __timerMs${n}) / 1000};
@@ -706,6 +772,7 @@ class WorkspaceCompiler {
           `onMessage(${JSON.stringify(message)}, ${JSON.stringify(received)}, () => { ${worker}(messageValue(${JSON.stringify(received)})); });`,
           ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
         this.generatedEvents.push(event.statements[0].expression);
+        this.mapHelperOrigin(event, { call: node });
         this.helperCalls.set(node, { name, timer: true });
       }
       if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression)) {
@@ -730,7 +797,9 @@ class WorkspaceCompiler {
         for (const name of METHOD_HELPERS[method]) need(name);
       }
     }
-    for (const name of needed) parts.push(SHARED_HELPERS[name].source);
+    for (const name of needed) {
+      if (!this.inlineFunctions.has(name)) parts.push(SHARED_HELPERS[name].source);
+    }
     if (!parts.length) return;
     const helperFile = ts.createSourceFile("__nekoc_helpers.ts", parts.join("\n"), ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
     for (const statement of helperFile.statements) {
@@ -751,8 +820,25 @@ class WorkspaceCompiler {
         };
         if (root) map(root);
       }
+      const origin = this.helperSourceOrigins.get(statement.name?.text);
+      if (origin) this.mapHelperOrigin(statement, origin);
       this.registerInlineFunction(statement);
     }
+  }
+
+  mapHelperOrigin(statement, { callback, call }) {
+    const file = call.getSourceFile();
+    const copied = callback?.body.getText(file);
+    const helperFile = statement.getSourceFile();
+    const start = copied ? helperFile.text.indexOf(copied, statement.body.getStart(helperFile)) : -1;
+    const visit = node => {
+      const position = node.getStart(helperFile);
+      const offset = start >= 0 && position >= start && position < start + copied.length
+        ? callback.body.getStart(file) + position - start : call.getStart(file);
+      helperOrigins.set(node, { file, offset });
+      ts.forEachChild(node, visit);
+    };
+    visit(statement);
   }
 
   synthesizeCallbackHelper(call, method, callback, sourceFile) {
@@ -779,6 +865,8 @@ class WorkspaceCompiler {
     const cb = `__cb${n}`;
     this.objectCallbackBodies.set(cb, callback.body);
     const name = `__${method}${n}`;
+    this.helperSourceOrigins.set(cb, { callback, call });
+    this.helperSourceOrigins.set(name, { call });
     const args = (...names) => names.slice(0, params.length).join(", ");
     const x = `__x${n}`;
     const i = `__i${n}`;
@@ -841,13 +929,6 @@ class WorkspaceCompiler {
 
   compileFunctionProcedureCall(call, parentId, asExpression) {
     const { fn, spec, returnsValue } = this.functionProcedures.get(calleeName(call.expression));
-    for (let i = call.arguments.length; i < fn.params.length; i++) {
-      const initializer = fn.defaults?.[i];
-      if (!initializer) continue;
-      if (this.parameterDependentDefaults.has(initializer)) {
-        this.unsupported(call, `Default value for parameter ${fn.params[i]} of function ${fn.name} depends on another parameter, which is not supported for procedure calls; pass the argument explicitly`);
-      }
-    }
     const args = this.functionArguments(fn, call);
     if (asExpression && !returnsValue) {
       this.unsupported(call, `Function ${spec.name} does not return a value`);
@@ -868,11 +949,44 @@ class WorkspaceCompiler {
     if (args.length > fn.params.length) {
       this.unsupported(call, `Function ${fn.name} expects at most ${fn.params.length} arguments but got ${args.length}`);
     }
-    for (let i = args.length; i < fn.params.length; i++) {
-      if (!fn.defaults?.[i]) {
+    for (let i = 0; i < fn.params.length; i++) {
+      const omitted = i >= args.length;
+      const argument = args[i] && stripParens(args[i]);
+      const explicitUndefined = argument && ts.isIdentifier(argument) && argument.text === "undefined"
+        && !this.globalVariables.has("undefined") && !this.lookupExpressionBinding("undefined")
+        && !this.functionParams?.has("undefined");
+      if (!omitted && !explicitUndefined) continue;
+      if (fn.defaults?.[i]) {
+        // A default can refer to an earlier parameter. Substitute only those
+        // names, not names from the caller's unrelated scope.
+        const earlier = new Map(fn.params.slice(0, i).map((name, index) => [name, args[index]]));
+        const transformed = ts.transform(fn.defaults[i], [context => {
+          const visit = node => ts.isIdentifier(node) && earlier.has(node.text)
+            ? earlier.get(node.text) : ts.visitEachChild(node, visit, context);
+          return root => ts.visitNode(root, visit);
+        }]);
+        args[i] = transformed.transformed[0];
+        transformed.dispose();
+        // Restrict expansion to literals and constant numeric expressions.
+        // Other expressions can replay side effects or depend on KN coercion.
+        if (!isConstantDefault(args[i])) {
+          this.unsupported(call, `Default parameter ${fn.params[i]} requires a literal or constant numeric expression (or earlier constant arguments); side-effecting defaults are not supported`);
+        }
+        if (ts.isStringLiteral(stripParens(args[i])) && this.functionProcedures.has(fn.name)) {
+          this.unsupported(call, `String default parameter ${fn.params[i]} requires an inline function; string defaults in custom procedures are not supported`);
+        }
+      } else if (fn.optional?.[i]) {
+        // This TS lowering has no general undefined-value representation.
+        // An unused optional slot can be filled arbitrarily, but an observable
+        // missing value must not turn silently into 0 or an empty string.
+        if (runtimeContainsIdentifier(fn.body, fn.params[i])
+          || fn.defaults.slice(i + 1).some(value => value && runtimeContainsIdentifier(value, fn.params[i]))) {
+          this.unsupported(call, `Omitted optional parameter ${fn.params[i]} is read by ${fn.name}; use a default parameter (undefined values are not supported)`);
+        }
+        args[i] = ts.factory.createNumericLiteral(0);
+      } else if (omitted) {
         this.unsupported(call, `Function ${fn.name} expects ${fn.params.length} arguments but got ${call.arguments.length}`);
       }
-      args.push(fn.defaults[i]);
     }
     return args;
   }
@@ -938,6 +1052,7 @@ class WorkspaceCompiler {
   }
 
   compileTopLevelCall(call) {
+    this.currentStatementNode = call;
     const name = calleeName(call.expression);
     if (isMemberCallName(name, "onStart")) {
       return this.compileNextHat(call, "on_running_group_activated", 0);
@@ -1024,6 +1139,7 @@ class WorkspaceCompiler {
     this.currentScreen = screen;
     try {
       body.forEach((statement) => {
+        if (this.isTypeOnlyStatement(statement)) return;
         if (ts.isExpressionStatement(statement) && ts.isCallExpression(statement.expression)) {
           const callName = calleeName(statement.expression.expression);
           if (callName === "sprite") {
@@ -1078,6 +1194,7 @@ class WorkspaceCompiler {
 
     try {
       statements.forEach((statement) => {
+        if (this.isTypeOnlyStatement(statement)) return;
         if (ts.isExpressionStatement(statement) && ts.isCallExpression(statement.expression)) {
           this.compileTopLevelCall(statement.expression);
           return;
@@ -1376,6 +1493,7 @@ class WorkspaceCompiler {
 
   compileStatement(statement, parentId) {
     this.currentStatementNode = statement;
+    if (this.isTypeOnlyStatement(statement)) return null;
     if (ts.isExpressionStatement(statement)) {
       return this.compileStatementExpression(statement.expression, parentId);
     }
@@ -1459,8 +1577,12 @@ class WorkspaceCompiler {
     this.registerBlockVariable(declaration.name, variableName);
     if (declaration.initializer && this.isArrayExpression(declaration.initializer)) {
       this.arrayVariables.add(variableName);
-    } else if (declaration.initializer && isStringExpression(declaration.initializer)) {
+    } else if (declaration.initializer && this.isBoundStringExpression(declaration.initializer)) {
       this.stringVariables.add(variableName);
+    }
+    if ((declaration.parent.flags & ts.NodeFlags.Const) && declaration.initializer
+      && ts.isStringLiteral(declaration.initializer)) {
+      this.constStringLiterals.set(variableName, declaration.initializer);
     }
     const id = this.addBlock({
       type: "variables_set",
@@ -1964,7 +2086,7 @@ class WorkspaceCompiler {
       if (!ts.isBlock(fn.body)) {
         this.unsupported(call, `Statement function ${name} must use a block body`);
       }
-      const statements = Array.from(fn.body.statements);
+      const statements = Array.from(fn.body.statements).filter(statement => !this.isTypeOnlyStatement(statement));
       if (statements.some((statement) => ts.isReturnStatement(statement))) {
         this.unsupported(call, `Statement function ${name} cannot contain return`);
       }
@@ -2038,7 +2160,7 @@ class WorkspaceCompiler {
     let valueId;
     if (spec.kind === "assign") {
       valueId = this.compileExpression(expression.right, id);
-    } else if (spec.operator === "add" && isStringExpression(expression.right)) {
+    } else if (spec.operator === "add" && this.isBoundStringExpression(expression.right)) {
       // s += "text" appends.
       valueId = this.compileTextJoin([{ expression: expression.left }, { expression: expression.right }], id);
     } else {
@@ -3281,7 +3403,15 @@ class WorkspaceCompiler {
     if (ts.isIdentifier(expression)) {
       const boundExpression = this.lookupExpressionBinding(expression.text);
       if (boundExpression) {
-        return this.compileExpression(boundExpression, parentId);
+        if (this.resolvingBindings.has(boundExpression)) {
+          this.unsupported(expression, `Inline parameter binding cycle for ${expression.text}; rename the caller variable or use a non-inline function`);
+        }
+        this.resolvingBindings.add(boundExpression);
+        try {
+          return this.compileExpression(boundExpression, parentId);
+        } finally {
+          this.resolvingBindings.delete(boundExpression);
+        }
       }
       if (this.functionParams?.has(expression.text)) {
         return this.compileParameterGet(expression.text, parentId, expression);
@@ -3460,7 +3590,8 @@ class WorkspaceCompiler {
     if (this.globalHelpers?.has(name)) {
       const arity = name === "Math.atan2" ? 2 : 1;
       if (call.arguments.length !== arity) this.unsupported(call, `${name} expects ${arity} argument(s)`);
-      if (name === "Number.isInteger" && (isStringExpression(call.arguments[0]) || [ts.SyntaxKind.TrueKeyword, ts.SyntaxKind.FalseKeyword].includes(call.arguments[0].kind))) {
+      const argument = this.resolveExpressionBinding(call.arguments[0]);
+      if (name === "Number.isInteger" && (this.isBoundStringExpression(call.arguments[0]) || [ts.SyntaxKind.TrueKeyword, ts.SyntaxKind.FalseKeyword].includes(argument.kind))) {
         return this.compileExpression(ts.factory.createFalse(), parentId);
       }
       return this.compileExpressionCall(ts.factory.createCallExpression(ts.factory.createIdentifier(this.globalHelpers.get(name)), undefined,
@@ -3960,7 +4091,7 @@ class WorkspaceCompiler {
       if (!ts.isBlock(fn.body)) {
         return this.compileExpression(fn.body, parentId);
       }
-      const statements = Array.from(fn.body.statements);
+      const statements = Array.from(fn.body.statements).filter(statement => !this.isTypeOnlyStatement(statement));
       return this.compileInlineExpressionFunctionBlock(call, parentId, name, statements);
     });
   }
@@ -4003,6 +4134,25 @@ class WorkspaceCompiler {
     }
     const fn = this.inlineFunctions.get(name);
     const args = this.functionArguments(fn, call);
+    // Argument ASTs are expanded under the callee's binding map. Until the
+    // inliner carries lexical environments, reject captures rather than
+    // silently substituting a callee parameter/default for a caller variable.
+    const capturedNames = new Set(fn.params);
+    if (ts.isBlock(fn.body)) {
+      for (const statement of fn.body.statements) {
+        if (ts.isVariableStatement(statement) && !this.isTypeOnlyStatement(statement)) {
+          for (const declaration of statement.declarationList.declarations) {
+            if (ts.isIdentifier(declaration.name)) capturedNames.add(declaration.name.text);
+          }
+        }
+      }
+    }
+    for (const argument of args) {
+      if (!ts.isArrowFunction(stripParens(argument)) && !ts.isFunctionExpression(stripParens(argument))
+        && this.inlineArgumentCaptures(argument, capturedNames)) {
+        this.unsupported(call, "Inline parameter binding cycle or capture; rename the caller variable or use a non-inline function");
+      }
+    }
     const bindings = new Map();
     fn.params.forEach((param, index) => {
       bindings.set(param, args[index]);
@@ -4025,6 +4175,41 @@ class WorkspaceCompiler {
       }
     }
     return null;
+  }
+
+  inlineArgumentCaptures(expression, names, visited = new Set()) {
+    if (visited.has(expression)) return false;
+    visited.add(expression);
+    let found = false;
+    const visit = (node, parent) => {
+      if (found || ts.isTypeNode(node)) return;
+      if (ts.isIdentifier(node) && isRuntimeReference(node, parent)) {
+        const bound = this.lookupExpressionBinding(node.text);
+        found = names.has(node.text) || Boolean(bound && this.inlineArgumentCaptures(bound, names, visited));
+      } else ts.forEachChild(node, child => visit(child, node));
+    };
+    visit(expression);
+    return found;
+  }
+
+  isBoundStringExpression(node) {
+    return isStringExpression(node, name => this.lookupStringBinding(name));
+  }
+
+  lookupStringBinding(name) {
+    return this.lookupExpressionBinding(name) ?? this.constStringLiterals.get(name);
+  }
+
+  resolveExpressionBinding(node) {
+    const visited = new Set();
+    node = stripParens(node);
+    while (ts.isIdentifier(node) && !visited.has(node)) {
+      visited.add(node);
+      const bound = this.lookupExpressionBinding(node.text);
+      if (!bound) break;
+      node = stripParens(bound);
+    }
+    return node;
   }
 
   lookupRangeBinding(name) {
@@ -4160,7 +4345,10 @@ class WorkspaceCompiler {
 
   compilePropertyAccessExpression(expression, parentId) {
     const propertyName = expression.name.text;
-    if (propertyName === "length" && (this.isArrayExpression(expression.expression) || isStringExpression(expression.expression) || this.objectTypes?.string(expression.expression))) {
+    // s[i].length still routes through the string index check, which rejects unproven indices.
+    const stringIndex = ts.isElementAccessExpression(stripParens(expression.expression))
+      && this.isBoundStringExpression(stripParens(expression.expression).expression);
+    if (propertyName === "length" && (this.isArrayExpression(expression.expression) || this.isBoundStringExpression(expression.expression) || stringIndex || this.objectTypes?.string(expression.expression))) {
       return this.compileLength(expression.expression, parentId);
     }
     if (ts.isIdentifier(expression.expression) && expression.expression.text === "Math") {
@@ -4188,28 +4376,6 @@ class WorkspaceCompiler {
     const files = new Set(this.objectSourceFiles);
     for (const fn of this.inlineFunctions.values()) files.add(fn.body.getSourceFile());
     this.objectTypes = objectTypes([...files], this.objectTypeOrigins);
-    // Snapshot lexical parameter references before object-free programs discard
-    // their type queries. Property names such as fallback.a are not references
-    // to the parameter a, and must not trigger the procedure-default diagnostic.
-    this.parameterDependentDefaults = new WeakSet();
-    const findDefaults = node => {
-      if (ts.isParameter(node) && node.initializer) {
-        const visit = node => {
-          if (ts.isIdentifier(node)) {
-            const symbol = this.objectTypes.checker.getSymbolAtLocation(node);
-            if (symbol?.declarations?.some(declaration => parameters.includes(declaration))) {
-              this.parameterDependentDefaults.add(initializer);
-            }
-          }
-          ts.forEachChild(node, visit);
-        };
-        const parameters = node.parent.parameters;
-        const initializer = node.initializer;
-        visit(initializer);
-      }
-      ts.forEachChild(node, findDefaults);
-    };
-    for (const file of files) findDefaults(file);
     for (const file of files) validateObjectOperations(file, this.objectTypes, (node, message) => this.unsupported(node, message));
     const literals = [];
     const arrays = [];
@@ -4361,7 +4527,7 @@ class WorkspaceCompiler {
       divide: ts.SyntaxKind.SlashToken, mod: ts.SyntaxKind.PercentToken, power: ts.SyntaxKind.AsteriskAsteriskToken };
     const read = ts.factory.createElementAccessExpression(ts.factory.createIdentifier(this.objectHeap), this.objectIndex(obj, key));
     const value = spec.kind === "assign" ? expression.right : ts.factory.createBinaryExpression(read, operators[spec.operator], expression.right);
-    const stringAdd = spec.operator === "add" && (this.objectTypes.string(left) || this.objectTypes.string(expression.right) || isStringExpression(expression.right));
+    const stringAdd = spec.operator === "add" && (this.objectTypes.string(left) || this.objectTypes.string(expression.right) || this.isBoundStringExpression(expression.right));
     this.connectInput(id, stringAdd ? this.compileTextJoin([{ expression: read }, { expression: expression.right }], id) : this.compileExpression(value, id), "list_item_value", "value");
     this.connectNext(first, id);
     const atomic = this.addBlock({ type: "warp", parent_id: parentId });
@@ -4392,7 +4558,7 @@ class WorkspaceCompiler {
   }
 
   compileElementAccessExpression(expression, parentId) {
-    if (this.objectHeap && !this.isArrayExpression(expression.expression) && !isStringExpression(expression.expression) && !this.objectTypes?.string(expression.expression)) {
+    if (this.objectHeap && !this.isArrayExpression(expression.expression) && !this.isBoundStringExpression(expression.expression) && !this.objectTypes?.string(expression.expression)) {
       return this.compileObjectAccess(expression, parentId);
     }
     if (ts.isIdentifier(expression.expression) && ts.isStringLiteral(expression.argumentExpression)) {
@@ -4408,7 +4574,10 @@ class WorkspaceCompiler {
     }
     // s[i] is a character; anything else is read as a list (a[i] -> item i + 1).
     const target = expression.expression;
-    if (isStringExpression(target) || this.objectTypes?.string(target)) {
+    if (this.isBoundStringExpression(target) || this.objectTypes?.string(target)) {
+      if (!this.isBoundStringExpression(expression)) {
+        this.unsupported(expression, "String index must be a provably in-bounds integer on a constant string; possibly undefined string reads are not supported (use charAt for empty-string semantics)");
+      }
       const id = this.addBlock({
         type: "text_select",
         parent_id: parentId,
@@ -4809,9 +4978,10 @@ class WorkspaceCompiler {
     const operator = expression.operatorToken.kind;
     // `+` joins text when either side is statically a string; chains like
     // "a" + x + "b" flatten into one join.
-    const isString = node => isStringExpression(node, node => this.objectTypes?.string(node));
-    if (operator === ts.SyntaxKind.PlusToken && isString(expression)) {
-      return this.compileTextJoin(flattenStringConcat(expression, isString).map((part) => (
+    const resolve = name => this.lookupStringBinding(name);
+    const typed = node => Boolean(this.objectTypes?.string(node));
+    if (operator === ts.SyntaxKind.PlusToken && isStringExpression(expression, resolve, undefined, typed)) {
+      return this.compileTextJoin(flattenStringConcat(expression, resolve, typed).map((part) => (
         ts.isStringLiteral(part) || ts.isNoSubstitutionTemplateLiteral(part) ? { text: part.text } : { expression: part }
       )), parentId);
     }
@@ -5054,10 +5224,7 @@ class WorkspaceCompiler {
   }
 
   unsupported(node, message) {
-    const suffix = node && typeof node.pos === "number" && node.pos >= 0 && node.getSourceFile?.() === this.sourceFile
-      ? ` at offset ${node.getStart(this.sourceFile)}`
-      : "";
-    fail(`${message}${suffix}`, nodeLocation(node));
+    fail(message, nodeLocation(node) ?? nodeLocation(this.currentStatementNode) ?? nodeLocation(this.sourceFile));
   }
 }
 
@@ -5222,10 +5389,16 @@ let STRING_VARIABLES = new Set();
 const STRING_METHODS = new Set(["replace", "replaceAll", "trim", "trimStart", "trimEnd", "toUpperCase", "toLowerCase",
   "padStart", "padEnd", "repeat", "charAt", "substring", "join"]);
 
-function isStringExpression(node, isTypedString = () => false) {
+function isStringExpression(node, resolve, visited = new Set(), isTypedString = () => false) {
   if (node && isTypedString(node)) return true;
   node = stripParens(node);
   if (!node) return false;
+  if (visited.has(node)) return false;
+  visited.add(node);
+  if (ts.isIdentifier(node) && resolve) {
+    const bound = resolve(node.text);
+    if (bound) return isStringExpression(bound, resolve, visited, isTypedString);
+  }
   if (ts.isIdentifier(node) && STRING_VARIABLES.has(node.text)) return true;
   if (ts.isAsExpression(node) && isStringType(node.type)) return true;
   if (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node) || ts.isTemplateExpression(node)) return true;
@@ -5233,17 +5406,54 @@ function isStringExpression(node, isTypedString = () => false) {
     && ["join", "selectText", "answer", "String"].includes(node.expression.text)) return true;
   if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression)
     && STRING_METHODS.has(node.expression.name.text)) return true;
+  if (ts.isElementAccessExpression(node) && isStringExpression(node.expression, resolve, visited, isTypedString)) {
+    return constantStringValue(node, resolve) !== null;
+  }
   if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.PlusToken) {
-    return isStringExpression(node.left, isTypedString) || isStringExpression(node.right, isTypedString);
+    return isStringExpression(node.left, resolve, visited, isTypedString) || isStringExpression(node.right, resolve, visited, isTypedString);
   }
   return false;
 }
 
-function flattenStringConcat(node, isString = isStringExpression) {
+// Only proven characters are strings: JS bracket access can instead be undefined.
+// Resolve immutable literals and inline aliases, never mutable runtime variables.
+function constantStringValue(node, resolve, visited = new Set()) {
+  node = stripParens(node);
+  if (!node || visited.has(node)) return null;
+  visited.add(node);
+  if (ts.isIdentifier(node) && resolve) {
+    const bound = resolve(node.text);
+    return bound ? constantStringValue(bound, resolve, visited) : null;
+  }
+  if (ts.isAsExpression(node)) return constantStringValue(node.expression, resolve, visited);
+  if (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)) return node.text;
+  if (ts.isElementAccessExpression(node)) {
+    const target = constantStringValue(node.expression, resolve, visited);
+    let indexNode = stripParens(node.argumentExpression);
+    const indices = new Set();
+    while (indexNode && ts.isIdentifier(indexNode) && resolve && !indices.has(indexNode)) {
+      indices.add(indexNode);
+      const bound = resolve(indexNode.text);
+      if (!bound) break;
+      indexNode = stripParens(bound);
+    }
+    const index = indexNode ? constantNumber(indexNode) : null;
+    if (target !== null && Number.isInteger(index) && index >= 0 && index < target.length) {
+      const unit = target.charCodeAt(index);
+      if (unit >= 0xD800 && unit <= 0xDFFF) {
+        fail("String index produces an isolated UTF-16 surrogate; the current string model cannot preserve it", nodeLocation(node));
+      }
+      return target[index];
+    }
+  }
+  return null;
+}
+
+function flattenStringConcat(node, resolve, isTypedString) {
   const inner = stripParens(node);
   if (ts.isBinaryExpression(inner) && inner.operatorToken.kind === ts.SyntaxKind.PlusToken
-    && isString(inner)) {
-    return [...flattenStringConcat(inner.left, isString), ...flattenStringConcat(inner.right, isString)];
+    && isStringExpression(inner, resolve, undefined, isTypedString)) {
+    return [...flattenStringConcat(inner.left, resolve, isTypedString), ...flattenStringConcat(inner.right, resolve, isTypedString)];
   }
   return [node];
 }
@@ -5686,20 +5896,60 @@ export function checkFile(inputPath, { types = true, host } = {}) {
     report = compileFile(inputPath, host);
   } catch (error) {
     if (!(error instanceof CompileError)) throw error;
-    diagnostics.push({
-      severity: "error",
-      source: error.code.startsWith("TS") ? "syntax" : "compat",
-      code: error.code,
-      message: error.message,
-      ...(error.location ?? { file: inputPath }),
-    });
+    for (const item of compileErrorDiagnostics(error, inputPath)) {
+      const duplicate = item.source === "syntax" && diagnostics.some(existing =>
+        existing.source === "types" && existing.severity === item.severity
+        && existing.code === item.code && existing.message === item.message
+        && existing.line === item.line && existing.column === item.column
+        && existing.file && item.file && path.resolve(existing.file) === path.resolve(item.file));
+      if (!duplicate) diagnostics.push(item);
+    }
   }
   return { ok: !diagnostics.some((d) => d.severity === "error"), diagnostics, report };
 }
 
+/** Structured compile diagnostics, with messages kept separate from source locations. */
+export function compileErrorDiagnostics(error, file) {
+  return error.diagnostics ?? [{
+    severity: "error",
+    source: error.code.startsWith("TS") ? "syntax" : "compat",
+    code: error.code,
+    message: error.message,
+    ...(error.location ?? (file ? { file } : {})),
+  }];
+}
+
+function runtimeContainsIdentifier(expression, name) {
+  let found = false;
+  function visit(node, parent) {
+    if (found || ts.isTypeNode(node) || ts.isInterfaceDeclaration(node) || ts.isTypeAliasDeclaration(node)
+      || node.modifiers?.some(modifier => modifier.kind === ts.SyntaxKind.DeclareKeyword)) return;
+    if (ts.isIdentifier(node) && node.text === name && isRuntimeReference(node, parent)) found = true;
+    else ts.forEachChild(node, child => visit(child, node));
+  }
+  visit(expression);
+  return found;
+}
+
+function isRuntimeReference(node, parent) {
+  if (!parent) return true;
+  if (ts.isPropertyAccessExpression(parent) && parent.name === node) return false;
+  if ((ts.isPropertyAssignment(parent) || ts.isMethodDeclaration(parent)
+    || ts.isPropertyDeclaration(parent) || ts.isPropertySignature(parent)) && parent.name === node) return false;
+  if ((ts.isVariableDeclaration(parent) || ts.isParameter(parent) || ts.isFunctionDeclaration(parent))
+    && parent.name === node) return false;
+  return true;
+}
+
+function isConstantDefault(node) {
+  node = stripParens(node);
+  return constantNumber(node) !== null || ts.isStringLiteral(node)
+    || node.kind === ts.SyntaxKind.TrueKeyword || node.kind === ts.SyntaxKind.FalseKeyword;
+}
+
 export function formatDiagnostic(d) {
-  const where = d.line ? `${d.file}:${d.line}:${d.column}` : d.file ?? "";
-  return `${where}: ${d.severity} ${d.code}: ${d.message}`;
+  const where = d.file ? d.line && d.column ? `${d.file}:${d.line}:${d.column}` : d.file : "";
+  return `${where ? `${where}: ` : ""}${d.severity} ${d.code}: ${d.message}`;
 }
 
 function main(argv) {
@@ -5732,7 +5982,7 @@ function main(argv) {
     report = compileFile(inputPath);
   } catch (error) {
     if (!(error instanceof CompileError)) throw error;
-    console.error(error.message);
+    compileErrorDiagnostics(error, inputPath).forEach((d) => console.error(formatDiagnostic(d)));
     process.exit(1);
   }
   fs.writeFileSync(outputPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");

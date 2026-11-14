@@ -174,22 +174,31 @@ console.log(object[(KEY as "x")]);`);
   assert.equal(calls.length, 1, "the const initializer still executes exactly once");
 });
 
+// Defaults are expanded at the call site and must stay constant after earlier
+// arguments are substituted (shared rule with tsdiag); object reads are not.
 const parameterDefaults = [
   ["object property", `const object = {x: 3};
 function read(a: {x: number}, b: number = a.x) { return b; }
 console.log(read(object));`, 3],
-  ["scalar parameter in object program", `const unused = {x: 1};
-function read(a: number, b: number = a + 1) { return b; }
-console.log(read(3));`, 3],
-  ["scalar parameter in object-free procedure", `function read(a: number, b: number = a + 1) { if (a) return b; return 0; }
-console.log(read(3));`, 2],
   ["arrow parameter", `const object = {x: 3};
 const read = (a: {x: number}, b: number = a.x) => b;
 console.log(read(object));`, 3],
 ];
 for (const [name, source, line] of parameterDefaults) {
   test(`review 9: omitted default depending on ${name} gives actionable call-site diagnostic`, () => {
-    assertRejected(source, /default.*parameter.*depends.*parameter.*pass.*explicitly/i, line);
+    assertRejected(source, /Default parameter b requires a literal or constant numeric expression/, line);
+  });
+}
+
+for (const [name, source] of [
+  ["scalar parameter in object program", `const unused = {x: 1};
+function read(a: number, b: number = a + 1) { return b; }
+console.log(read(3));`],
+  ["scalar parameter in object-free procedure", `function read(a: number, b: number = a + 1) { if (a) return b; return 0; }
+console.log(read(3));`],
+]) {
+  test(`review 9: constant ${name} default expands at the call site`, () => {
+    compileSource(source);
   });
 }
 
@@ -197,8 +206,9 @@ test("review 9: explicitly supplied argument bypasses a parameter-dependent defa
   compileSource(`const object = {x: 3}; function read(a: {x: number}, b: number = a.x) { return b; } console.log(read(object, object.x));`);
 });
 
-test("review 9: unrelated property named like a parameter is not a parameter dependency", () => {
-  compileSource(`const fallback = {a: 3}; function read(a: number, b: number = fallback.a) { return b; } console.log(read(1));`);
+test("review 9: non-constant object defaults reject instead of reading in the caller scope", () => {
+  assertRejected(`const fallback = {a: 3}; function read(a: number, b: number = fallback.a) { return b; } console.log(read(1));`,
+    /Default parameter b requires a literal or constant numeric expression/, 1);
 });
 
 test("review 9: scalar inline defaults keep their existing callee binding behavior", () => {

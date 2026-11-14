@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import fs from "node:fs";
 import path from "node:path";
-import { compileFile, CompileError } from "../dist/frontend/compile-ts.mjs";
+import { compileFile, CompileError, compileErrorDiagnostics, formatDiagnostic } from "../dist/frontend/compile-ts.mjs";
 import { compile, check, createPlayer, importProject } from "../index.mjs";
 import { decodeFrame } from "../frame.mjs";
 
@@ -34,7 +34,7 @@ try {
     if (command === "check") {
       if (args.some((arg) => arg !== "--json")) throw new Error("Unknown check option");
       const result = check(entry, { files: normalized });
-      console.log(args.includes("--json") ? JSON.stringify(result) : result.ok ? `${input}: ok` : result.diagnostics.map((d) => `${d.file ?? input}: ${d.code}: ${d.message}`).join("\n"));
+      console.log(args.includes("--json") ? JSON.stringify(result) : result.ok ? `${input}: ok` : result.diagnostics.map(formatDiagnostic).join("\n"));
       process.exitCode = result.ok ? 0 : 1;
     } else {
       if (args.length && (args[0] !== "-o" || args.length !== 2)) throw new Error("Expected -o out.bcmkn");
@@ -45,6 +45,8 @@ try {
     }
   }
 } catch (error) {
-  console.error(error?.message ?? String(error));
+  if (error instanceof CompileError) {
+    compileErrorDiagnostics(error).forEach((d) => console.error(formatDiagnostic(d)));
+  } else console.error(error?.message ?? String(error));
   process.exitCode = 1;
 }

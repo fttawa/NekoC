@@ -1,7 +1,7 @@
 //! Headless CLI host for the same Engine used by the player and coverage tools.
 use crate::{
     cloud::CloudOptions,
-    engine::{Engine, Program},
+    engine::{Cell, Engine, Program},
     runtime::{RuntimeEvent, helpers::keyboard_code},
 };
 use anyhow::{Context, Result};
@@ -81,6 +81,24 @@ pub fn run_with_input(
         stage_dialog = serde_json::to_value(frame.stage_dialog)?;
     }
     let mut snapshot = engine.debug_snapshot();
+    // JSON has no numeric NaN/Infinity. Keep those observations distinct from
+    // null without changing Cell serialization (used by other APIs).
+    for section in ["variables", "lists"] {
+        if let Some(values) = snapshot[section].as_object_mut() {
+            for (id, value) in values {
+                *value = observation_value(&engine.variable_value(id), 0);
+            }
+        }
+    }
+    if let Some(actors) = snapshot["actors"].as_object_mut() {
+        for (entity, actor) in actors {
+            if let Some(values) = actor["variables"].as_object_mut() {
+                for (id, value) in values {
+                    *value = observation_value(&engine.entity_variable_value(entity, id), 0);
+                }
+            }
+        }
+    }
     let names: BTreeMap<_, _> = project["variables"]["variablesDict"]
         .as_object()
         .into_iter()
@@ -104,6 +122,37 @@ pub fn run_with_input(
     snapshot["extension_requests"] = json!(extension_requests);
     snapshot["k4_media_output"] = json!(device_output);
     Ok(snapshot)
+}
+
+fn observation_value(value: &Cell, depth: usize) -> Value {
+    // Bound nested observations; this also bounds repeated traversal of cycles.
+    if depth >= 128 {
+        return Value::Null;
+    }
+    match value {
+        Cell::Number(n) if !n.is_finite() => json!(if n.is_nan() {
+            "NaN"
+        } else if n.is_sign_negative() {
+            "-Infinity"
+        } else {
+            "Infinity"
+        }),
+        Cell::List(items) => Value::Array(
+            items
+                .borrow()
+                .iter()
+                .map(|item| observation_value(item, depth + 1))
+                .collect(),
+        ),
+        Cell::Object(items) => Value::Object(
+            items
+                .borrow()
+                .iter()
+                .map(|(key, item)| (key.clone(), observation_value(item, depth + 1)))
+                .collect(),
+        ),
+        _ => serde_json::to_value(value).expect("scalar Cell is JSON serializable"),
+    }
 }
 
 fn dispatch_events(engine: &mut Engine, events: &[RuntimeEvent]) {

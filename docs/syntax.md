@@ -425,5 +425,24 @@ const arr = ["a", "b"];
 - Type-only imports/exports: `import type { ... }`
 - Interfaces: `interface Foo { ... }` (stripped)
 - Type aliases: `type Foo = ...` (stripped)
+- Ambient declarations (`declare`), overload signatures, and namespaces that
+  contain only interfaces/type aliases are stripped. A namespace with runtime
+  values is rejected because Kitten N has no namespace value model.
+- Default parameters with constant defaults (including an earlier constant
+  parameter), such as `function f(a, b = 1)`, are expanded at each call. An
+  omitted optional parameter may be used only when its value is not observed;
+  use a default parameter when `undefined` must be tested.
+  Inline calls whose arguments would capture a callee parameter name are
+  rejected; rename the caller variable or use a non-inline function.
+  String defaults support inline string operations; functions lowered to custom
+  procedures reject string defaults because their parameter types cannot be
+  specialized per call.
+  String bracket reads require a provably in-bounds integer index on a constant
+  string (including inline parameter/local aliases and immutable literal names).
+  Out-of-bounds or unproven reads are rejected rather than treating possible
+  `undefined` as text; use `charAt` when empty-string fallback is intended.
+  Even in-bounds bracket reads are rejected when the selected UTF-16 code unit
+  is a high or low surrogate: the current UTF-8 runtime cannot preserve isolated
+  surrogates. Other BMP characters in the same string remain indexable.
 - Enums: `enum Foo { ... }` (registered as variables)
 - Classes: `class Foo { ... }` (registered as variables)
