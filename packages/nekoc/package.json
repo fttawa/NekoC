@@ -1,6 +1,6 @@
 {
   "name": "@nekox-lab/nekoc",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "type": "module",
   "types": "./index.d.ts",
   "exports": { ".": { "types": "./index.d.ts", "browser": "./browser.mjs", "node": "./index.mjs", "default": "./browser.mjs" } },
