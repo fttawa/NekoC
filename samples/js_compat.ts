@@ -39,8 +39,10 @@ let zeroTimer = 0;
 setTimeout(() => { zeroTimer = 1; });
 let compound = {n: 2};
 let keyCalls = 0;
-function nextKey() { keyCalls += 1; return "n"; }
-compound[nextKey()] *= 3;
+// Share-player object keys must be compile-time constants.
+const compoundKey = "n";
+keyCalls += 1;
+compound[compoundKey] *= 3;
 compound.n++;
 let signs = [Math.sign(0), Math.sign(8)];
 let angles = [Math.atan2(1, 0), Math.atan2(-1, 0), Math.atan2(-1, -1), Math.atan2(1, 1), Math.atan2(0, 0)];
@@ -49,3 +51,9 @@ let validInteger = Number.isInteger(4);
 let generatedFraction = Array.from({length: 2.9}, (_, i) => i);
 let filledObjects = new Array(2).fill({n: 1});
 filledObjects[0].n = 5;
+// Scalar observations: source-level objects are opaque handles in snapshots.
+const pointX = point.x;
+const pointNestedN = point.nested.n;
+const pointLength = point.length;
+const compoundN = compound.n;
+const filledObjectN = filledObjects[1].n;

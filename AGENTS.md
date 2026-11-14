@@ -51,6 +51,15 @@ node --test tests/*.test.mjs
 
 ## Producing `.bcmkn` works
 
+- TS plain data objects lower to numeric handles in a hidden global list heap,
+  using share-player-supported list/variable/arithmetic/custom-procedure blocks,
+  never `_object_*`. Keep the legacy Rust object-block runtime for old works.
+  Properties must be initialized and keys compile-time constants; unsupported
+  dynamic keys, coercion/JSON/delete and value-producing property updates must
+  produce actionable diagnostics, not invalid works. Preserve alias identity and
+  single evaluation of initializers/arguments/assignment targets. See
+  `docs/ts-share-objects.md` for limitations and official share-bundle evidence.
+
 - After generating or modifying a `.bcmkn`, run
   `node tools/editor-compat.mjs <work.bcmkn>` (needs Playwright; set
   `NEKOC_NODE_MODULES` to a `node_modules` that has it). Only `ok: true`
