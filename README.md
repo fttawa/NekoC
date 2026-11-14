@@ -140,7 +140,7 @@ node tools/editor-compat.mjs hello.bcmkn
 - **[RGB 画笔显示器](modules/pen-display/README.md)**：RGB888 帧缓冲，可配置分辨率和目标刷新率；[可运行示例](samples/pen_display.bcmkn)。
 - **[全舞台快速单角色渲染器](samples/pen_display_fast.bcmkn)**：896×560 舞台单位下的增量 RGB 画笔绘制；[源码](samples/pen_display_fast.ts)、[运行时源码分析](docs/kitten-n-runtime-findings.md)。
 - **[按列渲染实验](samples/pen_display_columns.bcmkn)**：每一列一个角色；[源码](samples/pen_display_columns.ts)。
-- **[原生微型 Transformer](projects/tiny-lm/tiny_lm.md)**：29,312 个训练参数，中文字符补全，原生数学运算和 KV cache；[可导入作品](projects/tiny-lm/tiny_lm.bcmkn)。这是针对合成语言的小范围实验，不是通用对话模型。
+- **[原生微型 Transformer](https://github.com/NekoX-Lab/nekoc-works/blob/main/tiny-lm/tiny_lm.md)**：29,312 个训练参数，中文字符补全，原生数学运算和 KV cache；[可导入作品](https://github.com/NekoX-Lab/nekoc-works/blob/main/tiny-lm/tiny_lm.bcmkn)。这是针对合成语言的小范围实验，不是通用对话模型。
 
 ## 示例
 
@@ -329,6 +329,12 @@ nekoc run-scenario project.bcmkn scenario.json
 
 ## 测试
 
+部分测试读取大型作品，先把作品仓库克隆到 `projects/`（CI 也这样做）：
+
+```bash
+git clone https://github.com/NekoX-Lab/nekoc-works.git projects
+```
+
 ```bash
 cargo test                          # Rust 测试
 npm run typecheck                   # TypeScript 类型检查
@@ -345,8 +351,9 @@ node tools/editor-compat.mjs <作品>  # 用官方编辑器检查作品
 | `ts/` | TypeScript 前端和类型声明 |
 | `web/` | Web Studio 与播放器 |
 | `extension/` | PICKCAT 浏览器扩展 |
+| — | Android 客户端在独立仓库 [nekoc-android](https://github.com/NekoX-Lab/nekoc-android) |
 | `modules/` | 作品共用的积木模块 |
-| `projects/` | 大型作品及其验证报告：`fangjie`、`pencraft`、`starhold`、`eisei`、`tiny-lm`、`qwen-mini` |
+| `projects/` | 不在本仓库：克隆 [nekoc-works](https://github.com/NekoX-Lab/nekoc-works)（`fangjie`、`pencraft`、`starhold`、`eisei`、`tiny-lm`、`qwen-*`）到这里 |
 | `samples/` | 语言示例和测试夹具 |
 | `tools/` | 构建、验证和性能分析脚本 |
 | `tests/` | Rust 与 Node 测试 |
