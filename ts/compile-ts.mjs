@@ -7,6 +7,10 @@ const fileURLToPath = isNode ? (await nodeImport("node:url")).fileURLToPath : (u
 const defaultHost = { readFile: (name) => { try { return fs?.readFileSync(name, "utf8"); } catch { return undefined; } } };
 import ts from "typescript";
 import { keyboardCode, effectCode, mathFunctionCode } from "./kitten-n.mjs";
+import { lowerTsValues } from "./tsfeat-values.mjs";
+import { lowerTsSequences } from "./tsfeat-sequences.mjs";
+import { lowerTsFeatures } from "./tsfeat-lowering.mjs";
+import { lowerTsMethods } from "./tsfeat-methods.mjs";
 
 /** A compile error. `location` is { file, line, column } (1-based) when known. */
 export class CompileError extends Error {
@@ -40,6 +44,15 @@ function rejectParseDiagnostics(sourceFile) {
     const message = ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n");
     return `${sourceFile.fileName}:${line + 1}:${character + 1}: TS${diagnostic.code}: ${message}`;
   }).join("\n"), { file: sourceFile.fileName, line: line + 1, column: character + 1 }, `TS${first.code}`);
+}
+
+function lowerFrontendFeatures(sourceFile) {
+  try {
+    return lowerTsFeatures(lowerTsSequences(lowerTsValues(lowerTsMethods(sourceFile))));
+  } catch (error) {
+    if (error instanceof CompileError) throw error;
+    throw new CompileError(error.message, error.location ?? nodeLocation(sourceFile));
+  }
 }
 
 // Global flag the implicit start script sets once top-level initialization ran.
@@ -243,7 +256,7 @@ class WorkspaceCompiler {
       }
       this.loadedModules.add(resolvedPath);
       const sourceText = this.host.readFile(resolvedPath);
-      const moduleSourceFile = ts.createSourceFile(
+      let moduleSourceFile = ts.createSourceFile(
         resolvedPath,
         sourceText,
         ts.ScriptTarget.Latest,
@@ -251,7 +264,17 @@ class WorkspaceCompiler {
         ts.ScriptKind.TS,
       );
       rejectParseDiagnostics(moduleSourceFile);
+      moduleSourceFile = lowerFrontendFeatures(moduleSourceFile);
       this.loadImports(moduleSourceFile, resolvedPath);
+      // Lifted nested functions and method helpers remain module-private, but
+      // exported wrappers still call them. Register their transitive bodies
+      // before planning procedures, rather than silently dropping those calls.
+      for (const statement of moduleSourceFile.statements) {
+        if (this.isInlineFunctionDefinition(statement) && !hasExportModifier(statement)) {
+          this.registerInlineFunction(statement);
+        }
+      }
+      this.synthesizeHelpers(moduleSourceFile);
       exports = this.collectModuleExports(moduleSourceFile);
       this.moduleExports.set(resolvedPath, exports);
     }
@@ -459,6 +482,14 @@ class WorkspaceCompiler {
         && statements.slice(0, -1).every((statement) => ts.isVariableStatement(statement))
       );
       const simpleStatement = ts.isBlock(fn.body) && !hasReturn;
+      // Check the actual specialized call graph as well as the source graph:
+      // a higher-order parameter may acquire a recursive edge only after static
+      // specialization. Ordinary variables are not call-frame-local in KN.
+      if (reaches(name, name)) {
+        let hasLocal = false;
+        visitFunctionBody(fn.body, node => { if (ts.isVariableDeclaration(node)) hasLocal = true; });
+        if (hasLocal) this.unsupported(fn.body, "Recursive specialized functions cannot use shared local variables; use scalar parameters without reassignment or an iterative loop instead");
+      }
       if (!reaches(name, name) && (simpleExpression || simpleStatement)) {
         continue;
       }
@@ -1293,6 +1324,9 @@ class WorkspaceCompiler {
 
   compileStatement(statement, parentId) {
     this.currentStatementNode = statement;
+    if (ts.isBlock(statement)) {
+      return this.compileStatementList(Array.from(statement.statements), parentId);
+    }
     if (ts.isExpressionStatement(statement)) {
       return this.compileStatementExpression(statement.expression, parentId);
     }
@@ -3346,6 +3380,14 @@ class WorkspaceCompiler {
 
   compileExpressionCall(call, parentId) {
     const name = calleeName(call.expression);
+    if (name === "JSON.stringify") {
+      // Official reporter shape and behavior: object-json.bcmkn, recorded in
+      // docs/kn-objects-official.json (input `value`, no mutation).
+      if (call.arguments.length !== 1) this.unsupported(call, "JSON.stringify supports one value; omit replacer and spacing arguments");
+      const id = this.addBlock({ type: "JSON.stringify", parent_id: parentId, is_output: true });
+      this.connectInput(id, this.compileExpression(call.arguments[0], id), "value", "value");
+      return id;
+    }
     const factory = this.helperCalls.get(call);
     if (factory?.factoryArgs) return this.compileExpressionCall(ts.factory.createCallExpression(
       ts.factory.createIdentifier(factory.name), undefined, factory.factoryArgs), parentId);
@@ -4470,7 +4512,7 @@ class WorkspaceCompiler {
     if (op === ts.SyntaxKind.TildeToken) {
       const value = constantNumber(expression);
       if (value === null) {
-        this.unsupported(expression, "Bitwise operators work only on constant numbers (Kitten N has no bitwise blocks)");
+        this.unsupported(expression, "Variable bitwise operators are not supported (32-bit arithmetic emulation requires up to 32 steps per operation); use constant operands or explicit bounded arithmetic");
       }
       return this.addBlock({ type: "math_number", parent_id: parentId, fields: { NUM: String(value) }, is_output: true });
     }
@@ -4552,6 +4594,9 @@ class WorkspaceCompiler {
 
   compileNativeBinaryExpression(expression, parentId) {
     const operator = expression.operatorToken.kind;
+    if (operator === ts.SyntaxKind.EqualsToken || operator === ts.SyntaxKind.CommaToken) {
+      this.unsupported(expression, "Assignment/comma values in this position are not supported; split them into separate statements in the same branch or loop body");
+    }
     // `+` joins text when either side is statically a string; chains like
     // "a" + x + "b" flatten into one join.
     if (operator === ts.SyntaxKind.PlusToken && (isStringExpression(expression.left) || isStringExpression(expression.right))) {
@@ -4562,7 +4607,7 @@ class WorkspaceCompiler {
     if (BITWISE_OPERATORS.has(operator)) {
       const value = constantNumber(expression);
       if (value === null) {
-        this.unsupported(expression.operatorToken, "Bitwise operators work only on constant numbers (Kitten N has no bitwise blocks)");
+        this.unsupported(expression.operatorToken, "Variable bitwise operators are not supported (32-bit arithmetic emulation requires up to 32 steps per operation); use constant operands or explicit bounded arithmetic");
       }
       return this.addBlock({ type: "math_number", parent_id: parentId, fields: { NUM: String(value) }, is_output: true });
     }
@@ -5355,7 +5400,7 @@ function booleanLiteralValue(node, compiler) {
 export function compileFile(inputPath, host = defaultHost) {
   const sourceText = host.readFile(path.resolve(inputPath));
   if (typeof sourceText !== "string") fail(`Unable to read ${inputPath}`);
-  const sourceFile = ts.createSourceFile(
+  let sourceFile = ts.createSourceFile(
     inputPath,
     sourceText,
     ts.ScriptTarget.Latest,
@@ -5363,6 +5408,7 @@ export function compileFile(inputPath, host = defaultHost) {
     ts.ScriptKind.TS,
   );
   rejectParseDiagnostics(sourceFile);
+  sourceFile = lowerFrontendFeatures(sourceFile);
   return new WorkspaceCompiler(inputPath, sourceFile, host).compile(sourceFile);
 }
 

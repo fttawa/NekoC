@@ -54,8 +54,8 @@ test("unsupported object features retain actionable compile diagnostics", () => 
       ["onStart(() => { const {x} = {x: 1}; });", /Object destructuring/],
       ["const p = {\"\": 1};", /Empty object keys/],
       ["const p = {n: 1}; p.n?.toString();", /Unsupported|Optional/],
-      ["console.log(JSON.stringify({n: 1}));", /Unsupported/],
-      ["console.log(String.fromCharCode(65));", /Unsupported/],
+      ["console.log(JSON.stringify({n: 1}, null, 2));", /JSON.stringify/],
+      ["function character(n: number) { return String.fromCharCode(n); } console.log(character(65));", /Dynamic String.fromCharCode/],
       ["const a = Array(-1).fill(0);", /Array length/],
       ["function f(n: number) { setTimeout(() => console.log(n), 1); } f(3);", /cannot capture function parameter/],
     ]) {

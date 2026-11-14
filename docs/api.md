@@ -2,6 +2,11 @@
 
 Complete reference for all functions and APIs available in NekoC TypeScript projects.
 
+For standard JavaScript expression/method support (including static formatting,
+UTF-16 constants and `JSON.stringify(value)`), see
+[Additional expressions and methods](syntax.md#additional-expressions-and-methods).
+These use the standard TypeScript library signatures, not additional NekoC globals.
+
 ## Global Events
 
 ### `onStart(body)`

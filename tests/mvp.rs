@@ -8320,12 +8320,18 @@ onStart(() => {
         for_block["mutation"],
         r#"<mutation xmlns="http://www.w3.org/1999/xhtml" items="2"></mutation>"#
     );
-    assert!(blocks
-        .values()
-        .any(|block| block["type"] == "traverse_number_param" && block["fields"]["TEXT"] == "i"));
-    assert!(blocks
-        .values()
-        .any(|block| block["type"] == "traverse_number_value" && block["fields"]["TEXT"] == "i"));
+    assert!(blocks.values().any(|block| {
+        block["type"] == "traverse_number_param"
+            && block["fields"]["TEXT"]
+                .as_str()
+                .is_some_and(|name| name.ends_with("_i"))
+    }));
+    assert!(blocks.values().any(|block| {
+        block["type"] == "traverse_number_value"
+            && block["fields"]["TEXT"]
+                .as_str()
+                .is_some_and(|name| name.ends_with("_i"))
+    }));
     assert!(blocks.values().any(|block| block["type"] == "console_log"));
 }
 
@@ -8403,15 +8409,24 @@ onStart(() => {
         serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
     let blocks = report["workspaceData"]["blocks"].as_object().unwrap();
 
-    assert!(blocks
-        .values()
-        .any(|block| block["type"] == "variables_set" && block["fields"]["variable"] == "total"));
-    assert!(blocks
-        .values()
-        .any(|block| block["type"] == "variables_get" && block["fields"]["variable"] == "total"));
-    assert!(blocks
-        .values()
-        .any(|block| block["type"] == "traverse_number_value" && block["fields"]["TEXT"] == "i"));
+    assert!(blocks.values().any(|block| {
+        block["type"] == "variables_set"
+            && block["fields"]["variable"]
+                .as_str()
+                .is_some_and(|name| name.ends_with("_total"))
+    }));
+    assert!(blocks.values().any(|block| {
+        block["type"] == "variables_get"
+            && block["fields"]["variable"]
+                .as_str()
+                .is_some_and(|name| name.ends_with("_total"))
+    }));
+    assert!(blocks.values().any(|block| {
+        block["type"] == "traverse_number_value"
+            && block["fields"]["TEXT"]
+                .as_str()
+                .is_some_and(|name| name.ends_with("_i"))
+    }));
     assert!(
         blocks.values().any(|block| {
             block["type"] == "math_arithmetic" && block["fields"]["type"] == "add"
@@ -8420,7 +8435,7 @@ onStart(() => {
 }
 
 #[test]
-fn cli_compile_ts_rejects_block_let_shadowing() {
+fn cli_compile_ts_accepts_block_let_shadowing() {
     let dir = tempdir().unwrap();
     let input = dir.path().join("block_let_shadow.ts");
     let output = dir.path().join("block_let_shadow.json");
@@ -8446,10 +8461,16 @@ onStart(() => {
             output.to_str().unwrap(),
         ])
         .assert()
-        .failure()
-        .stderr(predicate::str::contains(
-            "Variable shadowing is not supported",
-        ));
+        .success();
+    let report: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
+    let blocks = report["workspaceData"]["blocks"].as_object().unwrap();
+    assert!(blocks.values().any(|block| {
+        block["type"] == "variables_get"
+            && block["fields"]["variable"]
+                .as_str()
+                .is_some_and(|name| name.starts_with("__nekoc_ts_") && name.ends_with("_total"))
+    }));
 }
 
 #[test]
@@ -8496,11 +8517,11 @@ onStart(() => {
     let project: serde_json::Value =
         serde_json::from_str(&fs::read_to_string(output).unwrap()).unwrap();
     let variables = project["variables"]["variablesDict"].as_object().unwrap();
-    assert!(
-        variables
-            .values()
-            .any(|variable| variable["name"] == "total")
-    );
+    assert!(variables.values().any(|variable| {
+        variable["name"]
+            .as_str()
+            .is_some_and(|name| name.ends_with("_total"))
+    }));
 }
 
 #[test]
@@ -8542,7 +8563,12 @@ onStart(() => {
         .count();
     let set_count = blocks
         .values()
-        .filter(|block| block["type"] == "variables_set" && block["fields"]["variable"] == "total")
+        .filter(|block| {
+            block["type"] == "variables_set"
+                && block["fields"]["variable"]
+                    .as_str()
+                    .is_some_and(|name| name.ends_with("_total"))
+        })
         .count();
 
     assert_eq!(set_count, 4);
@@ -8591,9 +8617,12 @@ onStart(() => {
             .values()
             .any(|block| block["type"] == "traverse_number" && block["parent_id"].is_string())
     );
-    assert!(blocks
-        .values()
-        .any(|block| block["type"] == "traverse_number_value" && block["fields"]["TEXT"] == "i"));
+    assert!(blocks.values().any(|block| {
+        block["type"] == "traverse_number_value"
+            && block["fields"]["TEXT"]
+                .as_str()
+                .is_some_and(|name| name.ends_with("_i"))
+    }));
 }
 
 #[test]

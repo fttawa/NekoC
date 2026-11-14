@@ -38,6 +38,14 @@ timer cancellation, numeric globals and array factories.
 
 ### Function Declarations (Inlined)
 
+Lexical blocks and shadowed local names are supported. Nested declarations,
+`const f = function (...) { ... }`, variable-bound arrows and statically known
+function arguments are lowered to named functions/specializations. Declaration
+calls may precede the declaration; variable-initialized functions must be called
+after initialization. Reassigned scalar parameters use local copies. Mutable
+captures, escaping function values, rest parameters and recursive shared locals
+are rejected with alternatives (pass explicit scalar parameters or an array).
+
 ```ts
 function double(x: number) {
   return x * 2;
@@ -61,6 +69,26 @@ onStart(() => {
   // body
 });
 ```
+
+### Additional expressions and methods
+
+- Chained simple-variable assignments and comma expressions are supported as
+  statements, declaration initializers and return values. Split expressions in
+  conditional operands or loop tests into statements in the corresponding body.
+- `null`/uninitialized `let` comparisons and `typeof` fold when values are
+  statically known and unchanged. Runtime nullish storage is rejected: use a
+  concrete initialized value plus an explicit validity/type flag.
+- Constant `toFixed`, numeric `toString(radix)`, `isNaN`, `Number.isNaN`,
+  `charCodeAt`, `String.fromCharCode`, string `at` and `slice` follow JS semantics.
+  Dynamic numeric decimal `toString()` and string `slice` with constant bounds
+  (including negative bounds) are also supported. Other dynamic variants give
+  explicit diagnostics rather than approximate formatting or UTF-16 behavior.
+- `JSON.stringify(value)` uses the official KN reporter for dynamic values;
+  constants (including nested array literals) fold with JS JSON escaping.
+  Replacer/spacing arguments are not supported.
+- `delete` is rejected: JS array deletion leaves a hole, unlike `splice(i, 1)`.
+  Variable bitwise operations remain rejected; use constant operands or bounded
+  arithmetic rather than expanding a 32-step emulation for each operation.
 
 ### If/Else
 
