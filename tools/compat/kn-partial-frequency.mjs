@@ -96,8 +96,13 @@ function referenceSources(directory) {
 export function frequency(root, { reference } = {}) {
   const baselineBytes = git(root, ["show", `${baselineCommit}:${baselineDocument}`]);
   const partial = parseBaseline(baselineBytes);
+  // projects/ is a separate checkout of NekoX-Lab/nekoc-works; its tracked
+  // works count as they did when they lived in this repository.
+  const works = fs.existsSync(path.join(root, "projects/.git"))
+    ? git(path.join(root, "projects"), ["ls-files", "-z", "--", "*.bcmkn"]).split("\0").filter(Boolean).map(file => `projects/${file}`)
+    : [];
   const selection = selectCorpus(
-    git(root, ["ls-files", "-z", "--", "*.bcmkn"]).split("\0").filter(Boolean),
+    [...git(root, ["ls-files", "-z", "--", "*.bcmkn"]).split("\0").filter(Boolean), ...works],
     git(root, ["ls-tree", "-r", "-z", "--name-only", baselineCommit]).split("\0").filter(Boolean),
   );
   const files = selection.included.map(file => {

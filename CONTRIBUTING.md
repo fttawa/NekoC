@@ -4,6 +4,13 @@ NekoC is still reverse-engineering-heavy, so small, verifiable changes are best.
 
 ## Development Checks
 
+Some tests read the large works from `projects/`, which lives in its own
+repository. Clone it once (CI does the same):
+
+```bash
+git clone https://github.com/NekoX-Lab/nekoc-works.git projects
+```
+
 Before opening a PR, run:
 
 ```bash

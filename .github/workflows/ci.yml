@@ -36,6 +36,11 @@ jobs:
         with:
           # 部分工具测试用 git show 读取冻结的历史基线，需要完整历史
           fetch-depth: 0
+      # 大型作品在 nekoc-works 仓库；测试按 projects/<作品> 路径读取
+      - uses: actions/checkout@v4
+        with:
+          repository: NekoX-Lab/nekoc-works
+          path: projects
       - uses: actions/setup-node@v4
         with:
           node-version: 22

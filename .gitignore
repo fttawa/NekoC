@@ -17,27 +17,6 @@
 *.validate.json
 __pycache__/
 /dist/
+# 大型作品：克隆 NekoX-Lab/nekoc-works 到这里
+/projects/
 /packages/nekoc/dist/
-
-# qwen-mini：训练数据、权重和构建产物不入库
-/projects/qwen-mini/data/
-/projects/qwen-mini/out/
-/projects/qwen-mini/*.pt
-/projects/qwen-mini/*.npy
-/projects/qwen-mini/layout.json
-/projects/qwen-mini/params.json
-# qwen-chat：语料、权重和构建产物不入库
-/projects/qwen-chat/data/
-/projects/qwen-chat/out/
-/projects/qwen-chat/*.pt
-/projects/qwen-chat/*.npy
-/projects/qwen-chat/layout.json
-/projects/qwen-chat/params.json
-/projects/qwen-chat/__pycache__/
-# Android：交叉编译产物和本机配置
-/android/.gradle/
-/android/build/
-/android/app/build/
-/android/local.properties
-/android/app/src/main/jniLibs/
-/projects/qwen-chat/*.log

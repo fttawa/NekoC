@@ -90,8 +90,8 @@
 - Web 是[仅 loopback 的 Rust 服务](../src/bin/web.rs#L615-L626)加前端；[每个 socket 独立 VM](../src/bin/web.rs#L537-L578)，不是纯浏览器 WASM 或已验证公网多租户服务。
 - [`desktop`](../src/bin/web.rs#L628-L765) 是 wry/tao WebView 加同一服务，附加 JSON 导出不等于积木 AOT 机器码；
   [`studio`](../src/bin/studio.rs#L19-L52) 是另一条 early-development eframe 编辑器，两者不能混写。
-- Android 的[`构建脚本`](../tools/build-android.mjs#L10-L24)把 Rust 可执行服务命名为 `libnekoweb.so`；
-  [`MainActivity`](../android/app/src/main/java/com/nekoc/player/MainActivity.kt#L333-L400) 启动子进程，再用 WebView 加载 loopback，不是 JNI VM。
+- Android 的[`构建脚本`](https://github.com/NekoX-Lab/nekoc-android/blob/main/tools/build-android.mjs)把 Rust 可执行服务命名为 `libnekoweb.so`；
+  [`MainActivity`](https://github.com/NekoX-Lab/nekoc-android/blob/main/app/src/main/java/com/nekoc/player/MainActivity.kt#L333-L400) 启动子进程，再用 WebView 加载 loopback，不是 JNI VM。
 - [`PICKCAT MV3 manifest`](../extension/manifest.json#L2-L15) 是播放器接管/资源桥，与自定义积木 API 是两回事。
   **本轮未构建或运行 desktop/Android/插件宿主**；ABI、JIT、真机限制、插件跨宿主注册均未认证。
 
