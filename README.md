@@ -38,7 +38,7 @@ cargo run --release --bin web -- samples/native-studio.bcmkn
 
 ### 在线编译
 
-GitHub Pages 上的在线编译页在浏览器里完成类型检查、编译和 WASM 运行，代码不会上传，还能下载 `.bcmkn`。本地生成站点：`node packages/nekoc/build.mjs && node tools/build-pages.mjs`，输出在 `dist/pages`。独立播放器 `play.html?engine=wasm` 同样不需要后端。
+[在线编译页](https://nekox-lab.github.io/NekoC/)在浏览器里完成类型检查、编译和 WASM 运行，代码不会上传，还能下载 `.bcmkn`。本地生成站点：`node packages/nekoc/build.mjs && node tools/build-pages.mjs`，输出在 `dist/pages`。独立播放器 `play.html?engine=wasm` 同样不需要后端。
 
 ### TypeScript 编译器
 
