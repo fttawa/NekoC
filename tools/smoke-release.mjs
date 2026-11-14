@@ -19,9 +19,22 @@ const info = JSON.parse(await fs.readFile(path.join(bundle, "BUILD-INFO.json"), 
 if (!info.version || !/^[a-f0-9]{40}$/.test(info.commit) || !info.target || !Number.isFinite(Date.parse(info.builtAt))) {
   throw new Error("Incomplete BUILD-INFO.json");
 }
-const allowed = new Set(["nekoc", "web", "nekoc.exe", "web.exe", "frontend", "docs", "samples", "README.md", "llms.txt", "LICENSE", "BUILD-INFO.json"]);
-for (const entry of await fs.readdir(bundle)) {
+const allowed = new Set(["nekoc", "web", "nekoc.exe", "web.exe", "frontend", "docs", "samples", "README.md", "llms.txt", "LICENSE", "BUILD-INFO.json",
+  "start.cmd", "start.sh", "extension", "works"]);
+const entries = await fs.readdir(bundle);
+for (const entry of entries) {
   if (!allowed.has(entry)) throw new Error(`Unexpected package entry: ${entry}`);
+}
+if (!entries.includes(process.platform === "win32" ? "start.cmd" : "start.sh")) throw new Error("missing launcher");
+// Release builds must ship the extension and the showcase works (NEKOC_SMOKE_FULL=1).
+if (process.env.NEKOC_SMOKE_FULL) {
+  JSON.parse(await fs.readFile(path.join(bundle, "extension/manifest.json"), "utf8"));
+  for (const name of ["play.html", "backend.js", "wasm-worker.js"]) await fs.access(path.join(bundle, "extension", name));
+  const shipped = await fs.readdir(path.join(bundle, "works"));
+  if (shipped.length < 4) throw new Error(`works/ is incomplete: ${shipped}`);
+  const nekoc = path.join(bundle, process.platform === "win32" ? "nekoc.exe" : "nekoc");
+  // The works print a lot; only the exit status matters here.
+  for (const work of shipped) execFileSync(nekoc, ["run", `works/${work}`, "--ticks", "3"], { cwd: bundle, stdio: "ignore" });
 }
 for (let ancestor = bundle; ; ancestor = path.dirname(ancestor)) {
   try {

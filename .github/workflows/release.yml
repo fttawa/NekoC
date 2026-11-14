@@ -10,6 +10,7 @@ permissions:
 
 jobs:
   build:
+    needs: web
     strategy:
       fail-fast: false
       matrix:
@@ -39,6 +40,15 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
+      # The full package also carries the browser extension and showcase works.
+      - uses: actions/checkout@v4
+        with:
+          repository: NekoX-Lab/nekoc-works
+          path: works-src
+      - uses: actions/download-artifact@v4
+        with:
+          name: extension-dir
+          path: dist/extension
       - run: npm ci --ignore-scripts
       - run: cargo build --locked --release --target ${{ matrix.target }} --bin nekoc --bin web
       - name: Use the tag as the version
@@ -46,9 +56,14 @@ jobs:
         shell: bash
         run: echo "RELEASE_VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
       - run: node tools/package-release.mjs ${{ matrix.target }} target/${{ matrix.target }}/release
+        env:
+          NEKOC_EXTENSION_DIR: dist/extension
+          NEKOC_WORKS_DIR: works-src
       # Every runner is native, so each package is smoke tested on its own platform.
       - name: Smoke test the package outside the checkout
         shell: bash
+        env:
+          NEKOC_SMOKE_FULL: '1'
         run: |
           for archive in dist/releases/*.zip dist/releases/*.tar.gz; do
             if [ -f "$archive" ]; then node tools/smoke-release.mjs "$archive"; fi
@@ -98,6 +113,11 @@ jobs:
           npx nekoc run stage_demo.bcmkn --frames 120 | grep -q "cat done"
       - uses: actions/upload-artifact@v4
         with:
+          name: extension-dir
+          path: dist/pickcat-rust
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
           name: release-web
           path: |
             dist/releases/*.tgz
@@ -128,4 +148,11 @@ jobs:
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" dist/releases/* --draft --verify-tag --title "$GITHUB_REF_NAME" --generate-notes
+        # Hand-written notes in docs/releases/<tag>.md, with the PR list appended.
+        run: |
+          notes="docs/releases/${GITHUB_REF_NAME}.md"
+          if [ -f "$notes" ]; then
+            gh release create "$GITHUB_REF_NAME" dist/releases/* --draft --verify-tag --title "NekoC $GITHUB_REF_NAME" --notes-file "$notes" --generate-notes
+          else
+            gh release create "$GITHUB_REF_NAME" dist/releases/* --draft --verify-tag --title "NekoC $GITHUB_REF_NAME" --generate-notes
+          fi

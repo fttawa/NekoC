@@ -4,7 +4,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import os from "node:os";
 import { createHash } from "node:crypto";
-import { targets, docs, samples, frontendFiles, checksums, packageRelease } from "../tools/package-release.mjs";
+import { targets, docs, samples, works, launchers, frontendFiles, checksums, packageRelease } from "../tools/package-release.mjs";
 
 test("release manifest includes only supported platforms and redistributable assets", async () => {
   assert.equal(new Set(targets).size, 6);
@@ -50,6 +50,32 @@ test("release workflow keeps draft releases tag-only, ships npm + extension, exc
   assert.match(workflow, /node tools\/build-extension\.mjs/);
   assert.match(workflow, /needs: \[build, web\]/);
   assert.doesNotMatch(workflow, /package-extension|\.apk|gradle/);
+});
+
+test("release packages are ready to use: launcher, extension, showcase works, written notes", async () => {
+  const workflow = await fs.readFile(new URL("../.github/workflows/release.yml", import.meta.url), "utf8");
+  assert.match(workflow, /repository: NekoX-Lab\/nekoc-works/);
+  assert.match(workflow, /NEKOC_EXTENSION_DIR: dist\/extension/);
+  assert.match(workflow, /NEKOC_WORKS_DIR: works-src/);
+  assert.match(workflow, /NEKOC_SMOKE_FULL: '1'/);
+  assert.match(workflow, /name: extension-dir/);
+  assert.match(workflow, /--notes-file "\$notes"/);
+  assert.equal(works.length, 4);
+  const [cmd, cmdText] = launchers.windows, [sh, shText] = launchers.unix;
+  assert.equal(cmd, "start.cmd");
+  assert.equal(sh, "start.sh");
+  for (const text of [cmdText, shText]) {
+    assert.match(text, /--port 4173/);
+    assert.match(text, /http:\/\/127\.0\.0\.1:4173\/play/);
+  }
+  assert.match(cmdText, /\r\n/);
+  assert.doesNotMatch(shText, /\r/);
+  assert.match(shText, /^#!\/bin\/sh\n/);
+  // Each version's release notes are written by hand.
+  const version = (await fs.readFile(new URL("../Cargo.toml", import.meta.url), "utf8")).match(/^version = "([^"]+)"/m)[1];
+  const notes = await fs.readFile(new URL(`../docs/releases/v${version}.md`, import.meta.url), "utf8");
+  assert.match(notes, /## 下载/);
+  assert.match(notes, /start\.cmd/);
 });
 
 test("checksums cover npm tarballs and archives", async () => {
