@@ -20,6 +20,8 @@ type NekoValue = any;
 // dense literal array; unknown/mixed += element types require a string RHS.
 // Element ++/-- requires known numeric elements; mutation/escape may invalidate
 // static length and element-type proofs.
+// Deferred function mutations are considered regardless of declaration order;
+// parentheses, as, non-null and satisfies wrappers do not hide array mutations.
 interface Array<T> {
   at(index: number): T | undefined;
 }

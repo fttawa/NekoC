@@ -19,6 +19,8 @@ Complete reference for all functions and APIs available in NekoC TypeScript proj
   Element `++`/`--` requires known numeric elements. Length-changing calls,
   escapes and element-type-changing mutations can invalidate these proofs;
   these checks are conservative, not a general TypeScript flow analysis.
+  Deferred function bodies can invalidate the proof regardless of declaration
+  order. Parentheses, `as`, `!` and `satisfies` do not hide mutation or escape.
 - `a.length = 0` clears the same list, including aliases. Other length/property
   assignments are rejected; sparse array writes are not supported.
 - `reverse()` mutates and returns the same array. Default `sort()` is stable,
@@ -38,8 +40,11 @@ Complete reference for all functions and APIs available in NekoC TypeScript proj
   Captured string declarations and aliases retain their type before helper
   compilation. Property names and callback-local bindings are not captures.
   Callback parameters and locals shadow outer string type information.
-  Captured string declarations must have a statically stable type;
-  reassigned captured strings are conservatively rejected.
+  Captured string declarations may be reassigned with provably string-valued
+  `=` / `+=` operands; unknown or type-changing updates are rejected.
+  Inline explicit arguments retain their caller's type context even when a
+  callee parameter or local has the same name. Named function-expression
+  callbacks bind their own name, not a same-named enclosing variable.
 - `reduce(callback)` uses the first item as its initial accumulator and starts
   callback indices at 1. A nonempty literal initializer must be provable and
   must not escape through aliases or mutating calls; otherwise supply an initial

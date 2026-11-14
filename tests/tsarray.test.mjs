@@ -49,6 +49,18 @@ const cases = [
   ["asserted flat initializer", "onStart(() => { const a = ([[1],[2,3]] as number[][]); console.log((a as number[][]).flat().join(',')); });"],
   ["asserted reduce literal", "onStart(() => { console.log(([1,2,3] as number[]).reduce((a,b) => a+b)); });"],
   ["callback captures string alias", "onStart(() => { const base = 'item:'; const prefix = base; console.log([1,2].map(x => prefix+x).join(',')); });"],
+  ["caller string with same-name formal", "function id(s) { return s; } onStart(() => { const s = 'a'; console.log(id(s+1)); });"],
+  ["caller string length with same-name formal", "function id(s) { return s; } onStart(() => { const s = 'abc'; console.log(id(s.length)); });"],
+  ["caller string index with same-name formal", "function id(s) { return s; } onStart(() => { const s = 'abc'; console.log(id(s[0])); });"],
+  ["caller string with callee local", "function id(n) { const s = 5; return n; } onStart(() => { const s = 'a'; console.log(id(s+1)); console.log(id(s.length)); console.log(id(s[0])); });"],
+  ["nested caller string contexts", "function id(s) { return s; } function outer(s) { return id(s); } onStart(() => { const s = 'abc'; console.log(outer(s+1)); console.log(outer(s.length)); console.log(outer(s[0])); });"],
+  ["named callback is not outer parameter capture", "function f(inner) { return [1].map(function inner(x) { return x; }).join(','); } onStart(() => { console.log(f(10)); });"],
+  ["named callback is not outer local capture", "function f() { const inner = 10; return [1].map(function inner(x) { return x; }).join(','); } onStart(() => { console.log(f()); });"],
+  ["captured string keeps type on assignment", "onStart(() => { let s = 'a'; s = 'b'; console.log([1].map(x => s+'!').join(',')); });"],
+  ["captured string keeps type on addition", "onStart(() => { let s = 'a'; s += 'b'; console.log([1].map(x => s+'!').join(',')); });"],
+  ["caller string nested callee local", "function id(n) { const s = 5; return n; } function outer(v) { return id(v); } onStart(() => { const s = 'abc'; console.log(outer(s+1)); console.log(outer(s.length)); console.log(outer(s[0])); });"],
+  ["wrapped stable array write", "onStart(() => { const a = [10,20]; (((a as number[])! satisfies number[]))[1] = 7; console.log(a.join(',')); });"],
+  ["string actual restores caller after expansion", "function id(s) { return s; } onStart(() => { const s = 'abc'; console.log(id(s.length)); console.log(s+1); });"],
 ];
 
 for (const [name, source] of cases) test(`tsarray: compiles ${name}`, () => {
@@ -104,8 +116,21 @@ for (const source of [
   "onStart(() => { let prefix: any = 'p'; prefix = 3; console.log([1].map(x => prefix+x).join(',')); });",
   "onStart(() => { const a = [10,20]; for (let i=0; i<2; i++) { for (let j=0; j<1; j++) { a[j] = 1; } a.pop(); } });",
   "onStart(() => { const a = [10]; a[0] += a.pop(); });",
+  "const a = [10,20]; onStart(() => { shrink(); a[1] = 7; }); function shrink() { a.length = 0; }",
+  "const a = [10]; onStart(() => { shrink(); a[0] += 7; }); function shrink() { a.pop(); }",
+  "const a = [10,20]; onStart(() => { shrink(); a[1] = 7; }); function shrink() { const b = a; b.length = 0; }",
+  "const a = [10]; onStart(() => { shrink(); a[0] += 7; }); const shrink = () => { const b = a; b.pop(); };",
+  "onStart(() => { const a = [10,20]; (a satisfies number[]).length = 0; a[1] = 7; });",
+  "onStart(() => { const a = [10,20]; (a satisfies number[]).pop(); a[1] += 7; });",
+  "onStart(() => { const a = [10,20]; (((a as number[])! satisfies number[])).length = 0; a[1] = 7; });",
+  "onStart(() => { const a = [10,20]; (((a as number[])! satisfies number[])).pop(); a[1] += 7; });",
+  "function f(outer) { return [1].map(function inner(x) { return outer+x; }).join(','); } onStart(() => { console.log(f(10)); });",
+  "onStart(() => { let s = 'a'; s += 2; console.log([1].map(x => s+'!').join(',')); });",
 ]) test(`tsarray: unsupported shape has a located diagnostic: ${source}`, () => {
   assert.throws(() => compile(source), error => error instanceof CompileError && error.location?.line > 0);
+  const result = checkFile("tsarray.ts", { types: false, host: { readFile: () => source } });
+  assert.equal(result.ok, false);
+  assert.ok(result.diagnostics.some(diagnostic => diagnostic.line > 0 && diagnostic.column > 0));
 });
 
 test("tsarray: internal exceptions become located compile diagnostics", () => {
@@ -136,6 +161,8 @@ test("tsarray: task cases execute with JS results", () => {
   };
   const expected = [["5,1"], ["1,10,9"], ["321", "321"], ["undefined"], ["3"], ["1,2,3"], ["0"], ["4"], ["5,6"], ["3"], ["true", "false"], ["6"], ["9", "0"], ["1", "5"], ["3", "undefined"], ["8"], ["7"], ["2", "4", "3"], ["3"], ["1,2"], ["23"], ["23"], ["23"], ["item:1,item:2"], ["1,1"], ["4,5"], ["6"], ["6"], ["1,2,3"], ["2,3"], ["23"]];
   expected.push(["1", "12"], ["p1", "3"], ["p1", "5"], ["3"], ["3"], ["1,2,3"], ["6"], ["item:1,item:2"]);
+  expected.push(["a1"], ["3"], ["a"], ["a1", "1", "a"], ["abc1", "3", "a"], ["1"], ["1"], ["b!"], ["ab!"]);
+  expected.push(["abc1", "3", "a"], ["10,7"], ["3", "abc1"]);
   assert.equal(expected.length, cases.length);
   for (const [i, [name, source]] of cases.entries()) {
     const input = path.join(dir, `${i}.ts`);
