@@ -768,3 +768,14 @@ expect(value).toBe(42);
 expect(value).toBeTruthy();
 expect(value).toContain("hello");
 ```
+
+# Plain data objects
+
+TypeScript data objects compile to opaque numeric handles in a hidden list heap,
+not `_object_*` blocks, so they can run in the official share player. Read/write
+initialized properties with `obj.x` or a compile-time constant key; aliases,
+nested objects, arrays of objects and function arguments/returns share identity.
+Dynamic/missing/optional keys, object coercion/logging/JSON, `delete`, methods,
+spread and value-producing property updates are rejected. Use scalar properties
+for output and separate update statements. See [object compilation and official
+source evidence](ts-share-objects.md) for the full support boundary.

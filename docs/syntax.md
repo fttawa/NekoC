@@ -26,13 +26,22 @@ setTimeout(() => { clearInterval(timer); }, 1000);
 Constants still initialize the project variable table. Other top-level code runs
 in source order in an implicit start script. Explicit `onStart` handlers remain
 separate, concurrent start scripts; each first waits until that initialization
-has finished (a generated `__nekoc_ready` flag). Separate sprite workspaces are
-not covered by this initialization barrier. Timers use cooperative broadcast
+has finished (a generated `__nekoc_ready` flag). In object programs, sprite start
+events also wait for this barrier. Timers use cooperative broadcast
 scripts and millisecond-to-second waits, not the browser event loop.
 
-Data objects support literal properties, nested/aliased values, `obj.key` and
-`obj[key]` reads, assignment and arithmetic compound assignment. Methods,
-prototypes, accessors, spread and destructuring remain unsupported. See
+Data objects use numeric references into a hidden global list heap (not private
+`_object_*` blocks), compatible with the official sharing player. Literal and
+initialized properties, nested/aliased values, objects in arrays, function
+parameters/returns and root timers preserve reference identity. `obj.key` and
+`obj[key]` require compile-time constant keys. Standalone property updates and
+compound assignments are supported; missing/optional properties, dynamic keys,
+object coercion/logging/JSON, `delete`, and value-producing property updates are
+compile errors. Log scalar properties instead. Object programs use custom
+procedures rather than argument-substituting inlining; recursive object mutation
+or allocation and recursive locals must be rewritten as loops. The heap has no
+GC until restart. Methods, prototypes, accessors, spread and destructuring remain
+unsupported. See [object lowering and evidence](ts-share-objects.md) and
 [the support audit](ts-support-audit.md) for target-specific limitations,
 timer cancellation, numeric globals and array factories.
 
@@ -44,7 +53,7 @@ function double(x: number) {
 }
 ```
 
-Simple functions (local declarations plus one final `return`, or statement functions without `return`) are inlined at compile time.
+Simple functions (local declarations plus one final `return`, or statement functions without `return`) are inlined at compile time, except in programs using data objects, where custom procedures preserve argument evaluation and object allocation identity.
 
 Recursive functions (including mutual recursion) and functions with early or multiple `return`s compile to Kitten N custom procedures. Parameters are per call; `let`/`const` locals inside them are shared by all calls. `return c ? a : b` is lowered to if/else so recursion terminates.
 

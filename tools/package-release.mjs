@@ -67,7 +67,7 @@ export async function checksums(directory) {
 // The frontend is plain ESM that only imports `typescript`, which has no
 // dependencies of its own. Ship the sources plus the parts of the typescript
 // package it loads at runtime: no bundler, no npm install for users.
-export const frontendFiles = ["compile-ts.mjs", "test-ts.mjs", "kitten-n.mjs", "portable-path.mjs", "nekoc.d.ts"];
+export const frontendFiles = ["compile-ts.mjs", "share-objects.mjs", "test-ts.mjs", "kitten-n.mjs", "portable-path.mjs", "nekoc.d.ts"];
 const typescriptFiles = ["package.json", "LICENSE.txt", "ThirdPartyNoticeText.txt", "lib/typescript.js"];
 
 async function copyFrontend(copy) {

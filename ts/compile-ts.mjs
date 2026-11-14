@@ -7,6 +7,7 @@ const fileURLToPath = isNode ? (await nodeImport("node:url")).fileURLToPath : (u
 const defaultHost = { readFile: (name) => { try { return fs?.readFileSync(name, "utf8"); } catch { return undefined; } } };
 import ts from "typescript";
 import { keyboardCode, effectCode, mathFunctionCode } from "./kitten-n.mjs";
+import { objectTypes, validateObjectOperations } from "./share-objects.mjs";
 
 /** A compile error. `location` is { file, line, column } (1-based) when known. */
 export class CompileError extends Error {
@@ -96,13 +97,22 @@ class WorkspaceCompiler {
     this.currentScreen = null;
     this.runtimeInitializers = new Set();
     this.generatedEvents = [];
+    this.objectSourceFiles = [sourceFile];
+    this.objectSlots = new Map();
+    this.objectFactories = new Map();
+    this.objectArrayFactories = new Map();
+    this.objectCallbackBodies = new Map();
+    this.objectTypeOrigins = new WeakMap();
   }
 
   compile(sourceFile) {
     this.loadImports(sourceFile, this.entryPath);
     this.synthesizeHelpers(sourceFile);
+    this.prepareShareObjects();
 
     const startup = [];
+    if (this.objectHeap) startup.push(ts.factory.createExpressionStatement(ts.factory.createBinaryExpression(
+      ts.factory.createIdentifier(this.objectHeap), ts.SyntaxKind.EqualsToken, ts.factory.createArrayLiteralExpression())));
     const explicitStarts = [];
     sourceFile.statements.forEach((statement) => {
       if (ts.isImportDeclaration(statement)) {
@@ -183,7 +193,7 @@ class WorkspaceCompiler {
         const first = this.compileStatementList(statements, entry);
         if (first) this.connectNext(entry, first);
       };
-      if (explicitStarts.length) {
+      if (explicitStarts.length || this.objectHeap) {
         this.globalVariables.add(STARTUP_READY);
         this.initialValues[STARTUP_READY] = 0;
         // Reset first in case the variable kept a value from an earlier run.
@@ -251,6 +261,7 @@ class WorkspaceCompiler {
         ts.ScriptKind.TS,
       );
       rejectParseDiagnostics(moduleSourceFile);
+      this.objectSourceFiles.push(moduleSourceFile);
       this.loadImports(moduleSourceFile, resolvedPath);
       exports = this.collectModuleExports(moduleSourceFile);
       this.moduleExports.set(resolvedPath, exports);
@@ -424,6 +435,8 @@ class WorkspaceCompiler {
     for (const [name, fn] of this.inlineFunctions) {
       const called = new Set();
       visitFunctionBody(fn.body, (node) => {
+        const helper = this.helperCalls.get(node);
+        if (helper) called.add(helper.name);
         if (ts.isCallExpression(node) && ts.isIdentifier(node.expression) && this.inlineFunctions.has(node.expression.text)) {
           called.add(node.expression.text);
         }
@@ -442,6 +455,22 @@ class WorkspaceCompiler {
       }
       return false;
     };
+    const functions = [...this.inlineFunctions].sort(([, a], [, b]) =>
+      Number(a.body.getSourceFile().fileName.startsWith("__nekoc_")) - Number(b.body.getSourceFile().fileName.startsWith("__nekoc_")));
+    for (const [name, fn] of functions) {
+      if (this.objectSlots.size && reaches(name, name)) {
+        let mutableObjectState = false;
+        visitFunctionBody(fn.body, node => {
+          mutableObjectState ||= ts.isObjectLiteralExpression(node)
+            || ts.isVariableDeclaration(node)
+            || (ts.isPrefixUnaryExpression(node) || ts.isPostfixUnaryExpression(node))
+              && [ts.SyntaxKind.PlusPlusToken, ts.SyntaxKind.MinusMinusToken].includes(node.operator)
+            || ts.isBinaryExpression(node) && !!assignmentOperatorSpec(node.operatorToken.kind)
+              && (ts.isPropertyAccessExpression(node.left) || ts.isElementAccessExpression(node.left));
+        });
+        if (mutableObjectState) this.unsupported(fn.body, `Recursive function ${name} with object allocation/mutation or locals is not supported; rewrite it as an iterative loop with explicit state`);
+      }
+    }
     for (const [name, fn] of this.inlineFunctions) {
       let returnsValue = false;
       let hasReturn = false;
@@ -459,7 +488,7 @@ class WorkspaceCompiler {
         && statements.slice(0, -1).every((statement) => ts.isVariableStatement(statement))
       );
       const simpleStatement = ts.isBlock(fn.body) && !hasReturn;
-      if (!reaches(name, name) && (simpleExpression || simpleStatement)) {
+      if (!this.objectSlots.size && !reaches(name, name) && (simpleExpression || simpleStatement)) {
         continue;
       }
       if (this.procedureSpecs.has(name)) {
@@ -527,6 +556,11 @@ class WorkspaceCompiler {
         firstChild = this.compileReturn(fn.body, defId);
       }
       if (firstChild) {
+        if (fn.name.startsWith("__nekocObjectNew")) {
+          const atomic = this.addBlock({ type: "warp", parent_id: defId });
+          this.connectInput(atomic, firstChild, "DO", "statement");
+          firstChild = atomic;
+        }
         this.connectInput(defId, firstChild, "STACK", "statement");
       }
       this.procedures.push({
@@ -684,6 +718,23 @@ class WorkspaceCompiler {
     if (!parts.length) return;
     const helperFile = ts.createSourceFile("__nekoc_helpers.ts", parts.join("\n"), ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
     for (const statement of helperFile.statements) {
+      const original = this.objectCallbackBodies.get(statement.name?.text);
+      if (original) {
+        const root = ts.isBlock(original) ? statement.body
+          : statement.body.statements[0]?.expression;
+        const nodes = new Map();
+        const collect = node => {
+          nodes.set(`${node.kind}:${node.getStart() - original.getStart()}`, node);
+          ts.forEachChild(node, collect);
+        };
+        collect(original);
+        const map = node => {
+          const origin = nodes.get(`${node.kind}:${node.getStart() - root.getStart()}`);
+          if (origin) this.objectTypeOrigins.set(node, origin);
+          ts.forEachChild(node, map);
+        };
+        if (root) map(root);
+      }
       this.registerInlineFunction(statement);
     }
   }
@@ -710,6 +761,7 @@ class WorkspaceCompiler {
       }
     }
     const cb = `__cb${n}`;
+    this.objectCallbackBodies.set(cb, callback.body);
     const name = `__${method}${n}`;
     const args = (...names) => names.slice(0, params.length).join(", ");
     const x = `__x${n}`;
@@ -749,7 +801,10 @@ class WorkspaceCompiler {
         this.unsupported(call, `Unsupported callback method ${method}`);
     }
     this.helperCalls.set(call, { name, extra: method === "reduce" ? [call.arguments[1]] : [] });
-    return `function ${cb}(${params.join(", ")}) ${body}\n${helper}`;
+    // Preserve explicit object shapes when reparsing the callback: losing them
+    // turns string property += into numeric arithmetic and hides optional keys.
+    const declarations = callback.parameters.map(param => param.getText(sourceFile));
+    return `function ${cb}(${declarations.join(", ")}) ${body}\n${helper}`;
   }
 
   // Builds a synthetic call to a helper: helper(target, ...args).
@@ -1085,6 +1140,11 @@ class WorkspaceCompiler {
 
   compileNextHat(call, type, callbackIndex, fields = undefined) {
     const body = callbackBody(call.arguments[callbackIndex], this);
+    if (this.objectHeap && type === "on_running_group_activated") {
+      body.unshift(ts.factory.createExpressionStatement(ts.factory.createCallExpression(
+        ts.factory.createIdentifier("waitUntil"), undefined, [ts.factory.createBinaryExpression(
+          ts.factory.createIdentifier(STARTUP_READY), ts.SyntaxKind.EqualsEqualsEqualsToken, ts.factory.createNumericLiteral(1))])));
+    }
     const entryId = this.addBlock({
       type,
       parent_id: null,
@@ -2792,7 +2852,22 @@ class WorkspaceCompiler {
         return;
       }
       const valueId = this.compileExpression(argument, id);
-      this.connectInput(id, valueId, param.id, "value");
+      const booleanTypes = new Set(["logic_boolean", "logic_compare", "logic_operation", "logic_negate", "list_is_exist", "text_contain"]);
+      if (this.objectHeap && booleanTypes.has(this.blocks[valueId]?.type)) {
+        // Procedure string/any sockets reject boolean-shaped blocks in the
+        // official editor. An any-shaped ternary preserves the boolean value.
+        const box = this.addBlock({ type: "logic_ternary", parent_id: id, is_output: true });
+        this.connectInput(box, valueId, "condition", "value");
+        for (const [input, value] of [["ifTrue", true], ["ifFalse", false]]) {
+          const variable = `__nekocObjectBoolean${value}`;
+          this.globalVariables.add(variable);
+          this.initialValues[variable] = value;
+          this.connectInput(box, this.addBlock({ type: "variables_get", parent_id: box, fields: { variable }, is_output: true }), input, "value");
+        }
+        this.connectInput(id, box, param.id, "value");
+      } else {
+        this.connectInput(id, valueId, param.id, "value");
+      }
     });
     return id;
   }
@@ -4062,7 +4137,7 @@ class WorkspaceCompiler {
 
   compilePropertyAccessExpression(expression, parentId) {
     const propertyName = expression.name.text;
-    if (propertyName === "length" && (this.isArrayExpression(expression.expression) || isStringExpression(expression.expression))) {
+    if (propertyName === "length" && (this.isArrayExpression(expression.expression) || isStringExpression(expression.expression) || this.objectTypes?.string(expression.expression))) {
       return this.compileLength(expression.expression, parentId);
     }
     if (ts.isIdentifier(expression.expression) && expression.expression.text === "Math") {
@@ -4085,63 +4160,178 @@ class WorkspaceCompiler {
     return this.compileObjectAccess(expression, parentId);
   }
 
-  compileObjectLiteral(expression, parentId) {
-    const id = this.addBlock({ type: "_object_literal", parent_id: parentId,
-      mutation: `<mutation xmlns="http://www.w3.org/1999/xhtml" items="${expression.properties.length}"></mutation>`, is_output: true });
-    expression.properties.forEach((property, index) => {
-      if (!ts.isPropertyAssignment(property) && !ts.isShorthandPropertyAssignment(property)) {
-        this.unsupported(property, "Object methods, accessors and spread are not supported; use data properties");
+  prepareShareObjects() {
+    // Include synthesized timer/callback bodies in the same type-query program.
+    const files = new Set(this.objectSourceFiles);
+    for (const fn of this.inlineFunctions.values()) files.add(fn.body.getSourceFile());
+    this.objectTypes = objectTypes([...files], this.objectTypeOrigins);
+    for (const file of files) validateObjectOperations(file, this.objectTypes, (node, message) => this.unsupported(node, message));
+    const literals = [];
+    const arrays = [];
+    const visit = node => {
+      if (ts.isArrayLiteralExpression(node)) arrays.push(node);
+      if ((ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node))
+        && this.objectTypes.object(node.expression)) {
+        const key = this.objectKey(node);
+        if (!this.objectSlots.has(key)) this.objectSlots.set(key, this.objectSlots.size);
       }
-      const name = property.name;
-      if (ts.isComputedPropertyName(name)) this.unsupported(name, "Computed literal keys are not supported; assign obj[key] after construction");
-      const key = name.text;
-      if (!key || key === "__proto__") this.unsupported(name, "Empty object keys and __proto__ are not supported by Kitten N object literals");
-      const keyId = this.addBlock({ type: "text", parent_id: id, fields: { TEXT: key }, is_output: true });
-      this.connectInput(id, keyId, `key${index}`, "value");
-      this.connectInput(id, this.compileExpression(ts.isShorthandPropertyAssignment(property) ? name : property.initializer, id), `value${index}`, "value");
+      if (ts.isObjectLiteralExpression(node)) {
+        // Resource declarations and Array.from options are metadata, not values.
+        const p = node.parent;
+        const metadata = p && ts.isCallExpression(p) && ["stage", "sprite", "screen", "Array.from", "defineProc", "defineReporter", "keyButton"].includes(calleeName(p.expression));
+        if (metadata) return;
+        if (!metadata) {
+          literals.push(node);
+          for (const property of node.properties) {
+            if (!ts.isPropertyAssignment(property) && !ts.isShorthandPropertyAssignment(property)) {
+              this.unsupported(property, "Object methods, accessors and spread are not supported; use data properties and explicit assignments");
+            }
+            if (ts.isComputedPropertyName(property.name)) this.unsupported(property.name, "Computed object literal keys are not supported; use literal property names");
+            const key = property.name.text;
+            if (key === "__proto__") this.unsupported(property.name, "__proto__ is not supported; use a plain data property with another name");
+            if (!this.objectSlots.has(key)) this.objectSlots.set(key, this.objectSlots.size);
+          }
+        }
+      }
+      ts.forEachChild(node, visit);
+    };
+    for (const file of files) visit(file);
+    if (!literals.length) {
+      this.objectTypes = undefined;
+      this.objectSlots.clear();
+      return;
+    }
+    // Empty objects still need a distinct identity and one reserved heap cell.
+    if (!this.objectSlots.size) this.objectSlots.set("__reserved", 0);
+    this.objectHeap = "__nekocObjectHeap";
+    for (const file of files) {
+      const reserved = node => {
+        if (ts.isIdentifier(node) && node.text.startsWith("__nekocObject")) this.unsupported(node, "Names starting with __nekocObject are reserved; rename this identifier");
+        ts.forEachChild(node, reserved);
+      };
+      reserved(file);
+    }
+    this.globalVariables.add(this.objectHeap);
+    this.initialValues[this.objectHeap] = [];
+    this.arrayVariables.add(this.objectHeap);
+    this.globalVariables.add(STARTUP_READY);
+    this.initialValues[STARTUP_READY] = 0;
+    const parts = [];
+    literals.forEach((literal, n) => {
+      const name = `__nekocObjectNew${n}`;
+      this.objectFactories.set(literal, name);
+      const params = literal.properties.map((_, i) => `__nekocObjectValue${n}_${i}`);
+      // Evaluate *all* property initializers as call arguments before allocating.
+      // An immutable numeric handle avoids list-reporter socket restrictions in
+      // the editor and preserves identity across variables/parameters/broadcasts.
+      const values = Array(this.objectSlots.size).fill("0");
+      literal.properties.forEach((property, i) => { values[this.objectSlots.get(property.name.text)] = params[i]; });
+      parts.push(`function ${name}(${params.join(",")}) {
+        ${values.map(value => `${this.objectHeap}.push(${value});`).join("\n")}
+        return ${this.objectHeap}.length - ${this.objectSlots.size} + 1;
+      }`);
     });
-    return id;
+    const helpers = ts.createSourceFile("__nekoc_object_heap.ts", parts.join("\n"), ts.ScriptTarget.Latest, true);
+    for (const statement of helpers.statements) this.registerInlineFunction(statement);
+    // A list-shaped reporter cannot connect to the editor's scalar procedure
+    // socket. Wrap literal lists in an any-shaped return reporter first. The
+    // actual runtime value remains a list, including nested object handles.
+    arrays.forEach((array, n) => {
+      if (array.elements.some(element => ts.isSpreadElement(element) || ts.isOmittedExpression(element))) {
+        this.unsupported(array, "Array holes/spread in object programs are not supported; construct the array explicitly");
+      }
+      const name = `__nekocObjectArray${n}`;
+      this.objectArrayFactories.set(array, name);
+      const params = array.elements.map((_, i) => `__nekocObjectArrayValue${n}_${i}`);
+      const file = ts.createSourceFile(`${name}.ts`, `function ${name}(${params.join(",")}) { return [${params.join(",")}]; }`, ts.ScriptTarget.Latest, true);
+      this.registerInlineFunction(file.statements[0]);
+    });
+  }
+
+  compileObjectLiteral(expression, parentId) {
+    const name = this.objectFactories.get(expression);
+    if (!name) this.unsupported(expression, "Object literal was not planned for the share player");
+    const args = expression.properties.map(property => ts.isShorthandPropertyAssignment(property) ? property.name : property.initializer);
+    return this.compileExpressionCall(ts.factory.createCallExpression(ts.factory.createIdentifier(name), undefined, args), parentId);
   }
 
   objectKey(expression) {
-    return ts.isPropertyAccessExpression(expression) ? ts.factory.createStringLiteral(expression.name.text) : expression.argumentExpression;
+    const key = ts.isPropertyAccessExpression(expression) ? expression.name.text : this.objectTypes.key(expression.argumentExpression);
+    if (key === null) this.unsupported(expression, "Dynamic object keys are not supported by the share player; use obj.x / obj[\"x\"] or switch over constant keys");
+    return key;
   }
 
   compileObjectAccess(expression, parentId) {
     if (expression.questionDotToken) this.unsupported(expression, "Optional property access is not supported");
-    const id = this.addBlock({ type: "_object_get", parent_id: parentId,
-      mutation: '<mutation xmlns="http://www.w3.org/1999/xhtml" computed="true"></mutation>', is_output: true });
-    this.connectInput(id, this.compileExpression(expression.expression, id), "obj", "value");
-    this.connectInput(id, this.compileExpression(this.objectKey(expression), id), "key", "value");
-    return id;
+    this.checkObjectProperty(expression);
+    const index = this.objectIndex(expression.expression, this.objectKey(expression));
+    return this.compileExpression(ts.factory.createElementAccessExpression(ts.factory.createIdentifier(this.objectHeap), index), parentId);
   }
 
   compileObjectAssignment(expression, parentId) {
     const left = expression.left;
+    this.checkObjectProperty(left);
     const spec = assignmentOperatorSpec(expression.operatorToken.kind);
-    // Cache reference components so objExpr()[keyExpr()] += rhs runs each once.
+    if (!spec) this.unsupported(expression, "Unsupported object assignment operator");
+    const seen = new Set();
+    const checkYield = node => {
+      if (ts.isCallExpression(node)) {
+        const name = calleeName(node.expression);
+        if (["wait", "waitUntil", "ask", "glideTo", "broadcastAndWait", "tellAndWait"].includes(memberCallName(name))) {
+          this.unsupported(expression, "Object assignment targets/RHS cannot call yielding operations; evaluate the call into a variable before the assignment");
+        }
+        const fn = this.inlineFunctions.get(name);
+        if (fn && !seen.has(name)) { seen.add(name); checkYield(fn.body); }
+      }
+      ts.forEachChild(node, checkYield);
+    };
+    checkYield(left.expression);
+    checkYield(expression.right);
+    // Cache the reference before the RHS (including any function calls).
     const n = this.nextId;
     const obj = ts.factory.createIdentifier(`__objectTarget${n}`);
-    const key = ts.factory.createIdentifier(`__objectKey${n}`);
+    const key = this.objectKey(left);
     const assign = (target, value) => this.compileAssignmentExpression(ts.factory.createBinaryExpression(target, ts.SyntaxKind.EqualsToken, value), parentId);
     const first = assign(obj, left.expression);
-    const second = assign(key, this.objectKey(left));
-    this.connectNext(first, second);
-    const id = this.addBlock({ type: "_object_set", parent_id: parentId,
-      mutation: '<mutation xmlns="http://www.w3.org/1999/xhtml" computed="true"></mutation>' });
-    this.connectInput(id, this.compileExpression(obj, id), "obj", "value");
-    this.connectInput(id, this.compileExpression(key, id), "key", "value");
+    const id = this.addBlock({ type: "replace_list_item", parent_id: parentId, fields: { item: "any" } });
+    this.connectInput(id, this.compileExpression(ts.factory.createIdentifier(this.objectHeap), id), "list", "value");
+    this.connectInput(id, this.compilePlusOne(this.objectIndex(obj, key), id), "list_index", "value");
     const operators = { add: ts.SyntaxKind.PlusToken, minus: ts.SyntaxKind.MinusToken, multiply: ts.SyntaxKind.AsteriskToken,
       divide: ts.SyntaxKind.SlashToken, mod: ts.SyntaxKind.PercentToken, power: ts.SyntaxKind.AsteriskAsteriskToken };
-    const value = spec.kind === "assign" ? expression.right : ts.factory.createBinaryExpression(
-      ts.factory.createElementAccessExpression(obj, key), operators[spec.operator], expression.right);
-    this.connectInput(id, this.compileExpression(value, id), "value", "value");
-    this.connectNext(second, id);
-    return first;
+    const read = ts.factory.createElementAccessExpression(ts.factory.createIdentifier(this.objectHeap), this.objectIndex(obj, key));
+    const value = spec.kind === "assign" ? expression.right : ts.factory.createBinaryExpression(read, operators[spec.operator], expression.right);
+    const stringAdd = spec.operator === "add" && (this.objectTypes.string(left) || this.objectTypes.string(expression.right) || isStringExpression(expression.right));
+    this.connectInput(id, stringAdd ? this.compileTextJoin([{ expression: read }, { expression: expression.right }], id) : this.compileExpression(value, id), "list_item_value", "value");
+    this.connectNext(first, id);
+    const atomic = this.addBlock({ type: "warp", parent_id: parentId });
+    this.connectInput(atomic, first, "DO", "statement");
+    return atomic;
+  }
+
+  objectIndex(target, key) {
+    const slot = this.objectSlots.get(key);
+    if (slot === undefined) this.unsupported(target, `Unknown object property ${JSON.stringify(key)}; declare it in an object literal first`);
+    // list_item consumes a 1-based position; the source element access adds one.
+    return ts.factory.createBinaryExpression(
+      ts.factory.createBinaryExpression(target, ts.SyntaxKind.MinusToken, ts.factory.createNumericLiteral(1)),
+      ts.SyntaxKind.PlusToken, ts.factory.createNumericLiteral(slot));
+  }
+
+  checkObjectProperty(expression) {
+    if (!this.objectHeap) this.unsupported(expression, "Unsupported property operation; use initialized data objects or explicit list operations instead");
+    const target = expression.expression;
+    const type = this.objectTypes.type(target);
+    const key = this.objectKey(expression);
+    if (type && this.objectTypes.object(target)) {
+      const property = this.objectTypes.checker.getPropertyOfType(type, key);
+      if (!property || (property.flags & ts.SymbolFlags.Optional)) {
+        this.unsupported(expression, `Object property ${JSON.stringify(key)} must be present and initialized; add it to the object literal (missing/optional properties are not supported)`);
+      }
+    }
   }
 
   compileElementAccessExpression(expression, parentId) {
-    if (!this.isArrayExpression(expression.expression) && !isStringExpression(expression.expression)) {
+    if (this.objectHeap && !this.isArrayExpression(expression.expression) && !isStringExpression(expression.expression) && !this.objectTypes?.string(expression.expression)) {
       return this.compileObjectAccess(expression, parentId);
     }
     if (ts.isIdentifier(expression.expression) && ts.isStringLiteral(expression.argumentExpression)) {
@@ -4157,7 +4347,7 @@ class WorkspaceCompiler {
     }
     // s[i] is a character; anything else is read as a list (a[i] -> item i + 1).
     const target = expression.expression;
-    if (isStringExpression(target)) {
+    if (isStringExpression(target) || this.objectTypes?.string(target)) {
       const id = this.addBlock({
         type: "text_select",
         parent_id: parentId,
@@ -4189,6 +4379,7 @@ class WorkspaceCompiler {
 
   isArrayExpression(node) {
     node = stripParens(node);
+    if (this.objectTypes?.array(node)) return true;
     if (this.helperCalls.get(node)?.factoryArgs) return true;
     if (ts.isArrayLiteralExpression(node)) return true;
     if (ts.isIdentifier(node)) return this.arrayVariables.has(node.text) || node.text.startsWith("__arr");
@@ -4535,6 +4726,9 @@ class WorkspaceCompiler {
   }
 
   compileArrayLiteralExpression(expression, parentId) {
+    const factory = this.objectArrayFactories.get(expression);
+    if (factory) return this.compileExpressionCall(ts.factory.createCallExpression(
+      ts.factory.createIdentifier(factory), undefined, expression.elements), parentId);
     // The editor sizes the item inputs from this mutation; without it the
     // ITEMn connections are dropped when the work is opened.
     const id = this.addBlock({
@@ -4554,7 +4748,8 @@ class WorkspaceCompiler {
     const operator = expression.operatorToken.kind;
     // `+` joins text when either side is statically a string; chains like
     // "a" + x + "b" flatten into one join.
-    if (operator === ts.SyntaxKind.PlusToken && (isStringExpression(expression.left) || isStringExpression(expression.right))) {
+    if (operator === ts.SyntaxKind.PlusToken && (isStringExpression(expression.left) || isStringExpression(expression.right)
+      || this.objectTypes?.string(expression.left) || this.objectTypes?.string(expression.right))) {
       return this.compileTextJoin(flattenStringConcat(expression).map((part) => (
         ts.isStringLiteral(part) || ts.isNoSubstitutionTemplateLiteral(part) ? { text: part.text } : { expression: part }
       )), parentId);

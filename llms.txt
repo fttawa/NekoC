@@ -67,7 +67,7 @@ onStart(() => {
 - `if/else`, `while`, `do/while`, C-style `for`, `for...of`, `switch`, `break`, `continue`, labels, ternary, `??`, `try/catch` with `throw`.
 - Functions: declarations, default parameters, recursion (custom blocks), `import`/`export` between project files, enums. Types, interfaces, `as`, `!`, `satisfies` are stripped.
 - `console.log(x)` writes to the run log.
-- Plain objects: `{ x: 1, nested: { n: 2 } }`, `p.x`, `p["x"]`, `p.x += 1`, `p.n++` (data properties only).
+- Plain data objects: `{ x: 1, nested: { n: 2 } }`, `p.x`, `p["x"]` (or a literal-typed `const` key), `p.x += 1`, standalone `p.x++`. Compiled as opaque numeric references into a hidden list heap, never `_object_*` blocks, for the official share player. Aliases, nested objects, objects in arrays, function parameters/returns and root timer mutations share identity. Initialize every property in a literal; dynamic/missing/optional keys, object coercion/logging/JSON, delete, and value-producing property updates are errors. Log scalar properties instead. Object programs use custom procedures to evaluate function arguments once; recursive object mutation/allocation or recursive locals are rejected. Heap storage is reclaimed on restart, not per allocation. Details/evidence: docs/ts-share-objects.md.
 - Top-level statements run at startup in source order; `onStart` handlers start after them and run concurrently.
 - Timers: `setTimeout(cb, ms)`, `setInterval(cb, ms)`, `clearTimeout(h)`, `clearInterval(h)` (frame-quantized, root workspace only, callbacks cannot capture function parameters).
 - Also `Math.sign/cbrt/log2/hypot/atan2`, `Number.isInteger`, `Array.from({ length: n }, (_, i) => …)`, `Array(n).fill(v)`.
