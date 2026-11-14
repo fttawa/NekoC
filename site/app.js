@@ -33,7 +33,7 @@ function showDiagnostics(list){
   const box=$('#diagnostics');box.replaceChildren();box.hidden=!list.length;
   for(const item of list){
     const row=document.createElement('li');row.className=item.severity;
-    const where=item.line?`${item.line}:${item.column??1}`:'';
+    const where=item.file?`${item.file}${item.line?`:${item.line}:${item.column??1}`:''}`:item.line?`${item.line}:${item.column??1}`:'';
     row.innerHTML='<b></b><span></span><code></code>';
     row.querySelector('b').textContent=where;row.querySelector('span').textContent=item.message;row.querySelector('code').textContent=item.code;
     if(item.line)row.onclick=()=>jump(item.line,item.column??1);
@@ -47,7 +47,7 @@ function jump(line,column){
 }
 async function busy(work){
   for(const id of ['check','run','sample'])$(`#${id}`).disabled=true;
-  try{await work();}catch(error){state('出错了');showDiagnostics([{severity:'error',message:error.message||String(error),code:'internal'}]);}
+  try{await work();}catch(error){state('出错了');showDiagnostics(error.diagnostics??[{severity:'error',message:error.message||String(error),code:error.code??'internal',...(error.location??{})}]);}
   finally{for(const id of ['check','run','sample'])$(`#${id}`).disabled=!nekoc;}
 }
 // 检查失败（有 error）返回 false，并显示全部诊断。

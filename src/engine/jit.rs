@@ -787,10 +787,10 @@ unsafe extern "C" fn h_error(c: *mut NativeContext, pc: u64, next: u64) -> u64 {
     let engine = unsafe { &mut *c.engine };
     if let Some(error) = engine.value_error.take() {
         engine.tasks[c.index].pc = next as usize;
-        engine.jit_error = Some(anyhow!(
-            "{error} at block {}",
-            engine.program.sources[pc as usize]
-        ));
+        engine.jit_error = Some(anyhow!(super::error_location::at_block(
+            &error,
+            &engine.program.sources[pc as usize]
+        )));
         1
     } else {
         0
@@ -884,7 +884,10 @@ unsafe extern "C" fn h_position(c: *mut NativeContext, pc: u64, x: f64, y: f64) 
     engine.dirty[actor] = true;
     engine.set_position(actor, x, y, old);
     if let Some(error) = engine.value_error.take() {
-        engine.jit_error = Some(anyhow!("{error} at block {}", engine.program.sources[pc]));
+        engine.jit_error = Some(anyhow!(super::error_location::at_block(
+            &error,
+            &engine.program.sources[pc]
+        )));
         return u64::MAX - 1;
     }
     if engine.output_limit_reached() {

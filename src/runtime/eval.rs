@@ -755,19 +755,65 @@ impl<'a> Runtime<'a> {
         script_values: &BTreeMap<String, RuntimeValue>,
         procedure_values: &BTreeMap<String, RuntimeValue>,
     ) -> RuntimeValue {
-        let mut current = procedure.body;
+        self.eval_return_chain(
+            procedure.body,
+            owner_id,
+            range_values,
+            script_values,
+            procedure_values,
+        )
+        .unwrap_or(RuntimeValue::Null)
+    }
+
+    fn eval_return_chain(
+        &self,
+        mut current: Option<&Value>,
+        owner_id: Option<&str>,
+        range_values: &BTreeMap<String, RuntimeValue>,
+        script_values: &BTreeMap<String, RuntimeValue>,
+        procedure_values: &BTreeMap<String, RuntimeValue>,
+    ) -> Option<RuntimeValue> {
         while let Some(block) = current {
+            if block_type(block) == Some("controls_if") {
+                let mut branch = statement(block, "ELSE");
+                let mut index = 0;
+                while let Some(condition) = input(block, &format!("IF{index}")) {
+                    if self
+                        .eval_for_context(
+                            Some(condition),
+                            owner_id,
+                            range_values,
+                            script_values,
+                            procedure_values,
+                        )
+                        .is_truthy()
+                    {
+                        branch = statement(block, &format!("DO{index}"));
+                        break;
+                    }
+                    index += 1;
+                }
+                if let Some(value) = self.eval_return_chain(
+                    branch,
+                    owner_id,
+                    range_values,
+                    script_values,
+                    procedure_values,
+                ) {
+                    return Some(value);
+                }
+            }
             if block_type(block) == Some("procedures_2_return_value") {
-                return self.eval_for_context(
+                return Some(self.eval_for_context(
                     input(block, "VALUE"),
                     owner_id,
                     range_values,
                     script_values,
                     procedure_values,
-                );
+                ));
             }
             current = block.get("next");
         }
-        RuntimeValue::Null
+        None
     }
 }

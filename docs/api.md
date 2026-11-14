@@ -2,6 +2,67 @@
 
 Complete reference for all functions and APIs available in NekoC TypeScript projects.
 
+## TypeScript arrays
+
+- `a[i]` reads the zero-based element with the share-player `list_item` block.
+  A missing entry yields Kitten N's empty value (`NaN`), not JavaScript
+  `undefined` (known difference core-162).
+- `a[i] = value`, `+=`, `-=`, `*=`, `/=`, `%=`, `**=` are supported for existing
+  elements. Compound assignments evaluate the target, index and old value once.
+  User writes require a dense literal initializer (including direct aliases) and
+  a provably in-range nonnegative integer index: constants, stable numeric locals,
+  or bounded increasing `for` indices and their `+`/`-` expressions. Unknown,
+  negative, fractional and sparse writes produce a located compile error.
+  `+=` preserves statically known string elements or string right operands;
+  unknown/mixed element types without a string right operand are rejected.
+  Element `++`/`--` requires known numeric elements. Length-changing calls,
+  escapes and element-type-changing mutations can invalidate these proofs;
+  these checks are conservative, not a general TypeScript flow analysis.
+  Deferred function bodies can invalidate the proof regardless of declaration
+  order. Parentheses, `as`, `!` and `satisfies` do not hide mutation or escape.
+- `a.length = 0` clears the same list, including aliases. Other length/property
+  assignments are rejected; sparse array writes are not supported.
+- `reverse()` mutates and returns the same array. Default `sort()` is stable,
+  in-place and compares string representations lexicographically; custom inline
+  comparators remain supported. Sparse arrays and undefined sort keys have not
+  been verified.
+- `const [head, ...tail] = value` evaluates `value` once and copies the remaining
+  elements into a new list. Nested/default destructuring is rejected.
+- `a.at(index)` supports negative indices and truncates fractional indices.
+  The ES2020 declaration set includes this frontend-supported method.
+- `Array.isArray(value)` folds statically known arrays and primitive literals;
+  unknown types and arguments whose evaluation would have side effects are
+  rejected (store the result in a variable first).
+- Inline array callbacks can read enclosing event-local variables. Capturing
+  enclosing inline-function parameters or locals is rejected; use an event-local
+  or top-level variable instead.
+  Captured string declarations and aliases retain their type before helper
+  compilation. Property names and callback-local bindings are not captures.
+  Callback parameters and locals shadow outer string type information.
+  Captured string declarations may be reassigned with provably string-valued
+  `=` / `+=` operands; unknown or type-changing updates are rejected.
+  Inline explicit arguments retain their caller's type context even when a
+  callee parameter or local has the same name. Named function-expression
+  callbacks bind their own name, not a same-named enclosing variable.
+- `reduce(callback)` uses the first item as its initial accumulator and starts
+  callback indices at 1. A nonempty literal initializer must be provable and
+  must not escape through aliases or mutating calls; otherwise supply an initial
+  value. This prevents empty-input TypeErrors from becoming silent wrong values.
+- `flat()` / `flat(1)` supports an array literal (or a variable initialized with
+  one) containing only arrays, preserving one level of elements. Other input
+  shapes/depths produce a compile error instead of a wrong result.
+  Parentheses and array type assertions do not change these shape checks.
+
+For standard JavaScript expression/method support (including static formatting,
+UTF-16 constants and constant-folded `JSON.stringify(value)`), see
+[Additional expressions and methods](syntax.md#additional-expressions-and-methods).
+These use the standard TypeScript library signatures, not additional NekoC globals.
+Dynamic `JSON.stringify` is a compile error because the share player has no
+corresponding block. Local bindings and parameters receive unique names, so
+caller/callee shadowing preserves lexical identity, including caller-safe
+defaults. Recursive scalar locals use per-call frames; recursive captures and
+function-argument specialization remain compile errors.
+
 ## Global Events
 
 ### `onStart(body)`
@@ -211,6 +272,10 @@ changeVar("lives", -1);
 ```
 
 ### `getVar<T>(name)`
+
+The default value type is `any`. For `+` / `+=`, supply a known primitive type
+(`getVar<number>("score")` or `getVar("score") as number`) or use explicit
+`String(...)` concatenation; ambiguous dynamic addition is a compile error.
 
 Gets a variable value.
 
@@ -768,3 +833,14 @@ expect(value).toBe(42);
 expect(value).toBeTruthy();
 expect(value).toContain("hello");
 ```
+
+# Plain data objects
+
+TypeScript data objects compile to opaque numeric handles in a hidden list heap,
+not `_object_*` blocks, so they can run in the official share player. Read/write
+initialized properties with `obj.x` or a compile-time constant key; aliases,
+nested objects, arrays of objects and function arguments/returns share identity.
+Dynamic/missing/optional keys, object coercion/logging/JSON, `delete`, methods,
+spread and value-producing property updates are rejected. Use scalar properties
+for output and separate update statements. See [object compilation and official
+source evidence](ts-share-objects.md) for the full support boundary.

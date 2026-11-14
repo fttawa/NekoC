@@ -15,8 +15,8 @@ sprite("player", { costume: "https://example.com/player.png" }, self => {
     self.broadcast("ready");
     self.broadcast("score:update", 1);
     self.broadcastAndWait("clicked");
-    self.repeat(3, () => self.move(1));
-    self.forever(() => self.wait(0.03));
+    self.repeat(3, () => { self.move(1); });
+    self.forever(() => { self.wait(0.03); });
     self.setVar("score", 1);
     self.changeVar("score", 2);
     self.showVariable("score");

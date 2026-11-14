@@ -61,3 +61,10 @@ test("native procedure call fields and mutation both use the definition ID", () 
   assert.equal(call.fields.NAME,report.procedures[0].id);
   assert.ok(call.mutation.includes(`name="${report.procedures[0].id}"`));
 });
+
+test("statement argument capture preserves folded imported colors", () => {
+  const report=compile(`import { rgb } from "./display/state";
+function color(value:number){setPenColor(value);}
+onStart(()=>{color(rgb(8,12,24));});`);
+  assert.equal(Object.values(report.workspaceData.blocks).find(b=>b.type==="self_set_pen_color").fields.color,"#080c18");
+});

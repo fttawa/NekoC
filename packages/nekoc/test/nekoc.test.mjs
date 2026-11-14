@@ -4,16 +4,22 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
+import vm from "node:vm";
+import ts from "typescript";
 import { compile, check, createPlayer, importProject, validate } from "../index.mjs";
 import { decodeFrame } from "../frame.mjs";
 
 const root = fileURLToPath(new URL("../../../", import.meta.url));
 const outputDir = path.join(root, "target/wasm-tests");
 fs.mkdirSync(outputDir, { recursive: true });
-function cargo(args) {
-  const result = spawnSync("cargo", args, { cwd: root, encoding: "utf8", env: {
+function cargoResult(args) {
+  const wrapper = process.env.NEKOC_CARGO_WRAPPER;
+  return spawnSync(wrapper ? "bash" : "cargo", wrapper ? [wrapper, ...args] : args, { cwd: root, encoding: "utf8", env: {
     ...process.env, CARGO_PROFILE_DEV_DEBUG: "0", CARGO_PROFILE_TEST_DEBUG: "0", CARGO_INCREMENTAL: "0",
   } });
+}
+function cargo(args) {
+  const result = cargoResult(args);
   assert.equal(result.status, 0, result.stderr);
   return result.stdout;
 }
@@ -42,6 +48,50 @@ test("memory files, relative imports and standard-library type checking", () => 
   assert.equal(check("/missing.ts", { files: {} }).ok, false);
   assert.throws(() => player.ready(), /freed/);
   player.free(); // idempotent wrapper disposal
+});
+
+test("share-player objects compile and execute through the packaged memory frontend", () => {
+  const source = fs.readFileSync(path.join(root, "tests/fixtures/ts-share-objects.ts"), "utf8");
+  const { bcmkn } = compile("/objects.ts", { files: { "/objects.ts": source } });
+  const visit = value => {
+    if (!value || typeof value !== "object") return;
+    if (typeof value.type === "string") assert.ok(!value.type.startsWith("_object_"));
+    Object.values(value).forEach(visit);
+  };
+  visit(bcmkn);
+  const player = createPlayer(importProject(bcmkn).project);
+  const logs = [];
+  try {
+    for (let n = 0; n < 120; n++) logs.push(...decodeFrame(player.handle({ dt: 1 / 60, budget_ms: 100 })).logs);
+  } finally { player.free(); }
+  assert.equal(logs.length, 54);
+  const oracle = [];
+  vm.runInNewContext(ts.transpileModule(source, {
+    compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.None },
+  }).outputText, { console: { log: value => oracle.push(String(value)) } }, { timeout: 10_000 });
+  assert.deepEqual(logs, oracle);
+  const invalid = check("/dynamic.ts", { files: { "/dynamic.ts": 'let key = "x"; const o = {x: 1}; console.log(o[key]);' } });
+  assert.equal(invalid.ok, false);
+  assert.ok(invalid.diagnostics.some(d => /Dynamic object keys/.test(d.message)));
+});
+
+test("reviewed object string, boolean and array-method semantics survive WASM packaging", () => {
+  const source = fs.readFileSync(path.join(root, "tests/fixtures/knobject-review-valid.ts"), "utf8");
+  const player = createPlayer(importProject(compile("/review.ts", {files: {"/review.ts": source}}).bcmkn).project);
+  const logs = [];
+  try {
+    for (let n = 0; n < 120; n++) logs.push(...decodeFrame(player.handle({dt: 1 / 60, budget_ms: 100})).logs);
+  } finally { player.free(); }
+  assert.deepEqual(logs, ["a2", "a3", "a4", "a5", "true", "true", "true", "1"]);
+  for (const source of [
+    `function f(n:number){const box={x:n};wait(.05);console.log(box.x);}onStart(()=>f(1));onStart(()=>f(2));`,
+    `const a=[{x:7}];const b:unknown[]=a;console.log(String(b[0]));`,
+    `const a=1 as unknown as {x:number};const real={x:7};console.log(a.x);`,
+  ]) {
+    const result = check("/rejected.ts", {files: {"/rejected.ts": source}});
+    assert.equal(result.ok, false);
+    assert.ok(result.diagnostics.some(d => /local state|shape/.test(d.message)));
+  }
 });
 
 for (const name of ["variables", "custom_procedures", "control_flow"]) {
@@ -75,9 +125,7 @@ test("check matches nekoc check --json, including project diagnostics", () => {
   for (const [name, source] of Object.entries(cases)) {
     const file = path.join(outputDir, name);
     fs.writeFileSync(file, source);
-    const native = spawnSync("cargo", ["run", "--quiet", "--bin", "nekoc", "--", "check", "--json", file], {
-      cwd: root, encoding: "utf8", env: { ...process.env, CARGO_PROFILE_DEV_DEBUG: "0", CARGO_INCREMENTAL: "0" },
-    });
+    const native = cargoResult(["run", "--quiet", "--bin", "nekoc", "--", "check", "--json", file]);
     const expected = JSON.parse(native.stdout);
     const actual = check(`/${name}`, { files: { [`/${name}`]: source } });
     assert.equal(actual.ok, expected.ok, name);

@@ -1,5 +1,10 @@
 # KN 对象积木：官方证据与实现边界
 
+> 这是旧原生 KN 对象积木的**编辑器**证据，不是分享播放器证据。
+> Rust 继续保留兼容老作品的实现；TS 前端现在不生成 `_object_*`，
+> 改用数字句柄和列表堆。当前编译方案、限制和分享 bundle 证据见
+> [ts-share-objects.md](ts-share-objects.md)。
+
 本轮实现 catalog 中三个对象积木：`_object_literal`、`_object_get`、`_object_set`，及用户要求且官方确有注册的 `Object.keys`、`JSON.parse`、`JSON.stringify`。不把它们等同于完整 JavaScript 对象系统。原生 KN **0.27.4** 实测时间：2026-11-10。
 
 ## 可提交证据
