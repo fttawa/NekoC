@@ -14,6 +14,8 @@ Kitten 4 目标和 Kitten N 共用同一个 TypeScript 前端，另外加了原�
 
 ## 快速开始
 
+不想装 Rust：到 Releases 下载 Windows / Linux / macOS（x64 与 ARM64）预编译包，解压即用，编译 TS 只需要 Node.js，见 **[安装预编译版](docs/install.md)**。下面是从源码构建的用法。
+
 ### Web Studio
 
 ```powershell
