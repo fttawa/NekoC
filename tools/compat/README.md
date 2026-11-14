@@ -1,5 +1,39 @@
 # 离线 Kitten 4 oracle
 
+## Kitten N 官方分享播放器积木清单
+
+编辑器和分享播放器不是同一个运行时。不要用
+`docs/kitten-n-source-audit.json` 的编辑器/代码 API 名称全集当作发布兼容性白名单。
+`docs/compatibility/kn-share-player-blocks.json` 单独固定分享页的原生注册表、
+Heart 结构积木及必要参数元数据类型；只包含类型名和来源元数据，不包含第三方实现。
+
+```powershell
+# 离线检查，不需要 Playwright、账号或网络
+node tools/compat/kn-share-player-check.mjs dist/example.bcmkn
+
+# 联网刷新：匿名 GET 下载当前分享页及实际使用的 bundle，缓存只写忽略的 dist/
+$env:NEKOC_NODE_MODULES = 'D:/AppData/Local/Temp/opencode/nekoc-kitenn/node_modules'
+node tools/compat/kn-share-player-refresh.mjs --channel msedge
+
+# 不联网的回归测试
+node --test tests/kn-share-player.test.mjs
+```
+
+检查器输出 JSON：`unsupported[]` 按类型汇总并包含次数、所属工作区、积木 ID 和路径。
+退出码：`0` 未发现缺失，`1` 有缺失类型，`2` 输入/清单错误。
+扫描场景、角色和过程的 `nekoBlockJsonList`，包括 `inputs`、`statements`、
+`next`、JSON/XML shadows、屏蔽积木及未调用的过程；因此结果是保守的静态依赖检查，
+不是“这些积木本次一定执行失败”。变量/过程参数的 `type` 字段不当作积木。
+参数定义元数据另计 `metadataBlockCount`，不会把它们冒充可独立执行的 handler。
+
+刷新脚本对原包进行**浏览器内临时诊断插桩**，暴露 webpack loader 并记录真正的
+`RegistryImpl.register` 调用，再初始化原生播放器；不会发布作品、登录或提交 POST。
+清单记录 URL、SHA-256、取得时间及字符偏移；加载器/注册接口变动时失败，
+不得退化成匹配 bundle 全文的任意积木字符串（代码转换器里也会出现不支持的类型）。
+刷新后应人工审查清单差异；可执行 handler 的存在不证明参数、语义、资产、联网 AI、
+硬件扩展或未来 CDN 版本兼容。详细取证边界见
+[KN 分享播放器审计](../../docs/compatibility/kn-share-player.md)。
+
 JIT 覆盖与本地解释器差分可用 `cargo run --release --bin jit-corpus -- <只读语料目录> --out dist/jit3/after.json`；逐作品回退原因、typed Cell/调用栈/列表别名比较、覆盖口径、无统计 release 计时和前后报告命令见 [jit-coverage.md](../../docs/jit-coverage.md)。这不是独立官方 oracle。
 
 仅本地读取第三方 Electron 包；仓库不携带内核、内核片段或作品语料。
